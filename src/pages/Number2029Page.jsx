@@ -4,11 +4,11 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
+import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import { applySeo } from "../lib/seo.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
-
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function phraseOf(item) {
@@ -25,11 +25,11 @@ function methodLabel(group) {
 }
 
 function sourceLabel(row) {
-  return clean(row?.display_name || row?.title || row?.name || row?.label || row?.source_label) || "מקור";
+  return clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label) || "מקור";
 }
 
 function sourceDetail(row) {
-  return clean(row?.locator || row?.citation || row?.reference || row?.subtitle || row?.kind);
+  return clean(row?.locator || row?.citation || row?.reference || row?.subtitle || row?.kind || row?.type);
 }
 
 function traceStepLabel(step) {
@@ -37,15 +37,84 @@ function traceStepLabel(step) {
   return clean(step?.label || step?.word || step?.step || step?.expression || step?.description);
 }
 
-function NumberMetric({ value, label, note, onClick }) {
-  const body = <>
-    <strong>{value}</strong>
-    <span>{label}</span>
-    {note ? <small>{note}</small> : null}
-  </>;
-  return onClick
-    ? <button type="button" className="sod29-number-metric" onClick={onClick}>{body}</button>
-    : <div className="sod29-number-metric">{body}</div>;
+function anchorExpression(fact, root) {
+  const text = clean(fact);
+  if (!text || !text.includes("=")) return "";
+  return clean(text.split("=").slice(1).join("="))
+    .replace(new RegExp(`^${root}\\s*`), "")
+    .replace(/\([^)]*\)\s*$/, "")
+    .trim();
+}
+
+function expressionItems(families) {
+  const seen = new Set();
+  const rows = [];
+  for (const group of families || []) {
+    const method = methodLabel(group);
+    const key = methodKey(group);
+    for (const raw of Array.isArray(group?.phrases) ? group.phrases : []) {
+      const phrase = phraseOf(raw);
+      if (!phrase || seen.has(phrase)) continue;
+      seen.add(phrase);
+      rows.push({ phrase, method, methodKey: key });
+    }
+  }
+  return rows;
+}
+
+function firstPathTarget(topics, root, zeroScale) {
+  for (const topic of topics || []) {
+    const values = [
+      ...(Array.isArray(topic?.highlight_numbers) ? topic.highlight_numbers : []),
+      ...(Array.isArray(topic?.numbers) ? topic.numbers : []),
+    ].map(Number).filter(Number.isSafeInteger);
+    const target = values.find((value) => value !== root);
+    if (target != null) return { target, topic };
+  }
+  const scaleTarget = (zeroScale || []).map(Number).find((value) => Number.isSafeInteger(value) && value !== root);
+  return scaleTarget != null ? { target: scaleTarget, topic: null } : null;
+}
+
+const MATH_FAMILY_HE = {
+  prime: "מספר ראשוני",
+  triangular: "מספר משולשי",
+  square: "מספר ריבועי",
+  pentagonal: "מספר מחומש",
+  hexagonal: "מספר משושה",
+  heptagonal: "מספר משובע",
+  octagonal: "מספר מתומן",
+  cube: "מספר מעוקב",
+  power_of_two: "חזקה של 2",
+  perfect: "מספר מושלם",
+  abundant: "מספר שופע",
+  deficient: "מספר חסר",
+  semiprime: "חצי־ראשוני",
+  palindrome_base10: "פלינדרום עשרוני",
+  repdigit_base10_multi_digit: "ספרות חוזרות",
+  harshad_base10: "Harshad / Niven",
+  happy_base10: "מספר שמח",
+  narcissistic_base10: "Armstrong",
+  palindromic_prime_base10: "ראשוני פלינדרומי",
+};
+
+function factorizationText(profile) {
+  const factors = profile?.arithmetic?.factorization?.factors || [];
+  if (!profile?.arithmetic?.factorization?.complete) return "פירוק מוגבל — לא הושלם";
+  if (!factors.length) return profile?.input?.value < 2 ? "ללא פירוק ראשוני" : "—";
+  return factors.map((item) => item.exponent > 1 ? `${item.prime}^${item.exponent}` : String(item.prime)).join(" × ");
+}
+
+function ObservatoryNode({ item, active, onClick }) {
+  if (!item) return <div className="sod29-number-observatory-node is-empty" aria-hidden="true" />;
+  return <button
+    type="button"
+    className={`sod29-number-observatory-node${active ? " is-active" : ""}`}
+    onClick={onClick}
+  >
+    <span>{item.kicker}</span>
+    <strong>{item.title}</strong>
+    {item.note ? <small>{item.note}</small> : null}
+  </button>;
 }
 
 function NumberPageBody() {
@@ -60,8 +129,10 @@ function NumberPageBody() {
   const [activeExpression, setActiveExpression] = useState("");
   const [query, setQuery] = useState("");
   const [showAllMethods, setShowAllMethods] = useState(false);
+  const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [traceOpen, setTraceOpen] = useState(false);
+  const [observatoryFocus, setObservatoryFocus] = useState("now");
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -74,11 +145,13 @@ function NumberPageBody() {
     setActiveExpression("");
     setQuery("");
     setShowAllMethods(false);
+    setShowAllExpressions(false);
     setTraceOpen(false);
+    setObservatoryFocus("now");
     fetchEntityHubProjection({
       type: "number",
       key: String(root),
-      relationLimit: 120,
+      relationLimit: 140,
       researchLimit: 80,
       topicLimit: 24,
     })
@@ -98,28 +171,50 @@ function NumberPageBody() {
   const sources = Array.isArray(data?.sources) ? data.sources : [];
   const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
   const researchFindings = Array.isArray(data?.research?.findings) ? data.research.findings : [];
+  const timeline = Array.isArray(data?.timeline) ? data.timeline : [];
   const zeroScale = Array.isArray(data?.zeroScale?.scale_chain) ? data.zeroScale.scale_chain : [];
+  const mediaItems = Array.isArray(data?.media?.items) ? data.media.items : [];
   const surface = data?.surface || {};
+  const anchorRow = data?.anchorProfile?.row || null;
+  const anchorPhrase = anchorExpression(anchorRow?.fact, root);
+
+  const math = useMemo(() => {
+    if (!Number.isSafeInteger(root) || root < 0) return null;
+    try {
+      return runNumberMathProfile(root, {
+        provenance: { requestSource: "number-2029-preview", inputRef: `number:${root}` },
+      })?.profile || null;
+    } catch {
+      return null;
+    }
+  }, [root]);
+
+  const expressions = useMemo(() => expressionItems(families), [families]);
 
   useEffect(() => {
     if (!families.length) return;
     if (selectedMethodKey && families.some((group) => methodKey(group) === selectedMethodKey)) return;
-    const first = families[0];
+
+    const anchorFamily = anchorPhrase
+      ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
+      : null;
+    const first = anchorFamily || families[0];
+    const phrase = anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
     setSelectedMethodKey(methodKey(first));
-    const firstPhrase = phraseOf(first?.phrases?.[0]);
-    setActiveExpression(firstPhrase || String(root));
-    setQuery(firstPhrase || "");
-  }, [families, root, selectedMethodKey]);
+    setActiveExpression(phrase);
+    setQuery(phrase);
+  }, [families, root, selectedMethodKey, anchorPhrase]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || families[0] || null,
     [families, selectedMethodKey],
   );
   const selectedPhrases = useMemo(
-    () => (Array.isArray(selectedGroup?.phrases) ? selectedGroup.phrases : []).map(phraseOf).filter(Boolean).slice(0, 24),
+    () => (Array.isArray(selectedGroup?.phrases) ? selectedGroup.phrases : []).map(phraseOf).filter(Boolean).slice(0, 30),
     [selectedGroup],
   );
   const visibleMethods = showAllMethods ? families : families.slice(0, 6);
+  const visibleExpressions = showAllExpressions ? expressions : expressions.slice(0, 18);
 
   useEffect(() => {
     const key = methodKey(selectedGroup);
@@ -143,6 +238,76 @@ function NumberPageBody() {
   const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
 
+  const leadMeeting = topics[0] || null;
+  const leadExpression = expressions.find((item) => item.phrase !== activeExpression) || expressions[0] || null;
+  const leadSource = sources[0] || null;
+  const leadPath = firstPathTarget(topics, root, zeroScale);
+  const leadMedia = mediaItems[0] || null;
+
+  const observatoryItems = {
+    meeting: leadMeeting ? {
+      kicker: "מפגש",
+      title: clean(leadMeeting.title) || `מפגש סביב ${root}`,
+      note: Array.isArray(leadMeeting.numbers) ? leadMeeting.numbers.slice(0, 5).join(" · ") : null,
+    } : null,
+    expression: leadExpression ? {
+      kicker: "ביטוי",
+      title: leadExpression.phrase,
+      note: `${leadExpression.method} → ${root}`,
+    } : null,
+    source: leadSource ? {
+      kicker: "מקור",
+      title: sourceLabel(leadSource),
+      note: sourceDetail(leadSource) || "מקור מחקרי",
+    } : null,
+    path: leadPath ? {
+      kicker: "שביל",
+      title: `${root} → ${leadPath.target}`,
+      note: leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש" : "Zero Scale · נגזרת",
+    } : null,
+  };
+
+  const whySignals = useMemo(() => {
+    const signals = [];
+    if (anchorRow?.hint || anchorRow?.fact) signals.push({
+      kind: "Anchor",
+      title: "הקשר מחקרי אצור",
+      text: clean(anchorRow?.hint || anchorRow?.fact),
+    });
+    if (topics.length) signals.push({
+      kind: "מפגשים",
+      title: `${topics.length} מפגשים זמינים`,
+      text: clean(leadMeeting?.title) || "כמה שכבות מחקר נפגשות סביב המספר.",
+    });
+    if (sources.length) signals.push({
+      kind: "מקורות",
+      title: `${sources.length} מקורות בהקרנה`,
+      text: sourceLabel(leadSource),
+    });
+    if (math?.families?.length) signals.push({
+      kind: "מתמטיקה",
+      title: MATH_FAMILY_HE[math.families[0]?.key] || math.families[0]?.label || "פרופיל מתמטי",
+      text: math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · "),
+    });
+    if (leadPath) signals.push({
+      kind: "מסלול",
+      title: `יש שביל ל־${leadPath.target}`,
+      text: leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש ציבורי" : "דרך Zero Scale קנוני.",
+    });
+    if (leadMedia) signals.push({
+      kind: "מדיה",
+      title: "יש ייצוג חזותי מחובר",
+      text: clean(leadMedia.label || leadMedia.description) || "מדיה ציבורית עם relation provenance.",
+    });
+    return signals.slice(0, 5);
+  }, [anchorRow, topics, sources, math, leadPath, leadMedia, leadMeeting, leadSource]);
+
+  const nextStep = leadMeeting
+    ? { title: "פתח את המפגש בעולם", text: clean(leadMeeting.title), action: () => openWorld({ meetingSlug: leadMeeting.slug || null }) }
+    : leadPath
+      ? { title: `בדוק את השביל ל־${leadPath.target}`, text: "המשך לעוגן הבא בלי לאבד את החזרה.", action: () => navigate(`/2029/number/${leadPath.target}`) }
+      : { title: "פתח את המספר בעולם", text: "ראה את הקשרים סביב העוגן באותה Research Context.", action: () => openWorld() };
+
   const activityCount = [
     Number(surface.postsCount ?? surface.posts?.length ?? 0),
     Number(surface.galleriesCount ?? surface.galleries?.length ?? 0),
@@ -150,15 +315,6 @@ function NumberPageBody() {
     Number(surface.commentsCount ?? 0),
     Number(surface.eventsCount ?? 0),
   ].reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
-
-  const activeLayers = [
-    families.length,
-    topics.length,
-    relations.length,
-    sources.length,
-    worlds.length,
-    researchFindings.length,
-  ].filter((count) => Number(count) > 0).length;
 
   useEffect(() => {
     if (!Number.isInteger(root)) return;
@@ -183,7 +339,7 @@ function NumberPageBody() {
     }
   }, [root, activeExpression, selectedGroup, activeResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openWorld = ({ journey = false } = {}) => {
+  const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;
     const current = research.context || {};
     const subject = {
@@ -238,6 +394,7 @@ function NumberPageBody() {
         dimensions: {
           ...(current.dimensions || {}),
           numberHome: `/2029/number/${root}`,
+          ...(meetingSlug ? { meetingSlug } : {}),
         },
         returnTo,
       });
@@ -269,7 +426,59 @@ function NumberPageBody() {
     }
     setActiveExpression(raw);
     setTraceOpen(false);
+    setObservatoryFocus("expression");
   };
+
+  const chooseExpression = (item) => {
+    if (!item?.phrase) return;
+    setActiveExpression(item.phrase);
+    setQuery(item.phrase);
+    if (item.methodKey) setSelectedMethodKey(item.methodKey);
+    setTraceOpen(false);
+    setObservatoryFocus("expression");
+    document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const openFocusAction = () => {
+    if (observatoryFocus === "meeting" && leadMeeting) return openWorld({ meetingSlug: leadMeeting.slug || null });
+    if (observatoryFocus === "expression" && leadExpression) return chooseExpression(leadExpression);
+    if (observatoryFocus === "source") return document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" });
+    if (observatoryFocus === "path" && leadPath) return navigate(`/2029/number/${leadPath.target}`);
+    return null;
+  };
+
+  const focusCopy = (() => {
+    if (observatoryFocus === "meeting" && leadMeeting) return {
+      kicker: "מפגש",
+      title: clean(leadMeeting.title) || `מפגש סביב ${root}`,
+      text: clean(leadMeeting.subtitle) || "כמה שכבות נפגשות סביב אותו עוגן.",
+      action: "פתח בעולם",
+    };
+    if (observatoryFocus === "expression" && leadExpression) return {
+      kicker: "ביטוי",
+      title: leadExpression.phrase,
+      text: `${leadExpression.method} → ${root}. לחץ כדי להעביר אותו לביטוי הפעיל ולפתוח Trace.`,
+      action: "העבר לביטוי הפעיל",
+    };
+    if (observatoryFocus === "source" && leadSource) return {
+      kicker: "מקור",
+      title: sourceLabel(leadSource),
+      text: sourceDetail(leadSource) || "מקור שמופיע בהקרנה הנוכחית של המספר.",
+      action: "למקורות",
+    };
+    if (observatoryFocus === "path" && leadPath) return {
+      kicker: "שביל",
+      title: `${root} → ${leadPath.target}`,
+      text: leadPath.topic ? clean(leadPath.topic.title) || "הנתיב מגיע דרך מפגש קיים." : "Zero Scale · DERIVATION — אותו שורש בסדר גודל אחר, לא שוויון.",
+      action: `פתח ${leadPath.target}`,
+    };
+    return {
+      kicker: "LIVING NUMBER",
+      title: String(root),
+      text: clean(anchorRow?.hint || anchorRow?.fact) || "המספר פתוח כמערכת מחקר חיה: חישוב, מפגשים, מקורות ונתיבים.",
+      action: null,
+    };
+  })();
 
   if (!Number.isInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
@@ -282,7 +491,7 @@ function NumberPageBody() {
   }
 
   return <div className="sod29-number-page" data-number-root={root} data-truth-safe="true">
-    <section className="sod29-number-hero">
+    <section className="sod29-number-hero" id="number-now">
       <form className="sod29-number-resolver" onSubmit={submitQuery}>
         <input
           value={query}
@@ -294,7 +503,7 @@ function NumberPageBody() {
       </form>
 
       <div className="sod29-number-identity">
-        <div className="sod29-kicker">NUMBER / EXPRESSION · 2029 PREVIEW</div>
+        <div className="sod29-kicker">NUMBER / EXPRESSION · LIVING OBSERVATORY</div>
         <div className="sod29-number-expression">{activeExpression || root}</div>
         <div className="sod29-number-value">{root}</div>
         <div className="sod29-number-result">
@@ -304,53 +513,119 @@ function NumberPageBody() {
         </div>
       </div>
 
-      <div className="sod29-number-core" aria-label={`ליבת המספר ${root}`}>
-        <NumberMetric value={families.length} label="שיטות" note="מה־projection הקנוני" onClick={() => document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth" })} />
-        <NumberMetric value={topics.length} label="מפגשים" note="לא ציון אמת" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })} />
-        <div className="sod29-number-pulse">
-          <div className="sod29-number-pulse-ring" aria-hidden="true"><span /></div>
-          <strong>מחקר חי</strong>
-          <small>{activityCount ? `${activityCount} פעילויות` : "אין פעילות חדשה להצגה"}</small>
-          <span>{activeLayers} שכבות זמינות</span>
+      <div className="sod29-number-observatory" aria-label={`מצפה המספר ${root}`}>
+        <ObservatoryNode item={observatoryItems.meeting} active={observatoryFocus === "meeting"} onClick={() => setObservatoryFocus("meeting")} />
+        <ObservatoryNode item={observatoryItems.expression} active={observatoryFocus === "expression"} onClick={() => setObservatoryFocus("expression")} />
+        <div className={`sod29-number-observatory-center is-${observatoryFocus}`}>
+          <button className="sod29-number-observatory-reset" type="button" onClick={() => setObservatoryFocus("now")} aria-label="חזור למבט החי">
+            <span className="sod29-number-observatory-pulse" aria-hidden="true"><i /></span>
+          </button>
+          <span className="sod29-kicker">{focusCopy.kicker}</span>
+          <strong>{focusCopy.title}</strong>
+          <p>{focusCopy.text}</p>
+          <div className="sod29-number-observatory-context">
+            <span>{families.length} שיטות</span>
+            <span>{topics.length} מפגשים</span>
+            <span>{sources.length} מקורות</span>
+            {activityCount ? <span>{activityCount} פעילויות</span> : null}
+          </div>
+          {focusCopy.action ? <button className="sod29-action" type="button" onClick={openFocusAction}>{focusCopy.action}</button> : null}
         </div>
-        <NumberMetric value={relations.length} label="נתיבים" note={zeroScale.length ? `כולל Zero Scale × ${zeroScale.length}` : "קשרים עם provenance"} onClick={() => document.getElementById("number-paths")?.scrollIntoView({ behavior: "smooth" })} />
-        <NumberMetric value={sources.length} label="מקורות" note="מקור לפני פרשנות" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })} />
+        <ObservatoryNode item={observatoryItems.source} active={observatoryFocus === "source"} onClick={() => setObservatoryFocus("source")} />
+        <ObservatoryNode item={observatoryItems.path} active={observatoryFocus === "path"} onClick={() => setObservatoryFocus("path")} />
       </div>
+
+      {leadMedia ? <figure className="sod29-number-hero-media">
+        <img src={leadMedia.thumbUrl || leadMedia.imageUrl} alt={leadMedia.label || `ייצוג חזותי של ${root}`} loading="lazy" />
+        <figcaption><span>ייצוג חזותי מחובר</span><strong>{leadMedia.label || "מדיה"}</strong><small>{leadMedia.projectionReason || leadMedia.relationType || "Reality Graph"}</small></figcaption>
+      </figure> : null}
 
       <div className="sod29-number-actions">
         <button className="sod29-action primary" type="button" onClick={() => openWorld()}>פתח בעולם</button>
-        {root === 878 ? <button className="sod29-action" type="button" onClick={() => openWorld({ journey: true })}>צא למסע 878</button> : null}
+        {root === 878 ? <button className="sod29-action" type="button" onClick={() => openWorld({ journey: true })}>צא למסע 878</button> : leadPath ? <button className="sod29-action" type="button" onClick={() => setObservatoryFocus("path")}>ראה שבילים</button> : null}
         <button className="sod29-action" type="button" onClick={askRaziel}>✦ שאל את רזיאל</button>
       </div>
+
+      <div className="sod29-number-jumpbar" aria-label="ניווט בדף המספר">
+        <button type="button" onClick={() => document.getElementById("number-why-now")?.scrollIntoView({ behavior: "smooth" })}>למה עכשיו</button>
+        <button type="button" onClick={() => document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth" })}>שיטות</button>
+        <button type="button" onClick={() => document.getElementById("number-expressions")?.scrollIntoView({ behavior: "smooth" })}>ביטויים</button>
+        <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>מפגשים</button>
+        <button type="button" onClick={() => document.getElementById("number-paths")?.scrollIntoView({ behavior: "smooth" })}>מסע</button>
+        <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>מקורות</button>
+      </div>
+    </section>
+
+    <section className="sod29-section sod29-number-section sod29-number-why-now" id="number-why-now">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">NUMBER INTELLIGENCE · DETERMINISTIC FIRST</div>
+          <h2>למה {root} מעניין עכשיו?</h2>
+          <p className="sod29-muted">המערכת אינה ממציאה “משמעות”. היא מסכמת אותות שכבר קיימים ומפרידה בין חישוב, הקשר אצור, מקור, מפגש ומסלול. סדר ההצגה הוא contextual projection — לא ציון אמת.</p>
+        </div>
+      </div>
+      <div className="sod29-number-signal-grid">
+        {whySignals.map((signal, index) => <article className="sod29-number-signal" key={`${signal.kind}:${index}`}>
+          <span>{signal.kind}</span>
+          <strong>{signal.title}</strong>
+          <p>{signal.text}</p>
+        </article>)}
+      </div>
+      <article className="sod29-number-next-step">
+        <div><span className="sod29-kicker">NEXT RESEARCH STEP</span><strong>{nextStep.title}</strong><p>{nextStep.text}</p></div>
+        <button className="sod29-action primary" type="button" onClick={nextStep.action}>המשך מכאן ←</button>
+      </article>
+    </section>
+
+    <section className="sod29-section sod29-number-section" id="number-math">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">MATH PASSPORT · CANONICAL CAPABILITY</div>
+          <h2>הדרכון המתמטי של {root}</h2>
+          <p className="sod29-muted">פרופיל דטרמיניסטי שכבר קיים במערכת. הוא אינו פרשנות ואינו משודרג אוטומטית ל־Fact/Canonical.</p>
+        </div>
+        <span className="sod29-chip">{math?.arithmetic?.classification || "—"}</span>
+      </div>
+      {math ? <div className="sod29-number-math-grid">
+        <article><span>פירוק</span><strong>{factorizationText(math)}</strong><small>{math.coverage?.factorization_complete ? "הושלם" : "bounded"}</small></article>
+        <article><span>φ(n)</span><strong>{math.arithmetic?.totient ?? "—"}</strong><small>Euler totient</small></article>
+        <article><span>שורש ספרות</span><strong>{math.digit_structure?.digital_root ?? "—"}</strong><small>סכום ספרות {math.digit_structure?.digit_sum ?? "—"}</small></article>
+        <article><span>משפחות</span><strong>{math.families.length}</strong><small>{math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · ") || "ללא משפחה מיוחדת"}</small></article>
+      </div> : <div className="sod29-number-inline-state">הדרכון המתמטי אינו זמין לערך הזה.</div>}
+      {math?.families?.length ? <div className="sod29-number-family-rail">{math.families.map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}</div> : null}
     </section>
 
     <section className="sod29-section sod29-number-section" id="number-methods">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">SMART CORE · METHODS</div>
-          <h2>שיטות ליבה</h2>
-          <p className="sod29-muted">ה־Root והביטוי נשארים. בחירת שיטה משנה את התוצאה הפעילה בלבד. סדר השיטות מגיע מה־projection הקיים — אין כאן רשימת עדיפות חדשה בקוד.</p>
+          <div className="sod29-kicker">METHOD LENS</div>
+          <h2>שיטות שחיות על {root}</h2>
+          <p className="sod29-muted">כל כרטיס מראה שיטה, כמה ביטויים מגיעים דרכה ל־{root}, ודוגמה אמיתית. בחירה בשיטה אינה משנה את ה־Root — רק את עדשת החישוב הפעילה.</p>
         </div>
         {families.length > 6 ? <button className="sod29-action" type="button" onClick={() => setShowAllMethods((v) => !v)}>{showAllMethods ? "פחות שיטות" : `כל ${families.length} השיטות`}</button> : null}
       </div>
 
-      <div className="sod29-number-method-rail" role="list">
+      <div className="sod29-number-method-grid" role="list">
         {visibleMethods.map((group) => {
           const key = methodKey(group);
           const active = key === methodKey(selectedGroup);
+          const sample = phraseOf(group?.phrases?.[0]);
           return <button
             type="button"
             role="listitem"
             key={key || methodLabel(group)}
-            className={`sod29-number-method${active ? " is-active" : ""}`}
+            className={`sod29-number-method-card${active ? " is-active" : ""}`}
             aria-pressed={active}
             onClick={() => {
               setSelectedMethodKey(key);
               setTraceOpen(false);
+              setObservatoryFocus("now");
             }}
           >
-            <strong>{methodLabel(group)}</strong>
+            <span>{methodLabel(group)}</span>
+            <strong>→ {root}</strong>
             <small>{Number(group?.count ?? group?.phrases?.length ?? 0)} ביטויים</small>
+            {sample ? <p>{sample}</p> : null}
           </button>;
         })}
       </div>
@@ -364,13 +639,14 @@ function NumberPageBody() {
             setActiveExpression(phrase);
             setQuery(phrase);
             setTraceOpen(false);
+            setObservatoryFocus("expression");
           }}
         >{phrase}</button>)}
       </div> : null}
 
       <div className="sod29-number-trace-card">
         <div>
-          <span className="sod29-kicker">DEEP METHOD</span>
+          <span className="sod29-kicker">ACTIVE CALCULATION</span>
           <h3>{activeExpression || root} · {methodLabel(selectedGroup)}{activeResult != null ? ` = ${activeResult}` : ""}</h3>
           <p>החישוב מגיע מ־Method Trace. רזיאל יכול לפרש אותו, אבל אינו מחשב את הגימטריה מחדש.</p>
         </div>
@@ -382,9 +658,25 @@ function NumberPageBody() {
       </div> : null}
     </section>
 
+    <section className="sod29-section sod29-number-section" id="number-expressions">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">LIVE EXPRESSIONS</div>
+          <h2>ביטויים שחיים על {root}</h2>
+          <p className="sod29-muted">לא רשימת טקסט מתה: כל ביטוי זוכר באיזו שיטה הוא מגיע אל המספר ויכול להפוך מיד לביטוי הפעיל.</p>
+        </div>
+        <button className="sod29-action" type="button" onClick={() => setShowAllExpressions((v) => !v)}>{showAllExpressions ? "הצג פחות" : `הצג את כל ${expressions.length}`}</button>
+      </div>
+      {visibleExpressions.length ? <div className="sod29-number-live-expressions">
+        {visibleExpressions.map((item) => <button type="button" key={item.phrase} onClick={() => chooseExpression(item)}>
+          <strong>{item.phrase}</strong><span>{item.method}</span><small>→ {root}</small>
+        </button>)}
+      </div> : <div className="sod29-number-inline-state">אין כרגע ביטויים להצגה.</div>}
+    </section>
+
     {worlds.length ? <section className="sod29-section sod29-number-section" id="number-meaning">
       <div className="sod29-section-head"><div><div className="sod29-kicker">MEANING / CONCEPT</div><h2>עולמות ומושגים</h2><p className="sod29-muted">אלה שכבות מחקר קיימות סביב המספר. הן אינן מחליפות את החישוב ואינן מוצגות כמשמעות מיסטית שנוצרה אוטומטית.</p></div></div>
-      <div className="sod29-number-card-grid">{worlds.slice(0, 6).map((item, index) => <article className="sod29-number-card" key={item?.id || item?.key || index}><strong>{clean(item?.title || item?.label || item?.name) || "עולם מחקר"}</strong><small>{clean(item?.description || item?.summary || item?.kind) || "שכבת מחקר קיימת"}</small></article>)}</div>
+      <div className="sod29-number-card-grid">{worlds.slice(0, 8).map((item, index) => <article className="sod29-number-card" key={item?.world || item?.id || index}><span className="sod29-kicker">{item?.count ? `${item.count} פריטים` : "עולם מחקר"}</span><strong>{clean(item?.world || item?.title || item?.label || item?.name) || "עולם מחקר"}</strong><small>{clean(item?.description || item?.summary || item?.kind) || "שכבת מחקר קיימת"}</small></article>)}</div>
     </section> : null}
 
     <section className="sod29-section sod29-number-section" id="number-meetings">
@@ -392,43 +684,58 @@ function NumberPageBody() {
         <div>
           <div className="sod29-kicker">MEETINGS</div>
           <h2>מפגשים סביב {root}</h2>
-          <p className="sod29-muted">מפגש = כמה שכבות שנפגשות סביב אותו עוגן. כאן לא מניחים שהפריט הראשון הוא “האמת החזקה ביותר”; מציגים את המפגשים שה־projection מחזיר ומעמיקים בעולם.</p>
+          <p className="sod29-muted">מפגש הוא מקום שבו כמה שכבות נפגשות סביב אותו עוגן. Meter/quality יכולים לסייע להקרנה, אבל אינם הסתברות אמת.</p>
         </div>
         <span className="sod29-chip">{topics.length}</span>
       </div>
       {topics.length ? <div className="sod29-number-card-grid">
-        {topics.slice(0, 6).map((topic) => <article className="sod29-number-card sod29-number-meeting" key={topic.id || topic.slug}>
+        {topics.slice(0, 8).map((topic) => <article className="sod29-number-card sod29-number-meeting" key={topic.id || topic.slug}>
           <span className="sod29-kicker">מפגש</span>
           <strong>{clean(topic.title) || `מפגש סביב ${root}`}</strong>
           <small>{clean(topic.subtitle) || (Array.isArray(topic.numbers) ? topic.numbers.slice(0, 6).join(" · ") : "מחקר קשור")}</small>
-          <button className="sod29-action" type="button" onClick={() => {
-            research.setResearchContext?.({
-              subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
-              selection: { entityId: String(root), entityType: "number", expression: activeExpression || null, method: methodKey(selectedGroup) || null },
-              lens: "world",
-              dimensions: { ...(research.context?.dimensions || {}), meetingSlug: topic.slug || null },
-              returnTo: { href: `/2029/number/${root}`, label: `דף ${root}` },
-            });
-            navigate("/world");
-          }}>פתח בעולם</button>
+          <div className="sod29-number-card-meta">
+            {Array.isArray(topic.numbers) ? <span>{topic.numbers.length} מספרים</span> : null}
+            {topic.meter_score != null ? <span>בולטות מחקרית {topic.meter_score}</span> : null}
+          </div>
+          <button className="sod29-action" type="button" onClick={() => openWorld({ meetingSlug: topic.slug || null })}>פתח בעולם</button>
         </article>)}
       </div> : <div className="sod29-number-inline-state">אין כרגע מפגש ציבורי זמין לעוגן הזה.</div>}
     </section>
 
     <section className="sod29-section sod29-number-section" id="number-paths">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS</div><h2>נתיבים מכאן</h2><p className="sod29-muted">מספר קשור אינו “דומה” אוטומטית. המעבר צריך לשאת relation / derivation / research provenance. בדוגמה הזאת Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS · JOURNEY</div><h2>לאן אפשר ללכת מכאן?</h2><p className="sod29-muted">הנתיבים הם תנועה בתוך אותה מציאות מחקרית. כל מעבר צריך לשאת סיבה: מפגש, relation, derivation או מקור. Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
       <div className="sod29-number-path-summary">
         <div><strong>{relations.length}</strong><span>קשרי גרף זמינים</span></div>
         <div><strong>{zeroScale.length}</strong><span>תחנות Zero Scale</span></div>
-        <div><strong>{researchFindings.length}</strong><span>ממצאי מחקר</span></div>
+        <div><strong>{researchFindings.length}</strong><span>ממצאים בהקרנה</span></div>
       </div>
-      {zeroScale.length ? <div className="sod29-number-zero-rail">{zeroScale.slice(0, 8).map((n) => <button key={n} type="button" onClick={() => navigate(`/2029/number/${Number(n)}`)}><strong>{n}</strong><small>Zero Scale · נגזרת</small></button>)}</div> : null}
+      <div className="sod29-number-path-actions">
+        {leadPath ? <button className="sod29-number-feature-path" type="button" onClick={() => navigate(`/2029/number/${leadPath.target}`)}>
+          <span>שביל מוצע</span><strong>{root} → {leadPath.target}</strong><small>{leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש" : "Zero Scale · נגזרת"}</small>
+        </button> : null}
+        {root === 878 ? <button className="sod29-number-feature-path is-golden" type="button" onClick={() => openWorld({ journey: true })}>
+          <span>Golden Journey</span><strong>מסע 878</strong><small>פתח את המסילה שכבר חיה בעולם</small>
+        </button> : <button className="sod29-number-feature-path" type="button" onClick={() => openWorld()}>
+          <span>World</span><strong>פתח את {root} בעולם</strong><small>המשך עם אותו Research Context</small>
+        </button>}
+      </div>
+      {zeroScale.length ? <div className="sod29-number-zero-rail">{zeroScale.slice(0, 10).map((n) => <button key={n} type="button" onClick={() => navigate(`/2029/number/${Number(n)}`)}><strong>{n}</strong><small>{Number(n) === root ? "עוגן" : "Zero Scale · נגזרת"}</small></button>)}</div> : null}
     </section>
 
     <section className="sod29-section sod29-number-section" id="number-sources">
       <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCES</div><h2>מקורות</h2><p className="sod29-muted">המקור קודם לפרשנות. technical refs נשארים בפרובננס ולא הופכים לכותרת האנושית של הכרטיס.</p></div><span className="sod29-chip">{sources.length}</span></div>
-      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 8).map((source, index) => <div className="sod29-number-source-row" key={source?.id || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
+      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 12).map((source, index) => <div className="sod29-number-source-row" key={source?.id || source?.ref || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
     </section>
+
+    {mediaItems.length ? <section className="sod29-section sod29-number-section" id="number-media">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">MEDIA / REPRESENTATION</div><h2>ייצוגים חזותיים</h2><p className="sod29-muted">מדיה היא Representation עם provenance ו־placement; היא אינה ראיה עצמאית רק מפני שהשתמשו באותה תמונה בכמה מקומות.</p></div><span className="sod29-chip">{mediaItems.length}</span></div>
+      <div className="sod29-number-media-grid">{mediaItems.slice(0, 6).map((item) => <figure key={item.galleryImageId || item.nodeId}><img src={item.thumbUrl || item.imageUrl} alt={item.label || "ייצוג חזותי"} loading="lazy" /><figcaption><strong>{item.label || "מדיה"}</strong><small>{item.relationType || "related"} · {item.imageType || "image"}</small></figcaption></figure>)}</div>
+    </section> : null}
+
+    {timeline.length ? <section className="sod29-section sod29-number-section" id="number-living-research">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">LIVING RESEARCH</div><h2>ציר המחקר</h2><p className="sod29-muted">זמן מחקר/יצירה אינו זמן האירוע ואינו הופך טענה לאמת. כאן רואים רק את רצף החומר שה־projection הנוכחי יכול להציג.</p></div></div>
+      <div className="sod29-number-timeline">{timeline.slice(-8).reverse().map((item, index) => <div key={item.id || index}><time>{item.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><strong>{clean(item.label) || item.kind || "פריט מחקר"}</strong><small>{clean(item.kind) || "research"}{item.status ? ` · ${item.status}` : ""}</small></div>)}</div>
+    </section> : null}
   </div>;
 }
 
@@ -438,7 +745,7 @@ export default function Number2029Page() {
   useEffect(() => {
     applySeo({
       title: `${value || "מספר"} · Number 2029 Preview`,
-      description: "דוגמת Number / Expression native של SOD1820 2029",
+      description: "דוגמת Living Number Observatory — Number / Expression native של SOD1820 2029",
       path: `/2029/number/${value || ""}`,
       noindex: true,
     });
@@ -447,10 +754,10 @@ export default function Number2029Page() {
   return <Sod2029Shell
     surface="number"
     symbol="123"
-    eyebrow="NUMBER · EXPRESSION · RESEARCH CONTEXT"
+    eyebrow="NUMBER · EXPRESSION · LIVING OBSERVATORY"
     title="דף המספר"
-    description="בית המספר ב־2029: חישוב קנוני, ביטוי פעיל, מפגשים, נתיבים, מקורות והמשך ישיר לעולם ולמסע — בלי Legacy authority."
-    status="PREVIEW · BRANCH ONLY"
+    description="בית המספר ב־2029: רואים קודם מה חי סביבו, מבינים איך הוא מחושב, ואז נעים למפגשים, מקורות, נתיבים ומסע — באותו Research Context."
+    status="V2 PREVIEW · BRANCH ONLY"
   >
     <NumberPageBody />
   </Sod2029Shell>;
