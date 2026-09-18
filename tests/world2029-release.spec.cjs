@@ -128,7 +128,10 @@ test('Golden Journey 878 starts in World and keeps its rail across a path transi
   await firstPath.click();
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText(String(target), { timeout: 30_000 });
   await expect(page.locator('.sod29-world-journey-rail')).toBeVisible();
-  expect(await page.locator('.sod29-world-journey-track-stop').count()).toBeGreaterThanOrEqual(2);
+  await expect.poll(
+    async () => page.locator('.sod29-world-journey-track-stop').count(),
+    { timeout: 10_000, message: 'journey context should expose root + traversed stop' }
+  ).toBeGreaterThanOrEqual(2);
   await expect(page.locator('.sod29-world-journey-track-stop.is-current strong')).toHaveText(String(target));
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-golden-journey-878-390.png', fullPage: true });
