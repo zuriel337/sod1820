@@ -473,6 +473,40 @@ function NumberPageBody() {
     navigate("/world");
   };
 
+  const openHeichal = (focus = {}) => {
+    if (!Number.isInteger(root)) return;
+    const current = research.context || {};
+    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
+    const selection = {
+      entityId: String(root),
+      entityType: "number",
+      expression: activeExpression || null,
+      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
+      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+    };
+    research.setResearchContext?.({
+      subject,
+      selection,
+      lens: "heichal",
+      locale: current.locale || "he",
+      dimensions: {
+        ...(current.dimensions || {}),
+        numberHome: `/2029/number/${root}`,
+        methodSpatialExplain: focus && typeof focus === "object" ? focus : {},
+      },
+      returnTo: {
+        href: `/2029/number/${root}`,
+        label: `דף ${root}`,
+        subject,
+        selection,
+        lens: "number",
+        dimensions: current.dimensions || {},
+        journey: current.journey || null,
+      },
+    });
+    navigate("/heichal");
+  };
+
   const askRaziel = (intent = "number_context", focus = {}) => {
     const numberCoreFocus = {
       root,
@@ -597,12 +631,14 @@ function NumberPageBody() {
         traceState={traceState}
         traceOpen={traceOpen}
         traceSteps={traceSteps}
+        traceDetail={trace}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
         onOpenWorld={() => openWorld()}
+        onOpenHeichal={openHeichal}
         onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
         journeyLabel={root === 878 ? "צא למסע 878" : null}
         onRazielAction={askRaziel}
