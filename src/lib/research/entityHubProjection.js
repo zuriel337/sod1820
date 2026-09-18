@@ -714,6 +714,10 @@ export async function fetchEntityHubProjection({
         rpc: (name, args) => supabase.rpc(name, args),
         fetchResearchObjects: async () => ({ data: research.rows }),
         researchObjectLimit: researchLimit,
+        // World deep view must be able to show the complete canonical reverse-lookup source
+        // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
+        // this at 500 rows; World does not implement a parallel lookup or ordering rule.
+        lookupWindow: { limit: 500 },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
