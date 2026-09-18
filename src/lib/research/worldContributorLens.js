@@ -136,6 +136,132 @@ export function buildWorldContributorLens({
   };
 }
 
+
+export function buildWorldLandingContributorProjection({
+  contributors = [],
+  publicContributions = [],
+  authorConvergences = [],
+} = {}) {
+  const allowed = new Set(WORLD_APPROVED_CONTRIBUTOR_SLUGS);
+  const approved = (contributors || [])
+    .filter((row) => allowed.has(clean(row?.slug)))
+    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
+
+  const contributorById = new Map(approved.map((row) => [String(row.id), row]));
+  const aliasToSlug = new Map();
+  for (const row of approved) {
+    for (const alias of contributorAliases(row)) aliasToSlug.set(alias, row.slug);
+  }
+
+  const meetingsBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
+  const seen = new Set();
+
+  for (const row of publicContributions || []) {
+    const contributor = contributorById.get(String(row?.author_contributor_id || ""));
+    const slug = clean(row?.convergence_slug);
+    if (!contributor || !slug) continue;
+    const value = numericValue(row?.gematria_claim?.value ?? row?.target_id);
+    const key = `topic:${slug}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    meetingsBySlug[contributor.slug].push({
+      id: key,
+      kind: "topic",
+      slug,
+      value,
+      title: clean(row?.title) || clean(row?.gematria_claim?.claim) || (value != null ? `מפגש סביב ${value}` : "מפגש"),
+      summary: clean(row?.gematria_claim?.claim) || null,
+      method: clean(row?.gematria_claim?.method) || null,
+      authorSlug: contributor.slug,
+      authorName: contributor.display_name,
+      source: "research_contributions:approved",
+    });
+  }
+
+  for (const item of authorConvergences || []) {
+    const author = clean(item?.author);
+    const slug = aliasToSlug.get(author) || null;
+    if (!slug) continue;
+    const value = numericValue(item?.value);
+    const key = `convergence:${slug}:${clean(item?.id) || `${value ?? "na"}:${clean(item?.method)}`}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const authorPhrases = Array.isArray(item?.author_phrases) ? item.author_phrases.map(clean).filter(Boolean) : [];
+    meetingsBySlug[slug].push({
+      id: key,
+      kind: "convergence",
+      slug: null,
+      value,
+      title: value != null ? `מפגש ${value}` : "מפגש",
+      summary: authorPhrases.slice(0, 4).join(" · ") || clean(item?.note) || null,
+      method: clean(item?.method) || null,
+      groupSize: Number(item?.group_size) || authorPhrases.length || null,
+      authorSlug: slug,
+      authorName: approved.find((row) => row.slug === slug)?.display_name || author,
+      source: "convergences_for_author",
+    });
+  }
+
+  const people = approved.map((row) => ({
+    id: String(row.id),
+    slug: row.slug,
+    displayName: row.display_name,
+    role: row.role || null,
+    kind: row.kind || null,
+    aliases: contributorAliases(row),
+    meetingCount: meetingsBySlug[row.slug]?.length || 0,
+  }));
+
+  return {
+    people,
+    meetings: people.flatMap((person) => meetingsBySlug[person.slug] || []),
+    bySlug: Object.fromEntries(people.map((person) => [person.slug, {
+      ...person,
+      meetings: meetingsBySlug[person.slug] || [],
+    }])),
+    note: "Public World landing shows only Human-Gate-approved contributor identities and source-attributed public meeting projections. Unknown authorship is never guessed.",
+  };
+}
+
+export async function fetchWorldLandingContributorProjection() {
+  const { supabase } = await import("../supabase.js");
+
+  const { data: contributors, error: contributorError } = await supabase
+    .from("contributors")
+    .select("id,slug,display_name,kind,role,wa_names")
+    .in("slug", WORLD_APPROVED_CONTRIBUTOR_SLUGS);
+  if (contributorError) throw contributorError;
+
+  const ids = (contributors || []).map((row) => row.id).filter(Boolean);
+  let publicContributions = [];
+  if (ids.length) {
+    const { data, error } = await supabase
+      .from("research_contributions")
+      .select("id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at")
+      .in("author_contributor_id", ids)
+      .eq("status", "approved")
+      .not("convergence_slug", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    publicContributions = Array.isArray(data) ? data : [];
+  }
+
+  const aliases = (contributors || []).flatMap(contributorAliases);
+  let authorConvergences = [];
+  if (aliases.length) {
+    const { data, error } = await supabase.rpc("convergences_for_author", { p_names: aliases });
+    if (error) throw error;
+    authorConvergences = Array.isArray(data) ? data : [];
+  }
+
+  return buildWorldLandingContributorProjection({
+    contributors,
+    publicContributions,
+    authorConvergences,
+  });
+}
+
 export async function fetchWorldContributorLens({
   anchorType,
   anchorLabel,
