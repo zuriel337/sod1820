@@ -250,6 +250,7 @@ export default function NumberCore2029({
   projection,
   stageProjection = null,
   stageLoading = false,
+  methodsLoading = false,
   languageBridges = [],
   regularExpressions = [],
   mode = "page",
@@ -424,8 +425,9 @@ export default function NumberCore2029({
 
     <section className="sod29-number-v10-method-switcher" aria-label="שש שיטות ראשיות">
       <div className="sod29-number-v10-method-head">
-        <div><span>שש שיטות ראשיות</span><strong>נגיעה מחליפה את כל המחקר שמתחת</strong></div>
-        {methods.length > primaryMethods.length ? <small>+{methods.length - primaryMethods.length} שיטות נוספות בבית המדרש</small> : null}
+        <div><span>שש שיטות ראשיות</span><strong>{methodsLoading ? "מחשב את שש השיטות של הביטוי החדש…" : "נגיעה מחליפה את כל המחקר שמתחת"}</strong></div>
+        {methodsLoading ? <small className="is-loading">מתעדכן…</small>
+          : methods.length > primaryMethods.length ? <small>+{methods.length - primaryMethods.length} שיטות נוספות בבית המדרש</small> : null}
       </div>
       <div className="sod29-number-v10-method-grid">
         {primaryMethods.map((method) => {
@@ -435,6 +437,7 @@ export default function NumberCore2029({
             key={method.methodKey}
             className={`sod29-number-v10-method-card sod29-number-v7-method-main${selected ? " is-active" : ""}`}
             aria-pressed={selected}
+            disabled={methodsLoading}
             onClick={() => selectMethod(method)}
           >
             <span>{publicMethodLabel(method)}</span>
