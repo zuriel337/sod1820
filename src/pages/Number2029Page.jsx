@@ -31,6 +31,14 @@ function methodLabel(group) {
   return clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key) || "שיטה";
 }
 
+function normalizedMethodName(value) {
+  return clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
+}
+
+function isRegularMethodIdentity(value) {
+  return normalizedMethodName(value) === "רגיל";
+}
+
 function technicalSourceText(value) {
   const text = clean(value);
   return /^(chat:|channel_updates:|wa_bot_log:|work_log:|gallery_images:|research-cue:|book:|https?:\/\/)/i.test(text);
@@ -252,6 +260,38 @@ function NumberPageBody() {
     () => methodProfileEntry(methodProfileState.rows, selectedMethodKey),
     [methodProfileState.rows, selectedMethodKey],
   );
+
+  const regularMethodProfile = useMemo(
+    () => methodProfileState.rows.find((row) => (
+      isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
+    )) || null,
+    [methodProfileState.rows],
+  );
+  const regularGroup = useMemo(
+    () => families.find((group) => (
+      isRegularMethodIdentity(methodKey(group)) || isRegularMethodIdentity(methodLabel(group))
+    )) || null,
+    [families],
+  );
+  const regularExpressions = useMemo(() => {
+    const seen = new Set();
+    const rows = [];
+    const add = (phrase, source = "family") => {
+      const text = clean(phrase);
+      if (!text || seen.has(text)) return;
+      seen.add(text);
+      rows.push({ phrase: text, value: root, source });
+    };
+    if (
+      activeExpression
+      && regularMethodProfile
+      && Number(regularMethodProfile.computedValue) === root
+    ) add(activeExpression, "active");
+    for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) {
+      add(phraseOf(raw), "family");
+    }
+    return rows.slice(0, 36);
+  }, [activeExpression, regularMethodProfile, regularGroup, root]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
@@ -776,6 +816,12 @@ function NumberPageBody() {
         stageProjection={stageProjection}
         stageLoading={methodResultState.loading}
         languageBridges={languageBridgeState.rows}
+        regularExpressions={regularExpressions}
+        onExpressionSelect={(phrase) => {
+          setActiveExpression(phrase);
+          if (regularMethodProfile?.methodKey) setSelectedMethodKey(regularMethodProfile.methodKey);
+          setTraceOpen(false);
+        }}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
