@@ -2413,3 +2413,20 @@
   }
   .sod29-number-v11-regular-track button strong{font-size:8.5px}
 }
+
+
+/* V12 instant method switching */
+.sod29-number-v10-loading.is-inline{
+  min-height:0;
+  justify-content:flex-start;
+  padding:5px 8px;
+  border:1px dashed color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-accent) 4%,transparent);
+  font-size:7.5px;
+}
+.sod29-number-v10-loading.is-inline i{
+  width:9px;
+  height:9px;
+  border-width:1.5px;
+}
