@@ -176,7 +176,9 @@ Rules:
 - no reusable admin secret;
 - no second Upload System, Storage owner, media store or agent-specific upload path.
 
-Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · BROADER FILE/PRIVATE/LARGE-MEDIA ADAPTERS STILL IN G3**.
+Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · ONE-TREE MEDIA/PRIVATE INTAKE RELEASED VIA PR #499 · WORLD 2029 MEDIA PROJECTION RELEASED VIA PR #511 · PERFORMANCE/DELIVERY STANDARDIZATION STILL IN G3**.
+
+Media performance/delivery navigation: `docs/2029-media-performance-delivery-map-v1.md` — preserve `resize=contain`, static derivatives first, poster-only-before-video-intent, bounded representation classes, observable egress and no page-view derivative generation.
 
 ### 3. Core runtime seams / safety before broad Goldens
 
