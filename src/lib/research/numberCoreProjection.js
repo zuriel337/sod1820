@@ -225,14 +225,83 @@ export function buildNumberCoreProjection({
   methodProfile = [],
   families = [],
   topics = [],
+  relations = [],
   sources = [],
   worlds = [],
+  findings = [],
+  timeline = [],
+  media = [],
+  surface = {},
   zeroScale = null,
   activityCount = 0,
+  journeyAvailable = false,
+  heroMedia = null,
 } = {}) {
   const selected = methodProfileEntry(methodProfile, selectedMethodKey);
   const crossing = deriveLeadingCrossing({ families, expression, root, methodProfile });
   const zero = deriveZeroScale({ zeroScale, root });
+
+  const numberCount = (value) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+  const surfaceCount = (key, fallbackKey) => numberCount(surface?.[key] ?? surface?.[fallbackKey]?.length ?? 0);
+  const layerCounts = [
+    { key: "methods", label: "שיטות חישוב", icon: "▦", count: methodProfile.length },
+    { key: "crossings", label: "הצלבות בלתי תלויות", icon: "∞", count: crossing ? 1 : 0 },
+    { key: "meetings", label: "מפגשים מחקריים", icon: "⌘", count: topics.length },
+    { key: "relations", label: "מספרים קשורים", icon: "↔", count: relations.length },
+    { key: "worlds", label: "עולמות מחקר", icon: "◉", count: worlds.length },
+    { key: "sources", label: "מקורות / ספרים", icon: "▤", count: sources.length },
+    { key: "findings", label: "ממצאים", icon: "✦", count: findings.length },
+    { key: "els", label: "ELS / צופן", icon: "⌁", count: surfaceCount("elsCount", "els") },
+    { key: "time", label: "זמן / מציאות", icon: "◷", count: timeline.length + surfaceCount("eventsCount", "events") },
+    { key: "media", label: "מדיה / פוסטים", icon: "▣", count: media.length + surfaceCount("postsCount", "posts") + surfaceCount("galleriesCount", "galleries") },
+    { key: "community", label: "קהילה / תורמים", icon: "◎", count: surfaceCount("commentsCount", "comments") },
+    { key: "journey", label: "מסע", icon: "◇", count: journeyAvailable ? 1 : 0 },
+  ].map((item) => Object.freeze(item));
+  const presentLayers = layerCounts.filter((item) => item.count > 0).length;
+  const coverage = Object.freeze({
+    present: presentLayers,
+    total: layerCounts.length,
+    percent: layerCounts.length ? Math.round((presentLayers / layerCounts.length) * 100) : 0,
+    label: "כיסוי שכבות",
+    note: "מהשכבות הזמינות מכילות חומר",
+  });
+
+  const connectionCards = [];
+  const seenConnections = new Set();
+  const addConnection = (label, note, methodKeyValue = null, kind = "relation") => {
+    const text = clean(label);
+    if (!text || seenConnections.has(text) || connectionCards.length >= 8) return;
+    seenConnections.add(text);
+    connectionCards.push(Object.freeze({
+      label: text,
+      note: clean(note) || "קשר מחקרי",
+      methodKey: clean(methodKeyValue) || null,
+      kind,
+    }));
+  };
+  if (crossing?.partner) {
+    addConnection(
+      crossing.partner,
+      `הצלבה · ${crossing.methods.map((item) => item.methodLabel).join(" + ")}`,
+      crossing.methods?.[1]?.methodKey || null,
+      "crossing",
+    );
+  }
+  for (const group of families || []) {
+    const key = methodKey(group);
+    const label = methodLabel(group);
+    for (const item of Array.isArray(group?.phrases) ? group.phrases : []) {
+      const phrase = phraseOf(item);
+      if (!phrase || phrase === clean(expression)) continue;
+      addConnection(phrase, label, key, "expression");
+      if (connectionCards.length >= 8) break;
+    }
+    if (connectionCards.length >= 8) break;
+  }
+
+  const mediaSrc = clean(heroMedia?.thumbUrl || heroMedia?.imageUrl || heroMedia?.url);
+  const mediaLabel = clean(heroMedia?.label || heroMedia?.description) || `ייצוג חזותי של ${root}`;
+
   return Object.freeze({
     root: Number(root),
     expression: clean(expression) || String(root ?? ""),
@@ -252,6 +321,10 @@ export function buildNumberCoreProjection({
       count: Number.isFinite(Number(group?.count)) ? Number(group.count) : (Array.isArray(group?.items) ? group.items.length : 0),
       samples: Object.freeze((Array.isArray(group?.items) ? group.items : []).slice(0, 4).map((item) => clean(item?.label || item?.name)).filter(Boolean)),
     })).filter((group) => group.label)),
+    layers: Object.freeze(layerCounts),
+    coverage,
+    connections: Object.freeze(connectionCards),
+    heroMedia: mediaSrc ? Object.freeze({ src: mediaSrc, label: mediaLabel }) : null,
     razielMicro: buildRazielMicro({
       root,
       expression,
