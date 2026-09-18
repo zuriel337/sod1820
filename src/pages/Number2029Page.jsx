@@ -469,6 +469,14 @@ function NumberPageBody() {
   };
 
   const askRaziel = (intent = "number_context") => {
+    const numberCoreFocus = {
+      root,
+      expression: activeExpression || null,
+      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
+      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+      crossingPartner: coreProjection?.crossing?.partner || null,
+      zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
+    };
     research.updateResearchContext?.({
       selection: {
         entityId: String(root),
@@ -481,17 +489,10 @@ function NumberPageBody() {
       dimensions: {
         ...(research.context?.dimensions || {}),
         razielMicroIntent: intent,
-        numberCoreFocus: {
-          root,
-          expression: activeExpression || null,
-          method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-          resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-          crossingPartner: coreProjection?.crossing?.partner || null,
-          zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
-        },
+        numberCoreFocus,
       },
     });
-    shell.openRaziel();
+    shell.openRaziel({ razielMicroIntent: intent, numberCoreFocus });
   };
 
   const openNumberRoot = (nextValue) => {
