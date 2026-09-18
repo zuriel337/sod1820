@@ -12,6 +12,7 @@ import {
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
+import { langLinksList } from "../lib/supabase.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -148,6 +149,8 @@ function NumberPageBody() {
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
+  const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null });
+  const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
   const [observatoryFocus, setObservatoryFocus] = useState("now");
 
@@ -287,6 +290,50 @@ function NumberPageBody() {
   const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedMethodProfile?.computedValue ?? null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
 
+  useEffect(() => {
+    const next = Number(activeResult);
+    if (!Number.isSafeInteger(next) || next === root) {
+      setMethodResultState({ loading: false, data: null, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setMethodResultState({ loading: true, data: null, error: null });
+    fetchEntityHubProjection({
+      type: "number",
+      key: String(next),
+      relationLimit: 70,
+      researchLimit: 36,
+      topicLimit: 12,
+    }).then((nextData) => {
+      if (alive) setMethodResultState({ loading: false, data: nextData || null, error: null });
+    }).catch((error) => {
+      if (alive) setMethodResultState({ loading: false, data: null, error });
+    });
+    return () => { alive = false; };
+  }, [activeResult, root]);
+
+  useEffect(() => {
+    const expr = clean(activeExpression);
+    if (!expr || /^\d+$/.test(expr)) {
+      setLanguageBridgeState({ loading: false, rows: [] });
+      return undefined;
+    }
+    let alive = true;
+    setLanguageBridgeState({ loading: true, rows: [] });
+    langLinksList()
+      .then((rows) => {
+        if (!alive) return;
+        const approved = (Array.isArray(rows) ? rows : []).filter((row) => (
+          clean(row?.hebrew) === expr
+          && ["approved", "verified"].includes(clean(row?.status).toLowerCase())
+          && row?.human_verified === true
+        ));
+        setLanguageBridgeState({ loading: false, rows: approved.slice(0, 6) });
+      })
+      .catch(() => { if (alive) setLanguageBridgeState({ loading: false, rows: [] }); });
+    return () => { alive = false; };
+  }, [activeExpression]);
+
   const leadMeeting = topics[0] || null;
   const leadExpression = expressions.find((item) => item.phrase !== activeExpression) || expressions[0] || null;
   const leadSource = sources[0] || null;
@@ -384,6 +431,48 @@ function NumberPageBody() {
     journeyAvailable: root === 878,
     heroMedia: leadMedia,
   }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
+
+  const stageData = Number.isSafeInteger(Number(activeResult)) && Number(activeResult) !== root
+    ? methodResultState.data
+    : data;
+  const stageRoot = Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : root;
+  const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
+  const stageTopics = Array.isArray(stageData?.topics?.rows) ? stageData.topics.rows : [];
+  const stageRelations = Array.isArray(stageData?.graph?.relations) ? stageData.graph.relations : [];
+  const stageSources = Array.isArray(stageData?.sources) ? stageData.sources : [];
+  const stageWorlds = Array.isArray(stageData?.numberWorlds) ? stageData.numberWorlds : [];
+  const stageFindings = Array.isArray(stageData?.research?.findings) ? stageData.research.findings : [];
+  const stageTimeline = Array.isArray(stageData?.timeline) ? stageData.timeline : [];
+  const stageMedia = Array.isArray(stageData?.media?.items) ? stageData.media.items : [];
+  const stageSurface = stageData?.surface || {};
+  const stageZeroScale = stageData?.zeroScale || null;
+  const stageActivityCount = [
+    Number(stageSurface.postsCount ?? stageSurface.posts?.length ?? 0),
+    Number(stageSurface.galleriesCount ?? stageSurface.galleries?.length ?? 0),
+    Number(stageSurface.insightsCount ?? stageSurface.insights?.length ?? 0),
+    Number(stageSurface.commentsCount ?? 0),
+    Number(stageSurface.eventsCount ?? 0),
+  ].reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
+
+  const stageProjection = useMemo(() => buildNumberCoreProjection({
+    root: stageRoot,
+    expression: activeExpression,
+    selectedMethodKey,
+    methodProfile: methodProfileState.rows,
+    families: stageFamilies,
+    topics: stageTopics,
+    relations: stageRelations,
+    sources: stageSources,
+    worlds: stageWorlds,
+    findings: stageFindings,
+    timeline: stageTimeline,
+    media: stageMedia,
+    surface: stageSurface,
+    zeroScale: stageZeroScale,
+    activityCount: stageActivityCount,
+    journeyAvailable: stageRoot === 878,
+    heroMedia: stageMedia[0] || null,
+  }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const activeMethodLabel = selectedMethodProfile?.displayLabel || methodLabel(selectedGroup);
 
@@ -632,6 +721,9 @@ function NumberPageBody() {
         traceOpen={traceOpen}
         traceSteps={traceSteps}
         traceDetail={trace}
+        stageProjection={stageProjection}
+        stageLoading={methodResultState.loading}
+        languageBridges={languageBridgeState.rows}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
