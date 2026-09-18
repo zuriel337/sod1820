@@ -306,8 +306,50 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
     explain_method: "הסבר את השיטה",
     compare_methods: "השווה שיטות",
     next_research_step: "מה כדאי לבדוק עכשיו?",
+    explain_world: "הסבר את העולם",
+    explain_world_context: "הסבר את מרכז העולמות",
     expand_panel: "המשך מה־Micro",
   }[microIntent] || null;
+  const quickInsight = (() => {
+    if (!numberFocus) return null;
+    if (numberFocus.kind === "method") {
+      const methodLabel = numberFocus.methodLabel || numberFocus.method || "השיטה הפעילה";
+      return {
+        title: `תגובה מהירה · ${methodLabel}`,
+        text: `${methodLabel} מחושבת דרך המנוע הקנוני על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח Trace כדי לראות את שלבי החישוב; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את זהות ה־Root.`,
+        boundary: "חישוב = deterministic. משמעות/פרשנות נשארות שכבה נפרדת.",
+      };
+    }
+    if (numberFocus.kind === "crossing") {
+      const names = Array.isArray(numberFocus.methods) ? numberFocus.methods.map((item) => item?.methodLabel).filter(Boolean).join(" · ") : "";
+      return {
+        title: "תגובה מהירה · הצלבה",
+        text: `${numberFocus.expression || numberFocus.root} והביטוי ${numberFocus.partner || numberFocus.crossingPartner || "המקביל"} נפגשים סביב ${numberFocus.root}${names ? ` דרך ${names}` : ""}. זו הצלבה חישובית; היא מעניינת למחקר אבל אינה מסקנה בפני עצמה.`,
+        boundary: "שוויון מספרי ≠ הצלבה בלתי־תלויה ≠ התכנסות מחקרית.",
+      };
+    }
+    if (numberFocus.kind === "world") {
+      return {
+        title: `תגובה מהירה · ${numberFocus.world || "עולם מחקר"}`,
+        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר מחקרי עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        boundary: "World = context/projection, לא engine result.",
+      };
+    }
+    if (numberFocus.kind === "world_hub") {
+      const worldCount = Array.isArray(numberFocus.worlds) ? numberFocus.worlds.length : 0;
+      const relatedCount = Array.isArray(numberFocus.relatedNumbers) ? numberFocus.relatedNumbers.length : 0;
+      return {
+        title: "תגובה מהירה · מרכז העולמות",
+        text: `סביב ${numberFocus.root} מוצגים כרגע ${worldCount} עולמות ו־${relatedCount} מספרים קשורים בתצוגה המוגבלת. זהו מבט ניווטי; העולם המלא מחזיק את ההקשרים הרחבים יותר.`,
+        boundary: "הצגה בולטת אינה דירוג אמת.",
+      };
+    }
+    return {
+      title: `תגובה מהירה · ${intentLabel || "המספר"}`,
+      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך ל־Trace, להשוואה או למחקר עמוק בלי לאבד את ה־Context.`,
+      boundary: "אותו Context, עומק שונה.",
+    };
+  })();
   return (
     <>
       <section className="sod29-raziel-native-hero">
@@ -324,6 +366,11 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
         {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
       </section> : <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState>}
+      {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
+        <b>{quickInsight.title}</b>
+        <span>{quickInsight.text}</span>
+        <small>{quickInsight.boundary}</small>
+      </section> : null}
       <div className="sod29-panel-context-card">
         <b>Research Context שניתן לרזיאל</b>
         <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין עוגן שמור"}</span>
