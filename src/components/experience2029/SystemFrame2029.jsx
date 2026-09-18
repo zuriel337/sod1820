@@ -737,7 +737,8 @@ export default function SystemFrame2029({
 
         <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו">
           <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-          <button type="button" onClick={() => (activeTarget?.type === "number" || activeTarget?.type === "phrase") ? openNumber(activeTarget) : openInspect(activeTarget)} aria-pressed={transientKind === TRANSIENT.NUMBER || transientKind === TRANSIENT.INSPECT}><span>{activeTarget?.type === "number" || activeTarget?.type === "phrase" ? "123" : "◎"}</span><small>{activeTarget?.type === "number" || activeTarget?.type === "phrase" ? "מספר" : "בדיקה"}</small></button>
+          <button type="button" onClick={() => openNumber((activeTarget?.type === "number" || activeTarget?.type === "phrase") ? activeTarget : null)} aria-pressed={transientKind === TRANSIENT.NUMBER}><span>123</span><small>מספר</small></button>
+          <button type="button" onClick={() => openInspect(activeTarget)} aria-pressed={transientKind === TRANSIENT.INSPECT}><span>◎</span><small>בדיקה</small></button>
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
           <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
           <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
