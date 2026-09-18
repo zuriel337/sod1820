@@ -77,9 +77,41 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(entry).toHaveAttribute('data-experience-surface', 'world');
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
   await expect(entry.getByRole('button', { name: /חיפוש \/ פקודה/ })).toBeVisible();
+
+  const core = entry.locator('.sod29-world-core-map');
+  await expect(core).toBeVisible();
+  await expect(core.getByRole('button', { name: 'פתח חיפוש בעולם' })).toBeVisible();
+  await expect(core.getByText('בחר שער כדי לקפוץ ישר אליו')).toBeVisible();
+  const numberGate = core.locator('.sod29-world-core-node').filter({ hasText: 'מספרים' }).first();
+  await expect(numberGate).toBeVisible({ timeout: 30_000 });
+
+  await core.getByRole('button', { name: 'פתח חיפוש בעולם' }).click();
+  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toHaveCount(0);
+
+  await numberGate.click();
+  await expect(page.locator('#world-facet-number')).toBeFocused();
+  await expect(page.locator('#world-facet-number').getByRole('heading', { name: 'מספרים בעולם' })).toBeVisible();
+
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
+
+for (const width of MOBILE_WIDTHS) {
+  test(`World Core remains usable and overflow-free at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+    const core = page.locator('.sod29-world-core-map');
+    await expect(core).toBeVisible();
+    const firstGate = core.locator('.sod29-world-core-node').first();
+    await expect(firstGate).toBeVisible({ timeout: 30_000 });
+    expect(await core.locator('.sod29-world-core-node').count()).toBeGreaterThan(0);
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({ path: `test-results/release-visual/world-core-${width}.png`, fullPage: true });
+  });
+}
 
 for (const width of [...MOBILE_WIDTHS, 1440]) {
   test(`RICH live World 1820 is truthful and overflow-free at ${width}px`, async ({ page }) => {
