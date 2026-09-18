@@ -32,17 +32,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
-      # npm ci intentionally NOT used: package.json/package-lock.json are
-      # currently out of sync repo-wide (package-lock.json is missing
-      # @vercel/speed-insights, added to package.json in commit 971725dc
-      # without a lockfile update) — npm ci fails on a clean checkout of
-      # main today, unrelated to this workflow. npm install works around it
-      # without touching the lockfile. Flagged in AFTER for GPT/ZURIEL;
-      # not fixed here (out of this task's scope).
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Observability/SEO route coverage check
         run: node scripts/check-observability-seo-gate.mjs
