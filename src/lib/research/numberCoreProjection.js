@@ -41,15 +41,29 @@ export async function fetchNumberMethodProfile(expression) {
   if (!keys.length) return rows;
   const { data: registry, error: registryError } = await supabase
     .from("gematria_methods")
-    .select("method_key,dependency_rules,dependency_version")
+    .select("method_key,display_label,category,sub,soul,sort_order,mathematical_family,atomic_or_composite,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
     .in("method_key", keys);
   if (registryError) throw registryError;
   const deps = new Map((registry || []).map((row) => [clean(row?.method_key), row]));
-  return rows.map((row) => ({
-    ...row,
-    dependencyRules: Array.isArray(deps.get(row.methodKey)?.dependency_rules) ? deps.get(row.methodKey).dependency_rules : [],
-    dependencyVersion: Number.isFinite(Number(deps.get(row.methodKey)?.dependency_version)) ? Number(deps.get(row.methodKey).dependency_version) : null,
-  }));
+  return rows.map((row) => {
+    const registryRow = deps.get(row.methodKey) || {};
+    return {
+      ...row,
+      displayLabel: clean(registryRow.display_label || row.displayLabel) || row.methodKey,
+      category: clean(registryRow.category || row.category) || null,
+      mathematicalFamily: clean(registryRow.mathematical_family || row.mathematicalFamily) || null,
+      atomicOrComposite: clean(registryRow.atomic_or_composite || row.atomicOrComposite) || null,
+      sortOrder: Number.isFinite(Number(registryRow.sort_order)) ? Number(registryRow.sort_order) : null,
+      sub: clean(registryRow.sub) || null,
+      soul: clean(registryRow.soul) || null,
+      executionKind: clean(registryRow.execution_kind) || null,
+      operator: clean(registryRow.operator) || null,
+      derivedFrom: Array.isArray(registryRow.derived_from) ? registryRow.derived_from.map(clean).filter(Boolean) : [],
+      sourceOfTruth: clean(registryRow.source_of_truth) || null,
+      dependencyRules: Array.isArray(registryRow.dependency_rules) ? registryRow.dependency_rules : [],
+      dependencyVersion: Number.isFinite(Number(registryRow.dependency_version)) ? Number(registryRow.dependency_version) : null,
+    };
+  });
 }
 
 function hasFinalLetters(expression) {
@@ -212,6 +226,7 @@ export function buildNumberCoreProjection({
   families = [],
   topics = [],
   sources = [],
+  worlds = [],
   zeroScale = null,
   activityCount = 0,
 } = {}) {
@@ -230,7 +245,13 @@ export function buildNumberCoreProjection({
       activityCount: Number(activityCount) || 0,
       meetingCount: Array.isArray(topics) ? topics.length : 0,
       sourceCount: Array.isArray(sources) ? sources.length : 0,
+      worldCount: Array.isArray(worlds) ? worlds.length : 0,
     }),
+    worlds: Object.freeze((Array.isArray(worlds) ? worlds : []).map((group) => Object.freeze({
+      label: clean(group?.world || group?.label || group?.name) || "עולם מחקר",
+      count: Number.isFinite(Number(group?.count)) ? Number(group.count) : (Array.isArray(group?.items) ? group.items.length : 0),
+      samples: Object.freeze((Array.isArray(group?.items) ? group.items : []).slice(0, 4).map((item) => clean(item?.label || item?.name)).filter(Boolean)),
+    })).filter((group) => group.label)),
     razielMicro: buildRazielMicro({
       root,
       expression,
