@@ -5,6 +5,12 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
+import {
+  buildNumberCoreProjection,
+  fetchNumberMethodProfile,
+  methodProfileEntry,
+} from "../lib/research/numberCoreProjection.js";
+import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import "./number2029.css";
 
@@ -142,6 +148,7 @@ function NumberPageBody() {
   const [showAllMethods, setShowAllMethods] = useState(false);
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
+  const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
   const [traceOpen, setTraceOpen] = useState(false);
   const [observatoryFocus, setObservatoryFocus] = useState("now");
 
@@ -152,9 +159,12 @@ function NumberPageBody() {
     }
     let alive = true;
     setState({ loading: true, data: null, error: null });
-    setSelectedMethodKey("");
-    setActiveExpression("");
-    setQuery("");
+    const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
+    const contextExpression = sameContextRoot ? clean(research.context?.selection?.expression) : "";
+    const contextMethod = sameContextRoot ? clean(research.context?.selection?.method) : "";
+    setSelectedMethodKey(contextMethod);
+    setActiveExpression(contextExpression);
+    setQuery(contextExpression);
     setShowAllMethods(false);
     setShowAllExpressions(false);
     setTraceOpen(false);
@@ -183,7 +193,8 @@ function NumberPageBody() {
   const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
   const researchFindings = Array.isArray(data?.research?.findings) ? data.research.findings : [];
   const timeline = Array.isArray(data?.timeline) ? data.timeline : [];
-  const zeroScale = Array.isArray(data?.zeroScale?.scale_chain) ? data.zeroScale.scale_chain : [];
+  const zeroScaleData = data?.zeroScale || null;
+  const zeroScale = Array.isArray(zeroScaleData?.scale_chain) ? zeroScaleData.scale_chain : [];
   const mediaItems = Array.isArray(data?.media?.items) ? data.media.items : [];
   const surface = data?.surface || {};
   const anchorRow = data?.anchorProfile?.row || null;
@@ -204,31 +215,61 @@ function NumberPageBody() {
 
   useEffect(() => {
     if (!families.length) return;
-    if (selectedMethodKey && families.some((group) => methodKey(group) === selectedMethodKey)) return;
+    if (activeExpression && selectedMethodKey) return;
 
     const anchorFamily = anchorPhrase
       ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
       : null;
     const first = anchorFamily || families[0];
-    const phrase = anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
-    setSelectedMethodKey(methodKey(first));
-    setActiveExpression(phrase);
-    setQuery(phrase);
-  }, [families, root, selectedMethodKey, anchorPhrase]);
+    const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
+    if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
+    if (!activeExpression) setActiveExpression(phrase);
+    if (!query) setQuery(phrase);
+  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, query]);
+
+  useEffect(() => {
+    const expr = clean(activeExpression);
+    if (!expr || /^\d+$/.test(expr)) {
+      setMethodProfileState({ loading: false, rows: [], error: null });
+      return undefined;
+    }
+    let alive = true;
+    setMethodProfileState({ loading: true, rows: [], error: null });
+    fetchNumberMethodProfile(expr)
+      .then((rows) => {
+        if (!alive) return;
+        setMethodProfileState({ loading: false, rows, error: null });
+        const selected = rows.find((row) => row.methodKey === selectedMethodKey) || rows[0] || null;
+        if (selected && selected.methodKey !== selectedMethodKey) setSelectedMethodKey(selected.methodKey);
+      })
+      .catch((error) => {
+        if (alive) setMethodProfileState({ loading: false, rows: [], error });
+      });
+    return () => { alive = false; };
+  }, [activeExpression]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedMethodProfile = useMemo(
+    () => methodProfileEntry(methodProfileState.rows, selectedMethodKey),
+    [methodProfileState.rows, selectedMethodKey],
+  );
 
   const selectedGroup = useMemo(
-    () => families.find((group) => methodKey(group) === selectedMethodKey) || families[0] || null,
+    () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
     [families, selectedMethodKey],
   );
   const selectedPhrases = useMemo(
     () => (Array.isArray(selectedGroup?.phrases) ? selectedGroup.phrases : []).map(phraseOf).filter(Boolean).slice(0, 30),
     [selectedGroup],
   );
-  const visibleMethods = showAllMethods ? families : families.slice(0, 6);
+  const methodCards = useMemo(() => methodProfileState.rows.map((profile) => ({
+    profile,
+    family: families.find((group) => methodKey(group) === profile.methodKey) || null,
+  })), [methodProfileState.rows, families]);
+  const visibleMethods = showAllMethods ? methodCards : methodCards.slice(0, 6);
   const visibleExpressions = showAllExpressions ? expressions : expressions.slice(0, 18);
 
   useEffect(() => {
-    const key = methodKey(selectedGroup);
+    const key = selectedMethodProfile?.methodKey || selectedMethodKey;
     if (!key || !activeExpression) {
       setTraceState({ loading: false, finding: null, error: null });
       return undefined;
@@ -243,10 +284,10 @@ function NumberPageBody() {
         if (alive) setTraceState({ loading: false, finding: null, error });
       });
     return () => { alive = false; };
-  }, [selectedGroup, activeExpression]);
+  }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
 
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
-  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? null;
+  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedMethodProfile?.computedValue ?? null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
 
   const leadMeeting = topics[0] || null;
@@ -327,6 +368,20 @@ function NumberPageBody() {
     Number(surface.eventsCount ?? 0),
   ].reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
 
+  const coreProjection = useMemo(() => buildNumberCoreProjection({
+    root,
+    expression: activeExpression,
+    selectedMethodKey,
+    methodProfile: methodProfileState.rows,
+    families,
+    topics,
+    sources,
+    zeroScale: zeroScaleData,
+    activityCount,
+  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, sources, zeroScaleData, activityCount]);
+
+  const activeMethodLabel = selectedMethodProfile?.displayLabel || methodLabel(selectedGroup);
+
   useEffect(() => {
     if (!Number.isInteger(root)) return;
     const subject = {
@@ -339,7 +394,7 @@ function NumberPageBody() {
       entityId: String(root),
       entityType: "number",
       expression: activeExpression || null,
-      method: methodKey(selectedGroup) || null,
+      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
     };
     const current = research.context;
@@ -348,7 +403,7 @@ function NumberPageBody() {
     } else {
       research.setResearchContext?.({ subject, selection, lens: "number", locale: "he" });
     }
-  }, [root, activeExpression, selectedGroup, activeResult]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, activeExpression, selectedMethodProfile?.methodKey, selectedMethodKey, activeResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;
@@ -363,7 +418,7 @@ function NumberPageBody() {
       entityId: String(root),
       entityType: "number",
       expression: activeExpression || null,
-      method: methodKey(selectedGroup) || null,
+      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
     };
     const returnTo = {
@@ -413,18 +468,58 @@ function NumberPageBody() {
     navigate("/world");
   };
 
-  const askRaziel = () => {
+  const askRaziel = (intent = "number_context") => {
     research.updateResearchContext?.({
       selection: {
         entityId: String(root),
         entityType: "number",
         expression: activeExpression || null,
-        method: methodKey(selectedGroup) || null,
+        method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
         resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
       },
       lens: "number",
+      dimensions: {
+        ...(research.context?.dimensions || {}),
+        razielMicroIntent: intent,
+        numberCoreFocus: {
+          root,
+          expression: activeExpression || null,
+          method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
+          resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+          crossingPartner: coreProjection?.crossing?.partner || null,
+          zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
+        },
+      },
     });
     shell.openRaziel();
+  };
+
+  const openNumberRoot = (nextValue) => {
+    const next = Number(nextValue);
+    if (!Number.isSafeInteger(next)) return;
+    const selection = {
+      entityId: String(root),
+      entityType: "number",
+      expression: activeExpression || null,
+      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
+      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+    };
+    research.setResearchContext?.({
+      subject: { id: String(next), type: "number", label: String(next), href: `/2029/number/${next}` },
+      selection: { entityId: String(next), entityType: "number", expression: activeExpression || null, method: selectedMethodProfile?.methodKey || selectedMethodKey || null },
+      lens: "number",
+      locale: research.context?.locale || "he",
+      returnTo: {
+        href: `/2029/number/${root}`,
+        label: `דף ${root}`,
+        subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+        selection,
+        lens: "number",
+        dimensions: research.context?.dimensions || {},
+        journey: research.context?.journey || null,
+      },
+    });
+    navigate(`/2029/number/${next}`);
   };
 
   const submitQuery = (event) => {
@@ -519,10 +614,25 @@ function NumberPageBody() {
         <div className="sod29-number-value">{root}</div>
         <div className="sod29-number-result">
           {traceState.loading ? "מחשב דרך המנוע…" : activeResult != null
-            ? <><b>{methodLabel(selectedGroup)}</b><span>→</span><strong>{activeResult}</strong></>
+            ? <><b>{activeMethodLabel}</b><span>→</span><strong>{activeResult}</strong></>
             : <span>בחר ביטוי ושיטה כדי לפתוח תוצאה פעילה</span>}
         </div>
       </div>
+
+      <NumberCore2029
+        projection={coreProjection}
+        mode="page"
+        traceState={traceState}
+        traceOpen={traceOpen}
+        traceSteps={traceSteps}
+        onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
+        onToggleTrace={() => setTraceOpen((value) => !value)}
+        onOpenCrossing={() => askRaziel("explain_crossing")}
+        onOpenZero={openNumberRoot}
+        onOpenResult={openNumberRoot}
+        onRazielAction={askRaziel}
+        onExpandRaziel={() => askRaziel("expand_panel")}
+      />
 
       <div className="sod29-number-observatory" aria-label={`מצפה המספר ${root}`}>
         <ObservatoryNode item={observatoryItems.meeting} active={observatoryFocus === "meeting"} onClick={() => setObservatoryFocus("meeting")} />
@@ -554,7 +664,6 @@ function NumberPageBody() {
       <div className="sod29-number-actions">
         <button className="sod29-action primary" type="button" onClick={() => openWorld()}>פתח בעולם</button>
         {root === 878 ? <button className="sod29-action" type="button" onClick={() => openWorld({ journey: true })}>צא למסע 878</button> : leadPath ? <button className="sod29-action" type="button" onClick={() => setObservatoryFocus("path")}>ראה שבילים</button> : null}
-        <button className="sod29-action" type="button" onClick={askRaziel}>✦ שאל את רזיאל</button>
       </div>
 
       <div className="sod29-number-jumpbar" aria-label="ניווט בדף המספר">
@@ -617,14 +726,14 @@ function NumberPageBody() {
       </div>
 
       <div className="sod29-number-method-grid" role="list">
-        {visibleMethods.map((group) => {
-          const key = methodKey(group);
-          const active = key === methodKey(selectedGroup);
-          const sample = phraseOf(group?.phrases?.[0]);
+        {visibleMethods.map(({ profile, family }) => {
+          const key = profile.methodKey;
+          const active = key === selectedMethodKey;
+          const sample = phraseOf(family?.phrases?.[0]);
           return <button
             type="button"
             role="listitem"
-            key={key || methodLabel(group)}
+            key={key}
             className={`sod29-number-method-card${active ? " is-active" : ""}`}
             aria-pressed={active}
             onClick={() => {
@@ -633,9 +742,9 @@ function NumberPageBody() {
               setObservatoryFocus("now");
             }}
           >
-            <span>{methodLabel(group)}</span>
-            <strong>→ {root}</strong>
-            <small>{Number(group?.count ?? group?.phrases?.length ?? 0)} ביטויים</small>
+            <span>{profile.displayLabel}</span>
+            <strong>→ {profile.computedValue ?? "—"}</strong>
+            <small>{Number(family?.count ?? family?.phrases?.length ?? 0)} ביטויים על {root}</small>
             {sample ? <p>{sample}</p> : null}
           </button>;
         })}
@@ -658,7 +767,7 @@ function NumberPageBody() {
       <div className="sod29-number-trace-card">
         <div>
           <span className="sod29-kicker">ACTIVE CALCULATION</span>
-          <h3>{activeExpression || root} · {methodLabel(selectedGroup)}{activeResult != null ? ` = ${activeResult}` : ""}</h3>
+          <h3>{activeExpression || root} · {activeMethodLabel}{activeResult != null ? ` = ${activeResult}` : ""}</h3>
           <p>החישוב מגיע מ־Method Trace. רזיאל יכול לפרש אותו, אבל אינו מחשב את הגימטריה מחדש.</p>
         </div>
         <button className="sod29-action" type="button" disabled={!trace && !traceState.error} onClick={() => setTraceOpen((v) => !v)}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
