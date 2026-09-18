@@ -9,7 +9,7 @@ const KEYMAP = {
   "סידורי": "siduri", "אתבש": "atbash", "אלבם": "albam", "ריבוע": "ribua", "הכפלה": "hakpala",
   "ריבוע גדול": "ribua_gadol", "הכפלה גדולה": "hakpala_gadol", "מילוי דמילוי": "miluy_demiluy", "משולש גדול": "kadmi_gadol",
 };
-const LABEL = { ragil: "רגיל", misratar: "מסתתר", miluy: "מילוי", kadmi: "קדמי", gadol: "גדול", siduri: "סידורי", atbash: "אתבש", albam: "אלבם", ribua: "ריבוע", hakpala: "הכפלה", ribua_gadol: "ריבוע גדול", hakpala_gadol: "הכפלה גדולה", miluy_demiluy: "מילוי דמילוי", kadmi_gadol: "משולש גדול" };
+const LABEL = { ragil: "רגיל", misratar: "מסתתר", miluy: "מילוי", kadmi: "משולש", gadol: "גדול", siduri: "סידורי", atbash: "אתבש", albam: "אלבם", ribua: "ריבוע", hakpala: "הכפלה", ribua_gadol: "ריבוע גדול", hakpala_gadol: "הכפלה גדולה", miluy_demiluy: "מילוי דמילוי", kadmi_gadol: "משולש גדול" };
 const COLS = [...new Set(Object.values(KEYMAP))];
 
 function nameValues(name) {
