@@ -17,7 +17,6 @@ import {
   explainWorldRelation,
   filterWorldRelations,
   orderWorldRelations,
-  worldProjectionCounts,
   worldRelationCounterpart,
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
@@ -475,7 +474,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [isAdmin]);
 
   const data = state.data;
-  const counts = useMemo(() => worldProjectionCounts(data), [data]);
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
   const currentNodeId = data?.identity?.nodeId || null;
   const graphRelations = data?.graph?.relations || [];
@@ -610,9 +608,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.experience.question}</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, דברים שנמצאו וזמן. הסינון והמיון משנים רק את התצוגה; הם אינם משנים את האמת או את הקשרים עצמם.</div>
+          <div className="sod29-muted">כאן רואים מה מתחבר לנקודה הזאת. מתחילים במהות, ואז בוחרים את השכבה שרוצים לחקור — תמונות, גימטריה, מקורות, קשרים, מחקר או זמן.</div>
         </div>
-        <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
+        <div className="sod29-actions">
+          {data?.identity ? <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span> : null}
+          {isAdmin && data ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
+          <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
+        </div>
       </div>
     </section>
 
@@ -628,26 +630,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
       data-experience-question={WORLD_EXPERIENCE.experience.question}
       data-truth-safe={String(WORLD_EXPERIENCE.experience.truthSafe)}
     >
-      <section className="sod29-section">
-        <div className="sod29-section-head">
-          <div><div className="sod29-kicker">מרכז העולם</div><h2>{data.identity.label}</h2></div>
-          <div className="sod29-actions">
-            <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span>
-            {isAdmin ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
-          </div>
-        </div>
-        <div className="sod29-world-stage">
-          <div className="sod29-anchor-core"><div><div className="sod29-kicker">הנקודה שבמרכז</div><strong>{data.identity.label}</strong><small>{FACET_LABELS[data.identity.type] || data.identity.type}</small></div></div>
-          <div className="sod29-orbit-metrics" aria-label="כמות חומר זמין לפי משפחה">
-            <div className="sod29-card"><div className="sod29-stat">{counts.relations}</div><div className="sod29-stat-label">קשרים</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">מה מצאנו</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.sources}</div><div className="sod29-stat-label">מקורות</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">משפחות תוכן</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.timeline}</div><div className="sod29-stat-label">נקודות זמן</div></div>
-          </div>
-        </div>
-      </section>
-
       {anchorProfile ? <section className="sod29-section sod29-world-anchor-profile" aria-label={`פרופיל עוגן ${data.identity.label}`}>
         <div className="sod29-section-head">
           <div>
