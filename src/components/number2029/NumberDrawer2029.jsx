@@ -500,6 +500,7 @@ export default function NumberDrawer2029({
       projection={projection}
       stageProjection={stageProjection}
       stageLoading={methodResultState.loading}
+      methodsLoading={profileState.loading}
       languageBridges={languageBridgeState.rows}
       regularExpressions={regularExpressions}
       mode="drawer"
