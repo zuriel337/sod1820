@@ -91,7 +91,7 @@ for (const uiFile of ["src/pages/AdminPage.jsx"]) {
 }
 
 
-\n// ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────
+// ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────
 assert.match(hardening, /revoke all on function public\\.fn_health_watch\\(\\) from public, anon, authenticated;/i);
 assert.match(hardening, /grant execute on function public\\.fn_health_watch\\(\\) to service_role;/i);
 
