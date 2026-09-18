@@ -104,6 +104,36 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
+test('Number 2029 preview opens 1237 natively with the central core and canonical method rail', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+
+  await expect(page.getByRole('heading', { name: 'דף המספר', exact: true })).toBeVisible();
+  const numberPage = page.locator('.sod29-number-page');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  await expect(numberPage).toHaveAttribute('data-number-root', '1237');
+  await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
+  await expect(numberPage.locator('.sod29-number-core')).toBeVisible();
+  await expect(numberPage.getByRole('heading', { name: 'שיטות ליבה' })).toBeVisible();
+  expect(await numberPage.locator('.sod29-number-method').count()).toBeGreaterThan(0);
+  await expect(numberPage.getByRole('button', { name: 'פתח בעולם' }).first()).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
+});
+
+test('Number 2029 preview exposes the existing Golden Journey only for 878', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('.sod29-number-page');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
+  await expect(numberPage.getByRole('button', { name: 'צא למסע 878' })).toBeVisible();
+  await assertNoHorizontalOverflow(page);
+});
+
 test('Golden Journey 878 starts in World and keeps its rail across a path transition', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
