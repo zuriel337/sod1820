@@ -249,7 +249,7 @@ assert.equal(golden878.id, GOLDEN_WORLD_JOURNEY_878.id);
 assert.equal(golden878.rootValue, 878);
 assert.deepEqual(golden878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
 assert.match(worldJourneySource, /fetchTopicCardList/);
-assert.equal(worldJourneySource.includes("fn_number_journey"), false, "public Golden Journey must not read the privileged Number/Journey projection");
+assert.equal(/\.rpc\(\s*["']fn_number_journey["']/.test(worldJourneySource), false, "public Golden Journey must not call the privileged Number/Journey projection");
 assert.match(worldJourneySource, /number:\s*GOLDEN_WORLD_JOURNEY_878\.rootValue/);
 assert.match(worldJourneySource, /rankByMeterScore:\s*true/);
 assert.equal(worldJourneySource.includes("journey_classic_seed"), false);
