@@ -118,10 +118,12 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   const upperSignals = sharedCore.locator('.sod29-number-core2029-upper-grid');
   const methodRail = sharedCore.locator('.sod29-number-core2029-method-section');
   await expect(upperSignals).toBeVisible();
-  expect(await upperSignals.evaluate((node) => Boolean(node.compareDocumentPosition(
-    node.parentElement.querySelector('.sod29-number-core2029-method-section'),
-  ) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   await expect(methodRail).toBeVisible();
+  expect(await methodRail.evaluate((node) => Boolean(node.compareDocumentPosition(
+    node.parentElement.querySelector('.sod29-number-core2029-upper-grid'),
+  ) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await expect(sharedCore.locator('.sod29-number-v7-world-hub')).toBeVisible();
+  await expect(sharedCore.locator('.sod29-number-v7-world-center')).toContainText('1237');
   await expect(sharedCore.locator('.sod29-number-core2029-crossing:not(.is-empty)')).toBeVisible({ timeout: 30_000 });
   await expect(sharedCore).toContainText('הצלבה');
   await expect(sharedCore).toContainText('סולם האפס');
