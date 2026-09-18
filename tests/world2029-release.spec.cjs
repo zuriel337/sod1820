@@ -73,6 +73,12 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
   await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'מפגשים', exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
+  for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
+    await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
+  }
   const entry = page.locator('#world-entry');
   await expect(entry).toHaveAttribute('data-experience-surface', 'world');
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
@@ -96,6 +102,36 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
+});
+
+test('Golden Journey 878 starts in World and keeps its rail across a path transition', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+
+  const start = page.getByRole('button', { name: 'פתח 878 והתחל מסע' });
+  await expect(start).toBeVisible({ timeout: 30_000 });
+  const previews = page.locator('.sod29-world-journey-path-preview');
+  expect(await previews.count()).toBeGreaterThan(0);
+
+  await start.click();
+  await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('878', { timeout: 30_000 });
+  const rail = page.locator('.sod29-world-journey-rail');
+  await expect(rail).toBeVisible({ timeout: 30_000 });
+  await expect(rail.getByRole('heading', { name: 'אתה בתוך מסע 878' })).toBeVisible();
+
+  const firstPath = rail.locator('.sod29-world-journey-path-card').first();
+  await expect(firstPath).toBeVisible();
+  const target = Number((await firstPath.locator('.sod29-world-journey-path-values strong').innerText()).trim());
+  expect(Number.isSafeInteger(target)).toBe(true);
+  expect(target).not.toBe(878);
+
+  await firstPath.click();
+  await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText(String(target), { timeout: 30_000 });
+  await expect(page.locator('.sod29-world-journey-rail')).toBeVisible();
+  expect(await page.locator('.sod29-world-journey-track-stop').count()).toBeGreaterThanOrEqual(2);
+  await expect(page.locator('.sod29-world-journey-track-stop.is-current strong')).toHaveText(String(target));
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/world-golden-journey-878-390.png', fullPage: true });
 });
 
 for (const width of MOBILE_WIDTHS) {
