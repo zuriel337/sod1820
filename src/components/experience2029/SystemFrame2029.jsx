@@ -297,10 +297,10 @@ function ToolsProjection({ target, onDeepen, go }) {
   );
 }
 
-function RazielProjection({ target, context, onDeepen }) {
+function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
-  const numberFocus = context?.dimensions?.numberCoreFocus || null;
-  const microIntent = context?.dimensions?.razielMicroIntent || null;
+  const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
+  const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
     explain_method: "הסבר את השיטה",
@@ -463,7 +463,10 @@ export default function SystemFrame2029({
   const openNumber = useCallback((subject = null) => openTransient(TRANSIENT.NUMBER, { subject: normalizeTarget(subject) }), [openTransient]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
-  const openRaziel = useCallback(() => openTransient(TRANSIENT.RAZIEL), [openTransient]);
+  const openRaziel = useCallback((payload = null) => {
+    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent ? payload : null;
+    openTransient(TRANSIENT.RAZIEL, boundedPayload);
+  }, [openTransient]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
   const closeRaziel = useCallback(() => { if (transient?.kind === TRANSIENT.RAZIEL) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
@@ -670,7 +673,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} onShare={shareCurrent} shareState={shareState} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
   };
 
