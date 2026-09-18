@@ -304,34 +304,15 @@ export default function NumberCore2029({
   const raziel = projection.razielMicro;
   const result = active?.computedValue ?? projection.activeResult ?? null;
 
-  const normalizeName = (value) => String(value || "")
-    .replace(/[\s"'״׳’‘\-_/]/g, "")
-    .toLowerCase();
-  const preferred = ["רגיל", "מילוי", "מסתתר", "קדמי", "סידורי", "אתבש"];
-  const primaryMethods = useMemo(() => {
-    const out = [];
-    const seen = new Set();
-    for (const wanted of preferred) {
-      const hit = methods.find((method) => {
-        const key = normalizeName(method.methodKey);
-        const label = normalizeName(method.displayLabel);
-        const target = normalizeName(wanted);
-        return key === target || label === target || label.includes(target);
-      });
-      if (hit && !seen.has(hit.methodKey)) {
-        seen.add(hit.methodKey);
-        out.push(hit);
-      }
-    }
-    for (const method of methods) {
-      if (out.length >= 6) break;
-      if (!seen.has(method.methodKey)) {
-        seen.add(method.methodKey);
-        out.push(method);
-      }
-    }
-    return out.slice(0, 6);
-  }, [methods]);
+  const primaryMethods = useMemo(() => (
+    [...methods]
+      .sort((a, b) => {
+        const ao = Number.isFinite(Number(a?.sortOrder)) ? Number(a.sortOrder) : Number.MAX_SAFE_INTEGER;
+        const bo = Number.isFinite(Number(b?.sortOrder)) ? Number(b.sortOrder) : Number.MAX_SAFE_INTEGER;
+        return ao - bo || String(a?.methodKey || "").localeCompare(String(b?.methodKey || ""), "he");
+      })
+      .slice(0, 6)
+  ), [methods]);
 
   const inspectorMethod = useMemo(() => (
     methods.find((method) => method.methodKey === inspectorMethodKey)
@@ -396,15 +377,15 @@ export default function NumberCore2029({
       <button type="submit">חפש ✦</button>
     </form> : null}
 
-    {regularExpressions.length ? <section className="sod29-number-v11-regular-rail" aria-label={`ביטויים רגילים על ${root}`}>
+    {regularExpressions.length ? <section className={`sod29-number-v11-regular-rail${regularExpressions.length > 1 ? " has-overflow-hint" : ""}`} aria-label={`ביטויים רגילים על ${root}`}>
       <div className="sod29-number-v11-regular-head">
         <div>
           <span>רגיל = {root}</span>
           <strong>ביטויים רגילים על אותו מספר</strong>
         </div>
-        <small>גרור ימינה / שמאלה ובחר ביטוי</small>
+        <small>{regularExpressions.length} ביטויים · ↔ גרור ימינה / שמאלה</small>
       </div>
-      <div className="sod29-number-v11-regular-track" role="list">
+      <div className="sod29-number-v11-regular-track" role="list" key={`regular-rail:${root}`}>
         {regularExpressions.map((item) => {
           const phrase = String(item?.phrase || item || "").trim();
           const selected = phrase === String(projection.expression || "").trim();
@@ -425,7 +406,7 @@ export default function NumberCore2029({
 
     <section className="sod29-number-v10-method-switcher" aria-label="שש שיטות ראשיות">
       <div className="sod29-number-v10-method-head">
-        <div><span>שש שיטות ראשיות</span><strong>{methodsLoading ? "מחשב את שש השיטות של הביטוי החדש…" : "נגיעה מחליפה את כל המחקר שמתחת"}</strong></div>
+        <div><span>שש שיטות מהירות · לפי הסדר הקנוני</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : "נגיעה מחליפה את כל המחקר שמתחת"}</strong></div>
         {methodsLoading ? <small className="is-loading">מתעדכן…</small>
           : methods.length > primaryMethods.length ? <small>+{methods.length - primaryMethods.length} שיטות נוספות בבית המדרש</small> : null}
       </div>
