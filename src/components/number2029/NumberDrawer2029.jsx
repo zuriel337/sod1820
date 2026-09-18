@@ -13,6 +13,8 @@ import { langLinksList } from "../../lib/supabase.js";
 import "./numberDrawer2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+const normalizedMethodName = (value) => clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
+const isRegularMethodIdentity = (value) => normalizedMethodName(value) === "רגיל";
 
 function anchorExpression(fact, root) {
   const text = clean(fact);
@@ -152,6 +154,12 @@ export default function NumberDrawer2029({
     () => methodProfileEntry(profileState.rows, selectedMethodKey),
     [profileState.rows, selectedMethodKey],
   );
+  const regularProfile = useMemo(
+    () => profileState.rows.find((row) => (
+      isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
+    )) || null,
+    [profileState.rows],
+  );
 
   useEffect(() => {
     const expr = clean(expression);
@@ -174,6 +182,29 @@ export default function NumberDrawer2029({
 
   const data = dataState.data;
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
+  const regularGroup = useMemo(
+    () => families.find((group) => {
+      const key = familyMethodKey(group);
+      const label = clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key);
+      return isRegularMethodIdentity(key) || isRegularMethodIdentity(label);
+    }) || null,
+    [families],
+  );
+  const regularExpressions = useMemo(() => {
+    const seen = new Set();
+    const rows = [];
+    const add = (phrase, source = "family") => {
+      const text = clean(phrase);
+      if (!text || seen.has(text)) return;
+      seen.add(text);
+      rows.push({ phrase: text, value: root, source });
+    };
+    if (expression && regularProfile && Number(regularProfile.computedValue) === root) add(expression, "active");
+    for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) {
+      add(phraseOf(raw), "family");
+    }
+    return rows.slice(0, 30);
+  }, [expression, regularProfile, regularGroup, root]);
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const sources = Array.isArray(data?.sources) ? data.sources : [];
   const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
@@ -452,11 +483,22 @@ export default function NumberDrawer2029({
 
     {projection ? <NumberCore2029
       projection={projection}
+      stageProjection={stageProjection}
+      stageLoading={methodResultState.loading}
+      languageBridges={languageBridgeState.rows}
+      regularExpressions={regularExpressions}
       mode="drawer"
       traceState={traceState}
       traceOpen={traceOpen}
       traceSteps={traceSteps}
       traceDetail={trace}
+      onExpressionSelect={(phrase) => {
+        setExpression(phrase);
+        setInput(phrase);
+        if (regularProfile?.methodKey) setSelectedMethodKey(regularProfile.methodKey);
+        setTraceOpen(false);
+      }}
+      onResolveQuery={resolveInputValue}
       onMethodSelect={selectMethod}
       onToggleTrace={() => setTraceOpen((value) => !value)}
       onOpenCrossing={(crossing) => razielIntent("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
