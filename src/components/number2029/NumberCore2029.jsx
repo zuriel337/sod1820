@@ -249,7 +249,7 @@ export default function NumberCore2029({
           return <article key={method.methodKey} className={`sod29-number-v7-method-card${selected ? " is-active" : ""}${inspected ? " is-inspected" : ""}`}>
             <button
               type="button"
-              className="sod29-number-v7-method-main"
+              className={`sod29-number-v7-method-main${selected ? " is-active" : ""}${inspected ? " is-inspected" : ""}`}
               aria-pressed={selected}
               onClick={() => inspectMethod(method)}
             >
@@ -265,7 +265,7 @@ export default function NumberCore2029({
           </article>;
         })}
       </div>
-      {!methodsExpanded && methods.length > methodLimit ? <small className="sod29-number-v7-method-note">מוצגות {visibleMethods.length} מתוך {methods.length} שיטות קנוניות · השאר נשארות זמינות בלי להעמיס את הריבוע</small> : null}
+      {methods.length > visibleMethods.length ? <small className="sod29-number-v7-method-note">מוצגות {visibleMethods.length} מתוך {methods.length} שיטות קנוניות · השאר נשארות זמינות בלי להעמיס את הריבוע</small> : null}
     </section>
 
     <MethodInspector
