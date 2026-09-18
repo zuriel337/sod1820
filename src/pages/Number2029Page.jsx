@@ -473,7 +473,7 @@ function NumberPageBody() {
     navigate("/world");
   };
 
-  const askRaziel = (intent = "number_context") => {
+  const askRaziel = (intent = "number_context", focus = {}) => {
     const numberCoreFocus = {
       root,
       expression: activeExpression || null,
@@ -481,6 +481,7 @@ function NumberPageBody() {
       resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
       crossingPartner: coreProjection?.crossing?.partner || null,
       zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
+      ...(focus && typeof focus === "object" ? focus : {}),
     };
     research.updateResearchContext?.({
       selection: {
@@ -598,7 +599,7 @@ function NumberPageBody() {
         traceSteps={traceSteps}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
-        onOpenCrossing={() => askRaziel("explain_crossing")}
+        onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
         onOpenWorld={() => openWorld()}
@@ -837,7 +838,7 @@ export default function Number2029Page() {
   return <Sod2029Shell
     surface="number"
     symbol="123"
-    status="V6 DNA DASHBOARD · BRANCH ONLY"
+    status="V7 NUMBER CORE · BRANCH ONLY"
   >
     <NumberPageBody />
   </Sod2029Shell>;
