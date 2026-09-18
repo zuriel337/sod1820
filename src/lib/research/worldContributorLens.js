@@ -98,110 +98,6 @@ export function buildWorldContributorLens({
   }
 
   const convergencesBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
-  for (const item of authorConvergences || []) {
-    const author = clean(item?.author);
-    const slug = aliasToSlug.get(author) || null;
-    if (!slug) continue;
-    if (convergenceTouchesWorldAnchor(item, anchor)) convergencesBySlug[slug].push(item);
-  }
-
-  const contributorRows = approved
-    .map((row) => ({
-      id: String(row.id),
-      slug: row.slug,
-      displayName: row.display_name,
-      role: row.role || null,
-      kind: row.kind || null,
-      aliases: contributorAliases(row),
-      counts: {
-        research: researchObjectIdsBySlug[row.slug].size,
-        contributions: relevantContributionsBySlug[row.slug].length,
-        topicConvergences: [...topicSlugsBySlug[row.slug]].filter((slug) => topicSlugsAroundAnchor.includes(slug)).length,
-        convergenceRows: convergencesBySlug[row.slug].length,
-      },
-    }))
-    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
-
-  return {
-    contributors: contributorRows,
-    bySlug: Object.fromEntries(contributorRows.map((row) => [row.slug, {
-      ...row,
-      researchObjectIds: [...researchObjectIdsBySlug[row.slug]],
-      relevantContributions: relevantContributionsBySlug[row.slug],
-      topicSlugs: [...topicSlugsBySlug[row.slug]],
-      convergences: convergencesBySlug[row.slug],
-    }])),
-    approvedSlugs: [...WORLD_APPROVED_CONTRIBUTOR_SLUGS],
-    note: "World contributor lens is presentation/provenance only. It never attributes canonical engine rows to a person and never guesses missing authorship.",
-  };
-}
-
-
-export function buildWorldLandingContributorProjection({
-  contributors = [],
-  publicContributions = [],
-  authorConvergences = [],
-} = {}) {
-  const allowed = new Set(WORLD_APPROVED_CONTRIBUTOR_SLUGS);
-  const approved = (contributors || [])
-    .filter((row) => allowed.has(clean(row?.slug)))
-    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
-
-  const contributorById = new Map(approved.map((row) => [String(row.id), row]));
-  const aliasToSlug = new Map();
-  for (const row of approved) {
-    for (const alias of contributorAliases(row)) aliasToSlug.set(alias, row.slug);
-  }
-
-  const meetingsBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
-  const seen = new Set();
-
-  for (const row of publicContributions || []) {
-    const contributor = contributorById.get(String(row?.author_contributor_id || ""));
-    const slug = clean(row?.convergence_slug);
-    if (!contributor || !slug) continue;
-    const value = numericValue(row?.gematria_claim?.value ?? row?.target_id);
-    const key = `topic:${slug}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    meetingsBySlug[contributor.slug].push({
-      id: key,
-      kind: "topic",
-      slug,
-      value,
-      title: clean(row?.title) || clean(row?.gematria_claim?.claim) || (value != null ? `מפגש סביב ${value}` : "מפגש"),
-      summary: clean(row?.gematria_claim?.claim) || null,
-      method: clean(row?.gematria_claim?.method) || null,
-      authorSlug: contributor.slug,
-      authorName: contributor.display_name,
-      source: "research_contributions:approved",
-    });
-  }
-
-  for (const item of authorConvergences || []) {
-    const author = clean(item?.author);
-    const slug = aliasToSlug.get(author) || null;
-    if (!slug) continue;
-    const value = numericValue(item?.value);
-    const key = `convergence:${slug}:${clean(item?.id) || `${value ?? "na"}:${clean(item?.method)}`}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const authorPhrases = Array.isArray(item?.author_phrases) ? item.author_phrases.map(clean).filter(Boolean) : [];
-    meetingsBySlug[slug].push({
-      id: key,
-      kind: "convergence",
-      slug: null,
-      value,
-      title: value != null ? `מפגש ${value}` : "מפגש",
-      summary: authorPhrases.slice(0, 4).join(" · ") || clean(item?.note) || null,
-      method: clean(item?.method) || null,
-      groupSize: Number(item?.group_size) || authorPhrases.length || null,
-      authorSlug: slug,
-      authorName: approved.find((row) => row.slug === slug)?.display_name || author,
-      source: "convergences_for_author",
-    });
-  }
-
   const people = approved.map((row) => ({
     id: String(row.id),
     slug: row.slug,
@@ -247,18 +143,9 @@ export async function fetchWorldLandingContributorProjection() {
     publicContributions = Array.isArray(data) ? data : [];
   }
 
-  const aliases = (contributors || []).flatMap(contributorAliases);
-  let authorConvergences = [];
-  if (aliases.length) {
-    const { data, error } = await supabase.rpc("convergences_for_author", { p_names: aliases });
-    if (error) throw error;
-    authorConvergences = Array.isArray(data) ? data : [];
-  }
-
   return buildWorldLandingContributorProjection({
     contributors,
     publicContributions,
-    authorConvergences,
   });
 }
 
