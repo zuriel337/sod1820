@@ -133,6 +133,8 @@ export default function NumberCore2029({
   onOpenZero,
   onOpenPage,
   onOpenWorld,
+  onOpenJourney,
+  journeyLabel = null,
   onOpenResult,
   onRazielAction,
   onExpandRaziel,
@@ -304,7 +306,8 @@ export default function NumberCore2029({
     </section>
 
     <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
-      {onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 מסע / עולם</button> : null}
+      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
+        : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 מסע / עולם</button> : null}
       <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
       <button type="button" onClick={() => onRazielAction?.("next_research_step")}>🔖 המשך מחקר</button>
       <button type="button" className="primary" onClick={() => onExpandRaziel?.()}>✨ פתח ברזיאל</button>
