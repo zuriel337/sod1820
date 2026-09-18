@@ -37,6 +37,16 @@ const WORLD_FACETS = [
   { key: "phrase", title: "ביטויים", kicker: "שפה וביטוי", limit: 6 },
 ];
 
+const WORLD_CORE_FACETS = Object.freeze({
+  topic: { label: "מפגשים", symbol: "✦" },
+  number: { label: "מספרים", symbol: "123" },
+  book: { label: "מקורות", symbol: "▤" },
+  event: { label: "אירועים", symbol: "◷" },
+  phrase: { label: "ביטויים", symbol: "א" },
+});
+
+const landingSectionId = (key) => `world-facet-${key}`;
+
 const FACET_LABELS = {
   topic: "חיבור",
   number: "מספר",
@@ -300,6 +310,37 @@ function NativeStateSection({ children }) {
   return <section className="sod29-section sod29-world-state-section">{children}</section>;
 }
 
+function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
+  const activeFacets = WORLD_FACETS.filter((facet) => (sections?.[facet.key] || []).length > 0).slice(0, 5);
+  return (
+    <div className="sod29-world-core-map" aria-label="לב העולם">
+      <span className="sod29-world-core-ring ring-a" aria-hidden="true" />
+      <span className="sod29-world-core-ring ring-b" aria-hidden="true" />
+      <button className="sod29-world-core-center" type="button" onClick={onSearch} aria-label="פתח חיפוש בעולם">
+        <span>לב העולם</span>
+        <strong>{WORLD_EXPERIENCE.brand.canonicalLatinIdentity}</strong>
+        <small>{loading ? "מחבר שערים…" : activeFacets.length ? `${activeFacets.length} שערים פתוחים` : "פתח חיפוש"}</small>
+      </button>
+      {activeFacets.map((facet, index) => {
+        const meta = WORLD_CORE_FACETS[facet.key] || { label: facet.title, symbol: "•" };
+        const shown = sections?.[facet.key]?.length || 0;
+        return <button
+          key={facet.key}
+          className={`sod29-world-core-node p${index + 1}`}
+          type="button"
+          aria-controls={landingSectionId(facet.key)}
+          onClick={() => onOpenFacet(facet)}
+        >
+          <span className="sod29-world-core-symbol" aria-hidden="true">{meta.symbol}</span>
+          <strong>{meta.label}</strong>
+          <small>{shown} מוצגים</small>
+        </button>;
+      })}
+      <div className="sod29-world-core-hint">בחר שער כדי לקפוץ ישר אליו</div>
+    </div>
+  );
+}
+
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const [landing, setLanding] = useState({ loading: true, sections: {}, error: null });
@@ -371,6 +412,15 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const populatedSections = WORLD_FACETS.filter((facet) => (landing.sections[facet.key] || []).length > 0);
 
+  const openLandingFacet = (facet) => {
+    if (!facet?.key || typeof document === "undefined") return;
+    const section = document.getElementById(landingSectionId(facet.key));
+    if (!section) return;
+    section.focus?.({ preventScroll: true });
+    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
+
   return <>
     <section
       className="sod29-focus-stage sod29-world-native-entry"
@@ -389,13 +439,12 @@ function LiveWorldLanding({ research, shell, context }) {
             <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה השתנה</button>
           </div>
         </div>
-        <div className="sod29-orbit-map" aria-hidden="true">
-          <div className="sod29-orbit-center">{WORLD_EXPERIENCE.brand.canonicalLatinIdentity}</div>
-          <span className="sod29-orbit-node n1">מספרים</span>
-          <span className="sod29-orbit-node n2">מקורות</span>
-          <span className="sod29-orbit-node n3">קשרים</span>
-          <span className="sod29-orbit-node n4">אירועים</span>
-        </div>
+        <WorldCoreMap
+          sections={landing.sections}
+          loading={landing.loading}
+          onSearch={() => shell.openCommand()}
+          onOpenFacet={openLandingFacet}
+        />
       </div>
     </section>
 
@@ -405,7 +454,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
     {!landing.loading && populatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
-      return <section className="sod29-section" key={facet.key}>
+      return <section className="sod29-section sod29-world-facet-section" id={landingSectionId(facet.key)} tabIndex={-1} key={facet.key}>
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">{facet.kicker}</div><h2>{facet.title}</h2></div>
           {facet.key === "book" ? <button className="sod29-action" type="button" onClick={() => shell.go("/books")}>לכל הספרים</button> : null}
