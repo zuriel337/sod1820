@@ -375,11 +375,18 @@ function NumberPageBody() {
     methodProfile: methodProfileState.rows,
     families,
     topics,
+    relations,
     sources,
     worlds,
+    findings: researchFindings,
+    timeline,
+    media: mediaItems,
+    surface,
     zeroScale: zeroScaleData,
     activityCount,
-  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, sources, worlds, zeroScaleData, activityCount]);
+    journeyAvailable: root === 878,
+    heroMedia: leadMedia,
+  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
   const activeMethodLabel = selectedMethodProfile?.displayLabel || methodLabel(selectedGroup);
 
