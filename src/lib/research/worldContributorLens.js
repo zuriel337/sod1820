@@ -98,6 +98,79 @@ export function buildWorldContributorLens({
   }
 
   const convergencesBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
+  for (const item of authorConvergences || []) {
+    const author = clean(item?.author);
+    const slug = aliasToSlug.get(author) || null;
+    if (!slug) continue;
+    if (convergenceTouchesWorldAnchor(item, anchor)) convergencesBySlug[slug].push(item);
+  }
+
+  const contributorRows = approved
+    .map((row) => ({
+      id: String(row.id),
+      slug: row.slug,
+      displayName: row.display_name,
+      role: row.role || null,
+      kind: row.kind || null,
+      aliases: contributorAliases(row),
+      counts: {
+        research: researchObjectIdsBySlug[row.slug].size,
+        contributions: relevantContributionsBySlug[row.slug].length,
+        topicConvergences: [...topicSlugsBySlug[row.slug]].filter((slug) => topicSlugsAroundAnchor.includes(slug)).length,
+        convergenceRows: convergencesBySlug[row.slug].length,
+      },
+    }))
+    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
+
+  return {
+    contributors: contributorRows,
+    bySlug: Object.fromEntries(contributorRows.map((row) => [row.slug, {
+      ...row,
+      researchObjectIds: [...researchObjectIdsBySlug[row.slug]],
+      relevantContributions: relevantContributionsBySlug[row.slug],
+      topicSlugs: [...topicSlugsBySlug[row.slug]],
+      convergences: convergencesBySlug[row.slug],
+    }])),
+    approvedSlugs: [...WORLD_APPROVED_CONTRIBUTOR_SLUGS],
+    note: "World contributor lens is presentation/provenance only. It never attributes canonical engine rows to a person and never guesses missing authorship.",
+  };
+}
+
+
+export function buildWorldLandingContributorProjection({
+  contributors = [],
+  publicContributions = [],
+} = {}) {
+  const allowed = new Set(WORLD_APPROVED_CONTRIBUTOR_SLUGS);
+  const approved = (contributors || [])
+    .filter((row) => allowed.has(clean(row?.slug)))
+    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
+  const contributorById = new Map(approved.map((row) => [String(row.id), row]));
+  const meetingsBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
+  const seen = new Set();
+
+  for (const row of publicContributions || []) {
+    const contributor = contributorById.get(String(row?.author_contributor_id || ""));
+    const meetingSlug = clean(row?.convergence_slug);
+    if (!contributor || !meetingSlug) continue;
+    const key = `${contributor.slug}:${meetingSlug}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const value = numericValue(row?.gematria_claim?.value ?? row?.target_id);
+    meetingsBySlug[contributor.slug].push({
+      id: key,
+      kind: "topic",
+      slug: meetingSlug,
+      value,
+      title: clean(row?.title) || clean(row?.gematria_claim?.claim) || (value != null ? `מפגש סביב ${value}` : "מפגש"),
+      summary: clean(row?.gematria_claim?.claim) || null,
+      method: clean(row?.gematria_claim?.method) || null,
+      authorSlug: contributor.slug,
+      authorName: contributor.display_name,
+      source: "research_contributions:approved",
+    });
+  }
+
   const people = approved.map((row) => ({
     id: String(row.id),
     slug: row.slug,
@@ -115,13 +188,12 @@ export function buildWorldContributorLens({
       ...person,
       meetings: meetingsBySlug[person.slug] || [],
     }])),
-    note: "Public World landing shows only Human-Gate-approved contributor identities and source-attributed public meeting projections. Unknown authorship is never guessed.",
+    note: "Public World landing shows only Human-Gate-approved contributor identities and APPROVED source-attributed meeting projections. Unknown authorship is never guessed.",
   };
 }
 
 export async function fetchWorldLandingContributorProjection() {
   const { supabase } = await import("../supabase.js");
-
   const { data: contributors, error: contributorError } = await supabase
     .from("contributors")
     .select("id,slug,display_name,kind,role,wa_names")
@@ -143,10 +215,7 @@ export async function fetchWorldLandingContributorProjection() {
     publicContributions = Array.isArray(data) ? data : [];
   }
 
-  return buildWorldLandingContributorProjection({
-    contributors,
-    publicContributions,
-  });
+  return buildWorldLandingContributorProjection({ contributors, publicContributions });
 }
 
 export async function fetchWorldContributorLens({
