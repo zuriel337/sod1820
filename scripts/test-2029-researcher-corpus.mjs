@@ -15,18 +15,18 @@ const app = read("src/App2029.jsx");
 const page = read("src/pages/Researcher2029Page.jsx");
 const projection = read("src/lib/research/researcherCorpusProjection.js");
 
-assert.match(app, /path="\\/researcher\\/:slug"/);
-assert.match(page, /if \\(!isAdmin\\)/);
+assert.equal(app.includes('path="/researcher/:slug"'), true);
+assert.equal(page.includes("if (!isAdmin)"), true);
 assert.match(page, /מסך מנהל בלבד/);
-assert.match(page, /fetchResearcherCorpusBySlug/);
-assert.match(page, /shell\\.go\\("\\/world", \\{ preserve: false \\}\\)/);
-assert.match(page, /returnTo:/);
+assert.equal(page.includes("fetchResearcherCorpusBySlug"), true);
+assert.equal(page.includes('shell.go("/world", { preserve: false })'), true);
+assert.equal(page.includes("returnTo:"), true);
 assert.equal(page.includes("ContributorPage"), false);
 assert.equal(page.includes("BeitMidrash"), false);
 assert.equal(page.includes("בית מדרש"), false);
 assert.equal(projection.includes("research_contributions"), false, "v1 corpus must project parsed research_objects, not legacy contribution UI");
-assert.match(projection, /\\.from\\("research_objects"\\)/);
-assert.match(projection, /\\.eq\\("contributor", contributor\\.display_name\\)/);
+assert.equal(projection.includes('.from("research_objects")'), true);
+assert.equal(projection.includes('.eq("contributor", contributor.display_name)'), true);
 
 const multiply = normalizeResearcherCorpusRow({
   id: "m1",
