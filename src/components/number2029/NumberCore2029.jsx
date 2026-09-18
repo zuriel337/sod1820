@@ -262,6 +262,7 @@ export default function NumberCore2029({
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [methodsExpanded, setMethodsExpanded] = useState(false);
+  const [activeView, setActiveView] = useState("convergence");
 
   if (!projection) return null;
   const compact = mode === "drawer";
@@ -301,10 +302,26 @@ export default function NumberCore2029({
     }
   }, [methods, inspectorMethodKey]);
 
+  useEffect(() => {
+    setActiveView("convergence");
+    setInspectorMethodKey(null);
+    setInspectorTab("calc");
+    setMethodsExpanded(false);
+  }, [root]);
+
+  const activateView = (key) => {
+    setActiveView(key);
+    if (key === "calculation" && !inspectorMethodKey) {
+      setInspectorMethodKey(active?.methodKey || methods[0]?.methodKey || null);
+      setInspectorTab("calc");
+    }
+  };
+
   const inspectMethod = (method) => {
     onMethodSelect?.(method.methodKey);
     setInspectorMethodKey(method.methodKey);
     setInspectorTab("calc");
+    setActiveView("calculation");
   };
 
   return <section className={`sod29-number-core2029 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={NUMBER_CORE_PALETTE}>
