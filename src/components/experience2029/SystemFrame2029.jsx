@@ -299,24 +299,38 @@ function ToolsProjection({ target, onDeepen, go }) {
 
 function RazielProjection({ target, context, onDeepen }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
+  const numberFocus = context?.dimensions?.numberCoreFocus || null;
+  const microIntent = context?.dimensions?.razielMicroIntent || null;
+  const intentLabel = {
+    explain_crossing: "הסבר את ההצלבה",
+    explain_method: "הסבר את השיטה",
+    compare_methods: "השווה שיטות",
+    next_research_step: "מה כדאי לבדוק עכשיו?",
+    expand_panel: "המשך מה־Micro",
+  }[microIntent] || null;
   return (
     <>
       <section className="sod29-raziel-native-hero">
         <RazielOrb />
         <div>
-          <div className="sod29-kicker">ONE COMPANION · SAME CONTEXT</div>
+          <div className="sod29-kicker">ONE COMPANION · MICRO → PANEL → DEEP</div>
           <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה לעוגן מחקר"}</h3>
-          <p>רזיאל הוא נוכחות מחקרית, לא צ׳אט נפרד ולא owner של אמת. ה־Legacy AskRaziel אינו נטען ל־Runtime 2029.</p>
+          <p>זה אותו רזיאל שקיבל את ה־Micro מהחלונית. הרחבה משנה עומק וכלים — לא זהות, Context או אמת.</p>
         </div>
       </section>
-      <FrameState title="Silence Gate">אין כרגע adapter 2029 שמוכיח שינוי החלטתי חדש, ולכן ה־Orb נשאר שקט ואינו ממציא pulse.</FrameState>
+      {numberFocus ? <section className="sod29-panel-context-card">
+        <b>{intentLabel || "Number Core focus"}</b>
+        <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
+        {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
+        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
+      </section> : <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState>}
       <div className="sod29-panel-context-card">
-        <b>Context שניתן לרזיאל</b>
+        <b>Research Context שניתן לרזיאל</b>
         <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין עוגן שמור"}</span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ חקור איתי · adapter pending</button>
+        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ המשך שיחה · adapter pending</button>
         <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ פתח Deep Research</button>
       </div>
     </>
