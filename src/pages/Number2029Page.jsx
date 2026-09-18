@@ -654,7 +654,7 @@ function NumberPageBody() {
         },
         lens: "number",
         locale: research.context?.locale || "he",
-        returnTo: Number.isSafeInteger(root) ? {
+        returnTo: next === root ? research.context?.returnTo || null : (Number.isSafeInteger(root) ? {
           href: `/2029/number/${root}`,
           label: `דף ${root}`,
           subject: research.context?.subject || null,
@@ -662,8 +662,14 @@ function NumberPageBody() {
           lens: research.context?.lens || "number",
           dimensions: research.context?.dimensions || {},
           journey: research.context?.journey || null,
-        } : null,
+        } : null),
       });
+      if (next === root) {
+        setActiveExpression(raw);
+        if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
+        setTraceOpen(false);
+        return;
+      }
       navigate(`/2029/number/${next}`);
     } catch {
       setActiveExpression(raw);
