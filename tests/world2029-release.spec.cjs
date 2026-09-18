@@ -108,7 +108,7 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
 
-  await expect(page.getByRole('heading', { name: 'דף המספר', exact: true })).toBeVisible();
+  await expect(page.getByText('מספר במערכת 2029', { exact: true }).first()).toBeVisible();
   const numberPage = page.locator('.sod29-number-page');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage).toHaveAttribute('data-number-root', '1237');

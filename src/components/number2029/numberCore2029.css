@@ -779,6 +779,7 @@
 }
 .sod29-number-dashboard-identity{
   display:grid;
+  direction:ltr;
   grid-template-columns:118px minmax(0,1fr) minmax(230px,.8fr);
   gap:18px;
   align-items:center;
@@ -808,6 +809,7 @@
 }
 .sod29-number-dashboard-identity-copy{
   min-width:0;
+  direction:rtl;
   display:grid;
   gap:3px;
   justify-items:start;
@@ -834,6 +836,7 @@
 .sod29-number-dashboard-identity-copy>small{color:var(--s29-muted);font-size:10px}
 .sod29-number-dashboard-quote{
   margin:0;
+  direction:rtl;
   display:grid;
   gap:5px;
   padding-inline-start:16px;
@@ -846,9 +849,10 @@
 }
 .sod29-number-dashboard-quote span,
 .sod29-number-dashboard-quote cite{color:var(--s29-muted);font-size:10px;line-height:1.45}
-.sod29-number-dashboard-top{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sod29-number-dashboard-top{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;direction:ltr}
 .sod29-number-dashboard-top>article{
   min-height:138px;
+  direction:rtl;
   align-content:start;
   position:relative;
   overflow:hidden;
@@ -891,12 +895,14 @@
 }
 .sod29-number-dashboard-body{
   display:grid;
+  direction:ltr;
   grid-template-columns:minmax(230px,.34fr) minmax(0,1fr);
   gap:12px;
   align-items:stretch;
 }
 .sod29-number-dashboard-coverage,
 .sod29-number-dashboard-dna{
+  direction:rtl;
   border:1px solid var(--s29-line);
   border-radius:22px;
   background:color-mix(in srgb,var(--s29-panel) 95%,transparent);
@@ -968,7 +974,7 @@
   font-variant-numeric:tabular-nums;
 }
 .sod29-number-dashboard-layer-list .is-empty{opacity:.42}
-.sod29-number-dashboard-main{display:grid;gap:12px;min-width:0}
+.sod29-number-dashboard-main{display:grid;gap:12px;min-width:0;direction:rtl}
 .sod29-number-dashboard-dna{padding:14px}
 .sod29-number-dashboard-dna-head{
   display:flex;

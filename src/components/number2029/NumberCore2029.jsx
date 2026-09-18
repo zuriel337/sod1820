@@ -222,7 +222,7 @@ export default function NumberCore2029({
       </div>
 
       <blockquote className="sod29-number-dashboard-quote">
-        <strong>“בכל מספר מתגלה עולם שלם.”</strong>
+        <strong>“{raziel?.lead || `רזיאל איתך על ${root}`}”</strong>
         <span>{raziel?.text || "רזיאל מלווה את המספר דרך אותה Research Context."}</span>
         <cite>— רזיאל</cite>
       </blockquote>

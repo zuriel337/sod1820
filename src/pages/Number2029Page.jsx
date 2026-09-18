@@ -837,10 +837,7 @@ export default function Number2029Page() {
   return <Sod2029Shell
     surface="number"
     symbol="123"
-    eyebrow="NUMBER · EXPRESSION · LIVING OBSERVATORY"
-    title="דף המספר"
-    description="בית המספר ב־2029: רואים קודם מה חי סביבו, מבינים איך הוא מחושב, ואז נעים למפגשים, מקורות, נתיבים ומסע — באותו Research Context."
-    status="V2 PREVIEW · BRANCH ONLY"
+    status="V6 DNA DASHBOARD · BRANCH ONLY"
   >
     <NumberPageBody />
   </Sod2029Shell>;
