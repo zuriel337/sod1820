@@ -1104,7 +1104,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
       <div className="sod29-world-journey-track" aria-label="התחנות שעברת">
         {(journeyVisitedValues.length ? journeyVisitedValues : [GOLDEN_WORLD_JOURNEY_878.rootValue]).map((value, index) => <React.Fragment key={value}>
-          {index > 0 ? <span className="sod29-world-journey-track-line" aria-hidden="true" />}
+          {index > 0 ? <span className="sod29-world-journey-track-line" aria-hidden="true" /> : null}
           <button
             type="button"
             className={`sod29-world-journey-track-stop${currentJourneyValue === value ? " is-current" : ""}`}
