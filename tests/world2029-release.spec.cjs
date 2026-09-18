@@ -105,6 +105,8 @@ for (const width of MOBILE_WIDTHS) {
     await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
     const core = page.locator('.sod29-world-core-map');
     await expect(core).toBeVisible();
+    const firstGate = core.locator('.sod29-world-core-node').first();
+    await expect(firstGate).toBeVisible({ timeout: 30_000 });
     expect(await core.locator('.sod29-world-core-node').count()).toBeGreaterThan(0);
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/world-core-${width}.png`, fullPage: true });
