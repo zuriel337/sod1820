@@ -721,7 +721,6 @@ function NumberPageBody() {
           className={`sod29-number-expression-chip${phrase === activeExpression ? " is-active" : ""}`}
           onClick={() => {
             setActiveExpression(phrase);
-            setQuery(phrase);
             setTraceOpen(false);
             setObservatoryFocus("expression");
           }}
