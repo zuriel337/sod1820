@@ -216,6 +216,28 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await assertNoHorizontalOverflow(page);
 });
 
+test('Number 2029 control center opens canonical Miluy explain in-place and keeps Heichal deepening', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
+
+  const core = page.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible({ timeout: 30_000 });
+  const switcher = core.locator('.sod29-number-v9-switcher');
+  await switcher.getByRole('tab', { name: /שיטות/ }).click();
+
+  const miluy = core.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
+  await expect(miluy).toBeVisible({ timeout: 15_000 });
+  await miluy.click();
+
+  await expect(core.locator('[data-number-view="calculation"]')).toBeVisible();
+  const explain = core.locator('[data-miluy-spatial-explain="true"]');
+  await expect(explain).toBeVisible({ timeout: 15_000 });
+  await expect(explain).toContainText('878');
+  await expect(explain).toContainText('אות → שם האות המלא → ערך → סכום');
+  await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toBeVisible();
+  await assertNoHorizontalOverflow(page);
+});
+
 test('Number 2029 preview exposes the existing Golden Journey only for 878', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
