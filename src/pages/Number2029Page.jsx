@@ -607,27 +607,6 @@ function NumberPageBody() {
 
   return <div className="sod29-number-page" data-number-root={root} data-truth-safe="true">
     <section className="sod29-number-hero" id="number-now">
-      <form className="sod29-number-resolver" onSubmit={submitQuery}>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          aria-label="שם, ביטוי או מספר"
-          placeholder="שם · ביטוי · מספר"
-        />
-        <button className="sod29-action primary" type="submit">פתח</button>
-      </form>
-
-      <div className="sod29-number-identity">
-        <div className="sod29-kicker">NUMBER / EXPRESSION · LIVING OBSERVATORY</div>
-        <div className="sod29-number-expression">{activeExpression || root}</div>
-        <div className="sod29-number-value">{root}</div>
-        <div className="sod29-number-result">
-          {traceState.loading ? "מחשב דרך המנוע…" : activeResult != null
-            ? <><b>{activeMethodLabel}</b><span>→</span><strong>{activeResult}</strong></>
-            : <span>בחר ביטוי ושיטה כדי לפתוח תוצאה פעילה</span>}
-        </div>
-      </div>
-
       <NumberCore2029
         projection={coreProjection}
         mode="page"
@@ -639,6 +618,7 @@ function NumberPageBody() {
         onOpenCrossing={() => askRaziel("explain_crossing")}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
+        onOpenWorld={() => openWorld()}
         onRazielAction={askRaziel}
         onExpandRaziel={() => askRaziel("expand_panel")}
       />
@@ -663,16 +643,6 @@ function NumberPageBody() {
         </div>
         <ObservatoryNode item={observatoryItems.source} active={observatoryFocus === "source"} onClick={() => setObservatoryFocus("source")} />
         <ObservatoryNode item={observatoryItems.path} active={observatoryFocus === "path"} onClick={() => setObservatoryFocus("path")} />
-      </div>
-
-      {leadMedia ? <figure className="sod29-number-hero-media">
-        <img src={leadMedia.thumbUrl || leadMedia.imageUrl} alt={leadMedia.label || `ייצוג חזותי של ${root}`} loading="lazy" />
-        <figcaption><span>ייצוג חזותי מחובר</span><strong>{leadMedia.label || "מדיה"}</strong><small>{leadMedia.projectionReason || leadMedia.relationType || "Reality Graph"}</small></figcaption>
-      </figure> : null}
-
-      <div className="sod29-number-actions">
-        <button className="sod29-action primary" type="button" onClick={() => openWorld()}>פתח בעולם</button>
-        {root === 878 ? <button className="sod29-action" type="button" onClick={() => openWorld({ journey: true })}>צא למסע 878</button> : leadPath ? <button className="sod29-action" type="button" onClick={() => setObservatoryFocus("path")}>ראה שבילים</button> : null}
       </div>
 
       <div className="sod29-number-jumpbar" aria-label="ניווט בדף המספר">
