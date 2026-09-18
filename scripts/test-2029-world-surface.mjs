@@ -16,8 +16,13 @@ import { numberAnchorToUniversalFinding } from "../src/lib/research/numberAnchor
 import {
   WORLD_APPROVED_CONTRIBUTOR_SLUGS,
   buildWorldContributorLens,
+  buildWorldLandingContributorProjection,
   contributionTouchesWorldAnchor,
 } from "../src/lib/research/worldContributorLens.js";
+import {
+  GOLDEN_WORLD_JOURNEY_878,
+  projectGoldenJourney878,
+} from "../src/lib/research/worldJourneyProjection.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -31,6 +36,7 @@ const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
 const entityHubProjection = read("src/lib/research/entityHubProjection.js");
 const worldCss = read("src/pages/world2029-human.css");
 const contributorLensSource = read("src/lib/research/worldContributorLens.js");
+const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -55,6 +61,11 @@ assert.match(world, /onSearch=\{\(\) => shell\.openCommand\(\)\}/);
 assert.match(world, /aria-controls=\{landingSectionId\(facet\.key\)\}/);
 assert.match(world, /section\.scrollIntoView/);
 assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
+assert.match(world, /חוקרים וכתבים/);
+assert.match(world, /מסע 878/);
+assert.match(world, /מפגש הוא מקום שבו כמה ביטויים/);
+assert.equal(world.includes("נקודות מפגש"), false, "2029 World public vocabulary must not mix old meeting labels");
+assert.equal(world.includes("התכנסויות לפי חוקר"), false, "2029 World public vocabulary must use מפגש consistently");
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
@@ -202,6 +213,67 @@ assert.equal(contributorFixture.bySlug["tzvi-opoc"].researchObjectIds.includes("
 assert.equal(contributorFixture.bySlug["not-approved"], undefined);
 assert.equal(contributionTouchesWorldAnchor({ target_type: "number", target_id: "1820" }, { type: "number", label: "1820" }), true);
 
+const publicLandingFixture = buildWorldLandingContributorProjection({
+  contributors: [
+    { id: "tzvi-id", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] },
+    { id: "shimon-id", slug: "shimon-haimov", display_name: "שמעון חיימוב", wa_names: [] },
+    { id: "yaniv-id", slug: "yaniv-levi", display_name: "יניב לוי", wa_names: [] },
+    { id: "shachar-id", slug: "shachar-kandro", display_name: "יצחק שחר קנדרו", wa_names: [] },
+    { id: "fifth-id", slug: "not-approved", display_name: "לא מאושר", wa_names: [] },
+  ],
+  publicContributions: [
+    { id: "p1", author_contributor_id: "yaniv-id", title: "מפגש יניב", target_type: "number", target_id: "1820", convergence_slug: "yaniv-1820", gematria_claim: { value: 1820 } },
+    { id: "p2", author_contributor_id: "fifth-id", title: "לא אמור להיכנס", target_type: "number", target_id: "999", convergence_slug: "fifth-999", gematria_claim: { value: 999 } },
+  ],
+});
+assert.equal(publicLandingFixture.people.length, 4);
+assert.equal(publicLandingFixture.bySlug["yaniv-levi"].meetings.length, 1);
+assert.equal(publicLandingFixture.bySlug["not-approved"], undefined);
+const publicLandingFetcherSlice = contributorLensSource.slice(
+  contributorLensSource.indexOf("export async function fetchWorldLandingContributorProjection"),
+  contributorLensSource.indexOf("export async function fetchWorldContributorLens"),
+);
+assert.equal(publicLandingFetcherSlice.includes("convergences_for_author"), false, "public landing must not consume the legacy unfiltered author convergence RPC");
+assert.match(publicLandingFetcherSlice, /research_contributions/);
+assert.match(publicLandingFetcherSlice, /\.eq\("status", "approved"\)/);
+
+const golden878 = projectGoldenJourney878({
+  topicRows: [
+    { slug: "charvot-barzel-1202", title: "מפגש 1202", numbers: [1202, 878], highlight_numbers: [1202], meter_score: 92 },
+    { slug: "atzirut-hageula", title: "מפגש 776", numbers: [776, 878], highlight_numbers: [776], meter_score: 90 },
+    { slug: "meeting-1010", title: "מפגש 1010", numbers: [878, 588, 1010], highlight_numbers: [1010], meter_score: 82 },
+    { slug: "duplicate-1010", title: "עוד 1010", numbers: [878, 1010], highlight_numbers: [1010], meter_score: 70 },
+  ],
+  numberJourney: {
+    projection_scope: "internal_authorized",
+    root: { root_word: "INTERNAL_ONLY" },
+    branches: [{ name: "INTERNAL_BRANCH" }],
+    seed: { status: "draft", title: "PRIVATE_DRAFT" },
+    map: {
+      root: 878,
+      primary_value: 878,
+      family_values: [878, 8780, 87800],
+      hebrew_terms: ["משיח", "סובב עולם"],
+      methods: ["רגיל", "מילוי"],
+      evidence_count: 13,
+    },
+  },
+});
+assert.equal(golden878.id, GOLDEN_WORLD_JOURNEY_878.id);
+assert.equal(golden878.rootValue, 878);
+assert.deepEqual(golden878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
+assert.equal(JSON.stringify(golden878).includes("INTERNAL_ONLY"), false);
+assert.equal(JSON.stringify(golden878).includes("PRIVATE_DRAFT"), false);
+assert.equal(JSON.stringify(golden878).includes("INTERNAL_BRANCH"), false);
+assert.match(worldJourneySource, /fetchTopicCardList/);
+assert.match(worldJourneySource, /number:\s*GOLDEN_WORLD_JOURNEY_878\.rootValue/);
+assert.match(worldJourneySource, /rankByMeterScore:\s*true/);
+assert.equal(worldJourneySource.includes("journey_classic_seed"), false);
+assert.equal(worldJourneySource.includes("journey_seeds"), false);
+assert.match(world, /sod29-world-journey-rail/);
+assert.match(world, /journeyVisitedValues/);
+assert.equal(world.includes('shell.go("/journey'), false, "Golden Journey must remain inside World/Research Context in 2029");
+
 // Full Gematria visibility consumes Numeric Research's existing bounded/source-exhaustive contract.
 // World no longer hard-caps the rendered reverse lookup at 10 and owns no parallel order.
 assert.match(entityHubProjection, /lookupWindow: \{ limit: 500 \}/);
@@ -227,7 +299,7 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /העולם פתוח/);
-assert.match(world, /בחר נקודה וגלה מה מתחבר אליה/);
+assert.match(world, /אפשר להתחיל מנקודה — ולהמשיך למסע/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));
