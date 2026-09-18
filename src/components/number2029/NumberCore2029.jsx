@@ -279,7 +279,7 @@ export default function NumberCore2029({
         <article className="sod29-number-core2029-raziel sod29-number-dashboard-raziel">
           <div className="sod29-number-core2029-raziel-orb" aria-hidden="true"><i /></div>
           <div className="sod29-number-core2029-raziel-copy">
-            <div className="sod29-number-dashboard-raziel-head"><strong>רזיאל על המספר</strong><button type="button" onClick={() => onExpandRaziel?.()}>פתח רזיאל ↗</button></div>
+            <div className="sod29-number-dashboard-raziel-head"><div><span>RAZIEL MICRO · SAME COMPANION</span><strong>רזיאל על המספר</strong></div><button type="button" onClick={() => onExpandRaziel?.()}>פתח רזיאל ↗</button></div>
             <p>{raziel?.lead || `אני איתך על ${root}`}{raziel?.text ? ` · ${raziel.text}` : ""}</p>
             <div className="sod29-number-core2029-raziel-actions">
               <button type="button" onClick={() => onRazielAction?.("explain_method")}>למה זה כאן?</button>
