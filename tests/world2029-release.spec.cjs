@@ -307,10 +307,12 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   const inspectDialog = page.locator('.sod29-frame-panel[role="dialog"]');
   await expect(inspectDialog).toBeVisible();
   expect(await inspectDialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
-  const share = inspectDialog.getByRole('button', { name: /שתף הקשר/ });
+  // Canonical share owner: ShareActions. In headless Chromium native share is unavailable,
+  // so the guaranteed control is the canonical copy-link action.
+  const share = inspectDialog.getByRole('button', { name: /העתק קישור/ });
   await expect(share).toBeEnabled();
   await share.click();
-  await expect(inspectDialog.locator('.sod29-frame-feedback[role="status"]')).toBeVisible();
+  await expect(share).toContainText(/הועתק/);
   await page.keyboard.press('Escape');
 
   const exactReturn = page.locator('.sod29-header-actions button[title]').first();
