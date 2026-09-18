@@ -840,6 +840,7 @@ function NumberPageBody() {
         traceDetail={trace}
         stageProjection={stageProjection}
         stageLoading={methodResultState.loading}
+        methodsLoading={methodProfileState.loading}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         onExpressionSelect={(phrase) => {
