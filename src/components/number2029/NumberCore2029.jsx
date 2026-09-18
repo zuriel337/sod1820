@@ -117,9 +117,9 @@ function MethodInspector({
         </div>
       </div>
       <div className="sod29-number-core2029-raziel-actions">
-        <button type="button" onClick={() => onRazielAction?.("explain_method")}>הסבר את השיטה</button>
-        <button type="button" onClick={() => onRazielAction?.("compare_methods")}>השווה שיטות</button>
-        <button type="button" onClick={() => onRazielAction?.("next_research_step")}>מה לבדוק עכשיו?</button>
+        <button type="button" onClick={() => onRazielAction?.("explain_method", { kind: "method", methodKey: method.methodKey, methodLabel: method.displayLabel, resultValue: method.computedValue ?? null })}>הסבר את השיטה</button>
+        <button type="button" onClick={() => onRazielAction?.("compare_methods", { kind: "method", methodKey: method.methodKey, methodLabel: method.displayLabel, resultValue: method.computedValue ?? null })}>השווה שיטות</button>
+        <button type="button" onClick={() => onRazielAction?.("next_research_step", { kind: "method", methodKey: method.methodKey, methodLabel: method.displayLabel, resultValue: method.computedValue ?? null })}>מה לבדוק עכשיו?</button>
         <button type="button" className="expand" onClick={() => onExpandRaziel?.()}>הרחב לרזיאל ←</button>
       </div>
     </div> : null}
@@ -159,6 +159,7 @@ export default function NumberCore2029({
 } = {}) {
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
+  const [methodsExpanded, setMethodsExpanded] = useState(false);
 
   if (!projection) return null;
   const compact = mode === "drawer";
@@ -170,10 +171,18 @@ export default function NumberCore2029({
   const raziel = projection.razielMicro;
   const methods = Array.isArray(projection.methods) ? projection.methods : [];
   const worlds = Array.isArray(projection.worlds) ? projection.worlds : [];
+  const relatedNumbers = Array.isArray(projection.relatedNumbers) ? projection.relatedNumbers : [];
   const layers = Array.isArray(projection.layers) ? projection.layers : [];
   const coverage = projection.coverage || { percent: 0, present: 0, total: layers.length, note: "מהשכבות הזמינות מכילות חומר" };
   const connections = Array.isArray(projection.connections) ? projection.connections : [];
   const heroMedia = projection.heroMedia || null;
+
+  const methodLimit = compact ? (methodsExpanded ? 10 : 6) : (methodsExpanded ? 14 : 8);
+  const visibleMethods = useMemo(() => {
+    const primary = methods.slice(0, methodLimit);
+    if (!active?.methodKey || primary.some((method) => method.methodKey === active.methodKey) || primary.length >= methods.length) return primary;
+    return [...primary.slice(0, Math.max(0, primary.length - 1)), active];
+  }, [methods, methodLimit, active?.methodKey]);
 
   const inspectorMethod = useMemo(() => {
     if (!methods.length) return null;
@@ -228,12 +237,65 @@ export default function NumberCore2029({
       </blockquote>
     </header>
 
+    <section className="sod29-number-v7-method-ribbon" aria-label="שיטות גימטריה גלויות">
+      <div className="sod29-number-v7-method-head">
+        <div>
+          <span>שיטות גימטריה</span>
+          <strong>רואים מיד · פותחים לעומק בנגיעה</strong>
+        </div>
+        <button type="button" onClick={() => setMethodsExpanded((value) => !value)}>
+          {methodsExpanded ? "צמצם" : methods.length > methodLimit ? `עוד ${methods.length - methodLimit}` : "כל השיטות מוצגות"}
+        </button>
+      </div>
+      <div className="sod29-number-v7-method-grid sod29-number-core2029-methods">
+        {visibleMethods.map((method) => {
+          const selected = method.methodKey === active?.methodKey;
+          const inspected = method.methodKey === inspectorMethodKey;
+          return <article key={method.methodKey} className={`sod29-number-v7-method-card${selected ? " is-active" : ""}${inspected ? " is-inspected" : ""}`}>
+            <button
+              type="button"
+              className="sod29-number-v7-method-main"
+              aria-pressed={selected}
+              onClick={() => inspectMethod(method)}
+            >
+              <span>{method.displayLabel}</span>
+              <strong>{method.computedValue ?? "—"}</strong>
+            </button>
+            <button
+              type="button"
+              className="sod29-number-v7-method-raziel"
+              aria-label={`שאל את רזיאל על ${method.displayLabel}`}
+              onClick={() => onRazielAction?.("explain_method", { kind: "method", methodKey: method.methodKey, methodLabel: method.displayLabel, resultValue: method.computedValue ?? null })}
+            >✦</button>
+          </article>;
+        })}
+      </div>
+      {!methodsExpanded && methods.length > methodLimit ? <small className="sod29-number-v7-method-note">מוצגות {visibleMethods.length} מתוך {methods.length} שיטות קנוניות · השאר נשארות זמינות בלי להעמיס את הריבוע</small> : null}
+    </section>
+
+    <MethodInspector
+      method={inspectorMethodKey ? inspectorMethod : null}
+      projection={projection}
+      tab={inspectorTab}
+      setTab={setInspectorTab}
+      traceState={traceState}
+      traceOpen={traceOpen}
+      traceSteps={traceSteps}
+      onToggleTrace={onToggleTrace}
+      onRazielAction={onRazielAction}
+      onExpandRaziel={onExpandRaziel}
+      onClose={() => setInspectorMethodKey(null)}
+    />
+
     <div className="sod29-number-core2029-upper-grid sod29-number-dashboard-top">
       {crossing ? <article className="sod29-number-core2029-crossing">
         <div className="sod29-number-core2029-label"><span>∞</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
         <strong>{crossing.partner}</strong>
         <p>{crossing.methods.map((method) => method.methodLabel).join(" · ")}</p>
-        <button type="button" onClick={() => onOpenCrossing?.(crossing)}>הצג הצלבה</button>
+        <div className="sod29-number-v7-inline-actions">
+          <button type="button" onClick={() => onOpenCrossing?.(crossing)}>הצג הצלבה</button>
+          <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: crossing.partner, methods: crossing.methods })}>✦ רזיאל</button>
+        </div>
       </article> : <article className="sod29-number-core2029-crossing is-empty">
         <div className="sod29-number-core2029-label"><span>∞</span><b>הצלבה נסתרת</b></div>
         <strong>אין כרגע הצלבה עצמאית</strong>
@@ -258,13 +320,47 @@ export default function NumberCore2029({
         <p>נגזרת מוצגת רק כשהחוק חל.</p>
       </article>}
 
-      <article className="sod29-number-dashboard-worlds">
-        <div className="sod29-number-core2029-label"><span>♧</span><b>עולמות</b><small>{worlds.length}</small></div>
-        <strong>{worlds.length ? `${worlds.length} עולמות` : "אין עולם מחקר זמין"}</strong>
-        <p>{worlds.slice(0, 3).map((world) => world.label).join(" · ") || "יופיעו רק עולמות עם חומר אמיתי"}</p>
-        <button type="button" onClick={openWorldsInspector} disabled={!methods.length}>הצג עולמות</button>
-      </article>
     </div>
+
+    <section className="sod29-number-v7-world-hub" aria-label={`עולמות וקשרים סביב ${root}`}>
+      <div className="sod29-number-v7-world-head">
+        <div>
+          <span>מרכז העולמות</span>
+          <strong>מה מתחבר ל־{root}</strong>
+        </div>
+        <div className="sod29-number-v7-world-actions">
+          <button type="button" onClick={() => onOpenWorld?.()}>פתח הכל בעולם ↗</button>
+          <button type="button" onClick={() => onRazielAction?.("explain_world_context", { kind: "world_hub", worlds: worlds.slice(0, 6).map((world) => world.label), relatedNumbers: relatedNumbers.slice(0, 6).map((item) => item.value) })}>✦ רזיאל</button>
+        </div>
+      </div>
+
+      <div className="sod29-number-v7-world-grid">
+        <div className="sod29-number-v7-world-lane">
+          <span>עולמות מחקר</span>
+          {worlds.length ? worlds.slice(0, compact ? 4 : 6).map((world) => <button
+            type="button"
+            key={world.label}
+            onClick={() => onRazielAction?.("explain_world", { kind: "world", world: world.label, count: world.count || 0, samples: world.samples || [] })}
+          ><strong>{world.label}</strong><small>{world.count || 0}</small></button>) : <small className="is-empty">אין כרגע עולם מחקר זמין</small>}
+        </div>
+
+        <div className="sod29-number-v7-world-center">
+          <small>ROOT</small>
+          <strong>{root}</strong>
+          <span>{worlds.length} עולמות</span>
+          <span>{relatedNumbers.length} מספרים קשורים</span>
+        </div>
+
+        <div className="sod29-number-v7-world-lane is-numbers">
+          <span>מספרים קשורים</span>
+          {relatedNumbers.length ? relatedNumbers.slice(0, compact ? 5 : 7).map((item) => <button
+            type="button"
+            key={`${item.value}:${item.relationType}`}
+            onClick={() => onOpenResult?.(item.value)}
+          ><strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? "מפגש" : item.relationType}</small></button>) : <small className="is-empty">אין כרגע מספרים קשורים זמינים</small>}
+        </div>
+      </div>
+    </section>
 
     <div className="sod29-number-dashboard-body">
       <aside className="sod29-number-dashboard-coverage">
@@ -331,43 +427,6 @@ export default function NumberCore2029({
       <button type="button" className="primary" onClick={() => onExpandRaziel?.()}>✨ פתח ברזיאל</button>
       {compact && onOpenPage ? <button type="button" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}
     </footer>
-
-    <div className="sod29-number-core2029-method-section sod29-number-dashboard-method-deck">
-      <div className="sod29-number-core2029-section-title">
-        <span>כל השיטות · נגיעה אחת</span>
-        <small>{methods.length}</small>
-      </div>
-      <div className="sod29-number-core2029-methods" aria-label="שיטות גימטריה">
-        {methods.map((method) => {
-          const selected = method.methodKey === active?.methodKey;
-          const inspected = method.methodKey === inspectorMethodKey;
-          return <button
-            type="button"
-            key={method.methodKey}
-            className={`${selected ? "is-active" : ""}${inspected ? " is-inspected" : ""}`}
-            aria-pressed={selected}
-            onClick={() => inspectMethod(method)}
-          >
-            <span>{method.displayLabel}</span>
-            <strong>{method.computedValue ?? "—"}</strong>
-          </button>;
-        })}
-      </div>
-    </div>
-
-    <MethodInspector
-      method={inspectorMethodKey ? inspectorMethod : null}
-      projection={projection}
-      tab={inspectorTab}
-      setTab={setInspectorTab}
-      traceState={traceState}
-      traceOpen={traceOpen}
-      traceSteps={traceSteps}
-      onToggleTrace={onToggleTrace}
-      onRazielAction={onRazielAction}
-      onExpandRaziel={onExpandRaziel}
-      onClose={() => setInspectorMethodKey(null)}
-    />
 
     {result != null && Number(result) !== Number(root) && onOpenResult ? <button className="sod29-number-dashboard-open-result" type="button" onClick={() => onOpenResult(result)}>פתח את התוצאה הפעילה {result}</button> : null}
   </section>;
