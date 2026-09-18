@@ -1,5 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { PALETTES } from "../../lib/palette.js";
 import "./numberCore2029.css";
+
+const LAB = PALETTES.lab;
+const NUMBER_CORE_PALETTE = Object.freeze({
+  "--s29-page": LAB.pageBg,
+  "--s29-panel": LAB.card,
+  "--s29-panel-soft": LAB.cardSoft,
+  "--s29-panel-grad": LAB.cardGrad,
+  "--s29-line": LAB.border,
+  "--s29-line-strong": LAB.borderStrong,
+  "--s29-ink": LAB.ink,
+  "--s29-muted": LAB.inkSoft,
+  "--s29-accent": LAB.accent,
+  "--s29-hero": LAB.heroNum,
+  "--s29-glow": LAB.glow,
+  "--s29-accent-btn": LAB.accentBtn,
+  "--s29-on-accent": LAB.onAccent,
+});
 
 const TABS = Object.freeze([
   { key: "calc", label: "חישוב" },
@@ -183,7 +201,7 @@ export default function NumberCore2029({
     setInspectorTab("worlds");
   };
 
-  return <section className={`sod29-number-core2029 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
+  return <section className={`sod29-number-core2029 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={NUMBER_CORE_PALETTE}>
     <header className="sod29-number-dashboard-identity">
       {heroMedia?.src ? <figure className="sod29-number-dashboard-art">
         <img src={heroMedia.src} alt={heroMedia.label || `ייצוג חזותי של ${root}`} loading="lazy" />
