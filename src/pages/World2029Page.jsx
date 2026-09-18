@@ -675,7 +675,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
         <div className="sod29-world-journey-copy">
           <span className="sod29-kicker">Golden Journey · פתוח בבנייה</span>
-          <h3>{landing.journey.title}</h3>
+          <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
           <p>{landing.journey.subtitle}</p>
           <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
             {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
