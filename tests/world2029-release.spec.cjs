@@ -224,6 +224,10 @@ test('Number 2029 golden visual calibration covers 878 and 358 in Page and Drawe
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer).toBeVisible({ timeout: 30_000 });
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
+    await expect.poll(
+      () => drawer.locator('.sod29-number-core2029-methods button').count(),
+      { timeout: 15_000 },
+    ).toBeGreaterThan(3);
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/number-2029-drawer-${root}-390.png`, fullPage: false });
   }
