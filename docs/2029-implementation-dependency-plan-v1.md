@@ -233,11 +233,13 @@ Build/verify:
 
 Current relevant work:
 
-- PR #495 — 2029 one-tree media + private submission inbox; branch-only.
+- **PR #499 — RELEASED** one-tree media intake + private submission inbox + resumable TUS upload + contribution media binding/moderation; this is the released continuation of the #495 media foundation package.
+- **PR #511 — RELEASED** native World 2029 media projection over existing Gallery/Reality Graph records; public World gate is `gallery_images.published=1` + not curator-hidden.
 - PR #485 — media/OCR admission boundary; semantic admission adapter.
 - PR #464 — Universal Intake transport; older branch, reconcile/absorb rather than independently ship if superseded by newer intake work.
+- Delivery/performance implementation map: `docs/2029-media-performance-delivery-map-v1.md`. It records the Legacy resize/thumb/video lessons, bounded derivative ladder, poster/transcode rules, egress/Control Plane metrics and retirement gates without creating a new Media owner.
 
-**Exit gate:** same uploaded/generated artifact can safely become Post media, Research evidence representation, Share media, TTS/audio asset or future 3D texture without changing identity.
+**Exit gate:** same uploaded/generated artifact can safely become Post media, Research evidence representation, Share media, TTS/audio asset or future 3D texture without changing identity, and every public surface can request the smallest sufficient bounded representation without page-view media processing or unintended raw-video/original fetch.
 
 ---
 
