@@ -9,7 +9,7 @@ import {
   methodKey as familyMethodKey,
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
-import { langLinksList } from "../../lib/supabase.js";
+import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -65,6 +65,7 @@ export default function NumberDrawer2029({
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
+  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
 
   useEffect(() => {
@@ -105,6 +106,19 @@ export default function NumberDrawer2029({
     });
     return () => { alive = false; };
   }, [root]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!Number.isSafeInteger(root) || root < 1) {
+      setRegularPhraseState({ loading: false, rows: [] });
+      return undefined;
+    }
+    let alive = true;
+    setRegularPhraseState({ loading: true, rows: [] });
+    getAllValuePhrases(root, 500)
+      .then((rows) => { if (alive) setRegularPhraseState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
+      .catch(() => { if (alive) setRegularPhraseState({ loading: false, rows: [] }); });
+    return () => { alive = false; };
+  }, [root]);
 
   useEffect(() => {
     const expr = clean(expression);
@@ -194,18 +208,29 @@ export default function NumberDrawer2029({
   const regularExpressions = useMemo(() => {
     const seen = new Set();
     const rows = [];
-    const add = (phrase, source = "family") => {
+    const add = (phrase, source = "lead_rank", meta = {}) => {
       const text = clean(phrase);
       if (!text || seen.has(text)) return;
       seen.add(text);
-      rows.push({ phrase: text, value: root, source });
+      rows.push({ phrase: text, value: root, source, ...meta });
     };
-    if (expression && regularProfile && Number(regularProfile.computedValue) === root) add(expression, "active");
-    for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) {
-      add(phraseOf(raw), "family");
+    for (const row of regularPhraseState.rows) {
+      add(row?.phrase, "lead_rank", {
+        leadRank: row?.lead_rank ?? null,
+        verified: row?.is_verified === true,
+      });
     }
-    return rows.slice(0, 30);
-  }, [expression, regularProfile, regularGroup, root]);
+    if (!rows.length && regularPhraseState.loading) {
+      for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) add(phraseOf(raw), "family");
+    }
+    if (
+      expression
+      && regularProfile
+      && Number(regularProfile.computedValue) === root
+      && !seen.has(clean(expression))
+    ) rows.unshift({ phrase: clean(expression), value: root, source: "active_unstored", leadRank: null, verified: null });
+    return rows;
+  }, [expression, regularProfile, regularGroup, regularPhraseState, root]);
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const sources = Array.isArray(data?.sources) ? data.sources : [];
   const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
