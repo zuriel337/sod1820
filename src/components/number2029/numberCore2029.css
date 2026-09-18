@@ -1636,3 +1636,170 @@
 @media (prefers-reduced-motion:reduce){
   .sod29-miluy-spatial-letter,.sod29-miluy-spatial-letter.is-focus{transition:none;transform:none}
 }
+
+
+/* V9 · Switchable Number Control Center */
+.sod29-number-v9-switcher{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:6px;
+  padding:7px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
+}
+.sod29-number-v9-switcher button{
+  min-width:0;
+  min-height:50px;
+  display:grid;
+  place-items:center;
+  gap:2px;
+  padding:7px 5px;
+  border:1px solid transparent;
+  border-radius:13px;
+  background:transparent;
+  color:var(--s29-muted);
+  font:inherit;
+  cursor:pointer;
+}
+.sod29-number-v9-switcher button span{
+  max-width:100%;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sod29-number-v9-switcher button small{
+  color:inherit;
+  font-size:8px;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-number-v9-switcher button.is-active{
+  border-color:color-mix(in srgb,var(--s29-accent) 48%,var(--s29-line));
+  background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel));
+  color:var(--s29-ink);
+  box-shadow:0 7px 22px color-mix(in srgb,var(--s29-glow) 12%,transparent);
+}
+.sod29-number-v9-stage{
+  min-width:0;
+  display:grid;
+  gap:10px;
+  min-height:170px;
+}
+.sod29-number-v9-stage>[role="tabpanel"]{min-width:0}
+.sod29-number-v9-convergence{
+  display:grid;
+  gap:9px;
+}
+.sod29-number-v9-connections{
+  display:grid;
+  gap:8px;
+  padding:10px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+}
+.sod29-number-v9-panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.sod29-number-v9-panel-head span{
+  color:var(--s29-ink);
+  font-size:11px;
+  font-weight:900;
+}
+.sod29-number-v9-panel-head small{
+  color:var(--s29-hero);
+  font-size:9px;
+  font-weight:900;
+}
+.sod29-number-v9-depth{
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border:1px solid color-mix(in srgb,#c9a443 38%,var(--s29-line));
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 100% 0%,color-mix(in srgb,#d8b457 15%,transparent),transparent 34%),
+    color-mix(in srgb,var(--s29-panel) 96%,transparent);
+}
+.sod29-number-v9-depth-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.sod29-number-v9-depth-head>div{display:grid;gap:2px}
+.sod29-number-v9-depth-head span{color:#9b7827;font-size:7.5px;font-weight:950;letter-spacing:.08em}
+.sod29-number-v9-depth-head strong{color:var(--s29-ink);font-size:15px}
+.sod29-number-v9-depth-head small{color:var(--s29-muted);font-size:8px;line-height:1.45}
+.sod29-number-v9-crown{font-size:25px;line-height:1}
+.sod29-number-v9-depth-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.sod29-number-v9-depth-grid article{
+  min-width:0;
+  display:grid;
+  gap:3px;
+  padding:10px;
+  border:1px solid color-mix(in srgb,#c9a443 23%,var(--s29-line));
+  border-radius:14px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
+}
+.sod29-number-v9-depth-grid article span{color:#9b7827;font-size:7.5px;font-weight:900}
+.sod29-number-v9-depth-grid article strong{color:var(--s29-ink);font-size:11px}
+.sod29-number-v9-depth-grid article small{color:var(--s29-muted);font-size:7.5px;line-height:1.4}
+.sod29-number-v9-depth-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.sod29-number-v9-depth-actions button{
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  background:transparent;
+  color:var(--s29-ink);
+  font:inherit;
+  font-size:8.5px;
+  font-weight:900;
+  padding:7px 10px;
+  cursor:pointer;
+}
+.sod29-number-v9-depth-actions button.primary{
+  border-color:color-mix(in srgb,#c9a443 52%,var(--s29-line));
+  background:color-mix(in srgb,#c9a443 12%,var(--s29-panel-soft));
+}
+.sod29-number-core2029.is-drawer .sod29-number-v9-switcher{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.sod29-number-core2029.is-drawer .sod29-number-v9-switcher button{min-height:43px}
+.sod29-number-core2029.is-drawer .sod29-number-v9-stage{min-height:140px}
+
+@media(max-width:720px){
+  .sod29-number-v9-switcher{
+    display:flex;
+    overflow-x:auto;
+    gap:5px;
+    padding:6px;
+    scrollbar-width:none;
+  }
+  .sod29-number-v9-switcher::-webkit-scrollbar{display:none}
+  .sod29-number-v9-switcher button{
+    flex:0 0 82px;
+    min-height:44px;
+    padding:6px 4px;
+  }
+  .sod29-number-v9-switcher button span{font-size:8px}
+  .sod29-number-v9-switcher button small{font-size:7px}
+  .sod29-number-v9-stage{min-height:150px}
+  .sod29-number-v9-connections{padding:8px;border-radius:15px}
+  .sod29-number-v9-depth{padding:10px;border-radius:17px}
+  .sod29-number-v9-depth-head strong{font-size:12px}
+  .sod29-number-v9-depth-grid{grid-template-columns:1fr}
+  .sod29-number-v9-depth-actions button{flex:1;min-width:90px}
+}
