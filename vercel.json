@@ -249,5 +249,11 @@
         }
       ]
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "gpt/*": false,
+      "claude/*": false
+    }
+  }
 }
