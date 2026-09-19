@@ -24,7 +24,7 @@ for (const required of [
   "MATH PASSPORT",
   "runNumberMathProfile",
   "NumberCore2029",
-  "התכנסויות סביב",
+  "CONVERGENCES_LABEL",
   "צא למסע 878",
 ]) {
   assert.equal(page.includes(required), true, `Number 2029 preview must preserve native capability: ${required}`);
