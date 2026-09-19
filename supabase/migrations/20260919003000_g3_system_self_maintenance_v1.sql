@@ -60,6 +60,13 @@ from public.nodes r
 where r.type='rule'
   and r.rule_id='system_suggestions_law'
   and r.rule_version=2
+  and not exists (
+    select 1
+    from public.nodes existing
+    where existing.type='rule'
+      and existing.rule_id='system_suggestions_law'
+      and existing.rule_version=3
+  )
 order by r.created_at desc
 limit 1;
 
