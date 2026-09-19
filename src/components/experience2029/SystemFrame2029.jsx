@@ -203,7 +203,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">SEARCH / COMMAND ENTRY</div>
         <h3>פתח פוקוס בלי לעזוב את המקום.</h3>
-        <p>בשלב הזה Number/Expression מקבלים bridge דטרמיניסטי ל־Quick Inspect. ה־Universal Resolver המלא יוכל להחליף את ה־projection הזה בלי לשנות את ה־Frame.</p>
+        <p>ה־Command מתרגם כוונה ל־Capability בתוך אותו Frame. Number/Expression כבר נפתחים דרך ה־Capability Host; Resolver עתידי יוכל להרחיב intents בלי לשנות את ה־Context או ה־Panel.</p>
       </div>
       <form className="sod29-frame-command" onSubmit={onSubmit}>
         <input
@@ -236,8 +236,8 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepe
       </section>
 
       {numericFamily ? (
-        <FrameState kind="unavailable" title="Number / Expression · Quick Inspect seam פעיל">
-          דף המספר והחלונית החדשים עדיין לא ננעלו עיצובית. ה־Frame שומר כאן זהות, Context ופעולות בלבד — בלי לרשת את NumberDrawer הישן ובלי לחשב אמת בתוך ה־UI.
+        <FrameState title="Number / Expression · Quick Inspect">
+          בדיקה שומרת את הזהות וה־Context. חישוב נפתח כ־Number capability באותו Panel Host — לא כמערכת חלוניות נפרדת ולא דרך ה־Legacy NumberDrawer.
         </FrameState>
       ) : (
         <FrameState title="Entity Quick Inspect">אותו Inspect מיועד גם לספר/מקור, אדם, Event, Finding וישויות נוספות כשה־owner שלהן מספק projection.</FrameState>
@@ -329,6 +329,7 @@ function AttentionProjection({ context, onWorkspace }) {
 }
 
 function ToolsProjection({ target, onDeepen, go, onCapability }) {
+  const numericFamily = target?.type === "number" || target?.type === "phrase";
   return (
     <>
       <div className="sod29-panel-lead">
@@ -341,7 +342,7 @@ function ToolsProjection({ target, onDeepen, go, onCapability }) {
         <button className="sod29-action primary" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
         <button className="sod29-action" type="button" onClick={() => go("/els")}>✦ ELS</button>
         <button className="sod29-action" type="button" onClick={() => go("/books")}>▤ ספרים ומקורות</button>
-        <button className="sod29-action" type="button" onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button>
+        <button className="sod29-action" type="button" disabled={!numericFamily} title={numericFamily ? "פתח Number capability" : "בחר מספר או ביטוי כדי לפתוח Number"} onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button>
       </div>
     </>
   );
