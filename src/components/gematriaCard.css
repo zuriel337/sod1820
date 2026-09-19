@@ -399,15 +399,6 @@
   color:var(--gc-on-accent);
   border-color:transparent;
 }
-.sod-gematria-card.is-post{
-  max-width:760px;
-  margin-block:18px;
-}
-.sod-gematria-card.is-post .sod-gematria-card__summary{min-height:62px}
-.sod-gematria-card.is-post:not(.is-expanded){
-  box-shadow:0 8px 26px color-mix(in srgb,var(--gc-ink) 7%,transparent);
-}
-
 @media(max-width:820px){
   .sod-gematria-card__summary{grid-template-columns:1fr}
   .sod-gematria-card__summary-tail{justify-content:space-between}
