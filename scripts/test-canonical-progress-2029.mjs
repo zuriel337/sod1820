@@ -39,6 +39,8 @@ const migration = fs.readFileSync("supabase/migrations/20260919235300_g3_canonic
 assert.match(component, /aria-busy="true"/);
 assert.match(component, /role="progressbar"/);
 assert.match(component, /data-progress-kind/);
+assert.match(component, /DEFAULT_CANONICAL_PROGRESS_COPY/);
+assert.match(component, /copy = null/);
 assert.match(component, /שלבי פעולה מדווחים · לא חשיבה פנימית/);
 assert.match(component, /אין אחוז אמיתי לדווח/);
 assert.match(component, /הקטן והמשך ברקע/);
@@ -60,12 +62,14 @@ assert.match(design, /No fake percentage/i);
 assert.match(design, /Operational stages ≠ model chain-of-thought/);
 assert.match(design, /ELS \/ deep research \/ batch work requirement/);
 assert.match(design, /Stable geometry is mandatory/);
+assert.match(design, /localization-ready copy/i);
 
 assert.match(migration, /canonical_ui_components_law/);
 assert.match(migration, /rule_version=6|rule_version,\s*6|canonical_ui_components_law v6/i);
 assert.match(migration, /CanonicalProgress/);
 assert.match(migration, /NO FAKE ETA/);
 assert.match(migration, /CLS-STABLE SLOT/);
+assert.match(migration, /LOCALIZATION READY/);
 assert.doesNotMatch(migration, /create\s+table/i);
 assert.doesNotMatch(migration, /alter\s+table/i);
 assert.doesNotMatch(migration, /rule_id\s*=\s*'canonical_progress/i);
