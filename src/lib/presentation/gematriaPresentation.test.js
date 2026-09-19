@@ -425,6 +425,36 @@ test("S2 preview is bounded, active-first, and does not invent a priority array"
   );
 });
 
+test("projects supplied peer expressions without inventing discovery", () => {
+  const model = buildGematriaPresentationModel({
+    expression: "דעת",
+    methodProfile: PROFILE,
+    methodStates: STATES,
+    peerExpressions: [
+      { expression: "עדת", value: 474, method_key: "רגיל", verified: true },
+      { expression: "תדע", value: 474, methodKey: "רגיל", verification_state: "engine_verified" },
+      { expression: "", value: 474 },
+    ],
+  });
+
+  assert.deepEqual(model.peerExpressions, [
+    {
+      expression: "עדת",
+      value: 474,
+      methodKey: "רגיל",
+      verified: true,
+      verificationState: null,
+    },
+    {
+      expression: "תדע",
+      value: 474,
+      methodKey: "רגיל",
+      verified: false,
+      verificationState: "engine_verified",
+    },
+  ]);
+});
+
 test("preserves the original expression and only surfaces normalization notice when explicitly material", () => {
   const model = buildGematriaPresentationModel({
     expressionRaw: "  עמית׳  ",
