@@ -104,6 +104,170 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
+test('Number 2029 preview opens 1237 with six primary methods driving one research stage', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('.sod29-number-page');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  await expect(numberPage).toHaveAttribute('data-number-root', '1237');
+  await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
+
+  const core = numberPage.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-vitality')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-vitality')).toContainText('כיסוי שכבות');
+  await expect(core.locator('.sod29-number-v10-vitality')).not.toContainText('חיות המספר');
+
+  await expect.poll(
+    () => core.locator('.sod29-number-v10-method-card').count(),
+    { timeout: 15_000 },
+  ).toBeGreaterThan(3);
+  expect(await core.locator('.sod29-number-v10-method-card').count()).toBeLessThanOrEqual(6);
+  const triangleCard = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'משולש' }).first();
+  await expect(triangleCard).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-method-switcher')).not.toContainText('קדמי · משולש');
+
+  const firstMethod = core.locator('.sod29-number-v10-method-card').first();
+  await firstMethod.click();
+  await expect(firstMethod).toHaveAttribute('aria-pressed', 'true');
+  await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
+
+  await core.getByRole('button', { name: 'פתח חישוב' }).click();
+  const inspector = core.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'למד' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'רזיאל' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'עולמות' })).toBeVisible();
+
+  const observatory = numberPage.locator('.sod29-number-observatory');
+  await expect(observatory).toBeVisible();
+  expect(await observatory.locator('.sod29-number-observatory-node:not(.is-empty)').count()).toBeGreaterThanOrEqual(2);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
+});
+
+test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.sod29-number-page')).toBeVisible({ timeout: 30_000 });
+
+  const numberAction = page.locator('.sod29-command-island > button').filter({ hasText: 'מספר' }).first();
+  await expect(numberAction).toBeVisible();
+  await numberAction.click();
+
+  const drawer = page.locator('.sod29-number-drawer2029');
+  await expect(drawer).toBeVisible({ timeout: 30_000 });
+  await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('1237');
+  await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+  await expect(drawer.locator('.sod29-number-v10-stage')).toBeVisible();
+
+  const miluy = drawer.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
+  await expect(miluy).toBeVisible();
+  await miluy.click();
+  await expect(miluy).toHaveAttribute('aria-pressed', 'true');
+
+  await drawer.getByRole('button', { name: 'פתח חישוב' }).click();
+  const inspector = drawer.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible();
+  await inspector.getByRole('tab', { name: 'רזיאל' }).click();
+  await expect(inspector).toContainText('RAZIEL MICRO');
+  await inspector.getByRole('button', { name: 'השווה שיטות' }).click();
+
+  const razielPanel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
+  await expect(razielPanel).toBeVisible();
+  await expect(razielPanel).toContainText('השווה שיטות');
+  await expect(razielPanel).toContainText('1237');
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-drawer-1237-390.png', fullPage: false });
+});
+
+test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
+
+  const core = page.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible({ timeout: 30_000 });
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+
+  const search = core.getByLabel('חפש מילה ביטוי או מספר');
+  await search.fill('משיח');
+  await core.getByRole('button', { name: 'חפש ✦' }).click();
+  await expect(core.locator('.sod29-number-v10-expression')).toContainText('משיח', { timeout: 15_000 });
+
+  const miluy = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
+  await expect(miluy).toBeVisible({ timeout: 15_000 });
+  await expect(miluy).toContainText('878', { timeout: 15_000 });
+  await expect(miluy).toBeEnabled();
+  await miluy.click();
+
+  const stage = core.locator('.sod29-number-v10-stage');
+  await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 1_500 });
+  await expect(stage).toContainText('משיח');
+  await expect(stage.locator('.sod29-number-v10-calculation-card')).toContainText('878');
+  await expect(stage.locator('.sod29-number-v10-vitality')).toBeVisible();
+
+  const language = stage.locator('.sod29-number-v10-languages');
+  await expect(language).toBeVisible({ timeout: 15_000 });
+  await expect(language).toContainText('Messiah');
+  await expect(language).toContainText('мессия');
+
+  await stage.getByRole('button', { name: 'פתח חישוב' }).click();
+  const explain = stage.locator('[data-miluy-spatial-explain="true"]');
+  await expect(explain).toBeVisible({ timeout: 15_000 });
+  await expect(explain).toContainText('878');
+  await expect(explain).toContainText('אות → שם האות המלא → ערך → סכום');
+  await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toBeVisible();
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });
+});
+
+test('Number 2029 preview exposes the existing Golden Journey only for 878', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('.sod29-number-page');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
+  await expect(numberPage.getByRole('button', { name: 'צא למסע 878' })).toBeVisible();
+  await assertNoHorizontalOverflow(page);
+});
+
+test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer', async ({ page }) => {
+  for (const root of [878, 358, 1326]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${BASE}/2029/number/${root}`, { waitUntil: 'domcontentloaded' });
+
+    const numberPage = page.locator('.sod29-number-page');
+    await expect(numberPage).toBeVisible({ timeout: 30_000 });
+    await expect(numberPage.locator('.sod29-number-value')).toHaveText(String(root));
+    await expect(numberPage.locator('.sod29-number-core2029')).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({ path: `test-results/release-visual/number-2029-preview-${root}-390.png`, fullPage: true });
+
+    const numberAction = page.locator('.sod29-command-island > button').filter({ hasText: 'מספר' }).first();
+    await expect(numberAction).toBeVisible();
+    await numberAction.click();
+
+    const drawer = page.locator('.sod29-number-drawer2029');
+    await expect(drawer).toBeVisible({ timeout: 30_000 });
+    await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
+    await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+    await expect.poll(
+      () => drawer.locator('.sod29-number-v10-method-card').count(),
+      { timeout: 15_000 },
+    ).toBeGreaterThan(3);
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({ path: `test-results/release-visual/number-2029-drawer-${root}-390.png`, fullPage: false });
+  }
+});
+
 test('Golden Journey 878 starts in World and keeps its rail across a path transition', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
