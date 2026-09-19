@@ -270,6 +270,50 @@ test("carries governed evidence classification without recomputing it", () => {
   assert.equal(model.methods.find((m) => m.methodKey === "רגיל+מילוי").evidence.independence, "unknown");
 });
 
+test("projects governed expression-level raw versus independent evidence without recomputing it", () => {
+  const model = buildGematriaPresentationModel({
+    expression: "דעת",
+    methodProfile: PROFILE,
+    methodStates: STATES,
+    expressionEvidenceSummary: {
+      phrase_count: 124,
+      independent_phrase_count: 120,
+      dependent_expression_phrase_count: 4,
+      p1_hits: 57,
+      independent_p1_method_count: 6,
+      signal: "CORE_AXIS_CANDIDATE",
+    },
+  });
+
+  assert.deepEqual(model.expressionEvidence, {
+    available: true,
+    rawPhraseCount: 124,
+    independentPhraseCount: 120,
+    dependentExpressionPhraseCount: 4,
+    rawP1Hits: 57,
+    independentP1MethodCount: 6,
+    signal: "CORE_AXIS_CANDIDATE",
+    governed: true,
+  });
+});
+
+test("never derives expression evidence counts when the governed owner did not supply them", () => {
+  const model = buildGematriaPresentationModel({
+    expression: "דעת",
+    methodProfile: PROFILE,
+    methodStates: STATES,
+    expressionEvidenceSummary: {
+      phrase_count: 124,
+      signal: "CORE_AXIS_CANDIDATE",
+    },
+  });
+
+  assert.equal(model.expressionEvidence.rawPhraseCount, 124);
+  assert.equal(model.expressionEvidence.independentPhraseCount, null);
+  assert.equal(model.expressionEvidence.dependentExpressionPhraseCount, null);
+  assert.equal(model.expressionEvidence.available, true);
+});
+
 test("marks structural roles but keeps evidence independence as a separate axis", () => {
   const model = buildGematriaPresentationModel({
     expression: "עמית",
