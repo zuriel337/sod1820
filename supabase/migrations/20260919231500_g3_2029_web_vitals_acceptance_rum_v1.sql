@@ -177,7 +177,7 @@ begin
       'human_classification', 'fn_ti_clean_classification',
       'engagement_source', 'events.engagement.props.engaged_ms',
       'web_vitals_source', 'events.performance.web_vital',
-      'web_vitals_scope', 'document_navigation_rum_not_crux',
+      'web_vitals_scope', 'document_navigation_hard_load_rum_not_crux',
       'telemetry_identity', 'semantic_shared_not_renderer_specific',
       'legacy_analytics_changed', false
     ),
