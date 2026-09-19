@@ -79,13 +79,15 @@ assert.match(collector, /p_surface:\s*"performance"/);
 assert.match(collector, /p_event_type:\s*"web_vital"/);
 assert.match(collector, /PerformanceObserver/);
 assert.match(collector, /sod1820\.co\.il/);
-assert.match(collector, /document_navigation/);
+assert.match(collector, /document_navigation_hard_load_only/);
+assert.match(collector, /stillInitialPath/);
 assert.doesNotMatch(collector, /create\s+table/i);
 
 assert.match(app2029, /startWebVitals2029/);
 
 assert.match(migration, /percentile_cont\(0\.75\)/i);
 assert.match(migration, /events\.performance\.web_vital/i);
+assert.match(migration, /document_navigation_hard_load_rum_not_crux/i);
 assert.match(migration, /latest_cls_issue/i);
 assert.match(migration, /audience_kind\s*<>\s*'internal_admin'/i);
 assert.match(migration, /surface\s*=\s*'performance'/i);
