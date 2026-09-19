@@ -65,7 +65,7 @@ const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
   { label: "מחשבון גימטריה", emoji: "🧮", to: "/research?tool=gematria" },
   { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim" },
-  { label: "העולם", emoji: "◌", to: "/world" },
+  { label: "העולם", emoji: "◌", to: "/world", status: "בהשלמה" },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/world", "/number", "/code"];
@@ -238,13 +238,13 @@ function NavLinkItem({ item, pathname, onNavigate }) {
   return (
     <div ref={ref} style={{ position: "relative" }}
       {...(hasChildren ? hoverProps : {})}>
-      <Link to={item.to} className="nav-link" title={item.label}
+      <Link to={item.to} className="nav-link" title={item.status ? `${item.label} — ${item.status}` : item.label}
         aria-haspopup={hasChildren ? "menu" : undefined} aria-expanded={hasChildren ? open : undefined}
         style={linkStyle}
         onClick={e => { if (hasChildren) { e.preventDefault(); setOpen(o => !o); } else { onNavigate?.(); } }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           {item.icon === "dilugim" ? <DilugimIcon size={17} /> : (item.emoji ? <span>{item.emoji}</span> : null)}
-          <span className="sod-prod-label">{item.label}</span>
+          <span className="sod-prod-label">{item.label}{item.status && <span aria-label={item.status} style={{ fontSize: 8.5, fontWeight: 900, color: cc.goldBright, background: "rgba(212,175,55,0.10)", border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "1px 5px", marginInlineStart: 4 }}>{item.status}</span>}</span>
         </span>
         {hasChildren && <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>}
       </Link>

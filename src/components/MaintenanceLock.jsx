@@ -53,7 +53,7 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
       )}
       {alternatives && !showLogin && (
         <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}>
-          <Link className="mlock-cta" to="/beit-midrash">📖 למחשבון בבית המדרש</Link>
+          <Link className="mlock-cta" to="/gematria">🧮 למחשבון הגימטריה</Link>
           <Link className="mlock-cta" to="/code">🔠 לדילוגי אותיות</Link>
         </div>
       )}

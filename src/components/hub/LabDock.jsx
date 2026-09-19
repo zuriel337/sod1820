@@ -30,7 +30,6 @@ export default function LabDock() {
   const activeId =
     pathname.startsWith("/research") ? (tool || "more")
     : pathname.startsWith("/number") || pathname.startsWith("/numbers") ? "number"
-    : pathname.startsWith("/beit-midrash") ? "midrash"
     : null;
 
   const onPick = (t) => {

@@ -97,8 +97,8 @@ export function OneTreeWidget() {
         {[
           { e: "🌱", t: `${(stats.axis_words || 0).toLocaleString("he")} מילים בציר`, to: "/world" },
           { e: "⚓", t: `${stats.anchors || 0} עוגנים`, to: "/world" },
-          { e: "🧩", t: `${stats.families_approved || 0} משפחות`, to: "/beit-midrash?atlas=all" },
-          { e: "🌍", t: `${stats.bridges || 0} גשרי-שפה`, to: "/beit-midrash?atlas=bridges" },
+          { e: "🧩", t: `${stats.families_approved || 0} משפחות`, to: "/world" },
+          { e: "🌍", t: `${stats.bridges || 0} גשרי-שפה`, to: "/world" },
         ].map((c, i) => (
           <Link key={i} to={c.to} style={{ textDecoration: "none", color: "var(--ot-ink)", background: "var(--ot-chipbg)", border: `1px solid var(--otg-dim)`, borderRadius: 999, padding: "5px 13px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
             {c.e} {c.t}

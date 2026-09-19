@@ -84,7 +84,7 @@ export default function BeitMidrashOverview() {
             <>
               <div style={secTitle}>
                 🔎 נחקר לאחרונה
-                <Link to="/beit-midrash?tab=searches" style={seeAll}>כל החיפושים →</Link>
+                <Link to="/research" style={seeAll}>כל החיפושים →</Link>
               </div>
               {sh.length === 0 ? (
                 <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>טוען…</div>
@@ -119,7 +119,7 @@ export default function BeitMidrashOverview() {
           <div style={{ minWidth: 0 }}>
             <div style={secTitle}>
               🌍 מילים חדשות באנגלית
-              <Link to="/beit-midrash?tab=calc" style={seeAll}>למחשבון →</Link>
+              <Link to="/gematria" style={seeAll}>למחשבון →</Link>
             </div>
             {enWords.length === 0 ? (
               <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>עדיין אין מילים באנגלית — הוסיפו בקונסולת-המילים (🌍 EN).</div>

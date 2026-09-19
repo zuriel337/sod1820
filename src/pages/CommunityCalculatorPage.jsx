@@ -18,7 +18,7 @@ import NameMultiSearch from "../components/NameMultiSearch.jsx";
 import HumanDateInput from "../components/HumanDateInput.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
-// אחיו המקצועי (שיטות מתקדמות והצלבות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
+// אחיו המקצועי (שיטות מתקדמות והצלבות) חי במעבדת-המחקר (/research?tool=gematria; legacy calc compatibility remains internal only).
 // כאן: רגש · שיתוף · «מה השם שלך מסתיר?» — כל תוצאה מפנה לעץ האחד (/number/:value), לא משכפלת.
 
 // 3 השיטות המרכזיות עם ההסבר הנעול (gematria.js soul + הגדרות ה-DB): גוף/נשמה/נסתר.

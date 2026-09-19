@@ -202,24 +202,6 @@ function GematriaToLab() {
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
-// בית-המדרש חי *בתוך* המעבדה (workspace_layout_standard) → כל כניסה ל-/beit-midrash
-// נכנסת לשלד-המחקר. כוונת-מחשבון (tab=calc / w / n) → המחשבון האחד (כלי 🧮);
-// אחרת → כלי 📖 בית-המדרש, עם שימור טאב-המדור אם נמסר. /beit-midrash נשאר כ-alias.
-function BeitMidrashToLab() {
-  const { search } = useLocation();
-  const p = new URLSearchParams(search);
-  const w = p.get("w") || p.get("calc");
-  const n = p.get("n");
-  const tab = p.get("tab");
-  // כוונת-מחשבון (tab=calc / w / n) → המחשבון של בית-המדרש (בתוך המעבדה), עם שימור המילה.
-  if (tab === "calc" || w || n) {
-    const qs = [w ? `w=${encodeURIComponent(w)}` : "", n ? `n=${encodeURIComponent(n)}` : ""].filter(Boolean).join("&");
-    return <Navigate to={`/research?tool=midrash&tab=calc${qs ? `&${qs}` : ""}`} replace />;
-  }
-  const valid = ["searches", "convergence", "crosses", "community", "submit", "methods", "verified", "sod1820"];
-  return <Navigate to={`/research?tool=midrash${tab && valid.includes(tab) ? `&tab=${tab}` : ""}`} replace />;
-}
-
 // דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {

@@ -195,7 +195,7 @@ export default function NumberDrawer({ hideLauncher = false, bottomClearance } =
                 </button>
               ))}
             </div>
-            <button onClick={() => goTo(`/beit-midrash?w=${encodeURIComponent(eff)}`)} style={{
+            <button onClick={() => goTo(`/gematria?w=${encodeURIComponent(eff)}`)} style={{
               width: "100%", marginTop: 9, cursor: "pointer", background: "none",
               border: `1px solid ${P.borderStrong}`, borderRadius: 9, color: P.accentText,
               fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, padding: "9px 6px",
@@ -286,8 +286,8 @@ export default function NumberDrawer({ hideLauncher = false, bottomClearance } =
               )}
               <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.65, textAlign: "center", margin: "0 0 4px" }}>הקלידו מספר או מילה למעלה — או היכנסו למרחב:</p>
               <button onClick={() => goTo("/number")} style={bigLink}>🔢 הגוגל של המספרים</button>
-              <button onClick={() => goTo("/beit-midrash")} style={bigLink}>📚 בית המדרש — מחשבון + הסברי השיטות</button>
-              <button onClick={() => goTo("/numbers")} style={bigLink}>🌳 עץ ההתכנסויות</button>
+              <button onClick={() => goTo("/gematria")} style={bigLink}>🧮 מחשבון גימטריה</button>
+              <button onClick={() => goTo("/world")} style={bigLink}>◌ כל ההתכנסויות</button>
               <button onClick={() => goTo("/cross")} style={bigLink}>🔗 הצלבת שיטות</button>
               <button onClick={() => goTo("/archive")} style={bigLink}>🖼 גלריית רמזי הגאולה</button>
               {/* מספרי-מפתח — קליק פותח את המספר במגירה */}
