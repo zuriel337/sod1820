@@ -7,6 +7,7 @@
 -- * only an existing admin Human-Gate decision (status=accepted) can start implementation;
 -- * implementation is branch-only through the existing Claude dispatch runtime;
 -- * release remains governed by deploy_on_request / Foundation gates;
+-- * V1 serializes all package/runtime maintenance through one active-writer scope;
 -- * research truth, product semantics, pricing, privacy/security weakening, destructive data and
 --   capability retirement are explicitly outside this lane.
 begin;
@@ -119,6 +120,20 @@ begin
     end if;
   end if;
 
+  if p_status='accepted' and v_s.detector='dependency_upgrade_radar'
+     and exists (
+       select 1
+       from public.work_log w
+       where w.archived=false
+         and w.superseded_by_id is null
+         and w.assignment_mode='WRITE'
+         and w.dispatch_kind='ASSIGNMENT'
+         and lower(coalesce(w.assignment_scope,''))='dependency-maintenance:runtime-packages'
+         and coalesce(w.dispatch_state,'QUEUED') not in ('FAILED','CANCELLED','COMPLETED')
+     ) then
+    raise exception 'dependency maintenance already active';
+  end if;
+
   update public.system_suggestions
      set status=p_status,
          decided_at=now(),
@@ -128,7 +143,7 @@ begin
   if p_status='accepted' and v_s.detector='dependency_upgrade_radar' then
     v_slug := trim(both '_' from regexp_replace(lower(v_pkg),'[^a-z0-9]+','_','g'));
     v_task := 'AUTO_DEP_UPGRADE_' || upper(v_slug) || '_' || replace(v_latest,'.','_');
-    v_scope := format('dependency-maintenance:%s:%s->%s',v_pkg,v_current,v_latest);
+    v_scope := 'dependency-maintenance:runtime-packages';
 
     begin
       insert into public.work_log(
