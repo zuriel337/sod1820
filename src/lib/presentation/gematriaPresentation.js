@@ -18,7 +18,12 @@ const EVIDENCE_CLASSES = new Set(["independent", "dependent", "unknown"]);
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const list = (value) => Array.isArray(value) ? value : [];
-const finiteNumber = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
+const listOrOne = (value) => Array.isArray(value) ? value : value == null ? [] : [value];
+const finiteNumber = (value) => {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
 const boolOrNull = (value) => value === true ? true : value === false ? false : null;
 
 function methodKeyOf(row) {
@@ -326,7 +331,9 @@ function normalizeNormalization(expressionRaw, normalization = null) {
     raw: expressionRaw,
     normalized,
     changed,
-    reasons: Object.freeze(list(normalization?.reasons ?? normalization?.reason).map(clean).filter(Boolean)),
+    reasons: Object.freeze(
+      listOrOne(normalization?.reasons ?? normalization?.reason).map(clean).filter(Boolean),
+    ),
     visibleNoticeNeeded: changed && visibleNoticeNeeded,
   });
 }
@@ -344,7 +351,10 @@ function normalizeRelationsSummary(relationsSummary = null) {
 
 function selectPreviewMethods(methods, activeMethod, limit) {
   if (!methods.length) return Object.freeze([]);
-  const max = Math.max(1, Number.isSafeInteger(Number(limit)) ? Number(limit) : DEFAULT_GEMATRIA_PREVIEW_LIMIT);
+  const max = Math.max(
+    1,
+    Number.isSafeInteger(Number(limit)) ? Number(limit) : DEFAULT_GEMATRIA_PREVIEW_LIMIT,
+  );
   const ordered = sortMethodsByCanonicalOrder(methods);
   const rest = activeMethod
     ? ordered.filter((method) => method.methodKey !== activeMethod.methodKey)
@@ -486,7 +496,7 @@ export function buildGematriaPresentationModel({
     }),
     continuity: Object.freeze({
       expression: rawExpression || null,
-      methodKey: activeMethod?.methodKey ?? requestedActiveKey || null,
+      methodKey: activeMethod?.methodKey ?? (requestedActiveKey || null),
       focus: normalizedFocusKind,
       researchContextRef: researchContextRef ?? null,
     }),
