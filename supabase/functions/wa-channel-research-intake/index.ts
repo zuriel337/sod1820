@@ -12,6 +12,7 @@ const HEAVY_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
 const CHANNELS = ["torat-haremez", "gilui-yomi", "sfot-vheker", "or-geula"];
 const RESEARCH_HINT = /(גימטר|רמז|צופן|מילוי|אתב["״']?ש|דילוג|ערך|מספר|\d{2,}\s*=|=\s*\d{2,})/i;
 const IMAGE_URL = /\.(?:png|jpe?g|webp)(?:\?|#|$)/i;
+const PRIVATE_MEDIA_REF = /^storage-object:([0-9a-f]{8}-[0-9a-f-]{27,})$/i;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -64,7 +65,7 @@ async function fallbackObservation(row: any, content: string, analysisState: str
     analysis_state: analysisState,
     analyzed_at: new Date().toISOString(),
     source_created_at: row.created_at,
-    image_url: row.image_url || null,
+    media_ref: row.image_url || null,
     ocr_used: ocrUsed,
   };
   const statement = (content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא").slice(0, 500);
@@ -85,21 +86,43 @@ async function fallbackObservation(row: any, content: string, analysisState: str
   await annotateSourceObjects(ref, intake);
 }
 
+async function mediaForAnalysis(row: any): Promise<{ url: string; kind: "image" | "video" } | null> {
+  const raw = String(row.image_url || "");
+  if (!raw) return null;
+  const privateMatch = raw.match(PRIVATE_MEDIA_REF);
+  if (!privateMatch) return IMAGE_URL.test(raw) ? { url: raw, kind: "image" } : null;
+
+  const { data: resolved, error } = await sb.rpc("private_channel_media_access", {
+    p_channel_update_id: row.id,
+    p_storage_object_id: privateMatch[1],
+  });
+  if (error || !resolved?.ok || !resolved?.path || resolved?.bucket !== "submission-inbox") return null;
+  const mime = String(resolved.mime || "").toLowerCase();
+  const kind = mime.startsWith("image/") ? "image" : mime.startsWith("video/") ? "video" : null;
+  if (!kind) return null;
+  const { data, error: signError } = await sb.storage.from("submission-inbox").createSignedUrl(resolved.path, 300);
+  if (signError || !data?.signedUrl) return null;
+  return { url: data.signedUrl, kind };
+}
+
 async function processRow(row: any) {
   const ref = sourceRef(row.id);
   let ocrUsed = false;
   let ocrText = "";
   const rawText = String(row.text || "").trim();
 
-  if (row.image_url && HEAVY_CHANNELS.has(row.channel) && IMAGE_URL.test(row.image_url)) {
+  if (row.image_url && HEAVY_CHANNELS.has(row.channel)) {
     try {
-      const ocr = await invokeInternal("wa-ocr", { imageUrl: row.image_url });
-      if (typeof ocr?.text === "string" && ocr.text.trim()) {
-        ocrText = ocr.text.trim();
-        ocrUsed = true;
+      const media = await mediaForAnalysis(row);
+      if (media?.kind === "image") {
+        const ocr = await invokeInternal("wa-ocr", { imageUrl: media.url });
+        if (typeof ocr?.text === "string" && ocr.text.trim()) {
+          ocrText = ocr.text.trim();
+          ocrUsed = true;
+        }
       }
     } catch {
-      // OCR failure is not source loss; text analysis can continue and provenance remains addressable.
+      // OCR/signing failure is not source loss; text analysis can continue and provenance remains addressable.
     }
   }
 
@@ -138,7 +161,7 @@ async function processRow(row: any) {
       analysis_state: "extracted",
       analyzed_at: new Date().toISOString(),
       source_created_at: row.created_at,
-      image_url: row.image_url || null,
+      media_ref: row.image_url || null,
       ocr_used: ocrUsed,
     });
     return { id: row.id, channel: row.channel, state: "extracted", produced };
