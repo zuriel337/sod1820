@@ -115,6 +115,22 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
+test('native canonical Topic 2029 renders 888 with semantic links and SEO identity', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/topic/888-yeshua`, { waitUntil: 'domcontentloaded' });
+
+  const article = page.locator('article[data-entity-type="convergence"]');
+  await expect(article).toBeVisible({ timeout: 30_000 });
+  await expect(article.locator('h1')).toContainText('888');
+  await expect(article).toContainText('מה ההתכנסות הזאת?');
+  await expect(article).toContainText('התכנסות ≠ עובדה קנונית');
+  await expect(article.locator('a[href="/number/888"]').first()).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/topic/888-yeshua');
+  await expect(page.locator('script#sod-convergence-ld[type="application/ld+json"]')).toHaveCount(1);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
+});
+
 test('Number 2029 preview opens 1237 with six primary methods driving one research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
