@@ -253,7 +253,7 @@ export default function CrossMethodPage() {
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <Link to="/number/1820" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "10px 24px", borderRadius: 999 }}>🔢 בינתיים — דף המספר ←</Link>
-          <Link to="/beit-midrash" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 24px", borderRadius: 999 }}>📚 בית המדרש</Link>
+          <Link to="/world" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700, padding: "10px 24px", borderRadius: 999 }}>◌ העולם</Link>
         </div>
       </div>
     </div>
@@ -545,7 +545,7 @@ export default function CrossMethodPage() {
 
       <div style={{ textAlign: "center", marginTop: 26, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <Link to="/journey" style={{ textDecoration: "none", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "9px 22px", borderRadius: 999 }}>🎲 קחו אותי למסע</Link>
-        <Link to="/beit-midrash" style={{ ...chip, textDecoration: "none" }}>← לבית המדרש</Link>
+        <Link to="/world" style={{ ...chip, textDecoration: "none" }}>← לעולם</Link>
       </div>
     </div>
   );
