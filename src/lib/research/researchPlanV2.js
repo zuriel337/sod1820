@@ -11,6 +11,8 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   NUMERIC: "numeric",
   GEMATRIA: "gematria",
   OPERATORS: "numeric_operators",
+  RELATIONS: "numeric_relations",
+  FIBONACCI_ZECKENDORF: "sequence:fibonacci:zeckendorf",
   ELS: "els",
   SOURCES: "sources",
   BOOKS: "books",
@@ -40,6 +42,10 @@ function includesAny(text, terms) {
   return terms.some(term => q.includes(term));
 }
 
+function countIdentityKind(identityResolution, kind) {
+  return (identityResolution?.identities || []).filter(identity => identity?.type === kind).length;
+}
+
 function containsClockMoment(text) {
   // Recognition only — never transforms the clock. moment_clock_law's canonical owner performs the
   // actual contextual derivation (e.g. 4:24 -> 424) and preserves timezone/original input.
@@ -59,7 +65,18 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
 
   // A known semantic identity drives capability selection before textual representation.
   if (hasIdentityKind(identityResolution, "book")) hints.push(RESEARCH_CAPABILITY.BOOKS, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
-  if (hasIdentityKind(identityResolution, "number")) hints.push(RESEARCH_CAPABILITY.NUMERIC, RESEARCH_CAPABILITY.OPERATORS, RESEARCH_CAPABILITY.GRAPH);
+  if (hasIdentityKind(identityResolution, "number")) {
+    hints.push(RESEARCH_CAPABILITY.NUMERIC, RESEARCH_CAPABILITY.OPERATORS, RESEARCH_CAPABILITY.GRAPH);
+    const multiNumber = countIdentityKind(identityResolution, "number") >= 2;
+    const relationIntent = includesAny(q, [
+      "קשר", "קשרים", "יחס", "יחסים", "סדרה", "דפוס", "הפרש", "אמצע",
+      "גורם משותף", "פיתגורס", "פולינום",
+    ]);
+    if (multiNumber || relationIntent) hints.push(RESEARCH_CAPABILITY.RELATIONS);
+    if (includesAny(q, ["zeckendorf", "זקנדורף", "פירוק פיבונאצי", "פירוק פיבונאצ׳י", "פירוק פיבונאצי"])) {
+      hints.push(RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF);
+    }
+  }
   if (hasIdentityKind(identityResolution, "person")) hints.push(RESEARCH_CAPABILITY.PERSON, RESEARCH_CAPABILITY.GRAPH);
   if (hasIdentityKind(identityResolution, "name")) hints.push(RESEARCH_CAPABILITY.NAME);
   if (hasIdentityKind(identityResolution, "event")) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
@@ -94,6 +111,8 @@ function deriveCheckOrder(capabilityHints) {
     RESEARCH_CAPABILITY.GRAPH,
     RESEARCH_CAPABILITY.NUMERIC,
     RESEARCH_CAPABILITY.OPERATORS,
+    RESEARCH_CAPABILITY.RELATIONS,
+    RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF,
     RESEARCH_CAPABILITY.GEMATRIA,
     RESEARCH_CAPABILITY.NAME,
     RESEARCH_CAPABILITY.ELS,
