@@ -251,6 +251,31 @@ Deno.serve(async (req) => {
   trace = [];
   const nowSec = Date.now() / 1000;
   const force = u.searchParams.get("force") === "1";
+
+  let providerState = "unknown";
+  try {
+    const state = await waAdmin("getStateInstance", {}, "GET");
+    providerState = String(state?.result?.stateInstance || state?.stateInstance || "unknown");
+  } catch (e) {
+    trace.push({ step: "provider-state-fail", error: String(e) });
+  }
+  if (providerState !== "authorized") {
+    trace.push({ step: "provider-not-authorized", providerState });
+    const body: any = {
+      error: "green_not_authorized",
+      providerState,
+      ingested: 0,
+      recoveryPending: 0,
+      recoveryBlocked: 0,
+      pollFailures: 0,
+    };
+    if (u.searchParams.get("debug") === "1") body.trace = trace;
+    return new Response(JSON.stringify(body), {
+      status: 503,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const aliasMap = await loadAliasMap();
   const { data: sources } = await sb.from("channel_ingest_sources").select("*").eq("enabled", true);
   let ingested = 0;
