@@ -118,6 +118,7 @@
   font-family:var(--gc-font-numeric);
 }
 .sod-gematria-card__journey-signal,
+.sod-gematria-card__peer-signal,
 .sod-gematria-card__toggle{
   min-height:44px;
   border:1px solid var(--gc-line);
@@ -125,7 +126,8 @@
   color:var(--gc-muted);
   cursor:pointer;
 }
-.sod-gematria-card__journey-signal{
+.sod-gematria-card__journey-signal,
+.sod-gematria-card__peer-signal{
   display:inline-flex;
   align-items:center;
   gap:6px;
@@ -138,7 +140,11 @@
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.sod-gematria-card__journey-signal span{color:var(--gc-accent-text)}
+.sod-gematria-card__journey-signal span,
+.sod-gematria-card__peer-signal span{color:var(--gc-accent-text)}
+.sod-gematria-card__peer-signal{
+  cursor:default;
+}
 .sod-gematria-card__toggle{
   width:44px;
   border-radius:14px;
@@ -314,6 +320,54 @@
   color:var(--gc-ink);
   font-family:var(--gc-font-numeric);
 }
+
+.sod-gematria-card__peers{
+  display:grid;
+  gap:8px;
+  padding:11px;
+  border:1px solid var(--gc-line);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--gc-panel-soft) 82%,transparent);
+}
+.sod-gematria-card__peers-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.sod-gematria-card__peers-head span{
+  color:var(--gc-accent-dim);
+  font-size:10.5px;
+  font-weight:850;
+}
+.sod-gematria-card__peers-head strong{
+  color:var(--gc-muted);
+  font-size:10.5px;
+  font-weight:800;
+}
+.sod-gematria-card__peer-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.sod-gematria-card__peer-list>span{
+  min-width:0;
+  display:inline-grid;
+  gap:2px;
+  padding:7px 9px;
+  border:1px solid var(--gc-line);
+  border-radius:11px;
+  background:color-mix(in srgb,var(--gc-panel) 78%,transparent);
+}
+.sod-gematria-card__peer-list b{
+  color:var(--gc-ink);
+  font-size:11.5px;
+}
+.sod-gematria-card__peer-list small{
+  color:var(--gc-muted);
+  font-size:9.5px;
+}
+
 .sod-gematria-card__same-value,
 .sod-gematria-card__notice{
   display:grid;
