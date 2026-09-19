@@ -4,14 +4,19 @@ import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentat
 const clean = (value) => value == null ? "" : String(value).trim();
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
 
-function publicCreatorLabel(row) {
+function publicCreatorLabel(row, publicPeople = []) {
   const creator = clean(row?.created_by);
   if (!creator) return "מקור ציבורי";
   const lower = creator.toLowerCase();
   if (lower === "ai") return "AI";
   if (lower.startsWith("מנוע")) return creator;
   if (lower === "sod1820" || lower === "sod 1820") return "SOD1820";
-  return creator;
+
+  for (const person of Array.isArray(publicPeople) ? publicPeople : []) {
+    const names = [clean(person?.displayName), ...(Array.isArray(person?.aliases) ? person.aliases.map(clean) : [])].filter(Boolean);
+    if (names.includes(creator)) return clean(person?.displayName) || "חוקר";
+  }
+  return "מקור ציבורי";
 }
 
 function safeDate(value) {
@@ -21,7 +26,7 @@ function safeDate(value) {
   return Number.isFinite(time) ? new Date(time).toISOString() : null;
 }
 
-export function topicRowToWorldUpdate(row) {
+export function topicRowToWorldUpdate(row, { publicPeople = [] } = {}) {
   if (!row?.id) return null;
   const approvedAt = safeDate(row.approved_at);
   const createdAt = safeDate(row.created_at);
@@ -30,8 +35,7 @@ export function topicRowToWorldUpdate(row) {
     kind: "convergence",
     label: clean(row.title) || CONVERGENCE,
     summary: clean(row.subtitle) || null,
-    creator: publicCreatorLabel(row),
-    creatorRaw: clean(row.created_by) || null,
+    creator: publicCreatorLabel(row, publicPeople),
     at: approvedAt || createdAt,
     approvedAt,
     createdAt,
@@ -44,10 +48,10 @@ export function topicRowToWorldUpdate(row) {
   };
 }
 
-export function buildWorldDiscoveryStream(rows = [], { creator = "all", limit = 18 } = {}) {
+export function buildWorldDiscoveryStream(rows = [], { creator = "all", limit = 18, publicPeople = [] } = {}) {
   const safeCreator = clean(creator);
   const items = (Array.isArray(rows) ? rows : [])
-    .map(topicRowToWorldUpdate)
+    .map((row) => topicRowToWorldUpdate(row, { publicPeople }))
     .filter(Boolean)
     .filter((item) => safeCreator === "all" || item.creator === safeCreator)
     .sort((a, b) => {
@@ -59,7 +63,7 @@ export function buildWorldDiscoveryStream(rows = [], { creator = "all", limit = 
 
   const creators = [...new Set(
     (Array.isArray(rows) ? rows : [])
-      .map((row) => publicCreatorLabel(row))
+      .map((row) => publicCreatorLabel(row, publicPeople))
       .filter(Boolean)
   )];
 
@@ -71,7 +75,7 @@ export function buildWorldDiscoveryStream(rows = [], { creator = "all", limit = 
   };
 }
 
-export async function fetchWorldDiscoveryStream({ limit = 18 } = {}) {
+export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [] } = {}) {
   const requested = Math.max(1, Math.min(Number(limit) || 18, 40));
   const result = await fetchTopicCardList({
     limit: requested,
@@ -79,5 +83,5 @@ export async function fetchWorldDiscoveryStream({ limit = 18 } = {}) {
     rankByMeterScore: false,
   });
   const rows = Array.isArray(result?.rows) ? result.rows : [];
-  return buildWorldDiscoveryStream(rows, { limit: requested });
+  return buildWorldDiscoveryStream(rows, { limit: requested, publicPeople });
 }
