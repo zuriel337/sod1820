@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
+import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -27,10 +28,10 @@ const TABS = Object.freeze([
 ]);
 
 function publicMethodLabel(method) {
-  const key = String(method?.methodKey || "").trim();
-  if (key === "קדמי") return "משולש";
-  if (key === "משולש גדול") return "משולש גדול";
-  return String(method?.displayLabel || method?.methodKey || "שיטה").trim() || "שיטה";
+  return canonicalMethodPublicLabel({
+    method_key: method?.methodKey,
+    display_label: method?.displayLabel,
+  });
 }
 
 
