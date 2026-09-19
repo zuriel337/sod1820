@@ -19,6 +19,7 @@ import {
   resolveContextTools,
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
+import CanonicalProgress from "../CanonicalProgress.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -122,11 +123,27 @@ function targetFromSelectedText(raw) {
   };
 }
 
-export function FrameState({ kind = "empty", title, children, action = null }) {
+export function FrameState({ kind = "empty", title, children, action = null, progress = null }) {
+  if (kind === "loading") {
+    return <CanonicalProgress
+      title={title || "עובדים על זה"}
+      detail={children}
+      compact={progress?.compact ?? false}
+      expectedLong={progress?.expectedLong ?? false}
+      phase={progress?.phase || null}
+      progress={progress?.progress ?? null}
+      current={progress?.current ?? null}
+      total={progress?.total ?? null}
+      steps={progress?.steps || []}
+      engagement={progress?.engagement || []}
+      onCancel={progress?.onCancel || null}
+      onMinimize={progress?.onMinimize || null}
+    />;
+  }
   return (
     <section className={`sod29-frame-state state-${kind}`} role={kind === "error" ? "alert" : "status"}>
       <span className="sod29-frame-state-icon" aria-hidden="true">
-        {kind === "loading" ? "···" : kind === "error" ? "!" : kind === "gated" ? "◇" : kind === "unavailable" ? "—" : "○"}
+        {kind === "error" ? "!" : kind === "gated" ? "◇" : kind === "unavailable" ? "—" : "○"}
       </span>
       <div>
         {title ? <strong>{title}</strong> : null}
