@@ -88,18 +88,18 @@ export default function ShareActions({ type = "page", url, title = "", image = n
     // שורה אחת: לא נשבר; במסך צר נגלל אופקית עדין (WebkitOverflowScrolling) במקום להתפזר ל-2-3 שורות
     <div dir="rtl" style={{ display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
-        <button onClick={native} title="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}>🔗 {label("שתף")}</button>
+        <button onClick={native} title="שתף" aria-label="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}>🔗 {label("שתף")}</button>
       )}
       {/* 🖼️ שתף-תמונה — רק כשיש תמונה ואפשר לשתף בכלל (מובייל). שולח את הכרטיס/באנר עצמו. */}
       {image && canNative && (
-        <button onClick={shareImg} disabled={imgBusy} title="שתף כתמונה" style={btn}>🖼️ {label(imgBusy ? "…" : "תמונה")}</button>
+        <button onClick={shareImg} disabled={imgBusy} title="שתף כתמונה" aria-label={imgBusy ? "משתף כתמונה" : "שתף כתמונה"} style={btn}>🖼️ {label(imgBusy ? "…" : "תמונה")}</button>
       )}
       {channels.filter(c => CH[c]).map(c => {
         const m = CH[c];
         // אייקון-מותג SVG בתוך תג-צבע (זהה ללשונית הצפה) — נשען על CHANNELS (svg+brand) כמקור-אמת יחיד.
         return (
           <a key={c} href={m.href(taggedShareUrl(fullUrl, c), text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
-            title={m.label} style={btn}>
+            title={m.label} aria-label={m.label} style={btn}>
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: m.brand, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden focusable="false"><path d={m.svg} /></svg>
             </span> {label(m.label)}
@@ -107,7 +107,7 @@ export default function ShareActions({ type = "page", url, title = "", image = n
         );
       })}
       {channels.includes("copy") && (
-        <button onClick={copy} title="העתק קישור" style={btn}>{copied ? "✓ הועתק" : "📋"} {label(copied ? "" : "העתק")}</button>
+        <button onClick={copy} title="העתק קישור" aria-label={copied ? "הועתק" : "העתק קישור"} style={btn}>{copied ? "✓ הועתק" : "📋"} {label(copied ? "" : "העתק")}</button>
       )}
       {extra}
     </div>
