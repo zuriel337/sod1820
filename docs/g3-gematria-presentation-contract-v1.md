@@ -1,6 +1,6 @@
 # SOD1820 — G3 GEMATRIA PRESENTATION CONTRACT V1
 
-**Status:** BRANCH-ONLY · P1 PURE PRESENTATION MODEL IMPLEMENTED · NOT MERGED · NOT DEPLOYED  
+**Status:** BRANCH-ONLY · P1 MODEL + P2 GOLDEN CARD IMPLEMENTED · NOT MERGED · NOT DEPLOYED  
 **Human Gate decisions:** ZURIEL · 2026-09-19  
 **Canonical owner:** EXTEND_EXISTING `project_codex.gematria_engine`  
 **Method presentation/order owner:** `canonical_methods_registry_law v6`  
@@ -465,6 +465,8 @@ No UI replacement yet.
 ### Phase P2 — Golden Gematria Card
 Build S0/S1/S2 shared components and calibrate against the Golden Cases.
 
+**Implementation status on PR #570:** Golden S1/S2 shared card implemented at `src/components/GematriaCard.jsx` with component-local semantic stylesheet `src/components/gematriaCard.css`. It consumes the P1 Presentation Model only. No consumer is wired yet.
+
 ### Phase P3 — Number / Expression 2029
 Make Number/Expression the Golden Consumer.
 
@@ -645,3 +647,42 @@ Verification gate for the P1 code head:
 - no Supabase mutation required.
 
 The next phase remains **P2 — Golden Gematria Card**, and must not begin until P1 final head is reviewed/accepted.
+
+
+## 18. P2 implementation record
+
+P2 turns the pure Presentation Model into the first reusable visible Gematria renderer.
+
+Implemented:
+- one shared `GematriaCard`, not a Post/Topic/Number-specific card;
+- S1 compact summary: adaptive Expression/Number focus, active method, exceptional state only, bounded relation/Journey signal;
+- click-to-expand S2 without navigation;
+- active method first, bounded preview, then “all methods” local disclosure;
+- human Registry-family grouping with canonical method order preserved inside;
+- same-value grouping explanation without method-identity merge;
+- governed independent/dependent evidence summary only when upstream classification exists;
+- normalization disclosure only when P1 marks it materially visible;
+- lazy Journey and Trace actions through callbacks only;
+- explicit “open full page” callback;
+- post projection class for future inline Post rendering without any Post truth logic;
+- semantic palette consumption through `usePalette` + canonical typography roles;
+- 44px interaction floor, focus-visible states, RTL logical properties, responsive mobile layout and reduced-motion fallback.
+
+State boundary:
+- local component state is limited to S1/S2 open/closed and “show all methods” disclosure;
+- active method, focus, Research Context, Journey state and canonical selection stay outside the component;
+- the card never writes Research Context directly;
+- the card never queries Supabase and never calculates Gematria.
+
+Not implemented in P2:
+- no Post/Topic/Book/Number/Raziel consumer wiring;
+- no auto-extraction of Gematria from Post HTML;
+- no replacement of legacy `sod-gematria-box`;
+- no screenshot/share-image renderer;
+- no OG/API-card replacement;
+- no CanonicalProgress integration (only required when a consumer launches actual long work);
+- no DB/schema/RLS/engine/ranking changes.
+
+The future share path remains:
+`Gematria Presentation Model → live GematriaCard → share/image renderer`,
+so a social image becomes a static projection of the same truth rather than a calculator screenshot becoming the truth source.
