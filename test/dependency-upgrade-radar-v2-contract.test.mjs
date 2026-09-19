@@ -15,6 +15,10 @@ assert.ok(!/create table(?! _st)/i.test(mig), "no new persistent store/table");
 assert.ok(!/cron\.schedule\s*\(/i.test(mig), "no new cron");
 assert.ok(!/create or replace function public\.(?!detect_suggestions)/i.test(mig), "no second detector RPC");
 
+// 1b. Migration body must contain exactly one complete function definition (no duplicated tail).
+assert.equal((mig.match(/create or replace function public\.detect_suggestions\(\)/gi) || []).length, 1);
+assert.equal((mig.match(/end; \$function\$/g) || []).length, 1);
+
 // 2. Only authoritative allowlisted outbound sources.
 assert.match(mig, /https:\/\/registry\.npmjs\.org\//);
 assert.match(mig, /https:\/\/nodejs\.org\/dist\/index\.json/);
