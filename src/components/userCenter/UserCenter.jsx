@@ -1045,8 +1045,8 @@ function RecentActivityPanel({ T }) {
       </div>
       <div style={{ color: T.sub, fontSize: 12, marginBottom: 6 }}>🔢 חיפושי גימטריה</div>
       {searches === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
-        : searches.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{searches.map((s, i) => <button key={i} onClick={() => go(`/beit-midrash?w=${encodeURIComponent(s.ref)}`)} style={chip}><span>{s.ref}</span>{s.title ? <span style={{ color: T.sub, fontSize: 11.5 }}>= {s.title}</span> : null}</button>)}</div>
-        : <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>כל חיפוש בבית המדרש יופיע כאן.</div>}
+        : searches.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{searches.map((s, i) => <button key={i} onClick={() => go(`/gematria?w=${encodeURIComponent(s.ref)}`)} style={chip}><span>{s.ref}</span>{s.title ? <span style={{ color: T.sub, fontSize: 11.5 }}>= {s.title}</span> : null}</button>)}</div>
+        : <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>כל חיפוש גימטריה יופיע כאן.</div>}
       <div style={{ color: T.sub, fontSize: 12, margin: "14px 0 6px" }}>📜 פוסטים שגלשת בהם</div>
       {posts === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
         : posts.length ? <div style={{ display: "grid", gap: 2 }}>{posts.map((p, i) => <button key={i} onClick={() => go(`/${p.ref}`)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", background: "none", border: "none", borderBottom: `1px solid ${T.line}`, padding: "8px 2px", color: T.ink, fontFamily: "inherit", fontSize: 13.5, textAlign: "start" }}><span>›</span><span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title || p.ref}</span></button>)}</div>
