@@ -57,7 +57,13 @@ async function annotateSourceObjects(ref: string, intake: Record<string, unknown
   }
 }
 
-async function fallbackObservation(row: any, content: string, analysisState: string, ocrUsed: boolean) {
+async function fallbackObservation(
+  row: any,
+  content: string,
+  analysisState: string,
+  ocrUsed: boolean,
+  mediaKind: "image" | "video" | null = null,
+) {
   const ref = sourceRef(row.id);
   const intake = {
     channel: row.channel,
@@ -66,6 +72,8 @@ async function fallbackObservation(row: any, content: string, analysisState: str
     analyzed_at: new Date().toISOString(),
     source_created_at: row.created_at,
     media_ref: row.image_url || null,
+    media_kind: mediaKind,
+    media_transcription_pending: mediaKind === "video",
     ocr_used: ocrUsed,
   };
   const statement = (content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא").slice(0, 500);
@@ -109,11 +117,14 @@ async function processRow(row: any) {
   const ref = sourceRef(row.id);
   let ocrUsed = false;
   let ocrText = "";
-  const rawText = String(row.text || "").trim();
+  let mediaKind: "image" | "video" | null = null;
+  const sourceText = String(row.text || "").trim();
+  const rawText = /^(?:📷 עדכון|🎬 עדכון וידאו)$/.test(sourceText) ? "" : sourceText;
 
   if (row.image_url && HEAVY_CHANNELS.has(row.channel)) {
     try {
       const media = await mediaForAnalysis(row);
+      mediaKind = media?.kind || null;
       if (media?.kind === "image") {
         const ocr = await invokeInternal("wa-ocr", { imageUrl: media.url });
         if (typeof ocr?.text === "string" && ocr.text.trim()) {
@@ -132,8 +143,13 @@ async function processRow(row: any) {
   const content = parts.join("\n\n").trim();
 
   if (content.length < 8) {
-    await fallbackObservation(row, content, "source_preserved_needs_deeper_media_analysis", ocrUsed);
-    return { id: row.id, channel: row.channel, state: "preserved_only" };
+    const state = mediaKind === "video"
+      ? "source_preserved_needs_transcription"
+      : row.image_url
+        ? "source_preserved_needs_deeper_media_analysis"
+        : "source_preserved_needs_text_review";
+    await fallbackObservation(row, content, state, ocrUsed, mediaKind);
+    return { id: row.id, channel: row.channel, state };
   }
 
   try {
@@ -145,13 +161,13 @@ async function processRow(row: any) {
     });
 
     if (result?.error) {
-      await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed);
+      await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed, mediaKind);
       return { id: row.id, channel: row.channel, state: "analysis_failed_preserved" };
     }
 
     const produced = Number(result?.inserted || 0) + Number(result?.absorbed || 0);
     if (produced <= 0) {
-      await fallbackObservation(row, content, "reviewed_no_structured_findings", ocrUsed);
+      await fallbackObservation(row, content, mediaKind === "video" ? "reviewed_caption_media_needs_transcription" : "reviewed_no_structured_findings", ocrUsed, mediaKind);
       return { id: row.id, channel: row.channel, state: "reviewed_observation" };
     }
 
