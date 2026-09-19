@@ -464,7 +464,10 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toHaveCount(0);
 
-  const inspect = page.locator('.sod29-world-native-projection button').filter({ hasText: 'בדוק' }).first();
+  // Inspect/share acceptance must use an entity projection that remains owned by
+  // generic Inspect. Number/phrase targets now have their own native Number drawer.
+  await selectWorldLane(page, 'מקורות');
+  const inspect = page.locator('.sod29-world-source-row button').filter({ hasText: 'בדוק' }).first();
   await expect(inspect).toBeVisible();
   await inspect.focus();
   await page.keyboard.press('Enter');
