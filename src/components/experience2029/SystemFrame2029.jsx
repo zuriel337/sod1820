@@ -138,6 +138,7 @@ export function FrameState({ kind = "empty", title, children, action = null, pro
       engagement={progress?.engagement || []}
       onCancel={progress?.onCancel || null}
       onMinimize={progress?.onMinimize || null}
+      copy={progress?.copy || null}
     />;
   }
   return (
