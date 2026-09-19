@@ -23,6 +23,13 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
   projectGoldenJourney878,
 } from "../src/lib/research/worldJourneyProjection.js";
+import {
+  WORLD_RESEARCH_ATTENTION,
+  WORLD_RESEARCH_FILTER_DEFAULTS,
+  buildWorldResearchControl,
+  filterWorldResearchFindings,
+  researchFindingAxes,
+} from "../src/lib/research/worldResearchControl.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -70,6 +77,59 @@ assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landin
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
 assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
+
+// World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
+assert.match(world, /WORLD RESEARCH CONTROL/);
+assert.match(world, /RESEARCH INBOX/);
+assert.match(world, /מצב מחקר/);
+assert.match(world, /מצב ממשל/);
+assert.match(world, /Processing state עדיין לא מחובר/);
+assert.match(world, /Publication state עדיין לא מחובר/);
+assert.match(world, /privacy_scope=public_candidate אינו Published/);
+assert.match(world, /WORLD_RESEARCH_ATTENTION/);
+assert.match(world, /filterWorldResearchFindings/);
+assert.match(worldCss, /sod29-world-research-control/);
+assert.match(worldCss, /sod29-world-research-filters/);
+
+const controlFindings = [
+  {
+    id: "private-candidate",
+    status: "candidate",
+    access: { tier: "private" },
+    verification: { verification_state: "not_tested" },
+    projection: { dimensions: { researchObjectKind: "observation" } },
+    source: { sourceRef: "chat:1" },
+  },
+  {
+    id: "public-approved",
+    status: "approved",
+    access: { tier: "public_candidate" },
+    verification: { verification_state: "match" },
+    projection: { dimensions: { researchObjectKind: "relation" } },
+  },
+  {
+    id: "canonical-private",
+    status: "canonical",
+    access: { tier: "private" },
+    verification: { verification_state: null },
+    projection: { dimensions: { researchObjectKind: "fact" } },
+  },
+];
+assert.deepEqual(researchFindingAxes(controlFindings[0]), {
+  kind: "observation", access: "private", governance: "candidate", verification: "not_tested",
+});
+const control = buildWorldResearchControl(controlFindings);
+assert.equal(control.total, 3);
+assert.equal(control.byAccess.private, 2);
+assert.equal(control.byGovernance.approved, 1);
+assert.equal(control.attention.needs_verification, 2);
+assert.equal(control.attention.public_candidate, 1);
+assert.equal(control.capabilities.processingState, false, "World must not invent raw→processed without Research Intake projection");
+assert.equal(control.capabilities.publicationState, false, "public_candidate is not Published");
+assert.equal(control.capabilities.rawSource, true);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, attention: "approved" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, access: "private" }).length, 2);
+assert.equal(WORLD_RESEARCH_ATTENTION.public_candidate.label, "מועמד לציבור");
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
