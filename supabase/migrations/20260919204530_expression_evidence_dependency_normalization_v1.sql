@@ -69,6 +69,7 @@ phrase_support as (
     expression_family_key,
     bool_or(structure_sensitive and m_category <> 'composite') as has_structure_sensitive_atomic
   from tagged
+  where m_category <> 'composite'
   group by value, phrase, expression_family_key
 ),
 expression_counts as (
