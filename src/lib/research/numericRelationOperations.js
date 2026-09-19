@@ -299,3 +299,84 @@ export function numericRelationsToUniversalFindings(analysis, options = {}) {
     });
   });
 }
+
+
+export function zeckendorfToUniversalFinding(value, decomposition, options = {}) {
+  if (!decomposition?.complete) return null;
+  const catalog = numericRelationOperation(NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF);
+  const terms = Array.isArray(decomposition.terms) ? decomposition.terms : [];
+  const numericTerms = terms.map(part => Number(part.term)).filter(Number.isSafeInteger);
+  const label = `${value} = ${numericTerms.join(' + ')}`;
+
+  return makeUniversalFinding({
+    kind: 'numeric-relation',
+    stage: null,
+    status: null,
+    subject: {
+      type: 'numeric-relation',
+      key: `${NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF}:${value}`,
+      label,
+      value,
+    },
+    source: {
+      engine: 'sequence:fibonacci',
+      adapter: options.sequenceVersion || null,
+      sourceRef: `operation:${NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF}`,
+      method: NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF,
+      corpus: null,
+      lang: null,
+    },
+    identity: {
+      sourceIdentity: {
+        operation_key: NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF,
+        operation_version: catalog?.version || 1,
+        input: value,
+        decomposition,
+      },
+      occurrence: null,
+      entityRef: `number:${value}`,
+      relationRef: null,
+    },
+    verification: {
+      claimed_expression: null,
+      claimed_method: null,
+      claimed_value: null,
+      engine_method_tested: 'fibonacciSequenceAdapter:zeckendorf_decomposition',
+      engine_result: decomposition,
+      verification_state: 'not_tested',
+    },
+    evidence: {
+      refs: [`number:${value}`, ...numericTerms.map(term => `number:${term}`)],
+      facts: [{
+        type: 'numeric-relation',
+        operation_key: NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF,
+        operation_version: catalog?.version || 1,
+        deterministic: true,
+        input: value,
+        decomposition,
+        boundary: catalog?.truth_boundary || null,
+      }],
+      score: null,
+      confidence: null,
+    },
+    access: {
+      tier: options.accessTier ?? 'public',
+      reason: 'deterministic Fibonacci decomposition of the supplied canonical number identity',
+    },
+    provenance: {
+      createdBy: `ENGINE:fibonacci@${options.sequenceVersion || 'unknown'}`,
+      inputRef: options.inputRef || `number:${value}`,
+    },
+    projection: {
+      anchors: [value, ...numericTerms].map(anchorValue => ({ space: 'number', value: anchorValue })),
+      relations: [],
+      dimensions: {
+        operation_key: NUMERIC_RELATION_OPERATION.FIBONACCI_ZECKENDORF,
+        operation_version: catalog?.version || 1,
+        semantic_class: 'derivation',
+        position_convention: decomposition.position_convention || null,
+      },
+    },
+    view: { rendererHints: { role: 'numeric-relation' } },
+  });
+}
