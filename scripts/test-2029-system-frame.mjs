@@ -42,6 +42,8 @@ for (const forbidden of forbiddenImportPatterns) {
 // Frame semantics: one transient coordinator, one Research Context, multiple projections.
 assert.match(frame, /const \[transient, setTransient\] = useState\(null\)/);
 assert.match(frame, /openCommand/);
+assert.match(frame, /openAction/);
+assert.match(frame, /openCapability/);
 assert.match(frame, /openInspect/);
 assert.match(frame, /openAttention/);
 assert.match(frame, /openTools/);
@@ -130,6 +132,16 @@ assert.equal(css.includes("#b94c4c"), false, "status/error styling must not intr
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
+assert.match(frame, /<small>פקודה<\/small>/);
+assert.match(frame, /<small>פעולה<\/small>/);
+assert.match(frame, /<small>כלים<\/small>/);
+assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");
+assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
+assert.equal(frame.includes("<small>עכשיו</small>"), false, "Attention must not occupy the contextual command island");
+assert.match(frame, /TRANSIENT\.CAPABILITY/);
+assert.match(frame, /TRANSIENT\.ACTION/);
+assert.match(frame, /capability === "number"/);
+assert.match(frame, /Selection → Action → Capability → Panel → Heichal/);
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
 
