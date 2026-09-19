@@ -55,8 +55,8 @@ with tagged as (
     coalesce(gm.category, 'unregistered') as m_category,
     (
       coalesce(gm.order_sensitive, false)
-      or coalesce(gm.word_boundary_sensitive, false)
-      or coalesce(gm.final_letter_sensitive, false)
+      or (coalesce(gm.final_letter_sensitive, false) and b.phrase ~ '[ךםןףץ]')
+      or (coalesce(gm.word_boundary_sensitive, false) and trim(coalesce(b.phrase,'')) ~ '\\s')
     ) as structure_sensitive,
     public.fn_expression_letter_multiset_key(b.phrase) as expression_family_key
   from public.bidim b
@@ -131,7 +131,7 @@ from aggregated a
 join expression_counts e using (value);
 
 comment on view public.cross_method_strength is
-  'Derived contextual/research-strength signal only, never Truth. Backward-compatible raw phrase_count/p1_hits are preserved. independent_phrase_count dependency-normalizes same-letter permutations only when their support at this value is order-insensitive; a phrase with atomic order-sensitive support remains independently countable. dependent_expression_phrase_count exposes the collapsed delta. independent_p1_method_count drives CROSS_METHOD rather than raw P1 rows. Existing method dependency normalization remains in force. Rank, do not hide.';
+  'Derived contextual/research-strength signal only, never Truth. Backward-compatible raw phrase_count/p1_hits are preserved. independent_phrase_count dependency-normalizes same-letter permutations only when their support at this value is structure-insensitive. Sensitivity is load-bearing per input: order always counts; final-letter sensitivity counts only when a final form is present; word-boundary sensitivity counts only for multiword input. dependent_expression_phrase_count exposes the collapsed delta. independent_p1_method_count drives CROSS_METHOD rather than raw P1 rows. Existing method dependency normalization remains in force. Rank, do not hide.';
 
 grant select on public.cross_method_strength to service_role;
 
@@ -148,8 +148,8 @@ declare
   node_a uuid; node_b uuid;
   engine_evidence jsonb; composite_evidence jsonb; independent_evidence jsonb; noise_flags text[];
   independent_composite_keys text[] := array[]::text[];
-  raw_independent_group_count int; raw_position_sensitive_group_count int;
-  effective_independent_group_count int; effective_position_sensitive_group_count int;
+  raw_independent_group_count int; raw_structure_sensitive_group_count int;
+  effective_independent_group_count int; effective_structure_sensitive_group_count int;
   dependent_expression_group_count int;
   min_rarity numeric; rarity_bonus numeric;
   engine_signal numeric; has_independent boolean; research_priority text; confidence text;
@@ -177,8 +177,14 @@ begin
       coalesce(gm.category, 'unregistered') as method_category,
       (
         coalesce(gm.order_sensitive, false)
-        or coalesce(gm.word_boundary_sensitive, false)
-        or coalesce(gm.final_letter_sensitive, false)
+        or (
+          coalesce(gm.final_letter_sensitive, false)
+          and (coalesce(p_a,'') ~ '[ךםןףץ]' or coalesce(p_b,'') ~ '[ךםןףץ]')
+        )
+        or (
+          coalesce(gm.word_boundary_sensitive, false)
+          and (trim(coalesce(p_a,'')) ~ '\\s' or trim(coalesce(p_b,'')) ~ '\\s')
+        )
       ) as method_structure_sensitive,
       (d.method = any(independent_composite_keys)) as independent_composite
     from public.fn_relation_dependency_groups(p_a, p_b) d
@@ -222,7 +228,7 @@ begin
       from dg d
     ), '[]'::jsonb),
     (select count(*) from group_stats),
-    (select count(*) from group_stats where is_position_sensitive),
+    (select count(*) from group_stats where is_structure_sensitive),
     (select count(*) from group_stats
       where not same_letter_permutation
          or has_atomic_structure_sensitive
@@ -239,9 +245,9 @@ begin
   into
     engine_evidence,
     raw_independent_group_count,
-    raw_position_sensitive_group_count,
+    raw_structure_sensitive_group_count,
     effective_independent_group_count,
-    effective_position_sensitive_group_count,
+    effective_structure_sensitive_group_count,
     min_rarity,
     rarity_bonus;
 
@@ -250,7 +256,7 @@ begin
 
   engine_signal := round(
     coalesce(effective_independent_group_count, 0)::numeric
-    + coalesce(effective_position_sensitive_group_count, 0)::numeric
+    + coalesce(effective_structure_sensitive_group_count, 0)::numeric
     + coalesce(rarity_bonus, 0), 3);
 
   independent_evidence := public.fn_relation_independent_evidence(p_a, p_b);
@@ -301,9 +307,9 @@ begin
     'engine_signal', engine_signal,
     'engine_signal_components', jsonb_build_object(
       'raw_independent_group_count', raw_independent_group_count,
-      'raw_position_sensitive_group_count', raw_position_sensitive_group_count,
+      'raw_structure_sensitive_group_count', raw_structure_sensitive_group_count,
       'effective_independent_group_count', effective_independent_group_count,
-      'effective_position_sensitive_group_count', effective_position_sensitive_group_count,
+      'effective_structure_sensitive_group_count', effective_structure_sensitive_group_count,
       'dependent_expression_group_count', dependent_expression_group_count,
       'independent_composite_keys', to_jsonb(independent_composite_keys),
       'rarity_bonus', round(rarity_bonus, 3),
@@ -321,7 +327,7 @@ end;
 $function$;
 
 comment on function public.fn_relation_candidate(text, text) is
-  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Structure-insensitive method matches are dependency-normalized; atomic order/word-boundary/final-letter-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
+  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Structure-insensitive method matches are dependency-normalized. Sensitivity is evaluated per input: order always; final-letter only when a final form occurs; word-boundary only for multiword input. Atomic structure-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
 
 -- Migration-level golden calibration. Fail closed if the intended dependency
 -- semantics do not reproduce on the current canonical corpus.
