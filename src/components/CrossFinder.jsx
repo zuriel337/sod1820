@@ -182,7 +182,7 @@ export default function CrossFinder({ term }) {
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
           לא נמצאה הצלבה חזקה במאגר (עדיין). המאגר גדל כל הזמן — נסו במחשבון לחקור בעצמכם:
           <div style={{ marginTop: 9 }}>
-            <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 16px" }}>🧮 חקרו במחשבון →</Link>
+            <Link to="/gematria" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 16px" }}>🧮 חקרו במחשבון →</Link>
           </div>
         </div>
       )}
@@ -196,7 +196,7 @@ export default function CrossFinder({ term }) {
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
               אין כאן הצלבה אמיתית — ההתאמה היחידה נשענת על «גדול», ובלי אות סופית «גדול» תמיד שווה ל«רגיל» (אותו ערך, לא שיטה נפרדת). המאגר גדל כל הזמן — נסו לחקור במחשבון:
               <div style={{ marginTop: 9, textAlign: "center" }}>
-                <Link to="/beit-midrash?tab=calc" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 16px" }}>🧮 חקרו במחשבון →</Link>
+                <Link to="/gematria" style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, padding: "8px 16px" }}>🧮 חקרו במחשבון →</Link>
               </div>
             </div>
           ) : (
