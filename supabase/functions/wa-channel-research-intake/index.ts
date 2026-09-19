@@ -57,6 +57,16 @@ async function annotateSourceObjects(ref: string, intake: Record<string, unknown
   }
 }
 
+async function priorFailureAttempts(ref: string) {
+  const { data } = await sb.from("research_objects").select("meta").eq("source_ref", ref);
+  let max = 0;
+  for (const row of (data || [])) {
+    const n = Number((row as any)?.meta?.ext?.wa_channel_intake?.attempt_count || 0);
+    if (Number.isFinite(n)) max = Math.max(max, n);
+  }
+  return max;
+}
+
 async function fallbackObservation(
   row: any,
   content: string,
@@ -65,10 +75,14 @@ async function fallbackObservation(
   mediaKind: "image" | "video" | null = null,
 ) {
   const ref = sourceRef(row.id);
+  const failureAttempt = analysisState === "analysis_failed_source_preserved"
+    ? (await priorFailureAttempts(ref)) + 1
+    : 1;
   const intake = {
     channel: row.channel,
     route: HEAVY_CHANNELS.has(row.channel) ? "research_first" : "story_first_selective",
     analysis_state: analysisState,
+    attempt_count: failureAttempt,
     analyzed_at: new Date().toISOString(),
     source_created_at: row.created_at,
     media_ref: row.image_url || null,
@@ -232,17 +246,36 @@ Deno.serve(async (req) => {
 
   const eligible = (rawRows || []).filter(researchEligible);
   const refs = eligible.map((r: any) => sourceRef(r.id));
-  const existing = new Set<string>();
+  const existing = new Map<string, any[]>();
   for (let i = 0; i < refs.length; i += 100) {
     const chunk = refs.slice(i, i + 100);
-    const { data } = await sb.from("research_objects").select("source_ref").in("source_ref", chunk);
+    const { data } = await sb.from("research_objects").select("source_ref,meta").in("source_ref", chunk);
     for (const r of (data || [])) {
       const ref = String((r as any).source_ref || "");
-      if (ref) existing.add(ref);
+      if (!ref) continue;
+      const rows = existing.get(ref) || [];
+      rows.push(r);
+      existing.set(ref, rows);
     }
   }
 
-  const pending = eligible.filter((r: any) => !existing.has(sourceRef(r.id)));
+  const now = Date.now();
+  const pending = eligible.filter((r: any) => {
+    const rows = existing.get(sourceRef(r.id));
+    if (!rows?.length) return true;
+
+    let maxAttempts = 0;
+    let latestFailure = 0;
+    for (const ro of rows) {
+      const intake = (ro as any)?.meta?.ext?.wa_channel_intake;
+      // Pre-adapter/legacy Research Objects already prove this source entered Research.
+      if (!intake?.analysis_state) return false;
+      if (intake.analysis_state !== "analysis_failed_source_preserved") return false;
+      maxAttempts = Math.max(maxAttempts, Number(intake.attempt_count || 1));
+      latestFailure = Math.max(latestFailure, Date.parse(String(intake.analyzed_at || "")) || 0);
+    }
+    return maxAttempts < 3 && latestFailure > 0 && now - latestFailure >= 30 * 60 * 1000;
+  });
   const selected = selectFair(pending, limit);
   const results = [];
   for (const row of selected) results.push(await processRow(row));
