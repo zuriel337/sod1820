@@ -24,6 +24,11 @@ const finiteNumber = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 };
+const nonNegativeInt = (value) => {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number >= 0 ? number : null;
+};
 const boolOrNull = (value) => value === true ? true : value === false ? false : null;
 
 function methodKeyOf(row) {
@@ -280,6 +285,49 @@ function evidenceSummary(methods) {
   return Object.freeze(summary);
 }
 
+function normalizeExpressionEvidence(summary = null) {
+  const rawPhraseCount = nonNegativeInt(
+    summary?.rawPhraseCount
+      ?? summary?.raw_phrase_count
+      ?? summary?.phraseCount
+      ?? summary?.phrase_count,
+  );
+  const independentPhraseCount = nonNegativeInt(
+    summary?.independentPhraseCount ?? summary?.independent_phrase_count,
+  );
+  const dependentExpressionPhraseCount = nonNegativeInt(
+    summary?.dependentExpressionPhraseCount ?? summary?.dependent_expression_phrase_count,
+  );
+  const rawP1Hits = nonNegativeInt(
+    summary?.rawP1Hits
+      ?? summary?.raw_p1_hits
+      ?? summary?.p1Hits
+      ?? summary?.p1_hits,
+  );
+  const independentP1MethodCount = nonNegativeInt(
+    summary?.independentP1MethodCount ?? summary?.independent_p1_method_count,
+  );
+  const signal = clean(summary?.signal) || null;
+  const available = [
+    rawPhraseCount,
+    independentPhraseCount,
+    dependentExpressionPhraseCount,
+    rawP1Hits,
+    independentP1MethodCount,
+  ].some((value) => value != null) || Boolean(signal);
+
+  return Object.freeze({
+    available,
+    rawPhraseCount,
+    independentPhraseCount,
+    dependentExpressionPhraseCount,
+    rawP1Hits,
+    independentP1MethodCount,
+    signal,
+    governed: Boolean(summary),
+  });
+}
+
 function buildValueGroups(methods) {
   const groups = new Map();
 
@@ -403,6 +451,7 @@ export function buildGematriaPresentationModel({
   methodStates = [],
   appliedEquivalences = [],
   evidenceByMethodKey = null,
+  expressionEvidenceSummary = null,
   accessByMethodKey = null,
   contextualMethodKeys = [],
   includeUnavailableKeys = [],
@@ -466,6 +515,7 @@ export function buildGematriaPresentationModel({
 
   const normalizedExpression = normalizeNormalization(rawExpression, normalization);
   const relationSummary = normalizeRelationsSummary(relationsSummary);
+  const expressionEvidence = normalizeExpressionEvidence(expressionEvidenceSummary);
 
   return Object.freeze({
     contract: GEMATRIA_PRESENTATION_CONTRACT,
@@ -488,6 +538,7 @@ export function buildGematriaPresentationModel({
     familyGroups: buildFamilyGroups(methods),
     valueGroups: buildValueGroups(methods),
     evidence: evidenceSummary(methods),
+    expressionEvidence,
     normalization: normalizedExpression,
     relationsSummary: relationSummary,
     trace: Object.freeze({
