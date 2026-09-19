@@ -593,7 +593,13 @@ export function buildWorldContextualProminence(data, inputs = {}, {
       // not an opaque universal rank weight.
       crossMethodStrength: crossMethod ? Object.freeze({
         signal: crossMethod.signal ?? null,
+        // Raw counts retain backward-compatible corpus visibility; independent counts
+        // are the dependency-normalized Research Strength signals.
         phraseCount: crossMethod.phrase_count ?? null,
+        independentPhraseCount: crossMethod.independent_phrase_count ?? null,
+        dependentExpressionPhraseCount: crossMethod.dependent_expression_phrase_count ?? null,
+        p1Hits: crossMethod.p1_hits ?? null,
+        independentP1MethodCount: crossMethod.independent_p1_method_count ?? null,
         methods: Object.freeze(asArray(crossMethod.methods)),
         dependentMethods: Object.freeze(asArray(crossMethod.dependent_methods)),
         dependentPhraseCount: crossMethod.dependent_phrase_count ?? null,
