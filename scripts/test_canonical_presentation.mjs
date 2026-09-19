@@ -268,7 +268,7 @@ eq("Post pilot fails closed and never writes Post DB", /adminUpdatePost|\.update
 eq("Post pilot preserves Research Context as owner of method focus", postPilotSource.includes("updateResearchContext") && postPilotSource.includes("gematriaMethod"), true);
 eq("Post pilot mounts in-place without stored-content rewrite", postPilotSource.includes("createPortal") && postPilotCss.includes(".is-gematria-card-pilot>.gb-rows"), true);
 eq("Post pilot never fabricates zero from null active method", postPilotSource.includes('rawActiveValue == null || rawActiveValue === ""'), true);
-eq("Golden Card exposes verified peer-expression convergence", goldenCardSource.includes("ביטויים באותו ערך") && goldenCardSource.includes("peerExpressions"), true);
+eq("Golden Card exposes verified peer-expression convergence", goldenCardSource.includes("ביטויים באותו ערך") && goldenCardSource.includes("<PeerExpressions peers={model.peerExpressions} />"), true);
 
 const p1Peers = buildGematriaPresentationModel({
   expression: "אירן",
