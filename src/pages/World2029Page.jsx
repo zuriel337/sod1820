@@ -30,6 +30,7 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
+import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -406,12 +407,15 @@ function LiveWorldLanding({ research, shell, context }) {
     loading: true,
     sections: {},
     contributors: null,
+    discovery: null,
     journey: null,
     error: null,
     contributorError: null,
+    discoveryError: null,
     journeyError: null,
   });
   const [writerFilter, setWriterFilter] = useState("all");
+  const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
 
   const load = async () => {
@@ -420,6 +424,7 @@ function LiveWorldLanding({ research, shell, context }) {
       loading: true,
       error: null,
       contributorError: null,
+      discoveryError: null,
       journeyError: null,
     }));
 
@@ -429,6 +434,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         fetchWorldLandingContributorProjection(),
+        fetchWorldDiscoveryStream({ limit: 24 }),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
@@ -445,10 +451,12 @@ function LiveWorldLanding({ research, shell, context }) {
       loading: false,
       sections,
       contributors: extras[0]?.status === "fulfilled" ? extras[0].value : null,
-      journey: extras[1]?.status === "fulfilled" ? extras[1].value : null,
+      discovery: extras[1]?.status === "fulfilled" ? extras[1].value : null,
+      journey: extras[2]?.status === "fulfilled" ? extras[2].value : null,
       error: firstError,
       contributorError: extras[0]?.status === "rejected" ? extras[0].reason : null,
-      journeyError: extras[1]?.status === "rejected" ? extras[1].reason : null,
+      discoveryError: extras[1]?.status === "rejected" ? extras[1].reason : null,
+      journeyError: extras[2]?.status === "rejected" ? extras[2].reason : null,
     });
   };
 
@@ -584,6 +592,22 @@ function LiveWorldLanding({ research, shell, context }) {
     ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
     : null;
 
+  const discoveryItems = useMemo(() => {
+    const items = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
+    if (discoveryCreator === "all") return items;
+    return items.filter((item) => item.creator === discoveryCreator);
+  }, [landing.discovery, discoveryCreator]);
+  const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
+  const openDiscoveryItem = (item) => {
+    if (!item?.slug) return;
+    openCard({ id: item.id, facet: "topic", label: item.label, sub: item.summary, refId: item.slug });
+  };
+  const discoveryDate = (value) => {
+    if (!value) return "זמן לא צוין";
+    try { return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "short" }); }
+    catch (_) { return "זמן לא צוין"; }
+  };
+
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
     const section = document.getElementById(landingSectionId(facet.key));
@@ -595,28 +619,72 @@ function LiveWorldLanding({ research, shell, context }) {
 
   return <>
     <section
-      className="sod29-focus-stage sod29-world-native-entry"
+      className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
       data-experience-surface={WORLD_EXPERIENCE.surface}
       data-experience-question={WORLD_EXPERIENCE.experience.question}
       data-spatial-default={WORLD_EXPERIENCE.spatial.defaultLevel}
     >
-      <div className="sod29-command-shell">
-        <div className="sod29-command-copy">
-          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · {WORLD_EXPERIENCE.experience.question}</div>
-          <h2>העולם פתוח.<br />אפשר להתחיל מנקודה — ולהמשיך למסע.</h2>
-          <div className="sod29-muted">חפש מספר או מילה, בחר חוקר, פתח התכנסות או צא למסע חי. כל מעבר נשאר על אותה מציאות מחקרית, כך שאפשר להעמיק בלי לאבד את הדרך חזרה.</div>
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חיפוש / פקודה</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה השתנה</button>
-          </div>
+      <div className="sod29-world-discovery-sky" aria-hidden="true" />
+      <div className="sod29-world-discovery-head">
+        <div>
+          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · DISCOVERY WORLD</div>
+          <h2>מה חדש בעולם?</h2>
+          <p>כל ההתכנסויות הציבוריות האחרונות במקום אחד. מתחילים מהכול, ואז מסננים לפי מי שהביא את החומר.</p>
         </div>
-        <WorldCoreMap
-          sections={landing.sections}
-          loading={landing.loading}
-          onSearch={() => shell.openCommand()}
-          onOpenFacet={openLandingFacet}
-        />
+        <div className="sod29-actions">
+          <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
+          <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
+        </div>
+      </div>
+
+      <div className="sod29-world-discovery-grid">
+        <div className="sod29-world-live-stream">
+          <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
+            <button type="button" className={`sod29-world-stream-filter${discoveryCreator === "all" ? " is-active" : ""}`} aria-pressed={discoveryCreator === "all"} onClick={() => setDiscoveryCreator("all")}>הכול</button>
+            {discoveryCreators.map((creator) => <button
+              type="button"
+              key={creator}
+              className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
+              aria-pressed={discoveryCreator === creator}
+              onClick={() => setDiscoveryCreator(creator)}
+            >{creator}</button>)}
+          </div>
+
+          {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
+          {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
+
+          {discoveryItems.length ? <div className="sod29-world-stream-list">
+            {discoveryItems.slice(0, 12).map((item, index) => <button type="button" className={`sod29-world-stream-item${index === 0 ? " is-lead" : ""}`} key={item.id} onClick={() => openDiscoveryItem(item)}>
+              <span className="sod29-world-stream-pulse" aria-hidden="true" />
+              <div className="sod29-world-stream-copy">
+                <div className="sod29-world-stream-meta">
+                  <span>{CONVERGENCE_LABEL}</span>
+                  <span>{item.creator}</span>
+                  <span>{discoveryDate(item.at)}</span>
+                </div>
+                <strong>{item.label}</strong>
+                {item.summary ? <small>{item.summary}</small> : null}
+              </div>
+              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
+            </button>)}
+          </div> : null}
+          <div className="sod29-world-stream-truth-note">הזרם מציג חומר ציבורי מאושר לפי זמן אישור/יצירה. סדר חדש ≠ דירוג אמת.</div>
+        </div>
+
+        <div className="sod29-world-spatial-gateway">
+          <div className="sod29-world-spatial-copy">
+            <span className="sod29-kicker">לב העולם</span>
+            <h3>לא רשימה — מרחב.</h3>
+            <p>כל שער הוא projection של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
+          </div>
+          <WorldCoreMap
+            sections={landing.sections}
+            loading={landing.loading}
+            onSearch={() => shell.openCommand()}
+            onOpenFacet={openLandingFacet}
+          />
+        </div>
       </div>
     </section>
 
