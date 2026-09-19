@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
-import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
+import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import "./numberCore2029.css";
 
-import { canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 const LAB = PALETTES.lab;
 const NUMBER_CORE_PALETTE = Object.freeze({
   "--s29-page": LAB.pageBg,
