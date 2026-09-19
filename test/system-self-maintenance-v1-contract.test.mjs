@@ -11,6 +11,7 @@ assert.match(mig, /rule_version=2/);
 assert.match(mig, /'system_suggestions_law',\s*\n\s*3,/);
 assert.match(mig, /supersedes_version/i);
 assert.match(mig, /GOVERNED SELF-MAINTENANCE/);
+assert.match(mig, /not exists \(\s*select 1\s*from public\.nodes existing[\s\S]*existing\.rule_id='system_suggestions_law'[\s\S]*existing\.rule_version=3\s*\)/i, "rule v3 creation must be replay/idempotent");
 assert.ok(!/create table/i.test(mig), "no new maintenance table/store");
 assert.ok(!/cron\.schedule\s*\(/i.test(mig), "no new maintenance cron");
 
