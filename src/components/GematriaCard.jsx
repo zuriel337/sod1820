@@ -366,6 +366,7 @@ export default function GematriaCard({
 
           <EvidenceSummary evidence={model.evidence} />
           <ExpressionEvidenceSummary evidence={model.expressionEvidence} />
+          <PeerExpressions peers={model.peerExpressions} />
           <SameValueNote model={model} />
 
           {model?.normalization?.visibleNoticeNeeded && (
