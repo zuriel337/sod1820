@@ -7,10 +7,13 @@ on:
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/components/experience2029/**"
+      - "src/components/CanonicalProgress.jsx"
+      - "src/components/canonicalProgress.css"
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/canonicalProgressModel.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
@@ -22,6 +25,7 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-operational-trace-contract.mjs"
+      - "scripts/test-canonical-progress-2029.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
@@ -31,6 +35,8 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "SOD1820_DESIGN_CONTRACT_V1.md"
+      - "supabase/migrations/20260919235300_g3_canonical_long_task_progress_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -49,6 +55,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Canonical long-task progress acceptance
+        run: node scripts/test-canonical-progress-2029.mjs
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
