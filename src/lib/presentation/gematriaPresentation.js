@@ -386,6 +386,24 @@ function normalizeNormalization(expressionRaw, normalization = null) {
   });
 }
 
+function normalizePeerExpressions(peerExpressions = []) {
+  return Object.freeze(
+    list(peerExpressions)
+      .map((item) => {
+        const expression = clean(typeof item === "string" ? item : item?.expression ?? item?.label);
+        if (!expression) return null;
+        return Object.freeze({
+          expression,
+          value: finiteNumber(item?.value),
+          methodKey: clean(item?.methodKey ?? item?.method_key) || null,
+          verified: item?.verified === true,
+          verificationState: clean(item?.verificationState ?? item?.verification_state) || null,
+        });
+      })
+      .filter(Boolean),
+  );
+}
+
 function normalizeRelationsSummary(relationsSummary = null) {
   const count = Number(relationsSummary?.count);
   return Object.freeze({
@@ -457,6 +475,7 @@ export function buildGematriaPresentationModel({
   includeUnavailableKeys = [],
   normalization = null,
   relationsSummary = null,
+  peerExpressions = [],
   trace = null,
   researchContextRef = null,
   previewLimit = DEFAULT_GEMATRIA_PREVIEW_LIMIT,
@@ -541,6 +560,7 @@ export function buildGematriaPresentationModel({
     expressionEvidence,
     normalization: normalizedExpression,
     relationsSummary: relationSummary,
+    peerExpressions: peers,
     trace: Object.freeze({
       available: Boolean(trace?.available ?? trace?.traceAvailable ?? false),
       lazy: true,
