@@ -9,6 +9,12 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
+const STALE_RECOVERY_AFTER = 60 * 60;
+const NORMAL_HISTORY_COUNT = 30;
+const RECOVERY_HISTORY_COUNT = 1000;
+const RECOVERY_BATCH = 10;
+const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
+const STORY_LIVE_CHANNELS = new Set(["or-geula"]);
 const BUCKET = "gallery";
 const MEDIA_DIR = "sod1820/broadcasts";
 const MAX_MEDIA = 45 * 1024 * 1024;
@@ -47,9 +53,22 @@ async function waAdmin(method: string, payload: unknown, http: string) {
   const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: http });
   return data;
 }
-function pick<T>(v: any): T[] { return (Array.isArray(v) ? v : (v?.result ?? [])) as T[]; }
+function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
+  if (Array.isArray(v)) return { ok: true, rows: v as T[] };
+  if (Array.isArray(v?.result)) return { ok: true, rows: v.result as T[] };
+  return { ok: false, rows: [] };
+}
+function channelStatus(channel: string): "live" | "private" {
+  return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
+}
 
-async function rehost(url: string, msgId: string, kind: "image" | "video"): Promise<string | null> {
+async function rehost(
+  url: string,
+  msgId: string,
+  kind: "image" | "video",
+  privateMedia: boolean,
+  sourceTs: number,
+): Promise<string | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) { trace.push({ msgId, step: "fetch", status: res.status }); return null; }
@@ -57,6 +76,23 @@ async function rehost(url: string, msgId: string, kind: "image" | "video"): Prom
     if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
     const ct = res.headers.get("content-type") || (kind === "video" ? "video/mp4" : "image/jpeg");
     const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : ct.includes("webm") ? "webm" : ct.includes("video") ? "mp4" : "jpg";
+
+    if (privateMedia) {
+      const d = new Date(sourceTs * 1000);
+      const yyyy = String(d.getUTCFullYear());
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const submissionId = crypto.randomUUID();
+      const path = `sod1820/2029/unresolved/${yyyy}/${mm}/${submissionId}/${kind}/original.${ext}`;
+      const up = await sb.storage.from("submission-inbox").upload(path, buf, { contentType: ct, upsert: false });
+      if (up.error) { trace.push({ msgId, step: "private-upload", error: String(up.error.message || up.error) }); return null; }
+      if (!up.data?.id) {
+        trace.push({ msgId, step: "private-object-id", error: "missing_id" });
+        return null;
+      }
+      // Supabase Storage upload returns an object id. Persist only that opaque id, never a signed/private path.
+      return `storage-object:${up.data.id}`;
+    }
+
     const path = `${MEDIA_DIR}/${msgId}.${ext}`;
     const up = await sb.storage.from(BUCKET).upload(path, buf, { contentType: ct, upsert: true });
     if (up.error) { trace.push({ msgId, step: "upload", error: String(up.error.message || up.error) }); return null; }
@@ -64,7 +100,7 @@ async function rehost(url: string, msgId: string, kind: "image" | "video"): Prom
   } catch (e) { trace.push({ msgId, step: "throw", error: String(e) }); return null; }
 }
 
-async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, string>): Promise<number> {
+async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, string>): Promise<{ ingested: number; recoveryPending: boolean; recoveryBlocked: boolean; historyOk: boolean }> {
   const chatId: string = src.chat_id;
   const adminOnly: boolean = src.admin_only;
   const admins: string[] = src.admin_ids || [];
@@ -75,14 +111,52 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
   const brandCredit: string = src.display_name || src.label || null;
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
+  const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
+  const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
+  const historyCount = recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT;
   let n = 0, maxTs = minTs;
   let hist;
-  try { hist = await waAdmin("getChatHistory", { chatId, count: 30 }, "POST"); } catch (e) { trace.push({ step: "hist-fail", error: String(e) }); return 0; }
-  const msgs = pick<Record<string, any>>(hist);
-  const polled = msgs.length > 0;
-  trace.push({ step: "hist", channel: src.channel, count: msgs.length, minTs });
+  try {
+    hist = await waAdmin("getChatHistory", { chatId, count: historyCount }, "POST");
+  } catch (e) {
+    trace.push({ step: "hist-fail", channel: src.channel, error: String(e) });
+    return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
+  }
 
-  for (const m of msgs) {
+  const picked = pickHistory<Record<string, any>>(hist);
+  if (!picked.ok) {
+    trace.push({ step: "hist-invalid", channel: src.channel, response: String(hist?.result?.stateInstance || hist?.result?.error || "non_array") });
+    return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
+  }
+
+  const msgs = picked.rows;
+  const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
+  const gapRows = ordered.filter((m) => Number(m?.timestamp || 0) > minTs);
+  const oldestTs = ordered.length ? Number(ordered[0]?.timestamp || 0) : 0;
+  const recoveryBlocked = recovering
+    && msgs.length >= historyCount
+    && minTs > 0
+    && oldestTs > minTs + 120;
+
+  if (recoveryBlocked) {
+    trace.push({ step: "recovery-window-saturated", channel: src.channel, historyCount, minTs, oldestTs });
+    return { ingested: 0, recoveryPending: true, recoveryBlocked: true, historyOk: true };
+  }
+
+  const recoveryPending = recovering && gapRows.length > RECOVERY_BATCH;
+  const batch = recoveryPending ? gapRows.slice(0, RECOVERY_BATCH) : gapRows;
+  trace.push({
+    step: "hist",
+    channel: src.channel,
+    count: msgs.length,
+    eligible: gapRows.length,
+    batch: batch.length,
+    minTs,
+    recovering,
+    recoveryPending,
+  });
+
+  for (const m of batch) {
     const msgId = m.idMessage;
     const ts = Number(m.timestamp || 0);
     const typ = m.typeMessage || "";
@@ -90,7 +164,11 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     const senderName = m.senderName || "";
     const outgoing = m.type === "outgoing";
     if (!msgId || !ts) continue;
-    if (ts <= minTs || (nowSec - ts) > CEIL) continue;
+    if (ts <= minTs || (!recovering && (nowSec - ts) > CEIL)) continue;
+
+    // The checkpoint advances across intentionally ignored message types too, but only inside
+    // the bounded oldest-first recovery batch, so no unseen gap can be skipped.
+    if (ts > maxTs) maxTs = ts;
     if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "quotedMessage"].includes(typ)) continue;
 
     if (outgoing) {
@@ -102,7 +180,7 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     }
 
     const { data: dup } = await sb.from("channel_updates").select("id").eq("ext_msg_id", msgId).maybeSingle();
-    if (dup) { if (ts > maxTs) maxTs = ts; continue; }
+    if (dup) continue;
 
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
     const isImg = typ === "imageMessage" || mime.startsWith("image");
@@ -112,18 +190,28 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
 
     if (isBlockedText(bodyText, blockText)) {
       trace.push({ msgId, step: "blocked-text", channel: src.channel });
-      if (ts > maxTs) maxTs = ts;
       continue;
     }
 
     let imageUrl: string | null = null;
     if (isImg || isVid) {
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
-      if (!dl) { try { const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST"); dl = d?.result?.downloadUrl || d?.downloadUrl || ""; } catch { /* noop */ } }
-      if (dl) imageUrl = await rehost(dl, msgId, isVid ? "video" : "image");
+      if (!dl) {
+        try {
+          const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST");
+          dl = d?.result?.downloadUrl || d?.downloadUrl || "";
+        } catch { /* noop */ }
+      }
+      if (dl) imageUrl = await rehost(
+        dl,
+        msgId,
+        isVid ? "video" : "image",
+        channelStatus(src.channel) === "private",
+        ts,
+      );
     }
 
-    if (!bodyText && !imageUrl) { if (ts > maxTs) maxTs = ts; continue; }
+    if (!bodyText && !imageUrl) continue;
     const text = bodyText || (isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
@@ -133,18 +221,27 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     const source = isBotApi ? "ai" : "auto";
 
     const ins = await sb.from("channel_updates").insert({
-      channel: src.channel, text, image_url: imageUrl, source,
-      credit, priority: src.priority ?? 50,
-      status: "live", ext_msg_id: msgId, created_at: new Date(ts * 1000).toISOString(),
+      channel: src.channel,
+      text,
+      image_url: imageUrl,
+      source,
+      credit,
+      priority: src.priority ?? 50,
+      status: channelStatus(src.channel),
+      ext_msg_id: msgId,
+      created_at: new Date(ts * 1000).toISOString(),
     });
     if (ins.error) trace.push({ msgId, step: "insert-fail", error: String(ins.error.message || ins.error) });
-    else { n++; if (ts > maxTs) maxTs = ts; }
+    else n++;
   }
+
   const upd: Record<string, unknown> = {};
   if (maxTs > minTs) upd.min_ts = maxTs - 120;
-  if (polled) upd.last_run_at = new Date(nowSec * 1000).toISOString();
+  // last_run_at means successful provider poll, including a valid empty history. During bounded
+  // recovery we intentionally keep it stale until the whole known gap has been consumed.
+  if (!recoveryPending) upd.last_run_at = new Date(nowSec * 1000).toISOString();
   if (Object.keys(upd).length) await sb.from("channel_ingest_sources").update(upd).eq("id", src.id);
-  return n;
+  return { ingested: n, recoveryPending, recoveryBlocked: false, historyOk: true };
 }
 
 Deno.serve(async (req) => {
@@ -157,13 +254,28 @@ Deno.serve(async (req) => {
   const aliasMap = await loadAliasMap();
   const { data: sources } = await sb.from("channel_ingest_sources").select("*").eq("enabled", true);
   let ingested = 0;
+  let recoveryPending = 0;
+  let recoveryBlocked = 0;
+  let pollFailures = 0;
   for (const src of (sources || [])) {
-    const every = Number(src.poll_every_min ?? 3);
+    const every = Number(src.poll_every_min ?? 5);
     const last = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
-    if (!force && last && (nowSec - last) < every * 60 - 10) { trace.push({ step: "skip", channel: src.channel, every }); continue; }
-    try { ingested += await ingestSource(src, nowSec, aliasMap); } catch (e) { trace.push({ step: "src-throw", error: String(e) }); }
+    if (!force && last && (nowSec - last) < every * 60 - 10) {
+      trace.push({ step: "skip", channel: src.channel, every });
+      continue;
+    }
+    try {
+      const r = await ingestSource(src, nowSec, aliasMap);
+      ingested += r.ingested;
+      if (r.recoveryPending) recoveryPending++;
+      if (r.recoveryBlocked) recoveryBlocked++;
+      if (!r.historyOk) pollFailures++;
+    } catch (e) {
+      pollFailures++;
+      trace.push({ step: "src-throw", channel: src.channel, error: String(e) });
+    }
   }
-  const body: any = { ingested, aliases: aliasMap.size };
+  const body: any = { ingested, aliases: aliasMap.size, recoveryPending, recoveryBlocked, pollFailures };
   if (u.searchParams.get("debug") === "1") body.trace = trace;
   return new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
 });
