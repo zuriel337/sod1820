@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { GEM, onlyHeb } from "../lib/gematria.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
+import { formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 
 // 🔢📖 חיפוש פסוקים לפי גימטריה — מקלידים מספר (או ביטוי), והמערכת מחזירה מכל התנ״ך:
 //   • פסוקים שלמים ששווים לערך (ערך מחושב-מראש בקורפוס, method=רגיל).
@@ -42,17 +43,18 @@ export default function VerseGematriaPage() {
   const results = useMemo(() => {
     if (!corpus || !target) return null;
     const { books, verses } = corpus;
-    const ref = v => `${books[v[0]]} ${v[1]},${v[2]}`;
+    const rawRef = v => `${books[v[0]]} ${v[1]}:${v[2]}`;
+    const displayRef = v => formatTanakhRef({ book: books[v[0]], chapter: v[1], verse: v[2] });
     const fullVerses = [];
     const windows = [];
     for (const v of verses) {
-      if (v[4] === target && fullVerses.length < CAP_VERSES) fullVerses.push({ ref: ref(v), text: v[3] });
+      if (v[4] === target && fullVerses.length < CAP_VERSES) fullVerses.push({ rawRef: rawRef(v), ref: displayRef(v), text: v[3] });
       if (windows.length >= CAP_WINDOWS) continue;
       const ws = words(v[3]);
       for (let n = MIN_W; n <= MAX_W && windows.length < CAP_WINDOWS; n++) {
         for (let i = 0; i + n <= ws.length; i++) {
           let sum = 0; for (let k = 0; k < n; k++) sum += ragil(ws[i + k]);
-          if (sum === target) { windows.push({ ref: ref(v), n, phrase: ws.slice(i, i + n).join(" ") }); break; }
+          if (sum === target) { windows.push({ rawRef: rawRef(v), ref: displayRef(v), n, phrase: ws.slice(i, i + n).join(" ") }); break; }
         }
       }
     }
@@ -126,8 +128,8 @@ export default function VerseGematriaPage() {
             <div className="vg-list">
               {results.fullVerses.length ? results.fullVerses.map((v, i) => (
                 <Link key={i} to={`/number/${encodeURIComponent(v.text)}`} className="vg-card">
-                  <div className="vg-ref">{v.ref}<span className="tag">פסוק שלם</span></div>
-                  <div className="vg-vtext">{v.text}</div>
+                  <div className="vg-ref" title={v.rawRef}>{v.ref}<span className="tag">פסוק שלם</span></div>
+                  <div className="vg-vtext">{v.text} <b style={{ color: P.accentText, whiteSpace: "nowrap" }}>{formatVerseGematriaSuffix(target)}</b></div>
                 </Link>
               )) : <div className="vg-empty">אין פסוק שלם בערך הזה — נסו את הצירופים למטה.</div>}
             </div>
@@ -136,8 +138,8 @@ export default function VerseGematriaPage() {
             <div className="vg-list">
               {results.windows.length ? results.windows.map((w, i) => (
                 <Link key={i} to={`/number/${encodeURIComponent(w.phrase)}`} className="vg-card">
-                  <div className="vg-ref">{w.ref}<span className="tag">{w.n} מילים</span></div>
-                  <div className="vg-phrase">{w.phrase}</div>
+                  <div className="vg-ref" title={w.rawRef}>{w.ref}<span className="tag">{w.n} מילים</span></div>
+                  <div className="vg-phrase">{w.phrase} <b style={{ color: P.accentText, whiteSpace: "nowrap" }}>{formatVerseGematriaSuffix(target)}</b></div>
                 </Link>
               )) : <div className="vg-empty">לא נמצאו צירופי מילים רצופות בערך הזה.</div>}
             </div>
