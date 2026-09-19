@@ -21,8 +21,9 @@ import "./systemFrame2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
+  ACTION: "action",
+  CAPABILITY: "capability",
   INSPECT: "inspect",
-  NUMBER: "number",
   ATTENTION: "attention",
   TOOLS: "tools",
   RAZIEL: "raziel",
@@ -31,6 +32,8 @@ const TRANSIENT = Object.freeze({
 
 const ShellContext = createContext({
   openCommand: () => {},
+  openAction: () => {},
+  openCapability: () => {},
   openInspect: () => {},
   openNumber: () => {},
   openAttention: () => {},
@@ -267,6 +270,45 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepe
   );
 }
 
+function ActionProjection({
+  target,
+  context,
+  onInspect,
+  onCapability,
+  onRaziel,
+  onDeepen,
+}) {
+  if (!target) {
+    return <FrameState kind="empty" title="אין כרגע אובייקט לפעולה">סמן שורה, ביטוי, מספר או ישות. פעולה משתמשת ב־Selection כשיש בחירה, אחרת ב־Research Context הנוכחי.</FrameState>;
+  }
+  const numericFamily = target.type === "number" || target.type === "phrase";
+  return (
+    <>
+      <div className="sod29-panel-lead">
+        <div className="sod29-kicker">CONTEXT ACTION ROUTER</div>
+        <h3>מה אפשר לעשות עם הבחירה הזאת?</h3>
+        <p>אותו Subject / Selection עובר ל־capability שנבחר. פתיחת כלי אינה יוצרת Context חדש ואינה משנה אמת.</p>
+      </div>
+      <div className="sod29-selection-summary">
+        <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
+        <strong>{target.label}</strong>
+        <small>{target.type}</small>
+      </div>
+      <div className="sod29-panel-actions-grid">
+        <button className="sod29-action primary" type="button" onClick={() => onInspect(target)}>◎ בדוק</button>
+        {numericFamily ? <button className="sod29-action" type="button" onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button> : null}
+        <button className="sod29-action" type="button" onClick={() => onRaziel()}>● רזיאל</button>
+        <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
+      </div>
+      <div className="sod29-panel-context-card">
+        <b>One Context</b>
+        <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "Subject · לא נקבע"}</span>
+        <small>Selection → Action → Capability → Panel → Heichal</small>
+      </div>
+    </>
+  );
+}
+
 function AttentionProjection({ context, onWorkspace }) {
   return (
     <>
@@ -286,7 +328,7 @@ function AttentionProjection({ context, onWorkspace }) {
   );
 }
 
-function ToolsProjection({ target, onDeepen, go }) {
+function ToolsProjection({ target, onDeepen, go, onCapability }) {
   return (
     <>
       <div className="sod29-panel-lead">
@@ -299,7 +341,7 @@ function ToolsProjection({ target, onDeepen, go }) {
         <button className="sod29-action primary" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
         <button className="sod29-action" type="button" onClick={() => go("/els")}>✦ ELS</button>
         <button className="sod29-action" type="button" onClick={() => go("/books")}>▤ ספרים ומקורות</button>
-        <button className="sod29-action" type="button" disabled>123 דף המספר · redesign pending</button>
+        <button className="sod29-action" type="button" onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button>
       </div>
     </>
   );
@@ -511,8 +553,14 @@ export default function SystemFrame2029({
   }, [navOpen]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
+  const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
+  const openCapability = useCallback((capability, subject = null, payload = {}) => {
+    const key = String(capability || "").trim();
+    if (!key) return;
+    openTransient(TRANSIENT.CAPABILITY, { ...payload, capability: key, subject: normalizeTarget(subject) });
+  }, [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
-  const openNumber = useCallback((subject = null) => openTransient(TRANSIENT.NUMBER, { subject: normalizeTarget(subject) }), [openTransient]);
+  const openNumber = useCallback((subject = null) => openCapability("number", subject), [openCapability]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
@@ -665,11 +713,13 @@ export default function SystemFrame2029({
     if (!target) return;
     setEphemeralSelection(target);
     setCommandQuery("");
-    openTransient(TRANSIENT.NUMBER, { subject: target });
-  }, [commandQuery, openTransient]);
+    openCapability("number", target, { source: "command" });
+  }, [commandQuery, openCapability]);
 
   const shellApi = useMemo(() => ({
     openCommand,
+    openAction,
+    openCapability,
     openInspect,
     openNumber,
     openAttention,
@@ -681,7 +731,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [openCommand, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
+  }), [openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -714,10 +764,15 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SYSTEM FRAME" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.NUMBER) return <PanelShell {...common} icon="123" kicker="NUMBER / EXPRESSION" title={inspectTarget?.label || context?.subject?.label || "חלונית המספר"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="ACTION / CONTEXT" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} onDeepen={deepenToHeichal} /></PanelShell>;
+    if (transientKind === TRANSIENT.CAPABILITY) {
+      const capability = transient?.payload?.capability || null;
+      if (capability === "number") return <PanelShell {...common} icon="123" kicker="CAPABILITY · NUMBER" title={inspectTarget?.label || context?.subject?.label || "מספר / ביטוי"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+      return <PanelShell {...common} icon="◇" kicker="CAPABILITY" title={capability || "יכולת"}><FrameState kind="unavailable" title="ה־capability עדיין לא מחובר ל־Host">אותו Panel Host מוכן לקבל projections נוספים בלי לפתוח מערכת חלוניות מקבילה.</FrameState></PanelShell>;
+    }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
   };
@@ -795,14 +850,12 @@ export default function SystemFrame2029({
           </aside>
         </> : null}
 
-        {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => (ephemeralSelection.type === "number" || ephemeralSelection.type === "phrase") ? openNumber(ephemeralSelection) : openInspect(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>{ephemeralSelection.type === "number" || ephemeralSelection.type === "phrase" ? "מספר" : "בדוק"}</span></button> : null}
+        {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו">
           <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-          <button type="button" onClick={() => openNumber((activeTarget?.type === "number" || activeTarget?.type === "phrase") ? activeTarget : null)} aria-pressed={transientKind === TRANSIENT.NUMBER}><span>123</span><small>מספר</small></button>
-          <button type="button" onClick={() => openInspect(activeTarget)} aria-pressed={transientKind === TRANSIENT.INSPECT}><span>◎</span><small>בדיקה</small></button>
+          <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
           <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
         </div>
 
