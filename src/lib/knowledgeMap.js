@@ -221,7 +221,6 @@ export const QUICK_NAV_GROUPS = [
   {title:"🔬 לחקור",items:[
     {label:"דף המספר",emoji:"🔢",to:"/number",fav:true},
     {label:"מספרים",emoji:"✺",to:"/numbers"},
-    {label:"העולם",emoji:"◌",to:"/world",fav:true},
     {label:"דילוגי אותיות",emoji:"🔠",to:"/code",icon:"dilugim",fav:true},
     {label:"ספריית צפנים",emoji:"▦",to:"/codes"},
     {label:"מחשבון מקצועי",emoji:"🧮",to:"/research?tool=gematria",fav:true}
