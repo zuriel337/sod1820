@@ -65,6 +65,16 @@
       "permanent": true
     },
     {
+      "source": "/book",
+      "destination": "/books",
+      "permanent": true
+    },
+    {
+      "source": "/books/(.*)",
+      "destination": "/book/$1",
+      "permanent": true
+    },
+    {
       "source": "/(.+)/",
       "destination": "/$1",
       "permanent": true
@@ -216,6 +226,10 @@
     },
     {
       "source": "/books/(.*)",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/book/(.*)",
       "destination": "/2029.html"
     },
     {

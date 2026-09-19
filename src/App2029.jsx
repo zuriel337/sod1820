@@ -1,11 +1,12 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
+import { ensureIdentity } from "./lib/identity.js";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -27,6 +28,7 @@ function RouteEffects2029() {
   useEffect(() => {
     initGA();
     initMarketing();
+    ensureIdentity();
   }, []);
 
   useEffect(() => {
@@ -44,6 +46,11 @@ function RouteEffects2029() {
 
 // A 2029 runtime never renders a legacy route inside the same React tree.
 // Exact-return or an explicit navigation to a non-2029 URL crosses the document boundary instead.
+function CanonicalBookAlias2029() {
+  const { slug } = useParams();
+  return <Navigate replace to={slug ? `/book/${slug}` : "/books"} />;
+}
+
 function LegacyDocumentHandoff() {
   const location = useLocation();
   const href = `${location.pathname}${location.search || ""}${location.hash || ""}`;
@@ -65,7 +72,8 @@ export default function App2029() {
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/books" element={<Books2029Page />} />
-              <Route path="/books/:slug" element={<Books2029Page />} />
+              <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
+              <Route path="/book/:slug" element={<Books2029Page />} />
               <Route path="/els" element={<Els2029Page />} />
               <Route path="/heichal" element={<Heichal2029Page />} />
               <Route path="/היכל" element={<Heichal2029Page />} />
