@@ -125,7 +125,7 @@ export default function CanonicalProgress({
           <strong>{title}</strong>
           {detail ? <p>{detail}</p> : null}
         </div>
-        <time aria-label={`זמן שעבר ${elapsedLabel(elapsed)}`}>{elapsedLabel(elapsed)}</time>
+        <time aria-hidden="true">{elapsedLabel(elapsed)}</time>
       </div>
 
       <div
