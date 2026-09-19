@@ -22,8 +22,8 @@ assert.equal(compat.includes("<aside"), false, "compatibility shell must not ren
 // G3-A isolation remains intact: prose may name retired prototypes, but the native
 // frame may not import or render those presentation owners/assets.
 const forbiddenImportPatterns = [
-  /from\s+["'][^"']*NumberDrawer/i,
-  /from\s+["'][^"']*numberDrawer/i,
+  /from\s+["'][^"']*\/NumberDrawer\.jsx/i,
+  /from\s+["'][^"']*\/numberDrawer\.js/i,
   /from\s+["'][^"']*BottomBar/i,
   /from\s+["'][^"']*siteUpdates/i,
   /from\s+["'][^"']*AskRaziel/i,
@@ -105,8 +105,14 @@ assert.match(frame, /returnTo:\s*null/);
 assert.match(frame, /TEMPORARY SELECTION/);
 assert.match(frame, /selectionchange/);
 assert.match(frame, /Selection זמני ≠ Finding ≠ Claim ≠ Canonical/);
-assert.match(frame, /Quick Inspect seam פעיל/);
 assert.match(frame, /Follow runtime נשאר ב־PR #486/);
+
+// Number Core is a dedicated transient seam consuming the canonical NumberDrawer2029 —
+// Quick Inspect hands numeric/phrase targets to it rather than owning Number presentation itself.
+assert.match(frame, /TRANSIENT\.NUMBER/);
+assert.match(frame, /openNumber/);
+assert.match(frame, /from "\.\.\/number2029\/NumberDrawer2029\.jsx"/);
+assert.match(frame, /transientKind === TRANSIENT\.NUMBER/);
 
 // Cross-cutting actions consume canonical capability seams where they already exist.
 assert.match(frame, /makeEntity/);

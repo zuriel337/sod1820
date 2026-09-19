@@ -7,12 +7,16 @@ on:
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/components/experience2029/**"
+      - "src/components/number2029/**"
       - "src/pages/*2029Page.jsx"
+      - "src/pages/number2029.css"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
+      - "src/lib/research/numberCoreProjection.js"
+      - "src/lib/presentation/canonicalPresentation.js"
       - "package.json"
       - "vite.config.js"
       - "vercel.json"
@@ -24,6 +28,7 @@ on:
       - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
       - "scripts/test-2029-researcher-corpus.mjs"
+      - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -53,6 +58,8 @@ jobs:
         run: node scripts/test-2029-world-surface.mjs
       - name: Native Researcher corpus acceptance
         run: node scripts/test-2029-researcher-corpus.mjs
+      - name: Native Number preview acceptance
+        run: node scripts/test-2029-number-preview.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation

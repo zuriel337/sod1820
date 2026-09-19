@@ -396,3 +396,29 @@ test('private researcher corpus stays gated for non-admin 2029 sessions', async 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/researcher-corpus-gated-390.png', fullPage: true });
 });
+
+test('Number 2029 preview opens the native Number Core with the canonical six-method rail', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1820`, { waitUntil: 'domcontentloaded' });
+  const core = page.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible({ timeout: 30_000 });
+  await expect(core).toHaveAttribute('data-number-core-root', '1820');
+  await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-truth-safe', 'true');
+  const methodCards = page.locator('.sod29-number-v10-method-card');
+  await expect(methodCards.first()).toBeVisible({ timeout: 15_000 });
+  expect(await methodCards.count()).toBeLessThanOrEqual(6);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-core-1820-390.png', fullPage: true });
+});
+
+test('Number Core seam opens from the System Frame command island without inheriting the legacy NumberDrawer', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedWorldAnchor(page, 1820);
+  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.sod29-world-native-projection')).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: 'מספר' }).click();
+  await expect(page.locator('.sod29-number-core2029')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.nd-launcher')).toHaveCount(0);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-command-island-390.png', fullPage: true });
+});
