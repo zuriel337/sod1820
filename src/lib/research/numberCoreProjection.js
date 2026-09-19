@@ -1,3 +1,4 @@
+import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 
 export const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -272,7 +273,7 @@ export function buildNumberCoreProjection({
   const layerCounts = [
     { key: "methods", label: "שיטות חישוב", icon: "▦", count: methodProfile.length },
     { key: "crossings", label: "הצלבות בלתי תלויות", icon: "∞", count: crossing ? 1 : 0 },
-    { key: "meetings", label: "מפגשים מחקריים", icon: "⌘", count: topics.length },
+    { key: "meetings", label: `${canonicalResearchPublicLabel("convergence", { plural: true })} מחקריות`, icon: "⌘", count: topics.length },
     { key: "relations", label: "מספרים קשורים", icon: "↔", count: relations.length },
     { key: "worlds", label: "עולמות מחקר", icon: "◉", count: worlds.length },
     { key: "sources", label: "מקורות / ספרים", icon: "▤", count: sources.length },
