@@ -16,7 +16,7 @@ import { applySeo } from "../lib/seo.js";
 function BookCard({ book }) {
   const slug = book?.metadata?.slug;
   const coverage = book?.metadata?.coverage_2029 || book?.metadata?.coverage || {};
-  return <Link className="sod29-book-tile" to={slug ? `/books/${slug}` : "/books"}>
+  return <Link className="sod29-book-tile" to={slug ? `/book/${slug}` : "/books"}>
     <div className="sod29-book-cover" aria-hidden="true">▤</div>
     <div className="sod29-kicker">BOOK IDENTITY</div>
     <h3>{book.label}</h3>
@@ -154,6 +154,6 @@ function BookDetail({ slug }) {
 
 export default function Books2029Page() {
   const { slug } = useParams();
-  useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820 2029", path: slug ? `/books/${slug}` : "/books" }); }, [slug]);
+  useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820 2029", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
   return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות, למראה־מקום ולהמשך בהיכל.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
 }
