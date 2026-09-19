@@ -118,6 +118,25 @@ Live `topic_cards_public` baseline:
 
 Implication: subtitle/image absence is **not** enough to classify a page as thin. Most semantic body material lives in source-authored `findings`, so Search admission must inspect meaningful authored content/provenance, not metadata completeness alone.
 
+### GSC baseline — 2026-09-19
+
+Live `gsc_metrics` evidence:
+- 74 distinct `/topic/*` pages have appeared in Google Search;
+- 689 total recorded impressions, 19 clicks;
+- the recent 90-day window contains 74 pages, 687 impressions and 18 clicks;
+- 9 Topic URLs received at least one click in the recent window;
+- 18 `gapfill-* ` Topic URLs have appeared, with 52 impressions and 1 click total;
+- therefore neither `created_by`, `gap-fill`, missing subtitle nor missing image can be used alone as an automatic noindex rule.
+
+Migration rule:
+1. preserve existing index behavior through the native renderer cutover;
+2. protect pages with demonstrated clicks/search visibility from accidental deindex;
+3. measure the native 2029 renderer after release;
+4. only then propose cohort-level `index` / `noindex,follow` changes;
+5. any bulk deindex remains Human-Gated.
+
+The Search contract may use content richness + provenance + duplicate/thin detection + observed search value, but **never creator identity as a direct SEO verdict**.
+
 Additional body-richness audit:
 - 6/205 have 0 counted authored body units;
 - 74 have 1–2;
@@ -137,7 +156,8 @@ Before any bulk noindex/index change:
 - identify source-backed vs weak/synthetic pages;
 - identify inbound/search traffic if available;
 - preserve currently valuable indexed URLs by default;
-- propose an index-admission rule separately;
+- propose an index-admission rule separately, using content/provenance + duplication/thinness + measured search value;
+- preserve current indexability during native cutover;
 - Human Gate approves any bulk deindex policy.
 
 No meter_score-only admission.
