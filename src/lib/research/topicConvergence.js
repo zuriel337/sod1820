@@ -416,6 +416,7 @@ export function topicConvergenceToUniversalFinding(
           created_by: card?.created_by ?? null,
           occurred_at: card?.occurred_at ?? null,
           image_ids: Array.isArray(card?.image_ids) ? card.image_ids.map(String) : [],
+          highlight_numbers: Array.isArray(card?.highlight_numbers) ? card.highlight_numbers.filter(Number.isFinite) : [],
           search_terms: Array.isArray(card?.search_terms) ? card.search_terms.map(String) : [],
         }] : []),
         ...(nodeId ? [{
