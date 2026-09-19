@@ -359,7 +359,7 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /אפשר להתחיל מנקודה — ולהמשיך למסע/);
+assert.match(world, /DISCOVERY WORLD/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));
