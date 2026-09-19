@@ -269,7 +269,7 @@ export default function ResearchPage() {
           <div style={{ fontSize: 46, marginBottom: 14 }}>🔬</div>
           <div style={{ fontFamily: "inherit", fontSize: 20, fontWeight: 800, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>הכלי בשדרוג</div>
           <div className="rw-muted" style={{ fontSize: 14.5, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 18px" }}>
-            הכלי הזה עדיין <b>בבנייה</b> — ייפתח בקרוב לכל החוקרים.<br />פתוחים עכשיו: מחשבון · דף המספר · בית המדרש · חיפוש בפסוקים · השוואת מילים · נוטריקון · ניתוח קובץ.
+            הכלי הזה עדיין <b>בבנייה</b> — ייפתח בקרוב לכל החוקרים.<br />פתוחים עכשיו: מחשבון · דף המספר · העולם · חיפוש בפסוקים · השוואת מילים · נוטריקון · ניתוח קובץ.
           </div>
           <button className="rw-tchip on" onClick={() => setTool("gematria")} style={{ marginInlineEnd: 8 }}>🧮 למחשבון</button>
           <button className="rw-tchip" onClick={() => setTool(null)}>← היכל</button>
@@ -312,7 +312,7 @@ export default function ResearchPage() {
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}
           {tool === "midrash" && (
-            <Suspense fallback={<div className="rw-card rw-muted">טוען את בית המדרש…</div>}>
+            <Suspense fallback={<div className="rw-card rw-muted">טוען את מחשבון הגימטריה…</div>}>
               <BeitMidrashPage />
             </Suspense>
           )}
