@@ -225,7 +225,7 @@ export async function runNumericPatternWorkbench(input, options = {}) {
       sequenceId: 'fibonacci',
       query: String(value),
       operation: SEQUENCE_OPERATION.TERM_FIRST,
-      budget: { maxSearchDepth: 10000, windowRadius: budget.sequenceWindowRadius, maxOccurrences: 10 },
+      budget: { maxSearchDepth: 100, windowRadius: budget.sequenceWindowRadius, maxOccurrences: 10 },
       provenance,
     });
     fibonacciHits.push({
@@ -239,13 +239,13 @@ export async function runNumericPatternWorkbench(input, options = {}) {
       sequenceId: 'fibonacci',
       query: String(value),
       operation: SEQUENCE_OPERATION.ZECKENDORF,
-      budget: { maxSearchDepth: 10000, windowRadius: budget.sequenceWindowRadius, maxOccurrences: 10 },
+      budget: { maxSearchDepth: 100, windowRadius: budget.sequenceWindowRadius, maxOccurrences: 10 },
       provenance,
     });
     zeckendorf.push({ value, decomposition: z?.result?.decomposition ?? null, sequence_version: z?.sequence_version ?? null });
 
     mathProfiles.push(analyzeNumberMath(value, {
-      budget: options.mathBudget || {},
+      budget: { maxFactorChecks: options.mathBudget?.maxFactorChecks ?? 5000 },
       provenance,
     }));
   }
