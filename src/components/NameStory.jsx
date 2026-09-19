@@ -6,6 +6,7 @@ import { entityFromPhrase } from "../lib/research/entity.js";
 import { METHODS, onlyHeb, hebrewNumeral } from "../lib/gematria.js";
 import { makeNameCard } from "../lib/research/nameCard.js";
 import { canShareFile, shareImageFile } from "../lib/share.js";
+import { formatTanakhRef } from "../lib/presentation/canonicalPresentation.js";
 
 // 🪪 סיפור השם שלך — עדשה אישית: שלד מחקרי מדויק (מנוע הגימטריה + פסוקי התורה),
 // עור רגשי, שפה של גילוי-זהות. «זה אני» לא «זה המספר שלי». בלי ניחוש/עתידות —
@@ -72,7 +73,7 @@ export default function NameStory() {
   }, [name, verses, main]);
 
   const open = () => { const n = raw.trim(); if (onlyHeb(n).length) setName(n); };
-  const refOf = r => `${verses.books[r[0]]} ${r[1]}:${r[2]}`;
+  const refOf = r => formatTanakhRef({ book: verses.books[r[0]], chapter: r[1], verse: r[2] });
   const entity = name ? entityFromPhrase(name, main) : null;
 
   // 🖼️ כרטיס שיתוף — מנוע ההפצה (Canvas בצד-לקוח, עברית נכונה)

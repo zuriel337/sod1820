@@ -4,6 +4,7 @@ import QuickActions from "./QuickActions.jsx";
 import { entityFromVerse } from "../lib/research/entity.js";
 import { METHODS, methodLabel } from "../lib/gematria.js";
 import { verseIdentityForEngineRow } from "../lib/research/tanakhVerseResultAdapter.js";
+import { formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 
 // 📖 חיפוש בפסוקים — עדשה על כל חמשת חומשי התורה (5,846 פסוקים, נטענים לפי דרישה).
 // טקסט = תת-מחרוזת (מדגיש כל מופע). גימטריה דרך המנוע הרשמי (METHODS) בכל שיטה:
@@ -122,6 +123,7 @@ export default function VerseSearch({ seed }) {
   }, [data, wordIndex, term, mode, gmode, target, book, rangeLo, rangeHi]);
 
   const refOf = r => `${data.books[r[0]]} ${r[1]}:${r[2]}`;
+  const displayRefOf = r => formatTanakhRef({ book: data.books[r[0]], chapter: r[1], verse: r[2] });
   // Tanakh engine adoption: additive canonical-verse-identity metadata only — entity.ref/title/text
   // (the existing Research-Bus entity identity) stay exactly as entityFromVerse already builds them.
   const entityFromRow = (ref, r) => {
@@ -265,14 +267,15 @@ export default function VerseSearch({ seed }) {
         {results.map((res, i) => {
           const r = data.verses[res.k];
           const ref = refOf(r);
+          const displayRef = displayRefOf(r);
           const total = wordIndex ? wordIndex[res.k].total : r[4];
           return (
             <div key={i} style={{ border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", background: "var(--bg)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <Link to={`/code?q=${encodeURIComponent(r[3].split(" ")[0] || "")}`} style={{ fontWeight: 800, fontSize: 13.5, color: "var(--acc)", textDecoration: "none" }}>{ref}</Link>
-                <Link to={`/number/${total}?from=verse`} title={`סך הפסוק · ${methodLabel(method)}`} style={{ fontSize: 12.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 10px", textDecoration: "none" }}>הפסוק = {heb(total)}</Link>
+                <Link to={`/code?q=${encodeURIComponent(r[3].split(" ")[0] || "")}`} title={ref} style={{ fontWeight: 800, fontSize: 13.5, color: "var(--acc)", textDecoration: "none" }}>{displayRef}</Link>
+                <span className="rw-muted" style={{ fontSize: 11.5 }}>{methodLabel(method)}</span>
               </div>
-              <div style={{ fontSize: 17, lineHeight: 1.9, marginTop: 6, fontWeight: 600 }}>{hl(res)}</div>
+              <div style={{ fontSize: 17, lineHeight: 1.9, marginTop: 6, fontWeight: 600 }}>{hl(res)} <Link to={`/number/${total}?from=verse`} title={`סך הפסוק · ${methodLabel(method)}`} style={{ color: "var(--acc)", fontWeight: 900, textDecoration: "none", whiteSpace: "nowrap" }}>{formatVerseGematriaSuffix(total)}</Link></div>
               <QuickActions entity={entityFromRow(ref, r)} />
               {/* ⛔ ניתוח-AI לפסוק הוסר (בקשת צוריאל) — נשאר בהשוואה/נוטריקון/מחקר-אישי בלבד */}
             </div>

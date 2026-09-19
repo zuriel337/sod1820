@@ -4,6 +4,7 @@ import QuickActions from "../QuickActions.jsx";
 import WatchButton from "../WatchButton.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { supabase } from "../../lib/supabase.js";
+import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 
 // 🎨 Palette = CSS variables (.eh-func in EntityHubObservatory.css) — light AND dark.
 const C={ink:"var(--eh-ink)",muted:"var(--eh-muted)",line:"var(--eh-line)",paper:"var(--eh-panel)",soft:"var(--eh-soft)",blue:"var(--eh-blue)",blue2:"var(--eh-bluebg)",onBlue:"var(--eh-onblue)",gold:"var(--eh-gold)",gold2:"var(--eh-goldbg)",dark:"#0b0d12"};
@@ -62,7 +63,7 @@ function MethodTrace({method, phrase, onClose}){
   const trace=state.data;
   return <div style={{marginTop:12,border:`1px solid ${C.line}`,borderRadius:15,background:C.paper,padding:14}}>
     <div style={{display:"flex",gap:10,justifyContent:"space-between",alignItems:"center"}}>
-      <div><b>{method}</b> · Trace <Help title="Trace שיטה">Trace הוא פירוט חישוב של המנוע הקנוני. הוא אינו Finding, Claim או פרשנות.</Help></div>
+      <div><b>{canonicalMethodPublicLabel(method)}</b> · Trace <Help title="Trace שיטה">Trace הוא פירוט חישוב של המנוע הקנוני. הוא אינו Finding, Claim או פרשנות.</Help></div>
       <button onClick={onClose} style={{border:0,background:"transparent",fontSize:20,cursor:"pointer"}}>×</button>
     </div>
     {state.loading?<div style={{color:C.muted,marginTop:8}}>טוען פירוט מהמנוע…</div>
@@ -171,7 +172,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
         </div>}
         {dna==="multi"&&<div>
           <b>רב־שיטתי <Help title="רב־שיטתי">מראה היכן אותו ערך מופיע ביותר משיטת חישוב אחת. זהו Signal מחקרי; מספר שיטות אינו כשלעצמו הוכחת אמת.</Help></b>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:9,marginTop:10}}>{multi.length?multi.map(g=><div key={g.method} style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:13,padding:11}}><b>{g.registry?.display_label||g.method}</b><div style={{fontSize:12,color:C.muted,marginTop:3}}>{g.count||g.phrases?.length||0} ביטויים</div></div>):<span style={{color:C.muted}}>אין כרגע קבוצות רב־שיטתיות זמינות.</span>}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:9,marginTop:10}}>{multi.length?multi.map(g=><div key={g.method} style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:13,padding:11}}><b>{canonicalMethodPublicLabel(g.registry || g.method)}</b><div style={{fontSize:12,color:C.muted,marginTop:3}}>{g.count||g.phrases?.length||0} ביטויים</div></div>):<span style={{color:C.muted}}>אין כרגע קבוצות רב־שיטתיות זמינות.</span>}</div>
         </div>}
         {dna==="worlds"&&<div>
           <b>עולמות <Help title="עולמות">עולם הוא Dimension סמנטי שמגיע מ-nodes.metadata.world הקיים. אין כאן טבלת אמת חדשה.</Help></b>
@@ -195,7 +196,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
 
       <div style={{marginTop:14}}>
         <div style={{fontWeight:900,marginBottom:8}}>Method Rail · כל השיטות הזמינות ב-Projection <Help title="סרגל שיטות">הסדר מגיע מ-sort_order של Registry קנוני, לא מרשימה ידנית חדשה. בהמשך סדר הניהול הקיים ייבדק ויישמר.</Help></div>
-        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=>{const sample=typeof g.phrases?.[0]==="string"?g.phrases[0]:(g.phrases?.[0]?.phrase||g.phrases?.[0]?.label||""); const active=methodTrace?.method===g.method; return <button key={g.method} onClick={()=>sample&&setMethodTrace({method:g.method,phrase:sample})} disabled={!sample} style={{cursor:sample?"pointer":"default",opacity:sample?1:.5,whiteSpace:"nowrap",border:`1px solid ${active?C.blue:C.line}`,background:active?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>})}</div>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=>{const sample=typeof g.phrases?.[0]==="string"?g.phrases[0]:(g.phrases?.[0]?.phrase||g.phrases?.[0]?.label||""); const active=methodTrace?.method===g.method; return <button key={g.method} onClick={()=>sample&&setMethodTrace({method:g.method,phrase:sample})} disabled={!sample} style={{cursor:sample?"pointer":"default",opacity:sample?1:.5,whiteSpace:"nowrap",border:`1px solid ${active?C.blue:C.line}`,background:active?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{canonicalMethodPublicLabel(g.registry || g.method)} · {g.count||g.phrases?.length||0} ⓘ</button>})}</div>
         {methodTrace?<MethodTrace method={methodTrace.method} phrase={methodTrace.phrase} onClose={()=>setMethodTrace(null)} />:null}
       </div>
     </section>
