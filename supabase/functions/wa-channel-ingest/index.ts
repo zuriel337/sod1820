@@ -220,8 +220,8 @@ async function ingestSource(
       if (blockNames.length && blockNames.some((bn) => senderName.includes(bn))) continue;
     }
 
-    const { data: dup } = await sb.from("channel_updates").select("id").eq("ext_msg_id", msgId).maybeSingle();
-    if (dup) continue;
+    const { data: dup } = await sb.from("channel_updates").select("id,image_url").eq("ext_msg_id", msgId).maybeSingle();
+    if (dup && !targeted) continue;
 
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
     const isImg = typ === "imageMessage" || mime.startsWith("image");
