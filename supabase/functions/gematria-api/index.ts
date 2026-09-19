@@ -38,12 +38,12 @@ function json(body: unknown, status = 200) {
   });
 }
 
-// שֵם-תצוגה עברי לכל שיטה (לנוחות הלקוח). קדמי מוצג כ«קדמי · משולש» (מוסכמה באתר).
+// שֵם-תצוגה עברי לכל שיטה (לנוחות הלקוח). method_key קדמי נשמר פנימית; התצוגה הציבורית היא «משולש».
 const METHOD_HE: Record<string, string> = {
   ragil: "רגיל",
   miluy: "מילוי",
   misratar: "מסתתר",
-  kadmi: "קדמי · משולש",
+  kadmi: "משולש",
   gadol: "גדול",
   siduri: "סידורי",
   atbash: "אתבש",
