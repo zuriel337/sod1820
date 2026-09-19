@@ -119,7 +119,7 @@ const STATIC = [
   { loc: '/community/calculator', priority: '0.8', changefreq: 'monthly' },
   { loc: '/cross',        priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact',      priority: '0.4', changefreq: 'yearly'  },
-  { loc: '/book',         priority: '0.7', changefreq: 'weekly'  },
+  { loc: '/books',        priority: '0.7', changefreq: 'weekly'  },
 ];
 
 // משיכה בעימוד דרך REST (limit/offset), עד שהדף האחרון קצר מ-PAGE.
