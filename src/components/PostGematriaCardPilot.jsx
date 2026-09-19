@@ -57,7 +57,14 @@ export default function PostGematriaCardPilot({
       if (cancelled) return;
 
       const regularRows = profiles.map((profile) => profileMethod(profile, "רגיל"));
-      const allVerified = regularRows.every((row) => Number(row?.computedValue) === parsed.value);
+      const regularState = (Array.isArray(methodStates) ? methodStates : [])
+        .find((row) => row?.method_key === "רגיל");
+      const engineReady = regularState?.active === true
+        && regularState?.executable === true
+        && regularState?.engine_verified === true
+        && regularState?.in_engine_drift !== true;
+      const allVerified = engineReady
+        && regularRows.every((row) => row?.computedValue != null && Number(row.computedValue) === parsed.value);
       if (!allVerified) return;
 
       mount = document.createElement("div");
