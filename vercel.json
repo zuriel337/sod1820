@@ -207,6 +207,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/topic/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/books",
       "destination": "/2029.html"
     },
