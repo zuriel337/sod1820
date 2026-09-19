@@ -497,7 +497,7 @@ function LiveWorldLanding({ research, shell, context }) {
           loadingMore: false,
           cards: result?.cards || [],
           hasMore: Boolean(result?.hasMore),
-          total: Number.isFinite(Number(result?.total)) ? Number(result.total) : null,
+          total: result?.total != null && Number.isFinite(Number(result.total)) ? Number(result.total) : null,
           error: null,
         });
       } catch (error) {
@@ -523,7 +523,7 @@ function LiveWorldLanding({ research, shell, context }) {
         loadingMore: false,
         cards: [...prev.cards, ...(result?.cards || [])],
         hasMore: Boolean(result?.hasMore),
-        total: Number.isFinite(Number(result?.total)) ? Number(result.total) : prev.total,
+        total: result?.total != null && Number.isFinite(Number(result.total)) ? Number(result.total) : prev.total,
       }));
     } catch (error) {
       setAllConvergences((prev) => ({ ...prev, loadingMore: false, error }));
@@ -772,7 +772,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>
           <h2>כל ההתכנסויות</h2>
-          <div className="sod29-muted">זהו הקטלוג המלא של ההתכנסויות הציבוריות. “מה חדש” מציג זמן; “בולטות” מציגה סדר גילוי; כאן אפשר להגיע לכל זהות קנונית.</div>
+          <div className="sod29-muted">זהו הקטלוג המלא של ההתכנסויות הציבוריות. “מה חדש” מציג זמן; “בולטות” מציגה סדר גילוי; כאן אפשר להגיע לכל זהות קנונית. הסדר הוא סדר תצוגה בלבד — לא דירוג אמת.</div>
         </div>
         <span className="sod29-chip">
           {allConvergences.total != null ? `${allConvergences.cards.length} מתוך ${allConvergences.total}` : `${allConvergences.cards.length} נטענו`}
