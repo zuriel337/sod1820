@@ -44,7 +44,7 @@ import PostsPage from "./pages/PostsPage.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
 import {
   MembersPage, CommunityPage,
-  CommunityCommentsPage, MethodPage,
+  CommunityCommentsPage,
 } from "./pages/placeholders.jsx";
 import CommunityCalculatorPage from "./pages/CommunityCalculatorPage.jsx";
 import {
@@ -76,7 +76,6 @@ const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
 const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
 const ResearchCodesPage = React.lazy(() => import("./pages/ResearchCodesPage.jsx"));
-const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
 const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
 const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
 const ThemePreviewPage = React.lazy(() => import("./pages/ThemePreviewPage.jsx"));
@@ -349,9 +348,9 @@ export default function App() {
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}
           <Route path="/codes/מחקר" element={<ResearchCodesPage />} />
           <Route path="/codes/:slug" element={<CipherPage />} />
-          {/* 📚 בית המדרש — דף עצמאי (כמו שהיה): מי שנכנס — בבית המדרש, לא בשלד-המחקר */}
-          <Route path="/beit-midrash" element={<BeitMidrashPage />} />
-          <Route path="/beit-midrash/:method" element={<MethodPage />} />
+          {/* Legacy Beit Midrash public routes retired: World is the discovery home. */}
+          <Route path="/beit-midrash" element={<Navigate to="/world" replace />} />
+          <Route path="/beit-midrash/:method" element={<Navigate to="/world" replace />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
