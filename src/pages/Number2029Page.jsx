@@ -6,7 +6,6 @@ import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import {
-import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
   methodProfileEntry,
@@ -14,7 +13,7 @@ import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPrese
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
-import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
+import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
