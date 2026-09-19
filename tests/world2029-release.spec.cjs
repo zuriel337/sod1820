@@ -85,7 +85,8 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'התכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'התכנסויות בולטות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
   for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
     await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
@@ -113,6 +114,30 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
+});
+
+test('World catalog exposes the full canonical convergence index with server pagination and search', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+
+  const catalog = page.locator('#world-all-convergences');
+  await expect(catalog).toBeVisible({ timeout: 30_000 });
+  await expect(catalog.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible();
+  await expect(catalog.getByText(/\d+ מתוך \d+/)).toBeVisible({ timeout: 30_000 });
+
+  const cards = catalog.locator('.sod29-world-catalog-card');
+  const before = await cards.count();
+  expect(before).toBeGreaterThan(0);
+  const more = catalog.getByRole('button', { name: 'טען עוד התכנסויות' });
+  if (await more.count()) {
+    await more.click();
+    await expect.poll(async () => cards.count()).toBeGreaterThan(before);
+  }
+
+  const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
+  await search.fill('888');
+  await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
+  await assertNoHorizontalOverflow(page);
 });
 
 test('native canonical Topic 2029 renders 888 with semantic links and SEO identity', async ({ page }) => {

@@ -31,6 +31,7 @@ import {
   researchFindingAxes,
 } from "../src/lib/research/worldResearchControl.js";
 import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
+import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -97,6 +98,20 @@ assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
 assert.match(worldCss, /sod29-world-stream-list/);
+assert.match(world, /sod29-world-all-convergences/);
+assert.match(world, /כל ההתכנסויות/);
+assert.match(world, /ALL_CONVERGENCES_PAGE_SIZE = 24/);
+assert.match(world, /fetchTopicCreatorOptions/);
+assert.match(world, /includeTotal: true/);
+assert.match(world, /loadMoreConvergences/);
+assert.match(world, /to=\{card\.href\}/);
+assert.match(worldCss, /sod29-world-catalog-grid/);
+assert.match(worldCss, /sod29-world-catalog-card/);
+const creatorQuery = buildTopicListQuery({ creator: "צבי (OPOC)", q: "1820", limit: 24, offset: 24 });
+assert.equal(creatorQuery.creator, "צבי (OPOC)");
+assert.equal(creatorQuery.search, "1820");
+assert.equal(creatorQuery.rangeStart, 24);
+
 
 const discoveryFixture = buildWorldDiscoveryStream([
   { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
@@ -387,7 +402,7 @@ assert.match(app, /path="\/world"/);
 
 // Every World -> Books transition goes through the shared Frame so return_exact is snapshotted.
 assert.equal(world.includes('to="/books"'), false);
-assert.equal(world.includes("from \"react-router-dom\""), false);
+assert.match(world, /import \{ Link \} from "react-router-dom"/, "canonical Topic identities should be crawlable real links");
 const shellBookTransitions = [...world.matchAll(/shell\.go\((?:`|")\/books/g)].length;
 assert.equal(shellBookTransitions, 3);
 assert.match(world, /fetchEntityHubProjection\(\{ nodeId: targetNodeId/);

@@ -61,6 +61,9 @@ function topicRowToCard(row) {
     sub: truncate(row.subtitle),
     href: `/topic/${encodeURIComponent(row.slug)}`,
     refId: row.slug || String(row.id),
+    creator: row.created_by || null,
+    numbers: Array.isArray(row.numbers) ? row.numbers : [],
+    approvedAt: row.approved_at || null,
     // Slice 5: meter_score is an existing public-safe convergence/evidence-strength signal.
     // It orders DISPLAY only; it is not verification, canonicality, publication, or access.
     rank: topicRankMeta(row),
@@ -150,8 +153,12 @@ export async function fetchExplorerFacetDetail(facetKey, card) {
 }
 
 export function normalizePageResult(raw, limit) {
-  if (Array.isArray(raw)) return { rows: raw, hasMore: raw.length >= limit };
-  return { rows: Array.isArray(raw?.rows) ? raw.rows : [], hasMore: Boolean(raw?.hasMore) };
+  if (Array.isArray(raw)) return { rows: raw, hasMore: raw.length >= limit, total: null };
+  return {
+    rows: Array.isArray(raw?.rows) ? raw.rows : [],
+    hasMore: Boolean(raw?.hasMore),
+    total: raw?.total != null && Number.isFinite(Number(raw.total)) ? Number(raw.total) : null,
+  };
 }
 
 /**
@@ -171,12 +178,12 @@ export function normalizePageResult(raw, limit) {
  * needed per-facet (facetSupportsDimension above is what keeps the UI honest about this, not this
  * function).
  */
-export async function fetchExplorerFacetPage(facetKey, { q = null, number = null, from = null, to = null, limit = 24, offset = 0 } = {}) {
+export async function fetchExplorerFacetPage(facetKey, { q = null, number = null, from = null, to = null, creator = null, includeTotal = false, limit = 24, offset = 0 } = {}) {
   const facet = getExplorerFacet(facetKey);
   if (!facet) return null;
-  const raw = await facet.fetchPage({ q, number, from, to, limit, offset });
-  const { rows, hasMore } = normalizePageResult(raw, limit);
-  return { cards: rows.map(facet.toCard), hasMore };
+  const raw = await facet.fetchPage({ q, number, from, to, creator, includeTotal, limit, offset });
+  const { rows, hasMore, total } = normalizePageResult(raw, limit);
+  return { cards: rows.map(facet.toCard), hasMore, total };
 }
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN ──

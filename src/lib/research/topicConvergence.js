@@ -622,8 +622,13 @@ function normalizeDateRangeFilter(fromRaw, toRaw) {
  * short-circuits to an empty result WITHOUT ever reaching the network — fail-closed, not
  * fail-open (a broken filter must never silently degrade into "no filter, show everything").
  */
+function normalizeCreatorFilter(value) {
+  const raw = nonEmpty(value).trim();
+  return raw ? raw.slice(0, 160) : null;
+}
+
 export function buildTopicListQuery({
-  limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false, q = null, number = null, from = null, to = null,
+  limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false, q = null, number = null, from = null, to = null, creator = null,
 } = {}) {
   const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
   const safeOffset = normalizeNonNegativeInt(offset, 0);
@@ -637,6 +642,7 @@ export function buildTopicListQuery({
     // (meter_score DESC prepended when rankByMeterScore is requested).
     order,
     search: normalizeSearchTerm(q),
+    creator: normalizeCreatorFilter(creator),
     number: numberFilter?.value ?? null,
     dateFrom: dateFilter?.from ?? null,
     dateTo: dateFilter?.to ?? null,
@@ -666,15 +672,35 @@ export function buildTopicListQuery({
  */
 export async function fetchTopicCardList(params = {}) {
   const q = buildTopicListQuery(params);
-  if (q.invalid) return { rows: [], hasMore: false };
-  let query = supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
+  const includeTotal = Boolean(params?.includeTotal);
+  if (q.invalid) return includeTotal ? { rows: [], hasMore: false, total: 0 } : { rows: [], hasMore: false };
+  let query = includeTotal
+    ? supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS, { count: "exact" })
+    : supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
   if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
+  if (q.creator) query = query.eq("created_by", q.creator);
   if (q.number != null) query = query.contains("numbers", [q.number]);
   if (q.dateFrom) query = query.gte("occurred_at", q.dateFrom);
   if (q.dateTo) query = query.lte("occurred_at", q.dateTo);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
-  const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
+  const { data, error, count } = await query.range(q.rangeStart, q.rangeEnd);
   if (error) throw error;
   const rows = Array.isArray(data) ? data : [];
-  return { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
+  const result = { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
+  if (includeTotal) result.total = count != null && Number.isFinite(Number(count)) ? Number(count) : null;
+  return result;
+}
+
+export async function fetchTopicCreatorOptions({ limit = 500 } = {}) {
+  const cap = normalizeLimit(limit, 500, 1000);
+  const { data, error } = await supabase
+    .from("topic_cards_public")
+    .select("created_by")
+    .not("created_by", "is", null)
+    .range(0, cap - 1);
+  if (error) throw error;
+  return [...new Set((Array.isArray(data) ? data : [])
+    .map((row) => nonEmpty(row?.created_by).trim())
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "he"));
 }
