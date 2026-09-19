@@ -157,7 +157,7 @@ export function normalizePageResult(raw, limit) {
   return {
     rows: Array.isArray(raw?.rows) ? raw.rows : [],
     hasMore: Boolean(raw?.hasMore),
-    total: Number.isFinite(Number(raw?.total)) ? Number(raw.total) : null,
+    total: raw?.total != null && Number.isFinite(Number(raw.total)) ? Number(raw.total) : null,
   };
 }
 
