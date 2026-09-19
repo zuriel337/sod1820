@@ -88,6 +88,7 @@ async function fallbackObservation(
     media_ref: row.image_url || null,
     media_kind: mediaKind,
     media_transcription_pending: mediaKind === "video",
+    media_ocr_pending: mediaKind === "image" && !ocrUsed,
     ocr_used: ocrUsed,
   };
   const statement = (content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא").slice(0, 500);
@@ -181,13 +182,20 @@ async function processRow(row: any) {
 
     const produced = Number(result?.inserted || 0) + Number(result?.absorbed || 0);
     if (produced <= 0) {
-      await fallbackObservation(row, content, mediaKind === "video" ? "reviewed_caption_media_needs_transcription" : "reviewed_no_structured_findings", ocrUsed, mediaKind);
-      return { id: row.id, channel: row.channel, state: "reviewed_observation" };
+      const reviewedState = mediaKind === "video"
+        ? "reviewed_caption_media_needs_transcription"
+        : mediaKind === "image" && !ocrUsed
+          ? "reviewed_caption_media_needs_ocr"
+          : "reviewed_no_structured_findings";
+      await fallbackObservation(row, content, reviewedState, ocrUsed, mediaKind);
+      return { id: row.id, channel: row.channel, state: reviewedState };
     }
 
     const analysisState = mediaKind === "video"
       ? "extracted_caption_media_needs_transcription"
-      : "extracted";
+      : mediaKind === "image" && !ocrUsed
+        ? "extracted_caption_media_needs_ocr"
+        : "extracted";
     await annotateSourceObjects(ref, {
       channel: row.channel,
       route: HEAVY_CHANNELS.has(row.channel) ? "research_first" : "story_first_selective",
@@ -197,6 +205,7 @@ async function processRow(row: any) {
       media_ref: row.image_url || null,
       media_kind: mediaKind,
       media_transcription_pending: mediaKind === "video",
+      media_ocr_pending: mediaKind === "image" && !ocrUsed,
       ocr_used: ocrUsed,
     });
     return { id: row.id, channel: row.channel, state: analysisState, produced };
