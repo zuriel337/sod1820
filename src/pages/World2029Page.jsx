@@ -428,13 +428,14 @@ function LiveWorldLanding({ research, shell, context }) {
       journeyError: null,
     }));
 
+    const contributorPromise = fetchWorldLandingContributorProjection();
     const [facetResults, extras] = await Promise.all([
       Promise.allSettled(
         WORLD_FACETS.map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))
       ),
       Promise.allSettled([
-        fetchWorldLandingContributorProjection(),
-        fetchWorldDiscoveryStream({ limit: 24 }),
+        contributorPromise,
+        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [] })),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
