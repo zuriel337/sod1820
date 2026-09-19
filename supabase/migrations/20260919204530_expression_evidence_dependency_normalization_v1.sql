@@ -62,28 +62,33 @@ with tagged as (
   from public.bidim b
   left join public.gematria_methods gm on gm.method_key = b.method
 ),
+value_universe as (
+  select distinct value from tagged
+),
 phrase_support as (
   select
     value,
     phrase,
     expression_family_key,
-    bool_or(structure_sensitive and m_category <> 'composite') as has_structure_sensitive_atomic
+    bool_or(structure_sensitive) as has_structure_sensitive_atomic
   from tagged
   where m_category <> 'composite'
   group by value, phrase, expression_family_key
 ),
 expression_counts as (
   select
-    value,
-    count(distinct phrase) as phrase_count,
+    v.value,
+    count(distinct ps.phrase) as phrase_count,
     count(distinct (
       case
-        when has_structure_sensitive_atomic then 'phrase:' || phrase
-        else 'multiset:' || expression_family_key
+        when ps.phrase is null then null
+        when ps.has_structure_sensitive_atomic then 'phrase:' || ps.phrase
+        else 'multiset:' || ps.expression_family_key
       end
     )) as independent_phrase_count
-  from phrase_support
-  group by value
+  from value_universe v
+  left join phrase_support ps using (value)
+  group by v.value
 ),
 aggregated as (
   select
@@ -341,6 +346,8 @@ declare
   k_shaked text;
   raw474 bigint;
   independent474 bigint;
+  composite_only_phrase_count bigint;
+  composite_only_independent_count bigint;
   rel jsonb;
 begin
   k_daat := public.fn_expression_letter_multiset_key('דעת');
@@ -364,6 +371,19 @@ begin
   if raw474 is null or independent474 is null or independent474 >= raw474 then
     raise exception '474 calibration failed: independent_phrase_count (%) must be below raw phrase_count (%)',
       independent474, raw474;
+  end if;
+
+  -- Backward-compatibility guard: 5339 is composite-only in the current canonical
+  -- corpus. Legacy cross_method_strength preserves such values with phrase_count=0.
+  select phrase_count, independent_phrase_count
+    into composite_only_phrase_count, composite_only_independent_count
+  from public.cross_method_strength
+  where value = 5339;
+
+  if composite_only_phrase_count is distinct from 0
+     or composite_only_independent_count is distinct from 0 then
+    raise exception 'composite-only compatibility failed for 5339: phrase_count=%, independent_phrase_count=%',
+      composite_only_phrase_count, composite_only_independent_count;
   end if;
 
   rel := public.fn_relation_candidate('דעת','עדת');
