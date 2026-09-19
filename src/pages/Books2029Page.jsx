@@ -199,8 +199,7 @@ function BookDetail({ slug }) {
     ...(book?.metadata?.coverage || {}),
     ...(book?.metadata?.coverage_2029 || {}),
   }), [book]);
-  const summary = pack?.summary || {};
-  const rows = pack?.rows || [];
+   const rows = pack?.rows || [];
   const presentation = useMemo(() => buildBookResearchPresentation(rows), [rows]);
   const primary = useMemo(() => primaryCoverage(coverage), [coverage]);
   const coveragePairs = useMemo(() => Object.entries(coverage)
@@ -235,7 +234,7 @@ function BookDetail({ slug }) {
         <div className="sod29-book-overview-card"><strong>{presentation.total}</strong><span>ממצאי מחקר קריאים</span></div>
         <div className="sod29-book-overview-card"><strong>{primary ? String(primary.value) : "—"}</strong><span>{primary ? coverageLabel(primary.key) : "כיסוי מבני"}</span></div>
         <div className="sod29-book-overview-card"><strong>{witnessLabel(tiers)}</strong><span>מקור / עדות</span></div>
-        <div className="sod29-book-overview-card"><strong>{presentation.reviewCount + unresolvedTotal + residuals.length}</strong><span>נקודות שמסומנות להמשך</span></div>
+        <div className="sod29-book-overview-card"><strong>{String(coverage.exact_witness_close_read || coverage.exact_witness || coverage.historical_witness_collation || "—")}</strong><span>מצב העדות המדויקת</span></div>
       </div>
     </section>
 
