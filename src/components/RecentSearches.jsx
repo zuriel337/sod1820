@@ -13,7 +13,7 @@ import ActivityPulse from "./ActivityPulse.jsx";
 // 🕒 חיפושים אחרונים — מקור אחד (search_log). 🔒 פרטיות (החלטת צוריאל 7.2026):
 // הציבור לא רואה את *תוכן* החיפושים של אחרים — רק «פעילות חיה» לפי סוג (ActivityPulse).
 // רשימת החיפושים המלאה מוצגת לאדמין בלבד (וגם בטאב הניהול).
-export default function RecentSearches({ max = 0, light, seeAllTo = "/beit-midrash?tab=searches", title = "🕒 נחקר לאחרונה" }) {
+export default function RecentSearches({ max = 0, light, seeAllTo = "/research", title = "🕒 נחקר לאחרונה" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const { user, profile } = useAuth();
