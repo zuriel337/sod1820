@@ -9,9 +9,16 @@
 
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
-import { ACCESS_CLASS, CAPABILITY_STATUS } from './researchResultBundle.js';
+import { analyzeNumericRelations, numericRelationsToUniversalFindings, NUMERIC_RELATION_ENGINE_VERSION } from './numericRelationOperations.js';
+import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
 
 export { SAFE_W2_NUMERIC_LENSES, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2ExecutorsBase.js';
+export {
+  NUMERIC_RELATION_ENGINE_VERSION,
+  NUMERIC_RELATION_OPERATION,
+  NUMERIC_RELATION_OPERATION_CATALOG,
+  listNumericRelationOperations,
+} from './numericRelationOperations.js';
 
 function clean(value) {
   if (value == null) return null;
@@ -41,6 +48,28 @@ function numberAnchors(identityResolution, maxAnchors = 4) {
     if (out.length >= max) break;
   }
   return out;
+}
+
+function numericRelationAnchors(identityResolution, maxAnchors = 16) {
+  const max = Math.max(2, Math.min(Number(maxAnchors) || 16, 32));
+  const seen = new Set();
+  const out = [];
+  for (const identity of Array.isArray(identityResolution?.identities) ? identityResolution.identities : []) {
+    if (identity?.type !== 'number') continue;
+    const number = parseCanonicalNumber(identity?.value ?? identity?.ref ?? identity?.key ?? identity?.label);
+    if (number == null || seen.has(number)) continue;
+    seen.add(number);
+    out.push({ identity, number });
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+function relationInputsArePublic(anchors) {
+  return anchors.every(anchor => {
+    const tier = clean(anchor.identity?.access?.tier);
+    return !tier || tier === 'public';
+  });
 }
 
 function narrowToAnchor(identityResolution, anchor) {
@@ -176,10 +205,79 @@ export function createCanonicalNumberW2Executors(options = {}) {
     controls: options.gematriaControls !== false,
   });
 
+  const numericRelations = async ({ identityResolution }) => {
+    const anchors = numericRelationAnchors(identityResolution, options.maxNumericRelationAnchors ?? 16);
+    if (anchors.length < 2) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.SKIPPED,
+        reason: 'numeric_relations requires at least two distinct canonical number identities',
+        findings: [],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [NUMERIC_RELATION_ENGINE_VERSION],
+        trace: { relation_engine: NUMERIC_RELATION_ENGINE_VERSION, anchor_count: anchors.length },
+      };
+    }
+
+    // V1 fail-closed privacy boundary. Cross-value relation identities currently encode their
+    // numeric operands; until the identity projector has a redacted relation-id contract, never let
+    // restricted/personal inputs leak through a capability trace or Finding id.
+    if (!relationInputsArePublic(anchors)) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: 'numeric_relations v1 refuses restricted/personal number identities until a privacy-safe relation identity projection is available',
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [NUMERIC_RELATION_ENGINE_VERSION],
+        trace: { relation_engine: NUMERIC_RELATION_ENGINE_VERSION, anchor_count: anchors.length, restricted_inputs: true },
+      };
+    }
+
+    const values = anchors.map(anchor => anchor.number);
+    const analysis = analyzeNumericRelations(values, { maxValues: options.maxNumericRelationAnchors ?? 16 });
+    const findings = numericRelationsToUniversalFindings(analysis, {
+      accessTier: 'public',
+      inputRef: `numbers:${values.join(',')}`,
+    });
+    const operations = [...new Set(analysis.relations.map(relation => relation.operation_key))];
+
+    return {
+      owner: 'research_strategy_layer_law',
+      status: findings.length ? CAPABILITY_STATUS.EXECUTED : CAPABILITY_STATUS.NEGATIVE_RESULT,
+      reason: findings.length ? null : 'no registered numeric relation matched the supplied number set',
+      findings,
+      findingOutcomes: findings.map(finding => ({
+        findingId: finding.id,
+        evidenceRelation: EVIDENCE_RELATION.DERIVATION,
+        reason: 'deterministic cross-number operation; derivation only, never independent corroboration',
+      })),
+      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      semanticClass: SEMANTIC_CLASS.DERIVATION,
+      negativeScope: findings.length ? null : {
+        values,
+        operation_catalog: operations,
+        bounded_max_values: Math.min(Number(options.maxNumericRelationAnchors) || 16, 32),
+      },
+      sourceRefs: values.map(value => `number:${value}`),
+      versionRefs: [NUMERIC_RELATION_ENGINE_VERSION, ...operations.map(key => `operation:${key}`)],
+      trace: {
+        relation_engine: NUMERIC_RELATION_ENGINE_VERSION,
+        input: values,
+        relation_count: analysis.relations.length,
+        operation_keys: operations,
+        truth_boundary: analysis.provenance.truth_boundary,
+      },
+    };
+  };
+
   return {
     ...base,
     numeric: wrapMultiNumberExecutor(base.numeric, { maxAnchors: maxNumberAnchors, capability: 'numeric' }),
     numeric_operators: wrapMultiNumberExecutor(base.numeric_operators, { maxAnchors: maxNumberAnchors, capability: 'numeric_operators' }),
+    numeric_relations: numericRelations,
     research_objects: wrapMultiNumberExecutor(base.research_objects, { maxAnchors: maxNumberAnchors, capability: 'research_objects' }),
     'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
     'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
