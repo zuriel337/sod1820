@@ -6,6 +6,7 @@ const nav = fs.readFileSync("src/components/layout/Navbar.jsx", "utf8");
 const map = fs.readFileSync("src/lib/knowledgeMap.js", "utf8");
 const helper = fs.readFileSync("src/lib/analytics2029.js", "utf8");
 const migration = fs.readFileSync("supabase/migrations/20260919224500_g3_2029_analytics_one_tree_v1.sql", "utf8");
+const fix = fs.readFileSync("supabase/migrations/20260919225200_g3_2029_analytics_one_tree_v1_uuid_fix.sql", "utf8");
 
 test("legacy Navbar no longer promotes World", () => {
   assert.doesNotMatch(nav, /label:\s*"העולם"[^\n]*to:\s*"\/world"/);
@@ -24,6 +25,8 @@ test("Analytics 2029 is a projection over canonical telemetry and identity", () 
   assert.match(migration, /legacy_analytics_changed', false/i);
   assert.doesNotMatch(migration, /create\s+table/i);
   assert.doesNotMatch(migration, /alter\s+table/i);
+  assert.match(fix, /max\(b\.person_id::text\)::uuid/);
+  assert.match(fix, /max\(b\.account_user_id::text\)::uuid/);
 });
 
 test("2029 client adapter consumes only the new admin projection", () => {
