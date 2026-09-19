@@ -853,10 +853,11 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו">
+        <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו" data-raziel-anchor="center">
           <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
           <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
+          <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
           <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
         </div>
 
