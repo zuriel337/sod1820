@@ -42,6 +42,7 @@ assert.match(mig, /'BRANCH_ONLY_NO_MERGE_NO_DEPLOY'/);
 assert.match(mig, /'ASSIGNMENT',\s*\n\s*'QUEUED'/);
 assert.match(mig, /exception when unique_violation then\s*\n\s*null/i);
 assert.match(mig, /AUTO_DEP_UPGRADE_/);
+assert.match(mig, /'_S' \|\| p_id::text/, "assignment identity must include suggestion_id for retry-safe idempotency");
 assert.match(mig, /v_scope := 'dependency-maintenance:runtime-packages'/);
 assert.match(mig, /raise exception 'dependency maintenance already active'/);
 assert.match(mig, /lower\(coalesce\(w\.assignment_scope,''\)\)='dependency-maintenance:runtime-packages'/);
