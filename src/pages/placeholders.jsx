@@ -66,7 +66,7 @@ export function MembersPage() {
       <UpdatesBox source="members" title="רוצים להיכנס ראשונים?" body="הירשמו עכשיו ותקבלו גישה מוקדמת לבני ההיכל ברגע שהשער ייפתח." cta="שריינו לי מקום →" />
 
       <div style={{ marginTop: 26 }}>
-        <Link to="/beit-midrash" style={{ color: C.goldLight, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>← בינתיים, בקרו בבית המדרש</Link>
+        <Link to="/world" style={{ color: C.goldLight, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>← בינתיים, פתחו את העולם</Link>
       </div>
     </div>
   );
@@ -478,7 +478,7 @@ export function CommunityCommentsPage() {
   );
 }
 
-const METHODS = NAV.find(i => i.to === "/beit-midrash")?.children || [];
+const METHODS = []; // Legacy method route retired with public Beit Midrash.
 
 export function MethodPage() {
   const { method } = useParams();
