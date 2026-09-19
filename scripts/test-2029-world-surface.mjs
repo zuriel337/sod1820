@@ -77,6 +77,21 @@ assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landin
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
 assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
+assert.match(world, /מה חדש בעולם\?/);
+assert.match(world, /sod29-world-live-stream/);
+assert.match(world, /sod29-world-spatial-gateway/);
+assert.match(worldCss, /sod29-world-discovery-entrance/);
+assert.match(worldCss, /sod29-world-stream-list/);
+
+const discoveryFixture = buildWorldDiscoveryStream([
+  { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
+  { id: "b", slug: "b", title: "חדש ב", created_by: "צבי", approved_at: "2026-09-19T13:00:00Z", numbers: [1020] },
+  { id: "c", slug: "c", title: "חדש ג", created_by: "מנוע · זהב אחר", approved_at: "2026-09-18T13:00:00Z", numbers: [358] },
+], { limit: 10 });
+assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["חדש ב", "חדש א", "חדש ג"]);
+assert.deepEqual(discoveryFixture.creators, ["AI", "צבי", "מנוע · זהב אחר"]);
+assert.equal(topicRowToWorldUpdate({ id: "x", title: "X", created_by: "AI" }).creator, "AI");
+assert.equal(discoveryFixture.note.includes("truth rank"), true);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
 assert.match(world, /WORLD RESEARCH CONTROL/);
@@ -342,7 +357,7 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /העולם פתוח/);
+assert.match(world, /מה חדש בעולם\?/);
 assert.match(world, /אפשר להתחיל מנקודה — ולהמשיך למסע/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
