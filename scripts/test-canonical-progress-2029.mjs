@@ -51,7 +51,7 @@ assert.match(frame, /<CanonicalProgress/);
 assert.match(frame, /progress\?\.expectedLong/);
 
 assert.match(books, /FrameState kind="loading"/);
-assert.match(heichal, /expectedLong: true/);
+assert.match(heichal, /phase: "מחבר את העוגן לנתוני המחקר"/);
 assert.match(heichal, /engagement:/);
 assert.match(els, /FrameState kind="loading"/);
 
