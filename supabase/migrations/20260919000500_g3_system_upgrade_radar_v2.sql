@@ -221,7 +221,8 @@ begin
       select regexp_replace(entry ->> 'version', '^v', '')
         into v_node_latest
       from jsonb_array_elements(v_resp.content::jsonb) entry
-      where (entry ->> 'version') ~ '^v24[.][0-9]+[.][0-9]+
+      where (entry ->> 'version') ~ '^v24[.][0-9]+[.][0-9]+$'
+        and jsonb_typeof(entry -> 'lts') = 'string'
       order by
         split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 2)::int desc,
         split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 3)::int desc
