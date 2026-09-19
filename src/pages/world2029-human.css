@@ -1127,6 +1127,9 @@
 }
 .sod29-world-live-stream{
   padding:16px;
+  /* Reserve the eventual discovery-stream geometry before async rows arrive.
+     This prevents the truth note + spatial gateway from being pushed after first paint. */
+  min-height:520px;
 }
 .sod29-world-stream-filters{
   display:flex;
@@ -1303,7 +1306,7 @@
   .sod29-world-discovery-head{grid-template-columns:1fr}
   .sod29-world-discovery-head h2{font-size:40px}
   .sod29-world-discovery-head .sod29-actions{justify-content:flex-start}
-  .sod29-world-live-stream{padding:11px}
+  .sod29-world-live-stream{padding:11px;min-height:500px}
   .sod29-world-stream-list{max-height:430px}
   .sod29-world-stream-item{
     grid-template-columns:12px minmax(0,1fr) auto;
