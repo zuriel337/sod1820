@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const mig = read("supabase/migrations/20260919003000_g3_system_self_maintenance_v1.sql");
+const mig = read("supabase/migrations/20260919084719_g3_system_self_maintenance_v1.sql");
 
 // 1. EXTEND_EXISTING owner/versioning; no parallel maintenance store/scheduler.
 assert.match(mig, /rule_id='system_suggestions_law'/);
