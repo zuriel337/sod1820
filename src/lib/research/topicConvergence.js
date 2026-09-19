@@ -408,12 +408,15 @@ export function topicConvergenceToUniversalFinding(
           editorial_status: card?.status ?? null,
           quality: card?.quality ?? null,
           meter_score: card?.meter_score ?? null,
+          subtitle: card?.subtitle ?? null,
+          created_at: card?.created_at ?? null,
           approved_at: card?.approved_at ?? null,
           // Attribution only (research_intake_foundation_contract §6.1/§6.7): who authored the card,
           // never the subject of its findings and never an auto-created entity.
           created_by: card?.created_by ?? null,
           occurred_at: card?.occurred_at ?? null,
           image_ids: Array.isArray(card?.image_ids) ? card.image_ids.map(String) : [],
+          highlight_numbers: Array.isArray(card?.highlight_numbers) ? card.highlight_numbers.filter(Number.isFinite) : [],
           search_terms: Array.isArray(card?.search_terms) ? card.search_terms.map(String) : [],
         }] : []),
         ...(nodeId ? [{

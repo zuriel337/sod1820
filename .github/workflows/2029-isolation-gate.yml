@@ -13,6 +13,10 @@ on:
       - "src/lib/operationalTraceContract.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
+      - "src/lib/research/topic2029Projection.js"
+      - "src/lib/research/topicConvergence.js"
+      - "src/lib/seo.js"
+      - "src/pages/topic2029.css"
       - "package.json"
       - "vite.config.js"
       - "vercel.json"
@@ -23,6 +27,7 @@ on:
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
+      - "scripts/test-2029-topic-surface.mjs"
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
@@ -52,6 +57,8 @@ jobs:
         run: node scripts/test-2029-canonical-contract-wiring.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
+      - name: Native Topic surface acceptance
+        run: node scripts/test-2029-topic-surface.mjs
       - name: Native Researcher corpus acceptance
         run: node scripts/test-2029-researcher-corpus.mjs
       - name: Native Number preview acceptance

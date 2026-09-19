@@ -175,6 +175,65 @@ export function setEntityJsonLd({ term, value, isNumber, path, description, imag
 }
 export function clearEntityJsonLd() { removeJsonLd("sod-entity-ld"); }
 
+
+// ── JSON-LD להתכנסות (/topic/:slug) ──
+// Convergence is a research/discovery WebPage, not automatically an Article and never a Fact.
+// Uses only owner-backed public metadata already present on the canonical Topic projection.
+export function setConvergenceJsonLd({
+  title,
+  description,
+  path,
+  numbers = [],
+  datePublished = null,
+  dateModified = null,
+  image = null,
+} = {}) {
+  const canonical = SITE_URL + (path || "");
+  const name = plain(title || "התכנסות", 110);
+  const desc = cleanDescription(description || name, 300);
+  const numericAbout = [...new Set((Array.isArray(numbers) ? numbers : [])
+    .map(Number)
+    .filter(Number.isFinite))]
+    .slice(0, 20)
+    .map((value) => ({
+      "@type": "Thing",
+      name: String(value),
+      url: `${SITE_URL}/number/${encodeURIComponent(value)}`,
+    }));
+
+  const page = {
+    "@type": "WebPage",
+    "@id": canonical,
+    url: canonical,
+    name,
+    description: desc,
+    inLanguage: "he",
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+    breadcrumb: { "@id": canonical + "#breadcrumb" },
+    ...(numericAbout.length ? { about: numericAbout } : {}),
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
+    ...(image ? { primaryImageOfPage: { "@type": "ImageObject", url: image } } : {}),
+  };
+
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    "@id": canonical + "#breadcrumb",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SOD1820", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "העולם", item: SITE_URL + "/world" },
+      { "@type": "ListItem", position: 3, name, item: canonical },
+    ],
+  };
+
+  setJsonLd("sod-convergence-ld", { "@context": "https://schema.org", "@graph": [page, breadcrumb] });
+  removeJsonLd("sod-article-ld");
+  removeJsonLd("sod-entity-ld");
+}
+
+export function clearConvergenceJsonLd() { removeJsonLd("sod-convergence-ld"); }
+
 // ── JSON-LD לדף חוקר/תורם (/community/researcher/:slug) — ProfilePage + Person ──
 // נבנה אך-ורק מנתוני-ה-contributor הקיימים (שם/תפקיד/ביו/אווטאר) — בלי להמציא עובדות.
 // מוצג רק לחוקרים אצורים (לא לפרופילי-r-hash האוטומטיים שהם noindex).
