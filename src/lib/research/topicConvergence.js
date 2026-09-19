@@ -687,7 +687,7 @@ export async function fetchTopicCardList(params = {}) {
   if (error) throw error;
   const rows = Array.isArray(data) ? data : [];
   const result = { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
-  if (includeTotal) result.total = Number.isFinite(Number(count)) ? Number(count) : null;
+  if (includeTotal) result.total = count != null && Number.isFinite(Number(count)) ? Number(count) : null;
   return result;
 }
 
