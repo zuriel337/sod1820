@@ -535,6 +535,7 @@ export function buildGematriaPresentationModel({
   const normalizedExpression = normalizeNormalization(rawExpression, normalization);
   const relationSummary = normalizeRelationsSummary(relationsSummary);
   const expressionEvidence = normalizeExpressionEvidence(expressionEvidenceSummary);
+  const peers = normalizePeerExpressions(peerExpressions);
 
   return Object.freeze({
     contract: GEMATRIA_PRESENTATION_CONTRACT,
