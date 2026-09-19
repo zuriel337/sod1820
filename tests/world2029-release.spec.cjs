@@ -60,6 +60,17 @@ async function assertNoHorizontalOverflow(page) {
   expect(metrics.scrollWidth).toBe(metrics.clientWidth);
 }
 
+async function openNumberCapabilityFromIsland(page) {
+  const action = page.locator('.sod29-command-island > button').filter({ hasText: 'פעולה' }).first();
+  await expect(action).toBeVisible();
+  await action.click();
+  const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
+  await expect(actionDialog).toBeVisible();
+  const number = actionDialog.getByRole('button', { name: '123 מספר / גימטריה' });
+  await expect(number).toBeVisible();
+  await number.click();
+}
+
 async function selectWorldLane(page, label) {
   const lane = page.locator('.sod29-world-lane').filter({ hasText: label }).first();
   await expect(lane).toBeVisible();
@@ -157,9 +168,7 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.sod29-number-page')).toBeVisible({ timeout: 30_000 });
 
-  const numberAction = page.locator('.sod29-command-island > button').filter({ hasText: 'מספר' }).first();
-  await expect(numberAction).toBeVisible();
-  await numberAction.click();
+  await openNumberCapabilityFromIsland(page);
 
   const drawer = page.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
