@@ -346,6 +346,7 @@ declare
   k_shaked text;
   raw474 bigint;
   independent474 bigint;
+  composite_only_value bigint;
   composite_only_phrase_count bigint;
   composite_only_independent_count bigint;
   rel jsonb;
@@ -373,17 +374,35 @@ begin
       independent474, raw474;
   end if;
 
-  -- Backward-compatibility guard: 5339 is composite-only in the current canonical
-  -- corpus. Legacy cross_method_strength preserves such values with phrase_count=0.
-  select phrase_count, independent_phrase_count
-    into composite_only_phrase_count, composite_only_independent_count
-  from public.cross_method_strength
-  where value = 5339;
+  -- Backward-compatibility guard: dynamically choose a value currently supported
+  -- only by composite methods. Legacy cross_method_strength preserves such a value
+  -- with phrase_count=0 rather than dropping the row.
+  with by_value as (
+    select
+      b.value,
+      count(*) filter (where coalesce(gm.category,'unregistered') <> 'composite') as atomic_rows,
+      count(*) filter (where coalesce(gm.category,'unregistered') = 'composite') as composite_rows
+    from public.bidim b
+    left join public.gematria_methods gm on gm.method_key = b.method
+    group by b.value
+  )
+  select min(value)
+    into composite_only_value
+  from by_value
+  where composite_rows > 0 and atomic_rows = 0;
 
-  if composite_only_phrase_count is distinct from 0
-     or composite_only_independent_count is distinct from 0 then
-    raise exception 'composite-only compatibility failed for 5339: phrase_count=%, independent_phrase_count=%',
-      composite_only_phrase_count, composite_only_independent_count;
+  if composite_only_value is not null then
+    select phrase_count, independent_phrase_count
+      into composite_only_phrase_count, composite_only_independent_count
+    from public.cross_method_strength
+    where value = composite_only_value;
+
+    if not found
+       or composite_only_phrase_count is distinct from 0
+       or composite_only_independent_count is distinct from 0 then
+      raise exception 'composite-only compatibility failed for value %: phrase_count=%, independent_phrase_count=%',
+        composite_only_value, composite_only_phrase_count, composite_only_independent_count;
+    end if;
   end if;
 
   rel := public.fn_relation_candidate('דעת','עדת');
