@@ -1,3 +1,4 @@
+import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 
 export const WORLD_APPROVED_CONTRIBUTOR_SLUGS = Object.freeze([
@@ -162,7 +163,7 @@ export function buildWorldLandingContributorProjection({
       kind: "topic",
       slug: meetingSlug,
       value,
-      title: clean(row?.title) || clean(row?.gematria_claim?.claim) || (value != null ? `מפגש סביב ${value}` : "מפגש"),
+      title: clean(row?.title) || clean(row?.gematria_claim?.claim) || (value != null ? `${canonicalResearchPublicLabel("convergence")} סביב ${value}` : canonicalResearchPublicLabel("convergence")),
       summary: clean(row?.gematria_claim?.claim) || null,
       method: clean(row?.gematria_claim?.method) || null,
       authorSlug: contributor.slug,
