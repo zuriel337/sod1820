@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {
   WEB_VITALS_VERSION,
   buildWebVitalsSnapshot,
@@ -68,3 +69,28 @@ assert.equal(WEB_VITALS_VERSION, 1);
 }
 
 console.log("G3 2029 Web Vitals core: PASS");
+
+
+const collector = fs.readFileSync("src/lib/webVitals2029.js", "utf8");
+const app2029 = fs.readFileSync("src/App2029.jsx", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql", "utf8");
+
+assert.match(collector, /p_surface:\s*"performance"/);
+assert.match(collector, /p_event_type:\s*"web_vital"/);
+assert.match(collector, /PerformanceObserver/);
+assert.match(collector, /sod1820\.co\.il/);
+assert.match(collector, /document_navigation/);
+assert.doesNotMatch(collector, /create\s+table/i);
+
+assert.match(app2029, /startWebVitals2029/);
+
+assert.match(migration, /percentile_cont\(0\.75\)/i);
+assert.match(migration, /events\.performance\.web_vital/i);
+assert.match(migration, /latest_cls_issue/i);
+assert.match(migration, /audience_kind\s*<>\s*'internal_admin'/i);
+assert.match(migration, /surface\s*=\s*'performance'/i);
+assert.match(migration, /event_type\s*=\s*'web_vital'/i);
+assert.doesNotMatch(migration, /create\s+table/i);
+assert.doesNotMatch(migration, /alter\s+table/i);
+
+console.log("G3 2029 Web Vitals wiring: PASS");
