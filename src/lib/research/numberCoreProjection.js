@@ -264,7 +264,7 @@ export function buildNumberCoreProjection({
   }
   for (const topic of Array.isArray(topics) ? topics : []) {
     for (const value of Array.isArray(topic?.numbers) ? topic.numbers : []) {
-      addRelatedNumber(value, "meeting", clean(topic?.title) || "מפגש מחקרי", "meeting");
+      addRelatedNumber(value, "meeting", clean(topic?.title) || `${canonicalResearchPublicLabel("convergence")} מחקרית`, "meeting");
     }
   }
 
