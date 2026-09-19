@@ -29,7 +29,7 @@ function BrandStrip() {
 const GATES = [
   { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline" },
   { icon: "🔢", title: "מנוע המספרים", sub: "הגוגל של המספרים", to: "/number" },
-  { icon: "📖", title: "בית המדרש", sub: "מערכת גימטריה מתקדמת בשילוב AI", to: "/beit-midrash" },
+  { icon: "◌", title: "העולם", sub: "התכנסויות, מקורות ומסעות מחקר", to: "/world" },
   { icon: "🔍", title: "הצופן התנ\"כי", sub: "דילוגי אותיות (ELS)" },
 ];
 
@@ -423,7 +423,7 @@ function ConvergenceRail() {
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
         <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, fontWeight: 700, margin: 0 }}>✨ התגלויות חדשות</h2>
         <span style={{ flex: 1 }} />
-        <Link to="/beit-midrash" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, textDecoration: "none" }}>עוד בבית המדרש →</Link>
+        <Link to="/world" style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, textDecoration: "none" }}>עוד בעולם →</Link>
       </div>
       <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14.5, margin: "0 0 14px", lineHeight: 1.75 }}>
         🌿 החקירה ממשיכה — וכל התכנסות חדשה מוסיפה ענף נוסף לעץ הידע.
