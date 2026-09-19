@@ -85,7 +85,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
   await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'מפגשים', exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'התכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
   for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
     await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
