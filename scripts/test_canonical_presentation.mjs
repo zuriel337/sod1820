@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import fs from "node:fs";
 import {
   canonicalMethodPublicLabel,
   canonicalResearchPublicLabel,
@@ -212,6 +213,25 @@ const p1Families = buildGematriaPresentationModel({
 eq("P1 human family order stays base-depth-composite", p1Families.familyGroups.map((group) => group.key).join("|"), "base|depth|composite");
 eq("P1 continuity keeps semantic reopen method", p1Context.continuity.methodKey, "מילוי");
 eq("P1 continuity keeps semantic reopen focus", p1Context.continuity.focus, "number");
+
+
+const goldenCardSource = fs.readFileSync(new URL("../src/components/GematriaCard.jsx", import.meta.url), "utf8");
+const goldenCardCss = fs.readFileSync(new URL("../src/components/gematriaCard.css", import.meta.url), "utf8");
+
+eq("P2 Golden Card declares canonical renderer identity", goldenCardSource.includes('data-gematria-card="golden-v1"'), true);
+eq("P2 Golden Card consumes semantic palette", goldenCardSource.includes("usePalette()"), true);
+eq("P2 Golden Card owns no Supabase access", /supabase|\.rpc\(|\.from\(/i.test(goldenCardSource), false);
+eq("P2 Golden Card performs no Gematria calculation", /calculateGematria|fn_method_value|gematria_method_trace|from \"\.\.\/lib\/gematria\.js\"/.test(goldenCardSource), false);
+eq("P2 Golden Card keeps canonical selection outside via callback", goldenCardSource.includes("onMethodSelect(method.methodKey)"), true);
+eq("P2 Golden Card exposes local S1 to S2 disclosure", goldenCardSource.includes("aria-expanded={expanded}"), true);
+eq("P2 Golden Card exposes full-surface callback", goldenCardSource.includes("onOpenFull"), true);
+eq("P2 Golden Card exposes lazy Journey callback", goldenCardSource.includes("onOpenJourney"), true);
+eq("P2 Golden Card exposes lazy Trace callback", goldenCardSource.includes("onOpenTrace"), true);
+eq("P2 Golden Card has post projection without post-specific truth", goldenCardCss.includes(".sod-gematria-card.is-post"), true);
+eq("P2 Golden Card meets canonical touch floor", /min-height:44px/.test(goldenCardCss), true);
+eq("P2 Golden Card respects reduced motion", goldenCardCss.includes("@media(prefers-reduced-motion:reduce)"), true);
+eq("P2 Golden Card CSS owns no local hex palette", /#[0-9a-f]{3,8}\b/i.test(goldenCardCss), false);
+eq("P2 Golden Card uses logical RTL border", goldenCardCss.includes("border-inline-start"), true);
 
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
