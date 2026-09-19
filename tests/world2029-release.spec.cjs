@@ -260,9 +260,7 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/number-2029-preview-${root}-390.png`, fullPage: true });
 
-    const numberAction = page.locator('.sod29-command-island > button').filter({ hasText: 'מספר' }).first();
-    await expect(numberAction).toBeVisible();
-    await numberAction.click();
+    await openNumberCapabilityFromIsland(page);
 
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer).toBeVisible({ timeout: 30_000 });
