@@ -164,7 +164,11 @@ export default function GematriaCard({
   const exceptional = active?.exceptionalState ? (EXCEPTION_LABELS[active.exceptionalState] || active.exceptionalState) : "";
   const familyGroups = useMemo(() => {
     const groups = [...(model?.familyGroups || [])];
-    return groups.sort((a, b) => FAMILY_ORDER.indexOf(a.key) - FAMILY_ORDER.indexOf(b.key));
+    const rank = (key) => {
+      const index = FAMILY_ORDER.indexOf(key);
+      return index < 0 ? FAMILY_ORDER.length : index;
+    };
+    return groups.sort((a, b) => rank(a.key) - rank(b.key));
   }, [model?.familyGroups]);
 
   if (!model || !active) return null;
@@ -197,7 +201,7 @@ export default function GematriaCard({
             <span className={cx("sod-gematria-card__primary", primaryIsNumber && "is-number")}>
               {primary ?? "—"}
             </span>
-            <span className="sod-gematria-card__arrow" aria-hidden="true">→</span>
+            <span className="sod-gematria-card__arrow" aria-hidden="true">{primaryIsNumber ? "→" : "←"}</span>
             <strong className={cx("sod-gematria-card__secondary", !primaryIsNumber && "is-number")}>
               {primaryIsNumber ? (secondary || "—") : fmtNumber(secondary)}
             </strong>
