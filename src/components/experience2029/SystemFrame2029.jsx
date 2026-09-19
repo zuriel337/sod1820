@@ -14,6 +14,7 @@ import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import ShareActions from "../ShareActions.jsx";
+import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
@@ -21,6 +22,7 @@ import "./systemFrame2029.css";
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
   INSPECT: "inspect",
+  NUMBER: "number",
   ATTENTION: "attention",
   TOOLS: "tools",
   RAZIEL: "raziel",
@@ -30,6 +32,7 @@ const TRANSIENT = Object.freeze({
 const ShellContext = createContext({
   openCommand: () => {},
   openInspect: () => {},
+  openNumber: () => {},
   openAttention: () => {},
   openTools: () => {},
   openRaziel: () => {},
@@ -302,26 +305,87 @@ function ToolsProjection({ target, onDeepen, go }) {
   );
 }
 
-function RazielProjection({ target, context, onDeepen }) {
+function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
+  const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
+  const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
+  const intentLabel = {
+    explain_crossing: "הסבר את ההצלבה",
+    explain_method: "הסבר את השיטה",
+    compare_methods: "השווה שיטות",
+    next_research_step: "מה כדאי לבדוק עכשיו?",
+    explain_world: "הסבר את העולם",
+    explain_world_context: "הסבר את מרכז העולמות",
+    expand_panel: "המשך מה־Micro",
+  }[microIntent] || null;
+  const quickInsight = (() => {
+    if (!numberFocus) return null;
+    if (numberFocus.kind === "method") {
+      const methodLabel = numberFocus.methodLabel || numberFocus.method || "השיטה הפעילה";
+      return {
+        title: `תגובה מהירה · ${methodLabel}`,
+        text: `${methodLabel} מחושבת דרך המנוע הקנוני על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח Trace כדי לראות את שלבי החישוב; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את זהות ה־Root.`,
+        boundary: "חישוב = deterministic. משמעות/פרשנות נשארות שכבה נפרדת.",
+      };
+    }
+    if (numberFocus.kind === "crossing") {
+      const names = Array.isArray(numberFocus.methods) ? numberFocus.methods.map((item) => item?.methodLabel).filter(Boolean).join(" · ") : "";
+      return {
+        title: "תגובה מהירה · הצלבה",
+        text: `${numberFocus.expression || numberFocus.root} והביטוי ${numberFocus.partner || numberFocus.crossingPartner || "המקביל"} נפגשים סביב ${numberFocus.root}${names ? ` דרך ${names}` : ""}. זו הצלבה חישובית; היא מעניינת למחקר אבל אינה מסקנה בפני עצמה.`,
+        boundary: "שוויון מספרי ≠ הצלבה בלתי־תלויה ≠ התכנסות מחקרית.",
+      };
+    }
+    if (numberFocus.kind === "world") {
+      return {
+        title: `תגובה מהירה · ${numberFocus.world || "עולם מחקר"}`,
+        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר מחקרי עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        boundary: "World = context/projection, לא engine result.",
+      };
+    }
+    if (numberFocus.kind === "world_hub") {
+      const worldCount = Array.isArray(numberFocus.worlds) ? numberFocus.worlds.length : 0;
+      const relatedCount = Array.isArray(numberFocus.relatedNumbers) ? numberFocus.relatedNumbers.length : 0;
+      return {
+        title: "תגובה מהירה · מרכז העולמות",
+        text: `סביב ${numberFocus.root} מוצגים כרגע ${worldCount} עולמות ו־${relatedCount} מספרים קשורים בתצוגה המוגבלת. זהו מבט ניווטי; העולם המלא מחזיק את ההקשרים הרחבים יותר.`,
+        boundary: "הצגה בולטת אינה דירוג אמת.",
+      };
+    }
+    return {
+      title: `תגובה מהירה · ${intentLabel || "המספר"}`,
+      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך ל־Trace, להשוואה או למחקר עמוק בלי לאבד את ה־Context.`,
+      boundary: "אותו Context, עומק שונה.",
+    };
+  })();
   return (
     <>
       <section className="sod29-raziel-native-hero">
         <RazielOrb />
         <div>
-          <div className="sod29-kicker">ONE COMPANION · SAME CONTEXT</div>
+          <div className="sod29-kicker">ONE COMPANION · MICRO → PANEL → DEEP</div>
           <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה לעוגן מחקר"}</h3>
-          <p>רזיאל הוא נוכחות מחקרית, לא צ׳אט נפרד ולא owner של אמת. ה־Legacy AskRaziel אינו נטען ל־Runtime 2029.</p>
+          <p>זה אותו רזיאל שקיבל את ה־Micro מהחלונית. הרחבה משנה עומק וכלים — לא זהות, Context או אמת.</p>
         </div>
       </section>
-      <FrameState title="Silence Gate">אין כרגע adapter 2029 שמוכיח שינוי החלטתי חדש, ולכן ה־Orb נשאר שקט ואינו ממציא pulse.</FrameState>
+      {numberFocus ? <section className="sod29-panel-context-card">
+        <b>{intentLabel || "Number Core focus"}</b>
+        <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
+        {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
+        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
+      </section> : <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState>}
+      {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
+        <b>{quickInsight.title}</b>
+        <span>{quickInsight.text}</span>
+        <small>{quickInsight.boundary}</small>
+      </section> : null}
       <div className="sod29-panel-context-card">
-        <b>Context שניתן לרזיאל</b>
+        <b>Research Context שניתן לרזיאל</b>
         <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין עוגן שמור"}</span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ חקור איתי · adapter pending</button>
+        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ המשך שיחה · adapter pending</button>
         <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ פתח Deep Research</button>
       </div>
     </>
@@ -448,9 +512,13 @@ export default function SystemFrame2029({
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
+  const openNumber = useCallback((subject = null) => openTransient(TRANSIENT.NUMBER, { subject: normalizeTarget(subject) }), [openTransient]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
-  const openRaziel = useCallback(() => openTransient(TRANSIENT.RAZIEL), [openTransient]);
+  const openRaziel = useCallback((payload = null) => {
+    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent ? payload : null;
+    openTransient(TRANSIENT.RAZIEL, boundedPayload);
+  }, [openTransient]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
   const closeRaziel = useCallback(() => { if (transient?.kind === TRANSIENT.RAZIEL) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
@@ -597,12 +665,13 @@ export default function SystemFrame2029({
     if (!target) return;
     setEphemeralSelection(target);
     setCommandQuery("");
-    openTransient(TRANSIENT.INSPECT, { subject: target });
+    openTransient(TRANSIENT.NUMBER, { subject: target });
   }, [commandQuery, openTransient]);
 
   const shellApi = useMemo(() => ({
     openCommand,
     openInspect,
+    openNumber,
     openAttention,
     openTools,
     openRaziel,
@@ -612,7 +681,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [openCommand, openInspect, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
+  }), [openCommand, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -645,10 +714,11 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SYSTEM FRAME" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.NUMBER) return <PanelShell {...common} icon="123" kicker="NUMBER / EXPRESSION" title={inspectTarget?.label || context?.subject?.label || "חלונית המספר"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
   };
 
@@ -725,11 +795,12 @@ export default function SystemFrame2029({
           </aside>
         </> : null}
 
-        {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openInspect(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>בדוק</span></button> : null}
+        {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => (ephemeralSelection.type === "number" || ephemeralSelection.type === "phrase") ? openNumber(ephemeralSelection) : openInspect(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>{ephemeralSelection.type === "number" || ephemeralSelection.type === "phrase" ? "מספר" : "בדוק"}</span></button> : null}
 
         <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו">
           <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-          <button type="button" onClick={() => openInspect(activeTarget)} aria-pressed={transientKind === TRANSIENT.INSPECT}><span>{activeTarget?.type === "number" ? "123" : "◎"}</span><small>בדיקה</small></button>
+          <button type="button" onClick={() => openNumber((activeTarget?.type === "number" || activeTarget?.type === "phrase") ? activeTarget : null)} aria-pressed={transientKind === TRANSIENT.NUMBER}><span>123</span><small>מספר</small></button>
+          <button type="button" onClick={() => openInspect(activeTarget)} aria-pressed={transientKind === TRANSIENT.INSPECT}><span>◎</span><small>בדיקה</small></button>
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
           <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
           <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
