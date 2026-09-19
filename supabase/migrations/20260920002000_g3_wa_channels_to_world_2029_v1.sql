@@ -18,6 +18,57 @@ set poll_every_min = case channel
 end
 where channel in ('or-geula','torat-haremez','gilui-yomi','sfot-vheker');
 
+-- Service-only resolver for a private binary already bound to a channel_updates source row.
+-- The source row stores only storage-object:<uuid>; bucket path and signed URL remain server-side.
+create or replace function public.private_channel_media_access(
+  p_channel_update_id uuid,
+  p_storage_object_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $function$
+declare
+  v_ref text;
+  v_o record;
+begin
+  select image_url into v_ref
+  from public.channel_updates
+  where id = p_channel_update_id;
+
+  if not found then raise exception 'channel update not found'; end if;
+  if v_ref is distinct from ('storage-object:' || p_storage_object_id::text) then
+    raise exception 'private media ref not bound to source';
+  end if;
+
+  select o.id,o.bucket_id,o.name,o.metadata into v_o
+  from storage.objects o
+  where o.id = p_storage_object_id
+    and o.bucket_id = 'submission-inbox';
+
+  if not found then raise exception 'storage object not found'; end if;
+
+  return jsonb_build_object(
+    'ok', true,
+    'bucket', v_o.bucket_id,
+    'path', v_o.name,
+    'mime', lower(coalesce(v_o.metadata->>'mimetype','')),
+    'size', coalesce(
+      nullif(v_o.metadata->>'size','')::bigint,
+      nullif(v_o.metadata->>'contentLength','')::bigint,
+      0
+    )
+  );
+end
+$function$;
+
+revoke all on function public.private_channel_media_access(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.private_channel_media_access(uuid,uuid) to service_role;
+
+comment on function public.private_channel_media_access(uuid,uuid) is
+  'G3_WA_CHANNELS_TO_WORLD_2029_V1: service-only private source-media resolver. Validates opaque storage-object id is bound to the exact channel_updates row before returning a submission-inbox path for short-lived server-side signing.';
+
 do $cron$
 declare
   v_id bigint;
