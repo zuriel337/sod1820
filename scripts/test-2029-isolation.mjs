@@ -119,4 +119,5 @@ assert.equal(manifest.start_url, "/", "this pass must not silently cut over the 
 assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
 assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
 
+// PR #564 final release trigger: semantic assertions above are the gate.
 console.log("2029 hard-isolation source regression: PASS");
