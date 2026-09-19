@@ -142,7 +142,7 @@ begin
 
   if p_status='accepted' and v_s.detector='dependency_upgrade_radar' then
     v_slug := trim(both '_' from regexp_replace(lower(v_pkg),'[^a-z0-9]+','_','g'));
-    v_task := 'AUTO_DEP_UPGRADE_' || upper(v_slug) || '_' || replace(v_latest,'.','_');
+    v_task := 'AUTO_DEP_UPGRADE_' || upper(v_slug) || '_' || replace(v_latest,'.','_') || '_S' || p_id::text;
     v_scope := 'dependency-maintenance:runtime-packages';
 
     begin
