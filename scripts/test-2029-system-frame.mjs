@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { mergeResearchContext, normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import { resolveContextActions, resolveContextTools } from "../src/lib/research/contextualCapabilities.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -142,9 +143,26 @@ assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
-assert.match(frame, /Selection → Action → Capability → Panel → Heichal/);
+assert.match(frame, /Surface \+ Selection → Action → Capability → Panel → Heichal/);
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
+
+const numberTarget = { type: "number", label: "358" };
+const worldActions = resolveContextActions({ surface: "world", target: numberTarget });
+const bookActions = resolveContextActions({ surface: "books", target: { type: "book", label: "ספר הפליאה" } });
+const elsTools = resolveContextTools({ surface: "els", target: numberTarget });
+const numberTools = resolveContextTools({ surface: "number", target: numberTarget });
+assert.equal(worldActions.some((action) => action.capability === "number"), true);
+assert.equal(worldActions.some((action) => action.href === "/world"), true);
+assert.equal(bookActions.some((action) => action.label.includes("מקור")), true);
+assert.equal(elsTools[0].capability, "number", "numeric target keeps Number capability available across surfaces");
+assert.equal(elsTools.some((action) => action.href === "/books"), true);
+assert.equal(numberTools.some((action) => action.href === "/world"), true);
+assert.notDeepEqual(
+  elsTools.map((action) => action.id),
+  numberTools.map((action) => action.id),
+  "tool ordering must adapt to the active surface without minting new capability identities",
+);
 
 // Keyboard, focus, safe-area, reduced-motion and direction readiness.
 assert.match(frame, /event\.metaKey \|\| event\.ctrlKey/);
