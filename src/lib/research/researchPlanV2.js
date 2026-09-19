@@ -12,6 +12,7 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   GEMATRIA: "gematria",
   OPERATORS: "numeric_operators",
   RELATIONS: "numeric_relations",
+  FIBONACCI_ZECKENDORF: "sequence:fibonacci:zeckendorf",
   ELS: "els",
   SOURCES: "sources",
   BOOKS: "books",
@@ -69,9 +70,12 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
     const multiNumber = countIdentityKind(identityResolution, "number") >= 2;
     const relationIntent = includesAny(q, [
       "קשר", "קשרים", "יחס", "יחסים", "סדרה", "דפוס", "הפרש", "אמצע",
-      "גורם משותף", "פיתגורס", "פולינום", "zeckendorf", "זקנדורף",
+      "גורם משותף", "פיתגורס", "פולינום",
     ]);
     if (multiNumber || relationIntent) hints.push(RESEARCH_CAPABILITY.RELATIONS);
+    if (includesAny(q, ["zeckendorf", "זקנדורף", "פירוק פיבונאצי", "פירוק פיבונאצ׳י", "פירוק פיבונאצי"])) {
+      hints.push(RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF);
+    }
   }
   if (hasIdentityKind(identityResolution, "person")) hints.push(RESEARCH_CAPABILITY.PERSON, RESEARCH_CAPABILITY.GRAPH);
   if (hasIdentityKind(identityResolution, "name")) hints.push(RESEARCH_CAPABILITY.NAME);
@@ -108,6 +112,7 @@ function deriveCheckOrder(capabilityHints) {
     RESEARCH_CAPABILITY.NUMERIC,
     RESEARCH_CAPABILITY.OPERATORS,
     RESEARCH_CAPABILITY.RELATIONS,
+    RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF,
     RESEARCH_CAPABILITY.GEMATRIA,
     RESEARCH_CAPABILITY.NAME,
     RESEARCH_CAPABILITY.ELS,
