@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { runNumericPatternWorkbench } from "../lib/research/numericPatternWorkbench.js";
 import { applySeo } from "../lib/seo.js";
 
 const ACTIONS = [
@@ -11,9 +12,104 @@ const ACTIONS = [
   { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/els", live: true },
   { id: "world", label: "פתח בעולם", detail: "Research World", to: "/world", live: true },
   { id: "compare", label: "השווה", detail: "Compare research mode", live: false },
-  { id: "patterns", label: "חקור דפוס", detail: "Pattern / Sequence workbench", live: false },
+  { id: "patterns", label: "חקור דפוס", detail: "Relations · π · Fibonacci · Math", live: true },
   { id: "person", label: "חקור אדם / חיים", detail: "Life Journey / Person", live: false },
 ];
+
+
+function relationLabel(r) {
+  if (r.kind === "additive_identity") return `${r.operands.join(" + ")} = ${r.result}`;
+  if (r.kind === "arithmetic_progression") return `${r.values.join(" → ")} · צעד ${r.step}`;
+  if (r.kind === "pythagorean_triple") return `${r.values.join("² / ")} · יחס ${r.primitive?.join(":") || "—"} × ${r.scale}`;
+  if (r.kind === "common_factor_projection") return `גורם משותף ${r.common_factor} · מקדמים ${r.coefficients.join(", ")}`;
+  if (r.kind === "symmetric_pair_products") return `AB/AC/BC · בסיסים ${r.bases.join(", ")} → ${r.pair_products.join(", ")} · e₂=${r.e2}`;
+  return r.kind;
+}
+
+function NumericPatternWorkbench({ seed = "" }) {
+  const [input, setInput] = useState(seed);
+  const [state, setState] = useState({ loading: false, data: null, error: null });
+
+  useEffect(() => {
+    if (seed) setInput(seed);
+  }, [seed]);
+
+  const run = async (e) => {
+    e?.preventDefault?.();
+    const raw = input.trim();
+    if (!raw) return;
+    setState({ loading: true, data: null, error: null });
+    try {
+      const data = await runNumericPatternWorkbench(raw, { piSearchDepth: 5000 });
+      setState({ loading: false, data, error: null });
+    } catch (error) {
+      setState({ loading: false, data: null, error });
+    }
+  };
+
+  const data = state.data;
+  const fibHits = data?.sequences?.fibonacci?.filter(x => x.found) || [];
+  const piHits = data?.sequences?.pi?.filter(x => x.found) || [];
+  const profiles = data?.math_profiles || [];
+
+  return <section className="sod29-section" id="numeric-pattern-workbench">
+    <div className="sod29-section-head">
+      <div>
+        <div className="sod29-kicker">PATTERN / SEQUENCE WORKBENCH</div>
+        <h2>חקור דפוס מספרי</h2>
+        <div className="sod29-muted">אותו Numeric Research: π ופיבונאצ׳י הקיימים, Math Profile הקיים, ומעליהם operators תחומים ליחסים בין ערכים. התוצאה היא Derivation מחקרית — לא שיטת גימטריה חדשה ולא קנוניזציה.</div>
+      </div>
+    </div>
+    <form className="sod29-command-bar" onSubmit={run}>
+      <input
+        className="sod29-input"
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        placeholder="לדוגמה: 666 888 1110 · או 8 20 26 160 208 520 888"
+        aria-label="ערכים לחקר דפוס"
+      />
+      <button className="sod29-action primary" type="submit" disabled={state.loading}>{state.loading ? "סורק…" : "סרוק דפוסים"}</button>
+    </form>
+    {state.error ? <div className="sod29-state error" style={{ marginTop: 12 }}>הסריקה נכשלה: {String(state.error?.message || state.error)}</div> : null}
+    {data ? <div className="sod29-two" style={{ marginTop: 14 }}>
+      <div className="sod29-canvas">
+        <div className="sod29-kicker">RELATIONS</div>
+        {data.relations?.length
+          ? <div className="sod29-list">{data.relations.map((r, i) => <div className="sod29-row" key={`${r.kind}-${i}`}><div><strong>{relationLabel(r)}</strong><small>{r.kind} · deterministic derivation</small></div></div>)}</div>
+          : <div className="sod29-state">לא נמצאו יחסים מהמשפחות המחוברות בתוך הערכים שסופקו.</div>}
+        {data.sequences?.pi_overlaps?.length ? <>
+          <div className="sod29-divider" />
+          <div className="sod29-kicker">π OVERLAP</div>
+          <div className="sod29-list">{data.sequences.pi_overlaps.map((o, i) => <div className="sod29-row" key={i}><div><strong>{o.values.join(" ↔ ")}</strong><small>חפיפה במיקום {o.overlap_start}{o.overlap_end !== o.overlap_start ? `–${o.overlap_end}` : ""} אחרי הנקודה</small></div></div>)}</div>
+        </> : null}
+        {data.sequences?.fibonacci_consecutive_groups?.length ? <>
+          <div className="sod29-divider" />
+          <div className="sod29-kicker">FIBONACCI RUN</div>
+          <div className="sod29-list">{data.sequences.fibonacci_consecutive_groups.map((g, i) => <div className="sod29-row" key={i}><div><strong>{g.values.join(" → ")}</strong><small>אינדקסים עוקבים {g.positions.join(" → ")}</small></div></div>)}</div>
+        </> : null}
+      </div>
+      <aside className="sod29-inspector">
+        <div className="sod29-kicker">EXISTING ENGINES · REUSED</div>
+        <div className="sod29-divider" />
+        <div className="sod29-muted">Fibonacci exact</div>
+        <b>{fibHits.length ? fibHits.map(x => `${x.value}=F${x.first_position}`).join(" · ") : "אין exact hits"}</b>
+        <div className="sod29-divider" />
+        <div className="sod29-muted">π first occurrence ≤ 5000</div>
+        <b>{piHits.length ? piHits.map(x => `${x.value}@${x.first_position}`).join(" · ") : "אין hits בחלון"}</b>
+        <div className="sod29-divider" />
+        <div className="sod29-muted">Math Profile</div>
+        <div style={{ fontSize: 12, marginTop: 6 }}>
+          {profiles.map(p => <div key={p.input.value}><b>{p.input.value}</b> · {p.families?.map(f => f.label).slice(0, 5).join(", ") || p.arithmetic?.classification}</div>)}
+        </div>
+        <div className="sod29-divider" />
+        <div className="sod29-muted">Zeckendorf</div>
+        <div style={{ fontSize: 12, marginTop: 6 }}>
+          {(data.sequences?.zeckendorf || []).map(z => <div key={z.value}><b>{z.value}</b> = {z.decomposition?.terms?.map(t => t.term).join(" + ") || "—"}</div>)}
+        </div>
+      </aside>
+    </div> : null}
+  </section>;
+}
 
 function NoContextEntry() {
   const research = useResearch();
@@ -60,12 +156,16 @@ function NoContextEntry() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">אלה כוונות כניסה, לא אפליקציות נפרדות. ה־Research Context נשאר אותו Context.</div></div></div>
       <div className="sod29-constellation">
-        {ACTIONS.map(a => a.live
-          ? <Link className="sod29-card sod29-action-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link>
-          : <div className="sod29-card sod29-action-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted">ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר להיכל.</div></div>)}
+        {ACTIONS.map(a => a.id === "patterns"
+          ? <a className="sod29-card sod29-action-card" href="#numeric-pattern-workbench" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></a>
+          : a.live
+            ? <Link className="sod29-card sod29-action-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link>
+            : <div className="sod29-card sod29-action-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted">ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר להיכל.</div></div>)}
         <button className="sod29-card sod29-action-card sod29-card-button" onClick={() => shell.openRaziel()}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו Research Context — לא צ׳אט מקביל של ההיכל.</p></button>
       </div>
     </section>
+
+    <NumericPatternWorkbench />
   </>;
 }
 
@@ -176,6 +276,8 @@ function ActiveResearchEnvironment() {
         <button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button>
       </div>
     </section>
+
+    <NumericPatternWorkbench seed={subject?.type === "number" ? String(subject.id) : ""} />
 
     <section className="sod29-section sod29-placeholder">
       <div className="sod29-section-head"><div><div className="sod29-kicker">FUTURE RENDERERS</div><h2>Journey persistence / Spatial renderer</h2></div></div>
