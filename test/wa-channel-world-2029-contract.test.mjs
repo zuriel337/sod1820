@@ -9,6 +9,8 @@ const migration = fs.readFileSync("supabase/migrations/20260920002000_g3_wa_chan
 assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
 assert.match(ingest, /return RESEARCH_FIRST_CHANNELS\.has\(channel\) \? "private" : "live"/);
 assert.match(ingest, /status: channelStatus\(src\.channel\)/);
+assert.match(ingest, /storage\.from\("submission-inbox"\)\.upload/);
+assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
 
 // A long outage cannot silently skip from a 30-message window.
 assert.match(ingest, /RECOVERY_HISTORY_COUNT = 1000/);
@@ -24,6 +26,8 @@ assert.match(intake, /\.from\("research_objects"\)/);
 assert.match(intake, /privacy_scope: "private"/);
 assert.match(intake, /source: "channel_updates"/);
 assert.match(intake, /story_first_selective/);
+assert.match(intake, /private_channel_media_access/);
+assert.match(intake, /createSignedUrl\(resolved\.path, 300\)/);
 assert.match(intake, /HEAVY_CHANNELS\.has\(row\.channel\)/);
 
 // Resource trim + existing health owner, not a parallel watchdog.
@@ -33,6 +37,8 @@ assert.match(migration, /when 'gilui-yomi' then 5/);
 assert.match(migration, /when 'sfot-vheker' then 15/);
 assert.match(migration, /cron\.alter_job\(job_id := v_id, schedule := '\*\/5 \* \* \* \*'\)/);
 assert.match(migration, /wa-channel-research-intake\?hours=168&limit=4/);
+assert.match(migration, /private_channel_media_access/);
+assert.match(migration, /v_ref is distinct from \('storage-object:' \|\| p_storage_object_id::text\)/);
 assert.match(migration, /public\.wa_admin\('getStateInstance'/);
 assert.match(migration, /perform public\.notify_admin/);
 assert.match(migration, /topic = '🚨 ניטור ערוצי WhatsApp \(אוטומטי\)'/);
