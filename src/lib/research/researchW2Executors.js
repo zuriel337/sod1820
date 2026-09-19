@@ -1,14 +1,12 @@
 // Canonical W2 executor entrypoint.
 //
-// W2.2d keeps the previously released W2.2b executor implementation byte-for-byte in the internal
-// researchW2ExecutorsBase module and extends THIS canonical entrypoint with:
-//   1) canonical Gematria over bounded text/name representations;
-//   2) bounded multi-number dispatch over the existing numeric/sequence/research-object/operator
-//      executors.
-// This remains one executor tree, not a second composer/engine. Existing imports keep this path.
+// W2 keeps the released Number executor implementation in the internal base module and extends
+// THIS one canonical entrypoint with bounded owner-qualified capability adapters. This remains one
+// Research OS executor tree, not a second composer/engine.
 
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
+import { createElsW2Executor } from './elsW2Executor.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS } from './researchResultBundle.js';
 
 export { SAFE_W2_NUMERIC_LENSES, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2ExecutorsBase.js';
@@ -58,9 +56,7 @@ function uniq(values) {
 }
 
 // MOST-RESTRICTIVE WINS. The aggregate access class drives the composition-boundary filter, so it
-// may never be inherited from whichever anchor happened to run first: one access-controlled anchor
-// among several public ones must keep the whole aggregate access-controlled, otherwise a Finding
-// with no explicit tier would pass the boundary instead of being refused.
+// may never be inherited from whichever anchor happened to run first.
 const ACCESS_CLASS_RESTRICTION_ORDER = Object.freeze([
   ACCESS_CLASS.PUBLIC_SOURCE,
   ACCESS_CLASS.UNCLASSIFIED,
@@ -75,7 +71,6 @@ function mostRestrictiveAccessClass(runs) {
     const value = run.result?.accessClass || run.result?.access_class;
     if (!value) continue;
     const rank = ACCESS_CLASS_RESTRICTION_ORDER.indexOf(value);
-    // An unknown class is treated as at least as restrictive as anything known — fail closed.
     const effectiveRank = rank === -1 ? ACCESS_CLASS_RESTRICTION_ORDER.length : rank;
     if (effectiveRank > bestRank) { bestRank = effectiveRank; best = value; }
   }
@@ -133,7 +128,7 @@ function wrapMultiNumberExecutor(executor, { maxAnchors = 4, capability }) {
       : Array.isArray(x.result?.finding_outcomes) ? x.result.finding_outcomes : []);
     const status = aggregateStatus(runs);
     const partial = new Set(runs.map(x => x.result?.status)).size > 1;
-    const first = runs.find(x => x.result) ?.result || {};
+    const first = runs.find(x => x.result)?.result || {};
 
     return {
       owner: first.owner || 'research_strategy_layer_law',
@@ -175,6 +170,14 @@ export function createCanonicalNumberW2Executors(options = {}) {
     maxRepresentations: options.gematriaMaxRepresentations ?? 16,
     controls: options.gematriaControls !== false,
   });
+  const els = createElsW2Executor({
+    supabase: options.supabase,
+    scope: options.elsScope ?? 'torah',
+    maxSkip: options.elsMaxSkip ?? 40,
+    maxHits: options.elsMaxHits ?? 16,
+    maxRepresentations: options.elsMaxRepresentations ?? 4,
+    selectionProtocol: options.elsSelectionProtocol ?? null,
+  });
 
   return {
     ...base,
@@ -184,6 +187,10 @@ export function createCanonicalNumberW2Executors(options = {}) {
     'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
     'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
     gematria,
+    // ELS is intentionally NOT wrapped as a Number transform. It consumes exact text/name/expression
+    // representations only; a bare Number returns CONTEXT_REQUIRED until the Research Plan supplies
+    // an owner-qualified text subject.
+    els,
   };
 }
 
