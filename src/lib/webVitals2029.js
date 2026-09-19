@@ -92,7 +92,7 @@ function makePayload({ id, initialPath, phase, reason, snapshot, navType }) {
       initial_path: initialPath,
       current_path: typeof location !== "undefined" ? location.pathname : initialPath,
       collector: "performance_observer",
-      measurement_scope: "document_navigation",
+      measurement_scope: "document_navigation_hard_load_only",
       nav_type: navType,
       visibility_at_flush: typeof document !== "undefined" ? document.visibilityState : null,
     },
@@ -122,9 +122,18 @@ export function startWebVitals2029(deps = {}) {
   let checkpointTimer = null;
   const { ttfbMs, navType } = navDiagnostics();
 
+  // This collector intentionally measures the hard document navigation only.
+  // SPA route changes are not silently re-labeled as Core Web Vitals for the
+  // destination URL. Observer callbacks after a client-side route change are ignored.
+  const stillInitialPath = () => {
+    try { return (win.location?.pathname || "/") === initialPath; }
+    catch { return false; }
+  };
+
   function observe(type, callback, options = {}) {
     try {
       const observer = new PerfObserver((list) => {
+        if (!stillInitialPath()) return;
         try { callback(list.getEntries()); } catch { /* metric failure is isolated */ }
       });
       observer.observe({ type, ...options });
