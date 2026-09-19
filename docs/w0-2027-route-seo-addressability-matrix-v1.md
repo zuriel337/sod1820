@@ -59,6 +59,7 @@ Classification is migration/continuity guidance, not truth/access state.
 | `/מעבדת-משמעות` | D — internal/experimental/admin |
 | `/` | A — public identity/SEO |
 | `/reality` | B — public product/navigation |
+| `/world` | B — public 2029 discovery/SEO hub; sitemap/indexable product route; **not** canonical identity for contained Convergences |
 | `/home-classic` | D — internal/legacy preview |
 | `/start` | A — public identity/SEO |
 | `/privacy` | B — public/legal address |
@@ -117,7 +118,7 @@ Classification is migration/continuity guidance, not truth/access state.
 | `/number/:phrase` | A — public Number/Phrase identity/SEO |
 | `/book` | A — public Library/SEO |
 | `/book/:slug` | A — public Book identity/SEO |
-| `/topic/:slug` | A — public Topic identity/SEO |
+| `/topic/:slug` | A — public **Convergence** identity/SEO; preserve canonical address; public Hebrew label = `התכנסות`; `topic` path segment is compatibility URL, not product vocabulary |
 | `/theme/:slug` | B — public semantic projection |
 | `/forum` | B — public product route; **surface not protected** |
 | `/or-geula` | A — public content/SEO |
@@ -244,6 +245,15 @@ Live `entity_types` has 14 rows; six declare a `route_pattern`.
 **Current declared-route parity:** 2/6 declared entity route families are live (`number`, `book`); 4/6 are not (`verse`, `name`, `person`, `research`).
 
 A type being listed in `entity_types` is an identity capability, not permission to auto-create nodes or public pages.
+
+### Convergence / World migration note
+
+- `/world` is the discovery hub and may list/link many Convergences; it never replaces their canonical identity URL.
+- `/topic/:slug` remains Class A through the 2029 renderer migration.
+- Do not redirect Topic URLs into `/world?... ` or mint `/world/topic/...` duplicates.
+- Legacy Topic rendering stays as compatibility until native Topic 2029 has canonical/meta/robots/sitemap/OG/structured-data/browser parity.
+- `/beit-midrash` and `/beit-midrash/:method` remain Class A until a separate Human-Gate inbound/SEO disposition.
+- Full execution order and AI/search representation rules: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`.
 
 ## 6. SEO / deep-link migration gate
 
