@@ -117,7 +117,6 @@ async function processRow(row: any) {
     const result = await invokeInternal("research-extract", {
       source: "channel_updates",
       source_ref: ref,
-      source_lang: "he",
       contributor: row.credit || null,
       content,
     });
@@ -189,10 +188,14 @@ Deno.serve(async (req) => {
 
   const eligible = (rawRows || []).filter(researchEligible);
   const refs = eligible.map((r: any) => sourceRef(r.id));
-  let existing = new Set<string>();
-  if (refs.length) {
-    const { data } = await sb.from("research_objects").select("source_ref").in("source_ref", refs);
-    existing = new Set((data || []).map((r: any) => String(r.source_ref || "")).filter(Boolean));
+  const existing = new Set<string>();
+  for (let i = 0; i < refs.length; i += 100) {
+    const chunk = refs.slice(i, i + 100);
+    const { data } = await sb.from("research_objects").select("source_ref").in("source_ref", chunk);
+    for (const r of (data || [])) {
+      const ref = String((r as any).source_ref || "");
+      if (ref) existing.add(ref);
+    }
   }
 
   const pending = eligible.filter((r: any) => !existing.has(sourceRef(r.id)));
