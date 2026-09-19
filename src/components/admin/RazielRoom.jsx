@@ -22,7 +22,7 @@ const DARK = {
 };
 
 // שמות-שיטות בעברית לתצוגה (המנוע מחזיר תעתיק אנגלי) — למניעת «אותיות באנגלית» בממשק
-const METHOD_HE = { ragil: "רגיל", gadol: "גדול", katan: "קטן", kadmi: "קדמי", misratar: "מסתתר", atbash: "אתבש", siduri: "סידורי", mispar_katan: "מספר קטן", neelam: "נעלם", meshulash: "משולש", perati: "פרטי" };
+const METHOD_HE = { ragil: "רגיל", gadol: "גדול", katan: "קטן", kadmi: "משולש", misratar: "מסתתר", atbash: "אתבש", siduri: "סידורי", mispar_katan: "מספר קטן", neelam: "נעלם", meshulash: "משולש", perati: "פרטי" };
 const heM = (m) => METHOD_HE[String(m || "").trim()] || m;
 
 const QUICK_ACTIONS = ["סכם לי", "קבץ לי", "מצא כפילויות", "מה קודם?", "מה כדאי לי לבדוק עכשיו?"];
