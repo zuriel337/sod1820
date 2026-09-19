@@ -53,66 +53,81 @@ with tagged as (
     b.method,
     b.priority,
     coalesce(gm.category, 'unregistered') as m_category,
+    coalesce(gm.order_sensitive, false) as order_sensitive,
     public.fn_expression_letter_multiset_key(b.phrase) as expression_family_key
   from public.bidim b
   left join public.gematria_methods gm on gm.method_key = b.method
 ),
-aggregated as (
+phrase_support as (
   select
     value,
-    count(distinct expression_family_key)
-      filter (where m_category <> 'composite')                         as phrase_count,
-    count(distinct phrase)
-      filter (where m_category <> 'composite')                         as raw_phrase_count,
-    greatest(
-      count(distinct phrase) filter (where m_category <> 'composite')
-      - count(distinct expression_family_key) filter (where m_category <> 'composite'),
-      0
-    )                                                                  as dependent_expression_phrase_count,
-    count(*) filter (where priority = 1 and m_category <> 'composite') as raw_p1_hits,
-    public.fn_independent_method_set(
-      array_agg(distinct method order by method)
-        filter (where priority = 1 and m_category <> 'composite')
-    )                                                                  as p1_methods,
-    public.fn_independent_method_set(
-      array_agg(distinct method order by method)
-        filter (where m_category <> 'composite')
-    )                                                                  as methods,
-    bool_or(method = 'רגיל' and m_category <> 'composite')             as in_ragil,
-    bool_or(method = 'מסתתר' and m_category <> 'composite')           as in_misratar,
-    bool_or(method = 'קדמי' and m_category <> 'composite')            as in_kadmi,
-    array_agg(distinct method order by method)
-      filter (where m_category = 'composite')                          as dependent_methods,
-    count(distinct phrase)
-      filter (where m_category = 'composite')                          as dependent_phrase_count,
-    array_agg(distinct method order by method)
-      filter (where m_category = 'unregistered')                       as unregistered_methods
+    phrase,
+    expression_family_key,
+    bool_or(order_sensitive and m_category <> 'composite') as has_order_sensitive_atomic
   from tagged
+  group by value, phrase, expression_family_key
+),
+expression_counts as (
+  select
+    value,
+    count(distinct phrase) as phrase_count,
+    count(distinct (
+      case
+        when has_order_sensitive_atomic then 'phrase:' || phrase
+        else 'multiset:' || expression_family_key
+      end
+    )) as independent_phrase_count
+  from phrase_support
   group by value
+),
+aggregated as (
+  select
+    t.value,
+    count(*) filter (where t.priority = 1 and t.m_category <> 'composite') as p1_hits,
+    public.fn_independent_method_set(
+      array_agg(distinct t.method order by t.method)
+        filter (where t.priority = 1 and t.m_category <> 'composite')
+    ) as p1_methods,
+    public.fn_independent_method_set(
+      array_agg(distinct t.method order by t.method)
+        filter (where t.m_category <> 'composite')
+    ) as methods,
+    bool_or(t.method = 'רגיל' and t.m_category <> 'composite') as in_ragil,
+    bool_or(t.method = 'מסתתר' and t.m_category <> 'composite') as in_misratar,
+    bool_or(t.method = 'קדמי' and t.m_category <> 'composite') as in_kadmi,
+    array_agg(distinct t.method order by t.method)
+      filter (where t.m_category = 'composite') as dependent_methods,
+    count(distinct t.phrase)
+      filter (where t.m_category = 'composite') as dependent_phrase_count,
+    array_agg(distinct t.method order by t.method)
+      filter (where t.m_category = 'unregistered') as unregistered_methods
+  from tagged t
+  group by t.value
 )
 select
-  value,
-  phrase_count,
-  raw_phrase_count,
-  dependent_expression_phrase_count,
-  coalesce(cardinality(p1_methods), 0)                                 as p1_hits,
-  raw_p1_hits,
-  methods,
-  in_ragil,
-  in_misratar,
-  in_kadmi,
+  a.value,
+  e.phrase_count,
+  e.independent_phrase_count,
+  greatest(e.phrase_count - e.independent_phrase_count, 0) as dependent_expression_phrase_count,
+  a.p1_hits,
+  coalesce(cardinality(a.p1_methods), 0) as independent_p1_method_count,
+  a.methods,
+  a.in_ragil,
+  a.in_misratar,
+  a.in_kadmi,
   case
-    when in_ragil and in_misratar and in_kadmi then 'CORE_AXIS_CANDIDATE'
-    when coalesce(cardinality(p1_methods), 0) >= 2 then 'CROSS_METHOD'
+    when a.in_ragil and a.in_misratar and a.in_kadmi then 'CORE_AXIS_CANDIDATE'
+    when coalesce(cardinality(a.p1_methods), 0) >= 2 then 'CROSS_METHOD'
     else 'SINGLE'
-  end                                                                  as signal,
-  dependent_methods,
-  dependent_phrase_count,
-  unregistered_methods
-from aggregated;
+  end as signal,
+  a.dependent_methods,
+  a.dependent_phrase_count,
+  a.unregistered_methods
+from aggregated a
+join expression_counts e using (value);
 
 comment on view public.cross_method_strength is
-  'Derived contextual/research-strength signal only, never Truth. Dependency-before-rank now normalizes both method dependencies and same-letter expression permutations. phrase_count is the independent letter-multiset family count; raw_phrase_count preserves distinct phrase identity count; dependent_expression_phrase_count exposes the delta. p1_hits is independent P1 method count; raw_p1_hits preserves raw rows. Rank, do not hide.';
+  'Derived contextual/research-strength signal only, never Truth. Backward-compatible raw phrase_count/p1_hits are preserved. independent_phrase_count dependency-normalizes same-letter permutations only when their support at this value is order-insensitive; a phrase with atomic order-sensitive support remains independently countable. dependent_expression_phrase_count exposes the collapsed delta. independent_p1_method_count drives CROSS_METHOD rather than raw P1 rows. Existing method dependency normalization remains in force. Rank, do not hide.';
 
 grant select on public.cross_method_strength to service_role;
 
@@ -275,13 +290,13 @@ begin
     raise exception 'expression normalization failed: קדש/שקד must share one letter-multiset dependency key';
   end if;
 
-  select raw_phrase_count, phrase_count
+  select phrase_count, independent_phrase_count
     into raw474, independent474
   from public.cross_method_strength
   where value = 474;
 
   if raw474 is null or independent474 is null or independent474 >= raw474 then
-    raise exception '474 calibration failed: normalized phrase_count (%) must be below raw_phrase_count (%)',
+    raise exception '474 calibration failed: independent_phrase_count (%) must be below raw phrase_count (%)',
       independent474, raw474;
   end if;
 
