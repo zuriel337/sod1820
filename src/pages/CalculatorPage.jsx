@@ -217,7 +217,7 @@ export default function CalculatorPage() {
         </div>
 
         <p style={{ marginTop: 40, color: L.sub, fontFamily: F.body, fontSize: 12.5 }}>
-          רוצים לצלול עמוק יותר? <Link to="/beit-midrash" style={{ color: L.goldDeep, fontWeight: 700 }}>בית המדרש →</Link>
+          רוצים לצלול עמוק יותר? <Link to="/world" style={{ color: L.goldDeep, fontWeight: 700 }}>העולם →</Link>
         </p>
       </div>
     </div>
