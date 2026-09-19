@@ -102,15 +102,26 @@ export default function PostGematriaCardPilot({
       || null;
     if (!activeRow) return null;
 
-    const activeValue = Number(activeRow.computedValue);
+    const rawActiveValue = activeRow.computedValue;
+    const activeValue = rawActiveValue == null || rawActiveValue === ""
+      ? null
+      : Number.isFinite(Number(rawActiveValue))
+        ? Number(rawActiveValue)
+        : null;
     const peerExpressions = data.expressions.map((expression, index) => {
       const row = profileMethod(data.profiles[index], activeRow.methodKey);
       return {
         expression,
         value: row?.computedValue ?? null,
         methodKey: activeRow.methodKey,
-        verified: Number.isFinite(activeValue) && Number(row?.computedValue) === activeValue,
-        verificationState: Number(row?.computedValue) === activeValue ? "match" : "different_value",
+        verified: activeValue != null
+          && row?.computedValue != null
+          && Number(row.computedValue) === activeValue,
+        verificationState: activeValue != null
+          && row?.computedValue != null
+          && Number(row.computedValue) === activeValue
+            ? "match"
+            : "different_value",
       };
     });
 
