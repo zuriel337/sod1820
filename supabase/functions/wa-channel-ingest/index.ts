@@ -65,20 +65,31 @@ function channelStatus(channel: string): "live" | "private" {
 function normalizeProviderMediaUrl(raw: string): string {
   const v = String(raw || "").trim();
   if (!v) return "";
+  const lower = v.toLowerCase();
+  const explicitHttpScheme = lower.startsWith("https://") || lower.startsWith("http://");
   let candidate = "";
-  if (/^https?:\\/\\//i.test(v)) candidate = v;
-  else if (v.startsWith("//")) candidate = `https:${v}`;
-  else if (/^[a-z0-9.-]+(?::\\d+)?\\//i.test(v)) candidate = `https://${v}`;
-  else return "";
+  if (explicitHttpScheme) {
+    candidate = v;
+  } else if (v.startsWith("//")) {
+    candidate = `https:${v}`;
+  } else {
+    const slash = v.indexOf("/");
+    const authority = slash > 0 ? v.slice(0, slash) : "";
+    if (!/^[a-z0-9.-]+(?::[0-9]+)?$/i.test(authority)) return "";
+    candidate = `https://${v}`;
+  }
   try {
     const u = new URL(candidate);
     if (!["http:", "https:"].includes(u.protocol) || !u.hostname) return "";
+    if (!explicitHttpScheme) {
+      const host = u.hostname.toLowerCase();
+      if (host !== "digitaloceanspaces.com" && !host.endsWith(".digitaloceanspaces.com")) return "";
+    }
     return u.toString();
   } catch {
     return "";
   }
 }
-
 async function rehost(
   url: string,
   msgId: string,
