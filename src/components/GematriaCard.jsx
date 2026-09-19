@@ -146,6 +146,29 @@ function ExpressionEvidenceSummary({ evidence }) {
   );
 }
 
+function PeerExpressions({ peers = [] }) {
+  if (!peers.length) return null;
+  const verified = peers.filter((peer) => peer?.verified === true);
+  if (!verified.length) return null;
+
+  return (
+    <section className="sod-gematria-card__peers" aria-label="ביטויים באותו ערך">
+      <div className="sod-gematria-card__peers-head">
+        <span>ביטויים באותו ערך</span>
+        <strong>{verified.length} ביטויים מאומתים</strong>
+      </div>
+      <div className="sod-gematria-card__peer-list">
+        {verified.map((peer) => (
+          <span key={`${peer.expression}:${peer.methodKey || ""}:${peer.value ?? ""}`}>
+            <b>{peer.expression}</b>
+            <small>{peer.methodKey || "שיטה"} · {fmtNumber(peer.value)}</small>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SameValueNote({ model }) {
   const active = model?.activeMethod;
   if (!active || active.value == null) return null;
@@ -209,6 +232,8 @@ export default function GematriaCard({
   const primary = primaryIsNumber ? (focal?.primary ?? number) : (focal?.primary ?? expression);
   const secondary = primaryIsNumber ? (focal?.secondary ?? expression) : number;
   const relationText = relationLabel(model?.relationsSummary);
+  const verifiedPeers = (model?.peerExpressions || []).filter((peer) => peer?.verified === true);
+  const peerSummaryText = verifiedPeers.length > 1 ? `${verifiedPeers.length} ביטויים · אותו ערך` : "";
   const methods = model?.methods || [];
   const previewMethods = model?.previewMethods || [];
   const remaining = Math.max(0, methods.length - previewMethods.length);
@@ -266,7 +291,7 @@ export default function GematriaCard({
 
         <div className="sod-gematria-card__summary-tail">
           <ExpressionDependencySignal evidence={model?.expressionEvidence} />
-          {relationText && (
+          {relationText ? (
             <button
               type="button"
               className="sod-gematria-card__journey-signal"
@@ -276,7 +301,12 @@ export default function GematriaCard({
               <span aria-hidden="true">⌘</span>
               {relationText}
             </button>
-          )}
+          ) : peerSummaryText ? (
+            <span className="sod-gematria-card__peer-signal">
+              <span aria-hidden="true">≡</span>
+              {peerSummaryText}
+            </span>
+          ) : null}
           <button
             type="button"
             className="sod-gematria-card__toggle"
