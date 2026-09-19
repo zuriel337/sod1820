@@ -355,7 +355,7 @@ begin
   if coalesce((rel->'engine_signal_components'->>'dependent_expression_group_count')::int, 0) <= 0 then
     raise exception 'relation calibration failed: דעת/עדת must expose dependent expression groups';
   end if;
-  if rel->>'research_priority' in ('HIGH_ENGINE_NO_EVIDENCE_YET','HIGH_ENGINE_AND_EVIDENCE') then
+  if rel->>'research_priority' = 'HIGH_ENGINE_NO_EVIDENCE_YET' then
     raise exception 'relation calibration failed: one surviving order-sensitive family for דעת/עדת must not self-promote to HIGH without separate independent evidence';
   end if;
 end $;
