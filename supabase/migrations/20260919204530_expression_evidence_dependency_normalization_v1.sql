@@ -243,11 +243,11 @@ begin
       where (not same_letter_permutation and is_structure_sensitive)
          or (same_letter_permutation and is_structure_sensitive
              and (has_atomic_structure_sensitive or has_independent_composite))),
-    (select min(min_rarity) from group_stats),
-    (select coalesce(sum(1 - min_rarity),0) from group_stats
+    (select min(gs.min_rarity) from group_stats gs),
+    (select coalesce(sum(1 - gs.min_rarity),0) from group_stats gs
       where not same_letter_permutation
-         or has_atomic_structure_sensitive
-         or has_independent_composite)
+         or gs.has_atomic_structure_sensitive
+         or gs.has_independent_composite)
   into
     engine_evidence,
     raw_independent_group_count,
