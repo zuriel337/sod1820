@@ -11,6 +11,8 @@ on:
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/webVitalsCore.js"
+      - "src/lib/webVitals2029.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
@@ -22,6 +24,7 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-operational-trace-contract.mjs"
+      - "scripts/test-web-vitals-2029.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
@@ -49,6 +52,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Web Vitals metric core acceptance
+        run: node scripts/test-web-vitals-2029.mjs
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
