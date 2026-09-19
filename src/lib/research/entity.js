@@ -31,7 +31,7 @@ export const entityFromInsight = (item) =>
     type: "convergence",
     title: item.title || "חידוש",
     ref: `insight:${item.id ?? item.title}`,
-    link: item.source_ref ? `/${item.source_ref}` : "/beit-midrash",
+    link: item.source_ref ? `/${item.source_ref}` : "/world",
     metadata: { numbers: item.related_numbers || [], kind: "insight" },
   });
 
