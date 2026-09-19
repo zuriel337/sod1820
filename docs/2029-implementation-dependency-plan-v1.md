@@ -382,6 +382,30 @@ Before English Golden Locale and mass entity surfaces:
 
 Existing `applySeo` / OG/card / observability gate remain owners/primitives; do not build SEO v2 in parallel.
 
+
+#### 7D.1 World / Convergence Search + AI Discovery migration
+
+Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`.
+
+Current LIVE state:
+- PR #553: World Discovery entrance + canonical `התכנסות/התכנסויות` presentation released.
+- PR #555: public `/beit-midrash` and `/beit-midrash/*` retired via permanent redirect to `/world`; calculator intents preserved through `/gematria`; `/world` admitted to sitemap.
+- `/topic/:slug` remains the canonical public Convergence identity and was not migrated.
+
+NOW:
+1. **DONE / clarified:** `lock_convergence_tree` governs the retired legacy `/numbers` tree, not canonical `/topic/:slug`; do not remove Topic URLs from sitemap based on that flag.
+2. **DONE / census baseline:** 205 public Topics; 0 missing titles; 0 missing numbers; 0 duplicate normalized titles; 172 missing subtitles; 199 carry object-shaped authored findings; 198 caveats; 187 hints; 100 phrase/source-rich; 16 with images.
+3. define/test Search admission without conflating public/approved/truth/indexable; subtitle/image absence alone is not a thin-page verdict because authored content lives mainly in `findings`.
+4. **IN PROGRESS:** native 2029 `/topic/:slug` on the same canonical URL (PR #557).
+5. preserve canonical/meta/robots/sitemap/OG/structured-data/internal-link and bot-no-side-effect parity.
+6. expose AI-readable provenance/truth distinctions from the same public owner-backed content, not AI-only pages/stores.
+
+LATER:
+- bounded public machine projection only after native Topic + indexability contract are proven;
+- RSS/JSON Feed/publishing freshness projection;
+- English Golden + real hreflang alternates;
+- broader agent discovery.
+
 ### 7E Cache / projection version rail
 
 For reusable expensive outputs define:
@@ -465,6 +489,7 @@ Rules:
 Current:
 
 - native System Frame + baseline World is already released/live.
+- World Discovery + public Beit-Midrash→World cutover are released/live; do not reopen a parallel Beit-Midrash convergence home. Native canonical Topic/Convergence rendering + SEO/AI discovery parity is the next dependency.
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
