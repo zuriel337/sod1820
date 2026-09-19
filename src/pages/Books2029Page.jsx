@@ -108,7 +108,7 @@ function BookCard({ book }) {
     <div className="sod29-book-cover" aria-hidden="true">▤</div>
     <div className="sod29-kicker">ספר ומקור</div>
     <h3>{book.label}</h3>
-    <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "זהות ספר חיה במערכת המחקר"}</p>
+    <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "ספר חי במערכת המחקר"}</p>
     <div className="sod29-actions">
       <span className="sod29-chip">{book.is_active ? "פעיל" : "לא פעיל"}</span>
       {coverage.unresolved_total != null ? <span className="sod29-chip">{coverage.unresolved_total} נקודות פתוחות</span> : null}
@@ -126,30 +126,30 @@ function LibraryView() {
     return () => { alive = false; };
   }, []);
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען Book identities פעילות מה־Reality Graph…</div></section>;
-  if (state.error) return <section className="sod29-section"><div className="sod29-state error">Book adapter נכשל: {String(state.error?.message || state.error)}</div></section>;
+  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספרייה הפעילה…</div></section>;
+  if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לטעון את הספרייה: {String(state.error?.message || state.error)}</div></section>;
 
   return <>
     <section className="sod29-focus-stage">
       <div className="sod29-command-shell">
         <div className="sod29-command-copy">
-          <div className="sod29-kicker">LIVE BOOK IDENTITIES</div>
-          <h2>הספרייה אינה מדף.<br />היא שער למחקר המקורות.</h2>
-          <div className="sod29-muted">הספרים מגיעים מהזהויות החיות במערכת. ספר, מהדורה, עד, קובץ דיגיטלי ומראה־מקום נשארים שכבות נפרדות — והמחקר מתחבר אליהם בלי ליצור Book Store נוסף.</div>
-          <div className="sod29-actions"><span className="sod29-chip">{state.books.length} ספרים פעילים</span><span className="sod29-chip">Live identities only</span></div>
+          <div className="sod29-kicker">ספרים ומקורות</div>
+          <h2>הספרייה אינה רק מדף.<br />כל ספר הוא שער למחקר.</h2>
+          <div className="sod29-muted">כל ספר מחובר למקור, למהדורה, למראה־מקום ולמחקר שנצבר סביבו. אפשר להתחיל בקריאה פשוטה ולהעמיק רק כשצריך.</div>
+          <div className="sod29-actions"><span className="sod29-chip">{state.books.length} ספרים פעילים</span><span className="sod29-chip">מקור · מחקר · מראה־מקום</span></div>
         </div>
         <div className="sod29-orbit-map" aria-hidden="true">
           <div className="sod29-orbit-center">מקור<br />אחד</div>
-          <span className="sod29-orbit-node n1">Book</span>
-          <span className="sod29-orbit-node n2">Witness</span>
-          <span className="sod29-orbit-node n3">Locator</span>
-          <span className="sod29-orbit-node n4">Research</span>
+          <span className="sod29-orbit-node n1">ספר</span>
+          <span className="sod29-orbit-node n2">עדות</span>
+          <span className="sod29-orbit-node n3">מראה־מקום</span>
+          <span className="sod29-orbit-node n4">מחקר</span>
         </div>
       </div>
     </section>
 
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">ACTIVE LIBRARY</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">הרשימה מגיעה מ־nodes(type=book,is_active=true). אין רשימת ספרים קשיחה ברכיב.</div></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">פתחו ספר כדי לראות מה כבר מופה, אילו ממצאים קיימים, מאיזה מקור הם מגיעים ומה עדיין פתוח לבדיקה.</div></div></div>
       {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">אין כרגע ספרים פעילים לקריאה ציבורית.</div>}
     </section>
 
@@ -208,7 +208,7 @@ function BookDetail({ slug }) {
   const residuals = Array.isArray(coverage.residuals) ? coverage.residuals : [];
   const unresolvedTotal = Number(coverage.unresolved_total || 0) || 0;
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען Book + Source/Witness research דרך ה־adapter הקנוני…</div></section>;
+  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספר ואת המחקר המקושר אליו…</div></section>;
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
   if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
