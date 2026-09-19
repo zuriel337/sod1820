@@ -132,6 +132,25 @@ eq("P1 applied equivalence stays presentation-only", p1Context.methods.find((row
 eq("P1 relation summary drops eager edges", "edges" in p1Context.relationsSummary, false);
 eq("P1 trace remains lazy summary", "steps" in p1Context.trace, false);
 
+const p1ExpressionEvidence = buildGematriaPresentationModel({
+  expression: "דעת",
+  methodProfile: p1Profile,
+  methodStates: p1States,
+  expressionEvidenceSummary: {
+    phrase_count: 124,
+    independent_phrase_count: 120,
+    dependent_expression_phrase_count: 4,
+    p1_hits: 57,
+    independent_p1_method_count: 6,
+    signal: "CORE_AXIS_CANDIDATE",
+  },
+});
+eq("P2 expression evidence keeps raw phrase count", p1ExpressionEvidence.expressionEvidence.rawPhraseCount, 124);
+eq("P2 expression evidence projects independent phrase families", p1ExpressionEvidence.expressionEvidence.independentPhraseCount, 120);
+eq("P2 expression evidence exposes dependent delta", p1ExpressionEvidence.expressionEvidence.dependentExpressionPhraseCount, 4);
+eq("P2 expression evidence keeps raw P1 hits", p1ExpressionEvidence.expressionEvidence.rawP1Hits, 57);
+eq("P2 expression evidence projects independent P1 methods", p1ExpressionEvidence.expressionEvidence.independentP1MethodCount, 6);
+
 const p1Contextual = buildGematriaPresentationModel({
   expression: "עמית",
   activeMethodKey: "אות רבתי",
@@ -224,6 +243,8 @@ eq("P2 Golden Card owns no Supabase access", /supabase|\.rpc\(|\.from\(/i.test(g
 eq("P2 Golden Card performs no Gematria calculation", /calculateGematria|fn_method_value|gematria_method_trace|from \"\.\.\/lib\/gematria\.js\"/.test(goldenCardSource), false);
 eq("P2 Golden Card keeps canonical selection outside via callback", goldenCardSource.includes("onSelect(method.methodKey)") && goldenCardSource.includes("onSelect={onMethodSelect}"), true);
 eq("P2 Golden Card exposes local S1 to S2 disclosure", goldenCardSource.includes("aria-expanded={expanded}"), true);
+eq("P2 Golden Card consumes expression-level evidence projection", goldenCardSource.includes("model?.expressionEvidence"), true);
+eq("P2 Golden Card explains dependent expressions without a score", goldenCardSource.includes("לא מוסיפים משקל חדש"), true);
 eq("P2 Golden Card exposes full-surface callback", goldenCardSource.includes("onOpenFull"), true);
 eq("P2 Golden Card exposes lazy Journey callback", goldenCardSource.includes("onOpenJourney"), true);
 eq("P2 Golden Card exposes lazy Trace callback", goldenCardSource.includes("onOpenTrace"), true);
@@ -232,6 +253,8 @@ eq("P2 Golden Card meets canonical touch floor", /min-height:44px/.test(goldenCa
 eq("P2 Golden Card respects reduced motion", goldenCardCss.includes("@media(prefers-reduced-motion:reduce)"), true);
 eq("P2 Golden Card CSS owns no local hex palette", /#[0-9a-f]{3,8}\b/i.test(goldenCardCss), false);
 eq("P2 Golden Card uses logical RTL border", goldenCardCss.includes("border-inline-start"), true);
+eq("P2 Golden Card keeps dependency signal visually neutral", goldenCardCss.includes(".sod-gematria-card__dependency-signal"), true);
+eq("P2 Golden Card has normalized expression evidence surface", goldenCardCss.includes(".sod-gematria-card__expression-evidence"), true);
 
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
