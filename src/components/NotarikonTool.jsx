@@ -6,6 +6,7 @@ import { onlyHeb } from "../lib/gematria.js";
 import { entityFromPhrase, entityFromVerse } from "../lib/research/entity.js";
 import ToolGuide from "./research/ToolGuide.jsx";
 import AiAnalyze from "./AiAnalyze.jsx";
+import { formatTanakhRef } from "../lib/presentation/canonicalPresentation.js";
 
 // 🔠 ראשי / אמצעי / סופי תיבות (נוטריקון) — שני כיוונים:
 //   • מהביטוי → ראשי-התיבות · אמצעי-התיבות · סופי-התיבות + ערך כל אחד + השוואת-התכנסות.
@@ -117,7 +118,8 @@ function Reverse() {
     return out;
   }, [data, target, edge]);
 
-  const refOf = r => `${data.books[r[0]]} ${r[1]}:${r[2]}`;
+  const rawRefOf = r => `${data.books[r[0]]} ${r[1]}:${r[2]}`;
+  const refOf = r => formatTanakhRef({ book: data.books[r[0]], chapter: r[1], verse: r[2] });
   const hl = (res) => {
     const words = data.verses[res.k][3].split(" ");
     const [s, e] = res.span;
@@ -149,12 +151,12 @@ function Reverse() {
       )}
       <div style={{ display: "grid", gap: 10 }}>
         {results.map((res, i) => {
-          const r = data.verses[res.k]; const ref = refOf(r);
+          const r = data.verses[res.k]; const rawRef = rawRefOf(r); const ref = refOf(r);
           return (
             <div key={i} style={{ border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", background: "var(--bg)" }}>
               <div style={{ fontWeight: 800, fontSize: 13.5, color: "var(--acc)", marginBottom: 4 }}>{ref}</div>
               <div style={{ fontSize: 17, lineHeight: 1.9, fontWeight: 600 }}>{hl(res)}</div>
-              <QuickActions entity={entityFromVerse(ref, r[3])} />
+              <QuickActions entity={entityFromVerse(rawRef, r[3])} />
             </div>
           );
         })}
