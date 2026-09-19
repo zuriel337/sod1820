@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -29,7 +30,7 @@ import {
   fetchGoldenWorldJourney878,
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
-import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
+import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
@@ -47,6 +48,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 });
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
+const ALL_CONVERGENCES_PAGE_SIZE = 24;
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
@@ -416,6 +418,12 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
+  const [allQuery, setAllQuery] = useState("");
+  const [allCreator, setAllCreator] = useState("all");
+  const [allCreatorOptions, setAllCreatorOptions] = useState([]);
+  const [allConvergences, setAllConvergences] = useState({
+    loading: true, loadingMore: false, cards: [], hasMore: false, total: null, error: null,
+  });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
 
   const load = async () => {
@@ -462,6 +470,65 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    let alive = true;
+    fetchTopicCreatorOptions()
+      .then((rows) => { if (alive) setAllCreatorOptions(Array.isArray(rows) ? rows : []); })
+      .catch(() => { if (alive) setAllCreatorOptions([]); });
+    return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    const timer = setTimeout(async () => {
+      setAllConvergences((prev) => ({ ...prev, loading: true, loadingMore: false, cards: [], error: null }));
+      try {
+        const result = await fetchExplorerFacetPage("topic", {
+          q: allQuery.trim() || null,
+          creator: allCreator === "all" ? null : allCreator,
+          includeTotal: true,
+          limit: ALL_CONVERGENCES_PAGE_SIZE,
+          offset: 0,
+        });
+        if (!alive) return;
+        setAllConvergences({
+          loading: false,
+          loadingMore: false,
+          cards: result?.cards || [],
+          hasMore: Boolean(result?.hasMore),
+          total: Number.isFinite(Number(result?.total)) ? Number(result.total) : null,
+          error: null,
+        });
+      } catch (error) {
+        if (alive) setAllConvergences({ loading: false, loadingMore: false, cards: [], hasMore: false, total: null, error });
+      }
+    }, allQuery ? 260 : 0);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [allQuery, allCreator]);
+
+  const loadMoreConvergences = async () => {
+    if (allConvergences.loading || allConvergences.loadingMore || !allConvergences.hasMore) return;
+    setAllConvergences((prev) => ({ ...prev, loadingMore: true, error: null }));
+    try {
+      const result = await fetchExplorerFacetPage("topic", {
+        q: allQuery.trim() || null,
+        creator: allCreator === "all" ? null : allCreator,
+        includeTotal: true,
+        limit: ALL_CONVERGENCES_PAGE_SIZE,
+        offset: allConvergences.cards.length,
+      });
+      setAllConvergences((prev) => ({
+        ...prev,
+        loadingMore: false,
+        cards: [...prev.cards, ...(result?.cards || [])],
+        hasMore: Boolean(result?.hasMore),
+        total: Number.isFinite(Number(result?.total)) ? Number(result.total) : prev.total,
+      }));
+    } catch (error) {
+      setAllConvergences((prev) => ({ ...prev, loadingMore: false, error }));
+    }
+  };
 
   const openCard = async (card) => {
     if (!card) return;
@@ -609,6 +676,13 @@ function LiveWorldLanding({ research, shell, context }) {
     catch (_) { return "זמן לא צוין"; }
   };
 
+  const creatorLabel = (value) => {
+    if (!value) return "מקור לא צוין";
+    if (value === "ai") return "AI";
+    if (value === "agent:sod1820") return "SOD1820 · Agent";
+    return value;
+  };
+
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
     const section = document.getElementById(landingSectionId(facet.key));
@@ -693,6 +767,60 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>
+          <h2>כל ההתכנסויות</h2>
+          <div className="sod29-muted">זהו הקטלוג המלא של ההתכנסויות הציבוריות. “מה חדש” מציג זמן; “בולטות” מציגה סדר גילוי; כאן אפשר להגיע לכל זהות קנונית.</div>
+        </div>
+        <span className="sod29-chip">
+          {allConvergences.total != null ? `${allConvergences.cards.length} מתוך ${allConvergences.total}` : `${allConvergences.cards.length} נטענו`}
+        </span>
+      </div>
+
+      <div className="sod29-world-catalog-controls">
+        <label className="sod29-world-catalog-search">
+          <span>חיפוש</span>
+          <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="חפש בכותרת או בתיאור…" aria-label="חיפוש בכל ההתכנסויות" />
+        </label>
+        <div className="sod29-world-catalog-creators" role="group" aria-label="סינון כל ההתכנסויות לפי יוצר">
+          <button type="button" className={`sod29-world-stream-filter${allCreator === "all" ? " is-active" : ""}`} aria-pressed={allCreator === "all"} onClick={() => setAllCreator("all")}>הכול</button>
+          {allCreatorOptions.map((creator) => <button
+            type="button"
+            key={creator}
+            className={`sod29-world-stream-filter${allCreator === creator ? " is-active" : ""}`}
+            aria-pressed={allCreator === creator}
+            onClick={() => setAllCreator(creator)}
+          >{creatorLabel(creator)}</button>)}
+        </div>
+      </div>
+
+      {allConvergences.loading ? <FrameState kind="loading" title="טוען את כל ההתכנסויות">החיפוש והסינון מתבצעים מול אותו מקור ציבורי קנוני.</FrameState> : null}
+      {allConvergences.error && !allConvergences.cards.length ? <FrameState kind="error" title="הקטלוג לא נטען כרגע">לא נחליף רשימה חסרה בחומר אחר.</FrameState> : null}
+      {!allConvergences.loading && !allConvergences.cards.length && !allConvergences.error ? <FrameState kind="empty" title="לא נמצאו התכנסויות במסנן הזה">שנה את החיפוש או חזור ל״הכול״.</FrameState> : null}
+
+      {allConvergences.cards.length ? <div className="sod29-world-catalog-grid">
+        {allConvergences.cards.map((card) => <Link className="sod29-world-catalog-card" to={card.href} key={`all:${card.id}`}>
+          <div className="sod29-world-catalog-meta">
+            <span>{CONVERGENCE_LABEL}</span>
+            {card.creator ? <span>{creatorLabel(card.creator)}</span> : null}
+          </div>
+          <strong>{card.label}</strong>
+          {card.sub ? <p>{card.sub}</p> : null}
+          {card.numbers?.length ? <div className="sod29-world-catalog-numbers">{card.numbers.slice(0, 5).map((n) => <span key={n}>{n}</span>)}</div> : null}
+          <small>פתח התכנסות ←</small>
+        </Link>)}
+      </div> : null}
+
+      {allConvergences.hasMore ? <div className="sod29-world-catalog-more">
+        <button className="sod29-action primary" type="button" disabled={allConvergences.loadingMore} onClick={loadMoreConvergences}>
+          {allConvergences.loadingMore ? "טוען עוד…" : "טען עוד התכנסויות"}
+        </button>
+      </div> : null}
+      {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
+    </section>
+
     {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
       <div className="sod29-section-head">
         <div>
@@ -724,7 +852,7 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מה נפגש כאן</div>
-          <h2>{selectedWriter ? `${CONVERGENCES_LABEL} של ${selectedWriter.displayName}` : CONVERGENCES_LABEL}</h2>
+          <h2>{selectedWriter ? `${CONVERGENCES_LABEL} של ${selectedWriter.displayName}` : `${CONVERGENCES_LABEL} בולטות`}</h2>
           <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר מתכנסים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות היא התמונה המחקרית הרחבה.</div>
         </div>
       </div>
