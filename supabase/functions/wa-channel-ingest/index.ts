@@ -62,6 +62,23 @@ function channelStatus(channel: string): "live" | "private" {
   return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
 
+function normalizeProviderMediaUrl(raw: string): string {
+  const v = String(raw || "").trim();
+  if (!v) return "";
+  let candidate = "";
+  if (/^https?:\\/\\//i.test(v)) candidate = v;
+  else if (v.startsWith("//")) candidate = `https:${v}`;
+  else if (/^[a-z0-9.-]+(?::\\d+)?\\//i.test(v)) candidate = `https://${v}`;
+  else return "";
+  try {
+    const u = new URL(candidate);
+    if (!["http:", "https:"].includes(u.protocol) || !u.hostname) return "";
+    return u.toString();
+  } catch {
+    return "";
+  }
+}
+
 async function rehost(
   url: string,
   msgId: string,
@@ -70,7 +87,12 @@ async function rehost(
   sourceTs: number,
 ): Promise<string | null> {
   try {
-    const res = await fetch(url);
+    const normalizedUrl = normalizeProviderMediaUrl(url);
+    if (!normalizedUrl) {
+      trace.push({ msgId, step: "invalid-media-url" });
+      return null;
+    }
+    const res = await fetch(normalizedUrl);
     if (!res.ok) { trace.push({ msgId, step: "fetch", status: res.status }); return null; }
     const buf = new Uint8Array(await res.arrayBuffer());
     if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
@@ -100,7 +122,12 @@ async function rehost(
   } catch (e) { trace.push({ msgId, step: "throw", error: String(e) }); return null; }
 }
 
-async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, string>): Promise<{ ingested: number; recoveryPending: boolean; recoveryBlocked: boolean; historyOk: boolean }> {
+async function ingestSource(
+  src: any,
+  nowSec: number,
+  aliasMap: Map<string, string>,
+  targetMessageId = "",
+): Promise<{ ingested: number; recoveryPending: boolean; recoveryBlocked: boolean; historyOk: boolean }> {
   const chatId: string = src.chat_id;
   const adminOnly: boolean = src.admin_only;
   const admins: string[] = src.admin_ids || [];
@@ -112,8 +139,9 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
   const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
+  const targeted = !!targetMessageId;
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
-  const historyCount = recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT;
+  const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
   let hist;
   try {
@@ -131,9 +159,12 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
 
   const msgs = picked.rows;
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
-  const gapRows = ordered.filter((m) => Number(m?.timestamp || 0) > minTs);
+  const gapRows = targeted
+    ? ordered.filter((m) => String(m?.idMessage || "") === targetMessageId)
+    : ordered.filter((m) => Number(m?.timestamp || 0) > minTs);
   const oldestTs = ordered.length ? Number(ordered[0]?.timestamp || 0) : 0;
-  const recoveryBlocked = recovering
+  const recoveryBlocked = !targeted
+    && recovering
     && msgs.length >= historyCount
     && minTs > 0
     && oldestTs > minTs + 120;
@@ -143,8 +174,8 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     return { ingested: 0, recoveryPending: true, recoveryBlocked: true, historyOk: true };
   }
 
-  const recoveryPending = recovering && gapRows.length > RECOVERY_BATCH;
-  const batch = recoveryPending ? gapRows.slice(0, RECOVERY_BATCH) : gapRows;
+  const recoveryPending = !targeted && recovering && gapRows.length > RECOVERY_BATCH;
+  const batch = targeted ? gapRows : (recoveryPending ? gapRows.slice(0, RECOVERY_BATCH) : gapRows);
   trace.push({
     step: "hist",
     channel: src.channel,
@@ -164,11 +195,10 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     const senderName = m.senderName || "";
     const outgoing = m.type === "outgoing";
     if (!msgId || !ts) continue;
-    if (ts <= minTs || (!recovering && (nowSec - ts) > CEIL)) continue;
+    if (!targeted && (ts <= minTs || (!recovering && (nowSec - ts) > CEIL))) continue;
 
-    // The checkpoint advances across intentionally ignored message types too, but only inside
-    // the bounded oldest-first recovery batch, so no unseen gap can be skipped.
-    if (ts > maxTs) maxTs = ts;
+    // Targeted repair is source-local and never advances checkpoints.
+    if (!targeted && ts > maxTs) maxTs = ts;
     if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "quotedMessage"].includes(typ)) continue;
 
     if (outgoing) {
@@ -236,11 +266,13 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
   }
 
   const upd: Record<string, unknown> = {};
-  if (maxTs > minTs) upd.min_ts = maxTs - 120;
-  // last_run_at means successful provider poll, including a valid empty history. During bounded
-  // recovery we intentionally keep it stale until the whole known gap has been consumed.
-  if (!recoveryPending) upd.last_run_at = new Date(nowSec * 1000).toISOString();
-  if (Object.keys(upd).length) await sb.from("channel_ingest_sources").update(upd).eq("id", src.id);
+  if (!targeted) {
+    if (maxTs > minTs) upd.min_ts = maxTs - 120;
+    // last_run_at means successful provider poll, including a valid empty history. During bounded
+    // recovery we intentionally keep it stale until the whole known gap has been consumed.
+    if (!recoveryPending) upd.last_run_at = new Date(nowSec * 1000).toISOString();
+    if (Object.keys(upd).length) await sb.from("channel_ingest_sources").update(upd).eq("id", src.id);
+  }
   return { ingested: n, recoveryPending, recoveryBlocked: false, historyOk: true };
 }
 
@@ -251,6 +283,15 @@ Deno.serve(async (req) => {
   trace = [];
   const nowSec = Date.now() / 1000;
   const force = u.searchParams.get("force") === "1";
+  const recoverChannel = (u.searchParams.get("recover_channel") || "").trim();
+  const recoverMessageId = (u.searchParams.get("recover_message_id") || "").trim();
+  const targeted = !!recoverChannel || !!recoverMessageId;
+  if (targeted && (!recoverChannel || !recoverMessageId)) {
+    return new Response(JSON.stringify({ error: "targeted_recovery_requires_channel_and_message_id" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   let providerState = "unknown";
   try {
@@ -277,7 +318,15 @@ Deno.serve(async (req) => {
   }
 
   const aliasMap = await loadAliasMap();
-  const { data: sources } = await sb.from("channel_ingest_sources").select("*").eq("enabled", true);
+  let sourceQuery = sb.from("channel_ingest_sources").select("*").eq("enabled", true);
+  if (targeted) sourceQuery = sourceQuery.eq("channel", recoverChannel);
+  const { data: sources } = await sourceQuery;
+  if (targeted && !(sources || []).length) {
+    return new Response(JSON.stringify({ error: "targeted_recovery_source_not_found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   let ingested = 0;
   let recoveryPending = 0;
   let recoveryBlocked = 0;
@@ -285,12 +334,12 @@ Deno.serve(async (req) => {
   for (const src of (sources || [])) {
     const every = Number(src.poll_every_min ?? 5);
     const last = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
-    if (!force && last && (nowSec - last) < every * 60 - 10) {
+    if (!targeted && !force && last && (nowSec - last) < every * 60 - 10) {
       trace.push({ step: "skip", channel: src.channel, every });
       continue;
     }
     try {
-      const r = await ingestSource(src, nowSec, aliasMap);
+      const r = await ingestSource(src, nowSec, aliasMap, targeted ? recoverMessageId : "");
       ingested += r.ingested;
       if (r.recoveryPending) recoveryPending++;
       if (r.recoveryBlocked) recoveryBlocked++;
@@ -300,7 +349,14 @@ Deno.serve(async (req) => {
       trace.push({ step: "src-throw", channel: src.channel, error: String(e) });
     }
   }
-  const body: any = { ingested, aliases: aliasMap.size, recoveryPending, recoveryBlocked, pollFailures };
+  const body: any = {
+    ingested,
+    aliases: aliasMap.size,
+    recoveryPending,
+    recoveryBlocked,
+    pollFailures,
+    targetedRecovery: targeted ? { channel: recoverChannel, messageId: recoverMessageId } : null,
+  };
   if (u.searchParams.get("debug") === "1") body.trace = trace;
   return new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
 });
