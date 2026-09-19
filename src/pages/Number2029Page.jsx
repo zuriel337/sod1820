@@ -6,6 +6,7 @@ import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import {
+import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
   methodProfileEntry,
@@ -466,9 +467,9 @@ function NumberPageBody() {
       text: clean(anchorRow?.hint || anchorRow?.fact),
     });
     if (topics.length) signals.push({
-      kind: "מפגשים",
-      title: `${topics.length} מפגשים זמינים`,
-      text: clean(leadMeeting?.title) || "כמה שכבות מחקר נפגשות סביב המספר.",
+      kind: canonicalResearchPublicLabel("convergence", { plural: true }),
+      title: `${topics.length} ${canonicalResearchPublicLabel("convergence", { plural: true })} זמינות`,
+      text: clean(leadMeeting?.title) || "כמה שכבות מחקר מתכנסות סביב המספר.",
     });
     if (sources.length) signals.push({
       kind: "מקורות",
