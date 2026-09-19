@@ -496,12 +496,27 @@ const golden1820 = {
 };
 const p1820 = buildWorldContextualProminence(golden1820, {
   access: { boundary: "current_session_rls" },
-  crossMethodStrength: { signal: "CORE_AXIS_CANDIDATE", phrase_count: 109, methods: ["רגיל", "קדמי"], dependent_methods: ["רגיל+משולש"], dependent_phrase_count: 39 },
+  crossMethodStrength: {
+    signal: "CORE_AXIS_CANDIDATE",
+    phrase_count: 109,
+    independent_phrase_count: 106,
+    dependent_expression_phrase_count: 3,
+    p1_hits: 5,
+    independent_p1_method_count: 2,
+    methods: ["רגיל", "קדמי"],
+    dependent_methods: ["רגיל+משולש"],
+    dependent_phrase_count: 39,
+  },
 }, { limit: 7 });
 assert.ok(p1820.items.length >= 4 && p1820.items.length <= 7, "1820 bounded attention bundle stays within 4–7 when material exists");
 assert.equal(p1820.items.filter((item) => item.explainWhy.humanCuration.tier === "gold").length, 2, "both relevant 1820 Gold signatures remain discoverable");
 assert.ok(p1820.items.some((item) => item.familyKey === "verse-source"), "1820 must gain a source/verse family instead of seven near-duplicate gematria rows");
 assert.equal(p1820.contextSignals.crossMethodStrength.signal, "CORE_AXIS_CANDIDATE");
+assert.equal(p1820.contextSignals.crossMethodStrength.phraseCount, 109, "raw expression identity count remains backward-compatible");
+assert.equal(p1820.contextSignals.crossMethodStrength.independentPhraseCount, 106, "Research Strength uses dependency-normalized expression evidence");
+assert.equal(p1820.contextSignals.crossMethodStrength.dependentExpressionPhraseCount, 3, "dependent permutations are exposed rather than hidden");
+assert.equal(p1820.contextSignals.crossMethodStrength.p1Hits, 5, "raw P1 rows remain inspectable");
+assert.equal(p1820.contextSignals.crossMethodStrength.independentP1MethodCount, 2, "CROSS_METHOD strength uses independent P1 methods");
 assert.equal(p1820.contextSignals.accessBoundary, "governed_readers_current_session_rls_before_composition");
 assert.equal(Object.hasOwn(p1820, "score"), false, "no universal score may be emitted");
 
@@ -659,6 +674,9 @@ assert.ok(eventAuthorized.items.some((item) => item.kind === "temporal-control")
 // The live-input adapter is bounded and read-only, consumes existing tables/views under current-session RLS,
 // and never reconstructs privacy_scope policy or uses a privileged-key bypass.
 assert.match(prominenceInputs, /cross_method_strength/);
+assert.match(prominenceInputs, /independent_phrase_count/);
+assert.match(prominenceInputs, /dependent_expression_phrase_count/);
+assert.match(prominenceInputs, /independent_p1_method_count/);
 assert.match(prominenceInputs, /parent_id,evidence,owner_person_id,meta/);
 assert.match(prominenceInputs, /post_wp_id/);
 assert.match(prominenceInputs, /posts:\$\{post\.id\}/);
