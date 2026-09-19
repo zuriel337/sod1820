@@ -14,7 +14,7 @@ const API_METHODS = [
   { key: "ragil", he: "רגיל", engineKey: "רגיל" },
   { key: "miluy", he: "מילוי", engineKey: "מילוי" },
   { key: "misratar", he: "מסתתר", engineKey: "מסתתר" },
-  { key: "kadmi", he: "קדמי · משולש", engineKey: "קדמי" },
+  { key: "kadmi", he: "משולש", engineKey: "קדמי" },
   { key: "gadol", he: "גדול", engineKey: "גדול" },
   { key: "siduri", he: "סידורי", engineKey: "סידורי" },
   { key: "atbash", he: "אתבש", engineKey: "אתבש" },
