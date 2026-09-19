@@ -287,7 +287,15 @@ Deno.serve(async (req) => {
   });
   const selected = selectFair(pending, limit);
   const results = [];
-  for (const row of selected) results.push(await processRow(row));
+  for (const row of selected) {
+    try {
+      results.push(await processRow(row));
+    } catch {
+      // One malformed/transient source must not abort the remaining bounded batch.
+      // With no terminal Research Object recorded, this source remains eligible for a later retry.
+      results.push({ id: row.id, channel: row.channel, state: "processing_error_retry_pending" });
+    }
+  }
 
   return json({
     ok: true,
