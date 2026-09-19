@@ -10,7 +10,7 @@ function pageContext(pathname, search) {
   let type = "page";
   if (/^\/number\//.test(pathname)) type = "number";
   else if (/^\/codes\//.test(pathname) || pathname === "/code") type = "cipher";
-  else if (pathname === "/beit-midrash" || pathname === "/research" && tool === "midrash") type = "source";
+  else if (pathname === "/research" && tool === "midrash") type = "source";
   else if (pathname === "/research") type = tool || "research";
   else if (pathname === "/post" || pathname.split("/").filter(Boolean).length === 1) type = "content";
   return {
