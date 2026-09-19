@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import {
   canonicalMethodPublicLabel,
+  canonicalResearchPublicLabel,
   sortMethodsByCanonicalOrder,
   formatTanakhRef,
   formatVerseGematriaSuffix,
