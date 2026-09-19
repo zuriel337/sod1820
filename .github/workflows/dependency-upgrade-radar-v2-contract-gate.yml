@@ -1,0 +1,32 @@
+name: Dependency Upgrade Radar V2 Contract Gate
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/*g3_system_upgrade_radar*.sql"
+      - "test/dependency-upgrade-radar-v2-contract.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".nvmrc"
+      - ".github/workflows/dependency-upgrade-radar-v2-contract-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Upgrade radar V2 contract
+        run: node test/dependency-upgrade-radar-v2-contract.test.mjs
