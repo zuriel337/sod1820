@@ -222,7 +222,7 @@ eq("P2 Golden Card declares canonical renderer identity", goldenCardSource.inclu
 eq("P2 Golden Card consumes semantic palette", goldenCardSource.includes("usePalette()"), true);
 eq("P2 Golden Card owns no Supabase access", /supabase|\.rpc\(|\.from\(/i.test(goldenCardSource), false);
 eq("P2 Golden Card performs no Gematria calculation", /calculateGematria|fn_method_value|gematria_method_trace|from \"\.\.\/lib\/gematria\.js\"/.test(goldenCardSource), false);
-eq("P2 Golden Card keeps canonical selection outside via callback", goldenCardSource.includes("onMethodSelect(method.methodKey)"), true);
+eq("P2 Golden Card keeps canonical selection outside via callback", goldenCardSource.includes("onSelect(method.methodKey)") && goldenCardSource.includes("onSelect={onMethodSelect}"), true);
 eq("P2 Golden Card exposes local S1 to S2 disclosure", goldenCardSource.includes("aria-expanded={expanded}"), true);
 eq("P2 Golden Card exposes full-surface callback", goldenCardSource.includes("onOpenFull"), true);
 eq("P2 Golden Card exposes lazy Journey callback", goldenCardSource.includes("onOpenJourney"), true);
