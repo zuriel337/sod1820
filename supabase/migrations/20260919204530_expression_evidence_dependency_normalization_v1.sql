@@ -56,7 +56,7 @@ with tagged as (
     (
       coalesce(gm.order_sensitive, false)
       or (coalesce(gm.final_letter_sensitive, false) and b.phrase ~ '[ךםןףץ]')
-      or (coalesce(gm.word_boundary_sensitive, false) and trim(coalesce(b.phrase,'')) ~ '\\s')
+      or (coalesce(gm.word_boundary_sensitive, false) and trim(coalesce(b.phrase,'')) ~ '\s')
     ) as structure_sensitive,
     public.fn_expression_letter_multiset_key(b.phrase) as expression_family_key
   from public.bidim b
@@ -183,7 +183,7 @@ begin
         )
         or (
           coalesce(gm.word_boundary_sensitive, false)
-          and (trim(coalesce(p_a,'')) ~ '\\s' or trim(coalesce(p_b,'')) ~ '\\s')
+          and (trim(coalesce(p_a,'')) ~ '\s' or trim(coalesce(p_b,'')) ~ '\s')
         )
       ) as method_structure_sensitive,
       (d.method = any(independent_composite_keys)) as independent_composite
