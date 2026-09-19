@@ -10,6 +10,10 @@ assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gil
 assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
 assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
 assert.match(ingest, /status: channelStatus\(src\.channel\)/);
+assert.match(ingest, /waAdmin\("getStateInstance", \{\}, "GET"\)/);
+assert.match(ingest, /providerState !== "authorized"/);
+assert.match(ingest, /error: "green_not_authorized"/);
+assert.match(ingest, /status: 503/);
 assert.match(ingest, /storage\.from\("submission-inbox"\)\.upload/);
 assert.match(ingest, /channelStatus\(src\.channel\) === "private"/);
 assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
