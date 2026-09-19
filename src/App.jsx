@@ -103,7 +103,6 @@ const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalax
 // 2029 greenfield core surfaces — shared shell, shared Research Context, one Raziel.
 const Home2029Page = React.lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = React.lazy(() => import("./pages/World2029Page.jsx"));
-const Books2029Page = React.lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = React.lazy(() => import("./pages/Els2029Page.jsx"));
 const Heichal2029Page = React.lazy(() => import("./pages/Heichal2029Page.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
@@ -117,7 +116,6 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
-const BookHubPage = React.lazy(() => import("./pages/BookHubPage.jsx")); // 📖 ספרים ומקורות — research_clean (Cross-Surface Experience Contract, PR#332)
 const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
@@ -202,6 +200,18 @@ function GematriaToLab() {
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
+function Book2029DocumentHandoff() {
+  const location = useLocation();
+  const raw = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+  const href = location.pathname === "/book"
+    ? `/books${location.search || ""}${location.hash || ""}`
+    : raw;
+  useEffect(() => {
+    window.location.assign(href);
+  }, [href]);
+  return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
+}
+
 // דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {
@@ -232,7 +242,7 @@ function GlobalChrome({ children }) {
     || pathname === "/els"
     || pathname === "/heichal"
     || pathname === "/היכל"
-    || /^\/books(\/|$)/.test(pathname);
+    || /^\/books?(\/|$)/.test(pathname);
   if (is2029 || pathname === "/research" || /^\/code(\/|$)/.test(pathname)) return null;
   return <>{children}</>;
 }
@@ -266,8 +276,10 @@ export default function App() {
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
           <Route path="/2029" element={<Home2029Page />} />
           <Route path="/world" element={<World2029Page />} />
-          <Route path="/books" element={<Books2029Page />} />
-          <Route path="/books/:slug" element={<Books2029Page />} />
+          <Route path="/books" element={<Book2029DocumentHandoff />} />
+          <Route path="/books/:slug" element={<Book2029DocumentHandoff />} />
+          <Route path="/book" element={<Book2029DocumentHandoff />} />
+          <Route path="/book/:slug" element={<Book2029DocumentHandoff />} />
           <Route path="/els" element={<Els2029Page />} />
           <Route path="/היכל" element={<Heichal2029Page />} />
           <Route path="/heichal" element={<Heichal2029Page />} />
@@ -372,8 +384,6 @@ export default function App() {
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
-          <Route path="/book" element={<BookHubPage />} />
-          <Route path="/book/:slug" element={<BookHubPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
