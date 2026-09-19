@@ -4,9 +4,91 @@ const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
 const CONTEXT_KEY = 'sod_research_context_session_v1';
 const MOBILE_WIDTHS = [320, 360, 390];
+const CLS_ROUTES = [
+  '/2029',
+  '/world',
+  '/topic/888-yeshua',
+  '/books',
+  '/book/daat-tevunot',
+  '/els',
+  '/heichal',
+  '/2029/number/1237',
+];
+
+async function installClsObserver(page) {
+  await page.addInitScript(() => {
+    window.__sodCls = {
+      windowStart: null,
+      lastShiftAt: null,
+      windowValue: 0,
+      windowSources: [],
+      maxValue: 0,
+      maxSources: [],
+    };
+    try {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.hadRecentInput) continue;
+          const state = window.__sodCls;
+          const startsNew =
+            state.windowStart == null ||
+            state.lastShiftAt == null ||
+            entry.startTime - state.lastShiftAt >= 1000 ||
+            entry.startTime - state.windowStart >= 5000;
+          if (startsNew) {
+            state.windowStart = entry.startTime;
+            state.windowValue = 0;
+            state.windowSources = [];
+          }
+          state.windowValue += entry.value;
+          state.lastShiftAt = entry.startTime;
+          for (const source of Array.from(entry.sources || [])) {
+            const node = source?.node;
+            if (!node || node.nodeType !== 1) continue;
+            const id = node.id ? `#${node.id}` : '';
+            const cls = typeof node.className === 'string'
+              ? node.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map((x) => `.${x}`).join('')
+              : '';
+            const label = `${String(node.tagName || '').toLowerCase()}${id}${cls}`;
+            if (label && !state.windowSources.includes(label)) state.windowSources.push(label);
+            if (state.windowSources.length >= 8) break;
+          }
+          if (state.windowValue > state.maxValue) {
+            state.maxValue = state.windowValue;
+            state.maxSources = state.windowSources.slice(0, 8);
+          }
+        }
+      });
+      observer.observe({ type: 'layout-shift', buffered: true });
+    } catch {}
+  });
+}
+
+async function assertClsGood(page, route) {
+  await page.waitForTimeout(4000);
+  const metric = await page.evaluate(() => ({
+    value: Number(window.__sodCls?.maxValue || 0),
+    sources: window.__sodCls?.maxSources || [],
+  }));
+  expect(
+    metric.value,
+    `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,
+  ).toBeLessThanOrEqual(0.1);
+}
 
 test.setTimeout(60_000);
 test.describe.configure({ mode: 'serial' });
+
+for (const route of CLS_ROUTES) {
+  test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
+    await installClsObserver(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.sod29-root')).toBeVisible({ timeout: 30_000 });
+    await assertClsGood(page, route);
+    await assertNoHorizontalOverflow(page);
+  });
+}
 
 function researchContext(value) {
   const id = String(value);
