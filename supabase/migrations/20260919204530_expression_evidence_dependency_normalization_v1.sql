@@ -53,7 +53,11 @@ with tagged as (
     b.method,
     b.priority,
     coalesce(gm.category, 'unregistered') as m_category,
-    coalesce(gm.order_sensitive, false) as order_sensitive,
+    (
+      coalesce(gm.order_sensitive, false)
+      or coalesce(gm.word_boundary_sensitive, false)
+      or coalesce(gm.final_letter_sensitive, false)
+    ) as structure_sensitive,
     public.fn_expression_letter_multiset_key(b.phrase) as expression_family_key
   from public.bidim b
   left join public.gematria_methods gm on gm.method_key = b.method
@@ -63,7 +67,7 @@ phrase_support as (
     value,
     phrase,
     expression_family_key,
-    bool_or(order_sensitive and m_category <> 'composite') as has_order_sensitive_atomic
+    bool_or(structure_sensitive and m_category <> 'composite') as has_structure_sensitive_atomic
   from tagged
   group by value, phrase, expression_family_key
 ),
@@ -73,7 +77,7 @@ expression_counts as (
     count(distinct phrase) as phrase_count,
     count(distinct (
       case
-        when has_order_sensitive_atomic then 'phrase:' || phrase
+        when has_structure_sensitive_atomic then 'phrase:' || phrase
         else 'multiset:' || expression_family_key
       end
     )) as independent_phrase_count
@@ -171,6 +175,11 @@ begin
     select
       d.*,
       coalesce(gm.category, 'unregistered') as method_category,
+      (
+        coalesce(gm.order_sensitive, false)
+        or coalesce(gm.word_boundary_sensitive, false)
+        or coalesce(gm.final_letter_sensitive, false)
+      ) as method_structure_sensitive,
       (d.method = any(independent_composite_keys)) as independent_composite
     from public.fn_relation_dependency_groups(p_a, p_b) d
     left join public.gematria_methods gm on gm.method_key = d.method
@@ -179,7 +188,8 @@ begin
     select
       group_repr,
       bool_or(group_is_position_sensitive) as is_position_sensitive,
-      bool_or(group_is_position_sensitive and method_category <> 'composite') as has_atomic_position_sensitive,
+      bool_or(method_structure_sensitive) as is_structure_sensitive,
+      bool_or(method_structure_sensitive and method_category <> 'composite') as has_atomic_structure_sensitive,
       bool_or(independent_composite) as has_independent_composite,
       min(normalized_rarity) as min_rarity
     from dg
@@ -192,6 +202,7 @@ begin
         'value', d.value,
         'group_repr', d.group_repr,
         'group_is_position_sensitive', d.group_is_position_sensitive,
+        'method_structure_sensitive', d.method_structure_sensitive,
         'method_category', d.method_category,
         'raw_frequency', d.raw_frequency,
         'method_population', d.method_population,
@@ -203,8 +214,8 @@ begin
               then 'same_letter_multiset_independent_composite_lead'
             when d.method_category = 'composite'
               then 'same_letter_multiset_dependent_composite'
-            when d.group_is_position_sensitive
-              then 'same_letter_multiset_order_sensitive_potentially_independent'
+            when d.method_structure_sensitive
+              then 'same_letter_multiset_structure_sensitive_potentially_independent'
             else 'same_letter_multiset_order_insensitive_dependent'
           end
       ))
@@ -214,16 +225,16 @@ begin
     (select count(*) from group_stats where is_position_sensitive),
     (select count(*) from group_stats
       where not same_letter_permutation
-         or has_atomic_position_sensitive
+         or has_atomic_structure_sensitive
          or has_independent_composite),
     (select count(*) from group_stats
-      where (not same_letter_permutation and is_position_sensitive)
-         or (same_letter_permutation and is_position_sensitive
-             and (has_atomic_position_sensitive or has_independent_composite))),
+      where (not same_letter_permutation and is_structure_sensitive)
+         or (same_letter_permutation and is_structure_sensitive
+             and (has_atomic_structure_sensitive or has_independent_composite))),
     (select min(min_rarity) from group_stats),
     (select coalesce(sum(1 - min_rarity),0) from group_stats
       where not same_letter_permutation
-         or has_atomic_position_sensitive
+         or has_atomic_structure_sensitive
          or has_independent_composite)
   into
     engine_evidence,
@@ -281,7 +292,7 @@ begin
       'same_letter_multiset', same_letter_permutation,
       'letter_multiset_key_a', public.fn_expression_letter_multiset_key(p_a),
       'letter_multiset_key_b', public.fn_expression_letter_multiset_key(p_b),
-      'rule', 'same-letter permutations do not gain independent strength from order-insensitive method families; composites inherit existing composite-independence governance'
+      'rule', 'same-letter permutations do not gain independent strength from structure-insensitive method families (order/word-boundary/final-letter); composites inherit existing composite-independence governance'
     ),
     'engine_evidence', engine_evidence,
     'composite_evidence', composite_evidence,
@@ -310,7 +321,7 @@ end;
 $function$;
 
 comment on function public.fn_relation_candidate(text, text) is
-  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Order-insensitive method matches are dependency-normalized; atomic order-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
+  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Structure-insensitive method matches are dependency-normalized; atomic order/word-boundary/final-letter-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
 
 -- Migration-level golden calibration. Fail closed if the intended dependency
 -- semantics do not reproduce on the current canonical corpus.
