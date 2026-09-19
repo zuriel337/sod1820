@@ -128,6 +128,19 @@ test('Zeckendorf decomposition of 888 is deterministic and complete', async () =
   assert.deepEqual(viaAdapter.result.decomposition.terms.map(part => Number(part.term)), [610, 233, 34, 8, 3]);
 });
 
+test('common-factor findings keep supplied evidence separate from derived coefficient anchors', () => {
+  const analysis = analyzeNumericRelations([1382, 1404, 1426]);
+  const findings = numericRelationsToUniversalFindings(analysis);
+  const common = findings.find(finding => finding.source.method === 'common_factor_projection_v1');
+  assert.ok(common);
+  assert.deepEqual(common.evidence.refs, ['number:1382', 'number:1404', 'number:1426']);
+  const anchors = common.projection.anchors.map(anchor => anchor.value);
+  assert.equal(anchors.includes(691), true);
+  assert.equal(anchors.includes(702), true);
+  assert.equal(anchors.includes(713), true);
+  assert.equal(anchors.includes(2), true);
+});
+
 test('numeric relation findings remain typed derivations with operation provenance', () => {
   const analysis = analyzeNumericRelations([691, 702, 713]);
   const findings = numericRelationsToUniversalFindings(analysis);
