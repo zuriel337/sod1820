@@ -223,7 +223,7 @@ begin
               then 'same_letter_multiset_dependent_composite'
             when d.method_structure_sensitive
               then 'same_letter_multiset_structure_sensitive_potentially_independent'
-            else 'same_letter_multiset_order_insensitive_dependent'
+            else 'same_letter_multiset_structure_insensitive_dependent'
           end
       ))
       from dg d
@@ -328,7 +328,7 @@ end;
 $function$;
 
 comment on function public.fn_relation_candidate(text, text) is
-  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Structure-insensitive method matches are dependency-normalized. Sensitivity is evaluated per input: order always; final-letter only when a final form occurs; word-boundary only for multiword input. Atomic structure-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
+  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Structure-insensitive method matches are dependency-normalized. Sensitivity is evaluated per input: order always; final-letter only when a final form occurs; word-boundary only for multiword input. Atomic structure-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving structure-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
 
 -- Migration-level golden calibration. Fail closed if the intended dependency
 -- semantics do not reproduce on the current canonical corpus.
@@ -374,6 +374,6 @@ begin
     raise exception 'relation calibration failed: דעת/עדת must expose dependent expression groups';
   end if;
   if rel->>'research_priority' = 'HIGH_ENGINE_NO_EVIDENCE_YET' then
-    raise exception 'relation calibration failed: one surviving order-sensitive family for דעת/עדת must not self-promote to HIGH without separate independent evidence';
+    raise exception 'relation calibration failed: one surviving structure-sensitive family for דעת/עדת must not self-promote to HIGH without separate independent evidence';
   end if;
-end $;
+end $$;
