@@ -10,7 +10,7 @@ import VerifiedBadge from "./VerifiedBadge.jsx";
  * פוסט שאומת ע״י AI מציג נוסח קבוע — זהה בכל האתר:
  *  1. דיסקליימר בראש הפוסט: הנתונים (תאריכים/מספרים) נבדקו ואומתו ע״י AI; הפרשנות של המערכת.
  *  2. תוספת ה-AI מופיעה *אחרי* מה שהמערכת כתבה, בריבוע מסומן — לא משתלבת בטקסט.
- *  3. כל תוספת AI מפנה לבית המדרש (ללמוד על המספרים), לא לפוסטים אחרים.
+ *  3. כל תוספת AI מפנה לעולם (ללמוד על המספרים), לא לפוסטים אחרים.
  *  4. ⚠️ מודע-פלטה (ai_box_theme_aware): הריבוע חייב לעבוד *גם במצב בהיר וגם כהה*.
  *     אסור צבעים כהים צרובים (rgba כהה / C.muted) שנשברים במסך בהיר — הרקע/הטקסט/הגבול
  *     נגזרים מ-usePalette (P.mode/P.ink/P.cardSoft), והאקסנט הכחול #3ea6ff נשמר בשני המצבים.
@@ -38,7 +38,7 @@ export function AiVerifiedDisclaimer() {
 }
 
 // תיבת אימות ה-AI — קטנה, ממורכזת, בחלק הראשון של הפוסט.
-// מציגה את ai_addition (אימות בלבד) + 3 גימטריות של המספר + קישור לבית המדרש על אותו מספר.
+// מציגה את ai_addition (אימות בלבד) + 3 גימטריות של המספר + קישור לעולם על אותו מספר.
 export function AiAdditionBox({ html, number }) {
   const P = usePalette();
   const [eq, setEq] = useState([]);
@@ -70,11 +70,11 @@ export function AiAdditionBox({ html, number }) {
         </div>
       )}
       <div style={{ marginTop: 12 }}>
-        <Link to={number ? `/beit-midrash?n=${number}` : "/beit-midrash"} style={{
+        <Link to={number ? `/number/${number}` : "/world"} style={{
           display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
           background: "rgba(62,166,255,0.1)", border: `1px solid #3ea6ff55`, borderRadius: 999,
           color: P.mode === "dark" ? "#9fd0ff" : "#1f6fb0", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "7px 15px",
-        }}>📚 ראה עוד על {number || "המספרים"} בבית המדרש ←</Link>
+        }}>📚 ראה עוד על {number || "המספרים"} בעולם ←</Link>
       </div>
     </div>
   );
