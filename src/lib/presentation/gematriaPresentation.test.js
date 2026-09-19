@@ -425,6 +425,40 @@ test("S2 preview is bounded, active-first, and does not invent a priority array"
   );
 });
 
+test("golden 474 keeps peer expressions separate from normalized evidence weight", () => {
+  const model = buildGematriaPresentationModel({
+    expression: "דעת",
+    methodProfile: [{
+      methodKey: "רגיל",
+      displayLabel: "רגיל",
+      category: "base",
+      sortOrder: 1,
+      computedValue: 474,
+      definitionVersion: 1,
+    }],
+    methodStates: [STATES[0]],
+    expressionEvidenceSummary: {
+      phrase_count: 124,
+      independent_phrase_count: 120,
+      dependent_expression_phrase_count: 4,
+      p1_hits: 57,
+      independent_p1_method_count: 6,
+      signal: "CORE_AXIS_CANDIDATE",
+    },
+    peerExpressions: [
+      { expression: "עדת", value: 474, methodKey: "רגיל", verified: true },
+      { expression: "תדע", value: 474, methodKey: "רגיל", verified: true },
+    ],
+  });
+
+  assert.equal(model.focal.secondary, 474);
+  assert.equal(model.expressionEvidence.rawPhraseCount, 124);
+  assert.equal(model.expressionEvidence.independentPhraseCount, 120);
+  assert.equal(model.expressionEvidence.dependentExpressionPhraseCount, 4);
+  assert.deepEqual(model.peerExpressions.map((item) => item.expression), ["עדת", "תדע"]);
+  assert.equal("score" in model.expressionEvidence, false, "Presentation must not create a universal reliability score");
+});
+
 test("projects supplied peer expressions without inventing discovery", () => {
   const model = buildGematriaPresentationModel({
     expression: "דעת",
