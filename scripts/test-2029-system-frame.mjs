@@ -107,7 +107,7 @@ assert.match(frame, /returnTo:\s*null/);
 assert.match(frame, /TEMPORARY SELECTION/);
 assert.match(frame, /selectionchange/);
 assert.match(frame, /Selection זמני ≠ Finding ≠ Claim ≠ Canonical/);
-assert.match(frame, /Quick Inspect seam פעיל/);
+assert.match(frame, /Number \/ Expression · Quick Inspect/);
 assert.match(frame, /Follow runtime נשאר ב־PR #486/);
 
 // Cross-cutting actions consume canonical capability seams where they already exist.
