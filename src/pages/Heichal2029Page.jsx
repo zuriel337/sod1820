@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { applySeo } from "../lib/seo.js";
@@ -134,7 +134,7 @@ function ActiveResearchEnvironment() {
       <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
       <div className="sod29-two">
         <div className="sod29-canvas">
-          {state.loading ? <div className="sod29-state">מרכיב Canvas מה־Reality Graph, Research OS וה־Context הפעיל…</div> : null}
+          {state.loading ? <FrameState kind="loading" title="מרכיב את משטח המחקר" progress={{ phase: "מחבר את העוגן לנתוני המחקר", expectedLong: true, steps: [{ id: "anchor", label: "שומר את העוגן הפעיל", state: "done" }, { id: "projection", label: "קורא קשרים, ממצאים ומקורות", state: "active" }, { id: "canvas", label: "מכין את ה־Canvas וה־Evidence", state: "pending" }], engagement: [{ id: "continuity", title: "העוגן לא הולך לאיבוד", detail: "אפשר להמשיך מאותה נקודה גם כשהעומק עוד נטען." }, { id: "truth", title: "אין תוכן מומצא בזמן ההמתנה", detail: "רק חומר שהגיע מה־owners הקנוניים יופיע בתוצאה." }] }}>ה־Context נשמר בזמן שהמערכת מרכיבה את התמונה העמוקה סביבו.</FrameState> : null}
           {state.error ? <div className="sod29-state error">ה־Context נשמר, אבל ה־Entity adapter נכשל: {String(state.error?.message || state.error)}</div> : null}
           {!state.loading && !state.error && !data ? <div className="sod29-state warn">יש Research Context פעיל, אך אין Graph identity לקריאה דרך ה־Entity adapter. ההיכל לא ממציא ישות. אפשר לעבוד עם Calculator/ELS/Source ולשמור את אותו root.</div> : null}
           {data ? <>
