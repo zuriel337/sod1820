@@ -1,0 +1,19 @@
+.sod-post-content .sod-gematria-box.is-gematria-card-pilot{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.sod-post-content .sod-gematria-box.is-gematria-card-pilot>.gb-title,
+.sod-post-content .sod-gematria-box.is-gematria-card-pilot>.gb-rows,
+.sod-post-content .sod-gematria-box.is-gematria-card-pilot>.gb-note{
+  display:none!important;
+}
+.sod-gematria-card-pilot-mount{
+  display:block;
+  width:100%;
+  max-width:100%;
+}
