@@ -1,6 +1,6 @@
 # SOD1820 — G3 GEMATRIA PRESENTATION CONTRACT V1
 
-**Status:** BRANCH-ONLY · P1 MODEL + P2 GOLDEN CARD IMPLEMENTED · NOT MERGED · NOT DEPLOYED  
+**Status:** BRANCH-ONLY · P1 MODEL + P2 GOLDEN CARD + GOLDEN POST CONSUMER VERIFIED · NOT MERGED · NOT DEPLOYED  
 **Human Gate decisions:** ZURIEL · 2026-09-19  
 **Canonical owner:** EXTEND_EXISTING `project_codex.gematria_engine`  
 **Method presentation/order owner:** `canonical_methods_registry_law v6`  
@@ -675,7 +675,7 @@ State boundary:
 - the card never queries Supabase and never calculates Gematria.
 
 Not implemented in P2:
-- no Post/Topic/Book/Number/Raziel consumer wiring;
+- no broad Post/Topic/Book/Number/Raziel rollout; one query-gated Golden Post consumer exists for browser acceptance;
 - no auto-extraction of Gematria from Post HTML;
 - no replacement of legacy `sod-gematria-box`;
 - no screenshot/share-image renderer;
@@ -720,3 +720,57 @@ Live calibration contract:
 This completes the semantic bridge:
 `Reliability owner → Presentation Model → Golden Card`,
 with no parallel ranking or UI truth system.
+
+
+## 19. Golden Post consumer record
+
+The first real consumer is intentionally one bounded Post pilot, not a site-wide migration.
+
+Calibration Post:
+- `posts.id=5020`
+- `wp_id=36962`
+- slug `צופן-חותים-5784`
+- stored legacy equality: `261 = אירן = ביד רמה = ארס`
+
+Activation:
+- normal Post URL remains unchanged;
+- pilot is enabled only with `?gemcard=1`;
+- no Post content/DB row is rewritten;
+- the existing `.sod-gematria-box` remains stored and is the fail-closed fallback;
+- after canonical verification, React mounts the shared `GematriaCard` into that exact narrative location and hides only the legacy title/rows/note for the pilot session.
+
+Verification gate:
+- every stored peer expression is resolved through canonical `fn_method_profile` projection;
+- the `רגיל` Registry state must be active, executable, engine-verified and free of engine drift;
+- every stored peer must equal the stored expected value `261`;
+- any missing/null/mismatching value leaves the legacy box untouched;
+- a method with no computed value is never converted into zero.
+
+Presentation boundary:
+- S1 may say `3 ביטויים · אותו ערך`;
+- S2 may say `ביטויים באותו ערך` / `3 ביטויים מאומתים`;
+- this equality is Calculation/engine truth, not by itself high Research Evidence;
+- relation cross-verification for אירן↔ביד רמה and אירן↔ארס remains weak/LOW_UNRANKED at this calibration point;
+- corpus-wide expression-dependency strength is not injected into the compact narrative Post peer block.
+
+Research Context:
+- method/focus continuity remains owned by the existing Research Context;
+- pilot dimensions use `gematriaExpression`, `gematriaMethod`, `gematriaSurface=post`;
+- local Card state remains disclosure only.
+
+Browser acceptance:
+- production bundle served locally from the exact PR head;
+- Playwright opened the real Post route with `?gemcard=1`;
+- verified at 390px and 1440px;
+- no horizontal overflow;
+- legacy equality row hidden only when the live Card mounted successfully;
+- S1 visible with אירן / 261 / peer-count signal;
+- S2 opens in place and visibly contains אירן, ביד רמה and ארס;
+- keyboard focus acceptance passed;
+- screenshots recorded by the Release Visual Gate.
+
+This pilot proves the intended replacement path:
+
+`stored/source Gematria fact → canonical engine verification → Presentation Model → live GematriaCard in the narrative → future static share renderer`.
+
+It does **not** authorize mass replacement of legacy Gematria boxes or calculator screenshots.
