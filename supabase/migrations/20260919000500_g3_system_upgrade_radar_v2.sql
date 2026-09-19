@@ -222,6 +222,54 @@ begin
         into v_node_latest
       from jsonb_array_elements(v_resp.content::jsonb) entry
       where (entry ->> 'version') ~ '^v24[.][0-9]+[.][0-9]+
+      order by
+        split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 2)::int desc,
+        split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 3)::int desc
+      limit 1;
+    end if;
+    perform extensions.http_reset_curlopt();
+
+    if v_node_latest is not null and v_node_latest !~ '-' then
+      v_node_maj := split_part(v_node_current, '.', 1)::int;
+      v_node_min := split_part(v_node_current, '.', 2)::int;
+      v_node_pat := split_part(v_node_current, '.', 3)::int;
+      v_node_lat_maj := split_part(v_node_latest, '.', 1)::int;
+      v_node_lat_min := split_part(v_node_latest, '.', 2)::int;
+      v_node_lat_pat := split_part(v_node_latest, '.', 3)::int;
+      v_delta := null;
+
+      if v_node_lat_maj = v_node_maj and v_node_lat_min > v_node_min then
+        v_delta := 'minor'; v_dep_conf := 85;
+      elsif v_node_lat_maj = v_node_maj and v_node_lat_min = v_node_min and v_node_lat_pat > v_node_pat then
+        v_delta := 'patch'; v_dep_conf := 95;
+      end if;
+
+      if v_delta is not null then
+        perform suggest_add(
+          'performance', 'dependency_upgrade_radar',
+          format('עדכון Node LTS זמין: %s → %s (%s)', v_node_current, v_node_latest, v_delta),
+          'נבדק מול index.json הרשמי של nodejs.org. הרדאר נשאר בתוך Node 24 LTS; מעבר LTS-major דורש Foundation Gate נפרד.',
+          jsonb_build_object(
+            'package', 'node',
+            'current', v_node_current,
+            'latest', v_node_latest,
+            'delta', v_delta,
+            'source', 'nodejs.org/dist/index.json',
+            'lts_major', 24
+          ),
+          v_dep_conf, 1,
+          format('עדכון Node 24 LTS (%s → %s) עשוי לכלול תיקוני אבטחה/יציבות; להריץ CI מלא לפני שחרור', v_node_current, v_node_latest),
+          'dependency_upgrade:node:' || v_node_latest
+        );
+        if found then n_raised := n_raised + 1; end if;
+      end if;
+    end if;
+  exception when others then
+    perform extensions.http_reset_curlopt();
+    -- fail closed: Node registry/feed failure never blocks the rest of system-watchman
+  end;
+
+  return jsonb_build_object('raised', n_raised, 'checked_at', now());
 end; $function$
 
         and jsonb_typeof(entry -> 'lts') = 'string'
