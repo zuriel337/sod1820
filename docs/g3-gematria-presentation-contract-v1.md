@@ -686,3 +686,37 @@ Not implemented in P2:
 The future share path remains:
 `Gematria Presentation Model → live GematriaCard → share/image renderer`,
 so a social image becomes a static projection of the same truth rather than a calculator screenshot becoming the truth source.
+
+### P2.1 — Expression Evidence normalization projection
+
+After the canonical Reliability release (#569 + #572), the Golden Card consumes a second, separate evidence axis for **expression-level dependency normalization**.
+
+Owner boundary:
+- canonical computation remains `public.cross_method_strength` / `fn_relation_candidate`;
+- Research Strength remains owned by `research_gold_hints_law` and the existing evidence-governance tree;
+- the Presentation Model **only projects supplied counts**;
+- `GematriaCard` never queries the DB, never derives `raw - independent`, never computes a score and never upgrades truth.
+
+Presentation input:
+- `expressionEvidenceSummary.phrase_count` → raw expression count;
+- `independent_phrase_count` → dependency-normalized expression families;
+- `dependent_expression_phrase_count` → expressions that remain visible but add no new evidence weight;
+- `p1_hits` and `independent_p1_method_count` remain available to deeper projections;
+- `signal` is preserved as governed context but is not rendered as a truth badge.
+
+Golden behavior:
+- S1 stays quiet unless dependency normalization changed the apparent result set; when it did, a neutral signal such as “4 התאמות תלויות” prevents false excitement without hiding results;
+- S2 presents the independent count first, then raw count and dependent delta: e.g. “120 קבוצות ביטוי עצמאיות · 124 ביטויים נמצאו · 4 לא מוסיפים משקל חדש”;
+- no color, glow or badge may imply that a larger count is “truer”;
+- every original expression remains addressable in deeper views;
+- a structure-sensitive independent lead remains visible separately and is never collapsed by Presentation.
+
+Live calibration contract:
+- value `474`: `124 raw → 120 independent`, dependent delta `4`;
+- `דעת / עדת / תדע` share one dependency family where equality is structure-insensitive;
+- `דעת ↔ עדת` may still retain the separately governed structure-sensitive composite lead;
+- the card must consume these distinctions, never re-implement their rules.
+
+This completes the semantic bridge:
+`Reliability owner → Presentation Model → Golden Card`,
+with no parallel ranking or UI truth system.
