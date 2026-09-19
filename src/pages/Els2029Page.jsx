@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
@@ -15,7 +15,7 @@ export default function Els2029Page() {
 
   if (elsState.loading) {
     return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="טוען את מצב היכולת הקנוני…">
-      <div className="sod29-frame-state state-loading" role="status">טוען מצב ELS…</div>
+      <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
   }
 
