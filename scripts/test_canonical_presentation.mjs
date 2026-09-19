@@ -163,6 +163,56 @@ const p1Unavailable = buildGematriaPresentationModel({
 eq("P1 unavailable identity remains addressable", p1Unavailable.activeMethod?.methodKey, "אח״ס–בט״ע");
 eq("P1 unavailable identity never fabricates zero", p1Unavailable.activeMethod?.value, null);
 
+
+const p1RawLiveShape = buildGematriaPresentationModel({
+  expression: "עמית",
+  methodProfile: [{
+    method_key: "רגיל",
+    display_label: "רגיל",
+    category: "base",
+    lifecycle_active: true,
+    computed_value: 520,
+    definition_version: 1,
+  }],
+  methodStates: [p1States[0]],
+});
+eq("P1 accepts live fn_method_profile snake_case", p1RawLiveShape.activeMethod?.value, 520);
+
+const p1Normalized = buildGematriaPresentationModel({
+  expressionRaw: "  עמית׳  ",
+  methodProfile: p1Profile,
+  methodStates: p1States,
+  normalization: {
+    normalized: "עמית",
+    changed: true,
+    materiallyChanged: true,
+    reasons: ["removed punctuation"],
+  },
+});
+eq("P1 keeps original expression identity visible", p1Normalized.subject.expressionRaw, "עמית׳");
+eq("P1 exposes material normalization only when supplied", p1Normalized.normalization.visibleNoticeNeeded, true);
+eq("P1 normalization preserves governed reason", p1Normalized.normalization.reasons.join("|"), "removed punctuation");
+
+const p1Families = buildGematriaPresentationModel({
+  expression: "עמית",
+  methodProfile: [
+    p1Profile[0],
+    {
+      methodKey: "משולש מילה",
+      displayLabel: "משולש מילה",
+      category: "depth",
+      sortOrder: 21,
+      computedValue: 1120,
+      definitionVersion: 1,
+    },
+    p1Profile[3],
+  ],
+  methodStates: p1States,
+});
+eq("P1 human family order stays base-depth-composite", p1Families.familyGroups.map((group) => group.key).join("|"), "base|depth|composite");
+eq("P1 continuity keeps semantic reopen method", p1Context.continuity.methodKey, "מילוי");
+eq("P1 continuity keeps semantic reopen focus", p1Context.continuity.focus, "number");
+
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
   for (const item of failures) console.log("  - " + item);
