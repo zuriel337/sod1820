@@ -449,7 +449,9 @@ export default function NumberCore2029({
         {activitySummary.map((item) => <span key={item}>{item}</span>)}
       </div> : null}
 
-      {stageLoading ? <div className="sod29-number-v10-loading is-inline"><i /> מעדכן את החיבורים של {stageRoot} ברקע…</div> : null}
+      <div className={`sod29-number-v10-loading is-inline${stageLoading ? " is-loading" : " is-ready"}`} role="status">
+        {stageLoading ? <><i /> מעדכן את החיבורים של {stageRoot} ברקע…</> : <><span aria-hidden="true">✓</span> החיבורים של {stageRoot} מעודכנים</>}
+      </div>
         <div className="sod29-number-v10-research-grid">
           <section className="sod29-number-v10-convergence">
             <div className="sod29-number-v10-panel-head">
