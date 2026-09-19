@@ -36,6 +36,9 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
 const app = read("src/App2029.jsx");
+const legacyApp = read("src/App.jsx");
+const sitemapSource = read("api/sitemap.js");
+const vercelConfig = JSON.parse(read("vercel.json"));
 const experienceContext = read("src/lib/experienceContext.js");
 const graphAdapter = read("src/lib/research/entityGraphFinding.js");
 const adminMigration = read("supabase/migrations/20260917191500_world_admin_graph_read_v1.sql");
@@ -45,6 +48,17 @@ const entityHubProjection = read("src/lib/research/entityHubProjection.js");
 const worldCss = read("src/pages/world2029-human.css");
 const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
+
+// Beit Midrash public cutover: World owns discovery; Topic canonical URLs survive.
+assert.match(sitemapSource, /loc:\s*'\/world'/, "World must be admitted to the canonical sitemap");
+assert.equal(sitemapSource.includes("loc: '/beit-midrash'"), false, "retired Beit Midrash must not remain in sitemap");
+assert.match(sitemapSource, /\/topic\//, "canonical Topic/Convergence URLs must remain in sitemap");
+const legacyRedirects = Array.isArray(vercelConfig.redirects) ? vercelConfig.redirects : [];
+assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" && r.destination === "/world" && r.permanent === true && !r.has), true);
+assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash/(.*)" && r.destination === "/world" && r.permanent === true), true);
+assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" && r.destination === "/gematria" && r.has?.some?.((h) => h.type === "query" && h.key === "tab" && h.value === "calc")), true);
+assert.match(legacyApp, /path="\/beit-midrash" element=\{<Navigate to="\/world" replace \/>\}/);
+assert.match(legacyApp, /path="\/beit-midrash\/:method" element=\{<Navigate to="\/world" replace \/>\}/);
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);

@@ -74,7 +74,7 @@ const HOME_FEED_HIDE_CONV = new Set(["atzirut-hageula", "ezor-hayetzia-geula"]);
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
-  { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
+  { icon: "◌", label: "העולם", to: "/world" },
   { img: "/els-icon.png", label: "הצופן התנכי", to: "/code" },   // 🔠 לוגו-הצופן האמיתי (כמו בתוך התוכנה)
   { icon: "🖼️", label: "גלריות", to: "/archive" },
   { icon: "🌅", label: "ציר ההתגלות", to: "/timeline" },
@@ -185,7 +185,7 @@ export default function HomeNewPage() {
   }, []);
 
   useEffect(() => {
-    applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
+    applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "עולם המחקר של סוד 1820 — התכנסויות, מספרים, מקורות וחכמת הקשרים.", path: "/home-new" });
     // «עדכונים אחרונים» — פוסטים לבית דרך המקור הקנוני היחיד (homeUpdates.fetchHomePosts):
     // אותה שאילתה + אותו סינון «לא-בבית»/«הינוקא»/home_hidden. מקור-אמת אחד, משותף עם פוסט/צ'אט.
     fetchHomePosts().then(r => { setPosts(r); markSeenKey("home-posts"); }).catch(() => {});
@@ -638,7 +638,7 @@ export default function HomeNewPage() {
           ))}
         </div>
 
-        {/* 💬 מהפורום — ההודעה האחרונה בשורה אחת + הפניה לכתוב חידוש בבית המדרש */}
+        {/* 💬 מהפורום — ההודעה האחרונה בשורה אחת + הפניה לכתוב חידוש בעולם */}
         <HomeForumTile />
 
         {/* ❓ מה זה גימטריה — מסביר קצר, תחת הריבועים (ליד «בית המדרש») */}
@@ -683,7 +683,7 @@ export default function HomeNewPage() {
         <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
         {/* 🔒 חיפושים = סודיים. לגולש RecentSearches רק משכפל את ActivityPulse הקומפקטי מלמעלה →
             מציגים אותו לאדמין בלבד (חיפושים אמיתיים). הציבור נשאר עם דופק-פעילות אחד, בלי כפילות ובלי טיזר. */}
-        {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>}
+        {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/research" /></div>}
         <div style={{ marginTop: 14 }}><CommunityWordsBox max={4} /></div>
       </section>
 
@@ -741,14 +741,14 @@ export default function HomeNewPage() {
         </section>
       )}
 
-      {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש; עוגן-גלילה מהפוסט) ===== */}
+      {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לעולם; עוגן-גלילה מהפוסט) ===== */}
       <section id="one-tree" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
         <OneTreeWidget />
       </section>
 
-      {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
+      {/* ===== חדשות העולם · LIVE (צירי התכנסות) ===== */}
       <section id="conv-home" className="hn-wrap" style={{ padding: "0 18px 60px", scrollMarginTop: 74 }}>
-        <HomeHeader title={<><LiveTag label="LIVE" /> · חדשות בית המדרש</>}
+        <HomeHeader title={<><LiveTag label="LIVE" /> · חדשות העולם</>}
           sub="ארבע ההתכנסויות האחרונות — החדש מודגש" />
         <div className="hn-postgrid">
           {liveCards.map(c => {

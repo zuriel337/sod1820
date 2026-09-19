@@ -150,7 +150,7 @@ export const KNOWLEDGE_WORLDS = [
     title:"📚 ספרים, כתבים ומקורות", kicker:"לא רק לקרוא ספר עתיק — לחקור אותו מחדש", stat:"30 זהויות ספר · 23,204 פסוקים", trackId:"books",
     publicCopy:"המקורות הופכים בהדרגה למרחב מחקר: מילים, שמות, מספרים, פסוקים, צפנים, נושאים וקשרים. 6 זהויות ספר פעילות ו-24 ספרי תנ״ך כבר במודל במצב הכנה.",
     items:[
-      {label:"בית המדרש",emoji:"📖",to:"/beit-midrash",note:"טקסט, פסוק ושיטות"},
+      {label:"העולם",emoji:"◌",to:"/world",note:"טקסט, פסוק ושיטות"},
       {label:"חיפוש פסוקים וגימטריה",emoji:"📜",to:"/verse-gematria",note:"חיפוש בתוך 23,204 פסוקי התנ״ך"},
       {label:"מקורות וטקסטים",emoji:"▤",locked:true,state:"בבנייה",note:"אינדקס מקורות ציבורי ייפתח בהדרגה"},
       {label:"מחקרי מקור",emoji:"📚",locked:true,state:"בתהליך",note:"אהבת תורה · ספר הפליאה"},
@@ -221,7 +221,7 @@ export const QUICK_NAV_GROUPS = [
   {title:"🔬 לחקור",items:[
     {label:"דף המספר",emoji:"🔢",to:"/number",fav:true},
     {label:"מספרים",emoji:"✺",to:"/numbers"},
-    {label:"בית המדרש",emoji:"📖",to:"/beit-midrash",fav:true},
+    {label:"העולם",emoji:"◌",to:"/world",fav:true},
     {label:"דילוגי אותיות",emoji:"🔠",to:"/code",icon:"dilugim",fav:true},
     {label:"ספריית צפנים",emoji:"▦",to:"/codes"},
     {label:"מחשבון מקצועי",emoji:"🧮",to:"/research?tool=gematria",fav:true}

@@ -129,7 +129,7 @@ export function buildCrossCard(item) {
 
   // פוטר
   g.fillStyle = "#c9a227"; g.font = "700 28px 'Heebo', sans-serif"; g.direction = "ltr";
-  g.fillText("sod1820.co.il/beit-midrash", S / 2, S - 72);
+  g.fillText("sod1820.co.il/world", S / 2, S - 72);
 
   return cv;
 }

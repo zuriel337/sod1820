@@ -81,7 +81,7 @@ export function OneTreeWidget() {
           const m = type === "bridges" ? { emoji: "🌍", label: "גשרי-שפה" } : (rel[type] || { emoji: "•", label: type });
           const rad = r(count);
           const midX = (trunkX + x) / 2, midY = Math.min(crownY, y) - 14;   // עיקול כלפי מעלה
-          const go = () => nav(`/beit-midrash?atlas=${encodeURIComponent(type)}`);
+          const go = () => nav("/world");
           return (
             <g key={type} onClick={go} style={{ cursor: "pointer" }} role="link" aria-label={`${m.label} — ${count} ממצאים`}>
               <path d={`M ${trunkX} ${crownY} Q ${midX} ${midY} ${x} ${y + rad - 3}`} className="ot-branch" fill="none" strokeWidth="2.5" strokeLinecap="round" opacity="0.75" />
@@ -95,8 +95,8 @@ export function OneTreeWidget() {
       {/* השורשים — ממה העץ ניזון */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 8 }}>
         {[
-          { e: "🌱", t: `${(stats.axis_words || 0).toLocaleString("he")} מילים בציר`, to: "/beit-midrash" },
-          { e: "⚓", t: `${stats.anchors || 0} עוגנים`, to: "/beit-midrash" },
+          { e: "🌱", t: `${(stats.axis_words || 0).toLocaleString("he")} מילים בציר`, to: "/world" },
+          { e: "⚓", t: `${stats.anchors || 0} עוגנים`, to: "/world" },
           { e: "🧩", t: `${stats.families_approved || 0} משפחות`, to: "/beit-midrash?atlas=all" },
           { e: "🌍", t: `${stats.bridges || 0} גשרי-שפה`, to: "/beit-midrash?atlas=bridges" },
         ].map((c, i) => (
@@ -105,14 +105,14 @@ export function OneTreeWidget() {
           </Link>
         ))}
       </div>
-      <Link to="/beit-midrash?atlas=all" style={{ display: "inline-block", marginTop: 12, textDecoration: "none", color: "var(--ot-btn-ink)", background: `linear-gradient(135deg, var(--otg), var(--ot-trunk))`, borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
-        🌳 לכל הממצאים שנבדקו — בבית המדרש ←
+      <Link to="/world" style={{ display: "inline-block", marginTop: 12, textDecoration: "none", color: "var(--ot-btn-ink)", background: `linear-gradient(135deg, var(--otg), var(--ot-trunk))`, borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+        🌳 לכל הממצאים שנבדקו — בעולם ←
       </Link>
     </div>
   );
 }
 
-// ===== 🌳 אטלס הממצאים בבית המדרש — טאבים לפי יחס + 🌍 שפות =====
+// ===== 🌳 אטלס הממצאים בעולם — טאבים לפי יחס + 🌍 שפות =====
 export function AtlasFindings({ mode = "light" }) {
   // 🎨 חוק הדו-צבעיות (atlas_dual_theme_law): שני מצבים מובנים דרך פלטה scoped — לא inline קשיח.
   // בבית-המדרש (משטח בהיר, research_workspace_law) → light; על משטח כהה → mode="dark".

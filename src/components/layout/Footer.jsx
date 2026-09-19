@@ -17,9 +17,8 @@ const DISCOVER_LINKS = [
 ];
 
 const RESEARCH_LINKS = [
-  { label: "העולם", state: "בבנייה" },
   { label: "היכל", to: "/research" },
-  { label: "בית המדרש", to: "/beit-midrash" },
+  { label: "העולם", to: "/world" },
   { label: "דף המספר", to: "/number" },
   { label: "דילוגי אותיות", to: "/code" },
 ];
@@ -193,7 +192,7 @@ export default function Footer() {
             <div>מרכז הידע הראשי שמחבר ישויות, נושאים, מקורות וקשרים.</div>
           </div>
           <div className="foot-states">
-            <div className="foot-state"><b>● פעיל</b><span>פוסטים · ארכיון · דף המספר · בית המדרש · דילוגי אותיות</span></div>
+            <div className="foot-state"><b>● פעיל</b><span>פוסטים · ארכיון · העולם · דף המספר · דילוגי אותיות</span></div>
             <div className="foot-state"><b>◐ בבנייה</b><span>העולם · המחקר שלי · מעקב ועדכונים</span></div>
             <div className="foot-state"><b>○ בהמשך</b><span>שפות · שכבות עומק · חוויות מרחביות</span></div>
           </div>

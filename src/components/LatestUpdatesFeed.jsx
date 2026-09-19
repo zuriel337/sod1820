@@ -134,13 +134,13 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
   );
 
   const convCard = (o, i) => (
-    <Link key={"cv" + (o.slug || i)} to={o.slug ? `/topic/${encodeURIComponent(o.slug)}` : "/beit-midrash"} className="luf-card" style={{ "--acc": cGilui }}>
+    <Link key={"cv" + (o.slug || i)} to={o.slug ? `/topic/${encodeURIComponent(o.slug)}` : "/world"} className="luf-card" style={{ "--acc": cGilui }}>
       <div className="luf-media">{o.num != null ? <span className="luf-num">{o.num}</span> : <GiluiLogo s={26} />}</div>
       <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל · 🔢 התכנסות</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
     </Link>
   );
   const cipherCard = (o, i) => (
-    <Link key={"cp" + i} to={o.num != null ? `/number/${o.num}` : "/beit-midrash"} className="luf-card" style={{ "--acc": cGilui }}>
+    <Link key={"cp" + i} to={o.num != null ? `/number/${o.num}` : "/world"} className="luf-card" style={{ "--acc": cGilui }}>
       <div className="luf-media">{o.num != null ? <span className="luf-num">{o.num}</span> : <GiluiLogo s={26} />}</div>
       <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל · ✦ צופן</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
     </Link>

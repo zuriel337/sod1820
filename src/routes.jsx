@@ -7,7 +7,7 @@ export const NAV = [
   { label: "מרכז הניווט", emoji: "🗺️", to: "/map" },
   { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline" },
   { label: "עץ ההתכנסויות", emoji: "🌳", to: "/numbers" },
-  { label: "בית המדרש", emoji: "📚", to: "/beit-midrash" },
+  { label: "העולם", emoji: "◌", to: "/world" },
   { label: "פוסטים", emoji: "📖", to: "/post" },
   { label: "זרם המציאות", emoji: "🌊", to: "/archive?tab=reality" },
   { label: "מרכז השידורים", emoji: "📡", to: "/broadcasts" },
@@ -31,7 +31,7 @@ export const NAV = [
 // שורת התפריט הראשית = מוצרים בלבד (דף עצמאי שראוי לחיפוש-גוגל משלו).
 // כלים חיים בתוך «היכל»; תוכן/קהילה נגישים דרך «עוד ▾» / מרכז הניווט.
 export const PRIMARY_KEYS = [
-  "/", "/number", "/code", "/beit-midrash", "/research", "/community",
+  "/", "/world", "/number", "/code", "/research", "/community",
 ];
 
 // SEO לכל route. דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם.
@@ -45,7 +45,7 @@ export const ROUTE_META = {
   "/map":           { title: "מרכז הניווט", description: "מפת האתר החיה — כל מערכות SOD1820 במקום אחד." },
   "/timeline":      { title: "ציר ההתגלות", description: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים." },
   "/numbers":       { title: "עץ ההתכנסויות", description: "עץ ההתכנסויות האינטראקטיבי — קשרים בין מספרים, מושגים ואירועים." },
-  "/beit-midrash":  { title: "בית המדרש", description: "לימוד שיטות הגימטריה — מסתתר, קדמי, מילוי, אלב\"ם, אתב\"ש ועוד." },
+  "/world":         { title: "העולם", description: "עולם המחקר של SOD1820 — התכנסויות, מספרים, מקורות, חוקרים ומסעות גילוי." },
   "/post":          { title: "פוסטים אחרונים", description: "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון." },
   "/archive":       { title: "ארכיון ההתגלות", description: "כל התמונות, הצפנים והממצאים במקום אחד — עם סינון וחיבור לעץ המספרים." },
   "/gallery-updates": { title: "עדכוני גלריה", description: "עדכוני הגלריה האחרונים — תצלומי חדשות וממצאים טריים, כל אחד מחובר למספר ולגימטריה שלו." },

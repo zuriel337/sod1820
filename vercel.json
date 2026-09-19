@@ -1,6 +1,40 @@
 {
   "redirects": [
     {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "tab", "value": "calc" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "w" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "n" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "calc" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "destination": "/world",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash/(.*)",
+      "destination": "/world",
+      "permanent": true
+    },
+    {
       "source": "/פוסטים-אחרונים-2",
       "destination": "/post",
       "permanent": true

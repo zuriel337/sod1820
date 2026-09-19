@@ -336,7 +336,7 @@ export default function EntityHubPreviewPage() {
             {declaredLenses.length ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>{declaredLenses.slice(0, 10).map(lens => <span key={lens} style={chipStyle()}>{lens}</span>)}</div> : null}
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 18 }}>
               {isNumber ? <Link to={`/number/${encodeURIComponent(identity.label)}`} style={{ textDecoration: "none", background: C.gold, color: C.onGold, padding: "10px 16px", borderRadius: 999, fontWeight: 900 }}>הדף הקיים ←</Link> : null}
-              <Link to="/beit-midrash" style={{ textDecoration: "none", border: `1px solid ${C.gold2}`, color: C.gold, padding: "10px 16px", borderRadius: 999, fontWeight: 850 }}>בית המדרש ←</Link>
+              <Link to="/world" style={{ textDecoration: "none", border: `1px solid ${C.gold2}`, color: C.gold, padding: "10px 16px", borderRadius: 999, fontWeight: 850 }}>העולם ←</Link>
             </div>
           </div>
           {heroImages.length ? <div className="eh-mosaic" style={{ display: "grid", gridTemplateColumns: "1.35fr .65fr", gridTemplateRows: "1fr 1fr", minHeight: 360, gap: 7 }}>

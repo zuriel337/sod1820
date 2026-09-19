@@ -159,7 +159,7 @@ export default function NumberSearchPage() {
 
       {/* 🕒 חיפושים אחרונים — מקור מאוחד, 6 אחרונים, "כל החיפושים" → טאב "מה נחקר" */}
       <div style={{ marginTop: 18, width: "min(620px,94vw)" }}>
-        <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" />
+        <RecentSearches max={6} light={P.mode === "light"} seeAllTo="/research" />
       </div>
 
       <div style={{ marginTop: 34, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1 }}>
