@@ -30,6 +30,11 @@ assert.match(intake, /story_first_selective/);
 assert.match(intake, /private_channel_media_access/);
 assert.match(intake, /createSignedUrl\(resolved\.path, 300\)/);
 assert.match(intake, /HEAVY_CHANNELS\.has\(row\.channel\)/);
+assert.match(intake, /source_preserved_needs_transcription/);
+assert.match(intake, /extracted_caption_media_needs_transcription/);
+assert.match(intake, /extracted_caption_media_needs_ocr/);
+assert.match(intake, /maxAttempts < 3/);
+assert.match(intake, /30 \* 60 \* 1000/);
 
 // Resource trim + existing health owner, not a parallel watchdog.
 assert.match(migration, /when 'or-geula' then 5/);
