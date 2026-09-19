@@ -85,6 +85,12 @@ jobs:
       - name: Start isolated 2029 preview
         run: |
           cp dist/2029.html dist/index.html
+          # Vite preview applies clean-URL static resolution, so public/heichal.html
+          # would win for /heichal. Production Vercel explicitly rewrites /heichal
+          # to /2029.html first (asserted by test-2029-isolation.mjs). Remove only
+          # this copied Legacy artifact in the isolated preview so browser acceptance
+          # exercises the same 2029 routing contract as production.
+          rm -f dist/heichal.html
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-2029-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/world >/dev/null; then exit 0; fi
