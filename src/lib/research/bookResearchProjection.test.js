@@ -14,6 +14,9 @@ import {
   DEFAULT_BOOK_INDEX_LIMIT,
   MAX_BOOK_INDEX_LIMIT,
   buildBookListQuery,
+  buildBookResearchPresentation,
+  bookResearchNeedsReview,
+  bookResearchVerificationLabel,
 } from "./bookResearchProjection.js";
 
 // Synthetic Book identity fixtures only — no real Book/private content.
@@ -259,4 +262,72 @@ test("researchRowToBookRepresentation: legacy row with no rich segments fails cl
   const rep = researchRowToBookRepresentation(row);
   assert.equal(rep.sourceLocator.page, 31);
   assert.deepEqual(rep.sourceLocator.segments, []);
+});
+
+
+test("buildBookResearchPresentation: groups shapes into human Book families without changing truth status", () => {
+  const rows = [
+    {
+      id: "30000000-0000-0000-0000-000000000001",
+      statement: "[synthetic procedure]",
+      source_ref: "book:synthetic#p1:x",
+      status: "candidate",
+      engine_verified: false,
+      engine_detail: { verification_state: "source_witness_verified" },
+      meta: { ext: { procedure: { steps: [{ operation: "synthetic" }] } } },
+    },
+    {
+      id: "30000000-0000-0000-0000-000000000002",
+      statement: "[synthetic matrix]",
+      source_ref: "book:synthetic#p2:y",
+      status: "approved",
+      engine_verified: false,
+      engine_detail: { verification_state: "not_tested" },
+      meta: { ext: { procedure: { matrix: [["a", "b"]] } } },
+    },
+    {
+      id: "30000000-0000-0000-0000-000000000003",
+      statement: "[synthetic term]",
+      source_ref: "book:synthetic#p3:z",
+      status: "canonical",
+      engine_verified: false,
+      engine_detail: { verification_state: "not_tested" },
+      terms: ["synthetic"],
+    },
+  ];
+  const presentation = buildBookResearchPresentation(rows);
+  assert.equal(presentation.total, 3);
+  assert.equal(presentation.candidateCount, 1);
+  assert.deepEqual(presentation.groups.map(g => [g.id, g.items.length]), [
+    ["methods", 1],
+    ["structures", 1],
+    ["findings", 1],
+  ]);
+  assert.equal(presentation.groups[0].items[0].statusLabel, "מועמד מחקר");
+  assert.equal(presentation.groups[1].items[0].statusLabel, "מאושר");
+  assert.equal(presentation.groups[2].items[0].statusLabel, "קנוני");
+});
+
+test("review projection only flags explicit unresolved/pending/mismatch-style verification signals", () => {
+  const stable = { engine_detail: { verification_state: "not_tested" } };
+  const pending = { engine_detail: { verification_state: "source_procedure_pdf_pending" } };
+  const mismatch = { engine_detail: { verification_state: "component_verified_representation_mismatch" } };
+  assert.equal(bookResearchNeedsReview(stable), false);
+  assert.equal(bookResearchNeedsReview(pending), true);
+  assert.equal(bookResearchNeedsReview(mismatch), true);
+});
+
+test("verification label keeps source verification distinct from engine verification", () => {
+  assert.equal(
+    bookResearchVerificationLabel({ engine_verified: true, engine_detail: { verification_state: "match" } }),
+    "חישוב אומת במנוע"
+  );
+  assert.equal(
+    bookResearchVerificationLabel({ engine_verified: false, engine_detail: { verification_state: "source_witness_verified" } }),
+    "המקור אומת"
+  );
+  assert.equal(
+    bookResearchVerificationLabel({ engine_verified: false, engine_detail: { verification_state: "not_applicable" } }),
+    "אימות מנוע לא רלוונטי"
+  );
 });
