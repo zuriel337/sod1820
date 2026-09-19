@@ -135,6 +135,7 @@ A user-facing operation that takes perceptible time must have a living presence.
 - **Background/minimize/cancel are capability-dependent.** Offer “הקטן והמשך ברקע” or Cancel only when the owning job/runtime really supports persistence/cancellation. UI copy may not promise background work that would stop on navigation.
 - **Stable geometry is mandatory.** Loading → ready transitions reserve enough layout space to avoid unnecessary CLS. Do not insert/remove a transient loading row in a way that pushes already-painted content. Prefer a stable slot whose copy/state changes.
 - **Accessibility is semantic, not decorative.** Use `aria-busy`, polite live status, a real `progressbar` when applicable, keyboard-safe controls and `prefers-reduced-motion`. Motion cannot be the only indication of progress.
+- **One semantic component, localization-ready copy.** Visible waiting copy may be injected/adapted through the existing `content_translation_law` path; locale never forks the progress component or changes operational truth.
 - **Truth remains unchanged.** A beautiful/active waiting experience does not upgrade a Finding, Claim, Evidence or result. Partial/contextual material remains visibly separate from the pending answer.
 - **Migration rule.** This is forward law for 2029/new/redesigned surfaces. Legacy loaders migrate when their owning surface enters an explicit redesign or when the loader itself is being materially changed; no blind repository-wide replacement.
 
