@@ -382,6 +382,26 @@ Before English Golden Locale and mass entity surfaces:
 
 Existing `applySeo` / OG/card / observability gate remain owners/primitives; do not build SEO v2 in parallel.
 
+
+#### 7D.1 World / Convergence Search + AI Discovery migration
+
+Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`.
+
+Current migration contract:
+- `/world` = public discovery/product hub; add it to the existing sitemap rail and keep one canonical URL;
+- `/topic/:slug` = canonical public Convergence identity; user-facing Hebrew label is `התכנסות`, while storage/compatibility names may remain Topic/Convergence;
+- App2029 must gain a native `/topic/:slug` renderer before Legacy Topic presentation is retired;
+- public Topic/indexability is a Search decision separate from Truth, approval and access; no meter_score-only gate;
+- census existing public Topic URLs before any bulk noindex/deindex change; preserve existing SEO behavior by default until Human Gate approves a migration policy;
+- sitemap-public capability filtering must align with the same live Convergence availability state as the public route/surface;
+- native Topic 2029 must preserve canonical/meta/robots/sitemap/OG/structured-data/internal-link parity and semantic HTML;
+- World/Number/Researcher/Source projections link to the same canonical Topic identity rather than minting World-specific URLs;
+- machine/AI representations project the same public Findings/provenance/truth distinctions; no AI-only truth page/store;
+- RSS/JSON Feed/public machine endpoint/hreflang are later projections after native Topic + Search admission are proven;
+- `/beit-midrash` routes remain protected SEO addresses until a separate Human-Gate inbound/redirect decision.
+
+**Immediate exit gate:** `/world` sitemap parity + capability-aware Topic sitemap parity + public Topic census + native Topic 2029 acceptance plan are complete without changing existing canonical Topic URLs.
+
 ### 7E Cache / projection version rail
 
 For reusable expensive outputs define:
@@ -465,6 +485,7 @@ Rules:
 Current:
 
 - native System Frame + baseline World is already released/live.
+- World Discovery entrance + canonical `התכנסות/התכנסויות` vocabulary are released/live via PR #553; next dependency is native canonical Topic/Convergence rendering + SEO parity, not another World-local Topic system.
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
