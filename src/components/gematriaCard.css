@@ -8,7 +8,7 @@
   background:
     radial-gradient(circle at 92% 0%,color-mix(in srgb,var(--gc-glow) 22%,transparent),transparent 32%),
     var(--gc-panel-grad);
-  box-shadow:0 12px 34px color-mix(in srgb,#000 8%,transparent),inset 0 1px color-mix(in srgb,#fff 6%,transparent);
+  box-shadow:0 12px 34px color-mix(in srgb,var(--gc-ink) 8%,transparent),inset 0 1px color-mix(in srgb,var(--gc-panel) 74%,transparent);
   overflow:hidden;
   transition:border-color .18s cubic-bezier(.2,0,0,1),box-shadow .18s cubic-bezier(.2,0,0,1);
 }
@@ -18,7 +18,7 @@
 }
 .sod-gematria-card button{font:inherit}
 .sod-gematria-card button:focus-visible{
-  outline:2px solid color-mix(in srgb,var(--gc-accent) 78%,#fff);
+  outline:2px solid color-mix(in srgb,var(--gc-accent) 78%,var(--gc-panel));
   outline-offset:2px;
 }
 .sod-gematria-card button:disabled{cursor:default;opacity:.62}
@@ -349,7 +349,7 @@
 }
 .sod-gematria-card.is-post .sod-gematria-card__summary{min-height:62px}
 .sod-gematria-card.is-post:not(.is-expanded){
-  box-shadow:0 8px 26px color-mix(in srgb,#000 7%,transparent);
+  box-shadow:0 8px 26px color-mix(in srgb,var(--gc-ink) 7%,transparent);
 }
 
 @media(max-width:820px){
