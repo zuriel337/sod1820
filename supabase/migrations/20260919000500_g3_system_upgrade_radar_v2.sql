@@ -74,7 +74,9 @@ declare
   v_delta text;
   v_dep_conf int;
   v_impact text;
-  v_node_current text := '24.21.0';
+  v_lock jsonb;
+  v_current text;
+  v_node_current text;
   v_node_latest text;
   v_node_maj int; v_node_min int; v_node_pat int;
   v_node_lat_maj int; v_node_lat_min int; v_node_lat_pat int;
@@ -120,155 +122,197 @@ begin
     if found then n_raised := n_raised + 1; end if;
   end if;
 
-  -- גלאי 3: רדאר שדרוגי-תלות — Foundation packages מול registry.npmjs.org בלבד (stable "latest").
-  -- allowlist קשיח: שם חבילה + הגרסה הנעוצה כרגע ב-package.json (ידנית, כפי שנקרא בעת כתיבת
-  -- המיגרציה הזו) — אין טבלת-Registry חדשה, זו רשימה קשיחה בקוד בלבד.
+  -- גלאי 3: רדאר שדרוגי-תלות.
+  -- Current-version authority is the lockfile/.nvmrc on origin/main, fetched only from the
+  -- fixed SOD1820 raw GitHub paths below. Package names are a fixed allowlist; no URL/host comes
+  -- from a user, DB row or suggestion payload.
   perform extensions.http_set_curlopt('CURLOPT_TIMEOUT_MS', '3000');
-  for v_pkg in
-    select * from (values
-      ('react',                 '19.3.0'),
-      ('react-dom',              '19.3.0'),
-      ('react-router-dom',       '7.18.4'),
-      ('vite',                   '8.3.0'),
-      ('@vitejs/plugin-react',   '6.1.1'),
-      ('@supabase/supabase-js',  '2.116.0'),
-      ('@vercel/edge',           '1.3.3'),
-      ('@vercel/og',             '0.11.1'),
-      ('@hebcal/core',           '6.9.2')
-    ) as t(pkg_name, current_version)
-  loop
-    begin
-      v_latest := null;
+
+  v_lock := null;
+  begin
+    select status, content into v_resp
+      from extensions.http((
+        'GET',
+        'https://raw.githubusercontent.com/zuriel337/sod1820/main/package-lock.json',
+        array[]::extensions.http_header[],
+        null,
+        null
+      )::extensions.http_request);
+    if v_resp.status = 200 and v_resp.content is not null then
+      v_lock := v_resp.content::jsonb;
+    end if;
+  exception when others then
+    v_lock := null;
+  end;
+
+  if v_lock is not null then
+    for v_pkg in
+      select * from (values
+        ('react'),
+        ('react-dom'),
+        ('react-router-dom'),
+        ('vite'),
+        ('@vitejs/plugin-react'),
+        ('@supabase/supabase-js'),
+        ('@vercel/edge'),
+        ('@vercel/og'),
+        ('@hebcal/core')
+      ) as t(pkg_name)
+    loop
+      begin
+        v_current := v_lock #>> array['packages', 'node_modules/' || v_pkg.pkg_name, 'version'];
+        if v_current is null or v_current = '' or v_current ~ '-'
+           or v_current !~ '^[0-9]+[.][0-9]+[.][0-9]+$' then
+          continue;
+        end if;
+
+        v_latest := null;
+        select status, content into v_resp
+          from extensions.http((
+            'GET',
+            'https://registry.npmjs.org/' || replace(v_pkg.pkg_name, '/', '%2F') || '/latest',
+            array[]::extensions.http_header[],
+            null,
+            null
+          )::extensions.http_request);
+
+        if v_resp.status <> 200 or v_resp.content is null then
+          continue;
+        end if;
+
+        v_latest := (v_resp.content::jsonb ->> 'version');
+        if v_latest is null or v_latest = '' or v_latest ~ '-'
+           or v_latest !~ '^[0-9]+[.][0-9]+[.][0-9]+$' then
+          continue;
+        end if;
+
+        v_cur_maj := split_part(v_current, '.', 1)::int;
+        v_cur_min := split_part(v_current, '.', 2)::int;
+        v_cur_pat := split_part(v_current, '.', 3)::int;
+        v_lat_maj := split_part(v_latest, '.', 1)::int;
+        v_lat_min := split_part(v_latest, '.', 2)::int;
+        v_lat_pat := split_part(v_latest, '.', 3)::int;
+
+        v_delta := null;
+        if v_lat_maj > v_cur_maj then
+          v_delta := 'major'; v_dep_conf := 55;
+        elsif v_lat_maj = v_cur_maj and v_lat_min > v_cur_min then
+          v_delta := 'minor'; v_dep_conf := 75;
+        elsif v_lat_maj = v_cur_maj and v_lat_min = v_cur_min and v_lat_pat > v_cur_pat then
+          v_delta := 'patch'; v_dep_conf := 90;
+        end if;
+
+        if v_delta is not null then
+          v_impact := case v_delta
+            when 'patch' then format('שדרוג patch בטוח יחסית (%s → %s) — להריץ CI מלא לפני שחרור', v_current, v_latest)
+            when 'minor' then format('שדרוג minor (%s → %s) — לבדוק Changelog ותאימות לפני שחרור', v_current, v_latest)
+            else format('שדרוג MAJOR (%s → %s) — דורש Foundation Gate לפני שחרור', v_current, v_latest)
+          end;
+          perform suggest_add(
+            'performance', 'dependency_upgrade_radar',
+            format('עדכון %s זמין: %s → %s (%s)', v_pkg.pkg_name, v_current, v_latest, v_delta),
+            'הגרסה הנוכחית נקראה מ-package-lock.json של origin/main; הגרסה החדשה מתג latest היציב של registry.npmjs.org. גרסאות prerelease אינן נספרות.',
+            jsonb_build_object(
+              'package', v_pkg.pkg_name,
+              'current', v_current,
+              'latest', v_latest,
+              'delta', v_delta,
+              'current_source', 'raw.githubusercontent.com/zuriel337/sod1820/main/package-lock.json',
+              'latest_source', 'registry.npmjs.org'
+            ),
+            v_dep_conf, 1, v_impact,
+            'dependency_upgrade:' || v_pkg.pkg_name || ':' || v_latest
+          );
+          if found then n_raised := n_raised + 1; end if;
+        end if;
+      exception when others then
+        continue;
+      end;
+    end loop;
+  end if;
+
+  -- Node LTS radar: current runtime comes from origin/main .nvmrc; the latest release is selected
+  -- only from the same pinned major and only where the official Node feed marks it as LTS.
+  v_node_current := null;
+  begin
+    select status, content into v_resp
+      from extensions.http((
+        'GET',
+        'https://raw.githubusercontent.com/zuriel337/sod1820/main/.nvmrc',
+        array[]::extensions.http_header[],
+        null,
+        null
+      )::extensions.http_request);
+    if v_resp.status = 200 and v_resp.content is not null then
+      v_node_current := regexp_replace(btrim(v_resp.content, E' \t\n\r'), '^v', '');
+    end if;
+
+    if v_node_current ~ '^[0-9]+[.][0-9]+[.][0-9]+$' then
+      v_node_maj := split_part(v_node_current, '.', 1)::int;
+      v_node_min := split_part(v_node_current, '.', 2)::int;
+      v_node_pat := split_part(v_node_current, '.', 3)::int;
+      v_node_latest := null;
+
       select status, content into v_resp
         from extensions.http((
           'GET',
-          'https://registry.npmjs.org/' || replace(v_pkg.pkg_name, '/', '%2F') || '/latest',
+          'https://nodejs.org/dist/index.json',
           array[]::extensions.http_header[],
           null,
           null
         )::extensions.http_request);
 
-      if v_resp.status <> 200 or v_resp.content is null then
-        continue; -- registry error/non-200 for this package: skip it, never abort the pass
+      if v_resp.status = 200 and v_resp.content is not null then
+        select regexp_replace(entry ->> 'version', '^v', '')
+          into v_node_latest
+        from jsonb_array_elements(v_resp.content::jsonb) entry
+        where (entry ->> 'version') ~ ('^v' || v_node_maj::text || '[.][0-9]+[.][0-9]+$')
+          and jsonb_typeof(entry -> 'lts') = 'string'
+        order by
+          split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 2)::int desc,
+          split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 3)::int desc
+        limit 1;
       end if;
 
-      v_latest := (v_resp.content::jsonb ->> 'version');
-      -- semver.org §9: any hyphen marks a pre-release identifier. Reject rather than guess.
-      if v_latest is null or v_latest = '' or v_latest ~ '-' then
-        continue;
-      end if;
+      if v_node_latest is not null and v_node_latest !~ '-' then
+        v_node_lat_maj := split_part(v_node_latest, '.', 1)::int;
+        v_node_lat_min := split_part(v_node_latest, '.', 2)::int;
+        v_node_lat_pat := split_part(v_node_latest, '.', 3)::int;
+        v_delta := null;
 
-      v_cur_maj := split_part(v_pkg.current_version, '.', 1)::int;
-      v_cur_min := split_part(v_pkg.current_version, '.', 2)::int;
-      v_cur_pat := split_part(v_pkg.current_version, '.', 3)::int;
-      v_lat_maj := split_part(v_latest, '.', 1)::int;
-      v_lat_min := split_part(v_latest, '.', 2)::int;
-      v_lat_pat := split_part(v_latest, '.', 3)::int;
+        if v_node_lat_maj = v_node_maj and v_node_lat_min > v_node_min then
+          v_delta := 'minor'; v_dep_conf := 85;
+        elsif v_node_lat_maj = v_node_maj and v_node_lat_min = v_node_min and v_node_lat_pat > v_node_pat then
+          v_delta := 'patch'; v_dep_conf := 95;
+        end if;
 
-      v_delta := null;
-      if v_lat_maj > v_cur_maj then
-        v_delta := 'major'; v_dep_conf := 55;
-      elsif v_lat_maj = v_cur_maj and v_lat_min > v_cur_min then
-        v_delta := 'minor'; v_dep_conf := 75;
-      elsif v_lat_maj = v_cur_maj and v_lat_min = v_cur_min and v_lat_pat > v_cur_pat then
-        v_delta := 'patch'; v_dep_conf := 90;
-      end if;
-      -- v_delta stays null (no suggestion raised) whenever latest <= current — including when
-      -- current is already the latest published stable version.
-
-      if v_delta is not null then
-        v_impact := case v_delta
-          when 'patch' then format('שדרוג patch בטוח יחסית (%s → %s) — לבדוק Changelog לתיקוני אבטחה/תקלות', v_pkg.current_version, v_latest)
-          when 'minor' then format('שדרוג minor (%s → %s) — תאימות-לאחור צפויה; לבדוק Changelog לפני שדרוג', v_pkg.current_version, v_latest)
-          else format('שדרוג MAJOR (%s → %s) — עלול לכלול שינויים שוברי-תאימות; דורש בדיקת Foundation לפני שדרוג', v_pkg.current_version, v_latest)
-        end;
-        perform suggest_add(
-          'performance', 'dependency_upgrade_radar',
-          format('עדכון %s זמין: %s → %s (%s)', v_pkg.pkg_name, v_pkg.current_version, v_latest, v_delta),
-          'נבדק מול רשם-החבילות הרשמי (registry.npmjs.org), תג ה-"latest" היציב בלבד; גרסאות alpha/beta/rc/canary/nightly לעולם אינן נספרות.',
-          jsonb_build_object(
-            'package', v_pkg.pkg_name,
-            'current', v_pkg.current_version,
-            'latest', v_latest,
-            'delta', v_delta,
-            'source', 'registry.npmjs.org'
-          ),
-          v_dep_conf, 1, v_impact,
-          'dependency_upgrade:' || v_pkg.pkg_name || ':' || v_latest
-        );
-        if found then n_raised := n_raised + 1; end if;
-      end if;
-    exception when others then
-      continue; -- fail closed: never let one package's failure break the watchman pass
-    end;
-  end loop;
-  perform extensions.http_reset_curlopt();
-
-  -- Node 24 LTS patch/minor radar — official Node distribution index only.
-  begin
-    perform extensions.http_set_curlopt('CURLOPT_TIMEOUT_MS', '3000');
-    v_node_latest := null;
-    select status, content into v_resp
-      from extensions.http((
-        'GET',
-        'https://nodejs.org/dist/index.json',
-        array[]::extensions.http_header[],
-        null,
-        null
-      )::extensions.http_request);
-
-    if v_resp.status = 200 and v_resp.content is not null then
-      select regexp_replace(entry ->> 'version', '^v', '')
-        into v_node_latest
-      from jsonb_array_elements(v_resp.content::jsonb) entry
-      where (entry ->> 'version') ~ '^v24[.][0-9]+[.][0-9]+$'
-        and jsonb_typeof(entry -> 'lts') = 'string'
-      order by
-        split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 2)::int desc,
-        split_part(regexp_replace(entry ->> 'version', '^v', ''), '.', 3)::int desc
-      limit 1;
-    end if;
-    perform extensions.http_reset_curlopt();
-
-    if v_node_latest is not null and v_node_latest !~ '-' then
-      v_node_maj := split_part(v_node_current, '.', 1)::int;
-      v_node_min := split_part(v_node_current, '.', 2)::int;
-      v_node_pat := split_part(v_node_current, '.', 3)::int;
-      v_node_lat_maj := split_part(v_node_latest, '.', 1)::int;
-      v_node_lat_min := split_part(v_node_latest, '.', 2)::int;
-      v_node_lat_pat := split_part(v_node_latest, '.', 3)::int;
-      v_delta := null;
-
-      if v_node_lat_maj = v_node_maj and v_node_lat_min > v_node_min then
-        v_delta := 'minor'; v_dep_conf := 85;
-      elsif v_node_lat_maj = v_node_maj and v_node_lat_min = v_node_min and v_node_lat_pat > v_node_pat then
-        v_delta := 'patch'; v_dep_conf := 95;
-      end if;
-
-      if v_delta is not null then
-        perform suggest_add(
-          'performance', 'dependency_upgrade_radar',
-          format('עדכון Node LTS זמין: %s → %s (%s)', v_node_current, v_node_latest, v_delta),
-          'נבדק מול index.json הרשמי של nodejs.org. הרדאר נשאר בתוך Node 24 LTS; מעבר LTS-major דורש Foundation Gate נפרד.',
-          jsonb_build_object(
-            'package', 'node',
-            'current', v_node_current,
-            'latest', v_node_latest,
-            'delta', v_delta,
-            'source', 'nodejs.org/dist/index.json',
-            'lts_major', 24
-          ),
-          v_dep_conf, 1,
-          format('עדכון Node 24 LTS (%s → %s) עשוי לכלול תיקוני אבטחה/יציבות; להריץ CI מלא לפני שחרור', v_node_current, v_node_latest),
-          'dependency_upgrade:node:' || v_node_latest
-        );
-        if found then n_raised := n_raised + 1; end if;
+        if v_delta is not null then
+          perform suggest_add(
+            'performance', 'dependency_upgrade_radar',
+            format('עדכון Node LTS זמין: %s → %s (%s)', v_node_current, v_node_latest, v_delta),
+            'הגרסה הנוכחית נקראה מ-.nvmrc של origin/main והגרסה החדשה מ-index.json הרשמי של nodejs.org. מעבר major נשאר Foundation Gate.',
+            jsonb_build_object(
+              'package', 'node',
+              'current', v_node_current,
+              'latest', v_node_latest,
+              'delta', v_delta,
+              'current_source', 'raw.githubusercontent.com/zuriel337/sod1820/main/.nvmrc',
+              'latest_source', 'nodejs.org/dist/index.json',
+              'lts_major', v_node_maj
+            ),
+            v_dep_conf, 1,
+            format('עדכון Node LTS בתוך major %s (%s → %s) — להריץ CI מלא לפני שחרור', v_node_maj, v_node_current, v_node_latest),
+            'dependency_upgrade:node:' || v_node_latest
+          );
+          if found then n_raised := n_raised + 1; end if;
+        end if;
       end if;
     end if;
   exception when others then
-    perform extensions.http_reset_curlopt();
-    -- fail closed: Node registry/feed failure never blocks the rest of system-watchman
+    null;
   end;
+
+  perform extensions.http_reset_curlopt();
 
   return jsonb_build_object('raised', n_raised, 'checked_at', now());
 end; $function$;
