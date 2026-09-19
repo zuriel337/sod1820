@@ -21,6 +21,7 @@ on:
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
+      - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
       - "scripts/test-2029-researcher-corpus.mjs"
       - "tests/world2029-release.spec.cjs"
@@ -46,6 +47,8 @@ jobs:
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
         run: node scripts/test-2029-system-frame.mjs
+      - name: Canonical 2029 contract wiring acceptance
+        run: node scripts/test-2029-canonical-contract-wiring.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
       - name: Native Researcher corpus acceptance
