@@ -4,7 +4,7 @@ const RESEARCH_PROMINENCE_FIELDS =
   "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,parent_id,evidence,owner_person_id,meta";
 
 const CROSS_METHOD_FIELDS =
-  "value,phrase_count,raw_phrase_count,dependent_expression_phrase_count,p1_hits,raw_p1_hits,methods,in_ragil,in_misratar,in_kadmi,signal,dependent_methods,dependent_phrase_count,unregistered_methods";
+  "value,phrase_count,independent_phrase_count,dependent_expression_phrase_count,p1_hits,independent_p1_method_count,methods,in_ragil,in_misratar,in_kadmi,signal,dependent_methods,dependent_phrase_count,unregistered_methods";
 
 function clean(value) {
   if (value == null) return null;
