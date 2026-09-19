@@ -12,7 +12,7 @@ const CEIL = 60 * 60 * 30;
 const STALE_RECOVERY_AFTER = 60 * 60;
 const NORMAL_HISTORY_COUNT = 30;
 const RECOVERY_HISTORY_COUNT = 1000;
-const RECOVERY_BATCH = 40;
+const RECOVERY_BATCH = 10;
 const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
 const BUCKET = "gallery";
 const MEDIA_DIR = "sod1820/broadcasts";
@@ -61,7 +61,13 @@ function channelStatus(channel: string): "live" | "private" {
   return RESEARCH_FIRST_CHANNELS.has(channel) ? "private" : "live";
 }
 
-async function rehost(url: string, msgId: string, kind: "image" | "video"): Promise<string | null> {
+async function rehost(
+  url: string,
+  msgId: string,
+  kind: "image" | "video",
+  privateMedia: boolean,
+  sourceTs: number,
+): Promise<string | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) { trace.push({ msgId, step: "fetch", status: res.status }); return null; }
@@ -69,6 +75,25 @@ async function rehost(url: string, msgId: string, kind: "image" | "video"): Prom
     if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
     const ct = res.headers.get("content-type") || (kind === "video" ? "video/mp4" : "image/jpeg");
     const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : ct.includes("webm") ? "webm" : ct.includes("video") ? "mp4" : "jpg";
+
+    if (privateMedia) {
+      const d = new Date(sourceTs * 1000);
+      const yyyy = String(d.getUTCFullYear());
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const submissionId = crypto.randomUUID();
+      const path = `sod1820/2029/unresolved/${yyyy}/${mm}/${submissionId}/${kind}/original.${ext}`;
+      const up = await sb.storage.from("submission-inbox").upload(path, buf, { contentType: ct, upsert: false });
+      if (up.error) { trace.push({ msgId, step: "private-upload", error: String(up.error.message || up.error) }); return null; }
+      const { data: obj, error: objErr } = await sb.schema("storage").from("objects")
+        .select("id").eq("bucket_id", "submission-inbox").eq("name", path).maybeSingle();
+      if (objErr || !obj?.id) {
+        trace.push({ msgId, step: "private-object-id", error: String(objErr?.message || "missing_id") });
+        return null;
+      }
+      // Persist only an opaque private object id. Never put a signed/private bucket path in channel_updates.
+      return `storage-object:${obj.id}`;
+    }
+
     const path = `${MEDIA_DIR}/${msgId}.${ext}`;
     const up = await sb.storage.from(BUCKET).upload(path, buf, { contentType: ct, upsert: true });
     if (up.error) { trace.push({ msgId, step: "upload", error: String(up.error.message || up.error) }); return null; }
@@ -178,7 +203,13 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
           dl = d?.result?.downloadUrl || d?.downloadUrl || "";
         } catch { /* noop */ }
       }
-      if (dl) imageUrl = await rehost(dl, msgId, isVid ? "video" : "image");
+      if (dl) imageUrl = await rehost(
+        dl,
+        msgId,
+        isVid ? "video" : "image",
+        RESEARCH_FIRST_CHANNELS.has(src.channel),
+        ts,
+      );
     }
 
     if (!bodyText && !imageUrl) continue;
