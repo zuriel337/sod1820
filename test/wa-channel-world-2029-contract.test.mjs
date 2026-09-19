@@ -37,6 +37,8 @@ assert.match(intake, /extracted_caption_media_needs_transcription/);
 assert.match(intake, /extracted_caption_media_needs_ocr/);
 assert.match(intake, /maxAttempts < 3/);
 assert.match(intake, /30 \* 60 \* 1000/);
+assert.match(intake, /processing_error_retry_pending/);
+assert.match(intake, /One malformed\/transient source must not abort/);
 
 // Resource trim + existing health owner, not a parallel watchdog.
 assert.match(migration, /when 'or-geula' then 5/);
