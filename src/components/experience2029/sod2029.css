@@ -113,6 +113,23 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
 .sod29-book-detail-hero{display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);gap:24px;align-items:center}
 .sod29-book-detail-hero .sod29-book-cover{margin:0;max-height:330px}
 
+.sod29-book-overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sod29-book-overview-card{min-height:122px;border:1px solid var(--s29-line);border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel-soft) 91%,transparent),color-mix(in srgb,var(--s29-panel) 82%,transparent));padding:16px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-width:0}
+.sod29-book-overview-card strong{font-size:clamp(20px,2.4vw,32px);line-height:1.1;color:var(--s29-hero);overflow-wrap:anywhere}
+.sod29-book-overview-card span{font-size:11px;color:var(--s29-muted);line-height:1.45}
+.sod29-book-families{display:grid;gap:12px}
+.sod29-book-family{border:1px solid var(--s29-line);border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel-soft) 88%,transparent),color-mix(in srgb,var(--s29-panel) 82%,transparent));overflow:hidden}
+.sod29-book-family>summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 17px;min-height:70px}
+.sod29-book-family>summary::-webkit-details-marker{display:none}
+.sod29-book-family>summary strong{display:block;font-size:16px;color:var(--s29-ink)}
+.sod29-book-family>summary small{display:block;margin-top:4px;color:var(--s29-muted);font-size:12px;line-height:1.55}
+.sod29-book-family[open]{border-color:var(--s29-line-strong);box-shadow:0 14px 36px color-mix(in srgb,var(--s29-panel) 20%,transparent)}
+.sod29-book-family-body{border-top:1px solid var(--s29-line);padding:13px}
+.sod29-book-research-row strong{line-height:1.55;font-size:14px}
+.sod29-book-family-more{margin-top:10px;border-top:1px solid var(--s29-line);padding-top:10px}
+.sod29-book-family-more>summary{cursor:pointer;color:var(--s29-accent-text);font-size:12px;font-weight:800;padding:6px 2px 10px}
+.sod29-book-family-more>.sod29-list{margin-top:4px}
+
 .sod29-canvas{border:1px solid var(--s29-line-strong);border-radius:28px;background:radial-gradient(circle at 72% 18%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 31%),linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 96%,transparent),color-mix(in srgb,var(--s29-panel-soft) 86%,transparent));min-height:470px;padding:22px;position:relative;overflow:hidden;box-shadow:0 26px 70px color-mix(in srgb,var(--s29-panel) 28%,transparent),0 0 80px color-mix(in srgb,var(--s29-glow) 18%,transparent) inset}
 .sod29-canvas:before{content:"";position:absolute;inset:22px;border:1px solid color-mix(in srgb,var(--s29-accent) 8%,transparent);border-radius:22px;pointer-events:none}
 .sod29-canvas>*{position:relative;z-index:1}
@@ -141,6 +158,7 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
   .sod29-anchor-core{min-height:260px}
 }
 @media(max-width:980px){
+  .sod29-book-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-root{display:block}.sod29-sidebar{display:none}
   .sod29-header{padding:10px 12px}.sod29-header-actions button:not(.primary){display:none}
   .sod29-content{padding:16px 12px 96px}.sod29-page-intro{min-height:0;border-radius:25px;padding:26px 20px;grid-template-columns:minmax(0,1fr) 150px}.sod29-hero-visual{min-height:150px}.sod29-hero-symbol{width:72px;height:72px}
@@ -157,6 +175,7 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
   .sod29-book-detail-hero{grid-template-columns:1fr}.sod29-book-detail-hero .sod29-book-cover{width:min(220px,70vw);justify-self:center}
 }
 @media(max-width:620px){
+  .sod29-book-overview-grid{grid-template-columns:1fr}.sod29-book-overview-card{min-height:96px}
   .sod29-grid,.sod29-constellation,.sod29-orbit-metrics{grid-template-columns:1fr}.sod29-card,.sod29-card.wide,.sod29-card.full,.sod29-card.featured{grid-column:1}.sod29-constellation>.sod29-card,.sod29-constellation>.sod29-card.featured,.sod29-constellation>.sod29-card:nth-child(4),.sod29-constellation>.sod29-card:nth-child(5){grid-column:1}
   .sod29-header-actions .primary{padding:8px 10px}.sod29-orientation{max-width:64vw}.sod29-page-intro h1{font-size:36px}.sod29-row{display:block}.sod29-row>.sod29-actions{margin-top:9px}.sod29-input-row{align-items:stretch}.sod29-input-row .sod29-action{width:100%}.sod29-focus-stage{padding:20px 16px}.sod29-section{padding:18px 15px}.sod29-book-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.sod29-book-tile{min-height:270px;padding:10px}.sod29-book-cover{font-size:28px}.sod29-anchor-core{min-height:230px}
 }
