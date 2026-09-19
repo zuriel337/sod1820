@@ -256,6 +256,40 @@ eq("P2 Golden Card uses logical RTL border", goldenCardCss.includes("border-inli
 eq("P2 Golden Card keeps dependency signal visually neutral", goldenCardCss.includes(".sod-gematria-card__dependency-signal"), true);
 eq("P2 Golden Card has normalized expression evidence surface", goldenCardCss.includes(".sod-gematria-card__expression-evidence"), true);
 
+
+const postPilotSource = fs.readFileSync(new URL("../src/components/PostGematriaCardPilot.jsx", import.meta.url), "utf8");
+const postPilotCss = fs.readFileSync(new URL("../src/components/postGematriaCardPilot.css", import.meta.url), "utf8");
+const legacyPostSource = fs.readFileSync(new URL("../src/legacy/legacy.jsx", import.meta.url), "utf8");
+
+eq("Post pilot is single-slug query gated", postPilotSource.includes('GOLDEN_POST_GEMATRIA_PILOT_SLUG = "צופן-חותים-5784"') && legacyPostSource.includes('get("gemcard") === "1"'), true);
+eq("Post pilot verifies legacy equality through canonical method profile", postPilotSource.includes("fetchNumberMethodProfile(expression)") && postPilotSource.includes('profileMethod(profile, "רגיל")'), true);
+eq("Post pilot consumes canonical Registry state", postPilotSource.includes("fetchGematriaMethodStates()"), true);
+eq("Post pilot fails closed and never writes Post DB", /adminUpdatePost|\.update\(|\.insert\(|supabase/.test(postPilotSource), false);
+eq("Post pilot preserves Research Context as owner of method focus", postPilotSource.includes("updateResearchContext") && postPilotSource.includes("gematriaMethod"), true);
+eq("Post pilot mounts in-place without stored-content rewrite", postPilotSource.includes("createPortal") && postPilotCss.includes(".is-gematria-card-pilot>.gb-rows"), true);
+eq("Post pilot never fabricates zero from null active method", postPilotSource.includes('rawActiveValue == null || rawActiveValue === ""'), true);
+eq("Golden Card exposes verified peer-expression convergence", goldenCardSource.includes("ביטויים באותו ערך") && goldenCardSource.includes("peerExpressions"), true);
+
+const p1Peers = buildGematriaPresentationModel({
+  expression: "אירן",
+  methodProfile: [{
+    method_key: "רגיל",
+    display_label: "רגיל",
+    category: "base",
+    lifecycle_active: true,
+    computed_value: 261,
+    definition_version: 1,
+  }],
+  methodStates: [p1States[0]],
+  peerExpressions: [
+    { expression: "אירן", value: 261, methodKey: "רגיל", verified: true },
+    { expression: "ביד רמה", value: 261, methodKey: "רגיל", verified: true },
+    { expression: "ארס", value: 261, methodKey: "רגיל", verified: true },
+  ],
+});
+eq("P1 peer-expression projection preserves three identities", p1Peers.peerExpressions.map((peer) => peer.expression).join("|"), "אירן|ביד רמה|ארס");
+eq("P1 peer-expression projection preserves verified state", p1Peers.peerExpressions.every((peer) => peer.verified), true);
+
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
   for (const item of failures) console.log("  - " + item);
