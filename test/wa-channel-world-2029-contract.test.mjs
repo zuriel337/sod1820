@@ -1,9 +1,15 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 
 const ingest = fs.readFileSync("supabase/functions/wa-channel-ingest/index.ts", "utf8");
 const intake = fs.readFileSync("supabase/functions/wa-channel-research-intake/index.ts", "utf8");
 const migration = fs.readFileSync("supabase/migrations/20260920002000_g3_wa_channels_to_world_2029_v1.sql", "utf8");
+
+const syntax = spawnSync(process.execPath, ["--check", "supabase/functions/wa-channel-ingest/index.ts"], {
+  encoding: "utf8",
+});
+assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || "wa-channel-ingest TypeScript syntax check failed");
 
 // Or-Geula stays story/live; heavy research channels become private source ingress.
 assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
