@@ -1,6 +1,6 @@
 # SOD1820 — G3 GEMATRIA PRESENTATION CONTRACT V1
 
-**Status:** BRANCH-ONLY · DESIGN/PROJECTION CONTRACT · NOT MERGED · NOT DEPLOYED  
+**Status:** BRANCH-ONLY · P1 PURE PRESENTATION MODEL IMPLEMENTED · NOT MERGED · NOT DEPLOYED  
 **Human Gate decisions:** ZURIEL · 2026-09-19  
 **Canonical owner:** EXTEND_EXISTING `project_codex.gematria_engine`  
 **Method presentation/order owner:** `canonical_methods_registry_law v6`  
@@ -458,6 +458,8 @@ After this contract is reviewed:
 ### Phase P1 — Pure Presentation Model
 Implement one pure projection adapter over existing Method Profile/Registry/Trace/dependency data.
 
+**Implementation status on PR #570:** COMPLETE BRANCH-ONLY. The pure adapter lives at `src/lib/presentation/gematriaPresentation.js`; it performs no calculation and no Supabase read/write. Focused fixtures live at `src/lib/presentation/gematriaPresentation.test.js`, and decision-critical P1 assertions are wired into the existing canonical presentation CI gate at `scripts/test_canonical_presentation.mjs`.
+
 No UI replacement yet.
 
 ### Phase P2 — Golden Gematria Card
@@ -602,3 +604,44 @@ Before P1 WRITE:
 3. implement a pure adapter with synthetic tests;
 4. do not replace Number/Topic/Legacy UI yet;
 5. stop for Human Gate review before S1/S2 visual component work.
+
+
+## 17. P1 implementation record
+
+P1 converts the locked contract into a pure reusable runtime projection without changing any consumer UI.
+
+Implemented:
+- `buildGematriaPresentationModel()` in the existing presentation owner tree;
+- accepts both live RPC snake_case and existing camelCase projection rows;
+- Registry order remains the only method-order authority;
+- Research Context method is active-first, with `רגיל` fallback;
+- Expression-first / Number-first focal projection;
+- structural method roles: independent / derived / equivalent / composite / contextual;
+- governed evidence independence is consumed as input only; unknown remains explicit and is never inferred;
+- applied equivalence is consumed only after an upstream owner resolves that it applies;
+- context-activated methods are hidden unless explicitly activated;
+- same-value grouping preserves every method identity;
+- family grouping is human-facing while preserving Registry order inside each family;
+- restricted values are redacted rather than leaked;
+- inactive/unimplemented identity may be surfaced explicitly without fabricating a value;
+- original expression identity is preserved separately from supplied normalization;
+- relation/Journey and Trace remain bounded/lazy summaries;
+- continuity retains only semantic reopen state.
+
+Explicitly unchanged:
+- Gematria engine/functions/formulas;
+- `gematria_methods` and `v_method_states`;
+- DB schema/data/RLS/GRANT;
+- evidence/ranking/dependency computation;
+- Reality Graph/Journey;
+- Number/Topic/Book/Post/Raziel/Drawer UI;
+- routes/SEO/share;
+- 3D/spatial rendering.
+
+Verification gate for the P1 code head:
+- canonical Gematria-method regression gate: PASS;
+- canonical presentation regression gate includes P1 Golden assertions;
+- legacy + 2029 production builds: PASS;
+- no Supabase mutation required.
+
+The next phase remains **P2 — Golden Gematria Card**, and must not begin until P1 final head is reviewed/accepted.
