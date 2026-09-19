@@ -37,6 +37,7 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp, trackWhatsappJoin } from "../lib/tracking.js";
 import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
+import PostGematriaCardPilot, { GOLDEN_POST_GEMATRIA_PILOT_SLUG } from "../components/PostGematriaCardPilot.jsx";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4513,6 +4514,8 @@ function PostPageBySlug({ onNav }) {
   const [hotWeek, setHotWeek] = useState(false);   // 🔥 חם השבוע — רק דגל (בלי לחשוף כמות צפיות)
   const contentRef = useRef(null);
   const loc = useLocation();
+  const gematriaCardPilotEnabled = slug === GOLDEN_POST_GEMATRIA_PILOT_SLUG
+    && new URLSearchParams(loc.search).get("gemcard") === "1";
 
   // 🎬 ניגון-וידאו בתוך פוסט — הנקודה הקנונית לווידאו-בגוף-פוסט (HTML גולמי, בלי רכיב-React).
   // מאזין ב-capture ('play' לא עולה-בועות), פעם-אחת לכל אלמנט (dataset.sodPlayed) → אין ספירה
@@ -5084,6 +5087,13 @@ function PostPageBySlug({ onNav }) {
                 return out;
               })()}
             </div>
+            <PostGematriaCardPilot
+              enabled={gematriaCardPilotEnabled}
+              postSlug={post?.slug || slug}
+              postTitle={title}
+              contentRootRef={contentRef}
+              navigate={navigate}
+            />
             {/* 🌳 העץ האחד חי בתוך הפוסט (מרקר data-sod-onetree) — אותו רכיב כמו בעמוד הבית, עץ אחד */}
             {String(content).includes("data-sod-onetree") && (
               <div id="post-one-tree" style={{ margin: "30px 0 6px", scrollMarginTop: 76 }}><OneTreeWidget /></div>
