@@ -51,8 +51,8 @@ Verified 2026-09-19:
 - canonical sitemap already emits approved `topic_cards_public` as `/topic/:slug`.
 - `topic_cards_public` currently contains **205** public Topics/Convergences.
 - App2029 does not yet own a native `/topic/:slug` renderer; that canonical address still survives through LegacyDocumentHandoff.
-- `sitemap-public` states that public Convergence capability availability is respected, but its current closed-state filter removes only `/numbers`, not `/topic/*`.
-- `lock_convergence_tree` was verified `enabled=true, mode=all` during the 2026-09-19 audit; re-read live before implementation decisions.
+- `lock_convergence_tree` was re-verified as the availability owner for the retired legacy `/numbers` Convergence Tree surface. Canonical `/topic/:slug` does not consume that flag and remains a separate public Topic identity route.
+- Therefore `sitemap-public` removing only `/numbers` is consistent with the live route boundary; Topic URLs must not be removed merely because the old tree is locked.
 
 These are migration/SEO parity gaps, not permission to change canonical URLs or bulk-deindex existing public content.
 
@@ -72,16 +72,14 @@ Acceptance:
 - no duplicate `/2029/world` or query-state canonical identity;
 - sitemap lastmod/changefreq is bounded and meaningful.
 
-### N2 — Convergence capability-aware sitemap parity
+### N2 — Convergence capability-aware sitemap parity — RESOLVED / NO TOPIC CHANGE
 
-Reconcile `api/sitemap-public.js` with the live capability owner.
+Live verification corrected an earlier assumption:
+- `lock_convergence_tree` governs the legacy `/numbers` tree.
+- Canonical `/topic/:slug` does not consume that flag.
+- `sitemap-public` removing only `/numbers` is therefore aligned with the current capability boundary.
 
-When public Convergence capability is not publicly available:
-- do not advertise unavailable Convergence product/discovery URLs;
-- fail closed on availability lookup failure;
-- do not silently leave `/topic/*` advertised while UI access is closed.
-
-This is a projection fix only; the canonical sitemap source remains `api/sitemap.js`.
+Do **not** remove `/topic/*` from sitemap based on `lock_convergence_tree`. If Topic availability later gets its own owner-backed capability state, sitemap projection must consume that same state then — not before.
 
 ### N3 — Preserve /topic/:slug while native replacement is missing
 
@@ -102,6 +100,23 @@ native Topic 2029 renderer
 ### N4 — Indexability audit before changing policy
 
 Current public != automatically future indexable, but existing indexability is SEO history.
+
+### Census result — 2026-09-19
+
+Live `topic_cards_public` baseline:
+- 205 total;
+- 0 empty titles;
+- 0 without Numbers;
+- 0 duplicate normalized-title groups;
+- 172 without subtitle;
+- 199 object-shaped `findings`;
+- 198 with `caveat`;
+- 187 with `hint`;
+- 100 with `phrases` and source-style authored content;
+- 16 with images;
+- 10 with explicit `occurred_at`.
+
+Implication: subtitle/image absence is **not** enough to classify a page as thin. Most semantic body material lives in source-authored `findings`, so Search admission must inspect meaningful authored content/provenance, not metadata completeness alone.
 
 Before any bulk noindex/index change:
 - census all public Topics;
@@ -348,9 +363,9 @@ The remaining Legacy dependency is the renderer behind canonical `/topic/:slug`.
 ### NOW
 1. planning/docs locked and live-state reconciled;
 2. **DONE:** `/world` sitemap admission + public Beit-Midrash→World cutover;
-3. capability-aware sitemap Topic filtering;
-4. public Topic/indexability census;
-5. native Topic 2029 implementation plan/test fixtures.
+3. **DONE / clarified:** no Topic sitemap filtering under the legacy `lock_convergence_tree` flag;
+4. **DONE:** public Topic census baseline;
+5. **IN PROGRESS:** native Topic 2029 renderer + exact-head acceptance (PR #557).
 
 ### NEXT
 6. native `/topic/:slug`;
