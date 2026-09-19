@@ -943,3 +943,116 @@
   .sod29-world-core-center,
   .sod29-world-core-node{transition:none}
 }
+
+
+/* ── World Research / Govern Control Plane ── */
+.sod29-world-research-control{
+  border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  background:
+    radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--s29-glow) 18%,transparent),transparent 42%),
+    color-mix(in srgb,var(--s29-panel) 97%,var(--s29-accent) 3%);
+}
+.sod29-world-research-control .sod29-section-head{
+  align-items:flex-start;
+}
+.sod29-world-research-control .sod29-section-head p{
+  margin:7px 0 0;
+  max-width:880px;
+  line-height:1.65;
+}
+.sod29-world-research-inbox{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
+  display:grid;
+  gap:12px;
+}
+.sod29-world-research-inbox h3{
+  margin:4px 0 0;
+  color:var(--s29-ink);
+  font-size:19px;
+}
+.sod29-world-attention-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.sod29-world-attention-buttons .sod29-action{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.sod29-world-attention-buttons small{
+  min-width:21px;
+  height:21px;
+  padding-inline:6px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);
+  font-size:9px;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-world-research-filters{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr)) auto;
+  gap:10px;
+  align-items:end;
+}
+.sod29-world-research-filters label{
+  display:grid;
+  gap:6px;
+}
+.sod29-world-research-filters label>span{
+  color:var(--s29-muted);
+  font-size:10px;
+  font-weight:800;
+}
+.sod29-world-research-filters select{
+  width:100%;
+  min-height:42px;
+  border:1px solid var(--s29-line-strong);
+  border-radius:13px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
+  color:var(--s29-ink);
+  padding:8px 10px;
+  font:inherit;
+}
+.sod29-world-research-result-count{
+  margin-top:10px;
+  line-height:1.6;
+}
+.sod29-world-govern-grid{
+  margin-top:18px;
+}
+.sod29-world-govern-grid .sod29-card p{
+  margin:8px 0 0;
+  color:var(--s29-muted);
+  line-height:1.6;
+  font-size:12px;
+}
+.sod29-world-govern-boundaries{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+@media(max-width:900px){
+  .sod29-world-research-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-world-research-filters>.sod29-action{justify-self:start}
+  .sod29-world-govern-boundaries{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .sod29-world-attention-buttons{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .sod29-world-attention-buttons::-webkit-scrollbar{display:none}
+  .sod29-world-attention-buttons .sod29-action{flex:0 0 auto}
+  .sod29-world-research-filters{grid-template-columns:1fr}
+}
