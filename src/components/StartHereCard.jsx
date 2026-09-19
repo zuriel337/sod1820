@@ -52,9 +52,9 @@ export default function StartHereCard() {
 
           {/* צעד 2 + 3 */}
           <div style={{ display: "flex", gap: 11, flexWrap: "wrap" }}>
-            <Link to="/beit-midrash" onClick={close} style={{ flex: "1 1 200px", display: "flex", alignItems: "center", gap: 11, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px" }}>
+            <Link to="/world" onClick={close} style={{ flex: "1 1 200px", display: "flex", alignItems: "center", gap: 11, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px" }}>
               <span style={stepNum}>2</span>
-              <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>📚 למדו את הסוד — בית המדרש →</span>
+              <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>◌ פתחו את עולם המחקר →</span>
             </Link>
             <button onClick={surprise} style={{ flex: "1 1 160px", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textAlign: "right" }}>
               <span style={stepNum}>3</span>
