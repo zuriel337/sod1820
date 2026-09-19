@@ -83,9 +83,9 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'מפגשים', exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'התכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
   for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
     await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
@@ -93,7 +93,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   const entry = page.locator('#world-entry');
   await expect(entry).toHaveAttribute('data-experience-surface', 'world');
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
-  await expect(entry.getByRole('button', { name: /חיפוש \/ פקודה/ })).toBeVisible();
+  await expect(entry.getByRole('button', { name: /חפש בעולם/ })).toBeVisible();
 
   const core = entry.locator('.sod29-world-core-map');
   await expect(core).toBeVisible();
@@ -312,7 +312,7 @@ for (const width of MOBILE_WIDTHS) {
   test(`World Core remains usable and overflow-free at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
     const core = page.locator('.sod29-world-core-map');
     await expect(core).toBeVisible();
     const firstGate = core.locator('.sod29-world-core-node').first();

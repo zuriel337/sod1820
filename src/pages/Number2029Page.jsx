@@ -13,10 +13,12 @@ import {
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
-import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
+import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
+const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
+const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -437,8 +439,8 @@ function NumberPageBody() {
 
   const observatoryItems = {
     meeting: leadMeeting ? {
-      kicker: "מפגש",
-      title: clean(leadMeeting.title) || `מפגש סביב ${root}`,
+      kicker: CONVERGENCE_LABEL,
+      title: clean(leadMeeting.title) || `${CONVERGENCE_LABEL} סביב ${root}`,
       note: Array.isArray(leadMeeting.numbers) ? leadMeeting.numbers.slice(0, 5).join(" · ") : null,
     } : null,
     expression: leadExpression ? {
@@ -454,7 +456,7 @@ function NumberPageBody() {
     path: leadPath ? {
       kicker: "שביל",
       title: `${root} → ${leadPath.target}`,
-      note: leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש" : "Zero Scale · נגזרת",
+      note: leadPath.topic ? clean(leadPath.topic.title) || `דרך ${CONVERGENCE_LABEL}` : "Zero Scale · נגזרת",
     } : null,
   };
 
@@ -466,9 +468,9 @@ function NumberPageBody() {
       text: clean(anchorRow?.hint || anchorRow?.fact),
     });
     if (topics.length) signals.push({
-      kind: "מפגשים",
-      title: `${topics.length} מפגשים זמינים`,
-      text: clean(leadMeeting?.title) || "כמה שכבות מחקר נפגשות סביב המספר.",
+      kind: canonicalResearchPublicLabel("convergence", { plural: true }),
+      title: `${topics.length} ${canonicalResearchPublicLabel("convergence", { plural: true })} זמינות`,
+      text: clean(leadMeeting?.title) || "כמה שכבות מחקר מתכנסות סביב המספר.",
     });
     if (sources.length) signals.push({
       kind: "מקורות",
@@ -483,7 +485,7 @@ function NumberPageBody() {
     if (leadPath) signals.push({
       kind: "מסלול",
       title: `יש שביל ל־${leadPath.target}`,
-      text: leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש ציבורי" : "דרך Zero Scale קנוני.",
+      text: leadPath.topic ? clean(leadPath.topic.title) || `דרך ${CONVERGENCE_LABEL} ציבורית` : "דרך Zero Scale קנוני.",
     });
     if (leadMedia) signals.push({
       kind: "מדיה",
@@ -494,7 +496,7 @@ function NumberPageBody() {
   }, [anchorRow, topics, sources, math, leadPath, leadMedia, leadMeeting, leadSource]);
 
   const nextStep = leadMeeting
-    ? { title: "פתח את המפגש בעולם", text: clean(leadMeeting.title), action: () => openWorld({ meetingSlug: leadMeeting.slug || null }) }
+    ? { title: `פתח את ${CONVERGENCE_LABEL} בעולם`, text: clean(leadMeeting.title), action: () => openWorld({ meetingSlug: leadMeeting.slug || null }) }
     : leadPath
       ? { title: `בדוק את השביל ל־${leadPath.target}`, text: "המשך לעוגן הבא בלי לאבד את החזרה.", action: () => navigate(`/2029/number/${leadPath.target}`) }
       : { title: "פתח את המספר בעולם", text: "ראה את הקשרים סביב העוגן באותה Research Context.", action: () => openWorld() };
@@ -818,8 +820,8 @@ function NumberPageBody() {
 
   const focusCopy = (() => {
     if (observatoryFocus === "meeting" && leadMeeting) return {
-      kicker: "מפגש",
-      title: clean(leadMeeting.title) || `מפגש סביב ${root}`,
+      kicker: CONVERGENCE_LABEL,
+      title: clean(leadMeeting.title) || `${CONVERGENCE_LABEL} סביב ${root}`,
       text: clean(leadMeeting.subtitle) || "כמה שכבות נפגשות סביב אותו עוגן.",
       action: "פתח בעולם",
     };
@@ -838,13 +840,13 @@ function NumberPageBody() {
     if (observatoryFocus === "path" && leadPath) return {
       kicker: "שביל",
       title: `${root} → ${leadPath.target}`,
-      text: leadPath.topic ? clean(leadPath.topic.title) || "הנתיב מגיע דרך מפגש קיים." : "Zero Scale · DERIVATION — אותו שורש בסדר גודל אחר, לא שוויון.",
+      text: leadPath.topic ? clean(leadPath.topic.title) || `הנתיב מגיע דרך ${CONVERGENCE_LABEL} קיימת.` : "Zero Scale · DERIVATION — אותו שורש בסדר גודל אחר, לא שוויון.",
       action: `פתח ${leadPath.target}`,
     };
     return {
       kicker: "LIVING NUMBER",
       title: String(root),
-      text: clean(anchorRow?.hint || anchorRow?.fact) || "המספר פתוח כמערכת מחקר חיה: חישוב, מפגשים, מקורות ונתיבים.",
+      text: clean(anchorRow?.hint || anchorRow?.fact) || `המספר פתוח כמערכת מחקר חיה: חישוב, ${CONVERGENCES_LABEL}, מקורות ונתיבים.`,
       action: null,
     };
   })();
@@ -904,7 +906,7 @@ function NumberPageBody() {
           <p>{focusCopy.text}</p>
           <div className="sod29-number-observatory-context">
             <span>{families.length} שיטות</span>
-            <span>{topics.length} מפגשים</span>
+            <span>{topics.length} {CONVERGENCES_LABEL}</span>
             <span>{sources.length} מקורות</span>
             {activityCount ? <span>{activityCount} פעילויות</span> : null}
           </div>
@@ -918,7 +920,7 @@ function NumberPageBody() {
         <button type="button" onClick={() => document.getElementById("number-why-now")?.scrollIntoView({ behavior: "smooth" })}>למה עכשיו</button>
         <button type="button" onClick={() => document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth" })}>שיטות</button>
         <button type="button" onClick={() => document.getElementById("number-expressions")?.scrollIntoView({ behavior: "smooth" })}>ביטויים</button>
-        <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>מפגשים</button>
+        <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>{CONVERGENCES_LABEL}</button>
         <button type="button" onClick={() => document.getElementById("number-paths")?.scrollIntoView({ behavior: "smooth" })}>מסע</button>
         <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>מקורות</button>
       </div>
@@ -929,7 +931,7 @@ function NumberPageBody() {
         <div>
           <div className="sod29-kicker">NUMBER INTELLIGENCE · DETERMINISTIC FIRST</div>
           <h2>למה {root} מעניין עכשיו?</h2>
-          <p className="sod29-muted">המערכת אינה ממציאה “משמעות”. היא מסכמת אותות שכבר קיימים ומפרידה בין חישוב, הקשר אצור, מקור, מפגש ומסלול. סדר ההצגה הוא contextual projection — לא ציון אמת.</p>
+          <p className="sod29-muted">המערכת אינה ממציאה “משמעות”. היא מסכמת אותות שכבר קיימים ומפרידה בין חישוב, הקשר אצור, מקור, התכנסות ומסלול. סדר ההצגה הוא contextual projection — לא ציון אמת.</p>
         </div>
       </div>
       <div className="sod29-number-signal-grid">
@@ -1050,15 +1052,15 @@ function NumberPageBody() {
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">MEETINGS</div>
-          <h2>מפגשים סביב {root}</h2>
-          <p className="sod29-muted">מפגש הוא מקום שבו כמה שכבות נפגשות סביב אותו עוגן. Meter/quality יכולים לסייע להקרנה, אבל אינם הסתברות אמת.</p>
+          <h2>{CONVERGENCES_LABEL} סביב {root}</h2>
+          <p className="sod29-muted">התכנסות היא מקום שבו כמה שכבות מתכנסות סביב אותו עוגן. Meter/quality יכולים לסייע להקרנה, אבל אינם הסתברות אמת.</p>
         </div>
         <span className="sod29-chip">{topics.length}</span>
       </div>
       {topics.length ? <div className="sod29-number-card-grid">
         {topics.slice(0, 8).map((topic) => <article className="sod29-number-card sod29-number-meeting" key={topic.id || topic.slug}>
-          <span className="sod29-kicker">מפגש</span>
-          <strong>{clean(topic.title) || `מפגש סביב ${root}`}</strong>
+          <span className="sod29-kicker">{CONVERGENCE_LABEL}</span>
+          <strong>{clean(topic.title) || `${CONVERGENCE_LABEL} סביב ${root}`}</strong>
           <small>{clean(topic.subtitle) || (Array.isArray(topic.numbers) ? topic.numbers.slice(0, 6).join(" · ") : "מחקר קשור")}</small>
           <div className="sod29-number-card-meta">
             {Array.isArray(topic.numbers) ? <span>{topic.numbers.length} מספרים</span> : null}
@@ -1066,11 +1068,11 @@ function NumberPageBody() {
           </div>
           <button className="sod29-action" type="button" onClick={() => openWorld({ meetingSlug: topic.slug || null })}>פתח בעולם</button>
         </article>)}
-      </div> : <div className="sod29-number-inline-state">אין כרגע מפגש ציבורי זמין לעוגן הזה.</div>}
+      </div> : <div className="sod29-number-inline-state">אין כרגע התכנסות ציבורית זמינה לעוגן הזה.</div>}
     </section>
 
     <section className="sod29-section sod29-number-section" id="number-paths">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS · JOURNEY</div><h2>לאן אפשר ללכת מכאן?</h2><p className="sod29-muted">הנתיבים הם תנועה בתוך אותה מציאות מחקרית. כל מעבר צריך לשאת סיבה: מפגש, relation, derivation או מקור. Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS · JOURNEY</div><h2>לאן אפשר ללכת מכאן?</h2><p className="sod29-muted">הנתיבים הם תנועה בתוך אותה מציאות מחקרית. כל מעבר צריך לשאת סיבה: התכנסות, relation, derivation או מקור. Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
       <div className="sod29-number-path-summary">
         <div><strong>{relations.length}</strong><span>קשרי גרף זמינים</span></div>
         <div><strong>{zeroScale.length}</strong><span>תחנות Zero Scale</span></div>
@@ -1078,7 +1080,7 @@ function NumberPageBody() {
       </div>
       <div className="sod29-number-path-actions">
         {leadPath ? <button className="sod29-number-feature-path" type="button" onClick={() => navigate(`/2029/number/${leadPath.target}`)}>
-          <span>שביל מוצע</span><strong>{root} → {leadPath.target}</strong><small>{leadPath.topic ? clean(leadPath.topic.title) || "דרך מפגש" : "Zero Scale · נגזרת"}</small>
+          <span>שביל מוצע</span><strong>{root} → {leadPath.target}</strong><small>{leadPath.topic ? clean(leadPath.topic.title) || `דרך ${CONVERGENCE_LABEL}` : "Zero Scale · נגזרת"}</small>
         </button> : null}
         {root === 878 ? <button className="sod29-number-feature-path is-golden" type="button" onClick={() => openWorld({ journey: true })}>
           <span>Golden Journey</span><strong>מסע 878</strong><small>פתח את המסילה שכבר חיה בעולם</small>

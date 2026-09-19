@@ -1,3 +1,4 @@
+import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 export const GOLDEN_WORLD_JOURNEY_878 = Object.freeze({
   id: "golden:878:v1",
   kind: "golden",
@@ -34,7 +35,7 @@ export function projectGoldenJourney878({ topicRows = [] } = {}) {
     paths.push(Object.freeze({
       id: `878:${slug}:${targetValue}`,
       meetingSlug: slug,
-      meetingTitle: clean(row?.title) || `מפגש ${targetValue}`,
+      meetingTitle: clean(row?.title) || `${canonicalResearchPublicLabel("convergence")} ${targetValue}`,
       meetingSubtitle: clean(row?.subtitle) || null,
       targetValue,
       source: "topic_cards_public",
@@ -45,7 +46,7 @@ export function projectGoldenJourney878({ topicRows = [] } = {}) {
   return Object.freeze({
     ...GOLDEN_WORLD_JOURNEY_878,
     title: "מסע 878",
-    subtitle: "878 הוא העוגן. מכאן נפתחים מפגשים שכבר מקשרים אותו למספרים אחרים.",
+    subtitle: "878 הוא העוגן. מכאן נפתחות התכנסויות שכבר מקשרות אותו למספרים אחרים.",
     paths: Object.freeze(paths),
     source: Object.freeze({
       meetings: "topic_cards_public:number=878",

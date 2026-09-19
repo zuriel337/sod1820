@@ -30,6 +30,7 @@ import {
   filterWorldResearchFindings,
   researchFindingAxes,
 } from "../src/lib/research/worldResearchControl.js";
+import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -70,13 +71,33 @@ assert.match(world, /section\.scrollIntoView/);
 assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
 assert.match(world, /חוקרים וכתבים/);
 assert.match(world, /מסע 878/);
-assert.match(world, /מפגש הוא מקום שבו כמה ביטויים/);
-assert.equal(world.includes("נקודות מפגש"), false, "2029 World public vocabulary must not mix old meeting labels");
-assert.equal(world.includes("התכנסויות לפי חוקר"), false, "2029 World public vocabulary must use מפגש consistently");
+assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
+assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
+assert.match(world, /התכנסויות לפי חוקר/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
 assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
+assert.match(world, /מה חדש בעולם\?/);
+assert.match(world, /sod29-world-live-stream/);
+assert.match(world, /sod29-world-spatial-gateway/);
+assert.match(worldCss, /sod29-world-discovery-entrance/);
+assert.match(worldCss, /sod29-world-stream-list/);
+
+const discoveryFixture = buildWorldDiscoveryStream([
+  { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
+  { id: "b", slug: "b", title: "חדש ב", created_by: "צבי", approved_at: "2026-09-19T13:00:00Z", numbers: [1020] },
+  { id: "c", slug: "c", title: "חדש ג", created_by: "מנוע · זהב אחר", approved_at: "2026-09-18T13:00:00Z", numbers: [358] },
+  { id: "d", slug: "d", title: "חדש ד", created_by: "שם לא מאושר", approved_at: "2026-09-17T13:00:00Z", numbers: [777] },
+], {
+  limit: 10,
+  publicPeople: [{ displayName: "צבי (OPOC)", aliases: ["צבי"] }],
+});
+assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["חדש ב", "חדש א", "חדש ג", "חדש ד"]);
+assert.deepEqual(discoveryFixture.creators, ["AI", "צבי (OPOC)", "מנוע · זהב אחר", "מקור ציבורי"]);
+assert.equal(topicRowToWorldUpdate({ id: "x", title: "X", created_by: "AI" }).creator, "AI");
+assert.equal(topicRowToWorldUpdate({ id: "y", title: "Y", created_by: "שם לא מאושר" }).creator, "מקור ציבורי");
+assert.equal(discoveryFixture.note.includes("truth rank"), true);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
 assert.match(world, /WORLD RESEARCH CONTROL/);
@@ -342,8 +363,8 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /העולם פתוח/);
-assert.match(world, /אפשר להתחיל מנקודה — ולהמשיך למסע/);
+assert.match(world, /מה חדש בעולם\?/);
+assert.match(world, /DISCOVERY WORLD/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));

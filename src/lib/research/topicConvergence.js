@@ -521,7 +521,7 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
 // authored-content + graph composition (topicConvergenceToUniversalFinding) stays a per-item,
 // on-open concern for a later slice, so this never does the N+1 a naive "Finding per row" list
 // would cause. topic_cards_public already filters to approved & not-_do_not_publish server-side.
-const TOPIC_LIST_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,approved_at,occurred_at";
+const TOPIC_LIST_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at";
 const TOPIC_LIST_DEFAULT_LIMIT = 24;
 const TOPIC_LIST_MAX_LIMIT = 100;
 

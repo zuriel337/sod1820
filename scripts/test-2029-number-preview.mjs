@@ -24,7 +24,7 @@ for (const required of [
   "MATH PASSPORT",
   "runNumberMathProfile",
   "NumberCore2029",
-  "מפגשים סביב",
+  "CONVERGENCES_LABEL",
   "צא למסע 878",
 ]) {
   assert.equal(page.includes(required), true, `Number 2029 preview must preserve native capability: ${required}`);
@@ -45,7 +45,7 @@ for (const forbidden of [
   assert.equal(page.includes(forbidden), false, `Number 2029 preview must not inherit legacy/local authority: ${forbidden}`);
 }
 
-assert.equal(page.includes("התכנסות"), false, "public 2029 Number vocabulary must use מפגש");
+assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence vocabulary must use התכנסות");
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(coreProjection, /fn_method_profile/);
 assert.match(coreProjection, /dependency_rules/);

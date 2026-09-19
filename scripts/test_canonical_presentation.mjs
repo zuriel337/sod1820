@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 import {
   canonicalMethodPublicLabel,
+  canonicalResearchPublicLabel,
   sortMethodsByCanonicalOrder,
   formatTanakhRef,
   formatVerseGematriaSuffix,
 } from "../src/lib/presentation/canonicalPresentation.js";
 
 let pass = 0;
+
+eq("convergence public singular", canonicalResearchPublicLabel("convergence"), "התכנסות");
+eq("convergence public plural", canonicalResearchPublicLabel("convergence", { plural: true }), "התכנסויות");
+eq("unknown research label remains source identity", canonicalResearchPublicLabel("unknown_type"), "unknown_type");
 let fail = 0;
 const failures = [];
 

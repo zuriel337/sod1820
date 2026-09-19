@@ -13,6 +13,11 @@ import { usePalette } from "../../lib/palette.js";
 import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
+import {
+  CONTEXT_ACTION_KIND,
+  resolveContextActions,
+  resolveContextTools,
+} from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import "./sod2029.css";
@@ -270,40 +275,59 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepe
   );
 }
 
+function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, onDeepen, go }) {
+  return <div className="sod29-panel-actions-grid">{actions.map((action) => {
+    const className = `sod29-action${action.primary ? " primary" : ""}`;
+    if (action.kind === CONTEXT_ACTION_KIND.INSPECT) {
+      return <button key={action.id} className={className} type="button" onClick={() => onInspect?.(target)}>{action.label}</button>;
+    }
+    if (action.kind === CONTEXT_ACTION_KIND.CAPABILITY) {
+      return <button key={action.id} className={className} type="button" onClick={() => onCapability?.(action.capability, target)}>{action.label}</button>;
+    }
+    if (action.kind === CONTEXT_ACTION_KIND.RAZIEL) {
+      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()}>{action.label}</button>;
+    }
+    if (action.kind === CONTEXT_ACTION_KIND.DEEPEN) {
+      return <button key={action.id} className={className} type="button" onClick={() => onDeepen?.(target)}>{action.label}</button>;
+    }
+    if (action.kind === CONTEXT_ACTION_KIND.ROUTE) {
+      return <button key={action.id} className={className} type="button" onClick={() => go?.(action.href)}>{action.label}</button>;
+    }
+    return null;
+  })}</div>;
+}
+
 function ActionProjection({
+  surface,
   target,
   context,
   onInspect,
   onCapability,
   onRaziel,
   onDeepen,
+  go,
 }) {
-  if (!target) {
+  const actions = resolveContextActions({ surface, target });
+  if (!target && !actions.length) {
     return <FrameState kind="empty" title="אין כרגע אובייקט לפעולה">סמן שורה, ביטוי, מספר או ישות. פעולה משתמשת ב־Selection כשיש בחירה, אחרת ב־Research Context הנוכחי.</FrameState>;
   }
-  const numericFamily = target.type === "number" || target.type === "phrase";
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">CONTEXT ACTION ROUTER</div>
-        <h3>מה אפשר לעשות עם הבחירה הזאת?</h3>
-        <p>אותו Subject / Selection עובר ל־capability שנבחר. פתיחת כלי אינה יוצרת Context חדש ואינה משנה אמת.</p>
+        <div className="sod29-kicker">CONTEXT ACTIONS · {String(surface || "system").toUpperCase()}</div>
+        <h3>{target ? "מה אפשר לעשות עם הבחירה הזאת?" : "מה אפשר לעשות במשטח הזה?"}</h3>
+        <p>Surface + Subject + Selection מרכיבים את הפעולות הזמינות. אותה פעולה שומרת זהות סמנטית גם כשהמיקום והעדיפות משתנים.</p>
       </div>
-      <div className="sod29-selection-summary">
+      {target ? <div className="sod29-selection-summary">
         <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
         <strong>{target.label}</strong>
         <small>{target.type}</small>
-      </div>
-      <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" onClick={() => onInspect(target)}>◎ בדוק</button>
-        {numericFamily ? <button className="sod29-action" type="button" onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button> : null}
-        <button className="sod29-action" type="button" onClick={() => onRaziel()}>● רזיאל</button>
-        <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
-      </div>
+      </div> : null}
+      <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} onDeepen={onDeepen} go={go} />
       <div className="sod29-panel-context-card">
         <b>One Context</b>
         <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "Subject · לא נקבע"}</span>
-        <small>Selection → Action → Capability → Panel → Heichal</small>
+        <small>Surface + Selection → Action → Capability → Panel → Heichal</small>
       </div>
     </>
   );
@@ -328,22 +352,17 @@ function AttentionProjection({ context, onWorkspace }) {
   );
 }
 
-function ToolsProjection({ target, onDeepen, go, onCapability }) {
-  const numericFamily = target?.type === "number" || target?.type === "phrase";
+function ToolsProjection({ surface, target, onDeepen, go, onCapability }) {
+  const tools = resolveContextTools({ surface, target });
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">CONTEXTUAL TOOLS</div>
+        <div className="sod29-kicker">CONTEXTUAL TOOLS · {String(surface || "system").toUpperCase()}</div>
         <h3>הכלים מגיעים אל המחקר.</h3>
-        <p>היכל הוא Deep Mode — לא הבעלים של הכלים. כל capability נשאר ניתן לפתיחה ישירה כשה־surface שלו קיים.</p>
+        <p>הסדר משתנה לפי המשטח והאובייקט הפעיל, אבל כל capability נשאר בבעלות המקורית שלו. אין רשימת כלים נפרדת לכל דף.</p>
       </div>
       {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{target.label}</strong><small>{target.type}</small></div> : null}
-      <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
-        <button className="sod29-action" type="button" onClick={() => go("/els")}>✦ ELS</button>
-        <button className="sod29-action" type="button" onClick={() => go("/books")}>▤ ספרים ומקורות</button>
-        <button className="sod29-action" type="button" disabled={!numericFamily} title={numericFamily ? "פתח Number capability" : "בחר מספר או ביטוי כדי לפתוח Number"} onClick={() => onCapability("number", target)}>123 מספר / גימטריה</button>
-      </div>
+      <ContextualActionButtons actions={tools} target={target} onCapability={onCapability} onDeepen={onDeepen} go={go} />
     </>
   );
 }
@@ -765,7 +784,7 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SYSTEM FRAME" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="ACTION / CONTEXT" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} onDeepen={deepenToHeichal} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="ACTION / CONTEXT" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} onDeepen={deepenToHeichal} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="CAPABILITY · NUMBER" title={inspectTarget?.label || context?.subject?.label || "מספר / ביטוי"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
@@ -773,7 +792,7 @@ export default function SystemFrame2029({
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
+    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
   };
