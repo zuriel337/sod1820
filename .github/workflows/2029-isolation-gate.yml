@@ -34,6 +34,7 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
