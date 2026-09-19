@@ -30,6 +30,7 @@ import {
   filterWorldResearchFindings,
   researchFindingAxes,
 } from "../src/lib/research/worldResearchControl.js";
+import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
