@@ -143,8 +143,10 @@ as $function$
 declare
   node_a uuid; node_b uuid;
   engine_evidence jsonb; composite_evidence jsonb; independent_evidence jsonb; noise_flags text[];
-  raw_independent_group_count int; position_sensitive_group_count int;
-  effective_independent_group_count int; dependent_expression_group_count int;
+  independent_composite_keys text[] := array[]::text[];
+  raw_independent_group_count int; raw_position_sensitive_group_count int;
+  effective_independent_group_count int; effective_position_sensitive_group_count int;
+  dependent_expression_group_count int;
   min_rarity numeric; rarity_bonus numeric;
   engine_signal numeric; has_independent boolean; research_priority text; confidence text;
   same_letter_permutation boolean := false;
@@ -155,51 +157,91 @@ begin
   noise_flags := public.fn_relation_noise_flags(p_a, p_b);
   same_letter_permutation := 'anagram_same_letter_multiset' = any(noise_flags);
 
-  select coalesce(jsonb_agg(jsonb_build_object(
-           'method', method, 'value', value, 'group_repr', group_repr,
-           'group_is_position_sensitive', group_is_position_sensitive,
-           'raw_frequency', raw_frequency, 'method_population', method_population,
-           'normalized_rarity', normalized_rarity,
-           'expression_dependency',
-             case
-               when same_letter_permutation and not group_is_position_sensitive
-                 then 'same_letter_multiset_order_insensitive_dependent'
-               else 'potentially_independent'
-             end
-         )), '[]'::jsonb),
-         count(distinct group_repr),
-         count(distinct group_repr) filter (where group_is_position_sensitive),
-         min(normalized_rarity)
-  into engine_evidence, raw_independent_group_count, position_sensitive_group_count, min_rarity
-  from public.fn_relation_dependency_groups(p_a, p_b);
+  -- Composite governance remains authoritative. A composite may count as a
+  -- secondary independent lead only when the existing composite evaluator says
+  -- its components do NOT already explain the match.
+  composite_evidence := public.fn_relation_composite_evidence(p_a, p_b);
+  select coalesce(array_agg(distinct e->>'composite_key'), array[]::text[])
+  into independent_composite_keys
+  from jsonb_array_elements(composite_evidence) e
+  where coalesce((e->>'independent_evidence')::boolean, false)
+    and coalesce(e->>'operator','') = 'sum';
 
-  effective_independent_group_count :=
-    case when same_letter_permutation
-         then coalesce(position_sensitive_group_count, 0)
-         else coalesce(raw_independent_group_count, 0)
-    end;
-
-  dependent_expression_group_count :=
-    greatest(coalesce(raw_independent_group_count, 0) - effective_independent_group_count, 0);
-
-  select coalesce(sum(1 - g.min_rarity), 0)
-  into rarity_bonus
-  from (
+  with dg as (
+    select
+      d.*,
+      coalesce(gm.category, 'unregistered') as method_category,
+      (d.method = any(independent_composite_keys)) as independent_composite
+    from public.fn_relation_dependency_groups(p_a, p_b) d
+    left join public.gematria_methods gm on gm.method_key = d.method
+  ),
+  group_stats as (
     select
       group_repr,
       bool_or(group_is_position_sensitive) as is_position_sensitive,
+      bool_or(group_is_position_sensitive and method_category <> 'composite') as has_atomic_position_sensitive,
+      bool_or(independent_composite) as has_independent_composite,
       min(normalized_rarity) as min_rarity
-    from public.fn_relation_dependency_groups(p_a, p_b)
+    from dg
     group by group_repr
-  ) g
-  where not same_letter_permutation or g.is_position_sensitive;
+  )
+  select
+    coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'method', d.method,
+        'value', d.value,
+        'group_repr', d.group_repr,
+        'group_is_position_sensitive', d.group_is_position_sensitive,
+        'method_category', d.method_category,
+        'raw_frequency', d.raw_frequency,
+        'method_population', d.method_population,
+        'normalized_rarity', d.normalized_rarity,
+        'expression_dependency',
+          case
+            when not same_letter_permutation then 'ordinary_relation'
+            when d.method_category = 'composite' and d.independent_composite
+              then 'same_letter_multiset_independent_composite_lead'
+            when d.method_category = 'composite'
+              then 'same_letter_multiset_dependent_composite'
+            when d.group_is_position_sensitive
+              then 'same_letter_multiset_order_sensitive_potentially_independent'
+            else 'same_letter_multiset_order_insensitive_dependent'
+          end
+      ))
+      from dg d
+    ), '[]'::jsonb),
+    (select count(*) from group_stats),
+    (select count(*) from group_stats where is_position_sensitive),
+    (select count(*) from group_stats
+      where not same_letter_permutation
+         or has_atomic_position_sensitive
+         or has_independent_composite),
+    (select count(*) from group_stats
+      where (not same_letter_permutation and is_position_sensitive)
+         or (same_letter_permutation and is_position_sensitive
+             and (has_atomic_position_sensitive or has_independent_composite))),
+    (select min(min_rarity) from group_stats),
+    (select coalesce(sum(1 - min_rarity),0) from group_stats
+      where not same_letter_permutation
+         or has_atomic_position_sensitive
+         or has_independent_composite)
+  into
+    engine_evidence,
+    raw_independent_group_count,
+    raw_position_sensitive_group_count,
+    effective_independent_group_count,
+    effective_position_sensitive_group_count,
+    min_rarity,
+    rarity_bonus;
+
+  dependent_expression_group_count :=
+    greatest(coalesce(raw_independent_group_count,0) - coalesce(effective_independent_group_count,0), 0);
 
   engine_signal := round(
     coalesce(effective_independent_group_count, 0)::numeric
-    + coalesce(position_sensitive_group_count, 0)::numeric
+    + coalesce(effective_position_sensitive_group_count, 0)::numeric
     + coalesce(rarity_bonus, 0), 3);
 
-  composite_evidence := public.fn_relation_composite_evidence(p_a, p_b);
   independent_evidence := public.fn_relation_independent_evidence(p_a, p_b);
 
   has_independent := (jsonb_array_length(independent_evidence->'edges') > 0
@@ -213,6 +255,8 @@ begin
       then 'NOISE_TECHNICAL_DUPLICATE'
     when same_letter_permutation and effective_independent_group_count = 0
       then 'LOW_DEPENDENT_ANAGRAM'
+    when same_letter_permutation and effective_independent_group_count = 1
+      then 'ANAGRAM_ORDER_SENSITIVE_LEAD'
     when engine_signal >= 3 then 'HIGH_ENGINE_NO_EVIDENCE_YET'
     else 'LOW_UNRANKED'
   end;
@@ -223,6 +267,8 @@ begin
     when has_independent then 'evidence_backed_candidate'
     when same_letter_permutation and effective_independent_group_count = 0
       then 'dependent_representation_only'
+    when same_letter_permutation and effective_independent_group_count = 1
+      then 'order_sensitive_anagram_lead'
     when engine_signal >= 3 then 'engine_strong_candidate'
     else 'weak_candidate'
   end;
@@ -235,7 +281,7 @@ begin
       'same_letter_multiset', same_letter_permutation,
       'letter_multiset_key_a', public.fn_expression_letter_multiset_key(p_a),
       'letter_multiset_key_b', public.fn_expression_letter_multiset_key(p_b),
-      'rule', 'same-letter permutations do not gain independent strength from order-insensitive method families'
+      'rule', 'same-letter permutations do not gain independent strength from order-insensitive method families; composites inherit existing composite-independence governance'
     ),
     'engine_evidence', engine_evidence,
     'composite_evidence', composite_evidence,
@@ -244,16 +290,18 @@ begin
     'engine_signal', engine_signal,
     'engine_signal_components', jsonb_build_object(
       'raw_independent_group_count', raw_independent_group_count,
+      'raw_position_sensitive_group_count', raw_position_sensitive_group_count,
       'effective_independent_group_count', effective_independent_group_count,
+      'effective_position_sensitive_group_count', effective_position_sensitive_group_count,
       'dependent_expression_group_count', dependent_expression_group_count,
-      'position_sensitive_group_count', position_sensitive_group_count,
+      'independent_composite_keys', to_jsonb(independent_composite_keys),
       'rarity_bonus', round(rarity_bonus, 3),
       'min_rarity', min_rarity
     ),
     'research_priority', research_priority,
     'confidence', confidence,
     'provenance', format(
-      'fn_relation_candidate computed %s <-> %s via dependency-aware methods + expression multiset normalization + existing evidence readers, read-only',
+      'fn_relation_candidate computed %s <-> %s via dependency-aware methods + expression multiset normalization + governed composite evidence + existing independent evidence readers, read-only',
       p_a, p_b
     ),
     'status', 'candidate'
@@ -262,7 +310,7 @@ end;
 $function$;
 
 comment on function public.fn_relation_candidate(text, text) is
-  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity but order-insensitive method matches are dependency-normalized before Research Strength. Only order-sensitive matching families may add engine independence for anagrams; external evidence remains separate. Candidate != Edge; Human Gate unchanged.';
+  'Canonical Relation Candidate payload. Same-letter permutations retain distinct expression identity. Order-insensitive method matches are dependency-normalized; atomic order-sensitive groups may add independence; composite matches add independence only when fn_relation_composite_evidence says their components do not already match. One surviving order-sensitive family is a lead, not HIGH engine evidence by itself. External evidence remains separate. Candidate != Edge; Human Gate unchanged.';
 
 -- Migration-level golden calibration. Fail closed if the intended dependency
 -- semantics do not reproduce on the current canonical corpus.
@@ -307,4 +355,7 @@ begin
   if coalesce((rel->'engine_signal_components'->>'dependent_expression_group_count')::int, 0) <= 0 then
     raise exception 'relation calibration failed: דעת/עדת must expose dependent expression groups';
   end if;
-end $$;
+  if rel->>'research_priority' in ('HIGH_ENGINE_NO_EVIDENCE_YET','HIGH_ENGINE_AND_EVIDENCE') then
+    raise exception 'relation calibration failed: one surviving order-sensitive family for דעת/עדת must not self-promote to HIGH without separate independent evidence';
+  end if;
+end $;
