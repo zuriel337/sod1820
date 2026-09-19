@@ -14,6 +14,7 @@ const NORMAL_HISTORY_COUNT = 30;
 const RECOVERY_HISTORY_COUNT = 1000;
 const RECOVERY_BATCH = 10;
 const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
+const STORY_LIVE_CHANNELS = new Set(["or-geula"]);
 const BUCKET = "gallery";
 const MEDIA_DIR = "sod1820/broadcasts";
 const MAX_MEDIA = 45 * 1024 * 1024;
@@ -58,7 +59,7 @@ function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   return { ok: false, rows: [] };
 }
 function channelStatus(channel: string): "live" | "private" {
-  return RESEARCH_FIRST_CHANNELS.has(channel) ? "private" : "live";
+  return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
 
 async function rehost(
@@ -205,7 +206,7 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
         dl,
         msgId,
         isVid ? "video" : "image",
-        RESEARCH_FIRST_CHANNELS.has(src.channel),
+        channelStatus(src.channel) === "private",
         ts,
       );
     }
