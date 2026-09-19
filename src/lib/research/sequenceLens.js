@@ -6,6 +6,7 @@ export const SEQUENCE_OPERATION = Object.freeze({
   ALL: 'exact_digit_sequence_all_occurrences',
   TERM_FIRST: 'exact_term_first_occurrence',
   TERM_ALL: 'exact_term_all_occurrences',
+  ZECKENDORF: 'zeckendorf_decomposition',
 });
 
 function positiveInt(value, fallback, max = Number.MAX_SAFE_INTEGER) {
