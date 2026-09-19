@@ -1,0 +1,205 @@
+/* CanonicalProgress — one reusable waiting/progress presence.
+   Consumes semantic palette roles supplied by usePalette(); no local color owner. */
+
+.sod-canonical-progress{
+  min-width:0;
+  min-height:178px;
+  display:grid;
+  align-content:start;
+  gap:12px;
+  padding:16px;
+  border:1px solid var(--cp-line);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 12% 0%,color-mix(in srgb,var(--cp-accent) 9%,transparent),transparent 34%),
+    color-mix(in srgb,var(--cp-panel-soft) 88%,var(--cp-panel));
+  color:var(--cp-ink);
+  box-shadow:0 18px 48px color-mix(in srgb,var(--cp-glow) 12%,transparent);
+  overflow:hidden;
+}
+.sod-canonical-progress.tier-compact{min-height:116px;padding:13px;gap:9px}
+.sod-canonical-progress.tier-engage{min-height:286px}
+
+.sod-canonical-progress-head{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+}
+.sod-canonical-progress-presence{
+  width:46px;
+  height:46px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--cp-line-strong);
+  border-radius:50%;
+  color:var(--cp-accent-text);
+  background:color-mix(in srgb,var(--cp-accent) 6%,transparent);
+  box-shadow:0 0 26px color-mix(in srgb,var(--cp-glow) 24%,transparent);
+}
+.sod-canonical-progress-presence>i{
+  position:absolute;
+  inset:5px;
+  border:1px solid color-mix(in srgb,var(--cp-accent) 28%,transparent);
+  border-radius:50%;
+  animation:sod-canonical-progress-orbit 2.8s linear infinite;
+}
+.sod-canonical-progress-presence>i:nth-child(2){
+  inset:11px;
+  border-style:dashed;
+  animation-direction:reverse;
+  animation-duration:2s;
+}
+.sod-canonical-progress-presence>span{font-weight:900;font-size:15px}
+.sod-canonical-progress-copy{min-width:0}
+.sod-canonical-progress-copy>small{
+  display:block;
+  margin-bottom:3px;
+  color:var(--cp-accent-text);
+  font-size:10px;
+  font-weight:800;
+}
+.sod-canonical-progress-copy>strong{display:block;font-size:15px;line-height:1.35}
+.sod-canonical-progress-copy>p{
+  margin:4px 0 0;
+  color:var(--cp-muted);
+  font-size:12px;
+  line-height:1.55;
+}
+.sod-canonical-progress-head>time{
+  color:var(--cp-muted);
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+  direction:ltr;
+}
+
+.sod-canonical-progress-meter{
+  height:7px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--cp-line);
+  border-radius:999px;
+  background:color-mix(in srgb,var(--cp-panel) 86%,transparent);
+}
+.sod-canonical-progress-meter>i{
+  position:absolute;
+  inset-block:0;
+  inset-inline-start:0;
+  width:var(--cp-progress);
+  border-radius:inherit;
+  background:var(--cp-accent-btn);
+  transition:width .24s ease;
+}
+.sod-canonical-progress-meter.is-indeterminate>i{
+  width:34%;
+  animation:sod-canonical-progress-scan 1.45s ease-in-out infinite;
+}
+
+.sod-canonical-progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  color:var(--cp-muted);
+  font-size:9.5px;
+  line-height:1.45;
+}
+.sod-canonical-progress-explain,
+.sod-canonical-progress-engagement{
+  display:grid;
+  gap:8px;
+  padding-top:10px;
+  border-top:1px solid var(--cp-line);
+}
+.sod-canonical-progress-section-title{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:baseline;
+}
+.sod-canonical-progress-section-title>span{font-size:11px;font-weight:900}
+.sod-canonical-progress-section-title>small{color:var(--cp-muted);font-size:8.5px}
+.sod-canonical-progress-steps{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.sod-canonical-progress-steps>li{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 9px;
+  border:1px solid var(--cp-line);
+  border-radius:11px;
+  color:var(--cp-muted);
+  background:color-mix(in srgb,var(--cp-panel) 72%,transparent);
+  font-size:10px;
+}
+.sod-canonical-progress-steps>li.is-active{
+  border-color:var(--cp-line-strong);
+  color:var(--cp-ink);
+  background:color-mix(in srgb,var(--cp-accent) 6%,var(--cp-panel));
+}
+.sod-canonical-progress-steps>li.is-done{color:var(--cp-ink)}
+.sod-canonical-progress-steps>li>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sod-canonical-progress-safe-copy{
+  margin:0;
+  color:var(--cp-muted);
+  font-size:10.5px;
+  line-height:1.55;
+}
+.sod-canonical-progress-engagement-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.sod-canonical-progress-engagement-grid>div{
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid var(--cp-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--cp-panel) 74%,transparent);
+}
+.sod-canonical-progress-engagement-grid strong{font-size:10.5px}
+.sod-canonical-progress-engagement-grid p{margin:4px 0 0;color:var(--cp-muted);font-size:9.5px;line-height:1.45}
+.sod-canonical-progress-actions{display:flex;gap:7px;flex-wrap:wrap}
+.sod-canonical-progress-actions>button{
+  min-height:38px;
+  padding:7px 11px;
+  border:1px solid var(--cp-line);
+  border-radius:11px;
+  background:var(--cp-panel);
+  color:var(--cp-ink);
+  font:inherit;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+@keyframes sod-canonical-progress-orbit{to{transform:rotate(360deg)}}
+@keyframes sod-canonical-progress-scan{
+  0%{inset-inline-start:-36%}
+  50%{inset-inline-start:52%}
+  100%{inset-inline-start:104%}
+}
+
+@media(max-width:620px){
+  .sod-canonical-progress{min-height:188px;padding:13px;border-radius:16px}
+  .sod-canonical-progress.tier-compact{min-height:122px}
+  .sod-canonical-progress.tier-engage{min-height:310px}
+  .sod-canonical-progress-head{grid-template-columns:auto minmax(0,1fr)}
+  .sod-canonical-progress-head>time{grid-column:2;justify-self:start}
+  .sod-canonical-progress-steps,
+  .sod-canonical-progress-engagement-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .sod-canonical-progress-presence>i,
+  .sod-canonical-progress-meter.is-indeterminate>i{animation:none}
+  .sod-canonical-progress-meter.is-indeterminate>i{width:42%;opacity:.72}
+  .sod-canonical-progress-meter>i{transition:none}
+}
