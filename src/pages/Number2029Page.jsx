@@ -13,6 +13,7 @@ import {
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
+import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -29,17 +30,17 @@ function methodKey(group) {
 }
 
 function methodLabel(group) {
-  const key = clean(group?.registry?.method_key || group?.method_key || group?.method);
-  if (key === "קדמי") return "משולש";
-  if (key === "משולש גדול") return "משולש גדול";
-  return clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key) || "שיטה";
+  return canonicalMethodPublicLabel({
+    method_key: group?.registry?.method_key || group?.method_key || group?.method,
+    display_label: group?.registry?.display_label || group?.display_label,
+  });
 }
 
 function methodProfileLabel(profile) {
-  const key = clean(profile?.methodKey);
-  if (key === "קדמי") return "משולש";
-  if (key === "משולש גדול") return "משולש גדול";
-  return clean(profile?.displayLabel || profile?.methodKey) || "שיטה";
+  return canonicalMethodPublicLabel({
+    method_key: profile?.methodKey,
+    display_label: profile?.displayLabel,
+  });
 }
 
 function normalizedMethodName(value) {
