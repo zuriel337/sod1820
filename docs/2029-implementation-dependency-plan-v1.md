@@ -393,11 +393,11 @@ Current LIVE state:
 - `/topic/:slug` remains the canonical public Convergence identity and was not migrated.
 
 NOW:
-1. align `sitemap-public` Topic filtering with the live Convergence capability state;
-2. census public Topic URLs before any indexability-policy change;
-3. define/test Search admission without conflating public/approved/truth/indexable;
-4. build native 2029 `/topic/:slug` on the same canonical URL;
-5. preserve canonical/meta/robots/sitemap/OG/structured-data/internal-link and bot-no-side-effect parity;
+1. **DONE / clarified:** `lock_convergence_tree` governs the retired legacy `/numbers` tree, not canonical `/topic/:slug`; do not remove Topic URLs from sitemap based on that flag.
+2. **DONE / census baseline:** 205 public Topics; 0 missing titles; 0 missing numbers; 0 duplicate normalized titles; 172 missing subtitles; 199 carry object-shaped authored findings; 198 caveats; 187 hints; 100 phrase/source-rich; 16 with images.
+3. define/test Search admission without conflating public/approved/truth/indexable; subtitle/image absence alone is not a thin-page verdict because authored content lives mainly in `findings`.
+4. **IN PROGRESS:** native 2029 `/topic/:slug` on the same canonical URL (PR #557).
+5. preserve canonical/meta/robots/sitemap/OG/structured-data/internal-link and bot-no-side-effect parity.
 6. expose AI-readable provenance/truth distinctions from the same public owner-backed content, not AI-only pages/stores.
 
 LATER:
