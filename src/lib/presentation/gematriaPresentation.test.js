@@ -583,3 +583,22 @@ test("continuity keeps only semantic reopen state, not ephemeral UI", () => {
   });
   assert.equal("expandedSections" in model.continuity, false);
 });
+
+
+test("carries verified peer expressions without deriving or merging them", () => {
+  const model = buildGematriaPresentationModel({
+    expression: "אירן",
+    methodProfile: PROFILE,
+    methodStates: STATES,
+    peerExpressions: [
+      { expression: "אירן", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+      { expression: "ביד רמה", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+      { expression: "ארס", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+    ],
+  });
+
+  assert.equal(model.peerExpressions.length, 3);
+  assert.deepEqual(model.peerExpressions.map((peer) => peer.expression), ["אירן", "ביד רמה", "ארס"]);
+  assert.equal(model.peerExpressions.every((peer) => peer.verified), true);
+  assert.equal(model.activeMethod.methodKey, "רגיל");
+});
