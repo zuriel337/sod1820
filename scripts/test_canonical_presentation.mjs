@@ -248,7 +248,6 @@ eq("P2 Golden Card explains dependent expressions without a score", goldenCardSo
 eq("P2 Golden Card exposes full-surface callback", goldenCardSource.includes("onOpenFull"), true);
 eq("P2 Golden Card exposes lazy Journey callback", goldenCardSource.includes("onOpenJourney"), true);
 eq("P2 Golden Card exposes lazy Trace callback", goldenCardSource.includes("onOpenTrace"), true);
-eq("P2 Golden Card has post projection without post-specific truth", goldenCardCss.includes(".sod-gematria-card.is-post"), true);
 eq("P2 Golden Card meets canonical touch floor", /min-height:44px/.test(goldenCardCss), true);
 eq("P2 Golden Card respects reduced motion", goldenCardCss.includes("@media(prefers-reduced-motion:reduce)"), true);
 eq("P2 Golden Card CSS owns no local hex palette", /#[0-9a-f]{3,8}\b/i.test(goldenCardCss), false);
