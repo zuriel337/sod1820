@@ -5,9 +5,9 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 
 // 🌱 «הקהילה בשלב ההקמה» — מחליף תגובות-פתוחות בפוסטים כל עוד הקהילה נבנית (החלטת צוריאל).
-// במקום תיבה ריקה («אף אחד לא פה») → הזמנה איכותית: הוסף חידוש למחקר בבית המדרש.
+// במקום תיבה ריקה («אף אחד לא פה») → הזמנה איכותית: הוסף חידוש למחקר בעולם.
 // מד אמיתי (ספירת תרומות מאושרות) — לא אחוז-דמה (research_workspace_law: «מספרים ביושר»).
-export default function CommunityForming({ to = "/beit-midrash" }) {
+export default function CommunityForming({ to = "/world" }) {
   const P = usePalette();
   const [count, setCount] = useState(null);
 
