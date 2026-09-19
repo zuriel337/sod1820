@@ -95,6 +95,57 @@ function EvidenceSummary({ evidence }) {
   );
 }
 
+function ExpressionDependencySignal({ evidence }) {
+  const dependent = Number(evidence?.dependentExpressionPhraseCount);
+  if (!evidence?.available || !Number.isSafeInteger(dependent) || dependent <= 0) return null;
+
+  return (
+    <span
+      className="sod-gematria-card__dependency-signal"
+      aria-label={`${dependent} התאמות תלויות אינן מוסיפות משקל ראייתי חדש`}
+    >
+      <b>{dependent}</b> התאמות תלויות
+    </span>
+  );
+}
+
+function ExpressionEvidenceSummary({ evidence }) {
+  if (!evidence?.available) return null;
+
+  const raw = Number.isSafeInteger(Number(evidence.rawPhraseCount))
+    ? Number(evidence.rawPhraseCount)
+    : null;
+  const independent = Number.isSafeInteger(Number(evidence.independentPhraseCount))
+    ? Number(evidence.independentPhraseCount)
+    : null;
+  const dependent = Number.isSafeInteger(Number(evidence.dependentExpressionPhraseCount))
+    ? Number(evidence.dependentExpressionPhraseCount)
+    : null;
+
+  if (raw == null && independent == null && dependent == null) return null;
+
+  return (
+    <div className="sod-gematria-card__expression-evidence" aria-label="נרמול אמינות בין ביטויים">
+      <div>
+        <span>משקל מחקרי מנורמל</span>
+        <strong>
+          {independent != null
+            ? `${independent} קבוצות ביטוי עצמאיות`
+            : raw != null
+              ? `${raw} ביטויים`
+              : "נרמול זמין"}
+        </strong>
+      </div>
+      <div className="sod-gematria-card__expression-evidence-counts">
+        {raw != null && <span><b>{raw}</b> ביטויים נמצאו</span>}
+        {dependent != null && dependent > 0 && (
+          <span><b>{dependent}</b> לא מוסיפים משקל חדש</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SameValueNote({ model }) {
   const active = model?.activeMethod;
   if (!active || active.value == null) return null;
@@ -214,6 +265,7 @@ export default function GematriaCard({
         </button>
 
         <div className="sod-gematria-card__summary-tail">
+          <ExpressionDependencySignal evidence={model?.expressionEvidence} />
           {relationText && (
             <button
               type="button"
@@ -283,6 +335,7 @@ export default function GematriaCard({
           )}
 
           <EvidenceSummary evidence={model.evidence} />
+          <ExpressionEvidenceSummary evidence={model.expressionEvidence} />
           <SameValueNote model={model} />
 
           {model?.normalization?.visibleNoticeNeeded && (
