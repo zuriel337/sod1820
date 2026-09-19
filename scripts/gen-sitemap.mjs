@@ -32,7 +32,7 @@ const STATIC = [
   { loc: '/gematria',     priority: '0.8', changefreq: 'monthly' },
   { loc: '/name',         priority: '0.6', changefreq: 'monthly' },
   { loc: '/journey',      priority: '0.5', changefreq: 'monthly' },
-  { loc: '/beit-midrash', priority: '0.8', changefreq: 'weekly'  },
+  { loc: '/world',        priority: '0.9', changefreq: 'daily'   },
   { loc: '/code',         priority: '0.6', changefreq: 'monthly' },
   { loc: '/post',         priority: '0.9', changefreq: 'daily'   },
   { loc: '/archive',      priority: '0.8', changefreq: 'weekly'  },
