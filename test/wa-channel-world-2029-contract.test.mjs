@@ -14,6 +14,7 @@ assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
 
 // A long outage cannot silently skip from a 30-message window.
 assert.match(ingest, /RECOVERY_HISTORY_COUNT = 1000/);
+assert.match(ingest, /RECOVERY_BATCH = 10/);
 assert.match(ingest, /sort\(\(a, b\) => Number\(a\?\.timestamp \|\| 0\) - Number\(b\?\.timestamp \|\| 0\)\)/);
 assert.match(ingest, /recovery-window-saturated/);
 assert.match(ingest, /gapRows\.slice\(0, RECOVERY_BATCH\)/);
