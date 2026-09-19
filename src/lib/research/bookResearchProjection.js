@@ -309,6 +309,70 @@ export function researchRowToBookRepresentation(row) {
   };
 }
 
+export const BOOK_RESEARCH_FAMILIES = Object.freeze([
+  { id: "methods", label: "שיטות ומנגנונים", description: "פרוצדורות, שלבי פעולה ומנגנונים שהמחקר זיהה בתוך הספר.", shapes: ["procedure"] },
+  { id: "structures", label: "מבנים וטבלאות", description: "מטריצות, מבני התאמה, קומפוזיציות ודקדוקי ייצוג.", shapes: ["matrix", "composition", "grammar", "spatial"] },
+  { id: "findings", label: "ממצאים ורעיונות", description: "מושגים, תצפיות וקריאות מחקר שאינן מוצגות כמנגנון או כמבנה.", shapes: ["terms", "narrative"] },
+]);
+
+const REVIEW_SIGNAL_RE = /(pending|unresolved|mismatch|unadjudicated|unmapped|not_reproduced|restoration_candidate|ambiguous)/i;
+
+export function bookResearchNeedsReview(row, representation = null) {
+  const rep = representation || researchRowToBookRepresentation(row);
+  const verification = clean(rep?.engineVerificationState);
+  return REVIEW_SIGNAL_RE.test(verification);
+}
+
+export function bookResearchVerificationLabel(row, representation = null) {
+  const rep = representation || researchRowToBookRepresentation(row);
+  const verification = clean(rep?.engineVerificationState).toLowerCase();
+  if (row?.engine_verified === true || rep?.engineVerified === true) return "חישוב אומת במנוע";
+  if (verification.includes("source_witness_verified") || verification.includes("multi_locus_source_witness_verified")) return "המקור אומת";
+  if (verification.includes("pending")) return "אימות נוסף ממתין";
+  if (verification.includes("unresolved") || verification.includes("ambiguous")) return "יש נקודה לא פתורה";
+  if (verification.includes("mismatch")) return "נמצאה אי־התאמה";
+  if (verification.includes("unadjudicated")) return "טרם הוכרע";
+  if (verification.includes("unmapped")) return "טרם מופה למנוע";
+  if (verification.includes("not_reproduced")) return "לא שוחזר חישובית";
+  if (verification === "not_applicable") return "אימות מנוע לא רלוונטי";
+  if (verification === "not_tested") return "לא נבדק במנוע";
+  return verification ? "מצב אימות קיים" : "מצב אימות לא הוגדר";
+}
+
+export function bookResearchStatusLabel(status) {
+  const key = clean(status).toLowerCase();
+  if (key === "canonical") return "קנוני";
+  if (key === "approved") return "מאושר";
+  if (key === "candidate") return "מועמד מחקר";
+  if (key === "published") return "פורסם";
+  return key ? status : "מחקר";
+}
+
+export function buildBookResearchPresentation(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const entries = list.map(row => {
+    const representation = researchRowToBookRepresentation(row);
+    return {
+      row,
+      representation,
+      needsReview: bookResearchNeedsReview(row, representation),
+      statusLabel: bookResearchStatusLabel(row?.status),
+      verificationLabel: bookResearchVerificationLabel(row, representation),
+    };
+  });
+  const groups = BOOK_RESEARCH_FAMILIES.map(family => ({
+    ...family,
+    items: entries.filter(entry => family.shapes.includes(entry.representation.shape)),
+  })).filter(group => group.items.length);
+  return {
+    total: entries.length,
+    candidateCount: entries.filter(entry => clean(entry.row?.status).toLowerCase() === "candidate").length,
+    reviewCount: entries.filter(entry => entry.needsReview).length,
+    engineVerifiedCount: entries.filter(entry => entry.row?.engine_verified === true).length,
+    groups,
+  };
+}
+
 export function bookToWorkspaceItem(book) {
   if (!book) return null;
   const slug = clean(book?.metadata?.slug);
