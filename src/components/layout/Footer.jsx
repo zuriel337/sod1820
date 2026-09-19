@@ -17,7 +17,6 @@ const DISCOVER_LINKS = [
 ];
 
 const RESEARCH_LINKS = [
-  { label: "העולם", state: "בבנייה" },
   { label: "היכל", to: "/research" },
   { label: "העולם", to: "/world" },
   { label: "דף המספר", to: "/number" },
