@@ -188,13 +188,22 @@ export function analyzeNumericRelations(input, options = {}) {
   };
 }
 
-function relationNumbers(relation) {
+function relationInputNumbers(relation) {
   const values = [
     ...(relation.operands || []),
     ...(relation.values || []),
     ...(relation.bases || []),
     ...(relation.pair_products || []),
     relation.result,
+  ].filter(Number.isSafeInteger);
+  return [...new Set(values)].sort((a, b) => a - b);
+}
+
+function relationAnchorNumbers(relation) {
+  const values = [
+    ...relationInputNumbers(relation),
+    ...(relation.coefficients || []),
+    ...(relation.primitive || []),
     relation.midpoint,
     relation.common_factor,
     relation.e2,
@@ -225,7 +234,8 @@ export function numericRelationsToUniversalFindings(analysis, options = {}) {
   const createdBy = `ENGINE:numeric-relations@${NUMERIC_RELATION_ENGINE_VERSION}`;
 
   return analysis.relations.map(relation => {
-    const numbers = relationNumbers(relation);
+    const inputNumbers = relationInputNumbers(relation);
+    const anchorNumbers = relationAnchorNumbers(relation);
     const catalog = numericRelationOperation(relation.operation_key);
     const sourceIdentity = {
       operation_key: relation.operation_key,
@@ -266,7 +276,7 @@ export function numericRelationsToUniversalFindings(analysis, options = {}) {
         verification_state: 'not_tested',
       },
       evidence: {
-        refs: numbers.map(n => `number:${n}`),
+        refs: inputNumbers.map(n => `number:${n}`),
         facts: [{
           type: 'numeric-relation',
           operation_key: relation.operation_key,
@@ -287,7 +297,7 @@ export function numericRelationsToUniversalFindings(analysis, options = {}) {
         inputRef: options.inputRef || `numbers:${analysis.input.join(',')}`,
       },
       projection: {
-        anchors: numbers.map(value => ({ space: 'number', value })),
+        anchors: anchorNumbers.map(value => ({ space: 'number', value })),
         relations: [],
         dimensions: {
           operation_key: relation.operation_key,
