@@ -17,6 +17,15 @@ assert.match(ingest, /status: 503/);
 assert.match(ingest, /storage\.from\("submission-inbox"\)\.upload/);
 assert.match(ingest, /channelStatus\(src\.channel\) === "private"/);
 assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
+assert.match(ingest, /function normalizeProviderMediaUrl/);
+assert.match(ingest, /candidate = `https:\/\/\$\{v\}`/);
+assert.match(ingest, /step: "invalid-media-url"/);
+assert.match(ingest, /recover_channel/);
+assert.match(ingest, /recover_message_id/);
+assert.match(ingest, /targeted_recovery_requires_channel_and_message_id/);
+assert.match(ingest, /targeted_recovery_source_not_found/);
+assert.match(ingest, /Targeted repair is source-local and never advances checkpoints/);
+assert.match(ingest, /targetedRecovery: targeted/);
 
 // A long outage cannot silently skip from a 30-message window.
 assert.match(ingest, /RECOVERY_HISTORY_COUNT = 1000/);
