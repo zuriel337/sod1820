@@ -151,11 +151,18 @@ export default function ResearchPage() {
   // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
   const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
   const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
-  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון · בית המדרש" } : { icon: t.icon, img: t.img, label: t.title };
+  const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון גימטריה" } : { icon: t.icon, img: t.img, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
   const seed = sp.get("q") || "";
+  const midrashTab = sp.get("tab") || "";
+  // Legacy midrash non-calculator entry now belongs to World.
+  // Keep only tab=calc as temporary internal compatibility until native calculator replacement.
+  useEffect(() => {
+    if (tool !== "midrash" || midrashTab === "calc") return;
+    if (typeof window !== "undefined") window.location.replace("/world");
+  }, [tool, midrashTab]);
   // 🔠 Deep-link קנוני ל-ELS מהתכנסות/כל מקום: /research?tool=els&term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
   //    term (עם fallback ל-q) פותח את המונח; skip פותח את הדילוג המדויק דרך load-matrix (בלי skip → דילוג ברירת-מחדל).
   const elsTerm = sp.get("term") || seed || "";
