@@ -204,7 +204,7 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
           <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", width: "100%", display: "flex", alignItems: "center", gap: 8, background: showAll ? P.cardSoft : P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "10px 14px" }}>
             {/* החץ בצד שמאל — כמו אצל כולם */}
             <span style={{ color: P.accentDim, fontSize: 13 }}>{showAll ? "▴" : "▾"}</span>
-            <span style={{ flex: 1, textAlign: "right" }}>{showAll ? "הסתר את כל השיטות" : `כל השיטות — עוד ${others.length} שיטות (מסתתר · קדמי · משולש…)`}</span>
+            <span style={{ flex: 1, textAlign: "right" }}>{showAll ? "הסתר את כל השיטות" : `כל השיטות — עוד ${others.length} שיטות (מסתתר · משולש · אתב״ש…)`}</span>
           </button>
           {showAll && (
             <div style={{ display: "grid", gap: 11, marginTop: 11 }}>
