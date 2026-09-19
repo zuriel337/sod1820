@@ -207,6 +207,7 @@ Media performance/delivery navigation: `docs/2029-media-performance-delivery-map
 
 - 2029 System Frame / Global Now/Home adapters;
 - World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
+- **World / Convergence SEO + AI Discovery:** World Discovery + public Beit-Midrash→World cutover are LIVE. `/world` is the discovery hub; `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + canonical/meta/OG/structured-data foundation. NOW = Search admission contract and measured SEO/AI quality pass; preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
 - Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
 - Follow/Attention delivery truth;
@@ -281,6 +282,7 @@ Only decision-changing open items belong here:
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
+- final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
 - final Community/Forum disposition in the greenfield experience;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof;
 - exact Free/Registered/Premium/Credits allocation in G5;
