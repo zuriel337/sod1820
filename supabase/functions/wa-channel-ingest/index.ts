@@ -252,6 +252,17 @@ async function ingestSource(
       );
     }
 
+    if (dup) {
+      if (targeted && imageUrl && !dup.image_url) {
+        const { error: repairError } = await sb.from("channel_updates").update({ image_url: imageUrl }).eq("id", dup.id);
+        if (repairError) trace.push({ msgId, step: "targeted-media-repair-fail", error: String(repairError.message || repairError) });
+        else { n++; trace.push({ msgId, step: "targeted-media-repaired", channel: src.channel }); }
+      } else {
+        trace.push({ msgId, step: "targeted-duplicate-no-repair", channel: src.channel });
+      }
+      continue;
+    }
+
     if (!bodyText && !imageUrl) continue;
     const text = bodyText || (isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
     const isBotApi = outgoing && !!m.sendByApi;
