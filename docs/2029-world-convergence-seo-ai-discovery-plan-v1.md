@@ -118,6 +118,19 @@ Live `topic_cards_public` baseline:
 
 Implication: subtitle/image absence is **not** enough to classify a page as thin. Most semantic body material lives in source-authored `findings`, so Search admission must inspect meaningful authored content/provenance, not metadata completeness alone.
 
+Additional body-richness audit:
+- 6/205 have 0 counted authored body units;
+- 74 have 1–2;
+- 27 have 3–5;
+- 61 have 6–10;
+- 37 have 11+;
+- 75 have at least 3 phrases;
+- 23 have at least 3 bullets;
+- 100 carry an explicit source field;
+- creator distribution is mixed: human/contributor, AI, SOD/system and engine-generated.
+
+Therefore the future indexability rule must distinguish **source provenance + meaningful unique body + duplicate/thin risk**, and must not reward/penalize a page simply because the creator is AI/engine or because subtitle/image metadata is sparse.
+
 Before any bulk noindex/index change:
 - census all public Topics;
 - detect thin/duplicate/near-duplicate pages;
