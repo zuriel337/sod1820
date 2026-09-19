@@ -89,8 +89,8 @@ begin
       || '8. CLS-STABLE SLOT. Loading→Ready שומר geometry יציב ככל האפשר; אין להכניס/להסיר שורת loading שמקפיצה תוכן שכבר צויר. אותו slot משנה state/copy במקום להיעלם בפתאומיות.' || E'\n'
       || '9. ACCESSIBLE STATUS. aria-busy/live/progressbar, keyboard-safe controls ו-prefers-reduced-motion הם חלק מהחוזה. Motion אינו אינדיקציה יחידה.' || E'\n'
       || '10. TRUTH SAFE. progress/engagement אינם משנים Finding/Claim/Evidence/Verification/Governance. חומר חלקי/בינתיים נשאר מובחן מהתוצאה שעדיין מחושבת.' || E'\n'
-      || '11. DEFAULT PRESENTATION TIMING. ה-primitive שומר slot מיד; סביב 3s הוא רשאי לפתוח הסבר של שלבים, וסביב 12s שכבת long-wait companion. Domain שיודע מראש שהפעולה כבדה רשאי לפתוח long form מהתחלה. thresholds הם presentation בלבד, לא operational truth.' || E'\n'
-      || '12. MIGRATION. זהו forward law ל-2029/new/redesigned surfaces. Legacy loaders עוברים אליו כשה-surface שלהם נכנס redesign או כשה-loader משתנה מהותית; אין mass rewrite עיוור.',
+      || '12. DEFAULT PRESENTATION TIMING. ה-primitive שומר slot מיד; סביב 3s הוא רשאי לפתוח הסבר של שלבים, וסביב 12s שכבת long-wait companion. Domain שיודע מראש שהפעולה כבדה רשאי לפתוח long form מהתחלה. thresholds הם presentation בלבד, לא operational truth.' || E'\n'
+      || '13. MIGRATION. זהו forward law ל-2029/new/redesigned surfaces. Legacy loaders עוברים אליו כשה-surface שלהם נכנס redesign או כשה-loader משתנה מהותית; אין mass rewrite עיוור.',
     v_metadata,
     true,
     'canonical_ui_components_law',
