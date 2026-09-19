@@ -2,6 +2,18 @@
   "redirects": [
     {
       "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "tab", "value": "calc" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "w" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
       "destination": "/world",
       "permanent": true
     },
