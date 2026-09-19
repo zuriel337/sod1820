@@ -9,7 +9,9 @@
 
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
-import { analyzeNumericRelations, numericRelationsToUniversalFindings, NUMERIC_RELATION_ENGINE_VERSION } from './numericRelationOperations.js';
+import { analyzeNumericRelations, numericRelationsToUniversalFindings, zeckendorfToUniversalFinding, NUMERIC_RELATION_ENGINE_VERSION } from './numericRelationOperations.js';
+import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
+import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
 
 export { SAFE_W2_NUMERIC_LENSES, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2ExecutorsBase.js';
@@ -19,6 +21,8 @@ export {
   NUMERIC_RELATION_OPERATION_CATALOG,
   listNumericRelationOperations,
 } from './numericRelationOperations.js';
+
+const numericSequenceRegistry = createSequenceRegistry([fibonacciSequenceAdapter]);
 
 function clean(value) {
   if (value == null) return null;
@@ -205,6 +209,86 @@ export function createCanonicalNumberW2Executors(options = {}) {
     controls: options.gematriaControls !== false,
   });
 
+  const fibonacciZeckendorf = async ({ identityResolution }) => {
+    const anchors = numericRelationAnchors(identityResolution, 2);
+    if (anchors.length !== 1) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.SKIPPED,
+        reason: 'sequence:fibonacci:zeckendorf requires exactly one canonical number identity',
+        findings: [],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [NUMERIC_RELATION_ENGINE_VERSION, 'operation:fibonacci_zeckendorf_v1'],
+        trace: { operation_key: 'fibonacci_zeckendorf_v1', anchor_count: anchors.length },
+      };
+    }
+    if (!relationInputsArePublic(anchors)) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: 'Zeckendorf v1 refuses restricted/personal number identities until a privacy-safe relation identity projection is available',
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [NUMERIC_RELATION_ENGINE_VERSION, 'operation:fibonacci_zeckendorf_v1'],
+        trace: { operation_key: 'fibonacci_zeckendorf_v1', restricted_inputs: true },
+      };
+    }
+
+    const value = anchors[0].number;
+    const result = await runSequenceLens(numericSequenceRegistry, {
+      sequenceId: 'fibonacci',
+      query: String(value),
+      operation: SEQUENCE_OPERATION.ZECKENDORF,
+      budget: { maxSearchDepth: 100, maxOccurrences: 10, windowRadius: 8 },
+      provenance: { requestSource: 'research-composer-w2', inputRef: `number:${value}` },
+    });
+    const decomposition = result?.result?.decomposition || null;
+    const finding = zeckendorfToUniversalFinding(value, decomposition, {
+      sequenceVersion: result?.sequence_version || null,
+      accessTier: 'public',
+      inputRef: `number:${value}`,
+    });
+    if (!finding) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.FAILED,
+        reason: result?.error || 'Zeckendorf decomposition did not complete',
+        findings: [],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [NUMERIC_RELATION_ENGINE_VERSION, result?.sequence_version || 'fibonacci:unknown-version'],
+        trace: { operation_key: 'fibonacci_zeckendorf_v1', value, result_status: result?.status || null },
+      };
+    }
+    return {
+      owner: 'research_strategy_layer_law',
+      status: CAPABILITY_STATUS.EXECUTED,
+      findings: [finding],
+      findingOutcomes: [{
+        findingId: finding.id,
+        evidenceRelation: EVIDENCE_RELATION.DERIVATION,
+        reason: 'Zeckendorf is a deterministic decomposition of one value, never independent corroboration',
+      }],
+      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      semanticClass: SEMANTIC_CLASS.DERIVATION,
+      sourceRefs: [`number:${value}`],
+      versionRefs: [
+        NUMERIC_RELATION_ENGINE_VERSION,
+        'operation:fibonacci_zeckendorf_v1',
+        result?.sequence_version || 'fibonacci:unknown-version',
+      ],
+      trace: {
+        operation_key: 'fibonacci_zeckendorf_v1',
+        value,
+        decomposition,
+        sequence_version: result?.sequence_version || null,
+        truth_boundary: 'deterministic mathematical derivation; never independent evidence or canonicality by itself',
+      },
+    };
+  };
+
   const numericRelations = async ({ identityResolution }) => {
     const anchors = numericRelationAnchors(identityResolution, options.maxNumericRelationAnchors ?? 16);
     if (anchors.length < 2) {
@@ -278,6 +362,7 @@ export function createCanonicalNumberW2Executors(options = {}) {
     numeric: wrapMultiNumberExecutor(base.numeric, { maxAnchors: maxNumberAnchors, capability: 'numeric' }),
     numeric_operators: wrapMultiNumberExecutor(base.numeric_operators, { maxAnchors: maxNumberAnchors, capability: 'numeric_operators' }),
     numeric_relations: numericRelations,
+    'sequence:fibonacci:zeckendorf': fibonacciZeckendorf,
     research_objects: wrapMultiNumberExecutor(base.research_objects, { maxAnchors: maxNumberAnchors, capability: 'research_objects' }),
     'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
     'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
