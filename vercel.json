@@ -14,6 +14,18 @@
     },
     {
       "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "n" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
+      "has": [{ "type": "query", "key": "calc" }],
+      "destination": "/gematria",
+      "permanent": true
+    },
+    {
+      "source": "/beit-midrash",
       "destination": "/world",
       "permanent": true
     },
