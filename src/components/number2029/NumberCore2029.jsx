@@ -3,6 +3,7 @@ import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import "./numberCore2029.css";
 
+import { canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 const LAB = PALETTES.lab;
 const NUMBER_CORE_PALETTE = Object.freeze({
   "--s29-page": LAB.pageBg,
@@ -345,7 +346,7 @@ export default function NumberCore2029({
   const bridgeFlag = (lang) => ({ en: "🇺🇸", ru: "🇷🇺", ar: "🇸🇦", es: "🇪🇸", fr: "🇫🇷", de: "🇩🇪" }[lang] || "🌐");
   const coverageValue = Math.max(0, Math.min(100, Number(stageCoverage.percent) || 0));
   const activitySummary = [
-    stagePulse.meetingCount ? `${stagePulse.meetingCount} מפגשים` : null,
+    stagePulse.meetingCount ? `${stagePulse.meetingCount} ${canonicalResearchPublicLabel("convergence", { plural: true })}` : null,
     stagePulse.sourceCount ? `${stagePulse.sourceCount} מקורות` : null,
     stagePulse.worldCount ? `${stagePulse.worldCount} עולמות` : null,
     stagePulse.activityCount ? `${stagePulse.activityCount} פעילויות` : null,
@@ -505,7 +506,7 @@ export default function NumberCore2029({
                 <span>{world.label}</span><small>{world.count || 0}</small>
               </button>)}
               {stageRelatedNumbers.slice(0, 4).map((item) => <button key={`n:${item.value}`} type="button" onClick={() => onOpenResult?.(item.value)}>
-                <strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? "מפגש" : item.relationType}</small>
+                <strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? canonicalResearchPublicLabel("convergence") : item.relationType}</small>
               </button>)}
             </div>
             {!stageWorlds.length && !stageRelatedNumbers.length ? <div className="sod29-number-core2029-note">{stageLoading ? "מעדכן עולמות ומספרים קשורים…" : "אין כרגע שכבת עולם נוספת לתוצאה הזאת."}</div> : null}
