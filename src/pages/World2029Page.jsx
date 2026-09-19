@@ -30,6 +30,12 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
+import {
+  WORLD_RESEARCH_ATTENTION,
+  WORLD_RESEARCH_FILTER_DEFAULTS,
+  buildWorldResearchControl,
+  filterWorldResearchFindings,
+} from "../lib/research/worldResearchControl.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -728,6 +734,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [relationSort, setRelationSort] = useState("recommended");
   const [whyOpen, setWhyOpen] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
+  const [adminView, setAdminView] = useState("research");
+  const [researchFilters, setResearchFilters] = useState(() => ({ ...WORLD_RESEARCH_FILTER_DEFAULTS }));
   const [activeLane, setActiveLane] = useState("overview");
   const [contributorFilter, setContributorFilter] = useState("all");
   const [contributorLensState, setContributorLensState] = useState({ loading: false, data: null, error: null });
@@ -745,6 +753,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setRelationSort("recommended");
     setWhyOpen(null);
     setActiveLane("overview");
+    setAdminView("research");
+    setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
     setContributorLensState({ loading: false, data: null, error: null });
     setGematriaMethodFilter("all");
@@ -769,6 +779,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
   useEffect(() => {
     if (!isAdmin) {
       setAdminMode(false);
+      setAdminView("research");
+      setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
       setContributorFilter("all");
     }
   }, [isAdmin]);
@@ -830,6 +842,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
     ? researchFindings.filter((finding) => selectedResearchIds.has(researchObjectIdFromFinding(finding)))
     : researchFindings,
   [researchFindings, selectedContributor, selectedResearchIds]);
+  const researchControl = useMemo(() => buildWorldResearchControl(visibleResearchFindings), [visibleResearchFindings]);
+  const filteredResearchFindings = useMemo(
+    () => filterWorldResearchFindings(visibleResearchFindings, researchFilters),
+    [visibleResearchFindings, researchFilters],
+  );
   const topicFindings = data?.topics?.findings || [];
   const selectedTopicSlugs = useMemo(() => new Set(selectedContributor?.topicSlugs || []), [selectedContributor]);
   const visibleTopicFindings = useMemo(() => selectedContributor
@@ -892,23 +909,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
     calculations: visibleGematriaRows.length,
     sources: sourceRows.length,
     relations: graphRelations.length,
-    research: visibleResearchFindings.length + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
+    research: (adminMode ? filteredResearchFindings.length : visibleResearchFindings.length) + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
     timeline: data?.timeline?.length || 0,
   };
-  const adminSummary = useMemo(() => {
-    const byAccess = {};
-    const byGovernance = {};
-    const byVerification = {};
-    visibleResearchFindings.forEach((finding) => {
-      const access = finding?.access?.tier || "לא צוין";
-      const governance = finding?.status || "לא צוין";
-      const verification = finding?.verification?.verification_state || "לא צוין";
-      byAccess[access] = (byAccess[access] || 0) + 1;
-      byGovernance[governance] = (byGovernance[governance] || 0) + 1;
-      byVerification[verification] = (byVerification[verification] || 0) + 1;
-    });
-    return { byAccess, byGovernance, byVerification };
-  }, [visibleResearchFindings]);
+  const adminSummary = researchControl;
+  const updateResearchFilter = (key, value) => setResearchFilters((current) => ({ ...current, [key]: value }));
+  const resetResearchFilters = () => setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
 
   const backToWorld = () => {
     research.clearResearchContext?.();
@@ -1198,14 +1204,71 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.</div>
       </section>
 
-      {adminMode ? <section className="sod29-section" aria-label="מצב מנהל">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">מצב מנהל</div><h2>ראות ובקרה על מה שהשרת החזיר</h2></div></div>
-        <FrameState title="הרשאות נשארות בשרת">מצב מנהל אינו עוקף הרשאות בדפדפן ואינו מסדר את העולם ידנית. הוא מציג בנפרד Access, Governance ו־Verification לחומר שהחשבון המנהל מורשה לקרוא.</FrameState>
-        <div className="sod29-book-grid">
-          <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3></div>
-          <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3></div>
-          <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3></div>
+      {adminMode ? <section className="sod29-section sod29-world-research-control" aria-label="מצב מחקר וממשל">
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">WORLD RESEARCH CONTROL</div>
+            <h2>{adminView === "research" ? "מצב מחקר" : "מצב ממשל"}</h2>
+            <p className="sod29-muted">אותו עולם, אותה מציאות. המצב הזה חושף רק צירים שה־owners החיים כבר מחזיקים; הוא לא ממציא Processing או Publication state.</p>
+          </div>
+          <div className="sod29-actions" role="group" aria-label="מצב עבודה בעולם">
+            <button className={`sod29-action${adminView === "research" ? " primary" : ""}`} type="button" aria-pressed={adminView === "research"} onClick={() => setAdminView("research")}>מחקר</button>
+            <button className={`sod29-action${adminView === "govern" ? " primary" : ""}`} type="button" aria-pressed={adminView === "govern"} onClick={() => setAdminView("govern")}>ממשל</button>
+          </div>
         </div>
+
+        <FrameState title="הרשאות נשארות בשרת">World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
+
+        {adminView === "research" ? <>
+          <div className="sod29-world-research-inbox">
+            <div>
+              <div className="sod29-kicker">RESEARCH INBOX</div>
+              <h3>מה דורש תשומת לב סביב {data.identity.label}</h3>
+            </div>
+            <div className="sod29-world-attention-buttons" role="group" aria-label="סינון לפי תשומת לב מחקרית">
+              {Object.entries(WORLD_RESEARCH_ATTENTION).map(([key, item]) => <button
+                key={key}
+                type="button"
+                className={`sod29-action${researchFilters.attention === key ? " primary" : ""}`}
+                aria-pressed={researchFilters.attention === key}
+                onClick={() => updateResearchFilter("attention", key)}
+              >{item.label}<small>{adminSummary.attention[key] || 0}</small></button>)}
+            </div>
+          </div>
+
+          <div className="sod29-world-research-filters">
+            <label><span>סוג חומר</span><select value={researchFilters.kind} onChange={(event) => updateResearchFilter("kind", event.target.value)}>
+              <option value="all">כל הסוגים · {adminSummary.total}</option>
+              {Object.entries(adminSummary.byKind).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+            </select></label>
+            <label><span>גישה</span><select value={researchFilters.access} onChange={(event) => updateResearchFilter("access", event.target.value)}>
+              <option value="all">כל רמות הגישה</option>
+              {Object.entries(adminSummary.byAccess).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+            </select></label>
+            <label><span>ממשל</span><select value={researchFilters.governance} onChange={(event) => updateResearchFilter("governance", event.target.value)}>
+              <option value="all">כל מצבי הממשל</option>
+              {Object.entries(adminSummary.byGovernance).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+            </select></label>
+            <label><span>אימות</span><select value={researchFilters.verification} onChange={(event) => updateResearchFilter("verification", event.target.value)}>
+              <option value="all">כל מצבי האימות</option>
+              {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+            </select></label>
+            <button className="sod29-action" type="button" onClick={resetResearchFilters}>אפס סינון</button>
+          </div>
+          <div className="sod29-muted sod29-world-research-result-count">מוצגים {filteredResearchFindings.length} מתוך {visibleResearchFindings.length} ממצאי מחקר מורשים.</div>
+        </> : <>
+          <div className="sod29-book-grid sod29-world-govern-grid">
+            <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3><p>מי רשאי לקרוא את החומר. זה אינו מצב פרסום.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3><p>Candidate / Approved / Canonical נשארים נפרדים מאימות ומנראות.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
+          </div>
+          <div className="sod29-world-govern-boundaries">
+            <FrameState kind={adminSummary.capabilities.rawSource ? "empty" : "unavailable"} title="מקור גולמי / provenance">{adminSummary.capabilities.rawSource ? "לפחות לחלק מהפריטים יש sourceRef/inputRef שניתן לעקוב אחריו. פתיחת raw מלאה תחובר דרך Research Intake owner." : "ב־projection הנוכחי אין sourceRef שמאפשר לפתוח raw; World לא ימציא מקור."}</FrameState>
+            <FrameState kind="unavailable" title="Processing state עדיין לא מחובר">Raw → Extracted → Processed חייב להגיע מ־Research Intake v11. אין שדה כזה ב־research_objects ולכן הוא לא מוצג כאילו קיים.</FrameState>
+            <FrameState kind="unavailable" title="Publication state עדיין לא מחובר">privacy_scope=public_candidate אינו Published. פרסום יישאר Human Gate נפרד כאשר owner הפרסום יחובר ל־World.</FrameState>
+          </div>
+        </>}
+
         <div className="sod29-world-contributor-filter">
           <div>
             <div className="sod29-kicker">חוקר / כותב</div>
@@ -1448,9 +1511,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
-      {activeLane === "research" && visibleResearchFindings.length ? <section className="sod29-section sod29-world-human-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
-        <div className="sod29-list">{visibleResearchFindings.map((finding, index) => {
+      {activeLane === "research" && (adminMode ? filteredResearchFindings.length : visibleResearchFindings.length) ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>{adminMode ? "ממצאי המחקר לפי הסינון הנוכחי" : "דברים שנמצאו סביב הנקודה הזאת"}</h2></div>{adminMode ? <span className="sod29-chip">{filteredResearchFindings.length} / {visibleResearchFindings.length}</span> : null}</div>
+        <div className="sod29-list">{(adminMode ? filteredResearchFindings : visibleResearchFindings).map((finding, index) => {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           const presentation = humanFindingPresentation(finding, data.identity.label);
