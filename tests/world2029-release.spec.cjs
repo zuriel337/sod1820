@@ -83,7 +83,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'התכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
@@ -312,7 +312,7 @@ for (const width of MOBILE_WIDTHS) {
   test(`World Core remains usable and overflow-free at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
     const core = page.locator('.sod29-world-core-map');
     await expect(core).toBeVisible();
     const firstGate = core.locator('.sod29-world-core-node').first();
