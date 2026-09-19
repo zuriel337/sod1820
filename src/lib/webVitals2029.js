@@ -31,11 +31,13 @@ function nodeLabel(node) {
   try {
     if (!node || node.nodeType !== 1) return null;
     const tag = String(node.tagName || "").toLowerCase();
-    const id = node.id ? `#${String(node.id).slice(0, 48)}` : "";
+    // RUM diagnostics deliberately omit DOM ids/text/content. Class names are
+    // sufficient to find the shifting component while avoiding accidental
+    // capture of user- or content-derived identifiers.
     const cls = typeof node.className === "string"
       ? node.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map((x) => `.${x}`).join("")
       : "";
-    return `${tag}${id}${cls}`.slice(0, 180) || null;
+    return `${tag}${cls}`.slice(0, 180) || null;
   } catch { return null; }
 }
 
