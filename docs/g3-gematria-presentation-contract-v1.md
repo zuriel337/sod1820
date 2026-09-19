@@ -664,7 +664,6 @@ Implemented:
 - normalization disclosure only when P1 marks it materially visible;
 - lazy Journey and Trace actions through callbacks only;
 - explicit “open full page” callback;
-- post projection class for future inline Post rendering without any Post truth logic;
 - semantic palette consumption through `usePalette` + canonical typography roles;
 - 44px interaction floor, focus-visible states, RTL logical properties, responsive mobile layout and reduced-motion fallback.
 
