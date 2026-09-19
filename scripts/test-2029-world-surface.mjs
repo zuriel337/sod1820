@@ -88,10 +88,15 @@ const discoveryFixture = buildWorldDiscoveryStream([
   { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
   { id: "b", slug: "b", title: "חדש ב", created_by: "צבי", approved_at: "2026-09-19T13:00:00Z", numbers: [1020] },
   { id: "c", slug: "c", title: "חדש ג", created_by: "מנוע · זהב אחר", approved_at: "2026-09-18T13:00:00Z", numbers: [358] },
-], { limit: 10 });
-assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["חדש ב", "חדש א", "חדש ג"]);
-assert.deepEqual(discoveryFixture.creators, ["AI", "צבי", "מנוע · זהב אחר"]);
+  { id: "d", slug: "d", title: "חדש ד", created_by: "שם לא מאושר", approved_at: "2026-09-17T13:00:00Z", numbers: [777] },
+], {
+  limit: 10,
+  publicPeople: [{ displayName: "צבי (OPOC)", aliases: ["צבי"] }],
+});
+assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["חדש ב", "חדש א", "חדש ג", "חדש ד"]);
+assert.deepEqual(discoveryFixture.creators, ["AI", "צבי (OPOC)", "מנוע · זהב אחר", "מקור ציבורי"]);
 assert.equal(topicRowToWorldUpdate({ id: "x", title: "X", created_by: "AI" }).creator, "AI");
+assert.equal(topicRowToWorldUpdate({ id: "y", title: "Y", created_by: "שם לא מאושר" }).creator, "מקור ציבורי");
 assert.equal(discoveryFixture.note.includes("truth rank"), true);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
