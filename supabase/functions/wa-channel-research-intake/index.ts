@@ -171,18 +171,23 @@ async function processRow(row: any) {
       return { id: row.id, channel: row.channel, state: "reviewed_observation" };
     }
 
+    const analysisState = mediaKind === "video"
+      ? "extracted_caption_media_needs_transcription"
+      : "extracted";
     await annotateSourceObjects(ref, {
       channel: row.channel,
       route: HEAVY_CHANNELS.has(row.channel) ? "research_first" : "story_first_selective",
-      analysis_state: "extracted",
+      analysis_state: analysisState,
       analyzed_at: new Date().toISOString(),
       source_created_at: row.created_at,
       media_ref: row.image_url || null,
+      media_kind: mediaKind,
+      media_transcription_pending: mediaKind === "video",
       ocr_used: ocrUsed,
     });
-    return { id: row.id, channel: row.channel, state: "extracted", produced };
+    return { id: row.id, channel: row.channel, state: analysisState, produced };
   } catch {
-    await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed);
+    await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed, mediaKind);
     return { id: row.id, channel: row.channel, state: "analysis_failed_preserved" };
   }
 }
