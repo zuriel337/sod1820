@@ -1,0 +1,33 @@
+/* Native Topic / Convergence 2029 — semantic projection over one Universal Finding. */
+.sod29-topic2029{display:grid;gap:16px}
+.sod29-topic-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:24px;align-items:center;padding:clamp(22px,4vw,42px);border:1px solid var(--s29-line);border-radius:28px;background:radial-gradient(circle at 86% 30%,color-mix(in srgb,var(--s29-glow) 28%,transparent),transparent 34%),color-mix(in srgb,var(--s29-panel) 94%,transparent)}
+.sod29-topic-hero h1{margin:6px 0 10px;font-size:clamp(34px,5vw,64px);line-height:1.02;letter-spacing:-.035em;color:var(--s29-ink)}
+.sod29-topic-summary{max-width:820px;margin:0;color:var(--s29-muted);font-size:clamp(15px,1.6vw,18px);line-height:1.75}
+.sod29-topic-meta{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.sod29-topic-meta span,.sod29-topic-truth-strip span{padding:6px 10px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:10px}
+.sod29-topic-anchor-cluster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sod29-topic-anchor{min-height:118px;display:grid;place-items:center;align-content:center;gap:2px;text-decoration:none;border:1px solid color-mix(in srgb,var(--s29-accent) 32%,var(--s29-line));border-radius:22px;background:radial-gradient(circle,color-mix(in srgb,var(--s29-accent) 16%,var(--s29-panel)),var(--s29-panel));box-shadow:0 0 28px color-mix(in srgb,var(--s29-glow) 16%,transparent)}
+.sod29-topic-anchor strong{color:var(--s29-hero);font-size:clamp(28px,4vw,44px);font-variant-numeric:tabular-nums}
+.sod29-topic-anchor small{color:var(--s29-muted)}
+.sod29-topic-intro p{max-width:900px;color:var(--s29-muted);line-height:1.8;font-size:16px}
+.sod29-topic-truth-strip{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.sod29-topic-section{scroll-margin-top:90px}
+.sod29-topic-phrase-grid,.sod29-topic-related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sod29-topic-phrase{min-height:84px;padding:14px;border:1px solid var(--s29-line);border-radius:17px;background:var(--s29-panel-soft);text-decoration:none;color:var(--s29-ink);display:flex;flex-direction:column;justify-content:center;gap:5px}
+.sod29-topic-phrase:hover{border-color:color-mix(in srgb,var(--s29-accent) 44%,var(--s29-line))}
+.sod29-topic-phrase small{color:var(--s29-muted)}
+.sod29-topic-headline{font-size:clamp(20px,2.6vw,30px);margin:4px 0 14px;color:var(--s29-ink)}
+.sod29-topic-hint{padding:14px 16px;border:1px solid color-mix(in srgb,var(--s29-accent) 32%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel-soft) 86%,var(--s29-accent) 14%);color:var(--s29-ink);line-height:1.7;margin-bottom:10px}
+.sod29-topic-finding-card{padding:14px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel-soft);margin-bottom:10px}
+.sod29-topic-finding-card p{color:var(--s29-muted);line-height:1.7}
+.sod29-topic-finding-card small{color:var(--s29-muted)}
+.sod29-topic-bullets{margin:10px 0;padding-inline-start:22px;color:var(--s29-ink);line-height:1.85}
+.sod29-topic-claims{display:grid;gap:8px;margin-top:12px}
+.sod29-topic-claim{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 13px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft)}
+.sod29-topic-claim>div{display:grid;gap:2px}.sod29-topic-claim small{color:var(--s29-muted)}
+.sod29-topic-claim>a{font-size:20px;font-weight:900;color:var(--s29-hero);text-decoration:none}
+.sod29-topic-caveats{border-color:color-mix(in srgb,var(--s29-accent) 20%,var(--s29-line));background:color-mix(in srgb,var(--s29-panel) 94%,transparent)}
+.sod29-topic-caveats p{color:var(--s29-muted);line-height:1.8}
+.sod29-topic-source{background:color-mix(in srgb,var(--s29-panel) 94%,transparent)}
+@media(max-width:850px){.sod29-topic-hero{grid-template-columns:1fr}.sod29-topic-anchor-cluster{grid-template-columns:repeat(3,minmax(0,1fr))}.sod29-topic-phrase-grid,.sod29-topic-related-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.sod29-topic-hero{padding:18px 14px;border-radius:22px}.sod29-topic-anchor-cluster{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-topic-anchor{min-height:88px}.sod29-topic-phrase-grid,.sod29-topic-related-grid{grid-template-columns:1fr}}
