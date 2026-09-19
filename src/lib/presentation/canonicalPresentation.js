@@ -14,6 +14,22 @@ const LEGACY_PUBLIC_LABEL_OVERRIDES = Object.freeze({
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
+
+const RESEARCH_PUBLIC_LABELS = Object.freeze({
+  convergence: Object.freeze({ singular: "התכנסות", plural: "התכנסויות" }),
+});
+
+/**
+ * Human-facing Hebrew label for canonical research entity types.
+ * Internal identity remains unchanged (e.g. type="convergence").
+ */
+export function canonicalResearchPublicLabel(type, { plural = false } = {}) {
+  const key = clean(type).toLowerCase();
+  const labels = RESEARCH_PUBLIC_LABELS[key];
+  if (!labels) return clean(type);
+  return plural ? labels.plural : labels.singular;
+}
+
 /**
  * Human-facing Hebrew method label.
  * Identity remains the canonical Registry method_key; this function is presentation only.
