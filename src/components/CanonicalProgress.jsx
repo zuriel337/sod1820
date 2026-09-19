@@ -1,24 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import {
+  canonicalProgressPercent,
+  canonicalProgressTier,
+} from "../lib/canonicalProgressModel.js";
 import "./canonicalProgress.css";
-
-export const CANONICAL_PROGRESS_TIMING = Object.freeze({
-  explainAfterMs: 3000,
-  engageAfterMs: 12000,
-});
-
-function realPercent({ progress, current, total }) {
-  const explicit = Number(progress);
-  if (Number.isFinite(explicit) && explicit >= 0 && explicit <= 100) return explicit;
-
-  const done = Number(current);
-  const all = Number(total);
-  if (Number.isFinite(done) && Number.isFinite(all) && all > 0 && done >= 0 && done <= all) {
-    return (done / all) * 100;
-  }
-  return null;
-}
 
 function elapsedLabel(ms) {
   const seconds = Math.max(0, Math.floor(ms / 1000));
@@ -91,19 +78,13 @@ export default function CanonicalProgress({
   }, []);
 
   const percent = useMemo(
-    () => realPercent({ progress, current, total }),
+    () => canonicalProgressPercent({ progress, current, total }),
     [progress, current, total]
   );
   const normalizedSteps = useMemo(() => normalizeSteps(steps), [steps]);
   const normalizedEngagement = useMemo(() => normalizeEngagement(engagement), [engagement]);
 
-  const tier = compact
-    ? "compact"
-    : expectedLong || elapsed >= CANONICAL_PROGRESS_TIMING.engageAfterMs
-      ? "engage"
-      : elapsed >= CANONICAL_PROGRESS_TIMING.explainAfterMs
-        ? "explain"
-        : "standard";
+  const tier = canonicalProgressTier({ elapsedMs: elapsed, expectedLong, compact });
 
   const showExplain = tier === "explain" || tier === "engage";
   const showEngagement = tier === "engage";
