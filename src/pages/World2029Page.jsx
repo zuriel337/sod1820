@@ -1217,7 +1217,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
         </div>
 
-        <FrameState title="הרשאות נשארות בשרת">World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
+        <FrameState title="הרשאות נשארות בשרת">מצב מנהל אינו עוקף הרשאות בדפדפן. World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
 
         {adminView === "research" ? <>
           <div className="sod29-world-research-inbox">
