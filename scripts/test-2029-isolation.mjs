@@ -8,7 +8,9 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const html2029 = read("2029.html");
 const main2029 = read("src/main2029.jsx");
 const app2029 = read("src/App2029.jsx");
+const legacyApp = read("src/App.jsx");
 const shell2029 = read("src/components/experience2029/Sod2029Shell.jsx");
+const books2029 = read("src/pages/Books2029Page.jsx");
 const vite = read("vite.config.js");
 const pkg = JSON.parse(read("package.json"));
 const vercel = JSON.parse(read("vercel.json"));
@@ -31,7 +33,7 @@ assert.match(main2029, /App2029/);
 for (const required of ["AuthProvider", "ResearchProvider"]) {
   assert.match(app2029, new RegExp(required), `App2029 must preserve shared capability: ${required}`);
 }
-for (const telemetryOwner of ["trackPageview", "trackVisit", "startPageEngagement"]) {
+for (const telemetryOwner of ["trackPageview", "trackVisit", "startPageEngagement", "ensureIdentity"]) {
   assert.match(app2029, new RegExp(telemetryOwner), `App2029 must preserve semantic telemetry through existing owner: ${telemetryOwner}`);
 }
 for (const forbidden of [
@@ -68,12 +70,43 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source);
   assert.ok(item, `missing isolated 2029 rewrite: ${source}`);
   assert.equal(item.destination, "/2029.html", `2029 rewrite must target isolated document: ${source}`);
 }
+
+// Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
+// The plural detail path survives only as a compatibility alias and must never become a second canonical.
+assert.equal(app2029.includes('path="/book/:slug" element={<Books2029Page />}' ), true, "canonical Book detail must render natively in App2029");
+assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
+assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
+assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
+assert.equal(books2029.includes("path: slug ? `/books/"), false, "Book detail SEO must not mint a plural canonical");
+assert.equal(legacyApp.includes('BookHubPage'), false, "Legacy Book renderer must be retired from active App routes/imports");
+assert.match(legacyApp, /function Book2029DocumentHandoff\(\)/, "Legacy SPA must cross the document boundary for Book routes");
+for (const route of ["/books", "/books/:slug", "/book", "/book/:slug"]) {
+  assert.equal(
+    legacyApp.includes(`path="${route}" element={<Book2029DocumentHandoff />}`),
+    true,
+    `Legacy SPA must hand off ${route} to the isolated 2029 document`
+  );
+}
+
+const redirects = vercel.redirects || [];
+const bookIndexRedirect = redirects.find((r) => r.source === "/book");
+assert.deepEqual(
+  bookIndexRedirect,
+  { source: "/book", destination: "/books", permanent: true },
+  "legacy singular library index must converge to /books"
+);
+const pluralDetailRedirect = redirects.find((r) => r.source === "/books/(.*)");
+assert.deepEqual(
+  pluralDetailRedirect,
+  { source: "/books/(.*)", destination: "/book/$1", permanent: true },
+  "plural detail alias must converge permanently to canonical /book/:slug"
+);
 const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/index.html" && !r.has);
 assert.ok(catchAllIndex >= 0, "legacy SPA catch-all must remain present");
 for (const source of expected) {
