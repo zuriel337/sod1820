@@ -217,6 +217,11 @@ begin
     ),
     'web_vitals', jsonb_build_object(
       'samples', (select count(*) from vital_samples),
+      'classification', jsonb_build_object(
+        'human', (select count(*) from vital_samples where clean_classification='human'),
+        'unknown', (select count(*) from vital_samples where clean_classification='unknown'),
+        'bot', (select count(*) from vital_samples where clean_classification='bot')
+      ),
       'p75', jsonb_build_object(
         'cls', (
           select percentile_cont(0.75) within group (order by cls)
