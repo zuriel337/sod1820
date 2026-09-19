@@ -84,14 +84,12 @@ async function rehost(
       const path = `sod1820/2029/unresolved/${yyyy}/${mm}/${submissionId}/${kind}/original.${ext}`;
       const up = await sb.storage.from("submission-inbox").upload(path, buf, { contentType: ct, upsert: false });
       if (up.error) { trace.push({ msgId, step: "private-upload", error: String(up.error.message || up.error) }); return null; }
-      const { data: obj, error: objErr } = await sb.schema("storage").from("objects")
-        .select("id").eq("bucket_id", "submission-inbox").eq("name", path).maybeSingle();
-      if (objErr || !obj?.id) {
-        trace.push({ msgId, step: "private-object-id", error: String(objErr?.message || "missing_id") });
+      if (!up.data?.id) {
+        trace.push({ msgId, step: "private-object-id", error: "missing_id" });
         return null;
       }
-      // Persist only an opaque private object id. Never put a signed/private bucket path in channel_updates.
-      return `storage-object:${obj.id}`;
+      // Supabase Storage upload returns an object id. Persist only that opaque id, never a signed/private path.
+      return `storage-object:${up.data.id}`;
     }
 
     const path = `${MEDIA_DIR}/${msgId}.${ext}`;
