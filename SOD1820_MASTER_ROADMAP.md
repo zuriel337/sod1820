@@ -207,6 +207,7 @@ Media performance/delivery navigation: `docs/2029-media-performance-delivery-map
 
 - 2029 System Frame / Global Now/Home adapters;
 - World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
+- **World / Convergence SEO + AI Discovery:** `/world` is the 2029 discovery hub; `/topic/:slug` remains the canonical public Convergence identity while its native 2029 renderer, indexability gate, sitemap/canonical/OG/structured-data parity and provenance-safe AI-readable projection are implemented. Legacy Topic/Beit-Midrash presentation retires only after replacement + inbound/SEO proof. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
 - Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
 - Follow/Attention delivery truth;
@@ -281,6 +282,8 @@ Only decision-changing open items belong here:
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
+- final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` SEO behavior until Human Gate approves any bulk deindex policy;
+- final `/beit-midrash` / `/beit-midrash/:method` disposition only after native Topic + World parity and inbound/SEO audit;
 - final Community/Forum disposition in the greenfield experience;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof;
 - exact Free/Registered/Premium/Credits allocation in G5;
