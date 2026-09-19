@@ -7,6 +7,21 @@ import {
 } from "../lib/canonicalProgressModel.js";
 import "./canonicalProgress.css";
 
+export const DEFAULT_CANONICAL_PROGRESS_COPY = Object.freeze({
+  systemWorking: "המערכת עובדת עכשיו",
+  noRealPercent: "אין אחוז אמיתי לדווח — מציגים שלב חי במקום לנחש.",
+  completedPercent: (value) => `${value}% הושלמו לפי נתוני הפעולה.`,
+  stepsDone: (done, total) => `${done}/${total} שלבים הושלמו`,
+  whatHappens: "מה קורה עכשיו",
+  operationalStages: "שלבי פעולה מדווחים · לא חשיבה פנימית",
+  runningSafe: "הפעולה עדיין רצה. יוצגו כאן רק שלבים שהמנוע או ה־workflow יודעים לדווח עליהם באמת.",
+  meantime: "בינתיים",
+  longWaitLead: "העבודה ממשיכה — לא צריך לבהות במסך ריק.",
+  waitingContext: "אפשר להמשיך לעיין במה שכבר הושלם. תוכן שמופיע בזמן ההמתנה מסומן כהקשר בלבד ואינו מתחזה לתוצאה שעדיין מחושבת.",
+  minimize: "הקטן והמשך ברקע",
+  cancel: "בטל פעולה",
+});
+
 function elapsedLabel(ms) {
   const seconds = Math.max(0, Math.floor(ms / 1000));
   if (seconds < 60) return `${seconds} שנ׳`;
@@ -65,8 +80,10 @@ export default function CanonicalProgress({
   onCancel = null,
   onMinimize = null,
   className = "",
+  copy = null,
 }) {
   const palette = usePalette();
+  const t = useMemo(() => ({ ...DEFAULT_CANONICAL_PROGRESS_COPY, ...(copy || {}) }), [copy]);
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
 
@@ -121,7 +138,7 @@ export default function CanonicalProgress({
           <span>◌</span>
         </div>
         <div className="sod-canonical-progress-copy">
-          <small>{phase || "המערכת עובדת עכשיו"}</small>
+          <small>{phase || t.systemWorking}</small>
           <strong>{title}</strong>
           {detail ? <p>{detail}</p> : null}
         </div>
@@ -141,15 +158,15 @@ export default function CanonicalProgress({
 
       <div className="sod-canonical-progress-meta">
         {percent == null
-          ? <span>אין אחוז אמיתי לדווח — מציגים שלב חי במקום לנחש.</span>
-          : <span>{Math.round(percent)}% הושלמו לפי נתוני הפעולה.</span>}
-        {normalizedSteps.length ? <span>{normalizedSteps.filter((step) => step.state === "done").length}/{normalizedSteps.length} שלבים הושלמו</span> : null}
+          ? <span>{t.noRealPercent}</span>
+          : <span>{t.completedPercent(Math.round(percent))}</span>}
+        {normalizedSteps.length ? <span>{t.stepsDone(normalizedSteps.filter((step) => step.state === "done").length, normalizedSteps.length)}</span> : null}
       </div>
 
       {showExplain ? <div className="sod-canonical-progress-explain">
         <div className="sod-canonical-progress-section-title">
-          <span>מה קורה עכשיו</span>
-          <small>שלבי פעולה מדווחים · לא חשיבה פנימית</small>
+          <span>{t.whatHappens}</span>
+          <small>{t.operationalStages}</small>
         </div>
         {normalizedSteps.length ? <ol className="sod-canonical-progress-steps">
           {normalizedSteps.map((step) => <li className={`is-${step.state}`} key={step.id}>
@@ -157,14 +174,14 @@ export default function CanonicalProgress({
             <b>{step.label}</b>
           </li>)}
         </ol> : <p className="sod-canonical-progress-safe-copy">
-          הפעולה עדיין רצה. יוצגו כאן רק שלבים שהמנוע או ה־workflow יודעים לדווח עליהם באמת.
+          {t.runningSafe}
         </p>}
       </div> : null}
 
       {showEngagement ? <div className="sod-canonical-progress-engagement">
         <div className="sod-canonical-progress-section-title">
-          <span>בינתיים</span>
-          <small>העבודה ממשיכה — לא צריך לבהות במסך ריק.</small>
+          <span>{t.meantime}</span>
+          <small>{t.longWaitLead}</small>
         </div>
         {normalizedEngagement.length ? <div className="sod-canonical-progress-engagement-grid">
           {normalizedEngagement.map((item) => <div key={item.id}>
@@ -172,13 +189,13 @@ export default function CanonicalProgress({
             {item.detail ? <p>{item.detail}</p> : null}
           </div>)}
         </div> : <p className="sod-canonical-progress-safe-copy">
-          אפשר להמשיך לעיין במה שכבר הושלם. תוכן שמופיע בזמן ההמתנה מסומן כהקשר בלבד ואינו מתחזה לתוצאה שעדיין מחושבת.
+          {t.waitingContext}
         </p>}
       </div> : null}
 
       {(onCancel || onMinimize) ? <div className="sod-canonical-progress-actions">
-        {onMinimize ? <button type="button" onClick={onMinimize}>הקטן והמשך ברקע</button> : null}
-        {onCancel ? <button type="button" onClick={onCancel}>בטל פעולה</button> : null}
+        {onMinimize ? <button type="button" onClick={onMinimize}>{t.minimize}</button> : null}
+        {onCancel ? <button type="button" onClick={onCancel}>{t.cancel}</button> : null}
       </div> : null}
     </section>
   );
