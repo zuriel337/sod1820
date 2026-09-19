@@ -7,9 +7,11 @@ const migration = fs.readFileSync("supabase/migrations/20260920002000_g3_wa_chan
 
 // Or-Geula stays story/live; heavy research channels become private source ingress.
 assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
-assert.match(ingest, /return RESEARCH_FIRST_CHANNELS\.has\(channel\) \? "private" : "live"/);
+assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
+assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
 assert.match(ingest, /status: channelStatus\(src\.channel\)/);
 assert.match(ingest, /storage\.from\("submission-inbox"\)\.upload/);
+assert.match(ingest, /channelStatus\(src\.channel\) === "private"/);
 assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
 
 // A long outage cannot silently skip from a 30-message window.
