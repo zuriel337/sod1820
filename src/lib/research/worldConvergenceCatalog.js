@@ -17,6 +17,8 @@ import { compareWorldProminenceProfiles } from "./worldContextualProminence.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 const finite = (value) => {
+  if (value == null || typeof value === "boolean") return null;
+  if (typeof value === "string" && value.trim() === "") return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 };
@@ -73,20 +75,66 @@ function topicRefFromResearch(row) {
   return null;
 }
 
+function explicitCompositionRef(row) {
+  const meta = row?.meta && typeof row.meta === "object" ? row.meta : {};
+  for (const value of [
+    meta.convergence_ref,
+    meta.convergenceRef,
+    meta.composition_ref,
+    meta.compositionRef,
+    meta.convergence_id,
+    meta.convergenceId,
+  ]) {
+    const ref = clean(value);
+    if (ref) return `composition:${ref}`;
+  }
+  return null;
+}
+
 function candidateFocus(row) {
-  const slug = clean(row?.why?.topic_slug);
+  const why = row?.why && typeof row.why === "object" ? row.why : {};
+  const slug = clean(why.topic_slug);
   if (slug) return `topic:${slug}`;
-  const type = clean(row?.subject_type) || "subject";
-  const ref = clean(row?.subject_ref) || clean(row?.id);
-  return `${type}:${ref || "unknown"}`;
+  for (const value of [why.convergence_ref, why.composition_ref, row?.node_id]) {
+    const ref = clean(value);
+    if (ref) return `composition:${ref}`;
+  }
+  // A numeric subject is a filter/context facet, never universal Convergence identity.
+  return `candidate:${row?.id || "unknown"}`;
 }
 
 function researchFocus(row) {
   const topic = topicRefFromResearch(row);
   if (topic) return topic;
-  const value = finite(row?.value);
-  if (value != null) return `number:${value}`;
+  const composition = explicitCompositionRef(row);
+  if (composition) return composition;
+  const parentId = clean(row?.parent_id);
+  if (parentId) return `research-dependency:${parentId}`;
+  // Keep unrelated same-number claims separate unless an owner-backed composition/dependency says otherwise.
   return `research:${row?.id || clean(row?.source_ref) || "unknown"}`;
+}
+
+function normalizedClaimText(value) {
+  return clean(value).replace(/\s+/g, " ");
+}
+
+function researchIdentityKey(row) {
+  const meta = row?.meta && typeof row.meta === "object" ? row.meta : {};
+  const identity = meta.identity && typeof meta.identity === "object" ? meta.identity : {};
+  const sourceUid = clean(meta.source_uid || meta.sourceUid || identity.source_uid || identity.sourceUid);
+  const claimUid = clean(meta.claim_uid || meta.claimUid || identity.claim_uid || identity.claimUid);
+  if (sourceUid && claimUid) return `source-claim:${sourceUid}:${claimUid}`;
+  return `source-claim:${clean(row?.source_ref)}:${normalizedClaimText(row?.statement)}`;
+}
+
+function uniqueMembersByIdentity(members) {
+  const seen = new Set();
+  return members.filter((member) => {
+    const key = member.identityKey || member.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function topicMember(row) {
@@ -94,6 +142,7 @@ function topicMember(row) {
     .map(Number).filter(Number.isFinite);
   return {
     id: `topic:${row.id}`,
+    identityKey: `topic:${row.id}`,
     memberType: "curated",
     focusKey: topicFocus(row),
     label: clean(row.title) || clean(row.slug) || "התכנסות",
@@ -108,6 +157,8 @@ function topicMember(row) {
     reviewReason: null,
     provenanceRefs: row.slug ? [`topic:${row.slug}`] : [`topic_cards:${row.id}`],
     independentEvidenceGroups: null,
+    declaredEvidenceGroups: null,
+    independenceState: "not_asserted",
     curation: "approved",
     recommendation: null,
     sourceSignals: {
@@ -140,6 +191,7 @@ function researchMember(row) {
   const value = finite(row.value);
   return {
     id: `research:${row.id}`,
+    identityKey: researchIdentityKey(row),
     memberType: "research",
     focusKey: researchFocus(row),
     label: clean(row.statement) || "Research Relation",
@@ -156,7 +208,11 @@ function researchMember(row) {
     decisionChanging,
     reviewReason: decisionChanging ? (verificationState || clean(detail.status) || "negative_or_open") : null,
     provenanceRefs: [...new Set(refs)],
-    independentEvidenceGroups: finite(row?.meta?.independent_group_count),
+    independentEvidenceGroups: row?.meta?.independence_verified === true
+      ? finite(row?.meta?.independent_group_count)
+      : null,
+    declaredEvidenceGroups: finite(row?.meta?.independent_group_count),
+    independenceState: row?.meta?.independence_verified === true ? "verified" : "unknown",
     curation: null,
     recommendation: null,
     sourceSignals: {
@@ -182,7 +238,7 @@ function candidateMember(row) {
   const decisionChanging = mismatches.length > 0
     || recommendation === "needs_check"
     || /mismatch|contradiction|repair|supersede/i.test(reason);
-  const value = clean(row.subject_type) === "number" ? finite(row.subject_ref) : null;
+  const value = finite(row.subject_ref);
   const refs = [
     ...asArray(row.evidence_refs).map(clean),
     ...asArray(why.evidence_ids).map(clean),
@@ -195,6 +251,7 @@ function candidateMember(row) {
     || "מועמד להתכנסות";
   return {
     id: `candidate:${row.id}`,
+    identityKey: `candidate:${row.id}`,
     memberType: "candidate",
     focusKey: candidateFocus(row),
     label: title,
@@ -208,7 +265,15 @@ function candidateMember(row) {
     decisionChanging,
     reviewReason: reason || recommendation || null,
     provenanceRefs: [...new Set(refs)],
-    independentEvidenceGroups: finite(why.independent_group_count),
+    independentEvidenceGroups: why.independence_verified === true
+      ? finite(why.independent_group_count)
+      : null,
+    declaredEvidenceGroups: finite(why.independent_group_count),
+    independenceState: why.independence_verified === true
+      ? "verified"
+      : (asArray(why.shared_sources).length || clean(why.dependency_warning) || clean(why.warning))
+        ? "declared_with_caveat"
+        : "unknown",
     curation: clean(why.topic_status) === "approved" ? "approved-context" : null,
     recommendation,
     sourceSignals: {
@@ -257,31 +322,48 @@ function canonicalTitle(members, focusKey) {
 }
 
 function profileFor(members) {
-  const verificationStates = members.map((row) => row.verificationState).filter(Boolean);
-  const verificationClasses = members.map((row) => row.verificationClass || verificationBucket(row.verificationState));
-  const hasMismatch = verificationClasses.includes("mismatch") || members.some((row) => row.decisionChanging);
-  const hasMatch = verificationClasses.includes("match");
-  const hasPartial = verificationClasses.includes("partial");
-  const independentEvidenceGroups = maxFinite(members.map((row) => row.independentEvidenceGroups));
-  const provenanceRefs = [...new Set(members.flatMap((row) => row.provenanceRefs || []))];
-  const curated = members.some((row) => row.curation === "approved");
-  const approvedContext = members.some((row) => row.curation === "approved-context");
-  const verifiedMembers = members.filter((row) => (row.verificationClass || verificationBucket(row.verificationState)) === "match").length;
-  const recommendations = [...new Set(members.map((row) => row.recommendation).filter(Boolean))];
-  const latest = members.map(newestDate).filter(Boolean).sort().at(-1) || null;
+  const uniqueMembers = uniqueMembersByIdentity(members);
+  const claimMembers = uniqueMembers.filter((row) => row.memberType !== "curated");
+  const verificationStates = claimMembers.map((row) => row.verificationState).filter(Boolean);
+  const verificationClasses = claimMembers.map((row) => row.verificationClass || verificationBucket(row.verificationState));
+  const decisionChanging = uniqueMembers.some((row) => row.decisionChanging);
+  const hasMismatch = verificationClasses.includes("mismatch");
+  const allMatch = verificationClasses.length > 0 && verificationClasses.every((state) => state === "match");
+  const hasAnyMatch = verificationClasses.includes("match");
+  const hasOpenComponent = verificationClasses.some((state) => state !== "match");
+  const verification = hasMismatch
+    ? "mismatch"
+    : allMatch
+      ? "match"
+      : hasAnyMatch && hasOpenComponent
+        ? "partial"
+        : verificationClasses.includes("partial")
+          ? "partial"
+          : verificationClasses.includes("method_unknown")
+            ? "method_unknown"
+            : "not_tested";
+  const independentEvidenceGroups = maxFinite(uniqueMembers.map((row) => row.independentEvidenceGroups));
+  const declaredEvidenceGroups = maxFinite(uniqueMembers.map((row) => row.declaredEvidenceGroups));
+  const provenanceRefs = [...new Set(uniqueMembers.flatMap((row) => row.provenanceRefs || []))];
+  const curated = uniqueMembers.some((row) => row.curation === "approved");
+  const approvedContext = uniqueMembers.some((row) => row.curation === "approved-context");
+  const verifiedMembers = uniqueMembers.filter((row) => (row.verificationClass || verificationBucket(row.verificationState)) === "match").length;
+  const recommendations = [...new Set(uniqueMembers.map((row) => row.recommendation).filter(Boolean))];
+  const latest = uniqueMembers.map(newestDate).filter(Boolean).sort().at(-1) || null;
 
   let prominenceBand = "R3 · בפיתוח";
-  if (hasMismatch) prominenceBand = "R0 · דורש הכרעה";
-  else if (curated && hasMatch) prominenceBand = "R1 · מאושר + מאומת";
-  else if (hasMatch && (independentEvidenceGroups || 0) >= 3) prominenceBand = "R1 · חזק מחקרית";
-  else if (curated || hasMatch) prominenceBand = "R2 · מבוסס חלקית";
+  if (decisionChanging) prominenceBand = "R0 · דורש הכרעה";
+  else if (curated && verification === "match") prominenceBand = "R1 · מאושר + מאומת";
+  else if (verification === "match" && (independentEvidenceGroups || 0) >= 3) prominenceBand = "R1 · חזק מחקרית";
+  else if (curated || verification === "match" || verification === "partial") prominenceBand = "R2 · מבוסס חלקית";
 
   return {
     prominenceBand,
-    decisionChanging: hasMismatch,
-    verification: hasMismatch ? "mismatch" : hasMatch ? "match" : hasPartial ? "partial" : verificationBucket(verificationStates[0]),
+    decisionChanging,
+    verification,
     verifiedMembers,
     independentEvidenceGroups,
+    declaredEvidenceGroups,
     provenanceCount: provenanceRefs.length,
     provenanceRefs,
     humanCuration: curated ? "approved" : approvedContext ? "approved-context" : null,
@@ -380,23 +462,14 @@ export function compareWorldConvergenceItems(a, b, sort = "attention") {
   );
   if (shared) return shared;
 
-  // Research Strength profile extensions — still separate semantic dimensions, never one scalar.
-  const ai = finite(ap.independentEvidenceGroups) ?? -1;
-  const bi = finite(bp.independentEvidenceGroups) ?? -1;
-  if (ai !== bi) return bi - ai;
-  if ((ap.verifiedMembers || 0) !== (bp.verifiedMembers || 0)) return (bp.verifiedMembers || 0) - (ap.verifiedMembers || 0);
-  if ((ap.provenanceCount || 0) !== (bp.provenanceCount || 0)) return (bp.provenanceCount || 0) - (ap.provenanceCount || 0);
-  const c = curationRank(ap.humanCuration) - curationRank(bp.humanCuration);
-  if (c) return c;
-
-  // Source-native signals are only late tie-breakers; never cross-family truth weights.
-  for (const key of ["meter", "quality", "confidence"]) {
-    const av = finite(ap.sourceNative?.[key]);
-    const bv = finite(bp.sourceNative?.[key]);
-    if (av == null && bv == null) continue;
-    if (av == null) return 1;
-    if (bv == null) return -1;
-    if (av !== bv) return bv - av;
+  // Only independently-verified evidence-group counts may extend the shared strength ordering.
+  // Member count, raw provenance count, meter/quality/confidence and popularity never inflate Research Strength.
+  const ai = finite(ap.independentEvidenceGroups);
+  const bi = finite(bp.independentEvidenceGroups);
+  if (ai != null || bi != null) {
+    if (ai == null) return 1;
+    if (bi == null) return -1;
+    if (ai !== bi) return bi - ai;
   }
   return latestMillis(bp.latest) - latestMillis(ap.latest) || String(a.id).localeCompare(String(b.id));
 }
@@ -445,6 +518,7 @@ export function buildWorldConvergenceCatalog({
       rawLegacy: Boolean(capabilities.rawLegacy),
     },
     missing: asArray(capabilities.missing),
+    coverage: capabilities.coverage || {},
     truthBoundary: "Rank/Prominence orders attention only. It does not create Truth, verification, canonicality, publication, or a new convergence identity.",
   };
 }
@@ -471,53 +545,90 @@ export function filterWorldConvergenceCatalogItems(items = [], filters = {}) {
   });
 }
 
+const PAGE_SIZE = 500;
+const MAX_ROWS_PER_LAYER = 10000;
+
+async function fetchPagedRows(makeQuery) {
+  const rows = [];
+  let offset = 0;
+  let truncated = false;
+  while (offset < MAX_ROWS_PER_LAYER) {
+    const end = Math.min(offset + PAGE_SIZE, MAX_ROWS_PER_LAYER) - 1;
+    const { data, error } = await makeQuery(offset, end);
+    if (error) throw error;
+    const page = asArray(data);
+    rows.push(...page);
+    if (page.length < (end - offset + 1)) return { rows, truncated: false };
+    offset = end + 1;
+  }
+  truncated = true;
+  return { rows, truncated };
+}
+
 async function fetchApprovedTopics() {
-  const { data, error } = await supabase
+  return fetchPagedRows((offset, end) => supabase
     .from("topic_cards_public")
     .select(TOPIC_FIELDS)
-    .order("meter_score", { ascending: false, nullsFirst: false })
     .order("approved_at", { ascending: false, nullsFirst: false })
-    .range(0, 999);
-  if (error) throw error;
-  return asArray(data);
+    .order("id", { ascending: true })
+    .range(offset, end));
 }
 
-async function fetchResearchRelations() {
-  const { data, error } = await supabase
+function researchOperationallyRelevant(row) {
+  if (clean(row?.kind) === "relation") return true;
+  if (topicRefFromResearch(row) || explicitCompositionRef(row)) return true;
+  const bucket = verificationBucket(explicitVerificationState(row));
+  if (bucket === "mismatch" || bucket === "partial" || bucket === "method_unknown") return true;
+  const detail = row?.engine_detail && typeof row.engine_detail === "object" ? row.engine_detail : {};
+  const operational = [detail.status, detail.classification, detail.result_state, detail.outcome]
+    .map(clean).join(" ").toUpperCase();
+  if (["NEGATIVE", "NOT_REPRODUCED", "FAILED", "UNRESOLVED", "MISSING_ADAPTER"].some((token) => operational.includes(token))) return true;
+  const meta = row?.meta && typeof row.meta === "object" ? row.meta : {};
+  return Boolean(clean(meta.media_lineage_state) || clean(meta.next_action));
+}
+
+async function fetchResearchMembers() {
+  const result = await fetchPagedRows((offset, end) => supabase
     .from("research_objects")
     .select(RESEARCH_FIELDS)
-    .eq("kind", "relation")
+    .in("kind", ["relation", "observation", "hypothesis"])
     .order("created_at", { ascending: false })
-    .range(0, 1999);
-  if (error) throw error;
-  return asArray(data);
+    .order("id", { ascending: true })
+    .range(offset, end));
+  return { ...result, rows: result.rows.filter(researchOperationallyRelevant) };
 }
 
+const CANDIDATE_LIMIT = 5000;
+
 async function fetchPendingCandidates() {
-  const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: 250 });
+  const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: CANDIDATE_LIMIT });
   if (error) throw error;
-  return asArray(data?.candidates).map((row) => ({
+  const rows = asArray(data?.candidates).map((row) => ({
     ...row,
-    candidate_type: row.candidate_type || "convergence",
-    subject_type: row.subject_type || (finite(row.subject_ref) != null ? "number" : "subject"),
+    // Do not invent candidate_type/subject_type/status omitted by the legacy governed RPC.
     confidence: row.confidence ?? row.conf ?? null,
-    status: row.status || "pending",
   }));
+  return {
+    rows,
+    truncated: rows.length >= CANDIDATE_LIMIT,
+    adapter: "admin_convergence_candidates",
+    adapterLimit: CANDIDATE_LIMIT,
+  };
 }
 
 export async function fetchWorldConvergenceCatalog() {
   const settled = await Promise.allSettled([
     fetchApprovedTopics(),
-    fetchResearchRelations(),
+    fetchResearchMembers(),
     fetchPendingCandidates(),
   ]);
 
-  const topics = settled[0].status === "fulfilled" ? settled[0].value : [];
-  const researchRelations = settled[1].status === "fulfilled" ? settled[1].value : [];
-  const candidates = settled[2].status === "fulfilled" ? settled[2].value : [];
+  const topicResult = settled[0].status === "fulfilled" ? settled[0].value : { rows: [], truncated: true };
+  const researchResult = settled[1].status === "fulfilled" ? settled[1].value : { rows: [], truncated: true };
+  const candidateResult = settled[2].status === "fulfilled" ? settled[2].value : { rows: [], truncated: true };
   const missing = [];
   if (settled[0].status === "rejected") missing.push("CURATED_TOPIC_ADAPTER_FAILED");
-  if (settled[1].status === "rejected") missing.push("RESEARCH_RELATION_ADAPTER_FAILED");
+  if (settled[1].status === "rejected") missing.push("RESEARCH_MEMBER_ADAPTER_FAILED");
   if (settled[2].status === "rejected") missing.push("CANDIDATE_ADAPTER_FAILED");
 
   // Explicit 2029 seams. Never silently query the >15s global aggregate or widen the raw
@@ -526,9 +637,9 @@ export async function fetchWorldConvergenceCatalog() {
   missing.push("RAW_LEGACY_INTERNAL_OFF_BY_DEFAULT");
 
   return buildWorldConvergenceCatalog({
-    topics,
-    researchRelations,
-    candidates,
+    topics: topicResult.rows,
+    researchRelations: researchResult.rows,
+    candidates: candidateResult.rows,
     capabilities: {
       curated: settled[0].status === "fulfilled",
       research: settled[1].status === "fulfilled",
@@ -536,6 +647,12 @@ export async function fetchWorldConvergenceCatalog() {
       crossCore: false,
       rawLegacy: false,
       missing,
+      coverage: {
+        curatedTruncated: Boolean(topicResult.truncated),
+        researchTruncated: Boolean(researchResult.truncated),
+        candidatesTruncated: Boolean(candidateResult.truncated),
+        candidateAdapterLimit: candidateResult.adapterLimit || CANDIDATE_LIMIT,
+      },
     },
   });
 }
