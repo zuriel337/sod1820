@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import TransitionAnnouncement from "../components/TransitionAnnouncement.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -1780,7 +1779,6 @@ export default function World2029Page() {
       description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
       status="עולם · גילוי"
     >
-      <TransitionAnnouncement context="beit" />
       <WorldBody />
     </Sod2029Shell>
   );
