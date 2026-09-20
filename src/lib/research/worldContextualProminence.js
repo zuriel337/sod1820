@@ -485,6 +485,43 @@ function mergeCandidateDetails(preferred, alternate) {
   };
 }
 
+// Narrow identity-aware merge, PR591 serial repair A3: a governed artifact projected once
+// via a direct Graph relation and once via a Topic card is the SAME artifact only when both
+// explicitly resolve the same node/entity identity — the shared groupKey
+// `graph-counterpart:<nodeId>` a Topic finding's entityRef already carries (node:<nodeId>).
+// This is NOT a restore of generic groupKey dedup: it only ever merges a graph-relation
+// candidate with a topic candidate that names that identical node, never two topic rows,
+// never two graph rows, and never a research-dependency:* / number / title / author match.
+// The direct graph relation always stays the representative (directnessRank 0); Topic
+// summary/meter/quality/provenance enrich it as presentation/signal-only via the same
+// mergeCandidateDetails used by exact-identity dedup, so nothing here invents new merge law.
+function mergeGraphTopicSameIdentity(candidates) {
+  const graphByGroup = new Map();
+  for (const candidate of candidates) {
+    if (candidate.kind !== "graph-relation") continue;
+    if (!candidate.groupKey?.startsWith("graph-counterpart:")) continue;
+    if (!graphByGroup.has(candidate.groupKey)) graphByGroup.set(candidate.groupKey, candidate);
+  }
+  if (!graphByGroup.size) return candidates;
+
+  const consumedTopics = new Set();
+  const mergedGraph = new Map();
+  for (const candidate of candidates) {
+    if (candidate.kind !== "topic") continue;
+    if (!candidate.groupKey?.startsWith("graph-counterpart:")) continue;
+    const graphMatch = graphByGroup.get(candidate.groupKey);
+    if (!graphMatch) continue;
+    const current = mergedGraph.get(graphMatch) || graphMatch;
+    mergedGraph.set(graphMatch, mergeCandidateDetails(current, candidate));
+    consumedTopics.add(candidate);
+  }
+  if (!mergedGraph.size) return candidates;
+
+  return candidates
+    .filter((candidate) => !consumedTopics.has(candidate))
+    .map((candidate) => mergedGraph.get(candidate) || candidate);
+}
+
 // Conservative exact-identity dedup only: collapses a candidate that literally reappears
 // under the same stableKey (the same source/claim UID surfaced via two read paths). It
 // never groups by number/title/author, and it never collapses distinct dependency-family
@@ -621,8 +658,10 @@ export function buildWorldContextualProminence(data, inputs = {}, {
   ];
 
   // ACCESS FILTERING PRECEDES THIS FUNCTION via governed readers/current-session RLS.
-  // Conservative exact-identity dedup only; dependency-family members stay distinct and
+  // Narrow identity-aware merge first (same explicit node via Graph + Topic only), then
+  // conservative exact-identity dedup; dependency-family members stay distinct and
   // inspectable, ranking (not deletion) decides which one leads the bounded bundle below.
+  candidates = mergeGraphTopicSameIdentity(candidates);
   candidates = dedupeExactIdentity(candidates, comparatorOptions);
 
   const sorted = candidates.sort((a, b) => compareCandidatePriority(a, b, comparatorOptions));

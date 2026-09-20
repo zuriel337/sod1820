@@ -968,6 +968,6 @@ assert.equal(prominenceHelper.includes("Gold=100"), false);
 assert.equal(/score\s*:/.test(prominenceHelper), false, "contextual prominence helper must not emit/maintain a numeric rank score");
 assert.equal(prominenceHelper.includes("PUBLIC_RESEARCH_ACCESS"), false, "composer must consume authorized reader output rather than invent a second access vocabulary");
 assert.match(prominenceHelper, /engine_detail\.verification_state is verification authority/);
-assert.match(prominenceHelper, /DEDUP \/ SAME-ARTIFACT \/ DEPENDENCY GROUPING BEFORE RANK/);
+assert.match(prominenceHelper, /identity-aware merge.*then[\s\S]*?exact-identity dedup/);
 
 console.log("2029 native World surface acceptance: PASS");
