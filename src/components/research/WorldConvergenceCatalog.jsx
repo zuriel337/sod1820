@@ -14,6 +14,7 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const VERIFICATION_LABELS = Object.freeze({
   match: "אומת",
   mismatch: "אי־התאמה",
+  partial: "אימות חלקי",
   method_unknown: "שיטה לא זמינה",
   not_tested: "טרם נבדק",
 });
@@ -135,6 +136,7 @@ export default function WorldConvergenceCatalog({ state }) {
               <option value="all">הכול</option>
               <option value="match">אומת</option>
               <option value="mismatch">אי־התאמה</option>
+              <option value="partial">אימות חלקי</option>
               <option value="not_tested">טרם נבדק</option>
             </select>
           </label>
