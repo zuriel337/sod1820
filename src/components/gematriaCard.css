@@ -522,10 +522,16 @@
   .sod-gematria-card__secondary{font-size:17px}
   .sod-gematria-card__method-active{font-size:10px;padding-inline:6px}
   .sod-gematria-card__compact-methods{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    padding-inline:10px;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:4px;
+    padding-inline:8px;
   }
-  .sod-gematria-card__method-chip{min-height:52px}
+  .sod-gematria-card__method-chip{
+    min-height:48px;
+    padding-inline:4px;
+  }
+  .sod-gematria-card__method-chip span{font-size:9px}
+  .sod-gematria-card__method-chip strong{font-size:14px}
   .sod-gematria-card__peer-strip{padding-inline:10px}
   .sod-gematria-card__method-lens{padding-inline:10px}
   .sod-gematria-card__compact-footer{padding-inline:10px}
