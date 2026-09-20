@@ -374,13 +374,13 @@ World internal links should expose the canonical identity graph without claiming
 
 ## 12. Legacy / Beit Midrash disposition
 
-### PUBLIC BEIT MIDRASH — DONE / LIVE
+### PUBLIC BEIT MIDRASH — HUMAN GATE CORRECTION / INDEPENDENT
 
 PR #555 completed the deliberate public cutover:
-- `/beit-midrash` → permanent redirect to `/world`;
-- `/beit-midrash/*` → permanent redirect to `/world`;
+- Historical PR #555 redirected `/beit-midrash` to `/world`; **superseded by Human Gate** — `/beit-midrash` now remains directly addressable.
+- Historical PR #555 redirected `/beit-midrash/*` to `/world`; **superseded by Human Gate** — method/deep links remain within Beit Midrash.
 - legacy calculator query intents resolve to `/gematria`;
-- `/beit-midrash` removed from sitemap and `/world` admitted;
+- `/world` remains admitted independently; restoring Beit Midrash does not by itself change sitemap admission.
 - public navigation/internal convergence links moved to World.
 
 ### PRESERVED
@@ -407,7 +407,7 @@ Native Topic 2029 now owns canonical `/topic/:slug` in production. Remaining Leg
 
 ### NOW
 1. planning/docs locked and live-state reconciled;
-2. **DONE:** `/world` sitemap admission + public Beit-Midrash→World cutover;
+2. **DONE:** `/world` sitemap admission; **Human Gate superseded the Beit-Midrash→World cutover** and keeps Beit Midrash independent.
 3. **DONE / clarified:** no Topic sitemap filtering under the legacy `lock_convergence_tree` flag;
 4. **DONE:** public Topic census baseline;
 5. **DONE / LIVE:** native Topic 2029 renderer + exact-head acceptance (PR #557).
@@ -460,7 +460,7 @@ A Convergence/Topic migration is not complete until all apply:
 
 Human Gate needed before any bulk noindex/deindex operation.
 
-### HG-2 — /beit-midrash SEO routes — RESOLVED / LIVE
+### HG-2 — /beit-midrash SEO routes — RESOLVED / LIVE INDEPENDENT
 
 ZURIEL authorized immediate simplification. PR #555 permanently redirects the public Beit Midrash route family to World while preserving Topic identities/data and calculator intent. No further Human-Gate decision is needed for that public route cutover.
 
