@@ -16,6 +16,7 @@ const LAYER_LABELS = {
   all: "כל השכבות",
   topic_history: "Topics מאושרים / היסטוריים",
   research_relation: "Research Relations",
+  research_candidate: "Pending Candidates",
 };
 
 const VERIFICATION_LABELS = {
@@ -27,7 +28,11 @@ const VERIFICATION_LABELS = {
   not_applicable: "לא חל",
 };
 
-const layerLabel = (row) => row.layer === "topic_history" ? "Topic / composition" : "Research relation";
+const layerLabel = (row) => row.layer === "topic_history"
+  ? "Topic / composition"
+  : row.layer === "research_candidate"
+    ? "Research candidate"
+    : "Research relation";
 
 function optionsFrom(counts, fallback = "לא צוין") {
   return Object.keys(counts || {}).filter(Boolean).sort((a, b) => {
@@ -100,10 +105,15 @@ export default function WorldConvergenceLens({ state }) {
         <Stat label="במסלול ההתכנסות" value={projection.total} detail="לא כולל Raw legacy buckets" />
         <Stat label="Topics מאושרים" value={projection.approvedTopics} />
         <Stat label="Relations מחקריות" value={projection.researchRelations} />
+        <Stat label="Candidates פתוחים" value={projection.pendingCandidates} />
         <Stat label="Relations מאומתות" value={projection.verifiedRelations} />
         <Stat label="דורש החלטה" value={projection.decisionChanging} detail="סתירה / mismatch / negative" />
         <Stat label="רב־הפניה" value={projection.multiTrace} detail="לא בהכרח ראיות עצמאיות" />
       </div>
+
+      {projection.candidateError ? <div className="sod29-conv-error">
+        שכבת Research Candidates לא נטענה; שאר ההתכנסויות נשארות זמינות. {projection.candidateError}
+      </div> : null}
 
       {z ? <div className="sod29-conv-zvi">
         <div>
@@ -173,6 +183,7 @@ export default function WorldConvergenceLens({ state }) {
               <span className={`sod29-conv-class${row.decisionChanging ? " is-attention" : ""}`}>{row.classification}</span>
               {row.value != null ? <b>{row.value}</b> : null}
               {row.batchKey ? <span>{row.batchKey}</span> : null}
+              {row.recommendation ? <span>candidate: {row.recommendation}</span> : null}
             </div>
             <h3>{row.label}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
