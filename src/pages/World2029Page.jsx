@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
+import WorldConvergenceCatalog from "../components/research/WorldConvergenceCatalog.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -41,6 +42,7 @@ import {
 } from "../lib/research/worldResearchControl.js";
 import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
+import { fetchWorldConvergenceCatalog } from "../lib/research/worldConvergenceCatalog.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -429,6 +431,7 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
+  const [convergenceCatalogState, setConvergenceCatalogState] = useState({ enabled: false, loading: false, loadingRaw: false, payload: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -491,6 +494,59 @@ function LiveWorldLanding({ research, shell, context }) {
       });
     return () => { alive = false; };
   }, [isAdmin]);
+
+  useEffect(() => {
+    let alive = true;
+    if (!isAdmin) {
+      setConvergenceCatalogState({ enabled: false, loading: false, loadingRaw: false, payload: null, error: null });
+      return () => { alive = false; };
+    }
+    setConvergenceCatalogState({ enabled: true, loading: true, loadingRaw: false, payload: null, error: null });
+    fetchWorldConvergenceCatalog()
+      .then((payload) => {
+        if (alive) setConvergenceCatalogState({ enabled: true, loading: false, loadingRaw: false, payload, error: null });
+      })
+      .catch((error) => {
+        if (alive) setConvergenceCatalogState({ enabled: true, loading: false, loadingRaw: false, payload: null, error });
+      });
+    return () => { alive = false; };
+  }, [isAdmin]);
+
+  const loadRawConvergenceCatalog = async ({ append = false } = {}) => {
+    if (!isAdmin || convergenceCatalogState.loadingRaw) return;
+    const currentRaw = convergenceCatalogState.payload?.layers?.raw || [];
+    const rawOffset = append ? currentRaw.length : 0;
+    setConvergenceCatalogState((prev) => ({ ...prev, loadingRaw: true, error: null }));
+    try {
+      const incoming = await fetchWorldConvergenceCatalog({ includeRaw: true, rawLimit: 120, rawOffset });
+      setConvergenceCatalogState((prev) => {
+        const prior = prev.payload || {};
+        const priorLayers = prior.layers || {};
+        const nextRaw = incoming?.layers?.raw || [];
+        return {
+          ...prev,
+          enabled: true,
+          loading: false,
+          loadingRaw: false,
+          error: null,
+          payload: {
+            ...prior,
+            ...incoming,
+            layers: {
+              topics: priorLayers.topics || incoming?.layers?.topics || [],
+              relations: priorLayers.relations || incoming?.layers?.relations || [],
+              candidates: priorLayers.candidates || incoming?.layers?.candidates || [],
+              raw: append ? [...(priorLayers.raw || []), ...nextRaw] : nextRaw,
+            },
+            totals: { ...(prior.totals || {}), ...(incoming?.totals || {}) },
+            raw: incoming?.raw || prior.raw || { included: true, hasMore: false },
+          },
+        };
+      });
+    } catch (error) {
+      setConvergenceCatalogState((prev) => ({ ...prev, loadingRaw: false, error }));
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -790,6 +846,9 @@ function LiveWorldLanding({ research, shell, context }) {
 
     <WorldAllResearchTable state={allResearchState} />
 
+    {isAdmin
+      ? <WorldConvergenceCatalog state={convergenceCatalogState} onLoadRaw={loadRawConvergenceCatalog} />
+      : <>
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
@@ -843,6 +902,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
       {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
     </section>
+      </>}
 
     {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
       <div className="sod29-section-head">
