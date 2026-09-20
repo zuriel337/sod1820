@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
+import { buildNumberDeepViewProjection } from "../src/lib/research/numberDeepViewProjection.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
@@ -12,6 +13,9 @@ const coreCss = read("src/components/number2029/numberCore2029.css");
 const drawer = read("src/components/number2029/NumberDrawer2029.jsx");
 const coreProjection = read("src/lib/research/numberCoreProjection.js");
 const provider = read("src/lib/research/ResearchProvider.jsx");
+const deepView = read("src/components/number2029/NumberDeepView2029.jsx");
+const deepViewCss = read("src/components/number2029/numberDeepView2029.css");
+const deepProjection = read("src/lib/research/numberDeepViewProjection.js");
 const vercel = JSON.parse(read("vercel.json"));
 
 for (const required of [
@@ -24,6 +28,9 @@ for (const required of [
   "MATH PASSPORT",
   "runNumberMathProfile",
   "NumberCore2029",
+  "NumberDeepView2029",
+  "fetchWorldProminenceInputs",
+  "buildNumberDeepViewProjection",
   "CONVERGENCES_LABEL",
   "צא למסע 878",
 ]) {
@@ -82,6 +89,62 @@ assert.match(page, /navigate\("\/world"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
 
+
+const deep404 = buildNumberDeepViewProjection({
+  root: 404,
+  crossMethodStrength: {
+    value: 404,
+    phrase_count: 153,
+    independent_phrase_count: 147,
+    dependent_expression_phrase_count: 6,
+    independent_p1_method_count: 5,
+    signal: "CROSS_METHOD",
+  },
+  researchRows: [{
+    id: "research-axis",
+    meta: { numeric_family: { deep_view_contract_v1: { status: "candidate_private_contract_frozen_against_live_foundation" } } },
+    engine_detail: {
+      deep_view_contract_v1: {
+        deep: { show: ["raw matches"] },
+        frozen_relation_counts: {
+          "דת↔קדש": { effective_method_families: 2, role: "PRIMARY" },
+        },
+        heichal_actions: [{ action: "inspect_dependency", label: "למה זה נספר פעם אחת?", boundary: "Reliability" }],
+      },
+      deep_view_ranking_v1: {
+        primary_clusters: [
+          { key: "hub", title: "1404 hub: 1000+404", facts: ["1404=1000+404"], truth_class: "deterministic arithmetic" },
+          { key: "axis", title: "1382→1404→1426", facts: ["1382→1404→1426"], truth_class: "deterministic arithmetic" },
+        ],
+        secondary_clusters: [
+          { key: "factor", title: "[404,1404]=4×[101,351]", facts: ["404=4×101"] },
+        ],
+        control_clusters: ["same-letter permutations are dependency-normalized"],
+        context_clusters: [],
+      },
+      calibration_404_474_1404_v2: {
+        confirmed_dependent_expression_families: {
+          "404": [{ family_key: "he:דקש", phrases: ["קדש", "שקד"], collapsed_delta: 1 }],
+        },
+      },
+    },
+  }],
+});
+assert.equal(deep404.evidence.raw, 153);
+assert.equal(deep404.evidence.independent, 147);
+assert.equal(deep404.evidence.dependent, 6);
+assert.deepEqual(deep404.primary.map((row) => row.key), ["hub"], "Number Deep View must show PRIMARY clusters relevant to the current root");
+assert.deepEqual(deep404.secondary.map((row) => row.key), ["factor"]);
+assert.equal(deep404.dependentFamilies[0].phrases.join("|"), "קדש|שקד");
+assert.equal("score" in deep404.evidence, false, "Number Deep View must never invent a universal truth score");
+
+assert.match(deepView, /מפת המחקר/);
+assert.match(deepView, /לא ציון אמת/);
+assert.match(deepView, /למה זה נספר פעם אחת/);
+assert.match(deepView, /פתח בהיכל/);
+assert.match(deepViewCss, /min-height:44px/);
+assert.match(deepViewCss, /prefers-reduced-motion/);
+assert.match(deepProjection, /privateContractMayBeAccessFiltered/);
 
 const independentCross = deriveLeadingCrossing({
   root: 1237,
