@@ -482,7 +482,198 @@ const phaseBRelationRow = phaseBSourceLens.rows.find((row) => row.id === "resear
 assert.equal(phaseBRelationRow.resolvedSources[0].baseRef, "channel_updates:" + F1, "a #fragment sourceRef must resolve by exact base identity only");
 assert.equal(phaseBRelationRow.resolvedSources[0].statement, "ניסוח מלא של הודעת מקור");
 
+// PhaseB2 — media clickability gate: only an explicit http(s) media ref renders as a
+// clickable link; storage-object:<uuid>/other protected refs stay non-clickable, never
+// resolved/bypassed client-side. Contribution body (statement=title, secondary=body) must
+// render in full via the Source Inspector, no truncation.
+const CM1 = "88888888-1111-4888-8888-888888888801";
+const CB1 = "contrib-body-1";
+const mediaClickabilityMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-media-clickability", created_at: "2026-09-20T06:00:00Z", kind: "relation",
+    statement: "בדיקת קישוריות מדיה", value: 601, status: "candidate", privacy_scope: "private",
+    engine_verified: true, engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + CM1,
+    meta: { source_refs: ["research_contributions:" + CB1] },
+  }],
+  sourceMessages: [
+    { id: CM1, created_at: "2026-09-20T01:00:00Z", text: "מקור עם הפניית מדיה מוגנת", image_url: "storage-object:99999999-2222-4999-8999-999999999902", status: "live", credit: "חוקר מדיה" },
+  ],
+  contributions: [
+    { id: CB1, created_at: "2026-09-20T02:00:00Z", title: "כותרת תרומה", body: "גוף התרומה המלא עם פירוט נרחב שממשיך הרבה מעבר לכותרת עצמה.", image_url: "https://example.com/media/clickable.jpg", author_name: "תורם א" },
+  ],
+}, { researchObjects: 1, sourceMessages: 1, contributions: 1 });
+const mediaClickabilityLens = buildWorldConvergenceLensProjection(mediaClickabilityMaterial);
+const mediaClickabilityRow = mediaClickabilityLens.rows.find((row) => row.id === "research:rel-media-clickability");
+const resolvedByBase = Object.fromEntries(mediaClickabilityRow.resolvedSources.map((item) => [item.baseRef, item]));
+const protectedSource = resolvedByBase["channel_updates:" + CM1];
+const contributionSource = resolvedByBase["research_contributions:" + CB1];
+assert.equal(protectedSource.mediaUrl, null, "a non-http media ref must never render as a clickable external link");
+assert.equal(protectedSource.mediaRef, "storage-object:99999999-2222-4999-8999-999999999902", "a protected/internal ref stays inspectable as a non-clickable provenance ref");
+assert.equal(contributionSource.mediaUrl, "https://example.com/media/clickable.jpg", "an explicit http(s) media ref is clickable");
+assert.equal(contributionSource.mediaRef, null);
+assert.equal(contributionSource.statement, "כותרת תרומה", "contribution statement is the title");
+assert.equal(contributionSource.body, "גוף התרומה המלא עם פירוט נרחב שממשיך הרבה מעבר לכותרת עצמה.", "contribution body/secondary must render in full, no truncation");
 
+// PhaseB2 — shared_sources may be structured { base_source, members } (live-observed shape),
+// not just legacy plain ref strings. A structured entry must never coerce to
+// "[object Object]", and raw member ids never expand into sourceRefs as if independently
+// evidential. why.paths[] source_ref/base_source are exact source-owned provenance and
+// belong in sourceRefs too.
+const SS1 = "88888888-3333-4888-8888-888888888803";
+const SS2 = "88888888-4444-4888-8888-888888888804";
+const MEMBER_A = "11111111-aaaa-4111-8111-111111111102";
+const MEMBER_B = "11111111-aaaa-4111-8111-111111111103";
+const structuredSharedSourcesMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [{
+    id: "cand-structured-shared",
+    subject_ref: "602",
+    recommendation: "needs_check",
+    conf: null,
+    created_at: "2026-09-20T07:00:00Z",
+    why: {
+      reason: "בדיקת shared_sources מובנה",
+      shared_sources: [{ base_source: "channel_updates:" + SS1, members: [MEMBER_A, MEMBER_B] }],
+      paths: [{ source_ref: "channel_updates:" + SS2, contributor: "חוקר ב" }],
+    },
+  }],
+});
+const structuredSharedSourcesLens = buildWorldConvergenceLensProjection(structuredSharedSourcesMaterial);
+const structuredSharedSourcesRow = structuredSharedSourcesLens.rows.find((row) => row.id === "candidate:cand-structured-shared");
+assert.deepEqual(
+  structuredSharedSourcesRow.sharedSources,
+  [{ baseSource: "channel_updates:" + SS1, members: [MEMBER_A, MEMBER_B] }],
+  "structured why.shared_sources {base_source,members} must survive intact, never clean(object)->'[object Object]'",
+);
+assert.ok(structuredSharedSourcesRow.sourceRefs.includes("channel_updates:" + SS1), "shared_sources[].base_source is an exact provenance ref");
+assert.ok(structuredSharedSourcesRow.sourceRefs.includes("channel_updates:" + SS2), "why.paths[].source_ref is an exact provenance ref");
+assert.equal(structuredSharedSourcesRow.sourceRefs.includes(MEMBER_A), false, "raw shared_sources members are not independently-evidential source refs");
+assert.equal(structuredSharedSourcesRow.sourceRefs.includes(MEMBER_B), false);
+
+// PhaseC — Zvi coverage: compound identity is derived across ALL Zvi occurrences (linked +
+// unlinked) before linkage is checked, so a mixed-linkage identity (an unlinked recurrence
+// of an already-linked compound identity) is told apart from a truly uncovered identity.
+const ZM_LINKED = "99999999-1111-4999-8999-999999999911";
+const ZM_MIXED_UNLINKED = "99999999-2222-4999-8999-999999999922";
+const ZM_UNCOVERED_A = "99999999-3333-4999-8999-999999999933";
+const ZM_UNCOVERED_B = "99999999-4444-4999-8999-999999999944";
+const zviMixedLinkageMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-zvi-linked", created_at: "2026-09-20T08:00:00Z", kind: "relation",
+    statement: "קשר מקושר", value: 701, status: "candidate", privacy_scope: "private",
+    source_ref: "channel_updates:" + ZM_LINKED,
+  }],
+  sourceMessages: [
+    { id: ZM_LINKED, created_at: "2026-09-20T01:00:00Z", text: "טקסט זהה", image_url: "https://example.com/same.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_MIXED_UNLINKED, created_at: "2026-09-19T01:00:00Z", text: "טקסט זהה", image_url: "https://example.com/same.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_UNCOVERED_A, created_at: "2026-09-18T01:00:00Z", text: "טקסט אחר", image_url: "https://example.com/other.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_UNCOVERED_B, created_at: "2026-09-17T01:00:00Z", text: "טקסט אחר", image_url: "https://example.com/other.jpg", status: "live", credit: "zvi-fixture" },
+  ],
+}, { researchObjects: 1, sourceMessages: 4 });
+const zviMixedLinkageCoverage = buildZviCoverage(zviMixedLinkageMaterial);
+assert.equal(zviMixedLinkageCoverage.totalOccurrences, 4);
+assert.equal(zviMixedLinkageCoverage.linkedOccurrences, 1);
+assert.equal(zviMixedLinkageCoverage.unlinkedOccurrences, 3);
+assert.equal(zviMixedLinkageCoverage.unlinkedCompoundIdentities, 2, "2 distinct compound identities among the 3 unlinked occurrences");
+assert.equal(zviMixedLinkageCoverage.uncoveredCompoundIdentities, 1, "only the never-linked identity is truly uncovered");
+assert.equal(zviMixedLinkageCoverage.unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity, 1, "the unlinked recurrence of the already-linked identity is mixed linkage, not uncovered");
+assert.equal(zviMixedLinkageCoverage.exactDuplicateOccurrencesWithinUnlinked, 1, "the two truly-uncovered occurrences with identical text+media are one exact duplicate");
+
+// PhaseC — Research Strength no longer reasons about governance/meterScore/quality/
+// confidence/recency. Independence (independent_group_count) may break a verification tie;
+// unknown independence is never coerced to zero.
+const independenceTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    {
+      id: "cand-independent-4", subject_ref: "801", recommendation: "needs_check", conf: null, created_at: "2026-09-10T00:00:00Z",
+      why: { reason: "needs_check", independent_group_count: 4 },
+    },
+    {
+      id: "cand-independence-unknown", subject_ref: "802", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      why: { reason: "needs_check" },
+    },
+  ],
+});
+const independenceTieLens = buildWorldConvergenceLensProjection(independenceTieMaterial);
+assert.equal(independenceTieLens.rows[0].id, "candidate:cand-independent-4", "an explicit positive independent_group_count outranks unknown independence at the same verification class");
+const independentRow = independenceTieLens.rows.find((row) => row.id === "candidate:cand-independent-4");
+const unknownIndependenceRow = independenceTieLens.rows.find((row) => row.id === "candidate:cand-independence-unknown");
+assert.equal(independentRow.independentGroupCount, 4);
+assert.equal(unknownIndependenceRow.independentGroupCount, null, "unknown independence must stay null, never coerced to zero");
+
+// Unknown-independence fixture: when independence ties (both null/unknown), differing
+// confidence must NOT move Research Strength — only resolved-evidence presence and,
+// finally, the stable id may decide.
+const UE1 = "88888888-5555-4888-8888-888888888805";
+const unknownIndependenceEvidenceMaterial = buildWorldAllResearchProjection({
+  sourceMessages: [
+    { id: UE1, created_at: "2026-09-20T01:00:00Z", text: "מקור קיים לעדות", status: "live", credit: "חוקר ג" },
+  ],
+  convergenceCandidates: [
+    {
+      id: "cand-high-confidence-no-evidence", subject_ref: "901", recommendation: "needs_check", conf: 0.99, created_at: "2026-09-20T00:00:00Z",
+      why: { reason: "needs_check" },
+    },
+    {
+      id: "cand-low-confidence-with-evidence", subject_ref: "902", recommendation: "needs_check", conf: 0.01, created_at: "2026-09-01T00:00:00Z",
+      why: { reason: "needs_check", shared_sources: [{ base_source: "channel_updates:" + UE1, members: [] }] },
+    },
+  ],
+}, { sourceMessages: 1 });
+const unknownIndependenceEvidenceLens = buildWorldConvergenceLensProjection(unknownIndependenceEvidenceMaterial);
+assert.equal(
+  unknownIndependenceEvidenceLens.rows[0].id, "candidate:cand-low-confidence-with-evidence",
+  "resolved-evidence presence (binary), not confidence/meterScore/quality, must decide Research Strength once independence ties",
+);
+
+// Same verification class, no independence, no evidence either side: final tie is the
+// stable id, never createdAt/recency.
+const idTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    { id: "cand-zzz-newer", subject_ref: "903", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z", why: { reason: "needs_check" } },
+    { id: "cand-aaa-older", subject_ref: "904", recommendation: "needs_check", conf: null, created_at: "2026-01-01T00:00:00Z", why: { reason: "needs_check" } },
+  ],
+});
+const idTieLens = buildWorldConvergenceLensProjection(idTieMaterial);
+assert.equal(idTieLens.rows[0].id, "candidate:cand-aaa-older", "final Research Strength tie is the stable id (alphabetical), not recency");
+
+// Provenance sort is explicitly "more source refs" and must never fall back into Research
+// Strength for its tie-break (which would have preferred the explicit-independence row).
+const provenanceTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    { id: "cand-prov-z-independent", subject_ref: "905", recommendation: "needs_check", conf: null, created_at: "2026-01-01T00:00:00Z", why: { reason: "needs_check", independent_group_count: 4 } },
+    { id: "cand-prov-a-plain", subject_ref: "906", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z", why: { reason: "needs_check" } },
+  ],
+});
+const provenanceTieLens = buildWorldConvergenceLensProjection(provenanceTieMaterial);
+const provenanceOrdered = orderWorldConvergenceRows(provenanceTieLens.rows, "provenance");
+assert.equal(provenanceOrdered[0].provenanceCount, provenanceOrdered[1].provenanceCount, "fixture rows share the same provenanceCount so the tie-break is exercised");
+assert.equal(
+  provenanceOrdered[0].id, "candidate:cand-prov-a-plain",
+  "provenance tie-break is the stable id, never Research Strength",
+);
+
+// human_curated vs research_strength divergence: Research Strength must not prefer an
+// approved Topic merely for being governed/approved; human_curated may still prefer it.
+const humanCuratedDivergenceMaterial = buildWorldAllResearchProjection({
+  topics: [{
+    id: "topic-approved-hc", created_at: "2026-09-01T00:00:00Z", approved_at: "2026-09-02T00:00:00Z",
+    slug: "topic-approved-hc", title: "Topic מאושר", status: "approved", created_by: "ZURIEL",
+  }],
+  convergenceCandidates: [{
+    id: "cand-independent-hc", subject_ref: "907", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+    why: { reason: "needs_check", independent_group_count: 4 },
+  }],
+});
+const humanCuratedDivergenceLens = buildWorldConvergenceLensProjection(humanCuratedDivergenceMaterial);
+assert.equal(
+  humanCuratedDivergenceLens.rows[0].id, "candidate:cand-independent-hc",
+  "Research Strength must not prefer the approved Topic merely for governance",
+);
+assert.equal(
+  orderWorldConvergenceRows(humanCuratedDivergenceLens.rows, "human_curated")[0].id, "topic:topic-approved-hc",
+  "human_curated may still prioritize an approved Topic ahead of Research Strength",
+);
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);

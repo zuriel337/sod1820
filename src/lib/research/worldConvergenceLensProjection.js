@@ -18,6 +18,11 @@ import { normalizeWorldNumber, classifyWorldVerificationStrength } from "./world
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 
+// Only an explicit http(s) URL is ever an external clickable media link. A protected/
+// internal reference such as "storage-object:<uuid>" (or any other non-http ref) stays a
+// non-clickable provenance/access reference — never resolved or bypassed client-side.
+const HTTP_MEDIA_PATTERN = /^https?:\/\//i;
+
 export const WORLD_CONVERGENCE_FILTER_DEFAULTS = Object.freeze({
   query: "",
   layer: "all",
@@ -125,12 +130,20 @@ function resolveSourceOccurrences(refs, sourceIndex) {
     if (!base || seen.has(base)) continue;
     seen.add(base);
     const source = sourceIndex.get(base) || null;
+    // contribution rows carry statement=title, secondary=body; the full body must survive
+    // to the inspector uncut — no truncation, no fuzzy re-derivation.
+    const body = source ? clean(source.secondary) || null : null;
+    const rawMedia = source ? clean(source.mediaUrl) || null : null;
+    const mediaIsClickable = Boolean(rawMedia) && HTTP_MEDIA_PATTERN.test(rawMedia);
     out.push(Object.freeze({
       ref, baseRef: base, resolved: Boolean(source), family: source?.family || null,
       statement: source ? clean(source.statement) : null,
+      body,
       contributor: source ? clean(source.contributor) || null : null,
       createdAt: source?.createdAt || null,
-      mediaUrl: source?.mediaUrl || null, mediaClass: source?.mediaClass || null,
+      mediaUrl: mediaIsClickable ? rawMedia : null,
+      mediaRef: rawMedia && !mediaIsClickable ? rawMedia : null,
+      mediaClass: source?.mediaClass || null,
       href: source?.href || null,
     }));
   }
@@ -174,6 +187,9 @@ function makeTopicRow(row) {
     contributor: clean(row.contributor) || null, sourceRef: clean(row.sourceRef) || null,
     sourceRefs: refs, provenanceCount: refs.length, meterScore: finite(row.meterScore),
     quality: finite(row.quality), confidence: null, batchKey: null, parentId: null,
+    // Independence is a candidate-native signal (why.independent_group_count); a Topic
+    // never owns it, so it stays explicitly null rather than being inferred.
+    independentGroupCount: null,
     operationalState: null, href: row.href || null,
   };
   out.decisionChanging = isDecisionChanging(out);
@@ -199,6 +215,33 @@ function candidateContributor(why, topicTitle) {
   return null;
 }
 
+// why.shared_sources may be legacy plain ref strings OR (live-observed shape) structured
+// objects { base_source, members }. A structured entry must never be coerced through
+// clean(object) -> "[object Object]"; base_source + members are preserved explicitly.
+// Raw member ids are not independent evidence on their own — they are kept as members,
+// never expanded into sourceRefs/provenance as if each were its own source.
+function normalizeSharedSources(value) {
+  const out = [];
+  for (const entry of asArray(value)) {
+    if (entry && typeof entry === "object" && !Array.isArray(entry)) {
+      const baseSource = clean(entry.base_source);
+      const members = unique(asArray(entry.members));
+      if (baseSource || members.length) out.push(Object.freeze({ baseSource: baseSource || null, members: Object.freeze(members) }));
+    } else {
+      const baseSource = clean(entry);
+      if (baseSource) out.push(Object.freeze({ baseSource, members: Object.freeze([]) }));
+    }
+  }
+  return out;
+}
+
+// why.paths[] are source-owned provenance hops. Their source_ref/base_source are exact
+// source references and belong in provenance, distinct from why.generated_by/why.source
+// (agent attribution, never provenance).
+function pathSourceRefs(why) {
+  return unique(asArray(why?.paths).flatMap((path) => [clean(path?.source_ref), clean(path?.base_source)]));
+}
+
 function makeCandidateRow(row) {
   const why = row?.why && typeof row.why === "object" ? row.why : {};
   const recommendation = clean(row?.recommendation) || "needs_check";
@@ -215,13 +258,16 @@ function makeCandidateRow(row) {
   const hasExplicitMismatch = mismatches.length > 0 || /mismatch|contradiction/i.test(reason);
   const decisionChanging = hasExplicitMismatch;
   const verification = hasExplicitMismatch ? "mismatch" : recommendation === "needs_check" ? "review_required" : "not_tested";
-  const sharedSources = unique(asArray(why?.shared_sources));
+  const sharedSources = normalizeSharedSources(why?.shared_sources);
+  const sharedSourceRefs = unique(sharedSources.map((entry) => entry.baseSource));
   const warnings = asArray(why?.warnings).map(clean).filter(Boolean);
+  const independentGroupCount = finite(why?.independent_group_count);
   const sourceRefs = unique([
     "research_candidates:" + row.id,
     ...asArray(row?.evidence_refs),
     ...asArray(why?.evidence_refs),
-    ...sharedSources,
+    ...sharedSourceRefs,
+    ...pathSourceRefs(why),
   ]);
   const classification = decisionChanging
     ? "דורש החלטה"
@@ -253,6 +299,7 @@ function makeCandidateRow(row) {
     provenanceCount: sourceRefs.length,
     sharedSources,
     warnings,
+    independentGroupCount,
     meterScore: null,
     quality: null,
     confidence,
@@ -274,8 +321,7 @@ function makeCandidateRow(row) {
   if (mismatches.length) out.explainWhy.push(mismatches.length + " אי־התאמות מנוע מתועדות ב־candidate.");
   if (recommendation === "strong") out.explainWhy.push("ה־Research Candidate מסומן strong; זהו אות תיעדוף, לא Truth.");
   if (recommendation === "duplicate") out.explainWhy.push("המערכת חושדת בכפילות/איחוד; אין ליצור Convergence חדש לפני reconciliation.");
-  const independent = finite(why?.independent_group_count);
-  if (independent != null) out.explainWhy.push(independent + " קבוצות ראיה עצמאיות מדווחות במועמד.");
+  if (independentGroupCount != null) out.explainWhy.push(independentGroupCount + " קבוצות ראיה עצמאיות מדווחות במועמד.");
   else out.explainWhy.push("עצמאות הראיות אינה ידועה (independence=null); הפניות המקור אינן נחשבות עצמאיות כברירת מחדל.");
   if (sharedSources.length) out.explainWhy.push(sharedSources.length + " מקורות משותפים (shared_sources) מתועדים; הם אינם עדות עצמאית.");
   if (warnings.length) out.explainWhy.push(warnings.length + " אזהרות מתועדות במועמד — נשמרות, לא נמחקות.");
@@ -297,6 +343,8 @@ function makeRelationRow(row) {
     sourceRef: clean(row.sourceRef) || null, sourceRefs: refs, provenanceCount: refs.length,
     meterScore: null, quality: null, confidence: finite(row.confidence), batchKey: clean(row.batchKey) || null,
     parentId: clean(row.parentId) || null, operationalState: clean(row.operationalState) || null,
+    // Independence is a candidate-native signal; a Research Relation never owns it.
+    independentGroupCount: null,
     href: row.href || null,
     // Never flatten a local mismatch behind a top-level "match": the raw engine state and
     // every raw per-scope state survive verbatim for inspection alongside the composed
@@ -349,24 +397,33 @@ function compareNullableDesc(a, b) {
   return bv - av;
 }
 
-// Research Strength: verification strength alone decides this dimension, so an explicit
-// match always precedes a mismatch/open state. Decision-changing status is surfaced
-// through the `decisionChanging`/`needs_decision` filter and classification label, not by
-// hoisting mismatches ahead of matches here — that is catalog-review/attention ordering,
-// kept separate in compareCatalogAttention below.
+// A resolved source occurrence other than the candidate's own self-ref
+// ("research_candidates:<id>" never resolves against the source index anyway) counts as
+// binary provenance quality. Raw ref count is never the signal here.
+function hasResolvedEvidence(row) {
+  return asArray(row.resolvedSources).some((item) => item?.resolved && item.baseRef !== row.sourceRef);
+}
+
+// Research Strength: verification strength alone decides the primary dimension, so an
+// explicit match always precedes a mismatch/open state. Governance/curation status,
+// meterScore/quality/confidence and recency are deliberately NOT part of Research
+// Strength — those are Human Curation/legacy signal, surfaced separately (human_curated
+// sort, explainWhy) and never folded into this global ranking. Decision-changing status is
+// surfaced through the `decisionChanging`/`needs_decision` filter and classification label,
+// not by hoisting mismatches ahead of matches here — that is catalog-review/attention
+// ordering, kept separate in compareCatalogAttention below.
 function compareResearchStrength(a, b) {
   // Lexicographic dimensions only. Never collapse to one opaque "truth score".
-  const semanticA = [verificationClass(a), governanceClass(a)];
-  const semanticB = [verificationClass(b), governanceClass(b)];
-  for (let i = 0; i < semanticA.length; i += 1) if (semanticA[i] !== semanticB[i]) return semanticA[i] - semanticB[i];
-  if (a.layer === b.layer) {
-    for (const key of ["meterScore", "quality", "confidence"]) {
-      const compared = compareNullableDesc(a[key], b[key]);
-      if (compared) return compared;
-    }
-  }
-  const dateCompared = clean(b.createdAt).localeCompare(clean(a.createdAt));
-  return dateCompared || String(a.id).localeCompare(String(b.id));
+  const verificationCompared = verificationClass(a) - verificationClass(b);
+  if (verificationCompared) return verificationCompared;
+  // An explicit positive independent_group_count may outrank an unknown (null) count;
+  // unknown independence is never coerced to zero — it just never wins this tie.
+  const independenceCompared = compareNullableDesc(a.independentGroupCount, b.independentGroupCount);
+  if (independenceCompared) return independenceCompared;
+  const evidenceCompared = (hasResolvedEvidence(b) ? 1 : 0) - (hasResolvedEvidence(a) ? 1 : 0);
+  if (evidenceCompared) return evidenceCompared;
+  // Final deterministic tie is the stable id — never date/recency.
+  return String(a.id).localeCompare(String(b.id));
 }
 
 // Catalog-review / attention ordering: a decision-changing negative — especially one
@@ -390,8 +447,19 @@ export function compareCatalogAttention(a, b) {
 function compareRows(a, b, sort) {
   if (sort === "attention") return compareCatalogAttention(a, b);
   if (sort === "newest") return clean(b.createdAt).localeCompare(clean(a.createdAt)) || String(a.id).localeCompare(String(b.id));
-  if (sort === "provenance") return (b.provenanceCount - a.provenanceCount) || compareResearchStrength(a, b);
-  if (sort === "human_curated") return (a.humanApproved ? 0 : 1) - (b.humanApproved ? 0 : 1) || compareResearchStrength(a, b);
+  // Provenance is explicitly "more source refs" — it must never fall back into Research
+  // Strength (which no longer even reasons about raw ref volume); ties break on stable id.
+  if (sort === "provenance") return (b.provenanceCount - a.provenanceCount) || String(a.id).localeCompare(String(b.id));
+  // human_curated is Human Gate curation, kept separate from Research Strength: it may
+  // prioritize humanApproved and governance explicitly before falling back to Research
+  // Strength for anything governance doesn't already decide.
+  if (sort === "human_curated") {
+    const humanCompared = (a.humanApproved ? 0 : 1) - (b.humanApproved ? 0 : 1);
+    if (humanCompared) return humanCompared;
+    const governanceCompared = governanceClass(a) - governanceClass(b);
+    if (governanceCompared) return governanceCompared;
+    return compareResearchStrength(a, b);
+  }
   if (sort === "value_asc" || sort === "value_desc") {
     const av = finite(a.value), bv = finite(b.value);
     if (av == null && bv == null) return compareResearchStrength(a, b);
@@ -429,6 +497,15 @@ function numberMentions(text) {
   return [...clean(text).matchAll(/(?<![0-9])([0-9]{2,4})(?![0-9])/g)].map((match) => Number(match[1])).filter((value) => value >= 10 && value <= 9999);
 }
 
+function zviCompoundIdentity(row) {
+  return normalizeText(row.statement).replace(/\s+/g, "") + "\u001f" + clean(row.mediaUrl);
+}
+
+// Compound identity (text + media) is derived across ALL Zvi source occurrences first —
+// linked and unlinked alike — and only then is linkage checked per identity. This is what
+// lets an unlinked occurrence that happens to share its identity with an already-linked one
+// be told apart from a truly-uncovered identity, instead of computing coverage purely
+// within the unlinked subset (which cannot see the linked side at all).
 export function buildZviCoverage(allResearchProjection) {
   const rows = asArray(allResearchProjection?.rows);
   const sources = rows.filter((row) => row.family === "source_message" && contributorLooksLikeZvi(row.contributor));
@@ -441,29 +518,55 @@ export function buildZviCoverage(allResearchProjection) {
     }
   }
   const topicValues = new Set(rows.filter((row) => row.family === "topic").flatMap((row) => asArray(row.values)).map(Number).filter(Number.isFinite));
-  const unlinked = sources.filter((row) => !linkedSourceIds.has(String(row.sourceId)));
+
+  const linked = [];
+  const unlinked = [];
+  for (const row of sources) {
+    (linkedSourceIds.has(String(row.sourceId)) ? linked : unlinked).push(row);
+  }
+  const linkedIdentities = new Set(linked.map(zviCompoundIdentity));
+
   const byNorm = new Map();
   for (const row of unlinked) {
-    const key = normalizeText(row.statement).replace(/\s+/g, "") + "\u001f" + clean(row.mediaUrl);
+    const key = zviCompoundIdentity(row);
     const list = byNorm.get(key) || [];
     list.push(row);
     byNorm.set(key, list);
   }
-  let exactDuplicateOccurrences = 0, topicAnchoredUnique = 0, uniqueUnlinked = 0;
+  let exactDuplicateOccurrencesWithinUnlinked = 0;
+  let topicAnchoredUnique = 0;
+  let uncoveredCompoundIdentities = 0;
+  let unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity = 0;
   const bucketCounts = {};
-  for (const list of byNorm.values()) {
+  for (const [key, list] of byNorm) {
     if (!list.length) continue;
-    uniqueUnlinked += 1;
-    exactDuplicateOccurrences += Math.max(0, list.length - 1);
+    exactDuplicateOccurrencesWithinUnlinked += Math.max(0, list.length - 1);
+    const alreadyCovered = linkedIdentities.has(key);
+    if (alreadyCovered) {
+      unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity += list.length;
+      continue;
+    }
+    // Buckets/topic-anchor backlog use only truly uncovered identities — a compound
+    // identity that already has a linked occurrence elsewhere is mixed linkage, not backlog.
+    uncoveredCompoundIdentities += 1;
     const representative = list.find((row) => row.mediaUrl) || list[0];
     const bucket = classifySourceForTriage(representative);
     bucketCounts[bucket] = (bucketCounts[bucket] || 0) + 1;
     if (numberMentions(representative.statement).some((value) => topicValues.has(value))) topicAnchoredUnique += 1;
   }
+  const unlinkedCompoundIdentities = byNorm.size;
+
   return Object.freeze({
-    totalSources: sources.length, linkedSources: sources.length - unlinked.length, unlinkedSources: unlinked.length,
-    uniqueUnlinked, exactDuplicateOccurrences, topicAnchoredUnique, buckets: Object.freeze(bucketCounts),
-    rule: "Compound source identity = text + media. Same placeholder text with different media is never deduped; true repeats are collapsed only for attention/rank, never deleted.",
+    // Preserved field names (A2/A3/PhaseB tests).
+    totalSources: sources.length, linkedSources: linked.length, unlinkedSources: unlinked.length,
+    uniqueUnlinked: unlinkedCompoundIdentities, exactDuplicateOccurrences: exactDuplicateOccurrencesWithinUnlinked,
+    topicAnchoredUnique, buckets: Object.freeze(bucketCounts),
+    // Explicit occurrence/compound-identity vocabulary (Phase B2/C).
+    totalOccurrences: sources.length, linkedOccurrences: linked.length, unlinkedOccurrences: unlinked.length,
+    unlinkedCompoundIdentities, uncoveredCompoundIdentities,
+    unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity,
+    exactDuplicateOccurrencesWithinUnlinked,
+    rule: "Compound source identity = text + media, derived across all Zvi occurrences before linkage is checked. Same placeholder text with different media is never deduped; true repeats are collapsed only for attention/rank, never deleted.",
   });
 }
 

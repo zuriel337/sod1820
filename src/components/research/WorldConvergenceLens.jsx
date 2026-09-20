@@ -69,6 +69,7 @@ function SourceOccurrence({ item }) {
     </div>
     {item.resolved ? <>
       {item.statement ? <p>{item.statement}</p> : null}
+      {item.body ? <p className="sod29-conv-source-body">{item.body}</p> : null}
       <div className="sod29-conv-source-meta">
         {item.contributor ? <span>{item.contributor}</span> : null}
         {dateLabel(item.createdAt) ? <span>{dateLabel(item.createdAt)}</span> : null}
@@ -76,6 +77,9 @@ function SourceOccurrence({ item }) {
       {item.mediaUrl ? <a className="sod29-conv-media-link" href={item.mediaUrl} target="_blank" rel="noreferrer">
         קישור מדיה מקורית ←
       </a> : null}
+      {item.mediaRef ? <span className="sod29-conv-media-ref">
+        הפניית מדיה מוגנת (לא קישור חיצוני): <code>{item.mediaRef}</code>
+      </span> : null}
     </> : null}
   </li>;
 }
@@ -126,7 +130,14 @@ function RowInspector({ row }) {
       <span className="sod29-kicker">Research Candidate · מקורות משותפים ואזהרות</span>
       {row.generatedBy ? <div>נוצר על־ידי (agent): {row.generatedBy}</div> : null}
       {row.sharedSources?.length
-        ? <div>{row.sharedSources.length} shared_sources: <code>{row.sharedSources.join(" · ")}</code></div>
+        ? <div>{row.sharedSources.length} shared_sources (לא עדות עצמאית):
+            <ul className="sod29-conv-shared-sources">
+              {row.sharedSources.map((entry) => <li key={entry.baseSource || entry.members.join(",")}>
+                <code>{entry.baseSource || "ללא base_source"}</code>
+                {entry.members.length ? <span> · {entry.members.length} members</span> : null}
+              </li>)}
+            </ul>
+          </div>
         : <div>אין shared_sources מתועדים.</div>}
       {row.warnings?.length ? <ul>{row.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul> : null}
     </div> : null}
