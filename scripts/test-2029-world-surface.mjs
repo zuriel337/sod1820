@@ -240,7 +240,7 @@ const convergenceMaterialFixture = buildWorldAllResearchProjection({
     id: "rel-mismatch", created_at: "2026-09-20T03:00:00Z", kind: "relation",
     statement: "משפחת 417 עם אי־התאמה", value: 417, status: "candidate",
     privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: false,
-    engine_detail: { verification_state: "mismatch" },
+    engine_detail: { verification_state: "partial_match_with_mismatches" },
     source_ref: "channel_updates:" + Z1 + "#batch003:mixed",
     meta: { batch_key: "G3_ZVI_RESEARCH_BATCH_003", source_refs: ["channel_updates:" + Z1] },
   }, {
@@ -292,13 +292,13 @@ assert.equal(convergenceLensFixture.researchRelations, 2);
 assert.equal(convergenceLensFixture.pendingCandidates, 1);
 assert.equal(convergenceLensFixture.verifiedRelations, 1);
 assert.equal(convergenceLensFixture.rows[0].id, "candidate:cand-approved-mismatch", "a needs_check mismatch affecting an approved Topic must surface first");
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "needs_decision" }).length, 2, "partial_match_with_mismatches must remain decision-changing");
 assert.equal(convergenceLensFixture.rows[0].confidence, 1);
 assert.equal(Object.hasOwn(convergenceLensFixture.rows[0], "score"), false, "candidate confidence must not become a universal truth score");
 assert.equal(Object.hasOwn(convergenceLensFixture.rows[0], "score"), false, "Convergence 2029 must not emit a universal numeric truth score");
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_relation" }).length, 2);
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_candidate" }).length, 1);
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "verified" }).length, 1);
-assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "needs_decision" }).length, 1);
 assert.equal(orderWorldConvergenceRows(convergenceLensFixture.rows, "human_curated")[0].layer, "topic_history");
 assert.equal(convergenceLensFixture.capabilities.rawLegacyDiscoveryIncluded, false);
 assert.equal(convergenceLensFixture.capabilities.globalCrossMethodFeed, false);
