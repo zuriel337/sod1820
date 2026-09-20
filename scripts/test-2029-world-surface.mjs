@@ -860,10 +860,17 @@ const dependencyProjection = buildWorldContextualProminence(dependencyData, {
     { id: "child-b", parent_id: "parent-1" },
   ],
 }, { limit: 7 });
-assert.equal(dependencyProjection.items.length, 1, "parent + descendants collapse into one dependency group before contextual rank");
-assert.equal(dependencyProjection.items[0].id, "research:child-a", "best-supported representative may stand for the dependency group");
-assert.equal(dependencyProjection.items[0].explainWhy.dependency.memberCount, 3);
-assert.ok(dependencyProjection.items[0].explainWhy.researchStrengthSignals.includes("dependency_grouped_before_rank"));
+assert.equal(dependencyProjection.items.length, 3, "parent + descendants stay separately inspectable rows, never collapsed into one representative");
+assert.equal(dependencyProjection.items[0].id, "research:child-a", "best-supported member (own explicit match) leads the dependency group");
+const dependencyById = new Map(dependencyProjection.items.map((item) => [item.id, item]));
+assert.ok(dependencyById.has("research:parent-1") && dependencyById.has("research:child-a") && dependencyById.has("research:child-b"), "every explicit dependency member id remains its own inspectable row");
+for (const id of ["research:parent-1", "research:child-a", "research:child-b"]) {
+  assert.equal(dependencyById.get(id).explainWhy.dependency.memberCount, 3, `${id} reports the full dependency group size, not just itself`);
+  assert.ok(dependencyById.get(id).explainWhy.researchStrengthSignals.includes("dependency_grouped_before_rank"));
+}
+assert.ok(dependencyById.get("research:child-a").explainWhy.researchStrengthSignals.includes("engine_match"), "child-a keeps its own explicit match lineage");
+assert.equal(dependencyById.get("research:child-b").explainWhy.researchStrengthSignals.includes("engine_match"), false, "child-b's own not_tested state is not borrowed from a sibling's match");
+assert.equal(dependencyById.get("research:parent-1").explainWhy.researchStrengthSignals.includes("engine_match"), false, "parent's own not_tested state is not borrowed from a descendant's match");
 
 // Same convergence projected through Graph + Topic is one artifact group; richer Topic signals merge into the direct graph representative.
 const convergenceDedup = {
