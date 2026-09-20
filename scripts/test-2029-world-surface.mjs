@@ -268,16 +268,35 @@ const convergenceMaterialFixture = buildWorldAllResearchProjection({
     slug: "topic-approved", title: "305 — רחל מבכה = כפרה", status: "approved",
     created_by: "ZURIEL", quality: 9, meter_score: 90, highlight_numbers: [305],
   }],
+  convergenceCandidates: [{
+    id: "cand-approved-mismatch",
+    subject_ref: "417",
+    recommendation: "needs_check",
+    conf: 1,
+    node_id: null,
+    created_at: "2026-09-20T04:00:00Z",
+    why: {
+      reason: "approved_legacy_topic_contains_engine_mismatch",
+      topic_slug: "tzvi-conv-417",
+      topic_title: "417 — זית",
+      topic_status: "approved",
+      mismatches: [{ phrase: "האר פניך ונושעה", expected: 417, actual: 803 }],
+    },
+  }],
 }, { researchObjects: 3, sourceMessages: 6, topics: 1, contributions: 0 });
 
 const convergenceLensFixture = buildWorldConvergenceLensProjection(convergenceMaterialFixture);
-assert.equal(convergenceLensFixture.total, 3, "only Topic compositions + Research Relations enter the meaningful convergence lens");
+assert.equal(convergenceLensFixture.total, 4, "Topic compositions + Research Relations + pending Research Candidates enter the meaningful convergence lens");
 assert.equal(convergenceLensFixture.approvedTopics, 1);
 assert.equal(convergenceLensFixture.researchRelations, 2);
+assert.equal(convergenceLensFixture.pendingCandidates, 1);
 assert.equal(convergenceLensFixture.verifiedRelations, 1);
-assert.equal(convergenceLensFixture.rows[0].id, "research:rel-mismatch", "decision-changing mismatch must surface before positive-looking material");
+assert.equal(convergenceLensFixture.rows[0].id, "candidate:cand-approved-mismatch", "a needs_check mismatch affecting an approved Topic must surface first");
+assert.equal(convergenceLensFixture.rows[0].confidence, 1);
+assert.equal(Object.hasOwn(convergenceLensFixture.rows[0], "score"), false, "candidate confidence must not become a universal truth score");
 assert.equal(Object.hasOwn(convergenceLensFixture.rows[0], "score"), false, "Convergence 2029 must not emit a universal numeric truth score");
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_relation" }).length, 2);
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_candidate" }).length, 1);
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "verified" }).length, 1);
 assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "needs_decision" }).length, 1);
 assert.equal(orderWorldConvergenceRows(convergenceLensFixture.rows, "human_curated")[0].layer, "topic_history");
@@ -328,6 +347,8 @@ assert.equal(/\.from\(["']convergences["']/.test(worldConvergenceLensSource), fa
 assert.equal(/\.from\(["']cross_method_strength["']/.test(worldConvergenceLensSource), false, "global convergence lens must not trigger the expensive cross-method corpus view");
 assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false, "Convergence Lens must remain read-only");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false);
+assert.match(worldAllResearchSource, /admin_convergence_candidates/);
+assert.equal(/\.from\(["']research_candidates["']/.test(worldAllResearchSource), false, "pending candidates must use the existing secured admin RPC, not a direct table grant");
 assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(worldConvergenceLensCss), false, "scoped Convergence UI must use canonical theme tokens, not local hex colors");
 
 
