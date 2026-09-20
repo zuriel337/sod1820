@@ -1,4 +1,5 @@
 import { supabase } from "../supabase.js";
+import { compareWorldProminenceProfiles } from "./worldContextualProminence.js";
 
 // Convergence 2029 catalog is a read-only projection under research_gold_hints_law v3
 // + cross_vs_convergence_criteria v4. It DOES NOT create a convergence store, ranking
@@ -330,16 +331,6 @@ function itemFromGroup(focusKey, members) {
   };
 }
 
-function verificationRank(value) {
-  // Strength lens: a reproduced match outranks partial/open/mismatching claims.
-  // Attention lens separately lifts decision-changing negatives BEFORE this dimension.
-  if (value === "match") return 0;
-  if (value === "partial") return 1;
-  if (value === "mismatch") return 2;
-  if (value === "method_unknown") return 4;
-  return 3;
-}
-
 function curationRank(value) {
   if (value === "approved") return 0;
   if (value === "approved-context") return 1;
@@ -349,6 +340,20 @@ function curationRank(value) {
 function latestMillis(value) {
   const n = value ? Date.parse(value) : NaN;
   return Number.isFinite(n) ? n : 0;
+}
+
+function sharedProminenceCandidate(item) {
+  const profile = item?.profile || {};
+  return {
+    stableKey: item?.id || item?.focusKey || "",
+    familyKey: item?.focusKey || item?.id || "",
+    decisionChangingNegative: Boolean(profile.decisionChanging),
+    directnessRank: 0,
+    verificationState: profile.verification || null,
+    curation: { tier: null, role: profile.humanCuration || null },
+    temporal: { occurredAt: profile.latest || null },
+    signals: {},
+  };
 }
 
 export function compareWorldConvergenceItems(a, b, sort = "attention") {
@@ -365,13 +370,17 @@ export function compareWorldConvergenceItems(a, b, sort = "attention") {
     const c = curationRank(ap.humanCuration) - curationRank(bp.humanCuration);
     if (c) return c;
   }
-  if (sort === "attention") {
-    if (Boolean(ap.decisionChanging) !== Boolean(bp.decisionChanging)) return ap.decisionChanging ? -1 : 1;
-  }
 
-  // Research Strength profile — lexicographic, inspectable, never collapsed into one truth score.
-  const v = verificationRank(ap.verification) - verificationRank(bp.verification);
-  if (v) return v;
+  // Core World ranking semantics come from the ONE existing prominence owner.
+  // Catalog-specific evidence/provenance dimensions below are tie-breakers only.
+  const shared = compareWorldProminenceProfiles(
+    sharedProminenceCandidate(a),
+    sharedProminenceCandidate(b),
+    { attentionFirst: sort === "attention", timeAware: sort === "newest" },
+  );
+  if (shared) return shared;
+
+  // Research Strength profile extensions — still separate semantic dimensions, never one scalar.
   const ai = finite(ap.independentEvidenceGroups) ?? -1;
   const bi = finite(bp.independentEvidenceGroups) ?? -1;
   if (ai !== bi) return bi - ai;
