@@ -176,7 +176,8 @@ export default function WorldConvergenceLens({ state }) {
         <div className="sod29-kicker">HUMAN GATE · CONVERGENCE 2029</div>
         <h2>כל ההתכנסויות · Ranked Lens</h2>
         <p>
-          מסך אחד מעל אותם מקורות־אמת: Topic היסטורי/מאושר + Research Relation.
+          מסך אחד מעל אותם מקורות־אמת: Topic היסטורי/מאושר + Research Relation + Research
+          Candidate (מועמד מחקר פתוח, טרם Human Gate).
           הסדר רב־ממדי ושקוף; אין כאן “ציון אמת” אחד.
         </p>
       </div>
@@ -207,11 +208,18 @@ export default function WorldConvergenceLens({ state }) {
       {z ? <div className="sod29-conv-zvi">
         <div>
           <span className="sod29-kicker">ZVI · FULL CORPUS COVERAGE</span>
-          <strong>{z.linkedSources} / {z.totalSources} Source Artifacts (פריטי מקור) כבר מקושרים ל־Research Object</strong>
+          <strong>{z.linkedOccurrences} / {z.totalOccurrences} Source Occurrences (מופעי מקור) כבר מקושרים ל־Research Object</strong>
           <small>
-            {z.unlinkedSources} Source Artifacts עדיין ללא Research Object מקושר · מתוכם {z.exactDuplicateOccurrences} חזרות מדויקות ·{" "}
-            {z.uniqueUnlinked} Source Artifacts ייחודיים (compound: טקסט+מדיה) נשארו לסינון. זו ספירת מלאי מקורות/Media
-            Lineage, ולא ספירת Findings.
+            {z.unlinkedOccurrences} Source Occurrences עדיין ללא Research Object מקושר ישירות.
+            {z.unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity > 0 ? <>
+              {" "}מתוכם {z.unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity} הם הישנות/provenance שכבר
+              מכוסות על־ידי אותו compound identity (טקסט+מדיה) המקושר במקום אחר — אינם פער מחקר חדש.
+            </> : null}
+            {z.exactDuplicateOccurrencesWithinUnlinked > 0 ? <>
+              {" "}עוד {z.exactDuplicateOccurrencesWithinUnlinked} הן חזרות מדויקות בתוך הבלתי-מקושר עצמו.
+            </> : null}
+            {" "}<b>{z.uncoveredCompoundIdentities}</b> compound identities (טקסט+מדיה) ללא שום כיסוי מקושר —
+            אלו שבאמת נשארו לסינון/מחקר. זו ספירת מלאי מקורות/Media Lineage, ולא ספירת Findings.
           </small>
         </div>
         <div className="sod29-conv-zvi-buckets">

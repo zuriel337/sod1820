@@ -457,7 +457,7 @@ assert.equal(/\.from\(["'](channel_updates|research_contributions|research_objec
 assert.match(worldConvergenceLensComponent, /Source\/Member Inspector/);
 assert.match(worldConvergenceLensComponent, /קישור מדיה מקורית/);
 assert.equal(/<img[\s>]/.test(worldConvergenceLensComponent), false, "original source media must open via an explicit link, never an auto-loaded <img>");
-assert.match(worldConvergenceLensComponent, /Source Artifacts/);
+assert.match(worldConvergenceLensComponent, /Source Occurrences/);
 assert.match(worldConvergenceLensComponent, /לא ספירת Findings/);
 assert.equal(
   worldConvergenceLensComponent.includes("{Object.entries(VERIFICATION_LABELS).map"),
@@ -600,6 +600,29 @@ const independentRow = independenceTieLens.rows.find((row) => row.id === "candid
 const unknownIndependenceRow = independenceTieLens.rows.find((row) => row.id === "candidate:cand-independence-unknown");
 assert.equal(independentRow.independentGroupCount, 4);
 assert.equal(unknownIndependenceRow.independentGroupCount, null, "unknown independence must stay null, never coerced to zero");
+
+// Explicit independent_group_count=0 is not evidence of independence either — it must tie
+// with unknown/null independence, never outrank it. Both fall through to the evidence/
+// stable-id tie, same as two nulls would.
+const independenceZeroVsNullMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    {
+      id: "cand-independence-zero", subject_ref: "803", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      why: { reason: "needs_check", independent_group_count: 0 },
+    },
+    {
+      id: "cand-independence-null", subject_ref: "804", recommendation: "needs_check", conf: null, created_at: "2026-09-10T00:00:00Z",
+      why: { reason: "needs_check" },
+    },
+  ],
+});
+const independenceZeroVsNullLens = buildWorldConvergenceLensProjection(independenceZeroVsNullMaterial);
+assert.equal(
+  independenceZeroVsNullLens.rows[0].id, "candidate:cand-independence-null",
+  "explicit independent_group_count=0 must tie with unknown/null independence, never outrank it — final tie falls to stable id",
+);
+const zeroIndependenceRow = independenceZeroVsNullLens.rows.find((row) => row.id === "candidate:cand-independence-zero");
+assert.equal(zeroIndependenceRow.independentGroupCount, 0, "explicit zero must be preserved as 0, not coerced to null");
 
 // Unknown-independence fixture: when independence ties (both null/unknown), differing
 // confidence must NOT move Research Strength — only resolved-evidence presence and,

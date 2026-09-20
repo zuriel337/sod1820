@@ -397,6 +397,20 @@ function compareNullableDesc(a, b) {
   return bv - av;
 }
 
+// Independence tie for Research Strength: only an explicit POSITIVE independent_group_count
+// may outrank unknown independence. Explicit 0 is not evidence of independence either — it
+// must tie with null/unknown here (both fall through to the evidence/stable-id tie), never
+// be treated as "stronger than unknown" the way compareNullableDesc(0, null) would.
+function compareIndependenceDesc(a, b) {
+  const av = finite(a), bv = finite(b);
+  const aPositive = av != null && av > 0;
+  const bPositive = bv != null && bv > 0;
+  if (!aPositive && !bPositive) return 0;
+  if (!aPositive) return 1;
+  if (!bPositive) return -1;
+  return bv - av;
+}
+
 // A resolved source occurrence other than the candidate's own self-ref
 // ("research_candidates:<id>" never resolves against the source index anyway) counts as
 // binary provenance quality. Raw ref count is never the signal here.
@@ -417,8 +431,10 @@ function compareResearchStrength(a, b) {
   const verificationCompared = verificationClass(a) - verificationClass(b);
   if (verificationCompared) return verificationCompared;
   // An explicit positive independent_group_count may outrank an unknown (null) count;
-  // unknown independence is never coerced to zero — it just never wins this tie.
-  const independenceCompared = compareNullableDesc(a.independentGroupCount, b.independentGroupCount);
+  // unknown independence is never coerced to zero — it just never wins this tie. An
+  // explicit 0 is treated the same as unknown here (see compareIndependenceDesc) — it is
+  // not evidence of independence and must not outrank null.
+  const independenceCompared = compareIndependenceDesc(a.independentGroupCount, b.independentGroupCount);
   if (independenceCompared) return independenceCompared;
   const evidenceCompared = (hasResolvedEvidence(b) ? 1 : 0) - (hasResolvedEvidence(a) ? 1 : 0);
   if (evidenceCompared) return evidenceCompared;
