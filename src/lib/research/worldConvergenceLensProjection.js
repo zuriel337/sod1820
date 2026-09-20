@@ -65,8 +65,9 @@ function negativeOperationalState(row) {
 }
 
 function isDecisionChanging(row) {
-  const verification = clean(row?.verification).toLowerCase();
-  return verification === "mismatch" || Boolean(negativeOperationalState(row));
+  const verification = clean(row?.verification).toUpperCase();
+  const negativeVerification = NEGATIVE_TOKENS.some((token) => verification.includes(token));
+  return negativeVerification || Boolean(negativeOperationalState(row));
 }
 
 function verificationClass(row) {
