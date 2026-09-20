@@ -35,6 +35,10 @@ import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
 } from "../src/lib/research/worldAllResearchProjection.js";
+import {
+  buildWorldConvergenceCatalog,
+  normalizeWorldConvergenceCatalog,
+} from "../src/lib/research/worldConvergenceCatalog.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -56,6 +60,9 @@ const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
+const convergenceCatalogSource = read("src/lib/research/worldConvergenceCatalog.js");
+const convergenceCatalogComponent = read("src/components/research/WorldConvergenceCatalog.jsx");
+const convergenceCatalogEdge = read("supabase/functions/world-convergence-catalog/index.ts");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
 assert.match(sitemapSource, /loc:\s*'\/world'/, "World remains addressable independently");
@@ -761,5 +768,91 @@ assert.equal(/score\s*:/.test(prominenceHelper), false, "contextual prominence h
 assert.equal(prominenceHelper.includes("PUBLIC_RESEARCH_ACCESS"), false, "composer must consume authorized reader output rather than invent a second access vocabulary");
 assert.match(prominenceHelper, /engine_detail\.verification_state is verification authority/);
 assert.match(prominenceHelper, /DEDUP \/ SAME-ARTIFACT \/ DEPENDENCY GROUPING BEFORE RANK/);
+
+
+// ── G3 Human-Gate global Convergence Catalog 2029 ────────────────────────────
+const catalogFixture = {
+  layers: {
+    topics: [{
+      id: "topic-a", slug: "a", title: "מאושר 1820", subtitle: "נבדק אנושית",
+      status: "approved", meter_score: 90, quality: 8, highlight_numbers: [1820],
+      created_by: "ZURIEL", approved_at: "2026-09-19T00:00:00Z",
+    }],
+    candidates: [{
+      id: "candidate-a", candidate_type: "convergence", subject_type: "number", subject_ref: "358",
+      recommendation: "בדיקה נוספת", confidence: 0.91, status: "pending",
+      why: { independent_group_count: 3, verification_state: "match" },
+      evidence_refs: ["research_objects:r1", "source:s1"], created_at: "2026-09-20T00:00:00Z",
+    }],
+    relations: [{
+      id: "r-parent", kind: "relation", statement: "Parent relation", value: 305, status: "candidate",
+      source_ref: "channel_updates:p", engine_detail: { verification_state: "not_tested" },
+      created_at: "2026-09-18T00:00:00Z",
+    }, {
+      id: "r-child", parent_id: "r-parent", kind: "relation", statement: "Verified child relation", value: 305,
+      status: "candidate", source_ref: "channel_updates:c", contributor: "צבי",
+      engine_detail: { verification_state: "match", engine_signal_components: { effective_independent_group_count: 2 } },
+      created_at: "2026-09-20T01:00:00Z",
+    }, {
+      id: "r-mismatch", kind: "relation", statement: "סתירה חשובה", value: 417, status: "candidate",
+      source_ref: "channel_updates:m", contributor: "צבי",
+      engine_detail: { verification_state: "partial_match_with_mismatches" },
+      created_at: "2026-09-20T02:00:00Z",
+    }],
+    raw: [{
+      id: "raw-a", kind: "same_method_equality", method: "siduri", value: 53,
+      phrases: ["א", "ב", "ג"], group_size: 153, score: 153, status: "new",
+      last_seen: "2026-09-20T00:00:00Z",
+    }],
+  },
+  totals: { topics: 1, candidates: 1, relations: 3, raw: 8917 },
+  raw: { included: true, hasMore: true },
+  boundaries: { ranking: "no_universal_score" },
+};
+
+const normalizedCatalog = normalizeWorldConvergenceCatalog(catalogFixture);
+assert.equal(normalizedCatalog.rows.filter((row) => row.lane === "research" && row.values.includes(305)).length, 1, "parent+child research dependency must collapse before catalog rank");
+assert.equal(normalizedCatalog.rows.find((row) => row.values.includes(305)).verificationState, "match", "best-supported dependency representative must survive");
+assert.equal(normalizedCatalog.rows.find((row) => row.lane === "raw").verificationState, "raw_signal_only");
+
+const balancedCatalog = buildWorldConvergenceCatalog(catalogFixture, { lens: "balanced", filters: { includeRaw: false } });
+assert.equal(balancedCatalog.rows.some((row) => row.lane === "raw"), false, "Raw Discovery must be OFF by default");
+assert.equal(balancedCatalog.rows[0].decisionChangingNegative, true, "decision-changing mismatch must not be optimized away");
+assert.equal(Object.hasOwn(balancedCatalog.rows[0], "score"), false, "catalog rows must not emit a universal score");
+assert.match(balancedCatalog.disclaimer, /לא אמת/);
+
+const curatedCatalog = buildWorldConvergenceCatalog(catalogFixture, { lens: "curated", filters: { includeRaw: false } });
+assert.equal(curatedCatalog.rows[0].lane, "approved", "curation lens may prioritize approved editorial composition without making it truth");
+
+const evidenceCatalog = buildWorldConvergenceCatalog(catalogFixture, { lens: "evidence", filters: { includeRaw: false } });
+assert.ok(evidenceCatalog.rows.some((row) => row.independence?.groups === 3), "independent evidence groups remain inspectable in evidence lens");
+
+const rawCatalog = buildWorldConvergenceCatalog(catalogFixture, { lens: "balanced", filters: { includeRaw: true, lane: "raw" } });
+assert.equal(rawCatalog.rows.length, 1);
+assert.equal(rawCatalog.rows[0].signals.rawDensity.legacyBucketScore, 153, "legacy bucket score survives only as Raw discovery density");
+assert.ok(rawCatalog.rows[0].explainWhy.some((line) => /אינו Research Strength/.test(line)));
+
+assert.match(world, /WorldConvergenceCatalog/);
+assert.match(world, /fetchWorldConvergenceCatalog/);
+assert.match(world, /isAdmin[\s\S]*WorldConvergenceCatalog/);
+assert.match(world, /!isAdmin|isAdmin\s*\?/);
+assert.match(convergenceCatalogComponent, /HUMAN GATE · CONVERGENCE CATALOG 2029/);
+assert.match(convergenceCatalogComponent, /Raw Discovery/);
+assert.match(convergenceCatalogComponent, /למה זה כאן/);
+assert.equal(/Gold\s*=\s*100|universalScore|truthScore/.test(convergenceCatalogSource), false, "catalog projection must not create an opaque universal score");
+assert.equal(/\.from\(["']research_candidates["']\)|\.from\(["']convergences["']\)/.test(convergenceCatalogSource), false, "browser catalog helper must not directly read internal candidate/raw tables");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(convergenceCatalogSource), false, "service role must never enter browser catalog code");
+assert.match(convergenceCatalogEdge, /requireCanonicalAdmin/);
+assert.match(convergenceCatalogEdge, /actor\.rpc\("rd_is_admin"\)/);
+assert.match(convergenceCatalogEdge, /SUPABASE_SERVICE_ROLE_KEY/);
+assert.ok(
+  convergenceCatalogEdge.indexOf("if (!(await requireCanonicalAdmin(req)))") <
+  convergenceCatalogEdge.indexOf("const admin = createClient(SUPABASE_URL, SERVICE_KEY"),
+  "canonical admin authorization must happen before server-side service-role reads",
+);
+assert.match(convergenceCatalogEdge, /rawDiscovery:\s*"legacy_equality_buckets_signal_only_not_research_convergence"/);
+assert.equal(/insert\(|update\(|delete\(|upsert\(/.test(convergenceCatalogEdge), false, "catalog Edge must remain read-only");
+assert.equal(/create table|create view|create function/i.test(convergenceCatalogEdge), false, "catalog Edge must not create a rank/convergence store");
+
 
 console.log("2029 native World surface acceptance: PASS");
