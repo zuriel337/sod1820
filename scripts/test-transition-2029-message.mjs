@@ -1,1 +1,35 @@
-import assert from "node:assert/strict";\nimport fs from "node:fs";\n\nconst app = fs.readFileSync("src/App.jsx","utf8");\nconst component = fs.readFileSync("src/components/TransitionAnnouncement.jsx","utf8");\nconst vercel = JSON.parse(fs.readFileSync("vercel.json","utf8"));\nconst heichal = fs.readFileSync("public/heichal.html","utf8");\n\nfor (const phrase of [\n  "אחרי 15 שנה הגיע הזמן להתחדש",\n  "דף המספר הישן מתחדש",\n  "בית המדרש הישן נסגר — התוכן ממשיך",\n  "ממש עולם חדש הולך להיפתח",\n]) assert.equal(component.includes(phrase), true, `missing transition phrase: ${phrase}`);\n\nassert.equal(app.includes('<TransitionAnnouncement context="home" />'), true);\nassert.equal(app.includes('<TransitionAnnouncement context="number" />'), true);\nassert.match(app, /path="\\/beit-midrash".*TransitionAnnouncement context="beit"/s);\nassert.equal(app.includes('<Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />'), true);\n\nconst genericBeitRedirects = (vercel.redirects || []).filter((r) =>\n  ["/beit-midrash","/beit-midrash/(.*)"].includes(r.source) && !r.has\n);\nassert.equal(genericBeitRedirects.length, 0, "generic Beit→World redirects must stay removed while transition notice is live");\n\nconst calcContinuity = (vercel.redirects || []).filter((r) =>\n  r.source === "/beit-midrash" && Array.isArray(r.has)\n);\nassert.ok(calcContinuity.length >= 4, "calculator-intent redirects must remain preserved");\n\nassert.equal(heichal.includes("ההיכל הישן ייסגר בהדרגה"), true);\nassert.equal(heichal.includes('href="/heichal"'), true);\nassert.equal(heichal.includes('href="/world"'), true);\n\nconsole.log("Transition 2029 public message contract: PASS");\n
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+const app = fs.readFileSync("src/App.jsx","utf8");
+const component = fs.readFileSync("src/components/TransitionAnnouncement.jsx","utf8");
+const vercel = JSON.parse(fs.readFileSync("vercel.json","utf8"));
+const heichal = fs.readFileSync("public/heichal.html","utf8");
+
+for (const phrase of [
+  "אחרי 15 שנה הגיע הזמן להתחדש",
+  "דף המספר הישן מתחדש",
+  "בית המדרש הישן נסגר — התוכן ממשיך",
+  "ממש עולם חדש הולך להיפתח",
+]) assert.equal(component.includes(phrase), true, "missing transition phrase: " + phrase);
+
+assert.equal(app.includes('<TransitionAnnouncement context="home" />'), true);
+assert.equal(app.includes('<TransitionAnnouncement context="number" />'), true);
+assert.match(app, /path="\\/beit-midrash".*TransitionAnnouncement context="beit"/s);
+assert.equal(app.includes('<Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />'), true);
+
+const genericBeitRedirects = (vercel.redirects || []).filter((r) =>
+  ["/beit-midrash","/beit-midrash/(.*)"].includes(r.source) && !r.has
+);
+assert.equal(genericBeitRedirects.length, 0, "generic Beit→World redirects must stay removed while transition notice is live");
+
+const calcContinuity = (vercel.redirects || []).filter((r) =>
+  r.source === "/beit-midrash" && Array.isArray(r.has)
+);
+assert.ok(calcContinuity.length >= 4, "calculator-intent redirects must remain preserved");
+
+assert.equal(heichal.includes("ההיכל הישן ייסגר בהדרגה"), true);
+assert.equal(heichal.includes('href="/heichal"'), true);
+assert.equal(heichal.includes('href="/world"'), true);
+
+console.log("Transition 2029 public message contract: PASS");
