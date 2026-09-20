@@ -50,16 +50,15 @@ const worldCss = read("src/pages/world2029-human.css");
 const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 
-// Beit Midrash public cutover: World owns discovery; Topic canonical URLs survive.
-assert.match(sitemapSource, /loc:\s*'\/world'/, "World must be admitted to the canonical sitemap");
-assert.equal(sitemapSource.includes("loc: '/beit-midrash'"), false, "retired Beit Midrash must not remain in sitemap");
+// Human-Gate correction: Beit Midrash stays open during the notice-only transition.
+assert.match(sitemapSource, /loc:\s*'\/world'/, "World remains addressable independently");
+assert.equal(sitemapSource.includes("loc: '/beit-midrash'"), false, "restoring the route does not silently change sitemap admission");
 assert.match(sitemapSource, /\/topic\//, "canonical Topic/Convergence URLs must remain in sitemap");
 const legacyRedirects = Array.isArray(vercelConfig.redirects) ? vercelConfig.redirects : [];
-assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" && r.destination === "/world" && r.permanent === true && !r.has), true);
-assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash/(.*)" && r.destination === "/world" && r.permanent === true), true);
-assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" && r.destination === "/gematria" && r.has?.some?.((h) => h.type === "query" && h.key === "tab" && h.value === "calc")), true);
-assert.match(legacyApp, /path="\/beit-midrash" element=\{<Navigate to="\/world" replace \/>\}/);
-assert.match(legacyApp, /path="\/beit-midrash\/:method" element=\{<Navigate to="\/world" replace \/>\}/);
+assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" || r.source === "/beit-midrash/(.*)"), false, "Beit Midrash must not redirect into World yet");
+assert.match(legacyApp, /path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/);
+assert.match(legacyApp, /path="\/beit-midrash\/:method" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/);
+assert.equal(world.includes('TransitionAnnouncement context="beit"'), false, "World must not show the Beit handoff before public opening");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
