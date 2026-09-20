@@ -35,6 +35,12 @@ import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
 } from "../src/lib/research/worldAllResearchProjection.js";
+import {
+  buildWorldConvergenceLensProjection,
+  buildZviCoverage,
+  filterWorldConvergenceRows,
+  orderWorldConvergenceRows,
+} from "../src/lib/research/worldConvergenceLensProjection.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -55,6 +61,9 @@ const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensProjection.js");
+const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
+const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
@@ -219,6 +228,68 @@ assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all"
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
 
+// Human-Gate Convergence 2029: one explainable projection over existing Topic + Research Relation.
+const Z1 = "11111111-1111-4111-8111-111111111111";
+const Z2 = "22222222-2222-4222-8222-222222222222";
+const Z3 = "33333333-3333-4333-8333-333333333333";
+const Z4 = "44444444-4444-4444-8444-444444444444";
+const Z5 = "55555555-5555-4555-8555-555555555555";
+const convergenceMaterialFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-mismatch", created_at: "2026-09-20T03:00:00Z", kind: "relation",
+    statement: "משפחת 417 עם אי־התאמה", value: 417, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: false,
+    engine_detail: { verification_state: "mismatch" },
+    source_ref: "channel_updates:" + Z1 + "#batch003:mixed",
+    meta: { batch_key: "G3_ZVI_RESEARCH_BATCH_003", source_refs: ["channel_updates:" + Z1] },
+  }, {
+    id: "rel-verified", created_at: "2026-09-19T03:00:00Z", kind: "relation",
+    statement: "רחל מבכה = כפרה = ארחמנו = 305", value: 305, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: true,
+    engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + Z2 + "#batch003:305",
+    meta: { batch_key: "G3_ZVI_RESEARCH_BATCH_003", source_refs: ["channel_updates:" + Z2, "channel_updates:" + Z3] },
+  }, {
+    id: "obs-held", created_at: "2026-09-18T03:00:00Z", kind: "observation",
+    statement: "Observation is not itself a convergence", value: 98, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", source_ref: "channel_updates:" + Z3,
+  }],
+  sourceMessages: [
+    { id: Z1, created_at: "2026-09-20T01:00:00Z", text: "417 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z2, created_at: "2026-09-19T01:00:00Z", text: "305 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z3, created_at: "2026-09-18T01:00:00Z", text: "305 מקור נוסף", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z4, created_at: "2026-09-17T01:00:00Z", text: "גימטריא 888 = בדיקה חדשה", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z5, created_at: "2026-09-16T01:00:00Z", text: "גימטריא 888 = בדיקה חדשה", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+  ],
+  topics: [{
+    id: "tc-approved", created_at: "2026-09-17T01:00:00Z", approved_at: "2026-09-18T01:00:00Z",
+    slug: "topic-approved", title: "305 — רחל מבכה = כפרה", status: "approved",
+    created_by: "ZURIEL", quality: 9, meter_score: 90, highlight_numbers: [305],
+  }],
+}, { researchObjects: 3, sourceMessages: 5, topics: 1, contributions: 0 });
+
+const convergenceLensFixture = buildWorldConvergenceLensProjection(convergenceMaterialFixture);
+assert.equal(convergenceLensFixture.total, 3, "only Topic compositions + Research Relations enter the meaningful convergence lens");
+assert.equal(convergenceLensFixture.approvedTopics, 1);
+assert.equal(convergenceLensFixture.researchRelations, 2);
+assert.equal(convergenceLensFixture.verifiedRelations, 1);
+assert.equal(convergenceLensFixture.rows[0].id, "research:rel-mismatch", "decision-changing mismatch must surface before positive-looking material");
+assert.equal(Object.hasOwn(convergenceLensFixture.rows[0], "score"), false, "Convergence 2029 must not emit a universal numeric truth score");
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_relation" }).length, 2);
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "verified" }).length, 1);
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "needs_decision" }).length, 1);
+assert.equal(orderWorldConvergenceRows(convergenceLensFixture.rows, "human_curated")[0].layer, "topic_history");
+assert.equal(convergenceLensFixture.capabilities.rawLegacyDiscoveryIncluded, false);
+assert.equal(convergenceLensFixture.capabilities.globalCrossMethodFeed, false);
+
+const zviCoverageFixture = buildZviCoverage(convergenceMaterialFixture);
+assert.equal(zviCoverageFixture.totalSources, 5);
+assert.equal(zviCoverageFixture.linkedSources, 3);
+assert.equal(zviCoverageFixture.unlinkedSources, 2);
+assert.equal(zviCoverageFixture.uniqueUnlinked, 1);
+assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "exact source repeats dedup only for attention, not deletion");
+
+assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
 assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
@@ -242,6 +313,19 @@ assert.match(allResearchAdminPolicy, /to authenticated/i);
 assert.match(allResearchAdminPolicy, /public\.rd_is_admin\(\)/);
 assert.equal(/for\s+(insert|update|delete|all)/i.test(allResearchAdminPolicy), false, "Human Gate policy must grant SELECT only");
 assert.equal(/to\s+anon|to\s+public/i.test(allResearchAdminPolicy), false, "Human Gate policy must not widen public access");
+
+assert.match(worldConvergenceLensComponent, /כל ההתכנסויות · Ranked Lens/);
+assert.match(worldConvergenceLensComponent, /Rank ≠ Truth/);
+assert.match(worldConvergenceLensComponent, /למה הוא כאן\?/);
+assert.match(worldConvergenceLensComponent, /ZVI · FULL CORPUS COVERAGE/);
+assert.match(worldConvergenceLensSource, /Never collapse to one opaque/);
+assert.match(worldConvergenceLensSource, /rawLegacyDiscoveryIncluded: false/);
+assert.match(worldConvergenceLensSource, /globalCrossMethodFeed: false/);
+assert.equal(/\.from\(["']convergences["']/.test(worldConvergenceLensSource), false, "raw legacy equality buckets must stay outside the meaningful convergence lens");
+assert.equal(/\.from\(["']cross_method_strength["']/.test(worldConvergenceLensSource), false, "global convergence lens must not trigger the expensive cross-method corpus view");
+assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false, "Convergence Lens must remain read-only");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false);
+assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(worldConvergenceLensCss), false, "scoped Convergence UI must use canonical theme tokens, not local hex colors");
 
 
 
