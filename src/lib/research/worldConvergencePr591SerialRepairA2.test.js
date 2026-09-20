@@ -215,7 +215,7 @@ test("candidate contributor never falls back to the generating agent", () => {
   assert.equal(row.contributor, "תורם-אנושי");
   assert.equal(row.generatedBy, "GPT");
   assert.notEqual(row.contributor, "GPT");
-  assert.deepEqual(row.sharedSources, ["source:X"]);
+  assert.deepEqual(row.sharedSources, [{ baseSource: "source:X", members: [] }]);
   assert.deepEqual(row.warnings, ["בדוק שוב"]);
 });
 
