@@ -137,7 +137,10 @@ test("candidate row exposes shared_sources/warnings and keeps generatedBy separa
 
   const lens = buildWorldConvergenceLensProjection(material);
   const row = lens.rows.find((r) => r.id === "candidate:cand-shared");
-  assert.deepEqual(row.sharedSources, ["channel_updates:" + S1, "channel_updates:" + S2]);
+  assert.deepEqual(row.sharedSources, [
+    { baseSource: "channel_updates:" + S1, members: [] },
+    { baseSource: "channel_updates:" + S2, members: [] },
+  ], "shared_sources uses the normalized structured {baseSource,members} shape");
   assert.deepEqual(row.warnings, ["low_independent_group_count"]);
   assert.equal(row.generatedBy, "gpt-research-agent");
   assert.equal(row.contributor, "חוקר ג", "source-owned contributor must never be replaced by the generating agent");
