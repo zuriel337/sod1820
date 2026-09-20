@@ -59,5 +59,8 @@ jobs:
           node scripts/test_gematria_methods.mjs
           node scripts/test_canonical_presentation.mjs
 
+      - name: 2029 transition public message contract
+        run: node scripts/test-transition-2029-message.mjs
+
       - name: Build
         run: npm run build

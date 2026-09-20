@@ -82,9 +82,32 @@
   #audioBtn.on{color:var(--gold-soft);border-color:var(--gold);box-shadow:0 0 16px rgba(232,200,64,.4)}
   @keyframes audio-in{to{opacity:1}}
   @media (prefers-reduced-motion:reduce){#loader .spinner{animation-duration:2.4s}#audioBtn{animation:none;opacity:1}}
+  #transitionNotice{position:fixed;z-index:60;inset:auto 14px max(14px,env(safe-area-inset-bottom)) 14px;
+    max-width:860px;margin:auto;padding:16px 18px;border:1px solid rgba(232,200,64,.5);
+    border-radius:18px;background:rgba(7,5,14,.94);backdrop-filter:blur(14px);
+    box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 38px rgba(232,200,64,.12)}
+  #transitionNotice small{display:block;color:var(--gold-soft);font-weight:700;margin-bottom:4px}
+  #transitionNotice h2{margin:0;font-family:"Frank Ruhl Libre",serif;color:var(--gold);font-size:clamp(24px,4vw,36px)}
+  #transitionNotice p{margin:8px 0 0;line-height:1.6;color:var(--ink);opacity:.88}
+  #transitionNotice .tn-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+  #transitionNotice a,#transitionNotice button{min-height:42px;padding:9px 14px;border-radius:12px;
+    border:1px solid rgba(232,200,64,.38);font:600 13px "Heebo";cursor:pointer;text-decoration:none}
+  #transitionNotice a{background:rgba(232,200,64,.12);color:var(--gold-soft)}
+  #transitionNotice button{background:transparent;color:var(--ink)}
+  @media(max-width:620px){#transitionNotice{padding:14px}.tn-actions{display:grid!important}.tn-actions>*{width:100%}}
 </style>
 </head>
 <body>
+  <aside id="transitionNotice" role="status" aria-label="הודעת מעבר להיכל 2029">
+    <small>SOD1820 · המעבר ל־2029</small>
+    <h2>ממש עולם חדש הולך להיפתח</h2>
+    <p>ההיכל הישן ייסגר בהדרגה. במקומו נבנה היכל 2029 — מרחב של כלים, מחקר עומק, ELS, דף המספר ו־AI. אחרי 15 שנה הגיע הזמן להתחדש — גם בתמונה, גם במיתוג וגם בחוויה.</p>
+    <div class="tn-actions">
+      <a href="/heichal">פתח את היכל 2029</a>
+      <a href="/world">עבור לעולם החדש</a>
+      <button type="button" onclick="document.getElementById('transitionNotice').style.display='none'">המשך כרגע בהיכל הישן</button>
+    </div>
+  </aside>
   <div id="vignette"></div>
   <div id="brand"></div>
   <div id="hint">גרור כדי להביט · <b>לחץ על שער כדי להיכנס</b></div>
