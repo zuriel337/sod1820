@@ -34,6 +34,7 @@ import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/res
 import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
+  normalizeWorldAllResearchRow,
 } from "../src/lib/research/worldAllResearchProjection.js";
 import {
   buildWorldConvergenceLensProjection,
@@ -41,6 +42,7 @@ import {
   filterWorldConvergenceRows,
   orderWorldConvergenceRows,
 } from "../src/lib/research/worldConvergenceLensProjection.js";
+import { normalizeWorldNumber, resolveExplicitVerificationState } from "../src/lib/research/worldContextualProminence.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -228,6 +230,67 @@ assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all"
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
 
+// PhaseA repair — shared World numeric normalizer: null/undefined/empty/whitespace/boolean/array/object
+// must never leak in as 0; a genuinely finite 0 must stay 0. Single normalizer, reused everywhere.
+assert.equal(normalizeWorldNumber(null), null, "null vs 0");
+assert.equal(normalizeWorldNumber(0), 0, "null vs 0");
+assert.equal(normalizeWorldNumber(undefined), null);
+assert.equal(normalizeWorldNumber(""), null);
+assert.equal(normalizeWorldNumber("   "), null);
+assert.equal(normalizeWorldNumber(true), null);
+assert.equal(normalizeWorldNumber(false), null);
+assert.equal(normalizeWorldNumber([]), null);
+assert.equal(normalizeWorldNumber([5]), null);
+assert.equal(normalizeWorldNumber({}), null);
+assert.equal(normalizeWorldNumber("417"), 417);
+
+// PhaseA repair — Truth Axes v3: explicit engine_detail.verification_state always outranks the
+// legacy engine_verified boolean; absent an explicit state, a true boolean is only a legacy signal
+// and must never be promoted to "match".
+const trueMismatch = normalizeWorldAllResearchRow({
+  id: "v1", value: 417, engine_verified: true, engine_detail: { verification_state: "mismatch" },
+});
+assert.equal(trueMismatch.verification, "mismatch", "true+mismatch: explicit state outranks the boolean");
+
+const truePartial = normalizeWorldAllResearchRow({
+  id: "v2", value: 417, engine_verified: true, engine_detail: { verification_state: "partial" },
+});
+assert.equal(truePartial.verification, "partial", "true+partial: explicit state outranks the boolean");
+
+const trueNotTested = normalizeWorldAllResearchRow({
+  id: "v3", value: 417, engine_verified: true, engine_detail: { verification_state: "not_tested" },
+});
+assert.equal(trueNotTested.verification, "not_tested", "true+not_tested: explicit state outranks the boolean");
+
+const trueNoExplicit = normalizeWorldAllResearchRow({ id: "v4", value: 417, engine_verified: true });
+assert.equal(trueNoExplicit.verification, "legacy_signal", "absent explicit state, a true boolean stays a legacy signal, never match");
+
+const falseNoExplicit = normalizeWorldAllResearchRow({ id: "v5", value: 417, engine_verified: false });
+assert.equal(falseNoExplicit.verification, "not_tested");
+
+const explicitUnknown = normalizeWorldAllResearchRow({ id: "v6", value: 417, engine_detail: { verification_state: "unknown" } });
+assert.equal(explicitUnknown.verification, "unknown", "explicit unknown");
+assert.equal(resolveExplicitVerificationState({ engine_detail: { verification_state: "unknown" } }), "unknown");
+
+// The verification badge predicate (WorldAllResearchTable) must check mismatch before the legacy
+// boolean/match branches, so an explicit mismatch never renders as a verified checkmark.
+const worldAllResearchTableSource = read("src/components/research/WorldAllResearchTable.jsx");
+assert.equal(
+  /row\.engineVerified\s*\|\|\s*row\.verification\s*===\s*"match"/.test(worldAllResearchTableSource),
+  false,
+  "legacy engineVerified boolean must not be OR'd ahead of the explicit verification state",
+);
+const mismatchCheckIndex = worldAllResearchTableSource.indexOf('row.verification === "mismatch"');
+const matchCheckIndex = worldAllResearchTableSource.indexOf('row.verification === "match"');
+assert.ok(mismatchCheckIndex > -1 && matchCheckIndex > -1 && mismatchCheckIndex < matchCheckIndex, "mismatch badge predicate must be checked before the match/verified badge");
+
+// Numeric normalizer and verification-state resolution are shared, not re-forked per file.
+const worldAllResearchProjectionSource = read("src/lib/research/worldAllResearchProjection.js");
+const worldConvergenceLensProjectionSource = read("src/lib/research/worldConvergenceLensProjection.js");
+assert.match(worldAllResearchProjectionSource, /normalizeWorldNumber/);
+assert.match(worldAllResearchProjectionSource, /resolveExplicitVerificationState/);
+assert.match(worldConvergenceLensProjectionSource, /normalizeWorldNumber/);
+
 // Human-Gate Convergence 2029: one explainable projection over existing Topic + Research Relation.
 const Z1 = "11111111-1111-4111-8111-111111111111";
 const Z2 = "22222222-2222-4222-8222-222222222222";
@@ -302,6 +365,34 @@ assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention
 assert.equal(orderWorldConvergenceRows(convergenceLensFixture.rows, "human_curated")[0].layer, "topic_history");
 assert.equal(convergenceLensFixture.capabilities.rawLegacyDiscoveryIncluded, false);
 assert.equal(convergenceLensFixture.capabilities.globalCrossMethodFeed, false);
+
+// PhaseA repair — a legacy engine_verified=true relation with no explicit verification_state must
+// never rank/read as an engine match, and dependency grouping (parent_id chain, exact identity only)
+// must not certify an unverified sibling just because a matched member shares its dependency root.
+const D1 = "77777777-7777-4777-8777-777777777777";
+const legacyVsMatchMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "dep-parent-match", created_at: "2026-09-20T04:00:00Z", kind: "relation",
+    statement: "הורה מאומת", value: 501, status: "candidate", privacy_scope: "private",
+    engine_verified: true, engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + D1,
+  }, {
+    id: "dep-child-legacy", created_at: "2026-09-20T04:05:00Z", kind: "relation", parent_id: "dep-parent-match",
+    statement: "צאצא עם סימון ישן בלבד", value: 501, status: "candidate", privacy_scope: "private",
+    engine_verified: true,
+  }],
+}, { researchObjects: 2 });
+const legacyVsMatchLens = buildWorldConvergenceLensProjection(legacyVsMatchMaterial);
+const depParentRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-parent-match");
+const depChildRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-child-legacy");
+assert.equal(depParentRow.verification, "match");
+assert.equal(depChildRow.verification, "legacy_signal", "child's own legacy boolean must not be promoted to match by grouping with a matched parent");
+assert.equal(depParentRow.dependency.memberCount, 2, "explicit parent_id chain groups the pair before rank");
+assert.ok(
+  legacyVsMatchLens.rows.findIndex((row) => row.id === "research:dep-parent-match")
+  < legacyVsMatchLens.rows.findIndex((row) => row.id === "research:dep-child-legacy"),
+  "explicit match outranks an unconfirmed legacy signal even within the same dependency group",
+);
 
 const zviCoverageFixture = buildZviCoverage(convergenceMaterialFixture);
 assert.equal(zviCoverageFixture.totalSources, 6);

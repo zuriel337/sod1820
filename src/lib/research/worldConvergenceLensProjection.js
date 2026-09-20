@@ -13,6 +13,8 @@ const NEGATIVE_TOKENS = [
   "FAILED",
 ];
 
+import { normalizeWorldNumber } from "./worldContextualProminence.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -54,10 +56,7 @@ function unique(values) {
   return [...new Set(asArray(values).map(clean).filter(Boolean))];
 }
 
-function finite(value) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
+const finite = normalizeWorldNumber;
 
 function negativeOperationalState(row) {
   const state = clean(row?.operationalState).toUpperCase();
@@ -76,6 +75,9 @@ function verificationClass(row) {
   if (value === "match") return 0;
   if (value === "not_tested" || !value) return 1;
   if (value === "method_unknown") return 2;
+  // Legacy engine_verified boolean with no explicit verification_state: an unconfirmed
+  // legacy signal, never equivalent to an explicit engine match.
+  if (value === "legacy_signal") return 2;
   if (value === "not_applicable") return 3;
   return 2;
 }

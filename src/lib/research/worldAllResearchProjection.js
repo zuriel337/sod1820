@@ -1,18 +1,19 @@
 import { supabase } from "../supabase.js";
+import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
 const MAX_ROWS_PER_SOURCE = 10000;
 
-function finite(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
+const finite = normalizeWorldNumber;
 
+// Truth Axes v3: only engine_detail.verification_state is verification authority.
+// research_objects.engine_verified is a compatibility/derived signal and must never be
+// promoted to "match" on its own — absent an explicit state it stays a legacy signal.
 function verificationState(row) {
-  const explicit = clean(row?.engine_detail?.verification_state);
+  const explicit = resolveExplicitVerificationState(row);
   if (explicit) return explicit;
-  return row?.engine_verified === true ? "match" : "not_tested";
+  return row?.engine_verified === true ? "legacy_signal" : "not_tested";
 }
 
 function countBy(rows, key) {

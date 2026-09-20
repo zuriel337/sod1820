@@ -12,8 +12,11 @@ function AccessLabel({ value }) {
 }
 
 function VerificationLabel({ row }) {
-  if (row.engineVerified || row.verification === "match") return <span className="sod29-world-all-research-ok">אומת במנוע</span>;
+  // Explicit verification_state always outranks the legacy engine_verified boolean —
+  // an explicit mismatch must never render as a verified checkmark.
   if (row.verification === "mismatch") return <span className="sod29-world-all-research-warn">אי־התאמה</span>;
+  if (row.verification === "match") return <span className="sod29-world-all-research-ok">אומת במנוע</span>;
+  if (row.verification === "legacy_signal") return <span className="sod29-world-all-research-muted">סימון ישן · לא אומת במפורש</span>;
   return <span className="sod29-world-all-research-muted">לא נבדק / לא חל</span>;
 }
 

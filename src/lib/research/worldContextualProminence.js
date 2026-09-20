@@ -29,8 +29,13 @@ function objectValue(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+// Shared World numeric normalizer: null/undefined/booleans/arrays/plain objects/whitespace-only
+// strings are never a number. A genuinely finite numeric value of 0 is preserved as 0.
 function finiteOrNull(value) {
-  if (value == null || value === "") return null;
+  if (value == null) return null;
+  if (typeof value === "boolean") return null;
+  if (typeof value === "object") return null;
+  if (typeof value === "string" && value.trim() === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -540,6 +545,13 @@ function explainCandidate(candidate, { isFirstFamily = false } = {}) {
  * Then: canonical identity/same-artifact/dependency grouping -> contextual ordering -> bounded
  * family-diverse attention projection. No numeric universal score is produced or persisted.
  */
+// Shared World primitives — reused by worldAllResearchProjection.js and
+// worldConvergenceLensProjection.js so anchored/catalog/archive readings agree.
+// EXTEND_EXISTING under research_object_identity_invariant_law v2: do not fork a
+// parallel numeric normalizer or verification classifier.
+export const normalizeWorldNumber = finiteOrNull;
+export const resolveExplicitVerificationState = explicitVerificationState;
+
 export function buildWorldContextualProminence(data, inputs = {}, {
   limit = 7,
   timeAware = false,
