@@ -2,36 +2,17 @@ import { supabase } from "../supabase.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
-const MAX_ROWS = 10000;
+const MAX_ROWS_PER_SOURCE = 10000;
+
+function finite(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
 
 function verificationState(row) {
   const explicit = clean(row?.engine_detail?.verification_state);
   if (explicit) return explicit;
   return row?.engine_verified === true ? "match" : "not_tested";
-}
-
-export function normalizeWorldAllResearchRow(row) {
-  if (!row?.id) return null;
-  const value = Number(row?.value);
-  return {
-    id: String(row.id),
-    createdAt: row.created_at || null,
-    kind: clean(row.kind) || "observation",
-    statement: clean(row.statement) || "ממצא ללא ניסוח",
-    terms: Array.isArray(row.terms) ? row.terms.map(String) : [],
-    value: Number.isFinite(value) ? value : null,
-    relates: Array.isArray(row.relates) ? row.relates.map(String) : [],
-    source: clean(row.source) || null,
-    sourceRef: clean(row.source_ref) || null,
-    contributor: clean(row.contributor) || null,
-    confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
-    status: clean(row.status) || "לא צוין",
-    access: clean(row.privacy_scope) || "לא צוין",
-    engineVerified: row.engine_verified === true,
-    verification: verificationState(row),
-    mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
-    spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
-  };
 }
 
 function countBy(rows, key) {
@@ -43,65 +24,15 @@ function countBy(rows, key) {
   return out;
 }
 
-export function buildWorldAllResearchProjection(rows = [], { total = null, truncated = false } = {}) {
-  const normalized = (Array.isArray(rows) ? rows : []).map(normalizeWorldAllResearchRow).filter(Boolean);
-  return {
-    rows: normalized,
-    total: Number.isFinite(Number(total)) ? Number(total) : normalized.length,
-    loaded: normalized.length,
-    truncated: Boolean(truncated),
-    byKind: countBy(normalized, "kind"),
-    byAccess: countBy(normalized, "access"),
-    byStatus: countBy(normalized, "status"),
-    byVerification: countBy(normalized, "verification"),
-    byContributor: countBy(normalized, "contributor"),
-    truthBoundary: "Human-Gate visibility does not change access, governance, verification, canonicality or publication.",
-  };
-}
-
-export function filterWorldAllResearchRows(rows = [], filters = {}) {
-  const query = clean(filters.query).toLowerCase();
-  const kind = clean(filters.kind) || "all";
-  const access = clean(filters.access) || "all";
-  const status = clean(filters.status) || "all";
-  const verification = clean(filters.verification) || "all";
-  const contributor = clean(filters.contributor) || "all";
-
-  return (Array.isArray(rows) ? rows : []).filter((row) => {
-    if (kind !== "all" && row.kind !== kind) return false;
-    if (access !== "all" && row.access !== access) return false;
-    if (status !== "all" && row.status !== status) return false;
-    if (verification !== "all" && row.verification !== verification) return false;
-    if (contributor !== "all" && (row.contributor || "לא צוין") !== contributor) return false;
-    if (!query) return true;
-    const haystack = [
-      row.statement,
-      row.contributor,
-      row.source,
-      row.sourceRef,
-      row.value,
-      row.kind,
-      row.status,
-      row.access,
-      row.mediaClass,
-      row.spatialCluster,
-      ...(row.terms || []),
-      ...(row.relates || []),
-    ].filter((value) => value != null).join(" ").toLowerCase();
-    return haystack.includes(query);
-  });
-}
-
-export async function fetchWorldAllResearchProjection() {
-  const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,meta";
+async function fetchAllRows(table, fields) {
   const rows = [];
   let total = null;
   let offset = 0;
 
-  while (offset < MAX_ROWS) {
-    const end = Math.min(offset + PAGE_SIZE - 1, MAX_ROWS - 1);
-    const query = supabase
-      .from("research_objects")
+  while (offset < MAX_ROWS_PER_SOURCE) {
+    const end = Math.min(offset + PAGE_SIZE - 1, MAX_ROWS_PER_SOURCE - 1);
+    let query = supabase
+      .from(table)
       .select(fields, offset === 0 ? { count: "exact" } : undefined)
       .order("created_at", { ascending: false })
       .range(offset, end);
@@ -115,8 +46,233 @@ export async function fetchWorldAllResearchProjection() {
   }
 
   const knownTotal = Number.isFinite(total) ? total : rows.length;
-  return buildWorldAllResearchProjection(rows, {
-    total: knownTotal,
-    truncated: knownTotal > rows.length,
+  return { rows, total: knownTotal, truncated: knownTotal > rows.length };
+}
+
+export function normalizeWorldAllResearchRow(row, family = "research_object") {
+  if (!row?.id) return null;
+
+  if (family === "source_message") {
+    return {
+      id: "source:" + row.id,
+      sourceId: String(row.id),
+      family,
+      createdAt: row.created_at || null,
+      kind: "source_message",
+      statement: clean(row.text) || (row.image_url ? "הודעת מדיה" : "הודעת מקור ללא טקסט"),
+      secondary: null,
+      terms: [],
+      value: null,
+      values: [],
+      relates: [],
+      source: clean(row.channel || row.source) || "channel_updates",
+      sourceRef: "channel_updates:" + row.id,
+      contributor: clean(row.credit || row.speaker) || null,
+      status: clean(row.status) || "לא צוין",
+      access: null,
+      verification: "not_applicable",
+      engineVerified: false,
+      mediaUrl: clean(row.image_url) || null,
+      mediaClass: row.image_url ? "image" : null,
+      spatialCluster: null,
+      href: clean(row.link_url) || null,
+    };
+  }
+
+  if (family === "contribution") {
+    const claimValue = finite(row?.gematria_claim?.value);
+    const statement = clean(row.title || row.body) || "תרומת מחקר";
+    const secondary = row.title ? clean(row.body) : null;
+    const mediaUrl = clean(row.image_url) || (
+      Array.isArray(row.media) ? clean(row.media[0]?.url || row.media[0]) : clean(row?.media?.url)
+    );
+    return {
+      id: "contribution:" + row.id,
+      sourceId: String(row.id),
+      family,
+      createdAt: row.created_at || null,
+      kind: clean(row.intent) || "contribution",
+      statement,
+      secondary,
+      terms: [],
+      value: claimValue,
+      values: claimValue == null ? [] : [claimValue],
+      relates: [clean(row.target_id), clean(row.convergence_slug)].filter(Boolean),
+      source: clean(row.origin) || "research_contributions",
+      sourceRef: "research_contributions:" + row.id,
+      contributor: clean(row.author_name) || null,
+      status: clean(row.status || row.research_state) || "לא צוין",
+      access: null,
+      verification: "not_tested",
+      engineVerified: false,
+      mediaUrl: mediaUrl || null,
+      mediaClass: mediaUrl ? "media" : null,
+      spatialCluster: null,
+      href: row.convergence_slug ? "/topic/" + encodeURIComponent(row.convergence_slug) : null,
+    };
+  }
+
+  if (family === "topic") {
+    const values = (Array.isArray(row.highlight_numbers) && row.highlight_numbers.length
+      ? row.highlight_numbers
+      : Array.isArray(row.numbers) ? row.numbers : [])
+      .map(Number).filter(Number.isFinite);
+    return {
+      id: "topic:" + row.id,
+      sourceId: String(row.id),
+      family,
+      createdAt: row.created_at || null,
+      kind: "topic",
+      statement: clean(row.title) || "Topic",
+      secondary: clean(row.subtitle) || null,
+      terms: Array.isArray(row.search_terms) ? row.search_terms.map(String) : [],
+      value: values.length === 1 ? values[0] : null,
+      values,
+      relates: [],
+      source: "topic_cards",
+      sourceRef: "topic_cards:" + row.id,
+      contributor: clean(row.created_by) || null,
+      status: clean(row.status) || "לא צוין",
+      access: null,
+      verification: "not_applicable",
+      engineVerified: false,
+      mediaUrl: null,
+      mediaClass: Array.isArray(row.image_ids) && row.image_ids.length ? "linked_media" : null,
+      spatialCluster: null,
+      href: row.slug ? "/topic/" + encodeURIComponent(row.slug) : null,
+    };
+  }
+
+  const value = finite(row.value);
+  return {
+    id: "research:" + row.id,
+    sourceId: String(row.id),
+    family: "research_object",
+    createdAt: row.created_at || null,
+    kind: clean(row.kind) || "observation",
+    statement: clean(row.statement) || "ממצא ללא ניסוח",
+    secondary: clean(row.evidence) || null,
+    terms: Array.isArray(row.terms) ? row.terms.map(String) : [],
+    value,
+    values: value == null ? [] : [value],
+    relates: Array.isArray(row.relates) ? row.relates.map(String) : [],
+    source: clean(row.source) || null,
+    sourceRef: clean(row.source_ref) || ("research_objects:" + row.id),
+    contributor: clean(row.contributor) || null,
+    confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
+    status: clean(row.status) || "לא צוין",
+    access: clean(row.privacy_scope) || "לא צוין",
+    engineVerified: row.engine_verified === true,
+    verification: verificationState(row),
+    mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
+    mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
+    spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
+    href: value != null ? "/number/" + value : null,
+  };
+}
+
+export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
+  const rows = [
+    ...(familyRows.researchObjects || []).map((row) => normalizeWorldAllResearchRow(row, "research_object")),
+    ...(familyRows.contributions || []).map((row) => normalizeWorldAllResearchRow(row, "contribution")),
+    ...(familyRows.sourceMessages || []).map((row) => normalizeWorldAllResearchRow(row, "source_message")),
+    ...(familyRows.topics || []).map((row) => normalizeWorldAllResearchRow(row, "topic")),
+  ].filter(Boolean).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
+
+  const sourceTotals = {
+    research_object: Number(totals.researchObjects ?? familyRows.researchObjects?.length ?? 0),
+    contribution: Number(totals.contributions ?? familyRows.contributions?.length ?? 0),
+    source_message: Number(totals.sourceMessages ?? familyRows.sourceMessages?.length ?? 0),
+    topic: Number(totals.topics ?? familyRows.topics?.length ?? 0),
+  };
+
+  return {
+    rows,
+    total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    loaded: rows.length,
+    truncated: Boolean(totals.truncated),
+    sourceTotals,
+    byFamily: countBy(rows, "family"),
+    byKind: countBy(rows, "kind"),
+    byAccess: countBy(rows.filter((row) => row.family === "research_object"), "access"),
+    byStatus: countBy(rows, "status"),
+    byVerification: countBy(rows, "verification"),
+    byContributor: countBy(rows, "contributor"),
+    truthBoundary: "Human-Gate visibility does not change access, governance, verification, canonicality or publication. Raw source, contribution, research object and Topic remain distinct layers.",
+  };
+}
+
+export function filterWorldAllResearchRows(rows = [], filters = {}) {
+  const query = clean(filters.query).toLowerCase();
+  const family = clean(filters.family) || "all";
+  const kind = clean(filters.kind) || "all";
+  const access = clean(filters.access) || "all";
+  const status = clean(filters.status) || "all";
+  const verification = clean(filters.verification) || "all";
+  const contributor = clean(filters.contributor) || "all";
+
+  return (Array.isArray(rows) ? rows : []).filter((row) => {
+    if (family !== "all" && row.family !== family) return false;
+    if (kind !== "all" && row.kind !== kind) return false;
+    if (access !== "all" && row.access !== access) return false;
+    if (status !== "all" && row.status !== status) return false;
+    if (verification !== "all" && row.verification !== verification) return false;
+    if (contributor !== "all" && (row.contributor || "לא צוין") !== contributor) return false;
+    if (!query) return true;
+    const haystack = [
+      row.family,
+      row.statement,
+      row.secondary,
+      row.contributor,
+      row.source,
+      row.sourceRef,
+      row.value,
+      ...(row.values || []),
+      row.kind,
+      row.status,
+      row.access,
+      row.mediaClass,
+      row.spatialCluster,
+      ...(row.terms || []),
+      ...(row.relates || []),
+    ].filter((value) => value != null).join(" ").toLowerCase();
+    return haystack.includes(query);
   });
+}
+
+export async function fetchWorldAllResearchProjection() {
+  const [research, contributions, sources, topics] = await Promise.all([
+    fetchAllRows(
+      "research_objects",
+      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,meta"
+    ),
+    fetchAllRows(
+      "research_contributions",
+      "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug"
+    ),
+    fetchAllRows(
+      "channel_updates",
+      "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker"
+    ),
+    fetchAllRows(
+      "topic_cards",
+      "id,created_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,created_by"
+    ),
+  ]);
+
+  return buildWorldAllResearchProjection(
+    {
+      researchObjects: research.rows,
+      contributions: contributions.rows,
+      sourceMessages: sources.rows,
+      topics: topics.rows,
+    },
+    {
+      researchObjects: research.total,
+      contributions: contributions.total,
+      sourceMessages: sources.total,
+      topics: topics.total,
+      truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
+    }
+  );
 }
