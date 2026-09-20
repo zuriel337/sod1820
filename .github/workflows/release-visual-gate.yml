@@ -230,10 +230,32 @@ jobs:
               await expect(card).toBeVisible({ timeout: 20_000 });
               await expect(card).toContainText('אירן');
               await expect(card).toContainText('261');
-              await expect(card).toContainText('3 ביטויים');
+              await expect(card).toContainText('3 ביטויים · אותו ערך');
 
               const legacyRow = page.locator('.sod-gematria-box.is-gematria-card-pilot > .gb-rows').first();
               await expect(legacyRow).toBeHidden();
+
+              const compactHeight = await card.evaluate((el) => el.getBoundingClientRect().height);
+              expect(compactHeight).toBeLessThanOrEqual(width < 600 ? 360 : 300);
+
+              const miluy = card.locator('[data-method-key="מילוי"]');
+              await miluy.click();
+              await expect(card).toContainText('747');
+
+              const regular = card.locator('[data-method-key="רגיל"]');
+              await regular.click();
+              await expect(card).toContainText('261');
+
+              const explorerTrigger = card.locator('.sod-gematria-card__explorer-trigger');
+              await explorerTrigger.focus();
+              await expect(explorerTrigger).toBeFocused();
+              await explorerTrigger.click();
+
+              const explorer = page.getByRole('dialog');
+              await expect(explorer).toBeVisible();
+              await expect(explorer.getByText('ביטויים באותו ערך')).toBeVisible();
+              await expect(explorer.getByText('ביד רמה', { exact: true })).toBeVisible();
+              await expect(explorer.getByText('ארס', { exact: true })).toBeVisible();
 
               const metrics = await page.evaluate(() => ({
                 clientWidth: document.documentElement.clientWidth,
@@ -241,17 +263,8 @@ jobs:
               }));
               expect(metrics.scrollWidth).toBe(metrics.clientWidth);
 
-              await card.locator('.sod-gematria-card__summary-main').click();
-              await expect(card.getByText('ביטויים באותו ערך')).toBeVisible();
-              await expect(card.getByText('ביד רמה', { exact: true })).toBeVisible();
-              await expect(card.getByText('ארס', { exact: true })).toBeVisible();
-
-              const toggle = card.locator('.sod-gematria-card__toggle');
-              await toggle.focus();
-              await expect(toggle).toBeFocused();
-
               await page.screenshot({
-                path: `test-results/release-visual/gematria-post-pilot-${width}.png`,
+                path: `test-results/release-visual/gematria-post-compact-${width}.png`,
                 fullPage: true,
               });
             }
