@@ -398,8 +398,13 @@ export default function GematriaCard({
   const hasMiniActions = Boolean(
     (model?.trace?.available && typeof onOpenTrace === "function")
       || typeof onLearn === "function"
-      || typeof onRaziel === "function"
-      || typeof onOpenFull === "function",
+      || typeof onRaziel === "function",
+  );
+  const dependentExpressionCount = Number(model?.expressionEvidence?.dependentExpressionPhraseCount || 0);
+  const showMethodLens = Boolean(
+    active.derivedFrom?.length
+      || dependentExpressionCount > 0
+      || hasMiniActions,
   );
 
   return (
@@ -442,28 +447,29 @@ export default function GematriaCard({
 
         <PeerExpressions peers={model.peerExpressions} compact />
 
-        <section className="sod-gematria-card__method-lens" aria-label="השיטה הפעילה">
-          <div>
-            <span>השיטה הפעילה</span>
-            <strong>{methodLabel(active)} <em>·</em> {fmtNumber(active.value)}</strong>
-            {active.derivedFrom?.length > 0 && (
-              <small>נגזרת מ־{active.derivedFrom.join(" + ")}</small>
-            )}
-          </div>
-
-          <ExpressionDependencySignal evidence={model?.expressionEvidence} />
-
-          {hasMiniActions && (
-            <nav className="sod-gematria-card__mini-actions" aria-label="פעולות גימטריה">
-              {model?.trace?.available && typeof onOpenTrace === "function" && (
-                <button type="button" onClick={onOpenTrace}>חשב</button>
+        {showMethodLens && (
+          <section className="sod-gematria-card__method-lens" aria-label="השיטה הפעילה">
+            <div>
+              <span>השיטה הפעילה</span>
+              <strong>{methodLabel(active)} <em>·</em> {fmtNumber(active.value)}</strong>
+              {active.derivedFrom?.length > 0 && (
+                <small>נגזרת מ־{active.derivedFrom.join(" + ")}</small>
               )}
-              {typeof onLearn === "function" && <button type="button" onClick={onLearn}>למד</button>}
-              {typeof onRaziel === "function" && <button type="button" onClick={onRaziel}>רזיאל</button>}
-              {typeof onOpenFull === "function" && <button type="button" onClick={onOpenFull}>פתח מספר</button>}
-            </nav>
-          )}
-        </section>
+            </div>
+
+            <ExpressionDependencySignal evidence={model?.expressionEvidence} />
+
+            {hasMiniActions && (
+              <nav className="sod-gematria-card__mini-actions" aria-label="פעולות גימטריה">
+                {model?.trace?.available && typeof onOpenTrace === "function" && (
+                  <button type="button" onClick={onOpenTrace}>חשב</button>
+                )}
+                {typeof onLearn === "function" && <button type="button" onClick={onLearn}>למד</button>}
+                {typeof onRaziel === "function" && <button type="button" onClick={onRaziel}>רזיאל</button>}
+              </nav>
+            )}
+          </section>
+        )}
 
         <footer className="sod-gematria-card__compact-footer">
           <button
@@ -476,16 +482,27 @@ export default function GematriaCard({
             כל השיטות <span>({methods.length})</span>
           </button>
 
-          {model?.relationsSummary?.journeyAvailable && (
-            <button
-              type="button"
-              className="sod-gematria-card__journey-compact"
-              onClick={onOpenJourney}
-              disabled={typeof onOpenJourney !== "function"}
-            >
-              המשך במסע
-            </button>
-          )}
+          <div className="sod-gematria-card__footer-actions">
+            {typeof onOpenFull === "function" && (
+              <button
+                type="button"
+                className="sod-gematria-card__open-full"
+                onClick={onOpenFull}
+              >
+                פתח מספר
+              </button>
+            )}
+            {model?.relationsSummary?.journeyAvailable && (
+              <button
+                type="button"
+                className="sod-gematria-card__journey-compact"
+                onClick={onOpenJourney}
+                disabled={typeof onOpenJourney !== "function"}
+              >
+                המשך במסע
+              </button>
+            )}
+          </div>
         </footer>
       </article>
 
