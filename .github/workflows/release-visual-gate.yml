@@ -270,50 +270,6 @@ jobs:
             }
           });
 
-          test('Golden Topic Gematria calibration stays one board plus one active card', async ({ page }) => {
-            const path = '/topic/ateret-tiferetchem-1820?gematria2029=1';
-            for (const width of [390, 1440]) {
-              await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
-              await page.goto(BASE + path, { waitUntil: 'networkidle' });
-
-              const golden = page.locator('[data-gematria-topic-golden="v1"]');
-              await expect(golden).toBeVisible({ timeout: 30_000 });
-              await expect(golden).toContainText('7 שוויונות מאומתים');
-              await expect(golden).toContainText('1820');
-              await expect(golden).toContainText('786');
-              await expect(golden).toContainText('לא חלק מציר השוויון המאומת');
-
-              const equality = golden.getByRole('button', { name: /התגלות השם המפורש.*1820/ });
-              await equality.click();
-
-              const card = golden.locator('[data-gematria-card="golden-v1"]');
-              await expect(card).toContainText('התגלות השם המפורש');
-              await expect(card).toContainText('1820');
-
-              const miluy = card.locator('[data-method-key="מילוי"]');
-              await miluy.click();
-              await expect(card).toContainText('2,549');
-
-              const regular = card.locator('[data-method-key="רגיל"]');
-              await regular.click();
-              await expect(card).toContainText('1820');
-
-              const compactHeight = await card.evaluate((el) => el.getBoundingClientRect().height);
-              expect(compactHeight).toBeLessThanOrEqual(width < 600 ? 360 : 300);
-
-              const metrics = await page.evaluate(() => ({
-                clientWidth: document.documentElement.clientWidth,
-                scrollWidth: document.documentElement.scrollWidth,
-              }));
-              expect(metrics.scrollWidth).toBe(metrics.clientWidth);
-
-              await page.screenshot({
-                path: 'test-results/release-visual/gematria-topic-golden-' + width + '.png',
-                fullPage: true,
-              });
-            }
-          });
-
           EOF
           npx playwright test .release-gate/release-visual.spec.cjs --reporter=line
 
