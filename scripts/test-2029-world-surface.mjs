@@ -444,6 +444,44 @@ assert.match(worldAllResearchSource, /admin_convergence_candidates/);
 assert.equal(/\.from\(["']research_candidates["']/.test(worldAllResearchSource), false, "pending candidates must use the existing secured admin RPC, not a direct table grant");
 assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(worldConvergenceLensCss), false, "scoped Convergence UI must use canonical theme tokens, not local hex colors");
 
+// PhaseB — Source/Member Inspector: exact base-identity source lookup, full dependency
+// family members, raw engine/scoped verification states, and candidate shared_sources /
+// warnings / generatedBy all inspectable — never a second network/DB read, never fuzzy text.
+assert.match(worldConvergenceLensSource, /No fuzzy text matching/);
+assert.match(worldConvergenceLensSource, /function baseSourceIdentity/);
+assert.match(worldConvergenceLensSource, /function buildSourceIndex/);
+assert.match(worldConvergenceLensSource, /resolvedSources/);
+assert.match(worldConvergenceLensSource, /engineVerificationStateRaw/);
+assert.match(worldConvergenceLensSource, /scopeVerificationStates/);
+assert.equal(/\.from\(["'](channel_updates|research_contributions|research_objects|topic_cards)["']/.test(worldConvergenceLensSource), false, "Source Inspector must reuse the already-authorized allResearchProjection payload, never issue its own read");
+assert.match(worldConvergenceLensComponent, /Source\/Member Inspector/);
+assert.match(worldConvergenceLensComponent, /קישור מדיה מקורית/);
+assert.equal(/<img[\s>]/.test(worldConvergenceLensComponent), false, "original source media must open via an explicit link, never an auto-loaded <img>");
+assert.match(worldConvergenceLensComponent, /Source Artifacts/);
+assert.match(worldConvergenceLensComponent, /לא ספירת Findings/);
+assert.equal(
+  worldConvergenceLensComponent.includes("{Object.entries(VERIFICATION_LABELS).map"),
+  false,
+  "verification filter must offer live/dynamic states from byVerification, not a hardcoded enumeration",
+);
+assert.match(worldConvergenceLensComponent, /optionsFrom\(projection\.byVerification\)/);
+
+const F1 = "bbbbbbbb-0001-4bbb-8bbb-bbbbbbbbbbb1";
+const phaseBSourceFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "pb-rel-frag", created_at: "2026-09-20T05:00:00Z", kind: "relation", value: 1820,
+    contributor: "חוקר א", engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + F1 + "#semantic/batch",
+  }],
+  sourceMessages: [
+    { id: F1, created_at: "2026-09-20T01:00:00Z", text: "ניסוח מלא של הודעת מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+  ],
+}, { researchObjects: 1, sourceMessages: 1 });
+const phaseBSourceLens = buildWorldConvergenceLensProjection(phaseBSourceFixture);
+const phaseBRelationRow = phaseBSourceLens.rows.find((row) => row.id === "research:pb-rel-frag");
+assert.equal(phaseBRelationRow.resolvedSources[0].baseRef, "channel_updates:" + F1, "a #fragment sourceRef must resolve by exact base identity only");
+assert.equal(phaseBRelationRow.resolvedSources[0].statement, "ניסוח מלא של הודעת מקור");
+
 
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.

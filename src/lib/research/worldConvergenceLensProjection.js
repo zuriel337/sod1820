@@ -91,6 +91,52 @@ function sourceRefs(row) {
   return unique([row?.sourceRef, ...asArray(row?.sourceRefs)]);
 }
 
+// Exact base source identity only — a fragment such as
+// "channel_updates:<uuid>#semantic/batch" always resolves to the base occurrence
+// "channel_updates:<uuid>". No fuzzy text matching is ever used to bridge a relation's
+// sourceRef to the raw source_message/contribution row it came from.
+function baseSourceIdentity(ref) {
+  const text = clean(ref);
+  if (!text) return "";
+  const hash = text.indexOf("#");
+  return hash === -1 ? text : text.slice(0, hash);
+}
+
+// Exact source lookup built once from the already-authorized allResearchProjection
+// source_message/contribution rows. No second network/DB read is ever performed here.
+function buildSourceIndex(allResearchProjection) {
+  const index = new Map();
+  for (const row of asArray(allResearchProjection?.rows)) {
+    if (row?.family !== "source_message" && row?.family !== "contribution") continue;
+    const ref = clean(row.sourceRef);
+    if (ref && !index.has(ref)) index.set(ref, row);
+  }
+  return index;
+}
+
+// Resolves every sourceRef on a row to its base source occurrence (deduped by base
+// identity). An unresolved base identity is still reported (resolved:false) rather than
+// silently dropped, so a missing/late source stays inspectable instead of disappearing.
+function resolveSourceOccurrences(refs, sourceIndex) {
+  const seen = new Set();
+  const out = [];
+  for (const ref of asArray(refs)) {
+    const base = baseSourceIdentity(ref);
+    if (!base || seen.has(base)) continue;
+    seen.add(base);
+    const source = sourceIndex.get(base) || null;
+    out.push(Object.freeze({
+      ref, baseRef: base, resolved: Boolean(source), family: source?.family || null,
+      statement: source ? clean(source.statement) : null,
+      contributor: source ? clean(source.contributor) || null : null,
+      createdAt: source?.createdAt || null,
+      mediaUrl: source?.mediaUrl || null, mediaClass: source?.mediaClass || null,
+      href: source?.href || null,
+    }));
+  }
+  return out;
+}
+
 function classificationLabel(row) {
   if (isDecisionChanging(row)) return "דורש החלטה";
   if (row.layer === "topic_history" && clean(row.status).toLowerCase() === "approved") return "Human approved";
@@ -252,6 +298,11 @@ function makeRelationRow(row) {
     meterScore: null, quality: null, confidence: finite(row.confidence), batchKey: clean(row.batchKey) || null,
     parentId: clean(row.parentId) || null, operationalState: clean(row.operationalState) || null,
     href: row.href || null,
+    // Never flatten a local mismatch behind a top-level "match": the raw engine state and
+    // every raw per-scope state survive verbatim for inspection alongside the composed
+    // `verification` field above.
+    engineVerificationStateRaw: clean(row.engineVerificationStateRaw) || null,
+    scopeVerificationStates: asArray(row.scopeVerificationStates),
   };
   out.decisionChanging = isDecisionChanging(out);
   out.humanApproved = ["approved", "canonical"].includes(out.status.toLowerCase());
@@ -457,11 +508,34 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     ...material.filter((row) => row.family === "research_object" && row.kind === "relation").map(makeRelationRow),
     ...asArray(allResearchProjection?.convergenceCandidates).map(makeCandidateRow),
   ];
-  const dependencies = dependencyRoots(rows.filter((row) => row.layer === "research_relation"));
+
+  // Exact source lookup, reused for every row below — no second network/DB read.
+  const sourceIndex = buildSourceIndex(allResearchProjection);
   for (const row of rows) {
-    if (row.layer !== "research_relation") continue;
+    row.resolvedSources = resolveSourceOccurrences(row.sourceRefs, sourceIndex);
+  }
+
+  const relationRows = rows.filter((row) => row.layer === "research_relation");
+  const dependencies = dependencyRoots(relationRows);
+  const membersByRoot = new Map();
+  for (const row of relationRows) {
     const root = dependencies.roots.get(row.id) || row.sourceId;
-    row.dependency = Object.freeze({ rootId: root, memberCount: dependencies.counts.get(root) || 1 });
+    const list = membersByRoot.get(root) || [];
+    list.push(row);
+    membersByRoot.set(root, list);
+  }
+  for (const row of relationRows) {
+    const root = dependencies.roots.get(row.id) || row.sourceId;
+    const members = membersByRoot.get(root) || [row];
+    // Each member exposes its OWN verification/state — a member never borrows verification
+    // from a sibling just because they share a dependency root.
+    const memberSummaries = Object.freeze(members.map((member) => Object.freeze({
+      id: member.id, label: member.label, verification: member.verification,
+      engineVerificationStateRaw: member.engineVerificationStateRaw || null,
+      sourceRefs: member.sourceRefs, contributor: member.contributor, status: member.status,
+      scopeVerificationStates: member.scopeVerificationStates,
+    })));
+    row.dependency = Object.freeze({ rootId: root, memberCount: members.length, members: memberSummaries });
     if (row.dependency.memberCount > 1) row.explainWhy = [...row.explainWhy, `${row.dependency.memberCount} אובייקטים תלויים קובצו לאותה משפחת dependency.`];
   }
   const ordered = orderWorldConvergenceRows(rows, "research_strength");

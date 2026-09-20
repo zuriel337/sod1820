@@ -26,6 +26,9 @@ const VERIFICATION_LABELS = {
   not_tested: "טרם נבדק",
   method_unknown: "שיטה לא זמינה",
   not_applicable: "לא חל",
+  partial_needs_review: "התאמה חלקית · דורש סקירה",
+  legacy_signal: "סימון legacy (לא מאומת)",
+  review_required: "דורש בדיקה",
 };
 
 const layerLabel = (row) => row.layer === "topic_history"
@@ -52,6 +55,81 @@ function Stat({ label, value, detail = null }) {
     <strong>{value}</strong>
     <span>{label}</span>
     {detail ? <small>{detail}</small> : null}
+  </div>;
+}
+
+// Source Inspector: full source wording, contributor, source timestamp and a media LINK
+// only (never an auto-loaded image element) — opening the original media is always an
+// explicit user action.
+function SourceOccurrence({ item }) {
+  return <li className="sod29-conv-source">
+    <div className="sod29-conv-source-head">
+      <code>{item.baseRef}</code>
+      {!item.resolved ? <span className="sod29-conv-source-missing">מקור לא נמצא בחומר שכבר נטען לסשן</span> : null}
+    </div>
+    {item.resolved ? <>
+      {item.statement ? <p>{item.statement}</p> : null}
+      <div className="sod29-conv-source-meta">
+        {item.contributor ? <span>{item.contributor}</span> : null}
+        {dateLabel(item.createdAt) ? <span>{dateLabel(item.createdAt)}</span> : null}
+      </div>
+      {item.mediaUrl ? <a className="sod29-conv-media-link" href={item.mediaUrl} target="_blank" rel="noreferrer">
+        קישור מדיה מקורית ←
+      </a> : null}
+    </> : null}
+  </li>;
+}
+
+// Dependency family members: each family stays one list row, but every member is
+// inspectable here with its OWN id/label/verification/sourceRef(s)/contributor/status —
+// no member borrows verification from a sibling.
+function DependencyMembers({ dependency }) {
+  if (!dependency || dependency.memberCount <= 1) return null;
+  return <div className="sod29-conv-inspector-block sod29-conv-members">
+    <span className="sod29-kicker">משפחת Dependency · {dependency.memberCount} חברים</span>
+    <ul>
+      {dependency.members.map((member) => <li key={member.id}>
+        <b>{member.label}</b>
+        <span>verification: {member.verification}</span>
+        {member.engineVerificationStateRaw ? <span>engine: {member.engineVerificationStateRaw}</span> : null}
+        <span>status: {member.status}</span>
+        {member.contributor ? <span>{member.contributor}</span> : null}
+        <code>{member.sourceRefs.join(" · ")}</code>
+      </li>)}
+    </ul>
+  </div>;
+}
+
+// Source/Member Inspector — exact, not just first sourceRef: full provenance refs,
+// resolved source occurrences, raw engine/scope verification states, the full dependency
+// family, and (for Research Candidates) shared_sources/warnings/generatedBy kept separate
+// from contributor. Progressive UI: nested under its own <details>, closed by default.
+function RowInspector({ row }) {
+  return <div className="sod29-conv-inspector">
+    <div className="sod29-conv-inspector-block">
+      <span className="sod29-kicker">כל הפניות המקור ({row.sourceRefs.length})</span>
+      <ul className="sod29-conv-refs">{row.sourceRefs.map((ref) => <li key={ref}><code>{ref}</code></li>)}</ul>
+    </div>
+    {row.resolvedSources?.length ? <div className="sod29-conv-inspector-block">
+      <span className="sod29-kicker">Source Inspector · ניסוח מלא</span>
+      <ul className="sod29-conv-sources">{row.resolvedSources.map((item) => <SourceOccurrence item={item} key={item.baseRef} />)}</ul>
+    </div> : null}
+    {row.engineVerificationStateRaw || row.scopeVerificationStates?.length ? <div className="sod29-conv-inspector-block sod29-conv-scopes">
+      <span className="sod29-kicker">מצבי אימות גולמיים · engine + scoped</span>
+      <ul>
+        {row.engineVerificationStateRaw ? <li>engine_detail: {row.engineVerificationStateRaw}</li> : null}
+        {(row.scopeVerificationStates || []).map((entry) => <li key={entry.key}>{entry.key}: {entry.state}</li>)}
+      </ul>
+    </div> : null}
+    <DependencyMembers dependency={row.dependency} />
+    {row.layer === "research_candidate" ? <div className="sod29-conv-inspector-block sod29-conv-candidate-detail">
+      <span className="sod29-kicker">Research Candidate · מקורות משותפים ואזהרות</span>
+      {row.generatedBy ? <div>נוצר על־ידי (agent): {row.generatedBy}</div> : null}
+      {row.sharedSources?.length
+        ? <div>{row.sharedSources.length} shared_sources: <code>{row.sharedSources.join(" · ")}</code></div>
+        : <div>אין shared_sources מתועדים.</div>}
+      {row.warnings?.length ? <ul>{row.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul> : null}
+    </div> : null}
   </div>;
 }
 
@@ -118,10 +196,11 @@ export default function WorldConvergenceLens({ state }) {
       {z ? <div className="sod29-conv-zvi">
         <div>
           <span className="sod29-kicker">ZVI · FULL CORPUS COVERAGE</span>
-          <strong>{z.linkedSources} / {z.totalSources} מקורות כבר מחוברים למחקר</strong>
+          <strong>{z.linkedSources} / {z.totalSources} Source Artifacts (פריטי מקור) כבר מקושרים ל־Research Object</strong>
           <small>
-            {z.unlinkedSources} עדיין ללא Research Object · מתוכם {z.exactDuplicateOccurrences} חזרות מדויקות ·{" "}
-            {z.uniqueUnlinked} מקורות ייחודיים נשארו לסינון
+            {z.unlinkedSources} Source Artifacts עדיין ללא Research Object מקושר · מתוכם {z.exactDuplicateOccurrences} חזרות מדויקות ·{" "}
+            {z.uniqueUnlinked} Source Artifacts ייחודיים (compound: טקסט+מדיה) נשארו לסינון. זו ספירת מלאי מקורות/Media
+            Lineage, ולא ספירת Findings.
           </small>
         </div>
         <div className="sod29-conv-zvi-buckets">
@@ -147,7 +226,8 @@ export default function WorldConvergenceLens({ state }) {
           {Object.entries(WORLD_CONVERGENCE_ATTENTION).map(([value,label]) => <option value={value} key={value}>{label}</option>)}
         </select></label>
         <label><span>אימות</span><select value={filters.verification} onChange={(e) => update("verification", e.target.value)}>
-          {Object.entries(VERIFICATION_LABELS).map(([value,label]) => <option value={value} key={value}>{label}</option>)}
+          <option value="all">{VERIFICATION_LABELS.all}</option>
+          {optionsFrom(projection.byVerification).map((value) => <option value={value} key={value}>{VERIFICATION_LABELS[value] || value}</option>)}
         </select></label>
         <label><span>סטטוס</span><select value={filters.status} onChange={(e) => update("status", e.target.value)}>
           <option value="all">כל הסטטוסים</option>
@@ -200,6 +280,10 @@ export default function WorldConvergenceLens({ state }) {
               <summary>למה הוא כאן?</summary>
               <ul>{row.explainWhy.map((line) => <li key={line}>{line}</li>)}</ul>
               {row.sourceRef ? <code>{row.sourceRef}</code> : null}
+            </details>
+            <details className="sod29-conv-inspector-toggle">
+              <summary>Source/Member Inspector · פרטים מלאים</summary>
+              <RowInspector row={row} />
             </details>
           </div>
           <div className="sod29-conv-open">
