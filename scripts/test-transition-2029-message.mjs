@@ -10,30 +10,29 @@ const world = fs.readFileSync("src/pages/World2029Page.jsx","utf8");
 for (const phrase of [
   "אחרי 15 שנה הגיע הזמן להתחדש",
   "דף המספר הישן מתחדש",
-  "בית המדרש הישן נסגר — התוכן ממשיך",
+  "בית המדרש הישן ייסגר בקרוב",
   "ממש עולם חדש הולך להיפתח",
 ]) assert.equal(component.includes(phrase), true, "missing transition phrase: " + phrase);
 
 assert.equal(app.includes('<TransitionAnnouncement context="home" />'), true);
 assert.equal(app.includes('<TransitionAnnouncement context="number" />'), true);
-assert.equal(app.includes('<Route path="/beit-midrash" element={<Navigate to="/world" replace />} />'), true);
-assert.equal(app.includes('<Route path="/beit-midrash/:method" element={<Navigate to="/world" replace />} />'), true);
+assert.equal(app.includes('<TransitionAnnouncement context="beit" />'), true);
+assert.equal(app.includes('<BeitMidrashPage />'), true);
+assert.equal(app.includes('<Route path="/beit-midrash" element={<LegacyBeitMidrashTransitionRoute />} />'), true);
+assert.equal(app.includes('<Route path="/beit-midrash/:method" element={<LegacyBeitMidrashTransitionRoute />} />'), true);
 assert.equal(app.includes('<Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />'), true);
 
-const genericBeitRedirects = (vercel.redirects || []).filter((r) =>
-  ["/beit-midrash","/beit-midrash/(.*)"].includes(r.source) && !r.has
+const beitRedirects = (vercel.redirects || []).filter((r) =>
+  r.source === "/beit-midrash" || r.source === "/beit-midrash/(.*)"
 );
-assert.equal(genericBeitRedirects.length, 2, "canonical Beit→World redirects must remain active");
-assert.ok(genericBeitRedirects.every((r) => r.destination === "/world" && r.permanent === true));
+assert.equal(beitRedirects.length, 0, "Beit Midrash must remain directly addressable during the notice-only period");
 
-const calcContinuity = (vercel.redirects || []).filter((r) =>
-  r.source === "/beit-midrash" && Array.isArray(r.has)
-);
-assert.ok(calcContinuity.length >= 4, "calculator-intent redirects must remain preserved");
+assert.equal(world.includes('<TransitionAnnouncement context="beit" />'), false, "World must not carry the Beit handoff before public opening");
+assert.equal(component.includes('{ to: "/world", label: "פתח את העולם החדש" }'), false, "transition banner must not open World yet");
+assert.equal(component.includes('links: []'), true, "Beit notice must be notice-only");
 
-assert.equal(world.includes('<TransitionAnnouncement context="beit" />'), true);
 assert.equal(heichal.includes("ההיכל הישן ייסגר בהדרגה"), true);
 assert.equal(heichal.includes('href="/heichal"'), true);
-assert.equal(heichal.includes('href="/world"'), true);
+assert.equal(heichal.includes('href="/world"'), false, "legacy Heichal notice must not open World yet");
 
 console.log("Transition 2029 public message contract: PASS");
