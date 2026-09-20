@@ -36,6 +36,7 @@ import AiQuotaToast from "./components/AiQuotaToast.jsx";
 import ProfileNudge from "./components/ProfileNudge.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
+const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
 // Torah Occurrence -> Spatial Runtime Adapter (dev/admin only) — work_log task
 // TORAH_OCCURRENCE_SPATIAL_ADAPTER_V1, frozen Spatial Slice-0 contract, builds on the Spatial
 // Gematria Golden Slice's Semantic Scene Compiler pattern (work_log 7f0d8ac8).
@@ -230,6 +231,13 @@ function LegacyNumberTransitionRoute() {
   </>;
 }
 
+function LegacyBeitMidrashTransitionRoute() {
+  return <>
+    <TransitionAnnouncement context="beit" />
+    <BeitMidrashPage />
+  </>;
+}
+
 // 🔀 הפניות צד-לקוח לסלאגים ישנים/שבורים (גוגל) → יעד חדש. מפענח מפורשות (decodeURIComponent)
 // כך שזה תופס גם כתובות עבריות מקודדות (%D7%…) — מה ש-Vercel redirects לא תמיד תופס.
 const LEGACY_REDIRECTS = {
@@ -353,10 +361,10 @@ export default function App() {
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}
           <Route path="/codes/מחקר" element={<ResearchCodesPage />} />
           <Route path="/codes/:slug" element={<CipherPage />} />
-          {/* Legacy Beit Midrash public routes remain retired into World.
-              World now carries the transition message; calculator query intents remain preserved server-side. */}
-          <Route path="/beit-midrash" element={<Navigate to="/world" replace />} />
-          <Route path="/beit-midrash/:method" element={<Navigate to="/world" replace />} />
+          {/* Human Gate correction: keep the legacy Beit Midrash open for now.
+              Show only the transition notice; do not route users into World yet. */}
+          <Route path="/beit-midrash" element={<LegacyBeitMidrashTransitionRoute />} />
+          <Route path="/beit-midrash/:method" element={<LegacyBeitMidrashTransitionRoute />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
