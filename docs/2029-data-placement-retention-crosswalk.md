@@ -1,6 +1,6 @@
 # SOD1820 2029 — Data Placement & Retention Crosswalk
 
-Status: implementation companion to `research_intake_foundation_contract_law v11`.
+Status: implementation companion to `research_intake_foundation_contract_law v13`.
 
 This file is a pointer/implementation map, not a new owner, registry, store, or source of truth. Live domain owners and live DB/code win if this document drifts.
 
@@ -78,3 +78,48 @@ The Admin/Command Center should project, not own, retention state. It may show:
 - why an item/table is protected.
 
 Any future `Purge` action remains separately Human-Gated and must be reference-aware, idempotent, auditable, privacy-safe, and recoverable.
+
+
+## Source vs binary media retention — v13
+
+Research Intake v13 separates two operational decisions:
+
+- **Source occurrence retention** — text, source identity, contributor/channel/time provenance, replay metadata.
+- **Heavy binary retention** — original image/video/audio/document bytes.
+
+`KEEP_SOURCE` no longer implies an unlimited promise to keep every binary forever.
+
+Logical media disposition profile (projection only; not a DB enum/store):
+
+- `KEEP_ORIGINAL` — load-bearing / active / exact-replay media.
+- `KEEP_SOURCE_LIGHT` — source/provenance stays; heavy original may retire only after durable media tombstone/fingerprint + dependency proof.
+- `ARCHIVE_BINARY` — same media identity moved to a cheaper/archive tier; identity/access/replay preserved.
+- `PURGE_BINARY_CANDIDATE` — non-load-bearing, unreferenced, non-active media after full dry-run proof.
+- `HUMAN_REVIEW` — unknown dependency, missing fingerprint carrier, ambiguous value, or any destructive uncertainty.
+
+This profile is separate from the existing row-retention classes in §11.
+
+### Fail-closed rule
+
+A binary must **not** be purged if the current owners cannot preserve a durable proof that the media existed without leaving a broken/misleading live reference. Minimum retained provenance should include, where available: source occurrence identity, original/source locator, stable media/object identity, content hash/fingerprint, MIME, byte size, original/derivative lineage, surviving thumbnail/OCR/transcript references, disposition reason, actor/decision provenance and time.
+
+If that carrier is missing, classify `ARCHIVE_BINARY` / `HUMAN_REVIEW` rather than inventing a new Media/Retention store.
+
+### Research attention is not deletion
+
+A source that is `reviewed_no_structured_findings`, source-only chatter, or spam may be removed from default Research/Convergence worklists while the source occurrence remains addressable. No-research-signal is not a purge authorization.
+
+### Current calibration — 20.9.2026
+
+- `channel_updates`: 2,111 rows.
+- Media-bearing rows: 457.
+- Matched Storage objects: 448.
+- Matched bytes: ~1,673.68 MB.
+- Largest matched object: ~42.91 MB.
+
+Calibration is operational evidence only. It does not classify any individual object as purge-safe.
+
+### Storage implementation safety
+
+`storage.objects` is read-only metadata for audit/preview. Physical upload/copy/move/delete operations must use the Supabase Storage API (or its S3-compatible API where appropriate), never direct SQL mutation of Storage metadata.
+
