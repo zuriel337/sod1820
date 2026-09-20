@@ -406,7 +406,7 @@ export default function GematriaCard({
       <article
         className={cx("sod-gematria-card", `is-${surface}`, className)}
         style={rootStyle}
-        data-gematria-card="golden-v2"
+        data-gematria-card="golden-v1"
         data-focus={model.focusKind || "expression"}
         dir="rtl"
       >
