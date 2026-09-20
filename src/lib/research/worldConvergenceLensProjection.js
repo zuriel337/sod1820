@@ -134,6 +134,76 @@ function makeTopicRow(row) {
   return out;
 }
 
+function makeCandidateRow(row) {
+  const why = row?.why && typeof row.why === "object" ? row.why : {};
+  const recommendation = clean(row?.recommendation) || "needs_check";
+  const subjectRef = clean(row?.subject_ref);
+  const mismatches = asArray(why?.mismatches);
+  const reason = clean(why?.reason);
+  const confidence = finite(row?.conf ?? row?.confidence);
+  const value = /^-?\d+$/.test(subjectRef) ? Number(subjectRef) : null;
+  const topicSlug = clean(why?.topic_slug);
+  const topicTitle = clean(why?.topic_title);
+  const anchor = clean(why?.anchor);
+  const decisionChanging = recommendation === "needs_check" || mismatches.length > 0 || /mismatch|contradiction/i.test(reason);
+  const verification = decisionChanging ? "mismatch" : "not_tested";
+  const sourceRefs = unique([
+    "research_candidates:" + row.id,
+    ...asArray(row?.evidence_refs),
+    ...asArray(why?.evidence_refs),
+  ]);
+  const classification = decisionChanging
+    ? "דורש החלטה"
+    : recommendation === "strong"
+      ? "מועמד חזק"
+      : recommendation === "duplicate"
+        ? "מועמד לאיחוד"
+        : "מועמד מחקר";
+  const out = {
+    id: "candidate:" + row.id,
+    sourceId: String(row.id),
+    layer: "research_candidate",
+    family: "research_candidate",
+    createdAt: row.created_at || null,
+    label: topicTitle || anchor || (subjectRef ? "מועמד " + subjectRef : "Research Candidate"),
+    summary: reason || clean(why?.uncertainty) || null,
+    value,
+    values: value == null ? [] : [value],
+    terms: topicTitle ? [topicTitle] : [],
+    relates: unique([subjectRef, topicSlug, clean(row?.node_id)]),
+    status: "pending",
+    verification,
+    contributor: clean(why?.generated_by) || clean(why?.source) || "research_candidates",
+    sourceRef: "research_candidates:" + row.id,
+    sourceRefs,
+    provenanceCount: sourceRefs.length,
+    meterScore: null,
+    quality: null,
+    confidence,
+    batchKey: null,
+    parentId: null,
+    operationalState: recommendation,
+    recommendation,
+    decisionChanging,
+    humanApproved: false,
+    classification,
+    href: topicSlug
+      ? "/topic/" + encodeURIComponent(topicSlug)
+      : value != null ? "/number/" + value : null,
+  };
+  out.explainWhy = [];
+  if (decisionChanging) out.explainWhy.push("מועמד needs_check / mismatch שיכול לשנות החלטה קיימת.");
+  if (mismatches.length) out.explainWhy.push(mismatches.length + " אי־התאמות מנוע מתועדות ב־candidate.");
+  if (recommendation === "strong") out.explainWhy.push("ה־Research Candidate מסומן strong; זהו אות תיעדוף, לא Truth.");
+  if (recommendation === "duplicate") out.explainWhy.push("המערכת חושדת בכפילות/איחוד; אין ליצור Convergence חדש לפני reconciliation.");
+  const independent = finite(why?.independent_group_count);
+  if (independent != null) out.explainWhy.push(independent + " קבוצות ראיה עצמאיות מדווחות במועמד.");
+  if (confidence != null) out.explainWhy.push("confidence=" + confidence + " הוא מדד candidate-native בלבד, לא ציון אמת.");
+  if (topicTitle && clean(why?.topic_status) === "approved") out.explainWhy.push("המועמד נוגע ב־Topic מאושר; האישור ההיסטורי נשמר ואינו נכתב מחדש.");
+  if (!out.explainWhy.length) out.explainWhy.push("מועמד מחקר פתוח שממתין ל־Human Gate.");
+  return out;
+}
+
 function makeRelationRow(row) {
   const refs = sourceRefs(row);
   const out = {
@@ -326,6 +396,7 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
   const rows = [
     ...material.filter((row) => row.family === "topic").map(makeTopicRow),
     ...material.filter((row) => row.family === "research_object" && row.kind === "relation").map(makeRelationRow),
+    ...asArray(allResearchProjection?.convergenceCandidates).map(makeCandidateRow),
   ];
   const dependencies = dependencyRoots(rows.filter((row) => row.layer === "research_relation"));
   for (const row of rows) {
@@ -340,12 +411,15 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     rows: Object.freeze(ordered), total: ordered.length,
     approvedTopics: ordered.filter((row) => row.layer === "topic_history" && row.humanApproved).length,
     researchRelations: ordered.filter((row) => row.layer === "research_relation").length,
+    pendingCandidates: ordered.filter((row) => row.layer === "research_candidate").length,
     verifiedRelations: ordered.filter((row) => row.layer === "research_relation" && row.verification === "match").length,
     decisionChanging: ordered.filter((row) => row.decisionChanging).length,
     multiTrace: ordered.filter((row) => row.provenanceCount > 1).length,
     byLayer: Object.freeze(countBy(ordered, "layer")), byVerification: Object.freeze(countBy(ordered, "verification")),
     byStatus: Object.freeze(countBy(ordered, "status")), byContributor: Object.freeze(countBy(ordered, "contributor")),
     byBatch: Object.freeze(countBy(ordered, "batchKey")), zviCoverage,
+    candidateError: clean(allResearchProjection?.convergenceCandidateError) || null,
+    candidateMeta: allResearchProjection?.convergenceCandidateMeta || {},
     capabilities: Object.freeze({ globalResearchConvergenceIndex: true, contextualCrossMethod: true, globalCrossMethodFeed: false, rawLegacyDiscoveryIncluded: false }),
     truthBoundary: "Contextual order is a presentation projection. It never changes verification, governance, canonicality, publication or access.",
     rawDiscoveryBoundary: "Legacy equality buckets, raw match volume and repeated source refs stay outside Research Strength until dependency/independence is explicit.",
