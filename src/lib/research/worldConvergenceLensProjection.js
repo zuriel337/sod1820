@@ -185,6 +185,7 @@ function makeCandidateRow(row) {
     operationalState: recommendation,
     recommendation,
     decisionChanging,
+    affectsApproved: decisionChanging && clean(why?.topic_status) === "approved",
     humanApproved: false,
     classification,
     href: topicSlug
@@ -265,8 +266,18 @@ function compareNullableDesc(a, b) {
 
 function compareResearchStrength(a, b) {
   // Lexicographic dimensions only. Never collapse to one opaque "truth score".
-  const semanticA = [a.decisionChanging ? 0 : 1, verificationClass(a), governanceClass(a)];
-  const semanticB = [b.decisionChanging ? 0 : 1, verificationClass(b), governanceClass(b)];
+  const semanticA = [
+    a.decisionChanging && a.affectsApproved ? 0 : 1,
+    a.decisionChanging ? 0 : 1,
+    verificationClass(a),
+    governanceClass(a),
+  ];
+  const semanticB = [
+    b.decisionChanging && b.affectsApproved ? 0 : 1,
+    b.decisionChanging ? 0 : 1,
+    verificationClass(b),
+    governanceClass(b),
+  ];
   for (let i = 0; i < semanticA.length; i += 1) if (semanticA[i] !== semanticB[i]) return semanticA[i] - semanticB[i];
   if (a.layer === b.layer) {
     for (const key of ["meterScore", "quality", "confidence"]) {
