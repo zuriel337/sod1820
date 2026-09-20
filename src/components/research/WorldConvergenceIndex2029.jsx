@@ -244,7 +244,7 @@ export default function WorldConvergenceIndex2029({
 
       {shown < filtered.length ? (
         <div className="sod29-world-convergence-more">
-          <button className="sod29-action primary" type="button" onClick={() => setShown((value) => value + PAGE}>
+          <button className="sod29-action primary" type="button" onClick={() => setShown((value) => value + PAGE)}>
             הצג עוד
           </button>
         </div>
