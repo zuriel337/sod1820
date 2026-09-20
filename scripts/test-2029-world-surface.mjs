@@ -55,6 +55,7 @@ const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
 assert.match(sitemapSource, /loc:\s*'\/world'/, "World remains addressable independently");
@@ -231,6 +232,13 @@ for (const table of ["research_objects", "channel_updates", "research_contributi
 assert.equal(/\.eq\(["']privacy_scope["']/.test(worldAllResearchSource), false, "Human Gate reader must not hide rows by privacy_scope");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldAllResearchSource), false, "Human Gate reader must rely on current-session admin RLS, not service role");
 assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldAllResearchSource), false, "all-material projection must remain read-only");
+assert.match(allResearchAdminPolicy, /create policy research_contributions_admin_read/i);
+assert.match(allResearchAdminPolicy, /for select/i);
+assert.match(allResearchAdminPolicy, /to authenticated/i);
+assert.match(allResearchAdminPolicy, /public\.rd_is_admin\(\)/);
+assert.equal(/for\s+(insert|update|delete|all)/i.test(allResearchAdminPolicy), false, "Human Gate policy must grant SELECT only");
+assert.equal(/to\s+anon|to\s+public/i.test(allResearchAdminPolicy), false, "Human Gate policy must not widen public access");
+
 
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
