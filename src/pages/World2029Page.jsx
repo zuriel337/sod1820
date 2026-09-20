@@ -490,6 +490,10 @@ function LiveWorldLanding({ research, shell, context }) {
       setAllResearchState((prev) => ({ ...prev, enabled: false, loading: false, error: null }));
       return () => { alive = false; };
     }
+    if (allResearchState.projection) {
+      setAllResearchState((prev) => ({ ...prev, enabled: true, loading: false, error: null }));
+      return () => { alive = false; };
+    }
     setAllResearchState((prev) => ({ ...prev, enabled: true, loading: true, error: null }));
     fetchWorldAllResearchProjection()
       .then((projection) => {
