@@ -31,6 +31,10 @@ import {
   researchFindingAxes,
 } from "../src/lib/research/worldResearchControl.js";
 import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
+import {
+  buildWorldAllResearchProjection,
+  filterWorldAllResearchRows,
+} from "../src/lib/research/worldAllResearchProjection.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -49,6 +53,9 @@ const entityHubProjection = read("src/lib/research/entityHubProjection.js");
 const worldCss = read("src/pages/world2029-human.css");
 const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
+const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
+const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
 assert.match(sitemapSource, /loc:\s*'\/world'/, "World remains addressable independently");
@@ -179,6 +186,60 @@ assert.equal(control.capabilities.rawSource, true);
 assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, attention: "approved" }).length, 1);
 assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, access: "private" }).length, 2);
 assert.equal(WORLD_RESEARCH_ATTENTION.public_candidate.label, "מועמד לציבור");
+
+const allMaterialFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "ro1", created_at: "2026-09-20T01:00:00Z", kind: "observation",
+    statement: "ממצא פרטי שחייב להיות גלוי ל-Human Gate", status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: false,
+  }],
+  sourceMessages: [{
+    id: "cu1", created_at: "2026-09-19T01:00:00Z", text: "מקור WhatsApp שעוד לא נותח",
+    status: "live", credit: "צבי (OPOC)", channel: "torat-haremez",
+  }],
+  contributions: [{
+    id: "rc1", created_at: "2026-09-18T01:00:00Z", title: "תרומת מחקר",
+    body: "גוף התרומה", status: "candidate", author_name: "חוקר",
+  }],
+  topics: [{
+    id: "tc1", created_at: "2026-09-17T01:00:00Z", slug: "topic-1",
+    title: "Topic legacy", status: "merged", created_by: "AI",
+  }],
+}, {
+  researchObjects: 1, sourceMessages: 1, contributions: 1, topics: 1,
+});
+assert.equal(allMaterialFixture.total, 4);
+assert.equal(allMaterialFixture.rows.length, 4);
+assert.equal(allMaterialFixture.byFamily.research_object, 1);
+assert.equal(allMaterialFixture.byFamily.source_message, 1);
+assert.equal(allMaterialFixture.byFamily.contribution, 1);
+assert.equal(allMaterialFixture.byFamily.topic, 1);
+assert.equal(allMaterialFixture.byAccess.private, 1, "private remains an access label, not a Human-Gate visibility filter");
+assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all" }).length, 4);
+assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
+assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
+
+assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
+assert.match(world, /fetchWorldAllResearchProjection/);
+assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
+assert.match(world, /if \(isAdmin\)[\s\S]*setAdminMode\(true\)/);
+assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
+assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
+assert.match(worldAllResearchComponent, /private · גלוי לך/);
+for (const table of ["research_objects", "channel_updates", "research_contributions", "topic_cards"]) {
+  assert.equal(worldAllResearchSource.includes('.from("' + table + '")'), true, "Human Gate all-material reader must consume " + table);
+}
+assert.equal(/\.eq\(["']privacy_scope["']/.test(worldAllResearchSource), false, "Human Gate reader must not hide rows by privacy_scope");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldAllResearchSource), false, "Human Gate reader must rely on current-session admin RLS, not service role");
+assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldAllResearchSource), false, "all-material projection must remain read-only");
+assert.match(allResearchAdminPolicy, /create policy research_contributions_admin_read/i);
+assert.match(allResearchAdminPolicy, /for select/i);
+assert.match(allResearchAdminPolicy, /to authenticated/i);
+assert.match(allResearchAdminPolicy, /public\.rd_is_admin\(\)/);
+assert.equal(/for\s+(insert|update|delete|all)/i.test(allResearchAdminPolicy), false, "Human Gate policy must grant SELECT only");
+assert.equal(/to\s+anon|to\s+public/i.test(allResearchAdminPolicy), false, "Human Gate policy must not widen public access");
+
+
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
