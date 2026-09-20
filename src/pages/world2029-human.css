@@ -1479,7 +1479,7 @@
 .sod29-world-all-research-summary b{color:var(--s29-hero);font-size:20px;font-variant-numeric:tabular-nums}
 .sod29-world-all-research-filters{
   display:grid;
-  grid-template-columns:minmax(260px,1.7fr) repeat(5,minmax(130px,.7fr));
+  grid-template-columns:minmax(260px,1.7fr) repeat(6,minmax(120px,.7fr));
   gap:9px;
   align-items:end;
   margin:12px 0;
@@ -1530,6 +1530,22 @@
   color:var(--s29-ink);
   line-height:1.7;
   overflow-wrap:anywhere;
+}
+.sod29-world-all-research-media{
+  display:block;
+  width:min(100%,420px);
+  max-height:320px;
+  object-fit:contain;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 88%,transparent);
+}
+.sod29-world-all-research-secondary{
+  margin:0;
+  color:var(--s29-muted);
+  line-height:1.7;
+  font-size:11px;
+  white-space:pre-wrap;
 }
 .sod29-world-all-research-row-head{
   display:flex;
