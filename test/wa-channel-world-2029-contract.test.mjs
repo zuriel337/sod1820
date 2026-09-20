@@ -32,11 +32,11 @@ assert.match(ingest, /targeted_recovery_requires_channel_and_message_id/);
 assert.match(ingest, /targeted_recovery_source_not_found/);
 assert.match(ingest, /Targeted repair is source-local and never advances checkpoints/);
 assert.match(ingest, /targetedRecovery: targeted/);
-assert.match(ingest, /digitaloceanspaces\\.com/);
-assert.match(ingest, /select\\("id,image_url"\\)/);
+assert.ok(ingest.includes("digitaloceanspaces.com"));
+assert.ok(ingest.includes('select("id,image_url")'));
 assert.match(ingest, /targeted-media-repaired/);
 assert.match(ingest, /targeted-media-repair-fail/);
-assert.match(ingest, /update\\(\\{ image_url: imageUrl \\}\\)/);
+assert.ok(ingest.includes("update({ image_url: imageUrl })"));
 
 // A long outage cannot silently skip from a 30-message window.
 assert.match(ingest, /RECOVERY_HISTORY_COUNT = 1000/);
