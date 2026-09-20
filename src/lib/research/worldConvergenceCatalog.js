@@ -311,8 +311,10 @@ function itemFromGroup(focusKey, members) {
 }
 
 function verificationRank(value) {
-  if (value === "mismatch") return 0;
-  if (value === "match") return 1;
+  // Strength lens: a reproduced match outranks an unresolved/mismatching claim.
+  // Attention lens separately lifts decision-changing negatives BEFORE this dimension.
+  if (value === "match") return 0;
+  if (value === "mismatch") return 1;
   if (value === "method_unknown") return 3;
   return 2;
 }
