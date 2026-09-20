@@ -13,7 +13,7 @@ const NEGATIVE_TOKENS = [
   "FAILED",
 ];
 
-import { normalizeWorldNumber } from "./worldContextualProminence.js";
+import { normalizeWorldNumber, classifyWorldVerificationStrength } from "./worldContextualProminence.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
@@ -31,6 +31,7 @@ export const WORLD_CONVERGENCE_FILTER_DEFAULTS = Object.freeze({
 
 export const WORLD_CONVERGENCE_SORTS = Object.freeze({
   research_strength: "חוזק מחקר",
+  attention: "דורש תשומת לב · סקירת קטלוג",
   human_curated: "אוצרות / Human Gate",
   newest: "חדש קודם",
   provenance: "יותר הפניות מקור",
@@ -69,17 +70,13 @@ function isDecisionChanging(row) {
   return negativeVerification || Boolean(negativeOperationalState(row));
 }
 
+// EXTEND_EXISTING: reuses worldContextualProminence's shared strength classifier so
+// Research Strength and the contextual-prominence widget never disagree on what
+// "match" vs "mismatch" means. A row already being decision-changing does NOT get
+// classifyWorldVerificationStrength short-circuited to 0 here — that would tie mismatch
+// with match again, the exact bug this fix removes.
 function verificationClass(row) {
-  if (isDecisionChanging(row)) return 0;
-  const value = clean(row?.verification).toLowerCase();
-  if (value === "match") return 0;
-  if (value === "not_tested" || !value) return 1;
-  if (value === "method_unknown") return 2;
-  // Legacy engine_verified boolean with no explicit verification_state: an unconfirmed
-  // legacy signal, never equivalent to an explicit engine match.
-  if (value === "legacy_signal") return 2;
-  if (value === "not_applicable") return 3;
-  return 2;
+  return classifyWorldVerificationStrength(clean(row?.verification).toLowerCase() || null);
 }
 
 function governanceClass(row) {
@@ -97,8 +94,11 @@ function sourceRefs(row) {
 function classificationLabel(row) {
   if (isDecisionChanging(row)) return "דורש החלטה";
   if (row.layer === "topic_history" && clean(row.status).toLowerCase() === "approved") return "Human approved";
-  if (row.verification === "match" && row.provenanceCount >= 2) return "מאומת · רב־מקור";
+  // Raw references never become "רב־מקור" (independent multi-source) proof, whatever
+  // provenanceCount is — a shared/dependent source counted twice is still one source_ref.
+  // provenanceCount is surfaced as-is ("הפניות מקור") in explainRow, not folded into this label.
   if (row.verification === "match") return "מאומת";
+  if (row.verification === "review_required") return "ממתין לבדיקה";
   if (clean(row.status).toLowerCase() === "candidate") return "מועמד מחקר";
   return "לבדיקה";
 }
@@ -108,8 +108,8 @@ function explainRow(row) {
   if (row.decisionChanging) lines.push("סתירה, mismatch או מצב פתוח שיכול לשנות החלטה.");
   if (row.verification === "match") lines.push("יש אימות מנוע מפורש.");
   if (row.humanApproved) lines.push("קיימת החלטת Human Gate/Topic מאושרת; זהו אות אוצרות, לא ציון אמת.");
-  if (row.provenanceCount > 1) lines.push(`${row.provenanceCount} הפניות provenance מתועדות; הן אינן נחשבות עצמאיות בלי dependency evidence.`);
-  else if (row.provenanceCount === 1) lines.push("יש provenance מתועד.");
+  if (row.provenanceCount > 1) lines.push(`${row.provenanceCount} הפניות מקור מתועדות; הן אינן נחשבות עצמאיות בלי dependency evidence.`);
+  else if (row.provenanceCount === 1) lines.push("יש הפניית מקור מתועדת.");
   if (row.batchKey) lines.push(`עבר סינון מחקרי: ${row.batchKey}.`);
   if (!lines.length) lines.push("נמצא במסלול המחקר אך עדיין חסר אות אימות/אוצרות חזק.");
   return lines;
@@ -137,6 +137,22 @@ function makeTopicRow(row) {
   return out;
 }
 
+// Source-owned contributor only: why.paths[].contributor (each path is a source-owned
+// provenance hop) or an exact linked-Topic contributor carried on the why payload itself.
+// why.generated_by/why.source name the AGENT that produced the candidate, never a human
+// author — they must never leak into `contributor` (kept separately as `generatedBy`).
+function candidateContributor(why, topicTitle) {
+  for (const path of asArray(why?.paths)) {
+    const contributor = clean(path?.contributor);
+    if (contributor) return contributor;
+  }
+  if (topicTitle) {
+    const topicContributor = clean(why?.topic_contributor);
+    if (topicContributor) return topicContributor;
+  }
+  return null;
+}
+
 function makeCandidateRow(row) {
   const why = row?.why && typeof row.why === "object" ? row.why : {};
   const recommendation = clean(row?.recommendation) || "needs_check";
@@ -148,20 +164,28 @@ function makeCandidateRow(row) {
   const topicSlug = clean(why?.topic_slug);
   const topicTitle = clean(why?.topic_title);
   const anchor = clean(why?.anchor);
-  const decisionChanging = recommendation === "needs_check" || mismatches.length > 0 || /mismatch|contradiction/i.test(reason);
-  const verification = decisionChanging ? "mismatch" : "not_tested";
+  // needs_check alone means review-required, NOT proof of a mismatch. Only an explicit
+  // mismatch/contradiction outcome is decision-changing.
+  const hasExplicitMismatch = mismatches.length > 0 || /mismatch|contradiction/i.test(reason);
+  const decisionChanging = hasExplicitMismatch;
+  const verification = hasExplicitMismatch ? "mismatch" : recommendation === "needs_check" ? "review_required" : "not_tested";
+  const sharedSources = unique(asArray(why?.shared_sources));
+  const warnings = asArray(why?.warnings).map(clean).filter(Boolean);
   const sourceRefs = unique([
     "research_candidates:" + row.id,
     ...asArray(row?.evidence_refs),
     ...asArray(why?.evidence_refs),
+    ...sharedSources,
   ]);
   const classification = decisionChanging
     ? "דורש החלטה"
-    : recommendation === "strong"
-      ? "מועמד חזק"
-      : recommendation === "duplicate"
-        ? "מועמד לאיחוד"
-        : "מועמד מחקר";
+    : recommendation === "needs_check"
+      ? "ממתין לבדיקה"
+      : recommendation === "strong"
+        ? "מועמד חזק"
+        : recommendation === "duplicate"
+          ? "מועמד לאיחוד"
+          : "מועמד מחקר";
   const out = {
     id: "candidate:" + row.id,
     sourceId: String(row.id),
@@ -176,10 +200,13 @@ function makeCandidateRow(row) {
     relates: unique([subjectRef, topicSlug, clean(row?.node_id)]),
     status: "pending",
     verification,
-    contributor: clean(why?.generated_by) || clean(why?.source) || "research_candidates",
+    contributor: candidateContributor(why, topicTitle),
+    generatedBy: clean(why?.generated_by) || null,
     sourceRef: "research_candidates:" + row.id,
     sourceRefs,
     provenanceCount: sourceRefs.length,
+    sharedSources,
+    warnings,
     meterScore: null,
     quality: null,
     confidence,
@@ -196,12 +223,16 @@ function makeCandidateRow(row) {
       : value != null ? "/number/" + value : null,
   };
   out.explainWhy = [];
-  if (decisionChanging) out.explainWhy.push("מועמד needs_check / mismatch שיכול לשנות החלטה קיימת.");
+  if (decisionChanging) out.explainWhy.push("מועמד עם mismatch/contradiction מפורש שיכול לשנות החלטה קיימת.");
+  else if (recommendation === "needs_check") out.explainWhy.push("מסומן needs_check — דורש בדיקה, זו אינה הוכחת mismatch.");
   if (mismatches.length) out.explainWhy.push(mismatches.length + " אי־התאמות מנוע מתועדות ב־candidate.");
   if (recommendation === "strong") out.explainWhy.push("ה־Research Candidate מסומן strong; זהו אות תיעדוף, לא Truth.");
   if (recommendation === "duplicate") out.explainWhy.push("המערכת חושדת בכפילות/איחוד; אין ליצור Convergence חדש לפני reconciliation.");
   const independent = finite(why?.independent_group_count);
   if (independent != null) out.explainWhy.push(independent + " קבוצות ראיה עצמאיות מדווחות במועמד.");
+  else out.explainWhy.push("עצמאות הראיות אינה ידועה (independence=null); הפניות המקור אינן נחשבות עצמאיות כברירת מחדל.");
+  if (sharedSources.length) out.explainWhy.push(sharedSources.length + " מקורות משותפים (shared_sources) מתועדים; הם אינם עדות עצמאית.");
+  if (warnings.length) out.explainWhy.push(warnings.length + " אזהרות מתועדות במועמד — נשמרות, לא נמחקות.");
   if (confidence != null) out.explainWhy.push("confidence=" + confidence + " הוא מדד candidate-native בלבד, לא ציון אמת.");
   if (topicTitle && clean(why?.topic_status) === "approved") out.explainWhy.push("המועמד נוגע ב־Topic מאושר; האישור ההיסטורי נשמר ואינו נכתב מחדש.");
   if (!out.explainWhy.length) out.explainWhy.push("מועמד מחקר פתוח שממתין ל־Human Gate.");
@@ -267,20 +298,33 @@ function compareNullableDesc(a, b) {
   return bv - av;
 }
 
+// Research Strength: verification strength alone decides this dimension, so an explicit
+// match always precedes a mismatch/open state. Decision-changing status is surfaced
+// through the `decisionChanging`/`needs_decision` filter and classification label, not by
+// hoisting mismatches ahead of matches here — that is catalog-review/attention ordering,
+// kept separate in compareCatalogAttention below.
 function compareResearchStrength(a, b) {
   // Lexicographic dimensions only. Never collapse to one opaque "truth score".
-  const semanticA = [
-    a.decisionChanging && a.affectsApproved ? 0 : 1,
-    a.decisionChanging ? 0 : 1,
-    verificationClass(a),
-    governanceClass(a),
-  ];
-  const semanticB = [
-    b.decisionChanging && b.affectsApproved ? 0 : 1,
-    b.decisionChanging ? 0 : 1,
-    verificationClass(b),
-    governanceClass(b),
-  ];
+  const semanticA = [verificationClass(a), governanceClass(a)];
+  const semanticB = [verificationClass(b), governanceClass(b)];
+  for (let i = 0; i < semanticA.length; i += 1) if (semanticA[i] !== semanticB[i]) return semanticA[i] - semanticB[i];
+  if (a.layer === b.layer) {
+    for (const key of ["meterScore", "quality", "confidence"]) {
+      const compared = compareNullableDesc(a[key], b[key]);
+      if (compared) return compared;
+    }
+  }
+  const dateCompared = clean(b.createdAt).localeCompare(clean(a.createdAt));
+  return dateCompared || String(a.id).localeCompare(String(b.id));
+}
+
+// Catalog-review / attention ordering: a decision-changing negative — especially one
+// touching an already-approved Topic — is surfaced first so Human Gate reviews it before
+// anything else. This is the "mismatch may precede in attention" counterpart to Research
+// Strength above; the two orderings intentionally disagree on where a mismatch belongs.
+export function compareCatalogAttention(a, b) {
+  const semanticA = [a.decisionChanging && a.affectsApproved ? 0 : 1, a.decisionChanging ? 0 : 1, verificationClass(a), governanceClass(a)];
+  const semanticB = [b.decisionChanging && b.affectsApproved ? 0 : 1, b.decisionChanging ? 0 : 1, verificationClass(b), governanceClass(b)];
   for (let i = 0; i < semanticA.length; i += 1) if (semanticA[i] !== semanticB[i]) return semanticA[i] - semanticB[i];
   if (a.layer === b.layer) {
     for (const key of ["meterScore", "quality", "confidence"]) {
@@ -293,6 +337,7 @@ function compareResearchStrength(a, b) {
 }
 
 function compareRows(a, b, sort) {
+  if (sort === "attention") return compareCatalogAttention(a, b);
   if (sort === "newest") return clean(b.createdAt).localeCompare(clean(a.createdAt)) || String(a.id).localeCompare(String(b.id));
   if (sort === "provenance") return (b.provenanceCount - a.provenanceCount) || compareResearchStrength(a, b);
   if (sort === "human_curated") return (a.humanApproved ? 0 : 1) - (b.humanApproved ? 0 : 1) || compareResearchStrength(a, b);

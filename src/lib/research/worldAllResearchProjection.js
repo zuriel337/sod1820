@@ -7,12 +7,44 @@ const MAX_ROWS_PER_SOURCE = 10000;
 
 const finite = normalizeWorldNumber;
 
+// Structured (never text-scanned) per-scope verification carrier: known source metadata
+// keeps its own scoped state, e.g. meta.ext.batch_001b.notarikon_verification_state or
+// meta.ext.<batch>.source_claim_46_exact_phrase, alongside a top-level engine_detail
+// state. This walks meta.ext by KEY NAME only (never row.statement/free text) and never
+// discards a raw scoped field — every one is returned for the caller to carry through.
+function collectScopedVerificationStates(row) {
+  const ext = row?.meta?.ext;
+  const out = [];
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return;
+    for (const [key, value] of Object.entries(node)) {
+      if (value && typeof value === "object") {
+        visit(value);
+        continue;
+      }
+      if (/verification_state$/i.test(key) || /_exact_phrase$/i.test(key)) {
+        const state = clean(value).toLowerCase();
+        if (state) out.push({ key, state });
+      }
+    }
+  };
+  visit(ext);
+  return out;
+}
+
 // Truth Axes v3: only engine_detail.verification_state is verification authority.
 // research_objects.engine_verified is a compatibility/derived signal and must never be
 // promoted to "match" on its own — absent an explicit state it stays a legacy signal.
+// A top-level explicit "match" never overrides a known per-scope mismatch: the exact raw
+// scope fields are preserved (see scopeVerificationStates below) and the composed state
+// exposes partial/needs-review instead of certifying a full match.
 function verificationState(row) {
   const explicit = resolveExplicitVerificationState(row);
+  const scoped = collectScopedVerificationStates(row);
+  const scopedMismatch = scoped.some((entry) => entry.state === "mismatch");
+  if (explicit === "match" && scopedMismatch) return "partial_needs_review";
   if (explicit) return explicit;
+  if (scopedMismatch) return "mismatch";
   return row?.engine_verified === true ? "legacy_signal" : "not_tested";
 }
 
@@ -201,6 +233,10 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     operationalState,
     engineVerified: row.engine_verified === true,
     verification: verificationState(row),
+    // Raw per-scope states, preserved verbatim for inspection — never collapsed away by
+    // the composed `verification` field above.
+    engineVerificationStateRaw: resolveExplicitVerificationState(row),
+    scopeVerificationStates: collectScopedVerificationStates(row),
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
     mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
