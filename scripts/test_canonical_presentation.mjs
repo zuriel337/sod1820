@@ -292,6 +292,22 @@ eq("Golden Post pilot mount is URL opt-in only", legacyPostSource.includes('new 
 eq("Golden Post pilot does not replace stored Post HTML", legacyPostSource.includes("<PostGematriaCardPilot"), true);
 eq("Golden Card exposes verified peer-expression UI", goldenCardSource.includes("PeerExpressions") && goldenCardSource.includes("ביטויים באותו ערך"), true);
 
+
+const goldenTopicProjectionSource = fs.readFileSync(new URL("../src/lib/research/topicGematriaGoldenProjection.js", import.meta.url), "utf8");
+const goldenTopicPilotSource = fs.readFileSync(new URL("../src/components/TopicGematriaGoldenPilot.jsx", import.meta.url), "utf8");
+const app2029Source = fs.readFileSync(new URL("../src/App2029.jsx", import.meta.url), "utf8");
+
+eq("Golden Topic calibration uses canonical Topic reader", goldenTopicProjectionSource.includes("fetchCanonicalTopicConvergenceFinding"), true);
+eq("Golden Topic calibration verifies through canonical method profiles", goldenTopicProjectionSource.includes("fetchNumberMethodProfile"), true);
+eq("Golden Topic calibration verifies Registry execution state", goldenTopicProjectionSource.includes("fetchGematriaMethodStates"), true);
+eq("Golden Topic calibration is fail-closed on any authored mismatch", goldenTopicProjectionSource.includes("expressions.some((row) => !row.verified)"), true);
+eq("Golden Topic calibration reuses shared Presentation Model", goldenTopicProjectionSource.includes("buildGematriaPresentationModel"), true);
+eq("Golden Topic calibration owns no Supabase write", /insert\\(|update\\(|delete\\(|upsert\\(/.test(goldenTopicProjectionSource), false);
+eq("Golden Topic pilot mounts outside Topic2029 source through stable DOM anchor", goldenTopicPilotSource.includes("sod29-topic-intro") && goldenTopicPilotSource.includes("createPortal"), true);
+eq("Golden Topic pilot presents explicit equality rows", goldenTopicPilotSource.includes("= {row.engineValue}"), true);
+eq("Golden Topic pilot query flag is isolated in App2029", app2029Source.includes('get("gematria2029") === "1"'), true);
+eq("Canonical Topic route remains the native Topic2029 renderer", app2029Source.includes('<Route path="/topic/:slug" element={<Topic2029Page />} />'), true);
+
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
   for (const item of failures) console.log("  - " + item);
