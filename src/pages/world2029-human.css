@@ -1600,3 +1600,242 @@
   .sod29-world-all-research-filters{grid-template-columns:1fr}
   .sod29-world-all-research-row-head{display:grid}
 }
+
+
+/* Convergence 2029 · Human-Gate catalog
+   Presentation-only. Rank is explainable prominence, never a truth score. */
+.sod29-conv-rank-section{
+  border:1px solid color-mix(in srgb,var(--s29-accent) 28%,var(--s29-line));
+  background:
+    radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--s29-glow) 18%,transparent),transparent 34%),
+    color-mix(in srgb,var(--s29-panel) 96%,transparent);
+}
+.sod29-conv-rank-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:20px;
+  align-items:start;
+}
+.sod29-conv-rank-head h2{margin:4px 0 7px}
+.sod29-conv-rank-head p{
+  margin:0;
+  max-width:850px;
+  color:var(--s29-muted);
+  line-height:1.7;
+}
+.sod29-conv-rank-summary{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(72px,1fr));
+  gap:7px;
+}
+.sod29-conv-rank-metric{
+  min-width:72px;
+  min-height:58px;
+  padding:8px 10px;
+  border:1px solid var(--s29-line);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:2px;
+}
+.sod29-conv-rank-metric small{color:var(--s29-muted);font-size:8px}
+.sod29-conv-rank-metric strong{color:var(--s29-hero);font-size:17px;font-variant-numeric:tabular-nums}
+.sod29-conv-rank-capabilities{
+  margin-top:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.sod29-conv-rank-capabilities span,
+.sod29-conv-rank-badges span{
+  min-height:24px;
+  display:inline-flex;
+  align-items:center;
+  padding:3px 8px;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  font-size:9px;
+  color:var(--s29-muted);
+}
+.sod29-conv-rank-capabilities .is-ready{
+  color:var(--s29-ink);
+  border-color:color-mix(in srgb,var(--s29-accent) 38%,var(--s29-line));
+}
+.sod29-conv-rank-capabilities .is-missing,
+.sod29-conv-rank-capabilities .is-internal{
+  border-style:dashed;
+}
+.sod29-conv-rank-filters{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:minmax(170px,1.4fr) 110px repeat(5,minmax(118px,1fr));
+  gap:8px;
+}
+.sod29-conv-rank-filters label{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.sod29-conv-rank-filters label>span{
+  color:var(--s29-muted);
+  font-size:8.5px;
+  font-weight:800;
+}
+.sod29-conv-rank-filters input,
+.sod29-conv-rank-filters select{
+  width:100%;
+  min-height:38px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
+  color:var(--s29-ink);
+  padding:7px 9px;
+  font:inherit;
+  font-size:10px;
+}
+.sod29-conv-rank-results-head{
+  margin-top:15px;
+  padding:9px 0;
+  border-block:1px solid color-mix(in srgb,var(--s29-line) 76%,transparent);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+.sod29-conv-rank-results-head strong{font-size:11px}
+.sod29-conv-rank-results-head span{color:var(--s29-muted);font-size:9px}
+.sod29-conv-rank-list{display:flex;flex-direction:column}
+.sod29-conv-rank-card{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  gap:12px;
+  padding:13px 0;
+  border-block-end:1px solid color-mix(in srgb,var(--s29-line) 74%,transparent);
+  align-items:start;
+}
+.sod29-conv-rank-card.is-review{
+  border-inline-start:2px solid color-mix(in srgb,var(--s29-accent) 65%,var(--s29-line));
+  padding-inline-start:10px;
+}
+.sod29-conv-rank-index{
+  color:var(--s29-muted);
+  font-size:10px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  padding-top:6px;
+}
+.sod29-conv-rank-main{min-width:0}
+.sod29-conv-rank-title-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.sod29-conv-rank-band{
+  color:var(--s29-hero);
+  font-size:8.5px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.sod29-conv-rank-title-row h3{
+  margin:3px 0 4px;
+  font-size:14px;
+  line-height:1.35;
+}
+.sod29-conv-rank-main>p{
+  margin:0 0 7px;
+  max-width:880px;
+  color:var(--s29-muted);
+  font-size:10px;
+  line-height:1.55;
+}
+.sod29-conv-rank-values{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:5px;
+}
+.sod29-conv-rank-values b{
+  min-width:34px;
+  min-height:28px;
+  display:grid;
+  place-items:center;
+  padding:3px 7px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 38%,var(--s29-line));
+  border-radius:10px;
+  color:var(--s29-hero);
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-conv-rank-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+.sod29-conv-rank-why,
+.sod29-conv-rank-members{
+  margin-top:7px;
+  border:1px solid color-mix(in srgb,var(--s29-line) 78%,transparent);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
+}
+.sod29-conv-rank-why summary,
+.sod29-conv-rank-members summary{
+  cursor:pointer;
+  padding:7px 9px;
+  color:var(--s29-muted);
+  font-size:9px;
+  font-weight:800;
+}
+.sod29-conv-rank-why ul{
+  margin:0;
+  padding:0 24px 9px 12px;
+  color:var(--s29-muted);
+  font-size:9.5px;
+  line-height:1.55;
+}
+.sod29-conv-rank-members>div{padding:0 8px 8px}
+.sod29-conv-rank-member{
+  display:grid;
+  grid-template-columns:110px minmax(0,1fr) auto;
+  gap:7px;
+  align-items:start;
+  padding:6px 0;
+  border-block-start:1px solid color-mix(in srgb,var(--s29-line) 58%,transparent);
+  font-size:9.5px;
+}
+.sod29-conv-rank-member strong{color:var(--s29-ink);font-size:9px}
+.sod29-conv-rank-member span{min-width:0;overflow-wrap:anywhere}
+.sod29-conv-rank-member small{color:var(--s29-muted)}
+.sod29-conv-rank-action{padding-top:5px;white-space:nowrap}
+.sod29-conv-rank-boundary{
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px dashed var(--s29-line);
+  border-radius:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 12px;
+  color:var(--s29-muted);
+  font-size:9px;
+  line-height:1.5;
+}
+.sod29-conv-rank-boundary strong{color:var(--s29-ink)}
+
+@media(max-width:1180px){
+  .sod29-conv-rank-head{grid-template-columns:1fr}
+  .sod29-conv-rank-summary{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .sod29-conv-rank-filters{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .sod29-conv-rank-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-conv-rank-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-conv-rank-card{grid-template-columns:28px minmax(0,1fr)}
+  .sod29-conv-rank-action{grid-column:2}
+  .sod29-conv-rank-title-row{display:block}
+  .sod29-conv-rank-values{justify-content:flex-start;margin-top:6px}
+  .sod29-conv-rank-member{grid-template-columns:1fr}
+}

@@ -69,6 +69,16 @@ function explicitVerificationState(row) {
   return clean(detail.verification_state)?.toLowerCase() || null;
 }
 
+function verificationStateBucket(value) {
+  const state = clean(value)?.toLowerCase() || "";
+  if (!state) return "not_tested";
+  if (state.includes("mismatch") || state.includes("negative") || state.includes("failed")) return "mismatch";
+  if (state === "match") return "match";
+  if (state.includes("partial") || state.includes("mixed") || state.includes("numeric_only") || state.includes("source_only")) return "partial";
+  if (state.includes("method_unknown")) return "method_unknown";
+  return "not_tested";
+}
+
 function operationalNegativeState(row) {
   const detail = objectValue(row?.engine_detail);
   const candidates = [detail.status, detail.classification, detail.result_state, detail.outcome]
@@ -82,7 +92,7 @@ function operationalNegativeState(row) {
 }
 
 function rowIsDecisionChangingNegative(row) {
-  if (explicitVerificationState(row) === "mismatch") return true;
+  if (verificationStateBucket(explicitVerificationState(row)) === "mismatch") return true;
   return Boolean(operationalNegativeState(row));
 }
 
@@ -100,10 +110,15 @@ function researchDirectness(row, anchor) {
 // Truth Axes v3: only engine_detail.verification_state is verification authority.
 // research_objects.engine_verified is a compatibility/derived signal and MUST NOT be promoted here.
 function verificationClass(candidate) {
-  if (candidate.decisionChangingNegative) return 0;
-  if (candidate.verificationState === "match") return 0;
-  if (candidate.verificationState === "method_unknown") return 2;
-  return 1;
+  // Verification strength is distinct from attention priority.
+  // A contradiction may be decision-changing (and therefore rank UP in the attention lens)
+  // while still not becoming a reproduced positive match in the strength dimension.
+  const bucket = verificationStateBucket(candidate.verificationState);
+  if (bucket === "match") return 0;
+  if (bucket === "partial") return 1;
+  if (bucket === "mismatch" || candidate.decisionChangingNegative) return 2;
+  if (bucket === "method_unknown") return 4;
+  return 3;
 }
 
 function curationClass(candidate) {
@@ -121,17 +136,21 @@ function compareDescendingNullable(a, b) {
   return bv - av;
 }
 
-function compareCandidatePriority(a, b, { timeAware = false } = {}) {
+function compareCandidatePriority(a, b, {
+  timeAware = false,
+  attentionFirst = true,
+  includeStableFallback = true,
+} = {}) {
   // Lexicographic semantic dimensions only — never one universal scalar.
   const dimensionsA = [
-    a.decisionChangingNegative ? 0 : 1,
+    ...(attentionFirst ? [a.decisionChangingNegative ? 0 : 1] : []),
     a.directnessRank ?? 2,
     verificationClass(a),
     curationClass(a),
     timeAware && a.temporal?.occurredAt ? 0 : 1,
   ];
   const dimensionsB = [
-    b.decisionChangingNegative ? 0 : 1,
+    ...(attentionFirst ? [b.decisionChangingNegative ? 0 : 1] : []),
     b.directnessRank ?? 2,
     verificationClass(b),
     curationClass(b),
@@ -149,7 +168,14 @@ function compareCandidatePriority(a, b, { timeAware = false } = {}) {
       if (compared) return compared;
     }
   }
-  return String(a.stableKey).localeCompare(String(b.stableKey));
+  return includeStableFallback ? String(a.stableKey).localeCompare(String(b.stableKey)) : 0;
+}
+
+// Shared ranking semantic for sibling World projections.
+// Consumers may add domain-specific tie-break dimensions AFTER this returns 0, but must not
+// recreate the core attention/directness/verification/curation ordering in a parallel system.
+export function compareWorldProminenceProfiles(a, b, options = {}) {
+  return compareCandidatePriority(a, b, { ...options, includeStableFallback: false });
 }
 
 function graphCandidates(data) {

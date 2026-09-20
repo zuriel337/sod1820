@@ -35,6 +35,11 @@ import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
 } from "../src/lib/research/worldAllResearchProjection.js";
+import {
+  buildWorldConvergenceCatalog,
+  compareWorldConvergenceItems,
+  filterWorldConvergenceCatalogItems,
+} from "../src/lib/research/worldConvergenceCatalog.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -55,6 +60,8 @@ const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const worldConvergenceCatalogSource = read("src/lib/research/worldConvergenceCatalog.js");
+const worldConvergenceCatalogComponent = read("src/components/research/WorldConvergenceCatalog.jsx");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
@@ -219,8 +226,68 @@ assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all"
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
 
-assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
+const convergenceCatalogFixture = buildWorldConvergenceCatalog({
+  topics: [{
+    id: "topic-417", slug: "tzvi-conv-417", title: "417 — זית", subtitle: "Topic מאושר",
+    numbers: [417], highlight_numbers: [417], status: "approved", quality: 6, meter_score: 44,
+    created_by: "צבי (OPOC)", created_at: "2026-09-18T00:00:00Z", approved_at: "2026-09-19T00:00:00Z",
+  }],
+  researchRelations: [{
+    id: "ro-417", kind: "relation", statement: "זית = 417", value: 417,
+    relates: ["topic:tzvi-conv-417"], source_ref: "channel_updates:417", contributor: "צבי (OPOC)",
+    engine_verified: true, engine_detail: { verification_state: "match" }, status: "candidate",
+    privacy_scope: "private", created_at: "2026-09-20T00:00:00Z",
+  }, {
+    id: "ro-888", kind: "relation", statement: "משפחת 888", value: 888,
+    relates: [], source_ref: "channel_updates:888", contributor: "צבי (OPOC)",
+    engine_verified: true, engine_detail: { verification_state: "match" }, status: "candidate",
+    privacy_scope: "private", created_at: "2026-09-20T01:00:00Z",
+  }],
+  candidates: [{
+    id: "candidate-417", candidate_type: "convergence", subject_type: "number", subject_ref: "417",
+    recommendation: "needs_check", confidence: 1, status: "pending",
+    why: {
+      reason: "approved_legacy_topic_contains_engine_mismatch",
+      topic_slug: "tzvi-conv-417", topic_title: "417 — זית", topic_status: "approved",
+      mismatches: [{ phrase: "האר פניך ונושעה", expected: 417, actual: 803 }],
+    },
+    evidence_refs: ["topic:tzvi-conv-417"],
+    created_at: "2026-09-20T02:00:00Z",
+  }],
+  capabilities: { curated: true, research: true, candidates: true, crossCore: false, rawLegacy: false },
+});
+assert.equal(convergenceCatalogFixture.total, 2, "417 layers must group into one focus while 888 remains separate");
+assert.equal(convergenceCatalogFixture.memberCount, 4);
+const focus417 = convergenceCatalogFixture.items.find((item) => item.focusKey === "topic:tzvi-conv-417");
+assert.ok(focus417);
+assert.deepEqual([...focus417.layers].sort(), ["candidate", "curated", "research"]);
+assert.equal(focus417.profile.decisionChanging, true);
+assert.equal(focus417.profile.verification, "mismatch");
+assert.equal(focus417.profile.humanCuration, "approved");
+assert.equal(filterWorldConvergenceCatalogItems(convergenceCatalogFixture.items, { attention: "review" }).length, 1);
+const attentionOrder = [...convergenceCatalogFixture.items].sort((a, b) => compareWorldConvergenceItems(a, b, "attention"));
+assert.equal(attentionOrder[0].focusKey, "topic:tzvi-conv-417", "decision-changing mismatch must rise in attention lens");
+const strengthOrder = [...convergenceCatalogFixture.items].sort((a, b) => compareWorldConvergenceItems(a, b, "strength"));
+assert.equal(strengthOrder[0].focusKey, "number:888", "verified match must outrank mismatch in strength lens");
+
+assert.match(world, /<WorldConvergenceCatalog state=\{convergenceCatalogState\}/);
+assert.match(world, /fetchWorldConvergenceCatalog/);
+assert.match(worldConvergenceCatalogComponent, /Rank ≠ Truth/);
+assert.match(worldConvergenceCatalogComponent, /Cross\/Core · adapter pending/);
+assert.match(worldConvergenceCatalogSource, /admin_convergence_candidates/);
+assert.match(worldConvergenceCatalogSource, /CROSS_CORE_GLOBAL_ADAPTER_PENDING/);
+assert.match(worldConvergenceCatalogSource, /RAW_LEGACY_INTERNAL_OFF_BY_DEFAULT/);
+assert.equal(/\.from\(["']convergences["']\)/.test(worldConvergenceCatalogSource), false, "global catalog must not pull raw legacy buckets into the client");
+assert.equal(/\.from\(["']cross_method_strength["']\)/.test(worldConvergenceCatalogSource), false, "global catalog must not run the >15s cross aggregate in the client");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceCatalogSource), false, "catalog must stay on current-session governed readers");
+assert.match(worldConvergenceCatalogSource, /compareWorldProminenceProfiles/, "catalog must reuse the canonical World prominence comparator");
+assert.equal(/function verificationRank\(/.test(worldConvergenceCatalogSource), false, "catalog must not recreate the core verification-rank comparator");
+
+assert.match(world, /allResearchOpen \? <WorldAllResearchTable state=\{allResearchState\}/);
+assert.match(world, /פתח את כל חומר המחקר/);
+assert.match(world, /if \(!allResearchOpen\)[\s\S]*enabled: false/);
 assert.match(world, /fetchWorldAllResearchProjection/);
+assert.match(world, /\[isAdmin, allResearchOpen\]/);
 assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
 assert.match(world, /if \(isAdmin\)[\s\S]*setAdminMode\(true\)/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
