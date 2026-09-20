@@ -302,7 +302,7 @@ eq("Golden Topic calibration verifies through canonical method profiles", golden
 eq("Golden Topic calibration verifies Registry execution state", goldenTopicProjectionSource.includes("fetchGematriaMethodStates"), true);
 eq("Golden Topic calibration is fail-closed on any authored mismatch", goldenTopicProjectionSource.includes("expressions.some((row) => !row.verified)"), true);
 eq("Golden Topic calibration reuses shared Presentation Model", goldenTopicProjectionSource.includes("buildGematriaPresentationModel"), true);
-eq("Golden Topic calibration owns no Supabase write", /insert\\(|update\\(|delete\\(|upsert\\(/.test(goldenTopicProjectionSource), false);
+eq("Golden Topic calibration owns no Supabase write", /insert\(|update\(|delete\(|upsert\(/.test(goldenTopicProjectionSource), false);
 eq("Golden Topic pilot mounts outside Topic2029 source through stable DOM anchor", goldenTopicPilotSource.includes("sod29-topic-intro") && goldenTopicPilotSource.includes("createPortal"), true);
 eq("Golden Topic pilot presents explicit equality rows", goldenTopicPilotSource.includes("= {row.engineValue}"), true);
 eq("Golden Topic pilot query flag is isolated in App2029", app2029Source.includes('get("gematria2029") === "1"'), true);
