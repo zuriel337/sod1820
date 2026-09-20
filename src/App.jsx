@@ -19,6 +19,7 @@ import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
 import TransitionAnnouncement from "./components/TransitionAnnouncement.jsx";
+import BeitMidrashTransitionPage from "./pages/BeitMidrashTransitionPage.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -355,8 +356,8 @@ export default function App() {
           <Route path="/codes/:slug" element={<CipherPage />} />
           {/* Legacy Beit Midrash identity stays addressable during the 2029 transition.
               Calculator query intents are still preserved server-side in vercel.json. */}
-          <Route path="/beit-midrash" element={<TransitionAnnouncement context="beit" full />} />
-          <Route path="/beit-midrash/:method" element={<TransitionAnnouncement context="beit" full />} />
+          <Route path="/beit-midrash" element={<BeitMidrashTransitionPage />} />
+          <Route path="/beit-midrash/:method" element={<BeitMidrashTransitionPage />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
           <Route path="/post" element={<PostsPage />} />
