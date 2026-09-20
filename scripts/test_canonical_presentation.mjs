@@ -255,6 +255,39 @@ eq("P2 Golden Card uses logical RTL border", goldenCardCss.includes("border-inli
 eq("P2 Golden Card keeps dependency signal visually neutral", goldenCardCss.includes(".sod-gematria-card__dependency-signal"), true);
 eq("P2 Golden Card has normalized expression evidence surface", goldenCardCss.includes(".sod-gematria-card__expression-evidence"), true);
 
+
+
+const goldenPostPeers = buildGematriaPresentationModel({
+  expression: "אירן",
+  methodProfile: p1Profile,
+  methodStates: p1States,
+  peerExpressions: [
+    { expression: "אירן", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+    { expression: "ביד רמה", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+    { expression: "ארס", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+  ],
+});
+eq("Golden Post peer projection preserves supplied verified identities", goldenPostPeers.peerExpressions.map((p) => p.expression).join("|"), "אירן|ביד רמה|ארס");
+eq("Golden Post peer projection preserves verification without deriving it", goldenPostPeers.peerExpressions.every((p) => p.verified === true), true);
+
+const postPilotSource = fs.readFileSync(new URL("../src/components/PostGematriaCardPilot.jsx", import.meta.url), "utf8");
+const postPilotCss = fs.readFileSync(new URL("../src/components/postGematriaCardPilot.css", import.meta.url), "utf8");
+const legacyPostSource = fs.readFileSync(new URL("../src/legacy/legacy.jsx", import.meta.url), "utf8");
+
+eq("Golden Post pilot is query-gated to one slug", postPilotSource.includes('GOLDEN_POST_GEMATRIA_PILOT_SLUG = "צופן-חותים-5784"'), true);
+eq("Golden Post pilot verifies through canonical method state reader", postPilotSource.includes("fetchGematriaMethodStates"), true);
+eq("Golden Post pilot verifies through canonical method profile reader", postPilotSource.includes("fetchNumberMethodProfile"), true);
+eq("Golden Post pilot requires active executable verified no-drift regular method", postPilotSource.includes("regularState?.active === true") && postPilotSource.includes("regularState?.executable === true") && postPilotSource.includes("regularState?.engine_verified === true") && postPilotSource.includes("regularState?.in_engine_drift !== true"), true);
+eq("Golden Post pilot fail-closes before mount on mismatch", postPilotSource.includes("if (!allVerified) return"), true);
+eq("Golden Post pilot owns no Post DB mutation", /adminUpdatePost|update\(|insert\(|delete\(/.test(postPilotSource), false);
+eq("Golden Post pilot uses shared Presentation Model", postPilotSource.includes("buildGematriaPresentationModel"), true);
+eq("Golden Post pilot uses shared Golden Card", postPilotSource.includes("<GematriaCard"), true);
+eq("Golden Post pilot mounts in-place via portal", postPilotSource.includes("createPortal"), true);
+eq("Golden Post pilot CSS hides legacy rows only after pilot class mounts", postPilotCss.includes(".is-gematria-card-pilot>.gb-rows"), true);
+eq("Golden Post pilot mount is URL opt-in only", legacyPostSource.includes('new URLSearchParams(loc.search).get("gemcard") === "1"'), true);
+eq("Golden Post pilot does not replace stored Post HTML", legacyPostSource.includes("<PostGematriaCardPilot"), true);
+eq("Golden Card exposes verified peer-expression UI", goldenCardSource.includes("PeerExpressions") && goldenCardSource.includes("ביטויים באותו ערך"), true);
+
 console.log(`\n${pass} passed, ${fail} failed.`);
 if (fail) {
   for (const item of failures) console.log("  - " + item);
