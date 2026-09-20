@@ -263,7 +263,7 @@ export function buildZviCoverage(allResearchProjection) {
   const unlinked = sources.filter((row) => !linkedSourceIds.has(String(row.sourceId)));
   const byNorm = new Map();
   for (const row of unlinked) {
-    const key = normalizeText(row.statement).replace(/\s+/g, "");
+    const key = normalizeText(row.statement).replace(/\s+/g, "") + "\u001f" + clean(row.mediaUrl);
     const list = byNorm.get(key) || [];
     list.push(row);
     byNorm.set(key, list);
@@ -282,7 +282,7 @@ export function buildZviCoverage(allResearchProjection) {
   return Object.freeze({
     totalSources: sources.length, linkedSources: sources.length - unlinked.length, unlinkedSources: unlinked.length,
     uniqueUnlinked, exactDuplicateOccurrences, topicAnchoredUnique, buckets: Object.freeze(bucketCounts),
-    rule: "Source occurrences are preserved; exact repeats are deduped only for attention/rank, never deleted.",
+    rule: "Compound source identity = text + media. Same placeholder text with different media is never deduped; true repeats are collapsed only for attention/rank, never deleted.",
   });
 }
 
