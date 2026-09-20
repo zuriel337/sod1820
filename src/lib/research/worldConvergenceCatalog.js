@@ -45,6 +45,16 @@ function explicitVerificationState(row) {
   return clean(row?.engine_detail?.verification_state).toLowerCase() || null;
 }
 
+function verificationBucket(value) {
+  const state = clean(value).toLowerCase();
+  if (!state) return "not_tested";
+  if (state.includes("mismatch") || state.includes("negative") || state.includes("failed")) return "mismatch";
+  if (state === "match") return "match";
+  if (state.includes("partial") || state.includes("mixed") || state.includes("numeric_only") || state.includes("source_only")) return "partial";
+  if (state.includes("method_unknown")) return "method_unknown";
+  return "not_tested";
+}
+
 function topicFocus(row) {
   const slug = clean(row?.slug);
   return slug ? `topic:${slug}` : `topic-id:${row?.id || "unknown"}`;
@@ -92,6 +102,7 @@ function topicMember(row) {
     href: row.slug ? `/topic/${encodeURIComponent(row.slug)}` : null,
     contributor: clean(row.created_by) || null,
     verificationState: null,
+    verificationClass: "not_tested",
     decisionChanging: false,
     reviewReason: null,
     provenanceRefs: row.slug ? [`topic:${row.slug}`] : [`topic_cards:${row.id}`],
@@ -118,7 +129,8 @@ function researchMember(row) {
   const detailText = [
     detail.status, detail.classification, detail.result_state, detail.outcome,
   ].map(clean).join(" ").toUpperCase();
-  const decisionChanging = verificationState === "mismatch"
+  const verificationClass = verificationBucket(verificationState);
+  const decisionChanging = verificationClass === "mismatch"
     || ["MISMATCH", "NEGATIVE", "NOT_REPRODUCED", "FAILED", "UNRESOLVED"].some((token) => detailText.includes(token));
   const refs = [
     clean(row.source_ref),
@@ -136,6 +148,7 @@ function researchMember(row) {
     href: value != null ? `/number/${value}` : null,
     contributor: clean(row.contributor) || null,
     verificationState,
+    verificationClass,
     // Compatibility engine_verified is shown only as a source-native signal; it is not
     // promoted into the Verification axis when engine_detail.verification_state is absent.
     legacyEngineVerified: row.engine_verified === true ? true : row.engine_verified === false ? false : null,
@@ -169,7 +182,11 @@ function candidateMember(row) {
     || recommendation === "needs_check"
     || /mismatch|contradiction|repair|supersede/i.test(reason);
   const value = clean(row.subject_type) === "number" ? finite(row.subject_ref) : null;
-  const refs = asArray(row.evidence_refs).map(clean).filter(Boolean);
+  const refs = [
+    ...asArray(row.evidence_refs).map(clean),
+    ...asArray(why.evidence_ids).map(clean),
+    ...asArray(why.paths).flatMap((path) => [clean(path?.research_object_id), clean(path?.source_ref)]),
+  ].filter(Boolean);
   const topicSlug = clean(why.topic_slug);
   const title = clean(why.topic_title)
     || clean(why.anchor)
@@ -186,6 +203,7 @@ function candidateMember(row) {
     href: topicSlug ? `/topic/${encodeURIComponent(topicSlug)}` : value != null ? `/number/${value}` : null,
     contributor: clean(row.created_by_agent) || null,
     verificationState: mismatches.length ? "mismatch" : null,
+    verificationClass: mismatches.length ? "mismatch" : "not_tested",
     decisionChanging,
     reviewReason: reason || recommendation || null,
     provenanceRefs: [...new Set(refs)],
@@ -239,13 +257,15 @@ function canonicalTitle(members, focusKey) {
 
 function profileFor(members) {
   const verificationStates = members.map((row) => row.verificationState).filter(Boolean);
-  const hasMismatch = verificationStates.includes("mismatch") || members.some((row) => row.decisionChanging);
-  const hasMatch = verificationStates.includes("match");
+  const verificationClasses = members.map((row) => row.verificationClass || verificationBucket(row.verificationState));
+  const hasMismatch = verificationClasses.includes("mismatch") || members.some((row) => row.decisionChanging);
+  const hasMatch = verificationClasses.includes("match");
+  const hasPartial = verificationClasses.includes("partial");
   const independentEvidenceGroups = maxFinite(members.map((row) => row.independentEvidenceGroups));
   const provenanceRefs = [...new Set(members.flatMap((row) => row.provenanceRefs || []))];
   const curated = members.some((row) => row.curation === "approved");
   const approvedContext = members.some((row) => row.curation === "approved-context");
-  const verifiedMembers = members.filter((row) => row.verificationState === "match").length;
+  const verifiedMembers = members.filter((row) => (row.verificationClass || verificationBucket(row.verificationState)) === "match").length;
   const recommendations = [...new Set(members.map((row) => row.recommendation).filter(Boolean))];
   const latest = members.map(newestDate).filter(Boolean).sort().at(-1) || null;
 
@@ -258,7 +278,7 @@ function profileFor(members) {
   return {
     prominenceBand,
     decisionChanging: hasMismatch,
-    verification: hasMismatch ? "mismatch" : hasMatch ? "match" : verificationStates[0] || "not_tested",
+    verification: hasMismatch ? "mismatch" : hasMatch ? "match" : hasPartial ? "partial" : verificationBucket(verificationStates[0]),
     verifiedMembers,
     independentEvidenceGroups,
     provenanceCount: provenanceRefs.length,
@@ -311,12 +331,13 @@ function itemFromGroup(focusKey, members) {
 }
 
 function verificationRank(value) {
-  // Strength lens: a reproduced match outranks an unresolved/mismatching claim.
+  // Strength lens: a reproduced match outranks partial/open/mismatching claims.
   // Attention lens separately lifts decision-changing negatives BEFORE this dimension.
   if (value === "match") return 0;
-  if (value === "mismatch") return 1;
-  if (value === "method_unknown") return 3;
-  return 2;
+  if (value === "partial") return 1;
+  if (value === "mismatch") return 2;
+  if (value === "method_unknown") return 4;
+  return 3;
 }
 
 function curationRank(value) {
@@ -468,6 +489,8 @@ async function fetchPendingCandidates() {
   if (error) throw error;
   return asArray(data?.candidates).map((row) => ({
     ...row,
+    candidate_type: row.candidate_type || "convergence",
+    subject_type: row.subject_type || (finite(row.subject_ref) != null ? "number" : "subject"),
     confidence: row.confidence ?? row.conf ?? null,
     status: row.status || "pending",
   }));
