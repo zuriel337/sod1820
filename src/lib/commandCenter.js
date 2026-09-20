@@ -122,7 +122,7 @@ export async function getNextActions({ center, profile } = {}) {
       const e = data && data[0];
       if (e && e.slug) {
         const link = e.section === "number" ? `/number/${encodeURIComponent(e.slug)}`
-          : e.section === "beit-midrash" ? "/world" : "/research";
+          : e.section === "beit-midrash" ? "/beit-midrash" : "/research";
         out.push({ icon: "↩️", text: `המשך מהמקום שעצרת — «${e.slug}»`, cta: "פתח", link });
       }
     } catch { /* noop */ }

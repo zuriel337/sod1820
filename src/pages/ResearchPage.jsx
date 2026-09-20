@@ -157,12 +157,8 @@ export default function ResearchPage() {
   const tool = sp.get("tool");
   const seed = sp.get("q") || "";
   const midrashTab = sp.get("tab") || "";
-  // Legacy midrash non-calculator entry now belongs to World.
-  // Keep only tab=calc as temporary internal compatibility until native calculator replacement.
-  useEffect(() => {
-    if (tool !== "midrash" || midrashTab === "calc") return;
-    if (typeof window !== "undefined") window.location.replace("/world");
-  }, [tool, midrashTab]);
+  // Human Gate: Beit Midrash remains an independent research surface during transition.
+  // Never auto-route tool=midrash into World; World stays a separate destination.
   // 🔠 Deep-link קנוני ל-ELS מהתכנסות/כל מקום: /research?tool=els&term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
   //    term (עם fallback ל-q) פותח את המונח; skip פותח את הדילוג המדויק דרך load-matrix (בלי skip → דילוג ברירת-מחדל).
   const elsTerm = sp.get("term") || seed || "";
