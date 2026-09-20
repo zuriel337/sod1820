@@ -261,7 +261,7 @@
   display:grid;
   place-items:center;
   padding:18px;
-  background:color-mix(in srgb,var(--gc-ink,#000) 42%,transparent);
+  background:color-mix(in srgb,var(--gc-ink) 42%,transparent);
   backdrop-filter:blur(7px);
 }
 .sod-gematria-card__explorer-sheet{
