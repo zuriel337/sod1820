@@ -234,6 +234,7 @@ const Z2 = "22222222-2222-4222-8222-222222222222";
 const Z3 = "33333333-3333-4333-8333-333333333333";
 const Z4 = "44444444-4444-4444-8444-444444444444";
 const Z5 = "55555555-5555-4555-8555-555555555555";
+const Z6 = "66666666-6666-4666-8666-666666666666";
 const convergenceMaterialFixture = buildWorldAllResearchProjection({
   researchObjects: [{
     id: "rel-mismatch", created_at: "2026-09-20T03:00:00Z", kind: "relation",
@@ -258,15 +259,16 @@ const convergenceMaterialFixture = buildWorldAllResearchProjection({
     { id: Z1, created_at: "2026-09-20T01:00:00Z", text: "417 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
     { id: Z2, created_at: "2026-09-19T01:00:00Z", text: "305 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
     { id: Z3, created_at: "2026-09-18T01:00:00Z", text: "305 מקור נוסף", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
-    { id: Z4, created_at: "2026-09-17T01:00:00Z", text: "גימטריא 888 = בדיקה חדשה", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
-    { id: Z5, created_at: "2026-09-16T01:00:00Z", text: "גימטריא 888 = בדיקה חדשה", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z4, created_at: "2026-09-17T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/a.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z5, created_at: "2026-09-16T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/b.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z6, created_at: "2026-09-15T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/b.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
   ],
   topics: [{
     id: "tc-approved", created_at: "2026-09-17T01:00:00Z", approved_at: "2026-09-18T01:00:00Z",
     slug: "topic-approved", title: "305 — רחל מבכה = כפרה", status: "approved",
     created_by: "ZURIEL", quality: 9, meter_score: 90, highlight_numbers: [305],
   }],
-}, { researchObjects: 3, sourceMessages: 5, topics: 1, contributions: 0 });
+}, { researchObjects: 3, sourceMessages: 6, topics: 1, contributions: 0 });
 
 const convergenceLensFixture = buildWorldConvergenceLensProjection(convergenceMaterialFixture);
 assert.equal(convergenceLensFixture.total, 3, "only Topic compositions + Research Relations enter the meaningful convergence lens");
@@ -283,11 +285,12 @@ assert.equal(convergenceLensFixture.capabilities.rawLegacyDiscoveryIncluded, fal
 assert.equal(convergenceLensFixture.capabilities.globalCrossMethodFeed, false);
 
 const zviCoverageFixture = buildZviCoverage(convergenceMaterialFixture);
-assert.equal(zviCoverageFixture.totalSources, 5);
+assert.equal(zviCoverageFixture.totalSources, 6);
 assert.equal(zviCoverageFixture.linkedSources, 3);
-assert.equal(zviCoverageFixture.unlinkedSources, 2);
-assert.equal(zviCoverageFixture.uniqueUnlinked, 1);
-assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "exact source repeats dedup only for attention, not deletion");
+assert.equal(zviCoverageFixture.unlinkedSources, 3);
+assert.equal(zviCoverageFixture.uniqueUnlinked, 2, "same placeholder text with different media must remain distinct compound sources");
+assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "only same text + same media is an exact compound repeat");
+assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct media artifacts remain two attention items");
 
 assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
