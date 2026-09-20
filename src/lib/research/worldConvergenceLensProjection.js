@@ -234,6 +234,7 @@ function classifySourceForTriage(row) {
   const corpus = /(דילוג|\bels\b|ראשי תיבות|סופי תיבות|נוטריקון|רק .*פעמים|מופיע.*פעמים|מופיעה.*פעמים|סה.?כ .*פעמים)/i.test(text);
   const spatial = /(תלת[ ־-]?(ממד|מימד)|גת["״']?מ|קוביי?ה|עשרימון|פאות|ציור מימדי)/i.test(text);
   const media = Boolean(row?.mediaUrl) || /\[Image [^\]]+\]/.test(text);
+  if (text === "📷 עדכון" && media) return "MEDIA_LINEAGE_BACKLOG";
   if (spatial && media) return "SPATIAL_MEDIA";
   if (corpus && numeric) return "CORPUS_PLUS_NUMERIC";
   if (corpus) return "CORPUS_CLAIM";
