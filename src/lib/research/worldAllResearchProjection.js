@@ -24,6 +24,24 @@ function countBy(rows, key) {
   return out;
 }
 
+async function fetchConvergenceCandidates() {
+  try {
+    const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: 50 });
+    if (error) return { rows: [], error: clean(error.message) || "candidate_rpc_failed", meta: {} };
+    const rows = Array.isArray(data?.candidates) ? data.candidates : [];
+    return {
+      rows,
+      error: null,
+      meta: {
+        activePreferences: Array.isArray(data?.active_preferences) ? data.active_preferences : [],
+        openContradictions: finite(data?.open_contradictions) ?? 0,
+      },
+    };
+  } catch (error) {
+    return { rows: [], error: clean(error?.message) || "candidate_rpc_failed", meta: {} };
+  }
+}
+
 async function fetchAllRows(table, fields) {
   const rows = [];
   let total = null;
@@ -207,6 +225,9 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   return {
     rows,
     total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    convergenceCandidates: Array.isArray(familyRows.convergenceCandidates) ? familyRows.convergenceCandidates : [],
+    convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
+    convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
     loaded: rows.length,
     truncated: Boolean(totals.truncated),
     sourceTotals,
@@ -259,7 +280,7 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
 }
 
 export async function fetchWorldAllResearchProjection() {
-  const [research, contributions, sources, topics] = await Promise.all([
+  const [research, contributions, sources, topics, candidates] = await Promise.all([
     fetchAllRows(
       "research_objects",
       "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,parent_id,meta"
@@ -276,6 +297,7 @@ export async function fetchWorldAllResearchProjection() {
       "topic_cards",
       "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by"
     ),
+    fetchConvergenceCandidates(),
   ]);
 
   return buildWorldAllResearchProjection(
@@ -284,12 +306,15 @@ export async function fetchWorldAllResearchProjection() {
       contributions: contributions.rows,
       sourceMessages: sources.rows,
       topics: topics.rows,
+      convergenceCandidates: candidates.rows,
     },
     {
       researchObjects: research.total,
       contributions: contributions.total,
       sourceMessages: sources.total,
       topics: topics.total,
+      convergenceCandidateError: candidates.error,
+      convergenceCandidateMeta: candidates.meta,
       truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
     }
   );
