@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
+import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";\nimport WorldConvergenceIndex2029 from "../components/research/WorldConvergenceIndex2029.jsx";
 import WorldConvergenceCatalog from "../components/research/WorldConvergenceCatalog.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -844,7 +844,7 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    <WorldAllResearchTable state={allResearchState} />
+    <WorldConvergenceIndex2029\n      enabled={isAdmin}\n      researchProjection={allResearchState.projection}\n      researchLoading={allResearchState.loading}\n    />\n\n    <WorldAllResearchTable state={allResearchState} />
 
     {isAdmin
       ? <WorldConvergenceCatalog state={convergenceCatalogState} onLoadRaw={loadRawConvergenceCatalog} />
