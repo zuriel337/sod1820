@@ -102,7 +102,7 @@ export default function WorldConvergenceLens({ state }) {
         <Stat label="Relations מחקריות" value={projection.researchRelations} />
         <Stat label="Relations מאומתות" value={projection.verifiedRelations} />
         <Stat label="דורש החלטה" value={projection.decisionChanging} detail="סתירה / mismatch / negative" />
-        <Stat label="רב־מקור" value={projection.multiSource} />
+        <Stat label="רב־הפניה" value={projection.multiTrace} detail="לא בהכרח ראיות עצמאיות" />
       </div>
 
       {z ? <div className="sod29-conv-zvi">
@@ -179,7 +179,7 @@ export default function WorldConvergenceLens({ state }) {
             <div className="sod29-conv-chips">
               <span>verification: {row.verification}</span>
               <span>status: {row.status}</span>
-              {row.provenanceCount ? <span>{row.provenanceCount} provenance</span> : null}
+              {row.provenanceCount ? <span>{row.provenanceCount} provenance refs</span> : null}
               {row.contributor ? <span>{row.contributor}</span> : null}
               {row.meterScore != null ? <span>meter {row.meterScore}</span> : null}
               {row.quality != null ? <span>quality {row.quality}</span> : null}
