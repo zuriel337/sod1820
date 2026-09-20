@@ -18,6 +18,7 @@ import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
+import TransitionAnnouncement from "./components/TransitionAnnouncement.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -216,7 +217,17 @@ function Book2029DocumentHandoff() {
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {
   const stream = useStream();
-  return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
+  return <>
+    <TransitionAnnouncement context="home" />
+    {stream === "reality" ? <HomeReality /> : <HomeNewPage />}
+  </>;
+}
+
+function LegacyNumberTransitionRoute() {
+  return <>
+    <TransitionAnnouncement context="number" />
+    <EntityPage />
+  </>;
 }
 
 // 🔀 הפניות צד-לקוח לסלאגים ישנים/שבורים (גוגל) → יעד חדש. מפענח מפורשות (decodeURIComponent)
@@ -342,7 +353,8 @@ export default function App() {
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}
           <Route path="/codes/מחקר" element={<ResearchCodesPage />} />
           <Route path="/codes/:slug" element={<CipherPage />} />
-          {/* Legacy Beit Midrash public routes retired: World is the discovery home. */}
+          {/* Legacy Beit Midrash public routes remain retired into World.
+              World now carries the transition message; calculator query intents remain preserved server-side. */}
           <Route path="/beit-midrash" element={<Navigate to="/world" replace />} />
           <Route path="/beit-midrash/:method" element={<Navigate to="/world" replace />} />
           <Route path="/languages" element={<LanguagesPage />} />
@@ -383,7 +395,7 @@ export default function App() {
           <Route path="/number" element={<NumberSearchPage />} />
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
-          <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
