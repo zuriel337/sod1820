@@ -256,6 +256,20 @@ eq("P2 Golden Card keeps dependency signal visually neutral", goldenCardCss.incl
 eq("P2 Golden Card has normalized expression evidence surface", goldenCardCss.includes(".sod-gematria-card__expression-evidence"), true);
 
 
+
+const goldenPostPeers = buildGematriaPresentationModel({
+  expression: "אירן",
+  methodProfile: p1Profile,
+  methodStates: p1States,
+  peerExpressions: [
+    { expression: "אירן", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+    { expression: "ביד רמה", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+    { expression: "ארס", value: 261, methodKey: "רגיל", verified: true, verificationState: "match" },
+  ],
+});
+eq("Golden Post peer projection preserves supplied verified identities", goldenPostPeers.peerExpressions.map((p) => p.expression).join("|"), "אירן|ביד רמה|ארס");
+eq("Golden Post peer projection preserves verification without deriving it", goldenPostPeers.peerExpressions.every((p) => p.verified === true), true);
+
 const postPilotSource = fs.readFileSync(new URL("../src/components/PostGematriaCardPilot.jsx", import.meta.url), "utf8");
 const postPilotCss = fs.readFileSync(new URL("../src/components/postGematriaCardPilot.css", import.meta.url), "utf8");
 const legacyPostSource = fs.readFileSync(new URL("../src/legacy/legacy.jsx", import.meta.url), "utf8");
