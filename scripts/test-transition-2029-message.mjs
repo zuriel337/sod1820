@@ -16,7 +16,7 @@ for (const phrase of [
 
 assert.equal(app.includes('<TransitionAnnouncement context="home" />'), true);
 assert.equal(app.includes('<TransitionAnnouncement context="number" />'), true);
-assert.match(app, /path="\\/beit-midrash".*BeitMidrashTransitionPage/s);
+assert.equal(app.includes('<Route path="/beit-midrash" element={<BeitMidrashTransitionPage />} />'), true);
 assert.equal(app.includes('<Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />'), true);
 
 const genericBeitRedirects = (vercel.redirects || []).filter((r) =>
