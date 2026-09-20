@@ -18,7 +18,6 @@ import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
-import TransitionAnnouncement from "./components/TransitionAnnouncement.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -218,24 +217,15 @@ function Book2029DocumentHandoff() {
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {
   const stream = useStream();
-  return <>
-    <TransitionAnnouncement context="home" />
-    {stream === "reality" ? <HomeReality /> : <HomeNewPage />}
-  </>;
+  return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
 }
 
 function LegacyNumberTransitionRoute() {
-  return <>
-    <TransitionAnnouncement context="number" />
-    <EntityPage />
-  </>;
+  return <EntityPage />;
 }
 
 function LegacyBeitMidrashTransitionRoute() {
-  return <>
-    <TransitionAnnouncement context="beit" />
-    <BeitMidrashPage />
-  </>;
+  return <BeitMidrashPage />;
 }
 
 // 🔀 הפניות צד-לקוח לסלאגים ישנים/שבורים (גוגל) → יעד חדש. מפענח מפורשות (decodeURIComponent)
