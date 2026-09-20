@@ -6,6 +6,8 @@ const component = fs.readFileSync("src/components/TransitionAnnouncement.jsx","u
 const vercel = JSON.parse(fs.readFileSync("vercel.json","utf8"));
 const heichal = fs.readFileSync("public/heichal.html","utf8");
 const world = fs.readFileSync("src/pages/World2029Page.jsx","utf8");
+const researchPage = fs.readFileSync("src/pages/ResearchPage.jsx","utf8");
+const commandCenter = fs.readFileSync("src/lib/commandCenter.js","utf8");
 
 for (const phrase of [
   "אחרי 15 שנה הגיע הזמן להתחדש",
@@ -30,6 +32,9 @@ assert.equal(beitRedirects.length, 0, "Beit Midrash must remain directly address
 assert.equal(world.includes('<TransitionAnnouncement context="beit" />'), false, "World must not carry the Beit handoff before public opening");
 assert.equal(component.includes('{ to: "/world", label: "פתח את העולם החדש" }'), false, "transition banner must not open World yet");
 assert.equal(component.includes('links: []'), true, "Beit notice must be notice-only");
+assert.equal(researchPage.includes('window.location.replace("/world")'), false, "Research tool=midrash must never auto-route into World");
+assert.equal(commandCenter.includes('e.section === "beit-midrash" ? "/world"'), false, "Command Center must not resume Beit Midrash activity in World");
+assert.equal(commandCenter.includes('e.section === "beit-midrash" ? "/beit-midrash"'), true, "Command Center must resume Beit Midrash activity in Beit Midrash");
 
 assert.equal(heichal.includes("ההיכל הישן ייסגר בהדרגה"), true);
 assert.equal(heichal.includes('href="/heichal"'), true);
