@@ -624,29 +624,41 @@ assert.equal(
 const zeroIndependenceRow = independenceZeroVsNullLens.rows.find((row) => row.id === "candidate:cand-independence-zero");
 assert.equal(zeroIndependenceRow.independentGroupCount, 0, "explicit zero must be preserved as 0, not coerced to null");
 
-// Unknown-independence fixture: when independence ties (both null/unknown), differing
-// confidence must NOT move Research Strength — only resolved-evidence presence and,
-// finally, the stable id may decide.
+// Read-model coverage must never become Research Strength. Both candidates have the same
+// verification and unknown independence; one source family is resolvable in the current
+// Inspector payload (channel_updates) while the other is a real external posts: ref that
+// this payload does not load. The stable id decides — not UI source-family coverage.
 const UE1 = "88888888-5555-4888-8888-888888888805";
-const unknownIndependenceEvidenceMaterial = buildWorldAllResearchProjection({
+const sourceFamilyNeutralMaterial = buildWorldAllResearchProjection({
   sourceMessages: [
     { id: UE1, created_at: "2026-09-20T01:00:00Z", text: "מקור קיים לעדות", status: "live", credit: "חוקר ג" },
   ],
   convergenceCandidates: [
     {
-      id: "cand-high-confidence-no-evidence", subject_ref: "901", recommendation: "needs_check", conf: 0.99, created_at: "2026-09-20T00:00:00Z",
-      why: { reason: "needs_check" },
+      id: "cand-aaa-post-source", subject_ref: "901", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      evidence_refs: ["posts:123"], why: { reason: "needs_check" },
     },
     {
-      id: "cand-low-confidence-with-evidence", subject_ref: "902", recommendation: "needs_check", conf: 0.01, created_at: "2026-09-01T00:00:00Z",
+      id: "cand-zzz-channel-source", subject_ref: "902", recommendation: "needs_check", conf: null, created_at: "2026-09-01T00:00:00Z",
       why: { reason: "needs_check", shared_sources: [{ base_source: "channel_updates:" + UE1, members: [] }] },
     },
   ],
 }, { sourceMessages: 1 });
-const unknownIndependenceEvidenceLens = buildWorldConvergenceLensProjection(unknownIndependenceEvidenceMaterial);
+const sourceFamilyNeutralLens = buildWorldConvergenceLensProjection(sourceFamilyNeutralMaterial);
+const sourceFamilyById = new Map(sourceFamilyNeutralLens.rows.map((row) => [row.id, row]));
 assert.equal(
-  unknownIndependenceEvidenceLens.rows[0].id, "candidate:cand-low-confidence-with-evidence",
-  "resolved-evidence presence (binary), not confidence/meterScore/quality, must decide Research Strength once independence ties",
+  sourceFamilyById.get("candidate:cand-aaa-post-source").resolvedSources.some((item) => item.resolved),
+  false,
+  "posts: source is honestly unresolved by this bounded Inspector payload",
+);
+assert.equal(
+  sourceFamilyById.get("candidate:cand-zzz-channel-source").resolvedSources.some((item) => item.resolved),
+  true,
+  "channel_updates source resolves in the current Inspector payload",
+);
+assert.equal(
+  sourceFamilyNeutralLens.rows[0].id, "candidate:cand-aaa-post-source",
+  "read-model source-family resolvability must not change Research Strength; stable id decides the tie",
 );
 
 // Same verification class, no independence, no evidence either side: final tie is the
