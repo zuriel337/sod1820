@@ -67,6 +67,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [],
       source: clean(row.channel || row.source) || "channel_updates",
       sourceRef: "channel_updates:" + row.id,
+      sourceRefs: ["channel_updates:" + row.id],
       contributor: clean(row.credit || row.speaker) || null,
       status: clean(row.status) || "לא צוין",
       access: null,
@@ -100,6 +101,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [clean(row.target_id), clean(row.convergence_slug)].filter(Boolean),
       source: clean(row.origin) || "research_contributions",
       sourceRef: "research_contributions:" + row.id,
+      sourceRefs: ["research_contributions:" + row.id],
       contributor: clean(row.author_name) || null,
       status: clean(row.status || row.research_state) || "לא צוין",
       access: null,
@@ -131,8 +133,12 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [],
       source: "topic_cards",
       sourceRef: "topic_cards:" + row.id,
+      sourceRefs: ["topic_cards:" + row.id],
       contributor: clean(row.created_by) || null,
       status: clean(row.status) || "לא צוין",
+      approvedAt: row.approved_at || null,
+      meterScore: finite(row.meter_score),
+      quality: finite(row.quality),
       access: null,
       verification: "not_applicable",
       engineVerified: false,
@@ -144,6 +150,14 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
   }
 
   const value = finite(row.value);
+  const metaSourceRefs = Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs.map(String) : [];
+  const sourceRef = clean(row.source_ref) || ("research_objects:" + row.id);
+  const operationalState = clean(
+    row?.engine_detail?.status
+    || row?.engine_detail?.classification
+    || row?.engine_detail?.result_state
+    || row?.engine_detail?.outcome
+  ) || null;
   return {
     id: "research:" + row.id,
     sourceId: String(row.id),
@@ -157,11 +171,15 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     values: value == null ? [] : [value],
     relates: Array.isArray(row.relates) ? row.relates.map(String) : [],
     source: clean(row.source) || null,
-    sourceRef: clean(row.source_ref) || ("research_objects:" + row.id),
+    sourceRef,
+    sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
+    parentId: clean(row.parent_id) || null,
+    batchKey: clean(row?.meta?.batch_key) || null,
+    operationalState,
     engineVerified: row.engine_verified === true,
     verification: verificationState(row),
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
@@ -244,7 +262,7 @@ export async function fetchWorldAllResearchProjection() {
   const [research, contributions, sources, topics] = await Promise.all([
     fetchAllRows(
       "research_objects",
-      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,meta"
+      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,parent_id,meta"
     ),
     fetchAllRows(
       "research_contributions",
@@ -256,7 +274,7 @@ export async function fetchWorldAllResearchProjection() {
     ),
     fetchAllRows(
       "topic_cards",
-      "id,created_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,created_by"
+      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by"
     ),
   ]);
 
