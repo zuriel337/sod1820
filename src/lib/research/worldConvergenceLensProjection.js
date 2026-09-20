@@ -31,7 +31,7 @@ export const WORLD_CONVERGENCE_SORTS = Object.freeze({
   research_strength: "חוזק מחקר",
   human_curated: "אוצרות / Human Gate",
   newest: "חדש קודם",
-  provenance: "יותר מקורות",
+  provenance: "יותר הפניות מקור",
   value_asc: "מספר עולה",
   value_desc: "מספר יורד",
 });
@@ -40,7 +40,7 @@ export const WORLD_CONVERGENCE_ATTENTION = Object.freeze({
   all: "הכול",
   needs_decision: "דורש החלטה",
   verified: "מאומת",
-  multi_source: "כמה מקורות",
+  multi_source: "כמה הפניות מקור",
   approved: "מאושר",
   zvi: "צבי",
   unverified: "טרם אומת",
@@ -105,7 +105,7 @@ function explainRow(row) {
   if (row.decisionChanging) lines.push("סתירה, mismatch או מצב פתוח שיכול לשנות החלטה.");
   if (row.verification === "match") lines.push("יש אימות מנוע מפורש.");
   if (row.humanApproved) lines.push("קיימת החלטת Human Gate/Topic מאושרת; זהו אות אוצרות, לא ציון אמת.");
-  if (row.provenanceCount > 1) lines.push(`${row.provenanceCount} הפניות provenance קובצו לפני הסדר.`);
+  if (row.provenanceCount > 1) lines.push(`${row.provenanceCount} הפניות provenance מתועדות; הן אינן נחשבות עצמאיות בלי dependency evidence.`);
   else if (row.provenanceCount === 1) lines.push("יש provenance מתועד.");
   if (row.batchKey) lines.push(`עבר סינון מחקרי: ${row.batchKey}.`);
   if (!lines.length) lines.push("נמצא במסלול המחקר אך עדיין חסר אות אימות/אוצרות חזק.");
@@ -195,8 +195,8 @@ function compareNullableDesc(a, b) {
 
 function compareResearchStrength(a, b) {
   // Lexicographic dimensions only. Never collapse to one opaque "truth score".
-  const semanticA = [a.decisionChanging ? 0 : 1, verificationClass(a), governanceClass(a), a.provenanceCount > 1 ? 0 : a.provenanceCount === 1 ? 1 : 2];
-  const semanticB = [b.decisionChanging ? 0 : 1, verificationClass(b), governanceClass(b), b.provenanceCount > 1 ? 0 : b.provenanceCount === 1 ? 1 : 2];
+  const semanticA = [a.decisionChanging ? 0 : 1, verificationClass(a), governanceClass(a)];
+  const semanticB = [b.decisionChanging ? 0 : 1, verificationClass(b), governanceClass(b)];
   for (let i = 0; i < semanticA.length; i += 1) if (semanticA[i] !== semanticB[i]) return semanticA[i] - semanticB[i];
   if (a.layer === b.layer) {
     for (const key of ["meterScore", "quality", "confidence"]) {
@@ -341,13 +341,13 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     researchRelations: ordered.filter((row) => row.layer === "research_relation").length,
     verifiedRelations: ordered.filter((row) => row.layer === "research_relation" && row.verification === "match").length,
     decisionChanging: ordered.filter((row) => row.decisionChanging).length,
-    multiSource: ordered.filter((row) => row.provenanceCount > 1).length,
+    multiTrace: ordered.filter((row) => row.provenanceCount > 1).length,
     byLayer: Object.freeze(countBy(ordered, "layer")), byVerification: Object.freeze(countBy(ordered, "verification")),
     byStatus: Object.freeze(countBy(ordered, "status")), byContributor: Object.freeze(countBy(ordered, "contributor")),
     byBatch: Object.freeze(countBy(ordered, "batchKey")), zviCoverage,
     capabilities: Object.freeze({ globalResearchConvergenceIndex: true, contextualCrossMethod: true, globalCrossMethodFeed: false, rawLegacyDiscoveryIncluded: false }),
     truthBoundary: "Contextual order is a presentation projection. It never changes verification, governance, canonicality, publication or access.",
-    rawDiscoveryBoundary: "Legacy equality buckets and raw match volume stay internal discovery; they do not enter Research Strength before dependency/verification/curation.",
+    rawDiscoveryBoundary: "Legacy equality buckets, raw match volume and repeated source refs stay outside Research Strength until dependency/independence is explicit.",
   });
 }
 
