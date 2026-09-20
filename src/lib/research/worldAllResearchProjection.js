@@ -1,18 +1,51 @@
 import { supabase } from "../supabase.js";
+import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
 const MAX_ROWS_PER_SOURCE = 10000;
 
-function finite(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+const finite = normalizeWorldNumber;
+
+// Structured (never text-scanned) per-scope verification carrier: known source metadata
+// keeps its own scoped state, e.g. meta.ext.batch_001b.notarikon_verification_state or
+// meta.ext.<batch>.source_claim_46_exact_phrase, alongside a top-level engine_detail
+// state. This walks meta.ext by KEY NAME only (never row.statement/free text) and never
+// discards a raw scoped field — every one is returned for the caller to carry through.
+function collectScopedVerificationStates(row) {
+  const ext = row?.meta?.ext;
+  const out = [];
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return;
+    for (const [key, value] of Object.entries(node)) {
+      if (value && typeof value === "object") {
+        visit(value);
+        continue;
+      }
+      if (/verification_state$/i.test(key) || /_exact_phrase$/i.test(key)) {
+        const state = clean(value).toLowerCase();
+        if (state) out.push({ key, state });
+      }
+    }
+  };
+  visit(ext);
+  return out;
 }
 
+// Truth Axes v3: only engine_detail.verification_state is verification authority.
+// research_objects.engine_verified is a compatibility/derived signal and must never be
+// promoted to "match" on its own — absent an explicit state it stays a legacy signal.
+// A top-level explicit "match" never overrides a known per-scope mismatch: the exact raw
+// scope fields are preserved (see scopeVerificationStates below) and the composed state
+// exposes partial/needs-review instead of certifying a full match.
 function verificationState(row) {
-  const explicit = clean(row?.engine_detail?.verification_state);
+  const explicit = resolveExplicitVerificationState(row);
+  const scoped = collectScopedVerificationStates(row);
+  const scopedMismatch = scoped.some((entry) => entry.state === "mismatch");
+  if (explicit === "match" && scopedMismatch) return "partial_needs_review";
   if (explicit) return explicit;
-  return row?.engine_verified === true ? "match" : "not_tested";
+  if (scopedMismatch) return "mismatch";
+  return row?.engine_verified === true ? "legacy_signal" : "not_tested";
 }
 
 function countBy(rows, key) {
@@ -22,6 +55,24 @@ function countBy(rows, key) {
     out[value] = (out[value] || 0) + 1;
   }
   return out;
+}
+
+async function fetchConvergenceCandidates() {
+  try {
+    const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: 50 });
+    if (error) return { rows: [], error: clean(error.message) || "candidate_rpc_failed", meta: {} };
+    const rows = Array.isArray(data?.candidates) ? data.candidates : [];
+    return {
+      rows,
+      error: null,
+      meta: {
+        activePreferences: Array.isArray(data?.active_preferences) ? data.active_preferences : [],
+        openContradictions: finite(data?.open_contradictions) ?? 0,
+      },
+    };
+  } catch (error) {
+    return { rows: [], error: clean(error?.message) || "candidate_rpc_failed", meta: {} };
+  }
 }
 
 async function fetchAllRows(table, fields) {
@@ -67,6 +118,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [],
       source: clean(row.channel || row.source) || "channel_updates",
       sourceRef: "channel_updates:" + row.id,
+      sourceRefs: ["channel_updates:" + row.id],
       contributor: clean(row.credit || row.speaker) || null,
       status: clean(row.status) || "לא צוין",
       access: null,
@@ -100,6 +152,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [clean(row.target_id), clean(row.convergence_slug)].filter(Boolean),
       source: clean(row.origin) || "research_contributions",
       sourceRef: "research_contributions:" + row.id,
+      sourceRefs: ["research_contributions:" + row.id],
       contributor: clean(row.author_name) || null,
       status: clean(row.status || row.research_state) || "לא צוין",
       access: null,
@@ -131,8 +184,12 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       relates: [],
       source: "topic_cards",
       sourceRef: "topic_cards:" + row.id,
+      sourceRefs: ["topic_cards:" + row.id],
       contributor: clean(row.created_by) || null,
       status: clean(row.status) || "לא צוין",
+      approvedAt: row.approved_at || null,
+      meterScore: finite(row.meter_score),
+      quality: finite(row.quality),
       access: null,
       verification: "not_applicable",
       engineVerified: false,
@@ -144,6 +201,14 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
   }
 
   const value = finite(row.value);
+  const metaSourceRefs = Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs.map(String) : [];
+  const sourceRef = clean(row.source_ref) || ("research_objects:" + row.id);
+  const operationalState = clean(
+    row?.engine_detail?.status
+    || row?.engine_detail?.classification
+    || row?.engine_detail?.result_state
+    || row?.engine_detail?.outcome
+  ) || null;
   return {
     id: "research:" + row.id,
     sourceId: String(row.id),
@@ -157,13 +222,21 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     values: value == null ? [] : [value],
     relates: Array.isArray(row.relates) ? row.relates.map(String) : [],
     source: clean(row.source) || null,
-    sourceRef: clean(row.source_ref) || ("research_objects:" + row.id),
+    sourceRef,
+    sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
+    parentId: clean(row.parent_id) || null,
+    batchKey: clean(row?.meta?.batch_key) || null,
+    operationalState,
     engineVerified: row.engine_verified === true,
     verification: verificationState(row),
+    // Raw per-scope states, preserved verbatim for inspection — never collapsed away by
+    // the composed `verification` field above.
+    engineVerificationStateRaw: resolveExplicitVerificationState(row),
+    scopeVerificationStates: collectScopedVerificationStates(row),
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
     mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
@@ -189,6 +262,9 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   return {
     rows,
     total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    convergenceCandidates: Array.isArray(familyRows.convergenceCandidates) ? familyRows.convergenceCandidates : [],
+    convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
+    convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
     loaded: rows.length,
     truncated: Boolean(totals.truncated),
     sourceTotals,
@@ -241,10 +317,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
 }
 
 export async function fetchWorldAllResearchProjection() {
-  const [research, contributions, sources, topics] = await Promise.all([
+  const [research, contributions, sources, topics, candidates] = await Promise.all([
     fetchAllRows(
       "research_objects",
-      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,meta"
+      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,parent_id,meta"
     ),
     fetchAllRows(
       "research_contributions",
@@ -256,8 +332,9 @@ export async function fetchWorldAllResearchProjection() {
     ),
     fetchAllRows(
       "topic_cards",
-      "id,created_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,created_by"
+      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by"
     ),
+    fetchConvergenceCandidates(),
   ]);
 
   return buildWorldAllResearchProjection(
@@ -266,12 +343,15 @@ export async function fetchWorldAllResearchProjection() {
       contributions: contributions.rows,
       sourceMessages: sources.rows,
       topics: topics.rows,
+      convergenceCandidates: candidates.rows,
     },
     {
       researchObjects: research.total,
       contributions: contributions.total,
       sourceMessages: sources.total,
       topics: topics.total,
+      convergenceCandidateError: candidates.error,
+      convergenceCandidateMeta: candidates.meta,
       truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
     }
   );

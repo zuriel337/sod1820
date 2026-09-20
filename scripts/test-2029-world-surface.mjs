@@ -34,7 +34,15 @@ import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/res
 import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
+  normalizeWorldAllResearchRow,
 } from "../src/lib/research/worldAllResearchProjection.js";
+import {
+  buildWorldConvergenceLensProjection,
+  buildZviCoverage,
+  filterWorldConvergenceRows,
+  orderWorldConvergenceRows,
+} from "../src/lib/research/worldConvergenceLensProjection.js";
+import { normalizeWorldNumber, resolveExplicitVerificationState } from "../src/lib/research/worldContextualProminence.js";
 import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 
 const root = process.cwd();
@@ -55,6 +63,9 @@ const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensProjection.js");
+const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
+const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
@@ -219,6 +230,187 @@ assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all"
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
 
+// PhaseA repair — shared World numeric normalizer: null/undefined/empty/whitespace/boolean/array/object
+// must never leak in as 0; a genuinely finite 0 must stay 0. Single normalizer, reused everywhere.
+assert.equal(normalizeWorldNumber(null), null, "null vs 0");
+assert.equal(normalizeWorldNumber(0), 0, "null vs 0");
+assert.equal(normalizeWorldNumber(undefined), null);
+assert.equal(normalizeWorldNumber(""), null);
+assert.equal(normalizeWorldNumber("   "), null);
+assert.equal(normalizeWorldNumber(true), null);
+assert.equal(normalizeWorldNumber(false), null);
+assert.equal(normalizeWorldNumber([]), null);
+assert.equal(normalizeWorldNumber([5]), null);
+assert.equal(normalizeWorldNumber({}), null);
+assert.equal(normalizeWorldNumber("417"), 417);
+
+// PhaseA repair — Truth Axes v3: explicit engine_detail.verification_state always outranks the
+// legacy engine_verified boolean; absent an explicit state, a true boolean is only a legacy signal
+// and must never be promoted to "match".
+const trueMismatch = normalizeWorldAllResearchRow({
+  id: "v1", value: 417, engine_verified: true, engine_detail: { verification_state: "mismatch" },
+});
+assert.equal(trueMismatch.verification, "mismatch", "true+mismatch: explicit state outranks the boolean");
+
+const truePartial = normalizeWorldAllResearchRow({
+  id: "v2", value: 417, engine_verified: true, engine_detail: { verification_state: "partial" },
+});
+assert.equal(truePartial.verification, "partial", "true+partial: explicit state outranks the boolean");
+
+const trueNotTested = normalizeWorldAllResearchRow({
+  id: "v3", value: 417, engine_verified: true, engine_detail: { verification_state: "not_tested" },
+});
+assert.equal(trueNotTested.verification, "not_tested", "true+not_tested: explicit state outranks the boolean");
+
+const trueNoExplicit = normalizeWorldAllResearchRow({ id: "v4", value: 417, engine_verified: true });
+assert.equal(trueNoExplicit.verification, "legacy_signal", "absent explicit state, a true boolean stays a legacy signal, never match");
+
+const falseNoExplicit = normalizeWorldAllResearchRow({ id: "v5", value: 417, engine_verified: false });
+assert.equal(falseNoExplicit.verification, "not_tested");
+
+const explicitUnknown = normalizeWorldAllResearchRow({ id: "v6", value: 417, engine_detail: { verification_state: "unknown" } });
+assert.equal(explicitUnknown.verification, "unknown", "explicit unknown");
+assert.equal(resolveExplicitVerificationState({ engine_detail: { verification_state: "unknown" } }), "unknown");
+
+// The verification badge predicate (WorldAllResearchTable) must check mismatch before the legacy
+// boolean/match branches, so an explicit mismatch never renders as a verified checkmark.
+const worldAllResearchTableSource = read("src/components/research/WorldAllResearchTable.jsx");
+assert.equal(
+  /row\.engineVerified\s*\|\|\s*row\.verification\s*===\s*"match"/.test(worldAllResearchTableSource),
+  false,
+  "legacy engineVerified boolean must not be OR'd ahead of the explicit verification state",
+);
+const mismatchCheckIndex = worldAllResearchTableSource.indexOf('row.verification === "mismatch"');
+const matchCheckIndex = worldAllResearchTableSource.indexOf('row.verification === "match"');
+assert.ok(mismatchCheckIndex > -1 && matchCheckIndex > -1 && mismatchCheckIndex < matchCheckIndex, "mismatch badge predicate must be checked before the match/verified badge");
+
+// Numeric normalizer and verification-state resolution are shared, not re-forked per file.
+const worldAllResearchProjectionSource = read("src/lib/research/worldAllResearchProjection.js");
+const worldConvergenceLensProjectionSource = read("src/lib/research/worldConvergenceLensProjection.js");
+assert.match(worldAllResearchProjectionSource, /normalizeWorldNumber/);
+assert.match(worldAllResearchProjectionSource, /resolveExplicitVerificationState/);
+assert.match(worldConvergenceLensProjectionSource, /normalizeWorldNumber/);
+
+// Human-Gate Convergence 2029: one explainable projection over existing Topic + Research Relation.
+const Z1 = "11111111-1111-4111-8111-111111111111";
+const Z2 = "22222222-2222-4222-8222-222222222222";
+const Z3 = "33333333-3333-4333-8333-333333333333";
+const Z4 = "44444444-4444-4444-8444-444444444444";
+const Z5 = "55555555-5555-4555-8555-555555555555";
+const Z6 = "66666666-6666-4666-8666-666666666666";
+const convergenceMaterialFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-mismatch", created_at: "2026-09-20T03:00:00Z", kind: "relation",
+    statement: "משפחת 417 עם אי־התאמה", value: 417, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: false,
+    engine_detail: { verification_state: "partial_match_with_mismatches" },
+    source_ref: "channel_updates:" + Z1 + "#batch003:mixed",
+    meta: { batch_key: "G3_ZVI_RESEARCH_BATCH_003", source_refs: ["channel_updates:" + Z1] },
+  }, {
+    id: "rel-verified", created_at: "2026-09-19T03:00:00Z", kind: "relation",
+    statement: "רחל מבכה = כפרה = ארחמנו = 305", value: 305, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", engine_verified: true,
+    engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + Z2 + "#batch003:305",
+    meta: { batch_key: "G3_ZVI_RESEARCH_BATCH_003", source_refs: ["channel_updates:" + Z2, "channel_updates:" + Z3] },
+  }, {
+    id: "obs-held", created_at: "2026-09-18T03:00:00Z", kind: "observation",
+    statement: "Observation is not itself a convergence", value: 98, status: "candidate",
+    privacy_scope: "private", contributor: "צבי (OPOC)", source_ref: "channel_updates:" + Z3,
+  }],
+  sourceMessages: [
+    { id: Z1, created_at: "2026-09-20T01:00:00Z", text: "417 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z2, created_at: "2026-09-19T01:00:00Z", text: "305 מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z3, created_at: "2026-09-18T01:00:00Z", text: "305 מקור נוסף", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z4, created_at: "2026-09-17T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/a.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z5, created_at: "2026-09-16T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/b.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+    { id: Z6, created_at: "2026-09-15T01:00:00Z", text: "📷 עדכון", image_url: "https://example.com/b.jpg", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+  ],
+  topics: [{
+    id: "tc-approved", created_at: "2026-09-17T01:00:00Z", approved_at: "2026-09-18T01:00:00Z",
+    slug: "topic-approved", title: "305 — רחל מבכה = כפרה", status: "approved",
+    created_by: "ZURIEL", quality: 9, meter_score: 90, highlight_numbers: [305],
+  }],
+  convergenceCandidates: [{
+    id: "cand-approved-mismatch",
+    subject_ref: "417",
+    recommendation: "needs_check",
+    conf: 1,
+    node_id: null,
+    created_at: "2026-09-20T04:00:00Z",
+    why: {
+      reason: "approved_legacy_topic_contains_engine_mismatch",
+      topic_slug: "tzvi-conv-417",
+      topic_title: "417 — זית",
+      topic_status: "approved",
+      mismatches: [{ phrase: "האר פניך ונושעה", expected: 417, actual: 803 }],
+    },
+  }],
+}, { researchObjects: 3, sourceMessages: 6, topics: 1, contributions: 0 });
+
+const convergenceLensFixture = buildWorldConvergenceLensProjection(convergenceMaterialFixture);
+assert.equal(convergenceLensFixture.total, 4, "Topic compositions + Research Relations + pending Research Candidates enter the meaningful convergence lens");
+assert.equal(convergenceLensFixture.approvedTopics, 1);
+assert.equal(convergenceLensFixture.researchRelations, 2);
+assert.equal(convergenceLensFixture.pendingCandidates, 1);
+assert.equal(convergenceLensFixture.verifiedRelations, 1);
+assert.equal(convergenceLensFixture.rows[0].id, "research:rel-verified", "research_strength (default) must rank the explicit match before the needs_check mismatch");
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "needs_decision" }).length, 2, "partial_match_with_mismatches must remain decision-changing");
+const convergenceLensAttentionOrdered = orderWorldConvergenceRows(convergenceLensFixture.rows, "attention");
+assert.equal(convergenceLensAttentionOrdered[0].id, "candidate:cand-approved-mismatch", "attention ordering may surface a needs_check mismatch affecting an approved Topic first");
+assert.equal(convergenceLensAttentionOrdered[0].confidence, 1);
+assert.equal(Object.hasOwn(convergenceLensAttentionOrdered[0], "score"), false, "candidate confidence must not become a universal truth score");
+assert.equal(Object.hasOwn(convergenceLensAttentionOrdered[0], "score"), false, "Convergence 2029 must not emit a universal numeric truth score");
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_relation" }).length, 2);
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { layer: "research_candidate" }).length, 1);
+assert.equal(filterWorldConvergenceRows(convergenceLensFixture.rows, { attention: "verified" }).length, 1);
+assert.equal(orderWorldConvergenceRows(convergenceLensFixture.rows, "human_curated")[0].layer, "topic_history");
+assert.equal(convergenceLensFixture.capabilities.rawLegacyDiscoveryIncluded, false);
+assert.equal(convergenceLensFixture.capabilities.globalCrossMethodFeed, false);
+
+// PhaseA repair — a legacy engine_verified=true relation with no explicit verification_state must
+// never rank/read as an engine match, and dependency grouping (parent_id chain, exact identity only)
+// must not certify an unverified sibling just because a matched member shares its dependency root.
+const D1 = "77777777-7777-4777-8777-777777777777";
+const legacyVsMatchMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "dep-parent-match", created_at: "2026-09-20T04:00:00Z", kind: "relation",
+    statement: "הורה מאומת", value: 501, status: "candidate", privacy_scope: "private",
+    engine_verified: true, engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + D1,
+  }, {
+    id: "dep-child-legacy", created_at: "2026-09-20T04:05:00Z", kind: "relation", parent_id: "dep-parent-match",
+    statement: "צאצא עם סימון ישן בלבד", value: 501, status: "candidate", privacy_scope: "private",
+    engine_verified: true,
+  }],
+}, { researchObjects: 2 });
+const legacyVsMatchLens = buildWorldConvergenceLensProjection(legacyVsMatchMaterial);
+const depParentRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-parent-match");
+const depChildRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-child-legacy");
+assert.equal(depParentRow.verification, "match");
+// Ranked-row density fix: the dependency family contributes exactly ONE top-level ranked
+// row — the stronger member (explicit match outranks an unconfirmed legacy signal via
+// compareResearchStrength), never one row per member. The weaker member is never a second
+// top-level row, but stays fully inspectable under the representative's dependency.members,
+// with its own legacy signal never promoted to match by grouping with a matched parent.
+assert.equal(depChildRow, undefined, "the weaker member is never a second top-level ranked row");
+assert.equal(depParentRow.dependency.memberCount, 2, "explicit parent_id chain groups the pair before rank");
+const depMemberById = Object.fromEntries(depParentRow.dependency.members.map((m) => [m.id, m]));
+assert.equal(depMemberById["research:dep-child-legacy"].verification, "legacy_signal", "child's own legacy boolean must not be promoted to match by grouping with a matched parent");
+assert.equal(
+  filterWorldConvergenceRows(legacyVsMatchLens.rows, { query: "צאצא עם סימון ישן" }).length, 1,
+  "free-text search must still reach the non-representative member's own content",
+);
+
+const zviCoverageFixture = buildZviCoverage(convergenceMaterialFixture);
+assert.equal(zviCoverageFixture.totalSources, 6);
+assert.equal(zviCoverageFixture.linkedSources, 3);
+assert.equal(zviCoverageFixture.unlinkedSources, 3);
+assert.equal(zviCoverageFixture.uniqueUnlinked, 2, "same placeholder text with different media must remain distinct compound sources");
+assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "only same text + same media is an exact compound repeat");
+assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct media artifacts remain two attention items");
+
+assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
 assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
@@ -243,7 +435,286 @@ assert.match(allResearchAdminPolicy, /public\.rd_is_admin\(\)/);
 assert.equal(/for\s+(insert|update|delete|all)/i.test(allResearchAdminPolicy), false, "Human Gate policy must grant SELECT only");
 assert.equal(/to\s+anon|to\s+public/i.test(allResearchAdminPolicy), false, "Human Gate policy must not widen public access");
 
+assert.match(worldConvergenceLensComponent, /כל ההתכנסויות · Ranked Lens/);
+assert.match(worldConvergenceLensComponent, /Rank ≠ Truth/);
+assert.match(worldConvergenceLensComponent, /למה הוא כאן\?/);
+assert.match(worldConvergenceLensComponent, /ZVI · FULL CORPUS COVERAGE/);
+assert.match(worldConvergenceLensSource, /Never collapse to one opaque/);
+assert.match(worldConvergenceLensSource, /rawLegacyDiscoveryIncluded: false/);
+assert.match(worldConvergenceLensSource, /globalCrossMethodFeed: false/);
+assert.equal(/\.from\(["']convergences["']/.test(worldConvergenceLensSource), false, "raw legacy equality buckets must stay outside the meaningful convergence lens");
+assert.equal(/\.from\(["']cross_method_strength["']/.test(worldConvergenceLensSource), false, "global convergence lens must not trigger the expensive cross-method corpus view");
+assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false, "Convergence Lens must remain read-only");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false);
+assert.match(worldAllResearchSource, /admin_convergence_candidates/);
+assert.equal(/\.from\(["']research_candidates["']/.test(worldAllResearchSource), false, "pending candidates must use the existing secured admin RPC, not a direct table grant");
+assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(worldConvergenceLensCss), false, "scoped Convergence UI must use canonical theme tokens, not local hex colors");
 
+// PhaseB — Source/Member Inspector: exact base-identity source lookup, full dependency
+// family members, raw engine/scoped verification states, and candidate shared_sources /
+// warnings / generatedBy all inspectable — never a second network/DB read, never fuzzy text.
+assert.match(worldConvergenceLensSource, /No fuzzy text matching/);
+assert.match(worldConvergenceLensSource, /function baseSourceIdentity/);
+assert.match(worldConvergenceLensSource, /function buildSourceIndex/);
+assert.match(worldConvergenceLensSource, /resolvedSources/);
+assert.match(worldConvergenceLensSource, /engineVerificationStateRaw/);
+assert.match(worldConvergenceLensSource, /scopeVerificationStates/);
+assert.equal(/\.from\(["'](channel_updates|research_contributions|research_objects|topic_cards)["']/.test(worldConvergenceLensSource), false, "Source Inspector must reuse the already-authorized allResearchProjection payload, never issue its own read");
+assert.match(worldConvergenceLensComponent, /Source\/Member Inspector/);
+assert.match(worldConvergenceLensComponent, /קישור מדיה מקורית/);
+assert.equal(/<img[\s>]/.test(worldConvergenceLensComponent), false, "original source media must open via an explicit link, never an auto-loaded <img>");
+assert.match(worldConvergenceLensComponent, /Source Occurrences/);
+assert.match(worldConvergenceLensComponent, /לא ספירת Findings/);
+assert.equal(
+  worldConvergenceLensComponent.includes("{Object.entries(VERIFICATION_LABELS).map"),
+  false,
+  "verification filter must offer live/dynamic states from byVerification, not a hardcoded enumeration",
+);
+assert.match(worldConvergenceLensComponent, /optionsFrom\(projection\.byVerification\)/);
+
+const F1 = "bbbbbbbb-0001-4bbb-8bbb-bbbbbbbbbbb1";
+const phaseBSourceFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "pb-rel-frag", created_at: "2026-09-20T05:00:00Z", kind: "relation", value: 1820,
+    contributor: "חוקר א", engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + F1 + "#semantic/batch",
+  }],
+  sourceMessages: [
+    { id: F1, created_at: "2026-09-20T01:00:00Z", text: "ניסוח מלא של הודעת מקור", status: "live", credit: "צבי (OPOC)", channel: "torat-haremez" },
+  ],
+}, { researchObjects: 1, sourceMessages: 1 });
+const phaseBSourceLens = buildWorldConvergenceLensProjection(phaseBSourceFixture);
+const phaseBRelationRow = phaseBSourceLens.rows.find((row) => row.id === "research:pb-rel-frag");
+assert.equal(phaseBRelationRow.resolvedSources[0].baseRef, "channel_updates:" + F1, "a #fragment sourceRef must resolve by exact base identity only");
+assert.equal(phaseBRelationRow.resolvedSources[0].statement, "ניסוח מלא של הודעת מקור");
+
+// PhaseB2 — media clickability gate: only an explicit http(s) media ref renders as a
+// clickable link; storage-object:<uuid>/other protected refs stay non-clickable, never
+// resolved/bypassed client-side. Contribution body (statement=title, secondary=body) must
+// render in full via the Source Inspector, no truncation.
+const CM1 = "88888888-1111-4888-8888-888888888801";
+const CB1 = "contrib-body-1";
+const mediaClickabilityMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-media-clickability", created_at: "2026-09-20T06:00:00Z", kind: "relation",
+    statement: "בדיקת קישוריות מדיה", value: 601, status: "candidate", privacy_scope: "private",
+    engine_verified: true, engine_detail: { verification_state: "match" },
+    source_ref: "channel_updates:" + CM1,
+    meta: { source_refs: ["research_contributions:" + CB1] },
+  }],
+  sourceMessages: [
+    { id: CM1, created_at: "2026-09-20T01:00:00Z", text: "מקור עם הפניית מדיה מוגנת", image_url: "storage-object:99999999-2222-4999-8999-999999999902", status: "live", credit: "חוקר מדיה" },
+  ],
+  contributions: [
+    { id: CB1, created_at: "2026-09-20T02:00:00Z", title: "כותרת תרומה", body: "גוף התרומה המלא עם פירוט נרחב שממשיך הרבה מעבר לכותרת עצמה.", image_url: "https://example.com/media/clickable.jpg", author_name: "תורם א" },
+  ],
+}, { researchObjects: 1, sourceMessages: 1, contributions: 1 });
+const mediaClickabilityLens = buildWorldConvergenceLensProjection(mediaClickabilityMaterial);
+const mediaClickabilityRow = mediaClickabilityLens.rows.find((row) => row.id === "research:rel-media-clickability");
+const resolvedByBase = Object.fromEntries(mediaClickabilityRow.resolvedSources.map((item) => [item.baseRef, item]));
+const protectedSource = resolvedByBase["channel_updates:" + CM1];
+const contributionSource = resolvedByBase["research_contributions:" + CB1];
+assert.equal(protectedSource.mediaUrl, null, "a non-http media ref must never render as a clickable external link");
+assert.equal(protectedSource.mediaRef, "storage-object:99999999-2222-4999-8999-999999999902", "a protected/internal ref stays inspectable as a non-clickable provenance ref");
+assert.equal(contributionSource.mediaUrl, "https://example.com/media/clickable.jpg", "an explicit http(s) media ref is clickable");
+assert.equal(contributionSource.mediaRef, null);
+assert.equal(contributionSource.statement, "כותרת תרומה", "contribution statement is the title");
+assert.equal(contributionSource.body, "גוף התרומה המלא עם פירוט נרחב שממשיך הרבה מעבר לכותרת עצמה.", "contribution body/secondary must render in full, no truncation");
+
+// PhaseB2 — shared_sources may be structured { base_source, members } (live-observed shape),
+// not just legacy plain ref strings. A structured entry must never coerce to
+// "[object Object]", and raw member ids never expand into sourceRefs as if independently
+// evidential. why.paths[] source_ref/base_source are exact source-owned provenance and
+// belong in sourceRefs too.
+const SS1 = "88888888-3333-4888-8888-888888888803";
+const SS2 = "88888888-4444-4888-8888-888888888804";
+const MEMBER_A = "11111111-aaaa-4111-8111-111111111102";
+const MEMBER_B = "11111111-aaaa-4111-8111-111111111103";
+const structuredSharedSourcesMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [{
+    id: "cand-structured-shared",
+    subject_ref: "602",
+    recommendation: "needs_check",
+    conf: null,
+    created_at: "2026-09-20T07:00:00Z",
+    why: {
+      reason: "בדיקת shared_sources מובנה",
+      shared_sources: [{ base_source: "channel_updates:" + SS1, members: [MEMBER_A, MEMBER_B] }],
+      paths: [{ source_ref: "channel_updates:" + SS2, contributor: "חוקר ב" }],
+    },
+  }],
+});
+const structuredSharedSourcesLens = buildWorldConvergenceLensProjection(structuredSharedSourcesMaterial);
+const structuredSharedSourcesRow = structuredSharedSourcesLens.rows.find((row) => row.id === "candidate:cand-structured-shared");
+assert.deepEqual(
+  structuredSharedSourcesRow.sharedSources,
+  [{ baseSource: "channel_updates:" + SS1, members: [MEMBER_A, MEMBER_B] }],
+  "structured why.shared_sources {base_source,members} must survive intact, never clean(object)->'[object Object]'",
+);
+assert.ok(structuredSharedSourcesRow.sourceRefs.includes("channel_updates:" + SS1), "shared_sources[].base_source is an exact provenance ref");
+assert.ok(structuredSharedSourcesRow.sourceRefs.includes("channel_updates:" + SS2), "why.paths[].source_ref is an exact provenance ref");
+assert.equal(structuredSharedSourcesRow.sourceRefs.includes(MEMBER_A), false, "raw shared_sources members are not independently-evidential source refs");
+assert.equal(structuredSharedSourcesRow.sourceRefs.includes(MEMBER_B), false);
+
+// PhaseC — Zvi coverage: compound identity is derived across ALL Zvi occurrences (linked +
+// unlinked) before linkage is checked, so a mixed-linkage identity (an unlinked recurrence
+// of an already-linked compound identity) is told apart from a truly uncovered identity.
+const ZM_LINKED = "99999999-1111-4999-8999-999999999911";
+const ZM_MIXED_UNLINKED = "99999999-2222-4999-8999-999999999922";
+const ZM_UNCOVERED_A = "99999999-3333-4999-8999-999999999933";
+const ZM_UNCOVERED_B = "99999999-4444-4999-8999-999999999944";
+const zviMixedLinkageMaterial = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "rel-zvi-linked", created_at: "2026-09-20T08:00:00Z", kind: "relation",
+    statement: "קשר מקושר", value: 701, status: "candidate", privacy_scope: "private",
+    source_ref: "channel_updates:" + ZM_LINKED,
+  }],
+  sourceMessages: [
+    { id: ZM_LINKED, created_at: "2026-09-20T01:00:00Z", text: "טקסט זהה", image_url: "https://example.com/same.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_MIXED_UNLINKED, created_at: "2026-09-19T01:00:00Z", text: "טקסט זהה", image_url: "https://example.com/same.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_UNCOVERED_A, created_at: "2026-09-18T01:00:00Z", text: "טקסט אחר", image_url: "https://example.com/other.jpg", status: "live", credit: "zvi-fixture" },
+    { id: ZM_UNCOVERED_B, created_at: "2026-09-17T01:00:00Z", text: "טקסט אחר", image_url: "https://example.com/other.jpg", status: "live", credit: "zvi-fixture" },
+  ],
+}, { researchObjects: 1, sourceMessages: 4 });
+const zviMixedLinkageCoverage = buildZviCoverage(zviMixedLinkageMaterial);
+assert.equal(zviMixedLinkageCoverage.totalOccurrences, 4);
+assert.equal(zviMixedLinkageCoverage.linkedOccurrences, 1);
+assert.equal(zviMixedLinkageCoverage.unlinkedOccurrences, 3);
+assert.equal(zviMixedLinkageCoverage.unlinkedCompoundIdentities, 2, "2 distinct compound identities among the 3 unlinked occurrences");
+assert.equal(zviMixedLinkageCoverage.uncoveredCompoundIdentities, 1, "only the never-linked identity is truly uncovered");
+assert.equal(zviMixedLinkageCoverage.unlinkedOccurrencesAlreadyCoveredBySameCompoundIdentity, 1, "the unlinked recurrence of the already-linked identity is mixed linkage, not uncovered");
+assert.equal(zviMixedLinkageCoverage.exactDuplicateOccurrencesWithinUnlinked, 1, "the two truly-uncovered occurrences with identical text+media are one exact duplicate");
+
+// PhaseC — Research Strength no longer reasons about governance/meterScore/quality/
+// confidence/recency. Independence (independent_group_count) may break a verification tie;
+// unknown independence is never coerced to zero.
+const independenceTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    {
+      id: "cand-independent-4", subject_ref: "801", recommendation: "needs_check", conf: null, created_at: "2026-09-10T00:00:00Z",
+      why: { reason: "needs_check", independent_group_count: 4 },
+    },
+    {
+      id: "cand-independence-unknown", subject_ref: "802", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      why: { reason: "needs_check" },
+    },
+  ],
+});
+const independenceTieLens = buildWorldConvergenceLensProjection(independenceTieMaterial);
+assert.equal(independenceTieLens.rows[0].id, "candidate:cand-independent-4", "an explicit positive independent_group_count outranks unknown independence at the same verification class");
+const independentRow = independenceTieLens.rows.find((row) => row.id === "candidate:cand-independent-4");
+const unknownIndependenceRow = independenceTieLens.rows.find((row) => row.id === "candidate:cand-independence-unknown");
+assert.equal(independentRow.independentGroupCount, 4);
+assert.equal(unknownIndependenceRow.independentGroupCount, null, "unknown independence must stay null, never coerced to zero");
+
+// Explicit independent_group_count=0 is not evidence of independence either — it must tie
+// with unknown/null independence, never outrank it. Both fall through to the evidence/
+// stable-id tie, same as two nulls would.
+const independenceZeroVsNullMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    {
+      id: "cand-independence-zero", subject_ref: "803", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      why: { reason: "needs_check", independent_group_count: 0 },
+    },
+    {
+      id: "cand-independence-null", subject_ref: "804", recommendation: "needs_check", conf: null, created_at: "2026-09-10T00:00:00Z",
+      why: { reason: "needs_check" },
+    },
+  ],
+});
+const independenceZeroVsNullLens = buildWorldConvergenceLensProjection(independenceZeroVsNullMaterial);
+assert.equal(
+  independenceZeroVsNullLens.rows[0].id, "candidate:cand-independence-null",
+  "explicit independent_group_count=0 must tie with unknown/null independence, never outrank it — final tie falls to stable id",
+);
+const zeroIndependenceRow = independenceZeroVsNullLens.rows.find((row) => row.id === "candidate:cand-independence-zero");
+assert.equal(zeroIndependenceRow.independentGroupCount, 0, "explicit zero must be preserved as 0, not coerced to null");
+
+// Read-model coverage must never become Research Strength. Both candidates have the same
+// verification and unknown independence; one source family is resolvable in the current
+// Inspector payload (channel_updates) while the other is a real external posts: ref that
+// this payload does not load. The stable id decides — not UI source-family coverage.
+const UE1 = "88888888-5555-4888-8888-888888888805";
+const sourceFamilyNeutralMaterial = buildWorldAllResearchProjection({
+  sourceMessages: [
+    { id: UE1, created_at: "2026-09-20T01:00:00Z", text: "מקור קיים לעדות", status: "live", credit: "חוקר ג" },
+  ],
+  convergenceCandidates: [
+    {
+      id: "cand-aaa-post-source", subject_ref: "901", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+      evidence_refs: ["posts:123"], why: { reason: "needs_check" },
+    },
+    {
+      id: "cand-zzz-channel-source", subject_ref: "902", recommendation: "needs_check", conf: null, created_at: "2026-09-01T00:00:00Z",
+      why: { reason: "needs_check", shared_sources: [{ base_source: "channel_updates:" + UE1, members: [] }] },
+    },
+  ],
+}, { sourceMessages: 1 });
+const sourceFamilyNeutralLens = buildWorldConvergenceLensProjection(sourceFamilyNeutralMaterial);
+const sourceFamilyById = new Map(sourceFamilyNeutralLens.rows.map((row) => [row.id, row]));
+assert.equal(
+  sourceFamilyById.get("candidate:cand-aaa-post-source").resolvedSources.some((item) => item.resolved),
+  false,
+  "posts: source is honestly unresolved by this bounded Inspector payload",
+);
+assert.equal(
+  sourceFamilyById.get("candidate:cand-zzz-channel-source").resolvedSources.some((item) => item.resolved),
+  true,
+  "channel_updates source resolves in the current Inspector payload",
+);
+assert.equal(
+  sourceFamilyNeutralLens.rows[0].id, "candidate:cand-aaa-post-source",
+  "read-model source-family resolvability must not change Research Strength; stable id decides the tie",
+);
+
+// Same verification class, no independence, no evidence either side: final tie is the
+// stable id, never createdAt/recency.
+const idTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    { id: "cand-zzz-newer", subject_ref: "903", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z", why: { reason: "needs_check" } },
+    { id: "cand-aaa-older", subject_ref: "904", recommendation: "needs_check", conf: null, created_at: "2026-01-01T00:00:00Z", why: { reason: "needs_check" } },
+  ],
+});
+const idTieLens = buildWorldConvergenceLensProjection(idTieMaterial);
+assert.equal(idTieLens.rows[0].id, "candidate:cand-aaa-older", "final Research Strength tie is the stable id (alphabetical), not recency");
+
+// Provenance sort is explicitly "more source refs" and must never fall back into Research
+// Strength for its tie-break (which would have preferred the explicit-independence row).
+const provenanceTieMaterial = buildWorldAllResearchProjection({
+  convergenceCandidates: [
+    { id: "cand-prov-z-independent", subject_ref: "905", recommendation: "needs_check", conf: null, created_at: "2026-01-01T00:00:00Z", why: { reason: "needs_check", independent_group_count: 4 } },
+    { id: "cand-prov-a-plain", subject_ref: "906", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z", why: { reason: "needs_check" } },
+  ],
+});
+const provenanceTieLens = buildWorldConvergenceLensProjection(provenanceTieMaterial);
+const provenanceOrdered = orderWorldConvergenceRows(provenanceTieLens.rows, "provenance");
+assert.equal(provenanceOrdered[0].provenanceCount, provenanceOrdered[1].provenanceCount, "fixture rows share the same provenanceCount so the tie-break is exercised");
+assert.equal(
+  provenanceOrdered[0].id, "candidate:cand-prov-a-plain",
+  "provenance tie-break is the stable id, never Research Strength",
+);
+
+// human_curated vs research_strength divergence: Research Strength must not prefer an
+// approved Topic merely for being governed/approved; human_curated may still prefer it.
+const humanCuratedDivergenceMaterial = buildWorldAllResearchProjection({
+  topics: [{
+    id: "topic-approved-hc", created_at: "2026-09-01T00:00:00Z", approved_at: "2026-09-02T00:00:00Z",
+    slug: "topic-approved-hc", title: "Topic מאושר", status: "approved", created_by: "ZURIEL",
+  }],
+  convergenceCandidates: [{
+    id: "cand-independent-hc", subject_ref: "907", recommendation: "needs_check", conf: null, created_at: "2026-09-20T00:00:00Z",
+    why: { reason: "needs_check", independent_group_count: 4 },
+  }],
+});
+const humanCuratedDivergenceLens = buildWorldConvergenceLensProjection(humanCuratedDivergenceMaterial);
+assert.equal(
+  humanCuratedDivergenceLens.rows[0].id, "candidate:cand-independent-hc",
+  "Research Strength must not prefer the approved Topic merely for governance",
+);
+assert.equal(
+  orderWorldConvergenceRows(humanCuratedDivergenceLens.rows, "human_curated")[0].id, "topic:topic-approved-hc",
+  "human_curated may still prioritize an approved Topic ahead of Research Strength",
+);
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
@@ -659,10 +1130,17 @@ const dependencyProjection = buildWorldContextualProminence(dependencyData, {
     { id: "child-b", parent_id: "parent-1" },
   ],
 }, { limit: 7 });
-assert.equal(dependencyProjection.items.length, 1, "parent + descendants collapse into one dependency group before contextual rank");
-assert.equal(dependencyProjection.items[0].id, "research:child-a", "best-supported representative may stand for the dependency group");
-assert.equal(dependencyProjection.items[0].explainWhy.dependency.memberCount, 3);
-assert.ok(dependencyProjection.items[0].explainWhy.researchStrengthSignals.includes("dependency_grouped_before_rank"));
+assert.equal(dependencyProjection.items.length, 3, "parent + descendants stay separately inspectable rows, never collapsed into one representative");
+assert.equal(dependencyProjection.items[0].id, "research:child-a", "best-supported member (own explicit match) leads the dependency group");
+const dependencyById = new Map(dependencyProjection.items.map((item) => [item.id, item]));
+assert.ok(dependencyById.has("research:parent-1") && dependencyById.has("research:child-a") && dependencyById.has("research:child-b"), "every explicit dependency member id remains its own inspectable row");
+for (const id of ["research:parent-1", "research:child-a", "research:child-b"]) {
+  assert.equal(dependencyById.get(id).explainWhy.dependency.memberCount, 3, `${id} reports the full dependency group size, not just itself`);
+  assert.ok(dependencyById.get(id).explainWhy.researchStrengthSignals.includes("dependency_grouped_before_rank"));
+}
+assert.ok(dependencyById.get("research:child-a").explainWhy.researchStrengthSignals.includes("engine_match"), "child-a keeps its own explicit match lineage");
+assert.equal(dependencyById.get("research:child-b").explainWhy.researchStrengthSignals.includes("engine_match"), false, "child-b's own not_tested state is not borrowed from a sibling's match");
+assert.equal(dependencyById.get("research:parent-1").explainWhy.researchStrengthSignals.includes("engine_match"), false, "parent's own not_tested state is not borrowed from a descendant's match");
 
 // Same convergence projected through Graph + Topic is one artifact group; richer Topic signals merge into the direct graph representative.
 const convergenceDedup = {
@@ -760,6 +1238,6 @@ assert.equal(prominenceHelper.includes("Gold=100"), false);
 assert.equal(/score\s*:/.test(prominenceHelper), false, "contextual prominence helper must not emit/maintain a numeric rank score");
 assert.equal(prominenceHelper.includes("PUBLIC_RESEARCH_ACCESS"), false, "composer must consume authorized reader output rather than invent a second access vocabulary");
 assert.match(prominenceHelper, /engine_detail\.verification_state is verification authority/);
-assert.match(prominenceHelper, /DEDUP \/ SAME-ARTIFACT \/ DEPENDENCY GROUPING BEFORE RANK/);
+assert.match(prominenceHelper, /identity-aware merge.*then[\s\S]*?exact-identity dedup/);
 
 console.log("2029 native World surface acceptance: PASS");

@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test:experience-context": "node scripts/test-experience-context-2029.mjs",
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",
+    "test:world-convergence-pr591": "node --test src/lib/research/worldConvergencePr591SerialRepairA2.test.js src/lib/research/worldConvergencePr591SerialRepairA3.test.js src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js",
     "package:expression-extract": "node scripts/package-expression-extract.mjs"
   },
   "engines": {

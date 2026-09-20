@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
+import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -788,9 +789,10 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
+    <WorldConvergenceLens state={allResearchState} />
     <WorldAllResearchTable state={allResearchState} />
 
-    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
+    <section hidden={isAdmin} className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>

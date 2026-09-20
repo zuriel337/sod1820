@@ -29,8 +29,13 @@ function objectValue(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+// Shared World numeric normalizer: null/undefined/booleans/arrays/plain objects/whitespace-only
+// strings are never a number. A genuinely finite numeric value of 0 is preserved as 0.
 function finiteOrNull(value) {
-  if (value == null || value === "") return null;
+  if (value == null) return null;
+  if (typeof value === "boolean") return null;
+  if (typeof value === "object") return null;
+  if (typeof value === "string" && value.trim() === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -97,13 +102,30 @@ function researchDirectness(row, anchor) {
   return 1;
 }
 
+// Shared World verification-strength classifier: an explicit engine match (0) always
+// outranks an explicit negative/mismatch (4) in Research Strength — a mismatch is a
+// reviewed, decision-relevant state, never proof, and must never tie with a match.
+// EXTEND_EXISTING under research_object_identity_invariant_law v2: worldAllResearchProjection.js
+// and worldConvergenceLensProjection.js reuse this instead of forking a second classifier.
+export function classifyWorldVerificationStrength(verificationState) {
+  if (verificationState === "match") return 0;
+  if (verificationState === "method_unknown") return 2;
+  if (verificationState === "legacy_signal") return 2;
+  if (verificationState === "not_applicable") return 3;
+  if (!verificationState || verificationState === "not_tested" || verificationState === "review_required") return 1;
+  return 4; // explicit negative/mismatch/open states
+}
+
 // Truth Axes v3: only engine_detail.verification_state is verification authority.
 // research_objects.engine_verified is a compatibility/derived signal and MUST NOT be promoted here.
-function verificationClass(candidate) {
-  if (candidate.decisionChangingNegative) return 0;
-  if (candidate.verificationState === "match") return 0;
-  if (candidate.verificationState === "method_unknown") return 2;
-  return 1;
+// `attentionFirst` selects which ordering this candidate serves:
+//   - true  (catalog review / attention bundles): a decision-changing negative is surfaced
+//     first so Human Gate sees it, ahead of verification strength.
+//   - false (research_strength ranking): verification strength alone decides this dimension,
+//     so an explicit match always precedes a mismatch/open state.
+function verificationClass(candidate, { attentionFirst = true } = {}) {
+  if (attentionFirst && candidate.decisionChangingNegative) return 0;
+  return classifyWorldVerificationStrength(candidate.verificationState);
 }
 
 function curationClass(candidate) {
@@ -121,19 +143,24 @@ function compareDescendingNullable(a, b) {
   return bv - av;
 }
 
-function compareCandidatePriority(a, b, { timeAware = false } = {}) {
+// EXTEND_EXISTING shared comparator — worldConvergenceLensProjection.js reuses the same
+// verification-strength semantics via classifyWorldVerificationStrength rather than a
+// parallel comparator; `attentionFirst` (default true here, this module composes the
+// attention/contextual-prominence bundle) is the only axis that may reorder a
+// decision-changing negative ahead of verification strength.
+function compareCandidatePriority(a, b, { timeAware = false, attentionFirst = true } = {}) {
   // Lexicographic semantic dimensions only — never one universal scalar.
   const dimensionsA = [
-    a.decisionChangingNegative ? 0 : 1,
+    attentionFirst && a.decisionChangingNegative ? 0 : 1,
     a.directnessRank ?? 2,
-    verificationClass(a),
+    verificationClass(a, { attentionFirst }),
     curationClass(a),
     timeAware && a.temporal?.occurredAt ? 0 : 1,
   ];
   const dimensionsB = [
-    b.decisionChangingNegative ? 0 : 1,
+    attentionFirst && b.decisionChangingNegative ? 0 : 1,
     b.directnessRank ?? 2,
-    verificationClass(b),
+    verificationClass(b, { attentionFirst }),
     curationClass(b),
     timeAware && b.temporal?.occurredAt ? 0 : 1,
   ];
@@ -406,7 +433,26 @@ function mergeUniqueObjects(a, b) {
   return out;
 }
 
+// A group is "certified" as matched only when every member the group has collected so
+// far explicitly matches. One matched row inside a larger dependency/identity group must
+// never silently promote the whole merged representative to "match" — that would certify
+// the group from one matched row. An unresolved mix surfaces as a review state instead.
+function aggregateVerificationState(members) {
+  const states = members.map((member) => member.verificationState).filter(Boolean);
+  if (!states.length) return null;
+  if (states.every((state) => state === "match")) return "match";
+  if (states.includes("match")) return "partial_match_review_required";
+  return states[0];
+}
+
 function mergeCandidateDetails(preferred, alternate) {
+  // Every original member (own id, verificationState, sourceRef) stays inspectable on the
+  // merged representative — dedup narrows which candidate is DISPLAYED first, it never
+  // discards a distinct member's identity.
+  const members = mergeUniqueObjects(
+    preferred.dependencyMembers || [{ id: preferred.id, verificationState: preferred.verificationState, sourceRef: preferred.sourceRef, decisionChangingNegative: preferred.decisionChangingNegative }],
+    alternate.dependencyMembers || [{ id: alternate.id, verificationState: alternate.verificationState, sourceRef: alternate.sourceRef, decisionChangingNegative: alternate.decisionChangingNegative }]
+  );
   return {
     ...preferred,
     summary: preferred.summary || alternate.summary || null,
@@ -415,7 +461,7 @@ function mergeCandidateDetails(preferred, alternate) {
       tier: preferred.curation?.tier || alternate.curation?.tier || null,
       role: preferred.curation?.role || alternate.curation?.role || null,
     },
-    verificationState: preferred.verificationState || alternate.verificationState || null,
+    verificationState: aggregateVerificationState(members),
     decisionChangingNegative: Boolean(preferred.decisionChangingNegative || alternate.decisionChangingNegative),
     uncertainty: preferred.uncertainty || alternate.uncertainty || null,
     temporal: preferred.temporal || alternate.temporal
@@ -435,13 +481,56 @@ function mergeCandidateDetails(preferred, alternate) {
       createdAt: preferred.provenance?.createdAt || alternate.provenance?.createdAt || null,
     },
     dependency: preferred.dependency || alternate.dependency || null,
+    dependencyMembers: members,
   };
 }
 
-function dedupeByDependency(candidates, comparatorOptions) {
+// Narrow identity-aware merge, PR591 serial repair A3: a governed artifact projected once
+// via a direct Graph relation and once via a Topic card is the SAME artifact only when both
+// explicitly resolve the same node/entity identity — the shared groupKey
+// `graph-counterpart:<nodeId>` a Topic finding's entityRef already carries (node:<nodeId>).
+// This is NOT a restore of generic groupKey dedup: it only ever merges a graph-relation
+// candidate with a topic candidate that names that identical node, never two topic rows,
+// never two graph rows, and never a research-dependency:* / number / title / author match.
+// The direct graph relation always stays the representative (directnessRank 0); Topic
+// summary/meter/quality/provenance enrich it as presentation/signal-only via the same
+// mergeCandidateDetails used by exact-identity dedup, so nothing here invents new merge law.
+function mergeGraphTopicSameIdentity(candidates) {
+  const graphByGroup = new Map();
+  for (const candidate of candidates) {
+    if (candidate.kind !== "graph-relation") continue;
+    if (!candidate.groupKey?.startsWith("graph-counterpart:")) continue;
+    if (!graphByGroup.has(candidate.groupKey)) graphByGroup.set(candidate.groupKey, candidate);
+  }
+  if (!graphByGroup.size) return candidates;
+
+  const consumedTopics = new Set();
+  const mergedGraph = new Map();
+  for (const candidate of candidates) {
+    if (candidate.kind !== "topic") continue;
+    if (!candidate.groupKey?.startsWith("graph-counterpart:")) continue;
+    const graphMatch = graphByGroup.get(candidate.groupKey);
+    if (!graphMatch) continue;
+    const current = mergedGraph.get(graphMatch) || graphMatch;
+    mergedGraph.set(graphMatch, mergeCandidateDetails(current, candidate));
+    consumedTopics.add(candidate);
+  }
+  if (!mergedGraph.size) return candidates;
+
+  return candidates
+    .filter((candidate) => !consumedTopics.has(candidate))
+    .map((candidate) => mergedGraph.get(candidate) || candidate);
+}
+
+// Conservative exact-identity dedup only: collapses a candidate that literally reappears
+// under the same stableKey (the same source/claim UID surfaced via two read paths). It
+// never groups by number/title/author, and it never collapses distinct dependency-family
+// members that merely share a groupKey — those stay separate candidates, each carrying
+// dependency.memberCount, so every member id/state/sourceRef remains inspectable.
+function dedupeExactIdentity(candidates, comparatorOptions) {
   const grouped = new Map();
   for (const candidate of candidates) {
-    const key = candidate.groupKey || candidate.stableKey;
+    const key = candidate.stableKey;
     const prior = grouped.get(key);
     if (!prior) {
       grouped.set(key, candidate);
@@ -540,6 +629,16 @@ function explainCandidate(candidate, { isFirstFamily = false } = {}) {
  * Then: canonical identity/same-artifact/dependency grouping -> contextual ordering -> bounded
  * family-diverse attention projection. No numeric universal score is produced or persisted.
  */
+// Shared World primitives — reused by worldAllResearchProjection.js and
+// worldConvergenceLensProjection.js so anchored/catalog/archive readings agree.
+// EXTEND_EXISTING under research_object_identity_invariant_law v2: do not fork a
+// parallel numeric normalizer or verification classifier.
+export const normalizeWorldNumber = finiteOrNull;
+export const resolveExplicitVerificationState = explicitVerificationState;
+// Reuse point for catalog/attention comparators elsewhere (e.g. worldConvergenceLensProjection.js)
+// so Research Strength and attention ordering share one semantic source instead of forking one.
+export const compareWorldCandidatePriority = compareCandidatePriority;
+
 export function buildWorldContextualProminence(data, inputs = {}, {
   limit = 7,
   timeAware = false,
@@ -559,8 +658,11 @@ export function buildWorldContextualProminence(data, inputs = {}, {
   ];
 
   // ACCESS FILTERING PRECEDES THIS FUNCTION via governed readers/current-session RLS.
-  // DEDUP / SAME-ARTIFACT / DEPENDENCY GROUPING BEFORE RANK.
-  candidates = dedupeByDependency(candidates, comparatorOptions);
+  // Narrow identity-aware merge first (same explicit node via Graph + Topic only), then
+  // conservative exact-identity dedup; dependency-family members stay distinct and
+  // inspectable, ranking (not deletion) decides which one leads the bounded bundle below.
+  candidates = mergeGraphTopicSameIdentity(candidates);
+  candidates = dedupeExactIdentity(candidates, comparatorOptions);
 
   const sorted = candidates.sort((a, b) => compareCandidatePriority(a, b, comparatorOptions));
   let selected = selectWithFamilyGain(sorted, cap);
