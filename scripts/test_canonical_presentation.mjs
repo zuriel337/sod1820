@@ -242,7 +242,7 @@ eq("P2 Golden Card consumes semantic palette", goldenCardSource.includes("usePal
 eq("P2 Golden Card owns no Supabase access", /supabase|\.rpc\(|\.from\(/i.test(goldenCardSource), false);
 eq("P2 Golden Card performs no Gematria calculation", /calculateGematria|fn_method_value|gematria_method_trace|from \"\.\.\/lib\/gematria\.js\"/.test(goldenCardSource), false);
 eq("P2 Golden Card keeps canonical selection outside via callback", goldenCardSource.includes("onSelect(method.methodKey)") && goldenCardSource.includes("onSelect={onMethodSelect}"), true);
-eq("P2 Golden Card exposes local S1 to S2 disclosure", goldenCardSource.includes("aria-expanded={expanded}"), true);
+eq("P2 Golden Card keeps a compact method strip", goldenCardSource.includes("COMPACT_METHOD_LIMIT = 4") && goldenCardSource.includes("sod-gematria-card__compact-methods"), true);
 eq("P2 Golden Card consumes expression-level evidence projection", goldenCardSource.includes("model?.expressionEvidence"), true);
 eq("P2 Golden Card explains dependent expressions without a score", goldenCardSource.includes("לא מוסיפים משקל חדש"), true);
 eq("P2 Golden Card exposes full-surface callback", goldenCardSource.includes("onOpenFull"), true);
@@ -253,6 +253,10 @@ eq("P2 Golden Card respects reduced motion", goldenCardCss.includes("@media(pref
 eq("P2 Golden Card CSS owns no local hex palette", /#[0-9a-f]{3,8}\b/i.test(goldenCardCss), false);
 eq("P2 Golden Card uses logical RTL border", goldenCardCss.includes("border-inline-start"), true);
 eq("P2 Golden Card keeps dependency signal visually neutral", goldenCardCss.includes(".sod-gematria-card__dependency-signal"), true);
+eq("Golden Card method selection changes the same card through the canonical callback", goldenCardSource.includes("compactMethods.map") && goldenCardSource.includes("onSelect={onMethodSelect}"), true);
+eq("Golden Card Explorer is separate from narrative card height", goldenCardSource.includes("createPortal") && goldenCardSource.includes("sod-gematria-card__explorer-backdrop"), true);
+eq("Golden Card Explorer is controlled by all-methods trigger", goldenCardSource.includes("sod-gematria-card__explorer-trigger") && goldenCardSource.includes("aria-expanded={explorerOpen}"), true);
+eq("Golden Card no longer owns an inline expanding method grid", goldenCardSource.includes("showAll"), false);
 eq("P2 Golden Card has normalized expression evidence surface", goldenCardCss.includes(".sod-gematria-card__expression-evidence"), true);
 
 
