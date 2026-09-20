@@ -69,6 +69,16 @@ function explicitVerificationState(row) {
   return clean(detail.verification_state)?.toLowerCase() || null;
 }
 
+function verificationStateBucket(value) {
+  const state = clean(value)?.toLowerCase() || "";
+  if (!state) return "not_tested";
+  if (state.includes("mismatch") || state.includes("negative") || state.includes("failed")) return "mismatch";
+  if (state === "match") return "match";
+  if (state.includes("partial") || state.includes("mixed") || state.includes("numeric_only") || state.includes("source_only")) return "partial";
+  if (state.includes("method_unknown")) return "method_unknown";
+  return "not_tested";
+}
+
 function operationalNegativeState(row) {
   const detail = objectValue(row?.engine_detail);
   const candidates = [detail.status, detail.classification, detail.result_state, detail.outcome]
@@ -82,7 +92,7 @@ function operationalNegativeState(row) {
 }
 
 function rowIsDecisionChangingNegative(row) {
-  if (explicitVerificationState(row) === "mismatch") return true;
+  if (verificationStateBucket(explicitVerificationState(row)) === "mismatch") return true;
   return Boolean(operationalNegativeState(row));
 }
 
@@ -103,10 +113,11 @@ function verificationClass(candidate) {
   // Verification strength is distinct from attention priority.
   // A contradiction may be decision-changing (and therefore rank UP in the attention lens)
   // while still not becoming a reproduced positive match in the strength dimension.
-  if (candidate.verificationState === "match") return 0;
-  if (candidate.verificationState === "partial") return 1;
-  if (candidate.verificationState === "mismatch" || candidate.decisionChangingNegative) return 2;
-  if (candidate.verificationState === "method_unknown") return 4;
+  const bucket = verificationStateBucket(candidate.verificationState);
+  if (bucket === "match") return 0;
+  if (bucket === "partial") return 1;
+  if (bucket === "mismatch" || candidate.decisionChangingNegative) return 2;
+  if (bucket === "method_unknown") return 4;
   return 3;
 }
 
