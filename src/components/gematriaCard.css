@@ -246,7 +246,19 @@
   border-color:color-mix(in srgb,var(--gc-accent) 34%,var(--gc-line))!important;
 }
 .sod-gematria-card__explorer-trigger span{color:var(--gc-muted)}
-.sod-gematria-card__journey-compact{margin-inline-start:auto}
+.sod-gematria-card__footer-actions{
+  margin-inline-start:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.sod-gematria-card__footer-actions button{
+  min-height:44px;
+}
+.sod-gematria-card__open-full{
+  color:var(--gc-accent-text)!important;
+}
+.sod-gematria-card__journey-compact{margin-inline-start:0}
 
 .sod-gematria-card.is-post{
   max-width:760px;
