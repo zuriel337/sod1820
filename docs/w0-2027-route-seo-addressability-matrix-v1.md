@@ -79,8 +79,8 @@ Classification is migration/continuity guidance, not truth/access state.
 | `/codes` | A — public identity/SEO |
 | `/codes/מחקר` | B — public/unlisted product address |
 | `/codes/:slug` | A — public identity/SEO |
-| `/beit-midrash` | L — retired public convergence home; permanent redirect → `/world`; legacy calculator query intents → `/gematria` |
-| `/beit-midrash/:method` | L — retired placeholder/method address; permanent redirect → `/world` |
+| `/beit-midrash` | B — independently addressable Beit Midrash / research-method surface; **must not auto-redirect to `/world`**; calculator intents keep their canonical calculator routing |
+| `/beit-midrash/:method` | B — independently addressable Beit Midrash method/deep-link; **must not auto-redirect to `/world`** |
 | `/languages` | C — research/language deep-link |
 | `/קשרי-שפות` | L — alias/legacy address |
 | `/post` | A — public Posts listing/navigation/SEO; **not parent path for individual posts** |
@@ -251,7 +251,7 @@ A type being listed in `entity_types` is an identity capability, not permission 
 - `/world` is the discovery hub; it does not replace Convergence identity URLs.
 - `/topic/:slug` remains Class A and canonical; native Topic 2029 now owns that production route.
 - Do not mint `/world/topic/...` or query-state duplicate canonicals.
-- Public `/beit-midrash` routes were retired LIVE via PR #555 and permanently redirect to World; Topic data/identity/provenance were not deleted.
+- Historical PR #555 redirected public `/beit-midrash` routes to World, but that cutover is **superseded by Human Gate**. Live intent: Beit Midrash remains independently addressable; World remains a separate discovery surface. Topic data/identity/provenance were not deleted.
 - Temporary internal calculator compatibility may still use legacy implementation detail, but public calculator intent resolves to `/gematria`.
 - Full execution order: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`.
 
