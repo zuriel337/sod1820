@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";\nimport WorldConvergenceIndex2029 from "../components/research/WorldConvergenceIndex2029.jsx";
-import WorldConvergenceCatalog from "../components/research/WorldConvergenceCatalog.jsx";
+import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
+import WorldConvergenceIndex2029 from "../components/research/WorldConvergenceIndex2029.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -42,7 +42,6 @@ import {
 } from "../lib/research/worldResearchControl.js";
 import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
-import { fetchWorldConvergenceCatalog } from "../lib/research/worldConvergenceCatalog.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -431,7 +430,6 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
-  const [convergenceCatalogState, setConvergenceCatalogState] = useState({ enabled: false, loading: false, loadingRaw: false, payload: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -494,59 +492,6 @@ function LiveWorldLanding({ research, shell, context }) {
       });
     return () => { alive = false; };
   }, [isAdmin]);
-
-  useEffect(() => {
-    let alive = true;
-    if (!isAdmin) {
-      setConvergenceCatalogState({ enabled: false, loading: false, loadingRaw: false, payload: null, error: null });
-      return () => { alive = false; };
-    }
-    setConvergenceCatalogState({ enabled: true, loading: true, loadingRaw: false, payload: null, error: null });
-    fetchWorldConvergenceCatalog()
-      .then((payload) => {
-        if (alive) setConvergenceCatalogState({ enabled: true, loading: false, loadingRaw: false, payload, error: null });
-      })
-      .catch((error) => {
-        if (alive) setConvergenceCatalogState({ enabled: true, loading: false, loadingRaw: false, payload: null, error });
-      });
-    return () => { alive = false; };
-  }, [isAdmin]);
-
-  const loadRawConvergenceCatalog = async ({ append = false } = {}) => {
-    if (!isAdmin || convergenceCatalogState.loadingRaw) return;
-    const currentRaw = convergenceCatalogState.payload?.layers?.raw || [];
-    const rawOffset = append ? currentRaw.length : 0;
-    setConvergenceCatalogState((prev) => ({ ...prev, loadingRaw: true, error: null }));
-    try {
-      const incoming = await fetchWorldConvergenceCatalog({ includeRaw: true, rawLimit: 120, rawOffset });
-      setConvergenceCatalogState((prev) => {
-        const prior = prev.payload || {};
-        const priorLayers = prior.layers || {};
-        const nextRaw = incoming?.layers?.raw || [];
-        return {
-          ...prev,
-          enabled: true,
-          loading: false,
-          loadingRaw: false,
-          error: null,
-          payload: {
-            ...prior,
-            ...incoming,
-            layers: {
-              topics: priorLayers.topics || incoming?.layers?.topics || [],
-              relations: priorLayers.relations || incoming?.layers?.relations || [],
-              candidates: priorLayers.candidates || incoming?.layers?.candidates || [],
-              raw: append ? [...(priorLayers.raw || []), ...nextRaw] : nextRaw,
-            },
-            totals: { ...(prior.totals || {}), ...(incoming?.totals || {}) },
-            raw: incoming?.raw || prior.raw || { included: true, hasMore: false },
-          },
-        };
-      });
-    } catch (error) {
-      setConvergenceCatalogState((prev) => ({ ...prev, loadingRaw: false, error }));
-    }
-  };
 
   useEffect(() => {
     let alive = true;
@@ -844,11 +789,14 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    <WorldConvergenceIndex2029\n      enabled={isAdmin}\n      researchProjection={allResearchState.projection}\n      researchLoading={allResearchState.loading}\n    />\n\n    <WorldAllResearchTable state={allResearchState} />
+    <WorldConvergenceIndex2029
+      enabled={isAdmin}
+      researchProjection={allResearchState.projection}
+      researchLoading={allResearchState.loading}
+    />
 
-    {isAdmin
-      ? <WorldConvergenceCatalog state={convergenceCatalogState} onLoadRaw={loadRawConvergenceCatalog} />
-      : <>
+    <WorldAllResearchTable state={allResearchState} />
+
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
@@ -902,7 +850,6 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
       {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
     </section>
-      </>}
 
     {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
       <div className="sod29-section-head">
