@@ -158,7 +158,7 @@ function PeerExpressions({ peers = [], compact = false }) {
   if (compact) {
     return (
       <div className="sod-gematria-card__peer-strip" aria-label="ביטויים באותו ערך">
-        <span className="sod-gematria-card__peer-strip-label">≡ אותו ערך</span>
+        <span className="sod-gematria-card__peer-strip-label">≡ {verified.length} ביטויים · אותו ערך</span>
         <div>
           {verified.map((peer) => <b key={peer.expression}>{peer.expression}</b>)}
         </div>
