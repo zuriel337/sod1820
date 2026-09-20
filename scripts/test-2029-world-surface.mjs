@@ -227,7 +227,11 @@ assert.match(worldAllResearchComponent, /כל חומר המחקר על השול�
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /private · גלוי לך/);
 for (const table of ["research_objects", "channel_updates", "research_contributions", "topic_cards"]) {
-  assert.equal(worldAllResearchSource.includes('.from("' + table + '")'), true, "Human Gate all-material reader must consume " + table);
+  assert.equal(
+    worldAllResearchSource.includes('fetchAllRows(\n      "' + table + '"'),
+    true,
+    "Human Gate all-material reader must consume " + table,
+  );
 }
 assert.equal(/\.eq\(["']privacy_scope["']/.test(worldAllResearchSource), false, "Human Gate reader must not hide rows by privacy_scope");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldAllResearchSource), false, "Human Gate reader must rely on current-session admin RLS, not service role");
