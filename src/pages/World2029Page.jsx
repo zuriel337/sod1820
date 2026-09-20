@@ -430,6 +430,7 @@ function LiveWorldLanding({ research, shell, context }) {
     loading: true, loadingMore: false, cards: [], hasMore: false, total: null, error: null,
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
+  const [allResearchOpen, setAllResearchOpen] = useState(false);
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
   const [convergenceCatalogState, setConvergenceCatalogState] = useState({ enabled: false, loading: false, projection: null, error: null });
 
@@ -481,19 +482,24 @@ function LiveWorldLanding({ research, shell, context }) {
   useEffect(() => {
     let alive = true;
     if (!isAdmin) {
+      setAllResearchOpen(false);
       setAllResearchState({ enabled: false, loading: false, projection: null, error: null });
       return () => { alive = false; };
     }
-    setAllResearchState({ enabled: true, loading: true, projection: null, error: null });
+    if (!allResearchOpen) {
+      setAllResearchState((prev) => ({ ...prev, enabled: false, loading: false, error: null }));
+      return () => { alive = false; };
+    }
+    setAllResearchState((prev) => ({ ...prev, enabled: true, loading: true, error: null }));
     fetchWorldAllResearchProjection()
       .then((projection) => {
         if (alive) setAllResearchState({ enabled: true, loading: false, projection, error: null });
       })
       .catch((error) => {
-        if (alive) setAllResearchState({ enabled: true, loading: false, projection: null, error });
+        if (alive) setAllResearchState((prev) => ({ ...prev, enabled: true, loading: false, error }));
       });
     return () => { alive = false; };
-  }, [isAdmin]);
+  }, [isAdmin, allResearchOpen]);
 
   useEffect(() => {
     let alive = true;
@@ -810,7 +816,24 @@ function LiveWorldLanding({ research, shell, context }) {
 
     <WorldConvergenceCatalog state={convergenceCatalogState} />
 
-    <WorldAllResearchTable state={allResearchState} />
+    {isAdmin ? <section className="sod29-section sod29-world-raw-research-gate" aria-label="חומר המחקר הגולמי">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">RAW RESEARCH · DRILL-DOWN</div>
+          <h2>כל חומר המחקר</h2>
+          <div className="sod29-muted">החומר המלא נשאר זמין לך, אבל אינו נטען אוטומטית. פתח אותו רק כשצריך לעבור מה-Rank Profile אל המקורות והשכבות הגולמיות.</div>
+        </div>
+        <button
+          className={`sod29-action${allResearchOpen ? "" : " primary"}`}
+          type="button"
+          aria-expanded={allResearchOpen}
+          onClick={() => setAllResearchOpen((open) => !open)}
+        >{allResearchOpen ? "סגור חומר גלם" : "פתח את כל חומר המחקר"}</button>
+      </div>
+      {!allResearchOpen && allResearchState.projection ? <div className="sod29-muted">הנתונים שכבר נטענו נשמרו בזיכרון המסך; פתיחה מחדש תציג את שכבת ה-drill-down.</div> : null}
+    </section> : null}
+
+    {allResearchOpen ? <WorldAllResearchTable state={allResearchState} /> : null}
 
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
