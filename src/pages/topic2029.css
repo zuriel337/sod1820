@@ -46,7 +46,7 @@
 .sod29-topic-source-media-missing{display:grid;gap:3px;padding:12px;border:1px dashed var(--s29-line-strong);border-radius:14px;color:var(--s29-muted);background:color-mix(in srgb,var(--s29-panel) 72%,transparent)}
 .sod29-topic-source-media-missing strong{color:var(--s29-ink);font-size:12px}
 .sod29-topic-source-media-missing span{font-size:10.5px;line-height:1.55}
-.sod29-topic-source-words{display:grid;gap:8px;padding:15px;border-inline-start:3px solid color-mix(in srgb,var(--s29-accent) 58%,var(--s29-line));border-radius:0 14px 14px 0;background:color-mix(in srgb,var(--s29-panel) 84%,transparent)}
+.sod29-topic-source-words{display:grid;gap:8px;padding:15px;border-inline-start:3px solid color-mix(in srgb,var(--s29-accent) 58%,var(--s29-line));border-radius:14px;background:color-mix(in srgb,var(--s29-panel) 84%,transparent)}
 .sod29-topic-layer-label{color:var(--s29-accent-text);font-size:10px;font-weight:900;letter-spacing:.04em}
 .sod29-topic-source-words p{margin:0;white-space:pre-wrap;text-align:start;color:var(--s29-ink);font-size:14px;line-height:1.9}
 .sod29-topic-source-foot{display:flex;flex-wrap:wrap;gap:6px;color:var(--s29-muted);font-size:9.5px}
