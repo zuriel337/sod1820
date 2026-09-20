@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
+import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -39,6 +40,7 @@ import {
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
 import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
+import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -405,6 +407,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
+  const { isAdmin } = useAuth();
   const [landing, setLanding] = useState({
     loading: true,
     sections: {},
@@ -425,6 +428,7 @@ function LiveWorldLanding({ research, shell, context }) {
     loading: true, loadingMore: false, cards: [], hasMore: false, total: null, error: null,
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
+  const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -470,6 +474,23 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    let alive = true;
+    if (!isAdmin) {
+      setAllResearchState({ enabled: false, loading: false, projection: null, error: null });
+      return () => { alive = false; };
+    }
+    setAllResearchState({ enabled: true, loading: true, projection: null, error: null });
+    fetchWorldAllResearchProjection()
+      .then((projection) => {
+        if (alive) setAllResearchState({ enabled: true, loading: false, projection, error: null });
+      })
+      .catch((error) => {
+        if (alive) setAllResearchState({ enabled: true, loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, [isAdmin]);
 
   useEffect(() => {
     let alive = true;
@@ -767,6 +788,8 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
+    <WorldAllResearchTable state={allResearchState} />
+
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
@@ -977,6 +1000,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [key, subject.id, subject.type]);
 
   useEffect(() => {
+    if (isAdmin) {
+      setAdminMode(true);
+      setAdminView("research");
+      setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
+      setContributorFilter("all");
+      return;
+    }
     if (!isAdmin) {
       setAdminMode(false);
       setAdminView("research");
