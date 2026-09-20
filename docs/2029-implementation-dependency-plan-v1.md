@@ -389,7 +389,7 @@ Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md
 
 Current LIVE state:
 - PR #553: World Discovery entrance + canonical `התכנסות/התכנסויות` presentation released.
-- PR #555: public `/beit-midrash` and `/beit-midrash/*` retired via permanent redirect to `/world`; calculator intents preserved through `/gematria`; `/world` admitted to sitemap.
+- PR #555 historically retired `/beit-midrash` into `/world`, but this was **superseded by Human Gate**: `/beit-midrash` and its method routes remain independently addressable; World remains independent. Calculator intents remain preserved through the canonical calculator path.
 - `/topic/:slug` remains the canonical public Convergence identity and was not migrated.
 
 NOW:
@@ -489,7 +489,7 @@ Rules:
 Current:
 
 - native System Frame + baseline World is already released/live.
-- World Discovery + full public Convergence catalog (server pagination/search/creator filter) + public Beit-Midrash→World cutover are released/live; do not reopen a parallel Beit-Midrash convergence home. Native canonical Topic/Convergence rendering + SEO/AI discovery parity is the next dependency.
+- World Discovery + full public Convergence catalog (server pagination/search/creator filter) are released/live. **Do not auto-route Beit Midrash into World**; Beit Midrash remains a distinct research/method-learning surface while World owns discovery/convergence browsing. Native canonical Topic/Convergence rendering + SEO/AI discovery parity is the next dependency.
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
