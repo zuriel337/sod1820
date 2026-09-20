@@ -7,6 +7,7 @@ import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
+import TopicGematriaGoldenPilot, { GOLDEN_TOPIC_GEMATRIA_SLUG } from "./components/TopicGematriaGoldenPilot.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -23,7 +24,8 @@ function Loading2029() {
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname, search } = location;
 
   useEffect(() => {
     initGA();
@@ -41,7 +43,18 @@ function RouteEffects2029() {
     return () => clearTimeout(timer);
   }, [pathname]);
 
-  return null;
+  let topicSlug = "";
+  if (pathname.startsWith("/topic/")) {
+    const raw = pathname.slice("/topic/".length).split("/")[0] || "";
+    try { topicSlug = decodeURIComponent(raw); } catch { topicSlug = raw; }
+  }
+  const topicGematriaGoldenEnabled = topicSlug === GOLDEN_TOPIC_GEMATRIA_SLUG
+    && new URLSearchParams(search).get("gematria2029") === "1";
+
+  return <TopicGematriaGoldenPilot
+    enabled={topicGematriaGoldenEnabled}
+    topicSlug={topicSlug}
+  />;
 }
 
 // A 2029 runtime never renders a legacy route inside the same React tree.

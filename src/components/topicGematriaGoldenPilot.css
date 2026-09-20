@@ -1,0 +1,198 @@
+.sod29-topic-gematria-golden-mount{display:block}
+.sod29-topic-gematria-golden{
+  display:grid;
+  gap:14px;
+  padding:18px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line));
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-glow) 20%,transparent),transparent 32%),
+    color-mix(in srgb,var(--s29-panel) 96%,transparent);
+  box-shadow:0 18px 54px color-mix(in srgb,var(--s29-ink) 8%,transparent);
+}
+.sod29-topic-gematria-golden__head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+}
+.sod29-topic-gematria-golden__head h2{
+  margin:4px 0 5px;
+  color:var(--s29-ink);
+  font-size:clamp(22px,3vw,32px);
+}
+.sod29-topic-gematria-golden__head p{
+  max-width:760px;
+  margin:0;
+  color:var(--s29-muted);
+  line-height:1.65;
+}
+.sod29-topic-gematria-golden__verified{
+  flex:0 0 auto;
+  padding:7px 10px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 36%,var(--s29-line));
+  border-radius:999px;
+  color:var(--s29-accent-text);
+  font-size:10.5px;
+  font-weight:850;
+}
+
+.sod29-topic-gematria-golden__axes{
+  display:flex;
+  gap:8px;
+  overflow:auto hidden;
+  scrollbar-width:none;
+}
+.sod29-topic-gematria-golden__axes::-webkit-scrollbar{display:none}
+.sod29-topic-gematria-golden__axes button{
+  flex:0 0 min(250px,72vw);
+  min-height:82px;
+  display:grid;
+  align-content:center;
+  gap:2px;
+  padding:10px 12px;
+  text-align:start;
+  border:1px solid var(--s29-line);
+  border-radius:16px;
+  background:var(--s29-panel-soft);
+  color:var(--s29-ink);
+  cursor:pointer;
+}
+.sod29-topic-gematria-golden__axes button.is-primary{
+  border-color:color-mix(in srgb,var(--s29-accent) 68%,var(--s29-line));
+  background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel-soft));
+}
+.sod29-topic-gematria-golden__axes strong{
+  color:var(--s29-hero);
+  font-size:24px;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-topic-gematria-golden__axes span{
+  color:var(--s29-ink);
+  font-size:11px;
+  font-weight:850;
+}
+.sod29-topic-gematria-golden__axes small{
+  color:var(--s29-muted);
+  font-size:9px;
+}
+
+.sod29-topic-gematria-golden__body{
+  display:grid;
+  grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);
+  gap:12px;
+  align-items:start;
+}
+.sod29-topic-gematria-golden__equalities,
+.sod29-topic-gematria-golden__control{
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--s29-line);
+  border-radius:17px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);
+}
+.sod29-topic-gematria-golden__subhead,
+.sod29-topic-gematria-golden__control-head{
+  display:grid;
+  gap:2px;
+  margin-bottom:9px;
+}
+.sod29-topic-gematria-golden__subhead{
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+}
+.sod29-topic-gematria-golden__subhead span,
+.sod29-topic-gematria-golden__control-head span{
+  color:var(--s29-accent-dim);
+  font-size:9.5px;
+  font-weight:900;
+  letter-spacing:.035em;
+}
+.sod29-topic-gematria-golden__subhead strong{
+  color:var(--s29-hero);
+  font-size:18px;
+}
+.sod29-topic-gematria-golden__control-head strong{
+  color:var(--s29-ink);
+  font-size:16px;
+}
+.sod29-topic-gematria-golden__control-head small{
+  color:var(--s29-muted);
+  font-size:10px;
+}
+.sod29-topic-gematria-golden__equality-list{
+  display:grid;
+  gap:6px;
+}
+.sod29-topic-gematria-golden__equality-list button{
+  min-height:46px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:7px 9px;
+  border:1px solid var(--s29-line);
+  border-radius:11px;
+  background:color-mix(in srgb,var(--s29-panel) 72%,transparent);
+  color:var(--s29-ink);
+  text-align:start;
+  cursor:pointer;
+}
+.sod29-topic-gematria-golden__equality-list button.is-active{
+  border-color:color-mix(in srgb,var(--s29-accent) 66%,var(--s29-line));
+  background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel));
+}
+.sod29-topic-gematria-golden__equality-list span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:800;
+}
+.sod29-topic-gematria-golden__equality-list b{
+  color:var(--s29-hero);
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-topic-gematria-golden__control .sod-gematria-card{
+  margin:0;
+  max-width:none;
+}
+
+.sod29-topic-gematria-golden__truth{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  align-items:center;
+  padding-top:3px;
+  color:var(--s29-muted);
+  font-size:10px;
+}
+.sod29-topic-gematria-golden__truth span{
+  padding:4px 7px;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+}
+.sod29-topic-gematria-golden__truth strong{
+  color:var(--s29-ink);
+  font-size:10px;
+}
+
+@media(max-width:780px){
+  .sod29-topic-gematria-golden{padding:13px;border-radius:18px}
+  .sod29-topic-gematria-golden__head{flex-direction:column}
+  .sod29-topic-gematria-golden__body{grid-template-columns:1fr}
+  .sod29-topic-gematria-golden__equalities{order:2}
+  .sod29-topic-gematria-golden__control{order:1}
+  .sod29-topic-gematria-golden__equality-list{
+    max-height:300px;
+    overflow:auto;
+  }
+}
+@media(max-width:520px){
+  .sod29-topic-gematria-golden{gap:10px;padding:10px}
+  .sod29-topic-gematria-golden__axes button{flex-basis:78vw}
+  .sod29-topic-gematria-golden__equalities,
+  .sod29-topic-gematria-golden__control{padding:9px}
+}

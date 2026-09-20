@@ -31,6 +31,10 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "tests/topic-gematria-golden.spec.cjs"
+      - "src/components/TopicGematriaGoldenPilot.jsx"
+      - "src/components/topicGematriaGoldenPilot.css"
+      - "src/lib/research/topicGematriaGoldenProjection.js"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -90,11 +94,14 @@ jobs:
         run: |
           mkdir -p test-results/release-visual
           npx playwright test tests/world2029-release.spec.cjs --reporter=line
-      - name: Upload native World screenshots
+      - name: Golden Topic Gematria browser acceptance
+        run: |
+          npx playwright test tests/topic-gematria-golden.spec.cjs --reporter=line
+      - name: Upload native 2029 screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: world-2029-visual-evidence
+          name: 2029-visual-evidence
           path: test-results/release-visual
           if-no-files-found: warn
           retention-days: 14
