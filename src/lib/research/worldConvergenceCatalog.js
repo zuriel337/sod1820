@@ -251,6 +251,11 @@ function compareNullableDesc(a, b) {
 export function compareWorldConvergenceRows(a, b, lens = "balanced") {
   if (a.lane === "raw" || b.lane === "raw") {
     if (a.lane !== b.lane) return a.lane === "raw" ? 1 : -1;
+    // Raw Discovery may use its own historical density signal only as an intra-Raw
+    // discovery order. It can never outrank a Research Convergence or become Research Strength.
+    return compareNullableDesc(a.signals?.rawDensity?.legacyBucketScore, b.signals?.rawDensity?.legacyBucketScore)
+      || compareNullableDesc(a.signals?.rawDensity?.groupSize, b.signals?.rawDensity?.groupSize)
+      || String(a.id).localeCompare(String(b.id));
   }
 
   if (lens === "newest") {
