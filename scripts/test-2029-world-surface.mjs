@@ -388,12 +388,18 @@ const legacyVsMatchLens = buildWorldConvergenceLensProjection(legacyVsMatchMater
 const depParentRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-parent-match");
 const depChildRow = legacyVsMatchLens.rows.find((row) => row.id === "research:dep-child-legacy");
 assert.equal(depParentRow.verification, "match");
-assert.equal(depChildRow.verification, "legacy_signal", "child's own legacy boolean must not be promoted to match by grouping with a matched parent");
+// Ranked-row density fix: the dependency family contributes exactly ONE top-level ranked
+// row — the stronger member (explicit match outranks an unconfirmed legacy signal via
+// compareResearchStrength), never one row per member. The weaker member is never a second
+// top-level row, but stays fully inspectable under the representative's dependency.members,
+// with its own legacy signal never promoted to match by grouping with a matched parent.
+assert.equal(depChildRow, undefined, "the weaker member is never a second top-level ranked row");
 assert.equal(depParentRow.dependency.memberCount, 2, "explicit parent_id chain groups the pair before rank");
-assert.ok(
-  legacyVsMatchLens.rows.findIndex((row) => row.id === "research:dep-parent-match")
-  < legacyVsMatchLens.rows.findIndex((row) => row.id === "research:dep-child-legacy"),
-  "explicit match outranks an unconfirmed legacy signal even within the same dependency group",
+const depMemberById = Object.fromEntries(depParentRow.dependency.members.map((m) => [m.id, m]));
+assert.equal(depMemberById["research:dep-child-legacy"].verification, "legacy_signal", "child's own legacy boolean must not be promoted to match by grouping with a matched parent");
+assert.equal(
+  filterWorldConvergenceRows(legacyVsMatchLens.rows, { query: "צאצא עם סימון ישן" }).length, 1,
+  "free-text search must still reach the non-representative member's own content",
 );
 
 const zviCoverageFixture = buildZviCoverage(convergenceMaterialFixture);

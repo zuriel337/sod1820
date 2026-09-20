@@ -90,9 +90,10 @@ test("makeRelationRow preserves engineVerificationStateRaw and scopeVerification
   assert.equal(row.scopeVerificationStates[0].state, "mismatch");
 });
 
-// ── (4) dependency family: parent + child stay separate rows, each member's own
-//        verification/status/sourceRefs are individually inspectable ───────────────────────
-test("dependency family members are all inspectable with their own state, none borrows a sibling's verification", () => {
+// ── (4) dependency family: ONE top-level representative row, every member (including the
+//        non-representative child) stays fully inspectable under representative.dependency.members,
+//        each with its own state — none borrows a sibling's verification ───────────────────────
+test("dependency family collapses to one top-level representative; every member is still inspectable with its own state, none borrows a sibling's verification", () => {
   const material = buildWorldAllResearchProjection({
     researchObjects: [{
       id: "dep-parent", created_at: "2026-09-20T04:00:00Z", kind: "relation",
@@ -109,8 +110,12 @@ test("dependency family members are all inspectable with their own state, none b
   const lens = buildWorldConvergenceLensProjection(material);
   const parent = lens.rows.find((r) => r.id === "research:dep-parent");
   const child = lens.rows.find((r) => r.id === "research:dep-child");
+  // Ranked-row density fix: the family contributes exactly ONE top-level row — the stronger
+  // member (explicit "match" outranks "legacy_signal" via compareResearchStrength) — never
+  // one row per member.
+  assert.ok(parent, "the stronger member (explicit match) is the top-level representative");
+  assert.equal(child, undefined, "the weaker member is never a second top-level ranked row");
   assert.equal(parent.dependency.memberCount, 2);
-  assert.equal(child.dependency.memberCount, 2);
   assert.equal(parent.dependency.members.length, 2);
   const memberById = Object.fromEntries(parent.dependency.members.map((m) => [m.id, m]));
   assert.equal(memberById["research:dep-parent"].verification, "match");
@@ -118,6 +123,10 @@ test("dependency family members are all inspectable with their own state, none b
   assert.equal(memberById["research:dep-parent"].contributor, "חוקר א");
   assert.equal(memberById["research:dep-child"].contributor, "חוקר ב");
   assert.deepEqual(memberById["research:dep-child"].sourceRefs, ["channel_updates:" + S2]);
+  // Free-text search must still reach the non-representative member's own content even
+  // though only the representative is top-level.
+  assert.equal(filterWorldConvergenceRows(lens.rows, { query: "צאצא עם סימון" }).length, 1, "search must still match a non-representative member's own statement");
+  assert.equal(filterWorldConvergenceRows(lens.rows, { query: "חוקר ב" }).length, 1, "search must still match a non-representative member's own contributor");
 });
 
 // ── (5) Research Candidates expose shared_sources and warnings, and generatedBy kept

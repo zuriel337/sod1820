@@ -15,6 +15,13 @@ on:
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
+      - "src/lib/research/worldConvergenceLensProjection.js"
+      - "src/lib/research/worldContextualProminence.js"
+      - "src/lib/research/worldAllResearchProjection.js"
+      - "src/lib/research/worldConvergencePr591SerialRepairA2.test.js"
+      - "src/lib/research/worldConvergencePr591SerialRepairA3.test.js"
+      - "src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js"
+      - "src/components/research/WorldConvergenceLens.jsx"
       - "src/lib/seo.js"
       - "src/pages/topic2029.css"
       - "package.json"
@@ -57,6 +64,8 @@ jobs:
         run: node scripts/test-2029-canonical-contract-wiring.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
+      - name: World Convergence PR591 focused acceptance
+        run: npm run test:world-convergence-pr591
       - name: Native Topic surface acceptance
         run: node scripts/test-2029-topic-surface.mjs
       - name: Native Researcher corpus acceptance

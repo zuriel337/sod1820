@@ -601,7 +601,17 @@ export function filterWorldConvergenceRows(rows = [], filters = {}) {
     if (f.attention === "zvi" && !contributorLooksLikeZvi(row.contributor)) return false;
     if (f.attention === "unverified" && ["match", "not_applicable"].includes(row.verification)) return false;
     if (!query) return true;
-    const haystack = normalizeText([row.label,row.summary,row.value,...asArray(row.values),...asArray(row.terms),...asArray(row.relates),row.contributor,row.status,row.verification,row.batchKey,row.sourceRef,row.classification].filter((value) => value != null).join(" "));
+    // A dependency family collapses to one top-level representative row (ranked-row
+    // density fix); free-text search must still reach every member's own searchable
+    // material — label/contributor/status/verification/sourceRefs — even though only the
+    // representative is top-level. This is search reach only: it never feeds the
+    // categorical verification/status/contributor filters above, so a member's state is
+    // still never borrowed as if it were the representative's own.
+    const memberHaystack = asArray(row.dependency?.members).flatMap((member) => [
+      member.label, member.contributor, member.status, member.verification,
+      ...asArray(member.sourceRefs),
+    ]);
+    const haystack = normalizeText([row.label,row.summary,row.value,...asArray(row.values),...asArray(row.terms),...asArray(row.relates),row.contributor,row.status,row.verification,row.batchKey,row.sourceRef,row.classification,...memberHaystack].filter((value) => value != null).join(" "));
     return haystack.includes(query);
   });
 }
@@ -652,7 +662,24 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     row.dependency = Object.freeze({ rootId: root, memberCount: members.length, members: memberSummaries });
     if (row.dependency.memberCount > 1) row.explainWhy = [...row.explainWhy, `${row.dependency.memberCount} אובייקטים תלויים קובצו לאותה משפחת dependency.`];
   }
-  const ordered = orderWorldConvergenceRows(rows, "research_strength");
+  // Ranked-row density: a dependency family (2+ research_relation members sharing the same
+  // root) contributes exactly ONE top-level ranked row — the representative chosen by
+  // compareResearchStrength among that family — never one row per member. This matches the
+  // Inspector, which already renders a family as a single row with its members nested under
+  // dependency.members (see WorldConvergenceLens.jsx DependencyMembers). No DB identity is
+  // merged and no member borrows another member's verification: every member's own
+  // id/label/verification/sourceRefs/contributor/status/scoped states stays inspectable
+  // under representative.dependency.members. A family of size 1 is its own representative,
+  // so independent (non-dependent) relations are never affected, and two independently
+  // derived same-number rows (different dependency roots) both stay top-level.
+  const nonRepresentativeIds = new Set();
+  for (const members of membersByRoot.values()) {
+    if (members.length <= 1) continue;
+    const representative = [...members].sort(compareResearchStrength)[0];
+    for (const member of members) if (member !== representative) nonRepresentativeIds.add(member.id);
+  }
+  const rankedRows = rows.filter((row) => !nonRepresentativeIds.has(row.id));
+  const ordered = orderWorldConvergenceRows(rankedRows, "research_strength");
   const zviCoverage = buildZviCoverage(allResearchProjection);
   return Object.freeze({
     rows: Object.freeze(ordered), total: ordered.length,
