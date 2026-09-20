@@ -20,6 +20,7 @@ function VerificationLabel({ row }) {
 export default function WorldAllResearchTable({ state }) {
   const projection = state?.projection || null;
   const [query, setQuery] = useState("");
+  const [family, setFamily] = useState("all");
   const [kind, setKind] = useState("all");
   const [access, setAccess] = useState("all");
   const [status, setStatus] = useState("all");
@@ -28,8 +29,8 @@ export default function WorldAllResearchTable({ state }) {
   const [shown, setShown] = useState(PAGE);
 
   const rows = useMemo(() => filterWorldAllResearchRows(projection?.rows || [], {
-    query, kind, access, status, verification, contributor,
-  }), [projection, query, kind, access, status, verification, contributor]);
+    query, family, kind, access, status, verification, contributor,
+  }), [projection, query, family, kind, access, status, verification, contributor]);
 
   if (!state?.enabled) return null;
 
@@ -48,18 +49,19 @@ export default function WorldAllResearchTable({ state }) {
 
     {projection ? <>
       <div className="sod29-world-all-research-summary">
-        <span><b>{projection.total}</b> סה״כ</span>
-        <span><b>{projection.byAccess.private || 0}</b> מסומנים private</span>
-        <span><b>{projection.byAccess.public_candidate || 0}</b> public_candidate</span>
-        <span><b>{projection.byStatus.candidate || 0}</b> candidate</span>
-        <span><b>{projection.byStatus.approved || 0}</b> approved</span>
-        <span><b>{projection.byStatus.canonical || 0}</b> canonical</span>
+        <span><b>{projection.total}</b> כל השכבות</span>
+        <span><b>{projection.sourceTotals.research_object || 0}</b> Research Objects</span>
+        <span><b>{projection.sourceTotals.source_message || 0}</b> מקורות / הודעות</span>
+        <span><b>{projection.sourceTotals.contribution || 0}</b> תרומות מחקר</span>
+        <span><b>{projection.sourceTotals.topic || 0}</b> Topics</span>
+        <span><b>{projection.byAccess.private || 0}</b> private · גלויים לך</span>
       </div>
 
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
 
       <div className="sod29-world-all-research-filters">
         <label className="is-wide"><span>חיפוש בכל החומר</span><input value={query} onChange={(e) => { setQuery(e.target.value); setShown(PAGE); }} placeholder="טקסט, חוקר, מספר, מקור, source_ref…" /></label>
+        <label><span>שכבה</span><select value={family} onChange={(e) => { setFamily(e.target.value); setShown(PAGE); }}><option value="all">כל השכבות</option>{Object.keys(projection.byFamily).sort().map((v) => <option value={v} key={v}>{v} · {projection.byFamily[v]}</option>)}</select></label>
         <label><span>סוג</span><select value={kind} onChange={(e) => { setKind(e.target.value); setShown(PAGE); }}><option value="all">כל הסוגים</option>{Object.keys(projection.byKind).sort().map((v) => <option value={v} key={v}>{v} · {projection.byKind[v]}</option>)}</select></label>
         <label><span>גישה</span><select value={access} onChange={(e) => { setAccess(e.target.value); setShown(PAGE); }}><option value="all">הכול · בלי הסתרה</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{v} · {projection.byAccess[v]}</option>)}</select></label>
         <label><span>מצב</span><select value={status} onChange={(e) => { setStatus(e.target.value); setShown(PAGE); }}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{v} · {projection.byStatus[v]}</option>)}</select></label>
@@ -73,15 +75,18 @@ export default function WorldAllResearchTable({ state }) {
         {rows.slice(0, shown).map((row) => <article className="sod29-world-all-research-row" key={row.id}>
           <div className="sod29-world-all-research-row-head">
             <div className="sod29-world-all-research-tags">
+              <span>{row.family}</span>
               <span>{row.kind}</span>
-              <AccessLabel value={row.access} />
+              {row.access ? <AccessLabel value={row.access} /> : null}
               <span>{row.status}</span>
               {row.mediaClass ? <span>{row.mediaClass}</span> : null}
             </div>
             <VerificationLabel row={row} />
           </div>
 
+          {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
           <strong>{row.statement}</strong>
+          {row.secondary && row.secondary !== row.statement ? <p className="sod29-world-all-research-secondary">{row.secondary}</p> : null}
 
           <div className="sod29-world-all-research-meta">
             {row.contributor ? <span>חוקר · {row.contributor}</span> : <span>חוקר לא צוין</span>}
@@ -93,7 +98,9 @@ export default function WorldAllResearchTable({ state }) {
           {row.spatialCluster ? <div className="sod29-world-all-research-cluster">מחקר מרחבי · {row.spatialCluster}</div> : null}
           {row.sourceRef ? <code className="sod29-world-all-research-ref">{row.sourceRef}</code> : null}
 
-          {row.value != null ? <div className="sod29-actions"><Link className="sod29-action" to={"/number/" + row.value}>פתח בדף המספר ←</Link></div> : null}
+          {row.href ? <div className="sod29-actions">
+            {row.href.startsWith("/") ? <Link className="sod29-action" to={row.href}>פתח ←</Link> : <a className="sod29-action" href={row.href} target="_blank" rel="noreferrer">פתח מקור ↗</a>}
+          </div> : null}
         </article>)}
       </div>
 
