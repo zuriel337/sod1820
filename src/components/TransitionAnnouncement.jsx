@@ -10,7 +10,6 @@ const COPY = {
     title: "אחרי 15 שנה הגיע הזמן להתחדש",
     body: "מחליפים תמונה, מחדשים את המיתוג, ומתקדמים לשפה חזותית חדשה. ממש עולם חדש הולך להיפתח.",
     links: [
-      { to: "/world", label: "פתח את העולם החדש" },
       { to: "/heichal", label: "היכל 2029" },
     ],
   },
@@ -33,14 +32,10 @@ const COPY = {
     ],
   },
   beit: {
-    eyebrow: "בית המדרש · מעבר לעולם החדש",
-    title: "בית המדרש הישן נסגר — התוכן ממשיך",
-    body: "הפוסטים, הטופיקים, הספרים, המקורות וההתכנסויות עוברים למרחבים החדשים. לא מוחקים את המחקר — מסדרים אותו מחדש בתוך עולם אחד.",
-    links: [
-      { to: "/world", label: "פתח את העולם החדש" },
-      { to: "/books", label: "ספרים ומקורות" },
-      { to: "/heichal", label: "היכל 2029" },
-    ],
+    eyebrow: "בית המדרש · בקרוב מתחדש",
+    title: "בית המדרש הישן ייסגר בקרוב",
+    body: "בינתיים בית המדרש נשאר פתוח ואפשר להמשיך להשתמש בו כרגיל. אנחנו מכינים את הדור הבא — בלי להעביר אתכם עדיין לעולם החדש.",
+    links: [],
   },
 };
 
@@ -66,13 +61,13 @@ export default function TransitionAnnouncement({ context = "home", full = false 
         <small>{copy.eyebrow}</small>
         <h2>{copy.title}</h2>
         <p>{copy.body}</p>
-        <div className="sod-transition-actions">
+        {copy.links.length ? <div className="sod-transition-actions">
           {copy.links.map((item, index) => (
             <Link key={item.to} className={`sod-transition-action${index === 0 ? " primary" : ""}`} to={item.to}>
               {item.label}
             </Link>
           ))}
-        </div>
+        </div> : null}
         <div className="sod-transition-foot">אחרי 15 שנה — גם התמונה, גם המיתוג וגם החוויה מתחדשים.</div>
       </div>
     </section>
