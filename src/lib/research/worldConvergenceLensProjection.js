@@ -411,16 +411,9 @@ function compareIndependenceDesc(a, b) {
   return bv - av;
 }
 
-// A resolved source occurrence other than the candidate's own self-ref
-// ("research_candidates:<id>" never resolves against the source index anyway) counts as
-// binary provenance quality. Raw ref count is never the signal here.
-function hasResolvedEvidence(row) {
-  return asArray(row.resolvedSources).some((item) => item?.resolved && item.baseRef !== row.sourceRef);
-}
-
 // Research Strength: verification strength alone decides the primary dimension, so an
 // explicit match always precedes a mismatch/open state. Governance/curation status,
-// meterScore/quality/confidence and recency are deliberately NOT part of Research
+// source-family resolvability in this UI payload, meterScore/quality/confidence and recency are deliberately NOT part of Research
 // Strength — those are Human Curation/legacy signal, surfaced separately (human_curated
 // sort, explainWhy) and never folded into this global ranking. Decision-changing status is
 // surfaced through the `decisionChanging`/`needs_decision` filter and classification label,
@@ -436,8 +429,10 @@ function compareResearchStrength(a, b) {
   // not evidence of independence and must not outrank null.
   const independenceCompared = compareIndependenceDesc(a.independentGroupCount, b.independentGroupCount);
   if (independenceCompared) return independenceCompared;
-  const evidenceCompared = (hasResolvedEvidence(b) ? 1 : 0) - (hasResolvedEvidence(a) ? 1 : 0);
-  if (evidenceCompared) return evidenceCompared;
+  // Source/provenance quality is intentionally NOT a tie-break yet. The current
+  // Inspector resolves only a subset of source families, so "resolved in this payload"
+  // would turn read-model coverage into Research Strength. Missing source-family
+  // adapters stay UNKNOWN until a universal quality/resolution signal exists.
   // Final deterministic tie is the stable id — never date/recency.
   return String(a.id).localeCompare(String(b.id));
 }
