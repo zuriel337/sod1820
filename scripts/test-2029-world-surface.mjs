@@ -280,9 +280,14 @@ assert.match(worldConvergenceCatalogSource, /RAW_LEGACY_INTERNAL_OFF_BY_DEFAULT/
 assert.equal(/\.from\(["']convergences["']\)/.test(worldConvergenceCatalogSource), false, "global catalog must not pull raw legacy buckets into the client");
 assert.equal(/\.from\(["']cross_method_strength["']\)/.test(worldConvergenceCatalogSource), false, "global catalog must not run the >15s cross aggregate in the client");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceCatalogSource), false, "catalog must stay on current-session governed readers");
+assert.match(worldConvergenceCatalogSource, /compareWorldProminenceProfiles/, "catalog must reuse the canonical World prominence comparator");
+assert.equal(/function verificationRank\(/.test(worldConvergenceCatalogSource), false, "catalog must not recreate the core verification-rank comparator");
 
-assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
+assert.match(world, /allResearchOpen \? <WorldAllResearchTable state=\{allResearchState\}/);
+assert.match(world, /פתח את כל חומר המחקר/);
+assert.match(world, /if \(!allResearchOpen\)[\s\S]*enabled: false/);
 assert.match(world, /fetchWorldAllResearchProjection/);
+assert.match(world, /\[isAdmin, allResearchOpen\]/);
 assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
 assert.match(world, /if \(isAdmin\)[\s\S]*setAdminMode\(true\)/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
