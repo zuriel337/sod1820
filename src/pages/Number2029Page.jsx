@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
+import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import {
@@ -11,6 +13,7 @@ import {
   methodProfileEntry,
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
+import NumberDeepView2029 from "../components/number2029/NumberDeepView2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -176,6 +179,7 @@ function NumberPageBody() {
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
   const [observatoryFocus, setObservatoryFocus] = useState("now");
+  const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -210,6 +214,30 @@ function NumberPageBody() {
   }, [root]);
 
   const data = state.data;
+
+  useEffect(() => {
+    if (!data?.identity || data.identity.type !== "number") {
+      setDeepViewInputState({ loading: false, data: null, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setDeepViewInputState({ loading: true, data: null, error: null });
+    fetchWorldProminenceInputs(data)
+      .then((next) => {
+        if (alive) setDeepViewInputState({ loading: false, data: next || null, error: null });
+      })
+      .catch((error) => {
+        if (alive) {
+          setDeepViewInputState({
+            loading: false,
+            data: { crossMethodStrength: null, access: { crossMethodStrength: false } },
+            error,
+          });
+        }
+      });
+    return () => { alive = false; };
+  }, [data, root]);
+
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
@@ -571,6 +599,13 @@ function NumberPageBody() {
     heroMedia: stageMedia[0] || null,
   }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
+  const deepViewModel = useMemo(() => buildNumberDeepViewProjection({
+    root,
+    researchRows: Array.isArray(data?.research?.rows) ? data.research.rows : [],
+    crossMethodStrength: deepViewInputState.data?.crossMethodStrength || null,
+    crossMethodStrengthAvailable: deepViewInputState.data?.access?.crossMethodStrength !== false,
+  }), [root, data?.research?.rows, deepViewInputState.data]);
+
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
 
   useEffect(() => {
@@ -918,6 +953,7 @@ function NumberPageBody() {
 
       <div className="sod29-number-jumpbar" aria-label="ניווט בדף המספר">
         <button type="button" onClick={() => document.getElementById("number-why-now")?.scrollIntoView({ behavior: "smooth" })}>למה עכשיו</button>
+        <button type="button" onClick={() => document.getElementById("number-deep-view")?.scrollIntoView({ behavior: "smooth" })}>מפת מחקר</button>
         <button type="button" onClick={() => document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth" })}>שיטות</button>
         <button type="button" onClick={() => document.getElementById("number-expressions")?.scrollIntoView({ behavior: "smooth" })}>ביטויים</button>
         <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>{CONVERGENCES_LABEL}</button>
@@ -925,6 +961,12 @@ function NumberPageBody() {
         <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>מקורות</button>
       </div>
     </section>
+
+    {deepViewModel ? <NumberDeepView2029
+      model={deepViewModel}
+      onOpenHeichal={openHeichal}
+      onRazielAction={askRaziel}
+    /> : null}
 
     <section className="sod29-section sod29-number-section sod29-number-why-now" id="number-why-now">
       <div className="sod29-section-head">
