@@ -234,6 +234,7 @@ function ExplorerDialog({
   onOpenJourney,
   onOpenTrace,
   onOpenFull,
+  styleVars,
 }) {
   useEffect(() => {
     if (!open) return undefined;
@@ -249,7 +250,7 @@ function ExplorerDialog({
   const relationText = relationLabel(model?.relationsSummary);
 
   return createPortal(
-    <div className="sod-gematria-card__explorer-backdrop" onMouseDown={onClose}>
+    <div className="sod-gematria-card__explorer-backdrop" style={styleVars} onMouseDown={onClose}>
       <section
         id={panelId}
         className="sod-gematria-card__explorer-sheet"
@@ -502,6 +503,7 @@ export default function GematriaCard({
         onOpenJourney={onOpenJourney}
         onOpenTrace={onOpenTrace}
         onOpenFull={onOpenFull}
+        styleVars={rootStyle}
       />
     </>
   );
