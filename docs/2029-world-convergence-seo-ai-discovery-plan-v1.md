@@ -60,7 +60,7 @@ These are migration/SEO parity gaps, not permission to change canonical URLs or 
 
 ## 3. NOW — SEO parity and safety foundation
 
-Beit Midrash public convergence routing is already retired LIVE. Do the remaining items before retiring the Legacy Topic renderer behind `/topic/:slug`.
+World Discovery is LIVE independently. Beit Midrash remains independently addressable by Human-Gate decision and must not auto-route into World. Do the remaining items before retiring any Legacy Topic renderer behind `/topic/:slug`.
 
 ### N1 — World sitemap admission — DONE / LIVE
 
@@ -462,7 +462,7 @@ Human Gate needed before any bulk noindex/deindex operation.
 
 ### HG-2 — /beit-midrash SEO routes — RESOLVED / LIVE INDEPENDENT
 
-ZURIEL authorized immediate simplification. PR #555 permanently redirects the public Beit Midrash route family to World while preserving Topic identities/data and calculator intent. No further Human-Gate decision is needed for that public route cutover.
+Historical PR #555 redirected the public Beit Midrash route family to World, but that cutover is superseded by Human Gate. LIVE intent: `/beit-midrash`, `/beit-midrash/:method`, and `tool=midrash` remain inside Beit Midrash; World stays a separate discovery surface. Any future cutover requires a new explicit Human-Gate decision.
 
 ### HG-3 — Public machine endpoint / feed
 
