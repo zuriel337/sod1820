@@ -351,7 +351,7 @@ export default function NumberCore2029({
     stagePulse.activityCount ? `${stagePulse.activityCount} פעילויות` : null,
   ].filter(Boolean);
 
-  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={NUMBER_CORE_PALETTE}>
+  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={compact ? NUMBER_CORE_PALETTE : undefined}>
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
