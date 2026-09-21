@@ -521,13 +521,13 @@ export default function HomeNewPage() {
               lineHeight: 1.7,
               textAlign: "center"
             }}>
-              העדכונים והפוסטים הופסקו זמנית עד לאחר השלמת שדרוג האתר.
+              אנחנו בונים עכשיו את הדור הבא של האתר. במהלך השדרוג חלק מהעדכונים והפרסומים החדשים מושהים זמנית, והאזורים החדשים נפתחים בהדרגה כשהם מוכנים.
             </div>
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
-            <div className="hn-build-title">🏗️ SOD1820 נבנה מחדש מבפנים</div>
-            <div className="hn-build-sub">עולם המחקר החדש הולך ומתחבר — מספרים, צפנים, מקורות, מסעות ורזיאל נפגשים בהדרגה למערכת אחת.</div>
+            <div className="hn-build-title">🏗️ האתר מתחדש — הנה מה כבר נבנה</div>
+            <div className="hn-build-sub">אנחנו מחברים את המספרים, המקורות, הצפנים וכלי המחקר לחוויה אחת ברורה. כל אזור נפתח לציבור כשהוא בשל ומוכן לשימוש.</div>
             {PUBLIC_BUILD_TRACKS.map(t => (
               <div key={t.label} className="hn-build-row">
                 <div className="hn-build-row-head">

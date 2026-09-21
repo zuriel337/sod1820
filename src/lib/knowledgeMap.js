@@ -52,9 +52,9 @@ export const BUILD_TRACKS = [
   {
     id:"tree", icon:"🌳", label:"עץ הידע + AI · רזיאל", stage:2, status:"מתחבר למערכת",
     summary:"שכבת החיבור של האתר: מספר ↔ מילה ↔ פסוק ↔ ספר ↔ צופן ↔ אדם ↔ אירוע. רזיאל יהיה המלווה שמציע את הצעד הבא.",
-    metrics:["6,382 צמתי ידע פעילים","7,091 קשרים","עץ אחד לכל המערכת","רזיאל = שכבת AI מלווה"],
+    metrics:["6,227 צמתי ידע פעילים","7,111 קשרים","עץ אחד לכל המערכת","רזיאל = שכבת AI מלווה"],
     details:[
-      "בגרף החי קיימים כרגע 6,382 nodes פעילים ו-7,091 edges.",
+      "בגרף החי קיימים כרגע 6,227 צמתי ידע פעילים ו-7,111 קשרים.",
       "רזיאל יהיה שכבת ה-AI שמבינה איפה אתם נמצאים ומציעה קשרים והמשך חקירה.",
       "העץ, רזיאל, ההיכל והניווט הם דרכי כניסה שונות לאותו גוף ידע."
     ]
@@ -89,12 +89,12 @@ export const stagePercent = stage => STAGE_PROGRESS[Number(stage || 0)] || 0;
 // FIRST PUBLIC 2029 STAGE = the first bounded Golden Experience, not the full 2029 rollout.
 // Canonical Foundation Closure Protocol binds the path as G0 → G1 → G2 → G3 → G3.5 → G4.
 // Only CLOSED+LIVE+VERIFIED gates count. An active gate contributes 0 until it is formally closed.
-// Snapshot verified 14.9.2026: G0 and G1 closed/live/verified; G2 active/open; G3/G3.5/G4 pending.
+// Snapshot verified 21.9.2026: G0, G1 and G2 closed/live/verified; G3 active/open; G3.5/G4 pending.
 export const FIRST_STAGE_RELEASE_GATES = [
   { id:"G0", label:"ניקוי ופריטי בסיס", state:"closed", closedAt:"2026-09-12" },
   { id:"G1", label:"כניסת סוכנים ומקורות אמת", state:"closed", closedAt:"2026-09-12" },
-  { id:"G2", label:"מודל 2029 והמשמעות הסמנטית", state:"active", closedAt:null },
-  { id:"G3", label:"מימוש תשתיות 2029", state:"pending", closedAt:null },
+  { id:"G2", label:"מודל 2029 והמשמעות הסמנטית", state:"closed", closedAt:"2026-09-15" },
+  { id:"G3", label:"מימוש תשתיות 2029", state:"active", closedAt:null },
   { id:"G3.5", label:"מוכנות תרחישי אמת", state:"pending", closedAt:null },
   { id:"G4", label:"חוויית הזהב הראשונה", state:"pending", closedAt:null },
 ];
@@ -102,10 +102,10 @@ const CLOSED_FIRST_STAGE_GATES = FIRST_STAGE_RELEASE_GATES.filter(g => g.state =
 export const BUILD_PROGRESS = Math.round((CLOSED_FIRST_STAGE_GATES / FIRST_STAGE_RELEASE_GATES.length) * 100);
 export const BUILD_REMAINING = 100 - BUILD_PROGRESS;
 
-// Audited weekly comparison: on 7.9.2026 none of these release gates had formally closed;
-// by 14.9.2026 G0+G1 were closed/live/verified. Keep the range explicit so it never masquerades as a rolling metric.
-export const BUILD_WEEKLY_LABEL = "7–14.9";
-export const BUILD_WEEKLY_BASE_PROGRESS = 0;
+// Audited weekly comparison: on 14.9.2026 G0+G1 were closed/live/verified;
+// by 21.9.2026 G2 had also closed and G3 was active. Keep the range explicit so it never masquerades as a rolling metric.
+export const BUILD_WEEKLY_LABEL = "14–21.9";
+export const BUILD_WEEKLY_BASE_PROGRESS = 33;
 export const BUILD_WEEKLY_DELTA = BUILD_PROGRESS - BUILD_WEEKLY_BASE_PROGRESS;
 export const BUILD_TRACK_BY_ID = Object.fromEntries(BUILD_TRACKS.map(t => [t.id, t]));
 
@@ -160,7 +160,7 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"🌳 עץ הידע · רזיאל AI", kicker:"שכבת החיבור שחוצה את כל האתר", stat:"6,382 צמתים פעילים · 7,091 קשרים", trackId:"tree",
+    title:"🌳 עץ הידע · רזיאל AI", kicker:"שכבת החיבור שחוצה את כל האתר", stat:"6,227 צמתים פעילים · 7,111 קשרים", trackId:"tree",
     publicCopy:"מספר ↔ מילה ↔ פסוק ↔ ספר ↔ צופן ↔ אדם ↔ אירוע. כל אלה הולכים להתחבר לעץ אחד, ורזיאל ילווה אתכם בין הקשרים.",
     items:[
       {label:"עץ המספרים",emoji:"🌳",to:"/numbers",note:"אחת העדשות החיות על גרף הקשרים"},
