@@ -48,6 +48,7 @@ import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
+const number2029Page = read("src/pages/Number2029Page.jsx");
 const app = read("src/App2029.jsx");
 const legacyApp = read("src/App.jsx");
 const sitemapSource = read("api/sitemap.js");
@@ -1242,5 +1243,21 @@ assert.equal(/score\s*:/.test(prominenceHelper), false, "contextual prominence h
 assert.equal(prominenceHelper.includes("PUBLIC_RESEARCH_ACCESS"), false, "composer must consume authorized reader output rather than invent a second access vocabulary");
 assert.match(prominenceHelper, /engine_detail\.verification_state is verification authority/);
 assert.match(prominenceHelper, /identity-aware merge.*then[\s\S]*?exact-identity dedup/);
+
+
+
+// Number 2029 Golden below-core reconciliation.
+// The locked NumberCore remains the calculation home; below it consumes the shared World projection
+// and must not fork a second method/expression calculator.
+assert.match(number2029Page, /buildWorldContextualProminence/);
+assert.match(number2029Page, /RESEARCH STRENGTH/);
+assert.match(number2029Page, /HUMAN CURATION/);
+assert.match(number2029Page, /PULSE \/ ATTENTION/);
+assert.match(number2029Page, /WORLD SNAPSHOT · אותו עולם, מבט ממוקד/);
+assert.match(number2029Page, /פתח את העולם סביב/);
+assert.equal(number2029Page.includes('id="number-methods"'), false, "below-core Number must not duplicate the locked Core method switcher");
+assert.equal(number2029Page.includes('id="number-expressions"'), false, "below-core Number must not duplicate the locked Core expression rail");
+assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method Lens duplication must stay retired");
+assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower expression duplication must stay retired");
 
 console.log("2029 native World surface acceptance: PASS");

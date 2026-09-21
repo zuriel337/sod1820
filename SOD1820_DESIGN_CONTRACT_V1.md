@@ -117,6 +117,14 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 - New visual primitives should be added to the theme/design system before being copied across pages.
 - Any Tier B/C visual primitive intended for reuse across more than one surface must have one shared owner/component and one lifecycle/performance policy; do not duplicate animation/render loops per page.
 
+## Semantic acceptance seam
+- Replaceable 2029 presentation is **not** an acceptance contract. Local CSS class names, card geometry, grid placement and page-local component names may change without implying capability loss.
+- Browser/CI acceptance for replaceable 2029 presentation must prefer stable semantic hooks: `data-experience-surface`, `data-experience-capability`, `data-experience-question`, ARIA roles/names, canonical route/identity, and user-visible action semantics.
+- CSS selectors are allowed in acceptance only when testing an explicitly locked shared primitive/core, a visual property that intrinsically requires CSS, or a compatibility surface whose class is itself part of the contract.
+- When a presentation primitive is intentionally superseded, update the semantic acceptance marker in the same change. Do not preserve an obsolete component merely to keep a test green.
+- A semantic acceptance update must not weaken truth/access/mobile/security/failure-state assertions; it changes *how the capability is located*, not what behavior is required.
+- New Golden/2029 surfaces should expose one stable `data-experience-surface` identity and bounded `data-experience-capability` markers for major replaceable capability regions before browser acceptance is added.
+
 ## Existing-capability discovery law
 Before adding a new cross-surface Experience capability, verify whether a canonical or scoped-canonical primitive already exists and extend it instead of rebuilding it.
 

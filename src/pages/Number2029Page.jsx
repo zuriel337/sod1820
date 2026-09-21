@@ -4,6 +4,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
+import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
@@ -24,6 +25,17 @@ const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
+
+function worldSnapshotKindLabel(item) {
+  const kind = clean(item?.kind);
+  const type = clean(item?.type);
+  if (kind === "graph-relation") return type === "number" ? "מספר מחובר" : "קשר";
+  if (kind === "research") return "מחקר";
+  if (kind === "topic") return CONVERGENCE_LABEL;
+  if (kind === "source") return "מקור";
+  if (kind === "temporal-control") return "זמן";
+  return type || "חיבור";
+}
 
 function phraseOf(item) {
   if (typeof item === "string") return clean(item);
@@ -147,19 +159,6 @@ function factorizationText(profile) {
   return factors.map((item) => item.exponent > 1 ? `${item.prime}^${item.exponent}` : String(item.prime)).join(" × ");
 }
 
-function ObservatoryNode({ item, active, onClick }) {
-  if (!item) return <div className="sod29-number-observatory-node is-empty" aria-hidden="true" />;
-  return <button
-    type="button"
-    className={`sod29-number-observatory-node${active ? " is-active" : ""}`}
-    onClick={onClick}
-  >
-    <span>{item.kicker}</span>
-    <strong>{item.title}</strong>
-    {item.note ? <small>{item.note}</small> : null}
-  </button>;
-}
-
 function NumberPageBody() {
   const { value } = useParams();
   const navigate = useNavigate();
@@ -170,15 +169,12 @@ function NumberPageBody() {
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
-  const [showAllMethods, setShowAllMethods] = useState(false);
-  const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
-  const [observatoryFocus, setObservatoryFocus] = useState("now");
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
 
   useEffect(() => {
@@ -193,10 +189,7 @@ function NumberPageBody() {
     const contextMethod = sameContextRoot ? clean(research.context?.selection?.method) : "";
     setSelectedMethodKey(contextMethod);
     setActiveExpression(contextExpression);
-    setShowAllMethods(false);
-    setShowAllExpressions(false);
     setTraceOpen(false);
-    setObservatoryFocus("now");
     fetchEntityHubProjection({
       type: "number",
       key: String(root),
@@ -368,17 +361,6 @@ function NumberPageBody() {
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
     [families, selectedMethodKey],
   );
-  const selectedPhrases = useMemo(
-    () => (Array.isArray(selectedGroup?.phrases) ? selectedGroup.phrases : []).map(phraseOf).filter(Boolean).slice(0, 30),
-    [selectedGroup],
-  );
-  const methodCards = useMemo(() => methodProfileState.rows.map((profile) => ({
-    profile,
-    family: families.find((group) => methodKey(group) === profile.methodKey) || null,
-  })), [methodProfileState.rows, families]);
-  const visibleMethods = showAllMethods ? methodCards : methodCards.slice(0, 6);
-  const visibleExpressions = showAllExpressions ? expressions : expressions.slice(0, 18);
-
   useEffect(() => {
     const key = selectedMethodProfile?.methodKey || selectedMethodKey;
     if (!key || !activeExpression) {
@@ -465,70 +447,6 @@ function NumberPageBody() {
   const leadPath = firstPathTarget(topics, root, zeroScale);
   const leadMedia = mediaItems[0] || null;
 
-  const observatoryItems = {
-    meeting: leadMeeting ? {
-      kicker: CONVERGENCE_LABEL,
-      title: clean(leadMeeting.title) || `${CONVERGENCE_LABEL} סביב ${root}`,
-      note: Array.isArray(leadMeeting.numbers) ? leadMeeting.numbers.slice(0, 5).join(" · ") : null,
-    } : null,
-    expression: leadExpression ? {
-      kicker: "ביטוי",
-      title: leadExpression.phrase,
-      note: `${leadExpression.method} → ${root}`,
-    } : null,
-    source: leadSource ? {
-      kicker: "מקור",
-      title: sourceLabel(leadSource),
-      note: sourceDetail(leadSource) || "מקור מחקרי",
-    } : null,
-    path: leadPath ? {
-      kicker: "שביל",
-      title: `${root} → ${leadPath.target}`,
-      note: leadPath.topic ? clean(leadPath.topic.title) || `דרך ${CONVERGENCE_LABEL}` : "Zero Scale · נגזרת",
-    } : null,
-  };
-
-  const whySignals = useMemo(() => {
-    const signals = [];
-    if (anchorRow?.hint || anchorRow?.fact) signals.push({
-      kind: "Anchor",
-      title: "הקשר מחקרי אצור",
-      text: clean(anchorRow?.hint || anchorRow?.fact),
-    });
-    if (topics.length) signals.push({
-      kind: canonicalResearchPublicLabel("convergence", { plural: true }),
-      title: `${topics.length} ${canonicalResearchPublicLabel("convergence", { plural: true })} זמינות`,
-      text: clean(leadMeeting?.title) || "כמה שכבות מחקר מתכנסות סביב המספר.",
-    });
-    if (sources.length) signals.push({
-      kind: "מקורות",
-      title: `${sources.length} מקורות בהקרנה`,
-      text: sourceLabel(leadSource),
-    });
-    if (math?.families?.length) signals.push({
-      kind: "מתמטיקה",
-      title: MATH_FAMILY_HE[math.families[0]?.key] || math.families[0]?.label || "פרופיל מתמטי",
-      text: math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · "),
-    });
-    if (leadPath) signals.push({
-      kind: "מסלול",
-      title: `יש שביל ל־${leadPath.target}`,
-      text: leadPath.topic ? clean(leadPath.topic.title) || `דרך ${CONVERGENCE_LABEL} ציבורית` : "דרך Zero Scale קנוני.",
-    });
-    if (leadMedia) signals.push({
-      kind: "מדיה",
-      title: "יש ייצוג חזותי מחובר",
-      text: clean(leadMedia.label || leadMedia.description) || "מדיה ציבורית עם relation provenance.",
-    });
-    return signals.slice(0, 5);
-  }, [anchorRow, topics, sources, math, leadPath, leadMedia, leadMeeting, leadSource]);
-
-  const nextStep = leadMeeting
-    ? { title: `פתח את ${CONVERGENCE_LABEL} בעולם`, text: clean(leadMeeting.title), action: () => openWorld({ meetingSlug: leadMeeting.slug || null }) }
-    : leadPath
-      ? { title: `בדוק את השביל ל־${leadPath.target}`, text: "המשך לעוגן הבא בלי לאבד את החזרה.", action: () => navigate(`/2029/number/${leadPath.target}`) }
-      : { title: "פתח את המספר בעולם", text: "ראה את הקשרים סביב העוגן באותה Research Context.", action: () => openWorld() };
-
   const activityCount = [
     Number(surface.postsCount ?? surface.posts?.length ?? 0),
     Number(surface.galleriesCount ?? surface.galleries?.length ?? 0),
@@ -605,6 +523,34 @@ function NumberPageBody() {
     crossMethodStrength: deepViewInputState.data?.crossMethodStrength || null,
     crossMethodStrengthAvailable: deepViewInputState.data?.access?.crossMethodStrength !== false,
   }), [root, data?.research?.rows, deepViewInputState.data]);
+
+
+  const contextualWorld = useMemo(() => (
+    data?.identity
+      ? buildWorldContextualProminence(data, deepViewInputState.data || {}, { limit: 7, timeAware: true })
+      : null
+  ), [data, deepViewInputState.data]);
+
+  const researchState = useMemo(() => {
+    const items = Array.isArray(contextualWorld?.items) ? contextualWorld.items : [];
+    const cross = contextualWorld?.contextSignals?.crossMethodStrength || null;
+    const gold = items.filter((item) => item?.explainWhy?.humanCuration?.tier === "gold").length;
+    const silver = items.filter((item) => item?.explainWhy?.humanCuration?.tier === "silver").length;
+    const engineMatches = items.filter((item) => item?.explainWhy?.researchStrengthSignals?.includes("engine_match")).length;
+    const withProvenance = items.filter((item) => item?.explainWhy?.researchStrengthSignals?.includes("provenance_present")).length;
+    const uncertain = items.filter((item) => item?.explainWhy?.uncertainty).length;
+    return {
+      items,
+      cross,
+      gold,
+      silver,
+      engineMatches,
+      withProvenance,
+      uncertain,
+      independent: Number.isFinite(Number(cross?.independentPhraseCount)) ? Number(cross.independentPhraseCount) : null,
+      independentMethods: Number.isFinite(Number(cross?.independentP1MethodCount)) ? Number(cross.independentP1MethodCount) : null,
+    };
+  }, [contextualWorld]);
 
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
 
@@ -836,56 +782,6 @@ function NumberPageBody() {
     navigate(`/2029/number/${next}`);
   };
 
-  const chooseExpression = (item) => {
-    if (!item?.phrase) return;
-    setActiveExpression(item.phrase);
-    if (item.methodKey) setSelectedMethodKey(item.methodKey);
-    setTraceOpen(false);
-    setObservatoryFocus("expression");
-    document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const openFocusAction = () => {
-    if (observatoryFocus === "meeting" && leadMeeting) return openWorld({ meetingSlug: leadMeeting.slug || null });
-    if (observatoryFocus === "expression" && leadExpression) return chooseExpression(leadExpression);
-    if (observatoryFocus === "source") return document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" });
-    if (observatoryFocus === "path" && leadPath) return navigate(`/2029/number/${leadPath.target}`);
-    return null;
-  };
-
-  const focusCopy = (() => {
-    if (observatoryFocus === "meeting" && leadMeeting) return {
-      kicker: CONVERGENCE_LABEL,
-      title: clean(leadMeeting.title) || `${CONVERGENCE_LABEL} סביב ${root}`,
-      text: clean(leadMeeting.subtitle) || "כמה שכבות נפגשות סביב אותו עוגן.",
-      action: "פתח בעולם",
-    };
-    if (observatoryFocus === "expression" && leadExpression) return {
-      kicker: "ביטוי",
-      title: leadExpression.phrase,
-      text: `${leadExpression.method} → ${root}. לחץ כדי להעביר אותו לביטוי הפעיל ולפתוח Trace.`,
-      action: "העבר לביטוי הפעיל",
-    };
-    if (observatoryFocus === "source" && leadSource) return {
-      kicker: "מקור",
-      title: sourceLabel(leadSource),
-      text: sourceDetail(leadSource) || "מקור שמופיע בהקרנה הנוכחית של המספר.",
-      action: "למקורות",
-    };
-    if (observatoryFocus === "path" && leadPath) return {
-      kicker: "שביל",
-      title: `${root} → ${leadPath.target}`,
-      text: leadPath.topic ? clean(leadPath.topic.title) || `הנתיב מגיע דרך ${CONVERGENCE_LABEL} קיימת.` : "Zero Scale · DERIVATION — אותו שורש בסדר גודל אחר, לא שוויון.",
-      action: `פתח ${leadPath.target}`,
-    };
-    return {
-      kicker: "LIVING NUMBER",
-      title: String(root),
-      text: clean(anchorRow?.hint || anchorRow?.fact) || `המספר פתוח כמערכת מחקר חיה: חישוב, ${CONVERGENCES_LABEL}, מקורות ונתיבים.`,
-      action: null,
-    };
-  })();
-
   if (!Number.isInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
@@ -896,7 +792,7 @@ function NumberPageBody() {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">לא מוצג חומר חלופי ולא נעשה fallback ל־Legacy בתוך עץ 2029.</FrameState>;
   }
 
-  return <div className="sod29-number-page" data-number-root={root} data-truth-safe="true">
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
     <section className="sod29-number-hero" id="number-now">
       <NumberCore2029
         projection={coreProjection}
@@ -929,37 +825,84 @@ function NumberPageBody() {
         onExpandRaziel={() => askRaziel("expand_panel")}
       />
 
-      <div className="sod29-number-observatory" aria-label={`מצפה המספר ${root}`}>
-        <ObservatoryNode item={observatoryItems.meeting} active={observatoryFocus === "meeting"} onClick={() => setObservatoryFocus("meeting")} />
-        <ObservatoryNode item={observatoryItems.expression} active={observatoryFocus === "expression"} onClick={() => setObservatoryFocus("expression")} />
-        <div className={`sod29-number-observatory-center is-${observatoryFocus}`}>
-          <button className="sod29-number-observatory-reset" type="button" onClick={() => setObservatoryFocus("now")} aria-label="חזור למבט החי">
-            <span className="sod29-number-observatory-pulse" aria-hidden="true"><i /></span>
-          </button>
-          <span className="sod29-kicker">{focusCopy.kicker}</span>
-          <strong>{focusCopy.title}</strong>
-          <p>{focusCopy.text}</p>
-          <div className="sod29-number-observatory-context">
-            <span>{families.length} שיטות</span>
-            <span>{topics.length} {CONVERGENCES_LABEL}</span>
-            <span>{sources.length} מקורות</span>
-            {activityCount ? <span>{activityCount} פעילויות</span> : null}
-          </div>
-          {focusCopy.action ? <button className="sod29-action" type="button" onClick={openFocusAction}>{focusCopy.action}</button> : null}
-        </div>
-        <ObservatoryNode item={observatoryItems.source} active={observatoryFocus === "source"} onClick={() => setObservatoryFocus("source")} />
-        <ObservatoryNode item={observatoryItems.path} active={observatoryFocus === "path"} onClick={() => setObservatoryFocus("path")} />
+    </section>
+
+    <section className="sod29-number-golden-bridge" id="number-research-state" data-experience-capability="number-research-context" aria-label={`מצב המחקר סביב ${root}`}>
+      <div className="sod29-number-state-strip" data-experience-capability="number-research-state">
+        <article>
+          <span>RESEARCH STRENGTH</span>
+          <strong>{researchState.independent != null
+            ? `${researchState.independent} ראיות ביטוי עצמאיות`
+            : researchState.engineMatches
+              ? `${researchState.engineMatches} ממצאים עם התאמת מנוע`
+              : "אין עדיין אות חוזק עצמאי זמין"}</strong>
+          <small>
+            {researchState.independentMethods != null ? `${researchState.independentMethods} שיטות P1 עצמאיות · ` : ""}
+            {researchState.withProvenance} פריטי provenance · בלי ציון אמת יחיד
+          </small>
+        </article>
+        <article>
+          <span>HUMAN CURATION</span>
+          <strong>{researchState.gold ? `Gold × ${researchState.gold}` : researchState.silver ? `Silver × ${researchState.silver}` : "ללא Gold / Silver בהקרנה"}</strong>
+          <small>אוצרות אנושית נשארת נפרדת מחוזק המחקר</small>
+        </article>
+        <article>
+          <span>PULSE / ATTENTION</span>
+          <strong>{activityCount ? `${activityCount} פעילויות מחוברות` : topics.length ? `${topics.length} ${CONVERGENCES_LABEL} פעילות בהקרנה` : "שקט כרגע בהקרנה"}</strong>
+          <small>{researchState.uncertain ? `${researchState.uncertain} פריטים דורשים תשומת לב · ` : ""}Pulse אינו Truth</small>
+        </article>
       </div>
 
-      <div className="sod29-number-jumpbar" aria-label="ניווט בדף המספר">
-        <button type="button" onClick={() => document.getElementById("number-why-now")?.scrollIntoView({ behavior: "smooth" })}>למה עכשיו</button>
-        <button type="button" onClick={() => document.getElementById("number-deep-view")?.scrollIntoView({ behavior: "smooth" })}>מפת מחקר</button>
-        <button type="button" onClick={() => document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth" })}>שיטות</button>
-        <button type="button" onClick={() => document.getElementById("number-expressions")?.scrollIntoView({ behavior: "smooth" })}>ביטויים</button>
-        <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>{CONVERGENCES_LABEL}</button>
-        <button type="button" onClick={() => document.getElementById("number-paths")?.scrollIntoView({ behavior: "smooth" })}>מסע</button>
-        <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>מקורות</button>
+      <div className="sod29-number-world-snapshot" data-experience-capability="number-world-snapshot">
+        <div className="sod29-number-world-snapshot-head">
+          <div>
+            <span className="sod29-kicker">WORLD SNAPSHOT · אותו עולם, מבט ממוקד</span>
+            <h2>מה יש סביב {root}?</h2>
+            <p>תקציר קטן של ה־World סביב המספר. הוא משתמש באותה הקרנת קשרים/מחקר ואינו יוצר דירוג או עולם מקביל.</p>
+          </div>
+          <button className="sod29-action primary" type="button" onClick={() => openWorld()}>פתח את העולם סביב {root} ←</button>
+        </div>
+
+        <div className="sod29-number-world-metrics" aria-label="תקציר העולם">
+          <span><b>{topics.length}</b>{CONVERGENCES_LABEL}</span>
+          <span><b>{relations.length}</b>קשרים</span>
+          <span><b>{sources.length}</b>מקורות</span>
+          <span><b>{researchFindings.length}</b>ממצאי מחקר</span>
+        </div>
+
+        {researchState.items.length ? <div className="sod29-number-world-attention">
+          {researchState.items.slice(0, 5).map((item) => <article key={item.id}>
+            <span>{worldSnapshotKindLabel(item)}</span>
+            <strong>{item.label}</strong>
+            {item.summary ? <p>{item.summary}</p> : null}
+            <div>
+              {item.explainWhy?.humanCuration?.tier ? <em>{item.explainWhy.humanCuration.tier.toUpperCase()}</em> : null}
+              {item.explainWhy?.researchStrengthSignals?.includes("engine_match") ? <em>התאמת מנוע</em> : null}
+              {item.explainWhy?.uncertainty ? <em>דורש בירור</em> : null}
+            </div>
+          </article>)}
+        </div> : <div className="sod29-number-inline-state">אין כרגע מספיק חומר ל־World Snapshot עשיר. המספר עצמו נשאר זמין במלואו.</div>}
+
+        <div className="sod29-number-world-continuations">
+          {leadMeeting ? <button type="button" onClick={() => openWorld({ meetingSlug: leadMeeting.slug || null })}>
+            <span>{CONVERGENCE_LABEL}</span><strong>{clean(leadMeeting.title) || `${CONVERGENCE_LABEL} סביב ${root}`}</strong>
+          </button> : null}
+          {leadPath ? <button type="button" onClick={() => navigate(`/2029/number/${leadPath.target}`)}>
+            <span>מסלול</span><strong>{root} → {leadPath.target}</strong>
+          </button> : null}
+          {leadSource ? <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>
+            <span>מקור מוביל</span><strong>{sourceLabel(leadSource)}</strong>
+          </button> : null}
+        </div>
       </div>
+
+      <nav className="sod29-number-depth-nav" aria-label="המשך בדף המספר">
+        <button type="button" onClick={() => document.getElementById("number-deep-view")?.scrollIntoView({ behavior: "smooth" })}>מפת מחקר</button>
+        <button type="button" onClick={() => document.getElementById("number-meetings")?.scrollIntoView({ behavior: "smooth" })}>{CONVERGENCES_LABEL}</button>
+        <button type="button" onClick={() => document.getElementById("number-sources")?.scrollIntoView({ behavior: "smooth" })}>מקורות וחוקרים</button>
+        <button type="button" onClick={() => document.getElementById("number-paths")?.scrollIntoView({ behavior: "smooth" })}>קשרים ומסלולים</button>
+        <button type="button" onClick={() => document.getElementById("number-math")?.scrollIntoView({ behavior: "smooth" })}>עומק מתמטי</button>
+      </nav>
     </section>
 
     {deepViewModel ? <NumberDeepView2029
@@ -967,128 +910,6 @@ function NumberPageBody() {
       onOpenHeichal={openHeichal}
       onRazielAction={askRaziel}
     /> : null}
-
-    <section className="sod29-section sod29-number-section sod29-number-why-now" id="number-why-now">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">NUMBER INTELLIGENCE · DETERMINISTIC FIRST</div>
-          <h2>למה {root} מעניין עכשיו?</h2>
-          <p className="sod29-muted">המערכת אינה ממציאה “משמעות”. היא מסכמת אותות שכבר קיימים ומפרידה בין חישוב, הקשר אצור, מקור, התכנסות ומסלול. סדר ההצגה הוא contextual projection — לא ציון אמת.</p>
-        </div>
-      </div>
-      <div className="sod29-number-signal-grid">
-        {whySignals.map((signal, index) => <article className="sod29-number-signal" key={`${signal.kind}:${index}`}>
-          <span>{signal.kind}</span>
-          <strong>{signal.title}</strong>
-          <p>{signal.text}</p>
-        </article>)}
-      </div>
-      <article className="sod29-number-next-step">
-        <div><span className="sod29-kicker">NEXT RESEARCH STEP</span><strong>{nextStep.title}</strong><p>{nextStep.text}</p></div>
-        <button className="sod29-action primary" type="button" onClick={nextStep.action}>המשך מכאן ←</button>
-      </article>
-    </section>
-
-    <section className="sod29-section sod29-number-section" id="number-math">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">MATH PASSPORT · CANONICAL CAPABILITY</div>
-          <h2>הדרכון המתמטי של {root}</h2>
-          <p className="sod29-muted">פרופיל דטרמיניסטי שכבר קיים במערכת. הוא אינו פרשנות ואינו משודרג אוטומטית ל־Fact/Canonical.</p>
-        </div>
-        <span className="sod29-chip">{math?.arithmetic?.classification || "—"}</span>
-      </div>
-      {math ? <div className="sod29-number-math-grid">
-        <article><span>פירוק</span><strong>{factorizationText(math)}</strong><small>{math.coverage?.factorization_complete ? "הושלם" : "bounded"}</small></article>
-        <article><span>φ(n)</span><strong>{math.arithmetic?.totient ?? "—"}</strong><small>Euler totient</small></article>
-        <article><span>שורש ספרות</span><strong>{math.digit_structure?.digital_root ?? "—"}</strong><small>סכום ספרות {math.digit_structure?.digit_sum ?? "—"}</small></article>
-        <article><span>משפחות</span><strong>{math.families.length}</strong><small>{math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · ") || "ללא משפחה מיוחדת"}</small></article>
-      </div> : <div className="sod29-number-inline-state">הדרכון המתמטי אינו זמין לערך הזה.</div>}
-      {math?.families?.length ? <div className="sod29-number-family-rail">{math.families.map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}</div> : null}
-    </section>
-
-    <section className="sod29-section sod29-number-section" id="number-methods">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">METHOD LENS</div>
-          <h2>שיטות שחיות על {root}</h2>
-          <p className="sod29-muted">כל כרטיס מראה שיטה, כמה ביטויים מגיעים דרכה ל־{root}, ודוגמה אמיתית. בחירה בשיטה אינה משנה את ה־Root — רק את עדשת החישוב הפעילה.</p>
-        </div>
-        {families.length > 6 ? <button className="sod29-action" type="button" onClick={() => setShowAllMethods((v) => !v)}>{showAllMethods ? "פחות שיטות" : `כל ${families.length} השיטות`}</button> : null}
-      </div>
-
-      <div className="sod29-number-method-grid" role="list">
-        {visibleMethods.map(({ profile, family }) => {
-          const key = profile.methodKey;
-          const active = key === selectedMethodKey;
-          const sample = phraseOf(family?.phrases?.[0]);
-          return <button
-            type="button"
-            role="listitem"
-            key={key}
-            className={`sod29-number-method-card${active ? " is-active" : ""}`}
-            aria-pressed={active}
-            onClick={() => {
-              setSelectedMethodKey(key);
-              setTraceOpen(false);
-              setObservatoryFocus("now");
-            }}
-          >
-            <span>{methodProfileLabel(profile)}</span>
-            <strong>→ {profile.computedValue ?? "—"}</strong>
-            <small>{Number(family?.count ?? family?.phrases?.length ?? 0)} ביטויים על {root}</small>
-            {sample ? <p>{sample}</p> : null}
-          </button>;
-        })}
-      </div>
-
-      {selectedPhrases.length ? <div className="sod29-number-expression-rail" aria-label="ביטויים בשיטה הפעילה">
-        {selectedPhrases.map((phrase) => <button
-          type="button"
-          key={phrase}
-          className={`sod29-number-expression-chip${phrase === activeExpression ? " is-active" : ""}`}
-          onClick={() => {
-            setActiveExpression(phrase);
-            setTraceOpen(false);
-            setObservatoryFocus("expression");
-          }}
-        >{phrase}</button>)}
-      </div> : null}
-
-      <div className="sod29-number-trace-card">
-        <div>
-          <span className="sod29-kicker">ACTIVE CALCULATION</span>
-          <h3>{activeExpression || root} · {activeMethodLabel}{activeResult != null ? ` = ${activeResult}` : ""}</h3>
-          <p>החישוב מגיע מ־Method Trace. רזיאל יכול לפרש אותו, אבל אינו מחשב את הגימטריה מחדש.</p>
-        </div>
-        <button className="sod29-action" type="button" disabled={!trace && !traceState.error} onClick={() => setTraceOpen((v) => !v)}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
-      </div>
-      {traceState.error ? <div className="sod29-number-inline-state">Trace לא זמין כרגע לשילוב הזה.</div> : null}
-      {traceOpen && trace ? <div className="sod29-number-trace-steps">
-        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace מאומת ללא פירוט צעדים להצגה.</span>}
-      </div> : null}
-    </section>
-
-    <section className="sod29-section sod29-number-section" id="number-expressions">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">LIVE EXPRESSIONS</div>
-          <h2>ביטויים שחיים על {root}</h2>
-          <p className="sod29-muted">לא רשימת טקסט מתה: כל ביטוי זוכר באיזו שיטה הוא מגיע אל המספר ויכול להפוך מיד לביטוי הפעיל.</p>
-        </div>
-        <button className="sod29-action" type="button" onClick={() => setShowAllExpressions((v) => !v)}>{showAllExpressions ? "הצג פחות" : `הצג את כל ${expressions.length}`}</button>
-      </div>
-      {visibleExpressions.length ? <div className="sod29-number-live-expressions">
-        {visibleExpressions.map((item) => <button type="button" key={item.phrase} onClick={() => chooseExpression(item)}>
-          <strong>{item.phrase}</strong><span>{item.method}</span><small>→ {root}</small>
-        </button>)}
-      </div> : <div className="sod29-number-inline-state">אין כרגע ביטויים להצגה.</div>}
-    </section>
-
-    {worlds.length ? <section className="sod29-section sod29-number-section" id="number-meaning">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">MEANING / CONCEPT</div><h2>עולמות ומושגים</h2><p className="sod29-muted">אלה שכבות מחקר קיימות סביב המספר. הן אינן מחליפות את החישוב ואינן מוצגות כמשמעות מיסטית שנוצרה אוטומטית.</p></div></div>
-      <div className="sod29-number-card-grid">{worlds.slice(0, 8).map((item, index) => <article className="sod29-number-card" key={item?.world || item?.id || index}><span className="sod29-kicker">{item?.count ? `${item.count} פריטים` : "עולם מחקר"}</span><strong>{clean(item?.world || item?.title || item?.label || item?.name) || "עולם מחקר"}</strong><small>{clean(item?.description || item?.summary || item?.kind) || "שכבת מחקר קיימת"}</small></article>)}</div>
-    </section> : null}
 
     <section className="sod29-section sod29-number-section" id="number-meetings">
       <div className="sod29-section-head">
@@ -1113,6 +934,11 @@ function NumberPageBody() {
       </div> : <div className="sod29-number-inline-state">אין כרגע התכנסות ציבורית זמינה לעוגן הזה.</div>}
     </section>
 
+    <section className="sod29-section sod29-number-section" id="number-sources">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCES</div><h2>מקורות</h2><p className="sod29-muted">המקור קודם לפרשנות. technical refs נשארים בפרובננס ולא הופכים לכותרת האנושית של הכרטיס.</p></div><span className="sod29-chip">{sources.length}</span></div>
+      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 12).map((source, index) => <div className="sod29-number-source-row" key={source?.id || source?.ref || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
+    </section>
+
     <section className="sod29-section sod29-number-section" id="number-paths">
       <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS · JOURNEY</div><h2>לאן אפשר ללכת מכאן?</h2><p className="sod29-muted">הנתיבים הם תנועה בתוך אותה מציאות מחקרית. כל מעבר צריך לשאת סיבה: התכנסות, relation, derivation או מקור. Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
       <div className="sod29-number-path-summary">
@@ -1133,9 +959,22 @@ function NumberPageBody() {
       {zeroScale.length ? <div className="sod29-number-zero-rail">{zeroScale.slice(0, 10).map((n) => <button key={n} type="button" onClick={() => navigate(`/2029/number/${Number(n)}`)}><strong>{n}</strong><small>{Number(n) === root ? "עוגן" : "Zero Scale · נגזרת"}</small></button>)}</div> : null}
     </section>
 
-    <section className="sod29-section sod29-number-section" id="number-sources">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCES</div><h2>מקורות</h2><p className="sod29-muted">המקור קודם לפרשנות. technical refs נשארים בפרובננס ולא הופכים לכותרת האנושית של הכרטיס.</p></div><span className="sod29-chip">{sources.length}</span></div>
-      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 12).map((source, index) => <div className="sod29-number-source-row" key={source?.id || source?.ref || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
+    <section className="sod29-section sod29-number-section" id="number-math">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">MATH PASSPORT · CANONICAL CAPABILITY</div>
+          <h2>הדרכון המתמטי של {root}</h2>
+          <p className="sod29-muted">פרופיל דטרמיניסטי שכבר קיים במערכת. הוא אינו פרשנות ואינו משודרג אוטומטית ל־Fact/Canonical.</p>
+        </div>
+        <span className="sod29-chip">{math?.arithmetic?.classification || "—"}</span>
+      </div>
+      {math ? <div className="sod29-number-math-grid">
+        <article><span>פירוק</span><strong>{factorizationText(math)}</strong><small>{math.coverage?.factorization_complete ? "הושלם" : "bounded"}</small></article>
+        <article><span>φ(n)</span><strong>{math.arithmetic?.totient ?? "—"}</strong><small>Euler totient</small></article>
+        <article><span>שורש ספרות</span><strong>{math.digit_structure?.digital_root ?? "—"}</strong><small>סכום ספרות {math.digit_structure?.digit_sum ?? "—"}</small></article>
+        <article><span>משפחות</span><strong>{math.families.length}</strong><small>{math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · ") || "ללא משפחה מיוחדת"}</small></article>
+      </div> : <div className="sod29-number-inline-state">הדרכון המתמטי אינו זמין לערך הזה.</div>}
+      {math?.families?.length ? <div className="sod29-number-family-rail">{math.families.map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}</div> : null}
     </section>
 
     {mediaItems.length ? <section className="sod29-section sod29-number-section" id="number-media">
