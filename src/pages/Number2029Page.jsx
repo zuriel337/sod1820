@@ -792,7 +792,7 @@ function NumberPageBody() {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">לא מוצג חומר חלופי ולא נעשה fallback ל־Legacy בתוך עץ 2029.</FrameState>;
   }
 
-  return <div className="sod29-number-page" data-number-root={root} data-truth-safe="true">
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
     <section className="sod29-number-hero" id="number-now">
       <NumberCore2029
         projection={coreProjection}
