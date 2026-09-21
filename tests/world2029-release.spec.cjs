@@ -219,16 +219,16 @@ test('Number 2029 596 keeps six methods visible, finds Jerusalem↔Shomrim live,
   await expect(core).toBeVisible();
 
   await expect.poll(
-    () => core.locator('.sod29-number-v10-method-grid > .sod29-number-v10-method-card').count(),
+    () => core.locator('[data-experience-capability="number-method-glance"] > button').count(),
     { timeout: 15_000 },
   ).toBe(6);
-  await expect(core.locator('.sod29-number-v10-more-methods')).toContainText(/עוד \d+ שיטות/);
+  await expect(core.locator('[data-experience-action="number-more-methods"]')).toContainText(/עוד \d+ שיטות/);
 
-  const jerusalem = core.locator('.sod29-number-v11-regular-track button').filter({ hasText: 'ירושלים' }).first();
+  const jerusalem = core.locator('[data-experience-capability="number-regular-expressions"] button').filter({ hasText: 'ירושלים' }).first();
   await expect(jerusalem).toBeVisible({ timeout: 15_000 });
   await jerusalem.click();
 
-  const crossing = core.locator('.sod29-number-v10-crossing');
+  const crossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
   await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
   await expect(crossing).toContainText('הצלבה נסתרת');
 
