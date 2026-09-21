@@ -26,12 +26,23 @@ const MATH_FAMILY_HE = Object.freeze({
   palindromic_prime_base10: "ראשוני פלינדרומי",
 });
 
+function technicalSourceText(value) {
+  const text = clean(value);
+  return /^(chat:|channel_updates:|wa_bot_log:|work_log:|gallery_images:|research-cue:|book:|https?:\/\/)/i.test(text);
+}
+
 function sourceLabel(row) {
-  return clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label) || "מקור מחקר";
+  const label = clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label);
+  if (label && !technicalSourceText(label)) return label;
+  const type = clean(row?.type || row?.kind);
+  if (type === "verse") return "מקור מקראי";
+  if (type.includes("book")) return "ספר / מקור";
+  return "מקור מחקר";
 }
 
 function sourceDetail(row) {
-  return clean(row?.locator || row?.citation || row?.reference || row?.subtitle);
+  const detail = clean(row?.locator || row?.citation || row?.reference || row?.subtitle);
+  return detail && !technicalSourceText(detail) ? detail : "";
 }
 
 function worldLabel(row) {
@@ -53,7 +64,7 @@ function numberFromRelation(row, root) {
   return values.find((value) => value !== root) ?? null;
 }
 
-function relatedNumbersOf(root, relations, topics, zeroScale) {
+function relatedNumbersOf(root, projectionRelatedNumbers, relations, topics, zeroScale) {
   const rows = [];
   const seen = new Set([root]);
   const add = (value, reason, origin = "relation") => {
@@ -63,6 +74,9 @@ function relatedNumbersOf(root, relations, topics, zeroScale) {
     rows.push({ value: n, reason, origin });
   };
 
+  for (const row of projectionRelatedNumbers || []) {
+    add(row?.value, clean(row?.relationType || row?.label) || "קשר מספרי", clean(row?.sourceKind) || "relation");
+  }
   for (const relation of relations || []) {
     add(numberFromRelation(relation, root), clean(relation?.label || relation?.reason || relation?.relation_type) || "קשר בגרף", "relation");
   }
@@ -164,6 +178,7 @@ export default function NumberLivingWorld2029({
   languageBridges = [],
   topics = [],
   relations = [],
+  projectionRelatedNumbers = [],
   sources = [],
   worlds = [],
   researchFindings = [],
@@ -191,7 +206,10 @@ export default function NumberLivingWorld2029({
   const [currentSection, setCurrentSection] = useState("עיקר");
 
   const worldCards = useMemo(() => buildWorldCards(worlds, topics), [worlds, topics]);
-  const relatedNumbers = useMemo(() => relatedNumbersOf(root, relations, topics, zeroScale), [root, relations, topics, zeroScale]);
+  const relatedNumbers = useMemo(
+    () => relatedNumbersOf(root, projectionRelatedNumbers, relations, topics, zeroScale),
+    [root, projectionRelatedNumbers, relations, topics, zeroScale],
+  );
   const people = useMemo(() => buildPeople(sources, researchFindings), [sources, researchFindings]);
   const prominence = Array.isArray(researchState?.items) ? researchState.items : [];
   const expressionRows = useMemo(() => {
