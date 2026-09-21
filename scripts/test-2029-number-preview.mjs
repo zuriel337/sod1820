@@ -16,6 +16,9 @@ const provider = read("src/lib/research/ResearchProvider.jsx");
 const deepView = read("src/components/number2029/NumberDeepView2029.jsx");
 const deepViewCss = read("src/components/number2029/numberDeepView2029.css");
 const deepProjection = read("src/lib/research/numberDeepViewProjection.js");
+const livingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
+const livingWorldCss = read("src/components/number2029/numberLivingWorld2029.css");
+const lightRoutes = read("src/lib/lightRoutes.js");
 const vercel = JSON.parse(read("vercel.json"));
 const browserAcceptance = read("tests/world2029-release.spec.cjs");
 
@@ -24,12 +27,7 @@ for (const required of [
   "fetchEntityHubProjection",
   "fetchGematriaMethodTrace",
   "useResearch",
-  "sod29-number-golden-bridge",
-  "WORLD SNAPSHOT",
-  "RESEARCH STRENGTH",
-  "HUMAN CURATION",
-  "PULSE / ATTENTION",
-  "MATH PASSPORT",
+  "NumberLivingWorld2029",
   "runNumberMathProfile",
   "NumberCore2029",
   "NumberDeepView2029",
@@ -150,6 +148,31 @@ assert.match(deepViewCss, /min-height:44px/);
 assert.match(deepViewCss, /prefers-reduced-motion/);
 assert.match(deepProjection, /privateContractMayBeAccessFiltered/);
 
+for (const required of [
+  'data-experience-capability="number-living-world"',
+  'data-experience-capability="number-essential"',
+  'data-experience-capability="number-living-worlds"',
+  'data-experience-capability="number-connections"',
+  'data-experience-capability="number-math-universe"',
+  'data-experience-capability="number-expression-family"',
+  'data-experience-capability="number-sources-content"',
+  'data-experience-capability="number-journey-gate"',
+  'data-experience-capability="number-deep-research-gate"',
+  'העולמות החיים',
+  'היקום המתמטי',
+  'מד ניווט חי',
+  'מסע אישי',
+  'SPARSE NUMBER MODE',
+  'toggleTheme',
+]) {
+  assert.equal(livingWorld.includes(required), true, `Living Number renderer missing semantic capability: ${required}`);
+}
+assert.match(livingWorldCss, /prefers-reduced-motion/);
+assert.match(livingWorldCss, /var\(--s29-/);
+assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-local renderer must consume canonical theme tokens, not own a hex palette");
+assert.match(lightRoutes, /\/2029\\\/number/);
+assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
+
 const independentCross = deriveLeadingCrossing({
   root: 1237,
   expression: "התגלות",
@@ -204,14 +227,14 @@ const rewrite = (vercel.rewrites || []).find((row) => row.source === "/2029/numb
 assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");
 
-for (const visual of [
-  ".sod29-number-state-strip",
-  ".sod29-number-world-snapshot",
-  ".sod29-number-world-attention",
-  ".sod29-number-depth-nav",
-]) {
-  assert.equal(css.includes(visual), true, `Number preview CSS missing: ${visual}`);
-}
 assert.match(css, /prefers-reduced-motion/);
+for (const visual of [
+  ".sod29-lw-essential",
+  ".sod29-lw-world-grid",
+  ".sod29-lw-scrubber",
+  ".sod29-lw-journey-grid",
+]) {
+  assert.equal(livingWorldCss.includes(visual), true, `Living Number CSS missing: ${visual}`);
+}
 
 console.log("2029 Number preview acceptance: PASS");
