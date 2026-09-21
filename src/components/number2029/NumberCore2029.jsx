@@ -396,7 +396,7 @@ export default function NumberCore2029({
         </div>
         <small>{regularExpressions.length} ביטויים · ↔ גרור ימינה / שמאלה</small>
       </div>
-      <div className="sod29-number-v11-regular-track" role="list" key={`regular-rail:${root}`}>
+      <div className="sod29-number-v11-regular-track" data-experience-capability="number-regular-expressions" role="list" key={`regular-rail:${root}`}>
         {regularExpressions.map((item) => {
           const phrase = String(item?.phrase || item || "").trim();
           const selected = phrase === String(projection.expression || "").trim();
@@ -422,7 +422,7 @@ export default function NumberCore2029({
           : methods.length > primaryMethods.length ? <small>6 מול העין · {methods.length - primaryMethods.length} בעומק</small>
           : null}
       </div>
-      <div className="sod29-number-v10-method-grid">
+      <div className="sod29-number-v10-method-grid" data-experience-capability="number-method-glance">
         {primaryMethods.map((method) => {
           const selected = method.methodKey === active?.methodKey;
           return <button
@@ -440,7 +440,7 @@ export default function NumberCore2029({
         })}
       </div>
       {!compact && remainingMethods.length ? <>
-        <button type="button" className="sod29-number-v10-more-methods" onClick={() => setShowMoreMethods((value) => !value)} aria-expanded={showMoreMethods}>
+        <button type="button" className="sod29-number-v10-more-methods" data-experience-action="number-more-methods" onClick={() => setShowMoreMethods((value) => !value)} aria-expanded={showMoreMethods}>
           <span>{showMoreMethods ? "סגור שיטות נוספות" : `＋ עוד ${remainingMethods.length} שיטות`}</span>
           <small>{showMoreMethods ? "▲" : "▼"}</small>
         </button>
@@ -503,7 +503,7 @@ export default function NumberCore2029({
             </div> : <div className="sod29-number-core2029-note">{stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
           </section>
 
-          <section className="sod29-number-v10-crossing">
+          <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
             <div className="sod29-number-v10-panel-head">
               <div><span>הצלבה נסתרת</span><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong></div>
               <small>{stageCrossings.length || 0}</small>
