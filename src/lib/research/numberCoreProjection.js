@@ -117,11 +117,10 @@ function buildEquivalenceRepresentative(methodProfile, expression) {
   return (key) => find(key);
 }
 
-export function deriveLeadingCrossing({ families = [], expression = "", root = null, methodProfile = [] } = {}) {
+export function deriveCrossings({ families = [], expression = "", root = null, methodProfile = [], limit = 12 } = {}) {
   const target = clean(expression);
-  if (!target || !Number.isFinite(Number(root))) return null;
+  if (!target || !Number.isFinite(Number(root))) return Object.freeze([]);
   const representative = buildEquivalenceRepresentative(methodProfile, target);
-
   const activeMethods = [];
   for (const group of families || []) {
     const phrases = (Array.isArray(group?.phrases) ? group.phrases : []).map(phraseOf).filter(Boolean);
@@ -129,34 +128,44 @@ export function deriveLeadingCrossing({ families = [], expression = "", root = n
     const key = methodKey(group);
     if (key) activeMethods.push({ methodKey: key, methodLabel: methodLabel(group), representative: representative(key) });
   }
-  if (!activeMethods.length) return null;
+  if (!activeMethods.length) return Object.freeze([]);
 
+  const rows = [];
+  const seen = new Set();
+  const cap = Math.max(1, Math.min(Number(limit) || 12, 40));
   for (const active of activeMethods) {
     for (const group of families || []) {
       const partnerMethodKey = methodKey(group);
       if (!partnerMethodKey) continue;
-      if (representative(partnerMethodKey) === active.representative) continue;
-      const partner = (Array.isArray(group?.phrases) ? group.phrases : [])
-        .map(phraseOf)
-        .find((phrase) => phrase && phrase !== target);
-      if (!partner) continue;
-
-      return Object.freeze({
-        kind: "cross_method_intersection",
-        label: "הצלבה",
-        partner,
-        root: Number(root),
-        methods: Object.freeze([
-          { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root) },
-          { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root) },
-        ]),
-        methodCount: 2,
-        explainWhy: `${target} דרך ${active.methodLabel} ו־${partner} דרך ${methodLabel(group)} נפגשים ב־${root}. זו הצלבה חישובית בין שיטות בלתי־תלויות בהקשר הזה; המשמעות המחקרית נשארת נפרדת.`,
-        source: "entityHubProjection.gematria.families + gematria_methods.dependency_rules",
-      });
+      const partnerRepresentative = representative(partnerMethodKey);
+      if (partnerRepresentative === active.representative) continue;
+      for (const partner of (Array.isArray(group?.phrases) ? group.phrases : []).map(phraseOf).filter(Boolean)) {
+        if (!partner || partner === target) continue;
+        const identity = [active.representative, partnerRepresentative].sort().join("|") + "::" + partner;
+        if (seen.has(identity)) continue;
+        seen.add(identity);
+        rows.push(Object.freeze({
+          kind: "cross_method_intersection",
+          label: "הצלבה",
+          partner,
+          root: Number(root),
+          methods: Object.freeze([
+            { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root) },
+            { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root) },
+          ]),
+          methodCount: 2,
+          explainWhy: `${target} דרך ${active.methodLabel} ו־${partner} דרך ${methodLabel(group)} נפגשים ב־${root}. זו הצלבה חישובית בין שיטות בלתי־תלויות בהקשר הזה; המשמעות המחקרית נשארת נפרדת.`,
+          source: "entityHubProjection.gematria.families + gematria_methods.dependency_rules",
+        }));
+        if (rows.length >= cap) return Object.freeze(rows);
+      }
     }
   }
-  return null;
+  return Object.freeze(rows);
+}
+
+export function deriveLeadingCrossing(args = {}) {
+  return deriveCrossings({ ...args, limit: 1 })[0] || null;
 }
 
 export function deriveZeroScale({ zeroScale = null, root = null } = {}) {
@@ -239,7 +248,8 @@ export function buildNumberCoreProjection({
   heroMedia = null,
 } = {}) {
   const selected = methodProfileEntry(methodProfile, selectedMethodKey);
-  const crossing = deriveLeadingCrossing({ families, expression, root, methodProfile });
+  const crossings = deriveCrossings({ families, expression, root, methodProfile, limit: 12 });
+  const crossing = crossings[0] || null;
   const zero = deriveZeroScale({ zeroScale, root });
   const relatedNumbers = [];
   const seenRelatedNumbers = new Set([String(Number(root))]);
@@ -293,6 +303,16 @@ export function buildNumberCoreProjection({
     note: "מהשכבות הזמינות מכילות חומר",
   });
 
+  const worldByLabel = new Map();
+  for (const group of Array.isArray(worlds) ? worlds : []) {
+    const world = clean(group?.world || group?.label || group?.name);
+    if (!world) continue;
+    for (const item of Array.isArray(group?.items) ? group.items : []) {
+      const label = clean(item?.label || item?.name);
+      if (label && !worldByLabel.has(label)) worldByLabel.set(label, world);
+    }
+  }
+
   const connectionCards = [];
   const seenConnections = new Set();
   const addConnection = (label, note, methodKeyValue = null, kind = "relation") => {
@@ -304,13 +324,14 @@ export function buildNumberCoreProjection({
       note: clean(note) || "קשר מחקרי",
       methodKey: clean(methodKeyValue) || null,
       kind,
+      world: worldByLabel.get(text) || null,
     }));
   };
-  if (crossing?.partner) {
+  for (const item of crossings.slice(0, 4)) {
     addConnection(
-      crossing.partner,
-      `הצלבה · ${crossing.methods.map((item) => item.methodLabel).join(" + ")}`,
-      crossing.methods?.[1]?.methodKey || null,
+      item.partner,
+      `הצלבה · ${item.methods.map((method) => method.methodLabel).join(" + ")}`,
+      item.methods?.[1]?.methodKey || null,
       "crossing",
     );
   }
@@ -336,6 +357,7 @@ export function buildNumberCoreProjection({
     activeResult: selected?.computedValue ?? null,
     methods: Object.freeze(methodProfile),
     crossing,
+    crossings,
     zeroScale: zero,
     pulse: Object.freeze({
       activityCount: Number(activityCount) || 0,
