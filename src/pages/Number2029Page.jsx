@@ -7,10 +7,12 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
+import { fetchExpressionVerseOccurrences } from "../lib/research/numberExpressionVerses.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import {
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
+  fetchNumberHiddenCrossings,
   methodProfileEntry,
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
@@ -177,6 +179,8 @@ function NumberPageBody() {
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
+  const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
+  const [verseState, setVerseState] = useState({ loading: false, rows: [], error: null });
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -310,6 +314,43 @@ function NumberPageBody() {
     () => methodProfileEntry(methodProfileState.rows, selectedMethodKey),
     [methodProfileState.rows, selectedMethodKey],
   );
+
+
+  useEffect(() => {
+    const expr = clean(activeExpression);
+    if (!expr || /^\d+$/.test(expr) || !methodProfileState.rows.length) {
+      setHiddenCrossState({ loading: false, rows: [], error: null });
+      return undefined;
+    }
+    let alive = true;
+    setHiddenCrossState({ loading: true, rows: [], error: null });
+    fetchNumberHiddenCrossings(expr, methodProfileState.rows, { limit: 13 })
+      .then((rows) => {
+        if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+      })
+      .catch((error) => {
+        if (alive) setHiddenCrossState({ loading: false, rows: [], error });
+      });
+    return () => { alive = false; };
+  }, [activeExpression, methodProfileState.rows]);
+
+  useEffect(() => {
+    const expr = clean(activeExpression);
+    if (!expr || /^\d+$/.test(expr)) {
+      setVerseState({ loading: false, rows: [], error: null });
+      return undefined;
+    }
+    let alive = true;
+    setVerseState({ loading: true, rows: [], error: null });
+    fetchExpressionVerseOccurrences(expr, { limit: 8 })
+      .then((rows) => {
+        if (alive) setVerseState({ loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+      })
+      .catch((error) => {
+        if (alive) setVerseState({ loading: false, rows: [], error });
+      });
+    return () => { alive = false; };
+  }, [activeExpression]);
 
   const regularMethodProfile = useMemo(
     () => methodProfileState.rows.find((row) => (
@@ -815,6 +856,8 @@ function NumberPageBody() {
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
+        hiddenCrossings={hiddenCrossState.rows}
+        hiddenCrossingsLoading={hiddenCrossState.loading}
         onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
@@ -840,6 +883,8 @@ function NumberPageBody() {
       relations={relations}
       projectionRelatedNumbers={coreProjection?.relatedNumbers || []}
       sources={sources}
+      verseRows={verseState.rows}
+      versesLoading={verseState.loading}
       worlds={worlds}
       researchFindings={researchFindings}
       timeline={timeline}
