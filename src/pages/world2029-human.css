@@ -1600,3 +1600,38 @@
   .sod29-world-all-research-filters{grid-template-columns:1fr}
   .sod29-world-all-research-row-head{display:grid}
 }
+
+
+/* ── World 2029 · lightweight live anchor map ── */
+.sod29-world-anchor-map{
+  border:1px solid color-mix(in srgb,var(--s29-accent) 28%,var(--s29-line));
+  background:
+    radial-gradient(circle at 88% 0%,color-mix(in srgb,var(--s29-glow) 16%,transparent),transparent 34%),
+    color-mix(in srgb,var(--s29-panel) 96%,var(--s29-accent) 4%);
+}
+.sod29-world-anchor-roots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sod29-world-anchor-root{
+  display:grid;gap:10px;padding:13px;border:1px solid var(--s29-line);border-radius:16px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
+}
+.sod29-world-anchor-root-button{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;
+  min-height:54px;padding:10px 12px;border:1px solid var(--s29-line-strong);border-radius:14px;
+  background:color-mix(in srgb,var(--s29-panel) 90%,transparent);color:var(--s29-ink);cursor:pointer;text-align:right;
+}
+.sod29-world-anchor-root-button span,.sod29-world-anchor-root-button small{color:var(--s29-muted);font-size:10px;font-weight:800}
+.sod29-world-anchor-root-button strong{font-size:26px;font-variant-numeric:tabular-nums;color:var(--s29-hero)}
+.sod29-world-anchor-children{display:flex;flex-wrap:wrap;gap:7px}
+.sod29-world-anchor-child{
+  display:inline-grid;gap:1px;min-width:88px;min-height:48px;padding:7px 10px;border:1px solid var(--s29-line);
+  border-radius:13px;background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);color:var(--s29-ink);cursor:pointer;text-align:right;
+}
+.sod29-world-anchor-child strong{font-size:16px;font-variant-numeric:tabular-nums}
+.sod29-world-anchor-child span{color:var(--s29-muted);font-size:9px}
+.sod29-world-anchor-root-button:hover,.sod29-world-anchor-child:hover{border-color:color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line))}
+@media(max-width:760px){
+  .sod29-world-anchor-roots{grid-template-columns:1fr}
+  .sod29-world-anchor-root-button{grid-template-columns:auto 1fr}
+  .sod29-world-anchor-root-button small{grid-column:1/-1}
+  .sod29-world-anchor-child{flex:1 1 96px}
+}
