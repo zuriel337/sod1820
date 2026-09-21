@@ -54,6 +54,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
+const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true;
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
@@ -411,6 +412,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { isAdmin } = useAuth();
+  const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE || isAdmin;
   const [landing, setLanding] = useState({
     loading: true,
     sections: {},
@@ -495,7 +497,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     let alive = true;
-    if (!isAdmin) {
+    if (!controlMode) {
       setAllResearchState({ enabled: false, loading: false, projection: null, error: null });
       return () => { alive = false; };
     }
@@ -508,7 +510,7 @@ function LiveWorldLanding({ research, shell, context }) {
         if (alive) setAllResearchState({ enabled: true, loading: false, projection: null, error });
       });
     return () => { alive = false; };
-  }, [isAdmin]);
+  }, [controlMode]);
 
   useEffect(() => {
     let alive = true;
@@ -829,7 +831,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <WorldConvergenceLens state={allResearchState} />
     <WorldAllResearchTable state={allResearchState} />
 
-    <section hidden={isAdmin} className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>
@@ -990,6 +992,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
 function AnchoredWorld({ research, shell, subject, context }) {
   const { isAdmin } = useAuth();
+  const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE || isAdmin;
   const [state, setState] = useState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
   const [relationFilter, setRelationFilter] = useState("all");
@@ -1039,20 +1042,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [key, subject.id, subject.type]);
 
   useEffect(() => {
-    if (isAdmin) {
-      setAdminMode(true);
-      setAdminView("research");
-      setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
-      setContributorFilter("all");
-      return;
-    }
-    if (!isAdmin) {
-      setAdminMode(false);
-      setAdminView("research");
-      setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
-      setContributorFilter("all");
-    }
-  }, [isAdmin]);
+    setAdminMode(Boolean(controlMode));
+    setAdminView("research");
+    setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
+    setContributorFilter("all");
+  }, [controlMode]);
 
   const goldenJourneyRelevant = (
     (subject.type === "number" && Number(subject.id) === GOLDEN_WORLD_JOURNEY_878.rootValue)
@@ -1486,7 +1480,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
         </div>
 
-        <FrameState title="הרשאות נשארות בשרת">מצב מנהל אינו עוקף הרשאות בדפדפן. World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
+        <FrameState title="הרשאות נשארות בשרת">מצב הניהול של World פתוח כרגע תמיד בתקופת הבנייה. הוא אינו עוקף הרשאות נתונים: World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
 
         {adminView === "research" ? <>
           <div className="sod29-world-research-inbox">
