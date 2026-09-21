@@ -327,6 +327,8 @@ export default function NumberLivingWorld2029({
       </button>
     </nav>
 
+    <div className="sod29-lw-context" data-experience-capability="number-research-context">
+      <div className="sod29-lw-context-snapshot" data-experience-capability="number-world-snapshot">
     <section className="sod29-lw-essential" id="number-essential" data-experience-capability="number-essential">
       <div className="sod29-lw-crown">
         <div className="sod29-lw-crown-copy">
@@ -337,13 +339,13 @@ export default function NumberLivingWorld2029({
             `זהו מרכז הכובד של ${root} כרגע. מה שמוצג כאן מגיע מהמחקר והקשרים הקיימים, בלי להמציא שכבת אמת חדשה.`,
             220
           )}</p>
-          <div className="sod29-lw-crown-meta">
+          <div className="sod29-lw-crown-meta" data-experience-capability="number-research-state">
             {activeExpression ? <span>ביטוי פעיל · {activeExpression}</span> : null}
             {activeMethodLabel ? <span>שיטה · {activeMethodLabel}</span> : null}
             {sparseMode ? <span className="is-sparse">מצב מספר דל · המשפחה מרחיבה את התמונה</span> : null}
           </div>
           <div className="sod29-lw-actions">
-            <DepthButton primary onClick={() => onOpenWorld?.()}>פתח בעולם</DepthButton>
+            <DepthButton primary onClick={() => onOpenWorld?.()}>פתח את העולם סביב {root}</DepthButton>
             <DepthButton onClick={() => onRazielAction?.("number_context", { root })}>שאל את רזיאל</DepthButton>
             <DepthButton onClick={() => jump("number-journey-gate")}>קח אותי למסע</DepthButton>
           </div>
@@ -398,6 +400,8 @@ export default function NumberLivingWorld2029({
         </div> : null}
       </> : <div className="sod29-lw-empty">אין עדיין עולם מסווג מספיק חזק. החלק מתקפל ולא ממציא קטגוריות.</div>}
     </section>
+      </div>
+    </div>
 
     <section className="sod29-lw-section" id="number-connections-live" data-experience-capability="number-connections">
       <SectionHead
