@@ -4,6 +4,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
+import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -42,6 +43,7 @@ import {
 } from "../lib/research/worldResearchControl.js";
 import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
+import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -430,6 +432,7 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
+  const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -475,6 +478,20 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+  useEffect(() => {
+    let alive = true;
+    setAnchorState({ loading: true, projection: null, error: null });
+    fetchWorldAnchorProjection()
+      .then((projection) => {
+        if (alive) setAnchorState({ loading: false, projection, error: null });
+      })
+      .catch((error) => {
+        if (alive) setAnchorState({ loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -714,6 +731,19 @@ function LiveWorldLanding({ research, shell, context }) {
     section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
 
+
+  const openAnchorValue = (value) => {
+    const numericValue = Number(value);
+    if (!Number.isSafeInteger(numericValue)) return;
+    research.setResearchContext?.({
+      subject: { id: String(numericValue), type: "number", label: String(numericValue), href: "/world" },
+      selection: { entityId: String(numericValue), entityType: "number" },
+      lens: "world",
+      dimensions: { entrySource: "world-anchor-map" },
+      returnTo: { href: "/world", label: "עוגני המחקר" },
+    });
+  };
+
   return <>
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
@@ -784,6 +814,13 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
     </section>
+
+    <WorldAnchorMap
+      projection={anchorState.projection}
+      loading={anchorState.loading}
+      error={anchorState.error}
+      onOpen={openAnchorValue}
+    />
 
     {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
