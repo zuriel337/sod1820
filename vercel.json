@@ -274,7 +274,7 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "gpt/*": false,
+      "gpt/*": true,
       "claude/*": false
     }
   }
