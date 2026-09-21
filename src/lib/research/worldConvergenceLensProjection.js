@@ -31,6 +31,7 @@ export const WORLD_CONVERGENCE_FILTER_DEFAULTS = Object.freeze({
   contributor: "all",
   attention: "all",
   batch: "all",
+  presentation: "all",
   sort: "research_strength",
 });
 
@@ -53,6 +54,49 @@ export const WORLD_CONVERGENCE_ATTENTION = Object.freeze({
   zvi: "צבי",
   unverified: "טרם אומת",
 });
+
+export const WORLD_CONVERGENCE_PRESENTATION = Object.freeze({
+  all: "כל מצבי התצוגה",
+  ready: "אפשר להציג",
+  review: "דורש בדיקה",
+  hold: "לא להצגה כרגע",
+});
+
+export function classifyWorldConvergencePresentation(row) {
+  const status = clean(row?.status).toLowerCase();
+  const verification = clean(row?.verification).toLowerCase();
+  const recommendation = clean(row?.recommendation).toLowerCase();
+
+  if (row?.decisionChanging || verification === "mismatch" || recommendation === "duplicate") {
+    return Object.freeze({
+      state: "hold",
+      label: WORLD_CONVERGENCE_PRESENTATION.hold,
+      reason: row?.decisionChanging
+        ? "יש mismatch/סתירה/negative שיכולים לשנות החלטה קיימת."
+        : recommendation === "duplicate"
+          ? "נדרש reconciliation לפני הצגה כישות התכנסות עצמאית."
+          : "מצב האימות אינו מתאים לקידום תצוגה כרגע.",
+    });
+  }
+
+  if (["approved", "canonical"].includes(status) && row?.layer !== "research_candidate") {
+    return Object.freeze({
+      state: "ready",
+      label: WORLD_CONVERGENCE_PRESENTATION.ready,
+      reason: "החומר עבר Human Gate/ממשל קיים ואין בו blocker גלוי בעדשה הזאת.",
+    });
+  }
+
+  return Object.freeze({
+    state: "review",
+    label: WORLD_CONVERGENCE_PRESENTATION.review,
+    reason: row?.layer === "research_candidate"
+      ? "זהו Research Candidate פתוח; הוא עדיין לא עבר Human Gate."
+      : verification === "review_required" || verification === "not_tested"
+        ? "האימות עדיין לא סגור להצגה כבחירה מאושרת."
+        : "מצב הממשל/האימות עדיין דורש החלטת Human Gate.",
+  });
+}
 
 function normalizeText(value) {
   return clean(value).toLowerCase().replace(/\s+/g, " ").trim();
@@ -195,6 +239,7 @@ function makeTopicRow(row) {
   out.decisionChanging = isDecisionChanging(out);
   out.humanApproved = out.status.toLowerCase() === "approved";
   out.classification = classificationLabel(out);
+  out.presentation = classifyWorldConvergencePresentation(out);
   out.explainWhy = explainRow(out);
   return out;
 }
@@ -328,6 +373,7 @@ function makeCandidateRow(row) {
   if (confidence != null) out.explainWhy.push("confidence=" + confidence + " הוא מדד candidate-native בלבד, לא ציון אמת.");
   if (topicTitle && clean(why?.topic_status) === "approved") out.explainWhy.push("המועמד נוגע ב־Topic מאושר; האישור ההיסטורי נשמר ואינו נכתב מחדש.");
   if (!out.explainWhy.length) out.explainWhy.push("מועמד מחקר פתוח שממתין ל־Human Gate.");
+  out.presentation = classifyWorldConvergencePresentation(out);
   return out;
 }
 
@@ -355,6 +401,7 @@ function makeRelationRow(row) {
   out.decisionChanging = isDecisionChanging(out);
   out.humanApproved = ["approved", "canonical"].includes(out.status.toLowerCase());
   out.classification = classificationLabel(out);
+  out.presentation = classifyWorldConvergencePresentation(out);
   out.explainWhy = explainRow(out);
   return out;
 }
@@ -594,6 +641,7 @@ export function filterWorldConvergenceRows(rows = [], filters = {}) {
     if (f.status !== "all" && row.status !== f.status) return false;
     if (f.contributor !== "all" && (row.contributor || "לא צוין") !== f.contributor) return false;
     if (f.batch !== "all" && (row.batchKey || "ללא Batch") !== f.batch) return false;
+    if (f.presentation !== "all" && row.presentation?.state !== f.presentation) return false;
     if (f.attention === "needs_decision" && !row.decisionChanging) return false;
     if (f.attention === "verified" && row.verification !== "match") return false;
     if (f.attention === "multi_source" && row.provenanceCount < 2) return false;
@@ -691,7 +739,13 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     multiTrace: ordered.filter((row) => row.provenanceCount > 1).length,
     byLayer: Object.freeze(countBy(ordered, "layer")), byVerification: Object.freeze(countBy(ordered, "verification")),
     byStatus: Object.freeze(countBy(ordered, "status")), byContributor: Object.freeze(countBy(ordered, "contributor")),
-    byBatch: Object.freeze(countBy(ordered, "batchKey")), zviCoverage,
+    byBatch: Object.freeze(countBy(ordered, "batchKey")),
+    byPresentation: Object.freeze(ordered.reduce((acc, row) => {
+      const key = row.presentation?.state || "review";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {})),
+    zviCoverage,
     candidateError: clean(allResearchProjection?.convergenceCandidateError) || null,
     candidateMeta: allResearchProjection?.convergenceCandidateMeta || {},
     capabilities: Object.freeze({ globalResearchConvergenceIndex: true, contextualCrossMethod: true, globalCrossMethodFeed: false, rawLegacyDiscoveryIncluded: false }),

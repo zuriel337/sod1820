@@ -4,6 +4,7 @@ import {
   WORLD_CONVERGENCE_ATTENTION,
   WORLD_CONVERGENCE_FILTER_DEFAULTS,
   WORLD_CONVERGENCE_SORTS,
+  WORLD_CONVERGENCE_PRESENTATION,
   buildWorldConvergenceLensProjection,
   filterWorldConvergenceRows,
   orderWorldConvergenceRows,
@@ -167,8 +168,28 @@ export default function WorldConvergenceLens({ state }) {
     setVisible(PAGE);
   };
 
+
+  const applyPreset = (preset) => {
+    setFilters((prev) => {
+      if (preset === "zvi") return { ...prev, attention: "zvi", contributor: "all", presentation: "all", sort: "attention" };
+      if (preset === "ready") return { ...prev, presentation: "ready", attention: "all", sort: "human_curated" };
+      if (preset === "review") return { ...prev, presentation: "review", attention: "all", sort: "attention" };
+      if (preset === "hold") return { ...prev, presentation: "hold", attention: "all", sort: "attention" };
+      return { ...WORLD_CONVERGENCE_FILTER_DEFAULTS };
+    });
+    setVisible(PAGE);
+  };
+
   const z = projection?.zviCoverage;
   const shown = filtered.slice(0, visible);
+
+  const presentationCounts = projection?.byPresentation || {};
+  const zviRows = projection ? filterWorldConvergenceRows(projection.rows, { ...WORLD_CONVERGENCE_FILTER_DEFAULTS, attention: "zvi" }) : [];
+  const zviPresentation = zviRows.reduce((acc, row) => {
+    const key = row.presentation?.state || "review";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
 
   return <section className="sod29-section sod29-conv-lens" aria-label="Convergence 2029 Human Gate">
     <div className="sod29-conv-head">
@@ -185,6 +206,29 @@ export default function WorldConvergenceLens({ state }) {
         <strong>Rank ≠ Truth</strong>
         <span>mismatch · verification · governance · provenance · curation · recency</span>
       </div>
+    </div>
+
+
+    <div className="sod29-conv-control-center" aria-label="לוח שליטה למנהל">
+      <div className="sod29-conv-control-copy">
+        <span className="sod29-kicker">WORLD CONTROL CENTER</span>
+        <h3>מה אפשר להציג עכשיו?</h3>
+        <p>אותו חומר, עם הפרדה בין מוכנות לתצוגה, צורך בבדיקה וחומר שצריך לעצור. זהו כלי Human Gate — לא מצב Published.</p>
+      </div>
+      <div className="sod29-conv-control-actions" role="group" aria-label="קיצורי Human Gate">
+        <button type="button" onClick={() => applyPreset("all")}>הכול <b>{projection?.total || 0}</b></button>
+        <button type="button" onClick={() => applyPreset("zvi")}>צבי · הכול <b>{zviRows.length}</b></button>
+        <button type="button" className="is-ready" onClick={() => applyPreset("ready")}>אפשר להציג <b>{presentationCounts.ready || 0}</b></button>
+        <button type="button" className="is-review" onClick={() => applyPreset("review")}>דורש בדיקה <b>{presentationCounts.review || 0}</b></button>
+        <button type="button" className="is-hold" onClick={() => applyPreset("hold")}>לא להצגה כרגע <b>{presentationCounts.hold || 0}</b></button>
+      </div>
+      {zviRows.length ? <div className="sod29-conv-zvi-control-summary">
+        <strong>צבי</strong>
+        <span>{zviRows.length} פריטים בעדשה</span>
+        <span>אפשר להציג: {zviPresentation.ready || 0}</span>
+        <span>דורש בדיקה: {zviPresentation.review || 0}</span>
+        <span>עצירה: {zviPresentation.hold || 0}</span>
+      </div> : null}
     </div>
 
     {state.loading ? <div className="sod29-conv-loading">בונה את עדשת ההתכנסויות מתוך החומר שכבר הותר לסשן הזה…</div> : null}
@@ -256,6 +300,9 @@ export default function WorldConvergenceLens({ state }) {
           <option value="all">כל החוקרים</option>
           {optionsFrom(projection.byContributor).map((value) => <option value={value} key={value}>{value}</option>)}
         </select></label>
+        <label><span>מוכנות לתצוגה</span><select value={filters.presentation} onChange={(e) => update("presentation", e.target.value)}>
+          {Object.entries(WORLD_CONVERGENCE_PRESENTATION).map(([value,label]) => <option value={value} key={value}>{label}</option>)}
+        </select></label>
         <label><span>Batch</span><select value={filters.batch} onChange={(e) => update("batch", e.target.value)}>
           <option value="all">כל ה־Batches</option>
           {optionsFrom(projection.byBatch, "לא צוין").filter((value) => value !== "לא צוין").map((value) => <option value={value} key={value}>{value}</option>)}
@@ -289,6 +336,7 @@ export default function WorldConvergenceLens({ state }) {
             <div className="sod29-conv-chips">
               <span>verification: {row.verification}</span>
               <span>status: {row.status}</span>
+              <span className={`sod29-conv-presentation is-${row.presentation?.state || "review"}`}>{row.presentation?.label || "דורש בדיקה"}</span>
               {row.provenanceCount ? <span>{row.provenanceCount} provenance refs</span> : null}
               {row.contributor ? <span>{row.contributor}</span> : null}
               {row.meterScore != null ? <span>meter {row.meterScore}</span> : null}
@@ -298,6 +346,7 @@ export default function WorldConvergenceLens({ state }) {
             <details className="sod29-conv-why">
               <summary>למה הוא כאן?</summary>
               <ul>{row.explainWhy.map((line) => <li key={line}>{line}</li>)}</ul>
+              {row.presentation?.reason ? <p className="sod29-conv-presentation-reason"><b>מוכנות לתצוגה:</b> {row.presentation.reason}</p> : null}
               {row.sourceRef ? <code>{row.sourceRef}</code> : null}
             </details>
             <details className="sod29-conv-inspector-toggle">
