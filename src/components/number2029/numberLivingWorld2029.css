@@ -3,6 +3,11 @@
   gap:20px;
   --lw-pad:clamp(18px,3vw,30px);
 }
+.sod29-lw-context,
+.sod29-lw-context-snapshot{
+  display:grid;
+  gap:20px;
+}
 .sod29-lw *{box-sizing:border-box}
 .sod29-lw button,.sod29-lw input{font:inherit}
 .sod29-lw button{color:inherit}
