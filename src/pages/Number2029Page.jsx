@@ -838,6 +838,7 @@ function NumberPageBody() {
       languageBridges={languageBridgeState.rows}
       topics={topics}
       relations={relations}
+      projectionRelatedNumbers={coreProjection?.relatedNumbers || []}
       sources={sources}
       worlds={worlds}
       researchFindings={researchFindings}
