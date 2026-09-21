@@ -177,7 +177,7 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
     () => core.locator('.sod29-number-v10-method-card').count(),
     { timeout: 15_000 },
   ).toBeGreaterThan(3);
-  await expect(core.locator('.sod29-number-v10-method-switcher')).toContainText('כל הפנים של הביטוי');
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toContainText('שש שיטות ראשיות');
   const triangleCard = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'משולש' }).first();
   await expect(triangleCard).toBeVisible();
   await expect(core.locator('.sod29-number-v10-method-switcher')).not.toContainText('קדמי · משולש');
