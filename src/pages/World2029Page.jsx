@@ -831,7 +831,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <WorldConvergenceLens state={allResearchState} />
     <WorldAllResearchTable state={allResearchState} />
 
-    <section hidden={controlMode} className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>
