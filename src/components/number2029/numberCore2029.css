@@ -1907,12 +1907,12 @@
 .sod29-number-v10-method-head>small{color:var(--s29-muted);font-size:7.5px;text-align:end}
 .sod29-number-v10-method-grid{
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(104px,1fr));
   gap:6px;
 }
 .sod29-number-v10-method-card{
   min-width:0;
-  min-height:74px;
+  min-height:58px;
   display:grid;
   align-content:center;
   justify-items:center;
@@ -2085,43 +2085,115 @@
   cursor:pointer;
 }
 .sod29-number-v10-chip-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:6px;
 }
 .sod29-number-v10-chip-list button{
   min-width:0;
   max-width:100%;
-  display:flex;
+  display:grid;
+  grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  grid-template-areas:"label method" "label world";
   align-items:center;
-  gap:5px;
-  border:1px solid var(--s29-line);
+  column-gap:6px;
+  row-gap:2px;
+  border:1px solid color-mix(in srgb,var(--world-color,var(--s29-accent)) 26%,var(--s29-line));
   border-radius:999px;
-  background:var(--s29-panel);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--world-color,var(--s29-accent)) 7%,transparent),transparent 58%),
+    var(--s29-panel);
   color:var(--s29-ink);
   font:inherit;
-  padding:5px 8px;
+  padding:5px 9px;
   cursor:pointer;
 }
 .sod29-number-v10-chip-list strong{
+  grid-area:label;
   min-width:0;
-  font-size:9px;
+  font-size:10px;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
 .sod29-number-v10-chip-list small{
+  grid-area:method;
   color:var(--s29-muted);
   font-size:7px;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+.sod29-number-v10-world-tag{
+  grid-area:world;
+  justify-self:start;
+  color:var(--world-color,var(--s29-accent));
+  font-size:7px;
+  font-style:normal;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
 .sod29-number-v10-crossing p{
   margin:0;
   color:var(--s29-muted);
   font-size:8px;
   line-height:1.45;
+}
+.sod29-number-v10-crossing-lead{
+  min-width:0;
+  display:grid;
+  justify-items:start;
+  gap:3px;
+  padding:10px 11px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 50%,var(--s29-line));
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-glow) 18%,transparent),transparent 46%),
+    color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel));
+  text-align:start;
+  cursor:pointer;
+}
+.sod29-number-v10-crossing-lead>span{color:var(--s29-accent-text);font-size:7px;font-weight:900}
+.sod29-number-v10-crossing-lead>strong{color:var(--s29-ink);font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.sod29-number-v10-crossing-lead>strong b{color:var(--s29-hero);font-weight:950}
+.sod29-number-v10-crossing-lead>small{color:var(--s29-muted);font-size:7.5px;line-height:1.4}
+.sod29-number-v10-crossing-more{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+}
+.sod29-number-v10-crossing-more button{
+  min-width:0;
+  display:grid;
+  justify-items:start;
+  gap:2px;
+  padding:7px 8px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:var(--s29-panel);
+  color:var(--s29-ink);
+  text-align:start;
+  font:inherit;
+  cursor:pointer;
+}
+.sod29-number-v10-crossing-more strong{
+  max-width:100%;
+  color:var(--s29-ink);
+  font-size:9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sod29-number-v10-crossing-more small{
+  max-width:100%;
+  color:var(--s29-muted);
+  font-size:6.6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .sod29-number-v10-inline-actions{display:flex;gap:5px;flex-wrap:wrap}
 .sod29-number-v10-inline-actions button{
@@ -2251,7 +2323,7 @@
   .sod29-number-v10-method-head strong{font-size:10px}
   .sod29-number-v10-method-head>small{font-size:6.5px}
   .sod29-number-v10-method-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-  .sod29-number-v10-method-card{min-height:64px;border-radius:12px}
+  .sod29-number-v10-method-card{min-height:52px;border-radius:12px;padding:5px 3px}
   .sod29-number-v10-method-card>strong{font-size:15px}
   .sod29-number-v10-stage{padding:8px;border-radius:18px}
   .sod29-number-v10-stage-head{grid-template-columns:minmax(0,1fr) 132px;gap:6px}
@@ -2267,8 +2339,9 @@
   .sod29-number-v10-languages,.sod29-number-v10-worlds{grid-column:auto}
   .sod29-number-v10-research-grid>section{padding:8px;border-radius:13px}
   .sod29-number-v10-language-list{grid-template-columns:1fr}
-  .sod29-number-v10-chip-list{gap:4px}
-  .sod29-number-v10-chip-list button{padding:4px 7px}
+  .sod29-number-v10-chip-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .sod29-number-v10-chip-list button{padding:5px 7px}
+  .sod29-number-v10-crossing-more{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-number-v10-calculation-card{padding:8px;border-radius:13px}
   .sod29-number-v10-stage-actions{gap:4px}
   .sod29-number-v10-stage-actions button{font-size:7px;min-height:34px;padding:4px}
@@ -2276,6 +2349,8 @@
 }
 @media(max-width:350px){
   .sod29-number-v10-method-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-number-v10-chip-list{grid-template-columns:1fr}
+  .sod29-number-v10-crossing-more{grid-template-columns:1fr}
   .sod29-number-v10-stage-head{grid-template-columns:1fr}
   .sod29-number-v10-vitality{grid-template-columns:48px minmax(0,1fr)}
   .sod29-number-v10-stage-actions{grid-template-columns:1fr}
