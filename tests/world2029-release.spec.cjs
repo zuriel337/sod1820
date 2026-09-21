@@ -209,6 +209,38 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
 });
 
+test('Number 2029 596 keeps six methods visible, finds Jerusalem↔Shomrim live, and restores verses', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/596`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  const core = numberPage.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible();
+
+  await expect.poll(
+    () => core.locator('.sod29-number-v10-method-grid > .sod29-number-v10-method-card').count(),
+    { timeout: 15_000 },
+  ).toBe(6);
+  await expect(core.locator('.sod29-number-v10-more-methods')).toContainText(/עוד \d+ שיטות/);
+
+  const jerusalem = core.locator('.sod29-number-v11-regular-track button').filter({ hasText: 'ירושלים' }).first();
+  await expect(jerusalem).toBeVisible({ timeout: 15_000 });
+  await jerusalem.click();
+
+  const crossing = core.locator('.sod29-number-v10-crossing');
+  await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
+  await expect(crossing).toContainText('הצלבה נסתרת');
+
+  const verses = numberPage.locator('[data-experience-capability="number-verses"]');
+  await expect(verses).toBeVisible({ timeout: 20_000 });
+  await expect(verses).toContainText('פסוקים שבהם מופיע');
+  await expect(verses).toContainText('ירושלים');
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-596-jerusalem-cross-verses-390.png', fullPage: true });
+});
+
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
