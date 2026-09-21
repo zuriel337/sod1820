@@ -476,7 +476,7 @@ export default function NumberCore2029({
 
           <section className="sod29-number-v10-crossing">
             <div className="sod29-number-v10-panel-head">
-              <div><span>הצלבות נסתרות</span><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong></div>
+              <div><span>הצלבה נסתרת</span><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong></div>
               <small>{stageCrossings.length || 0}</small>
             </div>
             {stageCrossing ? <>
