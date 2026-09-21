@@ -317,7 +317,7 @@ export function buildNumberCoreProjection({
   const seenConnections = new Set();
   const addConnection = (label, note, methodKeyValue = null, kind = "relation") => {
     const text = clean(label);
-    if (!text || seenConnections.has(text) || connectionCards.length >= 8) return;
+    if (!text || seenConnections.has(text) || connectionCards.length >= 40) return;
     seenConnections.add(text);
     connectionCards.push(Object.freeze({
       label: text,
@@ -342,9 +342,9 @@ export function buildNumberCoreProjection({
       const phrase = phraseOf(item);
       if (!phrase || phrase === clean(expression)) continue;
       addConnection(phrase, label, key, "expression");
-      if (connectionCards.length >= 8) break;
+      if (connectionCards.length >= 40) break;
     }
-    if (connectionCards.length >= 8) break;
+    if (connectionCards.length >= 40) break;
   }
 
   const mediaSrc = clean(heroMedia?.thumbUrl || heroMedia?.imageUrl || heroMedia?.url);
