@@ -17,6 +17,7 @@ const deepView = read("src/components/number2029/NumberDeepView2029.jsx");
 const deepViewCss = read("src/components/number2029/numberDeepView2029.css");
 const deepProjection = read("src/lib/research/numberDeepViewProjection.js");
 const vercel = JSON.parse(read("vercel.json"));
+const browserAcceptance = read("tests/world2029-release.spec.cjs");
 
 for (const required of [
   "Sod2029Shell",
@@ -173,6 +174,31 @@ const zero1237 = deriveZeroScale({
 });
 assert.equal(zero1237.next, 12370);
 assert.deepEqual(zero1237.chain, [1237, 12370, 123700]);
+
+
+
+const numberBrowserSelectors = [...browserAcceptance.matchAll(/\.sod29-number-[a-z0-9-]+/g)].map((match) => match[0]);
+const stableNumberAcceptanceSelectors = new Set([
+  ".sod29-number-core2029",
+  ".sod29-number-core2029-root",
+  ".sod29-number-v10-expression",
+  ".sod29-number-v10-method-switcher",
+  ".sod29-number-v10-method-card",
+  ".sod29-number-v10-stage",
+  ".sod29-number-v10-vitality",
+  ".sod29-number-v10-calculation-card",
+  ".sod29-number-v10-languages",
+  ".sod29-number-method-inspector",
+  ".sod29-number-drawer2029",
+  ".sod29-number-value",
+]);
+for (const selector of new Set(numberBrowserSelectors)) {
+  assert.equal(
+    stableNumberAcceptanceSelectors.has(selector),
+    true,
+    `Replaceable Number presentation must use semantic acceptance hooks, not CSS selector: ${selector}`,
+  );
+}
 
 const rewrite = (vercel.rewrites || []).find((row) => row.source === "/2029/number/(.*)");
 assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
