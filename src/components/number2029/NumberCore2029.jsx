@@ -417,7 +417,7 @@ export default function NumberCore2029({
 
     <section className="sod29-number-v10-method-switcher" aria-label="כל שיטות הגימטריה הזמינות">
       <div className="sod29-number-v10-method-head">
-        <div><span>{compact ? "שש שיטות מהירות" : "כל הפנים של הביטוי · כל השיטות מול העין"}</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · נגיעה בכל אחת מעדכנת את המחקר שמתחת`}</strong></div>
+        <div><span>{compact ? "שש שיטות מהירות" : "שש שיטות ראשיות · כל השאר בעומק"}</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · 6 גלויות מיד`}</strong></div>
         {methodsLoading ? <small className="is-loading">מתעדכן…</small>
           : methods.length > primaryMethods.length ? <small>6 מול העין · {methods.length - primaryMethods.length} בעומק</small>
           : null}
