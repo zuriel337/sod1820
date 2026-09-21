@@ -512,7 +512,13 @@ export default function NumberCore2029({
               <button type="button" className="sod29-number-v10-crossing-lead" onClick={() => onOpenCrossing?.(stageCrossing)}>
                 <span>ההצלבה המובילה</span>
                 <strong>{projection.expression || root} <b>=</b> {stageCrossing.partner}</strong>
-                <small>{stageCrossing.methods.map((method) => method.methodLabel === "קדמי · משולש" ? "משולש" : method.methodLabel).join(" · ")}</small>
+                <div className="sod29-number-v10-crossing-methods">
+                  {stageCrossing.methods.slice(0, 4).map((method) => <span key={method.methodKey}>
+                    {method.methodLabel === "קדמי · משולש" ? "משולש" : method.methodLabel} = {method.value}
+                  </span>)}
+                  {stageCrossing.methods.length > 4 ? <span>+{stageCrossing.methods.length - 4}</span> : null}
+                </div>
+                <small>נמצאה עכשיו מתוך הביטוי הפעיל והמאגר המאומת</small>
               </button>
               {stageCrossings.length > 1 ? <div className="sod29-number-v10-crossing-more">
                 {stageCrossings.slice(1, showAllCrossings ? stageCrossings.length : 4).map((item, index) => <button
