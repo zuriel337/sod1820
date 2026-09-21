@@ -117,6 +117,30 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 - New visual primitives should be added to the theme/design system before being copied across pages.
 - Any Tier B/C visual primitive intended for reuse across more than one surface must have one shared owner/component and one lifecycle/performance policy; do not duplicate animation/render loops per page.
 
+## Long-running task feedback law
+
+**Human Gate:** ZURIEL · 19.9.2026  
+**Owner routing:** `experience_governance_foundation_v1_law` → `canonical_ui_components_law`  
+**Canonical primitive:** `src/components/CanonicalProgress.jsx`
+
+A user-facing operation that takes perceptible time must have a living presence. SOD1820 must never leave the user staring at a dead screen, a frozen button or an unexplained spinner while real work continues.
+
+- **One canonical progress presence.** New/2029 surfaces consume `CanonicalProgress` directly or through a canonical wrapper such as `FrameState(kind="loading")`. Do not create ELSProgress, BookSpinner, AIThinkingBar, ResearchLoader or another parallel progress component.
+- **No fake percentage.** A percentage may appear only when the engine/workflow supplies real `progress` or real `current/total`. Elapsed time is never converted into invented completion. Unknown work stays explicitly indeterminate.
+- **No fake ETA.** Do not guess “עוד 10 שניות”. An ETA may be shown only when an owning runtime supplies a real estimate, and it must be presented as an estimate rather than a promise.
+- **Show what is happening.** After a wait becomes meaningful, the progress presence may expand to named operational phases such as “קורא מקורות”, “בודק מטריצה”, “מחבר ממצאים” or “מכין תצוגה”. These labels must come from known workflow/engine stages or truthful projection state.
+- **Operational stages ≠ model chain-of-thought.** “מה קורה עכשיו” exposes safe, user-relevant workflow facts. It never exposes hidden reasoning, private scratchpad, internal prompts or model chain-of-thought.
+- **Long wait becomes useful time.** An operation expected to be long, or one that remains active past the long-wait threshold, may open a contextual “בינתיים” layer: already-completed partial results, source/context cards, a short explanation of the method, or safe navigation/actions. Waiting content is explicitly contextual and must never masquerade as the still-pending result.
+- **ELS / deep research / batch work requirement.** ELS scans, deep graph/research scans, large source processing, media/OCR ingestion and other knowingly expensive workflows must expose domain-safe phase events to the canonical progress primitive when their runtime is implemented. A generic spinner is not the target state for these workflows.
+- **Background/minimize/cancel are capability-dependent.** Offer “הקטן והמשך ברקע” or Cancel only when the owning job/runtime really supports persistence/cancellation. UI copy may not promise background work that would stop on navigation.
+- **Stable geometry is mandatory.** Loading → ready transitions reserve enough layout space to avoid unnecessary CLS. Do not insert/remove a transient loading row in a way that pushes already-painted content. Prefer a stable slot whose copy/state changes.
+- **Accessibility is semantic, not decorative.** Use `aria-busy`, polite live status, a real `progressbar` when applicable, keyboard-safe controls and `prefers-reduced-motion`. Motion cannot be the only indication of progress.
+- **One semantic component, localization-ready copy.** Visible waiting copy may be injected/adapted through the existing `content_translation_law` path; locale never forks the progress component or changes operational truth.
+- **Truth remains unchanged.** A beautiful/active waiting experience does not upgrade a Finding, Claim, Evidence or result. Partial/contextual material remains visibly separate from the pending answer.
+- **Migration rule.** This is forward law for 2029/new/redesigned surfaces. Legacy loaders migrate when their owning surface enters an explicit redesign or when the loader itself is being materially changed; no blind repository-wide replacement.
+
+**Default timing behavior of the canonical primitive:** ordinary presence immediately occupies its reserved geometry; after ~3s it may explain the live phase/stages; after ~12s it may expose the long-wait companion. A domain that already knows an operation is expensive may request the long form from the start. These thresholds tune presentation only; they never fabricate operational state.
+
 ## Existing-capability discovery law
 Before adding a new cross-surface Experience capability, verify whether a canonical or scoped-canonical primitive already exists and extend it instead of rebuilding it.
 
@@ -130,6 +154,7 @@ Known owners to check first:
 - research actions/context: existing `QuickActions`, Research event bus and `ResearchProvider`
 - number detail drawer: `NumberDrawer` + `src/lib/numberDrawer.js`
 - verification semantics: `VerifiedBadge`
+- waiting/progress presence: `CanonicalProgress` (real progress only; indeterminate otherwise; safe operational phases; long-wait companion)
 - ELS: `TzofenEmbed` → `public/tzofen.html` / `tools/els` — one engine, many projections
 - SEO / OG: existing `src/lib/seo.js`, `api/card.js`, `api/og.js`
 - site/maintenance gating: existing site-flags / `MaintenanceLock` path
