@@ -156,7 +156,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
 });
 
-test('Number 2029 preview opens 1237 with six primary methods driving one research stage', async ({ page }) => {
+test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
 
@@ -177,7 +177,7 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
     () => core.locator('.sod29-number-v10-method-card').count(),
     { timeout: 15_000 },
   ).toBeGreaterThan(3);
-  expect(await core.locator('.sod29-number-v10-method-card').count()).toBeLessThanOrEqual(6);
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toContainText('כל הפנים של הביטוי');
   const triangleCard = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'משולש' }).first();
   await expect(triangleCard).toBeVisible();
   await expect(core.locator('.sod29-number-v10-method-switcher')).not.toContainText('קדמי · משולש');
