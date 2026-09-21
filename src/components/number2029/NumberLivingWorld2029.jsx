@@ -175,7 +175,7 @@ export default function NumberLivingWorld2029({
   researchState = {},
   onOpenWorld,
   onOpenHeichal,
-  onAskRaziel,
+  onRazielAction,
   onOpenNumber,
   onJourney,
   onPersonalJourney,
@@ -326,7 +326,7 @@ export default function NumberLivingWorld2029({
           </div>
           <div className="sod29-lw-actions">
             <DepthButton primary onClick={() => onOpenWorld?.()}>פתח בעולם</DepthButton>
-            <DepthButton onClick={() => onAskRaziel?.("number_context", { root })}>שאל את רזיאל</DepthButton>
+            <DepthButton onClick={() => onRazielAction?.("number_context", { root })}>שאל את רזיאל</DepthButton>
             <DepthButton onClick={() => jump("number-journey-gate")}>קח אותי למסע</DepthButton>
           </div>
         </div>
@@ -435,7 +435,7 @@ export default function NumberLivingWorld2029({
             <div className="sod29-lw-actions">
               {selectedScrub?.value != null ? <DepthButton primary onClick={() => onOpenNumber?.(selectedScrub.value)}>פתח את דף המספר</DepthButton> : null}
               {scrubMode === "sequences" ? <DepthButton primary onClick={() => onOpenHeichal?.({ kind: selectedScrub?.key === "pi" ? "sequence_pi" : "sequence_fibonacci", root })}>חקור {selectedScrub?.title} בהיכל</DepthButton> : null}
-              {scrubMode === "findings" ? <DepthButton onClick={() => onAskRaziel?.("explain_finding", { root, finding: selectedScrub?.raw })}>למה זה קשור?</DepthButton> : null}
+              {scrubMode === "findings" ? <DepthButton onClick={() => onRazielAction?.("explain_finding", { root, finding: selectedScrub?.raw })}>למה זה קשור?</DepthButton> : null}
             </div>
           </article>
         </> : <div className="sod29-lw-empty">אין עדיין תחנות מספיקות למד. הוא נשאר קל ולא מריץ חיפוש כבד ברקע.</div>}
@@ -504,14 +504,14 @@ export default function NumberLivingWorld2029({
       <div className="sod29-lw-journey-grid">
         <button type="button" onClick={() => onJourney?.()}><span>מסע כללי</span><strong>צא למסע בעולם של {root}</strong><small>עולמות · מספרים · מקורות · תחנות</small></button>
         <button type="button" onClick={() => onPersonalJourney?.()}><span>מסע אישי</span><strong>קח אדם דרך {root}</strong><small>פרטי כברירת מחדל · בלי ליצור תיק אוטומטית</small></button>
-        <button type="button" onClick={() => onAskRaziel?.("resume_or_start_journey", { root })}><span>המשך</span><strong>המשך מאיפה שהפסקת</strong><small>רזיאל מציע את הצעד הבא</small></button>
+        <button type="button" onClick={() => onRazielAction?.("resume_or_start_journey", { root })}><span>המשך</span><strong>המשך מאיפה שהפסקת</strong><small>רזיאל מציע את הצעד הבא</small></button>
       </div>
     </section>
 
     <section className="sod29-lw-section sod29-lw-deep-gate" data-experience-capability="number-deep-research-gate">
       <SectionHead kicker="DEEP RESEARCH" title="רזיאל והמחקר העמוק" text="דף המספר נשאר עולם שלם. Trace, הרצות חדשות, ELS מלא, 3D מלא ומאות התאמות עוברים לעומק רק כשמבקשים." />
       <div className="sod29-lw-actions">
-        <DepthButton primary onClick={() => onAskRaziel?.("number_next_step", { root })}>מה כדאי לבדוק עכשיו?</DepthButton>
+        <DepthButton primary onClick={() => onRazielAction?.("number_next_step", { root })}>מה כדאי לבדוק עכשיו?</DepthButton>
         <DepthButton onClick={() => onOpenHeichal?.({ kind: "number_deep_research", root })}>פתח בהיכל</DepthButton>
         <DepthButton onClick={() => jump("number-deep-view")}>פתח מפת מחקר</DepthButton>
       </div>
