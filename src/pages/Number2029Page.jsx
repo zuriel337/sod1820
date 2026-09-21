@@ -849,7 +849,7 @@ function NumberPageBody() {
       researchState={researchState}
       onOpenWorld={openWorld}
       onOpenHeichal={openHeichal}
-      onAskRaziel={askRaziel}
+      onRazielAction={askRaziel}
       onOpenNumber={openNumberRoot}
       onJourney={() => root === 878 ? openWorld({ journey: true }) : openWorld()}
       onPersonalJourney={() => askRaziel("personal_journey_from_number", {
