@@ -827,8 +827,8 @@ function NumberPageBody() {
 
     </section>
 
-    <section className="sod29-number-golden-bridge" id="number-research-state" aria-label={`מצב המחקר סביב ${root}`}>
-      <div className="sod29-number-state-strip">
+    <section className="sod29-number-golden-bridge" id="number-research-state" data-experience-capability="number-research-context" aria-label={`מצב המחקר סביב ${root}`}>
+      <div className="sod29-number-state-strip" data-experience-capability="number-research-state">
         <article>
           <span>RESEARCH STRENGTH</span>
           <strong>{researchState.independent != null
@@ -853,7 +853,7 @@ function NumberPageBody() {
         </article>
       </div>
 
-      <div className="sod29-number-world-snapshot">
+      <div className="sod29-number-world-snapshot" data-experience-capability="number-world-snapshot">
         <div className="sod29-number-world-snapshot-head">
           <div>
             <span className="sod29-kicker">WORLD SNAPSHOT · אותו עולם, מבט ממוקד</span>
