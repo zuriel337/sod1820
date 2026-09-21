@@ -195,9 +195,14 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
   await expect(inspector.getByRole('tab', { name: 'רזיאל' })).toBeVisible();
   await expect(inspector.getByRole('tab', { name: 'עולמות' })).toBeVisible();
 
-  const observatory = numberPage.locator('.sod29-number-observatory');
-  await expect(observatory).toBeVisible();
-  expect(await observatory.locator('.sod29-number-observatory-node:not(.is-empty)').count()).toBeGreaterThanOrEqual(2);
+  // Replaceable presentation is accepted through stable semantic capability markers,
+  // not local CSS geometry. This prevents intentional UI evolution from producing false-red CI.
+  const researchContext = numberPage.locator('[data-experience-capability="number-research-context"]');
+  await expect(researchContext).toBeVisible();
+  await expect(researchContext.locator('[data-experience-capability="number-research-state"]')).toBeVisible();
+  const worldSnapshot = researchContext.locator('[data-experience-capability="number-world-snapshot"]');
+  await expect(worldSnapshot).toBeVisible();
+  await expect(worldSnapshot.getByRole('button', { name: /פתח את העולם סביב 1237/ })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
 
   await assertNoHorizontalOverflow(page);
