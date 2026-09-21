@@ -255,6 +255,8 @@ export default function NumberCore2029({
   methodsLoading = false,
   languageBridges = [],
   regularExpressions = [],
+  hiddenCrossings = [],
+  hiddenCrossingsLoading = false,
   mode = "page",
   traceState = null,
   traceOpen = false,
@@ -303,8 +305,10 @@ export default function NumberCore2029({
   const stageLayers = Array.isArray(stage?.layers) ? stage.layers : [];
   const stageCoverage = stage?.coverage || { percent: 0, present: 0, total: stageLayers.length, note: "כיסוי שכבות" };
   const stagePulse = stage?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
-  const stageCrossing = stage?.crossing || null;
-  const stageCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (stageCrossing ? [stageCrossing] : []);
+  const projectedCrossing = stage?.crossing || null;
+  const projectedCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (projectedCrossing ? [projectedCrossing] : []);
+  const stageCrossings = compact ? projectedCrossings : (Array.isArray(hiddenCrossings) ? hiddenCrossings : []);
+  const stageCrossing = stageCrossings[0] || null;
   const stageZero = stage?.zeroScale || null;
   const raziel = projection.razielMicro;
   const result = active?.computedValue ?? projection.activeResult ?? null;
@@ -524,7 +528,7 @@ export default function NumberCore2029({
                 {stageCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `פתח עוד ${stageCrossings.length - 4} הצלבות`}</button> : null}
                 <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
               </div>
-            </> : <p>{stageLoading ? "בודק הצלבות לתוצאה הפעילה…" : "לא מוצגת התאמה מלאכותית רק כדי למלא את הכרטיס."}</p>}
+            </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
           </section>
 
           {stageZero ? <section className="sod29-number-v10-zero">
