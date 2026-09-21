@@ -266,7 +266,7 @@
   border:1px solid var(--s29-line);
   border-radius:14px;
   background:var(--s29-panel);
-  box-shadow:0 18px 48px color-mix(in srgb,#000 20%,transparent);
+  box-shadow:0 18px 48px color-mix(in srgb,var(--s29-ink) 20%,transparent);
 }
 .sod29-lw-search-results button{
   display:flex;align-items:center;gap:9px;
