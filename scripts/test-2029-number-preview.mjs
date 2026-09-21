@@ -23,8 +23,11 @@ for (const required of [
   "fetchEntityHubProjection",
   "fetchGematriaMethodTrace",
   "useResearch",
-  "sod29-number-observatory",
-  "למה",
+  "sod29-number-golden-bridge",
+  "WORLD SNAPSHOT",
+  "RESEARCH STRENGTH",
+  "HUMAN CURATION",
+  "PULSE / ATTENTION",
   "MATH PASSPORT",
   "runNumberMathProfile",
   "NumberCore2029",
@@ -176,10 +179,10 @@ assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");
 
 for (const visual of [
-  ".sod29-number-observatory",
-  ".sod29-number-observatory-center",
-  ".sod29-number-method-grid",
-  ".sod29-number-signal-grid",
+  ".sod29-number-state-strip",
+  ".sod29-number-world-snapshot",
+  ".sod29-number-world-attention",
+  ".sod29-number-depth-nav",
 ]) {
   assert.equal(css.includes(visual), true, `Number preview CSS missing: ${visual}`);
 }
