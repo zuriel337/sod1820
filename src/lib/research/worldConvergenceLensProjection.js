@@ -739,7 +739,13 @@ export function buildWorldConvergenceLensProjection(allResearchProjection) {
     multiTrace: ordered.filter((row) => row.provenanceCount > 1).length,
     byLayer: Object.freeze(countBy(ordered, "layer")), byVerification: Object.freeze(countBy(ordered, "verification")),
     byStatus: Object.freeze(countBy(ordered, "status")), byContributor: Object.freeze(countBy(ordered, "contributor")),
-    byBatch: Object.freeze(countBy(ordered, "batchKey")), zviCoverage,
+    byBatch: Object.freeze(countBy(ordered, "batchKey")),
+    byPresentation: Object.freeze(ordered.reduce((acc, row) => {
+      const key = row.presentation?.state || "review";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {})),
+    zviCoverage,
     candidateError: clean(allResearchProjection?.convergenceCandidateError) || null,
     candidateMeta: allResearchProjection?.convergenceCandidateMeta || {},
     capabilities: Object.freeze({ globalResearchConvergenceIndex: true, contextualCrossMethod: true, globalCrossMethodFeed: false, rawLegacyDiscoveryIncluded: false }),
