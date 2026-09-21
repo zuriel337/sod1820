@@ -180,6 +180,8 @@ export default function NumberLivingWorld2029({
   relations = [],
   projectionRelatedNumbers = [],
   sources = [],
+  verseRows = [],
+  versesLoading = false,
   worlds = [],
   researchFindings = [],
   timeline = [],
@@ -203,6 +205,7 @@ export default function NumberLivingWorld2029({
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [showAllSources, setShowAllSources] = useState(false);
   const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [showAllVerses, setShowAllVerses] = useState(false);
   const [currentSection, setCurrentSection] = useState("עיקר");
 
   const worldCards = useMemo(() => buildWorldCards(worlds, topics), [worlds, topics]);
@@ -278,12 +281,14 @@ export default function NumberLivingWorld2029({
     worldCards.forEach((row) => push("עולם", row.label, "number-worlds-live"));
     relatedNumbers.forEach((row) => push("מספר", String(row.value), "number-connections-live"));
     sources.forEach((row) => push("מקור", sourceLabel(row), "number-content-live"));
+    verseRows.forEach((row) => push("פסוק", `${row.ref} ${row.text}`, "number-verses"));
     if ("פיבונאצ׳י".includes(q) || "fibonacci".includes(q)) push("מתמטיקה", "Fibonacci", "number-math");
     if ("פאי".includes(q) || "π".includes(q) || q === "pi") push("מתמטיקה", "π", "number-math");
     return rows.slice(0, 8);
-  }, [q, expressionRows, worldCards, relatedNumbers, sources]);
+  }, [q, expressionRows, worldCards, relatedNumbers, sources, verseRows]);
 
   const navItems = [
+    ...(verseRows.length || versesLoading ? [["פסוקים", "number-verses"]] : []),
     ["עיקר", "number-essential"],
     ["עולמות", "number-worlds-live"],
     ["קשרים", "number-connections-live"],
@@ -326,6 +331,23 @@ export default function NumberLivingWorld2029({
         {theme === "dark" ? "☀ יום" : "☾ לילה"}
       </button>
     </nav>
+
+    {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses">
+      <SectionHead
+        kicker="TANAKH · DIRECT OCCURRENCE"
+        title={activeExpression ? `פסוקים שבהם מופיע “${activeExpression}”` : "פסוקים"}
+        text="מופע טקסטואלי ישיר בקורפוס התנ״ך. זה אינו שוויון גימטרי ואינו פרשנות."
+        aside={<span className="sod29-lw-count">{versesLoading ? "…" : verseRows.length}</span>}
+      />
+      {versesLoading ? <div className="sod29-lw-empty">מחפש את הביטוי בקורפוס התנ״ך…</div> : <div className="sod29-lw-verse-grid">
+        {verseRows.slice(0, showAllVerses ? 8 : 3).map((row) => <article key={row.id}>
+          <span>{row.ref}</span>
+          <p>{row.text}</p>
+          <small>מופע ישיר · public.tanach_verses</small>
+        </article>)}
+      </div>}
+      {!versesLoading && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses((value) => !value)}>{showAllVerses ? "צמצם פסוקים" : `פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
+    </section> : null}
 
     <div className="sod29-lw-context" data-experience-capability="number-research-context">
       <div className="sod29-lw-context-snapshot" data-experience-capability="number-world-snapshot">
