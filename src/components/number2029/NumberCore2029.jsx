@@ -279,6 +279,7 @@ export default function NumberCore2029({
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [showCalculation, setShowCalculation] = useState(false);
   const [showAllCrossings, setShowAllCrossings] = useState(false);
+  const [showMoreMethods, setShowMoreMethods] = useState(false);
   const [query, setQuery] = useState("");
 
   if (!projection) return null;
@@ -316,7 +317,7 @@ export default function NumberCore2029({
     })
   ), [methods]);
   const primaryMethods = useMemo(() => sortedMethods.slice(0, 6), [sortedMethods]);
-  const displayMethods = compact ? primaryMethods : sortedMethods;
+  const remainingMethods = useMemo(() => sortedMethods.slice(primaryMethods.length), [sortedMethods, primaryMethods.length]);
 
   const inspectorMethod = useMemo(() => (
     methods.find((method) => method.methodKey === inspectorMethodKey)
@@ -330,6 +331,7 @@ export default function NumberCore2029({
     setInspectorTab("calc");
     setShowCalculation(false);
     setShowAllCrossings(false);
+    setShowMoreMethods(false);
   }, [active?.methodKey, root]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectMethod = (method) => {
@@ -413,11 +415,11 @@ export default function NumberCore2029({
       <div className="sod29-number-v10-method-head">
         <div><span>{compact ? "שש שיטות מהירות" : "כל הפנים של הביטוי · כל השיטות מול העין"}</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · נגיעה בכל אחת מעדכנת את המחקר שמתחת`}</strong></div>
         {methodsLoading ? <small className="is-loading">מתעדכן…</small>
-          : compact && methods.length > primaryMethods.length ? <small>+{methods.length - primaryMethods.length} בדף המלא</small>
-          : <small>כולן גלויות · בלי גלילה אופקית</small>}
+          : methods.length > primaryMethods.length ? <small>6 מול העין · {methods.length - primaryMethods.length} בעומק</small>
+          : null}
       </div>
       <div className="sod29-number-v10-method-grid">
-        {displayMethods.map((method) => {
+        {primaryMethods.map((method) => {
           const selected = method.methodKey === active?.methodKey;
           return <button
             type="button"
@@ -433,6 +435,29 @@ export default function NumberCore2029({
           </button>;
         })}
       </div>
+      {!compact && remainingMethods.length ? <>
+        <button type="button" className="sod29-number-v10-more-methods" onClick={() => setShowMoreMethods((value) => !value)} aria-expanded={showMoreMethods}>
+          <span>{showMoreMethods ? "סגור שיטות נוספות" : `＋ עוד ${remainingMethods.length} שיטות`}</span>
+          <small>{showMoreMethods ? "▲" : "▼"}</small>
+        </button>
+        {showMoreMethods ? <div className="sod29-number-v10-more-methods-panel" aria-label="שיטות נוספות">
+          {remainingMethods.map((method) => {
+            const selected = method.methodKey === active?.methodKey;
+            return <button
+              type="button"
+              key={method.methodKey}
+              className={`sod29-number-v10-method-card sod29-number-v7-method-main${selected ? " is-active" : ""}`}
+              aria-pressed={selected}
+              disabled={methodsLoading}
+              onClick={() => selectMethod(method)}
+            >
+              <span>{publicMethodLabel(method)}</span>
+              <strong>{method.computedValue ?? "—"}</strong>
+              <small>{method.mathematicalFamily || method.category || "שיטה"}</small>
+            </button>;
+          })}
+        </div> : null}
+      </> : null}
     </section>
 
     <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
