@@ -413,8 +413,10 @@ assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct 
 assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
-assert.match(world, /if \(!isAdmin\)[\s\S]*setAllResearchState\(\{ enabled: false/);
-assert.match(world, /if \(isAdmin\)[\s\S]*setAdminMode\(true\)/);
+assert.match(world, /const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true/);
+assert.match(world, /const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE \|\| isAdmin/);
+assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);
+assert.match(world, /setAdminMode\(Boolean\(controlMode\)\)/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /private · גלוי לך/);
