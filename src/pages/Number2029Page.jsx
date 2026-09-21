@@ -169,8 +169,6 @@ function NumberPageBody() {
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
-  const [showAllMethods, setShowAllMethods] = useState(false);
-  const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
@@ -191,8 +189,6 @@ function NumberPageBody() {
     const contextMethod = sameContextRoot ? clean(research.context?.selection?.method) : "";
     setSelectedMethodKey(contextMethod);
     setActiveExpression(contextExpression);
-    setShowAllMethods(false);
-    setShowAllExpressions(false);
     setTraceOpen(false);
     fetchEntityHubProjection({
       type: "number",
@@ -365,17 +361,6 @@ function NumberPageBody() {
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
     [families, selectedMethodKey],
   );
-  const selectedPhrases = useMemo(
-    () => (Array.isArray(selectedGroup?.phrases) ? selectedGroup.phrases : []).map(phraseOf).filter(Boolean).slice(0, 30),
-    [selectedGroup],
-  );
-  const methodCards = useMemo(() => methodProfileState.rows.map((profile) => ({
-    profile,
-    family: families.find((group) => methodKey(group) === profile.methodKey) || null,
-  })), [methodProfileState.rows, families]);
-  const visibleMethods = showAllMethods ? methodCards : methodCards.slice(0, 6);
-  const visibleExpressions = showAllExpressions ? expressions : expressions.slice(0, 18);
-
   useEffect(() => {
     const key = selectedMethodProfile?.methodKey || selectedMethodKey;
     if (!key || !activeExpression) {
@@ -797,14 +782,6 @@ function NumberPageBody() {
     navigate(`/2029/number/${next}`);
   };
 
-  const chooseExpression = (item) => {
-    if (!item?.phrase) return;
-    setActiveExpression(item.phrase);
-    if (item.methodKey) setSelectedMethodKey(item.methodKey);
-    setTraceOpen(false);
-    document.getElementById("number-methods")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   if (!Number.isInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
@@ -934,107 +911,6 @@ function NumberPageBody() {
       onRazielAction={askRaziel}
     /> : null}
 
-    <section className="sod29-section sod29-number-section" id="number-math">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">MATH PASSPORT · CANONICAL CAPABILITY</div>
-          <h2>הדרכון המתמטי של {root}</h2>
-          <p className="sod29-muted">פרופיל דטרמיניסטי שכבר קיים במערכת. הוא אינו פרשנות ואינו משודרג אוטומטית ל־Fact/Canonical.</p>
-        </div>
-        <span className="sod29-chip">{math?.arithmetic?.classification || "—"}</span>
-      </div>
-      {math ? <div className="sod29-number-math-grid">
-        <article><span>פירוק</span><strong>{factorizationText(math)}</strong><small>{math.coverage?.factorization_complete ? "הושלם" : "bounded"}</small></article>
-        <article><span>φ(n)</span><strong>{math.arithmetic?.totient ?? "—"}</strong><small>Euler totient</small></article>
-        <article><span>שורש ספרות</span><strong>{math.digit_structure?.digital_root ?? "—"}</strong><small>סכום ספרות {math.digit_structure?.digit_sum ?? "—"}</small></article>
-        <article><span>משפחות</span><strong>{math.families.length}</strong><small>{math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · ") || "ללא משפחה מיוחדת"}</small></article>
-      </div> : <div className="sod29-number-inline-state">הדרכון המתמטי אינו זמין לערך הזה.</div>}
-      {math?.families?.length ? <div className="sod29-number-family-rail">{math.families.map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}</div> : null}
-    </section>
-
-    <section className="sod29-section sod29-number-section" id="number-methods">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">METHOD LENS</div>
-          <h2>שיטות שחיות על {root}</h2>
-          <p className="sod29-muted">כל כרטיס מראה שיטה, כמה ביטויים מגיעים דרכה ל־{root}, ודוגמה אמיתית. בחירה בשיטה אינה משנה את ה־Root — רק את עדשת החישוב הפעילה.</p>
-        </div>
-        {families.length > 6 ? <button className="sod29-action" type="button" onClick={() => setShowAllMethods((v) => !v)}>{showAllMethods ? "פחות שיטות" : `כל ${families.length} השיטות`}</button> : null}
-      </div>
-
-      <div className="sod29-number-method-grid" role="list">
-        {visibleMethods.map(({ profile, family }) => {
-          const key = profile.methodKey;
-          const active = key === selectedMethodKey;
-          const sample = phraseOf(family?.phrases?.[0]);
-          return <button
-            type="button"
-            role="listitem"
-            key={key}
-            className={`sod29-number-method-card${active ? " is-active" : ""}`}
-            aria-pressed={active}
-            onClick={() => {
-              setSelectedMethodKey(key);
-              setTraceOpen(false);
-              setObservatoryFocus("now");
-            }}
-          >
-            <span>{methodProfileLabel(profile)}</span>
-            <strong>→ {profile.computedValue ?? "—"}</strong>
-            <small>{Number(family?.count ?? family?.phrases?.length ?? 0)} ביטויים על {root}</small>
-            {sample ? <p>{sample}</p> : null}
-          </button>;
-        })}
-      </div>
-
-      {selectedPhrases.length ? <div className="sod29-number-expression-rail" aria-label="ביטויים בשיטה הפעילה">
-        {selectedPhrases.map((phrase) => <button
-          type="button"
-          key={phrase}
-          className={`sod29-number-expression-chip${phrase === activeExpression ? " is-active" : ""}`}
-          onClick={() => {
-            setActiveExpression(phrase);
-            setTraceOpen(false);
-            setObservatoryFocus("expression");
-          }}
-        >{phrase}</button>)}
-      </div> : null}
-
-      <div className="sod29-number-trace-card">
-        <div>
-          <span className="sod29-kicker">ACTIVE CALCULATION</span>
-          <h3>{activeExpression || root} · {activeMethodLabel}{activeResult != null ? ` = ${activeResult}` : ""}</h3>
-          <p>החישוב מגיע מ־Method Trace. רזיאל יכול לפרש אותו, אבל אינו מחשב את הגימטריה מחדש.</p>
-        </div>
-        <button className="sod29-action" type="button" disabled={!trace && !traceState.error} onClick={() => setTraceOpen((v) => !v)}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
-      </div>
-      {traceState.error ? <div className="sod29-number-inline-state">Trace לא זמין כרגע לשילוב הזה.</div> : null}
-      {traceOpen && trace ? <div className="sod29-number-trace-steps">
-        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace מאומת ללא פירוט צעדים להצגה.</span>}
-      </div> : null}
-    </section>
-
-    <section className="sod29-section sod29-number-section" id="number-expressions">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">LIVE EXPRESSIONS</div>
-          <h2>ביטויים שחיים על {root}</h2>
-          <p className="sod29-muted">לא רשימת טקסט מתה: כל ביטוי זוכר באיזו שיטה הוא מגיע אל המספר ויכול להפוך מיד לביטוי הפעיל.</p>
-        </div>
-        <button className="sod29-action" type="button" onClick={() => setShowAllExpressions((v) => !v)}>{showAllExpressions ? "הצג פחות" : `הצג את כל ${expressions.length}`}</button>
-      </div>
-      {visibleExpressions.length ? <div className="sod29-number-live-expressions">
-        {visibleExpressions.map((item) => <button type="button" key={item.phrase} onClick={() => chooseExpression(item)}>
-          <strong>{item.phrase}</strong><span>{item.method}</span><small>→ {root}</small>
-        </button>)}
-      </div> : <div className="sod29-number-inline-state">אין כרגע ביטויים להצגה.</div>}
-    </section>
-
-    {worlds.length ? <section className="sod29-section sod29-number-section" id="number-meaning">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">MEANING / CONCEPT</div><h2>עולמות ומושגים</h2><p className="sod29-muted">אלה שכבות מחקר קיימות סביב המספר. הן אינן מחליפות את החישוב ואינן מוצגות כמשמעות מיסטית שנוצרה אוטומטית.</p></div></div>
-      <div className="sod29-number-card-grid">{worlds.slice(0, 8).map((item, index) => <article className="sod29-number-card" key={item?.world || item?.id || index}><span className="sod29-kicker">{item?.count ? `${item.count} פריטים` : "עולם מחקר"}</span><strong>{clean(item?.world || item?.title || item?.label || item?.name) || "עולם מחקר"}</strong><small>{clean(item?.description || item?.summary || item?.kind) || "שכבת מחקר קיימת"}</small></article>)}</div>
-    </section> : null}
-
     <section className="sod29-section sod29-number-section" id="number-meetings">
       <div className="sod29-section-head">
         <div>
@@ -1058,6 +934,11 @@ function NumberPageBody() {
       </div> : <div className="sod29-number-inline-state">אין כרגע התכנסות ציבורית זמינה לעוגן הזה.</div>}
     </section>
 
+    <section className="sod29-section sod29-number-section" id="number-sources">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCES</div><h2>מקורות</h2><p className="sod29-muted">המקור קודם לפרשנות. technical refs נשארים בפרובננס ולא הופכים לכותרת האנושית של הכרטיס.</p></div><span className="sod29-chip">{sources.length}</span></div>
+      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 12).map((source, index) => <div className="sod29-number-source-row" key={source?.id || source?.ref || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
+    </section>
+
     <section className="sod29-section sod29-number-section" id="number-paths">
       <div className="sod29-section-head"><div><div className="sod29-kicker">PATHS · JOURNEY</div><h2>לאן אפשר ללכת מכאן?</h2><p className="sod29-muted">הנתיבים הם תנועה בתוך אותה מציאות מחקרית. כל מעבר צריך לשאת סיבה: התכנסות, relation, derivation או מקור. Zero Scale נשאר DERIVATION, לא שוויון.</p></div></div>
       <div className="sod29-number-path-summary">
@@ -1078,9 +959,22 @@ function NumberPageBody() {
       {zeroScale.length ? <div className="sod29-number-zero-rail">{zeroScale.slice(0, 10).map((n) => <button key={n} type="button" onClick={() => navigate(`/2029/number/${Number(n)}`)}><strong>{n}</strong><small>{Number(n) === root ? "עוגן" : "Zero Scale · נגזרת"}</small></button>)}</div> : null}
     </section>
 
-    <section className="sod29-section sod29-number-section" id="number-sources">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCES</div><h2>מקורות</h2><p className="sod29-muted">המקור קודם לפרשנות. technical refs נשארים בפרובננס ולא הופכים לכותרת האנושית של הכרטיס.</p></div><span className="sod29-chip">{sources.length}</span></div>
-      {sources.length ? <div className="sod29-number-source-list">{sources.slice(0, 12).map((source, index) => <div className="sod29-number-source-row" key={source?.id || source?.ref || index}><div><strong>{sourceLabel(source)}</strong>{sourceDetail(source) ? <small>{sourceDetail(source)}</small> : null}</div><span>מקור</span></div>)}</div> : <div className="sod29-number-inline-state">אין כרגע מקור אנושי זמין להצגה בדוגמה הזאת.</div>}
+    <section className="sod29-section sod29-number-section" id="number-math">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">MATH PASSPORT · CANONICAL CAPABILITY</div>
+          <h2>הדרכון המתמטי של {root}</h2>
+          <p className="sod29-muted">פרופיל דטרמיניסטי שכבר קיים במערכת. הוא אינו פרשנות ואינו משודרג אוטומטית ל־Fact/Canonical.</p>
+        </div>
+        <span className="sod29-chip">{math?.arithmetic?.classification || "—"}</span>
+      </div>
+      {math ? <div className="sod29-number-math-grid">
+        <article><span>פירוק</span><strong>{factorizationText(math)}</strong><small>{math.coverage?.factorization_complete ? "הושלם" : "bounded"}</small></article>
+        <article><span>φ(n)</span><strong>{math.arithmetic?.totient ?? "—"}</strong><small>Euler totient</small></article>
+        <article><span>שורש ספרות</span><strong>{math.digit_structure?.digital_root ?? "—"}</strong><small>סכום ספרות {math.digit_structure?.digit_sum ?? "—"}</small></article>
+        <article><span>משפחות</span><strong>{math.families.length}</strong><small>{math.families.slice(0, 3).map((family) => MATH_FAMILY_HE[family.key] || family.label).join(" · ") || "ללא משפחה מיוחדת"}</small></article>
+      </div> : <div className="sod29-number-inline-state">הדרכון המתמטי אינו זמין לערך הזה.</div>}
+      {math?.families?.length ? <div className="sod29-number-family-rail">{math.families.map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}</div> : null}
     </section>
 
     {mediaItems.length ? <section className="sod29-section sod29-number-section" id="number-media">
