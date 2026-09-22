@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -27,7 +27,42 @@ const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
+const NUMBER_PAGE_PROJECTION_CACHE = new Map();
+const NUMBER_REGULAR_PHRASE_CACHE = new Map();
+const NUMBER_HIDDEN_CROSS_CACHE = new Map();
+const NUMBER_SYSTEM_METHODS_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
+
+function rememberBounded(cache, key, value, max = 36) {
+  cache.delete(key);
+  cache.set(key, value);
+  while (cache.size > max) cache.delete(cache.keys().next().value);
+  return value;
+}
+
+function deferClientWork(callback, { delay = 120, timeout = 700 } = {}) {
+  if (typeof window === "undefined") {
+    callback();
+    return () => {};
+  }
+  let cancelled = false;
+  let timer = null;
+  let idle = null;
+  const run = () => {
+    if (cancelled) return;
+    if (typeof window.requestIdleCallback === "function") {
+      idle = window.requestIdleCallback(() => { if (!cancelled) callback(); }, { timeout });
+    } else {
+      callback();
+    }
+  };
+  timer = window.setTimeout(run, delay);
+  return () => {
+    cancelled = true;
+    if (timer != null) window.clearTimeout(timer);
+    if (idle != null && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle);
+  };
+}
 
 function worldSnapshotKindLabel(item) {
   const kind = clean(item?.kind);
@@ -181,6 +216,8 @@ function NumberPageBody() {
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
   const [systemMethodsState, setSystemMethodsState] = useState({ loading: false, cards: [], error: null, key: null });
+  const [deepRequested, setDeepRequested] = useState(false);
+  const deepSentinelRef = useRef(null);
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -195,17 +232,32 @@ function NumberPageBody() {
     setSelectedMethodKey(contextMethod);
     setActiveExpression(contextExpression);
     setTraceOpen(false);
-    fetchEntityHubProjection({
+    setDeepRequested(false);
+
+    const cacheKey = String(root);
+    const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
+    if (cached?.data) {
+      setState({ loading: false, data: cached.data, error: null });
+      return () => { alive = false; };
+    }
+
+    const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
-      key: String(root),
+      key: cacheKey,
       relationLimit: 140,
       researchLimit: 80,
       topicLimit: 24,
-    })
+    });
+    if (!cached?.promise) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { promise: pending }, 20);
+
+    pending
       .then((data) => {
+        if (data) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { data }, 20);
+        else NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
         if (alive) setState({ loading: false, data, error: null });
       })
       .catch((error) => {
+        NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
         if (alive) setState({ loading: false, data: null, error });
       });
     return () => { alive = false; };
@@ -214,8 +266,25 @@ function NumberPageBody() {
   const data = state.data;
 
   useEffect(() => {
-    if (!data?.identity || data.identity.type !== "number") {
-      setDeepViewInputState({ loading: false, data: null, error: null });
+    const node = deepSentinelRef.current;
+    if (!node || deepRequested) return undefined;
+    if (typeof IntersectionObserver === "undefined") {
+      setDeepRequested(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setDeepRequested(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "900px 0px", threshold: 0 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [data, root, deepRequested]);
+
+  useEffect(() => {
+    if (!deepRequested || !data?.identity || data.identity.type !== "number") {
+      if (!deepRequested) setDeepViewInputState({ loading: false, data: null, error: null });
       return undefined;
     }
     let alive = true;
@@ -234,7 +303,7 @@ function NumberPageBody() {
         }
       });
     return () => { alive = false; };
-  }, [data, root]);
+  }, [deepRequested, data, root]);
 
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
@@ -273,9 +342,21 @@ function NumberPageBody() {
       return undefined;
     }
     let alive = true;
+    const cacheKey = String(root);
+    const cached = NUMBER_REGULAR_PHRASE_CACHE.get(cacheKey);
+    if (cached) {
+      setRegularPhraseState({ loading: false, rows: cached });
+      return () => { alive = false; };
+    }
     setRegularPhraseState({ loading: true, rows: [] });
-    getAllValuePhrases(root, 500)
-      .then((rows) => { if (alive) setRegularPhraseState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
+    // The visible Number UI exposes at most 30 expression cards. Fetching 500 on first paint
+    // moved hundreds of rows over the wire without exposing additional capability.
+    getAllValuePhrases(root, 30)
+      .then((rows) => {
+        const next = Array.isArray(rows) ? rows : [];
+        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, next, 40);
+        if (alive) setRegularPhraseState({ loading: false, rows: next });
+      })
       .catch(() => { if (alive) setRegularPhraseState({ loading: false, rows: [] }); });
     return () => { alive = false; };
   }, [root]);
@@ -326,16 +407,37 @@ function NumberPageBody() {
       setHiddenCrossState({ loading: false, rows: [], error: null });
       return undefined;
     }
+
+    const profileKey = methodProfileState.rows
+      .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
+      .join("|");
+    const cacheKey = `${expr}::${profileKey}`;
+    const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
+    if (cached) {
+      setHiddenCrossState({ loading: false, rows: cached, error: null });
+      return undefined;
+    }
+
     let alive = true;
-    setHiddenCrossState({ loading: true, rows: [], error: null });
-    fetchNumberHiddenCrossings(expr, methodProfileState.rows, { limit: 13 })
-      .then((rows) => {
-        if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
-      })
-      .catch((error) => {
-        if (alive) setHiddenCrossState({ loading: false, rows: [], error });
-      });
-    return () => { alive = false; };
+    let cancelDeferred = null;
+    setHiddenCrossState({ loading: false, rows: [], error: null });
+    cancelDeferred = deferClientWork(() => {
+      if (!alive) return;
+      setHiddenCrossState({ loading: true, rows: [], error: null });
+      fetchNumberHiddenCrossings(expr, methodProfileState.rows, { limit: 13 })
+        .then((rows) => {
+          const next = Array.isArray(rows) ? rows : [];
+          rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);
+          if (alive) setHiddenCrossState({ loading: false, rows: next, error: null });
+        })
+        .catch((error) => {
+          if (alive) setHiddenCrossState({ loading: false, rows: [], error });
+        });
+    }, { delay: 220, timeout: 900 });
+    return () => {
+      alive = false;
+      cancelDeferred?.();
+    };
   }, [activeExpression, methodProfileState.rows]);
 
 
@@ -418,22 +520,34 @@ function NumberPageBody() {
       setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
       return undefined;
     }
+
+    const cached = NUMBER_SYSTEM_METHODS_CACHE.get(next);
+    if (cached) {
+      setSystemMethodsState({ loading: false, cards: cached, error: null, key: next });
+      return undefined;
+    }
+
     let alive = true;
-    setSystemMethodsState({ loading: true, cards: [], error: null, key: next });
-    fetchNumberSystemMethods(next)
-      .then((result) => {
-        if (!alive) return;
-        setSystemMethodsState({
-          loading: false,
-          cards: Array.isArray(result?.cards) ? result.cards : [],
-          error: null,
-          key: next,
+    let cancelDeferred = null;
+    setSystemMethodsState({ loading: false, cards: [], error: null, key: next });
+    cancelDeferred = deferClientWork(() => {
+      if (!alive) return;
+      setSystemMethodsState({ loading: true, cards: [], error: null, key: next });
+      fetchNumberSystemMethods(next)
+        .then((result) => {
+          if (!alive) return;
+          const cards = Array.isArray(result?.cards) ? result.cards : [];
+          rememberBounded(NUMBER_SYSTEM_METHODS_CACHE, next, cards, 48);
+          setSystemMethodsState({ loading: false, cards, error: null, key: next });
+        })
+        .catch((error) => {
+          if (alive) setSystemMethodsState({ loading: false, cards: [], error, key: next });
         });
-      })
-      .catch((error) => {
-        if (alive) setSystemMethodsState({ loading: false, cards: [], error, key: next });
-      });
-    return () => { alive = false; };
+    }, { delay: 280, timeout: 950 });
+    return () => {
+      alive = false;
+      cancelDeferred?.();
+    };
   }, [activeResult]);
 
   useEffect(() => {
@@ -454,9 +568,12 @@ function NumberPageBody() {
     const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
       key: String(next),
-      relationLimit: 70,
-      researchLimit: 36,
-      topicLimit: 12,
+      relationLimit: 36,
+      researchLimit: 16,
+      topicLimit: 8,
+      numberResearchLenses: ["number_lookup", "neighbors"],
+      numberLookupLimit: 80,
+      includeMedia: false,
     });
     if (!cached?.promise) NUMBER_METHOD_RESULT_CACHE.set(next, { promise: pending });
 
@@ -920,11 +1037,14 @@ function NumberPageBody() {
       })}
     />
 
-    {deepViewModel ? <NumberDeepView2029
+    <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
+    {deepRequested && deepViewModel ? <NumberDeepView2029
       model={deepViewModel}
       onOpenHeichal={openHeichal}
       onRazielAction={askRaziel}
-    /> : null}
+    /> : deepRequested && deepViewInputState.loading ? <section className="sod29-section sod29-number-deep-view" id="number-deep-view" aria-busy="true">
+      <div className="sod29-number-core2029-note">טוען את מפת המחקר כשמגיעים אליה…</div>
+    </section> : null}
 
   </div>;
 }
