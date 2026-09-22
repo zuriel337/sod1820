@@ -41,7 +41,7 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
+import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { applySeo } from "../lib/seo.js";
@@ -185,7 +185,12 @@ function looksTechnicalSource(value) {
 function humanSourceLabel(source) {
   const label = String(source?.label || "").trim();
   const ref = String(source?.ref || "").trim();
-  if (source?.type === "verse" && label) return label;
+  if (source?.type === "verse") {
+    const verseRef = formatTanakhRef(ref);
+    const verseText = String(source?.text || "").trim();
+    const suffix = formatVerseGematriaSuffix(source?.value);
+    return [verseRef, verseText].filter(Boolean).join(" — ") + suffix;
+  }
   if (label && label !== ref && !looksTechnicalSource(label)) return label;
   if (/^https?:\/\//i.test(label || ref)) {
     try { return new URL(label || ref).hostname.replace(/^www\./, ""); } catch (_) { return "מקור חיצוני"; }
