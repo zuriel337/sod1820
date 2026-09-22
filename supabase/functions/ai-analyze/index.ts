@@ -45,7 +45,13 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...CORS } });
 }
 
-async function logTokens(kind: string, model: string, usage: { input_tokens?: number; output_tokens?: number } | undefined, identity = "") {
+async function logTokens(
+  kind: string,
+  model: string,
+  usage: { input_tokens?: number; output_tokens?: number } | undefined,
+  identity = "",
+  trace: { traceId?: string | null; spanId?: string | null } = {},
+) {
   try {
     const url = Deno.env.get("SUPABASE_URL");
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -57,9 +63,145 @@ async function logTokens(kind: string, model: string, usage: { input_tokens?: nu
     await fetch(`${url}/rest/v1/ai_token_log`, {
       method: "POST",
       headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ source: "analyze", kind, model, input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0, user_id, visitor }),
+      body: JSON.stringify({
+        source: "analyze",
+        kind,
+        model,
+        input_tokens: usage.input_tokens || 0,
+        output_tokens: usage.output_tokens || 0,
+        user_id,
+        visitor,
+        trace_id: trace.traceId || null,
+        span_id: trace.spanId || null,
+      }),
     });
   } catch { /* לא חוסם */ }
+}
+
+
+type OperationalTraceHandle = {
+  traceId: string;
+  rootSpanId: string;
+  startedAt: string;
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SAFE_REF_RE = /^[a-z0-9:_./-]{1,180}$/i;
+
+function safeTraceUuid(value: unknown): string | null {
+  const v = String(value || "").trim();
+  return UUID_RE.test(v) ? v : null;
+}
+
+function safeOperationalRef(value: unknown): string | null {
+  const v = String(value || "").trim();
+  return SAFE_REF_RE.test(v) ? v : null;
+}
+
+async function traceRpc(name: string, payload: Record<string, unknown>): Promise<any | null> {
+  try {
+    const url = Deno.env.get("SUPABASE_URL") || "";
+    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!url || !key) return null;
+    const r = await fetch(`${url}/rest/v1/rpc/${name}`, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
+async function beginOperationalTrace({
+  body,
+  identityClass,
+  capability,
+  surface,
+  ownerRef,
+  subject,
+}: {
+  body: any;
+  identityClass: string;
+  capability: string;
+  surface: string;
+  ownerRef: string;
+  subject: string;
+}): Promise<OperationalTraceHandle | null> {
+  const traceId = safeTraceUuid(body?.trace_id) || crypto.randomUUID();
+  const rootSpanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  const numericSubject = /^\d{1,18}$/.test(subject) ? `number:${subject}` : null;
+  const result = await traceRpc("op_trace_begin_v1", {
+    p_trace_id: traceId,
+    p_root_span_id: rootSpanId,
+    p_context: {
+      interaction_id: safeOperationalRef(body?.interaction_id),
+      capability,
+      surface: safeOperationalRef(surface) || "ai-analyze",
+      channel: "web",
+      locale: "he",
+      identity_class: identityClass,
+      subject_ref: safeOperationalRef(body?.subject_ref) || numericSubject,
+      owner_ref: ownerRef,
+      root_name: "ai-analyze",
+    },
+    p_started_at: startedAt,
+  });
+  const returnedTraceId = safeTraceUuid(result?.trace_id) || traceId;
+  const returnedRootSpanId = safeTraceUuid(result?.root_span_id) || rootSpanId;
+  return result ? { traceId: returnedTraceId, rootSpanId: returnedRootSpanId, startedAt } : null;
+}
+
+async function recordOperationalSpan(
+  trace: OperationalTraceHandle | null,
+  {
+    spanId,
+    kind,
+    name,
+    startedAt,
+    endedAt,
+    outcome,
+    detail = {},
+  }: {
+    spanId: string;
+    kind: string;
+    name: string;
+    startedAt: string;
+    endedAt: string;
+    outcome: string;
+    detail?: Record<string, unknown>;
+  },
+) {
+  if (!trace) return;
+  await traceRpc("op_trace_record_span_v1", {
+    p_trace_id: trace.traceId,
+    p_span_id: spanId,
+    p_parent_span_id: trace.rootSpanId,
+    p_kind: kind,
+    p_name: name,
+    p_started_at: startedAt,
+    p_ended_at: endedAt,
+    p_outcome: outcome,
+    p_detail: detail,
+  });
+}
+
+async function finishOperationalTrace(
+  trace: OperationalTraceHandle | null,
+  outcome: string,
+  stopReason: string | null = null,
+) {
+  if (!trace) return;
+  await traceRpc("op_trace_finish_v1", {
+    p_trace_id: trace.traceId,
+    p_root_span_id: trace.rootSpanId,
+    p_outcome: outcome,
+    p_ended_at: new Date().toISOString(),
+    p_stop_reason: stopReason,
+  });
 }
 
 const KIND_HINT: Record<string, string> = {
@@ -346,6 +488,7 @@ function razielSurfaceContextText(sc: any): string {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  let activeTrace: OperationalTraceHandle | null = null;
   try {
     const body = await req.json().catch(() => ({}));
     const engine = String(body?.engine || "claude").toLowerCase() === "gemini" ? "gemini" : "claude";
@@ -536,20 +679,70 @@ Deno.serve(async (req: Request) => {
     // מסר-המסע (journey-message) לא עובר כאן כלל → נשאר חינם.
     const isDeep = !body?.fast;
     const { identity, tier } = await resolveIdentity(req, body);
+    activeTrace = await beginOperationalTrace({
+      body,
+      identityClass: tier,
+      capability: `ai-analyze:${kind || "analyze"}`,
+      surface: String(body?.surface || "ai-analyze"),
+      ownerRef: "system_suggestions_law v3 + ai_analyze_contract v2",
+      subject,
+    });
     if (isDeep) {
+      const quotaSpanId = crypto.randomUUID();
+      const quotaStartedAt = new Date().toISOString();
       const q = await checkQuota(identity, tier);            // עמוק: 2/יום לכולם · אדמין פטור
+      const quotaEndedAt = new Date().toISOString();
+      await recordOperationalSpan(activeTrace, {
+        spanId: quotaSpanId,
+        kind: "db_rpc",
+        name: "ai_quota_check",
+        startedAt: quotaStartedAt,
+        endedAt: quotaEndedAt,
+        outcome: q.allowed ? "success" : "access_filtered",
+        detail: {
+          capability: "ai_quota",
+          owner_ref: "ai_quota_law v3",
+          output_use: "not_applicable",
+          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(quotaEndedAt) - Date.parse(quotaStartedAt)) },
+          cost: { certainty: "not_billable" },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
       if (!q.allowed) {
+        await finishOperationalTrace(activeTrace, "access_filtered", "quota");
         return json({ analysis: null, error: "quota", surface: "deep", tier: q.tier, used: q.used, limit: q.limit,
-          message: "הגעת ל-2 ניתוחי-ה-AI המעמיקים שלך להיום. הניתוח המהיר עדיין פתוח — והמכסה המעמיקה מתחדשת מחר." });
+          message: "הגעת ל-2 ניתוחי-ה-AI המעמיקים שלך להיום. הניתוח המהיר עדיין פתוח — והמכסה המעמיקה מתחדשת מחר.",
+          trace_id: activeTrace?.traceId || null });
       }
     } else if (tier === "anon" || tier === "user") {
       const lim = tier === "anon" ? 30 : 200;                // מהיר: נדיב, אנטי-לולאה; מנוי/אדמין = חופשי
+      const quotaSpanId = crypto.randomUUID();
+      const quotaStartedAt = new Date().toISOString();
       const q = await checkQuota(`${identity}:f`, tier, lim);
+      const quotaEndedAt = new Date().toISOString();
+      await recordOperationalSpan(activeTrace, {
+        spanId: quotaSpanId,
+        kind: "db_rpc",
+        name: "ai_quota_check",
+        startedAt: quotaStartedAt,
+        endedAt: quotaEndedAt,
+        outcome: q.allowed ? "success" : "access_filtered",
+        detail: {
+          capability: "ai_quota",
+          owner_ref: "ai_quota_law v3",
+          output_use: "not_applicable",
+          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(quotaEndedAt) - Date.parse(quotaStartedAt)) },
+          cost: { certainty: "not_billable" },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
       if (!q.allowed) {
+        await finishOperationalTrace(activeTrace, "access_filtered", "quota");
         return json({ analysis: null, error: "quota", surface: "fast", tier: q.tier, used: q.used, limit: q.limit,
           message: tier === "anon"
             ? "הגעת למכסת ה-AI המהיר היומית (נדיבה). הירשמו בחינם להמשך חלק ולשמירת ההיסטוריה."
-            : "הגעת למכסת ה-AI המהיר היומית. המכסה מתחדשת מחר." });
+            : "הגעת למכסת ה-AI המהיר היומית. המכסה מתחדשת מחר.",
+          trace_id: activeTrace?.traceId || null });
       }
     }
 
@@ -569,7 +762,27 @@ Deno.serve(async (req: Request) => {
     let mtxVersion: unknown = null;
     let mtxFacts = "";
     {
+      const mtxSpanId = crypto.randomUUID();
+      const mtxStartedAt = new Date().toISOString();
       const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
+      const mtxEndedAt = new Date().toISOString();
+      await recordOperationalSpan(activeTrace, {
+        spanId: mtxSpanId,
+        kind: "db_rpc",
+        name: "metatron_context",
+        startedAt: mtxStartedAt,
+        endedAt: mtxEndedAt,
+        outcome: mtx ? "success" : "degraded_fallback",
+        detail: {
+          capability: "context_compiler",
+          owner_ref: "research_strategy_layer_law v15",
+          output_use: "not_applicable",
+          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(mtxEndedAt) - Date.parse(mtxStartedAt)) },
+          cost: { certainty: "not_billable" },
+          replay: { ownerRuleRefs: ["research_strategy_layer_law v15"] },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
       if (mtx) {
         sys = SYSTEM + metatronRulesBlock(mtx);
         mtxFacts = metatronFactsBlock(mtx);
@@ -587,12 +800,53 @@ Deno.serve(async (req: Request) => {
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
     const model = engine === "gemini" ? GEMINI_MODEL : (body?.fast ? FAST_MODEL : MODEL);
+    const modelSpanId = crypto.randomUUID();
+    const modelStartedAt = new Date().toISOString();
     const out = engine === "gemini" ? await runGemini(user, maxTokens, sys) : await runClaude(model, user, maxTokens, sys);
+    const modelEndedAt = new Date().toISOString();
+    const modelOutcome = out.error
+      ? (out.error === "refusal" ? "failed_with_reason" : "provider_error")
+      : "success";
+    await recordOperationalSpan(activeTrace, {
+      spanId: modelSpanId,
+      kind: "model_call",
+      name: "ai-analyze:model",
+      startedAt: modelStartedAt,
+      endedAt: modelEndedAt,
+      outcome: modelOutcome,
+      detail: {
+        capability: `ai-analyze:${kind || "analyze"}`,
+        owner_ref: "ai_analyze_contract v2",
+        intelligence_level: isDeep ? "deep" : "fast",
+        provider: engine === "gemini" ? "google" : "anthropic",
+        model,
+        routing_reason: body?.engine ? "caller_selected_engine" : "default_engine",
+        output_use: out.error ? "not_applicable" : "used",
+        stop_reason: out.error || null,
+        resources: {
+          input_tokens: out.usage?.input_tokens ?? null,
+          output_tokens: out.usage?.output_tokens ?? null,
+          api_calls: 1,
+          latency_ms: Math.max(0, Date.parse(modelEndedAt) - Date.parse(modelStartedAt)),
+        },
+        cost: { certainty: "unknown" },
+        replay: {
+          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+          searchBoundsRef: `max_tokens:${maxTokens}`,
+        },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
 
-    if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
-    await logTokens(kind || "analyze", model, out.usage, identity);
-    return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion });
+    if (out.error) {
+      await finishOperationalTrace(activeTrace, modelOutcome, out.error);
+      return json({ analysis: null, engine, model, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
+    }
+    await logTokens(kind || "analyze", model, out.usage, identity, { traceId: activeTrace?.traceId, spanId: modelSpanId });
+    await finishOperationalTrace(activeTrace, "success");
+    return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null });
   } catch (e) {
-    return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
+    await finishOperationalTrace(activeTrace, "failed_with_reason", "unhandled_exception");
+    return json({ analysis: null, error: String(e).slice(0, 200), trace_id: activeTrace?.traceId || null }, 200);
   }
 });
