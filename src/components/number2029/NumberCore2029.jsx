@@ -266,6 +266,8 @@ export default function NumberCore2029({
   regularExpressions = [],
   hiddenCrossings = [],
   hiddenCrossingsLoading = false,
+  systemMethods = [],
+  systemMethodsLoading = false,
   mode = "page",
   traceState = null,
   traceOpen = false,
@@ -531,11 +533,10 @@ export default function NumberCore2029({
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
           </>}
         </div>
-        <div className="sod29-number-v10-vitality" aria-label={stageLoading ? "כיסוי שכבות מתעדכן" : `כיסוי שכבות ${coverageValue} אחוז`}>
-          <div className="sod29-number-v10-vitality-ring" style={{ "--vitality": stageLoading ? "0deg" : `${coverageValue * 3.6}deg` }}>
-            <strong>{stageLoading ? "…" : coverageValue}</strong><small>{stageLoading ? "" : "%"}</small>
-          </div>
-          <div><b>כיסוי שכבות</b><small>{stageLoading ? "המידע העמוק מתעדכן ברקע" : "כמה שכבות חומר זמינות כרגע · לא ציון אמת"}</small></div>
+        <div className="sod29-number-v10-stage-meta" aria-label={`${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
+          <strong>{stageCoverage.present || 0}</strong>
+          <span>שכבות</span>
+          <small>בתוצאה {stageRoot}</small>
         </div>
       </header>
 
@@ -556,11 +557,13 @@ export default function NumberCore2029({
               {visibleStageConnections.slice(0, compact ? 6 : visibleStageConnections.length).map((item, index) => <button
                 type="button"
                 key={`${item.label}:${index}`}
+                className={item.world ? "has-world" : "no-world"}
+                style={item.world ? { "--world-color": worldColor(item.world) } : undefined}
                 onClick={() => onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
               >
                 <strong>{item.label}</strong>
-                <small>{item.note}</small>
-                {item.world ? <em className="sod29-number-v10-world-tag" style={{ "--world-color": worldColor(item.world) }}>{item.world}</em> : null}
+                {item.world ? <em className="sod29-number-v10-world-tag">{item.world}</em> : <small>{item.note}</small>}
+                {item.world ? <small className="sod29-number-v10-method-note">{item.note}</small> : null}
               </button>)}
             </div> : <div className="sod29-number-core2029-note">{stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
           </section>
@@ -610,7 +613,27 @@ export default function NumberCore2029({
             </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
           </section>
 
-          {stageZero ? <section className="sod29-number-v10-zero">
+          {!compact && (systemMethodsLoading || systemMethods.length) ? <section className="sod29-number-v10-system-methods" data-experience-capability="number-system-methods">
+            <div className="sod29-number-v10-panel-head sod29-number-v10-system-head">
+              <div>
+                <span>שיטות המערכת</span>
+                <div className="sod29-number-v10-title-count"><strong>נגזרות סביב {stageRoot}</strong><small>{systemMethods.length}</small></div>
+              </div>
+            </div>
+            {systemMethodsLoading ? <div className="sod29-number-core2029-note">בודק אילו שיטות מערכת חלות על המספר…</div> : <div className="sod29-number-v10-system-grid">
+              {systemMethods.map((item) => <button
+                type="button"
+                key={item.key}
+                onClick={() => item.target != null ? onOpenResult?.(item.target) : onRazielAction?.("explain_system_method", { kind: "system_method", ruleId: item.ruleId, resultValue: stageRoot })}
+              >
+                <span>{item.title}</span>
+                <strong>{item.display}</strong>
+                <small>{item.note}</small>
+              </button>)}
+            </div>}
+          </section> : null}
+
+          {compact && stageZero ? <section className="sod29-number-v10-zero">
             <div className="sod29-number-v10-panel-head">
               <div><span>סולם האפס</span><strong>{stageRoot}{stageZero.next != null ? ` → ${stageZero.next}` : ""}</strong></div>
               <span>◉</span>
@@ -629,28 +652,27 @@ export default function NumberCore2029({
             </div>
           </section> : null}
 
-          <section className="sod29-number-v10-worlds">
-            <div className="sod29-number-v10-panel-head"><div><span>עולמות ומספרים</span><strong>הסביבה של {stageRoot}</strong></div><button type="button" onClick={() => onOpenWorld?.()}>פתח בעולם ↗</button></div>
+          {(stageWorlds.length || stageRelatedNumbers.length) ? <section className="sod29-number-v10-world-teaser">
+            <div className="sod29-number-v10-panel-head">
+              <div><span>טעימה מהעולם</span><strong>מה מתחבר לתוצאה {stageRoot}</strong></div>
+              <button type="button" onClick={() => onOpenWorld?.()}>פתח עולם ↗</button>
+            </div>
             <div className="sod29-number-v10-world-row">
-              {stageWorlds.slice(0, 4).map((world) => <button key={world.label} type="button" onClick={() => onRazielAction?.("explain_world", { kind: "world", world: world.label, count: world.count || 0, resultValue: stageRoot })}>
+              {stageWorlds.slice(0, 3).map((world) => <button key={world.label} type="button" onClick={() => onRazielAction?.("explain_world", { kind: "world", world: world.label, count: world.count || 0, resultValue: stageRoot })}>
                 <span>{world.label}</span><small>{world.count || 0}</small>
               </button>)}
-              {stageRelatedNumbers.slice(0, 4).map((item) => <button key={`n:${item.value}`} type="button" onClick={() => onOpenResult?.(item.value)}>
+              {stageRelatedNumbers.slice(0, 2).map((item) => <button key={`n:${item.value}`} type="button" onClick={() => onOpenResult?.(item.value)}>
                 <strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? canonicalResearchPublicLabel("convergence") : item.relationType}</small>
               </button>)}
             </div>
-            {!stageWorlds.length && !stageRelatedNumbers.length ? <div className="sod29-number-core2029-note">{stageLoading ? "מעדכן עולמות ומספרים קשורים…" : "אין כרגע שכבת עולם נוספת לתוצאה הזאת."}</div> : null}
-          </section>
+          </section> : null}
         </div>
 
-        <section className="sod29-number-v10-calculation-card">
-          <div>
-            <span>חישוב השיטה</span>
-            <strong>{projection.expression} · {publicMethodLabel(active)} = {stageRoot}</strong>
-            <small>Trace קנוני · החישוב הבסיסי נשאר גלוי; העומק נפתח לפי דרישה</small>
-          </div>
-          <button type="button" onClick={() => setShowCalculation((value) => !value)}>{showCalculation ? "סגור חישוב" : "פתח חישוב"}</button>
-        </section>
+        <button type="button" className="sod29-number-v10-calculation-card" onClick={() => setShowCalculation((value) => !value)} aria-expanded={showCalculation}>
+          <span>איך חישבנו?</span>
+          <strong>{projection.expression} · {publicMethodLabel(active)} = {stageRoot}</strong>
+          <small>{showCalculation ? "סגור פירוט ▲" : "פתח Trace ופירוט ▼"}</small>
+        </button>
 
         {showCalculation ? <MethodInspector
           method={inspectorMethod}
@@ -677,7 +699,6 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>✦ שאל את רזיאל</button>
-          <button type="button" onClick={() => onOpenWorld?.()}>◉ פתח בעולם</button>
           <button type="button" className="primary" onClick={() => onOpenHeichal?.({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,
@@ -689,19 +710,16 @@ export default function NumberCore2029({
           })}>◇ חקור בהיכל</button>
         </footer>
 
-        <div className="sod29-number-v10-premium-ready">
-          <span>👑 עומק מתקדם</span>
-          <small>השוואות כבדות, גרף עמוק וכלים מתקדמים נפתחים רק כשמבקשים — בלי להעמיס על הדף מראש.</small>
-        </div>
+
     </section>
 
-    <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
+    {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
       {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
         : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 עולם</button> : null}
       <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
       <button type="button" onClick={() => onExpandRaziel?.()}>✨ רזיאל</button>
       {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}
-    </footer>
+    </footer> : null}
 
     {stageZero && compact && stageZero.next != null ? <button className="sod29-number-dashboard-open-result" type="button" onClick={() => onOpenZero?.(stageZero.next)}>Zero Scale · {stageRoot} → {stageZero.next}</button> : null}
   </section>;
