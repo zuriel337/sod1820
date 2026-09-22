@@ -49,7 +49,7 @@ Verified 2026-09-19:
 - `/world` is now in the canonical sitemap STATIC list (released via PR #555).
 - `/topic/:slug` is Class A in the route/SEO matrix.
 - canonical sitemap already emits approved `topic_cards_public` as `/topic/:slug`.
-- `topic_cards_public` currently contains **205** public Topics/Convergences.
+- `topic_cards_public` contained **205** public Topics/Convergences at the 2026-09-19 baseline; live 2026-09-22 count is **204**. Treat the older detailed census below as a dated baseline, not a current row count.
 - App2029 does not yet own a native `/topic/:slug` renderer; that canonical address still survives through LegacyDocumentHandoff.
 - `lock_convergence_tree` was re-verified as the availability owner for the retired legacy `/numbers` Convergence Tree surface. Canonical `/topic/:slug` does not consume that flag and remains a separate public Topic identity route.
 - Therefore `sitemap-public` removing only `/numbers` is consistent with the live route boundary; Topic URLs must not be removed merely because the old tree is locked.
@@ -83,7 +83,7 @@ Do **not** remove `/topic/*` from sitemap based on `lock_convergence_tree`. If T
 
 ### N3 — Preserve /topic/:slug while native replacement is missing — DONE / LIVE
 
-PR #557 is LIVE: `/topic/:slug` is now owned by native Topic 2029 on the same canonical URL. Do not redirect or rename the canonical Topic identity.
+PR #557 is LIVE: `/topic/:slug` is now owned by native Topic 2029 on the same canonical route family. **Human Gate update 2026-09-22:** 79 automatically-created creator-prefixed slugs (`tzvi-conv-*` / `shimon-conv-*`) are approved for a bounded semantic URL cleanup. Topic card/node identity remains unchanged; every old URL must remain a permanent inbound alias/301 to the new semantic Latin slug, and sitemap/canonical/OG must converge on the new address. This is an addressability correction, not a new Topic identity.
 
 Gate:
 ```
@@ -96,6 +96,25 @@ native Topic 2029 renderer
 + real-browser acceptance
 = Legacy Topic renderer eligible for retirement
 ```
+
+### N3.1 — Creator-prefixed Topic slug cleanup — HUMAN GATE APPROVED / IN IMPLEMENTATION
+
+Live audit 2026-09-22 found 79 public Topics whose canonical slug encodes the contributor rather than the subject:
+- 78 × `tzvi-conv-*`;
+- 1 × `shimon-conv-827`.
+
+The Hebrew titles already describe the Topic correctly; only the public slug/address drifts from subject-first identity projection.
+
+Migration contract:
+1. keep the same `topic_cards.id`, convergence `node_id`, `identity_key`, title, findings, provenance and rank inputs;
+2. assign a semantic Latin subject-based slug;
+3. old URL → permanent 301 → new URL;
+4. dual-slug resolver must keep both addresses readable during the migration window;
+5. sitemap/canonical/OG/Research Context emit only the new canonical slug after source migration;
+6. no creator identity is removed from attribution;
+7. no bulk index/noindex policy changes as part of the URL migration.
+
+Historical GSC evidence already exists on creator-prefixed URLs (including a recorded click), so redirect continuity is mandatory.
 
 ### N4 — Indexability audit before changing policy
 
@@ -201,6 +220,21 @@ Research Context can enhance transitions, but must not replace crawlable public 
 Storage identity and old field names are compatibility details. Do not rename tables merely for UI vocabulary.
 
 ---
+
+### Topic Golden experience — IN IMPLEMENTATION
+
+Human Gate direction 2026-09-22: upgrade native Topic from a correct renderer into the shared 2029 Golden experience without forking data/rank owners.
+
+Required composition:
+- canonical Topic Finding opens immediately;
+- convergence EntityHub/research/media loads as a secondary progressive layer;
+- public-safe contextual prominence reuses `research_gold_hints_law v3` / `buildWorldContextualProminence`;
+- Research Strength / Explain-Why / explicit Human Curation may project publicly when source-safe;
+- the full Attention / pending-candidate admin lens remains Human-Gate-only;
+- no universal truth score;
+- Sparse / Medium / Rich presentation modes adapt to real authored material;
+- Hebrew-first section language;
+- Graph, Sources, People, Media, Number/Expression, Related Convergences, Raziel, Heichal and Journey remain one shared semantic tree.
 
 ## 5. NEXT — Search indexability contract for Convergences
 
