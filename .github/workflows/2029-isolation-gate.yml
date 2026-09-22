@@ -62,6 +62,8 @@ jobs:
         run: npm run test:operational-trace-runtime
       - name: Server capability execution gate acceptance
         run: npm run test:server-capability-gate
+      - name: 2029 server SEO / AI metadata parity
+        run: npm run test:2029-server-seo-ai
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
