@@ -210,7 +210,6 @@ export default function NumberLivingWorld2029({
   const [activeWorld, setActiveWorld] = useState(0);
   const [scrubMode, setScrubMode] = useState("numbers");
   const [scrubIndex, setScrubIndex] = useState(0);
-  const [query, setQuery] = useState("");
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [showAllSources, setShowAllSources] = useState(false);
   const [showAllTimeline, setShowAllTimeline] = useState(false);
@@ -278,24 +277,6 @@ export default function NumberLivingWorld2029({
   }, [scrubMode, root]);
 
   const selectedScrub = scrubRows[Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))] || null;
-  const q = clean(query).toLowerCase();
-  const localMatches = useMemo(() => {
-    if (!q) return [];
-    const rows = [];
-    const push = (kind, label, target) => {
-      const text = clean(label);
-      if (text && text.toLowerCase().includes(q)) rows.push({ kind, label: text, target });
-    };
-    expressionRows.forEach((row) => push("ביטוי", row.phrase, "number-expressions"));
-    worldCards.forEach((row) => push("עולם", row.label, "number-worlds-live"));
-    relatedNumbers.forEach((row) => push("מספר", String(row.value), "number-connections-live"));
-    sources.forEach((row) => push("מקור", sourceLabel(row), "number-content-live"));
-    verseRows.forEach((row) => push("פסוק", `${row.ref} ${row.text}`, "number-verses"));
-    if ("פיבונאצ׳י".includes(q) || "fibonacci".includes(q)) push("מתמטיקה", "Fibonacci", "number-math");
-    if ("פאי".includes(q) || "π".includes(q) || q === "pi") push("מתמטיקה", "π", "number-math");
-    return rows.slice(0, 8);
-  }, [q, expressionRows, worldCards, relatedNumbers, sources, verseRows]);
-
   const navItems = [
     ...(verseRows.length || versesLoading ? [["פסוקים", "number-verses"]] : []),
     ["עיקר", "number-essential"],
@@ -343,7 +324,7 @@ export default function NumberLivingWorld2029({
 
     {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses" data-source="fn_verses_by_gematria">
       <SectionHead
-        kicker="TANAKH · GEMATRIA"
+        kicker="תנ״ך · גימטריה"
         title={`פסוקים בגימטריה של ${root}`}
         text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
         aside={<span className="sod29-lw-count">{versesLoading ? "…" : verseRows.length}</span>}
@@ -401,17 +382,12 @@ export default function NumberLivingWorld2029({
         ))}
       </div>
 
-      <div className="sod29-lw-search">
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`חפש בתוך ${root}: ביטוי · מספר · מקור · עולם`} aria-label={`חיפוש בתוך ${root}`} />
-        {q ? <div className="sod29-lw-search-results">
-          {localMatches.length ? localMatches.map((row, index) => <button key={index} type="button" onClick={() => { jump(row.target); setQuery(""); }}><span>{row.kind}</span><strong>{row.label}</strong></button>) : <span>לא נמצאה התאמה בתוך החומר שכבר נטען.</span>}
-        </div> : null}
-      </div>
+
     </section>
 
     <section className="sod29-lw-section sod29-lw-worlds" id="number-worlds-live" data-experience-capability="number-living-worlds">
       <SectionHead
-        kicker="LIVING WORLDS"
+        kicker="עולמות"
         title={`העולמות החיים של ${root}`}
         text="3–4 העולמות הבולטים פתוחים כחוויה; השאר נשארים תגיות חיות. בחירה בעולם משנה את הפוקוס, לא את האמת."
         aside={<span className="sod29-lw-count">{worldCards.length}</span>}
@@ -439,7 +415,7 @@ export default function NumberLivingWorld2029({
 
     <section className="sod29-lw-section" id="number-connections-live" data-experience-capability="number-connections">
       <SectionHead
-        kicker="CONNECTIONS"
+        kicker="חיבורים"
         title="חיבורים ומספרים קשורים"
         text="כל תחנה נושאת סיבה. שיטת האפס נשארת נגזרת מפורשת — ובמספר דל היא יכולה להפוך לחלק ראשון במעלה של הסיפור."
         aside={<span className="sod29-lw-count">{relatedNumbers.length}</span>}
@@ -458,7 +434,7 @@ export default function NumberLivingWorld2029({
 
     <section className="sod29-lw-section sod29-lw-math" id="number-math" data-experience-capability="number-math-universe">
       <SectionHead
-        kicker="MATH PASSPORT · UNIVERSE"
+        kicker="מתמטיקה"
         title={`היקום המתמטי של ${root}`}
         text="הפרופיל המתמטי, הרצפים והמעברים חיים באותו מרחב. החישוב דטרמיניסטי; המשמעות המחקרית נשארת שכבה נפרדת."
         aside={<span className="sod29-lw-count">{math?.families?.length || 0}</span>}
@@ -500,7 +476,7 @@ export default function NumberLivingWorld2029({
 
     <section className="sod29-lw-section" id="number-expressions" data-experience-capability="number-expression-family">
       <SectionHead
-        kicker="EXPRESSIONS · LANGUAGES"
+        kicker="ביטויים ושפות"
         title="משפחת הביטויים"
         text="ביטויים שווים, שיטות ושפות נוספות מוצגים בהדרגה. מספר לעולם לא מנותק מהשיטה שיצרה אותו."
         aside={<span className="sod29-lw-count">{expressionRows.length}</span>}
@@ -514,7 +490,7 @@ export default function NumberLivingWorld2029({
 
     <section className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
       <SectionHead
-        kicker="SOURCES · CONTENT"
+        kicker="מקורות ותוכן"
         title="מקורות ותוכן"
         text="המקור קודם לפרשנות. מדיה, ELS ו־3D נפתחים רק כשיש להם ערך מחקרי — לא כדי להכביד על הדף."
         aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
@@ -529,18 +505,18 @@ export default function NumberLivingWorld2029({
       </div>
       <div className="sod29-lw-depth-gates">
         <button type="button" onClick={() => onOpenHeichal?.({ kind: "els_from_number", root })}><span>ELS / צפנים</span><strong>בדוק ממצאים קיימים או פתח חקירה</strong><small>לא רץ אוטומטית</small></button>
-        <button type="button" onClick={() => onOpenHeichal?.({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>Lazy · עומק לפי דרישה</small></button>
+        <button type="button" onClick={() => onOpenHeichal?.({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
       </div>
       {sources.length > 5 ? <DepthButton onClick={() => setShowAllSources((value) => !value)}>{showAllSources ? "צמצם מקורות" : "ראה מקורות נוספים"}</DepthButton> : null}
     </section>
 
     {people.length ? <section className="sod29-lw-section" id="number-people" data-experience-capability="number-people">
-      <SectionHead kicker="PEOPLE · RESEARCHERS" title="אנשים וחוקרים" text="מופיעים רק כשיש תרומה ממשית לחומר סביב המספר. זהות וייחוס נשארים בבעלי הבית הקיימים." />
+      <SectionHead kicker="אנשים וחוקרים" title="אנשים וחוקרים" text="מופיעים רק כשיש תרומה ממשית לחומר סביב המספר. זהות וייחוס נשארים בבעלי הבית הקיימים." />
       <div className="sod29-lw-people">{people.map((person) => <article key={person.name}><span>אדם / חוקר</span><strong>{person.name}</strong><small>{person.reason}</small></article>)}</div>
     </section> : null}
 
     {timeline.length ? <section className="sod29-lw-section" id="number-timeline-live" data-experience-capability="number-timeline">
-      <SectionHead kicker="LIVING RESEARCH" title="ציר ההתגלות" text="תחנות מחקר, גילוי והוספה למחקר. זמן הכנסת חומר אינו מוצג כאילו הוא זמן האירוע בעולם." />
+      <SectionHead kicker="מחקר חי" title="ציר ההתגלות" text="תחנות מחקר, גילוי והוספה למחקר. זמן הכנסת חומר אינו מוצג כאילו הוא זמן האירוע בעולם." />
       <div className="sod29-lw-timeline">
         {timelineShown.map((item, index) => <article key={item?.id || index}><time>{item?.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><i /><div><strong>{clean(item?.label) || clean(item?.kind) || "פריט מחקר"}</strong><small>{clean(item?.kind) || "נוסף למחקר"}{item?.status ? ` · ${item.status}` : ""}</small></div></article>)}
       </div>
@@ -556,7 +532,7 @@ export default function NumberLivingWorld2029({
     </section>
 
     <section className="sod29-lw-section sod29-lw-journey" id="number-journey-gate" data-experience-capability="number-journey-gate">
-      <SectionHead kicker="JOURNEY GATE" title={`לאן ${root} לוקח אותך?`} text="המסע הוא דרך לנוע בתוך אותו Research Context. תיק אישי הוא מצב נשמר; המסע הוא הדרך להתקדם בו." />
+      <SectionHead kicker="מסע" title={`לאן ${root} לוקח אותך?`} text="המסע מחבר את מה שכבר חקרת למסלול אחד רציף. תיק אישי שומר את המחקר; המסע מוביל אותך בתוכו." />
       <div className="sod29-lw-journey-grid">
         <button type="button" onClick={() => onJourney?.()}><span>מסע כללי</span><strong>צא למסע בעולם של {root}</strong><small>עולמות · מספרים · מקורות · תחנות</small></button>
         <button type="button" onClick={() => onPersonalJourney?.()}><span>מסע אישי</span><strong>קח אדם דרך {root}</strong><small>פרטי כברירת מחדל · בלי ליצור תיק אוטומטית</small></button>
@@ -565,11 +541,11 @@ export default function NumberLivingWorld2029({
     </section>
 
     <section className="sod29-lw-section sod29-lw-deep-gate" data-experience-capability="number-deep-research-gate">
-      <SectionHead kicker="DEEP RESEARCH" title="רזיאל והמחקר העמוק" text="דף המספר נשאר עולם שלם. Trace, הרצות חדשות, ELS מלא, 3D מלא ומאות התאמות עוברים לעומק רק כשמבקשים." />
+      <SectionHead kicker="מחקר עמוק" title="רזיאל והמחקר העמוק" text="דף המספר נשאר נקי ומהיר. חישוב מלא, הרצות חדשות, ELS, תלת־ממד והתאמות רבות נפתחים רק כשמבקשים." />
       <div className="sod29-lw-actions">
         <DepthButton primary onClick={() => onRazielAction?.("number_next_step", { root })}>מה כדאי לבדוק עכשיו?</DepthButton>
         <DepthButton onClick={() => onOpenHeichal?.({ kind: "number_deep_research", root })}>פתח בהיכל</DepthButton>
-        <DepthButton onClick={() => jump("number-deep-view")}>פתח מפת מחקר</DepthButton>
+        <DepthButton onClick={() => jump("number-deep-view")}>מפת המחקר</DepthButton>
       </div>
       <div className="sod29-lw-truth-strip">
         <span>חוזק מחקרי · {researchState?.independent ?? researchState?.engineMatches ?? "—"}</span>
