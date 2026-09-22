@@ -12,6 +12,18 @@ import {
   getExperienceCapabilityContract,
 } from "../src/lib/experienceCapabilities.js";
 
+for (const [surface, expectedQuestion] of [
+  [EXPERIENCE_SURFACE.HOME, "מאיפה מתחילים?"],
+  [EXPERIENCE_SURFACE.NUMBER, "מה המספר הזה מראה?"],
+  [EXPERIENCE_SURFACE.BOOKS, "מה המקור אומר?"],
+]) {
+  const ctx = resolveExperienceContext({ surface, locale: "he-IL" });
+  assert.equal(ctx.surface, surface);
+  assert.equal(ctx.experience.question, expectedQuestion);
+  assert.equal(ctx.brand.identity, "סוד 1820");
+  assert.equal(ctx.experience.truthSafe, true);
+}
+
 const worldHe = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
   locale: "he-IL",
