@@ -14,6 +14,7 @@
     "test:world-convergence-pr591": "node --test src/lib/research/worldConvergencePr591SerialRepairA2.test.js src/lib/research/worldConvergencePr591SerialRepairA3.test.js src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js",
     "package:expression-extract": "node scripts/package-expression-extract.mjs",
     "test:operational-trace-runtime": "node scripts/test-operational-trace-runtime.mjs",
+    "test:replayable-golden": "node scripts/test-replayable-golden-no-black-box.mjs",
     "test:server-capability-gate": "node scripts/test-server-capability-gate.mjs",
     "test:2029-server-seo-ai": "node scripts/test-2029-server-seo-ai-parity.mjs",
     "test:research-path-resume": "node scripts/test-research-path-resumability-runtime.mjs",

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/20260922191500_operational_trace_runtime_v1.sql", "utf8");
 const edge = readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
+const browser = readFileSync("src/lib/supabase.js", "utf8");
 
 const requiredMigration = [
   "create table if not exists public.op_trace_roots",
@@ -47,7 +48,16 @@ const requiredEdge = [
   'traceRpc("op_trace_link_ai_cost_v1"',
   'name: "fn_capability_execution_gate_v1"',
   'name: "metatron_context"',
+  'kind: "router_plan"',
+  'parentSpanId: gateSpanId',
+  'name: "ai-analyze:research-plan"',
+  'parentSpanId: planSpanId',
+  'plan_ref: planRef',
   'kind: "model_call"',
+  'parentSpanId: contextSpanId',
+  'kind: "synthesis"',
+  'name: "ai-analyze:synthesis"',
+  'exactReturnRef: responseRef',
   'trace_id: hasTrace ? trace.traceId : null',
   'span_id: hasTrace ? trace.spanId : null',
   'on_conflict=trace_id,span_id',
@@ -55,6 +65,7 @@ const requiredEdge = [
   'body: JSON.stringify(withTrace ? row : legacyRow)',
   'trace_id: activeTrace?.traceId || null',
   'rawPrivatePayloadLogged: false',
+  'interaction_id: safeTraceUuid(body?.interaction_id)',
 ];
 
 for (const needle of requiredEdge) {
@@ -69,6 +80,30 @@ assert.equal(
   edge.includes("subject_ref: subject"),
   false,
   "raw subject must never be stored as subject_ref",
+);
+assert.equal(
+  edge.includes("safeOperationalRef(body?.subject_ref)"),
+  false,
+  "public callers must not choose trace subject_ref",
+);
+assert.equal(
+  edge.includes("interaction_id: safeOperationalRef(body?.interaction_id)"),
+  false,
+  "public interaction correlation must not accept arbitrary safe refs",
+);
+
+for (const needle of [
+  "function aiInteractionId()",
+  "interaction_id: interactionId",
+  "surface: traceSurface",
+  "const traceSurface = surface || 'web:ai-analysis'",
+]) {
+  assert.ok(browser.includes(needle), `browser trace propagation must include: ${needle}`);
+}
+assert.equal(
+  browser.includes("trace_id: interactionId"),
+  false,
+  "browser correlation must never let the client choose the canonical trace_id",
 );
 
 console.log("Operational Trace Runtime v1 static acceptance: PASS");
