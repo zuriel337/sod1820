@@ -622,6 +622,9 @@ function projectNumberJourney(numberResearch) {
           type: "verse",
           ref: ref || null,
           label: [ref, text].filter(Boolean).join(" — "),
+          text: text || null,
+          value: Number.isFinite(Number(raw?.sources?.value)) ? Number(raw.sources.value) : null,
+          matchKind: "verse_gematria",
         };
       }).filter(source => source.label)
       : [];
