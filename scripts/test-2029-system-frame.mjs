@@ -55,6 +55,19 @@ assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
 
+// Experience Context is resolved once at the native System Frame seam and exposed
+// through the same shell context to all native 2029 surfaces.
+assert.match(frame, /resolveExperienceContext/);
+assert.match(frame, /const experience = useMemo/);
+assert.match(frame, /experience,/);
+assert.match(frame, /data-experience-context=\{experience\.version\}/);
+assert.match(frame, /data-experience-surface=\{experience\.surface\}/);
+assert.match(frame, /data-experience-question=\{experience\.experience\.question\}/);
+assert.match(frame, /data-experience-spatial=\{experience\.spatial\.effectiveLevel\}/);
+assert.match(frame, /prefers-reduced-motion: reduce/);
+assert.match(frame, /experience\.motion\.timing\.duration/);
+
+
 // Exact return is semantic restoration, not merely URL/back navigation. The existing
 // Research Context owner now carries a bounded return snapshot and the Frame consumes it.
 const exact = normalizeResearchContext({
