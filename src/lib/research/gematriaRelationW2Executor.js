@@ -187,7 +187,11 @@ export function createGematriaRelationW2Executor({
         const out = await supabase.rpc('fn_relation_candidate', { p_a: a.text, p_b: b.text });
         if (out?.error) throw out.error;
         const candidate = out?.data ?? out;
-        const finding = relationFinding(a, b, candidate || {});
+        if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+          statuses.push({ status: 'executed_empty' });
+          continue;
+        }
+        const finding = relationFinding(a, b, candidate);
         findings.push(finding);
         outcomes.push({
           findingId: finding.id,
@@ -210,7 +214,9 @@ export function createGematriaRelationW2Executor({
     return {
       owner: 'research_strategy_layer_law',
       status: executed > 0 ? CAPABILITY_STATUS.EXECUTED : CAPABILITY_STATUS.FAILED,
-      reason: failed ? `relation engine executed for ${executed}/${pairs.length} bounded pairs; ${failed} failed` : null,
+      reason: failed
+        ? `relation engine executed for ${executed}/${pairs.length} bounded pairs; ${failed} failed`
+        : findings.length ? null : 'canonical relation engine returned no candidate for the bounded pairs',
       findings,
       findingOutcomes: outcomes,
       accessClass: restricted ? ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED : ACCESS_CLASS.PUBLIC_SOURCE,
