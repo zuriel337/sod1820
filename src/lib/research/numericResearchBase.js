@@ -312,7 +312,7 @@ export async function researchNumber(numberInput, options = {}) {
 
   // These lenses are independent reads over the same canonical number identity. Running them
   // concurrently preserves every owner/truth boundary while avoiding a waterfall on page opens.
-  const [lookup, dossier, journey, neighbors, hotContext, researchObjects] = await Promise.all([
+  const [lookup, dossierResult, journeyResult, neighborsResult, hotContextResult, researchObjectsResult] = await Promise.all([
     wantsLookup ? rpcCall(rpc, 'fn_number_lookup', { p_value: number }) : null,
     wantsDossier ? rpcCall(rpc, 'fn_number_dossier', { p_value: number }) : null,
     wantsJourney ? rpcCall(rpc, 'fn_number_journey', { p_value: number }) : null,
@@ -334,11 +334,11 @@ export async function researchNumber(numberInput, options = {}) {
       perLens.number_lookup = lookup;
     }
   }
-  if (dossier) perLens.number_dossier = dossier;
-  if (journey) perLens.number_journey = journey;
-  if (neighbors) perLens.neighbors = neighbors;
-  if (hotContext) perLens.hot_context = hotContext;
-  if (researchObjects) perLens.research_objects = researchObjects;
+  if (dossierResult) perLens.number_dossier = dossierResult;
+  if (journeyResult) perLens.number_journey = journeyResult;
+  if (neighborsResult) perLens.neighbors = neighborsResult;
+  if (hotContextResult) perLens.hot_context = hotContextResult;
+  if (researchObjectsResult) perLens.research_objects = researchObjectsResult;
   for (const id of requested.filter(id => numericLensMap[id]?.status === NUMERIC_LENS_STATUS.ADAPTER_NEEDED)) perLens[id] = { status: 'adapter_needed', ...numericLensMap[id] };
 
   const registry = createSequenceRegistry([...DEFAULT_SEQUENCE_ADAPTERS, ...(options.sequenceAdapters || [])]);
