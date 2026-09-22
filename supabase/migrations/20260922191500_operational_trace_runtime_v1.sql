@@ -5,7 +5,7 @@
 
 begin;
 
-create table if not exists public.operational_traces (
+create table if not exists public.op_trace_roots (
   trace_id uuid primary key,
   interaction_id text,
   capability text,
@@ -23,19 +23,19 @@ create table if not exists public.operational_traces (
   outcome text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint operational_traces_outcome_ck check (
+  constraint op_trace_roots_outcome_ck check (
     outcome is null or outcome = any (array[
       'success','partial','continuation_required','negative_result','access_filtered',
       'cache_hit','cache_miss','degraded_fallback','cancelled','timeout',
       'provider_error','tool_error','failed_with_reason'
     ])
   ),
-  constraint operational_traces_time_ck check (ended_at is null or ended_at >= started_at)
+  constraint op_trace_roots_time_ck check (ended_at is null or ended_at >= started_at)
 );
 
-create table if not exists public.operational_trace_spans (
+create table if not exists public.op_trace_spans (
   span_id uuid primary key,
-  trace_id uuid not null references public.operational_traces(trace_id) on delete cascade,
+  trace_id uuid not null references public.op_trace_roots(trace_id) on delete cascade,
   parent_span_id uuid,
   kind text not null,
   name text not null,
@@ -78,65 +78,65 @@ create table if not exists public.operational_trace_spans (
   secure_payload_ref text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint operational_trace_spans_kind_ck check (
+  constraint op_trace_spans_kind_ck check (
     kind = any (array[
       'root_interaction','router_plan','engine','model_call','tool_call','db_rpc',
       'cache','network','media','storage_index','background_job','synthesis','export'
     ])
   ),
-  constraint operational_trace_spans_outcome_ck check (
+  constraint op_trace_spans_outcome_ck check (
     outcome is null or outcome = any (array[
       'success','partial','continuation_required','negative_result','access_filtered',
       'cache_hit','cache_miss','degraded_fallback','cancelled','timeout',
       'provider_error','tool_error','failed_with_reason'
     ])
   ),
-  constraint operational_trace_spans_output_use_ck check (
+  constraint op_trace_spans_output_use_ck check (
     output_use = any (array['used','partially_used','rejected','superseded','not_applicable'])
   ),
-  constraint operational_trace_spans_cost_certainty_ck check (
+  constraint op_trace_spans_cost_certainty_ck check (
     cost_certainty = any (array['exact','estimated','unknown','not_billable'])
   ),
-  constraint operational_trace_spans_retry_ck check (retry_ordinal >= 0 and continuation_ordinal >= 0),
-  constraint operational_trace_spans_duration_ck check (duration_ms is null or duration_ms >= 0),
-  constraint operational_trace_spans_time_ck check (ended_at is null or ended_at >= started_at),
-  constraint operational_trace_spans_private_payload_ck check (raw_private_payload_logged = false),
-  constraint operational_trace_spans_tree_shape_ck check (
+  constraint op_trace_spans_retry_ck check (retry_ordinal >= 0 and continuation_ordinal >= 0),
+  constraint op_trace_spans_duration_ck check (duration_ms is null or duration_ms >= 0),
+  constraint op_trace_spans_time_ck check (ended_at is null or ended_at >= started_at),
+  constraint op_trace_spans_private_payload_ck check (raw_private_payload_logged = false),
+  constraint op_trace_spans_tree_shape_ck check (
     (kind = 'root_interaction' and parent_span_id is null)
     or
     (kind <> 'root_interaction' and parent_span_id is not null)
   ),
-  constraint operational_trace_spans_not_self_parent_ck check (parent_span_id is null or parent_span_id <> span_id),
-  constraint operational_trace_spans_identity_uq unique (span_id, trace_id)
+  constraint op_trace_spans_not_self_parent_ck check (parent_span_id is null or parent_span_id <> span_id),
+  constraint op_trace_spans_identity_uq unique (span_id, trace_id)
 );
 
-alter table public.operational_trace_spans
-  drop constraint if exists operational_trace_spans_parent_same_trace_fk;
-alter table public.operational_trace_spans
-  add constraint operational_trace_spans_parent_same_trace_fk
+alter table public.op_trace_spans
+  drop constraint if exists op_trace_spans_parent_same_trace_fk;
+alter table public.op_trace_spans
+  add constraint op_trace_spans_parent_same_trace_fk
   foreign key (parent_span_id, trace_id)
-  references public.operational_trace_spans(span_id, trace_id)
+  references public.op_trace_spans(span_id, trace_id)
   deferrable initially immediate;
 
-create unique index if not exists operational_trace_one_root_idx
-  on public.operational_trace_spans(trace_id)
+create unique index if not exists op_trace_one_root_idx
+  on public.op_trace_spans(trace_id)
   where kind = 'root_interaction' and parent_span_id is null;
-create index if not exists operational_trace_spans_trace_started_idx
-  on public.operational_trace_spans(trace_id, started_at);
-create index if not exists operational_trace_spans_kind_started_idx
-  on public.operational_trace_spans(kind, started_at desc);
-create index if not exists operational_traces_started_idx
-  on public.operational_traces(started_at desc);
-create index if not exists operational_traces_capability_started_idx
-  on public.operational_traces(capability, started_at desc);
+create index if not exists op_trace_spans_trace_started_idx
+  on public.op_trace_spans(trace_id, started_at);
+create index if not exists op_trace_spans_kind_started_idx
+  on public.op_trace_spans(kind, started_at desc);
+create index if not exists op_trace_roots_started_idx
+  on public.op_trace_roots(started_at desc);
+create index if not exists op_trace_roots_capability_started_idx
+  on public.op_trace_roots(capability, started_at desc);
 
-alter table public.operational_traces enable row level security;
-alter table public.operational_trace_spans enable row level security;
+alter table public.op_trace_roots enable row level security;
+alter table public.op_trace_spans enable row level security;
 
-revoke all on table public.operational_traces from public, anon, authenticated;
-revoke all on table public.operational_trace_spans from public, anon, authenticated;
-grant select, insert, update on table public.operational_traces to service_role;
-grant select, insert, update on table public.operational_trace_spans to service_role;
+revoke all on table public.op_trace_roots from public, anon, authenticated;
+revoke all on table public.op_trace_spans from public, anon, authenticated;
+grant select, insert, update on table public.op_trace_roots to service_role;
+grant select, insert, update on table public.op_trace_spans to service_role;
 
 -- Correlate the existing AI cost lineage to canonical operational spans.
 alter table public.ai_token_log
@@ -152,7 +152,7 @@ begin
   ) then
     alter table public.ai_token_log
       add constraint ai_token_log_trace_id_fk
-      foreign key (trace_id) references public.operational_traces(trace_id) on delete set null;
+      foreign key (trace_id) references public.op_trace_roots(trace_id) on delete set null;
   end if;
   if not exists (
     select 1 from pg_constraint
@@ -161,12 +161,15 @@ begin
   ) then
     alter table public.ai_token_log
       add constraint ai_token_log_span_id_fk
-      foreign key (span_id) references public.operational_trace_spans(span_id) on delete set null;
+      foreign key (span_id) references public.op_trace_spans(span_id) on delete set null;
   end if;
 end $$;
 
 create index if not exists ai_token_log_trace_id_idx on public.ai_token_log(trace_id) where trace_id is not null;
 create index if not exists ai_token_log_span_id_idx on public.ai_token_log(span_id) where span_id is not null;
+create unique index if not exists ai_token_log_trace_span_uq
+  on public.ai_token_log(trace_id, span_id)
+  where trace_id is not null and span_id is not null;
 
 -- Preserve the existing cost-view contract and append trace correlation.
 create or replace view public.agent_token_costs as
@@ -213,7 +216,7 @@ begin
     raise exception 'trace_id and root_span_id are required';
   end if;
 
-  insert into public.operational_traces(
+  insert into public.op_trace_roots(
     trace_id, interaction_id, capability, surface, channel, locale, identity_class,
     session_ref, subject_ref, availability_ref, entitlement_ref, budget_ref, started_at
   ) values (
@@ -234,12 +237,12 @@ begin
   on conflict (trace_id) do nothing;
 
   select s.span_id into v_root_span_id
-  from public.operational_trace_spans s
+  from public.op_trace_spans s
   where s.trace_id = p_trace_id and s.kind = 'root_interaction' and s.parent_span_id is null
   limit 1;
 
   if v_root_span_id is null then
-    insert into public.operational_trace_spans(
+    insert into public.op_trace_spans(
       span_id, trace_id, parent_span_id, kind, name, capability, owner_ref,
       started_at, output_use, cost_certainty, redaction_applied, raw_private_payload_logged
     ) values (
@@ -253,7 +256,7 @@ begin
     on conflict (span_id) do nothing;
 
     select s.span_id into v_root_span_id
-    from public.operational_trace_spans s
+    from public.op_trace_spans s
     where s.trace_id = p_trace_id and s.kind = 'root_interaction' and s.parent_span_id is null
     limit 1;
   end if;
@@ -302,7 +305,7 @@ begin
 
   v_duration := greatest(0, floor(extract(epoch from (p_ended_at - p_started_at)) * 1000)::bigint);
 
-  insert into public.operational_trace_spans(
+  insert into public.op_trace_spans(
     span_id, trace_id, parent_span_id, kind, name, capability, owner_ref, plan_ref,
     intelligence_level, provider, model, model_version, engine_version, tool_version,
     routing_reason, escalation_reason, fallback_reason,
@@ -329,8 +332,8 @@ begin
     coalesce(nullif(p_detail->>'output_use',''), 'not_applicable'),
     nullif(p_detail->>'stop_reason',''),
     nullif(p_detail->>'request_ref',''),
-    coalesce((p_detail->>'retry_ordinal')::integer, 0),
-    coalesce((p_detail->>'continuation_ordinal')::integer, 0),
+    coalesce(nullif(p_detail->>'retry_ordinal','')::integer, 0),
+    coalesce(nullif(p_detail->>'continuation_ordinal','')::integer, 0),
     coalesce(p_detail->'resources', '{}'::jsonb),
     nullif(p_detail #>> '{cost,providerNativeAmount}','')::numeric,
     nullif(p_detail #>> '{cost,providerCurrency}',''),
@@ -343,7 +346,7 @@ begin
     nullif(p_detail #>> '{cost,creditsCharged}','')::numeric,
     nullif(p_detail #>> '{cost,customerPrice}','')::numeric,
     coalesce(p_detail->'replay', '{}'::jsonb),
-    coalesce((p_detail #>> '{privacy,redactionApplied}')::boolean, true),
+    coalesce(nullif(p_detail #>> '{privacy,redactionApplied}','')::boolean, true),
     false,
     nullif(p_detail #>> '{privacy,payloadHash}',''),
     nullif(p_detail #>> '{privacy,securePayloadRef}','')
@@ -375,7 +378,7 @@ declare
   v_duration bigint;
 begin
   select started_at into v_started
-  from public.operational_trace_spans
+  from public.op_trace_spans
   where span_id = p_root_span_id and trace_id = p_trace_id and kind = 'root_interaction';
 
   if v_started is null then
@@ -384,7 +387,7 @@ begin
 
   v_duration := greatest(0, floor(extract(epoch from (v_ended - v_started)) * 1000)::bigint);
 
-  update public.operational_trace_spans
+  update public.op_trace_spans
   set ended_at = coalesce(ended_at, v_ended),
       duration_ms = coalesce(duration_ms, v_duration),
       outcome = coalesce(outcome, p_outcome),
@@ -393,7 +396,7 @@ begin
   where span_id = p_root_span_id
     and trace_id = p_trace_id;
 
-  update public.operational_traces
+  update public.op_trace_roots
   set ended_at = coalesce(ended_at, v_ended),
       outcome = coalesce(outcome, p_outcome),
       updated_at = now()
@@ -406,9 +409,50 @@ $$;
 revoke all on function public.op_trace_finish_v1(uuid,uuid,text,timestamptz,text) from public, anon, authenticated;
 grant execute on function public.op_trace_finish_v1(uuid,uuid,text,timestamptz,text) to service_role;
 
+
+-- Attach the existing AI token-log row to the completed span after the cost row exists.
+-- This preserves one cost authority: rollup prefers ai_token_log -> agent_token_costs
+-- and only falls back to direct span cost when no linked AI row exists.
+create or replace function public.op_trace_link_ai_cost_v1(
+  p_trace_id uuid,
+  p_span_id uuid,
+  p_ai_token_log_id bigint
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $
+begin
+  if not exists (
+    select 1
+    from public.ai_token_log l
+    where l.id = p_ai_token_log_id
+      and l.trace_id = p_trace_id
+      and l.span_id = p_span_id
+  ) then
+    return false;
+  end if;
+
+  update public.op_trace_spans s
+  set replay = case
+        when s.replay ? 'costLogRef' then s.replay
+        else jsonb_set(s.replay, '{costLogRef}', to_jsonb('ai_token_log:' || p_ai_token_log_id::text), true)
+      end,
+      updated_at = now()
+  where s.trace_id = p_trace_id
+    and s.span_id = p_span_id;
+
+  return found;
+end;
+$;
+
+revoke all on function public.op_trace_link_ai_cost_v1(uuid,uuid,bigint) from public, anon, authenticated;
+grant execute on function public.op_trace_link_ai_cost_v1(uuid,uuid,bigint) to service_role;
+
 -- Admin/service drill-down. Cost is resolved from the existing AI cost lineage first,
 -- then from direct span cost only when no linked AI token log exists, preventing double-count.
-create or replace function public.admin_operational_trace_v1(p_trace_id uuid)
+create or replace function public.admin_op_trace_v1(p_trace_id uuid)
 returns jsonb
 language plpgsql
 security definer
@@ -419,12 +463,14 @@ declare
   v_spans jsonb;
   v_rollup jsonb;
 begin
-  if coalesce(auth.role()::text, '') <> 'service_role' and not public.rd_is_admin() then
-    raise exception 'forbidden';
+  if coalesce(auth.role()::text, '') <> 'service_role' then
+    if not public.rd_is_admin() then
+      raise exception 'forbidden';
+    end if;
   end if;
 
   select to_jsonb(t) into v_root
-  from public.operational_traces t
+  from public.op_trace_roots t
   where t.trace_id = p_trace_id;
 
   if v_root is null then
@@ -459,7 +505,7 @@ begin
         when coalesce(a.linked_ai_calls, 0) > 0 then 'exact'
         else s.cost_certainty
       end as effective_cost_certainty
-    from public.operational_trace_spans s
+    from public.op_trace_spans s
     left join ai_cost a on a.span_id = s.span_id
     where s.trace_id = p_trace_id
   )
@@ -488,7 +534,7 @@ begin
         else s.cost_certainty
       end as certainty,
       coalesce(a.linked_ai_calls,0) as linked_ai_calls
-    from public.operational_trace_spans s
+    from public.op_trace_spans s
     left join ai_cost a on a.span_id = s.span_id
     where s.trace_id = p_trace_id
   )
@@ -505,10 +551,10 @@ begin
 end;
 $$;
 
-revoke all on function public.admin_operational_trace_v1(uuid) from public, anon;
-grant execute on function public.admin_operational_trace_v1(uuid) to authenticated, service_role;
+revoke all on function public.admin_op_trace_v1(uuid) from public, anon;
+grant execute on function public.admin_op_trace_v1(uuid) to authenticated, service_role;
 
-create or replace function public.admin_operational_trace_list_v1(
+create or replace function public.admin_op_trace_list_v1(
   p_days integer default 7,
   p_limit integer default 100
 )
@@ -520,20 +566,22 @@ as $$
 declare
   v_out jsonb;
 begin
-  if coalesce(auth.role()::text, '') <> 'service_role' and not public.rd_is_admin() then
-    raise exception 'forbidden';
+  if coalesce(auth.role()::text, '') <> 'service_role' then
+    if not public.rd_is_admin() then
+      raise exception 'forbidden';
+    end if;
   end if;
 
   with roots as (
     select t.*
-    from public.operational_traces t
+    from public.op_trace_roots t
     where t.started_at >= now() - make_interval(days => greatest(1, least(coalesce(p_days,7),90)))
     order by t.started_at desc
     limit greatest(1, least(coalesce(p_limit,100),500))
   ),
   span_counts as (
     select s.trace_id, count(*) as span_count
-    from public.operational_trace_spans s
+    from public.op_trace_spans s
     join roots r on r.trace_id = s.trace_id
     group by s.trace_id
   ),
@@ -575,12 +623,12 @@ begin
 end;
 $$;
 
-revoke all on function public.admin_operational_trace_list_v1(integer,integer) from public, anon;
-grant execute on function public.admin_operational_trace_list_v1(integer,integer) to authenticated, service_role;
+revoke all on function public.admin_op_trace_list_v1(integer,integer) from public, anon;
+grant execute on function public.admin_op_trace_list_v1(integer,integer) to authenticated, service_role;
 
-comment on table public.operational_traces is
-  'Canonical G3 operational root traces under system_suggestions_law v3. Not research truth, analytics attribution, or cost authority.';
-comment on table public.operational_trace_spans is
+comment on table public.op_trace_roots is
+  'Canonical G3 operational root traces under system_suggestions_law v3. This is operational observability, not research truth, behavioral analytics attribution, or cost authority.';
+comment on table public.op_trace_spans is
   'Canonical G3 operational span tree. Links to owner-native logs by correlation IDs; raw private payload logging is forbidden in v1.';
 comment on column public.ai_token_log.trace_id is
   'Optional correlation to canonical operational trace; historical rows remain NULL.';
