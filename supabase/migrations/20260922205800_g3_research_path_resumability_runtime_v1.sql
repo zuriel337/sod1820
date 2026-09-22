@@ -65,6 +65,10 @@ begin
     raise exception 'p_steps payload too large' using errcode='22023';
   end if;
 
+  if v_save_key is not null and length(v_save_key) > 160 then
+    raise exception 'p_save_key too long' using errcode='22023';
+  end if;
+
   if p_identity_metadata is null or jsonb_typeof(p_identity_metadata) <> 'object'
      or p_provenance is null or jsonb_typeof(p_provenance) <> 'object'
      or p_representation is null or jsonb_typeof(p_representation) <> 'object' then
@@ -74,6 +78,32 @@ begin
      or octet_length(p_provenance::text) > 65536
      or octet_length(p_representation::text) > 131072 then
     raise exception 'research path metadata payload too large' using errcode='22023';
+  end if;
+
+  -- Save-key replay safety also covers the first path creation. The
+  -- transaction-level lock prevents two retries from minting parallel Paths.
+  if v_save_key is not null then
+    perform pg_advisory_xact_lock(hashtextextended('research-path-save:' || v_uid::text || ':' || v_save_key, 0));
+    select r.*
+      into v_existing
+      from public.research_path_revisions r
+      join public.research_paths p on p.id = r.path_id
+     where p.created_by_user_id = v_uid
+       and r.provenance->>'save_key' = v_save_key
+     order by r.created_at desc
+     limit 1;
+    if found then
+      return jsonb_build_object(
+        'ok', true,
+        'idempotent_replay', true,
+        'path_id', v_existing.path_id,
+        'revision_id', v_existing.id,
+        'revision_no', v_existing.revision_no,
+        'created_at', v_existing.created_at,
+        'steps', v_existing.steps,
+        'representation', v_existing.representation
+      );
+    end if;
   end if;
 
   if p_path_id is null then
@@ -356,10 +386,18 @@ begin
   if jsonb_array_length(p_branch_steps) > 100 or octet_length(p_branch_steps::text) > 262144 then
     raise exception 'branch step payload too large' using errcode='22023';
   end if;
+  if v_fork_key is not null and length(v_fork_key) > 160 then
+    raise exception 'p_fork_key too long' using errcode='22023';
+  end if;
   if p_identity_metadata is null or jsonb_typeof(p_identity_metadata) <> 'object'
      or p_provenance is null or jsonb_typeof(p_provenance) <> 'object'
      or p_representation is null or jsonb_typeof(p_representation) <> 'object' then
     raise exception 'metadata/provenance/representation must be json objects' using errcode='22023';
+  end if;
+  if octet_length(p_identity_metadata::text) > 32768
+     or octet_length(p_provenance::text) > 65536
+     or octet_length(p_representation::text) > 131072 then
+    raise exception 'research path metadata payload too large' using errcode='22023';
   end if;
 
   select *
