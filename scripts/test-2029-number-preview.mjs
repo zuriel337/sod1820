@@ -43,7 +43,6 @@ for (const required of [
 for (const forbidden of [
   "entity-hub-preview",
   "/research?",
-  "/topic/",
   "AskRaziel",
   "QuickActions",
   "WatchButton",
@@ -97,6 +96,14 @@ assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*"golden:878:v1"/);
 assert.match(page, /navigate\("\/world"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
+
+assert.match(page, /numberExpressionFocusHref/);
+assert.match(page, /parseNumberExpressionFocus/);
+assert.match(page, /resolveExpressionFocus/);
+assert.match(page, /data-expression-focus="true"/);
+assert.match(page, /originTopicSlug/);
+assert.match(page, /\/topic\/\$\{encodeURIComponent\(originTopicSlug\)\}/);
+assert.equal(page.includes("TopicPage.jsx"), false, "Number 2029 may exact-return to a Topic URL but must not import the legacy Topic renderer");
 
 
 const deep404 = buildNumberDeepViewProjection({
