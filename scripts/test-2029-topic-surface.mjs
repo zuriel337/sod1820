@@ -9,6 +9,7 @@ import {
   topicSourceSlugCandidates,
 } from "../src/lib/research/topicCanonicalSlugAliases.js";
 import { buildTopicGoldenProjection, topicDensity } from "../src/lib/research/topicGoldenProjection.js";
+import { numberExpressionFocusHref, parseNumberExpressionFocus } from "../src/lib/research/numberExpressionFocus.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -75,7 +76,9 @@ assert.match(page, /buildTopic2029Projection/);
 assert.match(page, /data-entity-type="convergence"/);
 assert.match(page, /setConvergenceJsonLd/);
 assert.match(page, /התכנסות ≠ עובדה קנונית/);
-assert.match(page, /to=\{"\/number\/" \+ value\}/);
+assert.match(page, /resolveExpressionFocus/);
+assert.match(page, /\/2029\/number\//);
+assert.equal(/to=\{"\/number\//.test(page), false, "Topic 2029 must not hand Number interactions to the legacy /number route");
 assert.equal(page.includes("getTopicCardBySlug"), false);
 assert.equal(page.includes("getGalleryImagesByIds"), false);
 assert.equal(page.includes("BeitMidrash"), false);
@@ -149,7 +152,7 @@ const goldenFixture = buildTopicGoldenProjection({
   },
 });
 assert.equal(goldenFixture.density, "rich");
-assert.equal(goldenFixture.graphConnections[0].href, "/number/424");
+assert.equal(goldenFixture.graphConnections[0].href, "/2029/number/424");
 assert.deepEqual(goldenFixture.people, ["צבי (OPOC)"]);
 assert.equal(goldenFixture.sources.length, 1);
 assert.equal(goldenFixture.media.length, 1);
@@ -178,3 +181,29 @@ assert.match(worldRankProjection, /topicSlugRaw/);
 assert.match(slugMigration, /update public\.research_contributions/);
 assert.equal(/update public\.research_candidates/.test(slugMigration), false, "historical research candidate provenance must not be rewritten by URL migration");
 assert.equal(/update public\.research_objects/.test(slugMigration), false, "historical research object context must remain provenance");
+
+
+const focusHref = numberExpressionFocusHref(98, { expression: "חנם", method: "רגיל", crossingPartner: "סלח" });
+assert.equal(focusHref, "/2029/number/98?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&cross=%D7%A1%D7%9C%D7%97");
+assert.deepEqual(parseNumberExpressionFocus("?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C"), {
+  expression: "חנם",
+  method: "רגיל",
+  crossingPartner: null,
+  explicit: true,
+});
+
+const number2029Source = read("src/pages/Number2029Page.jsx");
+const world2029Source = read("src/pages/World2029Page.jsx");
+const heichal2029Source = read("src/pages/Heichal2029Page.jsx");
+const researchProviderSource = read("src/lib/research/ResearchProvider.jsx");
+assert.match(number2029Source, /data-expression-focus="true"/);
+assert.match(number2029Source, /parseNumberExpressionFocus/);
+assert.match(number2029Source, /resolveExpressionFocus/);
+assert.match(number2029Source, /shell\.returnExact/);
+assert.match(world2029Source, /focusedExpression/);
+assert.match(world2029Source, /חזור לחישוב/);
+assert.match(world2029Source, /\/2029\/number\//);
+assert.match(heichal2029Source, /ביטוי:/);
+assert.match(heichal2029Source, /resolveExpressionFocus/);
+assert.match(researchProviderSource, /expressionFocusExplicit/);
+assert.match(researchProviderSource, /crossingPartner/);
