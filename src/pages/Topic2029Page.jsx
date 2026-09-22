@@ -230,7 +230,7 @@ function TopicBody() {
         if (!hub) return;
         try {
           const inputs = await fetchWorldProminenceInputs(hub);
-          const prominence = buildWorldContextualProminence(hub, inputs, { limit: 7, timeAware: true });
+          const prominence = buildWorldContextualProminence(hub, inputs, { limit: 7, timeAware: true, attentionFirst: false });
           if (alive) setGoldenState({ loading: false, hub, prominence, error: null });
         } catch (error) {
           if (alive) setGoldenState({ loading: false, hub, prominence: null, error });
@@ -275,15 +275,16 @@ function TopicBody() {
 
   const primaryNumbers = projection.highlightNumbers.length ? projection.highlightNumbers : projection.numbers.slice(0, 6);
   const sparse = golden?.density === "sparse";
+  const hasFindings = Object.values(projection.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const navItems = [
     ["עיקר", "topic-essential"],
     ...(projection.phrases.length ? [["ביטויים", "topic-phrases"]] : []),
-    ["ממצאים", "topic-findings"],
+    ...(hasFindings ? [["ממצאים", "topic-findings"]] : []),
     ...((goldenState.loading || golden?.prominenceItems?.length) ? [["בולט", "topic-prominence"]] : []),
     ...(golden?.graphConnections?.length ? [["קשרים", "topic-graph"]] : []),
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [["מקורות", "topic-sources"]] : []),
     ...((projection.relatedConvergences.length || projection.relatedPosts.length) ? [["המשך", "topic-related"]] : []),
-    ["גבולות", "topic-boundary"],
+    ...(projection.caveats.length ? [["גבולות", "topic-boundary"]] : []),
     ["מסע", "topic-journey"],
   ];
 
