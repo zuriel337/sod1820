@@ -33,15 +33,23 @@ function technicalSourceText(value) {
 }
 
 function sourceLabel(row) {
+  const type = clean(row?.type || row?.kind);
+  if (type === "verse") {
+    const ref = formatTanakhRef(clean(row?.ref));
+    const text = clean(row?.text);
+    return [ref, text].filter(Boolean).join(" — ") || "מקור מקראי";
+  }
   const label = clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label);
   if (label && !technicalSourceText(label)) return label;
-  const type = clean(row?.type || row?.kind);
-  if (type === "verse") return "מקור מקראי";
   if (type.includes("book")) return "ספר / מקור";
   return "מקור מחקר";
 }
 
 function sourceDetail(row) {
+  const type = clean(row?.type || row?.kind);
+  if (type === "verse" && Number.isFinite(Number(row?.value))) {
+    return `פסוק שלם${formatVerseGematriaSuffix(row.value)}`;
+  }
   const detail = clean(row?.locator || row?.citation || row?.reference || row?.subtitle);
   return detail && !technicalSourceText(detail) ? detail : "";
 }
