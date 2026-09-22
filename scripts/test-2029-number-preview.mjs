@@ -164,6 +164,7 @@ for (const required of [
   'data-experience-capability="number-sources-content"',
   'data-experience-capability="number-journey-gate"',
   'data-experience-capability="number-deep-research-gate"',
+  'data-experience-action="number-life-seal"',
   'העולמות החיים',
   'היקום המתמטי',
   'מד ניווט חי',
