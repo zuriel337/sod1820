@@ -52,6 +52,7 @@ const requiredEdge = [
   'span_id: hasTrace ? trace.spanId : null',
   'on_conflict=trace_id,span_id',
   'Trace persistence must never break the pre-existing cost log',
+  'body: JSON.stringify(withTrace ? row : legacyRow)',
   'trace_id: activeTrace?.traceId || null',
   'rawPrivatePayloadLogged: false',
 ];
