@@ -263,8 +263,10 @@ for (const selector of new Set(numberBrowserSelectors)) {
   );
 }
 
-const rewrite = (vercel.rewrites || []).find((row) => row.source === "/2029/number/(.*)");
-assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
+const rewrite = (vercel.rewrites || []).find(
+  (row) => row.source === "/2029/number/(.*)" && !Array.isArray(row.has),
+);
+assert.ok(rewrite, "missing unconditional human Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");
 
 assert.match(css, /prefers-reduced-motion/);
