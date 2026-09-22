@@ -323,7 +323,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 1_500 });
   await expect(stage).toContainText('משיח');
   await expect(stage.locator('.sod29-number-v10-calculation-card')).toContainText('878');
-  await expect(stage.locator('.sod29-number-v10-vitality')).toBeVisible();
+  await expect(stage.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
 
   const language = stage.locator('.sod29-number-v10-languages');
   await expect(language).toBeVisible({ timeout: 15_000 });
