@@ -12,10 +12,54 @@ import {
   traceCostDrilldown,
   validateTraceTopology,
 } from "../src/lib/operationalTraceContract.js";
+import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../src/lib/experienceContext.js";
+import { buildResearchPlanV2 } from "../src/lib/research/researchPlanV2.js";
+import { analyzeNumberMath } from "../src/lib/research/numberMathProfile.js";
 import {
   GOLDEN_WORLD_JOURNEY_878,
   projectGoldenJourney878,
 } from "../src/lib/research/worldJourneyProjection.js";
+
+const live878Snapshot = Object.freeze([
+  Object.freeze({ slug: "charvot-barzel-1202", title: "חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח", numbers: [1202, 776, 878], highlight_numbers: [1202] }),
+  Object.freeze({ slug: "atzirut-hageula", title: "עצירות — העיכוב שהוא הריון הגאולה", numbers: [776, 254, 878, 1202, 361, 666], highlight_numbers: [776] }),
+  Object.freeze({ slug: "1010-מפגש-הצירים", title: "1010 — מפגש הצירים", numbers: [1010, 878, 2588, 588, 5786], highlight_numbers: [1010] }),
+]);
+
+const experience = resolveExperienceContext({
+  surface: EXPERIENCE_SURFACE.NUMBER,
+  locale: "he",
+  lens: "kingdom",
+  reducedMotion: true,
+});
+const identityResolution = Object.freeze({
+  identities: Object.freeze([{ type: "number", value: 878, canonical_ref: "number:878" }]),
+  primary: Object.freeze({ type: "number", value: 878, canonical_ref: "number:878" }),
+  text_calculation_allowed: false,
+});
+const researchPlan = buildResearchPlanV2({
+  question: "פתח את מסע 878 וחפש את החיבורים הקיימים",
+  intent: "research",
+  identityResolution,
+  contextType: "public_user",
+  surfaceContext: Object.freeze({ experience_version: experience.version, surface: experience.surface, number: 878 }),
+});
+const [numberMath878, journey878] = await Promise.all([
+  Promise.resolve(analyzeNumberMath(878)),
+  Promise.resolve(projectGoldenJourney878({ topicRows: live878Snapshot })),
+]);
+
+assert.equal(experience.version, "experience-context-2029-v1");
+assert.equal(experience.surface, EXPERIENCE_SURFACE.NUMBER);
+assert.equal(researchPlan.v, 2);
+assert.equal(researchPlan.strategy, "number_research");
+assert.ok(researchPlan.requested_capabilities.includes("numeric"));
+assert.equal(researchPlan.access.contains_identifying_fields, false);
+assert.equal(numberMath878.status, "ok");
+assert.equal(numberMath878.input.value, 878);
+assert.equal(numberMath878.coverage.deterministic, true);
+assert.equal(journey878.id, GOLDEN_WORLD_JOURNEY_878.id);
+assert.deepEqual(journey878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
 
 const root = createTraceRoot({
   traceId: "golden-trace-878-v1",
@@ -29,7 +73,7 @@ const root = createTraceRoot({
 });
 
 function makeSpans() {
-  const planRef = "golden-plan:878:v1";
+  const planRef = `research-plan-v${researchPlan.v}:${researchPlan.strategy}:878`;
   return [
     createTraceSpan({
       traceId: root.traceId,
@@ -59,6 +103,53 @@ function makeSpans() {
         ownerRuleRefs: ["research_strategy_layer_law v15", "system_suggestions_law v3"],
         parametersRef: "golden:parallel+sequential+failure:v1",
         idempotencyKey: "golden-878-v1",
+      },
+    }),
+    createTraceSpan({
+      traceId: root.traceId,
+      spanId: "15-number-math",
+      parentSpanId: "10-plan",
+      kind: TRACE_SPAN_KIND.ENGINE,
+      name: "number-math-profile",
+      capability: numberMath878.capability,
+      owner: "number_math_profile",
+      planRef,
+      engineVersion: numberMath878.profile_version,
+      routingReason: "canonical deterministic number adapter",
+      startedAt: "2026-09-23T00:00:00.200Z",
+      endedAt: "2026-09-23T00:00:00.700Z",
+      outcome: TRACE_OUTCOME.SUCCESS,
+      outputUse: TRACE_OUTPUT_USE.USED,
+      resources: { latency_ms: 500 },
+      cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
+      replay: {
+        inputRef: "number:878",
+        parametersRef: "number-math-profile:default-budget",
+        resultBundleRef: `number-math-profile:${numberMath878.profile_version}:878`,
+      },
+    }),
+    createTraceSpan({
+      traceId: root.traceId,
+      spanId: "16-journey-878",
+      parentSpanId: "10-plan",
+      kind: TRACE_SPAN_KIND.TOOL_CALL,
+      name: "golden-world-journey-878",
+      capability: "research-context-replay",
+      owner: "worldJourneyProjection",
+      planRef,
+      toolVersion: "golden:878:v1",
+      routingReason: "Roadmap replayable Research Context/Journey Golden",
+      startedAt: "2026-09-23T00:00:00.200Z",
+      endedAt: "2026-09-23T00:00:00.650Z",
+      outcome: TRACE_OUTCOME.SUCCESS,
+      outputUse: TRACE_OUTPUT_USE.USED,
+      resources: { latency_ms: 450, rows_examined: live878Snapshot.length },
+      cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
+      replay: {
+        inputRef: "number:878",
+        sourceBundleRef: "topic_cards_public:number=878:live-snapshot-2026-09-23",
+        resultBundleRef: journey878.id,
+        exactReturnRef: journey878.id,
       },
     }),
     createTraceSpan({
@@ -237,7 +328,7 @@ function makeSpans() {
       outputUse: TRACE_OUTPUT_USE.USED,
       cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
       replay: {
-        sourceBundleRef: "bundle:engine-a+bundle:engine-b+bundle:engine-c-partial+negative:bounded-search",
+        sourceBundleRef: `number-math-profile:${numberMath878.profile_version}:878+${journey878.id}+bundle:engine-a+bundle:engine-b+bundle:engine-c-partial+negative:bounded-search`,
         resultBundleRef: "golden:878:result:v1",
         exactReturnRef: "golden:878:result:v1",
         idempotencyKey: "golden-878-v1",
@@ -295,6 +386,8 @@ assert.ok(spans.every((span) => span.privacy.rawPrivatePayloadLogged === false),
 assert.ok(spans.every((span) => span.privacy.redactionApplied === true), "Golden trace must remain redaction-safe");
 const synthesis = spans.find((span) => span.kind === TRACE_SPAN_KIND.SYNTHESIS);
 assert.equal(synthesis.replay.exactReturnRef, "golden:878:result:v1");
+assert.match(synthesis.replay.sourceBundleRef, /number-math-profile/);
+assert.match(synthesis.replay.sourceBundleRef, /golden:878:v1/);
 assert.match(synthesis.replay.sourceBundleRef, /engine-a/);
 assert.match(synthesis.replay.sourceBundleRef, /engine-b/);
 assert.match(synthesis.replay.sourceBundleRef, /engine-c-partial/);
@@ -305,16 +398,10 @@ const replayB = replayTraceSnapshot(makeSpans());
 assert.deepEqual(replayA, replayB, "same preserved refs/versions/parameters must replay exactly");
 assert.equal(JSON.stringify(replayA), JSON.stringify(replayB), "replay serialization must be deterministic");
 
-const journeyRows = [
-  { slug: "meeting-1202", title: "1202", numbers: [878, 1202], highlight_numbers: [1202] },
-  { slug: "meeting-776", title: "776", numbers: [878, 776], highlight_numbers: [776] },
-  { slug: "duplicate-1202", title: "duplicate", numbers: [878, 1202], highlight_numbers: [1202] },
-];
-const journeyA = projectGoldenJourney878({ topicRows: journeyRows });
-const journeyB = projectGoldenJourney878({ topicRows: journeyRows });
-assert.equal(journeyA.id, GOLDEN_WORLD_JOURNEY_878.id);
-assert.equal(journeyA.rootValue, 878);
-assert.deepEqual(journeyA, journeyB, "878 Research Context/Journey projector must exact-return on identical ordered input");
-assert.deepEqual(journeyA.paths.map((path) => path.targetValue), [1202, 776]);
+const journeyReplay = projectGoldenJourney878({ topicRows: live878Snapshot });
+assert.equal(journeyReplay.id, GOLDEN_WORLD_JOURNEY_878.id);
+assert.equal(journeyReplay.rootValue, 878);
+assert.deepEqual(journey878, journeyReplay, "878 Research Context/Journey projector must exact-return on identical ordered input");
+assert.deepEqual(journeyReplay.paths.map((path) => path.targetValue), [1202, 776, 1010]);
 
 console.log("G3 Replayable Golden / No-Black-Box V1: PASS");
