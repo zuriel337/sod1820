@@ -19,6 +19,12 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
   projectGoldenJourney878,
 } from "../src/lib/research/worldJourneyProjection.js";
+import {
+  buildResearchPathRepresentation,
+  contextFromResearchPathSnapshot,
+  resumeHrefFromResearchPath,
+} from "../src/lib/research/researchPathRuntime.js";
+import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
 
 const live878Snapshot = Object.freeze([
   Object.freeze({ slug: "charvot-barzel-1202", title: "חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח", numbers: [1202, 776, 878], highlight_numbers: [1202] }),
@@ -60,6 +66,39 @@ assert.equal(numberMath878.input.value, 878);
 assert.equal(numberMath878.coverage.deterministic, true);
 assert.equal(journey878.id, GOLDEN_WORLD_JOURNEY_878.id);
 assert.deepEqual(journey878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
+
+const golden878Context = normalizeResearchContext({
+  subject: { id: "1202", type: "number", label: "1202", href: "/world" },
+  selection: { entityId: "1202", entityType: "number" },
+  lens: "world",
+  dimensions: {
+    journeySource: "world-golden-878",
+    journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
+    journeyRoot: 878,
+    journeyVisitedValues: [878, 1202],
+    journeyMeetingSlugs: ["charvot-barzel-1202"],
+  },
+  journey: { id: GOLDEN_WORLD_JOURNEY_878.id, kind: GOLDEN_WORLD_JOURNEY_878.kind, position: 1 },
+  returnTo: { href: "/world", label: "מסע 878" },
+});
+const golden878PathRep = buildResearchPathRepresentation(golden878Context, {
+  href: "/world",
+  label: "מסע 878 · 1202",
+  surface: "world",
+});
+const golden878PathResume = contextFromResearchPathSnapshot({
+  ok: true,
+  path_id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  revision_id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+  revision_no: 2,
+  steps: [{ step_index: 0 }, { step_index: 1 }],
+  representation: golden878PathRep,
+});
+assert.equal(golden878PathResume.journey.kind, "research_path");
+assert.equal(golden878PathResume.journey.id, "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
+assert.equal(golden878PathResume.dimensions.journeySemanticId, GOLDEN_WORLD_JOURNEY_878.id);
+assert.equal(golden878PathResume.dimensions.journeyRoot, 878);
+assert.equal(resumeHrefFromResearchPath({ ok: true, representation: golden878PathRep }), "/world");
 
 const root = createTraceRoot({
   traceId: "golden-trace-878-v1",
