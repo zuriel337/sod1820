@@ -4,6 +4,7 @@ import {
   SPATIAL_LEVEL,
   resolveExperienceContext,
 } from "../src/lib/experienceContext.js";
+import { normalizeResearchContext, mergeResearchContext } from "../src/lib/research/researchContext.js";
 import {
   EXPERIENCE_CAPABILITY,
   USAGE_RESOURCE,
@@ -95,3 +96,41 @@ assert.equal(researchMedia.fallback, "canonical_share_card");
 assert.ok(researchMedia.meters.includes(USAGE_RESOURCE.MEDIA_GENERATION));
 
 console.log("Experience Context 2029 smoke gate: PASS");
+
+
+const focusedNumberContext = normalizeResearchContext({
+  subject: { id: "98", type: "number", label: "98", href: "/2029/number/98" },
+  selection: {
+    entityId: "98",
+    entityType: "number",
+    expression: "חנם",
+    method: "רגיל",
+    resultValue: 98,
+    focusKind: "expression",
+    crossingPartner: "סלח",
+  },
+  lens: "number",
+  returnTo: {
+    href: "/topic/98-ikuv-geula",
+    label: "98 — עיכוב",
+    subject: { id: "98-ikuv-geula", type: "topic", label: "98 — עיכוב" },
+    selection: { entityId: "98-ikuv-geula", entityType: "topic" },
+    lens: "topic",
+  },
+});
+assert.equal(focusedNumberContext.selection.expression, "חנם");
+assert.equal(focusedNumberContext.selection.method, "רגיל");
+assert.equal(focusedNumberContext.selection.resultValue, 98);
+assert.equal(focusedNumberContext.selection.focusKind, "expression");
+assert.equal(focusedNumberContext.selection.crossingPartner, "סלח");
+
+const exactFocusReturn = mergeResearchContext(focusedNumberContext, {
+  subject: focusedNumberContext.returnTo.subject,
+  selection: focusedNumberContext.returnTo.selection,
+  lens: focusedNumberContext.returnTo.lens,
+  dimensions: {},
+  journey: null,
+  returnTo: null,
+});
+assert.equal(exactFocusReturn.subject.type, "topic");
+assert.equal(exactFocusReturn.selection.entityType, "topic");
