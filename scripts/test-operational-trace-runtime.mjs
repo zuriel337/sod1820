@@ -145,6 +145,10 @@ assert.equal(
   true,
   "format-only thousands separators must not create a new numeric fact",
 );
+const callerBoundary = validateNumericOutput("9999", ["9999"]);
+assert.equal(callerBoundary.ok, true, "guard constrains output to supplied numeric inputs");
+assert.deepEqual(callerBoundary.permitted, ["9999"]);
+assert.equal("trusted" in callerBoundary, false, "guard must not relabel caller-supplied input as verified truth");
 assert.equal(
   validateNumericOutput(numericTruthRetryInstruction(), []).ok,
   true,
@@ -162,6 +166,8 @@ for (const needle of [
   'escalation_reason: "untrusted_numeric_literal"',
   'retry_ordinal: 1',
   'output_use: out.error ? "not_applicable" : firstGuard.ok ? "used" : "rejected"',
+  'output_use: retryOut.error ? "not_applicable" : retryGuard.ok ? "used" : "rejected"',
+  'This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.',
   'fallback_reason: fallbackUsed ? "numeric_truth_guard" : null',
   'numeric_truth_guard_fallback',
 ]) {
