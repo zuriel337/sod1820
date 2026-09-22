@@ -14,6 +14,7 @@ const NEGATIVE_TOKENS = [
 ];
 
 import { normalizeWorldNumber, classifyWorldVerificationStrength } from "./worldContextualProminence.js";
+import { canonicalTopicSlug } from "./topicCanonicalSlugAliases.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
@@ -295,7 +296,8 @@ function makeCandidateRow(row) {
   const reason = clean(why?.reason);
   const confidence = finite(row?.conf ?? row?.confidence);
   const value = /^-?\d+$/.test(subjectRef) ? Number(subjectRef) : null;
-  const topicSlug = clean(why?.topic_slug);
+  const topicSlugRaw = clean(why?.topic_slug);
+  const topicSlug = topicSlugRaw ? canonicalTopicSlug(topicSlugRaw) : null;
   const topicTitle = clean(why?.topic_title);
   const anchor = clean(why?.anchor);
   // needs_check alone means review-required, NOT proof of a mismatch. Only an explicit
