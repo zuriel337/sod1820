@@ -46,7 +46,7 @@ Detailed domain semantics live in owners, not here:
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
-- No Black Box / full execution trace / system recommendations → active `system_suggestions_law` **v2**;
+- No Black Box / full execution trace / system recommendations → active `system_suggestions_law` **v3**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
