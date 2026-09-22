@@ -12,6 +12,8 @@ on:
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
       - "src/lib/research/researchContext.js"
+      - "src/lib/research/ResearchProvider.jsx"
+      - "src/lib/research/numberExpressionFocus.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
