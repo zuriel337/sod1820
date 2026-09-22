@@ -268,6 +268,24 @@ A finding must not keep an old rarity label after the search space changed.
 ### 8.5 Do not grow the corpus just to make a favored match appear
 Expansion is source/coverage-driven, not result-driven.
 
+
+### 8.6 Live corpus owner map — 2026-09-23
+Live audit on canonical Supabase `linswmnnkjxvweumprav`:
+- `gematria_words`: 15,521 rows; 12,642 engine-verified; 14,002 Hebrew-like; 2,000 tagged; 505 graph-linked.
+- `maftech_lexicon`: 43,510 lexical rows — useful for broad lexical/Tanakh/core coverage, not a second semantic truth store.
+- `words`: 12 rows; `word_tags`: 0; these are not a mature semantic owner and must not be inflated into a parallel ontology.
+- `word_aliases`: 7 rows — identity/variant support only.
+- `relation_evidence`: 132 rows — evidence about relations, not a general semantic dictionary.
+- `word_review_queue`: 14 rows — admission/review workflow, not corpus truth by itself.
+
+Canonical routing:
+- Gematria expression admission stays under `corpus_admission_foundation_v1` / `corpus_admission_lifecycle_law` + Gematria owners.
+- Durable semantic identity/relation belongs to Reality Graph / Research OS with typed provenance.
+- Source-derived lexical coverage may use existing Intake/Source owners.
+- No `semantic_dictionary` / synonym store / antonym store is authorized by this program.
+
+Future synonym/antonym/root expansion therefore begins as source-attested Research/Graph relations or admission candidates and only persists under the existing owner that matches the semantic role.
+
 ---
 
 ## 9. Personal validation protocol
