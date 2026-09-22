@@ -921,49 +921,57 @@ function NumberPageBody() {
     const raw = clean(rawValue);
     if (!raw) return;
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
+      setFocusExplicit(false);
+      setFocusedCrossingPartner("");
       navigate(`/2029/number/${Number(raw)}`);
       return;
     }
     try {
-      const rows = await fetchNumberMethodProfile(raw);
-      const regular = rows.find((row) => {
-        const label = clean(row?.displayLabel || row?.methodKey).replace(/[\s"'״׳’‘\-_/]/g, "");
-        return label === "רגיל" || clean(row?.methodKey) === "רגיל";
-      }) || rows[0] || null;
-      const next = Number(regular?.computedValue);
-      if (!Number.isSafeInteger(next)) {
+      const focus = await resolveExpressionFocus(raw);
+      if (!focus?.href) {
         setActiveExpression(raw);
-        if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
         return;
       }
+      const next = Number(focus.root);
+      const current = research.context || {};
+      const currentSelection = focusSelection(root);
+      const returnTo = next === root
+        ? current.returnTo || null
+        : (Number.isSafeInteger(root) ? {
+          href: currentNumberHref,
+          label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
+          subject: current.subject || { id: String(root), type: "number", label: String(root), href: currentNumberHref },
+          selection: currentSelection,
+          lens: current.lens || "number",
+          dimensions: current.dimensions || {},
+          journey: current.journey || null,
+        } : null);
+
+      setFocusExplicit(true);
+      setFocusedCrossingPartner("");
+      setActiveExpression(focus.expression);
+      if (focus.method) setSelectedMethodKey(focus.method);
+      setTraceOpen(false);
       research.setResearchContext?.({
-        subject: { id: String(next), type: "number", label: String(next), href: `/2029/number/${next}` },
+        subject: { id: String(next), type: "number", label: String(next), href: focus.href },
         selection: {
           entityId: String(next),
           entityType: "number",
-          expression: raw,
-          method: regular?.methodKey || null,
-          resultValue: next,
+          expression: focus.expression,
+          method: focus.method,
+          resultValue: focus.resultValue,
+          focusKind: "expression",
         },
         lens: "number",
-        locale: research.context?.locale || "he",
-        returnTo: next === root ? research.context?.returnTo || null : (Number.isSafeInteger(root) ? {
-          href: `/2029/number/${root}`,
-          label: `דף ${root}`,
-          subject: research.context?.subject || null,
-          selection: research.context?.selection || null,
-          lens: research.context?.lens || "number",
-          dimensions: research.context?.dimensions || {},
-          journey: research.context?.journey || null,
-        } : null),
+        locale: current.locale || "he",
+        dimensions: {
+          ...(current.dimensions || {}),
+          expressionFocusExplicit: true,
+          focusOrigin: "number-query",
+        },
+        returnTo,
       });
-      if (next === root) {
-        setActiveExpression(raw);
-        if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
-        setTraceOpen(false);
-        return;
-      }
-      navigate(`/2029/number/${next}`);
+      navigate(focus.href, { replace: next === root });
     } catch {
       setActiveExpression(raw);
     }
@@ -972,29 +980,31 @@ function NumberPageBody() {
   const openNumberRoot = (nextValue) => {
     const next = Number(nextValue);
     if (!Number.isSafeInteger(next)) return;
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: activeExpression || null,
-      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-    };
+    const selection = focusSelection(root);
+    const nextHref = numberExpressionFocusHref(next, {
+      expression: focusExpression || null,
+      method: focusExplicit ? focusMethodKey : null,
+    }) || `/2029/number/${next}`;
     research.setResearchContext?.({
-      subject: { id: String(next), type: "number", label: String(next), href: `/2029/number/${next}` },
-      selection: { entityId: String(next), entityType: "number", expression: activeExpression || null, method: selectedMethodProfile?.methodKey || selectedMethodKey || null },
+      subject: { id: String(next), type: "number", label: String(next), href: nextHref },
+      selection: focusSelection(next),
       lens: "number",
       locale: research.context?.locale || "he",
+      dimensions: {
+        ...(research.context?.dimensions || {}),
+        expressionFocusExplicit: Boolean(focusExplicit),
+      },
       returnTo: {
-        href: `/2029/number/${root}`,
-        label: `דף ${root}`,
-        subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+        href: currentNumberHref,
+        label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
+        subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
         selection,
         lens: "number",
         dimensions: research.context?.dimensions || {},
         journey: research.context?.journey || null,
       },
     });
-    navigate(`/2029/number/${next}`);
+    navigate(nextHref);
   };
 
   if (!Number.isInteger(root) || root < 0) {
@@ -1008,6 +1018,17 @@ function NumberPageBody() {
   }
 
   return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
+    {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
+      <div>
+        <span>מיקוד פעיל</span>
+        <strong>{focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}</strong>
+        <small>{activeMethodLabel || focusMethodKey || "שיטה"} {Number.isFinite(Number(activeResult)) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
+      </div>
+      <div className="sod29-actions">
+        {research.context?.returnTo?.href ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button> : null}
+        <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את {root} בלי מיקוד</button>
+      </div>
+    </section> : null}
     <section className="sod29-number-hero" id="number-now">
       <NumberCore2029
         projection={coreProjection}
@@ -1021,19 +1042,39 @@ function NumberPageBody() {
         methodsLoading={methodProfileState.loading}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
-        onExpressionSelect={(phrase) => {
-          setActiveExpression(phrase);
-          if (regularMethodProfile?.methodKey) setSelectedMethodKey(regularMethodProfile.methodKey);
-          setTraceOpen(false);
-        }}
+        onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
-        onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
+        onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.rows}
         hiddenCrossingsLoading={hiddenCrossState.loading}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
-        onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
+        onOpenCrossing={(crossing) => {
+          const partner = clean(crossing?.partner);
+          if (partner && clean(activeExpression)) {
+            setFocusExplicit(true);
+            setFocusedCrossingPartner(partner);
+            const href = numberExpressionFocusHref(root, {
+              expression: activeExpression,
+              method: focusMethodKey,
+              crossingPartner: partner,
+            });
+            research.updateResearchContext?.({
+              selection: {
+                ...focusSelection(root),
+                focusKind: "crossing",
+                crossingPartner: partner,
+              },
+              dimensions: {
+                ...(research.context?.dimensions || {}),
+                expressionFocusExplicit: true,
+              },
+            });
+            if (href) navigate(href, { replace: true });
+          }
+          askRaziel("explain_crossing", { kind: "crossing", partner: partner || null, methods: crossing?.methods || [] });
+        }}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
         onOpenWorld={() => openWorld()}
