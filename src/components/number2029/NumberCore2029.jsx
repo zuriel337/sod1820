@@ -283,6 +283,7 @@ export default function NumberCore2029({
   const [showCalculation, setShowCalculation] = useState(false);
   const [showAllCrossings, setShowAllCrossings] = useState(false);
   const [showMoreMethods, setShowMoreMethods] = useState(false);
+  const [focusedCrossingPartner, setFocusedCrossingPartner] = useState(null);
   const [query, setQuery] = useState("");
 
   if (!projection) return null;
@@ -311,7 +312,15 @@ export default function NumberCore2029({
   const projectedCrossing = stage?.crossing || null;
   const projectedCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (projectedCrossing ? [projectedCrossing] : []);
   const stageCrossings = compact ? projectedCrossings : (Array.isArray(hiddenCrossings) ? hiddenCrossings : []);
-  const stageCrossing = stageCrossings[0] || null;
+  const defaultStageCrossing = stageCrossings[0] || null;
+  const focusedCrossing = focusedCrossingPartner
+    ? stageCrossings.find((item) => String(item?.partner || "") === String(focusedCrossingPartner)) || null
+    : null;
+  const stageCrossing = focusedCrossing || defaultStageCrossing;
+  const crossingFocusActive = Boolean(focusedCrossing);
+  const secondaryCrossings = stageCrossing
+    ? stageCrossings.filter((item) => String(item?.partner || "") !== String(stageCrossing.partner || ""))
+    : stageCrossings;
   const stageZero = stage?.zeroScale || null;
   const raziel = projection.razielMicro;
   const result = active?.computedValue ?? projection.activeResult ?? null;
@@ -339,7 +348,8 @@ export default function NumberCore2029({
     setShowCalculation(false);
     setShowAllCrossings(false);
     setShowMoreMethods(false);
-  }, [active?.methodKey, root]); // eslint-disable-line react-hooks/exhaustive-deps
+    setFocusedCrossingPartner(null);
+  }, [active?.methodKey, root, projection.expression]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectMethod = (method) => {
     setInspectorMethodKey(method.methodKey);
@@ -495,10 +505,22 @@ export default function NumberCore2029({
 
     <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
       <header className="sod29-number-v10-stage-head">
-        <div>
-          <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
-          <strong>{projection.expression || root} <em>→</em> {stageRoot}</strong>
-          <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
+        <div className={crossingFocusActive ? "is-crossing-focus" : ""} data-experience-state={crossingFocusActive ? "crossing-focus" : "number-result"}>
+          {crossingFocusActive && stageCrossing ? <>
+            <span>הצלבה נסתרת · פוקוס פעיל</span>
+            <strong>{projection.expression || root} <em>↔</em> {stageCrossing.partner}</strong>
+            <div className="sod29-number-v10-stage-cross-methods">
+              {stageCrossing.methods.slice(0, 4).map((method) => <b key={method.methodKey}>
+                {publicMethodLabel(method)} = {method.value}
+              </b>)}
+            </div>
+            <small>Root {stageRoot} נשאר העוגן · הפוקוס בלבד השתנה</small>
+            <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={() => setFocusedCrossingPartner(null)}>חזור ל־{stageRoot}</button>
+          </> : <>
+            <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
+            <strong>{projection.expression || root} <em>→</em> {stageRoot}</strong>
+            <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
+          </>}
         </div>
         <div className="sod29-number-v10-vitality" aria-label={stageLoading ? "כיסוי שכבות מתעדכן" : `כיסוי שכבות ${coverageValue} אחוז`}>
           <div className="sod29-number-v10-vitality-ring" style={{ "--vitality": stageLoading ? "0deg" : `${coverageValue * 3.6}deg` }}>
@@ -542,7 +564,13 @@ export default function NumberCore2029({
               </div>
             </div>
             {stageCrossing ? <>
-              <button type="button" className="sod29-number-v10-crossing-lead" onClick={() => onOpenCrossing?.(stageCrossing)}>
+              <button
+                type="button"
+                className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
+                data-experience-action="crossing-focus"
+                aria-pressed={crossingFocusActive}
+                onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+              >
                 <span>ההצלבה המובילה</span>
                 <strong>{projection.expression || root} <b>=</b> {stageCrossing.partner}</strong>
                 <div className="sod29-number-v10-crossing-methods">
@@ -553,18 +581,21 @@ export default function NumberCore2029({
                 </div>
                 <small>נמצאה עכשיו מתוך הביטוי הפעיל והמאגר המאומת</small>
               </button>
-              {stageCrossings.length > 1 ? <div className="sod29-number-v10-crossing-more">
-                {stageCrossings.slice(1, showAllCrossings ? stageCrossings.length : 4).map((item, index) => <button
+              {secondaryCrossings.length ? <div className="sod29-number-v10-crossing-more">
+                {secondaryCrossings.slice(0, showAllCrossings ? secondaryCrossings.length : 4).map((item, index) => <button
                   type="button"
                   key={`${item.partner}:${index}`}
-                  onClick={() => onOpenCrossing?.(item)}
+                  data-experience-action="crossing-focus-secondary"
+                  aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
+                  onClick={() => setFocusedCrossingPartner(item.partner)}
                 >
                   <strong>{item.partner}</strong>
-                  <small>{item.methods.map((method) => method.methodLabel).join(" · ")}</small>
+                  <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
                 </button>)}
               </div> : null}
               <div className="sod29-number-v10-inline-actions">
-                {stageCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `פתח עוד ${stageCrossings.length - 4} הצלבות`}</button> : null}
+                {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `פתח עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
+                {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
                 <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
               </div>
             </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
@@ -629,9 +660,24 @@ export default function NumberCore2029({
         /> : null}
 
         <footer className="sod29-number-v10-stage-actions">
-          <button type="button" onClick={() => onRazielAction?.("next_research_step", { kind: "method_result", methodKey: active?.methodKey || null, methodLabel: publicMethodLabel(active), resultValue: stageRoot })}>✦ שאל את רזיאל</button>
+          <button type="button" onClick={() => onRazielAction?.("next_research_step", {
+            kind: crossingFocusActive ? "crossing_focus" : "method_result",
+            methodKey: active?.methodKey || null,
+            methodLabel: publicMethodLabel(active),
+            resultValue: stageRoot,
+            crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
+            crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
+          })}>✦ שאל את רזיאל</button>
           <button type="button" onClick={() => onOpenWorld?.()}>◉ פתח בעולם</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "method_result_deep", root, expression: projection.expression, methodKey: active?.methodKey || null, resultValue: stageRoot })}>◇ חקור בהיכל</button>
+          <button type="button" className="primary" onClick={() => onOpenHeichal?.({
+            kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
+            root,
+            expression: projection.expression,
+            methodKey: active?.methodKey || null,
+            resultValue: stageRoot,
+            crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
+            crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
+          })}>◇ חקור בהיכל</button>
         </footer>
 
         <div className="sod29-number-v10-premium-ready">
