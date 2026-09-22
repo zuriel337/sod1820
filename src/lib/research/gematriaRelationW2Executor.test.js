@@ -103,9 +103,11 @@ test('Cross adapter is bounded and never expands to an unbounded pair scan', asy
   const out = await executor({ identityResolution: nameResolution('public') });
 
   assert.equal(out.trace.pair_count, 1);
-  assert.equal(out.bounded.total_count, 1);
+  assert.equal(out.bounded.total_count, 3);
   assert.equal(out.bounded.returned_count, 1);
   assert.equal(out.bounded.truncated, true);
+  assert.equal(out.bounded.continuation.kind, 'increase_pair_budget');
+  assert.equal(out.trace.available_pair_count, 3);
 });
 
 
