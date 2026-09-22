@@ -214,6 +214,7 @@ This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through 
 - replayable Research Context / Journey path for 878;
 - Year/Verse Journey source/witness/counting provenance;
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
+- **Research Synthesis / Calibration Foundation:** one canonical `Research Result Bundle.synthesis` seam over owner-native capabilities; dependency-normalized Cross Signatures, atomic-claim Message Freeze, holdout/decoy Person Fit, historical AI resonance replay, privacy-safe Champion/Challenger learning and auxiliary-only Tarot. No parallel Message/Name/Accuracy/Tarot engine. Detailed execution map: `docs/2029-research-synthesis-calibration-foundation-v1.md`;
 - ELS result/coordinate/replay Golden fixture;
 - No-Black-Box fixtures: parallel three-engine synthesis, sequential escalation, cache hit, retry/continuation, timeout/cancel, unpriced model, partial failure, private-input redaction and cross-layer trace propagation;
 - exact return, Why-transition, provenance and failure/negative outcomes.
