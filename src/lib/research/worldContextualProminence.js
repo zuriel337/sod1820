@@ -642,11 +642,15 @@ export const compareWorldCandidatePriority = compareCandidatePriority;
 export function buildWorldContextualProminence(data, inputs = {}, {
   limit = 7,
   timeAware = false,
+  attentionFirst = true,
 } = {}) {
   if (!data?.identity) return Object.freeze({ items: [], contextSignals: {}, candidateCount: 0 });
   const requested = Math.trunc(Number(limit) || 7);
   const cap = Math.max(4, Math.min(requested, 7));
-  const comparatorOptions = { timeAware: Boolean(timeAware) };
+  // Axis selection is presentation-only. Default preserves the World attention bundle; callers
+  // such as public Topic may request Research-Strength-first ordering without forking the rank
+  // classifier/comparator or manufacturing a universal score.
+  const comparatorOptions = { timeAware: Boolean(timeAware), attentionFirst: attentionFirst !== false };
 
   const temporalControl = temporalControlCandidate(inputs);
   let candidates = [

@@ -3,6 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { topicConvergenceToUniversalFinding } from "../src/lib/research/topicConvergence.js";
 import { buildTopic2029Projection, topic2029SearchAudit } from "../src/lib/research/topic2029Projection.js";
+import {
+  TOPIC_CANONICAL_SLUG_MIGRATIONS,
+  canonicalTopicSlug,
+  topicSourceSlugCandidates,
+} from "../src/lib/research/topicCanonicalSlugAliases.js";
+import { buildTopicGoldenProjection, topicDensity } from "../src/lib/research/topicGoldenProjection.js";
+import { numberExpressionFocusHref, parseNumberExpressionFocus } from "../src/lib/research/numberExpressionFocus.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -69,7 +76,9 @@ assert.match(page, /buildTopic2029Projection/);
 assert.match(page, /data-entity-type="convergence"/);
 assert.match(page, /setConvergenceJsonLd/);
 assert.match(page, /התכנסות ≠ עובדה קנונית/);
-assert.match(page, /to=\{"\/number\/" \+ value\}/);
+assert.match(page, /resolveExpressionFocus/);
+assert.match(page, /\/2029\/number\//);
+assert.equal(/to=\{"\/number\//.test(page), false, "Topic 2029 must not hand Number interactions to the legacy /number route");
 assert.equal(page.includes("getTopicCardBySlug"), false);
 assert.equal(page.includes("getGalleryImagesByIds"), false);
 assert.equal(page.includes("BeitMidrash"), false);
@@ -83,3 +92,118 @@ assert.match(seo, /"@type": "WebPage"/);
 assert.match(seo, /BreadcrumbList/);
 
 console.log("2029 native Topic surface acceptance: PASS");
+
+
+const semanticSlugs = TOPIC_CANONICAL_SLUG_MIGRATIONS.map((row) => row.newSlug);
+assert.equal(TOPIC_CANONICAL_SLUG_MIGRATIONS.length, 79, "user-prefixed Topic migration count must stay exact");
+assert.equal(new Set(semanticSlugs).size, 79, "canonical Topic slugs must be unique");
+assert.equal(semanticSlugs.every((slug) => /^[a-z0-9-]+$/.test(slug)), true, "canonical Topic slugs must be Latin/URL-safe");
+assert.equal(semanticSlugs.every((slug) => !/^(tzvi|shimon)-conv-/.test(slug)), true, "creator identity must not own canonical Topic URL");
+assert.equal(canonicalTopicSlug("tzvi-conv-98"), "98-ikuv-geula");
+assert.deepEqual(topicSourceSlugCandidates("98-ikuv-geula"), ["98-ikuv-geula", "tzvi-conv-98"]);
+
+for (const { oldSlug, newSlug } of TOPIC_CANONICAL_SLUG_MIGRATIONS) {
+  assert.equal(
+    config.redirects.some((row) => row.source === `/topic/${oldSlug}` && row.destination === `/topic/${newSlug}` && row.statusCode === 301),
+    true,
+    `legacy Topic alias must permanently redirect: ${oldSlug}`,
+  );
+}
+
+const slugMigration = read("supabase/migrations/20260922170000_topic_semantic_slug_migration_v1.sql");
+assert.match(slugMigration, /expected 79 legacy rows/);
+assert.match(slugMigration, /update public\.topic_cards/);
+assert.match(slugMigration, /update public\.nodes/);
+assert.equal(/set\s+title\s*=/.test(slugMigration), false, "slug migration must never rename the Hebrew Topic title");
+
+
+assert.equal(topicDensity(0), "sparse");
+assert.equal(topicDensity(2), "sparse");
+assert.equal(topicDensity(3), "medium");
+assert.equal(topicDensity(6), "rich");
+
+const goldenFixture = buildTopicGoldenProjection({
+  authoredFactsCount: 7,
+  createdBy: "צבי (OPOC)",
+  attribution: ["contribution:צבי (OPOC)", "ai"],
+}, {
+  hub: {
+    identity: { nodeId: "topic-node" },
+    graph: { relations: [{
+      id: "edge-finding",
+      projection: { relations: [{ relationType: "related", from: { id: "topic-node", type: "convergence", label: "Topic" }, to: { id: "n-424", type: "number", label: "424" } }] },
+    }] },
+    sources: [{ ref: "human:1", label: "ספר מקור" }, { ref: "technical:1", label: "work_log:abc" }],
+    media: { items: [{ galleryImageId: "img-1", label: "מדיה", thumbUrl: "https://example.test/a.jpg" }] },
+    research: { findings: [{ id: "r1" }] },
+  },
+  prominence: {
+    candidateCount: 3,
+    items: [{
+      id: "p1",
+      kind: "research",
+      label: "ממצא",
+      explainWhy: {
+        researchStrengthSignals: ["engine_match", "provenance_present"],
+        humanCuration: { tier: "gold" },
+        uncertainty: null,
+      },
+    }],
+  },
+});
+assert.equal(goldenFixture.density, "rich");
+assert.equal(goldenFixture.graphConnections[0].href, "/2029/number/424");
+assert.deepEqual(goldenFixture.people, ["צבי (OPOC)"]);
+assert.equal(goldenFixture.sources.length, 1);
+assert.equal(goldenFixture.media.length, 1);
+assert.equal(goldenFixture.rank.engineMatches, 1);
+assert.equal(goldenFixture.rank.gold, 1);
+assert.equal(goldenFixture.rank.attentionPolicy, "human_gate_only");
+assert.equal(goldenFixture.rankContract.universalScore, false);
+
+const topicPageGolden = read("src/pages/Topic2029Page.jsx");
+assert.match(topicPageGolden, /fetchEntityHubProjection/);
+assert.match(topicPageGolden, /buildWorldContextualProminence/);
+assert.match(topicPageGolden, /buildTopicGoldenProjection/);
+assert.match(topicPageGolden, /research_gold_hints_law-v3/);
+assert.match(topicPageGolden, /לא ציון אמת/);
+assert.equal(topicPageGolden.includes("worldConvergenceLensProjection"), false, "public Topic must not import the admin Attention lens");
+assert.equal(/>EXPRESSIONS<|>FINDINGS<|>RELATIONS<|>PROVENANCE<|CANONICAL TOPIC/.test(topicPageGolden), false, "Topic Golden should be Hebrew-first");
+
+assert.match(topicPageGolden, /attentionFirst:\s*false/, "public Topic must request Research-Strength-first ordering");
+const sharedRankSource = read("src/lib/research/worldContextualProminence.js");
+assert.match(sharedRankSource, /attentionFirst = true/, "World default attention ordering must remain backward compatible");
+assert.match(sharedRankSource, /attentionFirst: attentionFirst !== false/, "shared comparator must receive the selected axis");
+
+const worldRankProjection = read("src/lib/research/worldConvergenceLensProjection.js");
+assert.match(worldRankProjection, /canonicalTopicSlug/);
+assert.match(worldRankProjection, /topicSlugRaw/);
+assert.match(slugMigration, /update public\.research_contributions/);
+assert.equal(/update public\.research_candidates/.test(slugMigration), false, "historical research candidate provenance must not be rewritten by URL migration");
+assert.equal(/update public\.research_objects/.test(slugMigration), false, "historical research object context must remain provenance");
+
+
+const focusHref = numberExpressionFocusHref(98, { expression: "חנם", method: "רגיל", crossingPartner: "סלח" });
+assert.equal(focusHref, "/2029/number/98?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&cross=%D7%A1%D7%9C%D7%97");
+assert.deepEqual(parseNumberExpressionFocus("?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C"), {
+  expression: "חנם",
+  method: "רגיל",
+  crossingPartner: null,
+  explicit: true,
+});
+
+const number2029Source = read("src/pages/Number2029Page.jsx");
+const world2029Source = read("src/pages/World2029Page.jsx");
+const heichal2029Source = read("src/pages/Heichal2029Page.jsx");
+const researchProviderSource = read("src/lib/research/ResearchProvider.jsx");
+assert.match(number2029Source, /data-expression-focus="true"/);
+assert.match(number2029Source, /parseNumberExpressionFocus/);
+assert.match(number2029Source, /resolveExpressionFocus/);
+assert.match(number2029Source, /shell\.returnExact/);
+assert.match(world2029Source, /focusedExpression/);
+assert.match(world2029Source, /חזור לחישוב/);
+assert.match(world2029Source, /\/2029\/number\//);
+assert.match(heichal2029Source, /ביטוי:/);
+assert.match(heichal2029Source, /resolveExpressionFocus/);
+assert.match(researchProviderSource, /expressionFocusExplicit/);
+assert.match(researchProviderSource, /crossingPartner/);

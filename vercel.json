@@ -41,6 +41,401 @@
       "permanent": true
     },
     {
+      "source": "/topic/shimon-conv-827",
+      "destination": "/topic/827-avodat-hashem-hitbodedut-daat-simcha",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-101",
+      "destination": "/topic/101-chilazon-zvulun-techelet",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1032",
+      "destination": "/topic/1032-rachum-vechanun",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1042",
+      "destination": "/topic/1042-kumi-ori",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1111",
+      "destination": "/topic/1111-shem-hashnit-atzeret",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1144",
+      "destination": "/topic/1144-shemesh-yareach",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1152",
+      "destination": "/topic/1152-tzvi-atbash-moshe",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1158",
+      "destination": "/topic/1158-pitchei-olam",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-119",
+      "destination": "/topic/119-dimah-beit-hamikdash",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-123",
+      "destination": "/topic/123-chanania-tov-hashem",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1233",
+      "destination": "/topic/1233-ma-zot-asita",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1254",
+      "destination": "/topic/1254-matamim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-128",
+      "destination": "/topic/128-beinoni-tov-meod",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1356",
+      "destination": "/topic/1356-beit-habetarim-geula",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-136",
+      "destination": "/topic/136-mamon-kol-tzom",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-1528",
+      "destination": "/topic/1528-mevaseret-yerushalayim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-155",
+      "destination": "/topic/155-ledovka-bo",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-156",
+      "destination": "/topic/156-yosef-poter-hachalomot",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-168",
+      "destination": "/topic/168-lo-matza",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-170",
+      "destination": "/topic/170-naomi-tov",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-173",
+      "destination": "/topic/173-lo-matzah",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-199",
+      "destination": "/topic/199-od-meat-tzedaka",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-204",
+      "destination": "/topic/204-tzadik-emunah",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-209",
+      "destination": "/topic/209-matamim-taamei-torah",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-217",
+      "destination": "/topic/217-dvorah-or",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-223",
+      "destination": "/topic/223-zeh-hadavar",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-238",
+      "destination": "/topic/238-rachel-chesed",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-245",
+      "destination": "/topic/245-kmitza-hatzala",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-246",
+      "destination": "/topic/246-gavriel",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-277",
+      "destination": "/topic/277-ki-amru-yeshua",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-305",
+      "destination": "/topic/305-rachel-mevaka-kapara",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-306",
+      "destination": "/topic/306-isha-kapara-tikun",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-335",
+      "destination": "/topic/335-para-aduma",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-336",
+      "destination": "/topic/336-tzvi-latzadik-purim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-352",
+      "destination": "/topic/352-anavim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-374",
+      "destination": "/topic/374-achishena-geula",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-386",
+      "destination": "/topic/386-david-ben-yishai-tzipor",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-408",
+      "destination": "/topic/408-zot-malchut",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-417",
+      "destination": "/topic/417-zayit-adam-david-mashiach",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-444",
+      "destination": "/topic/444-tzfardea-shira",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-448",
+      "destination": "/topic/448-boker-chasdecha",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-453",
+      "destination": "/topic/453-melech-hamashiach-tamuz",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-456",
+      "destination": "/topic/456-vayelech-yosef-yeshua",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-466",
+      "destination": "/topic/466-shimon-bracha",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-467",
+      "destination": "/topic/467-ketzir-chitim-mashiach",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-489",
+      "destination": "/topic/489-kemishpatam",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-495",
+      "destination": "/topic/495-matana-ahava",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-496",
+      "destination": "/topic/496-livyatan-malchut",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-503",
+      "destination": "/topic/503-emunot-zayit",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-513",
+      "destination": "/topic/513-besora-emunah-geula",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-517",
+      "destination": "/topic/517-matana-tova-shabbat",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-530",
+      "destination": "/topic/530-moshe-mashiach",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-553",
+      "destination": "/topic/553-rachem-arachamenu",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-560",
+      "destination": "/topic/560-yesharim-avot-haolam",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-562",
+      "destination": "/topic/562-hesech-hadaat",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-566",
+      "destination": "/topic/566-mashiach-ben-yosef",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-599",
+      "destination": "/topic/599-matzati-chen",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-610",
+      "destination": "/topic/610-or-halevana-or-hachama",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-613",
+      "destination": "/topic/613-hashem-elohai-yisrael",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-618",
+      "destination": "/topic/618-masaot-tikun-hadinim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-620",
+      "destination": "/topic/620-keter",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-638",
+      "destination": "/topic/638-kedem-yadati",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-645",
+      "destination": "/topic/645-david-melech-yisrael",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-651",
+      "destination": "/topic/651-yakir-efraim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-656",
+      "destination": "/topic/656-chanania-ben-akashya",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-680",
+      "destination": "/topic/680-avodat-hatzedaka",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-696",
+      "destination": "/topic/696-atik-yomin-keter",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-702",
+      "destination": "/topic/702-shabbat",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-717",
+      "destination": "/topic/717-lo-yikhat-amim",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-739",
+      "destination": "/topic/739-nerot-chanukah",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-773",
+      "destination": "/topic/773-shabbat-chazon",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-777",
+      "destination": "/topic/777-shivim-shana",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-849",
+      "destination": "/topic/849-sinat-chinam",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-863",
+      "destination": "/topic/863-tomer-dvorah",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-910",
+      "destination": "/topic/910-raza-deshabbat",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-914",
+      "destination": "/topic/914-shchorot-keter",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-95",
+      "destination": "/topic/95-yom-echad-malka",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-98",
+      "destination": "/topic/98-ikuv-geula",
+      "statusCode": 301
+    },
+    {
+      "source": "/topic/tzvi-conv-996",
+      "destination": "/topic/996-tishmerun",
+      "statusCode": 301
+    },
+    {
       "source": "/(.+)/",
       "destination": "/$1",
       "permanent": true
@@ -274,6 +669,7 @@
   ],
   "git": {
     "deploymentEnabled": {
+      "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
       "gpt/*": false,
       "claude/*": false
     }

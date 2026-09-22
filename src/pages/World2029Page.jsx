@@ -44,6 +44,7 @@ import {
 import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -1014,6 +1015,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [gematriaQuery, setGematriaQuery] = useState("");
   const [journeyState, setJourneyState] = useState({ loading: false, data: null, error: null });
   const key = subjectKey(subject);
+  const expressionFocusExplicit = context?.dimensions?.expressionFocusExplicit === true;
+  const focusedExpression = expressionFocusExplicit ? String(context?.selection?.expression || "").trim() : "";
+  const focusedMethod = expressionFocusExplicit ? String(context?.selection?.method || "").trim() : "";
+  const focusedCrossing = expressionFocusExplicit ? String(context?.selection?.crossingPartner || "").trim() : "";
+  const focusedNumberHref = subject?.type === "number"
+    ? numberExpressionFocusHref(subject.id, {
+      expression: focusedExpression || null,
+      method: focusedMethod || null,
+      crossingPartner: focusedCrossing || null,
+    })
+    : null;
 
   useEffect(() => {
     let alive = true;
@@ -1191,7 +1203,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
   const openNumberPage = () => {
     if (data?.identity?.type !== "number") return;
-    shell.go(`/number/${encodeURIComponent(data.identity.label)}`);
+    shell.go(focusedNumberHref || `/2029/number/${encodeURIComponent(data.identity.label)}`);
+  };
+
+  const clearExpressionFocus = () => {
+    if (!subject?.id || !subject?.type) return;
+    research.updateResearchContext?.({
+      selection: { entityId: String(subject.id), entityType: subject.type },
+      dimensions: { ...(context?.dimensions || {}), expressionFocusExplicit: false },
+      lens: "world",
+    });
   };
 
   const activateGoldenJourney = () => {
@@ -1351,6 +1372,21 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   return <>
+    {focusedExpression ? <section className="sod29-world-focus-ribbon" data-expression-focus="true" aria-label="מיקוד הביטוי בעולם">
+      <div>
+        <span>המבט הנוכחי</span>
+        <strong>{subject.label || subject.id} · דרך {focusedCrossing ? `${focusedExpression} ↔ ${focusedCrossing}` : focusedExpression}</strong>
+        <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "מיקוד ביטוי"} · העולם מרחיב הקשר, Number נשאר בית החישוב</small>
+      </div>
+      <div className="sod29-actions">
+        {focusedNumberHref ? <button className="sod29-action primary" type="button" onClick={() => {
+          if (context?.returnTo?.href?.startsWith("/2029/number/")) shell.returnExact();
+          else shell.go(focusedNumberHref, { preserve: false });
+        }}>חזור לחישוב</button> : null}
+        <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את העולם בלי מיקוד</button>
+      </div>
+    </section> : null}
+
     <section className="sod29-section sod29-world-anchor-intro">
       <div className="sod29-section-head">
         <div>

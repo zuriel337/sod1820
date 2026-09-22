@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo } from "../lib/seo.js";
 
 const ACTIONS = [
@@ -20,16 +21,46 @@ function NoContextEntry() {
   const shell = use2029Shell();
   const [query, setQuery] = useState("");
 
-  const start = (e) => {
+  const start = async (e) => {
     e?.preventDefault?.();
     const raw = query.trim();
     if (!raw) return;
     const numeric = /^\d+$/.test(raw);
-    const id = numeric ? String(Number(raw)) : raw;
-    const type = numeric ? "number" : "phrase";
+    if (numeric) {
+      const id = String(Number(raw));
+      research.setResearchContext?.({
+        subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+        selection: { entityId: id, entityType: "number" },
+        lens: "heichal",
+        locale: "he",
+      });
+      return;
+    }
+
+    try {
+      const focus = await resolveExpressionFocus(raw);
+      if (focus?.href) {
+        research.setResearchContext?.({
+          subject: { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href },
+          selection: {
+            entityId: String(focus.root),
+            entityType: "number",
+            expression: focus.expression,
+            method: focus.method,
+            resultValue: focus.resultValue,
+            focusKind: "expression",
+          },
+          lens: "heichal",
+          locale: "he",
+          dimensions: { expressionFocusExplicit: true, focusOrigin: "heichal-entry" },
+        });
+        return;
+      }
+    } catch { /* honest phrase fallback below */ }
+
     research.setResearchContext?.({
-      subject: { id, type, label: id, href: `/number/${encodeURIComponent(id)}` },
-      selection: { entityId: id, entityType: type },
+      subject: { id: raw, type: "phrase", label: raw, href: "/heichal" },
+      selection: { entityId: raw, entityType: "phrase" },
       lens: "heichal",
       locale: "he",
     });
@@ -112,6 +143,9 @@ function ActiveResearchEnvironment() {
 
   const selectionText = [
     context?.selection?.entityType && context?.selection?.entityId ? `${context.selection.entityType}:${context.selection.entityId}` : null,
+    context?.selection?.expression ? `ביטוי: ${context.selection.expression}` : null,
+    context?.selection?.method ? `שיטה: ${context.selection.method}` : null,
+    context?.selection?.crossingPartner ? `הצלבה: ${context.selection.crossingPartner}` : null,
     context?.selection?.sourceRef || null,
     context?.selection?.locator || null,
   ].filter(Boolean).join(" · ");

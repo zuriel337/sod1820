@@ -149,11 +149,52 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await expect(article.locator('h1')).toContainText('888');
   await expect(article).toContainText('מה ההתכנסות הזאת?');
   await expect(article).toContainText('התכנסות ≠ עובדה קנונית');
-  await expect(article.locator('a[href="/number/888"]').first()).toBeVisible();
+  await expect(article.locator('a[href="/2029/number/888"]').first()).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/topic/888-yeshua');
   await expect(page.locator('script#sod-convergence-ld[type="application/ld+json"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
+});
+
+test('Topic expression focus opens Number 2029 and survives World + Heichal transitions', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/topic/98-ikuv-geula`, { waitUntil: 'domcontentloaded' });
+
+  const topic = page.locator('article[data-entity-type="convergence"]');
+  await expect(topic).toBeVisible({ timeout: 30_000 });
+  const chinam = topic.getByRole('button', { name: /חנם/ }).first();
+  await expect(chinam).toBeVisible({ timeout: 20_000 });
+  await chinam.click();
+
+  await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  const focusRibbon = numberPage.locator('[data-expression-focus="true"]');
+  await expect(focusRibbon).toBeVisible();
+  await expect(focusRibbon).toContainText('חנם');
+  await expect(focusRibbon).toContainText('98');
+
+  const worldButton = numberPage.getByRole('button', { name: /עולם/ }).first();
+  await expect(worldButton).toBeVisible();
+  await worldButton.click();
+  await expect(page).toHaveURL(`${BASE}/world`, { timeout: 20_000 });
+  const worldFocus = page.locator('.sod29-world-focus-ribbon');
+  await expect(worldFocus).toBeVisible({ timeout: 30_000 });
+  await expect(worldFocus).toContainText('חנם');
+  await expect(worldFocus).toContainText('98');
+
+  await worldFocus.getByRole('button', { name: 'חזור לחישוב' }).click();
+  await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
+  await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
+
+  const heichalButton = page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ }).first();
+  await expect(heichalButton).toBeVisible();
+  await heichalButton.click();
+  await expect(page).toHaveURL(`${BASE}/heichal`, { timeout: 20_000 });
+  await expect(page.getByText(/ביטוי: חנם/).first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/שיטה: רגיל/).first()).toBeVisible();
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });
 
 test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
