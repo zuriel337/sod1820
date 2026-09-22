@@ -62,6 +62,24 @@ test("explicit gematria request may calculate the Book title as text without cha
   assert.equal(plan.identities[0].identity_key, "book:ahavat-torah");
 });
 
+test("Name Research requests canonical Gematria plus dependency-normalized Cross capability", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "נתח את השם גל שגב",
+    candidates: [{
+      type: "name",
+      key: "name:test:gal-segev",
+      label: "גל שגב",
+      source: RESEARCH_IDENTITY_SOURCE.EXPLICIT_REF,
+      confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    }],
+  });
+  const plan = buildResearchPlanV2({ question: resolved.raw_input, intent: "research", identityResolution: resolved });
+  assert.equal(plan.strategy, "name_research");
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA), true);
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA_RELATIONS), true);
+  assert.equal(plan.check_order.indexOf(RESEARCH_CAPABILITY.GEMATRIA) < plan.check_order.indexOf(RESEARCH_CAPABILITY.GEMATRIA_RELATIONS), true);
+});
+
 test("personal family + clock context requests privacy-first person/time/operator capabilities", () => {
   const resolved = resolveResearchIdentities({
     rawInput: "4:24 חוזר אצלי ואצל הבן שלי",
@@ -230,6 +248,58 @@ test("W2 composer fills the single canonical synthesis socket and freezes it bef
   assert.equal(bundle.synthesis.message, "one canonical synthesis");
   assert.equal(bundle.synthesis.freeze.frozen, true);
   assert.equal(bundle.synthesis.invariants.tarot_is_auxiliary_only, true);
+});
+
+test("Cross Signatures are Bundle-backed while resonance and model agreement remain non-evidential", () => {
+  const relation = finding("uf:test:relation", "gematria-relation", "גל ↔ שגב");
+  const synthesis = normalizeResearchSynthesis({
+    claims: [{
+      id: "c1",
+      text: "bounded Cross motif",
+      support: { finding_ids: [relation.id] },
+    }],
+    cross_signatures: [{
+      finding_id: relation.id,
+      relation_ref: "relation:test",
+      effective_independent_group_count: 2,
+      raw_group_count: 4,
+      noise_flags: ["dependency_normalized"],
+    }],
+    research_strength: {
+      independent_evidence_groups: 2,
+      cross_domain_dimensions: ["gematria", "number_math"],
+      reproducibility: "replayable",
+    },
+    resonance: {
+      analyses: 1889,
+      up_votes: 162,
+      down_votes: 3,
+      research_actions: 391,
+    },
+    model_robustness: {
+      providers: ["anthropic", "google", "openai"],
+      independent_runs: 3,
+      shared_motifs: ["integration"],
+    },
+    corpus_context: {
+      corpus_ref: "gematria_words",
+      population_size: 4835,
+      search_space_size: 258502,
+      multiple_comparison_control: "declared",
+    },
+  }, { allowedFindingIds: [relation.id] });
+
+  assert.equal(synthesis.cross_signatures.length, 1);
+  assert.equal(synthesis.resonance.included_in_research_strength, false);
+  assert.equal(synthesis.resonance.included_in_empirical_fit, false);
+  assert.equal(synthesis.model_robustness.included_as_independent_evidence, false);
+  assert.equal(synthesis.invariants.cross_signatures_must_be_bundle_backed, true);
+  assert.equal(synthesis.invariants.historical_resonance_is_not_accuracy, true);
+
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{ id: "x", text: "unsupported Cross" }],
+    cross_signatures: [{ finding_id: "uf:missing" }],
+  }, { allowedFindingIds: [relation.id] }), /must reference a relation Finding available/);
 });
 
 test("synthesis failure is explicit and never destroys the underlying research bundle", async () => {
