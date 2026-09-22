@@ -19,7 +19,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 declare
   v_day date := (now() at time zone 'Asia/Jerusalem')::date;
   v_used integer;
@@ -59,7 +59,7 @@ begin
 
   return jsonb_build_object('allowed', true, 'used', v_used, 'limit', v_lim, 'tier', p_tier);
 end;
-$;
+$$;
 
 create or replace function public.fn_capability_execution_gate_v1(
   p_capability text,
