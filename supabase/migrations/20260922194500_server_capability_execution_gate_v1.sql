@@ -8,6 +8,59 @@
 
 begin;
 
+-- Harden the existing AI budget owner in place so the execution gate has an
+-- atomic budget-consumption primitive. Signature and policy numbers are unchanged.
+create or replace function public.ai_quota_check(
+  p_identity text,
+  p_tier text,
+  p_limit_override integer default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+  v_day date := (now() at time zone 'Asia/Jerusalem')::date;
+  v_used integer;
+  v_lim integer;
+begin
+  if p_identity is null or length(p_identity) = 0 then
+    return jsonb_build_object('allowed', true, 'used', 0, 'limit', null, 'tier', 'unknown');
+  end if;
+
+  if p_tier = 'admin' then
+    return jsonb_build_object('allowed', true, 'used', 0, 'limit', null, 'tier', 'admin');
+  end if;
+
+  v_lim := coalesce(p_limit_override, 2);
+
+  if v_lim <= 0 then
+    select n into v_used from public.ai_usage where day = v_day and identity = p_identity;
+    return jsonb_build_object('allowed', false, 'used', coalesce(v_used,0), 'limit', v_lim, 'tier', p_tier);
+  end if;
+
+  -- Single atomic insert/update gate: two concurrent requests cannot both pass
+  -- the same last remaining unit. The WHERE is evaluated while the conflict row
+  -- is locked by PostgreSQL.
+  insert into public.ai_usage(day, identity, tier, n)
+  values (v_day, p_identity, p_tier, 1)
+  on conflict (day, identity) do update
+    set n = public.ai_usage.n + 1,
+        tier = excluded.tier,
+        updated_at = now()
+    where public.ai_usage.n < v_lim
+  returning n into v_used;
+
+  if v_used is null then
+    select n into v_used from public.ai_usage where day = v_day and identity = p_identity;
+    return jsonb_build_object('allowed', false, 'used', coalesce(v_used,0), 'limit', v_lim, 'tier', p_tier);
+  end if;
+
+  return jsonb_build_object('allowed', true, 'used', v_used, 'limit', v_lim, 'tier', p_tier);
+end;
+$;
+
 create or replace function public.fn_capability_execution_gate_v1(
   p_capability text,
   p_flag_key text default null,
@@ -35,6 +88,7 @@ declare
   v_is_admin boolean := false;
   v_is_authenticated boolean := false;
   v_entitlement_allowed boolean := false;
+  v_entitlement_state text := 'unresolved';
 
   v_flag_found boolean := false;
   v_flag_enabled boolean := false;
@@ -98,11 +152,17 @@ begin
   -- invent final G5 product allocation. The function only resolves that input
   -- against the existing entitlement owner.
   if v_required is null or v_required = 'public' then
+    v_required := 'public';
     v_entitlement_allowed := true;
-  elsif v_required = 'authenticated' then
-    v_entitlement_allowed := v_is_authenticated;
-  else
+    v_entitlement_state := 'public';
+  elsif v_required in ('subscriber','admin') then
     v_entitlement_allowed := coalesce(v_ent->'entitlements','[]'::jsonb) ? v_required;
+    v_entitlement_state := case when v_entitlement_allowed then 'allowed' else 'denied' end;
+  else
+    -- G3 intentionally refuses premium/credits or invented tier names. Final
+    -- Free/Registered/Premium/Credits allocation belongs to G5.
+    v_entitlement_allowed := false;
+    v_entitlement_state := 'unsupported_requirement';
   end if;
 
   -- Budget is consumed only after availability+entitlement pass.
@@ -164,6 +224,7 @@ begin
     'entitlement',jsonb_build_object(
       'owner','platform_tiers_law v4',
       'required',coalesce(v_required,'public'),
+      'state',v_entitlement_state,
       'allowed',v_entitlement_allowed,
       'context_type',v_context_type,
       'entitlement',v_ent->>'entitlement',
@@ -180,7 +241,9 @@ begin
     'policy',jsonb_build_object(
       'server_authoritative',true,
       'final_product_allocation_defined_here',false,
-      'pricing_defined_here',false
+      'pricing_defined_here',false,
+      'supported_entitlement_requirements',jsonb_build_array('public','subscriber','admin'),
+      'named_availability_flag_must_exist',true
     )
   );
 end;
