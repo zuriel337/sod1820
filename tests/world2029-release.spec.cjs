@@ -187,9 +187,12 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
-  await page.goto(`${BASE}/heichal`, { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText(/ביטוי: חנם/)).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText(/שיטה: רגיל/)).toBeVisible();
+  const heichalButton = page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ }).first();
+  await expect(heichalButton).toBeVisible();
+  await heichalButton.click();
+  await expect(page).toHaveURL(`${BASE}/heichal`, { timeout: 20_000 });
+  await expect(page.getByText(/ביטוי: חנם/).first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/שיטה: רגיל/).first()).toBeVisible();
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });
