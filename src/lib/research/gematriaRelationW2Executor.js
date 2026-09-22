@@ -65,14 +65,18 @@ function pairRepresentations(representations, maxPairs) {
     seen.add(text);
     unique.push(rep);
   }
+  const available = (unique.length * (unique.length - 1)) / 2;
   const pairs = [];
-  for (let i = 0; i < unique.length; i += 1) {
-    for (let j = i + 1; j < unique.length; j += 1) {
+  for (let i = 0; i < unique.length && pairs.length < maxPairs; i += 1) {
+    for (let j = i + 1; j < unique.length && pairs.length < maxPairs; j += 1) {
       pairs.push([unique[i], unique[j]]);
-      if (pairs.length >= maxPairs) return pairs;
     }
   }
-  return pairs;
+  return {
+    pairs,
+    available,
+    truncated: available > pairs.length,
+  };
 }
 
 function relationFinding(a, b, candidate) {
@@ -162,7 +166,8 @@ export function createGematriaRelationW2Executor({
     const representations = expandResearchTextRepresentations(identityResolution, {
       maxRepresentations: Math.max(2, Math.min(Number(maxRepresentations) || 8, 16)),
     });
-    const pairs = pairRepresentations(representations, pairBudget);
+    const pairSet = pairRepresentations(representations, pairBudget);
+    const pairs = pairSet.pairs;
 
     if (!pairs.length) {
       return {
@@ -186,7 +191,11 @@ export function createGematriaRelationW2Executor({
       try {
         const out = await supabase.rpc('fn_relation_candidate', { p_a: a.text, p_b: b.text });
         if (out?.error) throw out.error;
-        const candidate = out?.data ?? out;
+        // Supabase RPC wrappers return {data:null,error:null} for an honest empty result.
+        // Null must stay null; nullish-coalescing back to the wrapper would fabricate a candidate.
+        const candidate = out && typeof out === 'object' && Object.prototype.hasOwnProperty.call(out, 'data')
+          ? out.data
+          : out;
         if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
           statuses.push({ status: 'executed_empty' });
           continue;
@@ -224,16 +233,24 @@ export function createGematriaRelationW2Executor({
       sourceRefs: uniq(representations.map(rep => rep.ref)),
       versionRefs: [ADAPTER_VERSION, 'rpc:fn_relation_candidate'],
       bounded: {
-        total_count: pairs.length,
-        returned_count: executed,
-        truncated: pairs.length >= pairBudget,
+        total_count: pairSet.available,
+        returned_count: pairs.length,
+        truncated: pairSet.truncated,
         ordering: 'bounded_representation_input_order__unique_pairs',
-        continuation: null,
+        continuation: pairSet.truncated
+          ? {
+              kind: 'increase_pair_budget',
+              current_max_pairs: pairBudget,
+              next_max_pairs: Math.min(32, pairSet.available),
+            }
+          : null,
       },
       trace: {
         adapter: ADAPTER_VERSION,
         pair_count: pairs.length,
+        available_pair_count: pairSet.available,
         pair_budget: pairBudget,
+        pair_budget_truncated: pairSet.truncated,
         failed_pair_count: failed,
         // No raw endpoint text in capability trace: private text remains only inside access-filtered Findings.
         pair_statuses: statuses,
