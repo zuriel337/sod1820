@@ -35,6 +35,15 @@ function publicMethodLabel(method) {
   });
 }
 
+function publicMethodMeta(method) {
+  const atomic = String(method?.atomicOrComposite || "").toLowerCase();
+  const category = String(method?.category || "").toLowerCase();
+  const execution = String(method?.executionKind || "").toLowerCase();
+  if (atomic === "composite" || category === "composite" || execution === "composite_engine" || String(method?.methodKey || "").includes("+")) return "שיטה משולבת";
+  if (execution === "context_activated") return "שיטה הקשרית";
+  return "";
+}
+
 
 function MiluySpatialExplain({
   expression,
@@ -474,7 +483,7 @@ export default function NumberCore2029({
           >
             <span>{publicMethodLabel(method)}</span>
             <strong>{method.computedValue ?? "—"}</strong>
-            <small>{method.mathematicalFamily || method.category || "שיטה"}</small>
+            {publicMethodMeta(method) ? <small>{publicMethodMeta(method)}</small> : null}
           </button>;
         })}
       </div>
@@ -496,7 +505,7 @@ export default function NumberCore2029({
             >
               <span>{publicMethodLabel(method)}</span>
               <strong>{method.computedValue ?? "—"}</strong>
-              <small>{method.mathematicalFamily || method.category || "שיטה"}</small>
+              {publicMethodMeta(method) ? <small>{publicMethodMeta(method)}</small> : null}
             </button>;
           })}
         </div> : null}
@@ -606,7 +615,7 @@ export default function NumberCore2029({
               <div><span>סולם האפס</span><strong>{stageRoot}{stageZero.next != null ? ` → ${stageZero.next}` : ""}</strong></div>
               <span>◉</span>
             </div>
-            <p>אותו שורש ספרתי · סדר גודל אחר · DERIVATION, לא שוויון.</p>
+            <p>אותו שורש ספרתי · סדר גודל אחר · נגזרת, לא שוויון.</p>
             {stageZero.next != null ? <button type="button" onClick={() => onOpenZero?.(stageZero.next)}>פתח {stageZero.next}</button> : null}
           </section> : null}
 
@@ -682,7 +691,7 @@ export default function NumberCore2029({
 
         <div className="sod29-number-v10-premium-ready">
           <span>👑 עומק מתקדם</span>
-          <small>השוואות כבדות, גרף עמוק וכלים מתקדמים אינם נטענים מראש. Premium runtime אמיתי יחובר רק דרך entitlement קנוני.</small>
+          <small>השוואות כבדות, גרף עמוק וכלים מתקדמים נפתחים רק כשמבקשים — בלי להעמיס על הדף מראש.</small>
         </div>
     </section>
 
