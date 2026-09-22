@@ -19,7 +19,7 @@ function targetHref(target) {
   if (!target) return null;
   const type = clean(target.type);
   const label = clean(target.label);
-  if (type === "number" && /^\d+$/.test(label)) return `/number/${label}`;
+  if (type === "number" && /^\d+$/.test(label)) return `/2029/number/${label}`;
   return null;
 }
 
