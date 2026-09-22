@@ -733,6 +733,61 @@ function NumberPageBody() {
   }, [contextualWorld]);
 
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
+  const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
+  const focusExpression = focusExplicit ? clean(activeExpression) : "";
+  const currentNumberHref = numberExpressionFocusHref(root, {
+    expression: focusExpression || null,
+    method: focusExplicit ? focusMethodKey : null,
+    crossingPartner: focusExplicit ? focusedCrossingPartner : null,
+  }) || `/2029/number/${root}`;
+  const focusSelection = (entityId = root) => ({
+    entityId: String(entityId),
+    entityType: "number",
+    expression: focusExpression || null,
+    method: focusExplicit ? focusMethodKey : null,
+    resultValue: focusExplicit && Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+    focusKind: focusExplicit ? (focusedCrossingPartner ? "crossing" : "expression") : null,
+    crossingPartner: focusExplicit ? focusedCrossingPartner || null : null,
+  });
+
+  const clearExpressionFocus = () => {
+    setFocusExplicit(false);
+    setFocusedCrossingPartner("");
+    setActiveExpression("");
+    setSelectedMethodKey("");
+    setTraceOpen(false);
+    research.updateResearchContext?.({
+      selection: { entityId: String(root), entityType: "number" },
+      lens: "number",
+      dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
+    });
+    navigate(`/2029/number/${root}`, { replace: true });
+  };
+
+  const activateExpressionFocus = (expression, methodKey = null) => {
+    const expr = clean(expression);
+    if (!expr) return;
+    const key = clean(methodKey) || clean(regularMethodProfile?.methodKey) || clean(focusMethodKey);
+    setFocusExplicit(true);
+    setFocusedCrossingPartner("");
+    setActiveExpression(expr);
+    if (key) setSelectedMethodKey(key);
+    setTraceOpen(false);
+    const href = numberExpressionFocusHref(root, { expression: expr, method: key || null });
+    if (href) navigate(href, { replace: true });
+  };
+
+  const activateMethodFocus = (methodKey) => {
+    const key = clean(methodKey);
+    if (!key) return;
+    setSelectedMethodKey(key);
+    setTraceOpen(false);
+    if (!clean(activeExpression) || /^\d+$/.test(clean(activeExpression))) return;
+    setFocusExplicit(true);
+    setFocusedCrossingPartner("");
+    const href = numberExpressionFocusHref(root, { expression: activeExpression, method: key });
+    if (href) navigate(href, { replace: true });
+  };
 
   useEffect(() => {
     if (!Number.isInteger(root)) return;
@@ -740,22 +795,20 @@ function NumberPageBody() {
       id: String(root),
       type: "number",
       label: String(root),
-      href: `/2029/number/${root}`,
+      href: currentNumberHref,
     };
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: activeExpression || null,
-      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+    const selection = focusSelection(root);
+    const dimensions = {
+      ...(research.context?.dimensions || {}),
+      expressionFocusExplicit: Boolean(focusExplicit),
     };
     const current = research.context;
     if (current?.subject?.type === "number" && String(current.subject.id) === String(root)) {
-      research.updateResearchContext?.({ selection, lens: "number" });
+      research.updateResearchContext?.({ subject, selection, lens: "number", dimensions });
     } else {
-      research.setResearchContext?.({ subject, selection, lens: "number", locale: "he" });
+      research.setResearchContext?.({ subject, selection, lens: "number", dimensions, locale: "he" });
     }
-  }, [root, activeExpression, selectedMethodProfile?.methodKey, selectedMethodKey, activeResult]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;
@@ -764,17 +817,11 @@ function NumberPageBody() {
       id: String(root),
       type: "number",
       label: String(root),
-      href: `/2029/number/${root}`,
+      href: currentNumberHref,
     };
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: activeExpression || null,
-      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-    };
+    const selection = focusSelection(root);
     const returnTo = {
-      href: `/2029/number/${root}`,
+      href: currentNumberHref,
       label: `דף ${root}`,
       subject,
       selection,
@@ -811,7 +858,7 @@ function NumberPageBody() {
         lens: "world",
         dimensions: {
           ...(current.dimensions || {}),
-          numberHome: `/2029/number/${root}`,
+          numberHome: currentNumberHref,
           ...(meetingSlug ? { meetingSlug } : {}),
         },
         returnTo,
@@ -823,14 +870,8 @@ function NumberPageBody() {
   const openHeichal = (focus = {}) => {
     if (!Number.isInteger(root)) return;
     const current = research.context || {};
-    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: activeExpression || null,
-      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-    };
+    const subject = { id: String(root), type: "number", label: String(root), href: currentNumberHref };
+    const selection = focusSelection(root);
     research.setResearchContext?.({
       subject,
       selection,
@@ -838,12 +879,12 @@ function NumberPageBody() {
       locale: current.locale || "he",
       dimensions: {
         ...(current.dimensions || {}),
-        numberHome: `/2029/number/${root}`,
+        numberHome: currentNumberHref,
         methodSpatialExplain: focus && typeof focus === "object" ? focus : {},
       },
       returnTo: {
-        href: `/2029/number/${root}`,
-        label: `דף ${root}`,
+        href: currentNumberHref,
+        label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
         subject,
         selection,
         lens: "number",
@@ -865,13 +906,7 @@ function NumberPageBody() {
       ...(focus && typeof focus === "object" ? focus : {}),
     };
     research.updateResearchContext?.({
-      selection: {
-        entityId: String(root),
-        entityType: "number",
-        expression: activeExpression || null,
-        method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
-        resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-      },
+      selection: focusSelection(root),
       lens: "number",
       dimensions: {
         ...(research.context?.dimensions || {}),
