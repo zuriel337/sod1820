@@ -487,8 +487,10 @@ export default function NumberCore2029({
         <div className="sod29-number-v10-research-grid">
           <section className="sod29-number-v10-convergence">
             <div className="sod29-number-v10-panel-head">
-              <div><span>התכנסויות וחיבורים</span><strong>מה חי סביב {stageRoot}</strong></div>
-              <small>{visibleStageConnections.length}</small>
+              <div>
+                <span>התכנסויות וחיבורים</span>
+                <div className="sod29-number-v10-title-count"><strong>מה חי סביב {stageRoot}</strong><small>{visibleStageConnections.length}</small></div>
+              </div>
             </div>
             {visibleStageConnections.length ? <div className="sod29-number-v10-chip-list">
               {visibleStageConnections.slice(0, compact ? 6 : visibleStageConnections.length).map((item, index) => <button
@@ -505,8 +507,10 @@ export default function NumberCore2029({
 
           <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
             <div className="sod29-number-v10-panel-head">
-              <div><span>הצלבה נסתרת</span><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong></div>
-              <small>{stageCrossings.length || 0}</small>
+              <div>
+                <span>הצלבה נסתרת</span>
+                <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+              </div>
             </div>
             {stageCrossing ? <>
               <button type="button" className="sod29-number-v10-crossing-lead" onClick={() => onOpenCrossing?.(stageCrossing)}>
