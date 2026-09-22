@@ -31,3 +31,41 @@
 .sod29-topic-source{background:color-mix(in srgb,var(--s29-panel) 94%,transparent)}
 @media(max-width:850px){.sod29-topic-hero{grid-template-columns:1fr}.sod29-topic-anchor-cluster{grid-template-columns:repeat(3,minmax(0,1fr))}.sod29-topic-phrase-grid,.sod29-topic-related-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sod29-topic-hero{padding:18px 14px;border-radius:22px}.sod29-topic-anchor-cluster{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-topic-anchor{min-height:88px}.sod29-topic-phrase-grid,.sod29-topic-related-grid{grid-template-columns:1fr}}
+
+
+/* Golden Topic 2029 — same semantic family as Number/World, no rank-as-truth UI. */
+.sod29-topic-mapnav{position:sticky;top:10px;z-index:12;display:flex;gap:6px;overflow-x:auto;padding:8px 10px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-bg) 88%,transparent);backdrop-filter:blur(14px);scrollbar-width:none}
+.sod29-topic-mapnav::-webkit-scrollbar{display:none}
+.sod29-topic-mapnav a{flex:0 0 auto;padding:7px 11px;border-radius:999px;text-decoration:none;color:var(--s29-muted);font-size:12px;font-weight:800}
+.sod29-topic-mapnav a:hover,.sod29-topic-mapnav a:focus-visible{background:var(--s29-panel-soft);color:var(--s29-ink);outline:none}
+.sod29-topic-meta .is-sparse{border-color:color-mix(in srgb,var(--s29-accent) 38%,var(--s29-line));color:var(--s29-ink)}
+.sod29-topic-sparse-callout{display:grid;gap:4px;margin:14px 0 0;padding:13px 15px;border:1px dashed color-mix(in srgb,var(--s29-accent) 36%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel-soft) 90%,var(--s29-accent) 10%)}
+.sod29-topic-sparse-callout span,.sod29-topic-section-note{color:var(--s29-muted);line-height:1.65}
+.sod29-topic-prominence{overflow:hidden}
+.sod29-topic-prominence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sod29-topic-prominence-grid article{display:grid;gap:6px;padding:15px;border:1px solid var(--s29-line);border-radius:17px;background:var(--s29-panel-soft)}
+.sod29-topic-prominence-grid article>span{font-size:10px;color:var(--s29-muted)}
+.sod29-topic-prominence-grid article>strong{font-size:17px;color:var(--s29-ink)}
+.sod29-topic-prominence-grid article>p{margin:0;color:var(--s29-muted);line-height:1.55}
+.sod29-topic-rank-signals{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.sod29-topic-rank-signals small{padding:4px 7px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:9px}
+.sod29-topic-rank-signals .is-curated{border-color:color-mix(in srgb,var(--s29-hero) 38%,var(--s29-line));color:var(--s29-hero)}
+.sod29-topic-rank-signals .is-uncertain{border-style:dashed}
+.sod29-topic-loading{padding:18px;border:1px dashed var(--s29-line);border-radius:16px;color:var(--s29-muted);background:var(--s29-panel-soft)}
+.sod29-topic-graph-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.sod29-topic-graph-grid>a,.sod29-topic-graph-grid>article{display:grid;gap:4px;min-height:92px;padding:13px;border:1px solid var(--s29-line);border-radius:15px;background:var(--s29-panel-soft);text-decoration:none}
+.sod29-topic-graph-grid span,.sod29-topic-graph-grid small{color:var(--s29-muted);font-size:10px}
+.sod29-topic-graph-grid strong{color:var(--s29-ink)}
+.sod29-topic-graph-grid>a:hover{border-color:color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line))}
+.sod29-topic-media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.sod29-topic-media-grid figure{margin:0;overflow:hidden;border:1px solid var(--s29-line);border-radius:17px;background:var(--s29-panel-soft)}
+.sod29-topic-media-grid img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.sod29-topic-media-grid figcaption{display:grid;gap:2px;padding:10px}
+.sod29-topic-media-grid figcaption strong{color:var(--s29-ink)}
+.sod29-topic-media-grid figcaption small{color:var(--s29-muted);line-height:1.45}
+.sod29-topic-people{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.sod29-topic-people span{padding:7px 10px;border:1px solid color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line));border-radius:999px;color:var(--s29-ink);background:var(--s29-panel-soft);font-size:11px}
+.sod29-topic-journey p{max-width:850px;color:var(--s29-muted);line-height:1.7}
+.sod29-topic2029.is-sparse .sod29-topic-hero{background:radial-gradient(circle at 86% 30%,color-mix(in srgb,var(--s29-accent) 16%,transparent),transparent 32%),color-mix(in srgb,var(--s29-panel) 96%,transparent)}
+@media(max-width:850px){.sod29-topic-prominence-grid{grid-template-columns:1fr}.sod29-topic-graph-grid{grid-template-columns:1fr 1fr}.sod29-topic-media-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.sod29-topic-mapnav{top:6px;margin-inline:-2px}.sod29-topic-graph-grid{grid-template-columns:1fr}.sod29-topic-media-grid{grid-template-columns:1fr 1fr}.sod29-topic-prominence-grid article{padding:13px}}
