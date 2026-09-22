@@ -10,7 +10,8 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { F } from "../../theme.js";
 import { usePalette } from "../../lib/palette.js";
-import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import {
@@ -50,6 +51,7 @@ const ShellContext = createContext({
   closeTransient: () => {},
   go: () => {},
   returnExact: () => {},
+  experience: null,
 });
 
 export const use2029Shell = () => useContext(ShellContext);
@@ -454,24 +456,74 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel }) {
+function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
+  const savedContext = pathResume?.latest?.representation?.context || null;
+  const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
+  const [actionState, setActionState] = useState(null);
+
+  const savePath = async () => {
+    if (!onSavePath || pathResume?.loading) return;
+    setActionState({ kind: "saving" });
+    const result = await onSavePath();
+    setActionState(result?.ok
+      ? { kind: "saved", revision: result.revision_no }
+      : { kind: "error", message: result?.error || "save_failed" });
+  };
+
+  const resumePath = async () => {
+    if (!onResumePath || pathResume?.loading || !pathResume?.latest?.path_id) return;
+    setActionState({ kind: "resuming" });
+    const result = await onResumePath(pathResume.latest.path_id);
+    if (!result?.ok) {
+      setActionState({ kind: "error", message: result?.error || "resume_failed" });
+      return;
+    }
+    setActionState({ kind: "resumed", revision: result.revision_no });
+    if (result.href) go(result.href, { preserve: false });
+  };
+
   return (
     <>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">MY WORKSPACE · ONE RESEARCH OS</div>
         <h3>המרחב האישי שלי</h3>
-        <p>Projection אחת למחקר, מסעות, Follow/Attention, חומר פרטי ורזיאל. לא UserCenter ישן ולא Store שני.</p>
+        <p>Projection אחת למחקר, מסלולים שמורים, Follow/Attention, חומר פרטי ורזיאל. Research Path שומר רציפות; הוא לא Store שני ולא Truth חדש.</p>
       </div>
+
       {subject ? (
         <section className="sod29-workspace-resume-native">
-          <span>Resume</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+          <span>ACTIVE CONTEXT</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
           <div className="sod29-actions">
             {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
+            <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
             <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
           </div>
         </section>
-      ) : <FrameState kind="empty" title="אין מחקר פעיל">המערכת לא ממציאה Resume מטראפיק או משיחה.</FrameState>}
+      ) : null}
+
+      {savedSubject ? (
+        <section className="sod29-workspace-resume-native" data-research-path-resume="available">
+          <span>SAVED RESEARCH PATH</span>
+          <strong>{savedSubject.label}</strong>
+          <small>
+            {savedSubject.type}
+            {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
+            {" · נשמר כמצב ניווט פרטי; אמת נבדקת מחדש ביעד"}
+          </small>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
+          </div>
+        </section>
+      ) : null}
+
+      {!subject && !savedSubject && !pathResume?.loading ? (
+        <FrameState kind="empty" title="אין מחקר פעיל או מסלול שמור">המערכת לא ממציאה Resume מטראפיק או משיחה.</FrameState>
+      ) : null}
+      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן רציפות מחקרית">ה־Context הפעיל לא מוחלף בזמן הקריאה.</FrameState> : null}
+      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">Revision {actionState.revision} נשמר פרטי; Canonical/Published לא משתנים.</FrameState> : null}
+      {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+
       <div className="sod29-attention-lanes native">
         <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
         <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow.</small></div>
@@ -488,7 +540,7 @@ export default function SystemFrame2029({
   children,
   status = "2029 · BUILD",
   wide = false,
-  surface = "system",
+  surface = "home",
   symbol = "✦",
 }) {
   const location = useLocation();
@@ -500,6 +552,7 @@ export default function SystemFrame2029({
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
+  const [reducedMotion, setReducedMotion] = useState(false);
   const panelRef = useRef(null);
   const navRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -509,9 +562,24 @@ export default function SystemFrame2029({
   const currentLabel = title || context?.subject?.label || "SOD1820";
   const locale = context?.locale || "he";
   const direction = directionForLocale(locale);
+  const experience = useMemo(() => resolveExperienceContext({
+    surface,
+    locale,
+    lens: context?.lens || "kingdom",
+    reducedMotion,
+  }), [surface, locale, context?.lens, reducedMotion]);
 
   const contextTarget = useMemo(() => targetFromContext(context), [context]);
   const activeTarget = ephemeralSelection || contextTarget;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(Boolean(query.matches));
+    sync();
+    query.addEventListener?.("change", sync);
+    return () => query.removeEventListener?.("change", sync);
+  }, []);
 
   const preserveReturn = useCallback(() => {
     research.updateResearchContext?.({
@@ -737,6 +805,7 @@ export default function SystemFrame2029({
   }, [commandQuery, openCapability]);
 
   const shellApi = useMemo(() => ({
+    experience,
     openCommand,
     openAction,
     openCapability,
@@ -751,7 +820,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -770,14 +839,14 @@ export default function SystemFrame2029({
     "--s29-accent-btn": palette.accentBtn,
     "--s29-radius": `${RADIUS.xl}px`,
     "--s29-control-min": `${LAYOUT.controlMinHeight}px`,
-    "--s29-motion": `${MOTION.duration.normal}ms`,
+    "--s29-motion": `${typeof experience.motion.timing.duration === "number" ? experience.motion.timing.duration : experience.motion.timing.duration.normal}ms`,
     "--s29-raziel-blue": RAZIEL_PRESENCE.blue,
     "--s29-raziel-indigo": RAZIEL_PRESENCE.indigo,
     "--s29-raziel-violet": RAZIEL_PRESENCE.violet,
     "--s29-raziel-glow": RAZIEL_PRESENCE.glow,
     "--s29-raziel-cycle": `${RAZIEL_PRESENCE.cycleMs}ms`,
     fontFamily: F.body,
-  }), [palette]);
+  }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
   const renderTransient = () => {
@@ -794,12 +863,30 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
-    return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
+    return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection
+      context={context}
+      go={go}
+      onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
+      pathResume={research.pathResume}
+      onSavePath={() => research.saveCurrentResearchPath?.({ href: currentHref, label: currentLabel, surface })}
+      onResumePath={(pathId) => research.resumeResearchPath?.(pathId)}
+    /></PanelShell>;
   };
 
   return (
     <ShellContext.Provider value={shellApi}>
-      <div className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`} dir={direction} style={shellStyle}>
+      <div
+        className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        dir={direction}
+        style={shellStyle}
+        data-experience-context={experience.version}
+        data-frame-experience-surface={experience.surface}
+        data-frame-experience-question={experience.experience.question}
+        data-frame-experience-environment={experience.experience.environmentRole}
+        data-frame-experience-spatial={experience.spatial.effectiveLevel}
+        data-frame-experience-locale={experience.locale}
+        data-frame-reduced-motion={String(experience.motion.reduced)}
+      >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
@@ -812,7 +899,7 @@ export default function SystemFrame2029({
           </nav>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>Frame אחד · Context אחד · בלי Legacy presentation fallback.</small></div>
+          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · Context אחד.</small></div>
         </aside>
 
         <div className="sod29-main">

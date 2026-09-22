@@ -145,6 +145,19 @@ function cleanDesc(raw = '', max = 160) {
   return s.replace(/[\s,.;:–-]+$/, '') + '…';
 }
 
+async function publicSiteFlag(key, headers) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_flags?select=key,enabled,mode,message&key=eq.${encodeURIComponent(key)}&limit=1`, { headers });
+    if (!r.ok) return { found: false, enabled: true, mode: 'all', message: null, failed: true };
+    const rows = await r.json();
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row) return { found: false, enabled: true, mode: 'all', message: null, failed: false };
+    return { found: true, enabled: !!row.enabled, mode: row.mode || 'all', message: row.message || null, failed: false };
+  } catch {
+    return { found: false, enabled: true, mode: 'all', message: null, failed: true };
+  }
+}
+
 // 🎬 og:video — סוג המדיה לפי סיומת (לתצוגה מתנגנת ברשתות שתומכות)
 const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test(u) ? 'video/quicktime' : /\.m4v/i.test(u) ? 'video/x-m4v' : 'video/mp4';
 // uploadDate ל-VideoObject — ISO 8601 עם אזור-זמן (created_at מ-REST כבר תקין; date-only → חצות UTC)
@@ -158,12 +171,17 @@ export default async function handler(req, res) {
   let desc = DEFAULT_DESC;
   let image = cardUrl(STATIC['/'].card);
   let type = 'website';
+  let robots = 'index, follow';
+  let convergenceLd = null;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
   let orgeulaVid = null;   // 🎬 סרטון אור-הגאולה ספציפי (?v=) — ל-VideoObject + og:video
-  const canonical = SITE + (path === '/' ? '' : path);
+  let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  // /היכל is an addressable legacy alias; the hydrated 2029 page already
+  // declares /heichal as canonical. Server/crawler metadata must agree.
+  if (key === '/היכל') canonical = SITE + '/heichal';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
@@ -260,6 +278,15 @@ export default async function handler(req, res) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
     if (STATIC[key].card) image = cardUrl(STATIC[key].card);
+
+    // site_flags_lock_law v3: public metadata is a projection of the same live
+    // capability state. ELS is the current native 2029 flag-gated route.
+    if (key === '/els') {
+      const flag = await publicSiteFlag('lock_els', ogHeaders);
+      if (!flag.found || flag.enabled) {
+        desc = cleanDesc(flag.message || 'ELS סגור זמנית לציבור לצורך בנייה מחדש.', 180);
+      }
+    }
   } else if (key.startsWith('/topic/')) {
     // ציר התכנסות — כותרת/תת + תמונה ראשונה מהגלריה
     let slug = key.slice('/topic/'.length);
@@ -272,13 +299,31 @@ export default async function handler(req, res) {
       if (c) {
         title = stripHtml(c.title) + ' · ' + SITE_NAME;
         desc = cleanDesc(c.subtitle || `מרכז ההתכנסות של ${stripHtml(c.title)}${(c.highlight_numbers || []).length ? ' — ' + c.highlight_numbers.join(' · ') : ''}`) || DEFAULT_DESC;
-        type = 'article';
+        type = 'website';
         // תמונת שיתוף דינמית: כותרת ההתכנסות גדולה + המספרים.
         const nums = Array.isArray(c.highlight_numbers) ? c.highlight_numbers.filter(x => x != null) : [];
         const ct = stripHtml(c.title);
         image = `${SITE}/api/card?w=${encodeURIComponent(ct)}&sub=${encodeURIComponent(nums.length ? nums.join('  ·  ') : 'מרכז ההתכנסות')}`;
+        convergenceLd = { name: ct, description: desc, numbers: nums };
       }
     } catch { /* fallback to defaults */ }
+  } else if (key.startsWith('/2029/number/')) {
+    // Native Number 2029 is still a Golden preview and is intentionally noindex.
+    // Match the client applySeo contract; do not project legacy Number semantics here.
+    let raw = key.slice('/2029/number/'.length);
+    try { raw = decodeURIComponent(raw); } catch { /* keep */ }
+    const n = parseInt(raw, 10);
+    if (Number.isFinite(n)) {
+      title = `${n} · דף המספר 2029 · ${SITE_NAME}`;
+      desc = 'דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
+      type = 'website';
+      robots = 'noindex, nofollow';
+      image = `${SITE}/api/card?n=${n}`;
+    } else {
+      robots = 'noindex, nofollow';
+      title = `דף המספר 2029 · ${SITE_NAME}`;
+      desc = 'תצוגת Number 2029 אינה זמינה לערך הזה.';
+    }
   } else if (key.startsWith('/number/')) {
     // עמוד מספר — תמונה מייצגת (primary_value)
     let raw = key.slice('/number/'.length);
@@ -342,11 +387,19 @@ export default async function handler(req, res) {
           const nm = stripHtml(c.label);
           title = `${nm} — ספר ומחקר · ${SITE_NAME}`;
           desc = cleanDesc(c.description || `מקור → עמוד/בלוק → מחקר → קשרים. ${nm} בתוך עץ המקורות של סוד 1820.`, 180) || DEFAULT_DESC;
-          type = 'article';
+          type = 'website';
           image = cardUrl({ w: nm, sub: 'ספר ומקור · סוד 1820', cap: 'להיכנס לתוך הספר' });
         }
       } catch { /* fallback to defaults */ }
     }
+  } else if (key.startsWith('/researcher/')) {
+    // Native /researcher/:slug is an admin corpus projection. Never query or
+    // expose its corpus server-side to crawlers. Match client noindex semantics.
+    robots = 'noindex, nofollow';
+    type = 'website';
+    title = `קורפוס חוקר · SOD1820 · ${SITE_NAME}`;
+    desc = 'Admin researcher corpus projection in SOD1820 2029';
+    image = cardUrl({ w: 'קורפוס חוקר', sub: 'SOD1820 2029', cap: 'ממשק מחקר פנימי' });
   } else if (key.startsWith('/community/researcher/')) {
     // 👤 דף חוקר קנוני (contributors) — כרטיס-שיתוף ממותג עם שם החוקר ותפקידו.
     // המשטח הציבורי/SEO של האדם (canonical_ui_components_law — כל URL קנוני = ענף OG).
@@ -463,6 +516,33 @@ export default async function handler(req, res) {
     if (post.date) ld.datePublished = post.date;
     ld.dateModified = post.modified || post.date || undefined;
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (convergenceLd) {
+    const about = [...new Set((convergenceLd.numbers || []).map(Number).filter(Number.isFinite))]
+      .slice(0, 20)
+      .map(value => ({ '@type': 'Thing', name: String(value), url: `${SITE}/number/${encodeURIComponent(value)}` }));
+    const page = {
+      '@type': 'WebPage',
+      '@id': canonical,
+      url: canonical,
+      name: convergenceLd.name,
+      description: convergenceLd.description,
+      inLanguage: 'he',
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE },
+      publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
+      breadcrumb: { '@id': canonical + '#breadcrumb' },
+      ...(about.length ? { about } : {}),
+      ...(image ? { primaryImageOfPage: { '@type': 'ImageObject', url: image } } : {}),
+    };
+    const breadcrumb = {
+      '@type': 'BreadcrumbList',
+      '@id': canonical + '#breadcrumb',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'SOD1820', item: SITE },
+        { '@type': 'ListItem', position: 2, name: 'העולם', item: SITE + '/world' },
+        { '@type': 'ListItem', position: 3, name: convergenceLd.name, item: canonical },
+      ],
+    };
+    jsonLd = `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': [page, breadcrumb] }).replace(/</g, '\\u003c')}</script>`;
   } else if (forumThread) {
     // 💬 DiscussionForumPosting — הסוג שגוגל מזהה כ«פורום דיונים».
     const nm = (forumThread.author_name && String(forumThread.author_name).trim()) || 'חבר הקהילה';
@@ -504,7 +584,7 @@ export default async function handler(req, res) {
 <meta charset="utf-8"/>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}"/>
-<meta name="robots" content="index, follow"/>
+<meta name="robots" content="${esc(robots)}"/>
 <link rel="canonical" href="${esc(canonical)}"/>
 <meta property="og:site_name" content="${SITE_NAME}"/>
 <meta property="og:locale" content="he_IL"/>
