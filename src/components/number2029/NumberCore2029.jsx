@@ -269,6 +269,7 @@ export default function NumberCore2029({
   onOpenPage,
   onOpenWorld,
   onOpenJourney,
+  onOpenLife,
   onOpenHeichal,
   onOpenResult,
   onResolveQuery,
@@ -305,6 +306,8 @@ export default function NumberCore2029({
   const stageLayers = Array.isArray(stage?.layers) ? stage.layers : [];
   const stageCoverage = stage?.coverage || { percent: 0, present: 0, total: stageLayers.length, note: "כיסוי שכבות" };
   const stagePulse = stage?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
+  const rootCoverage = projection?.coverage || { present: 0, total: 0, percent: 0 };
+  const rootPulse = projection?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
   const projectedCrossing = stage?.crossing || null;
   const projectedCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (projectedCrossing ? [projectedCrossing] : []);
   const stageCrossings = compact ? projectedCrossings : (Array.isArray(hiddenCrossings) ? hiddenCrossings : []);
@@ -360,6 +363,15 @@ export default function NumberCore2029({
     stagePulse.worldCount ? `${stagePulse.worldCount} עולמות` : null,
     stagePulse.activityCount ? `${stagePulse.activityCount} פעילויות` : null,
   ].filter(Boolean);
+  const lifeChannels = [
+    { key: "meetings", label: canonicalResearchPublicLabel("convergence", { plural: true }), count: Number(rootPulse.meetingCount) || 0 },
+    { key: "sources", label: "מקורות", count: Number(rootPulse.sourceCount) || 0 },
+    { key: "worlds", label: "עולמות", count: Number(rootPulse.worldCount) || 0 },
+    { key: "activity", label: "פעילות", count: Number(rootPulse.activityCount) || 0 },
+  ];
+  const liveChannelCount = lifeChannels.filter((item) => item.count > 0).length;
+  const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
+  const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
   return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={compact ? NUMBER_CORE_PALETTE : undefined}>
     <header className="sod29-number-v10-identity">
@@ -372,10 +384,27 @@ export default function NumberCore2029({
         <small>המספר</small>
         <b className="sod29-number-value">{root}</b>
       </div>
-      <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
+      {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
         <span>רזיאל</span>
-      </button>
+      </button> : <button
+        type="button"
+        className={`sod29-number-v10-life-seal${liveChannelCount ? " is-live" : " is-quiet"}`}
+        data-experience-action="number-life-seal"
+        onClick={() => onOpenLife?.()}
+        aria-label={lifeAria}
+        title={lifeAria}
+        style={{ "--life-coverage": `${lifeCoverageValue * 3.6}deg` }}
+      >
+        <span className="sod29-number-v10-life-ring" aria-hidden="true">
+          <i className="sod29-number-v10-life-core" />
+          <span className="sod29-number-v10-life-dots">
+            {lifeChannels.map((item) => <i key={item.key} className={item.count > 0 ? "is-on" : ""} />)}
+          </span>
+        </span>
+        <span>חיים</span>
+        <small>{Number(rootCoverage.present) || 0} שכבות</small>
+      </button>}
     </header>
 
     {onResolveQuery ? <form className="sod29-number-v10-search" onSubmit={submitQuery}>
