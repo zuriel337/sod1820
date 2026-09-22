@@ -906,6 +906,9 @@ assert.equal(worldJourneySource.includes("journey_classic_seed"), false);
 assert.equal(worldJourneySource.includes("journey_seeds"), false);
 assert.match(world, /sod29-world-journey-rail/);
 assert.match(world, /journeyVisitedValues/);
+assert.match(world, /context\?\.dimensions\?\.journeySemanticId/);
+assert.match(world, /journeySemanticId:\s*GOLDEN_WORLD_JOURNEY_878\.id/);
+assert.match(world, /context\?\.journey\?\.kind === GOLDEN_WORLD_JOURNEY_878\.kind/);
 assert.equal(world.includes('shell.go("/journey'), false, "Golden Journey must remain inside World/Research Context in 2029");
 
 // Full Gematria visibility consumes Numeric Research's existing bounded/source-exhaustive contract.
