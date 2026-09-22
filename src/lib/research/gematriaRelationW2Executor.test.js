@@ -107,3 +107,16 @@ test('Cross adapter is bounded and never expands to an unbounded pair scan', asy
   assert.equal(out.bounded.returned_count, 1);
   assert.equal(out.bounded.truncated, true);
 });
+
+
+test('empty canonical relation result stays executed-empty and never fabricates a relation Finding', async () => {
+  const executor = createGematriaRelationW2Executor({
+    supabase: { rpc: async () => ({ data: null }) },
+  });
+  const out = await executor({ identityResolution: nameResolution('public') });
+
+  assert.equal(out.status, 'executed');
+  assert.equal(out.findings.length, 0);
+  assert.match(out.reason, /no candidate/);
+  assert.equal(out.trace.pair_statuses.every(x => x.status === 'executed_empty'), true);
+});
