@@ -51,33 +51,66 @@ async function logTokens(
   usage: { input_tokens?: number; output_tokens?: number } | undefined,
   identity = "",
   trace: { traceId?: string | null; spanId?: string | null } = {},
-) {
+): Promise<number | null> {
   try {
     const url = Deno.env.get("SUPABASE_URL");
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!url || !key || !usage) return;
-    // 🪙 שיוך עלות למי: מחובר → user_id (מהטוקן) · אנונימי → visitor. כך רואים כמה כל אחד «עולה».
+    if (!url || !key || !usage) return null;
+
     let user_id: string | null = null, visitor: string | null = null;
     if (identity.startsWith("u:")) user_id = identity.slice(2);
     else if (identity.startsWith("v:")) visitor = identity.slice(2);
-    await fetch(`${url}/rest/v1/ai_token_log`, {
-      method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({
-        source: "analyze",
-        kind,
-        model,
-        input_tokens: usage.input_tokens || 0,
-        output_tokens: usage.output_tokens || 0,
-        user_id,
-        visitor,
-        trace_id: trace.traceId || null,
-        span_id: trace.spanId || null,
-      }),
-    });
-  } catch { /* לא חוסם */ }
-}
 
+    const hasTrace = !!(trace.traceId && trace.spanId);
+    const row = {
+      source: "analyze",
+      kind,
+      model,
+      input_tokens: usage.input_tokens || 0,
+      output_tokens: usage.output_tokens || 0,
+      user_id,
+      visitor,
+      trace_id: hasTrace ? trace.traceId : null,
+      span_id: hasTrace ? trace.spanId : null,
+    };
+
+    const insert = async (withTrace: boolean) => {
+      const suffix = withTrace ? "?on_conflict=trace_id,span_id&select=id" : "?select=id";
+      const prefer = withTrace ? "resolution=ignore-duplicates,return=representation" : "return=representation";
+      return await fetch(`${url}/rest/v1/ai_token_log${suffix}`, {
+        method: "POST",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: prefer },
+        body: JSON.stringify(withTrace ? row : { ...row, trace_id: null, span_id: null }),
+      });
+    };
+
+    let r = await insert(hasTrace);
+    // Trace persistence must never break the pre-existing cost log. If correlation
+    // is unavailable/misconfigured, fall back to the legacy untraced insert.
+    if (!r.ok && hasTrace) r = await insert(false);
+    if (!r.ok) return null;
+
+    const rows = await r.json().catch(() => []);
+    const insertedId = Number(Array.isArray(rows) ? rows?.[0]?.id : rows?.id);
+    if (Number.isFinite(insertedId) && insertedId > 0) return insertedId;
+
+    // ON CONFLICT DO NOTHING can return no row. Resolve the existing idempotent row.
+    if (hasTrace) {
+      const q = await fetch(
+        `${url}/rest/v1/ai_token_log?trace_id=eq.${trace.traceId}&span_id=eq.${trace.spanId}&select=id&limit=1`,
+        { headers: { apikey: key, Authorization: `Bearer ${key}` } },
+      );
+      if (q.ok) {
+        const existing = await q.json().catch(() => []);
+        const existingId = Number(existing?.[0]?.id);
+        if (Number.isFinite(existingId) && existingId > 0) return existingId;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 type OperationalTraceHandle = {
   traceId: string;
@@ -201,6 +234,19 @@ async function finishOperationalTrace(
     p_outcome: outcome,
     p_ended_at: new Date().toISOString(),
     p_stop_reason: stopReason,
+  });
+}
+
+async function linkOperationalAiCost(
+  trace: OperationalTraceHandle | null,
+  spanId: string,
+  tokenLogId: number | null,
+) {
+  if (!trace || !tokenLogId) return;
+  await traceRpc("op_trace_link_ai_cost_v1", {
+    p_trace_id: trace.traceId,
+    p_span_id: spanId,
+    p_ai_token_log_id: tokenLogId,
   });
 }
 
@@ -842,7 +888,14 @@ Deno.serve(async (req: Request) => {
       await finishOperationalTrace(activeTrace, modelOutcome, out.error);
       return json({ analysis: null, engine, model, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
     }
-    await logTokens(kind || "analyze", model, out.usage, identity, { traceId: activeTrace?.traceId, spanId: modelSpanId });
+    const tokenLogId = await logTokens(
+      kind || "analyze",
+      model,
+      out.usage,
+      identity,
+      { traceId: activeTrace?.traceId, spanId: modelSpanId },
+    );
+    await linkOperationalAiCost(activeTrace, modelSpanId, tokenLogId);
     await finishOperationalTrace(activeTrace, "success");
     return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null });
   } catch (e) {
