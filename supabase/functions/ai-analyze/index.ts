@@ -183,7 +183,7 @@ async function beginOperationalTrace({
       channel: "web",
       locale: "he",
       identity_class: identityClass,
-      subject_ref: safeOperationalRef(body?.subject_ref) || numericSubject,
+      subject_ref: numericSubject,
       owner_ref: ownerRef,
       root_name: "ai-analyze",
     },
@@ -840,6 +840,7 @@ Deno.serve(async (req: Request) => {
     const planEndedAt = new Date().toISOString();
     await recordOperationalSpan(activeTrace, {
       spanId: planSpanId,
+      parentSpanId: gateSpanId,
       kind: "router_plan",
       name: "ai-analyze:research-plan",
       startedAt: planStartedAt,
