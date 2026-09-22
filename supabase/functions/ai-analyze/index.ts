@@ -163,7 +163,10 @@ async function beginOperationalTrace({
   ownerRef: string;
   subject: string;
 }): Promise<OperationalTraceHandle | null> {
-  const traceId = safeTraceUuid(body?.trace_id) || crypto.randomUUID();
+  // Public ai-analyze is a trust boundary: do not let an untrusted caller choose
+  // a root trace UUID and merge unrelated interactions. Client continuity may use
+  // interaction_id; cross-service trace propagation will use a trusted server envelope.
+  const traceId = crypto.randomUUID();
   const rootSpanId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
   const numericSubject = /^\d{1,18}$/.test(subject) ? `number:${subject}` : null;
