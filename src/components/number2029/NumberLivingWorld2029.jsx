@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toggleTheme, useThemeMode } from "../../lib/themeMode.js";
+import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -334,16 +335,19 @@ export default function NumberLivingWorld2029({
 
     {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses">
       <SectionHead
-        kicker="TANAKH · DIRECT OCCURRENCE"
-        title={activeExpression ? `פסוקים שבהם מופיע “${activeExpression}”` : "פסוקים"}
-        text="מופע טקסטואלי ישיר בקורפוס התנ״ך. זה אינו שוויון גימטרי ואינו פרשנות."
+        kicker="TANAKH · GEMATRIA"
+        title={`פסוקים בגימטריה של ${root}`}
+        text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
         aside={<span className="sod29-lw-count">{versesLoading ? "…" : verseRows.length}</span>}
       />
-      {versesLoading ? <div className="sod29-lw-empty">מחפש את הביטוי בקורפוס התנ״ך…</div> : <div className="sod29-lw-verse-grid">
-        {verseRows.slice(0, showAllVerses ? 8 : 3).map((row) => <article key={row.id}>
-          <span>{row.ref}</span>
-          <p>{row.text}</p>
-          <small>מופע ישיר · public.tanach_verses</small>
+      {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <div className="sod29-lw-verse-grid">
+        {verseRows.slice(0, showAllVerses ? 8 : 3).map((row, index) => <article key={row.ref || index}>
+          <span>{formatTanakhRef(row.ref)}</span>
+          <p className="sod29-lw-verse-equality">
+            <span>{row.text}</span>
+            <strong>{formatVerseGematriaSuffix(row.value ?? root)}</strong>
+          </p>
+          <small>פסוק שלם · גימטריה רגילה · fn_verses_by_gematria</small>
         </article>)}
       </div>}
       {!versesLoading && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses((value) => !value)}>{showAllVerses ? "צמצם פסוקים" : `פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
