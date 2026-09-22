@@ -20,6 +20,7 @@ const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_enti
 const TOPIC_SOURCE = "topic_cards_public";
 const GW_IDENTITY_PREFIX = "gw:";
 const HUB_ROUTE = "/entity-hub-preview";
+const DEFAULT_NUMBER_RESEARCH_OPTIONS = Object.freeze({ lookupWindow: { limit: 500 } });
 
 function clean(value) {
   if (value == null) return "";
@@ -733,7 +734,9 @@ export async function fetchEntityHubProjection({
         // World deep view must be able to show the complete canonical reverse-lookup source
         // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
         // this at 500 rows; World does not implement a parallel lookup or ordering rule.
-        lookupWindow: { limit: safeLimit(numberLookupLimit, 500, 500) },
+        lookupWindow: numberLookupLimit === 500
+          ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
+          : { limit: safeLimit(numberLookupLimit, 500, 500) },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
