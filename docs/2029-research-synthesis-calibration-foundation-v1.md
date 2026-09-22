@@ -624,7 +624,7 @@ A negative result can lower or change the message.
 - relation candidate remains candidate;
 - personal access stays fail-closed.
 
-### F2 — Golden: Gal Segev
+### F2 — Golden: authorized private-name case
 - replay Name + 13.2 (+ 2008 only if confirmed);
 - freeze atomic claims;
 - retain controls found in current research;
@@ -699,7 +699,7 @@ Foundation is not closed until tests prove:
 
 ## 23. Current Golden research note
 
-The current Gal Segev investigation is a **calibration case**, not proof of the system.
+The current authorized private-name investigation is a **calibration case**, not proof of the system. Personal names/date details stay in authorized private research state and are never required in repository fixtures; repository tests use synthetic identities.
 
 It is valuable because it already exposed:
 - dependency collapse across Gematria methods;
