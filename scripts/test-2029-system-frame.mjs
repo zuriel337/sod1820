@@ -61,9 +61,9 @@ assert.match(frame, /resolveExperienceContext/);
 assert.match(frame, /const experience = useMemo/);
 assert.match(frame, /experience,/);
 assert.match(frame, /data-experience-context=\{experience\.version\}/);
-assert.match(frame, /data-experience-surface=\{experience\.surface\}/);
-assert.match(frame, /data-experience-question=\{experience\.experience\.question\}/);
-assert.match(frame, /data-experience-spatial=\{experience\.spatial\.effectiveLevel\}/);
+assert.match(frame, /data-frame-experience-surface=\{experience\.surface\}/);
+assert.match(frame, /data-frame-experience-question=\{experience\.experience\.question\}/);
+assert.match(frame, /data-frame-experience-spatial=\{experience\.spatial\.effectiveLevel\}/);
 assert.match(frame, /prefers-reduced-motion: reduce/);
 assert.match(frame, /experience\.motion\.timing\.duration/);
 
