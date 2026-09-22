@@ -123,6 +123,65 @@ Future uses may include:
 - compare prime-index relations;
 - return ordinary Research Objects/Result Bundles with source and calculation provenance.
 
+## Heichal — Prime Research Lane
+
+The Heichal is the deep execution surface for Prime/number-pattern research. It does not own prime truth and it does not become a separate Prime Lab.
+
+Product-role separation:
+
+- **Number / Expression** — identity/profile of the active number; compact mathematical passport and selected high-information Prime Lens facts.
+- **World** — breadth, relations, neighboring entities/topics and contextual connections around the active number/root.
+- **Heichal** — deep research execution over the same Research Context, with bounded procedures, Evidence/Findings and Explain-Why/Trace.
+- **Beit Midrash** — learning/explanation of mathematical and Gematria concepts; it does not execute a second computational engine.
+
+### Heichal entry / continuity
+
+A Number/Expression may enter Heichal with the existing Research Context intact. Prime research must preserve:
+
+`subject/root → focused mathematical relation → method/procedure inputs → result → exact return`.
+
+For the Golden fixture:
+
+`Number 787 → Heichal → inspect prime index → 138 → resolve Number 138 → canonical Gematria relation צמח=138`.
+
+The Heichal must never hard-code `787→צמח`; it traverses the generic Number/Reality tree.
+
+### Prime research actions
+
+Contextual actions may include, when applicable and bounded:
+
+- inspect primality proof/classification and prime index;
+- previous/next prime and prime gaps;
+- inspect special prime families and their exact predicate;
+- bounded prime-sum decompositions;
+- bounded consecutive-prime-sum search;
+- compare prime structures across selected Numbers;
+- Prime Scan over an authorized source/corpus using the existing Procedure contract;
+- resolve any numeric result back into the existing Number/Gematria/Reality graph;
+- ask Raziel to explain results or propose a next research step without changing deterministic truth.
+
+These actions belong naturally under the existing Pattern / Sequence workbench capability family in Heichal. They are not separate applications.
+
+### Result / evidence boundary
+
+A Heichal Prime action returns deterministic calculation/search results into the existing Research Result/Universal Finding path with provenance and bounded-state metadata.
+
+Required distinctions:
+
+- mathematical result != Gematria result;
+- either result != Finding/Claim automatically;
+- relation discovered through traversal != independent evidence if it derives from the same underlying operands;
+- AI explanation != calculation;
+- Human Gate remains required for governed canonicalization/publication.
+
+### Dependency gate before broad Heichal build
+
+Do not build a large bespoke Prime UI before the Roadmap foundation sequence closes enough of:
+
+`Operational Trace → server capability/entitlement/budget → Experience Context → Research Plan/Path resumability`.
+
+Prime Lens is an early Golden consumer after those seams because it is a clean test of Number→Heichal→Number/World continuity, deterministic Trace, bounded procedures and exact return.
+
 ## Beit Midrash — learning/explanation requirement
 
 Add a learning section in the Gematria area of Beit Midrash that explains the mathematical structure behind Number pages in plain Hebrew.
