@@ -167,7 +167,7 @@ end $$;
 
 create index if not exists ai_token_log_trace_id_idx on public.ai_token_log(trace_id) where trace_id is not null;
 create index if not exists ai_token_log_span_id_idx on public.ai_token_log(span_id) where span_id is not null;
-do $
+do $$
 begin
   if not exists (
     select 1 from pg_constraint
@@ -177,7 +177,7 @@ begin
     alter table public.ai_token_log
       add constraint ai_token_log_trace_span_uq unique (trace_id, span_id);
   end if;
-end $;
+end $$;
 
 -- Preserve the existing cost-view contract and append trace correlation.
 create or replace view public.agent_token_costs as
@@ -430,7 +430,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 begin
   if not exists (
     select 1
@@ -453,7 +453,7 @@ begin
 
   return found;
 end;
-$;
+$$;
 
 revoke all on function public.op_trace_link_ai_cost_v1(uuid,uuid,bigint) from public, anon, authenticated;
 grant execute on function public.op_trace_link_ai_cost_v1(uuid,uuid,bigint) to service_role;
