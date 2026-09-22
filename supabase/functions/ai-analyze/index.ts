@@ -62,7 +62,7 @@ async function logTokens(
     else if (identity.startsWith("v:")) visitor = identity.slice(2);
 
     const hasTrace = !!(trace.traceId && trace.spanId);
-    const row = {
+    const legacyRow = {
       source: "analyze",
       kind,
       model,
@@ -70,6 +70,9 @@ async function logTokens(
       output_tokens: usage.output_tokens || 0,
       user_id,
       visitor,
+    };
+    const row = {
+      ...legacyRow,
       trace_id: hasTrace ? trace.traceId : null,
       span_id: hasTrace ? trace.spanId : null,
     };
@@ -80,7 +83,7 @@ async function logTokens(
       return await fetch(`${url}/rest/v1/ai_token_log${suffix}`, {
         method: "POST",
         headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: prefer },
-        body: JSON.stringify(withTrace ? row : { ...row, trace_id: null, span_id: null }),
+        body: JSON.stringify(withTrace ? row : legacyRow),
       });
     };
 
