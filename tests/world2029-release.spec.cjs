@@ -231,6 +231,14 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
   const crossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
   await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
   await expect(crossing).toContainText('הצלבה נסתרת');
+
+  await crossing.locator('[data-experience-action="crossing-focus"]').click();
+  const focusedStage = core.locator('[data-experience-state="crossing-focus"]');
+  await expect(focusedStage).toContainText('ירושלים');
+  await expect(focusedStage).toContainText('שומרים');
+  await expect(focusedStage).toContainText('Root 596 נשאר העוגן');
+  await focusedStage.locator('[data-experience-action="crossing-focus-reset"]').click();
+  await expect(core.locator('[data-experience-state="number-result"]')).toBeVisible();
   await expect(crossing).toContainText('רגיל = 596');
   await expect(crossing).toContainText('ריבוע = 2650');
 
