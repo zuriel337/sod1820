@@ -2104,6 +2104,30 @@
 .sod29-number-v10-panel-head span{color:var(--s29-muted);font-size:7.5px;font-weight:900}
 .sod29-number-v10-panel-head strong{color:var(--s29-ink);font-size:12px;overflow-wrap:anywhere}
 .sod29-number-v10-panel-head>small{color:var(--s29-hero);font-size:9px;font-weight:900}
+.sod29-number-v10-title-count{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.sod29-number-v10-title-count>strong{
+  color:var(--s29-ink);
+  font-size:12px;
+}
+.sod29-number-v10-title-count>small{
+  display:inline-grid;
+  place-items:center;
+  min-width:24px;
+  min-height:20px;
+  padding:2px 6px;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-accent) 6%,var(--s29-panel));
+  color:var(--s29-hero);
+  font-size:8px;
+  font-weight:950;
+  font-variant-numeric:tabular-nums;
+}
 .sod29-number-v10-panel-head>button{
   flex:0 0 auto;
   border:1px solid var(--s29-line);
@@ -2177,7 +2201,7 @@
 .sod29-number-v10-crossing-lead{
   min-width:0;
   display:grid;
-  justify-items:start;
+  justify-items:center;
   gap:3px;
   padding:10px 11px;
   border:1px solid color-mix(in srgb,var(--s29-accent) 50%,var(--s29-line));
@@ -2185,7 +2209,7 @@
   background:
     radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-glow) 18%,transparent),transparent 46%),
     color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel));
-  text-align:start;
+  text-align:center;
   cursor:pointer;
 }
 .sod29-number-v10-crossing-lead>span{color:var(--s29-accent-text);font-size:7px;font-weight:900}
@@ -2195,6 +2219,7 @@
 .sod29-number-v10-crossing-methods{
   display:flex;
   flex-wrap:wrap;
+  justify-content:center;
   gap:4px;
   margin-top:2px;
 }
@@ -2216,14 +2241,14 @@
 .sod29-number-v10-crossing-more button{
   min-width:0;
   display:grid;
-  justify-items:start;
+  justify-items:center;
   gap:2px;
   padding:7px 8px;
   border:1px solid var(--s29-line);
   border-radius:12px;
   background:var(--s29-panel);
   color:var(--s29-ink);
-  text-align:start;
+  text-align:center;
   font:inherit;
   cursor:pointer;
 }
