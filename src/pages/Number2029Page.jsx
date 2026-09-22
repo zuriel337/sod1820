@@ -850,6 +850,7 @@ function NumberPageBody() {
         onOpenHeichal={openHeichal}
         onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
         journeyLabel={root === 878 ? "צא למסע 878" : null}
+        onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
         onRazielAction={askRaziel}
         onExpandRaziel={() => askRaziel("expand_panel")}
       />
