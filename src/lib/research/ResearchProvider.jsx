@@ -7,6 +7,7 @@ import {
   contextFromResearchPathSnapshot,
   getLatestResearchPath,
   isResearchPathId,
+  researchPathOperationKey,
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
@@ -355,14 +356,39 @@ export default function ResearchProvider({ children }) {
       : null;
 
     setPathResume((state) => ({ ...state, loading: true, error: null }));
-    const result = await saveResearchPathSnapshot({
-      context: current,
-      href,
-      label,
-      surface,
-      pathId: activePathId,
-      expectedRevisionNo,
-    });
+    const saveKey = researchPathOperationKey("save");
+    let result;
+    try {
+      result = await saveResearchPathSnapshot({
+        context: current,
+        href,
+        label,
+        surface,
+        pathId: activePathId,
+        expectedRevisionNo,
+        saveKey,
+      });
+
+      // One bounded recovery pass: a second tab/device may have appended after
+      // this Context was loaded. Refresh the latest revision and retry with the
+      // SAME operation key so a network-uncertain first write remains idempotent.
+      if (activePathId && result?.error === "revision_conflict") {
+        const latest = await getLatestResearchPath(activePathId);
+        if (latest?.ok && Number.isInteger(latest.revision_no)) {
+          result = await saveResearchPathSnapshot({
+            context: current,
+            href,
+            label,
+            surface,
+            pathId: activePathId,
+            expectedRevisionNo: latest.revision_no,
+            saveKey,
+          });
+        }
+      }
+    } catch (error) {
+      result = { ok: false, error: error?.message || "save_failed" };
+    }
 
     if (!result?.ok) {
       setPathResume((state) => ({ ...state, loading: false, error: result?.error || "save_failed" }));
@@ -391,7 +417,12 @@ export default function ResearchProvider({ children }) {
   const resumeResearchPath = useCallback(async (pathId = null) => {
     if (!user?.id) return { ok: false, error: "authentication_required" };
     setPathResume((state) => ({ ...state, loading: true, error: null }));
-    const snapshot = await getLatestResearchPath(pathId || pathResume.latest?.path_id || null);
+    let snapshot;
+    try {
+      snapshot = await getLatestResearchPath(pathId || pathResume.latest?.path_id || null);
+    } catch (error) {
+      snapshot = { ok: false, error: error?.message || "resume_failed" };
+    }
     if (!snapshot?.ok) {
       setPathResume((state) => ({ ...state, loading: false, error: snapshot?.error || "not_found" }));
       return snapshot;
