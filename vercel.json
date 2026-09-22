@@ -41,6 +41,401 @@
       "permanent": true
     },
     {
+      "source": "/topic/shimon-conv-827",
+      "destination": "/topic/827-avodat-hashem-hitbodedut-daat-simcha",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-101",
+      "destination": "/topic/101-chilazon-zvulun-techelet",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1032",
+      "destination": "/topic/1032-rachum-vechanun",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1042",
+      "destination": "/topic/1042-kumi-ori",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1111",
+      "destination": "/topic/1111-shem-hashnit-atzeret",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1144",
+      "destination": "/topic/1144-shemesh-yareach",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1152",
+      "destination": "/topic/1152-tzvi-atbash-moshe",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1158",
+      "destination": "/topic/1158-pitchei-olam",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-119",
+      "destination": "/topic/119-dimah-beit-hamikdash",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-123",
+      "destination": "/topic/123-chanania-tov-hashem",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1233",
+      "destination": "/topic/1233-ma-zot-asita",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1254",
+      "destination": "/topic/1254-matamim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-128",
+      "destination": "/topic/128-beinoni-tov-meod",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1356",
+      "destination": "/topic/1356-beit-habetarim-geula",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-136",
+      "destination": "/topic/136-mamon-kol-tzom",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-1528",
+      "destination": "/topic/1528-mevaseret-yerushalayim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-155",
+      "destination": "/topic/155-ledovka-bo",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-156",
+      "destination": "/topic/156-yosef-poter-hachalomot",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-168",
+      "destination": "/topic/168-lo-matza",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-170",
+      "destination": "/topic/170-naomi-tov",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-173",
+      "destination": "/topic/173-lo-matzah",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-199",
+      "destination": "/topic/199-od-meat-tzedaka",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-204",
+      "destination": "/topic/204-tzadik-emunah",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-209",
+      "destination": "/topic/209-matamim-taamei-torah",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-217",
+      "destination": "/topic/217-dvorah-or",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-223",
+      "destination": "/topic/223-zeh-hadavar",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-238",
+      "destination": "/topic/238-rachel-chesed",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-245",
+      "destination": "/topic/245-kmitza-hatzala",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-246",
+      "destination": "/topic/246-gavriel",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-277",
+      "destination": "/topic/277-ki-amru-yeshua",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-305",
+      "destination": "/topic/305-rachel-mevaka-kapara",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-306",
+      "destination": "/topic/306-isha-kapara-tikun",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-335",
+      "destination": "/topic/335-para-aduma",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-336",
+      "destination": "/topic/336-tzvi-latzadik-purim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-352",
+      "destination": "/topic/352-anavim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-374",
+      "destination": "/topic/374-achishena-geula",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-386",
+      "destination": "/topic/386-david-ben-yishai-tzipor",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-408",
+      "destination": "/topic/408-zot-malchut",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-417",
+      "destination": "/topic/417-zayit-adam-david-mashiach",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-444",
+      "destination": "/topic/444-tzfardea-shira",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-448",
+      "destination": "/topic/448-boker-chasdecha",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-453",
+      "destination": "/topic/453-melech-hamashiach-tamuz",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-456",
+      "destination": "/topic/456-vayelech-yosef-yeshua",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-466",
+      "destination": "/topic/466-shimon-bracha",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-467",
+      "destination": "/topic/467-ketzir-chitim-mashiach",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-489",
+      "destination": "/topic/489-kemishpatam",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-495",
+      "destination": "/topic/495-matana-ahava",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-496",
+      "destination": "/topic/496-livyatan-malchut",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-503",
+      "destination": "/topic/503-emunot-zayit",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-513",
+      "destination": "/topic/513-besora-emunah-geula",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-517",
+      "destination": "/topic/517-matana-tova-shabbat",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-530",
+      "destination": "/topic/530-moshe-mashiach",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-553",
+      "destination": "/topic/553-rachem-arachamenu",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-560",
+      "destination": "/topic/560-yesharim-avot-haolam",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-562",
+      "destination": "/topic/562-hesech-hadaat",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-566",
+      "destination": "/topic/566-mashiach-ben-yosef",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-599",
+      "destination": "/topic/599-matzati-chen",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-610",
+      "destination": "/topic/610-or-halevana-or-hachama",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-613",
+      "destination": "/topic/613-hashem-elohai-yisrael",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-618",
+      "destination": "/topic/618-masaot-tikun-hadinim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-620",
+      "destination": "/topic/620-keter",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-638",
+      "destination": "/topic/638-kedem-yadati",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-645",
+      "destination": "/topic/645-david-melech-yisrael",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-651",
+      "destination": "/topic/651-yakir-efraim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-656",
+      "destination": "/topic/656-chanania-ben-akashya",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-680",
+      "destination": "/topic/680-avodat-hatzedaka",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-696",
+      "destination": "/topic/696-atik-yomin-keter",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-702",
+      "destination": "/topic/702-shabbat",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-717",
+      "destination": "/topic/717-lo-yikhat-amim",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-739",
+      "destination": "/topic/739-nerot-chanukah",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-773",
+      "destination": "/topic/773-shabbat-chazon",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-777",
+      "destination": "/topic/777-shivim-shana",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-849",
+      "destination": "/topic/849-sinat-chinam",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-863",
+      "destination": "/topic/863-tomer-dvorah",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-910",
+      "destination": "/topic/910-raza-deshabbat",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-914",
+      "destination": "/topic/914-shchorot-keter",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-95",
+      "destination": "/topic/95-yom-echad-malka",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-98",
+      "destination": "/topic/98-ikuv-geula",
+      "permanent": true
+    },
+    {
+      "source": "/topic/tzvi-conv-996",
+      "destination": "/topic/996-tishmerun",
+      "permanent": true
+    },
+    {
       "source": "/(.+)/",
       "destination": "/$1",
       "permanent": true
