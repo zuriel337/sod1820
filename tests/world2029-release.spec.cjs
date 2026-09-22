@@ -280,8 +280,12 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(drawer.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  const miluy = drawer.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
-  await expect(miluy).toBeVisible();
+  await expect.poll(
+    () => drawer.locator('[data-experience-capability="number-method-glance"] > button').count(),
+    { timeout: 20_000 },
+  ).toBe(6);
+  const miluy = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first();
+  await expect(miluy).toBeVisible({ timeout: 20_000 });
   await miluy.click();
   await expect(miluy).toHaveAttribute('aria-pressed', 'true');
 
