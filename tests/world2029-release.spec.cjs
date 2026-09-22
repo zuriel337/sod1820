@@ -232,7 +232,9 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
   await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
   await expect(crossing).toContainText('הצלבה נסתרת');
 
-  await crossing.locator('[data-experience-action="crossing-focus"]').click();
+  const shomrimFocus = crossing.locator('[data-experience-action="crossing-focus"], [data-experience-action="crossing-focus-secondary"]').filter({ hasText: 'שומרים' }).first();
+  await expect(shomrimFocus).toBeVisible();
+  await shomrimFocus.click();
   const focusedStage = core.locator('[data-experience-state="crossing-focus"]');
   await expect(focusedStage).toContainText('ירושלים');
   await expect(focusedStage).toContainText('שומרים');
