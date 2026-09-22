@@ -51,11 +51,15 @@ function normalizeSelection(value) {
 
 function normalizeJourney(value) {
   if (!isObject(value)) return null;
+  const revisionNoRaw = value.revisionNo;
+  const revisionNo = revisionNoRaw == null || revisionNoRaw === "" ? null : Number(revisionNoRaw);
   const out = {
     id: cleanString(value.id),
     kind: cleanString(value.kind),
     position: value.position == null ? null : value.position,
     findingId: cleanString(value.findingId),
+    revisionId: cleanString(value.revisionId),
+    revisionNo: Number.isInteger(revisionNo) && revisionNo > 0 ? revisionNo : null,
   };
   return Object.values(out).some((v) => v != null && v !== "") ? out : null;
 }

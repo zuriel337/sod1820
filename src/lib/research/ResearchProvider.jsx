@@ -3,6 +3,14 @@ import { useLocation } from "react-router-dom";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
+import {
+  contextFromResearchPathSnapshot,
+  getLatestResearchPath,
+  isResearchPathId,
+  researchPathOperationKey,
+  resumeHrefFromResearchPath,
+  saveResearchPathSnapshot,
+} from "./researchPathRuntime.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
@@ -86,6 +94,7 @@ export default function ResearchProvider({ children }) {
   // Active Research Context is tab/session navigation state. Local/cloud context remains only a durable last snapshot.
   const [context, setContextState] = useState(loadSessionContext);
   const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
+  const [pathResume, setPathResume] = useState({ loading: false, latest: null, error: null });
   const [mode, setModeState] = useState(() => initialMode(init));
 
   useEffect(() => {
@@ -105,6 +114,7 @@ export default function ResearchProvider({ children }) {
     if (prev && prev !== next) {
       setContextState(null);
       persistSessionContext(null);
+      setPathResume({ loading: false, latest: null, error: null });
       emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
     }
     previousUserId.current = next;
@@ -137,6 +147,26 @@ export default function ResearchProvider({ children }) {
     });
     return () => { alive = false; };
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Path resumability is a separate explicit continuity projection. Loading the
+  // latest saved Path NEVER activates it; only resumeResearchPath() may replace
+  // the active session Context.
+  useEffect(() => {
+    let alive = true;
+    if (!user?.id) {
+      setPathResume({ loading: false, latest: null, error: null });
+      return () => { alive = false; };
+    }
+    setPathResume((state) => ({ ...state, loading: true, error: null }));
+    getLatestResearchPath().then((snapshot) => {
+      if (!alive) return;
+      if (snapshot?.ok) setPathResume({ loading: false, latest: snapshot, error: null });
+      else setPathResume({ loading: false, latest: null, error: snapshot?.error || null });
+    }).catch((error) => {
+      if (alive) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
+    });
+    return () => { alive = false; };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user || !pulled.current) return;
@@ -313,16 +343,119 @@ export default function ResearchProvider({ children }) {
   const removeJourney = useCallback((id) => setJourneys(js => js.filter(j => j.id !== id)), []);
   const clearJourneys = useCallback(() => setJourneys([]), []);
 
+  const saveCurrentResearchPath = useCallback(async ({ href = null, label = null, surface = null } = {}) => {
+    if (!user?.id) return { ok: false, error: "authentication_required" };
+    const current = normalizeResearchContext(context);
+    if (!current?.subject) return { ok: false, error: "no_research_context" };
+
+    const activePathId = current.journey?.kind === "research_path" && isResearchPathId(current.journey?.id)
+      ? current.journey.id
+      : null;
+    const expectedRevisionNo = activePathId && Number.isInteger(current.journey?.revisionNo)
+      ? current.journey.revisionNo
+      : null;
+
+    setPathResume((state) => ({ ...state, loading: true, error: null }));
+    const saveKey = researchPathOperationKey("save");
+    let result;
+    try {
+      result = await saveResearchPathSnapshot({
+        context: current,
+        href,
+        label,
+        surface,
+        pathId: activePathId,
+        expectedRevisionNo,
+        saveKey,
+      });
+
+      // One bounded recovery pass: a second tab/device may have appended after
+      // this Context was loaded. Refresh the latest revision and retry with the
+      // SAME operation key so a network-uncertain first write remains idempotent.
+      if (activePathId && result?.error === "revision_conflict") {
+        const latest = await getLatestResearchPath(activePathId);
+        if (latest?.ok && Number.isInteger(latest.revision_no)) {
+          result = await saveResearchPathSnapshot({
+            context: current,
+            href,
+            label,
+            surface,
+            pathId: activePathId,
+            expectedRevisionNo: latest.revision_no,
+            saveKey,
+          });
+        }
+      }
+    } catch (error) {
+      result = { ok: false, error: error?.message || "save_failed" };
+    }
+
+    if (!result?.ok) {
+      setPathResume((state) => ({ ...state, loading: false, error: result?.error || "save_failed" }));
+      return result;
+    }
+
+    const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
+    setContextState((prev) => {
+      const next = mergeResearchContext(prev, {
+        journey: {
+          id: result.path_id,
+          kind: "research_path",
+          position,
+          revisionId: result.revision_id,
+          revisionNo: result.revision_no,
+        },
+      });
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+      return next;
+    });
+    setPathResume({ loading: false, latest: result, error: null });
+    trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
+    return result;
+  }, [user?.id, context]);
+
+  const resumeResearchPath = useCallback(async (pathId = null) => {
+    if (!user?.id) return { ok: false, error: "authentication_required" };
+    setPathResume((state) => ({ ...state, loading: true, error: null }));
+    let snapshot;
+    try {
+      snapshot = await getLatestResearchPath(pathId || pathResume.latest?.path_id || null);
+    } catch (error) {
+      snapshot = { ok: false, error: error?.message || "resume_failed" };
+    }
+    if (!snapshot?.ok) {
+      setPathResume((state) => ({ ...state, loading: false, error: snapshot?.error || "not_found" }));
+      return snapshot;
+    }
+    const next = contextFromResearchPathSnapshot(snapshot);
+    if (!next?.subject) {
+      const failure = { ok: false, error: "resume_context_unavailable", path_id: snapshot.path_id };
+      setPathResume({ loading: false, latest: snapshot, error: failure.error });
+      return failure;
+    }
+
+    // Explicit user action only: now restore the stored navigation state. Access
+    // was intentionally stripped from the durable snapshot and must be resolved
+    // again by the destination surface/current session.
+    persistSessionContext(next);
+    setContextState(next);
+    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+    setPathResume({ loading: false, latest: snapshot, error: null });
+    trackResearch("path_resume", { revision: snapshot.revision_no });
+    return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
+  }, [user?.id, pathResume.latest?.path_id]);
+
   const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
   const enterDiscovery = useCallback(() => setModeState("discovery"), []);
   const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
 
   const value = {
-    cart, saved, pinned, history, collections, journeys, context,
+    cart, saved, pinned, history, collections, journeys, context, pathResume,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
     logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
     addJourney, removeJourney, clearJourneys,
     setResearchContext, updateResearchContext, clearResearchContext,
+    saveCurrentResearchPath, resumeResearchPath,
     mode, setMode, enterDiscovery, toggleMode,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
