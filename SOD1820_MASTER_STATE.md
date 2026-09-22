@@ -180,3 +180,17 @@ Pre-compaction Master v2 provenance is preserved immutably at commit/blob level 
 `docs/archive/master-state/SOD1820_MASTER_STATE_V2_PRE_G2_COMPACTION_20260915.md`
 
 History is available on demand; it is not startup context.
+
+
+---
+
+## 2026-09-22 — Number 2029 additive live surface · NO CUTOVER
+
+- **DOCUMENTED STATE:** PR #600 merged to `main` as `9665b66af64bc037e4019b59845c20d17f711035`; Vercel production deployment verified `READY`.
+- **LIVE ADDITIVE SURFACE:** `/2029/number/:value` is live as the new Number 2029 research/experience surface.
+- **NO NUMBER CUTOVER:** existing public `/number/*` routes/pages remain on the Legacy runtime and were not replaced, redirected, canonicalized to 2029, or otherwise cut over by this release.
+- **SEO / IDENTITY BOUNDARY:** the 2029 route remains a separate build/review surface; canonical public Number/Phrase product identity and `/number` entry family remain unchanged until a future explicit Human-Gate cutover decision.
+- **RELEASE CONTENT:** Living Number composition; six visible methods + bounded extra methods; live hidden-crossing focus with exact return to root; canonical verse-gematria presentation; canonical System Methods grouping; world-aware color tags; Living Number seal; day/night; mobile/accessibility; deep research/journey gates; presentation compaction without capability deletion.
+- **ACCEPTANCE:** Observability/SEO Build Gate = SUCCESS · Release Visual/Mobile/Accessibility = SUCCESS · 2029 Isolation/Browser = SUCCESS before merge.
+- **HUMAN GATE:** ZURIEL explicitly authorized release **without replacing any Number page**. A future `/number` cutover requires a separate explicit decision and parity/release verification.
+- **ROADMAP:** unchanged by this entry because no canonical Number-route cutover or program-stage transition occurred.
