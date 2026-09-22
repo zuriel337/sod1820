@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import TopicSourceResearchPilot from "../components/research/TopicSourceResearchPilot.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
+import { fetchTopicSourceResearchProjection, GOLDEN_TOPIC_SOURCE_RESEARCH } from "../lib/research/topicSourceResearchProjection.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 
@@ -111,9 +114,21 @@ function TopicCaveats({ projection }) {
 
 function TopicBody() {
   const { slug = "" } = useParams();
+  const [searchParams] = useSearchParams();
   const shell = use2029Shell();
   const research = useResearch();
+  const { isAdmin, loading: authLoading } = useAuth();
   const [state, setState] = useState({ loading: true, finding: null, error: null });
+  const sourceViewEnabled = !authLoading
+    && isAdmin
+    && searchParams.get("sourceview") === "1"
+    && Boolean(GOLDEN_TOPIC_SOURCE_RESEARCH[slug]);
+  const [sourceResearchState, setSourceResearchState] = useState({
+    enabled: false,
+    loading: false,
+    projection: null,
+    error: null,
+  });
 
   useEffect(() => {
     let alive = true;
@@ -128,6 +143,31 @@ function TopicBody() {
   }, [slug]);
 
   const projection = useMemo(() => buildTopic2029Projection(state.finding), [state.finding]);
+
+  useEffect(() => {
+    let alive = true;
+    if (!sourceViewEnabled) {
+      setSourceResearchState({ enabled: false, loading: false, projection: null, error: null });
+      return () => { alive = false; };
+    }
+
+    setSourceResearchState({ enabled: true, loading: true, projection: null, error: null });
+    fetchTopicSourceResearchProjection(slug)
+      .then((sourceProjection) => {
+        if (!alive) return;
+        setSourceResearchState({
+          enabled: true,
+          loading: false,
+          projection: sourceProjection || null,
+          error: null,
+        });
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setSourceResearchState({ enabled: true, loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, [slug, sourceViewEnabled]);
 
   useEffect(() => {
     if (!projection) return undefined;
@@ -192,6 +232,8 @@ function TopicBody() {
         <span>מקור ≠ מסקנה</span>
       </div>
     </section>
+
+    <TopicSourceResearchPilot state={sourceResearchState} />
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
       <TopicPhrases rows={projection.phrases} />
