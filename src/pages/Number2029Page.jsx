@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
@@ -21,6 +21,7 @@ import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld202
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
+import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -199,10 +200,12 @@ function factorizationText(profile) {
 
 function NumberPageBody() {
   const { value } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
   const root = Number(value);
+  const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
@@ -217,6 +220,8 @@ function NumberPageBody() {
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
   const [systemMethodsState, setSystemMethodsState] = useState({ loading: false, cards: [], error: null, key: null });
   const [deepRequested, setDeepRequested] = useState(false);
+  const [focusExplicit, setFocusExplicit] = useState(false);
+  const [focusedCrossingPartner, setFocusedCrossingPartner] = useState("");
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
@@ -225,12 +230,16 @@ function NumberPageBody() {
       return undefined;
     }
     let alive = true;
-    setState({ loading: true, data: null, error: null });
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
-    const contextExpression = sameContextRoot ? clean(research.context?.selection?.expression) : "";
-    const contextMethod = sameContextRoot ? clean(research.context?.selection?.method) : "";
-    setSelectedMethodKey(contextMethod);
-    setActiveExpression(contextExpression);
+    const contextExplicit = sameContextRoot && research.context?.dimensions?.expressionFocusExplicit === true;
+    const contextExpression = contextExplicit ? clean(research.context?.selection?.expression) : "";
+    const contextMethod = contextExplicit ? clean(research.context?.selection?.method) : "";
+    const contextCrossing = contextExplicit ? clean(research.context?.selection?.crossingPartner) : "";
+    const explicit = Boolean(urlFocus.explicit || contextExplicit);
+    setFocusExplicit(explicit);
+    setSelectedMethodKey(clean(urlFocus.method) || contextMethod);
+    setActiveExpression(clean(urlFocus.expression) || contextExpression);
+    setFocusedCrossingPartner(clean(urlFocus.crossingPartner) || contextCrossing);
     setTraceOpen(false);
     setDeepRequested(false);
 
@@ -240,6 +249,7 @@ function NumberPageBody() {
       setState({ loading: false, data: cached.data, error: null });
       return () => { alive = false; };
     }
+    setState({ loading: true, data: null, error: null });
 
     const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
@@ -261,7 +271,7 @@ function NumberPageBody() {
         if (alive) setState({ loading: false, data: null, error });
       });
     return () => { alive = false; };
-  }, [root]);
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
 
   const data = state.data;
 
