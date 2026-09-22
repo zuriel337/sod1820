@@ -3,6 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { topicConvergenceToUniversalFinding } from "../src/lib/research/topicConvergence.js";
 import { buildTopic2029Projection, topic2029SearchAudit } from "../src/lib/research/topic2029Projection.js";
+import {
+  TOPIC_CANONICAL_SLUG_MIGRATIONS,
+  canonicalTopicSlug,
+  topicSourceSlugCandidates,
+} from "../src/lib/research/topicCanonicalSlugAliases.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -83,3 +88,26 @@ assert.match(seo, /"@type": "WebPage"/);
 assert.match(seo, /BreadcrumbList/);
 
 console.log("2029 native Topic surface acceptance: PASS");
+
+
+const semanticSlugs = TOPIC_CANONICAL_SLUG_MIGRATIONS.map((row) => row.newSlug);
+assert.equal(TOPIC_CANONICAL_SLUG_MIGRATIONS.length, 79, "user-prefixed Topic migration count must stay exact");
+assert.equal(new Set(semanticSlugs).size, 79, "canonical Topic slugs must be unique");
+assert.equal(semanticSlugs.every((slug) => /^[a-z0-9-]+$/.test(slug)), true, "canonical Topic slugs must be Latin/URL-safe");
+assert.equal(semanticSlugs.every((slug) => !/^(tzvi|shimon)-conv-/.test(slug)), true, "creator identity must not own canonical Topic URL");
+assert.equal(canonicalTopicSlug("tzvi-conv-98"), "98-ikuv-geula");
+assert.deepEqual(topicSourceSlugCandidates("98-ikuv-geula"), ["98-ikuv-geula", "tzvi-conv-98"]);
+
+for (const { oldSlug, newSlug } of TOPIC_CANONICAL_SLUG_MIGRATIONS) {
+  assert.equal(
+    config.redirects.some((row) => row.source === `/topic/${oldSlug}` && row.destination === `/topic/${newSlug}` && row.permanent === true),
+    true,
+    `legacy Topic alias must permanently redirect: ${oldSlug}`,
+  );
+}
+
+const slugMigration = read("supabase/migrations/20260922170000_topic_semantic_slug_migration_v1.sql");
+assert.match(slugMigration, /expected 79 legacy rows/);
+assert.match(slugMigration, /update public\.topic_cards/);
+assert.match(slugMigration, /update public\.nodes/);
+assert.equal(/set\s+title\s*=/.test(slugMigration), false, "slug migration must never rename the Hebrew Topic title");
