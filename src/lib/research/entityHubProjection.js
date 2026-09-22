@@ -20,6 +20,7 @@ const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_enti
 const TOPIC_SOURCE = "topic_cards_public";
 const GW_IDENTITY_PREFIX = "gw:";
 const HUB_ROUTE = "/entity-hub-preview";
+const DEFAULT_NUMBER_RESEARCH_OPTIONS = Object.freeze({ lookupWindow: { limit: 500 } });
 
 function clean(value) {
   if (value == null) return "";
@@ -675,6 +676,9 @@ export async function fetchEntityHubProjection({
   relationLimit = 100,
   researchLimit = 40,
   topicLimit = 12,
+  numberResearchLenses = null,
+  numberLookupLimit = 500,
+  includeMedia = true,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
@@ -687,7 +691,9 @@ export async function fetchEntityHubProjection({
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
-  const media = await fetchWorldMediaProjection(relationFindings, { limit: 8 });
+  const media = includeMedia
+    ? await fetchWorldMediaProjection(relationFindings, { limit: 8 })
+    : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
   let numberJourney = null;
@@ -715,15 +721,22 @@ export async function fetchEntityHubProjection({
     [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = await Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
-        lenses: ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
-        budget: { maxLenses: 5, depth: 1 },
+        lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
+          ? numberResearchLenses
+          : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
+        budget: { maxLenses: Math.max(1, Math.min(
+          5,
+          Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
+        )), depth: 1 },
         rpc: (name, args) => supabase.rpc(name, args),
         fetchResearchObjects: async () => ({ data: research.rows }),
         researchObjectLimit: researchLimit,
         // World deep view must be able to show the complete canonical reverse-lookup source
         // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
         // this at 500 rows; World does not implement a parallel lookup or ordering rule.
-        lookupWindow: { limit: 500 },
+        lookupWindow: numberLookupLimit === 500
+          ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
+          : { limit: safeLimit(numberLookupLimit, 500, 500) },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),

@@ -303,8 +303,29 @@ export async function researchNumber(numberInput, options = {}) {
   const rpc = options.rpc;
 
   let lookupBounds = null;
-  if (requested.includes('number_lookup') || requested.includes('gematria_reverse')) {
-    const lookup = await rpcCall(rpc, 'fn_number_lookup', { p_value: number });
+  const wantsLookup = requested.includes('number_lookup') || requested.includes('gematria_reverse');
+  const wantsDossier = requested.includes('number_dossier') || requested.includes('gematria_reverse');
+  const wantsJourney = requested.includes('number_journey');
+  const wantsNeighbors = requested.includes('neighbors');
+  const wantsHotContext = requested.includes('hot_context');
+  const wantsResearchObjects = requested.includes('research_objects');
+
+  // These lenses are independent reads over the same canonical number identity. Running them
+  // concurrently preserves every owner/truth boundary while avoiding a waterfall on page opens.
+  const [lookup, dossierResult, journeyResult, neighborsResult, hotContextResult, researchObjectsResult] = await Promise.all([
+    wantsLookup ? rpcCall(rpc, 'fn_number_lookup', { p_value: number }) : null,
+    wantsDossier ? rpcCall(rpc, 'fn_number_dossier', { p_value: number }) : null,
+    wantsJourney ? rpcCall(rpc, 'fn_number_journey', { p_value: number }) : null,
+    wantsNeighbors ? rpcCall(rpc, 'number_neighbors', { p_value: number, p_limit: Math.min(25, options.neighborLimit || 12) }) : null,
+    wantsHotContext ? rpcCall(rpc, 'fn_hot_context', { p_values: [number], p_scope: options.scope || 'numeric-router-v1' }) : null,
+    wantsResearchObjects
+      ? (typeof options.fetchResearchObjects === 'function'
+        ? options.fetchResearchObjects(number, { limit: Math.min(50, options.researchObjectLimit || 25) })
+        : Promise.resolve({ status: 'adapter_needed', error: 'RESEARCH_OBJECT_FETCHER_NOT_PROVIDED' }))
+      : null,
+  ]);
+
+  if (lookup) {
     if (lookup.status === 'ok' && Array.isArray(lookup.data)) {
       const { rows, bounded } = boundNumberLookupRows(lookup.data, options.lookupWindow || {});
       lookupBounds = bounded;
@@ -313,15 +334,11 @@ export async function researchNumber(numberInput, options = {}) {
       perLens.number_lookup = lookup;
     }
   }
-  if (requested.includes('number_dossier') || requested.includes('gematria_reverse')) perLens.number_dossier = await rpcCall(rpc, 'fn_number_dossier', { p_value: number });
-  if (requested.includes('number_journey')) perLens.number_journey = await rpcCall(rpc, 'fn_number_journey', { p_value: number });
-  if (requested.includes('neighbors')) perLens.neighbors = await rpcCall(rpc, 'number_neighbors', { p_value: number, p_limit: Math.min(25, options.neighborLimit || 12) });
-  if (requested.includes('hot_context')) perLens.hot_context = await rpcCall(rpc, 'fn_hot_context', { p_values: [number], p_scope: options.scope || 'numeric-router-v1' });
-  if (requested.includes('research_objects')) {
-    perLens.research_objects = typeof options.fetchResearchObjects === 'function'
-      ? await options.fetchResearchObjects(number, { limit: Math.min(50, options.researchObjectLimit || 25) })
-      : { status: 'adapter_needed', error: 'RESEARCH_OBJECT_FETCHER_NOT_PROVIDED' };
-  }
+  if (dossierResult) perLens.number_dossier = dossierResult;
+  if (journeyResult) perLens.number_journey = journeyResult;
+  if (neighborsResult) perLens.neighbors = neighborsResult;
+  if (hotContextResult) perLens.hot_context = hotContextResult;
+  if (researchObjectsResult) perLens.research_objects = researchObjectsResult;
   for (const id of requested.filter(id => numericLensMap[id]?.status === NUMERIC_LENS_STATUS.ADAPTER_NEEDED)) perLens[id] = { status: 'adapter_needed', ...numericLensMap[id] };
 
   const registry = createSequenceRegistry([...DEFAULT_SEQUENCE_ADAPTERS, ...(options.sequenceAdapters || [])]);
