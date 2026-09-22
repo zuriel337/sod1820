@@ -162,13 +162,14 @@ for (const required of [
   'data-experience-capability="number-math-universe"',
   'data-experience-capability="number-expression-family"',
   'data-experience-capability="number-sources-content"',
+  'data-source="fn_verses_by_gematria"',
   'data-experience-capability="number-journey-gate"',
   'data-experience-capability="number-deep-research-gate"',
   'העולמות החיים',
   'היקום המתמטי',
   'מד ניווט חי',
   'מסע אישי',
-  'SPARSE NUMBER MODE',
+  'המספר ומשפחתו',
   'toggleTheme',
 ]) {
   assert.equal(livingWorld.includes(required), true, `Living Number renderer missing semantic capability: ${required}`);
