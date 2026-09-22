@@ -191,11 +191,11 @@ Media performance/delivery navigation: `docs/2029-media-performance-delivery-map
 
 ### 3. Core runtime seams / safety before broad Goldens
 
-**Immediate 2029-only hardening sequence after the current Topic/Expression release:**
+**Immediate 2029-only hardening sequence — LIVE / VERIFIED (23.9.2026):**
 
 `Operational Trace runtime → server capability/entitlement/budget gate → Experience Context as the real cross-surface seam → server/document SEO+AI metadata parity → Research Plan/Path resumability → cheap route/test/least-privilege cleanup`
 
-This order is dependency-driven. Do not spend a sprint restoring Legacy UX to unblock it.
+This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through main `5376523be8c4a81b42b428eab30b970e4506e797`, canonical Supabase and production. The next program dependency is **§4 Replayable capability / Golden fixtures**. Do not spend a sprint restoring Legacy UX to unblock it.
 
 - server-authoritative entitlement seam;
 - privacy/data-lifecycle enforcement;
