@@ -11,6 +11,7 @@ on:
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/supabase.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/ResearchProvider.jsx"
       - "src/lib/research/numberExpressionFocus.js"
