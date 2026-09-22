@@ -348,7 +348,10 @@ test('Number 2029 preview exposes the existing Golden Journey only for 878', asy
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
-  await expect(numberPage.getByRole('button', { name: 'צא למסע 878' })).toBeVisible();
+  const journeyGate = numberPage.locator('[data-experience-capability="number-journey-gate"]');
+  await expect(journeyGate).toBeVisible();
+  await expect(journeyGate).toContainText('878');
+  await expect(journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ })).toBeVisible();
   await assertNoHorizontalOverflow(page);
 });
 
