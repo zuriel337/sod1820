@@ -12,7 +12,8 @@
     "test:experience-context": "node scripts/test-experience-context-2029.mjs",
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",
     "test:world-convergence-pr591": "node --test src/lib/research/worldConvergencePr591SerialRepairA2.test.js src/lib/research/worldConvergencePr591SerialRepairA3.test.js src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js",
-    "package:expression-extract": "node scripts/package-expression-extract.mjs"
+    "package:expression-extract": "node scripts/package-expression-extract.mjs",
+    "test:operational-trace-runtime": "node scripts/test-operational-trace-runtime.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
@@ -33,4 +34,3 @@
     "vite": "^8.3.0"
   }
 }
-
