@@ -41,12 +41,12 @@ function nameResolution(accessTier = 'public') {
     identities: [{
       type: 'name',
       key: 'name:test',
-      label: 'גל שגב',
+      label: 'אב גד',
       access: { tier: accessTier },
       metadata: {
         name_parts: [
-          { text: 'גל', role: 'given_name' },
-          { text: 'שגב', role: 'family_name' },
+          { text: 'אב', role: 'given_name' },
+          { text: 'גד', role: 'family_name' },
         ],
       },
     }],
@@ -67,7 +67,7 @@ test('bounded Cross adapter calls only canonical fn_relation_candidate and emits
   assert.equal(out.trace.adapter, 'gematria-relation-w2-v1');
   assert.equal(out.trace.pair_count >= 1, true);
   assert.equal(out.findingOutcomes.every(x => x.evidenceRelation === EVIDENCE_RELATION.CONVERGENCE), true);
-  assert.equal(out.findings.some(x => x.subject.label === 'גל ↔ שגב'), true);
+  assert.equal(out.findings.some(x => x.subject.label === 'אב ↔ גד'), true);
   assert.equal(out.findings.every(x => x.verification.verification_state === 'not_tested'), true);
 });
 
@@ -90,8 +90,8 @@ test('personal Cross findings inherit personal access while capability trace nev
   assert.equal(out.findings.length > 0, true);
   assert.equal(out.findings.every(x => x.access.tier === 'personal'), true);
   const trace = JSON.stringify(out.trace);
-  assert.equal(trace.includes('גל'), false);
-  assert.equal(trace.includes('שגב'), false);
+  assert.equal(trace.includes('אב'), false);
+  assert.equal(trace.includes('גד'), false);
 });
 
 test('Cross adapter is bounded and never expands to an unbounded pair scan', async () => {
