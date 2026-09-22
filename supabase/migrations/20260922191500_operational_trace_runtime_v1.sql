@@ -167,9 +167,17 @@ end $$;
 
 create index if not exists ai_token_log_trace_id_idx on public.ai_token_log(trace_id) where trace_id is not null;
 create index if not exists ai_token_log_span_id_idx on public.ai_token_log(span_id) where span_id is not null;
-create unique index if not exists ai_token_log_trace_span_uq
-  on public.ai_token_log(trace_id, span_id)
-  where trace_id is not null and span_id is not null;
+do $
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.ai_token_log'::regclass
+      and conname = 'ai_token_log_trace_span_uq'
+  ) then
+    alter table public.ai_token_log
+      add constraint ai_token_log_trace_span_uq unique (trace_id, span_id);
+  end if;
+end $;
 
 -- Preserve the existing cost-view contract and append trace correlation.
 create or replace view public.agent_token_costs as
