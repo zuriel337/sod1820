@@ -1078,7 +1078,7 @@ Deno.serve(async (req: Request) => {
           },
           cost: { certainty: "unknown" },
           replay: {
-            ownerRuleRefs: ["ai_analyze_contract v2", "truth_axes_foundation_law v3", "never_silent_metatron_law v1"],
+            ownerRuleRefs: ["ai_analyze_contract v2", "truth_axes_foundation_law v3", "system_suggestions_law v3"],
             parametersRef: planRef,
             searchBoundsRef: `max_tokens:${maxTokens};numeric_truth_guard:v1;retry:1`,
             idempotencyKey: safeTraceUuid(body?.interaction_id),
