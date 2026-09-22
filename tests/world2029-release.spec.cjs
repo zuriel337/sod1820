@@ -183,7 +183,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(worldFocus).toContainText('חנם');
   await expect(worldFocus).toContainText('98');
 
-  await worldFocus.getByRole('link', { name: 'חזור לחישוב' }).click();
+  await worldFocus.getByRole('button', { name: 'חזור לחישוב' }).click();
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
