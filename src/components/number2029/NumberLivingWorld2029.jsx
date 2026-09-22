@@ -341,7 +341,7 @@ export default function NumberLivingWorld2029({
       </button>
     </nav>
 
-    {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses">
+    {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses" data-source="fn_verses_by_gematria">
       <SectionHead
         kicker="TANAKH · GEMATRIA"
         title={`פסוקים בגימטריה של ${root}`}
@@ -355,7 +355,7 @@ export default function NumberLivingWorld2029({
             <span>{row.text}</span>
             <strong>{formatVerseGematriaSuffix(row.value ?? root)}</strong>
           </p>
-          <small>פסוק שלם · גימטריה רגילה · fn_verses_by_gematria</small>
+          <small>פסוק שלם · גימטריה רגילה</small>
         </article>)}
       </div>}
       {!versesLoading && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses((value) => !value)}>{showAllVerses ? "צמצם פסוקים" : `פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
@@ -387,7 +387,7 @@ export default function NumberLivingWorld2029({
         <div className="sod29-lw-crown-orbit" aria-hidden="true">
           <i /><i /><i />
           <strong>{root}</strong>
-          <small>{sparseMode ? "ROOT + FAMILY" : "ROOT"}</small>
+          <small>{sparseMode ? "מספר + משפחה" : "מספר"}</small>
         </div>
       </div>
 
@@ -445,7 +445,7 @@ export default function NumberLivingWorld2029({
         aside={<span className="sod29-lw-count">{relatedNumbers.length}</span>}
       />
       {sparseMode ? <div className="sod29-lw-sparse-callout">
-        <span>SPARSE NUMBER MODE</span>
+        <span>המספר ומשפחתו</span>
         <strong>{root} נשאר העוגן; משפחת האפס מרחיבה את התוכן</strong>
         <p>ממצאים מ־{zeroScale.filter((n) => Number(n) !== root).slice(0, 3).join(" · ")} יכולים להשתלב בעולמות, במקורות ובמתמטיקה, עם מסלול הגעה גלוי בעומק.</p>
       </div> : null}
@@ -548,7 +548,7 @@ export default function NumberLivingWorld2029({
     </section> : null}
 
     <section className="sod29-lw-section sod29-lw-about" id="number-about" data-experience-capability="number-about">
-      <SectionHead kicker="ABOUT · SEO READY" title={`על המספר ${root}`} text="הטקסט הציבורי נבנה מחומר אמיתי בדף. ב־Preview הוא נשאר noindex; פרסום SEO הוא שער נפרד." />
+      <SectionHead kicker="ABOUT" title={`על המספר ${root}`} text="תמונה מרוכזת של הביטויים, הקשרים, המקורות והעולמות שכבר קיימים סביב המספר." />
       <p>
         {root} מחבר כרגע {expressionRows.length} ביטויים שניתנים להצגה, {relations.length} קשרים, {sources.length} מקורות
         {worldCards.length ? ` ו־${worldCards.length} עולמות מחקר` : ""}. {sparseMode ? "כיוון שהחומר הישיר דל, משפחת שיטת האפס מרחיבה את הסיפור בלי להחליף את זהות המספר." : "הסיפור מוביל קודם בחומר הישיר ורק אחר כך בהרחבות."}
