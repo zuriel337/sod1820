@@ -11,6 +11,8 @@ on:
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/webVitalsCore.js"
+      - "src/lib/webVitals2029.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
@@ -29,6 +31,7 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-operational-trace-contract.mjs"
+      - "scripts/test-web-vitals-2029.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
@@ -38,6 +41,7 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -56,6 +60,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Web Vitals metric core acceptance
+        run: node scripts/test-web-vitals-2029.mjs
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
@@ -88,6 +94,12 @@ jobs:
       - name: Start isolated 2029 preview
         run: |
           cp dist/2029.html dist/index.html
+          # Vite preview applies clean-URL static resolution, so public/heichal.html
+          # would win for /heichal. Production Vercel explicitly rewrites /heichal
+          # to /2029.html first (asserted by test-2029-isolation.mjs). Remove only
+          # this copied Legacy artifact in the isolated preview so browser acceptance
+          # exercises the same 2029 routing contract as production.
+          rm -f dist/heichal.html
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-2029-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/world >/dev/null; then exit 0; fi
