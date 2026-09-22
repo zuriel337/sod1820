@@ -124,6 +124,8 @@ assert.match(provider, /getLatestResearchPath\(\)\.then/);
 assert.match(provider, /only: now restore the stored navigation state/i);
 assert.match(provider, /saveCurrentResearchPath/);
 assert.match(provider, /resumeResearchPath/);
+assert.match(provider, /revision_conflict/);
+assert.match(provider, /SAME operation key/);
 assert.match(provider, /persistSessionContext\(next\)/);
 assert.match(frame, /data-research-path-resume="available"/);
 assert.match(frame, /שמור מסלול/);
