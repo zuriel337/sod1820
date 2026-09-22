@@ -71,7 +71,7 @@ Independent fresh-agent challenge:
 - CLAUDE AFTER: `work_log.id=29c559b5-35c5-4e0f-a420-e4b6c4762456`;
 - routing/mechanics PASS across Gematria, ELS, Source/Book, Raziel, Person/Life, Publishing, Follow and Release;
 - one material semantic-absorption blocker was found and patched owner-first;
-- final owner versions after remediation: `inter_agent_coordination_law v11`, `research_workspace_law v3`, `research_strategy_layer_law v15`, `raziel_companion_layer_law v2`, `person_foundation_contract_law v6`, `research_intake_foundation_contract_law v9`.
+- final owner versions after remediation: `inter_agent_coordination_law v13`, `research_workspace_law v3`, `research_strategy_layer_law v15`, `raziel_companion_layer_law v2`, `person_foundation_contract_law v6`, `research_intake_foundation_contract_law v9`.
 
 Release proof:
 
@@ -145,6 +145,8 @@ Historical release immediately before closure:
 ## 8. Current program position — G3 OPEN
 
 G3 is **Foundation runtime / implementation against the frozen current owners**.
+
+**Current live checkpoint · 23.9.2026:** the immediate 2029 Foundation hardening chain is **MERGED · DEPLOYED · LIVE · VERIFIED** at main `5376523be8c4a81b42b428eab30b970e4506e797`. Live canonical Supabase now includes Operational Trace persistence, the server capability/entitlement/budget gate, authenticated private Research Path save/resume/fork, and the bounded legacy Journey telemetry hardening; `ai-analyze` v36 emits the unified execution gate inside Operational Trace. Production Vercel for the same main SHA is READY. The next dependency is replayable Golden fixtures, not Legacy UX restoration.
 
 Opening priorities:
 
