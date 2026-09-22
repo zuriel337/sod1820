@@ -896,20 +896,31 @@ function NumberPageBody() {
   };
 
   const askRaziel = (intent = "number_context", focus = {}) => {
+    const focusPatch = focus && typeof focus === "object" ? focus : {};
+    const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
+    const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || focusedCrossingPartner;
     const numberCoreFocus = {
       root,
-      expression: activeExpression || null,
-      method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
+      expression: forcedExpression || activeExpression || null,
+      method: focusMethodKey,
       resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
-      crossingPartner: coreProjection?.crossing?.partner || null,
+      crossingPartner: forcedCrossing || coreProjection?.crossing?.partner || null,
       zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
-      ...(focus && typeof focus === "object" ? focus : {}),
+      ...focusPatch,
+    };
+    const selection = {
+      ...focusSelection(root),
+      expression: forcedExpression || focusSelection(root).expression,
+      method: forcedExpression ? focusMethodKey : focusSelection(root).method,
+      focusKind: forcedCrossing ? "crossing" : forcedExpression ? "expression" : focusSelection(root).focusKind,
+      crossingPartner: forcedCrossing || null,
     };
     research.updateResearchContext?.({
-      selection: focusSelection(root),
+      selection,
       lens: "number",
       dimensions: {
         ...(research.context?.dimensions || {}),
+        expressionFocusExplicit: Boolean(forcedExpression || forcedCrossing || focusExplicit),
         razielMicroIntent: intent,
         numberCoreFocus,
       },
