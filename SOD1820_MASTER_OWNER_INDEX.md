@@ -51,16 +51,16 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v13 ACTIVE** |
 
-**G3 priority:** v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
+**G3 priority:** v13 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
 | Responsibility | Canonical owner |
 |---|---|
 | Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
-| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v3 ACTIVE** |
+| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v4 ACTIVE** |
 | adaptive semantic zones/layout | `workspace_layout_standard` |
 | Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v15 ACTIVE** |
 | source-native research-object identity invariant | `research_object_identity_invariant_law` |
@@ -170,7 +170,7 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v2 ACTIVE** |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v7 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V1.md` |
 | canonical reusable UI primitives | `canonical_ui_components_law` |
