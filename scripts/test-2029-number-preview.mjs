@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
 import { buildNumberDeepViewProjection } from "../src/lib/research/numberDeepViewProjection.js";
+import { humanSystemMethodCard } from "../src/lib/research/numberSystemMethods.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
@@ -180,6 +181,9 @@ assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-
 assert.match(lightRoutes, /\/2029\\\/number/);
 assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
 assert.match(core, /data-experience-action="number-life-seal"/);
+assert.match(core, /data-experience-capability="number-system-methods"/);
+assert.equal(livingWorld.includes("sod29-lw-search"), false, "Living Number must not duplicate the NumberCore search");
+assert.equal(core.includes("Premium runtime"), false, "public NumberCore must not expose implementation entitlement copy");
 assert.match(core, /data-experience-action="crossing-focus"/);
 assert.match(core, /data-experience-action="crossing-focus-reset"/);
 assert.match(core, /Root \{stageRoot\} נשאר העוגן/);
@@ -202,6 +206,23 @@ const independentCross = deriveLeadingCrossing({
 assert.equal(independentCross?.kind, "cross_method_intersection");
 assert.equal(independentCross?.methods?.[0]?.methodKey, "מסתתר");
 assert.equal(independentCross?.methods?.[1]?.methodKey, "אתבש", "conditional-equivalent מסתתר גדול must not inflate the upper crossing");
+
+const systemOne = humanSystemMethodCard({
+  subject: { value: 1358 },
+  source: { method: "shitat_haechad_alef_law" },
+  evidence: { facts: [{ rule_id: "shitat_haechad_alef_law", rule_version: 1, input: 1358, output: { leading_unit: 1000, remainder: 358 } }] },
+});
+assert.equal(systemOne?.title, "שיטת האחד", "system method shitat haechad presentation");
+assert.equal(systemOne?.display, "1358 → 1000 + 358");
+assert.equal(systemOne?.target, 358);
+
+const systemZero = humanSystemMethodCard({
+  subject: { value: 3580 },
+  source: { method: "zero_navigation" },
+  evidence: { facts: [{ rule_id: "zero_navigation", rule_version: 1, input: 3580, output: { core: 358 } }] },
+});
+assert.equal(systemZero?.title, "האפס הנע");
+assert.equal(systemZero?.target, 358);
 
 const zero1237 = deriveZeroScale({
   root: 1237,
