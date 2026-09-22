@@ -166,3 +166,8 @@ assert.match(topicPageGolden, /research_gold_hints_law-v3/);
 assert.match(topicPageGolden, /לא ציון אמת/);
 assert.equal(topicPageGolden.includes("worldConvergenceLensProjection"), false, "public Topic must not import the admin Attention lens");
 assert.equal(/>EXPRESSIONS<|>FINDINGS<|>RELATIONS<|>PROVENANCE<|CANONICAL TOPIC/.test(topicPageGolden), false, "Topic Golden should be Hebrew-first");
+
+assert.match(topicPageGolden, /attentionFirst:\s*false/, "public Topic must request Research-Strength-first ordering");
+const sharedRankSource = read("src/lib/research/worldContextualProminence.js");
+assert.match(sharedRankSource, /attentionFirst = true/, "World default attention ordering must remain backward compatible");
+assert.match(sharedRankSource, /attentionFirst: attentionFirst !== false/, "shared comparator must receive the selected axis");
