@@ -72,9 +72,9 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 const rewrites = vercel.rewrites || [];
 const expected = ["/2029", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
-  const item = rewrites.find((r) => r.source === source);
-  assert.ok(item, `missing isolated 2029 rewrite: ${source}`);
-  assert.equal(item.destination, "/2029.html", `2029 rewrite must target isolated document: ${source}`);
+  const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
+  assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
+  assert.equal(item.destination, "/2029.html", `human 2029 rewrite must target isolated document: ${source}`);
 }
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
