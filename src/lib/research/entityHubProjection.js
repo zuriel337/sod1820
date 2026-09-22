@@ -588,6 +588,9 @@ function sourceProjection(researchFindings, numberJourney) {
       type: sourceObject?.type || "number-journey-source",
       ref,
       label,
+      text: clean(sourceObject?.text) || null,
+      value: Number.isFinite(Number(sourceObject?.value)) ? Number(sourceObject.value) : null,
+      matchKind: clean(sourceObject?.matchKind) || null,
     });
   }
   return [...refs.values()];
