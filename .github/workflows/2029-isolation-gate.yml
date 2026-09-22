@@ -58,6 +58,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Operational Trace Runtime persistence acceptance
+        run: npm run test:operational-trace-runtime
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
