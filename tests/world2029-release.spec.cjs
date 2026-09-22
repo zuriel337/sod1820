@@ -209,7 +209,7 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
 });
 
-test('Number 2029 596 keeps six methods visible, finds Jerusalem↔Shomrim live, and restores verses', async ({ page }) => {
+test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/596`, { waitUntil: 'domcontentloaded' });
 
@@ -231,14 +231,30 @@ test('Number 2029 596 keeps six methods visible, finds Jerusalem↔Shomrim live,
   const crossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
   await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
   await expect(crossing).toContainText('הצלבה נסתרת');
+  await expect(crossing).toContainText('רגיל = 596');
+  await expect(crossing).toContainText('ריבוע = 2650');
 
-  const verses = numberPage.locator('[data-experience-capability="number-verses"]');
-  await expect(verses).toBeVisible({ timeout: 20_000 });
-  await expect(verses).toContainText('פסוקים שבהם מופיע');
-  await expect(verses).toContainText('ירושלים');
+  // 596 has no whole-verse gematria hits in the canonical verse-value engine.
+  await expect(numberPage.locator('[data-experience-capability="number-verses"]')).toHaveCount(0);
 
   await assertNoHorizontalOverflow(page);
-  await page.screenshot({ path: 'test-results/release-visual/number-2029-596-jerusalem-cross-verses-390.png', fullPage: true });
+});
+
+test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1118`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  const verses = numberPage.locator('[data-experience-capability="number-verses"]');
+  await expect(verses).toBeVisible({ timeout: 20_000 });
+  await expect(verses).toContainText('פסוקים בגימטריה של 1118');
+  await expect(verses).toContainText('דברים ו׳, ד׳');
+  await expect(verses).toContainText('שמע ישראל יהוה אלהינו יהוה אחד');
+  await expect(verses).toContainText(/=\s*1,?118/);
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-1118-canonical-verses-390.png', fullPage: true });
 });
 
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
