@@ -158,24 +158,24 @@ function numericLiterals(value) {
   return [...new Set(matches.map(canonicalNumericLiteral).filter(Boolean))];
 }
 
-function validateNumericOutput(output, trustedTexts = []) {
-  const trusted = new Set(trustedTexts.flatMap(numericLiterals));
+function validateNumericOutput(output, permittedTexts = []) {
+  const permitted = new Set(permittedTexts.flatMap(numericLiterals));
   const outputNumbers = numericLiterals(output);
-  const invented = outputNumbers.filter((value) => !trusted.has(value));
+  const invented = outputNumbers.filter((value) => !permitted.has(value));
   return Object.freeze({
     ok: invented.length === 0,
-    trusted: Object.freeze([...trusted]),
+    permitted: Object.freeze([...permitted]),
     output: Object.freeze(outputNumbers),
     invented: Object.freeze(invented),
   });
 }
 
 function numericTruthRetryInstruction() {
-  return "\n\nתיקון חובה: בטיוטה הקודמת הופיעה טענה מספרית שלא נמסרה בעובדות המאומתות. כתוב מחדש בלי להוסיף שום מספר, חישוב, פירוק, סכום או ערך שלא הופיע במפורש בחומר שסופק. פרש בלבד.";
+  return "\n\nתיקון חובה: בטיוטה הקודמת הופיעה טענה מספרית שלא הייתה בחומר שסופק. כתוב מחדש בלי להוסיף שום מספר, חישוב, פירוק, סכום או ערך שלא הופיע במפורש בחומר שסופק. פרש בלבד.";
 }
 
 function numericTruthFallback() {
-  return "אין לי מספיק עובדות מאומתות כדי להוסיף חישוב מספרי בלי להמציא. אפשר להמשיך מיד מתוך נתוני המנוע הקיימים בלבד.";
+  return "אין לי מספיק חומר מספרי שסופק כדי להוסיף חישוב בלי להמציא. אפשר להמשיך מתוך הנתונים שכבר נמסרו בלבד.";
 }
 // AI_NUMERIC_TRUTH_GUARD_END
 
@@ -968,7 +968,7 @@ Deno.serve(async (req: Request) => {
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
     const model = engine === "gemini" ? GEMINI_MODEL : (body?.fast ? FAST_MODEL : MODEL);
-    const trustedNumericTexts = [subject, facts, mtxFacts];
+    // Input-bound provenance guard only: subject/facts may originate at the caller boundary.\n    // This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.\n    const permittedNumericTexts = [subject, facts, mtxFacts];
     const callSelectedModel = (prompt) => engine === "gemini"
       ? runGemini(prompt, maxTokens, sys)
       : runClaude(model, prompt, maxTokens, sys);
@@ -979,7 +979,7 @@ Deno.serve(async (req: Request) => {
     const modelEndedAt = new Date().toISOString();
     const firstGuard = out.error
       ? { ok: true, invented: [] }
-      : validateNumericOutput(out.text || "", trustedNumericTexts);
+      : validateNumericOutput(out.text || "", permittedNumericTexts);
     const modelOutcome = out.error
       ? (out.error === "refusal" ? "failed_with_reason" : "provider_error")
       : firstGuard.ok ? "success" : "failed_with_reason";
@@ -1045,7 +1045,7 @@ Deno.serve(async (req: Request) => {
       const retryEndedAt = new Date().toISOString();
       const retryGuard = retryOut.error
         ? { ok: false, invented: [] }
-        : validateNumericOutput(retryOut.text || "", trustedNumericTexts);
+        : validateNumericOutput(retryOut.text || "", permittedNumericTexts);
       const retryOutcome = retryOut.error
         ? (retryOut.error === "refusal" ? "failed_with_reason" : "provider_error")
         : retryGuard.ok ? "success" : "failed_with_reason";
@@ -1067,7 +1067,7 @@ Deno.serve(async (req: Request) => {
           model,
           routing_reason: "numeric_truth_guard_retry",
           escalation_reason: "untrusted_numeric_literal",
-          output_use: !retryOut.error && retryGuard.ok ? "used" : "rejected",
+          output_use: retryOut.error ? "not_applicable" : retryGuard.ok ? "used" : "rejected",
           stop_reason: retryOut.error || (retryGuard.ok ? null : "numeric_truth_guard_untrusted_literal"),
           retry_ordinal: 1,
           resources: {
