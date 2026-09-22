@@ -164,7 +164,6 @@ for (const required of [
   'data-experience-capability="number-sources-content"',
   'data-experience-capability="number-journey-gate"',
   'data-experience-capability="number-deep-research-gate"',
-  'data-experience-action="number-life-seal"',
   'העולמות החיים',
   'היקום המתמטי',
   'מד ניווט חי',
@@ -179,6 +178,8 @@ assert.match(livingWorldCss, /var\(--s29-/);
 assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-local renderer must consume canonical theme tokens, not own a hex palette");
 assert.match(lightRoutes, /\/2029\\\/number/);
 assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
+assert.match(core, /data-experience-action="number-life-seal"/);
+assert.match(core, /זהו כיסוי חומר, לא ציון אמת/);
 
 const independentCross = deriveLeadingCrossing({
   root: 1237,
