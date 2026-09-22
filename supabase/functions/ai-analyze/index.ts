@@ -739,63 +739,94 @@ Deno.serve(async (req: Request) => {
       ownerRef: "system_suggestions_law v3 + ai_analyze_contract v2",
       subject,
     });
-    if (isDeep) {
-      const quotaSpanId = crypto.randomUUID();
-      const quotaStartedAt = new Date().toISOString();
-      const q = await checkQuota(identity, tier);            // עמוק: 2/יום לכולם · אדמין פטור
-      const quotaEndedAt = new Date().toISOString();
-      await recordOperationalSpan(activeTrace, {
-        spanId: quotaSpanId,
-        kind: "db_rpc",
-        name: "ai_quota_check",
-        startedAt: quotaStartedAt,
-        endedAt: quotaEndedAt,
-        outcome: q.allowed ? "success" : "access_filtered",
-        detail: {
-          capability: "ai_quota",
-          owner_ref: "ai_quota_law v3",
-          output_use: "not_applicable",
-          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(quotaEndedAt) - Date.parse(quotaStartedAt)) },
-          cost: { certainty: "not_billable" },
-          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-        },
-      });
-      if (!q.allowed) {
-        await finishOperationalTrace(activeTrace, "access_filtered", "quota");
-        return json({ analysis: null, error: "quota", surface: "deep", tier: q.tier, used: q.used, limit: q.limit,
-          message: "הגעת ל-2 ניתוחי-ה-AI המעמיקים שלך להיום. הניתוח המהיר עדיין פתוח — והמכסה המעמיקה מתחדשת מחר.",
-          trace_id: activeTrace?.traceId || null });
+
+    // G3 server-authoritative execution gate: availability + entitlement + budget
+    // are resolved together on the server before any model call. The server caller
+    // supplies policy inputs; final G5 allocation/pricing is deliberately not owned here.
+    const gateSpanId = crypto.randomUUID();
+    const gateStartedAt = new Date().toISOString();
+    const verifiedUserRef = identity.startsWith("u:") ? identity.slice(2) : null;
+    const verifiedVisitor = identity.startsWith("v:") ? identity.slice(2) : null;
+    const budgetIdentity = !isDeep && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
+    const budgetLimitOverride = isDeep ? null : tier === "anon" ? 30 : tier === "user" ? 200 : null;
+    const gate = await traceRpc("fn_capability_execution_gate_v1", {
+      p_capability: `ai-analyze:${kind || "analyze"}`,
+      p_flag_key: null,
+      p_required_entitlement: "public",
+      p_user_ref: verifiedUserRef,
+      p_visitor: verifiedVisitor,
+      p_identity: budgetIdentity,
+      p_budget_kind: "ai_quota",
+      p_budget_tier: tier,
+      p_budget_limit_override: budgetLimitOverride,
+    });
+    const gateEndedAt = new Date().toISOString();
+    const gateAllowed = gate?.allowed === true;
+
+    await recordOperationalSpan(activeTrace, {
+      spanId: gateSpanId,
+      kind: "db_rpc",
+      name: "fn_capability_execution_gate_v1",
+      startedAt: gateStartedAt,
+      endedAt: gateEndedAt,
+      outcome: !gate ? "failed_with_reason" : gateAllowed ? "success" : "access_filtered",
+      detail: {
+        capability: `ai-analyze:${kind || "analyze"}`,
+        owner_ref: "site_flags_lock_law v3 + platform_tiers_law v4 + ai_quota_law v3",
+        output_use: "not_applicable",
+        stop_reason: !gate ? "gate_unavailable" : gateAllowed ? null : "gate_denied",
+        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(gateEndedAt) - Date.parse(gateStartedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: { ownerRuleRefs: ["site_flags_lock_law v3", "platform_tiers_law v4", "ai_quota_law v3"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+
+    // Unlike trace persistence, the execution gate is a safety boundary and fails closed.
+    if (!gate) {
+      await finishOperationalTrace(activeTrace, "failed_with_reason", "gate_unavailable");
+      return json({
+        analysis: null,
+        engine,
+        error: "gate_unavailable",
+        message: "בדיקת הגישה והתקציב אינה זמינה כרגע. נסו שוב בעוד רגע.",
+        trace_id: activeTrace?.traceId || null,
+      }, 200);
+    }
+
+    if (!gateAllowed) {
+      const availabilityAllowed = gate?.availability?.allowed !== false;
+      const entitlementAllowed = gate?.entitlement?.allowed !== false;
+      const budgetAllowed = gate?.budget?.allowed !== false;
+      const gateError = !availabilityAllowed ? "availability" : !entitlementAllowed ? "entitlement" : !budgetAllowed ? "quota" : "access";
+      await finishOperationalTrace(activeTrace, "access_filtered", gateError);
+
+      if (gateError === "quota") {
+        const q = gate?.budget || {};
+        return json({
+          analysis: null,
+          error: "quota",
+          surface: isDeep ? "deep" : "fast",
+          tier: q.tier || tier,
+          used: q.used ?? null,
+          limit: q.limit ?? null,
+          message: isDeep
+            ? "הגעת למכסת ניתוחי-ה-AI המעמיקים שלך להיום. הניתוח המהיר עדיין פתוח — והמכסה המעמיקה מתחדשת מחר."
+            : tier === "anon"
+              ? "הגעת למכסת ה-AI המהיר היומית (נדיבה). הירשמו בחינם להמשך חלק ולשמירת ההיסטוריה."
+              : "הגעת למכסת ה-AI המהיר היומית. המכסה מתחדשת מחר.",
+          trace_id: activeTrace?.traceId || null,
+        });
       }
-    } else if (tier === "anon" || tier === "user") {
-      const lim = tier === "anon" ? 30 : 200;                // מהיר: נדיב, אנטי-לולאה; מנוי/אדמין = חופשי
-      const quotaSpanId = crypto.randomUUID();
-      const quotaStartedAt = new Date().toISOString();
-      const q = await checkQuota(`${identity}:f`, tier, lim);
-      const quotaEndedAt = new Date().toISOString();
-      await recordOperationalSpan(activeTrace, {
-        spanId: quotaSpanId,
-        kind: "db_rpc",
-        name: "ai_quota_check",
-        startedAt: quotaStartedAt,
-        endedAt: quotaEndedAt,
-        outcome: q.allowed ? "success" : "access_filtered",
-        detail: {
-          capability: "ai_quota",
-          owner_ref: "ai_quota_law v3",
-          output_use: "not_applicable",
-          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(quotaEndedAt) - Date.parse(quotaStartedAt)) },
-          cost: { certainty: "not_billable" },
-          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-        },
-      });
-      if (!q.allowed) {
-        await finishOperationalTrace(activeTrace, "access_filtered", "quota");
-        return json({ analysis: null, error: "quota", surface: "fast", tier: q.tier, used: q.used, limit: q.limit,
-          message: tier === "anon"
-            ? "הגעת למכסת ה-AI המהיר היומית (נדיבה). הירשמו בחינם להמשך חלק ולשמירת ההיסטוריה."
-            : "הגעת למכסת ה-AI המהיר היומית. המכסה מתחדשת מחר.",
-          trace_id: activeTrace?.traceId || null });
-      }
+
+      return json({
+        analysis: null,
+        error: gateError,
+        message: gateError === "availability"
+          ? (gate?.availability?.message || "היכולת אינה זמינה כרגע.")
+          : "הגישה ליכולת הזו אינה זמינה לחשבון הנוכחי.",
+        trace_id: activeTrace?.traceId || null,
+      }, 200);
     }
 
     // ✨ ניתוח עמוק ממוזג ארוך (החלטת צוריאל 14.7): כשהלקוח שולח long=true — אין תקרת-משפטים,
