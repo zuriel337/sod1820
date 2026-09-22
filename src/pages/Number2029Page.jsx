@@ -988,22 +988,25 @@ function NumberPageBody() {
     }
   };
 
-  const openNumberRoot = (nextValue) => {
+  const openNumberRoot = (nextValue, { preserveFocus = false } = {}) => {
     const next = Number(nextValue);
     if (!Number.isSafeInteger(next)) return;
+    const keepFocus = Boolean(preserveFocus && focusExplicit && focusExpression);
     const selection = focusSelection(root);
-    const nextHref = numberExpressionFocusHref(next, {
-      expression: focusExpression || null,
-      method: focusExplicit ? focusMethodKey : null,
-    }) || `/2029/number/${next}`;
+    const nextHref = keepFocus
+      ? numberExpressionFocusHref(next, { expression: focusExpression, method: focusMethodKey })
+      : `/2029/number/${next}`;
+    const nextSelection = keepFocus
+      ? { ...focusSelection(next), resultValue: next }
+      : { entityId: String(next), entityType: "number" };
     research.setResearchContext?.({
       subject: { id: String(next), type: "number", label: String(next), href: nextHref },
-      selection: focusSelection(next),
+      selection: nextSelection,
       lens: "number",
       locale: research.context?.locale || "he",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        expressionFocusExplicit: Boolean(focusExplicit),
+        expressionFocusExplicit: keepFocus,
       },
       returnTo: {
         href: currentNumberHref,
@@ -1086,8 +1089,8 @@ function NumberPageBody() {
           }
           askRaziel("explain_crossing", { kind: "crossing", partner: partner || null, methods: crossing?.methods || [] });
         }}
-        onOpenZero={openNumberRoot}
-        onOpenResult={openNumberRoot}
+        onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
+        onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
         onOpenWorld={() => openWorld()}
         onOpenHeichal={openHeichal}
         onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
@@ -1124,7 +1127,7 @@ function NumberPageBody() {
       onOpenWorld={openWorld}
       onOpenHeichal={openHeichal}
       onRazielAction={askRaziel}
-      onOpenNumber={openNumberRoot}
+      onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onJourney={() => root === 878 ? openWorld({ journey: true }) : openWorld()}
       onPersonalJourney={() => askRaziel("personal_journey_from_number", {
         kind: "personal_journey",
