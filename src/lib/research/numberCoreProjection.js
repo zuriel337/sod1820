@@ -408,6 +408,7 @@ export function buildNumberCoreProjection({
     }
   }
 
+  const methodProfileByKey = new Map((Array.isArray(methodProfile) ? methodProfile : []).map((row) => [clean(row?.methodKey), row]));
   const connectionCards = [];
   const seenConnections = new Set();
   const addConnection = (label, note, methodKeyValue = null, kind = "relation") => {
@@ -422,21 +423,19 @@ export function buildNumberCoreProjection({
       world: worldByLabel.get(text) || null,
     }));
   };
-  for (const item of crossings.slice(0, 4)) {
-    addConnection(
-      item.partner,
-      `הצלבה · ${item.methods.map((method) => method.methodLabel).join(" + ")}`,
-      item.methods?.[1]?.methodKey || null,
-      "crossing",
-    );
-  }
   for (const group of families || []) {
     const key = methodKey(group);
     const label = methodLabel(group);
+    const profile = methodProfileByKey.get(key) || null;
+    const composite = clean(profile?.atomicOrComposite).toLowerCase() === "composite"
+      || clean(profile?.executionKind).toLowerCase() === "composite_engine"
+      || key.includes("+");
+    const note = composite ? `שיטה משולבת · ${label}` : label;
+    const kind = composite ? "composite_method_expression" : "expression";
     for (const item of Array.isArray(group?.phrases) ? group.phrases : []) {
       const phrase = phraseOf(item);
       if (!phrase || phrase === clean(expression)) continue;
-      addConnection(phrase, label, key, "expression");
+      addConnection(phrase, note, key, kind);
       if (connectionCards.length >= 40) break;
     }
     if (connectionCards.length >= 40) break;
