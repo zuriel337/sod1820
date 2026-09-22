@@ -176,9 +176,12 @@ export default async function handler(req, res) {
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
   let orgeulaVid = null;   // 🎬 סרטון אור-הגאולה ספציפי (?v=) — ל-VideoObject + og:video
-  const canonical = SITE + (path === '/' ? '' : path);
+  let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  // /היכל is an addressable legacy alias; the hydrated 2029 page already
+  // declares /heichal as canonical. Server/crawler metadata must agree.
+  if (key === '/היכל') canonical = SITE + '/heichal';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
