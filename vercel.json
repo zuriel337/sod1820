@@ -644,7 +644,7 @@
           "value": ".*(Googlebot|bingbot).*"
         }
       ],
-      "destination": "/api/og?path=/%D7%94%D7%99%D7%9B%D7%9C&crawler=search"
+      "destination": "/api/og?path=/היכל&crawler=search"
     },
     {
       "source": "/researcher/(.*)",
