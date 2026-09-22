@@ -823,12 +823,12 @@ export default function SystemFrame2029({
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
-        data-experience-surface={experience.surface}
-        data-experience-question={experience.experience.question}
-        data-experience-environment={experience.experience.environmentRole}
-        data-experience-spatial={experience.spatial.effectiveLevel}
-        data-experience-locale={experience.locale}
-        data-reduced-motion={String(experience.motion.reduced)}
+        data-frame-experience-surface={experience.surface}
+        data-frame-experience-question={experience.experience.question}
+        data-frame-experience-environment={experience.experience.environmentRole}
+        data-frame-experience-spatial={experience.spatial.effectiveLevel}
+        data-frame-experience-locale={experience.locale}
+        data-frame-reduced-motion={String(experience.motion.reduced)}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
