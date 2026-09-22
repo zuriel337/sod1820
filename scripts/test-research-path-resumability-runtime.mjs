@@ -112,6 +112,8 @@ assert.match(migration, /grant execute[\s\S]+to authenticated, service_role/i);
 assert.match(migration, /fn_research_path_steps_valid/);
 assert.match(migration, /research_path_revisions_path_save_key_uq/);
 assert.match(migration, /research_paths_owner_fork_key_uq/);
+assert.match(migration, /pg_advisory_xact_lock/);
+assert.match(migration, /research-path-save:/);
 assert.equal(/insert into public\.research_plans/i.test(migration), false, "research_plans stays unused in v1");
 assert.equal(/insert into public\.journey_saves/i.test(migration), false, "legacy journey_saves is not migrated");
 
