@@ -1179,3 +1179,12 @@
   .sod29-number-world-attention article{flex:0 0 210px}
   .sod29-number-world-continuations{grid-template-columns:1fr}
 }
+
+
+/* Explicit Expression Focus — Research Workspace v4 projection, not a second Number surface. */
+.sod29-number-focus-ribbon{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px;padding:11px 14px;border:1px solid color-mix(in srgb,var(--s29-accent) 42%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 92%,var(--s29-accent) 8%)}
+.sod29-number-focus-ribbon>div:first-child{display:grid;gap:2px;min-width:0}
+.sod29-number-focus-ribbon span{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--s29-muted)}
+.sod29-number-focus-ribbon strong{font-size:18px;color:var(--s29-ink);overflow-wrap:anywhere}
+.sod29-number-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
+@media(max-width:680px){.sod29-number-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-number-focus-ribbon .sod29-actions{width:100%;justify-content:flex-start}}
