@@ -14,7 +14,7 @@ function cleanHref(value) {
   return href && href.startsWith("/") && !href.startsWith("//") ? href : null;
 }
 
-function idempotencyKey(prefix = "path") {
+export function researchPathOperationKey(prefix = "path") {
   try {
     if (globalThis.crypto?.randomUUID) return `${prefix}:${globalThis.crypto.randomUUID()}`;
   } catch { /* noop */ }
@@ -114,7 +114,7 @@ export async function saveResearchPathSnapshot({
     },
     p_representation: representation,
     p_expected_revision_no: Number.isInteger(expectedRevisionNo) ? expectedRevisionNo : null,
-    p_save_key: cleanText(saveKey, 160) || idempotencyKey("save"),
+    p_save_key: cleanText(saveKey, 160) || researchPathOperationKey("save"),
   });
   if (error) return rpcError(error);
   return data || { ok: false, error: "save_failed" };
@@ -149,7 +149,7 @@ export async function forkResearchPathSnapshot({
       surface: cleanText(surface, 80),
     },
     p_representation: representation,
-    p_fork_key: cleanText(forkKey, 160) || idempotencyKey("fork"),
+    p_fork_key: cleanText(forkKey, 160) || researchPathOperationKey("fork"),
   });
   if (error) return rpcError(error);
   return data || { ok: false, error: "fork_failed" };
