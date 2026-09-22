@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.4 COMPACT
+# SOD1820 — MASTER ROADMAP v6.5 COMPACT
 
-**Date:** 2026-09-17  
+**Date:** 2026-09-22  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -26,13 +26,22 @@ Closure evidence:
 
 Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
 
+**Human-Gate implementation focus · 2026-09-22 — 2029 FIRST.**
+
+- product/UX engineering effort goes to the 2029 tree, not to improving the Legacy experience for temporary parity;
+- a Legacy UI/route may be frozen, hidden or explicitly unavailable during transition instead of receiving repair/polish when no current 2029 dependency requires that UI;
+- if a capability has no safe 2029 renderer yet, prefer a truthful `BUILDING / unavailable` state over maintaining two competing product runtimes;
+- **do not interpret this as blanket Legacy shutdown:** canonical engines, sources, ingress, writers, data/provenance and compatibility adapters remain live wherever 2029 still depends on them;
+- source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
+- target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired.
+
 **Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v2** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
 
 ## 2029 North Star — owner pointers only
 
 Detailed domain semantics live in owners, not here:
 
-- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v5**;
+- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v7**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
@@ -182,6 +191,12 @@ Media performance/delivery navigation: `docs/2029-media-performance-delivery-map
 
 ### 3. Core runtime seams / safety before broad Goldens
 
+**Immediate 2029-only hardening sequence after the current Topic/Expression release:**
+
+`Operational Trace runtime → server capability/entitlement/budget gate → Experience Context as the real cross-surface seam → server/document SEO+AI metadata parity → Research Plan/Path resumability → cheap route/test/least-privilege cleanup`
+
+This order is dependency-driven. Do not spend a sprint restoring Legacy UX to unblock it.
+
 - server-authoritative entitlement seam;
 - privacy/data-lifecycle enforcement;
 - Experience Context / capability projection seam;
@@ -207,9 +222,9 @@ Media performance/delivery navigation: `docs/2029-media-performance-delivery-map
 
 - 2029 System Frame / Global Now/Home adapters;
 - World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
-- **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + canonical/meta/OG/structured-data foundation. NOW = Search admission contract and measured SEO/AI quality pass; preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
+- **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + hydrated canonical/meta/OG/structured-data projection. **DRIFT / NOW:** the initial 2029 HTML document still serves generic metadata to ordinary crawlers before hydration; server/document canonical/title/description/OG/JSON-LD parity must be closed before calling SEO/AI discovery foundation complete. Preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
-- Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
+- Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; **Legacy UX parity is not a G3 goal** and obsolete Legacy UI/routes may be frozen or made explicitly unavailable instead of repaired. Retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion text/tool runtime;
 - ELS 2029 + spatial-ready projection, with explicit G3 acceptance:
@@ -284,7 +299,7 @@ Only decision-changing open items belong here:
 - exact Home/Global Now composition;
 - final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
 - final Community/Forum disposition in the greenfield experience;
-- exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof;
+- exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof; Legacy UX maintenance/parity itself is no longer an objective;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
 - release batching after acceptance.
