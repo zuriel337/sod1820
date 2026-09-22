@@ -1,5 +1,3 @@
-import { fetchNumberMethodProfile } from "./numberCoreProjection.js";
-
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function normalizedMethodName(value) {
@@ -53,6 +51,9 @@ export async function resolveExpressionFocus(expression, {
 } = {}) {
   const expr = clean(expression);
   if (!expr) return null;
+  // Keep ResearchProvider's pure URL/context helpers lightweight. The canonical method reader is
+  // loaded only when a real expression-resolution action occurs.
+  const { fetchNumberMethodProfile } = await import("./numberCoreProjection.js");
   const rows = await fetchNumberMethodProfile(expr);
   const list = Array.isArray(rows) ? rows : [];
   const preferred = clean(preferredMethod);
