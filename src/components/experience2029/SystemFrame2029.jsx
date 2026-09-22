@@ -456,24 +456,74 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel }) {
+function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
+  const savedContext = pathResume?.latest?.representation?.context || null;
+  const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
+  const [actionState, setActionState] = useState(null);
+
+  const savePath = async () => {
+    if (!onSavePath || pathResume?.loading) return;
+    setActionState({ kind: "saving" });
+    const result = await onSavePath();
+    setActionState(result?.ok
+      ? { kind: "saved", revision: result.revision_no }
+      : { kind: "error", message: result?.error || "save_failed" });
+  };
+
+  const resumePath = async () => {
+    if (!onResumePath || pathResume?.loading || !pathResume?.latest?.path_id) return;
+    setActionState({ kind: "resuming" });
+    const result = await onResumePath(pathResume.latest.path_id);
+    if (!result?.ok) {
+      setActionState({ kind: "error", message: result?.error || "resume_failed" });
+      return;
+    }
+    setActionState({ kind: "resumed", revision: result.revision_no });
+    if (result.href) go(result.href, { preserve: false });
+  };
+
   return (
     <>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">MY WORKSPACE · ONE RESEARCH OS</div>
         <h3>המרחב האישי שלי</h3>
-        <p>Projection אחת למחקר, מסעות, Follow/Attention, חומר פרטי ורזיאל. לא UserCenter ישן ולא Store שני.</p>
+        <p>Projection אחת למחקר, מסלולים שמורים, Follow/Attention, חומר פרטי ורזיאל. Research Path שומר רציפות; הוא לא Store שני ולא Truth חדש.</p>
       </div>
+
       {subject ? (
         <section className="sod29-workspace-resume-native">
-          <span>Resume</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+          <span>ACTIVE CONTEXT</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
           <div className="sod29-actions">
             {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
+            <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
             <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
           </div>
         </section>
-      ) : <FrameState kind="empty" title="אין מחקר פעיל">המערכת לא ממציאה Resume מטראפיק או משיחה.</FrameState>}
+      ) : null}
+
+      {savedSubject ? (
+        <section className="sod29-workspace-resume-native" data-research-path-resume="available">
+          <span>SAVED RESEARCH PATH</span>
+          <strong>{savedSubject.label}</strong>
+          <small>
+            {savedSubject.type}
+            {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
+            {" · נשמר כמצב ניווט פרטי; אמת נבדקת מחדש ביעד"}
+          </small>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
+          </div>
+        </section>
+      ) : null}
+
+      {!subject && !savedSubject && !pathResume?.loading ? (
+        <FrameState kind="empty" title="אין מחקר פעיל או מסלול שמור">המערכת לא ממציאה Resume מטראפיק או משיחה.</FrameState>
+      ) : null}
+      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן רציפות מחקרית">ה־Context הפעיל לא מוחלף בזמן הקריאה.</FrameState> : null}
+      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">Revision {actionState.revision} נשמר פרטי; Canonical/Published לא משתנים.</FrameState> : null}
+      {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+
       <div className="sod29-attention-lanes native">
         <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
         <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow.</small></div>
@@ -813,7 +863,14 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
-    return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection context={context} go={go} onRaziel={() => openTransient(TRANSIENT.RAZIEL)} /></PanelShell>;
+    return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection
+      context={context}
+      go={go}
+      onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
+      pathResume={research.pathResume}
+      onSavePath={() => research.saveCurrentResearchPath?.({ href: currentHref, label: currentLabel, surface })}
+      onResumePath={(pathId) => research.resumeResearchPath?.(pathId)}
+    /></PanelShell>;
   };
 
   return (
