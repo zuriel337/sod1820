@@ -8,6 +8,8 @@ for (const needle of [
   "create or replace function public.fn_capability_execution_gate_v1",
   "public.fn_user_entitlement(p_user_ref, p_visitor)",
   "from public.site_flags f",
+  "create or replace function public.ai_quota_check",
+  "where public.ai_usage.n < v_lim",
   "public.ai_quota_check(p_identity, v_budget_tier, p_budget_limit_override)",
   "v_availability_state := 'unknown_flag'",
   "v_availability_allowed := false",
@@ -16,6 +18,8 @@ for (const needle of [
   "'server_authoritative',true",
   "'final_product_allocation_defined_here',false",
   "'pricing_defined_here',false",
+  "'supported_entitlement_requirements',jsonb_build_array('public','subscriber','admin')",
+  "v_entitlement_state := 'unsupported_requirement'",
   "revoke all on function public.fn_capability_execution_gate_v1",
   "grant execute on function public.fn_capability_execution_gate_v1",
   "to service_role",
@@ -27,6 +31,12 @@ assert.equal(
   migration.includes("grant execute on function public.fn_capability_execution_gate_v1(text,text,text,text,text,text,text,text,integer)\n  to authenticated"),
   false,
   "client roles must not execute the server capability gate",
+);
+
+assert.equal(
+  migration.includes("v_required = 'authenticated'"),
+  false,
+  "G3 gate must not invent authenticated/premium/credits entitlement requirements before G5",
 );
 
 for (const needle of [
