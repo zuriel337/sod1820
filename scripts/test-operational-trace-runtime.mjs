@@ -45,7 +45,7 @@ const requiredEdge = [
   'traceRpc("op_trace_record_span_v1"',
   'traceRpc("op_trace_finish_v1"',
   'traceRpc("op_trace_link_ai_cost_v1"',
-  'name: "ai_quota_check"',
+  'name: "fn_capability_execution_gate_v1"',
   'name: "metatron_context"',
   'kind: "model_call"',
   'trace_id: hasTrace ? trace.traceId : null',
