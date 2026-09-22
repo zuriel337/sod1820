@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useLocation } from "react-router-dom";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
+import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
@@ -40,7 +41,7 @@ function initialMode(init) {
   return init.mode === "discovery" ? "discovery" : "reader";
 }
 
-function numberRouteSelection(pathname) {
+function numberRouteSelection(pathname, search = "") {
   const match = String(pathname || "").match(/^\/(2029\/)?number\/([^/?#]+)/);
   if (!match) return null;
   const native2029 = Boolean(match[1]);
@@ -50,14 +51,31 @@ function numberRouteSelection(pathname) {
   if (!key) return null;
   const numeric = /^\d+$/.test(key) && Number.isSafeInteger(Number(key));
   const id = numeric ? String(Number(key)) : key;
+  const focus = native2029 && numeric
+    ? parseNumberExpressionFocus(search)
+    : { expression: null, method: null, crossingPartner: null, explicit: false };
   return {
-    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `${native2029 ? "/2029" : ""}/number/${encodeURIComponent(id)}` },
-    selection: { entityId: id, entityType: numeric ? "number" : "phrase" },
+    subject: {
+      id,
+      type: numeric ? "number" : "phrase",
+      label: id,
+      href: `${native2029 ? "/2029" : ""}/number/${encodeURIComponent(id)}${native2029 ? search || "" : ""}`,
+    },
+    selection: {
+      entityId: id,
+      entityType: numeric ? "number" : "phrase",
+      expression: focus.expression,
+      method: focus.method,
+      resultValue: numeric ? Number(id) : null,
+      focusKind: focus.crossingPartner ? "crossing" : focus.expression ? "expression" : null,
+      crossingPartner: focus.crossingPartner,
+    },
+    focusExplicit: focus.explicit,
   };
 }
 
 export default function ResearchProvider({ children }) {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const init = load();
   const [cart, setCart] = useState(() => init.cart || []);
   const [saved, setSaved] = useState(() => init.saved || []);
@@ -154,21 +172,25 @@ export default function ResearchProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const route = numberRouteSelection(pathname);
+    const route = numberRouteSelection(pathname, search);
     if (!route) return;
     setContextState((prev) => {
       const current = normalizeResearchContext(prev);
       const sameSelection = current?.selection?.entityId === route.selection.entityId
         && current?.selection?.entityType === route.selection.entityType
+        && (current?.selection?.expression || null) === (route.selection.expression || null)
+        && (current?.selection?.method || null) === (route.selection.method || null)
+        && (current?.selection?.crossingPartner || null) === (route.selection.crossingPartner || null)
         && current?.lens === "number";
       if (current?.subject && sameSelection) return prev;
+      const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit) };
       const next = current?.subject
-        ? mergeResearchContext(current, { selection: route.selection, lens: "number" })
-        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number" });
+        ? mergeResearchContext(current, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions })
+        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions });
       emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
       return next;
     });
-  }, [pathname, cloudHydrationRevision]);
+  }, [pathname, search, cloudHydrationRevision]);
 
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
