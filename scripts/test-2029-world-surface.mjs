@@ -49,6 +49,7 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
 const number2029Page = read("src/pages/Number2029Page.jsx");
+const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
 const app = read("src/App2029.jsx");
 const legacyApp = read("src/App.jsx");
 const sitemapSource = read("api/sitemap.js");
@@ -1246,18 +1247,20 @@ assert.match(prominenceHelper, /identity-aware merge.*then[\s\S]*?exact-identity
 
 
 
-// Number 2029 Golden below-core reconciliation.
-// The locked NumberCore remains the calculation home; below it consumes the shared World projection
-// and must not fork a second method/expression calculator.
+// Number 2029 Living World reconciliation.
+// NumberCore remains the calculation/method-switching home. The lower renderer consumes the same
+// contextual prominence and projects discovery/explanation without forking another calculator.
 assert.match(number2029Page, /buildWorldContextualProminence/);
-assert.match(number2029Page, /RESEARCH STRENGTH/);
-assert.match(number2029Page, /HUMAN CURATION/);
-assert.match(number2029Page, /PULSE \/ ATTENTION/);
-assert.match(number2029Page, /WORLD SNAPSHOT · אותו עולם, מבט ממוקד/);
-assert.match(number2029Page, /פתח את העולם סביב/);
-assert.equal(number2029Page.includes('id="number-methods"'), false, "below-core Number must not duplicate the locked Core method switcher");
-assert.equal(number2029Page.includes('id="number-expressions"'), false, "below-core Number must not duplicate the locked Core expression rail");
+assert.match(number2029Page, /NumberLivingWorld2029/);
+assert.match(numberLivingWorld, /חוזק מחקרי/);
+assert.match(numberLivingWorld, /אוצרות אנושית/);
+assert.match(numberLivingWorld, /פעילות/);
+assert.match(numberLivingWorld, /העולמות החיים/);
+assert.match(numberLivingWorld, /פתח את העולם המלא/);
+assert.equal(numberLivingWorld.includes('id="number-methods"'), false, "Living Number must not duplicate the locked Core method switcher");
+assert.equal(numberLivingWorld.includes("fetchNumberMethodProfile"), false, "Living Number must consume calculated context rather than create a second method calculator");
+assert.equal(numberLivingWorld.includes("onMethodSelect"), false, "method selection remains owned by NumberCore");
 assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method Lens duplication must stay retired");
-assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower expression duplication must stay retired");
+assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower calculator-era expression duplication must stay retired");
 
 console.log("2029 native World surface acceptance: PASS");

@@ -18,6 +18,7 @@ export const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+
 // כלל-אצבע: כל דף שבנוי תמה-מודע (משתמש ב-usePalette) שייך לכאן — כך שרקע-ה-Layout
 // עוקב אחרי צבעי-התוכן, ואין «חצי בהיר חצי כהה». הוספת דף תמה-מודע חדש = שורה כאן.
 export const LIGHT_ROUTES = [
+  /^\/2029\/number(\/|$)/,   // Number 2029 — canonical day/night themed redesign
   /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
   /^\/book(\/|$)/,   // 📖 Book Hub — Surface Mode=research_clean, תמה מלאה יום/לילה (Cross-Surface Experience Contract, PR#332)

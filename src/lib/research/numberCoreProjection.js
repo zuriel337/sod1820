@@ -42,7 +42,7 @@ export async function fetchNumberMethodProfile(expression) {
   if (!keys.length) return rows;
   const { data: registry, error: registryError } = await supabase
     .from("gematria_methods")
-    .select("method_key,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
+    .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
     .in("method_key", keys);
   if (registryError) throw registryError;
   const deps = new Map((registry || []).map((row) => [clean(row?.method_key), row]));
@@ -51,6 +51,7 @@ export async function fetchNumberMethodProfile(expression) {
     return {
       ...row,
       displayLabel: clean(registryRow.display_label || row.displayLabel) || row.methodKey,
+      dbColumn: clean(registryRow.db_column) || null,
       category: clean(registryRow.category || row.category) || null,
       mathematicalFamily: clean(registryRow.mathematical_family || row.mathematicalFamily) || null,
       atomicOrComposite: clean(row.atomicOrComposite) || null,
@@ -65,6 +66,100 @@ export async function fetchNumberMethodProfile(expression) {
       dependencyVersion: Number.isFinite(Number(registryRow.dependency_version)) ? Number(registryRow.dependency_version) : null,
     };
   });
+}
+
+const FINAL_LETTER_NORMALIZATION = Object.freeze({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" });
+
+function hiddenCrossAnagramKey(value) {
+  return clean(value)
+    .replace(/[^א-ת]/g, "")
+    .split("")
+    .map((char) => FINAL_LETTER_NORMALIZATION[char] || char)
+    .sort()
+    .join("");
+}
+
+/**
+ * 2029 Hidden Crossing projection.
+ *
+ * Reproduces the useful legacy capability without trusting legacy JS calculation:
+ * - current expression values come from fn_method_profile (canonical engine);
+ * - candidate expressions come from verified gematria_words rows;
+ * - a crossing is discovered live from the current expression, never from saved Topic/Research relations.
+ * This is discovery/presentation only; it writes nothing and does not canonicalize a relation.
+ */
+export async function fetchNumberHiddenCrossings(expression, methodProfile = [], { limit = 13 } = {}) {
+  const phrase = clean(expression);
+  if (!phrase || /^\d+$/.test(phrase)) return [];
+  const profile = (Array.isArray(methodProfile) ? methodProfile : [])
+    .filter((row) => row?.dbColumn && Number.isFinite(Number(row?.computedValue)));
+  const regular = profile.find((row) => row.methodKey === "רגיל" || row.displayLabel === "רגיל");
+  if (!regular?.dbColumn || !Number.isFinite(Number(regular.computedValue))) return [];
+
+  const { supabase } = await import("../supabase.js");
+  const columns = [...new Set(["phrase", "lead_rank", "is_verified", ...profile.map((row) => row.dbColumn)])];
+  const { data, error } = await supabase
+    .from("gematria_words")
+    .select(columns.join(","))
+    .eq(regular.dbColumn, Number(regular.computedValue))
+    .eq("is_verified", true)
+    .limit(250);
+  if (error) throw error;
+
+  const selfKey = hiddenCrossAnagramKey(phrase);
+  const representative = buildEquivalenceRepresentative(profile, phrase);
+  const rows = [];
+  const seen = new Set();
+
+  for (const candidate of Array.isArray(data) ? data : []) {
+    const partner = clean(candidate?.phrase);
+    if (!partner || partner === phrase || seen.has(partner)) continue;
+    if (hiddenCrossAnagramKey(partner) === selfKey) continue;
+
+    const grouped = new Map();
+    for (const method of profile) {
+      const candidateValue = Number(candidate?.[method.dbColumn]);
+      const ownValue = Number(method.computedValue);
+      if (!Number.isFinite(candidateValue) || candidateValue !== ownValue) continue;
+      const group = representative(method.methodKey);
+      const existing = grouped.get(group);
+      if (!existing || (method.sortOrder ?? 9999) < (existing.sortOrder ?? 9999)) {
+        grouped.set(group, {
+          methodKey: method.methodKey,
+          methodLabel: method.displayLabel || method.methodKey,
+          value: ownValue,
+          sortOrder: method.sortOrder ?? null,
+          dbColumn: method.dbColumn,
+        });
+      }
+    }
+
+    const methods = [...grouped.values()].sort((a, b) => (
+      (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999)
+      || String(a.methodKey).localeCompare(String(b.methodKey), "he")
+    ));
+    if (methods.length < 2) continue;
+    seen.add(partner);
+    rows.push({
+      kind: "hidden_crossing",
+      label: "הצלבה נסתרת",
+      partner,
+      root: Number(regular.computedValue),
+      methods,
+      methodCount: methods.length,
+      leadRank: Number.isFinite(Number(candidate?.lead_rank)) ? Number(candidate.lead_rank) : null,
+      explainWhy: `${phrase} ו־${partner} נפגשים באותם ערכים בכמה שיטות מחושבות. זו הצלבה חישובית שנמצאה עכשיו מתוך הביטוי והמאגר המאומת; היא אינה Relation שמורה ואינה פרשנות.`,
+      source: "fn_method_profile + gematria_words verified reverse comparison",
+    });
+  }
+
+  rows.sort((a, b) => (
+    b.methodCount - a.methodCount
+    || (a.leadRank ?? 999999) - (b.leadRank ?? 999999)
+    || a.partner.length - b.partner.length
+    || a.partner.localeCompare(b.partner, "he")
+  ));
+  return rows.slice(0, Math.max(1, Math.min(Number(limit) || 13, 40)));
 }
 
 function hasFinalLetters(expression) {
@@ -117,11 +212,10 @@ function buildEquivalenceRepresentative(methodProfile, expression) {
   return (key) => find(key);
 }
 
-export function deriveLeadingCrossing({ families = [], expression = "", root = null, methodProfile = [] } = {}) {
+export function deriveCrossings({ families = [], expression = "", root = null, methodProfile = [], limit = 12 } = {}) {
   const target = clean(expression);
-  if (!target || !Number.isFinite(Number(root))) return null;
+  if (!target || !Number.isFinite(Number(root))) return Object.freeze([]);
   const representative = buildEquivalenceRepresentative(methodProfile, target);
-
   const activeMethods = [];
   for (const group of families || []) {
     const phrases = (Array.isArray(group?.phrases) ? group.phrases : []).map(phraseOf).filter(Boolean);
@@ -129,34 +223,44 @@ export function deriveLeadingCrossing({ families = [], expression = "", root = n
     const key = methodKey(group);
     if (key) activeMethods.push({ methodKey: key, methodLabel: methodLabel(group), representative: representative(key) });
   }
-  if (!activeMethods.length) return null;
+  if (!activeMethods.length) return Object.freeze([]);
 
+  const rows = [];
+  const seen = new Set();
+  const cap = Math.max(1, Math.min(Number(limit) || 12, 40));
   for (const active of activeMethods) {
     for (const group of families || []) {
       const partnerMethodKey = methodKey(group);
       if (!partnerMethodKey) continue;
-      if (representative(partnerMethodKey) === active.representative) continue;
-      const partner = (Array.isArray(group?.phrases) ? group.phrases : [])
-        .map(phraseOf)
-        .find((phrase) => phrase && phrase !== target);
-      if (!partner) continue;
-
-      return Object.freeze({
-        kind: "cross_method_intersection",
-        label: "הצלבה",
-        partner,
-        root: Number(root),
-        methods: Object.freeze([
-          { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root) },
-          { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root) },
-        ]),
-        methodCount: 2,
-        explainWhy: `${target} דרך ${active.methodLabel} ו־${partner} דרך ${methodLabel(group)} נפגשים ב־${root}. זו הצלבה חישובית בין שיטות בלתי־תלויות בהקשר הזה; המשמעות המחקרית נשארת נפרדת.`,
-        source: "entityHubProjection.gematria.families + gematria_methods.dependency_rules",
-      });
+      const partnerRepresentative = representative(partnerMethodKey);
+      if (partnerRepresentative === active.representative) continue;
+      for (const partner of (Array.isArray(group?.phrases) ? group.phrases : []).map(phraseOf).filter(Boolean)) {
+        if (!partner || partner === target) continue;
+        const identity = [active.representative, partnerRepresentative].sort().join("|") + "::" + partner;
+        if (seen.has(identity)) continue;
+        seen.add(identity);
+        rows.push(Object.freeze({
+          kind: "cross_method_intersection",
+          label: "הצלבה",
+          partner,
+          root: Number(root),
+          methods: Object.freeze([
+            { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root) },
+            { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root) },
+          ]),
+          methodCount: 2,
+          explainWhy: `${target} דרך ${active.methodLabel} ו־${partner} דרך ${methodLabel(group)} נפגשים ב־${root}. זו הצלבה חישובית בין שיטות בלתי־תלויות בהקשר הזה; המשמעות המחקרית נשארת נפרדת.`,
+          source: "entityHubProjection.gematria.families + gematria_methods.dependency_rules",
+        }));
+        if (rows.length >= cap) return Object.freeze(rows);
+      }
     }
   }
-  return null;
+  return Object.freeze(rows);
+}
+
+export function deriveLeadingCrossing(args = {}) {
+  return deriveCrossings({ ...args, limit: 1 })[0] || null;
 }
 
 export function deriveZeroScale({ zeroScale = null, root = null } = {}) {
@@ -239,7 +343,8 @@ export function buildNumberCoreProjection({
   heroMedia = null,
 } = {}) {
   const selected = methodProfileEntry(methodProfile, selectedMethodKey);
-  const crossing = deriveLeadingCrossing({ families, expression, root, methodProfile });
+  const crossings = deriveCrossings({ families, expression, root, methodProfile, limit: 12 });
+  const crossing = crossings[0] || null;
   const zero = deriveZeroScale({ zeroScale, root });
   const relatedNumbers = [];
   const seenRelatedNumbers = new Set([String(Number(root))]);
@@ -293,37 +398,48 @@ export function buildNumberCoreProjection({
     note: "מהשכבות הזמינות מכילות חומר",
   });
 
+  const worldByLabel = new Map();
+  for (const group of Array.isArray(worlds) ? worlds : []) {
+    const world = clean(group?.world || group?.label || group?.name);
+    if (!world) continue;
+    for (const item of Array.isArray(group?.items) ? group.items : []) {
+      const label = clean(item?.label || item?.name);
+      if (label && !worldByLabel.has(label)) worldByLabel.set(label, world);
+    }
+  }
+
+  const methodProfileByKey = new Map((Array.isArray(methodProfile) ? methodProfile : []).map((row) => [clean(row?.methodKey), row]));
   const connectionCards = [];
   const seenConnections = new Set();
   const addConnection = (label, note, methodKeyValue = null, kind = "relation") => {
     const text = clean(label);
-    if (!text || seenConnections.has(text) || connectionCards.length >= 8) return;
+    if (!text || seenConnections.has(text) || connectionCards.length >= 40) return;
     seenConnections.add(text);
     connectionCards.push(Object.freeze({
       label: text,
       note: clean(note) || "קשר מחקרי",
       methodKey: clean(methodKeyValue) || null,
       kind,
+      world: worldByLabel.get(text) || null,
     }));
   };
-  if (crossing?.partner) {
-    addConnection(
-      crossing.partner,
-      `הצלבה · ${crossing.methods.map((item) => item.methodLabel).join(" + ")}`,
-      crossing.methods?.[1]?.methodKey || null,
-      "crossing",
-    );
-  }
   for (const group of families || []) {
     const key = methodKey(group);
     const label = methodLabel(group);
+    const profile = methodProfileByKey.get(key) || null;
+    const composite = clean(profile?.atomicOrComposite).toLowerCase() === "composite"
+      || clean(profile?.category).toLowerCase() === "composite"
+      || clean(profile?.executionKind).toLowerCase() === "composite_engine"
+      || key.includes("+");
+    const note = composite ? `שיטה משולבת · ${label}` : label;
+    const kind = composite ? "composite_method_expression" : "expression";
     for (const item of Array.isArray(group?.phrases) ? group.phrases : []) {
       const phrase = phraseOf(item);
       if (!phrase || phrase === clean(expression)) continue;
-      addConnection(phrase, label, key, "expression");
-      if (connectionCards.length >= 8) break;
+      addConnection(phrase, note, key, kind);
+      if (connectionCards.length >= 40) break;
     }
-    if (connectionCards.length >= 8) break;
+    if (connectionCards.length >= 40) break;
   }
 
   const mediaSrc = clean(heroMedia?.thumbUrl || heroMedia?.imageUrl || heroMedia?.url);
@@ -336,6 +452,7 @@ export function buildNumberCoreProjection({
     activeResult: selected?.computedValue ?? null,
     methods: Object.freeze(methodProfile),
     crossing,
+    crossings,
     zeroScale: zero,
     pulse: Object.freeze({
       activityCount: Number(activityCount) || 0,

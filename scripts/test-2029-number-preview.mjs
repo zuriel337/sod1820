@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
 import { buildNumberDeepViewProjection } from "../src/lib/research/numberDeepViewProjection.js";
+import { humanSystemMethodCard } from "../src/lib/research/numberSystemMethods.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
@@ -16,6 +17,9 @@ const provider = read("src/lib/research/ResearchProvider.jsx");
 const deepView = read("src/components/number2029/NumberDeepView2029.jsx");
 const deepViewCss = read("src/components/number2029/numberDeepView2029.css");
 const deepProjection = read("src/lib/research/numberDeepViewProjection.js");
+const livingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
+const livingWorldCss = read("src/components/number2029/numberLivingWorld2029.css");
+const lightRoutes = read("src/lib/lightRoutes.js");
 const vercel = JSON.parse(read("vercel.json"));
 const browserAcceptance = read("tests/world2029-release.spec.cjs");
 
@@ -24,12 +28,7 @@ for (const required of [
   "fetchEntityHubProjection",
   "fetchGematriaMethodTrace",
   "useResearch",
-  "sod29-number-golden-bridge",
-  "WORLD SNAPSHOT",
-  "RESEARCH STRENGTH",
-  "HUMAN CURATION",
-  "PULSE / ATTENTION",
-  "MATH PASSPORT",
+  "NumberLivingWorld2029",
   "runNumberMathProfile",
   "NumberCore2029",
   "NumberDeepView2029",
@@ -60,6 +59,12 @@ assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence v
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(coreProjection, /fn_method_profile/);
 assert.match(coreProjection, /dependency_rules/);
+assert.match(coreProjection, /שיטה משולבת/);
+assert.equal(coreProjection.includes("הצלבה · ${item.methods"), false, "general connection list must not label composite methods as hidden crossings");
+assert.equal(fs.existsSync("src/lib/research/numberExpressionVerses.js"), false, "Number 2029 must not keep a parallel verse reader");
+assert.match(livingWorld, /formatTanakhRef/);
+assert.match(livingWorld, /formatVerseGematriaSuffix/);
+assert.match(page, /verseGematriaRows/);
 assert.match(core, /RAZIEL MICRO/);
 assert.match(core, /סולם האפס/);
 assert.match(core, /הצלבה נסתרת/);
@@ -150,6 +155,40 @@ assert.match(deepViewCss, /min-height:44px/);
 assert.match(deepViewCss, /prefers-reduced-motion/);
 assert.match(deepProjection, /privateContractMayBeAccessFiltered/);
 
+for (const required of [
+  'data-experience-capability="number-living-world"',
+  'data-experience-capability="number-essential"',
+  'data-experience-capability="number-living-worlds"',
+  'data-experience-capability="number-connections"',
+  'data-experience-capability="number-math-universe"',
+  'data-experience-capability="number-expression-family"',
+  'data-experience-capability="number-sources-content"',
+  'data-source="fn_verses_by_gematria"',
+  'data-experience-capability="number-journey-gate"',
+  'data-experience-capability="number-deep-research-gate"',
+  'העולמות החיים',
+  'היקום המתמטי',
+  'מד ניווט חי',
+  'מסע אישי',
+  'המספר ומשפחתו',
+  'toggleTheme',
+]) {
+  assert.equal(livingWorld.includes(required), true, `Living Number renderer missing semantic capability: ${required}`);
+}
+assert.match(livingWorldCss, /prefers-reduced-motion/);
+assert.match(livingWorldCss, /var\(--s29-/);
+assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-local renderer must consume canonical theme tokens, not own a hex palette");
+assert.match(lightRoutes, /\/2029\\\/number/);
+assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
+assert.match(core, /data-experience-action="number-life-seal"/);
+assert.match(core, /data-experience-capability="number-system-methods"/);
+assert.equal(livingWorld.includes("sod29-lw-search"), false, "Living Number must not duplicate the NumberCore search");
+assert.equal(core.includes("Premium runtime"), false, "public NumberCore must not expose implementation entitlement copy");
+assert.match(core, /data-experience-action="crossing-focus"/);
+assert.match(core, /data-experience-action="crossing-focus-reset"/);
+assert.match(core, /Root \{stageRoot\} נשאר העוגן/);
+assert.match(core, /זהו כיסוי חומר, לא ציון אמת/);
+
 const independentCross = deriveLeadingCrossing({
   root: 1237,
   expression: "התגלות",
@@ -167,6 +206,23 @@ const independentCross = deriveLeadingCrossing({
 assert.equal(independentCross?.kind, "cross_method_intersection");
 assert.equal(independentCross?.methods?.[0]?.methodKey, "מסתתר");
 assert.equal(independentCross?.methods?.[1]?.methodKey, "אתבש", "conditional-equivalent מסתתר גדול must not inflate the upper crossing");
+
+const systemOne = humanSystemMethodCard({
+  subject: { value: 1358 },
+  source: { method: "shitat_haechad_alef_law" },
+  evidence: { facts: [{ rule_id: "shitat_haechad_alef_law", rule_version: 1, input: 1358, output: { leading_unit: 1000, remainder: 358 } }] },
+});
+assert.equal(systemOne?.title, "שיטת האחד", "system method shitat haechad presentation");
+assert.equal(systemOne?.display, "1358 → 1000 + 358");
+assert.equal(systemOne?.target, 358);
+
+const systemZero = humanSystemMethodCard({
+  subject: { value: 3580 },
+  source: { method: "zero_navigation" },
+  evidence: { facts: [{ rule_id: "zero_navigation", rule_version: 1, input: 3580, output: { core: 358 } }] },
+});
+assert.equal(systemZero?.title, "האפס הנע");
+assert.equal(systemZero?.target, 358);
 
 const zero1237 = deriveZeroScale({
   root: 1237,
@@ -204,14 +260,14 @@ const rewrite = (vercel.rewrites || []).find((row) => row.source === "/2029/numb
 assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");
 
-for (const visual of [
-  ".sod29-number-state-strip",
-  ".sod29-number-world-snapshot",
-  ".sod29-number-world-attention",
-  ".sod29-number-depth-nav",
-]) {
-  assert.equal(css.includes(visual), true, `Number preview CSS missing: ${visual}`);
-}
 assert.match(css, /prefers-reduced-motion/);
+for (const visual of [
+  ".sod29-lw-essential",
+  ".sod29-lw-world-grid",
+  ".sod29-lw-scrubber",
+  ".sod29-lw-journey-grid",
+]) {
+  assert.equal(livingWorldCss.includes(visual), true, `Living Number CSS missing: ${visual}`);
+}
 
 console.log("2029 Number preview acceptance: PASS");

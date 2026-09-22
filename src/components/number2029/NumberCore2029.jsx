@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
+import { worldColor } from "../../lib/worlds.js";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -32,6 +33,15 @@ function publicMethodLabel(method) {
     method_key: method?.methodKey,
     display_label: method?.displayLabel,
   });
+}
+
+function publicMethodMeta(method) {
+  const atomic = String(method?.atomicOrComposite || "").toLowerCase();
+  const category = String(method?.category || "").toLowerCase();
+  const execution = String(method?.executionKind || "").toLowerCase();
+  if (atomic === "composite" || category === "composite" || execution === "composite_engine" || String(method?.methodKey || "").includes("+")) return "שיטה משולבת";
+  if (execution === "context_activated") return "שיטה הקשרית";
+  return "";
 }
 
 
@@ -254,6 +264,10 @@ export default function NumberCore2029({
   methodsLoading = false,
   languageBridges = [],
   regularExpressions = [],
+  hiddenCrossings = [],
+  hiddenCrossingsLoading = false,
+  systemMethods = [],
+  systemMethodsLoading = false,
   mode = "page",
   traceState = null,
   traceOpen = false,
@@ -266,6 +280,7 @@ export default function NumberCore2029({
   onOpenPage,
   onOpenWorld,
   onOpenJourney,
+  onOpenLife,
   onOpenHeichal,
   onOpenResult,
   onResolveQuery,
@@ -277,6 +292,9 @@ export default function NumberCore2029({
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [showCalculation, setShowCalculation] = useState(false);
+  const [showAllCrossings, setShowAllCrossings] = useState(false);
+  const [showMoreMethods, setShowMoreMethods] = useState(false);
+  const [focusedCrossingPartner, setFocusedCrossingPartner] = useState(null);
   const [query, setQuery] = useState("");
 
   if (!projection) return null;
@@ -300,20 +318,33 @@ export default function NumberCore2029({
   const stageLayers = Array.isArray(stage?.layers) ? stage.layers : [];
   const stageCoverage = stage?.coverage || { percent: 0, present: 0, total: stageLayers.length, note: "כיסוי שכבות" };
   const stagePulse = stage?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
-  const stageCrossing = stage?.crossing || null;
+  const rootCoverage = projection?.coverage || { present: 0, total: 0, percent: 0 };
+  const rootPulse = projection?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
+  const projectedCrossing = stage?.crossing || null;
+  const projectedCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (projectedCrossing ? [projectedCrossing] : []);
+  const stageCrossings = compact ? projectedCrossings : (Array.isArray(hiddenCrossings) ? hiddenCrossings : []);
+  const defaultStageCrossing = stageCrossings[0] || null;
+  const focusedCrossing = focusedCrossingPartner
+    ? stageCrossings.find((item) => String(item?.partner || "") === String(focusedCrossingPartner)) || null
+    : null;
+  const stageCrossing = focusedCrossing || defaultStageCrossing;
+  const crossingFocusActive = Boolean(focusedCrossing);
+  const secondaryCrossings = stageCrossing
+    ? stageCrossings.filter((item) => String(item?.partner || "") !== String(stageCrossing.partner || ""))
+    : stageCrossings;
   const stageZero = stage?.zeroScale || null;
   const raziel = projection.razielMicro;
   const result = active?.computedValue ?? projection.activeResult ?? null;
 
-  const primaryMethods = useMemo(() => (
-    [...methods]
-      .sort((a, b) => {
-        const ao = Number.isFinite(Number(a?.sortOrder)) ? Number(a.sortOrder) : Number.MAX_SAFE_INTEGER;
-        const bo = Number.isFinite(Number(b?.sortOrder)) ? Number(b.sortOrder) : Number.MAX_SAFE_INTEGER;
-        return ao - bo || String(a?.methodKey || "").localeCompare(String(b?.methodKey || ""), "he");
-      })
-      .slice(0, 6)
+  const sortedMethods = useMemo(() => (
+    [...methods].sort((a, b) => {
+      const ao = Number.isFinite(Number(a?.sortOrder)) ? Number(a.sortOrder) : Number.MAX_SAFE_INTEGER;
+      const bo = Number.isFinite(Number(b?.sortOrder)) ? Number(b.sortOrder) : Number.MAX_SAFE_INTEGER;
+      return ao - bo || String(a?.methodKey || "").localeCompare(String(b?.methodKey || ""), "he");
+    })
   ), [methods]);
+  const primaryMethods = useMemo(() => sortedMethods.slice(0, 6), [sortedMethods]);
+  const remainingMethods = useMemo(() => sortedMethods.slice(primaryMethods.length), [sortedMethods, primaryMethods.length]);
 
   const inspectorMethod = useMemo(() => (
     methods.find((method) => method.methodKey === inspectorMethodKey)
@@ -326,7 +357,10 @@ export default function NumberCore2029({
     setInspectorMethodKey(active?.methodKey || primaryMethods[0]?.methodKey || null);
     setInspectorTab("calc");
     setShowCalculation(false);
-  }, [active?.methodKey, root]); // eslint-disable-line react-hooks/exhaustive-deps
+    setShowAllCrossings(false);
+    setShowMoreMethods(false);
+    setFocusedCrossingPartner(null);
+  }, [active?.methodKey, root, projection.expression]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectMethod = (method) => {
     setInspectorMethodKey(method.methodKey);
@@ -350,8 +384,17 @@ export default function NumberCore2029({
     stagePulse.worldCount ? `${stagePulse.worldCount} עולמות` : null,
     stagePulse.activityCount ? `${stagePulse.activityCount} פעילויות` : null,
   ].filter(Boolean);
+  const lifeChannels = [
+    { key: "meetings", label: canonicalResearchPublicLabel("convergence", { plural: true }), count: Number(rootPulse.meetingCount) || 0 },
+    { key: "sources", label: "מקורות", count: Number(rootPulse.sourceCount) || 0 },
+    { key: "worlds", label: "עולמות", count: Number(rootPulse.worldCount) || 0 },
+    { key: "activity", label: "פעילות", count: Number(rootPulse.activityCount) || 0 },
+  ];
+  const liveChannelCount = lifeChannels.filter((item) => item.count > 0).length;
+  const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
+  const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
-  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={NUMBER_CORE_PALETTE}>
+  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={compact ? NUMBER_CORE_PALETTE : undefined}>
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
@@ -362,10 +405,27 @@ export default function NumberCore2029({
         <small>המספר</small>
         <b className="sod29-number-value">{root}</b>
       </div>
-      <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
+      {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
         <span>רזיאל</span>
-      </button>
+      </button> : <button
+        type="button"
+        className={`sod29-number-v10-life-seal${liveChannelCount ? " is-live" : " is-quiet"}`}
+        data-experience-action="number-life-seal"
+        onClick={() => onOpenLife?.()}
+        aria-label={lifeAria}
+        title={lifeAria}
+        style={{ "--life-coverage": `${lifeCoverageValue * 3.6}deg` }}
+      >
+        <span className="sod29-number-v10-life-ring" aria-hidden="true">
+          <i className="sod29-number-v10-life-core" />
+          <span className="sod29-number-v10-life-dots">
+            {lifeChannels.map((item) => <i key={item.key} className={item.count > 0 ? "is-on" : ""} />)}
+          </span>
+        </span>
+        <span>חיים</span>
+        <small>{Number(rootCoverage.present) || 0} שכבות</small>
+      </button>}
     </header>
 
     {onResolveQuery ? <form className="sod29-number-v10-search" onSubmit={submitQuery}>
@@ -386,7 +446,7 @@ export default function NumberCore2029({
         </div>
         <small>{regularExpressions.length} ביטויים · ↔ גרור ימינה / שמאלה</small>
       </div>
-      <div className="sod29-number-v11-regular-track" role="list" key={`regular-rail:${root}`}>
+      <div className="sod29-number-v11-regular-track" data-experience-capability="number-regular-expressions" role="list" key={`regular-rail:${root}`}>
         {regularExpressions.map((item) => {
           const phrase = String(item?.phrase || item || "").trim();
           const selected = phrase === String(projection.expression || "").trim();
@@ -405,13 +465,14 @@ export default function NumberCore2029({
       </div>
     </section> : null}
 
-    <section className="sod29-number-v10-method-switcher" aria-label="שש שיטות ראשיות">
+    <section className="sod29-number-v10-method-switcher" aria-label="כל שיטות הגימטריה הזמינות">
       <div className="sod29-number-v10-method-head">
-        <div><span>שש שיטות מהירות · לפי הסדר הקנוני</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : "נגיעה מחליפה את כל המחקר שמתחת"}</strong></div>
+        <div><span>{compact ? "שש שיטות מהירות" : "שש שיטות ראשיות · כל השאר בעומק"}</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · 6 גלויות מיד`}</strong></div>
         {methodsLoading ? <small className="is-loading">מתעדכן…</small>
-          : methods.length > primaryMethods.length ? <small>+{methods.length - primaryMethods.length} שיטות נוספות בבית המדרש</small> : null}
+          : methods.length > primaryMethods.length ? <small>6 מול העין · {methods.length - primaryMethods.length} בעומק</small>
+          : null}
       </div>
-      <div className="sod29-number-v10-method-grid">
+      <div className="sod29-number-v10-method-grid" data-experience-capability="number-method-glance">
         {primaryMethods.map((method) => {
           const selected = method.methodKey === active?.methodKey;
           return <button
@@ -424,24 +485,58 @@ export default function NumberCore2029({
           >
             <span>{publicMethodLabel(method)}</span>
             <strong>{method.computedValue ?? "—"}</strong>
-            <small>{method.mathematicalFamily || method.category || "שיטה"}</small>
+            {publicMethodMeta(method) ? <small>{publicMethodMeta(method)}</small> : null}
           </button>;
         })}
       </div>
+      {!compact && remainingMethods.length ? <>
+        <button type="button" className="sod29-number-v10-more-methods" data-experience-action="number-more-methods" onClick={() => setShowMoreMethods((value) => !value)} aria-expanded={showMoreMethods}>
+          <span>{showMoreMethods ? "סגור שיטות נוספות" : `＋ עוד ${remainingMethods.length} שיטות`}</span>
+          <small>{showMoreMethods ? "▲" : "▼"}</small>
+        </button>
+        {showMoreMethods ? <div className="sod29-number-v10-more-methods-panel" aria-label="שיטות נוספות">
+          {remainingMethods.map((method) => {
+            const selected = method.methodKey === active?.methodKey;
+            return <button
+              type="button"
+              key={method.methodKey}
+              className={`sod29-number-v10-method-card sod29-number-v7-method-main${selected ? " is-active" : ""}`}
+              aria-pressed={selected}
+              disabled={methodsLoading}
+              onClick={() => selectMethod(method)}
+            >
+              <span>{publicMethodLabel(method)}</span>
+              <strong>{method.computedValue ?? "—"}</strong>
+              {publicMethodMeta(method) ? <small>{publicMethodMeta(method)}</small> : null}
+            </button>;
+          })}
+        </div> : null}
+      </> : null}
     </section>
 
     <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
       <header className="sod29-number-v10-stage-head">
-        <div>
-          <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
-          <strong>{projection.expression || root} <em>→</em> {stageRoot}</strong>
-          <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
+        <div className={crossingFocusActive ? "is-crossing-focus" : ""} data-experience-state={crossingFocusActive ? "crossing-focus" : "number-result"}>
+          {crossingFocusActive && stageCrossing ? <>
+            <span>הצלבה נסתרת · פוקוס פעיל</span>
+            <strong>{projection.expression || root} <em>↔</em> {stageCrossing.partner}</strong>
+            <div className="sod29-number-v10-stage-cross-methods">
+              {stageCrossing.methods.slice(0, 4).map((method) => <b key={method.methodKey}>
+                {publicMethodLabel(method)} = {method.value}
+              </b>)}
+            </div>
+            <small>Root {stageRoot} נשאר העוגן · הפוקוס בלבד השתנה</small>
+            <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={() => setFocusedCrossingPartner(null)}>חזור ל־{stageRoot}</button>
+          </> : <>
+            <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
+            <strong>{projection.expression || root} <em>→</em> {stageRoot}</strong>
+            <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
+          </>}
         </div>
-        <div className="sod29-number-v10-vitality" aria-label={stageLoading ? "כיסוי שכבות מתעדכן" : `כיסוי שכבות ${coverageValue} אחוז`}>
-          <div className="sod29-number-v10-vitality-ring" style={{ "--vitality": stageLoading ? "0deg" : `${coverageValue * 3.6}deg` }}>
-            <strong>{stageLoading ? "…" : coverageValue}</strong><small>{stageLoading ? "" : "%"}</small>
-          </div>
-          <div><b>כיסוי שכבות</b><small>{stageLoading ? "המידע העמוק מתעדכן ברקע" : "כמה שכבות חומר זמינות כרגע · לא ציון אמת"}</small></div>
+        <div className="sod29-number-v10-stage-meta" data-experience-capability="number-result-summary" aria-label={`${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
+          <strong>{stageCoverage.present || 0}</strong>
+          <span>שכבות</span>
+          <small>בתוצאה {stageRoot}</small>
         </div>
       </header>
 
@@ -453,38 +548,97 @@ export default function NumberCore2029({
         <div className="sod29-number-v10-research-grid">
           <section className="sod29-number-v10-convergence">
             <div className="sod29-number-v10-panel-head">
-              <div><span>התכנסויות וחיבורים</span><strong>מה חי סביב {stageRoot}</strong></div>
-              <small>{visibleStageConnections.length}</small>
+              <div>
+                <span>התכנסויות וחיבורים</span>
+                <div className="sod29-number-v10-title-count"><strong>מה חי סביב {stageRoot}</strong><small>{visibleStageConnections.length}</small></div>
+              </div>
             </div>
             {visibleStageConnections.length ? <div className="sod29-number-v10-chip-list">
-              {visibleStageConnections.slice(0, compact ? 6 : 10).map((item, index) => <button
+              {visibleStageConnections.slice(0, compact ? 6 : visibleStageConnections.length).map((item, index) => <button
                 type="button"
                 key={`${item.label}:${index}`}
+                className={item.world ? "has-world" : "no-world"}
+                style={item.world ? { "--world-color": worldColor(item.world) } : undefined}
                 onClick={() => onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
               >
                 <strong>{item.label}</strong>
-                <small>{item.note}</small>
+                {item.world ? <em className="sod29-number-v10-world-tag">{item.world}</em> : <small>{item.note}</small>}
+                {item.world ? <small className="sod29-number-v10-method-note">{item.note}</small> : null}
               </button>)}
             </div> : <div className="sod29-number-core2029-note">{stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
           </section>
 
-          <section className="sod29-number-v10-crossing">
-            <div className="sod29-number-v10-panel-head"><div><span>הצלבה נסתרת</span><strong>{stageCrossing ? stageCrossing.partner : "אין כרגע הצלבה עצמאית"}</strong></div><span>∞</span></div>
+          <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
+            <div className="sod29-number-v10-panel-head">
+              <div>
+                <span>הצלבה נסתרת</span>
+                <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+              </div>
+            </div>
             {stageCrossing ? <>
-              <p>{stageCrossing.methods.map((method) => method.methodLabel === "קדמי · משולש" ? "משולש" : method.methodLabel).join(" · ")}</p>
+              <button
+                type="button"
+                className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
+                data-experience-action="crossing-focus"
+                aria-pressed={crossingFocusActive}
+                onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+              >
+                <span>ההצלבה המובילה</span>
+                <strong>{projection.expression || root} <b>=</b> {stageCrossing.partner}</strong>
+                <div className="sod29-number-v10-crossing-methods">
+                  {stageCrossing.methods.slice(0, 4).map((method) => <span key={method.methodKey}>
+                    {method.methodLabel === "קדמי · משולש" ? "משולש" : method.methodLabel} = {method.value}
+                  </span>)}
+                  {stageCrossing.methods.length > 4 ? <span>+{stageCrossing.methods.length - 4}</span> : null}
+                </div>
+                <small>נמצאה עכשיו מתוך הביטוי הפעיל והמאגר המאומת</small>
+              </button>
+              {secondaryCrossings.length ? <div className="sod29-number-v10-crossing-more">
+                {secondaryCrossings.slice(0, showAllCrossings ? secondaryCrossings.length : 4).map((item, index) => <button
+                  type="button"
+                  key={`${item.partner}:${index}`}
+                  data-experience-action="crossing-focus-secondary"
+                  aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
+                  onClick={() => setFocusedCrossingPartner(item.partner)}
+                >
+                  <strong>{item.partner}</strong>
+                  <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
+                </button>)}
+              </div> : null}
               <div className="sod29-number-v10-inline-actions">
-                <button type="button" onClick={() => onOpenCrossing?.(stageCrossing)}>הצג הצלבה</button>
+                {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `פתח עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
+                {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
                 <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
               </div>
-            </> : <p>{stageLoading ? "בודק הצלבה לתוצאה הפעילה…" : "לא מוצגת התאמה מלאכותית רק כדי למלא את הכרטיס."}</p>}
+            </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
           </section>
 
-          {stageZero ? <section className="sod29-number-v10-zero">
+          {!compact && (systemMethodsLoading || systemMethods.length) ? <section className="sod29-number-v10-system-methods" data-experience-capability="number-system-methods">
+            <div className="sod29-number-v10-panel-head sod29-number-v10-system-head">
+              <div>
+                <span>שיטות המערכת</span>
+                <div className="sod29-number-v10-title-count"><strong>נגזרות סביב {stageRoot}</strong><small>{systemMethods.length}</small></div>
+              </div>
+            </div>
+            {systemMethodsLoading ? <div className="sod29-number-core2029-note">בודק אילו שיטות מערכת חלות על המספר…</div> : <div className="sod29-number-v10-system-grid">
+              {systemMethods.map((item) => <button
+                type="button"
+                key={item.key}
+                onClick={() => item.target != null ? onOpenResult?.(item.target) : onRazielAction?.("explain_system_method", { kind: "system_method", ruleId: item.ruleId, resultValue: stageRoot })}
+              >
+                <span>{item.title}</span>
+                <strong>{item.display}</strong>
+                <small>{item.note}</small>
+              </button>)}
+            </div>}
+          </section> : null}
+
+          {compact && stageZero ? <section className="sod29-number-v10-zero">
             <div className="sod29-number-v10-panel-head">
               <div><span>סולם האפס</span><strong>{stageRoot}{stageZero.next != null ? ` → ${stageZero.next}` : ""}</strong></div>
               <span>◉</span>
             </div>
-            <p>אותו שורש ספרתי · סדר גודל אחר · DERIVATION, לא שוויון.</p>
+            <p>אותו שורש ספרתי · סדר גודל אחר · נגזרת, לא שוויון.</p>
             {stageZero.next != null ? <button type="button" onClick={() => onOpenZero?.(stageZero.next)}>פתח {stageZero.next}</button> : null}
           </section> : null}
 
@@ -498,28 +652,27 @@ export default function NumberCore2029({
             </div>
           </section> : null}
 
-          <section className="sod29-number-v10-worlds">
-            <div className="sod29-number-v10-panel-head"><div><span>עולמות ומספרים</span><strong>הסביבה של {stageRoot}</strong></div><button type="button" onClick={() => onOpenWorld?.()}>פתח בעולם ↗</button></div>
+          {(stageWorlds.length || stageRelatedNumbers.length) ? <section className="sod29-number-v10-world-teaser">
+            <div className="sod29-number-v10-panel-head">
+              <div><span>טעימה מהעולם</span><strong>מה מתחבר לתוצאה {stageRoot}</strong></div>
+              <button type="button" onClick={() => onOpenWorld?.()}>פתח עולם ↗</button>
+            </div>
             <div className="sod29-number-v10-world-row">
-              {stageWorlds.slice(0, 4).map((world) => <button key={world.label} type="button" onClick={() => onRazielAction?.("explain_world", { kind: "world", world: world.label, count: world.count || 0, resultValue: stageRoot })}>
+              {stageWorlds.slice(0, 3).map((world) => <button key={world.label} type="button" onClick={() => onRazielAction?.("explain_world", { kind: "world", world: world.label, count: world.count || 0, resultValue: stageRoot })}>
                 <span>{world.label}</span><small>{world.count || 0}</small>
               </button>)}
-              {stageRelatedNumbers.slice(0, 4).map((item) => <button key={`n:${item.value}`} type="button" onClick={() => onOpenResult?.(item.value)}>
+              {stageRelatedNumbers.slice(0, 2).map((item) => <button key={`n:${item.value}`} type="button" onClick={() => onOpenResult?.(item.value)}>
                 <strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? canonicalResearchPublicLabel("convergence") : item.relationType}</small>
               </button>)}
             </div>
-            {!stageWorlds.length && !stageRelatedNumbers.length ? <div className="sod29-number-core2029-note">{stageLoading ? "מעדכן עולמות ומספרים קשורים…" : "אין כרגע שכבת עולם נוספת לתוצאה הזאת."}</div> : null}
-          </section>
+          </section> : null}
         </div>
 
-        <section className="sod29-number-v10-calculation-card">
-          <div>
-            <span>חישוב השיטה</span>
-            <strong>{projection.expression} · {publicMethodLabel(active)} = {stageRoot}</strong>
-            <small>Trace קנוני · החישוב הבסיסי נשאר גלוי; העומק נפתח לפי דרישה</small>
-          </div>
-          <button type="button" onClick={() => setShowCalculation((value) => !value)}>{showCalculation ? "סגור חישוב" : "פתח חישוב"}</button>
-        </section>
+        <button type="button" className="sod29-number-v10-calculation-card" onClick={() => setShowCalculation((value) => !value)} aria-expanded={showCalculation}>
+          <span>איך חישבנו?</span>
+          <strong>{projection.expression} · {publicMethodLabel(active)} = {stageRoot}</strong>
+          <small>{showCalculation ? "סגור פירוט ▲" : "פתח Trace ופירוט ▼"}</small>
+        </button>
 
         {showCalculation ? <MethodInspector
           method={inspectorMethod}
@@ -538,24 +691,35 @@ export default function NumberCore2029({
         /> : null}
 
         <footer className="sod29-number-v10-stage-actions">
-          <button type="button" onClick={() => onRazielAction?.("next_research_step", { kind: "method_result", methodKey: active?.methodKey || null, methodLabel: publicMethodLabel(active), resultValue: stageRoot })}>✦ שאל את רזיאל</button>
-          <button type="button" onClick={() => onOpenWorld?.()}>◉ פתח בעולם</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "method_result_deep", root, expression: projection.expression, methodKey: active?.methodKey || null, resultValue: stageRoot })}>◇ חקור בהיכל</button>
+          <button type="button" onClick={() => onRazielAction?.("next_research_step", {
+            kind: crossingFocusActive ? "crossing_focus" : "method_result",
+            methodKey: active?.methodKey || null,
+            methodLabel: publicMethodLabel(active),
+            resultValue: stageRoot,
+            crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
+            crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
+          })}>✦ שאל את רזיאל</button>
+          <button type="button" className="primary" onClick={() => onOpenHeichal?.({
+            kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
+            root,
+            expression: projection.expression,
+            methodKey: active?.methodKey || null,
+            resultValue: stageRoot,
+            crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
+            crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
+          })}>◇ חקור בהיכל</button>
         </footer>
 
-        <div className="sod29-number-v10-premium-ready">
-          <span>👑 עומק מתקדם</span>
-          <small>השוואות כבדות, גרף עמוק וכלים מתקדמים אינם נטענים מראש. Premium runtime אמיתי יחובר רק דרך entitlement קנוני.</small>
-        </div>
+
     </section>
 
-    <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
+    {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
       {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
         : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 עולם</button> : null}
       <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
       <button type="button" onClick={() => onExpandRaziel?.()}>✨ רזיאל</button>
       {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}
-    </footer>
+    </footer> : null}
 
     {stageZero && compact && stageZero.next != null ? <button className="sod29-number-dashboard-open-result" type="button" onClick={() => onOpenZero?.(stageZero.next)}>Zero Scale · {stageRoot} → {stageZero.next}</button> : null}
   </section>;

@@ -156,7 +156,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
 });
 
-test('Number 2029 preview opens 1237 with six primary methods driving one research stage', async ({ page }) => {
+test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
 
@@ -169,15 +169,15 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
   await expect(core).toBeVisible();
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-vitality')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-vitality')).toContainText('כיסוי שכבות');
-  await expect(core.locator('.sod29-number-v10-vitality')).not.toContainText('חיות המספר');
+  await expect(core.locator('[data-experience-action="number-life-seal"]')).toBeVisible();
+  await expect(core.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
+  await expect(core.locator('[data-experience-capability="number-result-summary"]')).toContainText('שכבות');
 
   await expect.poll(
     () => core.locator('.sod29-number-v10-method-card').count(),
     { timeout: 15_000 },
   ).toBeGreaterThan(3);
-  expect(await core.locator('.sod29-number-v10-method-card').count()).toBeLessThanOrEqual(6);
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toContainText('שש שיטות ראשיות');
   const triangleCard = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'משולש' }).first();
   await expect(triangleCard).toBeVisible();
   await expect(core.locator('.sod29-number-v10-method-switcher')).not.toContainText('קדמי · משולש');
@@ -187,7 +187,7 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
   await expect(firstMethod).toHaveAttribute('aria-pressed', 'true');
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  await core.getByRole('button', { name: 'פתח חישוב' }).click();
+  await core.getByRole('button', { name: /איך חישבנו/ }).click();
   const inspector = core.locator('.sod29-number-method-inspector');
   await expect(inspector).toBeVisible();
   await expect(inspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
@@ -209,6 +209,64 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
   await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
 });
 
+test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/596`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  const core = numberPage.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible();
+
+  await expect.poll(
+    () => core.locator('[data-experience-capability="number-method-glance"] > button').count(),
+    { timeout: 15_000 },
+  ).toBe(6);
+  await expect(core.locator('[data-experience-action="number-more-methods"]')).toContainText(/עוד \d+ שיטות/);
+
+  const jerusalem = core.locator('[data-experience-capability="number-regular-expressions"] button').filter({ hasText: 'ירושלים' }).first();
+  await expect(jerusalem).toBeVisible({ timeout: 15_000 });
+  await jerusalem.click();
+
+  const crossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
+  await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
+  await expect(crossing).toContainText('הצלבה נסתרת');
+
+  const shomrimFocus = crossing.locator('[data-experience-action="crossing-focus"], [data-experience-action="crossing-focus-secondary"]').filter({ hasText: 'שומרים' }).first();
+  await expect(shomrimFocus).toBeVisible();
+  await shomrimFocus.click();
+  const focusedStage = core.locator('[data-experience-state="crossing-focus"]');
+  await expect(focusedStage).toContainText('ירושלים');
+  await expect(focusedStage).toContainText('שומרים');
+  await expect(focusedStage).toContainText('Root 596 נשאר העוגן');
+  await focusedStage.locator('[data-experience-action="crossing-focus-reset"]').click();
+  await expect(core.locator('[data-experience-state="number-result"]')).toBeVisible();
+  await expect(crossing).toContainText('רגיל = 596');
+  await expect(crossing).toContainText('ריבוע = 2650');
+
+  // 596 has no whole-verse gematria hits in the canonical verse-value engine.
+  await expect(numberPage.locator('[data-experience-capability="number-verses"]')).toHaveCount(0);
+
+  await assertNoHorizontalOverflow(page);
+});
+
+test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029/number/1118`, { waitUntil: 'domcontentloaded' });
+
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect(numberPage).toBeVisible({ timeout: 30_000 });
+  const verses = numberPage.locator('[data-experience-capability="number-verses"]');
+  await expect(verses).toBeVisible({ timeout: 20_000 });
+  await expect(verses).toContainText('פסוקים בגימטריה של 1118');
+  await expect(verses).toContainText('דברים ו׳, ד׳');
+  await expect(verses).toContainText('שמע ישראל יהוה אלהינו יהוה אחד');
+  await expect(verses).toContainText(/=\s*1,?118/);
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-1118-canonical-verses-390.png', fullPage: true });
+});
+
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
@@ -222,12 +280,16 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(drawer.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  const miluy = drawer.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
-  await expect(miluy).toBeVisible();
+  await expect.poll(
+    () => drawer.locator('[data-experience-capability="number-method-glance"] > button').count(),
+    { timeout: 20_000 },
+  ).toBe(6);
+  const miluy = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first();
+  await expect(miluy).toBeVisible({ timeout: 20_000 });
   await miluy.click();
   await expect(miluy).toHaveAttribute('aria-pressed', 'true');
 
-  await drawer.getByRole('button', { name: 'פתח חישוב' }).click();
+  await drawer.getByRole('button', { name: /איך חישבנו/ }).click();
   const inspector = drawer.locator('.sod29-number-method-inspector');
   await expect(inspector).toBeVisible();
   await inspector.getByRole('tab', { name: 'רזיאל' }).click();
@@ -265,14 +327,14 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 1_500 });
   await expect(stage).toContainText('משיח');
   await expect(stage.locator('.sod29-number-v10-calculation-card')).toContainText('878');
-  await expect(stage.locator('.sod29-number-v10-vitality')).toBeVisible();
+  await expect(stage.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
 
   const language = stage.locator('.sod29-number-v10-languages');
   await expect(language).toBeVisible({ timeout: 15_000 });
   await expect(language).toContainText('Messiah');
   await expect(language).toContainText('мессия');
 
-  await stage.getByRole('button', { name: 'פתח חישוב' }).click();
+  await stage.getByRole('button', { name: /איך חישבנו/ }).click();
   const explain = stage.locator('[data-miluy-spatial-explain="true"]');
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
@@ -290,7 +352,10 @@ test('Number 2029 preview exposes the existing Golden Journey only for 878', asy
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
-  await expect(numberPage.getByRole('button', { name: 'צא למסע 878' })).toBeVisible();
+  const journeyGate = numberPage.locator('[data-experience-capability="number-journey-gate"]');
+  await expect(journeyGate).toBeVisible();
+  await expect(journeyGate).toContainText('878');
+  await expect(journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ })).toBeVisible();
   await assertNoHorizontalOverflow(page);
 });
 

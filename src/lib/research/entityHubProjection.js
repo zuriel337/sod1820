@@ -588,6 +588,9 @@ function sourceProjection(researchFindings, numberJourney) {
       type: sourceObject?.type || "number-journey-source",
       ref,
       label,
+      text: clean(sourceObject?.text) || null,
+      value: Number.isFinite(Number(sourceObject?.value)) ? Number(sourceObject.value) : null,
+      matchKind: clean(sourceObject?.matchKind) || null,
     });
   }
   return [...refs.values()];
@@ -622,6 +625,9 @@ function projectNumberJourney(numberResearch) {
           type: "verse",
           ref: ref || null,
           label: [ref, text].filter(Boolean).join(" — "),
+          text: text || null,
+          value: Number.isFinite(Number(raw?.sources?.value)) ? Number(raw.sources.value) : null,
+          matchKind: "verse_gematria",
         };
       }).filter(source => source.label)
       : [];
