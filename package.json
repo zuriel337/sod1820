@@ -13,7 +13,8 @@
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",
     "test:world-convergence-pr591": "node --test src/lib/research/worldConvergencePr591SerialRepairA2.test.js src/lib/research/worldConvergencePr591SerialRepairA3.test.js src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js",
     "package:expression-extract": "node scripts/package-expression-extract.mjs",
-    "test:operational-trace-runtime": "node scripts/test-operational-trace-runtime.mjs"
+    "test:operational-trace-runtime": "node scripts/test-operational-trace-runtime.mjs",
+    "test:server-capability-gate": "node scripts/test-server-capability-gate.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
