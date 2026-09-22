@@ -377,7 +377,7 @@ begin
 
   return jsonb_build_object('trace_id', p_trace_id, 'span_id', p_span_id);
 end;
-$;
+$$;
 
 revoke all on function public.op_trace_record_span_v1(uuid,uuid,uuid,text,text,timestamptz,timestamptz,text,jsonb) from public, anon, authenticated;
 grant execute on function public.op_trace_record_span_v1(uuid,uuid,uuid,text,text,timestamptz,timestamptz,text,jsonb) to service_role;
