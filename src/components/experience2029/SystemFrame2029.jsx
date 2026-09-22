@@ -10,7 +10,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { F } from "../../theme.js";
 import { usePalette } from "../../lib/palette.js";
-import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
