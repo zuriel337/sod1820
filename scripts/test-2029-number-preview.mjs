@@ -58,6 +58,12 @@ assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence v
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(coreProjection, /fn_method_profile/);
 assert.match(coreProjection, /dependency_rules/);
+assert.match(coreProjection, /שיטה משולבת/);
+assert.equal(coreProjection.includes("הצלבה · ${item.methods"), false, "general connection list must not label composite methods as hidden crossings");
+assert.equal(fs.existsSync("src/lib/research/numberExpressionVerses.js"), false, "Number 2029 must not keep a parallel verse reader");
+assert.match(livingWorld, /formatTanakhRef/);
+assert.match(livingWorld, /formatVerseGematriaSuffix/);
+assert.match(page, /verseGematriaRows/);
 assert.match(core, /RAZIEL MICRO/);
 assert.match(core, /סולם האפס/);
 assert.match(core, /הצלבה נסתרת/);
