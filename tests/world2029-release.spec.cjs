@@ -169,9 +169,9 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await expect(core).toBeVisible();
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-vitality')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-vitality')).toContainText('כיסוי שכבות');
-  await expect(core.locator('.sod29-number-v10-vitality')).not.toContainText('חיות המספר');
+  await expect(core.locator('[data-experience-action="number-life-seal"]')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-stage-meta')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-stage-meta')).toContainText('שכבות');
 
   await expect.poll(
     () => core.locator('.sod29-number-v10-method-card').count(),
@@ -187,7 +187,7 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await expect(firstMethod).toHaveAttribute('aria-pressed', 'true');
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  await core.getByRole('button', { name: 'פתח חישוב' }).click();
+  await core.getByRole('button', { name: /איך חישבנו/ }).click();
   const inspector = core.locator('.sod29-number-method-inspector');
   await expect(inspector).toBeVisible();
   await expect(inspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
