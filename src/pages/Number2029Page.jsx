@@ -8,6 +8,7 @@ import { buildWorldContextualProminence } from "../lib/research/worldContextualP
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
+import { fetchNumberSystemMethods } from "../lib/research/numberSystemMethods.js";
 import {
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
@@ -179,6 +180,7 @@ function NumberPageBody() {
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
+  const [systemMethodsState, setSystemMethodsState] = useState({ loading: false, cards: [], error: null, key: null });
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -409,6 +411,30 @@ function NumberPageBody() {
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
   const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedMethodProfile?.computedValue ?? null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
+
+  useEffect(() => {
+    const next = Number(activeResult);
+    if (!Number.isSafeInteger(next) || next < 0) {
+      setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
+      return undefined;
+    }
+    let alive = true;
+    setSystemMethodsState({ loading: true, cards: [], error: null, key: next });
+    fetchNumberSystemMethods(next)
+      .then((result) => {
+        if (!alive) return;
+        setSystemMethodsState({
+          loading: false,
+          cards: Array.isArray(result?.cards) ? result.cards : [],
+          error: null,
+          key: next,
+        });
+      })
+      .catch((error) => {
+        if (alive) setSystemMethodsState({ loading: false, cards: [], error, key: next });
+      });
+    return () => { alive = false; };
+  }, [activeResult]);
 
   useEffect(() => {
     const next = Number(activeResult);
@@ -843,6 +869,8 @@ function NumberPageBody() {
         onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.rows}
         hiddenCrossingsLoading={hiddenCrossState.loading}
+        systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
+        systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
         onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
