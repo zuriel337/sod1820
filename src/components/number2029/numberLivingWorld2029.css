@@ -554,6 +554,22 @@
   font-size:11px;
   line-height:1.65;
 }
+.sod29-lw-verse-equality{
+  display:block;
+  text-align:center;
+}
+.sod29-lw-verse-equality>span{
+  display:inline;
+}
+.sod29-lw-verse-equality>strong{
+  display:inline;
+  margin-inline-start:5px;
+  color:var(--s29-hero);
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
 .sod29-lw-verse-grid small{
   color:var(--s29-muted);
   font-size:7.5px;
