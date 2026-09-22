@@ -8,7 +8,10 @@ import { STREAMS, isStream } from "./stream.js";
 import { ENVIRONMENT, MOTION, motionForPreference } from "./designTokens.js";
 
 export const EXPERIENCE_SURFACE = Object.freeze({
+  HOME: "home",
   WORLD: "world",
+  NUMBER: "number",
+  BOOKS: "books",
   HEICHAL: "heichal",
   JOURNEY: "journey",
   RAZIEL: "raziel",
@@ -57,6 +60,20 @@ const P = MOTION.pattern;
 // Implementation projection of the Human-Gate approved Experience Projection Matrix.
 // These are surface defaults/ceilings, not new semantic owners.
 const SURFACE_PROFILES = Object.freeze({
+  [EXPERIENCE_SURFACE.HOME]: Object.freeze({
+    question: "מאיפה מתחילים?",
+    environment: ENVIRONMENT.DARK_OBSERVATORY,
+    motionIntensity: "low_orientation",
+    motionPatterns: Object.freeze([P.reveal, P.presence, P.settle]),
+    spatialDefault: SPATIAL_LEVEL.S1,
+    spatialMax: SPATIAL_LEVEL.S2,
+    voiceMode: VOICE_MODE.NONE,
+    captionMode: CAPTION_MODE.NONE,
+    ambience: "off_by_default",
+    spatialAudio: false,
+    aiVisualFreedom: "low_brand_safe",
+    brandLockup: "identity_required",
+  }),
   [EXPERIENCE_SURFACE.WORLD]: Object.freeze({
     question: "מה מתחבר?",
     environment: ENVIRONMENT.DARK_OBSERVATORY,
@@ -70,6 +87,34 @@ const SURFACE_PROFILES = Object.freeze({
     spatialAudio: false,
     aiVisualFreedom: "medium_scene_only",
     brandLockup: "identity_with_contextual_expression",
+  }),
+  [EXPERIENCE_SURFACE.NUMBER]: Object.freeze({
+    question: "מה המספר הזה מראה?",
+    environment: ENVIRONMENT.RESEARCH_LAB,
+    motionIntensity: "low_explanatory",
+    motionPatterns: Object.freeze([P.reveal, P.focus, P.settle]),
+    spatialDefault: SPATIAL_LEVEL.S1,
+    spatialMax: SPATIAL_LEVEL.S3,
+    voiceMode: VOICE_MODE.ON_DEMAND,
+    captionMode: CAPTION_MODE.WHEN_VOICE,
+    ambience: "quiet_research",
+    spatialAudio: false,
+    aiVisualFreedom: "low_evidence_safe",
+    brandLockup: "identity_compact",
+  }),
+  [EXPERIENCE_SURFACE.BOOKS]: Object.freeze({
+    question: "מה המקור אומר?",
+    environment: ENVIRONMENT.RESEARCH_LAB,
+    motionIntensity: "low_editorial",
+    motionPatterns: Object.freeze([P.reveal, P.focus, P.settle]),
+    spatialDefault: SPATIAL_LEVEL.S0,
+    spatialMax: SPATIAL_LEVEL.S2,
+    voiceMode: VOICE_MODE.ON_DEMAND,
+    captionMode: CAPTION_MODE.WHEN_VOICE,
+    ambience: "quiet_research",
+    spatialAudio: false,
+    aiVisualFreedom: "low_evidence_safe",
+    brandLockup: "identity_editorial",
   }),
   [EXPERIENCE_SURFACE.HEICHAL]: Object.freeze({
     question: "איך בודקים?",
