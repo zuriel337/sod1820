@@ -64,6 +64,8 @@ jobs:
         run: npm run test:server-capability-gate
       - name: 2029 server SEO / AI metadata parity
         run: npm run test:2029-server-seo-ai
+      - name: Research Path resumability runtime acceptance
+        run: npm run test:research-path-resume
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
