@@ -361,9 +361,23 @@ begin
   )
   on conflict (span_id) do nothing;
 
+  -- Idempotency is valid only for the same logical span. Reusing a span UUID
+  -- across a different trace/parent/kind is a collision and must fail closed.
+  perform 1
+  from public.op_trace_spans s
+  where s.span_id = p_span_id
+    and s.trace_id = p_trace_id
+    and s.parent_span_id = p_parent_span_id
+    and s.kind = p_kind
+    and s.name = p_name;
+
+  if not found then
+    raise exception 'span idempotency collision';
+  end if;
+
   return jsonb_build_object('trace_id', p_trace_id, 'span_id', p_span_id);
 end;
-$$;
+$;
 
 revoke all on function public.op_trace_record_span_v1(uuid,uuid,uuid,text,text,timestamptz,timestamptz,text,jsonb) from public, anon, authenticated;
 grant execute on function public.op_trace_record_span_v1(uuid,uuid,uuid,text,text,timestamptz,timestamptz,text,jsonb) to service_role;
