@@ -1287,9 +1287,8 @@ function aiVisitorId() {
 }
 function aiInteractionId() {
   try {
-    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  } catch { /* noop */ }
-  return `ai-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : null;
+  } catch { return null; }
 }
 export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface }) {
   if (!supabase) return null;
