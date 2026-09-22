@@ -49,6 +49,7 @@ const requiredEdge = [
   'name: "fn_capability_execution_gate_v1"',
   'name: "metatron_context"',
   'kind: "router_plan"',
+  'parentSpanId: gateSpanId',
   'name: "ai-analyze:research-plan"',
   'parentSpanId: planSpanId',
   'plan_ref: planRef',
@@ -79,6 +80,11 @@ assert.equal(
   edge.includes("subject_ref: subject"),
   false,
   "raw subject must never be stored as subject_ref",
+);
+assert.equal(
+  edge.includes("safeOperationalRef(body?.subject_ref)"),
+  false,
+  "public callers must not choose trace subject_ref",
 );
 assert.equal(
   edge.includes("interaction_id: safeOperationalRef(body?.interaction_id)"),
