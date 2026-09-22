@@ -522,6 +522,24 @@ Invalidation dimensions must include:
 
 ---
 
+## 17A. Legacy message-path migration
+
+2029 has one synthesis authority. Existing paths are classified as follows:
+
+- `numberMessage.js`: legacy local message heuristic. It remains compatibility/history only; 2029 message semantics come from Result Bundle Synthesis.
+- `NameStory.jsx`: legacy local name-story semantics. Future 2029 projection consumes canonical Findings/Synthesis.
+- `numberCard.js`: renderer; keep rendering capability, source message copy from canonical projection.
+- `aiAnalysis.js` / `ai-analyze`: provider pipeline predecessor. Claude/Gemini/GPT remain renderers/challengers over one governed evidence/synthesis context.
+- `ai_analysis_log`: historical resonance benchmark; engagement is not verification.
+- `number_readings`: governed Numeric Research input; preserve and adapt through its owner.
+- `digit_language`: semantic source input pending owner-qualified projection; do not treat as Person fact.
+- `method_semantics`: canonical method-semantic input for Field Map, never a fixed truth weight.
+- `MeaningLabPage / lab_*`: isolated learning lab, never a second Synthesis owner.
+
+Migration order: move authority first → migrate consumers → verify parity/controls → retire only genuinely obsolete compatibility logic under normal release gates.
+
+A 2029 consumer must not create local message semantics, local Cross math, local method weights, or a second fit/accuracy contract.
+
 ## 18. Product depth
 
 ### Public / light
