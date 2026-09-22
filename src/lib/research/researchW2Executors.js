@@ -9,6 +9,7 @@
 
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
+import { createGematriaRelationW2Executor } from './gematriaRelationW2Executor.js';
 import { analyzeNumericRelations, numericRelationsToUniversalFindings, zeckendorfToUniversalFinding, NUMERIC_RELATION_ENGINE_VERSION } from './numericRelationOperations.js';
 import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
 import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
@@ -208,6 +209,11 @@ export function createCanonicalNumberW2Executors(options = {}) {
     maxRepresentations: options.gematriaMaxRepresentations ?? 16,
     controls: options.gematriaControls !== false,
   });
+  const gematriaRelations = createGematriaRelationW2Executor({
+    supabase: options.supabase,
+    maxRepresentations: options.gematriaRelationMaxRepresentations ?? 8,
+    maxPairs: options.gematriaRelationMaxPairs ?? 12,
+  });
 
   const fibonacciZeckendorf = async ({ identityResolution }) => {
     const anchors = numericRelationAnchors(identityResolution, 2);
@@ -367,6 +373,7 @@ export function createCanonicalNumberW2Executors(options = {}) {
     'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
     'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
     gematria,
+    gematria_relations: gematriaRelations,
   };
 }
 
