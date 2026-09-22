@@ -9,6 +9,7 @@ import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
+import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 
@@ -22,7 +23,7 @@ function TopicMapNav({ items = [] }) {
   </nav>;
 }
 
-function TopicPhrases({ rows = [] }) {
+function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-phrases">
     <div className="sod29-section-head"><div><div className="sod29-kicker">ביטויים</div><h2>מה מתכנס כאן?</h2></div><span className="sod29-chip">{rows.length}</span></div>
@@ -30,15 +31,16 @@ function TopicPhrases({ rows = [] }) {
       {rows.map((row, index) => {
         const text = textOf(row);
         if (!text) return null;
-        return <Link className="sod29-topic-phrase" to={"/number/" + encodeURIComponent(text)} key={row.sourcePath || (text + "-" + index)}>
-          <strong>{text}</strong><small>פתח בדף הביטוי ←</small>
-        </Link>;
+        const opening = openingExpression === text;
+        return <button className="sod29-topic-phrase" type="button" disabled={opening} onClick={() => onOpenExpression?.(text)} key={row.sourcePath || (text + "-" + index)}>
+          <strong>{text}</strong><small>{opening ? "בודק במנוע…" : "פתח במספר עם מיקוד ←"}</small>
+        </button>;
       })}
     </div>
   </section>;
 }
 
-function TopicFindings({ projection }) {
+function TopicFindings({ projection, onOpenExpression }) {
   const S = projection.sections || {};
   const headline = (S.headline || []).map(textOf).filter(Boolean);
   const hints = (S.hint || []).map(textOf).filter(Boolean);
@@ -64,7 +66,11 @@ function TopicFindings({ projection }) {
         const value = Number(row.value);
         return <div className="sod29-topic-claim" key={row.sourcePath || i}>
           <div><strong>{phrase || "ממצא מספרי"}</strong>{row.method ? <small>{row.method}</small> : null}{row.note ? <small>{row.note}</small> : null}</div>
-          {Number.isFinite(value) ? <Link to={"/number/" + value}>{value}</Link> : null}
+          {Number.isFinite(value)
+            ? (phrase && onOpenExpression
+              ? <button type="button" className="sod29-topic-claim-number" onClick={() => onOpenExpression(phrase)}>{value}</button>
+              : <Link to={"/2029/number/" + value}>{value}</Link>)
+            : null}
         </div>;
       })}
     </div> : null}
@@ -82,7 +88,7 @@ function TopicAuthoredConnections({ projection }) {
         const labels = Array.isArray(row.links) ? row.links.filter(Boolean) : [];
         return <div className="sod29-row" key={row.sourcePath || index}>
           <div><strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong><small>קשר שמור בגוף ההתכנסות</small></div>
-          {Number.isFinite(number) ? <Link className="sod29-action" to={"/number/" + number}>{number}</Link> : null}
+          {Number.isFinite(number) ? <Link className="sod29-action" to={"/2029/number/" + number}>{number}</Link> : null}
         </div>;
       })}
     </div>
@@ -219,6 +225,7 @@ function TopicBody() {
   const research = useResearch();
   const [state, setState] = useState({ loading: true, finding: null, error: null });
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
+  const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
 
   useEffect(() => {
     let alive = true;
@@ -280,6 +287,63 @@ function TopicBody() {
     return undefined;
   }, [projection?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const openExpressionFocus = async (expression) => {
+    const expr = clean(expression);
+    if (!expr || !projection) return;
+    setExpressionOpenState({ expression: expr, error: null });
+    try {
+      const focus = await resolveExpressionFocus(expr);
+      if (!focus?.href) throw new Error("expression_focus_unavailable");
+
+      const topicSubject = {
+        id: projection.slug,
+        type: "topic",
+        label: projection.title,
+        href: projection.canonicalPath,
+      };
+      const topicSelection = { entityId: projection.slug, entityType: "topic" };
+      const current = research.context || {};
+
+      research.setResearchContext?.({
+        subject: {
+          id: String(focus.root),
+          type: "number",
+          label: String(focus.root),
+          href: focus.href,
+        },
+        selection: {
+          entityId: String(focus.root),
+          entityType: "number",
+          expression: focus.expression,
+          method: focus.method,
+          resultValue: focus.resultValue,
+          focusKind: "expression",
+        },
+        lens: "number",
+        locale: current.locale || "he",
+        dimensions: {
+          ...(current.dimensions || {}),
+          expressionFocusExplicit: true,
+          focusOrigin: "topic",
+          topicSlug: projection.slug,
+        },
+        journey: current.journey || null,
+        returnTo: {
+          href: projection.canonicalPath,
+          label: projection.title,
+          subject: topicSubject,
+          selection: topicSelection,
+          lens: "topic",
+          dimensions: current.dimensions || {},
+          journey: current.journey || null,
+        },
+      });
+      navigate(focus.href);
+    } catch (error) {
+      setExpressionOpenState({ expression: null, error });
+    }
+  };
+
   useEffect(() => {
     if (!projection) return undefined;
     applySeo({
@@ -335,7 +399,7 @@ function TopicBody() {
         </div>
       </div>
       <div className="sod29-topic-anchor-cluster" aria-label="המספרים המרכזיים בהתכנסות">
-        {primaryNumbers.map((value) => <Link to={"/number/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>מספר</small></Link>)}
+        {primaryNumbers.map((value) => <Link to={"/2029/number/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>מספר</small></Link>)}
       </div>
     </header>
 
@@ -354,8 +418,9 @@ function TopicBody() {
     </section>
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
-      <TopicPhrases rows={projection.phrases} />
-      <TopicFindings projection={projection} />
+      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
+      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
+      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
       <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
       <TopicAuthoredConnections projection={projection} />
       <TopicGraphConnections golden={golden} />
@@ -369,7 +434,7 @@ function TopicBody() {
       <p>אותה זהות ממשיכה בין World, Number, Raziel והיכל. המעבר משנה את העדשה — לא את ההתכנסות.</p>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/world">פתח בעולם</Link>
-        {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
+        {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/2029/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
         <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>✦ מה כדאי לבדוק עכשיו?</button>
         <Link className="sod29-action" to="/heichal">◇ מחקר עמוק</Link>
       </div>
