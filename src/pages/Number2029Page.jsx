@@ -735,6 +735,7 @@ function NumberPageBody() {
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
   const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
   const focusExpression = focusExplicit ? clean(activeExpression) : "";
+  const originTopicSlug = clean(research.context?.dimensions?.topicSlug);
   const currentNumberHref = numberExpressionFocusHref(root, {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
@@ -762,6 +763,21 @@ function NumberPageBody() {
       dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
     });
     navigate(`/2029/number/${root}`, { replace: true });
+  };
+
+  const returnToOriginTopic = () => {
+    if (!originTopicSlug) return;
+    const href = `/topic/${encodeURIComponent(originTopicSlug)}`;
+    research.setResearchContext?.({
+      subject: { id: originTopicSlug, type: "topic", label: originTopicSlug, href },
+      selection: { entityId: originTopicSlug, entityType: "topic" },
+      lens: "topic",
+      locale: research.context?.locale || "he",
+      dimensions: {},
+      journey: research.context?.journey || null,
+      returnTo: null,
+    });
+    navigate(href);
   };
 
   const activateExpressionFocus = (expression, methodKey = null) => {
@@ -1039,7 +1055,11 @@ function NumberPageBody() {
         <small>{activeMethodLabel || focusMethodKey || "שיטה"} {Number.isFinite(Number(activeResult)) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
-        {research.context?.returnTo?.href ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button> : null}
+        {research.context?.returnTo?.href
+          ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
+          : originTopicSlug
+            ? <button className="sod29-action" type="button" onClick={returnToOriginTopic}>↩ חזרה להתכנסות</button>
+            : null}
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את {root} בלי מיקוד</button>
       </div>
     </section> : null}
