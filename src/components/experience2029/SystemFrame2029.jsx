@@ -11,6 +11,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { F } from "../../theme.js";
 import { usePalette } from "../../lib/palette.js";
 import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import {
@@ -50,6 +51,7 @@ const ShellContext = createContext({
   closeTransient: () => {},
   go: () => {},
   returnExact: () => {},
+  experience: null,
 });
 
 export const use2029Shell = () => useContext(ShellContext);
@@ -488,7 +490,7 @@ export default function SystemFrame2029({
   children,
   status = "2029 · BUILD",
   wide = false,
-  surface = "system",
+  surface = "home",
   symbol = "✦",
 }) {
   const location = useLocation();
@@ -500,6 +502,7 @@ export default function SystemFrame2029({
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
+  const [reducedMotion, setReducedMotion] = useState(false);
   const panelRef = useRef(null);
   const navRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -509,9 +512,24 @@ export default function SystemFrame2029({
   const currentLabel = title || context?.subject?.label || "SOD1820";
   const locale = context?.locale || "he";
   const direction = directionForLocale(locale);
+  const experience = useMemo(() => resolveExperienceContext({
+    surface,
+    locale,
+    lens: context?.lens || "kingdom",
+    reducedMotion,
+  }), [surface, locale, context?.lens, reducedMotion]);
 
   const contextTarget = useMemo(() => targetFromContext(context), [context]);
   const activeTarget = ephemeralSelection || contextTarget;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(Boolean(query.matches));
+    sync();
+    query.addEventListener?.("change", sync);
+    return () => query.removeEventListener?.("change", sync);
+  }, []);
 
   const preserveReturn = useCallback(() => {
     research.updateResearchContext?.({
@@ -737,6 +755,7 @@ export default function SystemFrame2029({
   }, [commandQuery, openCapability]);
 
   const shellApi = useMemo(() => ({
+    experience,
     openCommand,
     openAction,
     openCapability,
@@ -751,7 +770,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -770,14 +789,14 @@ export default function SystemFrame2029({
     "--s29-accent-btn": palette.accentBtn,
     "--s29-radius": `${RADIUS.xl}px`,
     "--s29-control-min": `${LAYOUT.controlMinHeight}px`,
-    "--s29-motion": `${MOTION.duration.normal}ms`,
+    "--s29-motion": `${typeof experience.motion.timing.duration === "number" ? experience.motion.timing.duration : experience.motion.timing.duration.normal}ms`,
     "--s29-raziel-blue": RAZIEL_PRESENCE.blue,
     "--s29-raziel-indigo": RAZIEL_PRESENCE.indigo,
     "--s29-raziel-violet": RAZIEL_PRESENCE.violet,
     "--s29-raziel-glow": RAZIEL_PRESENCE.glow,
     "--s29-raziel-cycle": `${RAZIEL_PRESENCE.cycleMs}ms`,
     fontFamily: F.body,
-  }), [palette]);
+  }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
   const renderTransient = () => {
@@ -799,7 +818,18 @@ export default function SystemFrame2029({
 
   return (
     <ShellContext.Provider value={shellApi}>
-      <div className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`} dir={direction} style={shellStyle}>
+      <div
+        className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        dir={direction}
+        style={shellStyle}
+        data-experience-context={experience.version}
+        data-experience-surface={experience.surface}
+        data-experience-question={experience.experience.question}
+        data-experience-environment={experience.experience.environmentRole}
+        data-experience-spatial={experience.spatial.effectiveLevel}
+        data-experience-locale={experience.locale}
+        data-reduced-motion={String(experience.motion.reduced)}
+      >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
@@ -812,7 +842,7 @@ export default function SystemFrame2029({
           </nav>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>Frame אחד · Context אחד · בלי Legacy presentation fallback.</small></div>
+          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · Context אחד.</small></div>
         </aside>
 
         <div className="sod29-main">
