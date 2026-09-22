@@ -27,6 +27,8 @@ function normalizeSubject(value) {
 
 function normalizeSelection(value) {
   if (!isObject(value)) return null;
+  const resultValueRaw = value.resultValue;
+  const resultValueNumber = resultValueRaw == null || resultValueRaw === "" ? null : Number(resultValueRaw);
   const out = {
     entityId: cleanString(value.entityId),
     entityType: cleanString(value.entityType),
@@ -34,8 +36,17 @@ function normalizeSelection(value) {
     sourceRef: cleanString(value.sourceRef),
     locator: cleanString(value.locator),
     versionRef: cleanString(value.versionRef),
+
+    // Research Workspace v4 additive Number-focus projection.
+    // These fields are navigation/selection state only — never Truth, canonical identity or a
+    // second calculation store. Number owns computation; surfaces preserve the exact focus.
+    expression: cleanString(value.expression),
+    method: cleanString(value.method),
+    resultValue: Number.isFinite(resultValueNumber) ? resultValueNumber : null,
+    focusKind: cleanString(value.focusKind),
+    crossingPartner: cleanString(value.crossingPartner),
   };
-  return Object.values(out).some(Boolean) ? out : null;
+  return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
 
 function normalizeJourney(value) {
