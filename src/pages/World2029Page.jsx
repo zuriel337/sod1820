@@ -1379,7 +1379,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "מיקוד ביטוי"} · העולם מרחיב הקשר, Number נשאר בית החישוב</small>
       </div>
       <div className="sod29-actions">
-        {focusedNumberHref ? <Link className="sod29-action primary" to={focusedNumberHref}>חזור לחישוב</Link> : null}
+        {focusedNumberHref ? <button className="sod29-action primary" type="button" onClick={() => {
+          if (context?.returnTo?.href?.startsWith("/2029/number/")) shell.returnExact();
+          else shell.go(focusedNumberHref, { preserve: false });
+        }}>חזור לחישוב</button> : null}
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את העולם בלי מיקוד</button>
       </div>
     </section> : null}
