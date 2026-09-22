@@ -198,6 +198,7 @@ async function recordOperationalSpan(
   trace: OperationalTraceHandle | null,
   {
     spanId,
+    parentSpanId = null,
     kind,
     name,
     startedAt,
@@ -206,6 +207,7 @@ async function recordOperationalSpan(
     detail = {},
   }: {
     spanId: string;
+    parentSpanId?: string | null;
     kind: string;
     name: string;
     startedAt: string;
@@ -218,7 +220,7 @@ async function recordOperationalSpan(
   await traceRpc("op_trace_record_span_v1", {
     p_trace_id: trace.traceId,
     p_span_id: spanId,
-    p_parent_span_id: trace.rootSpanId,
+    p_parent_span_id: parentSpanId || trace.rootSpanId,
     p_kind: kind,
     p_name: name,
     p_started_at: startedAt,
@@ -829,6 +831,40 @@ Deno.serve(async (req: Request) => {
       }, 200);
     }
 
+    // G3 Replayable Golden: the existing ai-analyze path now emits an explicit
+    // bounded Research/Action Plan span. This is trace/provenance only: it does not
+    // create a second planner/router or change tool/model selection.
+    const planSpanId = crypto.randomUUID();
+    const planRef = `ai-analyze-plan-v1:${kind || "analyze"}:${isDeep ? "deep" : "fast"}`;
+    const planStartedAt = new Date().toISOString();
+    const planEndedAt = new Date().toISOString();
+    await recordOperationalSpan(activeTrace, {
+      spanId: planSpanId,
+      kind: "router_plan",
+      name: "ai-analyze:research-plan",
+      startedAt: planStartedAt,
+      endedAt: planEndedAt,
+      outcome: "success",
+      detail: {
+        capability: `ai-analyze:${kind || "analyze"}`,
+        owner_ref: "research_strategy_layer_law v15 + ai_analyze_contract v2",
+        plan_ref: planRef,
+        routing_reason: "minimum_sufficient_intelligence",
+        output_use: "used",
+        resources: { latency_ms: Math.max(0, Date.parse(planEndedAt) - Date.parse(planStartedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: {
+          inputRef: /^\d{1,18}$/.test(subject) ? `number:${subject}` : null,
+          ownerRuleRefs: ["research_strategy_layer_law v15", "ai_analyze_contract v2", "system_suggestions_law v3"],
+          parametersRef: `kind:${kind || "analyze"};depth:${isDeep ? "deep" : "fast"}`,
+          searchBoundsRef: "metatron_context->model->synthesis",
+          idempotencyKey: safeOperationalRef(body?.interaction_id),
+        },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    let contextSpanId = planSpanId;
+
     // ✨ ניתוח עמוק ממוזג ארוך (החלטת צוריאל 14.7): כשהלקוח שולח long=true — אין תקרת-משפטים,
     //    והתקציב מורם. אינרטי לגמרי בלי הדגל (לקוח ישן → התנהגות זהה להיום).
     const wantLong = !!body?.long;
@@ -851,6 +887,7 @@ Deno.serve(async (req: Request) => {
       const mtxEndedAt = new Date().toISOString();
       await recordOperationalSpan(activeTrace, {
         spanId: mtxSpanId,
+        parentSpanId: planSpanId,
         kind: "db_rpc",
         name: "metatron_context",
         startedAt: mtxStartedAt,
@@ -859,13 +896,15 @@ Deno.serve(async (req: Request) => {
         detail: {
           capability: "context_compiler",
           owner_ref: "research_strategy_layer_law v15",
-          output_use: "not_applicable",
+          plan_ref: planRef,
+          output_use: mtx ? "used" : "rejected",
           resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(mtxEndedAt) - Date.parse(mtxStartedAt)) },
           cost: { certainty: "not_billable" },
           replay: { ownerRuleRefs: ["research_strategy_layer_law v15"] },
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
         },
       });
+      contextSpanId = mtxSpanId;
       if (mtx) {
         sys = SYSTEM + metatronRulesBlock(mtx);
         mtxFacts = metatronFactsBlock(mtx);
@@ -892,6 +931,7 @@ Deno.serve(async (req: Request) => {
       : "success";
     await recordOperationalSpan(activeTrace, {
       spanId: modelSpanId,
+      parentSpanId: contextSpanId,
       kind: "model_call",
       name: "ai-analyze:model",
       startedAt: modelStartedAt,
@@ -900,6 +940,7 @@ Deno.serve(async (req: Request) => {
       detail: {
         capability: `ai-analyze:${kind || "analyze"}`,
         owner_ref: "ai_analyze_contract v2",
+        plan_ref: planRef,
         intelligence_level: isDeep ? "deep" : "fast",
         provider: engine === "gemini" ? "google" : "anthropic",
         model,
@@ -915,7 +956,9 @@ Deno.serve(async (req: Request) => {
         cost: { certainty: "unknown" },
         replay: {
           ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+          parametersRef: planRef,
           searchBoundsRef: `max_tokens:${maxTokens}`,
+          continuationRef: again ? safeOperationalRef(body?.interaction_id) : null,
         },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       },
@@ -933,8 +976,40 @@ Deno.serve(async (req: Request) => {
       { traceId: activeTrace?.traceId, spanId: modelSpanId },
     );
     await linkOperationalAiCost(activeTrace, modelSpanId, tokenLogId);
+
+    const synthesisSpanId = crypto.randomUUID();
+    const synthesisStartedAt = new Date().toISOString();
+    const responseRef = activeTrace ? `trace:${activeTrace.traceId}:response` : null;
+    const responseBody = { analysis: out.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null };
+    const synthesisEndedAt = new Date().toISOString();
+    await recordOperationalSpan(activeTrace, {
+      spanId: synthesisSpanId,
+      parentSpanId: modelSpanId,
+      kind: "synthesis",
+      name: "ai-analyze:synthesis",
+      startedAt: synthesisStartedAt,
+      endedAt: synthesisEndedAt,
+      outcome: "success",
+      detail: {
+        capability: `ai-analyze:${kind || "analyze"}`,
+        owner_ref: "ai_analyze_contract v2 + system_suggestions_law v3",
+        plan_ref: planRef,
+        output_use: "used",
+        resources: { latency_ms: Math.max(0, Date.parse(synthesisEndedAt) - Date.parse(synthesisStartedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: {
+          inputRef: /^\d{1,18}$/.test(subject) ? `number:${subject}` : null,
+          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+          sourceBundleRef: `span:${modelSpanId}`,
+          resultBundleRef: responseRef,
+          exactReturnRef: responseRef,
+          idempotencyKey: safeOperationalRef(body?.interaction_id),
+        },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
     await finishOperationalTrace(activeTrace, "success");
-    return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null });
+    return json(responseBody);
   } catch (e) {
     await finishOperationalTrace(activeTrace, "failed_with_reason", "unhandled_exception");
     return json({ analysis: null, error: String(e).slice(0, 200), trace_id: activeTrace?.traceId || null }, 200);
