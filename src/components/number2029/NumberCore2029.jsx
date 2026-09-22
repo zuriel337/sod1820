@@ -533,7 +533,7 @@ export default function NumberCore2029({
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
           </>}
         </div>
-        <div className="sod29-number-v10-stage-meta" aria-label={`${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
+        <div className="sod29-number-v10-stage-meta" data-experience-capability="number-result-summary" aria-label={`${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
           <strong>{stageCoverage.present || 0}</strong>
           <span>שכבות</span>
           <small>בתוצאה {stageRoot}</small>
