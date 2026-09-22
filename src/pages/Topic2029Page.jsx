@@ -89,6 +89,32 @@ function TopicAuthoredConnections({ projection }) {
   </section>;
 }
 
+const KIND_LABELS = Object.freeze({
+  research: "מחקר",
+  topic: "התכנסות",
+  convergence: "התכנסות",
+  "graph-relation": "קשר",
+  source: "מקור",
+  number: "מספר",
+  entity: "ישות",
+  post: "פוסט",
+  event: "אירוע",
+});
+
+const RELATION_LABELS = Object.freeze({
+  related: "קשור",
+  contains: "מכיל",
+  mentions: "מזכיר",
+  converges_on: "מתכנס אל",
+  evidence_for: "ראיה עבור",
+});
+
+const CURATION_LABELS = Object.freeze({
+  gold: "זהב",
+  silver: "כסף",
+  bronze: "ארד",
+});
+
 const SIGNAL_LABELS = Object.freeze({
   engine_match: "אימות מנוע",
   provenance_present: "מקור מתועד",
@@ -112,12 +138,12 @@ function TopicProminence({ golden, loading = false }) {
         const signals = Array.isArray(why.researchStrengthSignals) ? why.researchStrengthSignals : [];
         const tier = clean(why?.humanCuration?.tier);
         return <article key={item.id || index}>
-          <span>{item.kind || item.type || "מחקר"}</span>
+          <span>{KIND_LABELS[item.kind] || KIND_LABELS[item.type] || "מחקר"}</span>
           <strong>{item.label}</strong>
           {item.summary ? <p>{item.summary}</p> : null}
           <div className="sod29-topic-rank-signals">
             {signals.slice(0, 4).map((signal) => <small key={signal}>{SIGNAL_LABELS[signal] || signal}</small>)}
-            {tier ? <small className="is-curated">אוצרות · {tier}</small> : null}
+            {tier ? <small className="is-curated">אוצרות · {CURATION_LABELS[tier.toLowerCase()] || tier}</small> : null}
             {why.uncertainty ? <small className="is-uncertain">אי־ודאות גלויה</small> : null}
           </div>
         </article>;
@@ -133,8 +159,8 @@ function TopicGraphConnections({ golden }) {
     <div className="sod29-section-head"><div><div className="sod29-kicker">גרף חי</div><h2>קשרים חיים סביב ההתכנסות</h2></div><span className="sod29-chip">{rows.length}</span></div>
     <div className="sod29-topic-graph-grid">
       {rows.slice(0, 18).map((row) => row.href ? <Link key={row.id} to={row.href}>
-        <span>{row.targetType || "קשר"}</span><strong>{row.label}</strong><small>{row.relationType}</small>
-      </Link> : <article key={row.id}><span>{row.targetType || "קשר"}</span><strong>{row.label}</strong><small>{row.relationType}</small></article>)}
+        <span>{KIND_LABELS[row.targetType] || "קשר"}</span><strong>{row.label}</strong><small>{RELATION_LABELS[row.relationType] || "קשור"}</small>
+      </Link> : <article key={row.id}><span>{KIND_LABELS[row.targetType] || "קשר"}</span><strong>{row.label}</strong><small>{RELATION_LABELS[row.relationType] || "קשור"}</small></article>)}
     </div>
   </section>;
 }
