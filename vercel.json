@@ -669,6 +669,7 @@
   ],
   "git": {
     "deploymentEnabled": {
+      "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
       "gpt/*": false,
       "claude/*": false
     }
