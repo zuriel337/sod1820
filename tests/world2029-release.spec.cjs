@@ -285,7 +285,7 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await miluy.click();
   await expect(miluy).toHaveAttribute('aria-pressed', 'true');
 
-  await drawer.getByRole('button', { name: 'פתח חישוב' }).click();
+  await drawer.getByRole('button', { name: /איך חישבנו/ }).click();
   const inspector = drawer.locator('.sod29-number-method-inspector');
   await expect(inspector).toBeVisible();
   await inspector.getByRole('tab', { name: 'רזיאל' }).click();
@@ -330,7 +330,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(language).toContainText('Messiah');
   await expect(language).toContainText('мессия');
 
-  await stage.getByRole('button', { name: 'פתח חישוב' }).click();
+  await stage.getByRole('button', { name: /איך חישבנו/ }).click();
   const explain = stage.locator('[data-miluy-spatial-explain="true"]');
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
