@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/20260922191500_operational_trace_runtime_v1.sql", "utf8");
 const edge = readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
+const browser = readFileSync("src/lib/supabase.js", "utf8");
 
 const requiredMigration = [
   "create table if not exists public.op_trace_roots",
@@ -77,6 +78,20 @@ assert.equal(
   edge.includes("subject_ref: subject"),
   false,
   "raw subject must never be stored as subject_ref",
+);
+
+for (const needle of [
+  "function aiInteractionId()",
+  "interaction_id: interactionId",
+  "surface: traceSurface",
+  "const traceSurface = surface || 'web:ai-analysis'",
+]) {
+  assert.ok(browser.includes(needle), `browser trace propagation must include: ${needle}`);
+}
+assert.equal(
+  browser.includes("trace_id: interactionId"),
+  false,
+  "browser correlation must never let the client choose the canonical trace_id",
 );
 
 console.log("Operational Trace Runtime v1 static acceptance: PASS");
