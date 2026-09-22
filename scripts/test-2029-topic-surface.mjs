@@ -101,7 +101,7 @@ assert.deepEqual(topicSourceSlugCandidates("98-ikuv-geula"), ["98-ikuv-geula", "
 
 for (const { oldSlug, newSlug } of TOPIC_CANONICAL_SLUG_MIGRATIONS) {
   assert.equal(
-    config.redirects.some((row) => row.source === `/topic/${oldSlug}` && row.destination === `/topic/${newSlug}` && row.permanent === true),
+    config.redirects.some((row) => row.source === `/topic/${oldSlug}` && row.destination === `/topic/${newSlug}` && row.statusCode === 301),
     true,
     `legacy Topic alias must permanently redirect: ${oldSlug}`,
   );
