@@ -170,8 +170,8 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
   await expect(core.locator('[data-experience-action="number-life-seal"]')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-stage-meta')).toBeVisible();
-  await expect(core.locator('.sod29-number-v10-stage-meta')).toContainText('שכבות');
+  await expect(core.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
+  await expect(core.locator('[data-experience-capability="number-result-summary"]')).toContainText('שכבות');
 
   await expect.poll(
     () => core.locator('.sod29-number-v10-method-card').count(),
