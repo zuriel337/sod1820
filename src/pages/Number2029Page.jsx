@@ -7,7 +7,6 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
-import { fetchExpressionVerseOccurrences } from "../lib/research/numberExpressionVerses.js";
 import { runNumberMathProfile } from "../lib/research/numberMathProfileFinding.js";
 import {
   buildNumberCoreProjection,
@@ -180,7 +179,6 @@ function NumberPageBody() {
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
-  const [verseState, setVerseState] = useState({ loading: false, rows: [], error: null });
 
   useEffect(() => {
     if (!Number.isInteger(root) || root < 0) {
@@ -249,6 +247,10 @@ function NumberPageBody() {
   const surface = data?.surface || {};
   const anchorRow = data?.anchorProfile?.row || null;
   const anchorPhrase = anchorExpression(anchorRow?.fact, root);
+
+  const verseGematriaRows = Array.isArray(data?.journeys?.numberKnowledgeJourney?.sources)
+    ? data.journeys.numberKnowledgeJourney.sources.filter((source) => source?.type === "verse")
+    : [];
 
   const math = useMemo(() => {
     if (!Number.isSafeInteger(root) || root < 0) return null;
@@ -334,23 +336,6 @@ function NumberPageBody() {
     return () => { alive = false; };
   }, [activeExpression, methodProfileState.rows]);
 
-  useEffect(() => {
-    const expr = clean(activeExpression);
-    if (!expr || /^\d+$/.test(expr)) {
-      setVerseState({ loading: false, rows: [], error: null });
-      return undefined;
-    }
-    let alive = true;
-    setVerseState({ loading: true, rows: [], error: null });
-    fetchExpressionVerseOccurrences(expr, { limit: 8 })
-      .then((rows) => {
-        if (alive) setVerseState({ loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
-      })
-      .catch((error) => {
-        if (alive) setVerseState({ loading: false, rows: [], error });
-      });
-    return () => { alive = false; };
-  }, [activeExpression]);
 
   const regularMethodProfile = useMemo(
     () => methodProfileState.rows.find((row) => (
@@ -883,8 +868,8 @@ function NumberPageBody() {
       relations={relations}
       projectionRelatedNumbers={coreProjection?.relatedNumbers || []}
       sources={sources}
-      verseRows={verseState.rows}
-      versesLoading={verseState.loading}
+      verseRows={verseGematriaRows}
+      versesLoading={false}
       worlds={worlds}
       researchFindings={researchFindings}
       timeline={timeline}
