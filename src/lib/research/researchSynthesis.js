@@ -214,6 +214,101 @@ function normalizeCalibration(input = {}) {
   };
 }
 
+function normalizeCrossSignature(signature = {}, allowedFindingIds = new Set()) {
+  const findingId = clean(signature.finding_id || signature.findingId);
+  if (!findingId || !allowedFindingIds.has(findingId)) {
+    throw new TypeError("researchSynthesis: Cross Signature must reference a relation Finding available in the Result Bundle");
+  }
+  return {
+    finding_id: findingId,
+    relation_ref: clean(signature.relation_ref || signature.relationRef),
+    label: clean(signature.label),
+    effective_independent_group_count: integerOrZero(signature.effective_independent_group_count ?? signature.effectiveIndependentGroupCount),
+    raw_group_count: integerOrZero(signature.raw_group_count ?? signature.rawGroupCount),
+    structure_sensitive_group_count: integerOrZero(signature.structure_sensitive_group_count ?? signature.structureSensitiveGroupCount),
+    noise_flags: uniqueText(signature.noise_flags || signature.noiseFlags),
+    semantic_roles: uniqueText(signature.semantic_roles || signature.semanticRoles),
+    corpus_specificity: signature.corpus_specificity && typeof signature.corpus_specificity === "object"
+      ? { ...signature.corpus_specificity }
+      : signature.corpusSpecificity && typeof signature.corpusSpecificity === "object"
+        ? { ...signature.corpusSpecificity }
+        : null,
+    search_provenance: signature.search_provenance && typeof signature.search_provenance === "object"
+      ? { ...signature.search_provenance }
+      : signature.searchProvenance && typeof signature.searchProvenance === "object"
+        ? { ...signature.searchProvenance }
+        : null,
+    truth_boundary: "relation candidate / convergence input; never independent evidence merely by being a Cross Signature",
+  };
+}
+
+function normalizeResearchStrength(input = {}) {
+  assertNoUniversalTruthScore(input);
+  return {
+    independent_evidence_groups: integerOrZero(input.independent_evidence_groups ?? input.independentEvidenceGroups),
+    verified_engine_components: integerOrZero(input.verified_engine_components ?? input.verifiedEngineComponents),
+    source_attestation_groups: integerOrZero(input.source_attestation_groups ?? input.sourceAttestationGroups),
+    cross_domain_dimensions: uniqueText(input.cross_domain_dimensions || input.crossDomainDimensions),
+    contradiction_count: integerOrZero(input.contradiction_count ?? input.contradictionCount),
+    negative_control_count: integerOrZero(input.negative_control_count ?? input.negativeControlCount),
+    specificity: input.specificity && typeof input.specificity === "object" ? { ...input.specificity } : null,
+    reproducibility: clean(input.reproducibility) || "unknown",
+    note: clean(input.note),
+  };
+}
+
+function normalizeResonance(input = {}) {
+  return {
+    analyses: integerOrZero(input.analyses),
+    up_votes: integerOrZero(input.up_votes ?? input.upVotes),
+    down_votes: integerOrZero(input.down_votes ?? input.downVotes),
+    shares: integerOrZero(input.shares),
+    continue_actions: integerOrZero(input.continue_actions ?? input.continueActions),
+    research_actions: integerOrZero(input.research_actions ?? input.researchActions),
+    source_class: clean(input.source_class || input.sourceClass) || "interaction_signal",
+    // Load-bearing separation: compelling/useful is not accurate/true.
+    included_in_research_strength: false,
+    included_in_empirical_fit: false,
+  };
+}
+
+function normalizeModelRobustness(input = {}) {
+  return {
+    providers: uniqueText(input.providers),
+    independent_runs: integerOrZero(input.independent_runs ?? input.independentRuns),
+    shared_motifs: uniqueText(input.shared_motifs || input.sharedMotifs),
+    disagreements: uniqueText(input.disagreements),
+    challenge_notes: uniqueText(input.challenge_notes || input.challengeNotes),
+    // Model agreement is robustness of interpretation, not independent world evidence.
+    included_as_independent_evidence: false,
+  };
+}
+
+function normalizeCorpusContext(input = {}) {
+  return {
+    corpus_ref: clean(input.corpus_ref || input.corpusRef),
+    corpus_version: clean(input.corpus_version || input.corpusVersion),
+    population_size: integerOrZero(input.population_size ?? input.populationSize),
+    search_space_size: integerOrZero(input.search_space_size ?? input.searchSpaceSize),
+    baseline_ref: clean(input.baseline_ref || input.baselineRef),
+    semantic_relation_version: clean(input.semantic_relation_version || input.semanticRelationVersion),
+    multiple_comparison_control: clean(input.multiple_comparison_control || input.multipleComparisonControl) || "unknown",
+    selection_provenance: clean(input.selection_provenance || input.selectionProvenance) || "unknown",
+  };
+}
+
+function normalizeLearningContext(input = {}) {
+  return {
+    policy_version: clean(input.policy_version || input.policyVersion) || "research-synthesis-policy-v1",
+    champion_ref: clean(input.champion_ref || input.championRef),
+    challenger_ref: clean(input.challenger_ref || input.challengerRef),
+    learned_pattern_refs: uniqueText(input.learned_pattern_refs || input.learnedPatternRefs),
+    evaluation_ref: clean(input.evaluation_ref || input.evaluationRef),
+    human_gate_state: clean(input.human_gate_state || input.humanGateState) || "not_reviewed",
+    auto_promotion: false,
+  };
+}
+
 function normalizeAuxiliarySignal(signal = {}) {
   const kind = clean(signal.kind);
   if (!kind) throw new TypeError("researchSynthesis: auxiliary signal kind is required");
@@ -252,6 +347,13 @@ export function normalizeResearchSynthesis(input, {
 
   const motifs = (Array.isArray(input.motifs) ? input.motifs : []).map(x => normalizeMotif(x, claimIds));
   const calibration = normalizeCalibration(input.calibration);
+  const crossSignatures = (Array.isArray(input.cross_signatures) ? input.cross_signatures : Array.isArray(input.crossSignatures) ? input.crossSignatures : [])
+    .map(signature => normalizeCrossSignature(signature, findingIds));
+  const researchStrength = normalizeResearchStrength(input.research_strength || input.researchStrength);
+  const resonance = normalizeResonance(input.resonance);
+  const modelRobustness = normalizeModelRobustness(input.model_robustness || input.modelRobustness);
+  const corpusContext = normalizeCorpusContext(input.corpus_context || input.corpusContext);
+  const learning = normalizeLearningContext(input.learning);
   const auxiliarySignals = (Array.isArray(input.auxiliary_signals) ? input.auxiliary_signals : Array.isArray(input.auxiliarySignals) ? input.auxiliarySignals : [])
     .map(normalizeAuxiliarySignal);
 
@@ -275,7 +377,13 @@ export function normalizeResearchSynthesis(input, {
     message: clean(input.message),
     motifs,
     claims,
+    cross_signatures: crossSignatures,
+    research_strength: researchStrength,
     calibration,
+    resonance,
+    model_robustness: modelRobustness,
+    corpus_context: corpusContext,
+    learning,
     auxiliary_signals: auxiliarySignals,
     freeze,
     explain_why: input.explain_why && typeof input.explain_why === "object"
@@ -293,6 +401,9 @@ export function normalizeResearchSynthesis(input, {
       message_freeze_precedes_holdout_validation: true,
       auxiliary_signals_never_count_as_empirical_evidence: true,
       tarot_is_auxiliary_only: true,
+      historical_resonance_is_not_accuracy: true,
+      model_agreement_is_not_independent_evidence: true,
+      cross_signatures_must_be_bundle_backed: true,
       no_universal_truth_score: true,
       no_auto_learning_policy_promotion: true,
     },
@@ -309,7 +420,13 @@ export function failedResearchSynthesis(error, {
     message: null,
     motifs: [],
     claims: [],
+    cross_signatures: [],
+    research_strength: normalizeResearchStrength(),
     calibration: normalizeCalibration(),
+    resonance: normalizeResonance(),
+    model_robustness: normalizeModelRobustness(),
+    corpus_context: normalizeCorpusContext(),
+    learning: normalizeLearningContext(),
     auxiliary_signals: [],
     freeze: {
       frozen: true,
