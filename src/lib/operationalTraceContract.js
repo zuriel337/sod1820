@@ -196,6 +196,11 @@ export function createTraceSpan({
       searchBoundsRef: replay.searchBoundsRef ?? null,
       resultBundleRef: replay.resultBundleRef ?? null,
       artifactRef: replay.artifactRef ?? null,
+      costLogRef: replay.costLogRef ?? null,
+      idempotencyKey: replay.idempotencyKey ?? null,
+      continuationRef: replay.continuationRef ?? null,
+      exactReturnRef: replay.exactReturnRef ?? null,
+      inputFingerprint: replay.inputFingerprint ?? null,
     }),
     privacy: Object.freeze({
       rawPrivatePayloadLogged: false,
@@ -208,16 +213,36 @@ export function createTraceSpan({
 
 export function validateTraceTopology(spans = []) {
   const ids = new Set();
+  const byId = new Map();
   for (const span of spans) {
     if (!span?.spanId || ids.has(span.spanId)) return false;
     ids.add(span.spanId);
+    byId.set(span.spanId, span);
   }
-  return spans.every((span) => !span.parentSpanId || ids.has(span.parentSpanId));
+  for (const span of spans) {
+    if (span.parentSpanId && !ids.has(span.parentSpanId)) return false;
+    if (span.parentSpanId && byId.get(span.parentSpanId)?.traceId !== span.traceId) return false;
+    const seen = new Set([span.spanId]);
+    let current = span;
+    while (current?.parentSpanId) {
+      if (seen.has(current.parentSpanId)) return false;
+      seen.add(current.parentSpanId);
+      current = byId.get(current.parentSpanId);
+    }
+  }
+  return true;
+}
+
+function spanCostRef(span) {
+  const ref = span?.replay?.costLogRef;
+  return ref == null || ref === "" ? null : String(ref);
 }
 
 export function rollupTraceCostIls(spans = []) {
   let total = 0;
   let hasUnknown = false;
+  const countedCostRefs = new Set();
+  let dedupedCostEntries = 0;
   for (const span of spans) {
     const certainty = span?.cost?.certainty;
     const amount = span?.cost?.costIls;
@@ -225,12 +250,122 @@ export function rollupTraceCostIls(spans = []) {
       if (span?.cost && certainty !== TRACE_COST_CERTAINTY.NOT_BILLABLE) hasUnknown = true;
       continue;
     }
+    const costRef = spanCostRef(span);
+    if (costRef && countedCostRefs.has(costRef)) {
+      dedupedCostEntries += 1;
+      continue;
+    }
+    if (costRef) countedCostRefs.add(costRef);
     total += zeroSafe(amount);
   }
   return Object.freeze({
     costIlsKnown: Number(total.toFixed(6)),
     hasUnknownCost: hasUnknown,
+    dedupedCostEntries,
   });
+}
+
+export function traceCostDrilldown(spans = []) {
+  const seen = new Set();
+  const rows = [];
+  for (const span of spans) {
+    const certainty = span?.cost?.certainty || TRACE_COST_CERTAINTY.UNKNOWN;
+    const amount = span?.cost?.costIls ?? null;
+    const costRef = spanCostRef(span);
+    const duplicate = !!costRef && seen.has(costRef);
+    if (costRef && !duplicate) seen.add(costRef);
+    rows.push(Object.freeze({
+      spanId: span?.spanId ?? null,
+      parentSpanId: span?.parentSpanId ?? null,
+      kind: span?.kind ?? null,
+      name: span?.name ?? null,
+      certainty,
+      costIls: amount,
+      costLogRef: costRef,
+      counted: !duplicate && amount != null && certainty !== TRACE_COST_CERTAINTY.UNKNOWN && certainty !== TRACE_COST_CERTAINTY.NOT_BILLABLE,
+      duplicateCostRef: duplicate,
+    }));
+  }
+  return Object.freeze({
+    rows: Object.freeze(rows),
+    ...rollupTraceCostIls(spans),
+  });
+}
+
+export function replayTraceSnapshot(spans = []) {
+  const safe = spans.map((span) => ({
+    traceId: span?.traceId ?? null,
+    spanId: span?.spanId ?? null,
+    parentSpanId: span?.parentSpanId ?? null,
+    kind: span?.kind ?? null,
+    name: span?.name ?? null,
+    capability: span?.capability ?? null,
+    owner: span?.owner ?? null,
+    planRef: span?.planRef ?? null,
+    intelligenceLevel: span?.intelligenceLevel ?? null,
+    provider: span?.provider ?? null,
+    model: span?.model ?? null,
+    modelVersion: span?.modelVersion ?? null,
+    engineVersion: span?.engineVersion ?? null,
+    toolVersion: span?.toolVersion ?? null,
+    routingReason: span?.routingReason ?? null,
+    escalationReason: span?.escalationReason ?? null,
+    fallbackReason: span?.fallbackReason ?? null,
+    outcome: span?.outcome ?? null,
+    outputUse: span?.outputUse ?? TRACE_OUTPUT_USE.NOT_APPLICABLE,
+    stopReason: span?.stopReason ?? null,
+    requestRef: span?.requestRef ?? null,
+    retryOrdinal: span?.retryOrdinal ?? 0,
+    continuationOrdinal: span?.continuationOrdinal ?? 0,
+    resources: { ...(span?.resources || {}) },
+    cost: { ...(span?.cost || {}) },
+    replay: { ...(span?.replay || {}) },
+    privacy: {
+      rawPrivatePayloadLogged: false,
+      redactionApplied: span?.privacy?.redactionApplied !== false,
+      payloadHash: span?.privacy?.payloadHash ?? null,
+      securePayloadRef: span?.privacy?.securePayloadRef ?? null,
+    },
+  }));
+  safe.sort((a, b) => String(a.spanId).localeCompare(String(b.spanId)));
+  return Object.freeze(safe.map((item) => Object.freeze(item)));
+}
+
+export function summarizeTraceTopology(spans = []) {
+  const byParent = new Map();
+  let sequentialEdges = 0;
+  let maxDepth = 0;
+  const byId = new Map(spans.map((span) => [span.spanId, span]));
+  for (const span of spans) {
+    if (span.parentSpanId) {
+      sequentialEdges += 1;
+      const arr = byParent.get(span.parentSpanId) || [];
+      arr.push(span);
+      byParent.set(span.parentSpanId, arr);
+    }
+    let depth = 0;
+    let current = span;
+    const seen = new Set();
+    while (current?.parentSpanId && !seen.has(current.parentSpanId)) {
+      seen.add(current.parentSpanId);
+      depth += 1;
+      current = byId.get(current.parentSpanId);
+    }
+    maxDepth = Math.max(maxDepth, depth);
+  }
+  const parallelSiblingGroups = [...byParent.values()].filter((siblings) => {
+    if (siblings.length < 2) return false;
+    return siblings.some((a, i) => siblings.some((b, j) => {
+      if (i >= j) return false;
+      const aStart = Date.parse(a.startedAt || "");
+      const aEnd = Date.parse(a.endedAt || "");
+      const bStart = Date.parse(b.startedAt || "");
+      const bEnd = Date.parse(b.endedAt || "");
+      if (![aStart, aEnd, bStart, bEnd].every(Number.isFinite)) return false;
+      return aStart < bEnd && bStart < aEnd;
+    }));
+  }).length;
+  return Object.freeze({ sequentialEdges, maxDepth, parallelSiblingGroups });
 }
 
 export function summarizeMultiEngineTrace(spans = []) {
