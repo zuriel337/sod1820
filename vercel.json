@@ -559,6 +559,116 @@
       "destination": "/api/honeypot"
     },
     {
+      "source": "/2029",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/2029&crawler=search"
+    },
+    {
+      "source": "/world",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/world&crawler=search"
+    },
+    {
+      "source": "/topic/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/topic/$1&crawler=search"
+    },
+    {
+      "source": "/books",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/books&crawler=search"
+    },
+    {
+      "source": "/book/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/book/$1&crawler=search"
+    },
+    {
+      "source": "/els",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/els&crawler=search"
+    },
+    {
+      "source": "/heichal",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/heichal&crawler=search"
+    },
+    {
+      "source": "/היכל",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/היכל&crawler=search"
+    },
+    {
+      "source": "/researcher/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/researcher/$1&crawler=search"
+    },
+    {
+      "source": "/2029/number/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/2029/number/$1&crawler=search"
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
