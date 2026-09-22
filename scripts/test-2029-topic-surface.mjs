@@ -171,3 +171,10 @@ assert.match(topicPageGolden, /attentionFirst:\s*false/, "public Topic must requ
 const sharedRankSource = read("src/lib/research/worldContextualProminence.js");
 assert.match(sharedRankSource, /attentionFirst = true/, "World default attention ordering must remain backward compatible");
 assert.match(sharedRankSource, /attentionFirst: attentionFirst !== false/, "shared comparator must receive the selected axis");
+
+const worldRankProjection = read("src/lib/research/worldConvergenceLensProjection.js");
+assert.match(worldRankProjection, /canonicalTopicSlug/);
+assert.match(worldRankProjection, /topicSlugRaw/);
+assert.match(slugMigration, /update public\.research_contributions/);
+assert.equal(/update public\.research_candidates/.test(slugMigration), false, "historical research candidate provenance must not be rewritten by URL migration");
+assert.equal(/update public\.research_objects/.test(slugMigration), false, "historical research object context must remain provenance");
