@@ -179,6 +179,9 @@ assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-
 assert.match(lightRoutes, /\/2029\\\/number/);
 assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
 assert.match(core, /data-experience-action="number-life-seal"/);
+assert.match(core, /data-experience-action="crossing-focus"/);
+assert.match(core, /data-experience-action="crossing-focus-reset"/);
+assert.match(core, /Root \{stageRoot\} נשאר העוגן/);
 assert.match(core, /זהו כיסוי חומר, לא ציון אמת/);
 
 const independentCross = deriveLeadingCrossing({
