@@ -64,11 +64,11 @@ test("explicit gematria request may calculate the Book title as text without cha
 
 test("Name Research requests canonical Gematria plus dependency-normalized Cross capability", () => {
   const resolved = resolveResearchIdentities({
-    rawInput: "נתח את השם גל שגב",
+    rawInput: "נתח את השם אב גד",
     candidates: [{
       type: "name",
-      key: "name:test:gal-segev",
-      label: "גל שגב",
+      key: "name:test:synthetic-ab-gad",
+      label: "אב גד",
       source: RESEARCH_IDENTITY_SOURCE.EXPLICIT_REF,
       confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
     }],
@@ -251,7 +251,7 @@ test("W2 composer fills the single canonical synthesis socket and freezes it bef
 });
 
 test("Cross Signatures are Bundle-backed while resonance and model agreement remain non-evidential", () => {
-  const relation = finding("uf:test:relation", "gematria-relation", "גל ↔ שגב");
+  const relation = finding("uf:test:relation", "gematria-relation", "אב ↔ גד");
   const synthesis = normalizeResearchSynthesis({
     claims: [{
       id: "c1",
