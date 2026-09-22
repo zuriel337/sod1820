@@ -7,7 +7,7 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 
 const SYSTEM_ATTRIBUTION = /^(ai|system|sod1820|agent:|מנוע\s*·|מערכת\s)/i;
-const TECHNICAL_SOURCE = /^(chat:|channel_updates:|wa_bot_log:|work_log:|research-cue:|https?:\/\/)/i;
+const TECHNICAL_SOURCE = /^(chat:|channel_updates:|wa_bot_log:|work_log:|research-cue:|topic_cards:|nodes:|research_objects:|gallery_images:|book:|https?:\/\/)/i;
 
 function normalizedAttribution(value) {
   const text = clean(value).replace(/^contribution:/i, "").trim();
