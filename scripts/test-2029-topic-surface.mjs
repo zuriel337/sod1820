@@ -8,6 +8,7 @@ import {
   canonicalTopicSlug,
   topicSourceSlugCandidates,
 } from "../src/lib/research/topicCanonicalSlugAliases.js";
+import { buildTopicGoldenProjection, topicDensity } from "../src/lib/research/topicGoldenProjection.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -111,3 +112,57 @@ assert.match(slugMigration, /expected 79 legacy rows/);
 assert.match(slugMigration, /update public\.topic_cards/);
 assert.match(slugMigration, /update public\.nodes/);
 assert.equal(/set\s+title\s*=/.test(slugMigration), false, "slug migration must never rename the Hebrew Topic title");
+
+
+assert.equal(topicDensity(0), "sparse");
+assert.equal(topicDensity(2), "sparse");
+assert.equal(topicDensity(3), "medium");
+assert.equal(topicDensity(6), "rich");
+
+const goldenFixture = buildTopicGoldenProjection({
+  authoredFactsCount: 7,
+  createdBy: "צבי (OPOC)",
+  attribution: ["contribution:צבי (OPOC)", "ai"],
+}, {
+  hub: {
+    identity: { nodeId: "topic-node" },
+    graph: { relations: [{
+      id: "edge-finding",
+      projection: { relations: [{ relationType: "related", from: { id: "topic-node", type: "convergence", label: "Topic" }, to: { id: "n-424", type: "number", label: "424" } }] },
+    }] },
+    sources: [{ ref: "human:1", label: "ספר מקור" }, { ref: "technical:1", label: "work_log:abc" }],
+    media: { items: [{ galleryImageId: "img-1", label: "מדיה", thumbUrl: "https://example.test/a.jpg" }] },
+    research: { findings: [{ id: "r1" }] },
+  },
+  prominence: {
+    candidateCount: 3,
+    items: [{
+      id: "p1",
+      kind: "research",
+      label: "ממצא",
+      explainWhy: {
+        researchStrengthSignals: ["engine_match", "provenance_present"],
+        humanCuration: { tier: "gold" },
+        uncertainty: null,
+      },
+    }],
+  },
+});
+assert.equal(goldenFixture.density, "rich");
+assert.equal(goldenFixture.graphConnections[0].href, "/number/424");
+assert.deepEqual(goldenFixture.people, ["צבי (OPOC)"]);
+assert.equal(goldenFixture.sources.length, 1);
+assert.equal(goldenFixture.media.length, 1);
+assert.equal(goldenFixture.rank.engineMatches, 1);
+assert.equal(goldenFixture.rank.gold, 1);
+assert.equal(goldenFixture.rank.attentionPolicy, "human_gate_only");
+assert.equal(goldenFixture.rankContract.universalScore, false);
+
+const topicPageGolden = read("src/pages/Topic2029Page.jsx");
+assert.match(topicPageGolden, /fetchEntityHubProjection/);
+assert.match(topicPageGolden, /buildWorldContextualProminence/);
+assert.match(topicPageGolden, /buildTopicGoldenProjection/);
+assert.match(topicPageGolden, /research_gold_hints_law-v3/);
+assert.match(topicPageGolden, /לא ציון אמת/);
+assert.equal(topicPageGolden.includes("worldConvergenceLensProjection"), false, "public Topic must not import the admin Attention lens");
+assert.equal(/>EXPRESSIONS<|>FINDINGS<|>RELATIONS<|>PROVENANCE<|CANONICAL TOPIC/.test(topicPageGolden), false, "Topic Golden should be Hebrew-first");
