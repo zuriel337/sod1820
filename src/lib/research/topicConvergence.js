@@ -1,5 +1,6 @@
 import { supabase } from "../supabase.js";
 import { makeUniversalFinding } from "./universalFinding.js";
+import { canonicalTopicSlug, topicSourceSlugCandidates } from "./topicCanonicalSlugAliases.js";
 
 // Canonical Topic/Convergence/Reality-Graph -> Universal Finding adapter.
 //
@@ -466,19 +467,25 @@ export function topicConvergenceToUniversalFinding(
 // Read-only canonical fetch path. Approved topic_cards are the edited source; the linked
 // convergence node/edges are the graph projection. No writes occur in this function.
 export async function fetchCanonicalTopicConvergenceFinding(slug) {
-  const cleanSlug = nonEmpty(slug);
-  if (!cleanSlug) return null;
+  const requestedSlug = nonEmpty(slug);
+  if (!requestedSlug) return null;
+  const canonicalSlug = canonicalTopicSlug(requestedSlug);
+  const candidates = topicSourceSlugCandidates(requestedSlug);
 
-  // Public read model (view topic_cards_public: approved & not _do_not_publish, internal keys
-  // stripped server-side — TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1, work_log bf236317).
-  // The projection semantics below are unchanged; only the source surface moved.
-  const { data: card, error: cardError } = await supabase
+  // URL migration safety: during the two-phase canonical slug migration, a semantic new slug can
+  // resolve the still-live legacy source row, and an old inbound slug can resolve the migrated row.
+  // The projected card is normalized to the canonical slug so SEO/Research Context never creates
+  // a second Topic identity. This bridge is representation-only and can remain as alias support.
+  const { data: cardRows, error: cardError } = await supabase
     .from("topic_cards_public")
     .select(TOPIC_CARD_SELECT_FIELDS)
-    .eq("slug", cleanSlug)
-    .maybeSingle();
+    .in("slug", candidates)
+    .limit(candidates.length);
   if (cardError) throw cardError;
-  if (!card) return null;
+  const sourceCard = (Array.isArray(cardRows) ? cardRows : []).find((row) => row?.slug === canonicalSlug)
+    || (Array.isArray(cardRows) ? cardRows[0] : null);
+  if (!sourceCard) return null;
+  const card = sourceCard.slug === canonicalSlug ? sourceCard : { ...sourceCard, slug: canonicalSlug };
 
   let node = null;
   let edges = [];
