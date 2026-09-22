@@ -428,6 +428,7 @@ export function buildNumberCoreProjection({
     const label = methodLabel(group);
     const profile = methodProfileByKey.get(key) || null;
     const composite = clean(profile?.atomicOrComposite).toLowerCase() === "composite"
+      || clean(profile?.category).toLowerCase() === "composite"
       || clean(profile?.executionKind).toLowerCase() === "composite_engine"
       || key.includes("+");
     const note = composite ? `שיטה משולבת · ${label}` : label;
