@@ -188,3 +188,14 @@
 @media(prefers-reduced-motion:reduce){
   .sod29-curation-overlay{backdrop-filter:none}
 }
+
+.sod29-number-v11-regular-item.is-active>.sod29-number-v11-regular-select{
+  border-color:color-mix(in srgb,var(--s29-accent) 68%,var(--s29-line));
+  background:
+    radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--s29-glow) 20%,transparent),transparent 70%),
+    color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel-soft));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--s29-accent) 14%,transparent);
+}
+.sod29-number-v11-regular-item.is-active>.sod29-number-v11-regular-select strong{
+  color:var(--s29-hero);
+}
