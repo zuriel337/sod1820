@@ -110,13 +110,6 @@ function PreviewBody() {
   const openRaziel = () => {
     shell.openRaziel({
       razielMicroIntent: "synthesis_preview",
-      numberCoreFocus: {
-        root: 1820,
-        expression: "1820",
-        method: "synthesis-preview",
-        result: 1820,
-        preview: true,
-      },
       synthesisPreview: preview.synthesis,
     });
   };
