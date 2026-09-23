@@ -223,7 +223,7 @@ function BookDetail({ slug }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions"><button className="sod29-action" onClick={saveBook}>♡ שמור</button><button className="sod29-action" onClick={addBook}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button><Link className="sod29-action primary" to="/heichal">◇ חקור לעומק בהיכל</Link></div>
+          <div className="sod29-actions"><button className="sod29-action" onClick={saveBook}>♡ שמור</button><button className="sod29-action" onClick={addBook}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button></div>
         </div>
       </div>
     </section>
@@ -273,5 +273,5 @@ function BookDetail({ slug }) {
 export default function Books2029Page() {
   const { slug } = useParams();
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820 2029", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות, למראה־מקום ולהמשך בהיכל.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
 }
