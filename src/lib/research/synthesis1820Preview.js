@@ -18,6 +18,49 @@ const PREVIEW_FINDING_IDS = Object.freeze([
   "preview:1820:kadmi:ze-hayom",
 ]);
 
+export const RAZIEL_1820_ROUTE_ACTION_PREVIEW = Object.freeze({
+  action: "raziel_route",
+  contract_version: 1,
+  route_action: "connect",
+  label: "לחבר",
+  task_mode: "discover_connections",
+  preferred_home: "world",
+  requested_by: "preview_visual_fixture",
+  surface: "number",
+  subject_type: "number",
+  reason_codes: Object.freeze(["graph_context", "typed_relations", "bounded_connections", "numeric_subject"]),
+  delivery: Object.freeze({
+    mode: "in_place_first",
+    preserve_context: true,
+    exact_return_on_handoff: true,
+    semantic_handoff_only: true,
+  }),
+  synthesis: Object.freeze({
+    state: "composed",
+    message_authority: "bundle.synthesis",
+    local_message: null,
+    must_not_mint_second_message: true,
+  }),
+  guards: Object.freeze({
+    semantic_action_only: true,
+    no_navigation_execution: true,
+    no_tool_execution: true,
+    no_authorization_decision: true,
+    no_truth_ranking: true,
+    no_local_message_generation: true,
+    same_synthesis_is_message_authority: true,
+    no_second_router: true,
+    one_context_required: true,
+  }),
+  provenance: Object.freeze({
+    fixture: true,
+    source_contract: "PR #631 · razielActionContract v1",
+    live_runtime_action: false,
+    public_cutover_authorized: false,
+    visual_prompt: "מה מתחבר ל־1820?",
+  }),
+});
+
 export const LEGACY_1820_SNAPSHOT = Object.freeze({
   number: 1820,
   source_class: "legacy_presentation_snapshot",
@@ -40,7 +83,7 @@ export const SYNTHESIS_1820_PREVIEW = normalizeResearchSynthesis(
   {
     status: "composed",
     message:
-      "1820 מצטייר כאן לא כעוגן יחיד אלא כציר שבו סוד, זמן וגילוי חוזרים מכמה שכבות. ברגיל מופיעים ביטויים של שם, תורה והתגלות; במילוי מופיע «גלוי סוד יהוה בעתה»; ובקדמי חוזרים «עת» ו«זה היום עשה יהוה». לכן הקריאה המרכזית היא של דבר נסתר שמבקש לקבל צורה בזמן — לא עוד רשימת שוויונות, אלא מהלך שחוזר בכמה עדשות.",
+      "1820 מצטייר כאן לא כעוגן יחיד אלא כציר שבו סוד, זמן וגילוי חוזרים מכמה שכבות. ברגיל מופיעים ביטויים של שם, תורה והתגלות; במילוי מופיע «גלוי סוד יהוה בעתה»; ובמשולש חוזרים «עת» ו«זה היום עשה יהוה». לכן הקריאה המרכזית היא של דבר נסתר שמבקש לקבל צורה בזמן — לא עוד רשימת שוויונות, אלא מהלך שחוזר בכמה עדשות.",
     claims: [
       {
         id: "claim:1820:secret-revelation",
@@ -58,7 +101,7 @@ export const SYNTHESIS_1820_PREVIEW = normalizeResearchSynthesis(
       },
       {
         id: "claim:1820:time",
-        text: "שכבת הקדמי מוסיפה מוטיב זמן דרך «עת» ו«זה היום עשה יהוה».",
+        text: "שכבת המשולש מוסיפה מוטיב זמן דרך «עת» ו«זה היום עשה יהוה».",
         role: "interpretation",
         motif_key: "time",
         support: {
@@ -150,8 +193,8 @@ export const SYNTHESIS_1820_PREVIEW = normalizeResearchSynthesis(
       supporting_anchors: [
         "רגיל · מספר שמות יהוה בכל התורה",
         "מילוי · גלוי סוד יהוה בעתה",
-        "קדמי · עת",
-        "קדמי · זה היום עשה יהוה",
+        "משולש · עת",
+        "משולש · זה היום עשה יהוה",
       ],
       weakened_or_excluded: [
         "כמות ביטויים לבדה אינה נספרת כחוזק",
@@ -183,6 +226,7 @@ export function synthesis1820PreviewProjection() {
     preview_version: SYNTHESIS_1820_PREVIEW_VERSION,
     legacy: LEGACY_1820_SNAPSHOT,
     synthesis: SYNTHESIS_1820_PREVIEW,
+    raziel_route: RAZIEL_1820_ROUTE_ACTION_PREVIEW,
     display: {
       title: "ניתוח 1820 · ישן מול Synthesis 2029",
       subtitle: "אותה שפה ציורית · מוח מחקרי חדש מתחת",
