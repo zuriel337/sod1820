@@ -1,4 +1,5 @@
 // F6 — Research Learning Champion / Challenger evaluation contract.
+// Challenger evaluation may propose a policy change, but never becomes runtime authority by itself.
 //
 // EXTEND_EXISTING only:
 // - decision_ledger = Human decisions/provenance;
