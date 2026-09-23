@@ -473,15 +473,23 @@ function budgetEligible(candidates, maxEstimatedIls, policy) {
   }
 
   const max = finiteNonNegative(maxEstimatedIls, "max_estimated_cost_ils");
-  const accepted = costPolicyEligible.filter(candidate =>
-    !candidate.cost.estimated || candidate.cost.cost_ils <= max
+
+  // Explicit budget ceilings require an estimated cost. Unknown cost may be
+  // allowed when no ceiling is supplied, but it cannot be treated as if it
+  // were within a declared maximum.
+  const budgetComparable = costPolicyEligible.filter(candidate =>
+    candidate.cost.estimated
+  );
+  const accepted = budgetComparable.filter(candidate =>
+    candidate.cost.cost_ils <= max
   );
   return {
     candidates: accepted,
     blocked_by_budget:
-      costPolicyEligible.length > 0 && accepted.length === 0,
+      budgetComparable.length > 0 && accepted.length === 0,
     blocked_by_unknown_cost_policy:
-      candidates.length > 0 && costPolicyEligible.length === 0,
+      candidates.length > 0
+      && budgetComparable.length === 0,
   };
 }
 
