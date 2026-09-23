@@ -43,6 +43,13 @@ function clean(value) {
   return text || null;
 }
 
+function deepFreeze(value, seen = new WeakSet()) {
+  if (!value || typeof value !== "object" || seen.has(value)) return value;
+  seen.add(value);
+  for (const item of Object.values(value)) deepFreeze(item, seen);
+  return Object.freeze(value);
+}
+
 function uniqueText(values) {
   return [...new Set((Array.isArray(values) ? values : []).map(clean).filter(Boolean))];
 }
@@ -136,10 +143,10 @@ export function freezeSynthesisForCalibration(synthesis, {
   const claimSetFingerprint = calibrationContentFingerprint(payload.claims);
   const synthesisFingerprint = calibrationContentFingerprint(payload);
 
-  return Object.freeze({
+  return deepFreeze({
     contract_version: 1,
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
-    frozen: true,
+    frozen: true;
     frozen_at: time.text,
     run_ref: clean(runRef),
     policy_version: payload.policy_version,
@@ -201,7 +208,7 @@ export function openCalibrationValidationSession(freeze, {
     throw new TypeError("researchCalibration: validation_data_hidden_during_synthesis must be explicitly true");
   }
 
-  return Object.freeze({
+  return deepFreeze({
     contract_version: 1,
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
     session_ref: clean(sessionRef),
@@ -226,7 +233,7 @@ export function buildBlindClaimPackets(freeze, validationSession) {
     throw new TypeError("researchCalibration: validation session belongs to a different synthesis freeze");
   }
 
-  return freeze.claims.map((claim, index) => Object.freeze({
+  return freeze.claims.map((claim, index) => deepFreeze({
     packet_version: 1,
     packet_id: `blind:${stableIdentityDigest(`${validationSession.session_ref || validationSession.opened_at}|${claim.id}`)}`,
     ordinal: index + 1,
@@ -263,8 +270,8 @@ export function makeClaimValidationOutcome({
     throw new TypeError(`researchCalibration: invalid evaluatorClass "${evaluatorClass}"`);
   }
   const observed = finiteDate(observedAt, "observedAt");
-  return Object.freeze({
-    outcome_version: 1,
+  return deepFreeze({
+    outcome_version: 1;
     claim_id: claim,
     state,
     evaluator_class: evaluatorClass,
@@ -333,7 +340,7 @@ export function summarizeClaimValidations(freeze, validationSession, outcomes = 
     + counts.contradicted;
   const evaluated = freeze.claim_count - counts.untested;
 
-  return Object.freeze({
+  return deepFreeze({
     contract_version: 1,
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
     synthesis_fingerprint: freeze.synthesis_fingerprint,
@@ -396,6 +403,17 @@ export function buildBlindDecoyTrial(freeze, decoys = [], {
   ];
   if (sources.length < 2) throw new TypeError("researchCalibration: at least one decoy is required");
 
+  const ids = new Set();
+  const messages = new Set();
+  for (const source of sources) {
+    if (ids.has(source.id)) throw new TypeError(`researchCalibration: duplicate decoy source id "${source.id}"`);
+    ids.add(source.id);
+    if (messages.has(source.message)) {
+      throw new TypeError("researchCalibration: correct/decoy messages must be distinct");
+    }
+    messages.add(source.message);
+  }
+
   const ordered = sources
     .map(source => ({
       ...source,
@@ -410,7 +428,7 @@ export function buildBlindDecoyTrial(freeze, decoys = [], {
   const correctIndex = ordered.findIndex(x => x.correct);
   const trialId = clean(trialRef) || `decoy:${stableIdentityDigest(`${stableSeed}|${freeze.synthesis_fingerprint}`)}`;
 
-  return Object.freeze({
+  return deepFreeze({
     public_trial: {
       trial_version: 1,
       trial_id: trialId,
@@ -438,12 +456,15 @@ export function scoreBlindDecoyTrial(publicTrial, answerKey, {
     throw new TypeError("researchCalibration: trial and answer key do not match");
   }
   const selected = clean(selectedOptionId);
+  if (!publicTrial.options?.some(x => x.option_id === answerKey.correct_option_id)) {
+    throw new TypeError("researchCalibration: answer key does not identify an option in the trial");
+  }
   if (!publicTrial.options?.some(x => x.option_id === selected)) {
     throw new TypeError("researchCalibration: selected option is not in the trial");
   }
   const observed = finiteDate(observedAt, "observedAt");
-  return Object.freeze({
-    trial_id: publicTrial.trial_id,
+  return deepFreeze({
+    trial_id: publicTrial.trial_id;
     option_count: publicTrial.option_count,
     selected_option_id: selected,
     correct: selected === answerKey.correct_option_id,
@@ -476,8 +497,8 @@ export function summarizeDecoyTrials(results = []) {
 
   const observed = percent(correct, list.length);
   const baseline = round2(baselineSum / list.length);
-  return Object.freeze({
-    trials: list.length,
+  return deepFreeze({
+    trials: list.length;
     correct_trials: correct,
     observed_identification_percent: observed,
     random_baseline_percent: baseline,
