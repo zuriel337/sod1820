@@ -614,6 +614,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/post/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
