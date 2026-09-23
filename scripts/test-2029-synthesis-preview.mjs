@@ -50,6 +50,7 @@ for (const forbidden of [
 }
 
 assert.match(frame, /synthesisPreview = null/);
+assert.match(frame, /microIntent === "synthesis_preview"/);
 assert.match(frame, /data-raziel-synthesis-preview="true"/);
 assert.match(frame, /המסר שרזיאל קיבל · אותו Synthesis/);
 assert.match(frame, /synthesisPreview=\{transient\?\.payload\?\.synthesisPreview \|\| null\}/);
