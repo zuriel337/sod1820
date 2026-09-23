@@ -1,0 +1,21 @@
+.sod29-opening-method-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sod29-opening-method-chip{cursor:pointer;gap:8px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);transition:border-color var(--s29-motion),background var(--s29-motion)}
+.sod29-opening-method-chip b{font-variant-numeric:tabular-nums;margin-inline-start:6px}
+.sod29-opening-method-chip.is-active{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 14%,transparent);color:var(--s29-ink)}
+
+.sod29-opening-word-groups{display:grid;gap:12px;margin-top:14px;position:relative;z-index:1}
+.sod29-opening-word-group{border:1px solid var(--s29-line);border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--s29-panel) 80%,transparent)}
+.sod29-opening-word-label{font-size:13px;color:var(--s29-muted);margin-bottom:8px}
+.sod29-opening-fragment-row{display:flex;flex-wrap:wrap;gap:8px}
+.sod29-opening-fragment{display:inline-flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--s29-line);border-radius:10px;padding:6px 10px;min-width:44px;background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent)}
+.sod29-opening-fragment small{color:var(--s29-muted);font-size:11px}
+.sod29-opening-fragment b{font-variant-numeric:tabular-nums;font-size:14px}
+.sod29-opening-fragment.is-context_required,.sod29-opening-fragment.is-unavailable{opacity:.65}
+.sod29-opening-fragment.is-access_filtered{border-style:dashed}
+.sod29-opening-fragment.is-engine_error{border-color:color-mix(in srgb,#e5484d 55%,var(--s29-line))}
+
+.sod29-opening-total-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;flex-wrap:wrap;position:relative;z-index:1}
+.sod29-opening-total-row strong{font-size:20px;margin-inline-start:8px;font-variant-numeric:tabular-nums}
+.sod29-opening-total-status{color:var(--s29-muted);margin-inline-start:8px}
+
+@media (prefers-reduced-motion:reduce){.sod29-opening-method-chip{transition:none}}
