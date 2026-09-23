@@ -146,7 +146,7 @@ export function freezeSynthesisForCalibration(synthesis, {
   return deepFreeze({
     contract_version: 1,
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
-    frozen: true;
+    frozen: true,
     frozen_at: time.text,
     run_ref: clean(runRef),
     policy_version: payload.policy_version,
@@ -271,7 +271,7 @@ export function makeClaimValidationOutcome({
   }
   const observed = finiteDate(observedAt, "observedAt");
   return deepFreeze({
-    outcome_version: 1;
+    outcome_version: 1,
     claim_id: claim,
     state,
     evaluator_class: evaluatorClass,
@@ -464,7 +464,7 @@ export function scoreBlindDecoyTrial(publicTrial, answerKey, {
   }
   const observed = finiteDate(observedAt, "observedAt");
   return deepFreeze({
-    trial_id: publicTrial.trial_id;
+    trial_id: publicTrial.trial_id,
     option_count: publicTrial.option_count,
     selected_option_id: selected,
     correct: selected === answerKey.correct_option_id,
@@ -498,7 +498,7 @@ export function summarizeDecoyTrials(results = []) {
   const observed = percent(correct, list.length);
   const baseline = round2(baselineSum / list.length);
   return deepFreeze({
-    trials: list.length;
+    trials: list.length,
     correct_trials: correct,
     observed_identification_percent: observed,
     random_baseline_percent: baseline,
