@@ -13,6 +13,7 @@
 // This planner remains execution-neutral until live owner/runtime verification authorizes the selected catalog state.
 // Cost can choose among sufficient options; it can never downgrade required
 // intelligence, privacy eligibility, verification, or safety.
+// An explicit budget ceiling also requires comparable known-cost estimates; UNKNOWN never passes as implicitly within-budget.
 
 export const PROVIDER_ORCHESTRATION_VERSION = "provider-orchestration-v1";
 
