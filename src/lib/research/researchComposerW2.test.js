@@ -424,3 +424,78 @@ test("journey noun alone does not steal an explicit RESEARCH verb", () => {
   });
   assert.equal(grammar.requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
 });
+
+
+test("Raziel Action Contract reuses Bundle next_actions and stays message-free without Synthesis", async () => {
+  const bundle = await composeResearchW2({
+    question: "מה זה 1820?",
+    identityCandidates: [
+      { type: "number", value: 1820, label: "1820", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+    surfaceContext: { surface: "number" },
+    requestedCapabilities: [],
+  });
+
+  const action = bundle.next_actions.find((item) => item.action === "raziel_route");
+  assert.ok(action);
+  assert.equal(action.route_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(action.delivery.mode, "in_place_first");
+  assert.equal(action.synthesis.state, "not_composed");
+  assert.equal(action.synthesis.message_authority, null);
+  assert.equal(action.synthesis.local_message, null);
+  assert.equal(action.guards.no_local_message_generation, true);
+  assert.equal(action.guards.same_synthesis_is_message_authority, true);
+});
+
+test("Raziel Action Contract points at the same canonical Synthesis and never copies its message", async () => {
+  const bundle = await composeResearchW2({
+    question: "מה הקשר בין 455 ל-424?",
+    identityCandidates: [
+      { type: "number", value: 455, label: "455", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+      { type: "number", value: 424, label: "424", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+    surfaceContext: { surface: "number" },
+    requestedCapabilities: [],
+    synthesizer: async () => ({
+      message: "אותו Synthesis יחיד",
+      claims: [{ id: "claim:route", text: "חיבור מחקרי bounded" }],
+    }),
+  });
+
+  const action = bundle.next_actions.find((item) => item.action === "raziel_route");
+  assert.equal(bundle.synthesis.message, "אותו Synthesis יחיד");
+  assert.equal(action.route_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(action.synthesis.state, "composed");
+  assert.equal(action.synthesis.message_authority, "bundle.synthesis");
+  assert.equal(action.synthesis.local_message, null);
+  assert.equal(Object.prototype.hasOwnProperty.call(action, "message"), false);
+});
+
+test("caller-supplied raziel_route next action is replaced by the canonical Plan projection", async () => {
+  const bundle = await composeResearchW2({
+    question: "מה זה 1820?",
+    identityCandidates: [
+      { type: "number", value: 1820, label: "1820", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+    surfaceContext: { surface: "number" },
+    requestedCapabilities: [],
+    nextActions: [
+      { action: "raziel_route", route_action: "research", label: "FAKE" },
+      { action: "custom_existing_action", reason: "preserve me" },
+    ],
+  });
+
+  const razielActions = bundle.next_actions.filter((item) => item.action === "raziel_route");
+  assert.equal(razielActions.length, 1);
+  assert.equal(razielActions[0].route_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(razielActions[0].label, "להבין");
+  assert.equal(bundle.next_actions.some((item) => item.action === "custom_existing_action"), true);
+});
+
+test("Raziel Action Contract honors Silence Gate when no question, identity or surface subject exists", async () => {
+  const bundle = await composeResearchW2({
+    question: "",
+    requestedCapabilities: [],
+  });
+  assert.equal(bundle.next_actions.some((item) => item.action === "raziel_route"), false);
+});
