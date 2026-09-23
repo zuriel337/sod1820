@@ -625,7 +625,7 @@ A negative result can lower or change the message.
 - personal access stays fail-closed.
 
 ### F2 — Golden: authorized private-name case
-- replay Name + 13.2 (+ 2008 only if confirmed);
+- replay an authorized private Name + Date case only in private research/runtime state; repository fixtures stay synthetic and contain no real personal name/date details;
 - freeze atomic claims;
 - retain controls found in current research;
 - add Cross signatures only through F1;
