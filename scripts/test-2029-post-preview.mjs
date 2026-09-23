@@ -16,7 +16,7 @@ assert.match(page, /fetchPost2029Projection/);
 assert.match(page, /fetchGematriaMethodTrace/);
 assert.match(page, /useResearch/);
 assert.match(page, /method: row\.methodKey/);
-assert.match(page, /shell\.openNumber/);
+assert.match(page, /shell\.openNumber/);\nassert.match(page, /function PostPulse/);\nassert.match(page, /חדש מאז הפרסום/);\nassert.match(page, /ראה מה נוסף ↓/);\nassert.match(page, /scrollIntoView/);\nassert.match(page, /is-pulse-target/);\nassert.equal(page.includes("localStorage"), false, "Golden Pulse must not invent local seen-state storage");\nassert.equal(page.includes("מאז שהיית כאן"), false, "Golden Pulse must not claim per-user unread state before a canonical seen-state owner exists");
 assert.equal(page.includes("POST AS INFORMATION UNITS"), false, "public Post2029 must not expose internal information-architecture labels");
 assert.match(page, /רמזים שנוספו אחרי המקור/);
 assert.match(page, /מה אומת ומה נשאר רמז/);
@@ -33,7 +33,7 @@ assert.match(projection, /research_update/);
 assert.match(projection, /timeBasis: "posts\.modified"/);
 assert.equal(/\b787\b|\b1445\b|\b1613\b/.test(projection), false, "Post projection must not hard-code Golden calculation values");
 assert.match(css, /max-width:390px/);
-assert.match(css, /prefers-reduced-motion:reduce/);
+assert.match(css, /prefers-reduced-motion:reduce/);\nassert.match(css, /sod29-post-pulse/);\nassert.match(css, /var\(--s29-accent\)/);
 
 // Keep this gate branch-local until ZURIEL approves Post2029 cutover.
 console.log("2029 Post Golden Preview acceptance: PASS");
