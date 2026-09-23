@@ -14,13 +14,18 @@ assert.equal(vercel.rewrites.some((row) => row.source === "/2029/post/(.*)" && r
 assert.match(page, /<Sod2029Shell surface="post"/);
 assert.match(page, /fetchPost2029Projection/);
 assert.match(page, /fetchGematriaMethodTrace/);
-assert.match(page, /POST AS INFORMATION UNITS/);
-assert.match(page, /מאז הפרסום/);
-assert.match(page, /גבולות האמת/);
+assert.match(page, /useResearch/);
+assert.match(page, /method: row\.methodKey/);
+assert.match(page, /shell\.openNumber/);
+assert.equal(page.includes("POST AS INFORMATION UNITS"), false, "public Post2029 must not expose internal information-architecture labels");
+assert.match(page, /רמזים שנוספו אחרי המקור/);
+assert.match(page, /מה אומת ומה נשאר רמז/);
 assert.equal(page.includes("../legacy/"), false);
 assert.equal(page.includes("legacy.jsx"), false);
 
 assert.match(projection, /getPostBySlug/);
+assert.match(projection, /number_readings/);
+assert.match(projection, /readings:/);
 assert.match(projection, /source_media/);
 assert.match(projection, /authored_content/);
 assert.match(projection, /transcript/);
@@ -30,4 +35,5 @@ assert.equal(/\b787\b|\b1445\b|\b1613\b/.test(projection), false, "Post projecti
 assert.match(css, /max-width:390px/);
 assert.match(css, /prefers-reduced-motion:reduce/);
 
-// Keep this gate branch-local until ZURIEL approves Post2029 cutover. Preview build trigger after config repair.\nconsole.log("2029 Post Golden Preview acceptance: PASS");
+// Keep this gate branch-local until ZURIEL approves Post2029 cutover.
+console.log("2029 Post Golden Preview acceptance: PASS");
