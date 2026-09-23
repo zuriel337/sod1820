@@ -94,8 +94,9 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
 
   if (includesAny(q, [
-    "תמשיך", "המשך", "להמשיך", "קח אותי", "לאן זה מוביל", "לאן ממשיכים",
-    "מסע", "מסלול", "next step", "continue", "journey", "resume",
+    "תמשיך", "המשך מהמקום", "המשך מהמסע", "להמשיך מכאן", "קח אותי למסע",
+    "פתח מסע", "התחל מסע", "צא למסע", "לאן זה מוביל", "לאן ממשיכים",
+    "next step", "continue", "resume journey", "resume path",
   ])) return RAZIEL_ROUTE_ACTION.CONTINUE;
 
   if (includesAny(q, [
@@ -180,7 +181,7 @@ export function buildRazielRouteGrammar({
       preferred_home: contract.preferred_home,
       experience_role: contract.experience_role,
       selected: id === requested_action,
-      hints: actionHints(id, { surface, subject_type }),
+      hints: Object.freeze(actionHints(id, { surface, subject_type })),
     });
   });
 
