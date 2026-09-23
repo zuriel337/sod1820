@@ -883,34 +883,6 @@ function NumberPageBody() {
     navigate("/world");
   };
 
-  const openHeichal = (focus = {}) => {
-    if (!Number.isInteger(root)) return;
-    const current = research.context || {};
-    const subject = { id: String(root), type: "number", label: String(root), href: currentNumberHref };
-    const selection = focusSelection(root);
-    research.setResearchContext?.({
-      subject,
-      selection,
-      lens: "heichal",
-      locale: current.locale || "he",
-      dimensions: {
-        ...(current.dimensions || {}),
-        numberHome: currentNumberHref,
-        methodSpatialExplain: focus && typeof focus === "object" ? focus : {},
-      },
-      returnTo: {
-        href: currentNumberHref,
-        label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
-        subject,
-        selection,
-        lens: "number",
-        dimensions: current.dimensions || {},
-        journey: current.journey || null,
-      },
-    });
-    navigate("/heichal");
-  };
-
   const askRaziel = (intent = "number_context", focus = {}) => {
     const focusPatch = focus && typeof focus === "object" ? focus : {};
     const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
@@ -1112,7 +1084,6 @@ function NumberPageBody() {
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
         onOpenWorld={() => openWorld()}
-        onOpenHeichal={openHeichal}
         onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
         journeyLabel={root === 878 ? "צא למסע 878" : null}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
@@ -1145,7 +1116,6 @@ function NumberPageBody() {
       activityCount={activityCount}
       researchState={researchState}
       onOpenWorld={openWorld}
-      onOpenHeichal={openHeichal}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onJourney={() => root === 878 ? openWorld({ journey: true }) : openWorld()}
@@ -1160,7 +1130,6 @@ function NumberPageBody() {
     <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
     {deepRequested && deepViewModel ? <NumberDeepView2029
       model={deepViewModel}
-      onOpenHeichal={openHeichal}
       onRazielAction={askRaziel}
     /> : deepRequested && deepViewInputState.loading ? <section className="sod29-section sod29-number-deep-view" id="number-deep-view" aria-busy="true">
       <div className="sod29-number-core2029-note">טוען את מפת המחקר כשמגיעים אליה…</div>
