@@ -84,28 +84,34 @@ function normalizedSurface(surfaceContext) {
 function explicitRequestedAction({ question = "", intent = "" } = {}) {
   const q = lower(question);
   const i = lower(intent);
-  const text = `${i} ${q}`.trim();
 
-  // "מה הקשר" contains "מה" too; relation intent wins over generic explanation.
-  if (includesAny(text, [
+  // User language is primary. A generic planner intent such as "research" must never steal a
+  // conversational request like "מה זה 1820?". Specific intent values are only tie-break hints.
+  // "מה הקשר" contains "מה" too; relation language therefore wins over generic explanation.
+  if (includesAny(q, [
     "מה הקשר", "מה מתחבר", "תחבר", "לחבר", "השווה", "השוואה", "compare", "cross",
     "קשר בין", "קשרים בין", "יחס בין", "relation",
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
 
-  if (includesAny(text, [
+  if (includesAny(q, [
     "תמשיך", "המשך", "להמשיך", "קח אותי", "לאן זה מוביל", "לאן ממשיכים",
     "מסע", "מסלול", "next step", "continue", "journey", "resume",
   ])) return RAZIEL_ROUTE_ACTION.CONTINUE;
 
-  if (includesAny(text, [
+  if (includesAny(q, [
     "תחקור", "חקור", "לחקור", "תבדוק", "בדוק", "לעומק", "בדיקה עמוקה",
     "חפש מקור", "מקורות", "els", "דילוג", "trace", "research", "deep research",
   ])) return RAZIEL_ROUTE_ACTION.RESEARCH;
 
-  if (includesAny(text, [
+  if (includesAny(q, [
     "מה זה", "מה אני רואה", "תסביר", "הסבר", "למה", "מה אומר", "מה המשמעות",
     "explain", "understand", "what is",
   ])) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
+
+  if (["compare", "cross", "relation", "relations"].includes(i)) return RAZIEL_ROUTE_ACTION.CONNECT;
+  if (["continue", "journey", "resume", "next_step"].includes(i)) return RAZIEL_ROUTE_ACTION.CONTINUE;
+  if (["els", "gematria", "verify", "deep_research", "source_research"].includes(i)) return RAZIEL_ROUTE_ACTION.RESEARCH;
+  if (["explain", "understand", "guide"].includes(i)) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
 
   return null;
 }
