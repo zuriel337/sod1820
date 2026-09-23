@@ -35,6 +35,7 @@ assert.match(page, /TODAY · LEGACY SNAPSHOT/);
 assert.match(page, /SYNTHESIS 2029 · GOLDEN PREVIEW/);
 assert.match(page, /synthesisPreview: preview\.synthesis/);
 assert.match(page, /razielMicroIntent: "synthesis_preview"/);
+assert.equal(page.includes("numberCoreFocus:"), false, "Synthesis preview must not trigger a second Raziel quickInsight message");
 assert.match(page, /noindex: true/);
 assert.match(page, /SYNTHESIS 2029 · GOLDEN PREVIEW/);
 
