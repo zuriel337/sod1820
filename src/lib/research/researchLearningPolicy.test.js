@@ -123,7 +123,7 @@ test("privacy/truth/comparability gates cannot be disabled by a tuning policy", 
 });
 
 test("style-learning domain is rejected because ai_style_learning_law remains owner", () => {
-  assert.throws(() => run({ domain: "style" }), /style policy belongs to ai_style_learning_law/);
+  assert.throws(() => run({ domain: "style" }), /style policy belongs to system_suggestions_law/);
 });
 
 test("evaluation run separates independent Persons from raw observations and rejects negative cost", () => {
@@ -205,6 +205,35 @@ test("declared owner attestation is required but pure evaluator never verifies i
   assert.equal(n.owner_attestation.verified_by_this_module, false);
 });
 
+test("unsafe active Champion escalates to Human intervention even if Challenger is weak or confounded", () => {
+  const unsafeChampion = run({
+    policyRef: "synthesis-policy",
+    policyVersion: "champion-unsafe",
+    violations: { privacyViolations: 1 },
+  });
+  const weakChallenger = run({
+    policyRef: "synthesis-policy",
+    policyVersion: "challenger-weak",
+    supportLow: 60,
+    decoyLift: 10,
+    holdoutRef: "holdout:different",
+    holdoutFingerprint: "holdout-fp:different",
+  });
+
+  const result = compareChampionChallenger({
+    champion: unsafeChampion,
+    challenger: weakChallenger,
+    policy: policy(),
+  });
+
+  assert.equal(result.decision, CHALLENGER_DECISION.CHAMPION_BOUNDARY_FAILURE);
+  assert.equal(result.champion_hard_boundary_issues.includes("privacy_violation"), true);
+  assert.equal(result.human_review_required, true);
+  assert.equal(result.auto_activation_authorized, false);
+  assert.equal(result.runtime_effect, false);
+  assert.equal(result.invariants.champion_safety_and_truth_boundaries_are_evaluated_and_escalated, true);
+});
+
 test("privacy violation blocks challenger even when research metrics improve dramatically", () => {
   const c = champion();
   const n = run({
@@ -221,7 +250,7 @@ test("privacy violation blocks challenger even when research metrics improve dra
   const result = compareChampionChallenger({ champion: c, challenger: n, policy: policy() });
   assert.equal(result.decision, CHALLENGER_DECISION.BLOCK_CHALLENGER);
   assert.equal(result.hard_boundary_issues.includes("privacy_violation"), true);
-  assert.equal(result.invariants.safety_and_truth_boundaries_override_metric_improvement, true);
+  assert.equal(result.invariants.challenger_safety_and_truth_boundaries_override_metric_improvement, true);
 });
 
 test("truth, sensitive-inference and evidence-leakage violations are independent blockers", () => {
