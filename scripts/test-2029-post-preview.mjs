@@ -30,4 +30,4 @@ assert.equal(/\b787\b|\b1445\b|\b1613\b/.test(projection), false, "Post projecti
 assert.match(css, /max-width:390px/);
 assert.match(css, /prefers-reduced-motion:reduce/);
 
-console.log("2029 Post Golden Preview acceptance: PASS");
+// Keep this gate branch-local until ZURIEL approves Post2029 cutover.\nconsole.log("2029 Post Golden Preview acceptance: PASS");
