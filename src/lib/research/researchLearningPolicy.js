@@ -1,5 +1,6 @@
 // F6 — Research Learning Champion / Challenger evaluation contract.
 // Challenger evaluation may propose a policy change, but never becomes runtime authority by itself.
+// Active Champion hard-boundary failure is an escalation condition, not a reason to keep the Champion silently.
 //
 // EXTEND_EXISTING only:
 // - decision_ledger = Human decisions/provenance;
