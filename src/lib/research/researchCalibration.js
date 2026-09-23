@@ -29,7 +29,20 @@ export const CALIBRATION_EVALUATOR_CLASS = Object.freeze({
   BLIND_AI: "blind_ai",
 });
 
+export const CALIBRATION_PROTOCOL_AUTHORITY = Object.freeze({
+  TRUSTED_RUNTIME: "trusted_runtime",
+  PERSISTED_RESEARCH_STATE: "persisted_research_state",
+  HUMAN_PROTOCOL: "human_protocol",
+  CALLER_SUPPLIED: "caller_supplied",
+});
+
 const VALID_EVALUATOR_CLASSES = new Set(Object.values(CALIBRATION_EVALUATOR_CLASS));
+const VALID_PROTOCOL_AUTHORITIES = new Set(Object.values(CALIBRATION_PROTOCOL_AUTHORITY));
+const ATTESTED_PROTOCOL_AUTHORITIES = new Set([
+  CALIBRATION_PROTOCOL_AUTHORITY.TRUSTED_RUNTIME,
+  CALIBRATION_PROTOCOL_AUTHORITY.PERSISTED_RESEARCH_STATE,
+  CALIBRATION_PROTOCOL_AUTHORITY.HUMAN_PROTOCOL,
+]);
 const ADJUDICATED_STATES = new Set([
   CLAIM_VALIDATION_STATE.SUPPORTED,
   CLAIM_VALIDATION_STATE.PARTIALLY_SUPPORTED,
@@ -61,6 +74,20 @@ function finiteDate(value, label) {
   const ms = Date.parse(text);
   if (!Number.isFinite(ms)) throw new TypeError(`researchCalibration: invalid ${label}`);
   return { text, ms };
+}
+
+function protocolAuthority(value, ref, label) {
+  const authority = clean(value) || CALIBRATION_PROTOCOL_AUTHORITY.CALLER_SUPPLIED;
+  if (!VALID_PROTOCOL_AUTHORITIES.has(authority)) {
+    throw new TypeError(`researchCalibration: invalid ${label} authority "${authority}"`);
+  }
+  const authorityRef = clean(ref);
+  const attested = ATTESTED_PROTOCOL_AUTHORITIES.has(authority) && Boolean(authorityRef);
+  return {
+    authority,
+    authority_ref: authorityRef,
+    attested,
+  };
 }
 
 function round2(value) {
@@ -138,8 +165,11 @@ function frozenSynthesisPayload(synthesis = {}) {
 export function freezeSynthesisForCalibration(synthesis, {
   frozenAt,
   runRef = null,
+  timeAuthority = CALIBRATION_PROTOCOL_AUTHORITY.CALLER_SUPPLIED,
+  timeAuthorityRef = null,
 } = {}) {
   const time = finiteDate(frozenAt, "frozenAt");
+  const freezeTime = protocolAuthority(timeAuthority, timeAuthorityRef, "freeze time");
   const payload = frozenSynthesisPayload(synthesis);
   const claimSetFingerprint = calibrationContentFingerprint(payload.claims);
   const synthesisFingerprint = calibrationContentFingerprint(payload);
@@ -149,6 +179,7 @@ export function freezeSynthesisForCalibration(synthesis, {
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
     frozen: true,
     frozen_at: time.text,
+    freeze_time_provenance: freezeTime,
     run_ref: clean(runRef),
     policy_version: payload.policy_version,
     source_bundle_contract_version: payload.source_bundle_contract_version,
@@ -194,7 +225,11 @@ export function verifyCalibrationFreeze(freeze, synthesis) {
 
 export function openCalibrationValidationSession(freeze, {
   openedAt,
+  openedTimeAuthority = CALIBRATION_PROTOCOL_AUTHORITY.CALLER_SUPPLIED,
+  openedTimeAuthorityRef = null,
   validationDataHiddenDuringSynthesis,
+  separationAuthority = CALIBRATION_PROTOCOL_AUTHORITY.CALLER_SUPPLIED,
+  separationAuthorityRef = null,
   evaluatorBlinded = false,
   leakageCheck = "unknown",
   sessionRef = null,
@@ -209,6 +244,13 @@ export function openCalibrationValidationSession(freeze, {
     throw new TypeError("researchCalibration: validation_data_hidden_during_synthesis must be explicitly true");
   }
 
+  const openedTime = protocolAuthority(openedTimeAuthority, openedTimeAuthorityRef, "validation opened time");
+  const separation = protocolAuthority(separationAuthority, separationAuthorityRef, "held-out separation");
+  const freezeTimeAttested = freeze.freeze_time_provenance?.attested === true;
+  const chronologyAttested = freezeTimeAttested && openedTime.attested;
+  const separationAttested = separation.attested;
+  const empiricalFitReady = chronologyAttested && separationAttested;
+
   return deepFreeze({
     contract_version: 1,
     harness_version: RESEARCH_CALIBRATION_HARNESS_VERSION,
@@ -217,9 +259,15 @@ export function openCalibrationValidationSession(freeze, {
     claim_set_fingerprint: freeze.claim_set_fingerprint,
     frozen_at: freeze.frozen_at,
     opened_at: opened.text,
+    opened_time_provenance: openedTime,
+    separation_provenance: separation,
     bias_controls: {
-      message_frozen_before_validation: true,
-      validation_data_hidden_during_synthesis: true,
+      chronology_order_observed: true,
+      message_frozen_before_validation: chronologyAttested,
+      validation_data_hidden_claimed: true,
+      validation_data_hidden_during_synthesis: separationAttested,
+      protocol_attested: empiricalFitReady,
+      empirical_fit_ready: empiricalFitReady,
       evaluator_blinded: evaluatorBlinded === true,
       leakage_check: clean(leakageCheck) || "unknown",
     },
@@ -234,23 +282,38 @@ export function buildBlindClaimPackets(freeze, validationSession) {
     throw new TypeError("researchCalibration: validation session belongs to a different synthesis freeze");
   }
 
-  return freeze.claims.map((claim, index) => deepFreeze({
-    packet_version: 1,
-    packet_id: `blind:${stableIdentityDigest(`${validationSession.session_ref || validationSession.opened_at}|${claim.id}`)}`,
-    ordinal: index + 1,
-    claim_id: claim.id,
-    claim_text: claim.text,
-    allowed_outcomes: [...ADJUDICATED_STATES],
-    hidden_from_evaluator: [
-      "subject_identity",
-      "support_findings",
-      "dependency_groups",
-      "motifs",
-      "cross_signatures",
-      "research_strength",
-      "provider_reasoning",
-    ],
-  }));
+  const publicPackets = [];
+  const packetMap = [];
+  freeze.claims.forEach((claim, index) => {
+    const packetId = `blind:${stableIdentityDigest(`${validationSession.session_ref || validationSession.opened_at}|${claim.id}`)}`;
+    publicPackets.push({
+      packet_version: 1,
+      packet_id: packetId,
+      ordinal: index + 1,
+      claim_text: claim.text,
+      allowed_outcomes: [...ADJUDICATED_STATES],
+      hidden_from_evaluator: [
+        "claim_id",
+        "subject_identity",
+        "support_findings",
+        "dependency_groups",
+        "motifs",
+        "cross_signatures",
+        "research_strength",
+        "provider_reasoning",
+      ],
+    });
+    packetMap.push({ packet_id: packetId, claim_id: claim.id });
+  });
+
+  return deepFreeze({
+    public_packets: publicPackets,
+    answer_key: {
+      visibility: "hidden_from_blind_evaluator",
+      synthesis_fingerprint: freeze.synthesis_fingerprint,
+      packet_to_claim: packetMap,
+    },
+  });
 }
 
 export function makeClaimValidationOutcome({
@@ -280,6 +343,32 @@ export function makeClaimValidationOutcome({
     evidence_refs: uniqueText(evidenceRefs),
     observed_at: observed.text,
     note: clean(note),
+  });
+}
+
+export function makeBlindClaimValidationOutcome(answerKey, {
+  packetId,
+  state,
+  evaluatorClass,
+  evidenceRefs = [],
+  observedAt,
+  note = null,
+  evaluatorRef = null,
+} = {}) {
+  if (!answerKey || answerKey.visibility !== "hidden_from_blind_evaluator") {
+    throw new TypeError("researchCalibration: valid blind claim answer key required");
+  }
+  const packet = clean(packetId);
+  const mapped = answerKey.packet_to_claim?.find(x => x.packet_id === packet);
+  if (!mapped) throw new TypeError("researchCalibration: packetId is not present in the blind answer key");
+  return makeClaimValidationOutcome({
+    claimId: mapped.claim_id,
+    state,
+    evaluatorClass,
+    evidenceRefs,
+    observedAt,
+    note,
+    evaluatorRef,
   });
 }
 
@@ -370,6 +459,8 @@ export function summarizeClaimValidations(freeze, validationSession, outcomes = 
     outcomes: normalizedOutcomes,
     validation_source_classes: uniqueText(normalizedOutcomes.map(x => x.evaluator_class)),
     bias_controls: { ...validationSession.bias_controls },
+    empirical_fit_ready: validationSession.bias_controls?.empirical_fit_ready === true,
+    descriptive_only: validationSession.bias_controls?.empirical_fit_ready !== true,
     invariants: {
       no_truth_score: true,
       no_canonical_score: true,
