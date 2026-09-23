@@ -282,6 +282,7 @@ export function buildHistoricalAiBenchmarkManifest(rows = [], {
       stratum_key: key,
       population_count: population.length,
       selected_count: sample.length,
+      selection_fraction: population.length ? sample.length / population.length : 0,
     });
   }
 
@@ -291,6 +292,13 @@ export function buildHistoricalAiBenchmarkManifest(rows = [], {
     generated_from_rows: records.length,
     seed_fingerprint: stableIdentityDigest(stableSeed),
     per_stratum_cap: cap,
+    sampling_design: {
+      method: "deterministic_equal_cap_per_stratum",
+      stratum_dimensions: ["kind", "engine", "model", "style_key", "resonance_bucket"],
+      population_weighted: false,
+      prevalence_inference_allowed: false,
+      purpose: "coverage_for_private_audit_not_population_estimation",
+    },
     strata,
     selected_records: selected,
     privacy_boundary: {
@@ -363,9 +371,15 @@ export function summarizeHistoricalAiBenchmark(records = []) {
     possibly_truncated_output_rows: possiblyTruncated,
     exact_historical_input_replay_ready_rows: replayReady,
     groups: [...groups.values()].sort((a, b) => a.group_key.localeCompare(b.group_key)),
+    statistical_boundary: {
+      descriptive_of_supplied_records_only: true,
+      population_prevalence_inference_allowed: false,
+      sampling_weights_applied: false,
+      note: "A stratified benchmark sample is for coverage/audit. Population estimates require an explicit weighted design over the full target population.",
+    },
     conclusions_allowed: [
-      "historical resonance/usefulness distribution",
-      "provider/model/style/kind interaction patterns",
+      "resonance/usefulness description within the supplied records",
+      "provider/model/style/kind audit comparisons within the supplied records",
       "sampling candidates for private claim extraction",
     ],
     conclusions_forbidden: [
@@ -373,6 +387,7 @@ export function summarizeHistoricalAiBenchmark(records = []) {
       "person fit from likes or research clicks",
       "exact original-input replay without owner-verified direct lineage",
       "historical engine state reconstructed from current re-research",
+      "population prevalence estimated from an unweighted equal-cap stratified sample",
     ],
   });
 }
