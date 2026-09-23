@@ -2,11 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   CALIBRATION_EVALUATOR_CLASS,
+  CALIBRATION_PROTOCOL_AUTHORITY,
   buildBlindClaimPackets,
   buildBlindDecoyTrial,
   buildCalibrationResearchMeta,
   calibrationContentFingerprint,
   freezeSynthesisForCalibration,
+  makeBlindClaimValidationOutcome,
   makeClaimValidationOutcome,
   openCalibrationValidationSession,
   scoreBlindDecoyTrial,
@@ -105,13 +107,19 @@ function frozen() {
   return freezeSynthesisForCalibration(syntheticSynthesis(), {
     frozenAt: "2026-09-23T00:00:00.000Z",
     runRef: "synthetic:run:1",
+    timeAuthority: CALIBRATION_PROTOCOL_AUTHORITY.TRUSTED_RUNTIME,
+    timeAuthorityRef: "trace:synthetic:freeze:1",
   });
 }
 
 function session(freeze = frozen()) {
   return openCalibrationValidationSession(freeze, {
     openedAt: "2026-09-23T00:10:00.000Z",
+    openedTimeAuthority: CALIBRATION_PROTOCOL_AUTHORITY.TRUSTED_RUNTIME,
+    openedTimeAuthorityRef: "trace:synthetic:validation-open:1",
     validationDataHiddenDuringSynthesis: true,
+    separationAuthority: CALIBRATION_PROTOCOL_AUTHORITY.PERSISTED_RESEARCH_STATE,
+    separationAuthorityRef: "research:holdout-assignment:synthetic:1",
     evaluatorBlinded: true,
     leakageCheck: "passed",
     sessionRef: "synthetic:validation:1",
@@ -126,6 +134,7 @@ test("freeze is deterministic and records change-detection fingerprints without 
   assert.equal(a.claim_set_fingerprint, b.claim_set_fingerprint);
   assert.equal(a.claim_count, 6);
   assert.equal(a.fingerprint_kind, "deterministic_change_detection_not_cryptographic_signature");
+  assert.equal(a.freeze_time_provenance.attested, true);
   assert.equal(a.invariants.person_fit_is_calibration_not_truth, true);
 });
 
@@ -177,17 +186,49 @@ test("validation cannot begin before freeze and requires held-out data separatio
   }), /must be explicitly true/);
 });
 
-test("blind evaluator packets reveal claim text but not derivation/support/motif context", () => {
+test("caller-supplied protocol timing may be described but is not eligible for empirical fit", () => {
+  const freeze = freezeSynthesisForCalibration(syntheticSynthesis(), {
+    frozenAt: "2026-09-23T00:00:00.000Z",
+    runRef: "synthetic:unattested",
+  });
+  const validationSession = openCalibrationValidationSession(freeze, {
+    openedAt: "2026-09-23T00:10:00.000Z",
+    validationDataHiddenDuringSynthesis: true,
+    evaluatorBlinded: true,
+  });
+
+  assert.equal(freeze.freeze_time_provenance.attested, false);
+  assert.equal(validationSession.bias_controls.chronology_order_observed, true);
+  assert.equal(validationSession.bias_controls.message_frozen_before_validation, false);
+  assert.equal(validationSession.bias_controls.validation_data_hidden_during_synthesis, false);
+  assert.equal(validationSession.bias_controls.empirical_fit_ready, false);
+
+  const summary = summarizeClaimValidations(freeze, validationSession, [{
+    claimId: "claim:integration",
+    state: "supported",
+    evaluatorClass: "self_report",
+    observedAt: "2026-09-23T00:11:00.000Z",
+  }]);
+  assert.equal(summary.empirical_fit_ready, false);
+  assert.equal(summary.descriptive_only, true);
+});
+
+test("blind evaluator packets reveal claim text but keep claim identity and derivation in a hidden answer key", () => {
   const freeze = frozen();
   const packets = buildBlindClaimPackets(freeze, session(freeze));
 
-  assert.equal(packets.length, 6);
-  assert.equal(packets[0].claim_text.includes("לחבר"), true);
-  assert.equal("support" in packets[0], false);
-  assert.equal("motif_key" in packets[0], false);
-  assert.equal("subject_identity" in packets[0], false);
-  assert.equal(packets[0].hidden_from_evaluator.includes("support_findings"), true);
-  assert.equal(packets[0].hidden_from_evaluator.includes("provider_reasoning"), true);
+  assert.equal(packets.public_packets.length, 6);
+  assert.equal(packets.public_packets[0].claim_text.includes("לחבר"), true);
+  assert.equal("claim_id" in packets.public_packets[0], false);
+  assert.equal("support" in packets.public_packets[0], false);
+  assert.equal("motif_key" in packets.public_packets[0], false);
+  assert.equal("subject_identity" in packets.public_packets[0], false);
+  assert.equal(packets.public_packets[0].hidden_from_evaluator.includes("claim_id"), true);
+  assert.equal(packets.public_packets[0].hidden_from_evaluator.includes("support_findings"), true);
+  assert.equal(packets.public_packets[0].hidden_from_evaluator.includes("provider_reasoning"), true);
+  assert.equal(packets.answer_key.visibility, "hidden_from_blind_evaluator");
+  assert.equal(packets.answer_key.packet_to_claim.length, 6);
+  assert.equal(JSON.stringify(packets.public_packets).includes("claim:integration"), false);
 });
 
 test("claim validation uses bounded states and provenance refs only", () => {
@@ -208,6 +249,29 @@ test("claim validation uses bounded states and provenance refs only", () => {
     evaluatorClass: CALIBRATION_EVALUATOR_CLASS.SELF_REPORT,
     observedAt: "2026-09-23T00:11:00.000Z",
   }), /invalid adjudicated state/);
+});
+
+test("blind packet outcome resolves through hidden packet-to-claim mapping", () => {
+  const freeze = frozen();
+  const validationSession = session(freeze);
+  const packets = buildBlindClaimPackets(freeze, validationSession);
+  const packetId = packets.public_packets[0].packet_id;
+  const outcome = makeBlindClaimValidationOutcome(packets.answer_key, {
+    packetId,
+    state: "supported",
+    evaluatorClass: CALIBRATION_EVALUATOR_CLASS.BLIND_AI,
+    evidenceRefs: ["private-research:evidence:blind:1"],
+    observedAt: "2026-09-23T00:11:00.000Z",
+  });
+
+  assert.equal(outcome.claim_id, "claim:integration");
+  assert.equal(outcome.evaluator_class, "blind_ai");
+  assert.throws(() => makeBlindClaimValidationOutcome(packets.answer_key, {
+    packetId: "blind:not-present",
+    state: "supported",
+    evaluatorClass: CALIBRATION_EVALUATOR_CLASS.BLIND_AI,
+    observedAt: "2026-09-23T00:11:00.000Z",
+  }), /packetId is not present/);
 });
 
 test("Person Fit is a support band, not one hidden-weight accuracy score", () => {
@@ -256,6 +320,9 @@ test("Person Fit is a support band, not one hidden-weight accuracy score", () =>
   assert.equal(summary.support_band_percent.high, 66.67);
   assert.equal(summary.contradiction_rate_percent, 33.33);
   assert.equal(summary.genericity_rate_percent, 20);
+  assert.equal(summary.empirical_fit_ready, true);
+  assert.equal(summary.descriptive_only, false);
+  assert.equal(summary.bias_controls.protocol_attested, true);
   assert.equal(summary.invariants.no_hidden_partial_credit_weight, true);
   assert.equal("truth_score" in summary, false);
   assert.equal("accuracy_score" in summary, false);
@@ -376,6 +443,7 @@ test("calibration storage shape is private-Research-OS metadata, not a new autho
 
   const ext = meta.ext.research_synthesis_calibration;
   assert.equal(ext.synthesis_fingerprint, freeze.synthesis_fingerprint);
+  assert.equal(ext.validation_session.bias_controls.empirical_fit_ready, true);
   assert.equal(ext.truth_boundary, "CALIBRATION != TRUTH != VERIFICATION != CANONICAL != PUBLISHED");
   assert.match(ext.storage_boundary, /existing private Research OS/);
 });
