@@ -212,7 +212,6 @@ export async function fetchPost2029Projection(slug) {
       const currentState = classifyTemporalYearValue(value, temporalContext);
       const anchor = temporalAnchorMap.get(value) || null;
       const historicalYearAnchor = !!anchor && /(?:שנת|תשפ|תשע|תש״|תש')/.test(`${anchor.fact || ""} ${anchor.hint || ""}`);
-      if (!currentState?.state && !historicalYearAnchor) return null;
       const isCurrent = currentState?.state === "active";
       if (!isCurrent && !historicalYearAnchor) return null;
       return { ...row, temporalState: isCurrent ? "active" : "axis", temporalAnchor: anchor };
