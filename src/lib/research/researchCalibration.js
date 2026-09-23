@@ -38,11 +38,6 @@ export const CALIBRATION_PROTOCOL_AUTHORITY = Object.freeze({
 
 const VALID_EVALUATOR_CLASSES = new Set(Object.values(CALIBRATION_EVALUATOR_CLASS));
 const VALID_PROTOCOL_AUTHORITIES = new Set(Object.values(CALIBRATION_PROTOCOL_AUTHORITY));
-const ATTESTED_PROTOCOL_AUTHORITIES = new Set([
-  CALIBRATION_PROTOCOL_AUTHORITY.TRUSTED_RUNTIME,
-  CALIBRATION_PROTOCOL_AUTHORITY.PERSISTED_RESEARCH_STATE,
-  CALIBRATION_PROTOCOL_AUTHORITY.HUMAN_PROTOCOL,
-]);
 const ADJUDICATED_STATES = new Set([
   CLAIM_VALIDATION_STATE.SUPPORTED,
   CLAIM_VALIDATION_STATE.PARTIALLY_SUPPORTED,
@@ -82,11 +77,13 @@ function protocolAuthority(value, ref, label) {
     throw new TypeError(`researchCalibration: invalid ${label} authority "${authority}"`);
   }
   const authorityRef = clean(ref);
-  const attested = ATTESTED_PROTOCOL_AUTHORITIES.has(authority) && Boolean(authorityRef);
   return {
     authority,
     authority_ref: authorityRef,
-    attested,
+    provenance_declared:
+      authority !== CALIBRATION_PROTOCOL_AUTHORITY.CALLER_SUPPLIED
+      && Boolean(authorityRef),
+    verified_by_harness: false,
   };
 }
 
@@ -197,6 +194,7 @@ export function freezeSynthesisForCalibration(synthesis, {
       frozen_claim_text_is_immutable_for_this_run: true,
       later_rewording_requires_new_freeze: true,
       person_fit_is_calibration_not_truth: true,
+      pure_harness_does_not_verify_external_provenance: true,
     },
   });
 }
@@ -246,10 +244,11 @@ export function openCalibrationValidationSession(freeze, {
 
   const openedTime = protocolAuthority(openedTimeAuthority, openedTimeAuthorityRef, "validation opened time");
   const separation = protocolAuthority(separationAuthority, separationAuthorityRef, "held-out separation");
-  const freezeTimeAttested = freeze.freeze_time_provenance?.attested === true;
-  const chronologyAttested = freezeTimeAttested && openedTime.attested;
-  const separationAttested = separation.attested;
-  const empiricalFitReady = chronologyAttested && separationAttested;
+  const chronologyProvenanceDeclared =
+    freeze.freeze_time_provenance?.provenance_declared === true
+    && openedTime.provenance_declared === true;
+  const separationProvenanceDeclared = separation.provenance_declared === true;
+  const protocolProvenanceDeclared = chronologyProvenanceDeclared && separationProvenanceDeclared;
 
   return deepFreeze({
     contract_version: 1,
@@ -263,11 +262,14 @@ export function openCalibrationValidationSession(freeze, {
     separation_provenance: separation,
     bias_controls: {
       chronology_order_observed: true,
-      message_frozen_before_validation: chronologyAttested,
+      chronology_provenance_declared: chronologyProvenanceDeclared,
+      message_frozen_before_validation: false,
       validation_data_hidden_claimed: true,
-      validation_data_hidden_during_synthesis: separationAttested,
-      protocol_attested: empiricalFitReady,
-      empirical_fit_ready: empiricalFitReady,
+      separation_provenance_declared: separationProvenanceDeclared,
+      validation_data_hidden_during_synthesis: false,
+      protocol_provenance_declared: protocolProvenanceDeclared,
+      owner_verification_required: true,
+      empirical_fit_ready: false,
       evaluator_blinded: evaluatorBlinded === true,
       leakage_check: clean(leakageCheck) || "unknown",
     },
@@ -459,8 +461,10 @@ export function summarizeClaimValidations(freeze, validationSession, outcomes = 
     outcomes: normalizedOutcomes,
     validation_source_classes: uniqueText(normalizedOutcomes.map(x => x.evaluator_class)),
     bias_controls: { ...validationSession.bias_controls },
-    empirical_fit_ready: validationSession.bias_controls?.empirical_fit_ready === true,
-    descriptive_only: validationSession.bias_controls?.empirical_fit_ready !== true,
+    empirical_fit_ready: false,
+    descriptive_only: true,
+    protocol_provenance_declared: validationSession.bias_controls?.protocol_provenance_declared === true,
+    owner_verification_required: true,
     invariants: {
       no_truth_score: true,
       no_canonical_score: true,
