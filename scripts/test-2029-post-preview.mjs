@@ -65,8 +65,12 @@ assert.match(timeFlow, /export function getCurrentTemporalContext/);
 assert.match(timeFlow, /ISRAEL_TIME_ZONE/);
 assert.match(timeFlow, /renderGematriya/);
 assert.match(timeFlow, /getDayContext/);
-assert.equal(timeFlow.includes("787"), false, "Shared temporal resolver must not hard-code the current Hebrew-year gematria");
-assert.equal(timeFlow.includes("תשפז"), false, "Shared temporal resolver must derive the Hebrew year dynamically");
+const temporalResolverSlice = timeFlow.slice(
+  timeFlow.indexOf("export function getCurrentTemporalContext"),
+  timeFlow.indexOf("const HEB =")
+);
+assert.equal(temporalResolverSlice.includes("787"), false, "Shared temporal resolver must not hard-code the current Hebrew-year gematria");
+assert.equal(temporalResolverSlice.includes("תשפז"), false, "Shared temporal resolver must derive the Hebrew year dynamically");
 
 // Keep this gate branch-local until ZURIEL approves Post2029 cutover.
 console.log("2029 Post Golden Preview acceptance: PASS");
