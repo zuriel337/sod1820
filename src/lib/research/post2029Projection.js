@@ -167,6 +167,11 @@ async function fetchTemporalAnchors(values = []) {
   return out;
 }
 
+function extractHebrewYearLabel(anchor) {
+  const text = `${anchor?.fact || ""} ${anchor?.hint || ""}`;
+  return text.match(/תש[א-ת״׳"']{1,6}/)?.[0] || null;
+}
+
 async function verifyCurrentHebrewYear(context) {
   const phrase = context?.hebrew?.year_expression;
   const expected = Number(context?.hebrew?.year_value);
@@ -223,16 +228,21 @@ export async function fetchPost2029Projection(slug) {
     ? await fetchTemporalContributions(temporalValue)
     : [];
 
+  const temporalIsActive = temporalRows.some((row) => row.temporalState === "active");
+  const temporalAnchor = temporalRows[0]?.temporalAnchor || null;
   const temporalLens = temporalRows.length ? {
     context: temporalContext,
     currentYearVerification,
-    state: temporalRows.some((row) => row.temporalState === "active") ? "active" : "axis",
+    state: temporalIsActive ? "active" : "axis",
+    value: Number(temporalValue),
+    yearLabel: temporalIsActive
+      ? temporalContext?.hebrew?.year_label
+      : extractHebrewYearLabel(temporalAnchor),
     rows: temporalRows,
+    localContributor: contributor,
     contributions: temporalContributions,
     axisHref: "/timeline",
-    publicLabel: temporalRows.some((row) => row.temporalState === "active")
-      ? "העת עכשיו"
-      : "תחנה בציר ההתגלות",
+    publicLabel: temporalIsActive ? "העת עכשיו" : "תחנה בציר ההתגלות",
   } : null;
 
   const units = [
@@ -311,4 +321,5 @@ export const post2029ProjectionInternals = {
   fetchTemporalContributions,
   fetchTemporalAnchors,
   verifyCurrentHebrewYear,
+  extractHebrewYearLabel,
 };
