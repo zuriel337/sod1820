@@ -51,7 +51,21 @@ export const SEMANTIC_EVIDENCE_CLASS = Object.freeze({
   NEGATIVE_CONTROL: "negative_control",
 });
 
+export const SEMANTIC_SELECTION_MODE = Object.freeze({
+  PRE_NUMERIC_SOURCE: "pre_numeric_source",
+  PRE_NUMERIC_HUMAN: "pre_numeric_human",
+  NUMERIC_BLINDED_CORPUS: "numeric_blinded_corpus",
+  POST_NUMERIC_INTERPRETATION: "post_numeric_interpretation",
+  UNKNOWN: "unknown",
+});
+
 const VALID_EVIDENCE_CLASSES = new Set(Object.values(SEMANTIC_EVIDENCE_CLASS));
+const VALID_SELECTION_MODES = new Set(Object.values(SEMANTIC_SELECTION_MODE));
+const NUMERIC_INDEPENDENT_SELECTION_MODES = new Set([
+  SEMANTIC_SELECTION_MODE.PRE_NUMERIC_SOURCE,
+  SEMANTIC_SELECTION_MODE.PRE_NUMERIC_HUMAN,
+  SEMANTIC_SELECTION_MODE.NUMERIC_BLINDED_CORPUS,
+]);
 
 function clean(value) {
   if (value == null) return null;
@@ -376,6 +390,14 @@ function evidenceClasses(values) {
   return out;
 }
 
+function selectionMode(value) {
+  const mode = clean(value) || SEMANTIC_SELECTION_MODE.UNKNOWN;
+  if (!VALID_SELECTION_MODES.has(mode)) {
+    throw new TypeError(`corpusBaseline: unsupported semantic selection mode "${mode}"`);
+  }
+  return mode;
+}
+
 function pairIdentity(a, b, relationRole) {
   const symmetric = SYMMETRIC_SEMANTIC_ROLES.has(relationRole);
   const ordered = symmetric ? [a, b].sort((x, y) => x.localeCompare(y)) : [a, b];
@@ -411,6 +433,9 @@ export function createSemanticExpansionCandidate(input = {}) {
     throw new TypeError("corpusBaseline: semantic candidate requires relation_basis");
   }
 
+  const selection = selectionMode(input.selection_mode || input.selectionMode);
+  const numericSelectionIndependent = NUMERIC_INDEPENDENT_SELECTION_MODES.has(selection);
+
   return Object.freeze({
     contract_version: SEMANTIC_EXPANSION_CONTRACT_VERSION,
     candidate_key: identity.candidate_key,
@@ -421,6 +446,8 @@ export function createSemanticExpansionCandidate(input = {}) {
     source_refs: sources,
     evidence_classes: classes,
     relation_basis: relationBasis,
+    selection_mode: selection,
+    numeric_selection_independent: numericSelectionIndependent,
     source_scope_ref: clean(input.source_scope_ref || input.sourceScopeRef),
     language: clean(input.language) || "he",
     status: "candidate",
@@ -442,6 +469,7 @@ export function createSemanticExpansionCandidate(input = {}) {
       synonym_or_antonym_is_not_word_alias_by_default: true,
       exact_orthography_is_preserved: true,
       human_or_owner_review_required_for_durable_promotion: true,
+      post_numeric_semantic_interpretation_cannot_validate_numeric_discovery: true,
     },
   });
 }
@@ -537,6 +565,14 @@ export function buildSemanticControlPlan(candidate, {
       unrelated_expression_decoys: true,
       same_root_control: includeSameRootControl === true,
       same_numeric_value_control: includeSameValueControl === true,
+    },
+    validation_eligibility: {
+      numeric_discrimination_validation:
+        candidate.numeric_selection_independent === true,
+      reason:
+        candidate.numeric_selection_independent === true
+          ? "semantic pair selected independently of numeric discovery"
+          : "semantic pair was not proven independent of numeric discovery",
     },
     evaluation_questions: [
       "Does the research/Cross signal distinguish the semantic pair from matched unrelated decoys?",
