@@ -72,14 +72,11 @@ function PostPulse({ updates = [], onOpen }) {
     || null;
   const featuredReading = featured?.readings?.[0] || null;
 
-  const contributorText = contributors.length === 1
-    ? `${contributors[0]} הוסיף`
+  const sourceLine = contributors.length === 1
+    ? `תרומה חדשה · ${contributors[0]}`
     : contributors.length > 1
-      ? `${contributors.length} תורמים הוסיפו`
-      : "נוספו";
-  const countText = calculations.length
-    ? `${calculations.length} ${calculations.length === 1 ? "רמז חדש" : "רמזים חדשים"}`
-    : `${updates.length} ${updates.length === 1 ? "תוספת חדשה" : "תוספות חדשות"}`;
+      ? `${updates.length} תוספות חדשות · ${contributors.length} תורמים`
+      : `${updates.length === 1 ? "תוספת חדשה" : `${updates.length} תוספות חדשות`}`;
   const detail = featuredReading
     ? `${featured.claimedValue} → ${featuredReading.digit_sequence} · ${featuredReading.reading}`
     : featured
@@ -90,7 +87,7 @@ function PostPulse({ updates = [], onOpen }) {
     <span className="sod29-post-pulse-orb" aria-hidden="true">✦</span>
     <span className="sod29-post-pulse-copy">
       <small>חדש מאז הפרסום</small>
-      <strong>{contributorText} {countText}</strong>
+      <strong>{sourceLine}</strong>
       <em>{detail}</em>
     </span>
     <span className="sod29-post-pulse-cta">ראה מה נוסף ↓</span>
@@ -244,7 +241,6 @@ function PostPageBody() {
       </div>
       <div className="sod29-post-hero-actions">
         <a className="sod29-action primary" href="#primary-media">למקור</a>
-        <a className="sod29-action" href="#research-update">מה נוסף?</a>
         <Link className="sod29-action" to={projection.identity.canonicalHref}>לגרסה הציבורית</Link>
       </div>
     </header>
