@@ -458,17 +458,29 @@ function sortCandidates(candidates, policy, callerPreference) {
 }
 
 function budgetEligible(candidates, maxEstimatedIls, policy) {
+  const costPolicyEligible = candidates.filter(candidate =>
+    candidate.cost.estimated || policy.allow_unknown_cost
+  );
+
   if (maxEstimatedIls == null) {
-    return { candidates, blocked_by_budget: false };
+    return {
+      candidates: costPolicyEligible,
+      blocked_by_budget: false,
+      blocked_by_unknown_cost_policy:
+        candidates.length > 0 && costPolicyEligible.length === 0,
+    };
   }
+
   const max = finiteNonNegative(maxEstimatedIls, "max_estimated_cost_ils");
-  const accepted = candidates.filter(candidate => {
-    if (!candidate.cost.estimated) return policy.allow_unknown_cost;
-    return candidate.cost.cost_ils <= max;
-  });
+  const accepted = costPolicyEligible.filter(candidate =>
+    !candidate.cost.estimated || candidate.cost.cost_ils <= max
+  );
   return {
     candidates: accepted,
-    blocked_by_budget: candidates.length > 0 && accepted.length === 0,
+    blocked_by_budget:
+      costPolicyEligible.length > 0 && accepted.length === 0,
+    blocked_by_unknown_cost_policy:
+      candidates.length > 0 && costPolicyEligible.length === 0,
   };
 }
 
@@ -623,7 +635,10 @@ export function buildProviderOrchestrationPlan({
     normalizedPolicy
   );
 
-  if (!budgeted.candidates.length && budgeted.blocked_by_budget) {
+  if (
+    !budgeted.candidates.length
+    && (budgeted.blocked_by_budget || budgeted.blocked_by_unknown_cost_policy)
+  ) {
     return Object.freeze({
       plan_version: 1,
       orchestration_version: PROVIDER_ORCHESTRATION_VERSION,
@@ -634,7 +649,9 @@ export function buildProviderOrchestrationPlan({
       fallbacks: [],
       initial_call_count: 0,
       max_possible_provider_calls: 0,
-      reason: "Budget cannot satisfy required intelligence/privacy constraints; no downgrade authorized",
+      reason: budgeted.blocked_by_unknown_cost_policy
+        ? "No eligible provider has acceptable known-cost provenance under policy; no unknown-cost assumption authorized"
+        : "Budget cannot satisfy required intelligence/privacy constraints; no downgrade authorized",
       caller_preference: clean(callerProviderPreference),
       caller_preference_honored: false,
       synthesis_authority: "Research Result Bundle / canonical Synthesis",
@@ -710,6 +727,15 @@ export function buildProviderOrchestrationPlan({
       primary.entry.provider === preference
       || primary.entry.model === preference
     );
+  const challengerMatchesPreference =
+    Boolean(preference)
+    && Boolean(challenger)
+    && (
+      challenger.entry.provider === preference
+      || challenger.entry.model === preference
+    );
+  const plannedCallMatchesPreference =
+    primaryMatchesPreference || challengerMatchesPreference;
 
   const status = challenger
     ? PLAN_STATUS.READY_WITH_CHALLENGER
@@ -745,7 +771,13 @@ export function buildProviderOrchestrationPlan({
     caller_preference_honored:
       normalizedPolicy.caller_preference_mode === "ignore"
         ? false
-        : primaryMatchesPreference,
+        : plannedCallMatchesPreference,
+    caller_preference_role:
+      primaryMatchesPreference
+        ? PROVIDER_ROLE.PRIMARY
+        : challengerMatchesPreference
+          ? PROVIDER_ROLE.CHALLENGER
+          : null,
     caller_preference_is_truth_authority: false,
     cost_boundary: {
       max_estimated_cost_ils:
