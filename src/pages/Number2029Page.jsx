@@ -22,6 +22,7 @@ import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -219,6 +220,7 @@ function NumberPageBody() {
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
   const [systemMethodsState, setSystemMethodsState] = useState({ loading: false, cards: [], error: null, key: null });
+  const [curationState, setCurationState] = useState({ loading: false, catalog: null, error: null });
   const [deepRequested, setDeepRequested] = useState(false);
   const [focusExplicit, setFocusExplicit] = useState(false);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState("");
@@ -276,6 +278,15 @@ function NumberPageBody() {
   const data = state.data;
 
   useEffect(() => {
+    let alive = true;
+    setCurationState((current) => current.catalog ? current : { loading: true, catalog: null, error: null });
+    fetchCurationCatalog2029()
+      .then((catalog) => { if (alive) setCurationState({ loading: false, catalog, error: null }); })
+      .catch((error) => { if (alive) setCurationState({ loading: false, catalog: null, error }); });
+    return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
     const node = deepSentinelRef.current;
     if (!node || deepRequested) return undefined;
     if (typeof IntersectionObserver === "undefined") {
@@ -318,6 +329,11 @@ function NumberPageBody() {
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
+  const numberCuration = useMemo(() => buildNumberCuration2029({
+    root,
+    relations,
+    catalog: curationState.catalog,
+  }), [root, relations, curationState.catalog]);
   const sources = Array.isArray(data?.sources) ? data.sources : [];
   const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
   const researchFindings = Array.isArray(data?.research?.findings) ? data.research.findings : [];
@@ -1039,6 +1055,8 @@ function NumberPageBody() {
       <NumberCore2029
         projection={coreProjection}
         mode="page"
+        curation={numberCuration}
+        curationCatalog={curationState.catalog}
         traceState={traceState}
         traceOpen={traceOpen}
         traceSteps={traceSteps}
