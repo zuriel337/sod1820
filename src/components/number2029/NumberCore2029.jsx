@@ -587,7 +587,7 @@ export default function NumberCore2029({
                 <strong>{projection.expression || root} <b>=</b> {stageCrossing.partner}</strong>
                 <div className="sod29-number-v10-crossing-methods">
                   {stageCrossing.methods.slice(0, 4).map((method) => <span key={method.methodKey}>
-                    {method.methodLabel === "קדמי · משולש" ? "משולש" : method.methodLabel} = {method.value}
+                    {publicMethodLabel(method)} = {method.value}
                   </span>)}
                   {stageCrossing.methods.length > 4 ? <span>+{stageCrossing.methods.length - 4}</span> : null}
                 </div>
