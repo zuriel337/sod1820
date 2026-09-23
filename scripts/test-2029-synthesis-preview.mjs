@@ -29,6 +29,11 @@ assert.equal("accuracy_score" in preview.synthesis, false);
 assert.equal(preview.synthesis.calibration.state, "unvalidated");
 assert.equal(preview.synthesis.motifs.length >= 3, true);
 assert.equal(preview.synthesis.claims.length >= 3, true);
+
+assert.equal(preview.synthesis.message.includes("בקדמי"), false, "public Synthesis copy must say משולש, never קדמי");
+assert.equal(preview.synthesis.message.includes("במשולש"), true, "public Synthesis copy should expose משולש");
+assert.equal(preview.display.anchors.some((item) => String(item).startsWith("קדמי")), false, "public proof anchors must not expose internal קדמי key");
+assert.equal(preview.display.anchors.some((item) => String(item).startsWith("משולש")), true, "public proof anchors should use משולש");
 assert.equal(preview.raziel_route.action, "raziel_route");
 assert.equal(preview.raziel_route.route_action, "connect");
 assert.equal(preview.raziel_route.label, "לחבר");
