@@ -371,10 +371,10 @@ function ToolsProjection({ surface, target, onDeepen, go, onCapability }) {
 
 function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null, synthesisPreview = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
+  const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const numberFocus = microIntent === "synthesis_preview"
     ? null
     : (numberCoreFocus || context?.dimensions?.numberCoreFocus || null);
-  const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
     explain_method: "הסבר את השיטה",
