@@ -396,3 +396,22 @@ test("Research Plan carries Route Grammar additively without replacing strategy 
   assert.equal(plan.route_grammar.guards.semantic_hint_only, true);
   assert.equal(plan.guards.route_grammar_is_semantic_hint_only, true);
 });
+
+
+test("generic planner intent research never steals an explicit conversational UNDERSTAND request", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "מה זה 1820?",
+    candidates: [
+      { type: "number", value: 1820, label: "1820", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+  });
+  const plan = buildResearchPlanV2({
+    question: resolved.raw_input,
+    identityResolution: resolved,
+    surfaceContext: { surface: "number" },
+  });
+
+  assert.equal(plan.intent, "research", "existing planner default remains unchanged");
+  assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(plan.route_grammar.requested_by, "user_language");
+});
