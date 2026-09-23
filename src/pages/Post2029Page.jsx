@@ -66,31 +66,31 @@ function PostPulse({ updates = [], onOpen }) {
   if (!updates.length) return null;
 
   const calculations = updates.flatMap((unit) => unit.calculations || []);
+  const contributorCalculations = updates.flatMap((unit) => unit.contributorCalculations || []);
+  const previewCalculations = (contributorCalculations.length ? contributorCalculations : calculations).slice(0, 2);
   const contributors = [...new Set(updates.map((unit) => clean(unit.contributor)).filter(Boolean))];
-  const featured = calculations.find((row) => Array.isArray(row.readings) && row.readings.length)
-    || calculations[0]
-    || null;
-  const featuredReading = featured?.readings?.[0] || null;
 
   const sourceLine = contributors.length === 1
     ? `תרומה חדשה · ${contributors[0]}`
     : contributors.length > 1
       ? `${updates.length} תוספות חדשות · ${contributors.length} תורמים`
       : `${updates.length === 1 ? "תוספת חדשה" : `${updates.length} תוספות חדשות`}`;
-  const detail = featuredReading
-    ? `${featured.claimedValue} → ${featuredReading.digit_sequence} · ${featuredReading.reading}`
-    : featured
-      ? `${featured.expression} = ${featured.claimedValue} · ${featured.methodLabel}`
-      : "הסיפור המשיך להתפתח";
+  const remaining = Math.max(0, (contributorCalculations.length || calculations.length) - previewCalculations.length);
+
 
   return <button type="button" className="sod29-post-pulse" onClick={onOpen} aria-label="ראה מה נוסף לפוסט מאז הפרסום">
     <span className="sod29-post-pulse-orb" aria-hidden="true">✦</span>
     <span className="sod29-post-pulse-copy">
       <small>חדש מאז הפרסום</small>
       <strong>{sourceLine}</strong>
-      <em>{detail}</em>
+      <span className="sod29-post-pulse-findings">
+        {previewCalculations.map((row) => <em key={row.expression + row.methodKey + row.claimedValue}>
+          <b>{row.expression} = {row.claimedValue}</b>
+          <small>{row.methodLabel}</small>
+        </em>)}
+      </span>
     </span>
-    <span className="sod29-post-pulse-cta">ראה מה נוסף ↓</span>
+    <span className="sod29-post-pulse-cta">{remaining > 0 ? `ראה עוד ${remaining} ↓` : "ראה עוד ↓"}</span>
   </button>;
 }
 
