@@ -138,6 +138,18 @@ test("canonical calibration fingerprint ignores object key order but preserves a
   assert.notEqual(a, reordered);
 });
 
+test("freeze snapshot is deeply immutable, not only top-level frozen", () => {
+  const freeze = frozen();
+
+  assert.equal(Object.isFrozen(freeze), true);
+  assert.equal(Object.isFrozen(freeze.claims), true);
+  assert.equal(Object.isFrozen(freeze.claims[0]), true);
+  assert.equal(Object.isFrozen(freeze.claims[0].support), true);
+  assert.throws(() => {
+    freeze.claims[0].text = "mutated";
+  }, TypeError);
+});
+
 test("freeze integrity fails when a frozen claim is reworded after the fact", () => {
   const freeze = frozen();
   const original = syntheticSynthesis();
@@ -298,6 +310,19 @@ test("decoy trial is replayable by seed and keeps answer key out of public trial
   assert.equal(a.public_trial.random_baseline_percent, 25);
   assert.equal(JSON.stringify(a.public_trial).includes("correct_option_id"), false);
   assert.equal(a.answer_key.visibility, "hidden_from_subject_and_blind_evaluator");
+});
+
+test("decoy trial rejects duplicate ids or duplicate/correct-identical messages", () => {
+  const freeze = frozen();
+
+  assert.throws(() => buildBlindDecoyTrial(freeze, [
+    { id: "d1", message: "מסר חלופי א." },
+    { id: "d1", message: "מסר חלופי ב." },
+  ], { seed: "dup-id" }), /duplicate decoy source id/);
+
+  assert.throws(() => buildBlindDecoyTrial(freeze, [
+    { id: "d1", message: freeze.message },
+  ], { seed: "dup-message" }), /must be distinct/);
 });
 
 test("decoy scorer reports discrimination versus random baseline, never truth", () => {
