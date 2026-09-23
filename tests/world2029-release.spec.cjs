@@ -222,6 +222,7 @@ test('1820 Synthesis Golden compares old-vs-new and passes the same Synthesis in
     await expect(panel).toBeVisible();
     const sameSynthesis = panel.locator('[data-raziel-synthesis-preview="true"]');
     await expect(sameSynthesis).toBeVisible();
+    await expect(panel.locator('.sod29-raziel-quick-insight')).toHaveCount(0);
     await expect(sameSynthesis).toContainText('המסר שרזיאל קיבל · אותו Synthesis');
     await expect(sameSynthesis).toContainText('נסתר → נגלה');
     await expect(sameSynthesis).toContainText('עת / זמן');
