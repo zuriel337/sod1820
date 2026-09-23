@@ -12,7 +12,7 @@ Owners reused:
 - `fn_detect_pattern_contradictions`
 - `admin_pattern_review`
 - `admin_pattern_revoke`
-- `ai_style_learning_law v2`
+- `system_suggestions_law v3` — active canonical owner that absorbed the historical `ai_style_learning_law` style-learning implementation
 - `research_strategy_layer_law v15`
 - Person/Truth governance
 
@@ -141,7 +141,7 @@ F6 supports research-policy evaluation for:
 
 ### Style exclusion
 
-AI writing style remains owned by `ai_style_learning_law`.
+AI writing/style learning remains outside F6 and routes to the active `system_suggestions_law` / current style-learning owner. The historical `ai_style_learning_law v2` is superseded/inactive.
 
 F6 rejects `style` / `message_style` / `ai_style`.
 
@@ -293,10 +293,15 @@ Examples:
 - sample too small;
 - owner attestation not declared.
 
+### CHAMPION_BOUNDARY_FAILURE_REQUIRES_HUMAN_INTERVENTION
+The active Champion itself violates a non-waivable privacy/Truth/sensitive/evidence-leakage boundary.
+
+This outranks ordinary comparison quality. The system must not silently keep an unsafe Champion merely because the Challenger is weak, confounded or insufficiently improved.
+
 ### BLOCK_CHALLENGER
 Examples:
-- privacy violation;
-- Truth violation;
+- Challenger privacy violation;
+- Challenger Truth violation;
 - contradiction regression over limit;
 - genericity regression over limit;
 - unacceptable cost/latency regression.
@@ -337,8 +342,9 @@ Genericity and contradiction remain separate non-regression dimensions.
 
 ## 12. Champion can also be invalid
 
-The Challenger is not the only run that must meet sample requirements.
+The Challenger is not the only run that can fail.
 
+### Sample invalidity
 Both Champion and Challenger must satisfy the declared minimum sample.
 
 Otherwise:
@@ -346,6 +352,13 @@ Otherwise:
 `INSUFFICIENT_EVIDENCE`
 
 We do not compare a well-measured Challenger against an under-measured Champion and call the difference causal.
+
+### Hard-boundary invalidity
+If the active Champion has a privacy / Truth / sensitive-inference / evidence-leakage violation, F6 returns:
+
+`CHAMPION_BOUNDARY_FAILURE_REQUIRES_HUMAN_INTERVENTION`
+
+This escalation is explicit even if the Challenger is not good enough to replace it. “No better Challenger” never authorizes silently retaining an unsafe policy as though it had passed the safety boundary.
 
 ---
 
