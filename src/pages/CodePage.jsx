@@ -45,7 +45,7 @@ const REBUILD_LAYERS = [
   },
 ];
 
-function CodeClosed({ message }) {
+function CodeClosed({ message, user }) {
   const P = usePalette();
   return (
     <div style={{ direction: "rtl", maxWidth: 1060, margin: "0 auto", padding: "54px 18px 110px", position: "relative", zIndex: 1 }}>
@@ -73,23 +73,45 @@ function CodeClosed({ message }) {
         <p style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 16px" }}>
           מי שמרגיש שהמסע כבר התחיל — יכול להמשיך מכאן.
         </p>
-        <a
-          href="https://www.thefirstverse.com/he?via=user-31"
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          style={{
-            display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-            minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
-            background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
-            boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
-            fontFamily: F.heading, fontSize: 14, fontWeight: 900,
-          }}
-        >
-          המשך אל The First Verse ↗
-        </a>
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
-          זהו קישור השותף של SOD1820. הצטרפות דרכו תומכת בהמשך הדרך ובבניית כלי המחקר הבאים.
-        </div>
+        {user ? (
+          <>
+            <a
+              href="https://www.thefirstverse.com/he?via=user-31"
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
+                background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
+                boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
+                fontFamily: F.heading, fontSize: 14, fontWeight: 900,
+              }}
+            >
+              המשך אל The First Verse ↗
+            </a>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
+              זהו קישור השותף של SOD1820. הצטרפות דרכו תומכת בהמשך הדרך ובבניית כלי המחקר הבאים.
+            </div>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
+                background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
+                boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
+                fontFamily: F.heading, fontSize: 14, fontWeight: 900,
+              }}
+            >
+              הרשמה חינם לצפייה בקישור ↗
+            </Link>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
+              הקישור החיצוני פתוח למשתמשים רשומים. ההרשמה חינם ואינה דורשת חברות בתשלום.
+            </div>
+          </>
+        )}
       </section>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14, margin: "34px 0 22px" }}>
@@ -141,7 +163,7 @@ function CodeClosed({ message }) {
 
 export default function CodePage() {
   const P = usePalette();
-  const { loading, isAdmin } = useAuth();
+  const { loading, user, isAdmin } = useAuth();
   const elsState = useFeatureState("lock_els");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [sp, setSp] = useSearchParams();
@@ -166,7 +188,7 @@ export default function CodePage() {
   if (loading || elsState.loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} />;
+  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} user={user} />;
 
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
