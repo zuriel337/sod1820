@@ -121,10 +121,10 @@ const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 
-// 🏛️ ההיכל פתוח לכולם (בקשת צוריאל, 6.9.2026) — הסרת שער-החסימה משער-האב /research.
-// תג «בבנייה» נשאר ויזואלית בנאב (HEICHAL_UNDER_CONSTRUCTION ב-Navbar.jsx) בלי לחסום כניסה בפועל.
+// 🏛️ Legacy Research/Heichal access is governed by the canonical site_flags owner.
+// lock_research mode=anon => anonymous visitors see free registration/login; registered users and admin pass.
 function ResearchEntryRoute() {
-  return <ResearchPage />;
+  return <Locked flag="lock_research"><ResearchPage /></Locked>;
 }
 
 // ניהול SEO + גלילה לראש בכל מעבר route.

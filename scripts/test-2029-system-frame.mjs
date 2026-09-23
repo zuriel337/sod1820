@@ -156,7 +156,8 @@ assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
-assert.match(frame, /Surface \+ Selection → Action → Capability → Panel → Heichal/);
+assert.match(frame, /Surface \+ Selection → Action → Capability → Panel/);
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "unopened Heichal must not be a System Frame navigation entry");
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
 
@@ -167,7 +168,7 @@ const elsTools = resolveContextTools({ surface: "els", target: numberTarget });
 const numberTools = resolveContextTools({ surface: "number", target: numberTarget });
 assert.equal(worldActions.some((action) => action.capability === "number"), true);
 assert.equal(worldActions.some((action) => action.href === "/world"), true);
-assert.equal(bookActions.some((action) => action.label.includes("מקור")), true);
+assert.equal(bookActions.some((action) => action.label.includes("היכל")), false, "Book context must not expose unopened Heichal");
 assert.equal(elsTools[0].capability, "number", "numeric target keeps Number capability available across surfaces");
 assert.equal(elsTools.some((action) => action.href === "/books"), true);
 assert.equal(numberTools.some((action) => action.href === "/world"), true);

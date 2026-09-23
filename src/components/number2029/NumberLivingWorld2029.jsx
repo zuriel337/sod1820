@@ -466,7 +466,7 @@ export default function NumberLivingWorld2029({
             <div><span>{selectedScrub?.kind}</span><strong>{selectedScrub?.title}</strong><p>{selectedScrub?.subtitle}</p></div>
             <div className="sod29-lw-actions">
               {selectedScrub?.value != null ? <DepthButton primary onClick={() => onOpenNumber?.(selectedScrub.value)}>פתח את דף המספר</DepthButton> : null}
-              {scrubMode === "sequences" ? <DepthButton primary onClick={() => onOpenHeichal?.({ kind: selectedScrub?.key === "pi" ? "sequence_pi" : "sequence_fibonacci", root })}>חקור {selectedScrub?.title} בהיכל</DepthButton> : null}
+              {scrubMode === "sequences" && onOpenHeichal ? <DepthButton primary onClick={() => onOpenHeichal({ kind: selectedScrub?.key === "pi" ? "sequence_pi" : "sequence_fibonacci", root })}>חקור {selectedScrub?.title} בהיכל</DepthButton> : null}
               {scrubMode === "findings" ? <DepthButton onClick={() => onRazielAction?.("explain_finding", { root, finding: selectedScrub?.raw })}>למה זה קשור?</DepthButton> : null}
             </div>
           </article>
@@ -504,8 +504,10 @@ export default function NumberLivingWorld2029({
         {!sources.length ? <div className="sod29-lw-empty">אין כרגע מקור אנושי מספיק ברור להצגה.</div> : null}
       </div>
       <div className="sod29-lw-depth-gates">
-        <button type="button" onClick={() => onOpenHeichal?.({ kind: "els_from_number", root })}><span>ELS / צפנים</span><strong>בדוק ממצאים קיימים או פתח חקירה</strong><small>לא רץ אוטומטית</small></button>
-        <button type="button" onClick={() => onOpenHeichal?.({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
+        {onOpenHeichal ? <>
+          <button type="button" onClick={() => onOpenHeichal({ kind: "els_from_number", root })}><span>ELS / צפנים</span><strong>בדוק ממצאים קיימים או פתח חקירה</strong><small>לא רץ אוטומטית</small></button>
+          <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
+        </> : null}
       </div>
       {sources.length > 5 ? <DepthButton onClick={() => setShowAllSources((value) => !value)}>{showAllSources ? "צמצם מקורות" : "ראה מקורות נוספים"}</DepthButton> : null}
     </section>
@@ -544,7 +546,7 @@ export default function NumberLivingWorld2029({
       <SectionHead kicker="מחקר עמוק" title="רזיאל והמחקר העמוק" text="דף המספר נשאר נקי ומהיר. חישוב מלא, הרצות חדשות, ELS, תלת־ממד והתאמות רבות נפתחים רק כשמבקשים." />
       <div className="sod29-lw-actions">
         <DepthButton primary onClick={() => onRazielAction?.("number_next_step", { root })}>מה כדאי לבדוק עכשיו?</DepthButton>
-        <DepthButton onClick={() => onOpenHeichal?.({ kind: "number_deep_research", root })}>פתח בהיכל</DepthButton>
+        {onOpenHeichal ? <DepthButton onClick={() => onOpenHeichal({ kind: "number_deep_research", root })}>פתח בהיכל</DepthButton> : null}
         <DepthButton onClick={() => jump("number-deep-view")}>מפת המחקר</DepthButton>
       </div>
       <div className="sod29-lw-truth-strip">
