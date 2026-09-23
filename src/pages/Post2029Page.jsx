@@ -94,6 +94,58 @@ function PostPulse({ updates = [], onOpen }) {
   </button>;
 }
 
+function TemporalNowLens({ lens }) {
+  if (!lens?.rows?.length) return null;
+
+  const external = (lens.contributions || [])
+    .filter((item) => item?.gematria_claim?.phrase)
+    .filter((item) => Number(item?.gematria_claim?.value) === Number(lens.value))
+    .slice(0, 3);
+  const local = lens.rows[0] || null;
+  const yearLabel = lens.yearLabel || lens.context?.hebrew?.year_label || "";
+  const active = lens.state === "active";
+
+  return <section className="sod29-post-time-lens" id="temporal-lens">
+    <div className="sod29-post-time-head">
+      <div>
+        <div className="sod29-kicker">{lens.publicLabel}</div>
+        <h2>{yearLabel ? `${yearLabel} · ${lens.value}` : lens.value}</h2>
+      </div>
+      <span className={`sod29-post-time-state ${active ? "is-active" : "is-axis"}`}>
+        {active ? "רמז זמן פעיל" : "רמז זמן בציר"}
+      </span>
+    </div>
+
+    <p className="sod29-post-time-intro">
+      {active
+        ? "אותו מספר חוזר כאן בתוך העת הנוכחית — בכמה מקורות נפרדים."
+        : "המספר נשאר מחובר לשנה שבה הופיע כרמז זמן, גם אחרי שהעת התקדמה."}
+    </p>
+
+    <div className="sod29-post-time-links">
+      {lens.currentYearVerification?.verified && yearLabel ? <div>
+        <strong>{yearLabel} = {lens.value}</strong>
+        <small>השנה</small>
+      </div> : null}
+
+      {local ? <div>
+        <strong>{local.expression} = {local.claimedValue}</strong>
+        <small>{lens.localContributor || "מתוך הפוסט"}</small>
+      </div> : null}
+
+      {external.map((item) => <div key={item.id}>
+        <strong>{item.gematria_claim.phrase} = {item.gematria_claim.value}</strong>
+        <small>{item.author_name || "מקור נוסף"}</small>
+      </div>)}
+    </div>
+
+    <div className="sod29-post-time-footer">
+      <span>זה חיבור זמן ורמז — לא קביעה של תאריך עתידי.</span>
+      <Link to={lens.axisHref || "/timeline"}>פתח בציר ההתגלות →</Link>
+    </div>
+  </section>;
+}
+
 function CalculationCard({ row, traceState, onOpenHint }) {
   const state = traceState?.[row.expression + "|" + row.methodKey] || null;
   const actual = state?.finding?.verification?.engine_result;
@@ -246,6 +298,8 @@ function PostPageBody() {
     </header>
 
     <PostPulse updates={updateUnits} onOpen={jumpToUpdates} />
+
+    <TemporalNowLens lens={projection.temporalLens} />
 
     {mediaUnit ? <SourceMediaUnit unit={mediaUnit} /> : null}
     {storyUnit ? <HtmlUnit unit={storyUnit} /> : null}
