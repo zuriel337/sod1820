@@ -17,7 +17,6 @@ const ROUTES = Object.freeze({
   WORLD: "/world",
   BOOKS: "/books",
   ELS: "/els",
-  HEICHAL: "/heichal",
 });
 
 function numericFamily(target) {
@@ -47,14 +46,11 @@ function baseContextActions(target) {
     }
   }
   out.push({ id: "raziel", kind: CONTEXT_ACTION_KIND.RAZIEL, label: "● רזיאל" });
-  out.push({ id: "heichal", kind: CONTEXT_ACTION_KIND.DEEPEN, label: "◇ העמק בהיכל" });
   return out;
 }
 
 function surfaceAction(surface, target) {
   const key = clean(surface);
-  if (key === "books" && target) return { id: "book-deepen", kind: CONTEXT_ACTION_KIND.DEEPEN, label: "▤ חקור את המקור בהיכל" };
-  if (key === "els") return { id: "els-deepen", kind: CONTEXT_ACTION_KIND.DEEPEN, label: "✦ העמק את בדיקת ELS" };
   if (key === "world" && target) return { id: "world-focus", kind: CONTEXT_ACTION_KIND.ROUTE, href: ROUTES.WORLD, label: "◌ פתח בעולם" };
   if (key === "number" && target) return { id: "number-world", kind: CONTEXT_ACTION_KIND.ROUTE, href: ROUTES.WORLD, label: "◌ ראה בעולם" };
   return null;
@@ -74,10 +70,6 @@ function toolRoute(id, href, label) {
   return { id, kind: CONTEXT_ACTION_KIND.ROUTE, href, label };
 }
 
-function deepenTool(label = "◇ היכל") {
-  return { id: "heichal", kind: CONTEXT_ACTION_KIND.DEEPEN, label };
-}
-
 export function resolveContextTools({ surface = "system", target = null } = {}) {
   const key = clean(surface);
   const out = [];
@@ -91,15 +83,12 @@ export function resolveContextTools({ surface = "system", target = null } = {}) 
     world: [
       toolRoute("els", ROUTES.ELS, "✦ ELS"),
       toolRoute("books", ROUTES.BOOKS, "▤ ספרים / מקורות"),
-      deepenTool(),
     ],
     books: [
-      deepenTool(),
       toolRoute("els", ROUTES.ELS, "✦ ELS"),
       toolRoute("world", ROUTES.WORLD, "◌ עולם"),
     ],
     els: [
-      deepenTool(),
       toolRoute("books", ROUTES.BOOKS, "▤ ספרים / מקורות"),
       toolRoute("world", ROUTES.WORLD, "◌ עולם"),
     ],
@@ -107,7 +96,6 @@ export function resolveContextTools({ surface = "system", target = null } = {}) 
       toolRoute("world", ROUTES.WORLD, "◌ עולם"),
       toolRoute("els", ROUTES.ELS, "✦ ELS"),
       toolRoute("books", ROUTES.BOOKS, "▤ ספרים / מקורות"),
-      deepenTool(),
     ],
     heichal: [
       toolRoute("world", ROUTES.WORLD, "◌ עולם"),
@@ -117,7 +105,6 @@ export function resolveContextTools({ surface = "system", target = null } = {}) 
   };
 
   out.push(...(bySurface[key] || [
-    deepenTool(),
     toolRoute("world", ROUTES.WORLD, "◌ עולם"),
     toolRoute("els", ROUTES.ELS, "✦ ELS"),
     toolRoute("books", ROUTES.BOOKS, "▤ ספרים / מקורות"),
