@@ -369,12 +369,26 @@ function ToolsProjection({ surface, target, onDeepen, go, onCapability }) {
   );
 }
 
-function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null, synthesisPreview = null }) {
+function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null, synthesisPreview = null, razielRouteAction = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const numberFocus = microIntent === "synthesis_preview"
     ? null
     : (numberCoreFocus || context?.dimensions?.numberCoreFocus || null);
+  const routeHomeLabel = {
+    current: "כאן",
+    world: "בעולם",
+    heichal: "בהיכל",
+    journey: "במסע",
+  }[razielRouteAction?.preferred_home] || null;
+  const routeActionValid = Boolean(
+    razielRouteAction
+    && razielRouteAction.action === "raziel_route"
+    && razielRouteAction.guards?.semantic_action_only === true
+    && razielRouteAction.guards?.no_local_message_generation === true
+    && razielRouteAction.synthesis?.message_authority === "bundle.synthesis"
+    && razielRouteAction.synthesis?.local_message == null
+  );
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
     explain_method: "הסבר את השיטה",
@@ -460,7 +474,15 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ המשך שיחה · adapter pending</button>
+        {routeActionValid ? <button
+          className="sod29-action primary"
+          type="button"
+          disabled
+          data-raziel-route-action={razielRouteAction.route_action}
+          data-raziel-route-home={razielRouteAction.preferred_home}
+          title="Golden Preview בלבד · F12 יחבר את הפעולה לניווט החי"
+        >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
+        <button className={routeActionValid ? "sod29-action" : "sod29-action primary"} type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ המשך שיחה · adapter pending</button>
         <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ פתח Deep Research</button>
       </div>
     </>
@@ -873,7 +895,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} synthesisPreview={transient?.payload?.synthesisPreview || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} synthesisPreview={transient?.payload?.synthesisPreview || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
