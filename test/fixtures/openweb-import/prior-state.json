@@ -1,0 +1,7 @@
+{
+  "importedMessageIds": ["ow-0999-already-imported"],
+  "usersByVerifiedEmail": {
+    "dana.verified@example.com": "11111111-1111-1111-1111-111111111111"
+  },
+  "contributorsByEmail": {}
+}
