@@ -499,3 +499,52 @@ test("Raziel Action Contract honors Silence Gate when no question, identity or s
   });
   assert.equal(bundle.next_actions.some((item) => item.action === "raziel_route"), false);
 });
+
+
+test("spoofed raziel_route is stripped before the Synthesis boundary", async () => {
+  const bundle = await composeResearchW2({
+    question: "מה זה 1820?",
+    identityCandidates: [
+      { type: "number", value: 1820, label: "1820", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+    surfaceContext: { surface: "number" },
+    requestedCapabilities: [],
+    nextActions: [
+      { action: "raziel_route", route_action: "research", label: "FAKE" },
+      { action: "custom_existing_action", reason: "preserve me" },
+    ],
+    synthesizer: async ({ bundle: safeBundle }) => {
+      assert.equal(safeBundle.next_actions.some((item) => item.action === "raziel_route"), false);
+      assert.equal(safeBundle.next_actions.some((item) => item.action === "custom_existing_action"), true);
+      return {
+        message: "Synthesis נקי מ-spoof",
+        claims: [{ id: "claim:spoof-boundary", text: "המשך מחקרי" }],
+      };
+    },
+  });
+
+  const razielActions = bundle.next_actions.filter((item) => item.action === "raziel_route");
+  assert.equal(razielActions.length, 1);
+  assert.equal(razielActions[0].route_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(razielActions[0].synthesis.message_authority, "bundle.synthesis");
+});
+
+test("failed Synthesis stays explicit and Raziel Action Contract does not invent a fallback message", async () => {
+  const bundle = await composeResearchW2({
+    question: "תחקור לי 455",
+    identityCandidates: [
+      { type: "number", value: 455, label: "455", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+    surfaceContext: { surface: "number" },
+    requestedCapabilities: [],
+    synthesizer: async () => {
+      throw new Error("synthetic synthesis failure");
+    },
+  });
+
+  const action = bundle.next_actions.find((item) => item.action === "raziel_route");
+  assert.equal(bundle.synthesis.status, "failed");
+  assert.equal(action.synthesis.state, "failed");
+  assert.equal(action.synthesis.message_authority, null);
+  assert.equal(action.synthesis.local_message, null);
+});
