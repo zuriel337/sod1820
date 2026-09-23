@@ -111,6 +111,7 @@ function PreviewBody() {
     shell.openRaziel({
       razielMicroIntent: "synthesis_preview",
       synthesisPreview: preview.synthesis,
+      razielRouteAction: preview.raziel_route,
     });
   };
 
