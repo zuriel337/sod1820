@@ -2,9 +2,12 @@
 // Owner: research_contribution_law v9 (content) + research_intake_foundation_contract_law v13
 // + identity_architecture_law v1 + graph_privacy_foundation_law v1 + truth_axes_foundation_law v3.
 // See docs/g3-community-foundation-runtime-v1-branch-notes.md for the DRIFT note on
-// research_contribution_law's compaction status and the full schema crosswalk, and
+// research_contribution_law's compaction status and the full schema crosswalk,
 // docs/g3-community-core-2029-phase2-1-integrity-fixes-branch-notes.md for the integrity
-// repairs applied in this pass (task_key=G3_COMMUNITY_CORE_2029_PHASE2_1_INTEGRITY_FIXES_V1).
+// repairs applied in Phase 2.1, and
+// docs/g3-community-core-2029-phase2-2-source-fidelity-branch-notes.md for the reactions-shape
+// and blank-body fixes applied in this pass (task_key=
+// G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1).
 //
 // This module only *plans* database operations from OpenWeb-shaped fixture messages.
 // It never opens a DB connection and never writes anything — callers decide, in a later,
@@ -46,15 +49,29 @@ function mapModerationToStatus(moderationState) {
   return 'pending';
 }
 
-// Missing source reaction counts must stay unknown (null), never fabricated as zero — the real
-// archive has 8,934 rows with no likes/dislikes captured at all, distinct from a message that
-// genuinely received zero likes/dislikes. A consuming Shadow Preview must render a numeric count
-// only when this returns a non-null value for that field.
+// Missing source reaction counts must stay unknown, never fabricated as zero — the real archive
+// has 8,934 rows with no likes/dislikes captured at all, distinct from a message that genuinely
+// received zero likes/dislikes. `research_contributions.reactions` is `jsonb NOT NULL DEFAULT
+// '{}'` (Phase 2.2 integrity fix, task_key=G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1):
+// a plan that returned JS `null` here would violate that NOT NULL constraint on direct execution,
+// so "neither count captured" is represented as `{}` (no likes/dislikes keys at all), never as
+// top-level null and never as a fabricated `{likes:0,dislikes:0}`. A consuming Shadow Preview
+// must render a numeric count only when a `likes`/`dislikes` key is actually present.
 function buildReactions(msg) {
   const hasLikes = msg.likes !== undefined && msg.likes !== null;
   const hasDislikes = msg.dislikes !== undefined && msg.dislikes !== null;
-  if (!hasLikes && !hasDislikes) return null;
+  if (!hasLikes && !hasDislikes) return {};
   return { likes: hasLikes ? msg.likes : null, dislikes: hasDislikes ? msg.dislikes : null };
+}
+
+// A blank/whitespace-only source body is not trustworthy authored-empty content — the real
+// OpenWeb archive has 3,329 rows with blank/missing text_content (2,912 of them source
+// status=approved, 2,605 of those with nonzero reaction activity, image_url absent throughout),
+// strongly indicating missing representation/media in the export rather than a genuine empty
+// authored message. Phase 2.2 integrity fix (task_key=
+// G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1).
+function isBlankBody(body) {
+  return body === undefined || body === null || String(body).trim() === '';
 }
 
 function privateDossierSettings(existing) {
@@ -144,6 +161,7 @@ export function planImport(messages, state) {
 
     const contributionId = `planned:${msg.message_id}`;
     messageIdToPlannedContributionId.set(msg.message_id, contributionId);
+    const bodyIsBlank = isBlankBody(msg.body);
 
     let parent_id = null;
     if (isReply) {
@@ -165,7 +183,12 @@ export function planImport(messages, state) {
         author_user_id,
         author_contributor_id,
         author_name: author_user_id ? null : msg.author_display_name || null,
-        body: msg.body,
+        // Never invent placeholder authored text for a blank/whitespace source body: preserve
+        // body=null and carry the reason in the provenance note instead. Message/provenance/
+        // identity/thread/reactions/moderation all stay intact — only the authored payload is
+        // absent. Source `approved` visibility is never downgraded to `hidden` merely to hide an
+        // empty projection; the read-seam projections filter display, not this stored row.
+        body: bodyIsBlank ? null : msg.body,
         reactions: buildReactions(msg),
         created_at: msg.created_at,
       },
@@ -181,6 +204,7 @@ export function planImport(messages, state) {
           url_kind: msg.url_kind,
           original_moderation_state: msg.moderation_state,
           parent_message_id: msg.parent_message_id || null,
+          representation_payload_missing: bodyIsBlank,
         }),
       },
       identity_link: identity_link && { from_contribution_id: contributionId, ...identity_link },

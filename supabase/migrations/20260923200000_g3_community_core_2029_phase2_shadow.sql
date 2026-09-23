@@ -65,6 +65,16 @@ as $$
     and (p_root_target_type is null or rc.target_type = p_root_target_type)
     and (p_root_target_id is null or rc.target_id = p_root_target_id)
     and (p_since is null or rc.last_activity_at > p_since)
+    -- Phase 2.2 integrity fix (task_key=G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1):
+    -- never project a visually empty Community item. A row with no displayable authored
+    -- payload (blank body/title and no real media/image) stays stored for lineage/audit but is
+    -- omitted from this display projection.
+    and (
+      coalesce(btrim(rc.body), '') <> ''
+      or coalesce(btrim(rc.title), '') <> ''
+      or rc.image_url is not null
+      or jsonb_array_length(rc.media) > 0
+    )
   order by rc.last_activity_at desc
   limit greatest(1, least(coalesce(p_limit, 50), 200));
 $$;
@@ -72,7 +82,8 @@ $$;
 comment on function public.community_stream_projection is
   'G3 Community Core 2029 Phase 2 — read projection over research_contributions, re-applies '
   'rc_public_read predicate. No classifier/intent field exposed. Hidden runtime, no route '
-  'wired to it live yet.';
+  'wired to it live yet. Phase 2.2: omits rows with no displayable authored payload (blank '
+  'body/title and no media/image) — they stay stored, never displayed as an empty item.';
 
 -- =====================================================================================
 -- 2. Community semantic history search — extends the existing `chat_search_facts` pattern
@@ -123,6 +134,9 @@ begin
     rc.created_at
   from public.research_contributions rc
   where rc.status = 'approved'
+    -- Phase 2.2 integrity fix: never surface a search result with no displayable authored
+    -- body text (blank/missing source payload rows stay stored for lineage, not searchable).
+    and coalesce(btrim(rc.body), '') <> ''
     and v_tsq @@ to_tsvector('simple', coalesce(rc.body, ''))
   order by rank desc
   limit greatest(1, least(coalesce(p_limit, 5), 20));
@@ -131,7 +145,8 @@ $$;
 
 comment on function public.community_search_facts is
   'G3 Community Core 2029 Phase 2 — extends chat_search_facts pattern onto approved community '
-  'text. Approved-only; no email/PII column selected.';
+  'text. Approved-only; no email/PII column selected. Phase 2.2: excludes rows with no '
+  'displayable body text.';
 
 -- =====================================================================================
 -- 3. Raziel Community Partner read seam — extends fn_raziel_research_intel_scoped's exact
@@ -336,6 +351,16 @@ begin
     where rc.target_type = 'post'
       and rc.target_id = v_post_id::text
       and (rc.status = 'approved' or rc.author_user_id = auth.uid())
+      -- Phase 2.2 integrity fix: never project a visually empty Community reply into the post
+      -- conversation. A visible reply whose parent is one of these invisible rows keeps its
+      -- parent_ref by id; the WordPress half of this union is unaffected (its own source never
+      -- exhibited this blank-payload defect).
+      and (
+        coalesce(btrim(rc.body), '') <> ''
+        or coalesce(btrim(rc.title), '') <> ''
+        or rc.image_url is not null
+        or jsonb_array_length(rc.media) > 0
+      )
   ) unified
   order by created_at asc
   limit greatest(1, least(coalesce(p_limit, 200), 500));
@@ -345,7 +370,8 @@ $$;
 comment on function public.post_conversation_projection is
   'G3 Community Core 2029 Phase 2.1 — unifies legacy WordPress public.comments with native '
   'research_contributions for one canonical post into a single chronological projection. Never '
-  'guesses an unresolved post_wp_id. See '
+  'guesses an unresolved post_wp_id. Phase 2.2: omits community rows with no displayable '
+  'authored payload. See '
   'scripts/g3-community-foundation-runtime/postConversationProjection.mjs for the pure-logic twin.';
 
 -- =====================================================================================

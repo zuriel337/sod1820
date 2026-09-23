@@ -21,7 +21,8 @@
     "test:2029-cheap-hardening": "node scripts/test-2029-cheap-hardening.mjs",
     "test:g3-community-foundation-runtime": "node --test scripts/test-g3-community-foundation-runtime.mjs",
     "test:g3-community-core-2029-phase2": "node --test scripts/test-g3-community-core-2029-phase2.mjs",
-    "test:g3-community-core-2029-phase2-1": "node --test scripts/test-g3-community-core-2029-phase2-1-integrity.mjs"
+    "test:g3-community-core-2029-phase2-1": "node --test scripts/test-g3-community-core-2029-phase2-1-integrity.mjs",
+    "test:g3-community-core-2029-phase2-2": "node --test scripts/test-g3-community-core-2029-phase2-2-source-fidelity.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"

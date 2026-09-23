@@ -80,7 +80,10 @@ export default function CommunityShadowPreview2029Page() {
                 <div style={{ color: pal.inkSoft, fontSize: 15 }}>{m.body}</div>
                 <div style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 13, color: pal.accentDim }}>
                   <span>💬 השב</span>
-                  <span>♥ {(m.reactions && m.reactions.likes) || 0}</span>
+                  {/* Phase 2.2 integrity fix: an unknown reaction count (no `likes` key at all,
+                      e.g. reactions={}) must never render as "0 likes" — show a number only
+                      when the source actually captured one. */}
+                  {typeof m.reactions?.likes === "number" && <span>♥ {m.reactions.likes}</span>}
                 </div>
               </div>
             ))}

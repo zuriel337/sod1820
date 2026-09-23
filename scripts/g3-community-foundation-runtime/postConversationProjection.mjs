@@ -27,8 +27,22 @@ export function projectPostConversation(postWpId, wpComments, contributions, { c
       created_at: c.date,
     }));
 
+  // Phase 2.2 integrity fix (task_key=G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1): never
+  // project a visually empty Community item — mirrors the SQL filter in
+  // public.post_conversation_projection / public.community_stream_projection.
+  const hasDisplayablePayload = (rc) =>
+    (rc.body != null && String(rc.body).trim() !== '') ||
+    (rc.title != null && String(rc.title).trim() !== '') ||
+    rc.image_url != null ||
+    (Array.isArray(rc.media) && rc.media.length > 0);
+
   const communityItems = (contributions || [])
-    .filter((rc) => rc.target_type === 'post' && (canonicalPostId == null || rc.target_id === String(canonicalPostId)))
+    .filter(
+      (rc) =>
+        rc.target_type === 'post' &&
+        (canonicalPostId == null || rc.target_id === String(canonicalPostId)) &&
+        hasDisplayablePayload(rc)
+    )
     .map((rc) => ({
       source_kind: 'community',
       source_id: String(rc.id),

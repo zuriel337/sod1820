@@ -78,10 +78,10 @@ test('an already-linked openweb_user_id (explicitly claimed in a prior session) 
 
 // ---- reaction truth: missing must never become zero -----------------------------------------
 
-test('a message with no likes/dislikes captured at all plans reactions: null, never {likes:0,dislikes:0}', () => {
+test('a message with no likes/dislikes captured at all plans reactions: {} (DB-compatible unknown), never null or {likes:0,dislikes:0}', () => {
   const ops = planImport(messages, freshState());
   const op = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1007');
-  assert.equal(op.contribution.reactions, null);
+  assert.deepEqual(op.contribution.reactions, {});
 });
 
 test('a message with an explicit zero reaction count preserves the real zero, distinct from missing', () => {
