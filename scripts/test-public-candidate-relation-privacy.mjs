@@ -4,8 +4,10 @@ import { readFileSync } from "node:fs";
 // PUBLIC_CANDIDATE_RELATION_READER_PRIVACY_HARDENING_V1
 // Focused, offline check that the public/anon-reachable relation reader
 // (fn_relation_independent_evidence, called from fn_relation_candidate) can
-// never surface research_objects content again, and that the SECURITY
-// DEFINER privilege escalation this depended on has been dropped.
+// never surface research_objects content again, that the SECURITY DEFINER
+// privilege escalation this depended on has been dropped, and that topic_cards
+// evidence is read through the anon-readable topic_cards_public view rather
+// than the base topic_cards table (which anon cannot select).
 
 const migration = readFileSync(
   "supabase/migrations/20260923213000_public_candidate_relation_reader_privacy_hardening_v1.sql",
@@ -37,9 +39,15 @@ assert.ok(
   "public relation reader must always return an empty research_objects array (fail closed, shape-compatible with fn_relation_candidate)",
 );
 
-for (const needle of ["FROM edges e", "FROM topic_cards tc"]) {
+for (const needle of ["FROM edges e", "FROM topic_cards_public tc"]) {
   assert.ok(fnBody.includes(needle), `non-research relation evidence must be preserved: ${needle}`);
 }
+
+assert.equal(
+  /from\s+topic_cards\s+tc/i.test(fnBody),
+  false,
+  "public relation reader must not read the base topic_cards table directly — anon has no SELECT grant on it, only on topic_cards_public",
+);
 
 // research_objects schema/grants/status semantics must not be touched by this migration.
 for (const needle of ["ALTER TABLE public.research_objects", "GRANT", "REVOKE"]) {
