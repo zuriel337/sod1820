@@ -111,10 +111,14 @@ function metricVector(input = {}) {
       input.p95_latency_ms ?? input.p95LatencyMs,
       "metrics.p95_latency_ms"
     ),
-    mean_cost_ils: finiteNumber(
-      input.mean_cost_ils ?? input.meanCostIls,
-      "metrics.mean_cost_ils"
-    ),
+    mean_cost_ils: (() => {
+      const value = finiteNumber(
+        input.mean_cost_ils ?? input.meanCostIls,
+        "metrics.mean_cost_ils"
+      );
+      if (value < 0) throw new TypeError("researchLearning: metrics.mean_cost_ils must be non-negative");
+      return value;
+    })(),
   };
 }
 
@@ -257,6 +261,9 @@ export function normalizeChampionChallengerPolicy(input = {}) {
   };
 
   if (!p.policy_ref) throw new TypeError("researchLearning: policy_ref is required");
+  if (p.min_evaluated_coverage_percent < 0 || p.min_evaluated_coverage_percent > 100) {
+    throw new TypeError("researchLearning: policy.min_evaluated_coverage_percent must be between 0 and 100");
+  }
 
   for (const key of [
     "min_independent_persons",
@@ -476,7 +483,13 @@ export function buildLearnedPatternProposal(comparison, {
 
   return Object.freeze({
     proposal_version: 1,
-    storage_route: "existing_learned_patterns_human_review_path",
+    storage_route: "existing_learning_owner_requires_domain_qualified_adapter",
+    target_owner: "learned_patterns + decision_ledger Human-review path",
+    direct_learned_patterns_insert_authorized: false,
+    persistence_blockers: [
+      "learned_patterns.support is NOT NULL and its current support semantics are decision-count based",
+      "current approved_preference consumers do not domain-filter preferences",
+    ],
     pattern_key: key,
     polarity: "prefer_challenger",
     feature: {
@@ -489,7 +502,11 @@ export function buildLearnedPatternProposal(comparison, {
     },
     similarity_reason:
       "Challenger cleared explicit holdout improvement gates without crossing declared safety/quality regression limits.",
-    support: null,
+    support: {
+      basis: "challenger_evaluation_sample",
+      value: null,
+      direct_db_column_mapping_authorized: false,
+    },
     rules_env_refs: uniqueText(rulesEnvRefs),
     status: "proposed",
     detected_by: clean(detectedBy) || "research-learning-evaluator",
@@ -511,6 +528,8 @@ export function buildLearnedPatternProposal(comparison, {
       proposal_is_not_runtime_policy: true,
       human_gate_is_required: true,
       existing_learned_patterns_owner_is_preserved: true,
+      domain_qualified_persistence_is_required_before_runtime_use: true,
+      current_global_approved_preference_projection_must_not_receive_domain_specific_policy_rows: true,
     },
   });
 }
