@@ -657,7 +657,8 @@ A negative result can lower or change the message.
 - Champion/Challenger;
 - `learned_patterns` candidate reuse;
 - holdout/replay;
-- Human-Gate policy promotion.
+- Human-Gate policy promotion;
+- detailed execution map: `docs/2029-research-learning-champion-challenger-v1.md`.
 
 ### F7 — Provider orchestration
 - one provider normal;
