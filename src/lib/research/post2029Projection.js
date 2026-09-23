@@ -1,4 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
+import { getCurrentTemporalContext, classifyTemporalYearValue } from "../timeFlow.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -138,6 +139,49 @@ async function fetchActiveNumberReadings(values = []) {
   return byNumber;
 }
 
+async function fetchTemporalContributions(value) {
+  const number = Number(value);
+  if (!Number.isSafeInteger(number)) return [];
+  const { data, error } = await supabase
+    .from("research_contributions")
+    .select("id,author_name,title,body,target_type,target_id,gematria_claim,created_at")
+    .eq("target_type", "number")
+    .eq("target_id", String(number))
+    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(12);
+  if (error) return [];
+  return (data || []).filter((row) => Number(row?.gematria_claim?.value) === number);
+}
+
+async function fetchTemporalAnchors(values = []) {
+  const numbers = [...new Set(values.map(Number).filter(Number.isSafeInteger))];
+  if (!numbers.length) return new Map();
+  const { data, error } = await supabase
+    .from("number_anchors")
+    .select("value,category,fact,hint")
+    .in("value", numbers);
+  if (error) return new Map();
+  const out = new Map();
+  for (const row of data || []) out.set(Number(row.value), row);
+  return out;
+}
+
+async function verifyCurrentHebrewYear(context) {
+  const phrase = context?.hebrew?.year_expression;
+  const expected = Number(context?.hebrew?.year_value);
+  if (!phrase || !Number.isSafeInteger(expected)) return { verified: false, value: null };
+  const { data, error } = await supabase.rpc("fn_method_value", {
+    p_method_key: "רגיל",
+    p_phrase: phrase,
+  });
+  const value = Number(data);
+  return {
+    verified: !error && Number.isSafeInteger(value) && value === expected,
+    value: Number.isSafeInteger(value) ? value : null,
+  };
+}
+
 export async function fetchPost2029Projection(slug) {
   const post = await getPostBySlug(slug);
   if (!post) return null;
@@ -156,6 +200,41 @@ export async function fetchPost2029Projection(slug) {
   const enrichedCalculations = calculations.map(enrich);
   const enrichedContributorCalculations = contributorCalculations.map(enrich);
   const contributor = contributorFromAddition(additionHtml);
+
+  const temporalContext = getCurrentTemporalContext();
+  const contributorValues = enrichedContributorCalculations.map((row) => row.claimedValue);
+  const temporalAnchorMap = await fetchTemporalAnchors(contributorValues);
+  const currentYearVerification = await verifyCurrentHebrewYear(temporalContext);
+
+  const temporalRows = enrichedContributorCalculations
+    .map((row) => {
+      const value = Number(row.claimedValue);
+      const currentState = classifyTemporalYearValue(value, temporalContext);
+      const anchor = temporalAnchorMap.get(value) || null;
+      const historicalYearAnchor = !!anchor && /(?:שנת|תשפ|תשע|תש״|תש')/.test(`${anchor.fact || ""} ${anchor.hint || ""}`);
+      if (!currentState?.state && !historicalYearAnchor) return null;
+      const isCurrent = currentState?.state === "active";
+      if (!isCurrent && !historicalYearAnchor) return null;
+      return { ...row, temporalState: isCurrent ? "active" : "axis", temporalAnchor: anchor };
+    })
+    .filter(Boolean);
+
+  const temporalValue = temporalRows[0]?.claimedValue ?? null;
+  const temporalContributions = temporalValue != null
+    ? await fetchTemporalContributions(temporalValue)
+    : [];
+
+  const temporalLens = temporalRows.length ? {
+    context: temporalContext,
+    currentYearVerification,
+    state: temporalRows.some((row) => row.temporalState === "active") ? "active" : "axis",
+    rows: temporalRows,
+    contributions: temporalContributions,
+    axisHref: "/timeline",
+    publicLabel: temporalRows.some((row) => row.temporalState === "active")
+      ? "העת עכשיו"
+      : "תחנה בציר ההתגלות",
+  } : null;
 
   const units = [
     media.video?.src ? {
@@ -210,6 +289,7 @@ export async function fetchPost2029Projection(slug) {
     medium: media.video?.src ? "video" : post.image_url ? "image" : "text",
     excerpt: formatExcerpt(post, split.storyHtml),
     units,
+    temporalLens,
     unitCounts: units.reduce((acc, unit) => {
       acc[unit.type] = (acc[unit.type] || 0) + 1;
       return acc;
@@ -229,4 +309,7 @@ export const post2029ProjectionInternals = {
   extractCalculations,
   extractContributorAddition,
   fetchActiveNumberReadings,
+  fetchTemporalContributions,
+  fetchTemporalAnchors,
+  verifyCurrentHebrewYear,
 };
