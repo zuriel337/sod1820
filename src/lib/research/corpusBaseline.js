@@ -1,6 +1,7 @@
 import { stableIdentityDigest } from "./researchRepresentations.js";
 
 // F5 — Corpus Baseline + Semantic Expansion candidate contract.
+// Expansion changes expectedness; semantic volume never substitutes for provenance or controls.
 //
 // This module owns no corpus row, dictionary, graph edge, ontology, admission
 // decision, or semantic truth. It composes metrics and candidate envelopes over
