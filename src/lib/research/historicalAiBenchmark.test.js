@@ -134,6 +134,8 @@ test("benchmark manifest is deterministic, stratified and contains no raw privat
 
   assert.deepEqual(a, b);
   assert.equal(a.generated_from_rows, 5);
+  assert.equal(a.sampling_design.population_weighted, false);
+  assert.equal(a.sampling_design.prevalence_inference_allowed, false);
   assert.equal(a.privacy_boundary.contains_raw_subjects, false);
   assert.equal(a.privacy_boundary.contains_raw_outputs, false);
   assert.equal(a.privacy_boundary.contains_user_ids, false);
