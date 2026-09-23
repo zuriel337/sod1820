@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
 import { buildNumberDeepViewProjection } from "../src/lib/research/numberDeepViewProjection.js";
 import { humanSystemMethodCard } from "../src/lib/research/numberSystemMethods.js";
+import { buildCurationCatalog2029, buildNumberCuration2029 } from "../src/lib/research/curationProjection2029.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
@@ -22,6 +23,9 @@ const livingWorldCss = read("src/components/number2029/numberLivingWorld2029.css
 const lightRoutes = read("src/lib/lightRoutes.js");
 const vercel = JSON.parse(read("vercel.json"));
 const browserAcceptance = read("tests/world2029-release.spec.cjs");
+const curationMark = read("src/components/experience2029/CurationMark2029.jsx");
+const curationCss = read("src/components/experience2029/curationMark2029.css");
+const curationProjection = read("src/lib/research/curationProjection2029.js");
 
 for (const required of [
   "Sod2029Shell",
@@ -75,6 +79,17 @@ assert.match(core, /SPATIAL EXPLAIN · S2 LAYERED DEPTH/);
 assert.match(core, /data-miluy-spatial-explain/);
 assert.match(core, /traceDetail/);
 assert.match(core, /onOpenHeichal/);
+assert.match(core, /CurationMark2029/);
+assert.match(core, /curationCatalog/);
+assert.match(page, /fetchCurationCatalog2029/);
+assert.match(page, /buildNumberCuration2029/);
+assert.match(curationMark, /data-curation-mark/);
+assert.match(curationMark, /data-curation-treasure-disclosure/);
+assert.match(curationMark, /כל האוצרות/);
+assert.match(curationMark, /Witnesses/);
+assert.match(curationCss, /var\(--curation-/);
+assert.equal(/#[0-9a-f]{3,8}/i.test(curationCss), false, "2029 curation component must consume semantic palette, not own hex colors");
+assert.equal(curationProjection.includes("silver"), false, "Silver must remain outside the 2029 public curation catalog until semantics are decided");
 assert.match(coreProjection, /sub,soul/);
 assert.match(coreProjection, /worlds:/);
 assert.match(drawer, /NumberCore2029/);
@@ -104,6 +119,29 @@ assert.match(page, /originTopicSlug/);
 assert.match(page, /\/topic\/\$\{encodeURIComponent\(originTopicSlug\)\}/);
 assert.equal(page.includes("TopicPage.jsx"), false, "Number 2029 may exact-return to a Topic URL but must not import the legacy Topic renderer");
 
+
+const curationCatalogFixture = buildCurationCatalog2029([
+  { id: "d1", type: "entity", label: "מספר שמות יהוה בכל התורה", metadata: { tier: "diamond", role: "signature", value: 1820, curation_family: "1820_crown" } },
+  { id: "g1", type: "entity", label: "תדר", metadata: { tier: "gold", role: "core_identity", curation_family: "david_geula_core" } },
+  { id: "g2", type: "entity", label: "משיח בן דוד", metadata: { tier: "gold", role: "core_identity", value: 424, curation_family: "david_geula_core" } },
+  { id: "a1", type: "number", label: "604", axis_theme: "תדר · משיח בן דוד", metadata: { tier: "gold", role: "anchor", value: 604 } },
+  { id: "c1", type: "number", label: "1820", axis_theme: "כתר 1820", metadata: { role: "crown_anchor", value: 1820 } },
+  { id: "w1", type: "entity", label: "עת", metadata: { value: 1820 } },
+]);
+assert.equal(curationCatalogFixture.diamonds.length, 1);
+assert.equal(curationCatalogFixture.gold.length, 2);
+assert.equal(curationCatalogFixture.anchors.length, 2);
+assert.equal(curationCatalogFixture.byLabel["עת"], undefined, "Witness-like plain identity must not inherit a Diamond/Gold mark");
+const curation604 = buildNumberCuration2029({
+  root: 604,
+  catalog: curationCatalogFixture,
+  relations: [
+    { projection: { relations: [{ from: { type: "number", label: "604" }, to: { type: "entity", label: "תדר" } }] } },
+    { projection: { relations: [{ from: { type: "number", label: "604" }, to: { type: "entity", label: "משיח בן דוד" } }] } },
+  ],
+});
+assert.equal(curation604.anchor?.label, "604");
+assert.deepEqual(curation604.cores.map((item) => item.label).sort(), ["משיח בן דוד", "תדר"].sort());
 
 const deep404 = buildNumberDeepViewProjection({
   root: 404,
