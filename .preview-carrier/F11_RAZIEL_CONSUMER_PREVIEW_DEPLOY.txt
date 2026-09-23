@@ -1,0 +1,6 @@
+F11 Raziel Consumer Preview deployment trigger.
+
+Canonical app source head: a00965851deb98b4601f1e38389a543fea49a850 (PR #632)
+Branch namespace: preview/*
+Purpose: trigger Vercel Preview only after explicit ZURIEL authorization.
+No application code change. Do not merge/promote.
