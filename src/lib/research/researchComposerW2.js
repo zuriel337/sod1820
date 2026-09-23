@@ -179,7 +179,12 @@ export async function composeResearchW2({
     capabilities: capabilityResults,
     ranking,
     resolvedRunSnapshot: snapshot,
-    nextActions: [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+    // Strip any caller/executor-supplied raziel_route BEFORE the synthesizer sees the Bundle.
+    // The canonical Raziel action is projected only from the Research Plan after composition.
+    nextActions: mergeRazielNextAction(
+      [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+      null,
+    ),
     synthesis: null,
     accessDescriptor: plan.access,
   });
