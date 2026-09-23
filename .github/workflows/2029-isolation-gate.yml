@@ -15,6 +15,7 @@ on:
       - "src/lib/research/researchContext.js"
       - "src/lib/research/ResearchProvider.jsx"
       - "src/lib/research/numberExpressionFocus.js"
+      - "src/lib/research/post2029Projection.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
@@ -27,6 +28,7 @@ on:
       - "src/components/research/WorldConvergenceLens.jsx"
       - "src/lib/seo.js"
       - "src/pages/topic2029.css"
+      - "src/pages/post2029.css"
       - "package.json"
       - "vite.config.js"
       - "vercel.json"
@@ -43,6 +45,7 @@ on:
       - "scripts/test-2029-topic-surface.mjs"
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
+      - "scripts/test-2029-post-preview.mjs"
       - "tests/world2029-release.spec.cjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -90,6 +93,8 @@ jobs:
         run: node scripts/test-2029-researcher-corpus.mjs
       - name: Native Number preview acceptance
         run: node scripts/test-2029-number-preview.mjs
+      - name: Native Post preview acceptance
+        run: npm run test:2029-post-preview
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
