@@ -1,0 +1,5 @@
+F11 Raziel Consumer Preview carrier trigger.
+
+Source application head: a00965851deb98b4601f1e38389a543fea49a850 (PR #632)
+Purpose: trigger Vercel Preview Git push event only.
+DO NOT MERGE. DO NOT PROMOTE. NO APPLICATION CODE CHANGE.
