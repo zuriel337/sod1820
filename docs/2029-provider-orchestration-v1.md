@@ -471,17 +471,64 @@ Human Gate remains required for policy promotion.
 
 ---
 
-## 20. Product depth
+## 20. Product depth / Anonymous-Free-Premium quality parity
+
+**Human-Gate reaffirmation · ZURIEL · 2026-09-23**
+
+Anonymous / Free must not receive a knowingly less-intelligent or less-reliable answer merely because the user is not paying.
+
+The governing rule remains:
+
+> required intelligence follows the task, not the subscription tier.
+
+If a correct/complete answer genuinely requires DEEP intelligence, the planner may escalate an Anonymous/Free interaction to DEEP within the product's bounded acquisition/first-impression budget. Cost may not force a lower-confidence answer to masquerade as complete.
 
 Free/Premium may affect:
-- entitlement;
-- maximum depth;
-- whether challenge/deep analysis is available;
-- token/budget ceilings.
+- volume / rate limits;
+- maximum sustained research depth;
+- number of follow-up research actions;
+- availability of repeated Challenger/deep investigations;
+- long-term memory / continuity;
+- Personal Constellation / saved private research;
+- alerts/radar;
+- advanced Explain-Why inspectors;
+- entitlement and budget ceilings.
 
-They do not create separate Truth.
+Premium does **not** mean:
+- truer answers;
+- stronger verification standards;
+- hidden evidence unavailable solely to make Free wrong;
+- forced Sonnet simply because it is Premium.
 
-The same Synthesis/evidence lineage remains underneath.
+Anonymous/Free does **not** mean:
+- force FAST when DEEP is required;
+- intentionally shallow interpretation;
+- cut a logically required basic answer to create an upsell.
+
+### Acquisition / first-impression rule
+
+A first Anonymous interaction should be allowed to demonstrate the real product.
+
+Preferred pattern:
+1. deliver one complete, genuinely useful finding/answer;
+2. show that additional research layers exist;
+3. invite registration/Premium for continuity, saved research, personal context, greater depth/volume and advanced exploration.
+
+Do not hold the core discovered answer hostage behind registration.
+
+### Cost strategy
+
+The system saves cost by:
+- deterministic/compiled research before LLM;
+- reusing compiled Synthesis;
+- sending a compressed Message Pack instead of raw corpus;
+- choosing the cheapest model that is sufficient for the task;
+- escalating only when decision-changing;
+- caching/projecting reusable public research.
+
+It does **not** save cost by intentionally degrading Free answer quality.
+
+The same Synthesis/evidence lineage remains underneath every tier.
 
 ---
 
