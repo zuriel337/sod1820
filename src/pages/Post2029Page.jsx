@@ -61,6 +61,42 @@ function HtmlUnit({ unit, collapsible = false }) {
   </section>;
 }
 
+
+function PostPulse({ updates = [], onOpen }) {
+  if (!updates.length) return null;
+
+  const calculations = updates.flatMap((unit) => unit.calculations || []);
+  const contributors = [...new Set(updates.map((unit) => clean(unit.contributor)).filter(Boolean))];
+  const featured = calculations.find((row) => Array.isArray(row.readings) && row.readings.length)
+    || calculations[0]
+    || null;
+  const featuredReading = featured?.readings?.[0] || null;
+
+  const contributorText = contributors.length === 1
+    ? `${contributors[0]} הוסיף`
+    : contributors.length > 1
+      ? `${contributors.length} תורמים הוסיפו`
+      : "נוספו";
+  const countText = calculations.length
+    ? `${calculations.length} ${calculations.length === 1 ? "רמז חדש" : "רמזים חדשים"}`
+    : `${updates.length} ${updates.length === 1 ? "תוספת חדשה" : "תוספות חדשות"}`;
+  const detail = featuredReading
+    ? `${featured.claimedValue} → ${featuredReading.digit_sequence} · ${featuredReading.reading}`
+    : featured
+      ? `${featured.expression} = ${featured.claimedValue} · ${featured.methodLabel}`
+      : "הסיפור המשיך להתפתח";
+
+  return <button type="button" className="sod29-post-pulse" onClick={onOpen} aria-label="ראה מה נוסף לפוסט מאז הפרסום">
+    <span className="sod29-post-pulse-orb" aria-hidden="true">✦</span>
+    <span className="sod29-post-pulse-copy">
+      <small>חדש מאז הפרסום</small>
+      <strong>{contributorText} {countText}</strong>
+      <em>{detail}</em>
+    </span>
+    <span className="sod29-post-pulse-cta">ראה מה נוסף ↓</span>
+  </button>;
+}
+
 function CalculationCard({ row, traceState, onOpenHint }) {
   const state = traceState?.[row.expression + "|" + row.methodKey] || null;
   const actual = state?.finding?.verification?.engine_result;
@@ -81,8 +117,8 @@ function CalculationCard({ row, traceState, onOpenHint }) {
   </article>;
 }
 
-function ResearchUpdateUnit({ unit, traceState, onOpenHint }) {
-  return <section className="sod29-post-unit sod29-post-update-unit" id={unit.id}>
+function ResearchUpdateUnit({ unit, traceState, onOpenHint, highlighted = false }) {
+  return <section className={`sod29-post-unit sod29-post-update-unit${highlighted ? " is-pulse-target" : ""}`} id={unit.id} tabIndex="-1">
     <div className="sod29-post-update-marker" aria-hidden="true" />
     <div className="sod29-post-unit-head sod29-post-update-head">
       <div>
@@ -121,6 +157,7 @@ function PostPageBody() {
   const research = useResearch();
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [traceState, setTraceState] = useState({});
+  const [highlightedUpdateId, setHighlightedUpdateId] = useState("");
 
   useEffect(() => {
     let live = true;
@@ -155,6 +192,17 @@ function PostPageBody() {
   const storyUnit = projection.units.find((unit) => unit.type === "authored_content");
   const transcriptUnit = projection.units.find((unit) => unit.type === "transcript");
   const updateUnits = projection.units.filter((unit) => unit.type === "research_update");
+
+  const jumpToUpdates = () => {
+    const target = updateUnits[0];
+    if (!target) return;
+    setHighlightedUpdateId(target.id);
+    const element = document.getElementById(target.id);
+    const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    element?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    window.setTimeout(() => element?.focus({ preventScroll: true }), reduced ? 0 : 380);
+    window.setTimeout(() => setHighlightedUpdateId(""), 1800);
+  };
 
   const openHint = (row) => {
     const value = Number(row?.claimedValue);
@@ -201,13 +249,21 @@ function PostPageBody() {
       </div>
     </header>
 
+    <PostPulse updates={updateUnits} onOpen={jumpToUpdates} />
+
     {mediaUnit ? <SourceMediaUnit unit={mediaUnit} /> : null}
     {storyUnit ? <HtmlUnit unit={storyUnit} /> : null}
     {transcriptUnit ? <HtmlUnit unit={transcriptUnit} collapsible /> : null}
 
     {updateUnits.length ? <div className="sod29-post-updates">
       <div className="sod29-post-updates-title"><span>מאז הפרסום</span><h2>רמזים שנוספו אחרי המקור</h2></div>
-      {updateUnits.map((unit) => <ResearchUpdateUnit key={unit.id} unit={unit} traceState={traceState} onOpenHint={openHint} />)}
+      {updateUnits.map((unit) => <ResearchUpdateUnit
+        key={unit.id}
+        unit={unit}
+        traceState={traceState}
+        onOpenHint={openHint}
+        highlighted={highlightedUpdateId === unit.id}
+      />)}
     </div> : null}
 
     <section className="sod29-section sod29-post-boundary">
