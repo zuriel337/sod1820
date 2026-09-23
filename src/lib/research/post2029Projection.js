@@ -1,4 +1,4 @@
-import { getPostBySlug } from "../supabase.js";
+import { getPostBySlug, supabase } from "../supabase.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -107,6 +107,27 @@ function formatExcerpt(post, storyHtml) {
   return clean(post?.excerpt) || stripTags(storyHtml).slice(0, 240);
 }
 
+async function fetchActiveNumberReadings(values = []) {
+  const numbers = [...new Set(values.map(Number).filter(Number.isSafeInteger))];
+  if (!numbers.length) return new Map();
+  const { data, error } = await supabase
+    .from("number_readings")
+    .select("id,number,digit_sequence,reading,meaning,proof_words,layer,source_type")
+    .in("number", numbers)
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+  if (error) return new Map();
+
+  const byNumber = new Map();
+  for (const row of data || []) {
+    const number = Number(row?.number);
+    if (!Number.isSafeInteger(number)) continue;
+    if (!byNumber.has(number)) byNumber.set(number, []);
+    byNumber.get(number).push(row);
+  }
+  return byNumber;
+}
+
 export async function fetchPost2029Projection(slug) {
   const post = await getPostBySlug(slug);
   if (!post) return null;
@@ -115,6 +136,11 @@ export async function fetchPost2029Projection(slug) {
   const split = splitTranscript(media.rest);
   const additionHtml = unwrapAddition(post.ai_addition || "");
   const calculations = extractCalculations(additionHtml);
+  const readingMap = await fetchActiveNumberReadings(calculations.map((row) => row.claimedValue));
+  const enrichedCalculations = calculations.map((row) => ({
+    ...row,
+    readings: readingMap.get(Number(row.claimedValue)) || [],
+  }));
   const contributor = contributorFromAddition(additionHtml);
 
   const units = [
@@ -146,12 +172,12 @@ export async function fetchPost2029Projection(slug) {
       id: "research-update",
       type: "research_update",
       role: "system_analysis",
-      title: "נוסף למחקר",
+      title: "רמזים שנוספו",
       html: additionHtml,
       contributor,
       addedAt: post.modified || null,
       timeBasis: "posts.modified",
-      calculations,
+      calculations: enrichedCalculations,
     } : null,
   ].filter(Boolean);
 
@@ -174,8 +200,8 @@ export async function fetchPost2029Projection(slug) {
       return acc;
     }, {}),
     caveats: [
-      "המקור, החישוב והפרשנות נשמרים כשכבות שונות. אימות מספרי אינו מאמת פרשנות.",
-      "ב־Golden Preview זמן התוספת נשען על posts.modified. לפני rollout רחב נדרש public-safe provenance timestamp ייעודי או projection מאושר; אין להסיק ממנו זמן אירוע בעולם.",
+      "חישוב שאומת אומר שהמספר נכון בשיטה שנבדקה; הוא לא הופך את הפרשנות לעובדה.",
+      "בדוגמה הזאת זמן «נוסף אחר כך» נשען על זמן העדכון של הפוסט. לפני פתיחה לכל האתר נחבר חותמת זמן ייעודית לכל תוספת.",
     ],
   };
 }
@@ -186,4 +212,5 @@ export const post2029ProjectionInternals = {
   splitTranscript,
   unwrapAddition,
   extractCalculations,
+  fetchActiveNumberReadings,
 };
