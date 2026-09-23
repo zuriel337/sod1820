@@ -861,6 +861,7 @@ function NumberPageBody() {
         dimensions: {
           ...(current.dimensions || {}),
           journeySource: "number-2029-preview",
+          journeySemanticId: GOLDEN_878_JOURNEY_ID,
           journeyRoot: 878,
           journeyVisitedValues: [878],
           journeyMeetingSlugs: [],
