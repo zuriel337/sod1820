@@ -1,6 +1,7 @@
 import { normalizeResearchSynthesis } from "./researchSynthesis.js";
 
-// Visual Golden only. This is NOT live Number truth and must never be projected
+// Visual Golden only. Human visual review precedes any live adapter or public projection.
+// This is NOT live Number truth and must never be projected
 // outside the isolated 2029 preview route as though it came from a runtime Bundle.
 // The purpose is to validate presentation + one-Synthesis/one-Raziel consumption
 // before wiring the live synthesizer adapter.
