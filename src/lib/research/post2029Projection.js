@@ -81,7 +81,12 @@ function extractCalculations(html = "") {
   for (const match of source.matchAll(pattern)) {
     const expression = stripTags(match[1]);
     const value = Number(String(match[2]).replace(/,/g, ""));
-    const methodLabel = clean(stripTags(match[3] || "רגיל")).replace(/^·\s*/, "");
+    const rawMethodLabel = clean(stripTags(match[3] || "רגיל")).replace(/^·\s*/, "");
+    // Cross-equality labels describe left ↔ right methods. This regex captures the
+    // right-hand expression/value, so its canonical method is the right-most label.
+    const methodLabel = rawMethodLabel.includes("↔")
+      ? clean(rawMethodLabel.split("↔").at(-1))
+      : rawMethodLabel;
     const methodKey = METHOD_LABEL_TO_KEY[methodLabel] || (methodLabel || "רגיל");
     const key = `${expression}|${methodKey}|${value}`;
     if (!expression || !Number.isFinite(value) || seen.has(key)) continue;
