@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { fetchPost2029Projection } from "../lib/research/post2029Projection.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { applySeo } from "../lib/seo.js";
 import "./post2029.css";
@@ -21,8 +22,8 @@ function formatDate(value, withTime = false) {
 function UnitLabel({ role }) {
   const labels = {
     source: "מקור",
-    source_representation: "ייצוג המקור",
-    system_analysis: "מחקר שנוסף",
+    source_representation: "תמלול",
+    system_analysis: "נוסף אחר כך",
   };
   return <span className={`sod29-post-role role-${role || "unknown"}`}>{labels[role] || role || "יחידה"}</span>;
 }
@@ -60,22 +61,27 @@ function HtmlUnit({ unit, collapsible = false }) {
   </section>;
 }
 
-function CalculationCard({ row, traceState, onOpenNumber, onOpenInspect }) {
+function CalculationCard({ row, traceState, onOpenHint }) {
   const state = traceState?.[row.expression + "|" + row.methodKey] || null;
   const actual = state?.finding?.verification?.engine_result;
   const verified = Number.isFinite(actual) && actual === row.claimedValue;
   return <article className="sod29-post-calc">
     <div className="sod29-post-calc-top">
       <span>{row.methodLabel}</span>
-      <span className={verified ? "is-verified" : state?.loading ? "is-loading" : "is-pending"}>{verified ? "מנוע ✓" : state?.loading ? "בודק…" : state?.error ? "לא אומת" : "ממתין"}</span>
+      <span className={verified ? "is-verified" : state?.loading ? "is-loading" : "is-pending"}>{verified ? "אומת ✓" : state?.loading ? "בודק…" : state?.error ? "לא אומת" : "ממתין"}</span>
     </div>
-    <button type="button" className="sod29-post-expression" onClick={() => onOpenInspect(row.expression)}>{row.expression}</button>
-    <button type="button" className="sod29-post-value" onClick={() => onOpenNumber(row.claimedValue)}>{row.claimedValue}</button>
-    <small>ביטוי + שיטה + ערך נשמרים כזהות חישוב; הפרשנות נשארת שכבה נפרדת.</small>
+    <button type="button" className="sod29-post-expression" onClick={() => onOpenHint(row)} aria-label={`פתח את הרמז של ${row.expression}`}>{row.expression}</button>
+    <button type="button" className="sod29-post-value" onClick={() => onOpenHint(row)} aria-label={`פתח את ${row.claimedValue} עם הביטוי והשיטה`}>{row.claimedValue}</button>
+    {row.readings?.map((reading) => <div className="sod29-post-reading" key={reading.id || reading.digit_sequence}>
+      <span>רמז יסוד</span>
+      <strong>{row.claimedValue} → {reading.digit_sequence}</strong>
+      <p>{reading.reading}</p>
+    </div>)}
+    <small>לחץ על הביטוי או על המספר כדי לפתוח אותו בדיוק בשיטה הזאת.</small>
   </article>;
 }
 
-function ResearchUpdateUnit({ unit, traceState, onOpenNumber, onOpenInspect }) {
+function ResearchUpdateUnit({ unit, traceState, onOpenHint }) {
   return <section className="sod29-post-unit sod29-post-update-unit" id={unit.id}>
     <div className="sod29-post-update-marker" aria-hidden="true" />
     <div className="sod29-post-unit-head sod29-post-update-head">
@@ -88,13 +94,13 @@ function ResearchUpdateUnit({ unit, traceState, onOpenNumber, onOpenInspect }) {
     </div>
 
     <div className="sod29-post-update-source">
-      <div className="sod29-kicker">העדכון כפי שנשמר</div>
+      <div className="sod29-kicker">מה נוסף</div>
       <div className="sod29-post-authored" dangerouslySetInnerHTML={{ __html: unit.html }} />
     </div>
 
     {unit.calculations?.length ? <div className="sod29-post-calc-block">
       <div className="sod29-section-head">
-        <div><div className="sod29-kicker">חישובים כיחידות מידע</div><h3>מה המנוע יודע לבדוק?</h3></div>
+        <div><div className="sod29-kicker">רמזים במספרים</div><h3>מה נפתח כאן?</h3></div>
         <span className="sod29-chip">{unit.calculations.length}</span>
       </div>
       <div className="sod29-post-calc-grid">
@@ -102,34 +108,17 @@ function ResearchUpdateUnit({ unit, traceState, onOpenNumber, onOpenInspect }) {
           key={row.expression + row.methodKey + row.claimedValue}
           row={row}
           traceState={traceState}
-          onOpenNumber={onOpenNumber}
-          onOpenInspect={onOpenInspect}
+          onOpenHint={onOpenHint}
         />)}
       </div>
     </div> : null}
   </section>;
 }
 
-function InformationArchitecture({ projection }) {
-  const units = projection.units || [];
-  const labels = {
-    source_media: "וידאו / מדיה מקורית",
-    authored_content: "טקסט מקור",
-    transcript: "תמלול",
-    research_update: "עדכון מחקר",
-  };
-  return <section className="sod29-section sod29-post-architecture" id="post-structure">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">POST AS INFORMATION UNITS</div><h2>ממה הפוסט באמת בנוי?</h2></div><span className="sod29-chip">{units.length}</span></div>
-    <p>זו אותה זהות־פוסט. אין עותק ל־2029 ואין Post Store חדש. ה־renderer קורא את אותה שורת <code>posts</code> ומציג כל שכבה לפי התפקיד שלה.</p>
-    <div className="sod29-post-unit-map">
-      {units.map((unit, index) => <a href={`#${unit.id}`} key={unit.id}><span>{String(index + 1).padStart(2, "0")}</span><strong>{labels[unit.type] || unit.type}</strong><small>{unit.role}</small></a>)}
-    </div>
-  </section>;
-}
-
 function PostPageBody() {
   const { slug } = useParams();
   const shell = use2029Shell();
+  const research = useResearch();
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [traceState, setTraceState] = useState({});
 
@@ -157,7 +146,7 @@ function PostPageBody() {
     return () => { live = false; };
   }, [calculations]);
 
-  if (state.loading) return <FrameState kind="loading" title="בונה את הפוסט מהיחידות הקנוניות">מקור, מדיה, תמלול ועדכוני מחקר נטענים מאותה זהות.</FrameState>;
+  if (state.loading) return <FrameState kind="loading" title="פותח את המקור והרמזים שנוספו">המקור נשאר במקומו; התוספות נטענות אחריו.</FrameState>;
   if (state.error || !state.projection) return <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסט">{state.error}</FrameState>;
 
   const { projection } = state;
@@ -167,41 +156,63 @@ function PostPageBody() {
   const transcriptUnit = projection.units.find((unit) => unit.type === "transcript");
   const updateUnits = projection.units.filter((unit) => unit.type === "research_update");
 
-  const openNumber = (value) => shell.openNumber?.({ id: String(value), type: "number", label: String(value), href: `/2029/number/${value}`, source: "post2029" });
-  const openInspect = (expression) => shell.openInspect?.({ id: expression, type: "phrase", label: expression, source: "post2029" });
+  const openHint = (row) => {
+    const value = Number(row?.claimedValue);
+    if (!Number.isSafeInteger(value)) return;
+    const subject = { id: String(value), type: "number", label: String(value), href: `/2029/number/${value}` };
+    const selection = {
+      entityId: String(value),
+      entityType: "number",
+      expression: row.expression,
+      method: row.methodKey,
+      resultValue: value,
+    };
+    research?.setResearchContext?.({
+      subject,
+      selection,
+      lens: "post",
+      returnTo: {
+        href: projection.identity.previewHref,
+        label: post.title,
+        subject: { id: String(post.id), type: "post", label: post.title, href: projection.identity.previewHref },
+        selection: null,
+        lens: "post",
+        dimensions: {},
+        journey: null,
+      },
+    });
+    shell.openNumber?.(subject);
+  };
 
   return <div className="sod29-post-page">
     <header className="sod29-post-hero">
-      <div className="sod29-post-eyebrow">POST 2029 · GOLDEN PREVIEW</div>
+      <div className="sod29-post-eyebrow">מקור · תוספות · רמזים</div>
       <h1>{post.title}</h1>
       <p>{projection.excerpt}</p>
       <div className="sod29-post-meta">
         {post.author ? <span>מאת {post.author}</span> : null}
         {post.date ? <span>{formatDate(post.date)}</span> : null}
         <span>{projection.medium === "video" ? "וידאו + קריאה" : "קריאה"}</span>
-        <span>זהות #{post.id}</span>
       </div>
       <div className="sod29-post-hero-actions">
-        <a className="sod29-action primary" href="#primary-media">צפה במקור</a>
-        <a className="sod29-action" href="#research-update">מה נוסף מאז?</a>
-        <Link className="sod29-action" to={projection.identity.canonicalHref}>פתח את הפוסט הציבורי</Link>
+        <a className="sod29-action primary" href="#primary-media">למקור</a>
+        <a className="sod29-action" href="#research-update">מה נוסף?</a>
+        <Link className="sod29-action" to={projection.identity.canonicalHref}>לגרסה הציבורית</Link>
       </div>
     </header>
-
-    <InformationArchitecture projection={projection} />
 
     {mediaUnit ? <SourceMediaUnit unit={mediaUnit} /> : null}
     {storyUnit ? <HtmlUnit unit={storyUnit} /> : null}
     {transcriptUnit ? <HtmlUnit unit={transcriptUnit} collapsible /> : null}
 
     {updateUnits.length ? <div className="sod29-post-updates">
-      <div className="sod29-post-updates-title"><span>מאז הפרסום</span><h2>הפוסט ממשיך לצבור מחקר — בלי לשכתב את המקור</h2></div>
-      {updateUnits.map((unit) => <ResearchUpdateUnit key={unit.id} unit={unit} traceState={traceState} onOpenNumber={openNumber} onOpenInspect={openInspect} />)}
+      <div className="sod29-post-updates-title"><span>מאז הפרסום</span><h2>רמזים שנוספו אחרי המקור</h2></div>
+      {updateUnits.map((unit) => <ResearchUpdateUnit key={unit.id} unit={unit} traceState={traceState} onOpenHint={openHint} />)}
     </div> : null}
 
     <section className="sod29-section sod29-post-boundary">
-      <div className="sod29-kicker">גבולות האמת</div>
-      <h2>מה משתנה — ומה לא</h2>
+      <div className="sod29-kicker">חשוב לדעת</div>
+      <h2>מה אומת ומה נשאר רמז</h2>
       {projection.caveats.map((text) => <p key={text}>{text}</p>)}
     </section>
   </div>;
@@ -220,7 +231,7 @@ export default function Post2029Page() {
     });
   }, [slug]);
 
-  return <Sod2029Shell surface="post" symbol="↟" status="POST · GOLDEN PREVIEW">
+  return <Sod2029Shell surface="post" symbol="↟" status="פוסט חי · תצוגת ניסיון">
     <PostPageBody />
   </Sod2029Shell>;
 }
