@@ -19,8 +19,45 @@ export const GEMATRIA_OPENING_OPERATION_CONTRACT = "gematria_opening_operation_v
 export const PER_WORD_PREFIX_OPENING = "per_word_prefix_opening";
 const DERIVED_OPERATION_ROLE = "DERIVED_OPERATION";
 
+// Per-fragment coverage semantics (GPT review 5802943162 on PR #639). A fragment's value is null
+// for structurally different reasons, and collapsing them all to `null` hides which one happened:
+//  - EXECUTED: the canonical engine returned a computed value for this fragment.
+//  - CONTEXT_REQUIRED: the method's registry execution_kind is "context_activated" -- it needs
+//    runtime context beyond a bare phrase (fn_method_profile never dispatches it), not a failure.
+//  - UNAVAILABLE: the method has no live engine implementation (execution_kind "unimplemented" or
+//    unset) -- also not a failure, just nothing to call yet.
+//  - ACCESS_FILTERED: the method declares a non-public required_entitlement yet came back valueless
+//    from an otherwise-computable execution_kind. fn_method_profile does not gate by entitlement
+//    today (Registry exposes required_entitlement as metadata only -- see gematriaCalculationContract
+//    access.accessible=null precedent), so this only fires if/when that gate is added upstream; kept
+//    so this adapter never silently mislabels a future entitlement gate as an engine failure.
+//  - ENGINE_ERROR: the fragment's whole fn_method_profile call threw (live RPC/network failure).
+export const OPENING_COVERAGE_STATUS = Object.freeze({
+  EXECUTED: "executed",
+  CONTEXT_REQUIRED: "context_required",
+  UNAVAILABLE: "unavailable",
+  ACCESS_FILTERED: "access_filtered",
+  ENGINE_ERROR: "engine_error",
+});
+
 const clean = (value) => (value == null ? "" : String(value).trim());
-const finite = (value) => (Number.isFinite(Number(value)) ? Number(value) : null);
+// Number(null) === 0 and Number.isFinite(0) === true, so a naive `Number.isFinite(Number(value))`
+// silently turns a genuinely-null computed_value (context_required/unavailable/access_filtered) into
+// a fabricated 0. Reject null/undefined explicitly first so those stay null, never 0.
+const finite = (value) => (value == null ? null : (Number.isFinite(Number(value)) ? Number(value) : null));
+const COMPUTABLE_EXECUTION_KINDS = new Set(["sql_function", "composite_engine"]);
+
+/** Classifies WHY a single (fragment, method) pair has -- or lacks -- a computed value. */
+function fragmentCoverageStatus(row) {
+  if (finite(row?.computedValue) != null) return OPENING_COVERAGE_STATUS.EXECUTED;
+  const executionKind = clean(row?.executionKind);
+  if (executionKind === "context_activated") return OPENING_COVERAGE_STATUS.CONTEXT_REQUIRED;
+  const requiredEntitlement = clean(row?.requiredEntitlement);
+  if (requiredEntitlement && requiredEntitlement !== "public" && COMPUTABLE_EXECUTION_KINDS.has(executionKind)) {
+    return OPENING_COVERAGE_STATUS.ACCESS_FILTERED;
+  }
+  return OPENING_COVERAGE_STATUS.UNAVAILABLE;
+}
 
 function openingProvenance() {
   return Object.freeze({
@@ -60,6 +97,7 @@ export function buildOpeningFragments(rawInput, { maxWords = 24, maxFragmentsPer
 
 async function resolveFragmentProfiles(fragments, fetchMethodProfile, concurrency) {
   const profiles = new Array(fragments.length).fill(null);
+  const failed = new Array(fragments.length).fill(false);
   const errors = [];
   let cursor = 0;
 
@@ -72,6 +110,7 @@ async function resolveFragmentProfiles(fragments, fetchMethodProfile, concurrenc
         profiles[index] = await fetchMethodProfile(fragment.text);
       } catch (error) {
         profiles[index] = [];
+        failed[index] = true;
         errors.push(Object.freeze({
           wordIndex: fragment.wordIndex,
           prefixIndex: fragment.prefixIndex,
@@ -84,40 +123,72 @@ async function resolveFragmentProfiles(fragments, fetchMethodProfile, concurrenc
 
   const workerCount = Math.max(1, Math.min(Number(concurrency) || 1, fragments.length || 1));
   await Promise.all(Array.from({ length: workerCount }, worker));
-  return { profiles, errors: Object.freeze(errors) };
+  return { profiles, failed: Object.freeze(failed), errors: Object.freeze(errors) };
 }
 
-function aggregateMethodRows(fragments, profiles) {
+function newCoverageBreakdown() {
+  return {
+    [OPENING_COVERAGE_STATUS.EXECUTED]: 0,
+    [OPENING_COVERAGE_STATUS.CONTEXT_REQUIRED]: 0,
+    [OPENING_COVERAGE_STATUS.UNAVAILABLE]: 0,
+    [OPENING_COVERAGE_STATUS.ACCESS_FILTERED]: 0,
+    [OPENING_COVERAGE_STATUS.ENGINE_ERROR]: 0,
+  };
+}
+
+function aggregateMethodRows(fragments, profiles, failed) {
   const byKey = new Map();
+  const methodKeysInOrder = [];
+
+  function ensureAgg(methodKey, sourceRow = {}) {
+    if (byKey.has(methodKey)) return byKey.get(methodKey);
+    methodKeysInOrder.push(methodKey);
+    const agg = {
+      methodKey,
+      label: canonicalMethodPublicLabel(sourceRow),
+      category: clean(sourceRow?.category) || null,
+      family: clean(sourceRow?.mathematicalFamily) || null,
+      version: finite(sourceRow?.definitionVersion),
+      sortOrder: finite(sourceRow?.sortOrder),
+      role: DERIVED_OPERATION_ROLE,
+      isIndependentEvidence: false,
+      // Registry/access metadata this method's identity carries regardless of any one fragment's
+      // result (GPT review 5802943162): needed by a consumer to reason about a row BEFORE wiring UI.
+      registry: Object.freeze({
+        executionKind: clean(sourceRow?.executionKind) || null,
+        requiredEntitlement: clean(sourceRow?.requiredEntitlement) || null,
+        lifecycleActive: sourceRow?.lifecycleActive !== false,
+        atomicOrComposite: clean(sourceRow?.atomicOrComposite) || null,
+        derivedFrom: Object.freeze(Array.isArray(sourceRow?.derivedFrom) ? [...sourceRow.derivedFrom].map(clean).filter(Boolean) : []),
+        sourceOfTruth: clean(sourceRow?.sourceOfTruth) || null,
+        dependencyVersion: finite(sourceRow?.dependencyVersion),
+      }),
+      total: 0,
+      coveredFragmentCount: 0,
+      fragmentValues: [],
+      coverageBreakdown: newCoverageBreakdown(),
+    };
+    byKey.set(methodKey, agg);
+    return agg;
+  }
 
   fragments.forEach((fragment, index) => {
+    if (failed[index]) return; // engine_error entries are appended below, once every method key is known
     const rows = Array.isArray(profiles[index]) ? profiles[index] : [];
     for (const row of rows) {
       const methodKey = clean(row?.methodKey);
       if (!methodKey) continue;
-      if (!byKey.has(methodKey)) {
-        byKey.set(methodKey, {
-          methodKey,
-          label: canonicalMethodPublicLabel(row),
-          category: clean(row?.category) || null,
-          family: clean(row?.mathematicalFamily) || null,
-          version: finite(row?.definitionVersion),
-          sortOrder: finite(row?.sortOrder),
-          role: DERIVED_OPERATION_ROLE,
-          isIndependentEvidence: false,
-          total: 0,
-          coveredFragmentCount: 0,
-          fragmentValues: [],
-        });
-      }
-      const agg = byKey.get(methodKey);
+      const agg = ensureAgg(methodKey, row);
       const value = finite(row?.computedValue);
+      const status = fragmentCoverageStatus(row);
       agg.fragmentValues.push(Object.freeze({
         wordIndex: fragment.wordIndex,
         prefixIndex: fragment.prefixIndex,
         text: fragment.text,
         value,
+        coverageStatus: status,
       }));
+      agg.coverageBreakdown[status] += 1;
       if (value != null) {
         agg.total += value;
         agg.coveredFragmentCount += 1;
@@ -125,12 +196,39 @@ function aggregateMethodRows(fragments, profiles) {
     }
   });
 
-  const rows = [...byKey.values()].map((agg) => Object.freeze({
-    ...agg,
-    fragmentValues: Object.freeze(agg.fragmentValues),
-    coverage: fragments.length ? agg.coveredFragmentCount / fragments.length : 0,
-    complete: fragments.length > 0 && agg.coveredFragmentCount === fragments.length,
-  }));
+  // A fragment whose ENTIRE fn_method_profile call failed must still show up, honestly, against
+  // every method already known from other fragments -- not vanish from their fragmentValues, which
+  // would silently undercount coverage instead of reporting the RPC/engine failure that caused it.
+  fragments.forEach((fragment, index) => {
+    if (!failed[index]) return;
+    for (const methodKey of methodKeysInOrder) {
+      const agg = byKey.get(methodKey);
+      agg.fragmentValues.push(Object.freeze({
+        wordIndex: fragment.wordIndex,
+        prefixIndex: fragment.prefixIndex,
+        text: fragment.text,
+        value: null,
+        coverageStatus: OPENING_COVERAGE_STATUS.ENGINE_ERROR,
+      }));
+      agg.coverageBreakdown[OPENING_COVERAGE_STATUS.ENGINE_ERROR] += 1;
+    }
+  });
+
+  const rows = [...byKey.values()].map((agg) => {
+    // The two passes above append engine_error entries after successful ones; restore fragment
+    // (word, prefix) order so fragmentValues always reads left-to-right regardless of which
+    // fragments failed.
+    const orderedFragmentValues = [...agg.fragmentValues].sort((a, b) => (
+      a.wordIndex - b.wordIndex || a.prefixIndex - b.prefixIndex
+    ));
+    return Object.freeze({
+      ...agg,
+      fragmentValues: Object.freeze(orderedFragmentValues),
+      coverageBreakdown: Object.freeze(agg.coverageBreakdown),
+      coverage: fragments.length ? agg.coveredFragmentCount / fragments.length : 0,
+      complete: fragments.length > 0 && agg.coveredFragmentCount === fragments.length,
+    });
+  });
 
   // Registry order is the only method-order authority (sortMethodsByCanonicalOrder reads
   // sortOrder off each row) -- this adapter invents no priority list of its own.
@@ -182,8 +280,8 @@ export async function fetchGematriaOpeningOperation(rawInput, {
   const { words, fragments } = buildOpeningFragments(raw, { maxWords, maxFragmentsPerWord });
   if (!raw || !fragments.length) return emptyResult(raw, operation, words, fragments);
 
-  const { profiles, errors } = await resolveFragmentProfiles(fragments, fetchMethodProfile, concurrency);
-  const methodRows = aggregateMethodRows(fragments, profiles);
+  const { profiles, failed, errors } = await resolveFragmentProfiles(fragments, fetchMethodProfile, concurrency);
+  const methodRows = aggregateMethodRows(fragments, profiles, failed);
 
   return Object.freeze({
     contract: GEMATRIA_OPENING_OPERATION_CONTRACT,
