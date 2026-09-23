@@ -149,8 +149,10 @@ export default function ResearchPage() {
   const rank = t => { const i = FLAG_ORDER.indexOf(t.id); return i < 0 ? 99 : i; };
   // מיזוג הכפילות: «מחשבון גימטריה» ו«בית המדרש» פותחים אותו מסך (בית המדרש נפתח בטאב המחשבון
   // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
-  const READY_LAB = TOOLS.filter(t => ready(t.id) && t.id !== "gematria").sort((a, b) => rank(a) - rank(b));
-  const FUTURE_LAB = TOOLS.filter(t => !ready(t.id));
+  const READY_LAB = TOOLS
+    .filter(t => ready(t.id) && t.id !== "gematria" && (isAdmin || t.id === "number"))
+    .sort((a, b) => rank(a) - rank(b));
+  const FUTURE_LAB = isAdmin ? TOOLS.filter(t => !ready(t.id)) : [];
   const chipOf = t => t.id === "midrash" ? { icon: "🧮", label: "מחשבון גימטריה" } : { icon: t.icon, img: t.img, label: t.title };
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
