@@ -148,8 +148,10 @@ export default function ResearchHome({ onOpen }) {
   const [showSoon, setShowSoon] = useState(false); // כלים-בבנייה מקופלים כברירת-מחדל (פשוט-קודם)
   const gateGo = e => { e.preventDefault(); const v = gateQ.trim(); if (v) navigate(`/research?tool=number&n=${encodeURIComponent(v)}`); };
 
-  const bigTools = BIG.map(id => TOOLS.find(t => t.id === id)).filter(Boolean);
-  const restTools = TOOLS.filter(t => !BIG.includes(t.id));
+  const containedUser = !!user && !isAdmin;
+  const visibleBigIds = containedUser ? ["number", "els"] : BIG;
+  const bigTools = visibleBigIds.map(id => TOOLS.find(t => t.id === id)).filter(Boolean);
+  const restTools = containedUser ? [] : TOOLS.filter(t => !BIG.includes(t.id));
   // 🪜 Progressive Disclosure (research_workspace_law): הכלים הפתוחים גלויים תמיד;
   //    הכלים-בבנייה/נעולים נשארים כמפת-דרך אך מקופלים תחת «בקרוב ▾» — לא מציפים את המסך.
   const isReady = t => isToolReady(t.id, isAdmin) && !elsLocked(t.id);
@@ -167,7 +169,7 @@ export default function ResearchHome({ onOpen }) {
         <div className="hh-hero-in">
           <div className="hh-eyebrow">סביבת המחקר של סוד 1820</div>
           <h1 className="hh-title">🏛️ ההיכל</h1>
-          <p className="hh-sub">כל מנועי המחקר במקום אחד — גימטריה, דילוגים, פסוקים ומספרים. הקלידו מילה, שם או מספר וצאו למסע.</p>
+          <p className="hh-sub">{containedUser ? "מה שאתם רואים כאן היום הוא רק קצה קטן ממה שנבנה. ההיכל נמצא בתהליך בנייה מחדש; כרגע דף המספר פתוח לכם, והכלים הנוספים ייפתחו בהדרגה כשהם יהיו מוכנים באמת." : "כל מנועי המחקר במקום אחד — גימטריה, דילוגים, פסוקים ומספרים. הקלידו מילה, שם או מספר וצאו למסע."}</p>
           {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
           <form className="hh-search" onSubmit={gateGo}>
             <span className="hh-search-ic" aria-hidden>🔎</span>
@@ -175,13 +177,24 @@ export default function ResearchHome({ onOpen }) {
             <button type="submit" disabled={!gateQ.trim()}>גלו ←</button>
           </form>
           <div className="hh-stats">
-            <span>🧮 17 שיטות חישוב</span><span>📜 5,846 פסוקים</span><span>🔡 כל התנ״ך</span><span>✨ הצלבות חיות</span>
+            {containedUser ? <><span>🔢 דף המספר · פתוח</span><span>🔒 הצופן התנ״כי · סגור</span><span>🏗️ שאר ההיכל · בבנייה</span></> : <><span>🧮 17 שיטות חישוב</span><span>📜 5,846 פסוקים</span><span>🔡 כל התנ״ך</span><span>✨ הצלבות חיות</span></>}
           </div>
         </div>
       </section>
 
       {isAdmin && <div className="hh-admin">🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור נעולים).</div>}
 
+      {containedUser ? (
+        <>
+          <div className="rw-card" style={{ marginBottom: 14, padding: "18px 20px", lineHeight: 1.8 }}>
+            <strong style={{ display: "block", marginBottom: 5 }}>ההיכל עצמו עוד נבנה.</strong>
+            <span className="rw-muted">הדלת כבר פתוחה למשתמשים רשומים. בשלב הזה דף המספר הוא היכולת הפעילה; הצופן התנ״כי נשאר סגור, ושאר כלי המעבדה אינם מוצגים כפעילים.</span>
+          </div>
+          <div className="hh-grid">
+            {bigTools.map((t, i) => <FlagCard key={t.id} t={t} i={i} onOpen={onOpen} isAdmin={false} />)}
+          </div>
+        </>
+      ) : <>
       {/* טאבים — כלים (ברירת-מחדל) · מאגרים · אזור-אישי · פורום (שורה אחת נקייה מתחת ל-Hero) */}
       <div className="hh-tabs">
         <button className={`hh-tab${tab === "tools" ? " on" : ""}`} onClick={() => setTab("tools")}>🧰 הכלים</button>
@@ -230,6 +243,7 @@ export default function ResearchHome({ onOpen }) {
           ))}
         </div>
       )}
+      </>}
     </div>
   );
 }
