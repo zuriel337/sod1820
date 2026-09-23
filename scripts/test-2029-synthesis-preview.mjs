@@ -36,7 +36,7 @@ assert.match(page, /SYNTHESIS 2029 · GOLDEN PREVIEW/);
 assert.match(page, /synthesisPreview: preview\.synthesis/);
 assert.match(page, /razielMicroIntent: "synthesis_preview"/);
 assert.match(page, /noindex: true/);
-assert.match(page, /Golden Preview/);
+assert.match(page, /SYNTHESIS 2029 · GOLDEN PREVIEW/);
 
 for (const forbidden of [
   "numberMessage.js",
