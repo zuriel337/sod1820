@@ -261,6 +261,22 @@ export function normalizeChampionChallengerPolicy(input = {}) {
   };
 
   if (!p.policy_ref) throw new TypeError("researchLearning: policy_ref is required");
+
+  // Load-bearing project boundaries are not negotiable tuning knobs.
+  for (const key of [
+    "require_same_holdout",
+    "require_same_corpus_baseline",
+    "require_owner_attestation_declared",
+    "require_zero_privacy_violations",
+    "require_zero_truth_boundary_violations",
+    "require_zero_sensitive_inference_violations",
+    "require_zero_evidence_leakage_violations",
+  ]) {
+    if (p[key] !== true) {
+      throw new TypeError(`researchLearning: policy.${key} must be explicitly true`);
+    }
+  }
+
   if (p.min_evaluated_coverage_percent < 0 || p.min_evaluated_coverage_percent > 100) {
     throw new TypeError("researchLearning: policy.min_evaluated_coverage_percent must be between 0 and 100");
   }
@@ -359,7 +375,9 @@ export function compareChampionChallenger({
   }
 
   const spaceIssues = sameEvaluationSpace(c, n, p);
-  const samples = sampleIssues(n, p);
+  const championSampleIssues = sampleIssues(c, p).map(x => `champion:${x}`);
+  const challengerSampleIssues = sampleIssues(n, p).map(x => `challenger:${x}`);
+  const samples = [...championSampleIssues, ...challengerSampleIssues];
   const hardIssues = hardViolationIssues(n, p);
 
   const vector = {
@@ -511,10 +529,13 @@ export function buildLearnedPatternProposal(comparison, {
     status: "proposed",
     detected_by: clean(detectedBy) || "research-learning-evaluator",
     human_review_required: true,
-    admin_pattern_review_required: true,
+    human_review_owner: "existing learned_patterns / decision_ledger governance",
+    admin_pattern_review_after_domain_qualified_persistence: true,
+    direct_admin_pattern_review_ready: false,
     runtime_effect: false,
     auto_activation_authorized: false,
-    target_runtime_status_if_human_approved: "approved_preference",
+    current_runtime_activation_authorized: false,
+    target_runtime_status_if_domain_qualified_and_human_approved: "approved_preference",
     comparison_snapshot: {
       decision: comparison.decision,
       metric_vector: comparison.metric_vector,
