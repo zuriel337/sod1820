@@ -650,7 +650,8 @@ A negative result can lower or change the message.
 - provenance/coverage map;
 - typed relation expansion plan;
 - baseline recomputation procedures;
-- multiple-comparison controls.
+- multiple-comparison controls;
+- detailed execution map: `docs/2029-corpus-semantic-expansion-v1.md`.
 
 ### F6 — Learning policy
 - Champion/Challenger;
