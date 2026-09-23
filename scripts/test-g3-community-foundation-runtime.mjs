@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
-import { planImport, OPENWEB_SOURCE_TARGET_TYPE } from './g3-community-foundation-runtime/planner.mjs';
+import { planImport, OPENWEB_SOURCE_TARGET_TYPE, OPENWEB_USER_TARGET_TYPE } from './g3-community-foundation-runtime/planner.mjs';
 
 const messages = JSON.parse(fs.readFileSync('test/fixtures/openweb-import/synthetic-messages.json', 'utf8'));
 
 function freshState() {
   return {
     importedMessageIds: new Set(['ow-0999-already-imported']),
-    usersByVerifiedEmail: new Map([['dana.verified@example.com', '11111111-1111-1111-1111-111111111111']]),
-    contributorsByEmail: new Map(),
+    linkedOpenwebUserIds: new Map([['ow-user-dana', '11111111-1111-1111-1111-111111111111']]),
+    contributorsByOpenwebUserId: new Map(),
   };
 }
 
@@ -39,7 +39,7 @@ test('running the same batch twice is fully idempotent (second run is all skips)
   assert.ok(secondRun.every((o) => o.op === 'skip_duplicate'));
 });
 
-test('verified email matching a known user links author_user_id, never a contributor row', () => {
+test('an openweb_user_id already explicitly claimed in a prior session links author_user_id directly, never a contributor row', () => {
   const ops = planImport(messages, freshState());
   const op = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1002');
   assert.equal(op.contribution.author_user_id, '11111111-1111-1111-1111-111111111111');
@@ -47,7 +47,7 @@ test('verified email matching a known user links author_user_id, never a contrib
   assert.equal(op.contributor_op, null);
 });
 
-test('unverified/unmatched email becomes a private legacy contributor, never auth.users', () => {
+test('a not-yet-linked openweb_user_id becomes a private legacy contributor, never auth.users', () => {
   const ops = planImport(messages, freshState());
   const op = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1001');
   assert.equal(op.contribution.author_user_id, null);
@@ -82,13 +82,36 @@ test('hidden and deleted moderation states never surface as approved/published',
   assert.equal(deleted.contribution.status, 'hidden');
 });
 
-test('classification (intent) never sets status/research_state beyond the conservative default', () => {
+// Phase 2.1 (task_key=G3_COMMUNITY_CORE_2029_PHASE2_1_INTEGRITY_FIXES_V1) correction: a real-
+// archive dry-run found the Phase 1 planner never carried forward the source's own "approved"
+// moderation decision, so published/approved legacy content silently regressed to permanently
+// 'pending' — the opposite defect from fabricating approval. The corrected invariant is: status
+// is 'approved' if and only if the source's own moderation_state already said so (a migration
+// visibility carry-forward, reusing rc_public_read's predicate — never a research_contribution_
+// law canonical/Human-Gate decision, and always paired with origin:'openweb' as that marker),
+// and it is NEVER driven by classification/intent.
+test('status "approved" only ever mirrors the source moderation_state carry-forward, never intent/classification, and is always openweb-origin-marked', () => {
   const ops = planImport(messages, freshState());
   for (const op of ops) {
     if (op.op !== 'insert_contribution') continue;
-    assert.notEqual(op.contribution.status, 'approved');
+    assert.equal(op.contribution.origin, 'openweb');
     assert.notEqual(op.contribution.research_state, 'canonical');
     assert.notEqual(op.contribution.research_state, 'validated');
+  }
+  const approvedSource = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1001');
+  assert.equal(approvedSource.contribution.status, 'approved', 'source moderation_state "published" must carry forward to approved');
+  const hiddenSource = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1003');
+  assert.notEqual(hiddenSource.contribution.status, 'approved');
+});
+
+test('imported non-reply content gets the neutral, already-canonical intent bucket — never a "?"/URL text heuristic', () => {
+  const ops = planImport(messages, freshState());
+  const nonReplies = ops.filter(
+    (o) => o.op === 'insert_contribution' && o.contribution.parent_id === null && o.message_id !== 'ow-1002'
+  );
+  assert.ok(nonReplies.length > 0);
+  for (const op of nonReplies) {
+    assert.equal(op.contribution.intent, 'תצפית');
   }
 });
 
@@ -117,6 +140,15 @@ test('every insert carries an openweb_message derived_from provenance link keyed
   }
 });
 
+test('every identified (non-anonymous) author also carries an indexed openweb_user provenance link', () => {
+  const ops = planImport(messages, freshState());
+  const identified = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1001');
+  assert.ok(identified.identity_link);
+  assert.equal(identified.identity_link.target_type, OPENWEB_USER_TARGET_TYPE);
+  assert.equal(identified.identity_link.target_id, 'ow-user-avi');
+  assert.equal(identified.identity_link.relation_type, 'authored_by_external');
+});
+
 test('no email is ever written onto a research_contributions row (PII stays off the public-read table)', () => {
   const ops = planImport(messages, freshState());
   for (const op of ops.filter((o) => o.op === 'insert_contribution')) {
@@ -125,7 +157,7 @@ test('no email is ever written onto a research_contributions row (PII stays off 
   }
 });
 
-test('a message with no author email at all still plans a legacy contributor without an email field crash', () => {
+test('an identified author with no email at all still plans a legacy contributor without an email field crash', () => {
   const ops = planImport(messages, freshState());
   const op = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1006');
   assert.equal(op.contribution.author_user_id, null);

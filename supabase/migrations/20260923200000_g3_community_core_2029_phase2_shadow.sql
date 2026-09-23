@@ -209,6 +209,14 @@ comment on function public.fn_raziel_community_intel_scoped is
 --    contributor row. Mirrors scripts/g3-community-foundation-runtime/identityBridge.mjs's
 --    resolveLegacyClaim invariant exactly (same three checks: unclaimed, has email, exact match).
 -- =====================================================================================
+-- Phase 2.1 integrity fix (task_key=G3_COMMUNITY_CORE_2029_PHASE2_1_INTEGRITY_FIXES_V1): the
+-- Phase 2 version of this function checked only that the caller's auth.users row had a non-empty
+-- `email`, never that it was actually *confirmed*. That let a caller claim a legacy identity using
+-- an email they merely entered but never verified. This version additionally requires
+-- `email_confirmed_at is not null`. Multi-claim by one verified mailbox across several
+-- independently source-verified historical identities remains possible (each call is its own
+-- explicit, auditable action) — this function still never merges rows, only ever sets one row's
+-- `user_id` per call.
 create or replace function public.contributors_claim_legacy(p_contributor_id uuid)
 returns jsonb
 language plpgsql
@@ -218,6 +226,7 @@ as $$
 declare
   v_caller uuid;
   v_caller_email text;
+  v_caller_email_confirmed_at timestamptz;
   v_contributor record;
 begin
   v_caller := auth.uid();
@@ -225,9 +234,13 @@ begin
     raise exception 'not_authenticated';
   end if;
 
-  select email into v_caller_email from auth.users where id = v_caller;
+  select email, email_confirmed_at into v_caller_email, v_caller_email_confirmed_at
+  from auth.users where id = v_caller;
   if v_caller_email is null or btrim(v_caller_email) = '' then
-    raise exception 'caller_email_not_verified';
+    raise exception 'caller_email_not_confirmed';
+  end if;
+  if v_caller_email_confirmed_at is null then
+    raise exception 'caller_email_not_confirmed';
   end if;
 
   select id, email, user_id into v_contributor from public.contributors where id = p_contributor_id;
@@ -248,12 +261,95 @@ end;
 $$;
 
 comment on function public.contributors_claim_legacy is
-  'G3 Community Core 2029 Phase 2 — identity bridge claim path. Never auto-links; requires an '
-  'authenticated caller whose verified email exactly matches the unclaimed legacy contributor '
-  'row. See scripts/g3-community-foundation-runtime/identityBridge.mjs for the pure-logic twin.';
+  'G3 Community Core 2029 Phase 2.1 — identity bridge claim path. Never auto-links; requires an '
+  'authenticated caller whose email is confirmed (email_confirmed_at is not null) and exactly '
+  'matches the unclaimed legacy contributor row. See '
+  'scripts/g3-community-foundation-runtime/identityBridge.mjs for the pure-logic twin.';
 
 -- =====================================================================================
--- 5. Realtime — NOT enabled here. Verified live (2026-09-23): supabase_realtime publication
+-- 6. Post conversation projection ("השיחה סביב הפוסט") — unifies legacy public.comments
+--    (WordPress source-native comment history, joined by posts.wp_id) with native/community
+--    research_contributions targeted at that same canonical post into one chronological,
+--    thread-capable read seam. Extends the same rc_public_read predicate as
+--    community_stream_projection for the native half; the WordPress half is restricted to
+--    status='publish' (source-native historical visibility, see planner.mjs's moderation
+--    carry-forward note). Never guesses an unresolved post_wp_id: if p_post_wp_id does not match
+--    any current posts.wp_id, this returns an empty set rather than attaching orphaned comments
+--    to Home or any other post. No source row is copied into the other table. Pure-logic twin:
+--    scripts/g3-community-foundation-runtime/postConversationProjection.mjs.
+-- =====================================================================================
+create or replace function public.post_conversation_projection(
+  p_post_wp_id bigint,
+  p_limit integer default 200
+)
+returns table (
+  source_kind text,
+  source_id text,
+  parent_ref text,
+  author_display_name text,
+  author_is_contributor boolean,
+  body text,
+  reactions jsonb,
+  created_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  v_post_id bigint;
+begin
+  select id into v_post_id from public.posts where wp_id = p_post_wp_id;
+  if v_post_id is null then
+    return; -- unresolved post_wp_id: never guess a canonical post to attach comments to
+  end if;
+
+  return query
+  select * from (
+    select
+      'wordpress'::text as source_kind,
+      c.wp_id::text as source_id,
+      c.parent_wp_id::text as parent_ref,
+      c.author_name as author_display_name,
+      false as author_is_contributor,
+      c.content as body,
+      null::jsonb as reactions,
+      c.date as created_at
+    from public.comments c
+    where c.post_wp_id = p_post_wp_id
+      and c.status = 'publish'
+
+    union all
+
+    select
+      'community'::text as source_kind,
+      rc.id::text as source_id,
+      rc.parent_id::text as parent_ref,
+      coalesce(rc.author_name, ct.display_name) as author_display_name,
+      (rc.author_contributor_id is not null) as author_is_contributor,
+      rc.body,
+      rc.reactions,
+      rc.created_at
+    from public.research_contributions rc
+    left join public.contributors ct on ct.id = rc.author_contributor_id
+    where rc.target_type = 'post'
+      and rc.target_id = v_post_id::text
+      and (rc.status = 'approved' or rc.author_user_id = auth.uid())
+  ) unified
+  order by created_at asc
+  limit greatest(1, least(coalesce(p_limit, 200), 500));
+end;
+$$;
+
+comment on function public.post_conversation_projection is
+  'G3 Community Core 2029 Phase 2.1 — unifies legacy WordPress public.comments with native '
+  'research_contributions for one canonical post into a single chronological projection. Never '
+  'guesses an unresolved post_wp_id. See '
+  'scripts/g3-community-foundation-runtime/postConversationProjection.mjs for the pure-logic twin.';
+
+-- =====================================================================================
+-- 7. Realtime — NOT enabled here. Verified live (2026-09-23): supabase_realtime publication
 --    currently carries only `discoveries` and `post_share_counts`; `research_contributions` is
 --    not a member. Per Phase 1's own §6 recommendation, adding it directly would broadcast
 --    pending/hidden rows to unauthenticated subscribers ahead of moderation, because Supabase

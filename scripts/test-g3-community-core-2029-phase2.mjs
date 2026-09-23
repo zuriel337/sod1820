@@ -17,10 +17,15 @@ import { classifyContribution, toDecisionLedgerCandidate } from './g3-community-
 import { runImport, ExecutorNotAuthorizedError, EXECUTOR_CONFIRMATION_PHRASE } from './g3-community-foundation-runtime/executor.mjs';
 
 // ---- identity bridge --------------------------------------------------------------------
+// Phase 2.1 (task_key=G3_COMMUNITY_CORE_2029_PHASE2_1_INTEGRITY_FIXES_V1) added the confirmed-
+// email requirement to resolveLegacyClaim/contributors_claim_legacy; caller.email/emailConfirmed
+// replaces the Phase 2 caller.verifiedEmail shape. See docs/g3-community-core-2029-phase2-1-
+// integrity-fixes-branch-notes.md and scripts/test-g3-community-core-2029-phase2-1-integrity.mjs
+// for the new confirmed-email-specific coverage.
 
-test('identity bridge: exact verified-email match on an unclaimed legacy row is eligible', () => {
+test('identity bridge: exact confirmed-email match on an unclaimed legacy row is eligible', () => {
   const contributor = { id: 'c1', email: 'a@example.com', user_id: null };
-  const caller = { id: 'u1', verifiedEmail: 'a@example.com' };
+  const caller = { id: 'u1', email: 'a@example.com', emailConfirmed: true };
   const r = resolveLegacyClaim(contributor, caller);
   assert.equal(r.eligible, true);
   assert.equal(r.contributor_id, 'c1');
@@ -29,13 +34,13 @@ test('identity bridge: exact verified-email match on an unclaimed legacy row is 
 
 test('identity bridge: case/whitespace-insensitive match still resolves', () => {
   const contributor = { id: 'c1', email: '  A@Example.com ', user_id: null };
-  const caller = { id: 'u1', verifiedEmail: 'a@example.com' };
+  const caller = { id: 'u1', email: 'a@example.com', emailConfirmed: true };
   assert.equal(resolveLegacyClaim(contributor, caller).eligible, true);
 });
 
 test('identity bridge: already-claimed row is never re-claimable (no auto-link)', () => {
   const contributor = { id: 'c1', email: 'a@example.com', user_id: 'someone-else' };
-  const caller = { id: 'u1', verifiedEmail: 'a@example.com' };
+  const caller = { id: 'u1', email: 'a@example.com', emailConfirmed: true };
   const r = resolveLegacyClaim(contributor, caller);
   assert.equal(r.eligible, false);
   assert.equal(r.reason, 'already_claimed');
@@ -43,13 +48,13 @@ test('identity bridge: already-claimed row is never re-claimable (no auto-link)'
 
 test('identity bridge: email mismatch is refused', () => {
   const contributor = { id: 'c1', email: 'a@example.com', user_id: null };
-  const caller = { id: 'u1', verifiedEmail: 'b@example.com' };
+  const caller = { id: 'u1', email: 'b@example.com', emailConfirmed: true };
   assert.equal(resolveLegacyClaim(contributor, caller).reason, 'email_mismatch');
 });
 
 test('identity bridge: no email on the legacy record requires manual relink, never auto-match', () => {
   const contributor = { id: 'c1', email: null, user_id: null };
-  const caller = { id: 'u1', verifiedEmail: 'b@example.com' };
+  const caller = { id: 'u1', email: 'b@example.com', emailConfirmed: true };
   assert.equal(resolveLegacyClaim(contributor, caller).reason, 'no_email_on_legacy_record_manual_relink_required');
 });
 
@@ -98,8 +103,8 @@ test('classification: short/ambiguous text carries high uncertainty, never a fal
 
 // ---- bounded archive import executor ------------------------------------------------------
 
-const messages = [{ message_id: 'm1', body: 'hi', author_email: null, moderation_state: 'published', likes: 0, dislikes: 0, created_at: '2020-01-01T00:00:00Z' }];
-const state = { importedMessageIds: [], usersByVerifiedEmail: new Map(), contributorsByEmail: new Map() };
+const messages = [{ message_id: 'm1', body: 'hi', author_openweb_user_id: null, author_email: null, moderation_state: 'published', likes: 0, dislikes: 0, created_at: '2020-01-01T00:00:00Z' }];
+const state = { importedMessageIds: [], linkedOpenwebUserIds: new Map(), contributorsByOpenwebUserId: new Map() };
 
 test('executor: default call is dry-run only, never touches ops', async () => {
   let called = false;
