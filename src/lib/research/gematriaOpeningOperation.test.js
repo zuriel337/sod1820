@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   GEMATRIA_OPENING_OPERATION_CONTRACT,
   OPENING_COVERAGE_STATUS,
+  OPENING_TOTAL_STATUS,
   PER_WORD_PREFIX_OPENING,
   buildOpeningFragments,
   fetchGematriaOpeningOperation,
@@ -71,6 +72,7 @@ test('REGULAR opening total for אל בראשית matches the calibration-oracle
   const regularRow = result.methodRows.find((row) => row.methodKey === 'רגיל');
   assert.equal(regularRow.role, 'DERIVED_OPERATION');
   assert.equal(regularRow.isIndependentEvidence, false);
+  assert.equal(regularRow.totalStatus, OPENING_TOTAL_STATUS.COMPLETE);
   assert.equal(regularRow.fragmentValues.length, 8);
   assert.deepEqual(regularRow.fragmentValues.map((f) => f.value), [1, 31, 2, 202, 203, 503, 513, 913]);
 });
@@ -112,6 +114,7 @@ test('a per-fragment engine failure is captured as an honest partial-coverage er
   assert.equal(result.verification.errors[0].text, 'אל');
   const regularRow = result.methodRows.find((row) => row.methodKey === 'רגיל');
   assert.equal(regularRow.total, 1);
+  assert.equal(regularRow.totalStatus, OPENING_TOTAL_STATUS.PARTIAL);
   assert.equal(regularRow.complete, false);
   assert.ok(regularRow.coverage < 1);
   // The failed fragment still shows up as an explicit engine_error entry -- not a silently
@@ -171,7 +174,10 @@ test('a context_activated method is coverage-tagged context_required, not a fabr
     }]),
   });
   const row = result.methodRows.find((r) => r.methodKey === 'needs_context');
-  assert.equal(row.total, 0);
+  // total=0 for zero executed fragments is a fabricated result (GPT review 5803098801) --
+  // context_activated-only must report total=null with an explicit totalStatus instead.
+  assert.equal(row.total, null);
+  assert.equal(row.totalStatus, OPENING_TOTAL_STATUS.CONTEXT_REQUIRED);
   assert.equal(row.fragmentValues[0].coverageStatus, OPENING_COVERAGE_STATUS.CONTEXT_REQUIRED);
   assert.equal(row.coverageBreakdown.context_required, row.fragmentValues.length);
 });
@@ -188,6 +194,8 @@ test('an unimplemented/unset execution_kind method is coverage-tagged unavailabl
   });
   const row = result.methodRows.find((r) => r.methodKey === 'not_built_yet');
   assert.equal(row.fragmentValues[0].coverageStatus, OPENING_COVERAGE_STATUS.UNAVAILABLE);
+  assert.equal(row.total, null);
+  assert.equal(row.totalStatus, OPENING_TOTAL_STATUS.UNAVAILABLE);
 });
 
 test('a computable method with a non-public required_entitlement but no value is coverage-tagged access_filtered, not unavailable', async () => {
@@ -202,4 +210,36 @@ test('a computable method with a non-public required_entitlement but no value is
   });
   const row = result.methodRows.find((r) => r.methodKey === 'premium_method');
   assert.equal(row.fragmentValues[0].coverageStatus, OPENING_COVERAGE_STATUS.ACCESS_FILTERED);
+  assert.equal(row.total, null);
+  assert.equal(row.totalStatus, OPENING_TOTAL_STATUS.ACCESS_FILTERED);
+});
+
+test('a method with zero executed fragments but at least one engine error reports total=null and totalStatus=error_partial', async () => {
+  const result = await fetchGematriaOpeningOperation('אל', {
+    fetchMethodProfile: async (fragment) => {
+      if (fragment === 'אל') throw new Error('engine_unavailable');
+      // 'א' resolves but the method itself never computes a value (context_activated) -- so this
+      // row has zero executed fragments split across one honest non-execution and one real error.
+      return [{ methodKey: 'needs_context', computedValue: null, sortOrder: 0, executionKind: 'context_activated' }];
+    },
+  });
+  const row = result.methodRows.find((r) => r.methodKey === 'needs_context');
+  assert.equal(row.total, null);
+  assert.equal(row.totalStatus, OPENING_TOTAL_STATUS.ERROR_PARTIAL);
+  assert.equal(row.coverageBreakdown.context_required, 1);
+  assert.equal(row.coverageBreakdown.engine_error, 1);
+});
+
+test('a method with a mix of executed and errored fragments reports total=error_partial only when zero fragments executed', async () => {
+  const result = await fetchGematriaOpeningOperation('אל', {
+    fetchMethodProfile: async (fragment) => {
+      if (fragment === 'אל') throw new Error('engine_unavailable');
+      // 'א' succeeds, so 'רגיל' has one known-error fragment ('אל') and one executed ('א') --
+      // this is the partial case, not error_partial (that's reserved for zero executed).
+      return [{ methodKey: 'רגיל', computedValue: 1, sortOrder: 0 }];
+    },
+  });
+  const row = result.methodRows.find((r) => r.methodKey === 'רגיל');
+  assert.equal(row.total, 1);
+  assert.equal(row.totalStatus, OPENING_TOTAL_STATUS.PARTIAL);
 });

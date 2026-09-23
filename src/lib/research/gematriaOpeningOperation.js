@@ -40,6 +40,20 @@ export const OPENING_COVERAGE_STATUS = Object.freeze({
   ENGINE_ERROR: "engine_error",
 });
 
+// Per-method total/coverage state (GPT review 5803098801 on PR #639, final contract correction).
+// `total: 0` for a method with zero executed fragments is a fabricated numeric result -- a
+// context_activated/unavailable/access_filtered/all-errored method never actually computed
+// anything, so its total must be null, not a coincidental sum-of-nothing zero. `totalStatus`
+// carries the honest reason so a consumer never has to reverse-engineer it from coverageBreakdown.
+export const OPENING_TOTAL_STATUS = Object.freeze({
+  COMPLETE: "complete",
+  PARTIAL: "partial",
+  CONTEXT_REQUIRED: "context_required",
+  UNAVAILABLE: "unavailable",
+  ACCESS_FILTERED: "access_filtered",
+  ERROR_PARTIAL: "error_partial",
+});
+
 const clean = (value) => (value == null ? "" : String(value).trim());
 // Number(null) === 0 and Number.isFinite(0) === true, so a naive `Number.isFinite(Number(value))`
 // silently turns a genuinely-null computed_value (context_required/unavailable/access_filtered) into
@@ -57,6 +71,27 @@ function fragmentCoverageStatus(row) {
     return OPENING_COVERAGE_STATUS.ACCESS_FILTERED;
   }
   return OPENING_COVERAGE_STATUS.UNAVAILABLE;
+}
+
+/**
+ * Classifies a method row's total/coverage state (GPT review 5803098801). `knownFragmentCount` is
+ * the number of fragments this row actually has an entry for -- the honest denominator, since a
+ * method absent from a fragment's profile response carries no information about that fragment.
+ */
+function classifyTotalStatus(coveredFragmentCount, coverageBreakdown, knownFragmentCount) {
+  if (coveredFragmentCount > 0) {
+    return coveredFragmentCount === knownFragmentCount
+      ? OPENING_TOTAL_STATUS.COMPLETE
+      : OPENING_TOTAL_STATUS.PARTIAL;
+  }
+  if (coverageBreakdown[OPENING_COVERAGE_STATUS.ENGINE_ERROR] > 0) return OPENING_TOTAL_STATUS.ERROR_PARTIAL;
+  if (knownFragmentCount > 0 && coverageBreakdown[OPENING_COVERAGE_STATUS.CONTEXT_REQUIRED] === knownFragmentCount) {
+    return OPENING_TOTAL_STATUS.CONTEXT_REQUIRED;
+  }
+  if (knownFragmentCount > 0 && coverageBreakdown[OPENING_COVERAGE_STATUS.ACCESS_FILTERED] === knownFragmentCount) {
+    return OPENING_TOTAL_STATUS.ACCESS_FILTERED;
+  }
+  return OPENING_TOTAL_STATUS.UNAVAILABLE;
 }
 
 function openingProvenance() {
@@ -221,8 +256,13 @@ function aggregateMethodRows(fragments, profiles, failed) {
     const orderedFragmentValues = [...agg.fragmentValues].sort((a, b) => (
       a.wordIndex - b.wordIndex || a.prefixIndex - b.prefixIndex
     ));
+    // total=0 for a method with zero executed fragments is a fabricated result (GPT review
+    // 5803098801) -- null it out and carry the honest reason in totalStatus instead.
+    const totalStatus = classifyTotalStatus(agg.coveredFragmentCount, agg.coverageBreakdown, orderedFragmentValues.length);
     return Object.freeze({
       ...agg,
+      total: agg.coveredFragmentCount === 0 ? null : agg.total,
+      totalStatus,
       fragmentValues: Object.freeze(orderedFragmentValues),
       coverageBreakdown: Object.freeze(agg.coverageBreakdown),
       coverage: fragments.length ? agg.coveredFragmentCount / fragments.length : 0,
