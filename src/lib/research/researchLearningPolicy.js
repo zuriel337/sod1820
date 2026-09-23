@@ -23,6 +23,7 @@ export const LEARNING_POLICY_DOMAIN = Object.freeze({
 export const CHALLENGER_DECISION = Object.freeze({
   INSUFFICIENT_EVIDENCE: "insufficient_evidence",
   BLOCK_CHALLENGER: "block_challenger",
+  CHAMPION_BOUNDARY_FAILURE: "champion_boundary_failure_requires_human_intervention",
   KEEP_CHAMPION: "keep_champion_no_material_gain",
   PROPOSE_CHALLENGER: "propose_challenger_for_human_review",
 });
@@ -74,7 +75,7 @@ function uniqueText(values) {
 function domain(value) {
   const d = clean(value);
   if (d === "style" || d === "message_style" || d === "ai_style") {
-    throw new TypeError("researchLearning: style policy belongs to ai_style_learning_law, not Research Champion/Challenger");
+    throw new TypeError("researchLearning: style policy belongs to system_suggestions_law/current style-learning owner, not Research Champion/Challenger");
   }
   if (!VALID_DOMAINS.has(d)) {
     throw new TypeError(`researchLearning: unsupported policy domain "${d}"`);
@@ -379,7 +380,8 @@ export function compareChampionChallenger({
   const championSampleIssues = sampleIssues(c, p).map(x => `champion:${x}`);
   const challengerSampleIssues = sampleIssues(n, p).map(x => `challenger:${x}`);
   const samples = [...championSampleIssues, ...challengerSampleIssues];
-  const hardIssues = hardViolationIssues(n, p);
+  const championHardIssues = hardViolationIssues(c, p);
+  const challengerHardIssues = hardViolationIssues(n, p);
 
   const vector = {
     support_low_improvement_points: delta(
@@ -441,12 +443,17 @@ export function compareChampionChallenger({
   let decision = CHALLENGER_DECISION.KEEP_CHAMPION;
   let reason = "challenger_did_not_clear_material_improvement_gates";
 
-  if (spaceIssues.length || samples.length) {
+  // Active-policy safety failure outranks comparison quality. We must never "keep Champion"
+  // merely because the Challenger is weak/confounded while the current policy is unsafe.
+  if (championHardIssues.length) {
+    decision = CHALLENGER_DECISION.CHAMPION_BOUNDARY_FAILURE;
+    reason = "active_champion_hard_boundary_failure_requires_human_intervention";
+  } else if (spaceIssues.length || samples.length) {
     decision = CHALLENGER_DECISION.INSUFFICIENT_EVIDENCE;
     reason = "evaluation_space_or_sample_not_qualified";
-  } else if (hardIssues.length || qualityRegressionIssues.length) {
+  } else if (challengerHardIssues.length || qualityRegressionIssues.length) {
     decision = CHALLENGER_DECISION.BLOCK_CHALLENGER;
-    reason = "hard_boundary_or_regression_gate_failed";
+    reason = "challenger_hard_boundary_or_regression_gate_failed";
   } else if (materialImprovement) {
     decision = CHALLENGER_DECISION.PROPOSE_CHALLENGER;
     reason = "material_improvement_within_all_declared_guardrails";
@@ -465,13 +472,18 @@ export function compareChampionChallenger({
     reason,
     evaluation_space_issues: spaceIssues,
     sample_issues: samples,
-    hard_boundary_issues: hardIssues,
+    champion_hard_boundary_issues: championHardIssues,
+    challenger_hard_boundary_issues: challengerHardIssues,
+    // Compatibility alias: historically this field meant Challenger-side hard issues.
+    hard_boundary_issues: challengerHardIssues,
     quality_regression_issues: qualityRegressionIssues,
     improvement_gates: improvementGates,
     metric_vector: vector,
     auto_activation_authorized: false,
     runtime_effect: false,
-    human_review_required: decision === CHALLENGER_DECISION.PROPOSE_CHALLENGER,
+    human_review_required:
+      decision === CHALLENGER_DECISION.PROPOSE_CHALLENGER
+      || decision === CHALLENGER_DECISION.CHAMPION_BOUNDARY_FAILURE,
     owner_verification_required: true,
     invariants: {
       no_universal_learning_score: true,
@@ -479,7 +491,8 @@ export function compareChampionChallenger({
       no_auto_policy_promotion: true,
       same_holdout_required_when_policy_says_so: true,
       same_corpus_baseline_required_when_policy_says_so: true,
-      safety_and_truth_boundaries_override_metric_improvement: true,
+      challenger_safety_and_truth_boundaries_override_metric_improvement: true,
+      champion_safety_and_truth_boundaries_are_evaluated_and_escalated: true,
       repeated_observations_do_not_inflate_independent_person_count: true,
     },
   });
