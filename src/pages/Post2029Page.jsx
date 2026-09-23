@@ -67,7 +67,7 @@ function PostPulse({ updates = [], onOpen }) {
 
   const calculations = updates.flatMap((unit) => unit.calculations || []);
   const contributorCalculations = updates.flatMap((unit) => unit.contributorCalculations || []);
-  const previewCalculations = (contributorCalculations.length ? contributorCalculations : calculations).slice(0, 2);
+  const previewCalculations = (contributorCalculations.length ? contributorCalculations : calculations).slice(0, 1);
   const contributors = [...new Set(updates.map((unit) => clean(unit.contributor)).filter(Boolean))];
 
   const sourceLine = contributors.length === 1
