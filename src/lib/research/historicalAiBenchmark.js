@@ -1,6 +1,7 @@
 import { stableIdentityDigest } from "./researchRepresentations.js";
 
 // F4 — Historical AI Output / Resonance Benchmark.
+// Historical rows are benchmark evidence about past outputs/usefulness, never a reconstructed Truth source.
 //
 // This module intentionally does NOT claim exact historical input replay.
 // Live ai_analysis_log stores subject/output/provider/style/engagement, but not
