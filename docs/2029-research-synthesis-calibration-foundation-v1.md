@@ -664,7 +664,8 @@ A negative result can lower or change the message.
 - one provider normal;
 - challenger by Information Gain;
 - three-provider robustness only where justified;
-- cost + operational trace.
+- cost + operational trace;
+- detailed execution map: `docs/2029-provider-orchestration-v1.md`.
 
 ### F8 — Product projections
 - Number/Name/Person/Raziel/Heichal consumers use the same Synthesis;
