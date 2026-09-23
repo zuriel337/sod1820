@@ -369,10 +369,12 @@ function ToolsProjection({ surface, target, onDeepen, go, onCapability }) {
   );
 }
 
-function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null }) {
+function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, microIntent: transientMicroIntent = null, synthesisPreview = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
-  const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
+  const numberFocus = microIntent === "synthesis_preview"
+    ? null
+    : (numberCoreFocus || context?.dimensions?.numberCoreFocus || null);
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
     explain_method: "הסבר את השיטה",
@@ -381,6 +383,7 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
     explain_world: "הסבר את העולם",
     explain_world_context: "הסבר את מרכז העולמות",
     expand_panel: "המשך מה־Micro",
+    synthesis_preview: "Synthesis 2029 Preview",
   }[microIntent] || null;
   const quickInsight = (() => {
     if (!numberFocus) return null;
@@ -442,6 +445,14 @@ function RazielProjection({ target, context, onDeepen, numberCoreFocus = null, m
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
         <small>{quickInsight.boundary}</small>
+      </section> : null}
+      {synthesisPreview?.message ? <section className="sod29-panel-context-card" data-raziel-synthesis-preview="true">
+        <b>המסר שרזיאל קיבל · אותו Synthesis</b>
+        <span>{synthesisPreview.message}</span>
+        {Array.isArray(synthesisPreview.motifs) && synthesisPreview.motifs.length
+          ? <small>מוטיבים · {synthesisPreview.motifs.map((item) => item?.label).filter(Boolean).join(" · ")}</small>
+          : null}
+        <small>Golden Preview בלבד · לא live synthesis ולא קנוניזציה.</small>
       </section> : null}
       <div className="sod29-panel-context-card">
         <b>Research Context שניתן לרזיאל</b>
@@ -862,7 +873,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} onDeepen={deepenToHeichal} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} synthesisPreview={transient?.payload?.synthesisPreview || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}

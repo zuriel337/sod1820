@@ -1,0 +1,156 @@
+.sod29-synth-intro{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin:0 0 18px;
+  padding:18px;
+  border:1px solid var(--s29-line);
+  border-radius:22px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+}
+.sod29-synth-intro h1{margin:4px 0 8px;font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.05}
+.sod29-synth-intro p{margin:0;color:var(--s29-muted);max-width:68ch}
+
+.sod29-synth-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:18px;
+}
+.sod29-synth-card{
+  min-width:0;
+  padding:20px;
+  border:1px solid var(--s29-line);
+  border-radius:24px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
+  box-shadow:0 14px 42px color-mix(in srgb,var(--s29-bg) 58%,transparent);
+}
+.sod29-synth-card.is-2029{
+  border-color:color-mix(in srgb,var(--s29-accent) 44%,var(--s29-line));
+  background:
+    linear-gradient(145deg,
+      color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel-soft)),
+      color-mix(in srgb,var(--s29-panel) 96%,transparent));
+}
+.sod29-synth-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--s29-line);
+}
+.sod29-synth-card-head h2{margin:4px 0 5px;font-size:clamp(1.28rem,3vw,1.7rem);line-height:1.15}
+.sod29-synth-card-head p{margin:0;color:var(--s29-muted);font-size:.95rem}
+
+.sod29-synth-anchor,
+.sod29-synth-primary{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin:16px 0;
+  padding:12px 14px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 34%,var(--s29-line));
+  border-radius:16px;
+  background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel));
+}
+.sod29-synth-anchor small,
+.sod29-synth-primary small,
+.sod29-synth-alt small{color:var(--s29-muted)}
+.sod29-synth-anchor strong,
+.sod29-synth-primary strong{font-size:1.12rem}
+
+.sod29-synth-message{
+  margin:18px 0;
+  font-size:clamp(1.04rem,2.2vw,1.18rem);
+  line-height:1.95;
+  color:var(--s29-text);
+}
+.sod29-synth-evidence{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.sod29-synth-evidence span,
+.sod29-synth-controls span{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:7px 10px;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-panel) 92%,transparent);
+  color:var(--s29-muted);
+  font-size:.87rem;
+}
+
+.sod29-synth-proof{
+  margin:18px 0;
+  padding:14px;
+  border:1px solid color-mix(in srgb,var(--s29-good) 42%,var(--s29-line));
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-good) 7%,var(--s29-panel));
+}
+.sod29-synth-subhead{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.sod29-synth-subhead span{font-size:.78rem;color:var(--s29-muted)}
+.sod29-synth-proof-row{
+  display:grid;
+  grid-template-columns:22px minmax(0,1fr);
+  gap:8px;
+  align-items:start;
+  padding:7px 0;
+  border-top:1px solid color-mix(in srgb,var(--s29-line) 66%,transparent);
+}
+.sod29-synth-proof-row:first-of-type{border-top:0}
+.sod29-synth-proof-row>span{color:var(--s29-good);font-weight:800}
+.sod29-synth-proof-row p{margin:0;line-height:1.55}
+
+.sod29-synth-controls{
+  margin:16px 0;
+  padding:14px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+}
+.sod29-synth-controls>b{display:block;margin-bottom:10px}
+.sod29-synth-controls>div{display:flex;flex-wrap:wrap;gap:8px}
+
+.sod29-synth-alt,
+.sod29-synth-boundary,
+.sod29-synth-note{
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel) 92%,transparent);
+}
+.sod29-synth-alt p,
+.sod29-synth-boundary p,
+.sod29-synth-note p{margin:6px 0 0;line-height:1.7;color:var(--s29-muted)}
+
+.sod29-synth-note{
+  margin-top:18px;
+}
+
+@media (max-width:820px){
+  .sod29-synth-intro{flex-direction:column}
+  .sod29-synth-grid{grid-template-columns:1fr}
+}
+
+@media (max-width:520px){
+  .sod29-synth-intro,
+  .sod29-synth-card{padding:15px;border-radius:20px}
+  .sod29-synth-card-head{align-items:flex-start}
+  .sod29-synth-message{line-height:1.8}
+  .sod29-synth-subhead{align-items:flex-start;flex-direction:column}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sod29-synth-card{scroll-behavior:auto}
+}

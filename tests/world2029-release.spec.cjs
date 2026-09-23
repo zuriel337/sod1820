@@ -197,6 +197,84 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });
 
+test('1820 Synthesis Preview suppresses stale Number quickInsight from prior session context', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(({ key }) => {
+    sessionStorage.setItem(key, JSON.stringify({
+      version: 1,
+      // Subject already matches the preview. Only the nested numberCoreFocus is stale,
+      // isolating the exact fallback risk without mixing in subject/identity transition.
+      subject: { id: '1820', type: 'number', label: '1820', href: '/2029/number/1820' },
+      selection: { entityId: '1820', entityType: 'number' },
+      lens: 'number',
+      dimensions: {
+        numberCoreFocus: {
+          kind: 'method',
+          root: 596,
+          expression: 'ירושלים',
+          method: 'רגיל',
+          resultValue: 596,
+        },
+      },
+      journey: null,
+      returnTo: null,
+    }));
+  }, { key: CONTEXT_KEY });
+
+  await page.goto(`${BASE}/2029/preview/synthesis/1820`, { waitUntil: 'domcontentloaded' });
+  const newCard = page.locator('.sod29-synth-card.is-2029');
+  await expect(newCard).toBeVisible({ timeout: 20_000 });
+  await newCard.getByRole('button', { name: /פתח את אותו Synthesis ברזיאל/ }).click();
+
+  const panel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
+  await expect(panel).toBeVisible();
+  await expect(panel.locator('[data-raziel-synthesis-preview="true"]')).toBeVisible();
+  await expect(panel.locator('.sod29-raziel-quick-insight')).toHaveCount(0);
+  await expect(panel).not.toContainText('ירושלים');
+  await expect(panel).not.toContainText('596');
+});
+
+test('1820 Synthesis Golden compares old-vs-new and passes the same Synthesis into Raziel', async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
+    await page.goto(`${BASE}/2029/preview/synthesis/1820`, { waitUntil: 'domcontentloaded' });
+
+    const oldCard = page.locator('.sod29-synth-card.is-legacy');
+    const newCard = page.locator('.sod29-synth-card.is-2029');
+    await expect(oldCard).toBeVisible({ timeout: 20_000 });
+    await expect(newCard).toBeVisible({ timeout: 20_000 });
+
+    await expect(oldCard).toContainText('סוד השם × עמים');
+    await expect(newCard).toContainText('נסתר → זמן → גילוי');
+    await expect(newCard).toContainText('לא ציון אמת');
+    await expect(newCard).toContainText('גלוי סוד יהוה בעתה');
+
+    await assertNoHorizontalOverflow(page);
+
+    const openRaziel = newCard.getByRole('button', { name: /פתח את אותו Synthesis ברזיאל/ });
+    await expect(openRaziel).toBeVisible();
+    await openRaziel.click();
+
+    const panel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
+    await expect(panel).toBeVisible();
+    const sameSynthesis = panel.locator('[data-raziel-synthesis-preview="true"]');
+    await expect(sameSynthesis).toBeVisible();
+    await expect(panel.locator('.sod29-raziel-quick-insight')).toHaveCount(0);
+    await expect(sameSynthesis).toContainText('המסר שרזיאל קיבל · אותו Synthesis');
+    await expect(sameSynthesis).toContainText('נסתר → נגלה');
+    await expect(sameSynthesis).toContainText('עת / זמן');
+    await expect(sameSynthesis).toContainText('Golden Preview בלבד');
+
+    await page.screenshot({
+      path: `test-results/release-visual/synthesis-1820-preview-${width}.png`,
+      fullPage: true,
+    });
+
+    await page.keyboard.press('Escape');
+    await expect(panel).toHaveCount(0);
+  }
+});
+
 test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
