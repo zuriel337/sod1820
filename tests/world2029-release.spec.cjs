@@ -197,6 +197,41 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });
 
+test('1820 Synthesis Preview suppresses stale Number quickInsight from prior session context', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(({ key }) => {
+    sessionStorage.setItem(key, JSON.stringify({
+      version: 1,
+      subject: { id: '596', type: 'number', label: '596', href: '/2029/number/596' },
+      selection: { entityId: '596', entityType: 'number' },
+      lens: 'number',
+      dimensions: {
+        numberCoreFocus: {
+          kind: 'method',
+          root: 596,
+          expression: 'ירושלים',
+          method: 'רגיל',
+          resultValue: 596,
+        },
+      },
+      journey: null,
+      returnTo: null,
+    }));
+  }, { key: CONTEXT_KEY });
+
+  await page.goto(`${BASE}/2029/preview/synthesis/1820`, { waitUntil: 'domcontentloaded' });
+  const newCard = page.locator('.sod29-synth-card.is-2029');
+  await expect(newCard).toBeVisible({ timeout: 20_000 });
+  await newCard.getByRole('button', { name: /פתח את אותו Synthesis ברזיאל/ }).click();
+
+  const panel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
+  await expect(panel).toBeVisible();
+  await expect(panel.locator('[data-raziel-synthesis-preview="true"]')).toBeVisible();
+  await expect(panel.locator('.sod29-raziel-quick-insight')).toHaveCount(0);
+  await expect(panel).not.toContainText('ירושלים');
+  await expect(panel).not.toContainText('596');
+});
+
 test('1820 Synthesis Golden compares old-vs-new and passes the same Synthesis into Raziel', async ({ page }) => {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
