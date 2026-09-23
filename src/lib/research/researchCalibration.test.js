@@ -134,7 +134,8 @@ test("freeze is deterministic and records change-detection fingerprints without 
   assert.equal(a.claim_set_fingerprint, b.claim_set_fingerprint);
   assert.equal(a.claim_count, 6);
   assert.equal(a.fingerprint_kind, "deterministic_change_detection_not_cryptographic_signature");
-  assert.equal(a.freeze_time_provenance.attested, true);
+  assert.equal(a.freeze_time_provenance.provenance_declared, true);
+  assert.equal(a.freeze_time_provenance.verified_by_harness, false);
   assert.equal(a.invariants.person_fit_is_calibration_not_truth, true);
 });
 
@@ -186,6 +187,20 @@ test("validation cannot begin before freeze and requires held-out data separatio
   }), /must be explicitly true/);
 });
 
+test("declared protocol provenance still requires owner verification before empirical fit", () => {
+  const freeze = frozen();
+  const validationSession = session(freeze);
+
+  assert.equal(freeze.freeze_time_provenance.provenance_declared, true);
+  assert.equal(validationSession.bias_controls.chronology_provenance_declared, true);
+  assert.equal(validationSession.bias_controls.separation_provenance_declared, true);
+  assert.equal(validationSession.bias_controls.protocol_provenance_declared, true);
+  assert.equal(validationSession.bias_controls.message_frozen_before_validation, false);
+  assert.equal(validationSession.bias_controls.validation_data_hidden_during_synthesis, false);
+  assert.equal(validationSession.bias_controls.owner_verification_required, true);
+  assert.equal(validationSession.bias_controls.empirical_fit_ready, false);
+});
+
 test("caller-supplied protocol timing may be described but is not eligible for empirical fit", () => {
   const freeze = freezeSynthesisForCalibration(syntheticSynthesis(), {
     frozenAt: "2026-09-23T00:00:00.000Z",
@@ -197,10 +212,12 @@ test("caller-supplied protocol timing may be described but is not eligible for e
     evaluatorBlinded: true,
   });
 
-  assert.equal(freeze.freeze_time_provenance.attested, false);
+  assert.equal(freeze.freeze_time_provenance.provenance_declared, false);
   assert.equal(validationSession.bias_controls.chronology_order_observed, true);
   assert.equal(validationSession.bias_controls.message_frozen_before_validation, false);
   assert.equal(validationSession.bias_controls.validation_data_hidden_during_synthesis, false);
+  assert.equal(validationSession.bias_controls.protocol_provenance_declared, false);
+  assert.equal(validationSession.bias_controls.owner_verification_required, true);
   assert.equal(validationSession.bias_controls.empirical_fit_ready, false);
 
   const summary = summarizeClaimValidations(freeze, validationSession, [{
@@ -320,9 +337,11 @@ test("Person Fit is a support band, not one hidden-weight accuracy score", () =>
   assert.equal(summary.support_band_percent.high, 66.67);
   assert.equal(summary.contradiction_rate_percent, 33.33);
   assert.equal(summary.genericity_rate_percent, 20);
-  assert.equal(summary.empirical_fit_ready, true);
-  assert.equal(summary.descriptive_only, false);
-  assert.equal(summary.bias_controls.protocol_attested, true);
+  assert.equal(summary.protocol_provenance_declared, true);
+  assert.equal(summary.owner_verification_required, true);
+  assert.equal(summary.empirical_fit_ready, false);
+  assert.equal(summary.descriptive_only, true);
+  assert.equal(summary.bias_controls.protocol_provenance_declared, true);
   assert.equal(summary.invariants.no_hidden_partial_credit_weight, true);
   assert.equal("truth_score" in summary, false);
   assert.equal("accuracy_score" in summary, false);
@@ -443,7 +462,8 @@ test("calibration storage shape is private-Research-OS metadata, not a new autho
 
   const ext = meta.ext.research_synthesis_calibration;
   assert.equal(ext.synthesis_fingerprint, freeze.synthesis_fingerprint);
-  assert.equal(ext.validation_session.bias_controls.empirical_fit_ready, true);
+  assert.equal(ext.validation_session.bias_controls.protocol_provenance_declared, true);
+  assert.equal(ext.validation_session.bias_controls.empirical_fit_ready, false);
   assert.equal(ext.truth_boundary, "CALIBRATION != TRUTH != VERIFICATION != CANONICAL != PUBLISHED");
   assert.match(ext.storage_boundary, /existing private Research OS/);
 });
