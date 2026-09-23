@@ -202,8 +202,10 @@ test('1820 Synthesis Preview suppresses stale Number quickInsight from prior ses
   await page.addInitScript(({ key }) => {
     sessionStorage.setItem(key, JSON.stringify({
       version: 1,
-      subject: { id: '596', type: 'number', label: '596', href: '/2029/number/596' },
-      selection: { entityId: '596', entityType: 'number' },
+      // Subject already matches the preview. Only the nested numberCoreFocus is stale,
+      // isolating the exact fallback risk without mixing in subject/identity transition.
+      subject: { id: '1820', type: 'number', label: '1820', href: '/2029/number/1820' },
+      selection: { entityId: '1820', entityType: 'number' },
       lens: 'number',
       dimensions: {
         numberCoreFocus: {
