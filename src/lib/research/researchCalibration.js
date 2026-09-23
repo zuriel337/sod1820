@@ -2,6 +2,7 @@ import { CLAIM_VALIDATION_STATE } from "./researchSynthesis.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
 
 // F3 — pure Calibration Harness.
+// This stacked phase is intentionally storage-neutral; persistence stays with existing Research OS/Person owners.
 //
 // No DB access. No Person identity resolution. No Truth/Verification promotion.
 // The harness measures how a previously frozen Synthesis performs against
