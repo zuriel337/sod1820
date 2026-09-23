@@ -4,6 +4,7 @@ import fs from "node:fs";
 const app = fs.readFileSync("src/App2029.jsx", "utf8");
 const page = fs.readFileSync("src/pages/Post2029Page.jsx", "utf8");
 const projection = fs.readFileSync("src/lib/research/post2029Projection.js", "utf8");
+const timeFlow = fs.readFileSync("src/lib/timeFlow.js", "utf8");
 const css = fs.readFileSync("src/pages/post2029.css", "utf8");
 const vercel = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
 
@@ -23,6 +24,11 @@ assert.match(page, /ראה עוד/);
 assert.match(page, /previewCalculations/);
 assert.match(page, /contributorCalculations/);
 assert.match(page, /sod29-post-pulse-findings/);
+assert.match(page, /function TemporalNowLens/);
+assert.match(page, /פתח בציר ההתגלות/);
+assert.match(page, /רמז זמן פעיל/);
+assert.equal(page.includes("אבני רונן"), false, "Temporal lens must consume contributor provenance from DB, not hard-code a person");
+assert.equal(page.includes("תשפ״ז"), false, "Temporal lens must consume current Hebrew year from shared resolver");
 assert.match(page, /scrollIntoView/);
 assert.match(page, /is-pulse-target/);
 assert.equal(page.includes("localStorage"), false, "Golden Pulse must not invent local seen-state storage");
@@ -38,6 +44,11 @@ assert.match(projection, /number_readings/);
 assert.match(projection, /readings:/);
 assert.match(projection, /contributorCalculations/);
 assert.match(projection, /extractContributorAddition/);
+assert.match(projection, /getCurrentTemporalContext/);
+assert.match(projection, /research_contributions/);
+assert.match(projection, /number_anchors/);
+assert.match(projection, /fn_method_value/);
+assert.match(projection, /temporalLens/);
 assert.match(projection, /source_media/);
 assert.match(projection, /authored_content/);
 assert.match(projection, /transcript/);
@@ -48,6 +59,14 @@ assert.match(css, /max-width:390px/);
 assert.match(css, /prefers-reduced-motion:reduce/);
 assert.match(css, /sod29-post-pulse/);
 assert.match(css, /var\(--s29-accent\)/);
+assert.match(css, /sod29-post-time-lens/);
+
+assert.match(timeFlow, /export function getCurrentTemporalContext/);
+assert.match(timeFlow, /ISRAEL_TIME_ZONE/);
+assert.match(timeFlow, /renderGematriya/);
+assert.match(timeFlow, /getDayContext/);
+assert.equal(timeFlow.includes("787"), false, "Shared temporal resolver must not hard-code the current Hebrew-year gematria");
+assert.equal(timeFlow.includes("תשפז"), false, "Shared temporal resolver must derive the Hebrew year dynamically");
 
 // Keep this gate branch-local until ZURIEL approves Post2029 cutover.
 console.log("2029 Post Golden Preview acceptance: PASS");
