@@ -155,6 +155,9 @@ export default function ResearchPage() {
 
   // ה-URL הוא מקור-האמת לכלי הפעיל → deep-link נכנס ישר לכלי. q = מונח-זריעה (ממסע החיפוש)
   const tool = sp.get("tool");
+  // Legacy containment (Human Gate 23.9.2026): registered non-admin users may use Number here.
+  // Other implemented engines remain preserved for admin/build work but are not exposed as active Heichal tools.
+  const legacyPublicToolBlocked = !isAdmin && !!tool && tool !== "number";
   const seed = sp.get("q") || "";
   const midrashTab = sp.get("tab") || "";
   // Human Gate: Beit Midrash remains an independent research surface during transition.
@@ -258,7 +261,17 @@ export default function ResearchPage() {
       <NumHrefCtx.Provider value={n => `/research?tool=number&n=${n}`}>
       {/* 📱 באנר-ההתנצלות על המובייל הוסר (research_workspace_law: חייב לעבוד מצוין באייפון —
           לא מודיעים למשתמש שהחוויה «מצומצמת»). כלים רחבים (ELS) עדיין מציעים דף-מלא בתוכם. */}
-      {!tool ? (
+      {legacyPublicToolBlocked ? (
+        <div className="rw-card" style={{ textAlign: "center", padding: "44px 20px" }}>
+          <div style={{ fontSize: 46, marginBottom: 14 }}>🏛️</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink,#1b1d22)", marginBottom: 8 }}>הכלי הזה עדיין סגור בהיכל</div>
+          <div className="rw-muted" style={{ fontSize: 14.5, lineHeight: 1.8, maxWidth: 460, margin: "0 auto 18px" }}>
+            ההיכל הישן נשאר כרגע כחלון מעבר בלבד. דף המספר פתוח למשתמשים רשומים; הצופן התנ״כי ושאר כלי המחקר ייפתחו רק כשהמערכת החדשה תהיה מוכנה באמת.
+          </div>
+          <button className="rw-tchip on" onClick={() => setTool("number")} style={{ marginInlineEnd: 8 }}>🔢 לדף המספר</button>
+          <button className="rw-tchip" onClick={() => setTool(null)}>← חזרה להיכל</button>
+        </div>
+      ) : !tool ? (
         <ResearchHome onOpen={setTool} />
       ) : !ready(tool) ? (
         <div className="rw-card" style={{ textAlign: "center", padding: "44px 20px" }}>
