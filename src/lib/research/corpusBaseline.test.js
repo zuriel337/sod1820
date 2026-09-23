@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   SEMANTIC_EVIDENCE_CLASS,
   SEMANTIC_RESEARCH_ROLE,
+  SEMANTIC_SELECTION_MODE,
   assessCorpusBaselineChange,
   buildSemanticControlPlan,
   consolidateSemanticExpansionCandidates,
@@ -304,6 +305,25 @@ test("consolidation merges corroborating sources instead of fragmenting duplicat
   assert.equal(batch.invariants.no_mass_graph_write, true);
 });
 
+test("post-numeric semantic interpretation cannot validate the numeric discovery that suggested it", () => {
+  const postHoc = createSemanticExpansionCandidate({
+    sourceExpression: "אור",
+    targetExpression: "מילה אחרת",
+    semanticRole: SEMANTIC_RESEARCH_ROLE.CONTRAST_CANDIDATE,
+    sourceRefs: ["research-note:synthetic:posthoc"],
+    evidenceClasses: [SEMANTIC_EVIDENCE_CLASS.HUMAN_CURATED],
+    relationBasis: "relation noticed after a numeric match",
+    selectionMode: SEMANTIC_SELECTION_MODE.POST_NUMERIC_INTERPRETATION,
+  });
+
+  assert.equal(postHoc.numeric_selection_independent, false);
+  assert.equal(postHoc.invariants.post_numeric_semantic_interpretation_cannot_validate_numeric_discovery, true);
+
+  const control = buildSemanticControlPlan(postHoc, { decoyCount: 10 });
+  assert.equal(control.validation_eligibility.numeric_discrimination_validation, false);
+  assert.match(control.validation_eligibility.reason, /not proven independent/);
+});
+
 test("semantic control plan explicitly tests unrelated, same-root and same-value alternatives", () => {
   const candidate = createSemanticExpansionCandidate({
     sourceExpression: "אור",
@@ -312,6 +332,7 @@ test("semantic control plan explicitly tests unrelated, same-root and same-value
     sourceRefs: ["source:a"],
     evidenceClasses: [SEMANTIC_EVIDENCE_CLASS.SOURCE_ATTESTED],
     relationBasis: "synthetic",
+    selectionMode: SEMANTIC_SELECTION_MODE.PRE_NUMERIC_SOURCE,
   });
 
   const control = buildSemanticControlPlan(candidate, {
@@ -327,6 +348,7 @@ test("semantic control plan explicitly tests unrelated, same-root and same-value
   assert.equal(control.matching.corpus_frequency_bucket, true);
   assert.equal(control.negative_controls.same_root_control, true);
   assert.equal(control.negative_controls.same_numeric_value_control, true);
+  assert.equal(control.validation_eligibility.numeric_discrimination_validation, true);
   assert.equal(control.invariants.same_root_is_not_synonymy, true);
   assert.equal(control.invariants.same_value_is_not_semantic_relation, true);
   assert.equal(control.invariants.holdout_required_before_claiming_learned_discrimination, true);
