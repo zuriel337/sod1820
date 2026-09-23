@@ -4,6 +4,63 @@
 // כל תוצאה נושאת role + why. ⛔ לא יוצר Event, לא מקרין לציר — הקרנה = Human-Gate.
 import { HDate } from "@hebcal/core";
 import { calcGem } from "../theme.js";
+import { getDayContext, ISRAEL_TIME_ZONE } from "./dayContext.js";
+
+export const TEMPORAL_CONTEXT_VERSION = "temporal-context-v1";
+
+function hebrewYearToken(hdate) {
+  const rendered = hdate.renderGematriya().replace(/[֑-ׇ]/g, "").trim();
+  const tokens = rendered.split(/\s+/).filter(Boolean);
+  const label = tokens.at(-1) || "";
+  const expression = label.replace(/[^א-ת]/g, "");
+  return { rendered, label, expression, value: gemOnly(expression) || null };
+}
+
+export function getCurrentTemporalContext(input = new Date()) {
+  const dayContext = getDayContext(input);
+  if (!dayContext?.day) return null;
+  const [year, month, day] = dayContext.day.split("-").map(Number);
+  if (!year || !month || !day) return null;
+
+  // Use the canonical Israel civil date from dayContext. Noon UTC keeps the
+  // selected Israel date stable across server/browser time zones and DST.
+  const greg = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const hdate = new HDate(greg);
+  const hebrewYear = hebrewYearToken(hdate);
+
+  return {
+    version: TEMPORAL_CONTEXT_VERSION,
+    time_zone: ISRAEL_TIME_ZONE,
+    basis: "israel_civil_day",
+    public_label: "העת עכשיו",
+    axis_state: "current",
+    day: dayContext.day,
+    gregorian: {
+      year,
+      label: String(year),
+    },
+    hebrew: {
+      year: hdate.getFullYear(),
+      date_label: hebrewYear.rendered,
+      year_label: hebrewYear.label,
+      year_expression: hebrewYear.expression,
+      year_value: hebrewYear.value,
+    },
+  };
+}
+
+export function classifyTemporalYearValue(value, context = getCurrentTemporalContext()) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || !context?.hebrew?.year_value) return null;
+  const current = numeric === Number(context.hebrew.year_value);
+  return {
+    value: numeric,
+    state: current ? "active" : "axis",
+    label: current ? "רמז זמן פעיל" : "רמז זמן בציר",
+    current_hebrew_year: context.hebrew.year_label,
+    current_hebrew_value: context.hebrew.year_value,
+  };
+}
 
 const HEB = /[א-ת]/;
 const stripNikud = (s) => String(s || "").replace(/[֑-ׇ]/g, "");
