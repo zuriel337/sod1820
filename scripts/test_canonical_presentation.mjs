@@ -32,6 +32,25 @@ eq("קדמי public label", canonicalMethodPublicLabel({ method_key: "קדמי",
 eq("משולש גדול public label", canonicalMethodPublicLabel({ method_key: "משולש גדול", display_label: "קדמי גדול · משולש גדול" }), "משולש גדול");
 eq("legacy alias fallback", canonicalMethodPublicLabel("קדמי · משולש"), "משולש");
 
+const publicLabelSources = {
+  giluy: fs.readFileSync(new URL("../src/components/GiluyTreasures.jsx", import.meta.url), "utf8"),
+  activeEntity: fs.readFileSync(new URL("../src/components/ActiveEntityPanel.jsx", import.meta.url), "utf8"),
+  researchShell: fs.readFileSync(new URL("../src/components/ResearchShell.jsx", import.meta.url), "utf8"),
+  calculatorPage: fs.readFileSync(new URL("../src/pages/placeholders.jsx", import.meta.url), "utf8"),
+  numberMessage: fs.readFileSync(new URL("../src/lib/numberMessage.js", import.meta.url), "utf8"),
+  numberCore2029: fs.readFileSync(new URL("../src/components/number2029/NumberCore2029.jsx", import.meta.url), "utf8"),
+};
+eq("Giluy public explanation says משולש", publicLabelSources.giluy.includes("רגיל · גדול · מילוי · משולש · דילוג"), true);
+eq("Giluy dynamic method uses canonical formatter", publicLabelSources.giluy.includes("canonicalMethodPublicLabel(it.method)"), true);
+eq("Active Entity kadmi tab displays משולש", publicLabelSources.activeEntity.includes('{ key: "kadmi", label: "משולש" }'), true);
+eq("Midrash chips keep internal identity but public formatter", publicLabelSources.researchShell.includes("canonicalMethodPublicLabel(m)"), true);
+eq("Public calculator renders canonical method label", publicLabelSources.calculatorPage.includes("canonicalMethodPublicLabel(a.key)"), true);
+eq("Public calculator SEO says משולש", publicLabelSources.calculatorPage.includes("רגיל, מילוי, מסתתר, משולש"), true);
+eq("1820 public anchor uses valid 70x26 signature", publicLabelSources.numberMessage.includes('1820: "סוד × יהוה · 70×26"'), true);
+eq("numberMessage method mention uses public label", publicLabelSources.numberMessage.includes("methodLabel(key)"), true);
+eq("Number 2029 crossings use shared public formatter", publicLabelSources.numberCore2029.includes("{publicMethodLabel(method)} = {method.value}"), true);
+eq("Number 2029 no longer owns ad-hoc kadmi alias ternary", publicLabelSources.numberCore2029.includes('method.methodLabel === "קדמי · משולש"'), false);
+
 const ordered = sortMethodsByCanonicalOrder([
   { method_key: "אתבש", display_label: "אתבש", sort_order: 8 },
   { method_key: "רגיל", display_label: "רגיל", sort_order: 1 },
