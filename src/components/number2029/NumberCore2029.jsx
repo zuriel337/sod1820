@@ -123,7 +123,7 @@ function MiluySpatialExplain({
         <div className="sod29-miluy-spatial-focus-actions">
           <button type="button" onClick={() => setFocusIndex((value) => steps.length ? (value + 1) % steps.length : 0)}>האות הבאה ←</button>
           <button type="button" onClick={() => onRazielAction?.("explain_miluy_step", { kind: "miluy_step", methodKey: "מילוי", expression, step: focus })}>✦ רזיאל</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "miluy_step", methodKey: "מילוי", expression, step: focus, resultValue: result })}>◇ פתח בהיכל</button>
+          {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({ kind: "miluy_step", methodKey: "מילוי", expression, step: focus, resultValue: result })}>◇ פתח בהיכל</button> : null}
         </div>
       </div>
     </> : <div className="sod29-number-core2029-note">
@@ -699,7 +699,7 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>✦ שאל את רזיאל</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({
+          {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,
             expression: projection.expression,
@@ -707,7 +707,7 @@ export default function NumberCore2029({
             resultValue: stageRoot,
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
-          })}>◇ חקור בהיכל</button>
+          })}>◇ חקור בהיכל</button> : null}
         </footer>
 
 
