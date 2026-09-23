@@ -7,6 +7,7 @@ import {
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2, RESEARCH_CAPABILITY } from "./researchPlanV2.js";
+import { buildRazielRouteGrammar, RAZIEL_ROUTE_ACTION } from "./razielRouteGrammar.js";
 import {
   CAPABILITY_STATUS,
   capabilityResult,
@@ -313,4 +314,85 @@ test("synthesis failure is explicit and never destroys the underlying research b
   assert.match(bundle.synthesis.explain_why.reason, /truth_score is forbidden/);
   assert.equal(Array.isArray(bundle.findings), true);
   assert.equal(bundle.invariants.no_auto_canonicalization, true);
+});
+
+
+test("Raziel Route Grammar exposes exactly four stable human actions", () => {
+  const grammar = buildRazielRouteGrammar({
+    question: "מה זה 1820?",
+    surfaceContext: { surface: "number", subject: { type: "number" } },
+    identityResolution: {
+      primary: { type: "number", value: 1820, label: "1820" },
+      identities: [{ type: "number", value: 1820, label: "1820" }],
+    },
+  });
+
+  assert.deepEqual(grammar.actions.map((action) => action.id), [
+    RAZIEL_ROUTE_ACTION.UNDERSTAND,
+    RAZIEL_ROUTE_ACTION.RESEARCH,
+    RAZIEL_ROUTE_ACTION.CONNECT,
+    RAZIEL_ROUTE_ACTION.CONTINUE,
+  ]);
+  assert.deepEqual(grammar.actions.map((action) => action.label), ["להבין", "לחקור", "לחבר", "להתקדם"]);
+  assert.equal(grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(grammar.requested_by, "user_language");
+  assert.equal(grammar.guards.no_second_router, true);
+  assert.equal(grammar.guards.no_tool_execution, true);
+});
+
+test("Raziel Route Grammar reads natural language goal before surface default", () => {
+  const connect = buildRazielRouteGrammar({
+    question: "מה הקשר בין 455 ל-424?",
+    surfaceContext: { surface: "number" },
+  });
+  const research = buildRazielRouteGrammar({
+    question: "תחקור לי את השם שלי לעומק",
+    surfaceContext: { surface: "home" },
+  });
+  const next = buildRazielRouteGrammar({
+    question: "תמשיך מהמסע מהמקום שעצרתי",
+    surfaceContext: { surface: "number" },
+  });
+
+  assert.equal(connect.requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(connect.actions.find((x) => x.selected).preferred_home, "world");
+  assert.equal(research.requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
+  assert.equal(research.actions.find((x) => x.selected).preferred_home, "heichal");
+  assert.equal(next.requested_action, RAZIEL_ROUTE_ACTION.CONTINUE);
+  assert.equal(next.actions.find((x) => x.selected).preferred_home, "journey");
+});
+
+test("Raziel Route Grammar uses the existing surface roles when the user did not ask explicitly", () => {
+  const world = buildRazielRouteGrammar({ surfaceContext: { surface: "world" } });
+  const journey = buildRazielRouteGrammar({ surfaceContext: { surface: "journey" } });
+  const els = buildRazielRouteGrammar({ surfaceContext: { surface: "els" } });
+  const post = buildRazielRouteGrammar({ surfaceContext: { surface: "post" } });
+
+  assert.equal(world.requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(world.requested_by, "surface_default");
+  assert.equal(journey.requested_action, RAZIEL_ROUTE_ACTION.CONTINUE);
+  assert.equal(els.requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
+  assert.equal(post.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+});
+
+test("Research Plan carries Route Grammar additively without replacing strategy or capability owners", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "מה הקשר בין 455 ל-424?",
+    candidates: [
+      { type: "number", value: 455, label: "455", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+      { type: "number", value: 424, label: "424", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+  });
+  const plan = buildResearchPlanV2({
+    question: resolved.raw_input,
+    identityResolution: resolved,
+    surfaceContext: { surface: "number" },
+  });
+
+  assert.equal(plan.strategy, "number_research");
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.RELATIONS), true);
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.NUMERIC), true);
+  assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(plan.route_grammar.guards.semantic_hint_only, true);
+  assert.equal(plan.guards.route_grammar_is_semantic_hint_only, true);
 });
