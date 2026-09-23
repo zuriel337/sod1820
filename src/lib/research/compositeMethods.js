@@ -40,7 +40,7 @@ export const COMPOSITE_METHODS = [
   },
   {
     key: "רגיל+משולש",
-    label: "רגיל + משולש (קדמי)",
+    label: "רגיל + משולש",
     atoms: ["רגיל", "קדמי"], // "משולש" = קדמי (meshulash_kadmi_law) — לא שיטה חדשה
     soul: "הגלוי מול השורש המצטבר.",
     tierHint: "premium",
