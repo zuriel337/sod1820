@@ -415,3 +415,12 @@ test("generic planner intent research never steals an explicit conversational UN
   assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
   assert.equal(plan.route_grammar.requested_by, "user_language");
 });
+
+
+test("journey noun alone does not steal an explicit RESEARCH verb", () => {
+  const grammar = buildRazielRouteGrammar({
+    question: "תחקור את מסע 878 לעומק",
+    surfaceContext: { surface: "number" },
+  });
+  assert.equal(grammar.requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
+});
