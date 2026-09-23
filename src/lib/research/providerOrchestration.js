@@ -190,6 +190,11 @@ function normalizeCatalogEntry(input = {}, index = 0) {
     }
   }
 
+  const runtimeRef = clean(input.runtime_ref || input.runtimeRef);
+  if (runtimeStatus === RUNTIME_STATUS.WIRED && !runtimeRef) {
+    throw new TypeError("providerOrchestration: wired catalog entry requires runtime_ref provenance");
+  }
+
   return Object.freeze({
     catalog_index: index,
     provider,
@@ -203,7 +208,7 @@ function normalizeCatalogEntry(input = {}, index = 0) {
       "catalog_priority"
     ),
     pricing: normalizePricing(input.pricing),
-    runtime_ref: clean(input.runtime_ref || input.runtimeRef),
+    runtime_ref: runtimeRef,
     model_version: clean(input.model_version || input.modelVersion),
     provider_version: clean(input.provider_version || input.providerVersion),
     notes: uniqueText(input.notes),
@@ -212,6 +217,10 @@ function normalizeCatalogEntry(input = {}, index = 0) {
 
 export function normalizeProviderCatalog(input = []) {
   const rows = Array.isArray(input) ? input : input?.models;
+  const catalogRef = Array.isArray(input) ? null : clean(input?.catalog_ref || input?.catalogRef);
+  const ownerAttestationRef = Array.isArray(input)
+    ? null
+    : clean(input?.owner_attestation_ref || input?.ownerAttestationRef);
   if (!Array.isArray(rows)) {
     throw new TypeError("providerOrchestration: provider catalog array required");
   }
@@ -229,6 +238,10 @@ export function normalizeProviderCatalog(input = []) {
 
   return Object.freeze({
     catalog_version: 1,
+    catalog_ref: catalogRef,
+    owner_attestation_ref: ownerAttestationRef,
+    owner_verified_by_this_module: false,
+    execution_authorized: false,
     models,
     invariants: {
       catalog_is_runtime_input_not_truth: true,
@@ -421,12 +434,6 @@ function withCost(entries, expectedTokens) {
 function sortCandidates(candidates, policy, callerPreference) {
   const preference = clean(callerPreference);
   return [...candidates].sort((a, b) => {
-    if (policy.caller_preference_mode === "tie_break_only" && preference) {
-      const aPref = a.entry.provider === preference || a.entry.model === preference;
-      const bPref = b.entry.provider === preference || b.entry.model === preference;
-      if (aPref !== bPref) return aPref ? -1 : 1;
-    }
-
     if (policy.prefer_lower_estimated_cost_among_sufficient) {
       const aKnown = a.cost.estimated;
       const bKnown = b.cost.estimated;
@@ -435,6 +442,12 @@ function sortCandidates(candidates, policy, callerPreference) {
       }
       // Unknown cost is never treated as cheaper than known cost.
       if (aKnown !== bKnown) return aKnown ? -1 : 1;
+    }
+
+    if (policy.caller_preference_mode === "tie_break_only" && preference) {
+      const aPref = a.entry.provider === preference || a.entry.model === preference;
+      const bPref = b.entry.provider === preference || b.entry.model === preference;
+      if (aPref !== bPref) return aPref ? -1 : 1;
     }
 
     return (
@@ -474,12 +487,23 @@ function plannedCall(candidate, role, routingReason) {
   });
 }
 
-function pickChallenger(candidates, primary, policy) {
+function pickChallenger(candidates, primary, policy, {
+  compareMode = false,
+  callerPreference = null,
+} = {}) {
   const rest = candidates.filter(x =>
     x.entry.provider !== primary.entry.provider
     || x.entry.model !== primary.entry.model
   );
   if (!rest.length) return null;
+
+  const preference = clean(callerPreference);
+  if (compareMode && preference) {
+    const preferred = rest.find(
+      x => x.entry.provider === preference || x.entry.model === preference
+    );
+    if (preferred) return preferred;
+  }
 
   if (policy.cross_provider_challenger_preferred) {
     const crossProvider = rest.find(
@@ -633,7 +657,10 @@ export function buildProviderOrchestrationPlan({
     );
 
   const challenger = challengeWanted
-    ? pickChallenger(budgeted.candidates, primary, normalizedPolicy)
+    ? pickChallenger(budgeted.candidates, primary, normalizedPolicy, {
+        compareMode,
+        callerPreference: callerProviderPreference,
+      })
     : null;
 
   const calls = [
@@ -748,6 +775,13 @@ export function buildProviderOrchestrationPlan({
         "replay",
       ],
       discarded_provider_output_remains_visible: true,
+    },
+    catalog_verification: {
+      catalog_ref: normalizedCatalog.catalog_ref,
+      owner_attestation_ref: normalizedCatalog.owner_attestation_ref,
+      verified_by_planner: false,
+      owner_verification_required: true,
+      execution_authorized: false,
     },
     synthesis_authority: "Research Result Bundle / canonical Synthesis",
     invariants: {
