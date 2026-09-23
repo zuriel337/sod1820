@@ -177,7 +177,7 @@ test("benchmark summary aggregates resonance but exposes no accuracy/person-fit 
   assert.equal(summary.user_linked_rows, 2);
   assert.equal(summary.possibly_truncated_output_rows, 1);
   assert.equal(summary.exact_historical_input_replay_ready_rows, 0);
-  assert.equal(summary.conclusions_allowed.includes("historical resonance/usefulness distribution"), true);
+  assert.equal(summary.conclusions_allowed.includes("resonance/usefulness description within the supplied records"), true);
   assert.equal(summary.conclusions_forbidden.includes("historical factual accuracy from engagement"), true);
   assert.equal(JSON.stringify(summary).includes("truth_score"), false);
   assert.equal(JSON.stringify(summary).includes("accuracy_score"), false);
