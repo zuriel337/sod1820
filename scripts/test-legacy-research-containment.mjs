@@ -15,6 +15,7 @@ const contextual = read("src/lib/research/contextualCapabilities.js");
 
 assert.match(app, /<Locked flag="lock_research"><ResearchPage \/><\/Locked>/, "legacy /research must consume canonical registered-only site flag");
 assert.match(research, /legacyPublicToolBlocked\s*=\s*!isAdmin\s*&&\s*!!tool\s*&&\s*tool\s*!==\s*"number"/, "registered non-admin users must be contained to Number");
+assert.match(research, /\(isAdmin \|\| t\.id === "number"\)/, "legacy Research subnav must hide non-Number tools from registered users");
 assert.match(home, /visibleBigIds\s*=\s*containedUser\s*\?\s*\["number", "els"\]/, "legacy landing must show Number plus closed ELS only");
 assert.match(home, /דף המספר · פתוח/);
 assert.match(home, /הצופן התנ״כי · סגור/);
