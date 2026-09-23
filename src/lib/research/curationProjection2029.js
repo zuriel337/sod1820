@@ -20,12 +20,15 @@ export function classifyCurationNode(row = {}) {
 }
 
 function humanReason(item) {
-  if (item.reason) return item.reason;
-  if (item.kind === "diamond_core") return "חתימת יהלום שנקבעה ב־Human Gate כחלק מכתר 1820.";
-  if (item.kind === "crown_anchor") return "עוגן הכתר שמרכז את חתימות היהלום והעדים סביב 1820.";
-  if (item.kind === "gold_anchor") return "עוגן מספרי זהב — מרכז מחקר שנקבע ב־Human Gate.";
-  if (item.kind === "gold_core") return "זהות ליבה זהב שנקבעה ב־Human Gate.";
-  return "אוצר מחקר שנקבע ב־Human Gate.";
+  if (item.kind === "diamond_core") return "אחת מחתימות היהלום הנדירות שמרכיבות את כתר 1820.";
+  if (item.kind === "crown_anchor") return "המרכז המספרי של כתר 1820, שאליו מתחברות חתימות היהלום והעדויות.";
+  if (item.kind === "gold_anchor") return item.axisTheme
+    ? `עוגן מספרי מרכזי בציר ${item.axisTheme}.`
+    : "עוגן מספרי מרכזי שמרכז סביבו חיבורים מאומתים.";
+  if (item.kind === "gold_core") return item.family === "david_geula_core"
+    ? "זהות ליבה ממשפחת הזהב של דוד, גאולה ומשיח."
+    : "זהות ליבה שנבחרה לזהב במחקר.";
+  return "אוצר מחקר מרכזי.";
 }
 
 export function normalizeCurationNode(row = {}) {
@@ -41,7 +44,8 @@ export function normalizeCurationNode(row = {}) {
     family: clean(row?.metadata?.curation_family) || null,
     value: numericValue(row),
     axisTheme: clean(row.axis_theme) || null,
-    reason: clean(row?.metadata?.curation_reason) || null,
+    rawReason: clean(row?.metadata?.curation_reason) || null,
+    reason: null,
     kind,
   };
   item.reason = humanReason(item);
