@@ -4,6 +4,7 @@ import { normalizeResearchSynthesis } from "./researchSynthesis.js";
 // This is NOT live Number truth and must never be projected
 // outside the isolated 2029 preview route as though it came from a runtime Bundle.
 // The purpose is to validate presentation + one-Synthesis/one-Raziel consumption
+// with no locally-generated second Raziel message in the preview panel.
 // before wiring the live synthesizer adapter.
 
 export const SYNTHESIS_1820_PREVIEW_VERSION = "golden-preview-1820-v1";
