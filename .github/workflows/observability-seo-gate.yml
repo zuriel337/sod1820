@@ -56,6 +56,7 @@ jobs:
             src/lib/research/historicalAiBenchmark.test.js \
             src/lib/research/corpusBaseline.test.js \
             src/lib/research/researchLearningPolicy.test.js \
+            src/lib/research/providerOrchestration.test.js \
             src/lib/research/numericRelationOperations.test.js \
             test/research-object-universal-finding.test.mjs
 
