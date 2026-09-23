@@ -96,6 +96,16 @@ function extractCalculations(html = "") {
   return rows;
 }
 
+function extractContributorAddition(html = "") {
+  const source = String(html || "");
+  const marker = /מקור\s*·?\s*מאת/i.exec(source);
+  if (!marker) return "";
+  const start = marker.index;
+  const rest = source.slice(start);
+  const endMatch = /בדיקת מערכת\s*·?/i.exec(rest);
+  return endMatch ? rest.slice(0, endMatch.index) : rest;
+}
+
 function contributorFromAddition(html = "") {
   const text = stripTags(html);
   return text.match(/מקור\s*·?\s*מאת\s+([^·\n]+?)(?=\s+(?:היה|צורת|בדיקת|$))/)?.[1]?.trim()
@@ -136,11 +146,15 @@ export async function fetchPost2029Projection(slug) {
   const split = splitTranscript(media.rest);
   const additionHtml = unwrapAddition(post.ai_addition || "");
   const calculations = extractCalculations(additionHtml);
+  const contributorHtml = extractContributorAddition(additionHtml);
+  const contributorCalculations = extractCalculations(contributorHtml);
   const readingMap = await fetchActiveNumberReadings(calculations.map((row) => row.claimedValue));
-  const enrichedCalculations = calculations.map((row) => ({
+  const enrich = (row) => ({
     ...row,
     readings: readingMap.get(Number(row.claimedValue)) || [],
-  }));
+  });
+  const enrichedCalculations = calculations.map(enrich);
+  const enrichedContributorCalculations = contributorCalculations.map(enrich);
   const contributor = contributorFromAddition(additionHtml);
 
   const units = [
@@ -178,6 +192,7 @@ export async function fetchPost2029Projection(slug) {
       addedAt: post.modified || null,
       timeBasis: "posts.modified",
       calculations: enrichedCalculations,
+      contributorCalculations: enrichedContributorCalculations,
     } : null,
   ].filter(Boolean);
 
@@ -212,5 +227,6 @@ export const post2029ProjectionInternals = {
   splitTranscript,
   unwrapAddition,
   extractCalculations,
+  extractContributorAddition,
   fetchActiveNumberReadings,
 };
