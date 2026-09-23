@@ -64,6 +64,7 @@ jobs:
         run: |
           node scripts/test_gematria_methods.mjs
           node scripts/test_canonical_presentation.mjs
+          node scripts/test-2029-synthesis-preview.mjs
 
       - name: Build
         run: npm run build
