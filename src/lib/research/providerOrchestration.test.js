@@ -236,6 +236,51 @@ test("unknown provider cost is never treated as zero when policy disallows unkno
   assert.match(result.reason, /unknown-cost/);
 });
 
+test("explicit budget ceiling rejects unknown cost even when unknown cost is otherwise allowed", () => {
+  const mixed = normalizeProviderCatalog({
+    catalogRef: "runtime-catalog:budget-unknown",
+    ownerAttestationRef: "owner:budget-unknown",
+    models: [
+      {
+        provider: "unknown-provider",
+        model: "unknown-cost",
+        runtimeStatus: "wired",
+        runtimeRef: "runtime:unknown",
+        intelligenceLevels: ["fast"],
+        privacyClasses: ["public"],
+        catalogPriority: 0,
+      },
+      {
+        provider: "known-provider",
+        model: "known-over-budget",
+        runtimeStatus: "wired",
+        runtimeRef: "runtime:known",
+        intelligenceLevels: ["fast"],
+        privacyClasses: ["public"],
+        catalogPriority: 1,
+        pricing: {
+          usdPerMInput: 10,
+          usdPerMOutput: 10,
+          usdToIls: 3,
+        },
+      },
+    ],
+  });
+
+  const result = buildProviderOrchestrationPlan({
+    requiredIntelligence: "fast",
+    privacyClass: "public",
+    expectedTokens: { inputTokens: 1000, outputTokens: 1000 },
+    maxEstimatedCostIls: 0.001,
+    catalog: mixed,
+    policy: policy({ allowUnknownCost: true }),
+  });
+
+  assert.equal(result.status, PLAN_STATUS.BLOCKED_BUDGET);
+  assert.deepEqual(result.calls, []);
+  assert.equal(result.cost_boundary?.unknown_cost_treated_as_zero ?? false, false);
+});
+
 test("known cost wins over unknown cost when lower-cost policy is active", () => {
   const mixed = normalizeProviderCatalog({
     catalogRef: "runtime-catalog:mixed",
