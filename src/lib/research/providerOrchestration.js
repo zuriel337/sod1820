@@ -10,6 +10,7 @@
 // - existing provider/runtime + pricing state.
 //
 // Provider/model is an implementation choice, never Truth identity.
+// This planner remains execution-neutral until live owner/runtime verification authorizes the selected catalog state.
 // Cost can choose among sufficient options; it can never downgrade required
 // intelligence, privacy eligibility, verification, or safety.
 
