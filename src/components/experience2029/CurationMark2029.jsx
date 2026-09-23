@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePalette } from "../../lib/palette.js";
 import "./curationMark2029.css";
 
@@ -23,9 +24,9 @@ function groupTitle(key) {
 }
 
 function kindNote(kind) {
-  if (kind === "diamond_core") return "חתימת כתר נדירה שנבחרה ב־Human Gate.";
-  if (kind === "gold_core") return "זהות ליבה שנבחרה לזהב ב־Human Gate.";
-  if (kind === "gold_anchor") return "מספר שהוא מרכז מחקר זהב, לא רק ערך של ביטוי.";
+  if (kind === "diamond_core") return "חתימת כתר נדירה שמחזיקה מקום מיוחד בתוך 1820.";
+  if (kind === "gold_core") return "זהות ליבה מרכזית בתוך משפחת הזהב.";
+  if (kind === "gold_anchor") return "מספר שהוא מרכז של חיבורים רבים, לא רק ערך של ביטוי.";
   if (kind === "crown_anchor") return "מרכז כתר 1820. העוגן עצמו אינו יהלום שלישי.";
   return "אוצר מחקר.";
 }
@@ -68,7 +69,6 @@ export default function CurationMark2029({
   const [open, setOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const kind = item?.kind || null;
-  if (!kind) return null;
 
   useEffect(() => {
     if (!open) return undefined;
@@ -91,26 +91,9 @@ export default function CurationMark2029({
   };
   const title = LABEL[kind] || "אוצר";
   const icon = ICON[kind] || "✦";
+  if (!kind) return null;
 
-  return <>
-    <button
-      type="button"
-      className={`sod29-curation-mark is-${kind}${compact ? " is-compact" : ""}`}
-      data-curation-mark={kind}
-      aria-label={`${title}: ${item.label}. פתח הסבר`}
-      aria-haspopup="dialog"
-      onClick={(event) => {
-        event.stopPropagation();
-        setCatalogOpen(false);
-        setOpen(true);
-      }}
-      style={vars}
-    >
-      <span aria-hidden="true">{icon}</span>
-      {!compact ? <small>{title}</small> : null}
-    </button>
-
-    {open ? <div className="sod29-curation-overlay" role="presentation" style={vars} onMouseDown={() => setOpen(false)}>
+  const disclosure = open && typeof document !== "undefined" ? createPortal(<div className="sod29-curation-overlay" role="presentation" style={vars} onMouseDown={() => setOpen(false)}>
       <section
         className="sod29-curation-sheet"
         role="dialog"
@@ -149,9 +132,29 @@ export default function CurationMark2029({
             <button type="button" onClick={() => setCatalogOpen(false)}>חזרה להסבר</button>
           </div>
           <TreasureGroups catalog={catalog} />
-          <p className="sod29-curation-boundary">Witnesses נשארים בתוך הציר שאליו הם שייכים. Silver אינו מוצג כאן עד שהמשמעות שלו תיקבע.</p>
+          <p className="sod29-curation-boundary">העדים נשארים בתוך הציר שאליו הם שייכים. כסף אינו מוצג כאן עד שהמשמעות שלו תיקבע.</p>
         </>}
       </section>
-    </div> : null}
+    </div>, document.body) : null;
+
+  return <>
+    <button
+      type="button"
+      className={`sod29-curation-mark is-${kind}${compact ? " is-compact" : ""}`}
+      data-curation-mark={kind}
+      aria-label={`${title}: ${item.label}. פתח הסבר`}
+      aria-haspopup="dialog"
+      onClick={(event) => {
+        event.stopPropagation();
+        setCatalogOpen(false);
+        setOpen(true);
+      }}
+      style={vars}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {!compact ? <small>{title}</small> : null}
+    </button>
+
+    {disclosure}
   </>;
 }
