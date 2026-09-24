@@ -5,6 +5,7 @@ const clean = (value) => {
 };
 
 function safeInt(value) {
+  if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isInteger(n) ? n : null;
 }
@@ -37,7 +38,7 @@ export function buildElsRazielSurfaceContext({
           occurrenceId: clean(selected.occurrenceId),
           corpusId: clean(selected.corpusId || projection?.corpusId),
           skip: safeInt(selected.skip),
-          dir: [-1, 1].includes(Number(selected.dir)) ? Number(selected.dir) : null,
+          dir: [-1, 1].includes(safeInt(selected.dir)) ? safeInt(selected.dir) : null,
           start: safeInt(selected.start),
           end: safeInt(selected.end),
           positions: Array.isArray(selected.positions)
