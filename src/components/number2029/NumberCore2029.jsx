@@ -149,13 +149,18 @@ function MethodInspector({
   onRazielAction,
   onExpandRaziel,
   onOpenHeichal,
-  methodLensSelection,
   onMethodLensExpression,
   onClose,
 }) {
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
   const raziel = projection?.razielMicro;
+  const methodLensSelection = {
+    expression: projection?.expression || "",
+    methodKey: method.methodKey,
+    methodLabel: publicMethodLabel(method),
+    resultValue: method.computedValue ?? null,
+  };
 
   return <div className="sod29-number-method-inspector" data-method-inspector={method.methodKey}>
     <div className="sod29-number-method-inspector-head">
@@ -295,8 +300,6 @@ export default function NumberCore2029({
   journeyLabel = null,
   onRazielAction,
   onExpandRaziel,
-  methodLensSelection = null,
-  onMethodLensExpression = null,
 } = {}) {
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
@@ -727,8 +730,7 @@ export default function NumberCore2029({
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
-          methodLensSelection={methodLensSelection}
-          onMethodLensExpression={onMethodLensExpression}
+          onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase)}
           onClose={() => setShowCalculation(false)}
         /> : null}
 
