@@ -7,6 +7,7 @@ const layers = {
   contract: "els_2029_layers_v1",
   status: "OK",
   corpusId: "torah:v1",
+  corpusVersion: "mt-text-v1",
   axisOccurrenceId: "occ-axis",
   layers: [
     {
@@ -14,10 +15,13 @@ const layers = {
       occurrenceId: "occ-axis",
       role: "axis",
       corpusId: "torah:v1",
+      corpusVersion: "mt-text-v1",
       dependencyGroup: "window:1",
       skip: 7,
       dir: 1,
       start: 100,
+      end: 114,
+      coordinateConvention: "zero_based_character_index",
       positions: [100, 107, 114],
       cells: [
         { corpusIndex: 100, occurrenceId: "occ-axis", role: "axis", characterIdentityRef: "corpus-index:100", glyphIdentity: null, renderingInstance: null },
@@ -30,10 +34,13 @@ const layers = {
       occurrenceId: "occ-2",
       role: "occurrence",
       corpusId: "torah:v1",
+      corpusVersion: "mt-text-v1",
       dependencyGroup: "window:1",
       skip: 3,
       dir: -1,
       start: 112,
+      end: 106,
+      coordinateConvention: "zero_based_character_index",
       positions: [112, 109, 106],
       cells: [
         { corpusIndex: 112, occurrenceId: "occ-2", role: "occurrence", characterIdentityRef: "corpus-index:112", glyphIdentity: null, renderingInstance: null },
@@ -49,11 +56,16 @@ test("2D/2.5D representation preserves semantic identity and only maps coordinat
   assert.equal(out.contract, "els_2029_representation_v1");
   assert.equal(out.sourceContract, "els_2029_layers_v1");
   assert.equal(out.status, "READY");
+  assert.equal(out.corpusVersion, "mt-text-v1");
   assert.equal(out.axisOccurrenceId, "occ-axis");
   assert.equal(out.extent.minCorpusIndex, 100);
   assert.equal(out.extent.maxCorpusIndex, 114);
   assert.equal(out.bands[0].occurrenceId, "occ-axis");
+  assert.equal(out.bands[0].corpusVersion, "mt-text-v1");
   assert.equal(out.bands[0].dependencyGroup, "window:1");
+  assert.equal(out.bands[0].start, 100);
+  assert.equal(out.bands[0].end, 114);
+  assert.equal(out.bands[0].coordinateConvention, "zero_based_character_index");
   assert.deepEqual(out.bands[0].positions, [100, 107, 114]);
   assert.equal(out.bands[0].cells[0].characterIdentityRef, "corpus-index:100");
   assert.equal(out.bands[0].cells[0].xRatio, 0);
@@ -89,6 +101,9 @@ test("DOM renderer exposes semantic acceptance and accessible fallback without C
   const src = readFileSync(new URL("../src/components/experience2029/Els2029Representation.jsx", import.meta.url), "utf8");
   assert.match(src, /data-experience-capability="els-2d-2_5d-representation"/);
   assert.match(src, /פירוט DOM נגיש \/ סטטי/);
+  assert.match(src, /Corpus \/ version/);
+  assert.match(src, /Start \/ end/);
+  assert.match(src, /Coordinate convention/);
   assert.match(src, /קרבה חזותית אינה חוזק ראיה/);
   assert.doesNotMatch(src, /canvas|webgl|webgpu|TzofenEmbed|tzofen\.html|findAllAdaptive|els_search_core_v1/i);
 });
