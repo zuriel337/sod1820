@@ -31,12 +31,15 @@ const projection = {
 test("Raziel ELS context defaults to refs/coordinates without raw term or subject label", () => {
   const out = buildElsRazielSurfaceContext({ researchContext, projection });
   assert.equal(out.surface, "els");
-  assert.equal(out.subject.id, "subject:private");
-  assert.equal(out.occurrence.occurrenceId, "els:torah-v1:משיח:17:1:100");
+  assert.match(out.subject.ref, /^anon:/);
+  assert.match(out.occurrence.occurrenceRef, /^anon:/);
+  assert.equal(out.occurrence.occurrenceRef.includes("משיח"), false);
   assert.equal(out.result.presentationPolicy, "ordered_prefix_v1");
   assert.equal(out.privacy.includeText, false);
   assert.equal(out.privacy.rawPrivatePayloadLogged, false);
   assert.equal("text" in out, false);
+  assert.equal("id" in out.subject, false);
+  assert.equal("href" in out.subject, false);
   assert.equal("label" in out.subject, false);
   assert.equal("term" in out.result, false);
 });
