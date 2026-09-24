@@ -10,7 +10,7 @@ export default function LegacyNowSystemPreview() {
           <span className="sod-now-preview-kicker">✦ הצצה מהמערכת החדשה</span>
           <h3>העת עכשיו <b>· תשפ״ז · 787</b></h3>
         </div>
-        <span className="sod-now-preview-badge">PREVIEW</span>
+        <span className="sod-now-preview-badge">הצצה</span>
       </div>
 
       <div className="sod-now-map">
@@ -39,11 +39,18 @@ export default function LegacyNowSystemPreview() {
       </div>
 
       <blockquote className="sod-now-ronen">
-        <div className="sod-now-ronen-title">😊 המסר של אבני רונן</div>
-        <p><strong>ושמחת בחגך</strong><br />כניסת שנת <strong>תשפ״ז</strong> רומז לנו לחג הסוכות על מצוות השמחה המרכזית של החג.</p>
-        <p><strong>תשפ״ז = 787 בגימטריה</strong><br />ובאותה גימטריה — <strong>ושמחת בחגך = 787</strong>.</p>
-        <p>זה בעצם רמז שהשנה עצמה מזכירה לנו להיכנס אל השנה החדשה מתוך שמחה, הודיה ואמונה, ולקיים את מצוות <strong>ושמחת בחגך</strong> בלב שלם.</p>
-        <p>🌿🛖 חג הסוכות — זמן של שמחה, אחדות וברכה.<br />שנזכה לשנה טובה, שמחה ומאושרת.</p>
+        <div className="sod-now-ronen-title">👁️😊 המסר של אבני רונן</div>
+        <p><strong>ושמחת בחגך</strong></p>
+        <p>כניסת שנת <strong>תשפ״ז</strong> רומז לנו לחג הסוכות על המצווה השמחה המרכזית של חג הסוכות.</p>
+        <p>😊 <strong>ושמחת בחגך</strong> 😊</p>
+        <p>והרמז הוא.........</p>
+        <p><strong>תשפ״ז = 787 בגימטריה</strong></p>
+        <p>ובאותה גימטריה שימו לב ❗❗</p>
+        <p>😊 <strong>ושמחת בחגך = 787</strong></p>
+        <p>זה בעצם רמז שהשנה עצמה מזכירה לנו - להיכנס אל השנה החדשה מתוך שמחה, הודיה ואמונה ולקיים את מצוות <strong>ושמחת בחגך</strong> בלב שלם.</p>
+        <p>🌿🛖 חג הסוכות זמן של שמחה, אחדות וברכה.</p>
+        <p>שנזכה לשנה טובה, שמחה ומאושרת.</p>
+        <p>😊 <strong>ושמחת בחגך</strong> 😊</p>
         <footer>ממני אבני רונן</footer>
       </blockquote>
 
