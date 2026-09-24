@@ -83,6 +83,11 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
         <div className="sod29-method-lens-badges">
           <em>מאומת</em>
           {item.relation?.effectiveIndependentGroupCount > 1 ? <em>{item.relation.effectiveIndependentGroupCount} משפחות עצמאיות</em> : null}
+          {item.relation?.hasDependencyCollapse ? <em>{item.relation.rawIndependentGroupCount} raw → {item.relation.effectiveIndependentGroupCount} עצמאיות</em> : null}
+          {(item.relation?.methods || []).filter((m) => m.methodKey !== selection.methodKey).slice(0, 5).map((m) => (
+            <em key={m.methodKey}>{m.label}{m.value != null ? " = " + m.value : ""}</em>
+          ))}
+          {item.source ? <em>{item.source}</em> : null}
         </div>
         <small>{deterministicNote(item)}</small>
       </article>)}
@@ -98,7 +103,12 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
             <strong>{item.phrase}</strong>
             <span>{selection.methodLabel || selection.methodKey} = {item.value}</span>
           </button>
-          <div className="sod29-method-lens-badges"><em>תלוי</em><em>מאומת</em></div>
+          <div className="sod29-method-lens-badges">
+            <em>תלוי</em><em>מאומת</em>
+            {(item.relation?.methods || []).filter((m) => m.methodKey !== selection.methodKey).slice(0, 4).map((m) => (
+              <em key={m.methodKey}>{m.label}{m.value != null ? " = " + m.value : ""}</em>
+            ))}
+          </div>
           <small>{deterministicNote(item)}</small>
         </article>)}
       </div> : null}
