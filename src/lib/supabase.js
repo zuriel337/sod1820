@@ -656,6 +656,19 @@ export async function getChannelUpdates(limit = 6, channel = null, byDate = fals
   const { data } = await q;
   return data || [];
 }
+
+// 💬 תורת הרמז → projection ציבורי מצומצם עבור LiveChannelFeed הישן בלבד.
+// אינו משנה status/source truth, אינו חושף storage-object פרטי, ואינו משמש את 2029.
+export async function getToratHaremezLiveFeed(limit = 60) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.functions.invoke('live-whatsapp-feed', { body: { limit } });
+    if (error) throw error;
+    return Array.isArray(data?.items) ? data.items : [];
+  } catch {
+    return [];
+  }
+}
 // 👤 כל העדכונים החיים של כתב מסוים (credit) — עדשה על channel_updates לדף הכתב (ContributorPage).
 // עץ אחד: לא עותק — אותו מקור של הטיקר/מרכז השידורים, מסונן לפי הכותב.
 export async function getUpdatesByReporter(credit, limit = 60) {
