@@ -559,6 +559,10 @@
       "destination": "/api/honeypot"
     },
     {
+      "source": "/post/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
