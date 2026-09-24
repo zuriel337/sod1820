@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getChannelUpdates, getRealityHints, adminSetChannelUpdateHidden } from "../lib/supabase.js";
+import { getChannelUpdates, getToratHaremezLiveFeed, getRealityHints, adminSetChannelUpdateHidden } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getForumFeed } from "../lib/contributions.js";
 import { hintNums } from "../lib/reality.js";
@@ -148,7 +148,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
       try {
         // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
         const [chanArr, forum, hints] = await Promise.all([
-          Promise.all(CHANNEL_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
+          Promise.all(CHANNEL_KEYS.map(k => (k === "torat-haremez" ? getToratHaremezLiveFeed(60) : getChannelUpdates(12, k, true)).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
           forumBlocked ? Promise.resolve([]) : getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
           getRealityHints(10).catch(() => []),
         ]);
