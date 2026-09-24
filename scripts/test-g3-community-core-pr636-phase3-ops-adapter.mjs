@@ -3,8 +3,16 @@
 //   npm run test:g3-community-core-pr636-phase3-ops-adapter
 //
 // These tests exercise opsAdapter.mjs against a small in-memory fake Supabase client (the same
-// `.from(table).select()/.insert()/.update()/.upsert()` shape supabase-js exposes) — never a real
-// Supabase project. No canonical write API is called anywhere in this file.
+// `.from(table).select()/.insert()/.update()/.upsert()/.rpc()` shape supabase-js exposes) — never
+// a real Supabase project. No canonical write API is called anywhere in this file.
+//
+// Since task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_MESSAGE_IMPORT_V1, insertContribution's five
+// separate writes are one `client.rpc('g3_openweb_import_message', ...)` call — the fake client's
+// `rpc()` below models that as a single atomic unit (stages every write, commits all-or-nothing),
+// mirroring the real Postgres function's transaction semantics closely enough that every test in
+// this file exercises the same external contract as before. Failure-injection/rollback coverage
+// for that atomicity itself lives in
+// scripts/test-g3-community-core-pr636-atomic-message-import.mjs.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
@@ -131,7 +139,88 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
     return builder;
   }
 
-  return { tables, from };
+  // Fakes g3_openweb_import_message (see supabase/migrations/*_g3_community_core_pr636_atomic_
+  // message_import_v1.sql): stages every write this call would make and only commits them to
+  // `tables` together, at the very end — so a provenance conflict (or, in the dedicated
+  // failure-injection test file, a simulated mid-call failure) leaves zero rows behind, exactly
+  // like an aborted Postgres function invocation rolling back its own transaction.
+  async function rpc(fnName, params) {
+    if (fnName !== 'g3_openweb_import_message') {
+      return { data: null, error: { message: `fake client: unknown rpc "${fnName}"` } };
+    }
+    if (violatesOpenwebMessageUniqueIndex('contribution_links', {
+      target_type: 'openweb_message',
+      relation_type: 'derived_from',
+      target_id: params.p_provenance_target_id,
+    })) {
+      return {
+        data: null,
+        error: {
+          code: '23505',
+          message: 'duplicate key value violates unique constraint "cl_openweb_message_derived_from_uniq"',
+        },
+      };
+    }
+
+    const contributorId = params.p_create_contributor
+      ? `fake-contributors-${nextId++}`
+      : params.p_author_contributor_id || null;
+    const contributionId = `fake-research_contributions-${nextId++}`;
+
+    if (params.p_create_contributor) {
+      ensure('contributors').push({
+        id: contributorId,
+        slug: params.p_contributor_slug,
+        display_name: params.p_contributor_display_name || 'OpenWeb Contributor',
+        kind: 'external',
+        email: params.p_contributor_email,
+        source: params.p_contributor_source,
+        dossier_settings: params.p_contributor_dossier_settings || {},
+      });
+    }
+    if (params.p_visitor) {
+      const table = ensure('visitor_identity');
+      const idx = table.findIndex((r) => r.visitor === params.p_visitor);
+      const row = { visitor: params.p_visitor, email: params.p_visitor_email, last_seen: new Date().toISOString() };
+      if (idx >= 0) table[idx] = row;
+      else table.push(row);
+    }
+    ensure('research_contributions').push({
+      id: contributionId,
+      intent: params.p_intent,
+      origin: params.p_origin,
+      research_state: params.p_research_state,
+      status: params.p_status,
+      parent_id: null,
+      author_user_id: params.p_author_user_id || null,
+      author_contributor_id: contributorId,
+      author_name: params.p_author_name || null,
+      body: params.p_body ?? null,
+      reactions: params.p_reactions || {},
+      created_at: params.p_created_at,
+    });
+    ensure('contribution_links').push({
+      id: `fake-contribution_links-${nextId++}`,
+      from_contribution_id: contributionId,
+      target_type: 'openweb_message',
+      target_id: params.p_provenance_target_id,
+      relation_type: params.p_provenance_relation_type,
+      note: params.p_provenance_note,
+    });
+    if (params.p_identity_target_id) {
+      ensure('contribution_links').push({
+        id: `fake-contribution_links-${nextId++}`,
+        from_contribution_id: contributionId,
+        target_type: 'openweb_user',
+        target_id: params.p_identity_target_id,
+        relation_type: params.p_identity_relation_type,
+      });
+    }
+
+    return { data: { id: contributionId, contributor_id: contributorId }, error: null };
+  }
+
+  return { tables, from, rpc };
 }
 
 function msg(overrides) {

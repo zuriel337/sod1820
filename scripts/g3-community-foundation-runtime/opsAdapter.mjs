@@ -6,14 +6,24 @@
 // linkParent, resolveExistingParentId) to the existing canonical tables — research_contributions,
 // contribution_links, contributors, visitor_identity. No new table/store. It never opens a real
 // connection itself: every function here takes a caller-supplied `client` (a supabase-js-shaped
-// query builder — `.from(table).select()/.insert()/.update()/.upsert()`), so a real Phase 3 run
-// wires a real service_role client and these tests wire an in-memory fake. This file itself never
-// calls a canonical Supabase write API — it only *defines* what such a call would look like.
+// query builder — `.from(table).select()/.insert()/.update()/.upsert()/.rpc()`), so a real Phase 3
+// run wires a real service_role client and these tests wire an in-memory fake. This file itself
+// never calls a canonical Supabase write API — it only *defines* what such a call would look like.
 //
 // Idempotency contract: an already-imported openweb_message is resolved via `contribution_links`
 // (target_type=OPENWEB_SOURCE_TARGET_TYPE), never by re-inserting and never by a separate
 // checkpoint store — the batch state (`resolveImportState`) and per-op replay guard
 // (`skipDuplicate`) both read the same provenance rows a real write would have produced.
+//
+// Atomic per-message import (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_MESSAGE_IMPORT_V1): the
+// contributor/visitor_identity/research_contributions/contribution_links(provenance)/
+// contribution_links(identity) writes below used to be five separate client round-trips, so an
+// arbitrary crash/error between any two of them could leave an untracked orphan. insertContribution
+// now performs all of them in one call to the service_role-only Postgres RPC
+// `g3_openweb_import_message` (supabase/migrations/*_g3_community_core_pr636_atomic_message_
+// import_v1.sql) — a single function invocation is Postgres's own transaction unit, so any failure
+// inside it (including the expected cl_openweb_message_derived_from_uniq race) rolls back every
+// write that call made. See that migration's header for the full atomicity contract.
 import { OPENWEB_SOURCE_TARGET_TYPE, OPENWEB_USER_TARGET_TYPE, planImport } from './planner.mjs';
 import { runImport } from './executor.mjs';
 
@@ -23,9 +33,24 @@ const CONTRIBUTOR_PLACEHOLDER_PREFIX = 'planned-contributor:openweb-user:';
 // (cl_openweb_message_derived_from_uniq, see the PR #636 final-blockers migration) is expected
 // to raise; every other error still throws.
 const UNIQUE_VIOLATION = '23505';
+const PROVENANCE_UNIQUE_INDEX_NAME = 'cl_openweb_message_derived_from_uniq';
+const ATOMIC_IMPORT_RPC = 'g3_openweb_import_message';
 
 function assertNoError(context, error) {
   if (error) throw new Error(`${context}: ${error.message || String(error)}`);
+}
+
+// True only for the one race g3_openweb_import_message's header documents as expected/resolvable
+// (some other writer's contribution_links row for this exact source message committed first) —
+// any other error (including a *different* unique_violation, e.g. a contributors.slug collision)
+// must still propagate as a genuine failure, never be silently treated as "someone else already
+// imported this".
+function isProvenanceRaceError(error) {
+  return Boolean(
+    error &&
+      error.code === UNIQUE_VIOLATION &&
+      String(error.message || '').includes(PROVENANCE_UNIQUE_INDEX_NAME)
+  );
 }
 
 // Shared by skipDuplicate/resolveExistingParentId (the pre-write replay guard) and
@@ -149,7 +174,7 @@ export async function preflightImport(client, messages) {
 export function createSupabaseOps(client) {
   return {
     async insertContribution(op) {
-      let author_contributor_id = op.contribution.author_contributor_id;
+      const author_contributor_id = op.contribution.author_contributor_id;
 
       // planImport only ever proposes a *new* contributor when it hands this op a placeholder id
       // of its own minting; a real, already-resolved uuid (state.contributorsByOpenwebUserId) must
@@ -158,98 +183,62 @@ export function createSupabaseOps(client) {
         op.contributor_op && author_contributor_id === op.contributor_op.id &&
         String(author_contributor_id).startsWith(CONTRIBUTOR_PLACEHOLDER_PREFIX);
 
-      if (isNewContributor) {
-        const openwebUserId = op.identity_link ? op.identity_link.target_id : author_contributor_id;
-        const { data, error } = await client
-          .from('contributors')
-          .insert({
-            slug: slugForOpenwebUser(openwebUserId),
-            display_name: op.contributor_op.display_name || 'OpenWeb Contributor',
-            kind: 'external',
-            email: op.contributor_op.email,
-            source: op.contributor_op.source,
-            // Already forced private by planImport; never widened here.
-            dossier_settings: op.contributor_op.dossier_settings,
-          })
-          .select('id')
-          .single();
-        assertNoError('insertContribution:contributors', error);
-        author_contributor_id = data.id;
-      }
+      const openwebUserId = op.identity_link ? op.identity_link.target_id : author_contributor_id;
 
-      if (op.visitor_identity_op) {
-        const { error } = await client.from('visitor_identity').upsert(
-          {
-            visitor: op.visitor_identity_op.visitor,
-            email: op.visitor_identity_op.email,
-            last_seen: new Date().toISOString(),
-          },
-          { onConflict: 'visitor' }
+      // Single atomic RPC call replaces what used to be up to five separate client round-trips
+      // (contributors insert, visitor_identity upsert, research_contributions insert, two
+      // contribution_links inserts) — see g3_openweb_import_message's migration header for why
+      // that partial-commit gap existed and how this call closes it.
+      const { data, error } = await client.rpc(ATOMIC_IMPORT_RPC, {
+        p_create_contributor: isNewContributor,
+        p_contributor_slug: isNewContributor ? slugForOpenwebUser(openwebUserId) : null,
+        p_contributor_display_name: isNewContributor ? op.contributor_op.display_name || null : null,
+        p_contributor_email: isNewContributor ? op.contributor_op.email || null : null,
+        p_contributor_source: isNewContributor ? op.contributor_op.source || null : null,
+        // Already forced private by planImport; never widened here.
+        p_contributor_dossier_settings: isNewContributor ? op.contributor_op.dossier_settings || null : null,
+        p_author_contributor_id: isNewContributor ? null : author_contributor_id || null,
+        p_author_user_id: op.contribution.author_user_id || null,
+        p_author_name: op.contribution.author_name || null,
+        p_intent: op.contribution.intent,
+        p_origin: op.contribution.origin,
+        p_research_state: op.contribution.research_state,
+        p_status: op.contribution.status,
+        p_body: op.contribution.body,
+        p_reactions: op.contribution.reactions,
+        p_created_at: op.contribution.created_at,
+        p_visitor: op.visitor_identity_op ? op.visitor_identity_op.visitor : null,
+        p_visitor_email: op.visitor_identity_op ? op.visitor_identity_op.email || null : null,
+        // contribution_links is public-readable (live_facts) — provenance_link's note comes
+        // straight from planImport (url/moderation/parent_message_id/representation_payload_
+        // missing) and identity_link's target_id is the opaque source-native openweb_user_id;
+        // neither ever carries email/PII, and this adapter never adds any.
+        p_provenance_target_id: op.provenance_link.target_id,
+        p_provenance_relation_type: op.provenance_link.relation_type,
+        p_provenance_note: op.provenance_link.note,
+        p_identity_target_id: op.identity_link ? op.identity_link.target_id : null,
+        p_identity_relation_type: op.identity_link ? op.identity_link.relation_type : null,
+      });
+
+      if (isProvenanceRaceError(error)) {
+        // Lost a race: some other writer's contribution_links row for this exact source message
+        // committed between our pre-write resolveImportState()/skipDuplicate() check and this
+        // call, and cl_openweb_message_derived_from_uniq (partial unique index, see the PR #636
+        // final-blockers migration) just caught the duplicate this call was about to create.
+        // g3_openweb_import_message's own invocation already rolled back everything it wrote
+        // (contributor/visitor_identity/research_contributions/provenance) as one unit — there is
+        // no orphan to clean up here, unlike the old five-call version. Resolve to whichever
+        // contribution actually won the race, exactly like skipDuplicate.
+        const existingId = await resolveContributionIdByOpenwebMessage(
+          client,
+          'insertContribution:resolveAfterConflict',
+          op.provenance_link.target_id
         );
-        assertNoError('insertContribution:visitor_identity', error);
+        return { id: existingId, skipped: true };
       }
+      assertNoError('insertContribution:rpc', error);
 
-      // op.contribution.id is planImport's own in-batch placeholder (e.g. `planned:<message_id>`),
-      // never a real row id — the live table generates its own uuid, so it must never be passed
-      // through to the insert (a real Postgres uuid column would reject the placeholder outright).
-      const { id: _plannedId, ...contributionFields } = op.contribution;
-      const { data: contribution, error: contribError } = await client
-        .from('research_contributions')
-        .insert({ ...contributionFields, author_contributor_id, parent_id: null })
-        .select('id')
-        .single();
-      assertNoError('insertContribution:research_contributions', contribError);
-
-      // contribution_links is public-readable (live_facts) — provenance_link's note comes
-      // straight from planImport (url/moderation/parent_message_id/representation_payload_missing)
-      // and identity_link's target_id is the opaque source-native openweb_user_id; neither ever
-      // carries email/PII, and this adapter never adds any.
-      if (op.provenance_link) {
-        const { error } = await client.from('contribution_links').insert({
-          from_contribution_id: contribution.id,
-          target_type: op.provenance_link.target_type,
-          target_id: op.provenance_link.target_id,
-          relation_type: op.provenance_link.relation_type,
-          note: op.provenance_link.note,
-        });
-        if (
-          error &&
-          error.code === UNIQUE_VIOLATION &&
-          op.provenance_link.target_type === OPENWEB_SOURCE_TARGET_TYPE
-        ) {
-          // Lost a race: some other writer's contribution_links row for this exact source
-          // message committed between our pre-write resolveImportState()/skipDuplicate() check
-          // and this insert, and cl_openweb_message_derived_from_uniq (partial unique index,
-          // see the PR #636 final-blockers migration) just caught the duplicate this adapter
-          // was about to create. Back out the research_contributions row this call already
-          // inserted — never leave an orphaned, unlinked duplicate authored item behind — and
-          // resolve to whichever contribution actually won the race, exactly like skipDuplicate.
-          const { error: rollbackError } = await client
-            .from('research_contributions')
-            .delete()
-            .eq('id', contribution.id);
-          assertNoError('insertContribution:rollback(research_contributions)', rollbackError);
-          const existingId = await resolveContributionIdByOpenwebMessage(
-            client,
-            'insertContribution:resolveAfterConflict',
-            op.provenance_link.target_id
-          );
-          return { id: existingId, skipped: true };
-        }
-        assertNoError('insertContribution:contribution_links(provenance)', error);
-      }
-
-      if (op.identity_link) {
-        const { error } = await client.from('contribution_links').insert({
-          from_contribution_id: contribution.id,
-          target_type: op.identity_link.target_type,
-          target_id: op.identity_link.target_id,
-          relation_type: op.identity_link.relation_type,
-        });
-        assertNoError('insertContribution:contribution_links(identity)', error);
-      }
-
-      return { id: contribution.id };
+      return { id: data.id };
     },
 
     async skipDuplicate(op) {

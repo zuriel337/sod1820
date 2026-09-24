@@ -24,6 +24,13 @@ import {
 // ---- Minimal in-memory fake Supabase client (same query-builder shape as
 // test-g3-community-core-pr636-phase3-ops-adapter.mjs; not a general-purpose fake, just enough
 // surface for opsAdapter.mjs). ----------------------------------------------------------------
+//
+// Since task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_MESSAGE_IMPORT_V1, insertContribution's writes go
+// through one `client.rpc('g3_openweb_import_message', ...)` call instead of five separate
+// `.from(table)` calls — `rpc()` below stages those same writes and commits them together,
+// exactly mirroring the fuller fake in test-g3-community-core-pr636-phase3-ops-adapter.mjs, so
+// this suite's own cross-batch-ordering assertions (which read back research_contributions/
+// contribution_links afterward) keep exercising the real adapter unchanged.
 function makeFakeClient() {
   const tables = {};
   let nextId = 1;
@@ -87,7 +94,86 @@ function makeFakeClient() {
     return builder;
   }
 
-  return { tables, from };
+  async function rpc(fnName, params) {
+    if (fnName !== 'g3_openweb_import_message') {
+      return { data: null, error: { message: `fake client: unknown rpc "${fnName}"` } };
+    }
+    if (
+      ensure('contribution_links').some(
+        (l) =>
+          l.target_type === 'openweb_message' &&
+          l.relation_type === 'derived_from' &&
+          l.target_id === params.p_provenance_target_id
+      )
+    ) {
+      return {
+        data: null,
+        error: {
+          code: '23505',
+          message: 'duplicate key value violates unique constraint "cl_openweb_message_derived_from_uniq"',
+        },
+      };
+    }
+
+    const contributorId = params.p_create_contributor
+      ? `fake-contributors-${nextId++}`
+      : params.p_author_contributor_id || null;
+    const contributionId = `fake-research_contributions-${nextId++}`;
+
+    if (params.p_create_contributor) {
+      ensure('contributors').push({
+        id: contributorId,
+        slug: params.p_contributor_slug,
+        display_name: params.p_contributor_display_name || 'OpenWeb Contributor',
+        kind: 'external',
+        email: params.p_contributor_email,
+        source: params.p_contributor_source,
+        dossier_settings: params.p_contributor_dossier_settings || {},
+      });
+    }
+    if (params.p_visitor) {
+      const table = ensure('visitor_identity');
+      const idx = table.findIndex((r) => r.visitor === params.p_visitor);
+      const row = { visitor: params.p_visitor, email: params.p_visitor_email, last_seen: new Date().toISOString() };
+      if (idx >= 0) table[idx] = row;
+      else table.push(row);
+    }
+    ensure('research_contributions').push({
+      id: contributionId,
+      intent: params.p_intent,
+      origin: params.p_origin,
+      research_state: params.p_research_state,
+      status: params.p_status,
+      parent_id: null,
+      author_user_id: params.p_author_user_id || null,
+      author_contributor_id: contributorId,
+      author_name: params.p_author_name || null,
+      body: params.p_body ?? null,
+      reactions: params.p_reactions || {},
+      created_at: params.p_created_at,
+    });
+    ensure('contribution_links').push({
+      id: `fake-contribution_links-${nextId++}`,
+      from_contribution_id: contributionId,
+      target_type: 'openweb_message',
+      target_id: params.p_provenance_target_id,
+      relation_type: params.p_provenance_relation_type,
+      note: params.p_provenance_note,
+    });
+    if (params.p_identity_target_id) {
+      ensure('contribution_links').push({
+        id: `fake-contribution_links-${nextId++}`,
+        from_contribution_id: contributionId,
+        target_type: 'openweb_user',
+        target_id: params.p_identity_target_id,
+        relation_type: params.p_identity_relation_type,
+      });
+    }
+
+    return { data: { id: contributionId, contributor_id: contributorId }, error: null };
+  }
+
+  return { tables, from, rpc };
 }
 
 function msg(overrides) {
