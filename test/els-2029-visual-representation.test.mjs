@@ -109,12 +109,14 @@ test("DOM renderer exposes semantic acceptance and accessible fallback without C
 });
 
 
-test("/els consumes an explicit layered projection and does not recompute renderer truth", () => {
+test("/els composes only canonical replay projection/layers before rendering", () => {
   const src = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
-  assert.match(src, /Els2029Page\\(\\{ layeredProjection = null \\}\\)/);
-  assert.match(src, /layeredProjection\\?\\.contract === "els_2029_layers_v1"/);
-  assert.match(src, /<Els2029Representation layers=\\{layeredProjection\\} \\/>/);
-  assert.doesNotMatch(src, /projectEls2029Result|projectEls2029Layers|projectEls2029Representation/);
+  assert.match(src, /verifyEls2029Selection/);
+  assert.match(src, /supabase\.functions\.invoke\("els-search-bridge"/);
+  assert.match(src, /projectEls2029Result\(replay\.result\)/);
+  assert.match(src, /projectEls2029Layers\(replayProjection\)/);
+  assert.match(src, /<Els2029Representation layers=\{effectiveLayers\} \/>/);
+  assert.doesNotMatch(src, /TzofenEmbed|tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
 });
 
 console.log("ELS 2029 visual representation V1 contract: PASS");
