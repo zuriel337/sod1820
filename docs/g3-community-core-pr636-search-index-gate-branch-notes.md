@@ -192,3 +192,101 @@ Total focused Community suite: 88 pre-existing + 8 net-new = 96 tests, 0 failure
   (re-)classified, same default as before.
 - The real 41,080-row OpenWeb corpus itself is not committed to this repo (contains PII) and was
   not touched, imported, or written to any live store from this task.
+
+## Addendum — final structured gate
+
+Assignment: `work_log.id=3e7444af-2440-4888-a0cd-cbc007c96200`,
+`task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_FINAL_STRUCTURED_GATE_V1`,
+`release_authorization_state=BRANCH_ONLY_NO_LIVE_DB_NO_IMPORT_NO_OPENWEB_TOUCH_NO_MERGE_NO_DEPLOY_NO_CUTOVER`.
+Same PR #636 branch (`claude/awesome-dirac-88xf74`), amended in place on top of the corpus
+calibration commit (`93978503`); no new parallel branch/PR, no live DB apply, no import, no
+OpenWeb touch, no merge/deploy.
+
+### What this closes
+
+The corpus-calibration pass above (keyword + corroborating-signal heuristic) still left `234` of
+`2,324` scan candidates resolving `index_eligible=true` from raw-text regex alone in the real
+41,080-row rehearsal, and several of those `234` were still discussion/rejection of gematria, or
+an unrelated number sitting next to a keyword, rather than an actual research claim. Regex over
+raw text has no way to bind an operand to a relation, pair a method with its input, or tell an
+assertion from a question or a rejection — it can flag a *candidate*, never reconstruct a real
+research unit. So this pass removes regex from the eligibility decision entirely:
+
+1. **`evaluateIndexEligibility` split into two functions.** `evaluateScanCandidate(body,
+   internalLinks)` keeps exactly the prior five-keyword regex prefilter, but now only ever
+   returns `{ scan_candidate, candidate_reasons }` — it is structurally incapable of setting
+   `eligible`. A new `evaluateStructuredEvidence(units)` is the only path to `eligible: true`.
+
+2. **Structured evidence input contract.** `classifyContribution` now accepts an optional
+   `contribution.evidence.units[]` — typed units from the existing Research Intake/classification
+   seam (never this module's own regex), each `{ kind, ...fields }`:
+   - `numeric_relation` — `operands` (non-empty) + `relation` or `method`.
+   - `method_application` — `method` + `input`.
+   - `source_interpretation` — `reference` + `interpretation`.
+   - `structured_claim` — explicit `subject` + `predicate` + `evidence` + `reference`.
+   `index_eligible` is true only when at least one supplied unit passes its kind's minimal-
+   completeness check (`STRUCTURED_UNIT_VALIDATORS`); an unrecognized `kind` or a unit missing a
+   required field satisfies nothing. Absent `evidence.units` (the common case today — no caller
+   in this repo produces them yet), `index_eligible` defaults `false`, same as an unclassified
+   contribution always has.
+
+3. **No new table/store.** The structured units flow through the same `decision_ledger` candidate
+   JSON the gate already uses: `toDecisionLedgerCandidate` now also carries
+   `candidate.index_eligibility_evidence_units` (the exact units that backed the decision, `[]`
+   when none supplied) alongside the existing `index_eligible`/`index_eligibility_reasons`/
+   `scan_candidate`/`scan_candidate_reasons` fields.
+
+4. **Read seams unchanged.** `community_search_facts` and `fn_raziel_community_intel_scoped` still
+   gate exclusively on `candidate->>'index_eligible'` (via
+   `community_contribution_index_eligible`) — the migration's SQL needed no change, only its
+   function comment was updated for provenance; they never read `scan_candidate`, before or after
+   this pass.
+
+5. **Historical import/rehearsal boundary preserved.** No backfill/re-classification of already-
+   approved contributions was performed here; a bounded classification/extraction pass that
+   produces real `evidence.units[]` for existing rows is explicitly out of scope for this task, so
+   they continue to resolve `index_eligible=false` until (re-)classified — the same default as
+   every prior pass in this file.
+
+### Test changes
+
+The four raw-text true-positive cases from the corpus-calibration pass (`g6` gematria relation,
+`g7` verse+interpretive connection, `g8` cipher/method, `g9b` internal link+interpretive
+connection) now assert `eligible:false, scan_candidate:true` for the bare text, each paired with a
+new case supplying the matching structured evidence unit and asserting `eligible:true`. Added
+coverage for: an evidence unit missing required fields never sets `index_eligible` (per kind);
+an unrecognized `kind` never sets it; the decision_ledger candidate now also carries
+`index_eligibility_evidence_units`. All five real-corpus false-positive regression tests, and the
+existing scan_candidate/tier-separation tests, are unchanged and stay green (they were already
+`eligible:false`, so structured-evidence-only eligibility cannot make them more restrictive than
+they already were — no incremental test needed there).
+
+### Build/test evidence (this session, on this branch)
+
+```
+npm run test:g3-community-foundation-runtime                # 15 pass, 0 fail
+npm run test:g3-community-core-2029-phase2                  # 39 pass, 0 fail (6 net new)
+npm run test:g3-community-core-2029-phase2-1                # 13 pass, 0 fail
+npm run test:g3-community-core-2029-phase2-2                # 10 pass, 0 fail
+npm run test:g3-community-core-pr636-parent-reconstruction  # 4 pass, 0 fail
+npm run test:g3-community-core-pr636-two-phase-executor     # 6 pass, 0 fail
+npm run test:g3-community-core-pr636-phase3-ops-adapter     # 12 pass, 0 fail
+npm run test:g3-community-core-pr636-dry-run-cli            # 3 pass, 0 fail
+npm run build:2029                                          # ✓ built in 1.03s (same pre-existing
+                                                              #   INEFFECTIVE_DYNAMIC_IMPORT warning
+                                                              #   on src/lib/auth.js, unrelated)
+```
+
+Total focused Community suite: 102 tests, 0 failures.
+
+### Not done in this branch (explicitly out of scope / carried open)
+
+- No live Supabase apply of the (comment-only-changed) migration file — still never run against
+  the canonical project from this task.
+- No caller in this repo yet produces real `evidence.units[]` for a live contribution — that is a
+  future bounded classification/extraction pass, not this task; until it exists, every
+  contribution resolves `index_eligible=false` by default, which is intentional, not a gap.
+- No historical backfill/re-classification of already-approved contributions — out of scope per
+  the assignment, same as every prior pass in this file.
+- The real 41,080-row OpenWeb corpus is still not committed to this repo (contains PII) and was
+  not touched, imported, or written to any live store from this task.

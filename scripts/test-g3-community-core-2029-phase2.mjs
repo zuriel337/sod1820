@@ -132,23 +132,63 @@ test('index gate: reaction-only text is not index-eligible', () => {
   assert.equal(c.index_eligibility.eligible, false);
 });
 
-test('index gate: an explicit gematria relation claim is index-eligible', () => {
+test('index gate: an explicit gematria relation claim in raw text is a scan candidate, not index-eligible without structured evidence', () => {
   const c = classifyContribution({ id: 'g6', body: 'המילה אהבה עולה בגימטריה לערך 13', parent_id: null });
-  assert.equal(c.index_eligibility.eligible, true);
-  assert.ok(c.index_eligibility.reasons.includes('gematria_relation'));
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.equal(c.index_eligibility.scan_candidate, true);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('gematria_relation'));
 });
 
-test('index gate: a verse reference with an interpretive connection is index-eligible', () => {
+test('index gate: the same gematria claim becomes index-eligible once a structured numeric_relation evidence unit is supplied', () => {
+  const c = classifyContribution({
+    id: 'g6b',
+    body: 'המילה אהבה עולה בגימטריה לערך 13',
+    parent_id: null,
+    evidence: { units: [{ kind: 'numeric_relation', operands: ['אהבה', 13], relation: 'גימטריה' }] },
+  });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('numeric_relation'));
+  assert.equal(c.index_eligibility.scan_candidate, true);
+});
+
+test('index gate: a verse reference with an interpretive connection in raw text is a scan candidate, not index-eligible without structured evidence', () => {
   const c = classifyContribution({ id: 'g7', body: 'בראשית א:א "בראשית ברא" מרמז על תחילת הבריאה', parent_id: null });
-  assert.equal(c.index_eligibility.eligible, true);
-  assert.ok(c.index_eligibility.reasons.includes('verse_or_entity_reference'));
-  assert.ok(c.index_eligibility.reasons.includes('interpretive_connection'));
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('verse_or_entity_reference'));
+  assert.ok(c.index_eligibility.candidate_reasons.includes('interpretive_connection'));
 });
 
-test('index gate: an ELS/cipher/method statement is index-eligible', () => {
-  const c = classifyContribution({ id: 'g8', body: 'מצאתי צופן אתב"ש במילה הזו שמצביע על קשר עמוק', parent_id: null });
+test('index gate: the same verse reference becomes index-eligible once a structured source_interpretation evidence unit is supplied', () => {
+  const c = classifyContribution({
+    id: 'g7b',
+    body: 'בראשית א:א "בראשית ברא" מרמז על תחילת הבריאה',
+    parent_id: null,
+    evidence: {
+      units: [{ kind: 'source_interpretation', reference: 'בראשית א:א', interpretation: 'מרמז על תחילת הבריאה' }],
+    },
+  });
   assert.equal(c.index_eligibility.eligible, true);
-  assert.ok(c.index_eligibility.reasons.includes('cipher_or_method_operation'));
+  assert.ok(c.index_eligibility.reasons.includes('source_interpretation'));
+});
+
+test('index gate: an ELS/cipher/method statement in raw text is a scan candidate, not index-eligible without structured evidence', () => {
+  const c = classifyContribution({ id: 'g8', body: 'מצאתי צופן אתב"ש במילה הזו שמצביע על קשר עמוק', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('cipher_or_method_operation'));
+});
+
+test('index gate: the same cipher statement becomes index-eligible once a structured method_application evidence unit is supplied', () => {
+  const c = classifyContribution({
+    id: 'g8b',
+    body: 'מצאתי צופן אתב"ש במילה הזו שמצביע על קשר עמוק',
+    parent_id: null,
+    evidence: { units: [{ kind: 'method_application', method: 'אתב"ש', input: 'המילה הזו' }] },
+  });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('method_application'));
 });
 
 // Corpus calibration (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_CORPUS_CALIBRATION_V1):
@@ -163,11 +203,33 @@ test('index gate: an internal entity link alone is a scan candidate but not inde
   assert.ok(c.index_eligibility.candidate_reasons.includes('internal_entity_reference'));
 });
 
-test('index gate: an internal entity link plus an explicit interpretive connection is index-eligible', () => {
+test('index gate: an internal entity link plus an explicit interpretive connection in raw text is still only a scan candidate without structured evidence', () => {
   const c = classifyContribution({ id: 'g9b', body: 'ראו /number/1237 — זה מרמז על קשר עמוק', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('internal_entity_reference'));
+  assert.ok(c.index_eligibility.candidate_reasons.includes('interpretive_connection'));
+});
+
+test('index gate: the same internal-link contribution becomes index-eligible once a structured structured_claim evidence unit is supplied', () => {
+  const c = classifyContribution({
+    id: 'g9d',
+    body: 'ראו /number/1237 — זה מרמז על קשר עמוק',
+    parent_id: null,
+    evidence: {
+      units: [
+        {
+          kind: 'structured_claim',
+          subject: '/number/1237',
+          predicate: 'מרמז על',
+          evidence: 'קשר עמוק בין המספר לנושא הנדון',
+          reference: '/number/1237',
+        },
+      ],
+    },
+  });
   assert.equal(c.index_eligibility.eligible, true);
-  assert.ok(c.index_eligibility.reasons.includes('internal_entity_reference'));
-  assert.ok(c.index_eligibility.reasons.includes('interpretive_connection'));
+  assert.ok(c.index_eligibility.reasons.includes('structured_claim'));
 });
 
 test('index gate: a verse reference alone (no interpretive connection) is a scan candidate but not index-eligible', () => {
@@ -218,12 +280,19 @@ test('index gate FP regression: a bibliographic reference (e.g. רמז ע"ו) is
   assert.deepEqual(c.index_eligibility.reasons, []);
 });
 
-test('index gate: decision_ledger candidate payload carries index_eligible + reasons, never alters status', () => {
-  const eligible = classifyContribution({ id: 'g10', body: 'המילה חיים עולה בגימטריה ל-68', parent_id: null });
+test('index gate: decision_ledger candidate payload carries index_eligible + reasons + evidence units, never alters status', () => {
+  const eligible = classifyContribution({
+    id: 'g10',
+    body: 'המילה חיים עולה בגימטריה ל-68',
+    parent_id: null,
+    evidence: { units: [{ kind: 'numeric_relation', operands: ['חיים', 68], relation: 'גימטריה' }] },
+  });
   const eligibleCandidate = toDecisionLedgerCandidate(eligible);
   assert.equal(eligibleCandidate.candidate.index_eligible, true);
   assert.ok(Array.isArray(eligibleCandidate.candidate.index_eligibility_reasons));
   assert.ok(eligibleCandidate.candidate.index_eligibility_reasons.length > 0);
+  assert.ok(Array.isArray(eligibleCandidate.candidate.index_eligibility_evidence_units));
+  assert.equal(eligibleCandidate.candidate.index_eligibility_evidence_units.length, 1);
   assert.equal(eligibleCandidate.status, 'pending');
   assert.equal(eligibleCandidate.human_decision, null);
 
@@ -231,6 +300,42 @@ test('index gate: decision_ledger candidate payload carries index_eligible + rea
   const ineligibleCandidate = toDecisionLedgerCandidate(ineligible);
   assert.equal(ineligibleCandidate.candidate.index_eligible, false);
   assert.deepEqual(ineligibleCandidate.candidate.index_eligibility_reasons, []);
+  assert.deepEqual(ineligibleCandidate.candidate.index_eligibility_evidence_units, []);
+});
+
+test('index gate: raw-text-only regex reasons (even a bare gematria keyword+number in the same message) never populate index_eligibility_reasons without a structured unit', () => {
+  const c = classifyContribution({ id: 'g14', body: 'המילה חיים עולה בגימטריה ל-68', parent_id: null });
+  const candidate = toDecisionLedgerCandidate(c);
+  assert.equal(candidate.candidate.index_eligible, false);
+  assert.deepEqual(candidate.candidate.index_eligibility_reasons, []);
+  assert.equal(candidate.candidate.scan_candidate, true);
+  assert.ok(candidate.candidate.scan_candidate_reasons.includes('gematria_relation'));
+});
+
+test('index gate: a structured evidence unit missing required fields for its kind never sets index_eligible', () => {
+  const incompleteNumeric = classifyContribution({
+    id: 'g15',
+    body: 'המילה חיים עולה בגימטריה ל-68',
+    parent_id: null,
+    evidence: { units: [{ kind: 'numeric_relation', operands: [] }] },
+  });
+  assert.equal(incompleteNumeric.index_eligibility.eligible, false);
+
+  const incompleteMethod = classifyContribution({
+    id: 'g16',
+    body: 'צופן אתב"ש',
+    parent_id: null,
+    evidence: { units: [{ kind: 'method_application', method: 'אתב"ש' }] },
+  });
+  assert.equal(incompleteMethod.index_eligibility.eligible, false);
+
+  const unknownKind = classifyContribution({
+    id: 'g17',
+    body: 'טקסט כלשהו',
+    parent_id: null,
+    evidence: { units: [{ kind: 'not_a_real_kind', foo: 'bar' }] },
+  });
+  assert.equal(unknownKind.index_eligibility.eligible, false);
 });
 
 test('index gate: decision_ledger candidate also carries the scan_candidate prefilter tier, kept separate from index_eligible', () => {

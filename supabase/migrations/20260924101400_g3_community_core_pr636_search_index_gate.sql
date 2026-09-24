@@ -58,7 +58,11 @@ comment on function public.community_contribution_index_eligible is
   'latest community_contribution_classification decision_ledger candidate.index_eligible flag '
   '(defaults to false when no candidate exists yet). Candidate-only: never reads/sets status, '
   'research_state, or human_decision. Reused by community_search_facts and '
-  'fn_raziel_community_intel_scoped instead of a parallel eligibility store.';
+  'fn_raziel_community_intel_scoped instead of a parallel eligibility store. Final calibration '
+  '(task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_FINAL_STRUCTURED_GATE_V1): index_eligible is '
+  'now sourced exclusively from structured evidence.units[] in classificationSeam.mjs, never '
+  'from raw-text regex alone — this function''s SQL is unchanged, since it only ever reads the '
+  'resulting boolean off the existing decision_ledger candidate JSON.';
 
 -- =====================================================================================
 -- 1. community_search_facts — now returns only approved AND index-eligible content.

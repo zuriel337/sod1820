@@ -22,16 +22,20 @@ const REPLY_LABEL = 'תגובה';
 //
 // Two tiers, never conflated:
 //   scan_candidate  — cheap regex prefilter. Any single keyword hit tags a `candidate_reasons`
-//                      entry. This is a prefilter signal only; it must never by itself set
-//                      index_eligible.
-//   index_eligible  — final decision. Requires an actual reconstructable structured research
-//                      unit, not just a keyword hit: an explicit numeric/gematria relation with
-//                      an operand, a cipher/method/ELS mention with an identifiable input, or a
-//                      source/verse/entity reference paired with an authored interpretive
-//                      connection. The corpus rehearsal found the keyword-alone heuristic
-//                      over-indexed heavily on this last case (2196 of 2317 verse/entity-reason
-//                      rows had no other corroborating signal) — sole entity mention is no
-//                      longer sufficient on its own.
+//                      entry. This is a prefilter signal only; raw text can never by itself set
+//                      index_eligible, no matter how many keywords co-occur.
+//   index_eligible  — final decision. Requires an actual structured evidence unit supplied via
+//                      `contribution.evidence.units[]` (typed `numeric_relation` /
+//                      `method_application` / `source_interpretation` / `structured_claim`, each
+//                      with the reconstructable fields its kind needs — see
+//                      `evaluateStructuredEvidence`/`STRUCTURED_UNIT_VALIDATORS` below). A second
+//                      corpus rehearsal, after the keyword+corroboration calibration below, still
+//                      found 234 of 2,324 scan candidates resolving `index_eligible=true` off
+//                      regex alone, several still discussion/rejection of gematria rather than an
+//                      actual claim — regex over raw text cannot bind an operand, pair a method
+//                      with its input, or tell an assertion from a question, so it was demoted to
+//                      scan_candidate-only and structured evidence became the sole final-eligibility
+//                      input.
 //
 // Internal links (/number/, /entity/, /person/, /world/, /topic/) count as an entity reference
 // only when validated as actually internal (a bare relative path, or a full URL whose host is
@@ -39,14 +43,6 @@ const REPLY_LABEL = 'תגובה';
 // a news site's own /world/... section) never counts.
 const GEMATRIA_RELATION_RE = /גימטריה|גימטרי|גימ[׳']/;
 const CIPHER_OR_METHOD_RE = /אתב["׳]?ש|צופן|קפיצ(?:ת|ות)\s*אותיות|ראשי\s*תיבות|סופי\s*תיבות|נוטריקון|\bELS\b/i;
-// A calculable operand for a gematria/numeric relation. Deliberately evaluated only against
-// text with URLs stripped out first — query params, article IDs, and video timecodes are not
-// research evidence (see stripSources below).
-const NUMERIC_OPERAND_RE = /\d{1,6}/;
-// An identifiable input the cipher/method/ELS operation is applied to (a word, verse, name, or
-// phrase named in the same sentence) — the mere name of a method with nothing it operates on is
-// bibliographic/vocabulary chatter, not a reconstructable application.
-const METHOD_INPUT_INDICATOR_RE = /במיל(?:ה|ים)|בפסוק|בפרק|באות(?:יות)?|בשם|בביטוי|בטקסט|בשורה|במשפט/;
 // Hebrew has no \w-based word boundary (JS's \b never fires between two Hebrew letters), so a
 // bare substring match of a book/entity name bleeds into unrelated words that merely contain it
 // (e.g. plain "השמות" — "the names" — false-matching the book שמות/Exodus). Each keyword below
@@ -62,24 +58,19 @@ const VERSE_OR_ENTITY_KEYWORD_RE = new RegExp(
 );
 const INTERPRETIVE_CONNECTION_RE = /מרמז|רמז\s*ל|מסמל|מקביל\s*ל|מבטא\s*את|מכוון\s*ל|קשור\s*ל/;
 
-// URL query params, article IDs, and video timecodes read as digits but are never a numeric-
-// relation operand. Only used for the eligibility numeric-operand check — the general
-// `extraction.numbers` field intentionally keeps matching the existing chat_search_facts
-// number-extraction convention (see the extractNumbers test coverage).
-function stripSources(text) {
-  const stripped = text.replace(SOURCE_RE, ' ');
-  SOURCE_RE.lastIndex = 0;
-  return stripped;
-}
-
-// Candidate-only index eligibility decision (never publication/canonical). Mere number, mere
-// URL, video-only/link-only content, and social chat/reaction/small talk never qualify on
-// their own; a reconstructable structured research unit does:
-//   (a) an explicit numeric/gematria relation — the gematria keyword plus an actual operand;
-//   (b) a canonical method/cipher/ELS application with an identifiable input;
-//   (c) a source-text/verse/name/entity relation plus an authored interpretive connection.
-// Default is always false; anything short of one of these stays candidate-only/chronology-only.
-function evaluateIndexEligibility(body, internalLinks) {
+// Final structured-gate calibration (task_key=
+// G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_FINAL_STRUCTURED_GATE_V1): the corpus rehearsal after
+// the previous (keyword+corroboration) calibration still left 234 of 2,324 scan candidates
+// resolving `index_eligible=true` off raw-text regex alone, and several of those 234 still
+// turned out to be discussion/rejection of gematria or an unrelated number sitting next to a
+// keyword — regex over text can flag a *candidate*, but it can never itself reconstruct a real
+// research unit (it has no operand binding, no method/input pairing, no way to tell an assertion
+// from a question or a rejection). So regex output is now hard-capped at `scan_candidate` +
+// `candidate_reasons`; it is never read as eligibility again, by this function or any caller.
+//
+// Tier 1 — cheap heuristic prefilter. Any single keyword hit tags a candidate_reasons entry.
+// This is a prefilter signal only; it must never by itself set index_eligible.
+function evaluateScanCandidate(body, internalLinks) {
   const text = String(body || '');
   const hasGematriaKeyword = GEMATRIA_RELATION_RE.test(text);
   const hasCipherOrMethodKeyword = CIPHER_OR_METHOD_RE.test(text);
@@ -87,8 +78,6 @@ function evaluateIndexEligibility(body, internalLinks) {
   const hasInternalEntityLink = internalLinks.length > 0;
   const hasInterpretiveConnection = INTERPRETIVE_CONNECTION_RE.test(text);
 
-  // Tier 1 — cheap heuristic prefilter. Any single keyword hit is a candidate signal only; it
-  // must never directly set index_eligible.
   const candidateReasons = [];
   if (hasGematriaKeyword) candidateReasons.push('gematria_relation');
   if (hasCipherOrMethodKeyword) candidateReasons.push('cipher_or_method_operation');
@@ -96,26 +85,56 @@ function evaluateIndexEligibility(body, internalLinks) {
   if (hasInternalEntityLink) candidateReasons.push('internal_entity_reference');
   if (hasInterpretiveConnection) candidateReasons.push('interpretive_connection');
 
-  // Tier 2 — final eligibility. Requires a reconstructable structured unit, not a bare keyword.
+  return {
+    scan_candidate: candidateReasons.length > 0,
+    candidate_reasons: candidateReasons,
+  };
+}
+
+// Tier 2 — final eligibility. A structured evidence input contract, sitting on top of the
+// existing derived/classification metadata (decision_ledger candidate / Research Intake), not a
+// new store: `evidence.units[]`, each `{ kind, ...fields }`. A unit is reconstructable only when
+// it carries the fields its kind needs to rebuild the actual claim, never a bare keyword hit:
+//   numeric_relation      — operands (non-empty) + relation or method (a gematria/numeric claim
+//                            with nothing to compute over is not reconstructable).
+//   method_application    — method + input (the method name alone, with nothing it operates on,
+//                            is vocabulary/bibliographic chatter, not an application).
+//   source_interpretation — reference (source/verse/entity) + interpretation (an authored
+//                            connection, not just a citation).
+//   structured_claim      — subject + predicate + evidence + reference, all explicit.
+// Raw regex/heuristic output (scan_candidate/candidate_reasons) is never itself a unit and is
+// never accepted here — only an actual evidence.units[] entry can satisfy a kind.
+function isNonEmptyString(v) {
+  return typeof v === 'string' && v.trim().length > 0;
+}
+
+function isNonEmptyArray(v) {
+  return Array.isArray(v) && v.length > 0;
+}
+
+const STRUCTURED_UNIT_VALIDATORS = {
+  numeric_relation: (unit) =>
+    isNonEmptyArray(unit.operands) && (isNonEmptyString(unit.relation) || isNonEmptyString(unit.method)),
+  method_application: (unit) => isNonEmptyString(unit.method) && isNonEmptyString(unit.input),
+  source_interpretation: (unit) => isNonEmptyString(unit.reference) && isNonEmptyString(unit.interpretation),
+  structured_claim: (unit) =>
+    isNonEmptyString(unit.subject) &&
+    isNonEmptyString(unit.predicate) &&
+    isNonEmptyString(unit.evidence) &&
+    isNonEmptyString(unit.reference),
+};
+
+function evaluateStructuredEvidence(units) {
+  const list = Array.isArray(units) ? units : [];
   const reasons = [];
-
-  const hasNumericOperand = NUMERIC_OPERAND_RE.test(stripSources(text));
-  if (hasGematriaKeyword && hasNumericOperand) reasons.push('gematria_relation');
-
-  const hasIdentifiableInput = METHOD_INPUT_INDICATOR_RE.test(text);
-  if (hasCipherOrMethodKeyword && hasIdentifiableInput) reasons.push('cipher_or_method_operation');
-
-  if ((hasVerseOrEntityKeyword || hasInternalEntityLink) && hasInterpretiveConnection) {
-    if (hasVerseOrEntityKeyword) reasons.push('verse_or_entity_reference');
-    if (hasInternalEntityLink) reasons.push('internal_entity_reference');
-    reasons.push('interpretive_connection');
+  for (const unit of list) {
+    const kind = unit && unit.kind;
+    const validator = STRUCTURED_UNIT_VALIDATORS[kind];
+    if (validator && validator(unit) && !reasons.includes(kind)) reasons.push(kind);
   }
-
   return {
     eligible: reasons.length > 0,
     reasons,
-    scan_candidate: candidateReasons.length > 0,
-    candidate_reasons: candidateReasons,
   };
 }
 
@@ -175,7 +194,11 @@ function uncertaintyOf(body, numbers) {
   return 0.25;
 }
 
-// contribution: { id, body, parent_id }
+// contribution: { id, body, parent_id, evidence?: { units: [{ kind, ...fields }] } }
+// `evidence.units` is optional structured input from the existing Research Intake/
+// classification seam (e.g. a later bounded classification/extraction pass, never this
+// function's own regex output) — its absence simply means no structured unit exists yet, so
+// index_eligible defaults false, same as any not-yet-classified contribution.
 export function classifyContribution(contribution) {
   const body = contribution?.body || '';
   const isReply = Boolean(contribution?.parent_id);
@@ -183,6 +206,9 @@ export function classifyContribution(contribution) {
   const numbers = extractNumbers(body);
   const sources = extractSources(body);
   const internalLinks = extractInternalLinks(body);
+  const scanCandidate = evaluateScanCandidate(body, internalLinks);
+  const evidenceUnits = Array.isArray(contribution?.evidence?.units) ? contribution.evidence.units : [];
+  const structuredEvidence = evaluateStructuredEvidence(evidenceUnits);
   return {
     contribution_id: contribution?.id ?? null,
     labels,
@@ -194,7 +220,17 @@ export function classifyContribution(contribution) {
       canonical_engine_handoff: numbers.length > 0 ? { engine: 'number_dossier', numbers } : null,
     },
     uncertainty: uncertaintyOf(body, numbers),
-    index_eligibility: evaluateIndexEligibility(body, internalLinks),
+    // eligible/reasons come exclusively from structured evidence units — raw-text regex can
+    // only ever populate scan_candidate/candidate_reasons, never eligibility itself.
+    index_eligibility: {
+      eligible: structuredEvidence.eligible,
+      reasons: structuredEvidence.reasons,
+      scan_candidate: scanCandidate.scan_candidate,
+      candidate_reasons: scanCandidate.candidate_reasons,
+      // Carried through so the decision_ledger candidate stays reconstructable: which exact
+      // structured unit(s) backed the eligibility decision, not just the resulting boolean.
+      evidence_units: evidenceUnits,
+    },
   };
 }
 
@@ -220,6 +256,9 @@ export function toDecisionLedgerCandidate(classification, { aiModel = 'community
       index_eligibility_reasons: classification.index_eligibility.reasons,
       scan_candidate: classification.index_eligibility.scan_candidate,
       scan_candidate_reasons: classification.index_eligibility.candidate_reasons,
+      // Structured evidence units backing index_eligible (empty when not yet supplied) — kept
+      // inside this existing decision_ledger candidate payload, no new table/store.
+      index_eligibility_evidence_units: classification.index_eligibility.evidence_units,
     },
     ai_model: aiModel,
     ai_score: 1 - classification.uncertainty,
