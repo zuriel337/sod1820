@@ -196,3 +196,27 @@ History is available on demand; it is not startup context.
 - **ACCEPTANCE:** Observability/SEO Build Gate = SUCCESS · Release Visual/Mobile/Accessibility = SUCCESS · 2029 Isolation/Browser = SUCCESS before merge.
 - **HUMAN GATE:** ZURIEL explicitly authorized release **without replacing any Number page**. A future `/number` cutover requires a separate explicit decision and parity/release verification.
 - **ROADMAP:** unchanged by this entry because no canonical Number-route cutover or program-stage transition occurred.
+
+
+---
+
+## UPDATE 24.9.2026 — Post2029 Reading Surface / Global Frame composition
+
+**HUMAN GATE:** ZURIEL · **OWNER VERDICT:** EXTEND_EXISTING · **DOCUMENTED STATE:** RATIFIED / IMPLEMENTATION BRANCH-ONLY.
+
+Canonical semantic owners remain:
+- `project_codex.publishing_conventions` → **AI-NATIVE POST 2029 STANDARD V1** + **POST 2029 READING GEOMETRY ADDENDUM** + pre-publication staging safety.
+- `project_codex.experience_governance_foundation_v1` / `experience_governance_foundation_v1_law v7` → **READING SURFACE / GLOBAL FRAME COMPOSITION V1**.
+- `research_workspace_law v4` + `raziel_companion_layer_law v3` → one Research Context / one Raziel / surface-transition semantics.
+
+Ratified shape:
+- one global System Frame, Bottom Command Island, Raziel presence and transient Panel Host;
+- Reading Surfaces may project **Source Canvas + Context Spine + bounded Living Margin**;
+- Context Rail is preview/intelligence, not a second control plane; global actions remain in the System Frame;
+- World/Topic/Number stay rich Hub/Explorer/Detail surfaces without a permanent Reading Rail by default; Heichal/ELS stay workbench/focus surfaces;
+- Post source wording remains primary; system reading regions are projection/context only; exact-return preserves the source-region locator;
+- Hebrew year may be part of the public H1 while routine source/issue metadata remains secondary;
+- current `posts` access model is not a safe private-draft boundary; unpublished Golden material stays under the existing private Research Intake owner until governed Preview/publication.
+
+First Golden calibration: SOD HASHMAL · גליון חג הסוכות תשפ״ז.  
+Implementation pointer: Draft PR **#650**, branch `gpt/g3-post2029-sod-hashmal-reading-golden-v1`. **NOT MERGED · NOT DEPLOYED · NOT PUBLIC CUTOVER.**
