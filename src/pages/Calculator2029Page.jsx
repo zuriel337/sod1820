@@ -463,7 +463,7 @@ function CalculatorExperience() {
           />
 
           {shareUrl ? (
-            <section className="sod29-calc2029-share" aria-label="שיתוף התוצאה">
+            <section className="sod29-calc2029-share" aria-label="שיתוף התוצאה" data-share-url={shareUrl}>
               <div>
                 <span>שתף את הגילוי</span>
                 <strong>{selection.expression} = {selection.resultValue}</strong>
