@@ -17,7 +17,7 @@ const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
-const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
+import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
