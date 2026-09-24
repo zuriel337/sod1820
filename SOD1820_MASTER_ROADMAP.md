@@ -315,3 +315,18 @@ Do not add detailed contracts, audits, examples or research findings to this Roa
 - coordination/release trace → work_log;
 - superseded detail → Archive;
 - Roadmap → navigation, sequence, gates, priority, explicit open decisions only.
+
+
+---
+
+## UPDATE 24.9.2026 — Post2029 Reading Surface Golden
+
+**Navigation state:** Post2029 research-rich reading direction is now Human-Gate ratified under existing owners; implementation is **BRANCH-ONLY** on Draft PR **#650**.
+
+- **Golden:** SOD HASHMAL · גליון חג הסוכות תשפ״ז → `רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז`.
+- **Experience:** Source Canvas + Context Spine + bounded Living Margin on Reading Surfaces only.
+- **Global continuity:** one System Frame · one Bottom Command Island · one Raziel · one transient Panel Host · one Research Context.
+- **Deepening:** Rail preview → canonical Panel/Number/World/ELS/Heichal/Journey target with exact return; no parallel Post research system.
+- **Publication safety:** Golden source is privately staged under existing Research Intake; no public `posts` row until a separate Preview/publication gate.
+- **Current implementation:** PR #650 is noindex/branch-only; source embedded cipher images are preserved in the uploaded source but are not yet projected.
+- **NEXT GATE:** finish exact-head CI + independent read-only challenge → ZURIEL Human visual review. Merge/deploy/public cutover require separate explicit authorization.
