@@ -1,7 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { supabase } from "../lib/supabase.js";
+import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
+import { projectEls2029Result } from "../lib/research/els2029Projection.js";
+import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
@@ -24,15 +28,65 @@ export default function Els2029Page({ layeredProjection = null }) {
   const elsSelection = selection?.entityType === "els";
   const locator = elsSelection ? clean(selection?.locator) : "";
   const journey = context?.journey || null;
-  const layeredReady = layeredProjection?.contract === "els_2029_layers_v1";
+  const replayRequest = useMemo(() => buildEls2029ReplayRequest(selection), [selection]);
+  const replayKey = useMemo(() => els2029ReplaySelectionKey(selection), [selection]);
+  const [replay, setReplay] = useState({
+    loading: false,
+    state: "CONTEXT_REQUIRED",
+    result: null,
+    traceId: null,
+    error: null,
+  });
 
-  const exactReplayReady = Boolean(
-    elsSelection
-    && clean(selection?.corpus)
-    && Number.isInteger(Number(selection?.start))
-    && Number(selection?.skip) >= 2
-    && [-1, 1].includes(Number(selection?.dir))
+  useEffect(() => {
+    if (layeredProjection?.contract === "els_2029_layers_v1") return undefined;
+    if (elsState.loading || elsState.blocked || !replayKey) {
+      setReplay({ loading: false, state: "CONTEXT_REQUIRED", result: null, traceId: null, error: null });
+      return undefined;
+    }
+
+    let alive = true;
+    setReplay({ loading: true, state: "VERIFYING", result: null, traceId: null, error: null });
+    verifyEls2029Selection(selection, (body) => supabase.functions.invoke("els-search-bridge", { body }))
+      .then((verified) => {
+        if (!alive) return;
+        setReplay({
+          loading: false,
+          state: verified.state,
+          result: verified.result,
+          traceId: verified.traceId,
+          error: verified.error,
+        });
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setReplay({
+          loading: false,
+          state: "FAILED",
+          result: null,
+          traceId: null,
+          error: String(error?.message || error || "bridge_error"),
+        });
+      });
+    return () => { alive = false; };
+  }, [replayKey, elsState.loading, elsState.blocked, layeredProjection, selection]);
+
+  const replayProjection = useMemo(
+    () => projectEls2029Result(replay.result),
+    [replay.result]
   );
+  const replayLayers = useMemo(
+    () => projectEls2029Layers(replayProjection),
+    [replayProjection]
+  );
+  const effectiveLayers = layeredProjection?.contract === "els_2029_layers_v1"
+    ? layeredProjection
+    : replayLayers;
+  const exactReplayReady = Boolean(replayRequest);
+  const replayMatched = replay.state === "MATCH";
+  const layeredReady = effectiveLayers?.contract === "els_2029_layers_v1"
+    && Array.isArray(effectiveLayers.layers)
+    && effectiveLayers.layers.length > 0;
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
@@ -95,13 +149,19 @@ export default function Els2029Page({ layeredProjection = null }) {
               <StateRow label="Subject / Anchor" value={subject?.label || "נדרש הקשר מחקר"} state={subject ? "ready" : "building"} />
               <StateRow label="Occurrence locator" value={locator || "ממתין לבחירת locus"} state={locator ? "ready" : "building"} />
               <StateRow
-                label="Exact replay"
-                value={exactReplayReady ? "corpus + start + skip + direction זמינים" : "נדרש Result Bundle עם coordinates מלאים"}
-                state={exactReplayReady ? "ready" : "building"}
+                label="Exact replay request"
+                value={
+                  !exactReplayReady ? "נדרש term + corpus + start + skip + direction"
+                    : replay.loading ? "מאמת occurrence מול המנוע הקנוני…"
+                    : replayMatched ? "MATCH · occurrence אומת בשרת"
+                    : replay.state === "CONTEXT_REQUIRED" ? "מוכן לאימות כשיגיע locus מלא"
+                    : replay.state + (replay.error ? " · " + replay.error : "")
+                }
+                state={replayMatched ? "ready" : "building"}
               />
               <StateRow
                 label="2D / 2.5D projection feed"
-                value={layeredReady ? "els_2029_layers_v1 מחובר ל־renderer" : "ממתין ל־layered projection קנוני"}
+                value={layeredReady ? "canonical replay → projection → layers → renderer" : "אין occurrence מאומת להקרנה"}
                 state={layeredReady ? "ready" : "building"}
               />
               <StateRow
@@ -111,7 +171,7 @@ export default function Els2029Page({ layeredProjection = null }) {
               />
             </div>
 
-            <Els2029Representation layers={layeredProjection} />
+            <Els2029Representation layers={effectiveLayers} />
           </div>
         </div>
 
