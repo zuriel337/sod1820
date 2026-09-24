@@ -19,7 +19,7 @@ function StateRow({ label, value, state = "ready" }) {
   </div>;
 }
 
-export default function Els2029Page({ layeredProjection = null }) {
+export default function Els2029Page() {
   const research = useResearch();
   const elsState = useFeatureState("lock_els");
   const context = research.context || null;
@@ -39,7 +39,6 @@ export default function Els2029Page({ layeredProjection = null }) {
   });
 
   useEffect(() => {
-    if (layeredProjection?.contract === "els_2029_layers_v1") return undefined;
     if (elsState.loading || elsState.blocked || !replayKey) {
       setReplay({ loading: false, state: "CONTEXT_REQUIRED", result: null, traceId: null, error: null });
       return undefined;
@@ -69,7 +68,7 @@ export default function Els2029Page({ layeredProjection = null }) {
         });
       });
     return () => { alive = false; };
-  }, [replayKey, elsState.loading, elsState.blocked, layeredProjection]); // replayKey fully identifies the bounded request
+  }, [replayKey, elsState.loading, elsState.blocked]); // replayKey fully identifies the bounded request
 
   const replayProjection = useMemo(
     () => projectEls2029Result(replay.result),
@@ -79,14 +78,11 @@ export default function Els2029Page({ layeredProjection = null }) {
     () => projectEls2029Layers(replayProjection),
     [replayProjection]
   );
-  const effectiveLayers = layeredProjection?.contract === "els_2029_layers_v1"
-    ? layeredProjection
-    : replayLayers;
   const exactReplayReady = Boolean(replayRequest);
   const replayMatched = replay.state === "MATCH";
-  const layeredReady = effectiveLayers?.contract === "els_2029_layers_v1"
-    && Array.isArray(effectiveLayers.layers)
-    && effectiveLayers.layers.length > 0;
+  const layeredReady = replayLayers?.contract === "els_2029_layers_v1"
+    && Array.isArray(replayLayers.layers)
+    && replayLayers.layers.length > 0;
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
@@ -171,7 +167,7 @@ export default function Els2029Page({ layeredProjection = null }) {
               />
             </div>
 
-            <Els2029Representation layers={effectiveLayers} />
+            <Els2029Representation layers={replayLayers} />
           </div>
         </div>
 
