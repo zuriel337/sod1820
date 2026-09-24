@@ -239,7 +239,8 @@ export default function ResearchProvider({ children }) {
       const dirRaw = d?.axis?.dir
         ?? d?.occurrence?.dir
         ?? (d?.axis?.direction === "back" ? -1 : d?.axis?.direction === "fwd" ? 1 : null);
-      const dir = [-1, 1].includes(Number(dirRaw)) ? Number(dirRaw) : null;
+      const dirNumber = dirRaw != null && dirRaw !== "" ? Number(dirRaw) : null;
+      const dir = [-1, 1].includes(dirNumber) ? dirNumber : null;
       const occurrenceId = String(d?.axis?.occurrenceId || d?.occurrence?.occurrence_id || "").trim() || null;
       const corpusVersion = String(d?.provenance?.corpusVersion || d?.corpusVersion || "").trim() || null;
       const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
