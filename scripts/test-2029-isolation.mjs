@@ -119,5 +119,4 @@ assert.equal(manifest.start_url, "/", "this pass must not silently cut over the 
 assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
 assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
 
-// PR #564 final release trigger: semantic assertions above are the gate.
-console.log("2029 hard-isolation source regression: PASS");
+// Post2029 Reading Surface Golden rides the existing hard-isolation gate rather than creating parallel CI.\nawait import("./test-2029-post-reading.mjs");\n\n// PR #564 final release trigger: semantic assertions above are the gate.\nconsole.log("2029 hard-isolation source regression: PASS");
