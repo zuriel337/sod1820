@@ -39,6 +39,18 @@ function PostReadingBody() {
     return () => { live = false; };
   }, [slug]);
 
+  useEffect(() => {
+    if (!state.projection?.post) return;
+    const projection = state.projection;
+    applySeo({
+      title: projection.post.title,
+      description: projection.excerpt,
+      path: `/post/${projection.post.slug}`,
+      type: "article",
+      noindex: projection.draft || projection.privateStage,
+    });
+  }, [state.projection]);
+
   const regions = state.projection?.regions || [];
   const activeFocus = useMemo(
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
