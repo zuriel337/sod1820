@@ -17,6 +17,7 @@ const ROUTES = Object.freeze({
   WORLD: "/world",
   BOOKS: "/books",
   ELS: "/els",
+  HEICHAL: "/heichal",
 });
 
 function numericFamily(target) {
@@ -148,14 +149,14 @@ export function resolveCommandIslandSlots({ surface = "system", target = null } 
     return [
       { id: "inspect-calculation", trigger: "inspect", icon: "◎", label: "מה יש כאן" },
       { id: "open-number", trigger: "number", icon: "123", label: "מספר" },
-      { id: "open-heichal", trigger: "heichal", icon: "◇", label: "היכל" },
+      { id: "open-heichal", trigger: "route", href: ROUTES.HEICHAL, icon: "◇", label: "היכל" },
     ];
   }
 
   if (numericFamily(target)) {
     return [
       { id: "inspect-number", trigger: "inspect", icon: "◎", label: key === "number" ? "חיבורים" : "בדוק" },
-      { id: "open-world", trigger: "world", icon: "◌", label: "עולם" },
+      { id: "open-world", trigger: "route", href: ROUTES.WORLD, icon: "◌", label: "עולם" },
       { id: "open-heichal", trigger: "heichal", icon: "◇", label: "היכל" },
     ];
   }
