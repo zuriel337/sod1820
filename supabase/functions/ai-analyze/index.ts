@@ -573,7 +573,35 @@ Deno.serve(async (req: Request) => {
         if (!q.allowed) return json({ analysis: null, error: "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
           message: "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
       }
+      activeTrace = await beginOperationalTrace({
+        body,
+        identityClass: tier,
+        capability: "ai-analyze:guide",
+        surface: "site-guide",
+        ownerRef: "ai_analyze_contract v2 + system_suggestions_law v3",
+        subject: "",
+      });
+      const guideContextSpanId = crypto.randomUUID();
+      const guideContextStartedAt = new Date().toISOString();
       const guideMtx = await fetchMetatronContext(ask, ask, "site-guide", "navigation");
+      const guideContextEndedAt = new Date().toISOString();
+      await recordOperationalSpan(activeTrace, {
+        spanId: guideContextSpanId,
+        kind: "db_rpc",
+        name: "metatron_context",
+        startedAt: guideContextStartedAt,
+        endedAt: guideContextEndedAt,
+        outcome: guideMtx ? "success" : "degraded_fallback",
+        detail: {
+          capability: "context_compiler",
+          owner_ref: "research_strategy_layer_law v15",
+          output_use: guideMtx ? "used" : "rejected",
+          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(guideContextEndedAt) - Date.parse(guideContextStartedAt)) },
+          cost: { certainty: "not_billable" },
+          replay: { ownerRuleRefs: ["research_strategy_layer_law v15"] },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
       const guideMtxVersion = guideMtx?.context_version ?? null;
       // הקשר-יכולות מ-metatron_context (site_services, לא ה-routes הקבועים) — מידע-רקע בלבד, לא רשימת-יעד:
       // כותרת+תיאור בלבד, בלי URL, כדי שהמודל לא יבלבל בין "capability" מ-metatron ל-"to" המותר מלמעלה.
@@ -597,10 +625,56 @@ Deno.serve(async (req: Request) => {
         "/members — מנוי מתקדם (בני ההיכל)\n" +
         "/post — לקרוא מאמרים ורמזים";
       const guideUser = `${routes}${guideCapsContext}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
+      const guideModelSpanId = crypto.randomUUID();
+      const guideModelStartedAt = new Date().toISOString();
       const out = await runClaude(FAST_MODEL, guideUser, 320, SYSTEM_GUIDE);
-      if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
-      await logTokens("guide", FAST_MODEL, out.usage, identity);
-      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL, context_version: guideMtxVersion });
+      const guideModelEndedAt = new Date().toISOString();
+      const guideModelOutcome = out.error ? "provider_error" : "success";
+      await recordOperationalSpan(activeTrace, {
+        spanId: guideModelSpanId,
+        parentSpanId: guideContextSpanId,
+        kind: "model_call",
+        name: "ai-analyze:guide:model",
+        startedAt: guideModelStartedAt,
+        endedAt: guideModelEndedAt,
+        outcome: guideModelOutcome,
+        detail: {
+          capability: "ai-analyze:guide",
+          owner_ref: "ai_analyze_contract v2",
+          intelligence_level: "fast",
+          provider: "anthropic",
+          model: FAST_MODEL,
+          routing_reason: "guide_fast_model",
+          output_use: out.error ? "not_applicable" : "used",
+          stop_reason: out.error || null,
+          resources: {
+            input_tokens: out.usage?.input_tokens ?? null,
+            output_tokens: out.usage?.output_tokens ?? null,
+            api_calls: 1,
+            latency_ms: Math.max(0, Date.parse(guideModelEndedAt) - Date.parse(guideModelStartedAt)),
+          },
+          cost: { certainty: "unknown" },
+          replay: {
+            ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+            parametersRef: "guide:max_tokens:320",
+          },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
+      if (out.error) {
+        await finishOperationalTrace(activeTrace, guideModelOutcome, out.error);
+        return json({ analysis: null, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
+      }
+      const guideTokenLogId = await logTokens(
+        "guide",
+        FAST_MODEL,
+        out.usage,
+        identity,
+        { traceId: activeTrace?.traceId, spanId: guideModelSpanId },
+      );
+      await linkOperationalAiCost(activeTrace, guideModelSpanId, guideTokenLogId);
+      await finishOperationalTrace(activeTrace, "success");
+      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL, context_version: guideMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     // ===== 🌳 persona="raziel" — המוח-המשותף (רזיאל באתר = רזיאל בוואטסאפ) =====
@@ -658,6 +732,15 @@ Deno.serve(async (req: Request) => {
         return json(RAZIEL_ADVANCED_GATED_RESPONSE);
       }
 
+      activeTrace = await beginOperationalTrace({
+        body,
+        identityClass: tier,
+        capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
+        surface: rSurface || "raziel-site",
+        ownerRef: "raziel_companion_layer_law + ai_analyze_contract v2",
+        subject: rSubject,
+      });
+
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona("site"),
         userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
@@ -695,14 +778,59 @@ Deno.serve(async (req: Request) => {
         ctxText +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
 
+      const razielModelSpanId = crypto.randomUUID();
+      const razielModelStartedAt = new Date().toISOString();
       const out = await runClaude(MODEL, user, 1600, rzSys);
-      if (out.error) return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail });
+      const razielModelEndedAt = new Date().toISOString();
+      const razielModelOutcome = out.error ? "provider_error" : "success";
+      await recordOperationalSpan(activeTrace, {
+        spanId: razielModelSpanId,
+        kind: "model_call",
+        name: "ai-analyze:raziel:model",
+        startedAt: razielModelStartedAt,
+        endedAt: razielModelEndedAt,
+        outcome: razielModelOutcome,
+        detail: {
+          capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
+          owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2",
+          intelligence_level: "deep",
+          provider: "anthropic",
+          model: MODEL,
+          routing_reason: rMode ? "raziel_advanced" : "raziel_default",
+          output_use: out.error ? "not_applicable" : "used",
+          stop_reason: out.error || null,
+          resources: {
+            input_tokens: out.usage?.input_tokens ?? null,
+            output_tokens: out.usage?.output_tokens ?? null,
+            api_calls: 1,
+            latency_ms: Math.max(0, Date.parse(razielModelEndedAt) - Date.parse(razielModelStartedAt)),
+          },
+          cost: { certainty: "unknown" },
+          replay: {
+            ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
+            parametersRef: `raziel:max_tokens:1600;mode:${rMode ? "advanced" : "baseline"}`,
+            continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
+          },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
+      if (out.error) {
+        await finishOperationalTrace(activeTrace, razielModelOutcome, out.error);
+        return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
+      }
       // 📊 Telemetry — Advanced Raziel is distinguishable from the baseline "raziel" kind (and from
       // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
       // primitive only — no new analytics table. A path/again request on an advanced call is logged as
       // a distinct "…_followup" kind so a deeper-research action can be told apart from the first ask.
       const rzKind = rMode ? (rPath || rAgain ? `raziel_advanced_followup:${rSurface || "number_page"}` : `raziel_advanced:${rSurface || "number_page"}`) : "raziel";
-      await logTokens(rzKind, MODEL, out.usage, identity);
+      const razielTokenLogId = await logTokens(
+        rzKind,
+        MODEL,
+        out.usage,
+        identity,
+        { traceId: activeTrace?.traceId, spanId: razielModelSpanId },
+      );
+      await linkOperationalAiCost(activeTrace, razielModelSpanId, razielTokenLogId);
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
       if (userRef && rSubject) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }
 
@@ -717,10 +845,12 @@ Deno.serve(async (req: Request) => {
           contract.plan = rPlan;
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
-        return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion });
+        await finishOperationalTrace(activeTrace, "success");
+        return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      return json({ analysis: out.text, engine: "claude", model: MODEL, context_version: rzMtxVersion });
+      await finishOperationalTrace(activeTrace, "success");
+      return json({ analysis: out.text, engine: "claude", model: MODEL, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";
