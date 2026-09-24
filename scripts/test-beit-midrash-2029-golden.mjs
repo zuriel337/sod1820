@@ -49,6 +49,23 @@ assert.equal(/GematriaCalculator/.test(page), false, "must not import legacy cal
 assert.match(page, /research\.setResearchContext\?\.\(/, "opening Heichal must go through the existing Research Context, not a new context store");
 assert.match(page, /navigate\("\/heichal"\)/, "must route into the existing Heichal surface");
 
+// 7b. FINAL UX POLISH — bounded continue: reuses the existing returnTo/returnExact mechanism
+//     (SystemFrame2029 "חזרה מדויקת") instead of inventing a new back-navigation store.
+assert.match(page, /returnTo:\s*\{\s*href:\s*"\/2029\?golden=beit-midrash"/, "opening Heichal must preserve a returnTo back to the exact golden-preview focal");
+
+// 7c. FINAL UX POLISH — the Heichal continuation action must never be a dead click: it is
+//     honestly disabled (with a visible reason) whenever there is no method+phrase to open.
+assert.match(page, /disabled=\{!canOpenHeichal\}/, "Heichal continuation button must be honestly disabled without a selected method+phrase");
+
+// 7d. FINAL UX POLISH — compact communication summary rendered from the existing
+//     getSystemEvents().communication layer only, no second feed.
+assert.match(page, /topCommunication/, "System Now lane must render the compact communication summary from getSystemEvents");
+assert.match(projection, /topCommunication:\s*communication\.slice\(0,\s*2\)/, "compact communication summary must be capped and sourced from the existing communication array, not invented");
+
+// 7e. FINAL UX POLISH — preview stays canonical=/2029 and noindex (it is not its own indexable route).
+assert.match(page, /path:\s*"\/2029"/, "Golden preview must canonicalize to /2029, not the ?golden= preview flag");
+assert.match(page, /noindex:\s*true/, "Golden preview must stay noindex");
+
 // 8. Semantic acceptance markers per SOD1820_DESIGN_CONTRACT_V1 (stable data-experience-* hooks).
 assert.match(page, /data-experience-surface="beit-midrash"/, "page must expose one stable data-experience-surface identity");
 assert.match(page, /data-experience-capability="beit-midrash-method-library"/, "method library must expose a bounded data-experience-capability marker");

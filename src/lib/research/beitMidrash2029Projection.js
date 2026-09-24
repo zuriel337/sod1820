@@ -15,6 +15,7 @@ export function buildBeitMidrashSystemNow(systemEvents) {
   return {
     topConvergence: convergence.slice(0, 3),
     topGrowth: growth.slice(0, 4),
+    topCommunication: communication.slice(0, 2),
     channelCount: communication.length,
     activity,
     counts: {

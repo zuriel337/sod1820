@@ -77,6 +77,16 @@ function SystemNowLane({ state }) {
           <span className="sod29-muted">{item.type || ""}</span>
         </div>
       ))}
+      {now.topCommunication.length > 0 && (
+        <div className="sod29-bm-comm" data-experience-capability="beit-midrash-communication-summary">
+          {now.topCommunication.map((c, i) => (
+            <div className="sod29-bm-now-row" key={c.channel || i}>
+              <span>{c.em || "📢"} {c.label || c.channel}</span>
+              <span className="sod29-muted">{c.latest ? String(c.latest).slice(0, 40) : "אין עדכון אחרון"}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -141,15 +151,22 @@ function MethodLibrary({ shell }) {
 
   function onOpenInHeichal() {
     if (!selectedKey || !sample.trim()) return;
+    const phrase = sample.trim();
+    const focalSubject = { id: phrase, type: "phrase", label: phrase, href: `/2029/number/${encodeURIComponent(phrase)}` };
     research.setResearchContext?.({
-      subject: { id: sample.trim(), type: "phrase", label: sample.trim(), href: `/2029/number/${encodeURIComponent(sample.trim())}` },
-      selection: { entityId: sample.trim(), entityType: "phrase", expression: sample.trim(), method: selectedKey, focusKind: "expression" },
+      subject: focalSubject,
+      selection: { entityId: phrase, entityType: "phrase", expression: phrase, method: selectedKey, focusKind: "expression" },
       lens: "heichal",
       locale: "he",
       dimensions: { focusOrigin: "beit-midrash-2029" },
+      // Bounded continue: preserve the exact golden-preview focal so shell's existing
+      // "חזרה מדויקת" (returnExact) can bring the user back here, not just to /2029.
+      returnTo: { href: "/2029?golden=beit-midrash", label: "בית מדרש", subject: focalSubject },
     });
     navigate("/heichal");
   }
+
+  const canOpenHeichal = !!selectedKey && !!sample.trim();
 
   return (
     <section className="sod29-section sod29-bm-methods" data-experience-capability="beit-midrash-method-library">
@@ -216,7 +233,13 @@ function MethodLibrary({ shell }) {
                 <button type="button" className="sod29-action" onClick={onExplain} disabled={trace === "loading"}>
                   {trace === "loading" ? "טוען עקבה…" : "🔍 הצג עקבת חישוב מהמנוע"}
                 </button>
-                <button type="button" className="sod29-action primary" onClick={onOpenInHeichal}>
+                <button
+                  type="button"
+                  className="sod29-action primary"
+                  onClick={onOpenInHeichal}
+                  disabled={!canOpenHeichal}
+                  title={canOpenHeichal ? undefined : "בחרו שיטה והזינו דוגמה כדי לפתוח בהיכל"}
+                >
                   פתח ביטוי/שיטה זו בהיכל ←
                 </button>
                 <button type="button" className="sod29-action sod29-bm-building" disabled title="מחשבון 2029 בבנייה — אינו זמין עדיין">
@@ -278,7 +301,10 @@ export default function BeitMidrash2029Page() {
     applySeo({
       title: "בית מדרש · SOD1820 2029",
       description: "בית מדרש 2029 — לומדים איך המערכת מחשבת ומאמתת גימטריה, עם עקבת חישוב מהמנוע לפי דרישה.",
-      path: "/2029?golden=beit-midrash",
+      // Preview canonicalizes to the real /2029 surface (not the ?golden= preview flag) and stays
+      // noindex: this is a Golden preview, not a publicly indexable route of its own.
+      path: "/2029",
+      noindex: true,
     });
   }, []);
   return (

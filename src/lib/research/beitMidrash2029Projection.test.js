@@ -20,6 +20,7 @@ test("buildBeitMidrashSystemNow shapes convergence/growth/communication/activity
   assert.equal(out.counts.channels, 1);
   assert.equal(out.topConvergence.length, 2);
   assert.equal(out.topGrowth.length, 3);
+  assert.equal(out.topCommunication.length, 1);
   assert.deepEqual(out.activity, { searches24h: 5, numbersOpened: 2, discussionsActive: 1 });
 });
 
@@ -27,8 +28,22 @@ test("buildBeitMidrashSystemNow fails honest on missing/malformed input", () => 
   const out = buildBeitMidrashSystemNow(null);
   assert.deepEqual(out.topConvergence, []);
   assert.deepEqual(out.topGrowth, []);
+  assert.deepEqual(out.topCommunication, []);
   assert.equal(out.channelCount, 0);
   assert.equal(out.activity, null);
+});
+
+test("buildBeitMidrashSystemNow caps the compact communication summary at 2 channels, no invented fields", () => {
+  const out = buildBeitMidrashSystemNow({
+    communication: [
+      { channel: "site-news", label: "חדשות האתר", em: "📰", latest: "עדכון א", count24h: 3 },
+      { channel: "main", label: "ערוץ ראשי", em: "📢", latest: "עדכון ב", count24h: 1 },
+      { channel: "extra", label: "נוסף", em: "🔔", latest: "עדכון ג", count24h: 0 },
+    ],
+  });
+  assert.equal(out.topCommunication.length, 2);
+  assert.equal(out.topCommunication[0].channel, "site-news");
+  assert.equal(out.topCommunication[0].latest, "עדכון א");
 });
 
 test("selectMethodMenu returns only active methods, sorted, with no computed value invented", () => {
