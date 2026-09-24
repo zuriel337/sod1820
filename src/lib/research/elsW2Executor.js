@@ -63,13 +63,13 @@ export function createElsW2Executor({
     if (!representations.length) {
       return {
         owner: 'els_research_layer_law',
-        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
-        reason: 'canonical ELS requires an exact Hebrew text/name/expression representation; no text is inferred from a bare Number identity',
+        status: CAPABILITY_STATUS.MISSING_ADAPTER,
+        reason: 'number-only ELS input has no canonical number-to-text adapter; ELS never invents letters from a bare Number identity',
         findings: [],
         accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
         semanticClass: SEMANTIC_CLASS.EVIDENCE,
         versionRefs: ['els_search_v1:canonical-callable', 'els_research_layer_law:v3'],
-        trace: { representation_count: 0, scope, max_skip: boundedSkip, max_hits: boundedHits },
+        trace: { representation_count: 0, scope, max_skip: boundedSkip, max_hits: boundedHits, missing_adapter: 'number_to_text' },
       };
     }
 
