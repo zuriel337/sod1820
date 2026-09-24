@@ -23,6 +23,9 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /payload\?\.elsSurfaceContext/);
   assert.match(frame, /elsSurfaceContext=\{transient\?\.payload\?\.elsSurfaceContext \|\| null\}/);
   assert.match(frame, /data-raziel-els-context="true"/);
+  assert.match(frame, /result\?\.contract === "els_2029_projection_v1"/);
+  assert.match(frame, /result\?\.status === "OK"/);
+  assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
   assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   assert.doesNotMatch(frame, /askRazielAdvanced|askRaziel\s*\(|functions\.invoke\(['"]ai-analyze/);
