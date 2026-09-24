@@ -6,8 +6,11 @@
 // docs/g3-community-core-2029-phase2-1-integrity-fixes-branch-notes.md for the integrity
 // repairs applied in Phase 2.1, and
 // docs/g3-community-core-2029-phase2-2-source-fidelity-branch-notes.md for the reactions-shape
-// and blank-body fixes applied in this pass (task_key=
-// G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1).
+// and blank-body fixes applied in that pass (task_key=
+// G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1), and
+// docs/g3-community-core-pr636-parent-reconstruction-branch-notes.md for the order-independent
+// parent resolution fix applied in this pass (task_key=
+// G3_COMMUNITY_CORE_PR636_PARENT_RECONSTRUCTION_V1).
 //
 // This module only *plans* database operations from OpenWeb-shaped fixture messages.
 // It never opens a DB connection and never writes anything — callers decide, in a later,
@@ -100,13 +103,31 @@ export function planImport(messages, state) {
   const newContributorsByOpenwebUserId = new Map();
   const ops = [];
 
-  for (const msg of messages) {
-    if (importedMessageIds.has(msg.message_id)) {
-      ops.push({ op: 'skip_duplicate', message_id: msg.message_id });
+  // Real-archive dry-run (task_key=G3_COMMUNITY_CORE_PR636_PARENT_RECONSTRUCTION_V1): a real
+  // 41,080-row OpenWeb export is not chronologically ordered — 15,839 of 32,116 present parent
+  // rows appear LATER in the file than their child. A single forward pass that only registers
+  // messageIdToPlannedContributionId as it goes would silently null out every such parent_id
+  // purely because of source file order, not because the parent is actually missing. So the
+  // batch-wide id map (and which rows are duplicates) is fully predeclared here, BEFORE any
+  // parent_id is resolved below, making resolution independent of the messages array's order.
+  const isDuplicate = new Array(messages.length);
+  const seenInBatch = new Set();
+  for (let i = 0; i < messages.length; i++) {
+    const message_id = messages[i].message_id;
+    if (importedMessageIds.has(message_id) || seenInBatch.has(message_id)) {
+      isDuplicate[i] = true;
       continue;
     }
-    if (messageIdToPlannedContributionId.has(msg.message_id)) {
-      // Same batch, same message_id twice — still a duplicate, never a second insert.
+    isDuplicate[i] = false;
+    seenInBatch.add(message_id);
+    messageIdToPlannedContributionId.set(message_id, `planned:${message_id}`);
+  }
+
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    if (isDuplicate[i]) {
+      // Already imported in a prior batch, or the same batch/message_id seen earlier above —
+      // either way still a duplicate, never a second insert.
       ops.push({ op: 'skip_duplicate', message_id: msg.message_id });
       continue;
     }
@@ -159,8 +180,8 @@ export function planImport(messages, state) {
       identity_link = { target_type: OPENWEB_USER_TARGET_TYPE, target_id: openwebUserId, relation_type: 'authored_by_external' };
     }
 
-    const contributionId = `planned:${msg.message_id}`;
-    messageIdToPlannedContributionId.set(msg.message_id, contributionId);
+    // Predeclared above (full batch, before this loop resolves any parent_id) — never set here.
+    const contributionId = messageIdToPlannedContributionId.get(msg.message_id);
     const bodyIsBlank = isBlankBody(msg.body);
 
     let parent_id = null;
