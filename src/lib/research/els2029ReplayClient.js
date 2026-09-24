@@ -89,10 +89,17 @@ export async function verifyEls2029Selection(selection, invoke) {
       });
     }
 
-    const verificationState = clean(result.verification_state) || clean(result.status) || "UNVERIFIED";
+    const verificationState = clean(result.verification_state);
+    const resultStatus = clean(result.status);
+    const state = verificationState === "MATCH"
+      ? "MATCH"
+      : resultStatus && resultStatus !== "OK"
+        ? resultStatus
+        : verificationState || resultStatus || "UNVERIFIED";
     return Object.freeze({
       ok: verificationState === "MATCH",
-      state: verificationState,
+      state,
+      verificationState,
       request,
       result,
       traceId: clean(data?.trace_id),
