@@ -13,31 +13,110 @@ const SOURCE_RE = /https?:\/\/\S+/g;
 const INTERNAL_LINK_RE = /\/(?:number|topic|entity|world|person)\/[\w-]+/gi;
 const REPLY_LABEL = 'תגובה';
 
-// Search Index Gate (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_GATE_V1): these signals
-// are deliberately separate from `multiLabel`'s tagging regexes above. A bare number or a bare
-// URL is enough to *label* a message ('גימטריה'/'מקור') for ordinary display, but is never by
-// itself enough to make it index/search/Raziel-retrieval eligible — that requires an actual
-// research-bearing signal in the authored text. Internal links (/number/, /entity/, /person/,
-// /world/, /topic/) count as a verse/name/entity reference because they point at a specific
-// sod1820 research object, not a generic external URL.
+// Search Index Gate (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_GATE_V1, calibrated under
+// task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_CORPUS_CALIBRATION_V1 against the real
+// 41,080-row OpenWeb corpus). These signals are deliberately separate from `multiLabel`'s
+// tagging regexes above. A bare number or a bare URL is enough to *label* a message
+// ('גימטריה'/'מקור') for ordinary display, but is never by itself enough to make it index/
+// search/Raziel-retrieval eligible.
+//
+// Two tiers, never conflated:
+//   scan_candidate  — cheap regex prefilter. Any single keyword hit tags a `candidate_reasons`
+//                      entry. This is a prefilter signal only; it must never by itself set
+//                      index_eligible.
+//   index_eligible  — final decision. Requires an actual reconstructable structured research
+//                      unit, not just a keyword hit: an explicit numeric/gematria relation with
+//                      an operand, a cipher/method/ELS mention with an identifiable input, or a
+//                      source/verse/entity reference paired with an authored interpretive
+//                      connection. The corpus rehearsal found the keyword-alone heuristic
+//                      over-indexed heavily on this last case (2196 of 2317 verse/entity-reason
+//                      rows had no other corroborating signal) — sole entity mention is no
+//                      longer sufficient on its own.
+//
+// Internal links (/number/, /entity/, /person/, /world/, /topic/) count as an entity reference
+// only when validated as actually internal (a bare relative path, or a full URL whose host is
+// sod1820.co.il) — an external URL that merely happens to contain the same path segment (e.g.
+// a news site's own /world/... section) never counts.
 const GEMATRIA_RELATION_RE = /גימטריה|גימטרי|גימ[׳']/;
 const CIPHER_OR_METHOD_RE = /אתב["׳]?ש|צופן|קפיצ(?:ת|ות)\s*אותיות|ראשי\s*תיבות|סופי\s*תיבות|נוטריקון|\bELS\b/i;
-const VERSE_OR_ENTITY_KEYWORD_RE = /\bפרק\b|\bפסוק\b|בראשית|שמות|ויקרא|במדבר|דברים|תהלים|משלי|ישעיהו|ירמיהו|יחזקאל/;
+// A calculable operand for a gematria/numeric relation. Deliberately evaluated only against
+// text with URLs stripped out first — query params, article IDs, and video timecodes are not
+// research evidence (see stripSources below).
+const NUMERIC_OPERAND_RE = /\d{1,6}/;
+// An identifiable input the cipher/method/ELS operation is applied to (a word, verse, name, or
+// phrase named in the same sentence) — the mere name of a method with nothing it operates on is
+// bibliographic/vocabulary chatter, not a reconstructable application.
+const METHOD_INPUT_INDICATOR_RE = /במיל(?:ה|ים)|בפסוק|בפרק|באות(?:יות)?|בשם|בביטוי|בטקסט|בשורה|במשפט/;
+// Hebrew has no \w-based word boundary (JS's \b never fires between two Hebrew letters), so a
+// bare substring match of a book/entity name bleeds into unrelated words that merely contain it
+// (e.g. plain "השמות" — "the names" — false-matching the book שמות/Exodus). Each keyword below
+// is wrapped in a manual Hebrew-letter lookaround boundary instead.
+const HEBREW_LETTERS = 'א-ת';
+function hebrewBounded(word) {
+  return `(?<![${HEBREW_LETTERS}])${word}(?![${HEBREW_LETTERS}])`;
+}
+const VERSE_OR_ENTITY_KEYWORD_RE = new RegExp(
+  ['פרק', 'פסוק', 'בראשית', 'שמות', 'ויקרא', 'במדבר', 'דברים', 'תהלים', 'משלי', 'ישעיהו', 'ירמיהו', 'יחזקאל']
+    .map(hebrewBounded)
+    .join('|')
+);
 const INTERPRETIVE_CONNECTION_RE = /מרמז|רמז\s*ל|מסמל|מקביל\s*ל|מבטא\s*את|מכוון\s*ל|קשור\s*ל/;
+
+// URL query params, article IDs, and video timecodes read as digits but are never a numeric-
+// relation operand. Only used for the eligibility numeric-operand check — the general
+// `extraction.numbers` field intentionally keeps matching the existing chat_search_facts
+// number-extraction convention (see the extractNumbers test coverage).
+function stripSources(text) {
+  const stripped = text.replace(SOURCE_RE, ' ');
+  SOURCE_RE.lastIndex = 0;
+  return stripped;
+}
 
 // Candidate-only index eligibility decision (never publication/canonical). Mere number, mere
 // URL, video-only/link-only content, and social chat/reaction/small talk never qualify on
-// their own; an explicit research-bearing signal (gematria/numeric relation claim, cipher/ELS/
-// method operation, verse/name/entity relation, or an explicit interpretive connection) does.
+// their own; a reconstructable structured research unit does:
+//   (a) an explicit numeric/gematria relation — the gematria keyword plus an actual operand;
+//   (b) a canonical method/cipher/ELS application with an identifiable input;
+//   (c) a source-text/verse/name/entity relation plus an authored interpretive connection.
+// Default is always false; anything short of one of these stays candidate-only/chronology-only.
 function evaluateIndexEligibility(body, internalLinks) {
   const text = String(body || '');
+  const hasGematriaKeyword = GEMATRIA_RELATION_RE.test(text);
+  const hasCipherOrMethodKeyword = CIPHER_OR_METHOD_RE.test(text);
+  const hasVerseOrEntityKeyword = VERSE_OR_ENTITY_KEYWORD_RE.test(text);
+  const hasInternalEntityLink = internalLinks.length > 0;
+  const hasInterpretiveConnection = INTERPRETIVE_CONNECTION_RE.test(text);
+
+  // Tier 1 — cheap heuristic prefilter. Any single keyword hit is a candidate signal only; it
+  // must never directly set index_eligible.
+  const candidateReasons = [];
+  if (hasGematriaKeyword) candidateReasons.push('gematria_relation');
+  if (hasCipherOrMethodKeyword) candidateReasons.push('cipher_or_method_operation');
+  if (hasVerseOrEntityKeyword) candidateReasons.push('verse_or_entity_reference');
+  if (hasInternalEntityLink) candidateReasons.push('internal_entity_reference');
+  if (hasInterpretiveConnection) candidateReasons.push('interpretive_connection');
+
+  // Tier 2 — final eligibility. Requires a reconstructable structured unit, not a bare keyword.
   const reasons = [];
-  if (GEMATRIA_RELATION_RE.test(text)) reasons.push('gematria_relation');
-  if (CIPHER_OR_METHOD_RE.test(text)) reasons.push('cipher_or_method_operation');
-  if (VERSE_OR_ENTITY_KEYWORD_RE.test(text)) reasons.push('verse_or_entity_reference');
-  if (internalLinks.length > 0) reasons.push('internal_entity_reference');
-  if (INTERPRETIVE_CONNECTION_RE.test(text)) reasons.push('interpretive_connection');
-  return { eligible: reasons.length > 0, reasons };
+
+  const hasNumericOperand = NUMERIC_OPERAND_RE.test(stripSources(text));
+  if (hasGematriaKeyword && hasNumericOperand) reasons.push('gematria_relation');
+
+  const hasIdentifiableInput = METHOD_INPUT_INDICATOR_RE.test(text);
+  if (hasCipherOrMethodKeyword && hasIdentifiableInput) reasons.push('cipher_or_method_operation');
+
+  if ((hasVerseOrEntityKeyword || hasInternalEntityLink) && hasInterpretiveConnection) {
+    if (hasVerseOrEntityKeyword) reasons.push('verse_or_entity_reference');
+    if (hasInternalEntityLink) reasons.push('internal_entity_reference');
+    reasons.push('interpretive_connection');
+  }
+
+  return {
+    eligible: reasons.length > 0,
+    reasons,
+    scan_candidate: candidateReasons.length > 0,
+    candidate_reasons: candidateReasons,
+  };
 }
 
 // One message can carry more than one role at once (a question that also cites a number and
@@ -66,9 +145,23 @@ function extractSources(body) {
   return Array.from(new Set(text.match(SOURCE_RE) || []));
 }
 
+// Only a bare relative path, or a full URL whose host is sod1820.co.il, is an internal
+// reference. A path segment that merely happens to match (an external news site's own
+// /world/... section, a /person/... profile page on another domain) never counts — full URLs
+// on any other host are stripped down to nothing before matching, so their path text can never
+// bleed into this signal.
 function extractInternalLinks(body) {
   const text = String(body || '');
-  return Array.from(new Set(text.match(INTERNAL_LINK_RE) || []));
+  const withoutExternalHosts = text.replace(SOURCE_RE, (url) => {
+    try {
+      const { hostname, pathname } = new URL(url);
+      return hostname.replace(/^www\./i, '').toLowerCase() === 'sod1820.co.il' ? pathname : '';
+    } catch {
+      return '';
+    }
+  });
+  SOURCE_RE.lastIndex = 0;
+  return Array.from(new Set(withoutExternalHosts.match(INTERNAL_LINK_RE) || []));
 }
 
 // Uncertainty is a plain heuristic (short text / no extractable signal → higher uncertainty),
@@ -121,8 +214,12 @@ export function toDecisionLedgerCandidate(classification, { aiModel = 'community
       // Search Index Gate: candidate-only eligibility decision. Never alters publication/
       // canonical/fact status — only whether community_search_facts/Raziel research retrieval
       // may surface this contribution's text. Ordinary chronological reading is unaffected.
+      // community_search_facts/Raziel gate exclusively on index_eligible; scan_candidate is
+      // carried for downstream calibration/audit visibility only, never as a retrieval gate.
       index_eligible: classification.index_eligibility.eligible,
       index_eligibility_reasons: classification.index_eligibility.reasons,
+      scan_candidate: classification.index_eligibility.scan_candidate,
+      scan_candidate_reasons: classification.index_eligibility.candidate_reasons,
     },
     ai_model: aiModel,
     ai_score: 1 - classification.uncertainty,

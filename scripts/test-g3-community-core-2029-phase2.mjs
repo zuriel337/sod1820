@@ -151,10 +151,71 @@ test('index gate: an ELS/cipher/method statement is index-eligible', () => {
   assert.ok(c.index_eligibility.reasons.includes('cipher_or_method_operation'));
 });
 
-test('index gate: an internal entity link (e.g. /number/1237) is index-eligible on its own', () => {
+// Corpus calibration (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_CORPUS_CALIBRATION_V1):
+// 2196 of 2317 real-corpus rows tagged with only a verse/entity-reference reason had no other
+// corroborating signal — a sole entity/link mention is a scan candidate, never final-eligible
+// on its own. It needs an authored interpretive connection alongside it.
+test('index gate: an internal entity link alone is a scan candidate but not index-eligible', () => {
   const c = classifyContribution({ id: 'g9', body: 'ראו /number/1237 — יש כאן קשר מעניין', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.equal(c.index_eligibility.scan_candidate, true);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('internal_entity_reference'));
+});
+
+test('index gate: an internal entity link plus an explicit interpretive connection is index-eligible', () => {
+  const c = classifyContribution({ id: 'g9b', body: 'ראו /number/1237 — זה מרמז על קשר עמוק', parent_id: null });
   assert.equal(c.index_eligibility.eligible, true);
   assert.ok(c.index_eligibility.reasons.includes('internal_entity_reference'));
+  assert.ok(c.index_eligibility.reasons.includes('interpretive_connection'));
+});
+
+test('index gate: a verse reference alone (no interpretive connection) is a scan candidate but not index-eligible', () => {
+  const c = classifyContribution({ id: 'g9c', body: 'קראתי היום פרק בספר תהלים', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.ok(c.index_eligibility.scan_candidate);
+  assert.ok(c.index_eligibility.candidate_reasons.includes('verse_or_entity_reference'));
+});
+
+// ---- real-corpus false-positive regressions (corpus calibration) ------------------------
+
+test('index gate FP regression: ordinary Hebrew "השמות" must not match the book שמות', () => {
+  const c = classifyContribution({ id: 'fp1', body: 'אני אוהב את השמות שבחרנו לילדים שלנו', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+  assert.ok(!c.index_eligibility.candidate_reasons.includes('verse_or_entity_reference'));
+});
+
+test('index gate FP regression: an external URL path segment (e.g. /world/...) is never an internal reference', () => {
+  const c = classifyContribution({
+    id: 'fp2',
+    body: 'ראו את הכתבה הזו https://cnn.com/world/some-story-2024 — מעניין',
+    parent_id: null,
+  });
+  assert.deepEqual(c.extraction.internal_links, []);
+  assert.equal(c.index_eligibility.eligible, false);
+});
+
+test('index gate FP regression: digits inside a URL (query params/timecodes) are never a numeric-relation operand', () => {
+  const c = classifyContribution({
+    id: 'fp3',
+    body: 'יש כאן קשר בגימטריה https://example.com/watch?v=12345&t=95',
+    parent_id: null,
+  });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.ok(!c.index_eligibility.reasons.includes('gematria_relation'));
+});
+
+test('index gate FP regression: mere mention/rejection of גימטריה with no operand is not index-eligible', () => {
+  const c = classifyContribution({ id: 'fp4', body: 'גימטריה לא תופס אצלי בכלל', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+});
+
+test('index gate FP regression: a bibliographic reference (e.g. רמז ע"ו) is not index-eligible', () => {
+  const c = classifyContribution({ id: 'fp5', body: 'ראו הערה 3, רמז ע"ו בספר', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
 });
 
 test('index gate: decision_ledger candidate payload carries index_eligible + reasons, never alters status', () => {
@@ -170,6 +231,21 @@ test('index gate: decision_ledger candidate payload carries index_eligible + rea
   const ineligibleCandidate = toDecisionLedgerCandidate(ineligible);
   assert.equal(ineligibleCandidate.candidate.index_eligible, false);
   assert.deepEqual(ineligibleCandidate.candidate.index_eligibility_reasons, []);
+});
+
+test('index gate: decision_ledger candidate also carries the scan_candidate prefilter tier, kept separate from index_eligible', () => {
+  // Sole entity mention: a scan candidate (prefilter hit) that is NOT final-index-eligible —
+  // the two tiers must be visibly distinct in the same candidate JSON.
+  const soleEntityMention = classifyContribution({ id: 'g12', body: 'קראתי היום פרק בספר תהלים', parent_id: null });
+  const candidate = toDecisionLedgerCandidate(soleEntityMention);
+  assert.equal(candidate.candidate.index_eligible, false);
+  assert.equal(candidate.candidate.scan_candidate, true);
+  assert.ok(candidate.candidate.scan_candidate_reasons.includes('verse_or_entity_reference'));
+
+  const noSignal = classifyContribution({ id: 'g13', body: 'מה נשמע?', parent_id: null });
+  const noSignalCandidate = toDecisionLedgerCandidate(noSignal);
+  assert.equal(noSignalCandidate.candidate.scan_candidate, false);
+  assert.deepEqual(noSignalCandidate.candidate.scan_candidate_reasons, []);
 });
 
 // ---- bounded archive import executor ------------------------------------------------------
