@@ -45,6 +45,17 @@ function normalizeSelection(value) {
     resultValue: Number.isFinite(resultValueNumber) ? resultValueNumber : null,
     focusKind: cleanString(value.focusKind),
     crossingPartner: cleanString(value.crossingPartner),
+
+    // ELS exact-locus selection is bounded navigation/replay intent only.
+    // It never means the occurrence is verified; the canonical ELS verify boundary must replay it.
+    term: cleanString(value.term),
+    corpus: cleanString(value.corpus),
+    corpusVersion: cleanString(value.corpusVersion),
+    occurrenceId: cleanString(value.occurrenceId),
+    start: Number.isInteger(Number(value.start)) ? Number(value.start) : null,
+    end: Number.isInteger(Number(value.end)) ? Number(value.end) : null,
+    skip: Number.isInteger(Number(value.skip)) ? Number(value.skip) : null,
+    dir: [-1, 1].includes(Number(value.dir)) ? Number(value.dir) : null,
   };
   return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
