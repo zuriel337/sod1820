@@ -101,6 +101,18 @@ test("exact replay projects only a canonical MATCH occurrence", () => {
   assert.equal(mismatch.occurrences.length, 0);
 });
 
+test("missing optional coordinates remain null rather than coercing to corpus index zero", () => {
+  const out = projectEls2029Result({
+    contract: "els_search_result_v1",
+    status: "OK",
+    corpus_id: "torah-v1",
+    input: { normalized: "דוד" },
+    completion: { executed: true, total_hits: 1, returned_hits: 1, truncated: false },
+    hits: [{ skip: 9, dir: 1, start: 50, end: null, positions: [50,59,68] }],
+  });
+  assert.equal(out.occurrences[0].end, null);
+});
+
 test("unsupported input fails closed and projection never creates glyph truth", () => {
   const out = projectEls2029Result({ contract: "unknown" });
   assert.equal(out.status, "UNSUPPORTED_CONTRACT");
