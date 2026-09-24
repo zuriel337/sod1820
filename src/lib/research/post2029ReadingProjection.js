@@ -76,6 +76,39 @@ async function verifyTashpaz() {
   };
 }
 
+async function fetchPrivateGoldenStage(slug) {
+  if (slug !== GOLDEN_SLUG) return null;
+  // Existing Research Intake owner is the private pre-publication home. RLS exposes this
+  // row only to authenticated admins; anon gets zero rows. Once published, Posts is the
+  // sole public Publication identity and this fallback is no longer needed.
+  const { data, error } = await supabase
+    .from("research_objects")
+    .select("id,status,privacy_scope,meta")
+    .contains("meta", { checkpoint_key: "sod-hashmal-sukkot-5787-source-root" })
+    .eq("privacy_scope", "private")
+    .limit(1)
+    .maybeSingle();
+  if (error || !data?.meta?.staged_post) return null;
+  const staged = data.meta.staged_post;
+  return {
+    id: staged.id,
+    wp_id: staged.wp_id,
+    title: staged.title,
+    slug: staged.slug,
+    link: staged.link,
+    excerpt: staged.excerpt,
+    author: staged.author,
+    categories: staged.categories || [],
+    tags: staged.tags || [],
+    source: staged.source,
+    space: staged.space,
+    theme: staged.theme,
+    content: staged.content_html || "",
+    _privateStage: true,
+    _sourceRootId: data.id,
+  };
+}
+
 function defaultRegionsFromSource(content = "") {
   const rows = [...String(content).matchAll(/<h[1-6][^>]*data-source-heading=["']true["'][^>]*>([\s\S]*?)<\/h[1-6]>/gi)];
   return rows.map((match, index) => ({
@@ -89,7 +122,8 @@ function defaultRegionsFromSource(content = "") {
 }
 
 export async function fetchPost2029ReadingProjection(slug) {
-  const post = await getPostBySlug(slug);
+  const publicPost = await getPostBySlug(slug);
+  const post = publicPost || await fetchPrivateGoldenStage(slug);
   if (!post) return null;
 
   const isGolden = post.slug === GOLDEN_SLUG;
@@ -116,7 +150,8 @@ export async function fetchPost2029ReadingProjection(slug) {
     regions,
     defaultRegionId: regions[0]?.id || null,
     golden: isGolden,
-    draft: Array.isArray(post.tags) && post.tags.includes("טיוטה"),
+    draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
+    privateStage: post._privateStage === true,
     caveat: isGolden
       ? "המקור נשמר כלשונו. החיבורים בשוליים הם שכבת SOD1820 נפרדת."
       : "שכבת ההקשר אינה חלק מדברי המקור.",
