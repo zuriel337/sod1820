@@ -30,6 +30,7 @@
     "test:g3-community-core-pr636-dry-run-cli": "node --test scripts/test-g3-community-core-pr636-dry-run-cli.mjs",
     "test:g3-community-core-pr636-cross-batch-parent-order": "node --test scripts/test-g3-community-core-pr636-cross-batch-parent-order.mjs",
     "test:g3-community-core-pr636-source-verified-email-claim": "node --test scripts/test-g3-community-core-pr636-source-verified-email-claim.mjs",
+    "test:g3-community-core-pr636-atomic-parent-link": "node --test scripts/test-g3-community-core-pr636-atomic-parent-link.mjs",
     "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
     "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs"
   },

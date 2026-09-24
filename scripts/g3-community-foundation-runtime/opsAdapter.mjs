@@ -25,6 +25,19 @@
 // inside it (including the expected cl_openweb_message_derived_from_uniq race) rolls back every
 // write that call made. See that migration's header for the full atomicity contract.
 //
+// Atomic parent link (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_PARENT_LINK_V1): the RPC also
+// resolves and sets research_contributions.parent_id in this same call now, from
+// `op.parent_message_id` (planner.mjs — set only when the parent is expected resolvable; stays
+// null for a genuinely absent parent). This closes the crash-consistency gap the prior
+// insert-null-then-executor-phase-2-link split had: a crash after this call committed but before
+// executor.mjs's phase-2 linkParent() ran left an imported, duplicate-skipped child permanently
+// unlinked on retry, because a retry never revisits an already-imported row. Since parent linkage
+// is now part of this same atomic write, retrying after any such crash just replays the
+// already-correct row via skip_duplicate — nothing to repair. executor.mjs's phase-2 linkParent
+// path is untouched and still runs for the generic executor contract (other ops/tests), but for
+// this adapter it is now redundant/idempotent: it re-applies the same real parent_id this call
+// already set.
+//
 // Source-verified-email claim evidence gate (task_key=
 // G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1): the RPC now also accepts
 // p_promote_contributor_email, set when planImport finds a real, already-existing contributor
@@ -238,6 +251,12 @@ export function createSupabaseOps(client) {
         p_provenance_note: op.provenance_link.note,
         p_identity_target_id: op.identity_link ? op.identity_link.target_id : null,
         p_identity_relation_type: op.identity_link ? op.identity_link.relation_type : null,
+        // Raw source parent id (planner.mjs) — null for a genuinely absent parent, in which case
+        // the RPC inserts parent_id=null directly and performs no lookup at all. Read from the top
+        // level of `op`, not `op.contribution.parent_id`: executor.mjs's phase 1 forces the latter
+        // to null on every insert (see executor.mjs header) but never touches this sibling field,
+        // so it survives untouched regardless of which phase call this is.
+        p_parent_message_id: op.parent_message_id || null,
       });
 
       if (isProvenanceRaceError(error)) {

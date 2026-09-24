@@ -162,6 +162,24 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
       };
     }
 
+    // Atomic parent link (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_PARENT_LINK_V1): mirrors the
+    // real RPC's own resolve-or-fail-closed contract — a present p_parent_message_id that does
+    // not resolve via contribution_links is an inconsistency the caller (planner.mjs) should
+    // never have produced, never a silent null.
+    let parentId = null;
+    if (params.p_parent_message_id) {
+      const parentLink = ensure('contribution_links').find(
+        (r) => r.target_type === 'openweb_message' && r.relation_type === 'derived_from' && r.target_id === params.p_parent_message_id
+      );
+      if (!parentLink) {
+        return {
+          data: null,
+          error: { message: `g3_openweb_import_message: expected parent openweb_message ${params.p_parent_message_id} not found via contribution_links` },
+        };
+      }
+      parentId = parentLink.from_contribution_id;
+    }
+
     const contributorId = params.p_create_contributor
       ? `fake-contributors-${nextId++}`
       : params.p_author_contributor_id || null;
@@ -191,7 +209,7 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
       origin: params.p_origin,
       research_state: params.p_research_state,
       status: params.p_status,
-      parent_id: null,
+      parent_id: parentId,
       author_user_id: params.p_author_user_id || null,
       author_contributor_id: contributorId,
       author_name: params.p_author_name || null,
@@ -284,7 +302,7 @@ test('two same-batch messages from the same openweb user share one contributor r
   const rows = client.tables.research_contributions;
   assert.equal(rows.length, 2);
   const [parent, reply] = rows;
-  assert.equal(reply.parent_id, parent.id, 'phase-2 link must apply the real parent id after phase 1');
+  assert.equal(reply.parent_id, parent.id, 'the atomic RPC must resolve the real parent id in the same call as the insert');
 });
 
 test('replay (idempotency): re-processing the same message_id in a later batch returns the existing contribution, never a duplicate insert', async () => {
@@ -335,25 +353,33 @@ test('genuinely absent parent: a reply whose parent was never imported keeps par
   assert.equal(client.tables.research_contributions[0].parent_id, null);
 });
 
-test('partial failure: an unresolvable cross-batch parent is reported in linkFailures, run is not marked completed, other rows are unaffected', async () => {
+test('fail-closed: a present-but-unresolvable expected parent aborts the run rather than silently inserting null (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_PARENT_LINK_V1)', async () => {
   const client = makeFakeClient();
   // Simulate inconsistent/corrupted provenance directly: state claims 'ow-ghost-parent' was
-  // already imported, but no matching contribution_links row actually exists in the DB, so
-  // resolveExistingParentId legitimately cannot find it. This is the failure path
-  // resolveImportState itself can never produce on its own (it derives importedMessageIds FROM
-  // contribution_links) — it exercises the executor/ops adapter's defensive handling directly.
+  // already imported, but no matching contribution_links row actually exists in the DB. This is
+  // the failure path resolveImportState itself can never produce on its own (it derives
+  // importedMessageIds FROM contribution_links) — it exercises the atomic RPC's fail-closed
+  // handling of a caller expectation that disagrees with live provenance. Before the atomic
+  // parent-link fix this surfaced as a soft `linkFailures` entry from executor.mjs's separate
+  // phase-2 link step; now planner.mjs's non-null `parent_message_id` reaches the same atomic
+  // call as the insert, so an unresolvable-but-expected parent must reject the whole call instead
+  // of ever landing a row with a silently null parent_id for a dependency believed present.
   const messages = [
     msg({ message_id: 'ow-ok' }),
     msg({ message_id: 'ow-bad-child', parent_message_id: 'ow-ghost-parent' }),
   ];
   const state = { importedMessageIds: new Set(['ow-ghost-parent']), linkedOpenwebUserIds: new Map(), contributorsByOpenwebUserId: new Map() };
-  const result = await runImport(messages, state, { execute: true, confirm: EXECUTOR_CONFIRMATION_PHRASE, ops: createSupabaseOps(client) });
 
-  assert.equal(result.completed, false);
-  assert.equal(result.linkFailures.length, 1);
-  assert.equal(result.linkFailures[0].message_id, 'ow-bad-child');
+  await assert.rejects(
+    () => runImport(messages, state, { execute: true, confirm: EXECUTOR_CONFIRMATION_PHRASE, ops: createSupabaseOps(client) })
+  );
   const okRow = client.tables.research_contributions.find((r) => r.body === 'hello');
-  assert.ok(okRow, 'the unrelated row in the same batch must still have been inserted');
+  assert.ok(okRow, 'the unrelated row processed before the failing one in the same batch must still have been inserted');
+  assert.equal(
+    client.tables.research_contributions.length,
+    1,
+    'the row whose expected parent could not be resolved must never be committed with a silently null parent_id'
+  );
 });
 
 test('preflightImport performs zero writes', async () => {

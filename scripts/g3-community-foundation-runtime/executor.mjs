@@ -32,6 +32,16 @@
 //             reference (`existing-via:<message_id>`) resolves via `ops.resolveExistingParentId`.
 // A genuinely absent parent (`desired parent_id === null`) is never added to `pendingLinks` at
 // all — it stays null forever, exactly as the planner intended; nothing in this file guesses one.
+//
+// Atomic parent link (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_PARENT_LINK_V1): for the real
+// OpenWeb ops (opsAdapter.mjs's createSupabaseOps), phase 2 above is no longer what makes parent
+// linkage correct — `ops.insertContribution` now resolves and sets the real parent_id itself,
+// atomically, inside the same RPC call phase 1 makes (via `op.parent_message_id`, untouched by
+// this file's `parent_id: null` forcing below since it lives outside `contribution`). This phase-1
+// forcing and the phase-2 pendingLinks/linkParent machinery are unchanged and still required for
+// FK safety with any *other* ops implementation that doesn't resolve parents atomically (tests,
+// future adapters) — for the real adapter they now just redundantly re-apply the parent_id the
+// atomic call already set.
 import { planImport } from './planner.mjs';
 
 export const EXECUTOR_CONFIRMATION_PHRASE = 'PHASE3_HUMAN_GATE_AUTHORIZED_EXECUTE';

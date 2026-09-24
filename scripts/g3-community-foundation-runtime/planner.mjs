@@ -235,9 +235,21 @@ export function planImport(messages, state) {
         (importedMessageIds.has(msg.parent_message_id) ? `existing-via:${msg.parent_message_id}` : null);
     }
 
+    // Raw source parent id, carried alongside the placeholder `parent_id` convention above so the
+    // atomic RPC (task_key=G3_COMMUNITY_CORE_PR636_ATOMIC_PARENT_LINK_V1) can resolve the real
+    // parent contribution itself, inside the same transaction as the insert, instead of depending
+    // on executor.mjs's separate phase-2 linkParent() update. Only set when `parent_id` above is
+    // non-null, i.e. this planner has already determined the parent is *expected* to be resolvable
+    // (in this batch or a prior, already-committed one) — never set for a genuinely absent parent
+    // (`isReply` true but neither map has it), which must stay `null` exactly as before, no lookup
+    // attempted. This is the same distinction `parent_id` already encodes; only the raw id needed
+    // by a contribution_links(target_id=...) lookup wasn't previously carried on the op itself.
+    const parent_message_id = parent_id ? msg.parent_message_id : null;
+
     ops.push({
       op: 'insert_contribution',
       message_id: msg.message_id,
+      parent_message_id,
       contribution: {
         id: contributionId,
         intent,
