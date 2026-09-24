@@ -231,10 +231,11 @@ export default function ResearchProvider({ children }) {
       const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
       if (!term) return;
       const scope = d?.provenance?.scope || d?.scope || "torah";
-      const skip = Number(d?.axis?.skip || 0);
+      const skipRaw = d?.axis?.skip ?? null;
+      const skip = skipRaw != null && skipRaw !== "" && Number.isInteger(Number(skipRaw)) ? Number(skipRaw) : null;
       const hitId = d?.axis?.hitId ?? d?.occurrence?.index ?? 0;
       const startRaw = d?.axis?.start ?? d?.occurrence?.start ?? null;
-      const start = Number.isInteger(Number(startRaw)) ? Number(startRaw) : null;
+      const start = startRaw != null && startRaw !== "" && Number.isInteger(Number(startRaw)) ? Number(startRaw) : null;
       const dirRaw = d?.axis?.dir
         ?? d?.occurrence?.dir
         ?? (d?.axis?.direction === "back" ? -1 : d?.axis?.direction === "fwd" ? 1 : null);
@@ -242,11 +243,11 @@ export default function ResearchProvider({ children }) {
       const occurrenceId = String(d?.axis?.occurrenceId || d?.occurrence?.occurrence_id || "").trim() || null;
       const corpusVersion = String(d?.provenance?.corpusVersion || d?.corpusVersion || "").trim() || null;
       const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
-      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}|${start ?? ""}|${dir ?? ""}`;
+      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip ?? ""}|${start ?? ""}|${dir ?? ""}`;
       if (lastElsHistorySig.current === sig) return;
       lastElsHistorySig.current = sig;
 
-      const locator = `els:${scope}:${term}:${searchKind}:${hitId}:${skip}`;
+      const locator = `els:${scope}:${term}:${searchKind}:${hitId}:${skip ?? ""}`;
       // Context preserves replay intent only. These coordinates are NOT treated as verified truth;
       // /els must replay them through the canonical server verify boundary before rendering.
       const elsSelection = {
@@ -257,7 +258,7 @@ export default function ResearchProvider({ children }) {
         corpusVersion,
         occurrenceId,
         start,
-        skip: Number.isInteger(skip) ? skip : null,
+        skip,
         dir,
       };
       setContextState((prev) => {
@@ -267,7 +268,7 @@ export default function ResearchProvider({ children }) {
           && current?.selection?.term === term
           && current?.selection?.corpus === scope
           && (current?.selection?.start ?? null) === start
-          && (current?.selection?.skip ?? null) === (Number.isInteger(skip) ? skip : null)
+          && (current?.selection?.skip ?? null) === skip
           && (current?.selection?.dir ?? null) === dir
           && current?.lens === "els";
         if (current?.subject && sameSelection) return prev;
