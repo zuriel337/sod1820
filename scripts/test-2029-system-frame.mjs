@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { mergeResearchContext, normalizeResearchContext } from "../src/lib/research/researchContext.js";
-import { resolveContextActions, resolveContextTools } from "../src/lib/research/contextualCapabilities.js";
+import { resolveContextActions, resolveContextTools, resolveCommandIslandSlots } from "../src/lib/research/contextualCapabilities.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -169,23 +169,41 @@ for (const preferredPublicCopy of [
   assert.equal(frame.includes(preferredPublicCopy), true, `missing public-language projection: ${preferredPublicCopy}`);
 }
 
-// Adaptive Command Island is an action surface, not a fixed global-navigation bar.
+// Adaptive Command Island visual trial: Command stays the right semantic anchor,
+// Raziel stays centered, while exactly three slots resolve from current context.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
+assert.match(frame, /data-command-anchor="fixed"/);
 assert.match(frame, /<small>פקודה<\/small>/);
-assert.match(frame, /<small>פעולה<\/small>/);
-assert.match(frame, /<small>כלים<\/small>/);
-assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");
-assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
-assert.match(frame, /<small>עכשיו<\/small>/);
 assert.match(frame, /data-raziel-anchor="center"/);
+assert.match(frame, /data-adaptive-command-island="visual-trial-v1"/);
+assert.match(frame, /data-adaptive-slot="1"/);
+assert.match(frame, /data-adaptive-slot=\{String\(index \+ 2\)\}/);
+assert.match(frame, /resolveCommandIslandSlots/);
+assert.match(frame, /runCommandIslandSlot/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
 assert.match(frame, /מה שבחרת נשאר איתך כשנפתח כלי או עולם/);
-assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "unopened Heichal must not be a System Frame navigation entry");
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "Heichal may be contextual but must not become a fixed global navigation entry");
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
+
+const defaultIsland = resolveCommandIslandSlots({ surface: "system", target: null });
+assert.equal(defaultIsland.length, 3);
+assert.deepEqual(defaultIsland.map((slot) => slot.label), ["פעולה", "עכשיו", "כלים"]);
+
+const numericIsland = resolveCommandIslandSlots({ surface: "number", target: { type: "number", label: "358" } });
+assert.equal(numericIsland.length, 3);
+assert.deepEqual(numericIsland.map((slot) => slot.label), ["חיבורים", "עולם", "היכל"]);
+
+const calculationIsland = resolveCommandIslandSlots({
+  surface: "calculator",
+  target: { type: "number", label: "358", expression: "משיח", method: "רגיל", resultValue: 358, focusKind: "calculation" },
+});
+assert.equal(calculationIsland.length, 3);
+assert.deepEqual(calculationIsland.map((slot) => slot.label), ["מה יש כאן", "מספר", "היכל"]);
+assert.equal(calculationIsland[2].href, "/heichal");
 
 const numberTarget = { type: "number", label: "358" };
 const worldActions = resolveContextActions({ surface: "world", target: numberTarget });
