@@ -447,7 +447,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <small>{quickInsight.boundary}</small>
       </section> : null}
       <div className="sod29-panel-context-card">
-        <b>ההקשר שלך שניתן לרזיאל</b>
+        <b>מה רזיאל רואה עכשיו</b>
         <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
