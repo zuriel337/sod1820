@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
@@ -14,7 +15,7 @@ function StateRow({ label, value, state = "ready" }) {
   </div>;
 }
 
-export default function Els2029Page() {
+export default function Els2029Page({ layeredProjection = null }) {
   const research = useResearch();
   const elsState = useFeatureState("lock_els");
   const context = research.context || null;
@@ -23,6 +24,7 @@ export default function Els2029Page() {
   const elsSelection = selection?.entityType === "els";
   const locator = elsSelection ? clean(selection?.locator) : "";
   const journey = context?.journey || null;
+  const layeredReady = layeredProjection?.contract === "els_2029_layers_v1";
 
   const exactReplayReady = Boolean(
     elsSelection
@@ -98,11 +100,18 @@ export default function Els2029Page() {
                 state={exactReplayReady ? "ready" : "building"}
               />
               <StateRow
+                label="2D / 2.5D projection feed"
+                value={layeredReady ? "els_2029_layers_v1 מחובר ל־renderer" : "ממתין ל־layered projection קנוני"}
+                state={layeredReady ? "ready" : "building"}
+              />
+              <StateRow
                 label="Journey continuity"
                 value={journey?.id ? "פעיל · " + (clean(journey.kind) || "journey") : "אותו Research Context מוכן למסלול"}
                 state={journey?.id ? "ready" : "building"}
               />
             </div>
+
+            <Els2029Representation layers={layeredProjection} />
           </div>
         </div>
 

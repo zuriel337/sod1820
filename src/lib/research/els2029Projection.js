@@ -17,7 +17,11 @@ function toInt(value) {
   return Number.isInteger(n) ? n : null;
 }
 
-function projectOccurrence(hit, corpusId, term) {
+function corpusVersionFrom(result) {
+  return clean(result?.corpus_version ?? result?.corpusVersion ?? result?.corpus?.version);
+}
+
+function projectOccurrence(hit, corpusId, corpusVersion, term) {
   if (!hit || typeof hit !== "object") return null;
   const skip = toInt(hit.skip);
   const dir = toInt(hit.dir);
@@ -36,6 +40,7 @@ function projectOccurrence(hit, corpusId, term) {
   return Object.freeze({
     occurrenceId,
     corpusId,
+    corpusVersion: clean(hit.corpus_version ?? hit.corpusVersion) || corpusVersion,
     term,
     skip,
     direction: dir === 1 ? "fwd" : "back",
@@ -54,6 +59,7 @@ function emptyProjection(status = "CONTEXT_REQUIRED") {
     contract: "els_2029_projection_v1",
     status,
     corpusId: null,
+    corpusVersion: null,
     term: null,
     selectionProtocol: null,
     completion: Object.freeze({
@@ -78,14 +84,16 @@ export function projectEls2029Result(result, { selectedOccurrenceId = null } = {
 
   if (result.contract === REPLAY_CONTRACT) {
     const corpusId = clean(result.corpus_id);
+    const corpusVersion = corpusVersionFrom(result);
     const term = clean(result?.input?.normalized);
     const occurrence = result.verification_state === "MATCH"
-      ? projectOccurrence(result.occurrence, corpusId, term)
+      ? projectOccurrence(result.occurrence, corpusId, corpusVersion, term)
       : null;
     return Object.freeze({
       contract: "els_2029_projection_v1",
       status: clean(result.status) || "UNVERIFIED",
       corpusId,
+      corpusVersion,
       term,
       selectionProtocol: "SOURCE_CLAIM_REPLAY",
       completion: Object.freeze({
@@ -108,10 +116,11 @@ export function projectEls2029Result(result, { selectedOccurrenceId = null } = {
   if (!RESULT_CONTRACTS.has(result.contract)) return emptyProjection("UNSUPPORTED_CONTRACT");
 
   const corpusId = clean(result.corpus_id);
+  const corpusVersion = corpusVersionFrom(result);
   const term = clean(result?.input?.normalized);
   const occurrences = Object.freeze(
     (Array.isArray(result.hits) ? result.hits : [])
-      .map((hit) => projectOccurrence(hit, corpusId, term))
+      .map((hit) => projectOccurrence(hit, corpusId, corpusVersion, term))
       .filter(Boolean)
   );
   const requestedSelectionId = clean(selectedOccurrenceId);
@@ -128,6 +137,7 @@ export function projectEls2029Result(result, { selectedOccurrenceId = null } = {
     contract: "els_2029_projection_v1",
     status: clean(result.status) || "UNVERIFIED",
     corpusId,
+    corpusVersion,
     term,
     selectionProtocol: clean(result.selection_protocol),
     completion: Object.freeze({
