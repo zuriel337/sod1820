@@ -18,6 +18,7 @@ function emptyRepresentation(status = "CONTEXT_REQUIRED") {
     status,
     sourceStatus: null,
     corpusId: null,
+    corpusVersion: null,
     axisOccurrenceId: null,
     extent: null,
     bands: freezeList([]),
@@ -39,23 +40,28 @@ export function projectEls2029Representation(layers) {
   }
 
   const sourceLayers = Array.isArray(layers.layers) ? layers.layers : [];
-  const allPositions = sourceLayers
-    .flatMap((layer) => Array.isArray(layer?.cells) ? layer.cells : [])
-    .map((cell) => toInt(cell?.corpusIndex))
-    .filter(Number.isInteger);
+  let min = null;
+  let max = null;
+  for (const layer of sourceLayers) {
+    for (const cell of Array.isArray(layer?.cells) ? layer.cells : []) {
+      const corpusIndex = toInt(cell?.corpusIndex);
+      if (corpusIndex == null) continue;
+      min = min == null ? corpusIndex : Math.min(min, corpusIndex);
+      max = max == null ? corpusIndex : Math.max(max, corpusIndex);
+    }
+  }
 
-  if (!allPositions.length) {
+  if (min == null || max == null) {
     const empty = emptyRepresentation("NO_GEOMETRY");
     return Object.freeze({
       ...empty,
       sourceStatus: clean(layers.status),
       corpusId: clean(layers.corpusId),
+      corpusVersion: clean(layers.corpusVersion),
       axisOccurrenceId: clean(layers.axisOccurrenceId),
     });
   }
 
-  const min = Math.min(...allPositions);
-  const max = Math.max(...allPositions);
   const span = max - min;
 
   const bands = sourceLayers.map((layer, bandIndex) => {
@@ -88,10 +94,13 @@ export function projectEls2029Representation(layers) {
       occurrenceId,
       role,
       corpusId: clean(layer?.corpusId) || clean(layers.corpusId),
+      corpusVersion: clean(layer?.corpusVersion) || clean(layers.corpusVersion),
       dependencyGroup: clean(layer?.dependencyGroup),
       skip: toInt(layer?.skip),
       dir: [-1, 1].includes(Number(layer?.dir)) ? Number(layer.dir) : null,
       start: toInt(layer?.start),
+      end: toInt(layer?.end),
+      coordinateConvention: clean(layer?.coordinateConvention),
       positions: freezeList(Array.isArray(layer?.positions) ? [...layer.positions] : []),
       cells: freezeList(cells),
       visualDepth: role === "axis" ? "focus" : "context",
@@ -107,6 +116,7 @@ export function projectEls2029Representation(layers) {
     status: bands.length ? "READY" : "NO_GEOMETRY",
     sourceStatus: clean(layers.status),
     corpusId: clean(layers.corpusId),
+    corpusVersion: clean(layers.corpusVersion),
     axisOccurrenceId: clean(layers.axisOccurrenceId),
     extent: Object.freeze({
       minCorpusIndex: min,
