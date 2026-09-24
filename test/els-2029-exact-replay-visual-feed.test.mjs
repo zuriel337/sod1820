@@ -32,10 +32,19 @@ test("Research Context preserves bounded ELS replay intent without creating trut
   assert.equal("verified" in out.selection, false);
   assert.equal("truth" in out.selection, false);
   assert.equal("canonical" in out.selection, false);
+
+  const partial = normalizeResearchContext({
+    selection: { entityType: "els", term: "משיח", corpus: "torah", skip: 17, dir: 1 },
+    lens: "els",
+  });
+  assert.equal(partial.selection.start, null);
+  assert.equal(partial.selection.end, null);
 });
 
 test("exact replay request fails closed until full locus is present", () => {
   assert.equal(buildEls2029ReplayRequest({ entityType: "els", term: "משיח", corpus: "torah", skip: 17 }), null);
+  assert.equal(buildEls2029ReplayRequest({ entityType: "els", term: "משיח", corpus: "torah", skip: 17, dir: 1 }), null);
+  assert.equal(buildEls2029ReplayRequest({ ...selection, start: null }), null);
   assert.equal(buildEls2029ReplayRequest({ ...selection, dir: 0 }), null);
   assert.deepEqual(buildEls2029ReplayRequest(selection), {
     op: "verify",
