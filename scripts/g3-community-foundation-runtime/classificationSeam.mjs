@@ -13,6 +13,33 @@ const SOURCE_RE = /https?:\/\/\S+/g;
 const INTERNAL_LINK_RE = /\/(?:number|topic|entity|world|person)\/[\w-]+/gi;
 const REPLY_LABEL = 'תגובה';
 
+// Search Index Gate (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_GATE_V1): these signals
+// are deliberately separate from `multiLabel`'s tagging regexes above. A bare number or a bare
+// URL is enough to *label* a message ('גימטריה'/'מקור') for ordinary display, but is never by
+// itself enough to make it index/search/Raziel-retrieval eligible — that requires an actual
+// research-bearing signal in the authored text. Internal links (/number/, /entity/, /person/,
+// /world/, /topic/) count as a verse/name/entity reference because they point at a specific
+// sod1820 research object, not a generic external URL.
+const GEMATRIA_RELATION_RE = /גימטריה|גימטרי|גימ[׳']/;
+const CIPHER_OR_METHOD_RE = /אתב["׳]?ש|צופן|קפיצ(?:ת|ות)\s*אותיות|ראשי\s*תיבות|סופי\s*תיבות|נוטריקון|\bELS\b/i;
+const VERSE_OR_ENTITY_KEYWORD_RE = /\bפרק\b|\bפסוק\b|בראשית|שמות|ויקרא|במדבר|דברים|תהלים|משלי|ישעיהו|ירמיהו|יחזקאל/;
+const INTERPRETIVE_CONNECTION_RE = /מרמז|רמז\s*ל|מסמל|מקביל\s*ל|מבטא\s*את|מכוון\s*ל|קשור\s*ל/;
+
+// Candidate-only index eligibility decision (never publication/canonical). Mere number, mere
+// URL, video-only/link-only content, and social chat/reaction/small talk never qualify on
+// their own; an explicit research-bearing signal (gematria/numeric relation claim, cipher/ELS/
+// method operation, verse/name/entity relation, or an explicit interpretive connection) does.
+function evaluateIndexEligibility(body, internalLinks) {
+  const text = String(body || '');
+  const reasons = [];
+  if (GEMATRIA_RELATION_RE.test(text)) reasons.push('gematria_relation');
+  if (CIPHER_OR_METHOD_RE.test(text)) reasons.push('cipher_or_method_operation');
+  if (VERSE_OR_ENTITY_KEYWORD_RE.test(text)) reasons.push('verse_or_entity_reference');
+  if (internalLinks.length > 0) reasons.push('internal_entity_reference');
+  if (INTERPRETIVE_CONNECTION_RE.test(text)) reasons.push('interpretive_connection');
+  return { eligible: reasons.length > 0, reasons };
+}
+
 // One message can carry more than one role at once (a question that also cites a number and
 // a source) — real community text usually does, and the old single-label stub silently forced
 // a false choice; that's the actual gap this seam closes over Phase 1.
@@ -74,6 +101,7 @@ export function classifyContribution(contribution) {
       canonical_engine_handoff: numbers.length > 0 ? { engine: 'number_dossier', numbers } : null,
     },
     uncertainty: uncertaintyOf(body, numbers),
+    index_eligibility: evaluateIndexEligibility(body, internalLinks),
   };
 }
 
@@ -90,6 +118,11 @@ export function toDecisionLedgerCandidate(classification, { aiModel = 'community
     candidate: {
       labels: classification.labels,
       extraction: classification.extraction,
+      // Search Index Gate: candidate-only eligibility decision. Never alters publication/
+      // canonical/fact status — only whether community_search_facts/Raziel research retrieval
+      // may surface this contribution's text. Ordinary chronological reading is unaffected.
+      index_eligible: classification.index_eligibility.eligible,
+      index_eligibility_reasons: classification.index_eligibility.reasons,
     },
     ai_model: aiModel,
     ai_score: 1 - classification.uncertainty,

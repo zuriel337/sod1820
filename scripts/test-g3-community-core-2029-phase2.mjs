@@ -101,6 +101,77 @@ test('classification: short/ambiguous text carries high uncertainty, never a fal
   assert.ok(c.uncertainty >= 0.8);
 });
 
+// ---- Search Index Gate (task_key=G3_COMMUNITY_CORE_PR636_SEARCH_INDEX_GATE_V1) -----------
+// Candidate-only index eligibility: mere number/URL/video/social chat is never sufficient;
+// an actual research-bearing signal (gematria/numeric relation, cipher/ELS/method, verse/
+// entity relation, or explicit interpretive connection) is required.
+
+test('index gate: a random number with no research-bearing signal is not index-eligible', () => {
+  const c = classifyContribution({ id: 'g1', body: 'קניתי 3 ספרים ו-12 עטים בחנות', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+  assert.deepEqual(c.index_eligibility.reasons, []);
+});
+
+test('index gate: a YouTube link with no authored research text is not index-eligible', () => {
+  const c = classifyContribution({ id: 'g2', body: 'https://youtube.com/watch?v=abc123', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+});
+
+test('index gate: a generic external URL alone is not index-eligible', () => {
+  const c = classifyContribution({ id: 'g3', body: 'https://example.com/article', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+});
+
+test('index gate: small talk is not index-eligible', () => {
+  const c = classifyContribution({ id: 'g4', body: 'מה שלומך היום?', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+});
+
+test('index gate: reaction-only text is not index-eligible', () => {
+  const c = classifyContribution({ id: 'g5', body: 'וואו מדהים!!!', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, false);
+});
+
+test('index gate: an explicit gematria relation claim is index-eligible', () => {
+  const c = classifyContribution({ id: 'g6', body: 'המילה אהבה עולה בגימטריה לערך 13', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('gematria_relation'));
+});
+
+test('index gate: a verse reference with an interpretive connection is index-eligible', () => {
+  const c = classifyContribution({ id: 'g7', body: 'בראשית א:א "בראשית ברא" מרמז על תחילת הבריאה', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('verse_or_entity_reference'));
+  assert.ok(c.index_eligibility.reasons.includes('interpretive_connection'));
+});
+
+test('index gate: an ELS/cipher/method statement is index-eligible', () => {
+  const c = classifyContribution({ id: 'g8', body: 'מצאתי צופן אתב"ש במילה הזו שמצביע על קשר עמוק', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('cipher_or_method_operation'));
+});
+
+test('index gate: an internal entity link (e.g. /number/1237) is index-eligible on its own', () => {
+  const c = classifyContribution({ id: 'g9', body: 'ראו /number/1237 — יש כאן קשר מעניין', parent_id: null });
+  assert.equal(c.index_eligibility.eligible, true);
+  assert.ok(c.index_eligibility.reasons.includes('internal_entity_reference'));
+});
+
+test('index gate: decision_ledger candidate payload carries index_eligible + reasons, never alters status', () => {
+  const eligible = classifyContribution({ id: 'g10', body: 'המילה חיים עולה בגימטריה ל-68', parent_id: null });
+  const eligibleCandidate = toDecisionLedgerCandidate(eligible);
+  assert.equal(eligibleCandidate.candidate.index_eligible, true);
+  assert.ok(Array.isArray(eligibleCandidate.candidate.index_eligibility_reasons));
+  assert.ok(eligibleCandidate.candidate.index_eligibility_reasons.length > 0);
+  assert.equal(eligibleCandidate.status, 'pending');
+  assert.equal(eligibleCandidate.human_decision, null);
+
+  const ineligible = classifyContribution({ id: 'g11', body: 'מה נשמע?', parent_id: null });
+  const ineligibleCandidate = toDecisionLedgerCandidate(ineligible);
+  assert.equal(ineligibleCandidate.candidate.index_eligible, false);
+  assert.deepEqual(ineligibleCandidate.candidate.index_eligibility_reasons, []);
+});
+
 // ---- bounded archive import executor ------------------------------------------------------
 
 const messages = [{ message_id: 'm1', body: 'hi', author_openweb_user_id: null, author_email: null, moderation_state: 'published', likes: 0, dislikes: 0, created_at: '2020-01-01T00:00:00Z' }];
