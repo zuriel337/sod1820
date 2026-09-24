@@ -12,6 +12,8 @@ test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived
   assert.match(page, /ready=\{replayMatched && layeredReady\}/);
   assert.match(page, /razielMicroIntent: "explain_els_occurrence"/);
   assert.match(page, /elsSurfaceContext: surfaceContext/);
+  assert.match(page, /surfaceContext\?\.occurrence\?\.occurrenceRef/);
+  assert.doesNotMatch(page, /surfaceContext\?\.occurrence\?\.occurrenceId/);
   assert.match(page, /disabled=\{!available\}/);
   assert.doesNotMatch(page, /includeText:\s*true/);
   assert.doesNotMatch(page, /askRazielAdvanced|askRaziel\s*\(/);
