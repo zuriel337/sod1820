@@ -5052,7 +5052,6 @@ function PostPageBySlug({ onNav }) {
                 האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
             <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
-            {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}
             <style>{POST_CONTENT_CSS}</style>
             {themed && <style>{themedPostContentCSS(PM)}</style>}
@@ -5111,6 +5110,7 @@ function PostPageBySlug({ onNav }) {
             )}
             {/* 🖼 רצועת גישה לגלריה העריכה — התמונות המוטמעות נשארות; זו רק הפניה (עץ אחד) */}
             <PostGalleryLinks content={content} wpId={post?.wp_id} />
+            {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
             {tags.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 48 }}>
