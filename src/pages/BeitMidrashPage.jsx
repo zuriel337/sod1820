@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses, getAllValuePhrases } from "../lib/supabase.js";
 import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
@@ -16,7 +16,6 @@ import ResearcherLink from "../components/ResearcherLink.jsx";
 import { useReporter } from "../components/ReporterLink.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
-import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
 import { useGold, sortGoldFirst } from "../lib/goldTier.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -29,6 +28,7 @@ import ConvergenceWizard from "../components/ConvergenceWizard.jsx";
 import Discourse from "../components/Discourse.jsx";
 import SubmitChidush from "../components/SubmitChidush.jsx";
 import AdminModerate from "../components/AdminModerate.jsx";
+import BeitMidrashMethodsRegistry from "../components/BeitMidrashMethodsRegistry.jsx";
 
 // ===== בית המדרש — דוגמית עיצוב בהיר (אקדמי / פורטל אוניברסיטה) =====
 // שחור על לבן, רחב, תפריט-צד + טאבים, מבוסס טקסט. גרפיקה כבדה (מחשבון 3D) נטענת רק בטאב שלה.
@@ -820,69 +820,9 @@ function CalcTab({ initial, seed }) {
   );
 }
 
-// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מהשיטות הזמינות.
-const METHOD_INFO = {
-  "רגיל": { what: "השיטה הבסיסית של הגימטריה — היסוד של כולן.", how: "כל אות מקבלת את ערכה המספרי (א=1, ב=2 … י=10, כ=20 … ת=400), וסוכמים." },
-  "מילוי": { what: "ערך שֵם האות המלא — הרובד הפנימי, ה'נשמה' של האות.", how: "כותבים כל אות במילואה (א→אָלֶף, ה→הֵי) ומחשבים את גימטריית השם המלא. למשל א = אלף = 111." },
-  "מסתתר": { what: "השיטה הייחודית של סוד 1820 — מה שמסתתר בֵּין האותיות.", how: "סוכמים את ההפרש (בערך מוחלט) בין כל שתי אותיות סמוכות.", insight: "💎 חכמה → |8−20|+|20−40|+|40−5| = 12+20+35 = 67 = בִּינָה. החכמה יוצאת מן הבינה.", star: true },
-  "קדמי": { what: "ערך מצטבר ('משולש') — בנייה שכבה על שכבה.", how: "כל אות = סכום כל האותיות שלפניה ועד אליה (א=1, ב=1+2=3, ג=1+2+3=6 …), וסוכמים." },
-  "גדול": { what: "כמו רגיל — אך עם ערכי האותיות הסופיות.", how: "האותיות הסופיות מקבלות ערך גבוה: ך=500, ם=600, ן=700, ף=800, ץ=900. השאר כמו רגיל." },
-  "סידורי": { what: "ערך לפי הסדר באלף-בית — ה'מספר הפשוט'.", how: "כל אות לפי מיקומה: א=1, ב=2 … י=10, כ=11, ל=12 … ת=22." },
-  "אתבש": { what: "צופן הראי של האלף-בית — קדום ומופיע בתנ״ך.", how: "מחליפים כל אות בבת-זוגה מהקצה הנגדי: א↔ת, ב↔ש, ג↔ר … וסוכמים את ערכי האותיות המוחלפות.", insight: "בתנ״ך: «שֵׁשַׁךְ» באתבש = «בָּבֶל»." },
-  "אלבם": { what: "צופן חצי-אלפבית — מחילופי הצפנים הקדומים.", how: "מחלקים את הא״ב לשניים (11+11) ומחליפים אות מול אות: א↔ל, ב↔מ, ג↔נ … וסוכמים." },
-  "אטבח": { what: "צופן א״ט ב״ח (מהרש״ל) — זוגות אותיות המשלימות למספר עגול.", how: "מזווגים אותיות שמשלימות ל-10/100/500: א↔ט · ב↔ח · י↔צ · ק↔ת · ר↔ש (סופיות מנורמלות לבסיס), מחליפים כל אות בבת-זוגה וסוכמים.", insight: "💎 «יום משיח» באטב״ח = 506. אחת משתי שיטות אטב״ח (זו של המהרש״ל, בלי אותיות סופיות)." },
-  "אותיות אחרי": { what: "צופן המזוזה — כל אות מתקדמת אות אחת קדימה בא״ב.", how: "מחליפים כל אות באות הבאה אחריה (א→ב, ר→ש … ת→א מעגלי), וקוראים/מחשבים את המילה החדשה. יהוה→כוזו · אלהינו→במוכסז — זה «כוזו במוכסז כוזו» שעל כל מזוזה.", insight: "💎 רזיאל → אותיות אחרי → שַחְכַּבְּמ (רמז: מחשב חכם). הובא ע״י שמעון חיימוב.", star: true },
-  "אותיות לפני": { what: "הצעד אחורה — כל אות נסוגה אות אחת בא״ב.", how: "מחליפים כל אות באות שלפניה (ב→א, ש→ר … א→ת מעגלי), וקוראים/מחשבים את המילה החדשה. התמורה ההפוכה ל«אותיות אחרי»." },
-  "מילוי בלבד": { what: "הפנימיות הטהורה — הנסתר שבאות.", how: "ערך המילוי פחות ערך האות עצמה (כמה ה'שם המלא' מוסיף מעבר לאות). למשל א: מילוי 111 − 1 = 110." },
-  "הכפלה": { what: "העוצמה הפנימית — כל אות מוכפלת בעצמה.", how: "כל אות בריבוע (ערך×עצמו), ואז סכום. למשל בינה = 2²+10²+50²+5² = 2629.", insight: "💎 חוק נעול: בינה בהכפלה = 2629." },
-  "ריבוע": { what: "ההתפשטות מהאות אל השלם — קידומות מצטברות.", how: "סכום הרגיל של כל הקידומות ההדרגתיות: דוד = ד(4)+דו(10)+דוד(14) = 28.", insight: "💎 חוק נעול: צוריאל = 1432." },
-  "משולש גדול": { what: "קדמי בסופיות גדולות — ההתפשטות המורחבת.", how: "כמו קדמי, אך עם ערכי הסופיות הגדולים (ך=500…)." },
-  "מסתתר גדול": { what: "ההפרשים בין האותיות — על ערכי סופיות גדולים.", how: "כמו מסתתר, אך הערכים בסופיות הם 500–900. למשל מלך=480." },
-  "מילוי דמילוי": { what: "מילוי המילוי — הפנימיות העמוקה.", how: "ממלאים כל אות במילואה, ואז ממלאים שוב את אותיות המילוי, וסוכמים. יהוה=610." },
-  "מילוי דמילוי גדול": { what: "מילוי דמילוי בסופיות גדול.", how: "כמו מילוי דמילוי, עם ערכי סופיות גדולים. ירושלים=6770." },
-  "הכפלה גדולה": { what: "הכפלה בסופיות גדול.", how: "כל אות בריבוע, כשהסופיות בערכן הגדול (ך=500²). למשל מלך=252500." },
-  "ריבוע גדול": { what: "ריבוע הקידומות בסופיות גדול.", how: "כמו ריבוע (קידומות מצטברות), עם ערכי סופיות גדולים." },
-};
+// 📐 ספריית שיטות הגימטריה — הרישום החי (Registry/Engine) הוא הסמכות היחידה; אין רשימה מקומית
+// כאן יותר. ראו BeitMidrashMethodsRegistry.jsx (GEMATRIA_METHOD_EXPLANATION_PROJECTION_V1).
 const SAMPLE = "חכמה";
-function methodExample(m) {
-  const Lt = onlyHeb(SAMPLE);
-  if (m.key === "מסתתר") {
-    return Lt.slice(0, -1).map((c, i) => `|${c}−${Lt[i + 1]}|`).join(" + ") + " = " + Lt.slice(0, -1).map((c, i) => Math.abs(GEM[c] - GEM[Lt[i + 1]])).join(" + ") + " = " + m.fn(SAMPLE);
-  }
-  const map = m.map || GEM;
-  return Lt.map(c => `${c}(${map[c]})`).join(" + ") + " = " + m.fn(SAMPLE);
-}
-// מונה קטן לאנימציית הסכום
-function Odo({ to, run }) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    let raf, t0; setV(0);
-    const step = t => { t0 ??= t; const p = Math.min(1, (t - t0) / 900); setV(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(step); };
-    raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf);
-  }, [to, run]);
-  return <>{v}</>;
-}
-// "סרטון" קל — האותיות נחשפות אחת-אחת עם ערכן, ואז הסכום מתגלגל. ריצה חוזרת בריחוף.
-function MethodAnim({ m }) {
-  const [run, setRun] = useState(0);
-  const Lt = onlyHeb(SAMPLE);
-  const items = m.key === "מסתתר"
-    ? Lt.slice(0, -1).map((c, i) => ({ top: `${c}–${Lt[i + 1]}`, val: Math.abs(GEM[c] - GEM[Lt[i + 1]]) }))
-    : Lt.map(c => ({ top: c, val: (m.map || GEM)[c] }));
-  const delay = i => `${i * 0.32}s`;
-  return (
-    <div onMouseEnter={() => setRun(r => r + 1)} title="ריחוף = הרצה חוזרת" style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", direction: "rtl", cursor: "default" }}>
-      {items.map((it, i) => (
-        <span key={`${run}-${i}`} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: L.panel, border: `1px solid ${L.line}`, borderRadius: 8, padding: "3px 8px", opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(i) }}>
-          <b style={{ color: L.goldDeep, fontFamily: F.regal, fontSize: 15, lineHeight: 1.1 }}>{it.top}</b>
-          <small style={{ color: L.sub, fontFamily: F.mono, fontSize: 11 }}>{it.val}</small>
-        </span>
-      ))}
-      <span key={`eq-${run}`} style={{ color: L.sub, fontFamily: F.mono, fontSize: 16, opacity: 0, animation: "maIn .4s ease forwards", animationDelay: delay(items.length) }}>=</span>
-      <b key={`tot-${run}`} style={{ color: L.goldDeep, fontFamily: F.mono, fontSize: 22, fontWeight: 800, opacity: 0, animation: "maIn .5s ease forwards", animationDelay: `${items.length * 0.32 + 0.1}s` }}><Odo to={m.fn(SAMPLE)} run={run} /></b>
-    </div>
-  );
-}
 // טבלת ערכי האותיות — הבסיס לכל חישוב גימטריה (שיטת "רגיל")
 const ABC = [
   ["א", 1], ["ב", 2], ["ג", 3], ["ד", 4], ["ה", 5], ["ו", 6], ["ז", 7], ["ח", 8], ["ט", 9],
@@ -929,33 +869,11 @@ function HowToGuide() {
     </div>
   );
 }
-function MethodsTab() {
+function MethodsTab({ focusMethodKey }) {
   return (
     <div>
       <HowToGuide />
-      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
-        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל שיטות החישוב הזמינות, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-        {[...METHODS, ...DEPTH_METHODS].map(m => {
-          const info = METHOD_INFO[m.key] || {};
-          return (
-            <div key={m.key} id={`bm-method-${m.key}`} style={{ background: L.panel, border: `1px solid ${info.star ? L.gold : L.line}`, borderRadius: 14, padding: "16px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", scrollMarginTop: 80 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                <h3 style={{ color: L.ink, fontFamily: F.regal, fontSize: 20, fontWeight: 700, margin: 0 }}>{m.key}</h3>
-                {info.star && <span style={{ background: "#fbf3da", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>★ שיטת הבית</span>}
-              </div>
-              <p style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, margin: "0 0 8px" }}>{info.what}</p>
-              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: "0 0 10px" }}><b style={{ color: L.goldDeep }}>איך מחשבים: </b>{info.how}</p>
-              <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, margin: "2px 0 6px" }}>דוגמה חיה · {SAMPLE}</div>
-              <MethodAnim m={m} />
-              {info.insight && <p style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "10px 0 0" }}>{info.insight}</p>}
-              {/* לומדים↔עושים — מהשיעור ישר אל המחשבון עם מילה לחישוב */}
-              <Link to={`/research?tool=midrash&tab=calc&w=${encodeURIComponent(SAMPLE)}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 11, color: L.goldDeep, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, textDecoration: "none", borderTop: `1px solid ${L.line}`, paddingTop: 10, width: "100%" }}>🧮 נסה את השיטה במחשבון ←</Link>
-            </div>
-          );
-        })}
-      </div>
+      <BeitMidrashMethodsRegistry sampleExpression={SAMPLE} focusMethodKey={focusMethodKey} palette={L} />
     </div>
   );
 }
@@ -1185,6 +1103,7 @@ function WriterWall({ g, flagship }) {
 
 export default function BeitMidrashPage() {
   const loc = useLocation();
+  const { method: methodRouteParam } = useParams();  // /beit-midrash/:method — deep-link לזהות שיטה מדויקת ברישום
   const { isAdmin } = useAuth();
   // 🧠 «המחקר שלי» — הרכיב הקנוני (EntityHubRails), אותו אחד כמו בדף-המספר. מוצג רק בבית-המדרש
   // העצמאי; בתוך ההיכל (hub=true) השלד (ResearchShell) כבר מספק את אותו קיר — לא מכפילים.
@@ -1195,10 +1114,12 @@ export default function BeitMidrashPage() {
   const nParam = Number(params.get("n")) || null;
   const wParam = params.get("w") || params.get("calc") || null;  // מילה לטעינה במחשבון (לינק מפוסט/שיעור)
   const tabParam = params.get("tab");
+  const mParam = params.get("m");  // ?tab=methods&m=<שם השיטה> — קישור-עומק ישן (הצלבות/מסע 1820)
+  const methodFocusKey = methodRouteParam || mParam || null;  // /beit-midrash/:method גובר — זהות מדויקת ברישום
   const insightParam = params.get("insight");  // «המיקום» — כרטיס חידוש-קהילה להדגשה (מהתראה/מייל)
   // ברירת-מחדל: מי שנכנס לבית-המדרש נוחת על «מחשבון הגימטריה» (הכלי המרכזי). מדור תקף מה-URL גובר.
-  // ?atlas=<יחס> (מהעץ בעמוד הבית) → נחיתה ישירה על אטלס-הממצאים.
-  const [tab, setTab] = useState(params.get("atlas") ? "atlas" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc"));
+  // ?atlas=<יחס> (מהעץ בעמוד הבית) → נחיתה ישירה על אטלס-הממצאים. /beit-midrash/:method → נחיתה ישר על שיטות.
+  const [tab, setTab] = useState(params.get("atlas") ? "atlas" : (methodRouteParam ? "methods" : (SECTIONS.some(s => s.key === tabParam) ? tabParam : "calc")));
   const { subscribed } = useSubscribed();
   useEffect(() => { track("beit-midrash"); }, []); // eslint-disable-line
   // 🧮 הקיר-הימני במעבדה (workspace_layout_standard) → ניווט-שיטות/מדורים דרך ה-Event Bus.
@@ -1206,6 +1127,8 @@ export default function BeitMidrashPage() {
   useEffect(() => { if (tab === "searches" && !isAdmin) setTab("calc"); }, [tab, isAdmin]); // eslint-disable-line
   // 🌳 ניווט מהעץ בעמוד הבית: ?atlas= מנחית ישר על אטלס-הממצאים — גם כשהעמוד כבר טעון (SPA)
   useEffect(() => { if (new URLSearchParams(loc.search).get("atlas")) setTab("atlas"); }, [loc.search]);
+  // /beit-midrash/:method — גם בניווט SPA בין שיטה לשיטה (בלי טעינה מחדש) נוחתים על טאב השיטות
+  useEffect(() => { if (methodRouteParam) setTab("methods"); }, [methodRouteParam]);
   useEffect(() => on(EVENTS.MIDRASH_NAV, ({ tab: t, method } = {}) => {
     if (t) setTab(t);
     if (method) setTimeout(() => document.getElementById(`bm-method-${method}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 160);
@@ -1264,13 +1187,8 @@ export default function BeitMidrashPage() {
     if (tp && SECTIONS.some(s => s.key === tp)) setTab(tp);
   }, [loc.search]);
 
-  // קישור-עומק לשיטה: ?tab=methods&m=<שם השיטה> — גולל אל כרטיס השיטה (מגיע מהקרוס וממסע הפתיחה)
-  useEffect(() => {
-    const m = new URLSearchParams(loc.search).get("m");
-    if (!m) return;
-    const t = setTimeout(() => document.getElementById(`bm-method-${m}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 450);
-    return () => clearTimeout(t);
-  }, [loc.search, tab]);
+  // קישור-עומק לשיטה (?tab=methods&m=… או /beit-midrash/:method) — הגלילה/ההדגשה עצמן קורות
+  // בתוך BeitMidrashMethodsRegistry (זהות-שיטה מדויקת מהרישום החי, לא מניפולציית DOM כאן).
 
   const active = SECTIONS.find(s => s.key === tab) || SECTIONS[0];
   const gridRef = useRef(null);
@@ -1393,7 +1311,7 @@ export default function BeitMidrashPage() {
             {tab === "searches" && isAdmin && <SearchesTab />}
             {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
             {tab === "crosses" && <CrossesTab />}
-            {tab === "methods" && <MethodsTab />}
+            {tab === "methods" && <MethodsTab focusMethodKey={methodFocusKey} />}
             {tab === "atlas" && <AtlasFindings />}
             {tab === "convergence" && <ConvergenceSection />}
             {tab === "verified" && <VerifiedTab />}

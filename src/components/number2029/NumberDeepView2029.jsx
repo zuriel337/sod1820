@@ -22,9 +22,9 @@ function ClusterCard({ cluster, onOpenHeichal, root }) {
         </ul>
       ) : null}
       {cluster.boundary ? <p>{cluster.boundary}</p> : cluster.why ? <p>{cluster.why}</p> : null}
-      <button
+      {onOpenHeichal ? <button
         type="button"
-        onClick={() => onOpenHeichal?.({
+        onClick={() => onOpenHeichal({
           kind: "deep_view_cluster",
           root,
           clusterKey: cluster.key || null,
@@ -33,7 +33,7 @@ function ClusterCard({ cluster, onOpenHeichal, root }) {
         })}
       >
         ◇ בדוק בהיכל
-      </button>
+      </button> : null}
     </article>
   );
 }
@@ -70,16 +70,16 @@ export default function NumberDeepView2029({ model, onOpenHeichal, onRazielActio
           <h2>מפת המחקר של {model.root}</h2>
           <p>קודם המבנים העצמאיים, אחר כך הקשרים המשניים, ורק בעומק כל ההתאמות הגולמיות. זו הקרנת מחקר — לא ציון אמת.</p>
         </div>
-        <button
+        {onOpenHeichal ? <button
           type="button"
           className="sod29-action primary"
-          onClick={() => onOpenHeichal?.({
+          onClick={() => onOpenHeichal({
             kind: "number_deep_view",
             root: model.root,
             sourceResearchObjectId: model.sourceResearchObjectId,
             primaryClusters: model.primary.map((cluster) => cluster.key).filter(Boolean),
           })}
-        >◇ פתח בהיכל</button>
+        >◇ פתח בהיכל</button> : null}
       </header>
 
       <EvidenceStrip evidence={model.evidence} />
@@ -96,7 +96,7 @@ export default function NumberDeepView2029({ model, onOpenHeichal, onRazielActio
               {model.primary.map((cluster) => <ClusterCard key={cluster.key || cluster.title} cluster={cluster} root={model.root} onOpenHeichal={onOpenHeichal} />)}
             </div>
           ) : (
-            <div className="sod29-deep-access-note">החוזה זמין, אבל אין כרגע מבנה PRIMARY שמזכיר ישירות את {model.root}. החומר נשאר זמין בעומק ובהיכל.</div>
+            <div className="sod29-deep-access-note">החוזה זמין, אבל אין כרגע מבנה PRIMARY שמזכיר ישירות את {model.root}. החומר נשאר זמין בעומק.</div>
           )}
 
           {model.secondary.length ? (
@@ -158,7 +158,7 @@ export default function NumberDeepView2029({ model, onOpenHeichal, onRazielActio
                 ) : null}
 
                 <div className="sod29-number-deep-actions">
-                  <button type="button" onClick={() => onOpenHeichal?.({ kind: "inspect_dependency", root: model.root, sourceResearchObjectId: model.sourceResearchObjectId })}>למה זה נספר פעם אחת?</button>
+                  {onOpenHeichal ? <button type="button" onClick={() => onOpenHeichal({ kind: "inspect_dependency", root: model.root, sourceResearchObjectId: model.sourceResearchObjectId })}>למה זה נספר פעם אחת?</button> : null}
                   <button type="button" onClick={() => onRazielAction?.("explain_deep_view", { kind: "number_deep_view", root: model.root, evidence: model.evidence, dependentFamilies: model.dependentFamilies })}>✦ הסבר עם רזיאל</button>
                 </div>
               </div>

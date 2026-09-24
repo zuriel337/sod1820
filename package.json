@@ -26,7 +26,9 @@
     "test:g3-community-core-pr636-parent-reconstruction": "node --test scripts/test-g3-community-core-pr636-parent-reconstruction.mjs",
     "test:g3-community-core-pr636-two-phase-executor": "node --test scripts/test-g3-community-core-pr636-two-phase-executor.mjs",
     "test:g3-community-core-pr636-phase3-ops-adapter": "node --test scripts/test-g3-community-core-pr636-phase3-ops-adapter.mjs",
-    "test:g3-community-core-pr636-dry-run-cli": "node --test scripts/test-g3-community-core-pr636-dry-run-cli.mjs"
+    "test:g3-community-core-pr636-dry-run-cli": "node --test scripts/test-g3-community-core-pr636-dry-run-cli.mjs",
+    "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
+    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"

@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+const read=(p)=>fs.readFileSync(p,"utf8");
+const app=read("src/App2029.jsx");
+const frame=read("src/components/experience2029/SystemFrame2029.jsx");
+const home=read("src/pages/Home2029Page.jsx");
+const post=read("src/pages/Post2029Page.jsx");
+const rail=read("src/components/experience2029/ReadingContextRail2029.jsx");
+const palette=read("src/lib/palette.js");
+
+assert.match(app,/path="\/post\/:slug"/);
+assert.match(home,/Home2029/);
+assert.match(post,/ReadingContextRail2029/);
+assert.match(rail,/שאל את רזיאל/);
+assert.match(frame,/sod29-header closed-orientation/);
+assert.match(frame,/sod29-command-island/);
+assert.match(frame,/גילוי וכלים/);
+assert.match(frame,/התמקד בזה/);
+assert.match(frame,/＋ שמור/);
+assert.equal(frame.includes("קבע כפוקוס מחקר"),false);
+assert.equal(frame.includes("הוסף למחקר"),false);
+assert.match(frame,/surface === "heichal"/);
+assert.match(frame,/PALETTES\.labDark/);
+assert.match(frame,/PaletteProvider/);
+assert.match(palette,/labDark:/);
+assert.match(palette,/pageBg: "#080c16"/);
+assert.match(palette,/pageBg: "#f4f7fb"/);
+assert.match(post,/returnTo:\s*exactReturn/);
+console.log("Connected Golden 2029 contract: PASS");

@@ -39,6 +39,7 @@ import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
+import LegacyNowSystemPreview from "../components/LegacyNowSystemPreview.jsx";
 import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
 import DimensionFiveCloud from "../components/DimensionFiveCloud.jsx";
 // YearTicker הוסר — שנת תשפ״ו קופלה לתוך טיקר-הפרומו היחיד ב-Layout (PromoTicker).
@@ -507,7 +508,7 @@ export default function HomeNewPage() {
       {/* ===== 🏗️ בנייה + עדכונים — בדסקטופ מד-הבנייה בצד שמאל, עדכונים בטור יחיד ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
         <div className="hn-home-top">
-          <div className="hn-updates-col">
+          <div className="hn-updates-col">\n            <LegacyNowSystemPreview />
             <div role="status" style={{
               marginBottom: 14,
               padding: "12px 14px",

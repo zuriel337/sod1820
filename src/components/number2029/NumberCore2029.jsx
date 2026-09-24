@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
+import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -123,7 +124,7 @@ function MiluySpatialExplain({
         <div className="sod29-miluy-spatial-focus-actions">
           <button type="button" onClick={() => setFocusIndex((value) => steps.length ? (value + 1) % steps.length : 0)}>האות הבאה ←</button>
           <button type="button" onClick={() => onRazielAction?.("explain_miluy_step", { kind: "miluy_step", methodKey: "מילוי", expression, step: focus })}>✦ רזיאל</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "miluy_step", methodKey: "מילוי", expression, step: focus, resultValue: result })}>◇ פתח בהיכל</button>
+          {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({ kind: "miluy_step", methodKey: "מילוי", expression, step: focus, resultValue: result })}>◇ פתח בהיכל</button> : null}
         </div>
       </div>
     </> : <div className="sod29-number-core2029-note">
@@ -259,6 +260,8 @@ function MethodInspector({
 
 export default function NumberCore2029({
   projection,
+  curation = null,
+  curationCatalog = null,
   stageProjection = null,
   stageLoading = false,
   methodsLoading = false,
@@ -335,6 +338,7 @@ export default function NumberCore2029({
   const stageZero = stage?.zeroScale || null;
   const raziel = projection.razielMicro;
   const result = active?.computedValue ?? projection.activeResult ?? null;
+  const activeExpressionCuration = curationCatalog?.byLabel?.[String(projection.expression || "").trim()] || null;
 
   const sortedMethods = useMemo(() => (
     [...methods].sort((a, b) => {
@@ -398,12 +402,30 @@ export default function NumberCore2029({
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
-        <strong>{projection.expression || root}</strong>
+        <div className="sod29-number-v10-expression-line">
+          <strong>{projection.expression || root}</strong>
+          {activeExpressionCuration?.type === "entity" ? <CurationMark2029
+            item={activeExpressionCuration}
+            related={curation?.anchor ? [curation.anchor] : []}
+            witnessCount={curation?.witnessCount || 0}
+            catalog={curationCatalog}
+            compact
+          /> : null}
+        </div>
         <small>Root {root} · השיטה הפעילה משנה את התוצאה, לא את זהות הביטוי</small>
       </div>
       <div className="sod29-number-v10-root sod29-number-core2029-root">
         <small>המספר</small>
-        <b className="sod29-number-value">{root}</b>
+        <div className="sod29-number-v10-root-line">
+          <b className="sod29-number-value">{root}</b>
+          {curation?.anchor ? <CurationMark2029
+            item={curation.anchor}
+            related={curation?.cores || []}
+            witnessCount={curation?.witnessCount || 0}
+            catalog={curationCatalog}
+            compact
+          /> : null}
+        </div>
       </div>
       {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
@@ -450,17 +472,29 @@ export default function NumberCore2029({
         {regularExpressions.map((item) => {
           const phrase = String(item?.phrase || item || "").trim();
           const selected = phrase === String(projection.expression || "").trim();
-          return <button
-            type="button"
+          const curatedPhrase = curationCatalog?.byLabel?.[phrase] || null;
+          return <div
             role="listitem"
             key={phrase}
-            className={selected ? "is-active" : ""}
-            aria-pressed={selected}
-            onClick={() => onExpressionSelect?.(phrase)}
+            className={`sod29-number-v11-regular-item${selected ? " is-active" : ""}`}
           >
-            <strong>{phrase}</strong>
-            <small>= {root} · רגיל</small>
-          </button>;
+            <button
+              type="button"
+              className="sod29-number-v11-regular-select"
+              aria-pressed={selected}
+              onClick={() => onExpressionSelect?.(phrase)}
+            >
+              <strong>{phrase}</strong>
+              <small>= {root} · רגיל</small>
+            </button>
+            {curatedPhrase?.type === "entity" ? <CurationMark2029
+              item={curatedPhrase}
+              related={curation?.anchor ? [curation.anchor] : []}
+              witnessCount={curation?.witnessCount || 0}
+              catalog={curationCatalog}
+              compact
+            /> : null}
+          </div>;
         })}
       </div>
     </section> : null}
@@ -699,7 +733,7 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>✦ שאל את רזיאל</button>
-          <button type="button" className="primary" onClick={() => onOpenHeichal?.({
+          {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,
             expression: projection.expression,
@@ -707,7 +741,7 @@ export default function NumberCore2029({
             resultValue: stageRoot,
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
-          })}>◇ חקור בהיכל</button>
+          })}>◇ חקור בהיכל</button> : null}
         </footer>
 
 

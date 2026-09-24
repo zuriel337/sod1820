@@ -416,40 +416,6 @@ export default function NumberDrawer2029({
     setTraceOpen(false);
   };
 
-  const openHeichal = (focus = {}) => {
-    if (!Number.isSafeInteger(root)) return;
-    const current = context || {};
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: clean(expression) || null,
-      method: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
-      resultValue: selectedProfile?.computedValue ?? null,
-    };
-    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
-    research?.setResearchContext?.({
-      subject,
-      selection,
-      lens: "heichal",
-      locale: current.locale || "he",
-      dimensions: {
-        ...(current.dimensions || {}),
-        numberHome: `/2029/number/${root}`,
-        methodSpatialExplain: focus && typeof focus === "object" ? focus : {},
-      },
-      returnTo: {
-        href: current?.subject?.href || `/2029/number/${root}`,
-        label: current?.subject?.label || `דף ${root}`,
-        subject: current?.subject || subject,
-        selection: current?.selection || selection,
-        lens: current?.lens || "number",
-        dimensions: current?.dimensions || {},
-        journey: current?.journey || null,
-      },
-    });
-    go?.("/heichal", { preserve: false });
-  };
-
   const razielIntent = (intent, focus = {}) => {
     const numberCoreFocus = {
       root,
@@ -547,7 +513,6 @@ export default function NumberDrawer2029({
       onOpenResult={openExplicitRoot}
       onOpenPage={openPage}
       onOpenWorld={openWorld}
-      onOpenHeichal={openHeichal}
       onRazielAction={razielIntent}
       onExpandRaziel={() => razielIntent("expand_panel")}
     /> : !dataState.loading ? <div className="sod29-number-drawer-status">הקלד ביטוי כדי לקבל שיטות, או מספר כדי לפתוח את ה־Root.</div> : null}

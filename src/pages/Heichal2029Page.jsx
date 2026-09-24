@@ -5,6 +5,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo } from "../lib/seo.js";
+import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 
 const ACTIONS = [
   { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
@@ -199,6 +200,13 @@ function ActiveResearchEnvironment() {
         </aside>
       </div>
     </section>
+
+    {context?.selection?.expression ? (
+      <GematriaOpeningProjection
+        expression={context.selection.expression}
+        initialMethodKey={context.selection.method || null}
+      />
+    ) : null}
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מההקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>

@@ -394,7 +394,6 @@ function TopicBody() {
         <div className="sod29-actions">
           <Link className="sod29-action primary" to="/world">◌ חזרה לעולם</Link>
           <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>✦ שאל את רזיאל</button>
-          <Link className="sod29-action" to="/heichal">◇ העמק בהיכל</Link>
           <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} />
         </div>
       </div>
@@ -431,12 +430,11 @@ function TopicBody() {
 
     <section className="sod29-section sod29-topic-journey" id="topic-journey">
       <div className="sod29-section-head"><div><div className="sod29-kicker">מסע</div><h2>לאן ממשיכים מכאן?</h2></div></div>
-      <p>אותה זהות ממשיכה בין World, Number, Raziel והיכל. המעבר משנה את העדשה — לא את ההתכנסות.</p>
+      <p>אותה זהות ממשיכה בין World, Number ורזיאל. המעבר משנה את העדשה — לא את ההתכנסות.</p>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/world">פתח בעולם</Link>
         {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/2029/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
         <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>✦ מה כדאי לבדוק עכשיו?</button>
-        <Link className="sod29-action" to="/heichal">◇ מחקר עמוק</Link>
       </div>
     </section>
   </article>;
