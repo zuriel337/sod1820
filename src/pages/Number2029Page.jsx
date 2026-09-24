@@ -1069,6 +1069,16 @@ function NumberPageBody() {
         onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
+        methodLensSelection={selectedMethodProfile && Number.isFinite(Number(activeResult)) ? {
+          expression: activeExpression,
+          methodKey: selectedMethodProfile.methodKey,
+          methodLabel: methodProfileLabel(selectedMethodProfile),
+          resultValue: Number(activeResult),
+          dbColumn: selectedMethodProfile.dbColumn || null,
+          methodVersion: selectedMethodProfile.definitionVersion ?? null,
+          provenance: { engine: "fn_method_profile", registry: "public.gematria_methods", projection: "number_2029" },
+        } : null}
+        onMethodLensExpression={(item) => activateExpressionFocus(item?.phrase, selectedMethodProfile?.methodKey || selectedMethodKey)}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.rows}
         hiddenCrossingsLoading={hiddenCrossState.loading}
