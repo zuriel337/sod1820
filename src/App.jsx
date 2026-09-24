@@ -99,6 +99,7 @@ const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ResearchViewerV0Page = React.lazy(() => import("./components/admin/ResearchViewerV0Page.jsx"));
 const EntityHubPreviewPage = React.lazy(() => import("./pages/EntityHubPreviewPage.jsx")); // 🌳 Universal Entity Hub golden-case preview // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
 const ExplorerPreviewPage = React.lazy(() => import("./pages/ExplorerPreviewPage.jsx")); // 🧪 Universal Explorer Slice 2 — פנימי, לא-מקושר, שם-זמני עד Human-Gate שם
+const CommunityShadowPreview2029Page = React.lazy(() => import("./pages/CommunityShadowPreview2029Page.jsx")); // 🧪 G3 Community Core 2029 Phase 2 Shadow Preview — פנימי, לא-מקושר, branch-only
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // 2029 greenfield core surfaces — shared shell, shared Research Context, one Raziel.
@@ -324,6 +325,7 @@ export default function App() {
           <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
           {/* 🧪 Universal Explorer — Slice 2 shell/facet composition preview, internal/unlinked, no public-nav replacement. Naming provisional until Human-Gate (checkpoint 0fa2f0e8). */}
           <Route path="/explorer-preview" element={<ExplorerPreviewPage />} />
+          <Route path="/community-shadow-preview-2029" element={<CommunityShadowPreview2029Page />} />
           <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />

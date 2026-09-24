@@ -1,0 +1,62 @@
+[
+  {
+    "message_id": "ow-2002-child-first",
+    "parent_message_id": "ow-2001-parent-later",
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-01-20T08:05:00Z",
+    "body": "תגובה שמופיעה בקובץ לפני ההודעה שאליה היא מתייחסת.",
+    "author_openweb_user_id": "ow-user-order-child",
+    "author_email": "order.child@example.com",
+    "author_email_verified": false,
+    "author_display_name": "ילד-סדר",
+    "likes": 0,
+    "dislikes": 0,
+    "moderation_state": "published"
+  },
+  {
+    "message_id": "ow-2001-parent-later",
+    "parent_message_id": null,
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-01-20T08:00:00Z",
+    "body": "ההודעה המקורית, שמופיעה בקובץ אחרי התגובה שלה.",
+    "author_openweb_user_id": "ow-user-order-parent",
+    "author_email": "order.parent@example.com",
+    "author_email_verified": false,
+    "author_display_name": "הורה-סדר",
+    "likes": 1,
+    "dislikes": 0,
+    "moderation_state": "published"
+  },
+  {
+    "message_id": "ow-2003-genuinely-missing-parent",
+    "parent_message_id": "ow-9999-never-in-export",
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-01-20T08:10:00Z",
+    "body": "תגובה להודעה שבאמת לא קיימת בייצוא כלל.",
+    "author_openweb_user_id": "ow-user-order-orphan",
+    "author_email": "order.orphan@example.com",
+    "author_email_verified": false,
+    "author_display_name": "יתום-סדר",
+    "likes": 0,
+    "dislikes": 0,
+    "moderation_state": "published"
+  },
+  {
+    "message_id": "ow-2004-child-of-already-imported",
+    "parent_message_id": "ow-0999-already-imported",
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-01-20T08:15:00Z",
+    "body": "תגובה להודעה שיובאה בעבר, לא בבאטש הזה.",
+    "author_openweb_user_id": "ow-user-order-existing",
+    "author_email": "order.existing@example.com",
+    "author_email_verified": false,
+    "author_display_name": "קיים-סדר",
+    "likes": 0,
+    "dislikes": 0,
+    "moderation_state": "published"
+  }
+]

@@ -90,7 +90,7 @@ while ((m = routeRe.exec(appSrc))) {
 // (mirrors the audit's own "classified separately, not mixed into the public matrix" rule).
 const OUT_OF_SCOPE = [
   "/admin", "/research-viewer", "/entity-hub-preview", "/explorer-preview", "/meaning-lab", "/מעבדת-משמעות",
-  "/dev/", "/traffic", "/numbers-report", "/editor", "/lab", "/theme-preview",
+  "/dev/", "/traffic", "/numbers-report", "/editor", "/lab", "/theme-preview", "/community-shadow-preview-2029",
 ];
 const isOutOfScope = (p) => OUT_OF_SCOPE.some(prefix => p === prefix || p.startsWith(prefix));
 
