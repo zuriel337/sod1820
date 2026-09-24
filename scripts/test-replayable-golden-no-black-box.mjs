@@ -247,6 +247,32 @@ function makeSpans() {
     }),
     createTraceSpan({
       traceId: root.traceId,
+      spanId: "25-cache-hit",
+      parentSpanId: "10-plan",
+      kind: TRACE_SPAN_KIND.CACHE,
+      name: "research-context-cache",
+      capability: root.capability,
+      owner: "experience_context_contract",
+      planRef,
+      routingReason: "reuse-replayable-context",
+      startedAt: "2026-09-23T00:00:02.100Z",
+      endedAt: "2026-09-23T00:00:02.110Z",
+      outcome: TRACE_OUTCOME.CACHE_HIT,
+      outputUse: TRACE_OUTPUT_USE.USED,
+      resources: { latency_ms: 10, api_calls: 0 },
+      cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
+      replay: {
+        inputRef: "context:golden-878",
+        sourceBundleRef: "cache:research-context:golden-878:v1",
+        resultBundleRef: "bundle:cached-research-context-878",
+      },
+      privacy: {
+        redactionApplied: true,
+        payloadHash: "sha256:golden-878-cache-key",
+      },
+    }),
+    createTraceSpan({
+      traceId: root.traceId,
       spanId: "30-provider-primary",
       parentSpanId: "10-plan",
       kind: TRACE_SPAN_KIND.MODEL_CALL,
@@ -419,6 +445,14 @@ assert.ok(multi.used >= 1);
 assert.ok(multi.partiallyUsed >= 1);
 assert.ok(multi.rejected >= 1);
 assert.ok(multi.superseded >= 1);
+
+const cacheHit = spans.find((span) => span.kind === TRACE_SPAN_KIND.CACHE && span.outcome === TRACE_OUTCOME.CACHE_HIT);
+assert.ok(cacheHit, "Golden trace must include a cache-hit span");
+assert.equal(cacheHit.outputUse, TRACE_OUTPUT_USE.USED);
+assert.equal(cacheHit.cost.certainty, TRACE_COST_CERTAINTY.NOT_BILLABLE);
+assert.equal(cacheHit.resources.api_calls, 0);
+assert.equal(cacheHit.replay.resultBundleRef, "bundle:cached-research-context-878");
+assert.equal(cacheHit.privacy.rawPrivatePayloadLogged, false);
 
 assert.ok(spans.some((span) => span.retryOrdinal === 1), "retry ordinal must be preserved");
 assert.ok(spans.some((span) => span.continuationOrdinal === 1), "continuation ordinal must be preserved");
