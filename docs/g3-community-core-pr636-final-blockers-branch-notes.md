@@ -86,8 +86,16 @@ npm run test:g3-community-core-pr636-parent-reconstruction  # 4 pass, 0 fail
 npm run test:g3-community-core-pr636-two-phase-executor     # 6 pass, 0 fail
 npm run test:g3-community-core-pr636-phase3-ops-adapter     # 12 pass, 0 fail (1 new)
 npm run test:g3-community-core-pr636-dry-run-cli            # 3 pass, 0 fail (new)
-npm run build:2029                                          # see evidence appended after merge
+npm run build:2029                                          # ✓ built in 1.14s (same pre-existing
+                                                              #   INEFFECTIVE_DYNAMIC_IMPORT warning
+                                                              #   on src/lib/auth.js, unrelated to
+                                                              #   this change, noted in every prior
+                                                              #   pass's own notes)
 ```
+
+Total focused Community suite: 70 pre-existing (across the 6 pre-existing suites above) + 12 in
+the ops-adapter suite (1 new) + 3 new CLI tests = 78 tests, 0 failures. Evidence above is from a
+full re-run after merging current `origin/main` into this branch (see "Branch reconciliation").
 
 ## Not done in this branch (explicitly out of scope / carried open)
 
