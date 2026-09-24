@@ -47,7 +47,7 @@ function PostReadingBody() {
       description: projection.excerpt,
       path: `/post/${projection.post.slug}`,
       type: "article",
-      noindex: projection.draft || projection.privateStage,
+      noindex: projection.draft || projection.privateStage || projection.previewSnapshot,
     });
   }, [state.projection]);
 
@@ -225,7 +225,7 @@ function PostReadingBody() {
       <p className="sod29-reading-deck">{projection.excerpt}</p>
       <div className="sod29-reading-integrity">
         <span>המקור נשמר כלשונו</span>
-        {projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
+        {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
       </div>
     </header>
 
