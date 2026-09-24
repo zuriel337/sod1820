@@ -115,7 +115,8 @@ test("/els composes only canonical replay projection/layers before rendering", (
   assert.match(src, /supabase\.functions\.invoke\("els-search-bridge"/);
   assert.match(src, /projectEls2029Result\(replay\.result\)/);
   assert.match(src, /projectEls2029Layers\(replayProjection\)/);
-  assert.match(src, /<Els2029Representation layers=\{effectiveLayers\} \/>/);
+  assert.match(src, /<Els2029Representation layers=\{replayLayers\} \/>/);
+  assert.doesNotMatch(src, /layeredProjection|effectiveLayers/);
   assert.doesNotMatch(src, /TzofenEmbed|tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
 });
 
