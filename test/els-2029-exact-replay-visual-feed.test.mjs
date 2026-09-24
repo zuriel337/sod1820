@@ -85,8 +85,22 @@ test("only canonical MATCH becomes a successful replay envelope", async () => {
     },
   }));
   assert.equal(mismatch.ok, false);
-  assert.equal(mismatch.state, "MISMATCH");
+  assert.equal(mismatch.state, "REPLAY_MISMATCH");
   assert.equal(mismatch.result.occurrence, null);
+
+  const missing = await verifyEls2029Selection({ ...selection, corpus: "tanakh" }, async () => ({
+    data: {
+      result: {
+        contract: "els_occurrence_replay_v1",
+        status: "MISSING_ADAPTER",
+        verification_state: "NOT_TESTED",
+        occurrence: null,
+      },
+    },
+  }));
+  assert.equal(missing.ok, false);
+  assert.equal(missing.state, "MISSING_ADAPTER");
+  assert.equal(missing.verificationState, "NOT_TESTED");
 });
 
 test("replay client never opens free-search/page behavior", () => {
