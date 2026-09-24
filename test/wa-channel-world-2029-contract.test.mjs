@@ -11,9 +11,9 @@ const syntax = spawnSync(process.execPath, ["--check", "supabase/functions/wa-ch
 });
 assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || "wa-channel-ingest TypeScript syntax check failed");
 
-// Or-Geula stays story/live; heavy research channels become private source ingress.
+// Or-Geula and Torat-Haremez are live-feed sources; Torat remains research-first in parallel.
 assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
-assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
+assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula", "torat-haremez"\]\)/);
 assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
 assert.match(ingest, /status: channelStatus\(src\.channel\)/);
 assert.match(ingest, /waAdmin\("getStateInstance", \{\}, "GET"\)/);
