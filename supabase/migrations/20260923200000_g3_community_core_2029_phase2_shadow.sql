@@ -260,13 +260,13 @@ begin
 
   select id, email, user_id into v_contributor from public.contributors where id = p_contributor_id;
   if not found then
-    raise exception 'contributor_not_found';
+    raise exception 'legacy_claim_not_eligible';
   end if;
   if v_contributor.user_id is not null then
-    raise exception 'already_claimed';
+    raise exception 'legacy_claim_not_eligible';
   end if;
   if v_contributor.email is null or lower(btrim(v_contributor.email)) <> lower(btrim(v_caller_email)) then
-    raise exception 'email_mismatch';
+    raise exception 'legacy_claim_not_eligible';
   end if;
 
   update public.contributors set user_id = v_caller, updated_at = now() where id = p_contributor_id;
