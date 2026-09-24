@@ -121,8 +121,9 @@ test("replay client never opens free-search/page behavior", () => {
 test("legacy ELS state is stored only as replay intent before server verification", () => {
   const src = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
   assert.match(src, /term,\s*corpus: scope,/);
-  assert.match(src, /start,\s*skip:/);
-  assert.match(src, /dir,/);
+  assert.match(src, /start,\s*skip,\s*dir,/);
+  assert.match(src, /skipRaw != null && skipRaw !== ""/);
+  assert.match(src, /startRaw != null && startRaw !== ""/);
   assert.match(src, /must replay them through the canonical server verify boundary before rendering/);
 });
 
