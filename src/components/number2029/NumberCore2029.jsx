@@ -149,7 +149,9 @@ function MethodInspector({
   onRazielAction,
   onExpandRaziel,
   onOpenHeichal,
-  methodLensSelection,\n  onMethodLensExpression,\n  onClose,
+  methodLensSelection,
+  onMethodLensExpression,
+  onClose,
 }) {
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
@@ -293,7 +295,9 @@ export default function NumberCore2029({
   journeyLabel = null,
   onRazielAction,
   onExpandRaziel,
-  methodLensSelection = null,\n  onMethodLensExpression = null,\n} = {}) {
+  methodLensSelection = null,
+  onMethodLensExpression = null,
+} = {}) {
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [showCalculation, setShowCalculation] = useState(false);
@@ -723,7 +727,9 @@ export default function NumberCore2029({
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
-          methodLensSelection={methodLensSelection}\n          onMethodLensExpression={onMethodLensExpression}\n          onClose={() => setShowCalculation(false)}
+          methodLensSelection={methodLensSelection}
+          onMethodLensExpression={onMethodLensExpression}
+          onClose={() => setShowCalculation(false)}
         /> : null}
 
         <footer className="sod29-number-v10-stage-actions">
