@@ -130,6 +130,6 @@ assert.match(provider, /persistSessionContext\(next\)/);
 assert.match(frame, /data-research-path-resume="available"/);
 assert.match(frame, /שמור מסלול/);
 assert.match(frame, /המשך מהמסלול השמור/);
-assert.match(frame, /Canonical\/Published לא משתנים/);
+assert.match(frame, /המקור והפרסום לא משתנים/);
 
 console.log("Research Path resumability runtime acceptance: PASS");
