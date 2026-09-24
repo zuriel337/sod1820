@@ -63,6 +63,7 @@ jobs:
             test/els-2029-visual-representation.test.mjs \
             test/els-2029-exact-replay-visual-feed.test.mjs \
             test/els-2029-raziel-consumer.test.mjs \
+            test/els-2029-explain-guidance.test.mjs \
             test/els-raziel-context.test.mjs
 
       - name: Install PostgreSQL client
