@@ -67,7 +67,6 @@ const DIRECT_NAV = [
   { label: "דף המספר", icon: "123", status: "Redesign follows Frame" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS", icon: "✦" },
-  { to: "/heichal", label: "היכל · Preview", icon: "◇" },
 ];
 
 const FOCUSABLE = [
