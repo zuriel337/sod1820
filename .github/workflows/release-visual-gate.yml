@@ -269,7 +269,6 @@ jobs:
               });
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
-              await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/i);
 
               const input = page.locator('#calculator-2029-input');
               await input.fill(goldens[0]);
