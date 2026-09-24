@@ -21,6 +21,7 @@ import {
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
@@ -374,6 +375,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     && elsSurfaceContext?.result?.presentationPolicy === "exact_replay_v1"
     ? elsSurfaceContext
     : null;
+  const elsGuide = elsFocus ? buildElsRazielGuidance(elsFocus) : null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
@@ -448,6 +450,13 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
         {elsFocus.occurrence.dependencyGroup ? <small>dependency · {elsFocus.occurrence.dependencyGroup}</small> : null}
         <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+      </section> : null}
+      {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
+        <b>{elsGuide.title}</b>
+        <span>{elsGuide.lead}</span>
+        <small>{elsGuide.boundary}</small>
+        <small>{elsGuide.inactive}</small>
+        <span>{elsGuide.question}</span>
       </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
         <b>{intentLabel || "Number Core focus"}</b>
