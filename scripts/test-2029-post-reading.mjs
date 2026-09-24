@@ -17,6 +17,11 @@ const vercel=JSON.parse(read("vercel.json"));
 assert.match(app,/path="\/post\/:slug" element={<Post2029Page \/>}/);
 assert.equal((vercel.rewrites||[]).some((r)=>r.source==="/post/(.*)"&&r.destination==="/2029.html"),true);
 assert.match(projection,/getPostBySlug/);
+assert.match(projection,/fetchPrivateGoldenStage/);
+assert.match(projection,/\.from\("research_objects"\)/);
+assert.match(projection,/\.eq\("privacy_scope", "private"\)/);
+assert.match(projection,/sod-hashmal-sukkot-5787-source-root/);
+assert.match(projection,/publicPost \|\| await fetchPrivateGoldenStage/);
 assert.equal(projection.includes('.from("post2029'),false);
 
 // Source is the reading center; system intelligence sits outside it.
