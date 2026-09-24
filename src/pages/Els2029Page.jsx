@@ -5,11 +5,35 @@ import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
+const clean = (value) => String(value ?? "").trim();
+
+function StateRow({ label, value, state = "ready" }) {
+  return <div className="sod29-state" data-state={state}>
+    <small>{label}</small>
+    <b>{value}</b>
+  </div>;
+}
+
 export default function Els2029Page() {
   const research = useResearch();
   const elsState = useFeatureState("lock_els");
+  const context = research.context || null;
+  const subject = context?.subject || null;
+  const selection = context?.selection || null;
+  const elsSelection = selection?.entityType === "els";
+  const locator = elsSelection ? clean(selection?.locator) : "";
+  const journey = context?.journey || null;
+
+  const exactReplayReady = Boolean(
+    elsSelection
+    && clean(selection?.corpus)
+    && Number.isInteger(Number(selection?.start))
+    && Number(selection?.skip) >= 2
+    && [-1, 1].includes(Number(selection?.dir))
+  );
+
   useEffect(() => {
-    applySeo({ title: "ELS · SOD1820", description: "ELS Research Work Area בתוך מערכת 2029", path: "/els" });
+    applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -25,45 +49,96 @@ export default function Els2029Page() {
     </Sod2029Shell>;
   }
 
-  return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="המנוע הקנוני נשאר אחד. ה־2029 אינו יורש את ה־Work Area הישן כעיצוב; הוא יקבל renderer חדש מעל אותו Engine, Corpus, coordinates ו־Research Context.">
-    <section className="sod29-focus-stage">
+  return <Sod2029Shell
+    wide
+    surface="els"
+    symbol="✦"
+    eyebrow="ONE ELS ENGINE · MANY PROJECTIONS"
+    title="ELS"
+    description="משטח 2029 מקרין Research Context ותוצאות קנוניות. הוא אינו מחשב ELS בעצמו ואינו יורש את ה־Work Area הישן כארכיטקטורה."
+  >
+    <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">CLOSED FOUNDATION</div>
-          <h2>מנוע אחד · מצב מחקר אחד · Renderer ניתן להחלפה</h2>
-          <div className="sod29-muted">ELS לא הופך לאפליקציה נפרדת ולא מחשב בצד React. החיפוש, הקורפוס, המיקום, ה־span/window וה־replay שייכים ל־owner הקנוני; 2D/3D/VR הם projections בלבד.</div>
+          <div className="sod29-kicker">CURRENT RESEARCH CONTEXT</div>
+          <h2>{subject?.label ? "מחקר ELS סביב " + subject.label : "ELS מחכה להקשר מחקר"}</h2>
+          <div className="sod29-muted">
+            {subject
+              ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
+              : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר. אין כאן חיפוש חופשי מומצא כשאין Anchor."}
+          </div>
         </div>
-        <span className="sod29-chip">legacy UI ≠ target UI</span>
+        <span className="sod29-chip">{subject ? "CONTEXT READY" : "CONTEXT REQUIRED"}</span>
       </div>
 
       <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
-          <div>
-            <strong>ELS Research Renderer</strong>
-            <p className="sod29-muted">ה־renderer הסופי עדיין לא נסגר, ולכן לא מטמיעים כאן את המסך הישן כאילו הוא החלטת 2029. כשיחובר, הוא יקבל את אותה זהות־חיפוש, coordinate lineage, Evidence ו־return_exact.</p>
-            <div className="sod29-actions" style={{ justifyContent: "center" }}>
-              <span className="sod29-chip">Matrix / Layer Stack</span>
-              <span className="sod29-chip">Exact Locus</span>
-              <span className="sod29-chip">Evidence</span>
-              <span className="sod29-chip">Journey</span>
+          <div style={{ width: "100%" }}>
+            <div className="sod29-kicker">SEMANTIC LOCUS</div>
+            <h3 style={{ marginTop: 6 }}>{elsSelection ? "מופע ELS נבחר" : "טרם נבחר מופע ELS"}</h3>
+            <p className="sod29-muted">
+              {elsSelection
+                ? "הבחירה היא projection על occurrence קיים. המשטח שומר זהות, provenance ו־return context; renderer עתידי יכול להשתנות בלי לשנות את הממצא."
+                : "המנוע וה־renderer מופרדים. כשיגיע Result Bundle קנוני, אותו occurrence יוכל להופיע ב־DOM, Matrix, שכבות או 3D בלי חישוב אמת נוסף."}
+            </p>
+
+            <div className="sod29-actions" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+              <span className="sod29-chip">Character Identity</span>
+              <span className="sod29-chip">Textual Occurrence</span>
+              <span className="sod29-chip">Glyph Representation</span>
+              <span className="sod29-chip">Rendering Instance</span>
+            </div>
+
+            <div style={{ display: "grid", gap: 10, marginTop: 18 }}>
+              <StateRow label="Subject / Anchor" value={subject?.label || "נדרש הקשר מחקר"} state={subject ? "ready" : "building"} />
+              <StateRow label="Occurrence locator" value={locator || "ממתין לבחירת locus"} state={locator ? "ready" : "building"} />
+              <StateRow
+                label="Exact replay"
+                value={exactReplayReady ? "corpus + start + skip + direction זמינים" : "נדרש Result Bundle עם coordinates מלאים"}
+                state={exactReplayReady ? "ready" : "building"}
+              />
+              <StateRow
+                label="Journey continuity"
+                value={journey?.id ? "פעיל · " + (clean(journey.kind) || "journey") : "אותו Research Context מוכן למסלול"}
+                state={journey?.id ? "ready" : "building"}
+              />
             </div>
           </div>
         </div>
 
         <aside className="sod29-inspector">
-          <div className="sod29-kicker">WHAT IS ALREADY LOCKED</div>
-          <h3 style={{ marginTop: 5 }}>החוזה שנשמר</h3>
+          <div className="sod29-kicker">FOUNDATION → PROJECTION</div>
+          <h3 style={{ marginTop: 5 }}>מה המשטח רשאי לעשות</h3>
           <div className="sod29-divider" />
-          <div className="sod29-muted">Engine</div><b>One canonical ELS core</b>
+          <div className="sod29-muted">Truth</div><b>לצרוך occurrence קנוני · לא לחשב אותו מחדש</b>
           <div className="sod29-divider" />
-          <div className="sod29-muted">Truth</div><b>Result / Finding / Interpretation נשארים נפרדים</b>
+          <div className="sod29-muted">Context</div><b>לשמור Anchor · selection · Journey · exact return</b>
           <div className="sod29-divider" />
-          <div className="sod29-muted">Continuity</div><b>Research Context + exact return</b>
+          <div className="sod29-muted">Spatial</div><b>Matrix / layers / 3D הם representation בלבד</b>
           <div className="sod29-divider" />
-          <div className="sod29-muted">Open</div><b>ה־2029 renderer המדויק</b>
-          <div className="sod29-state" style={{ marginTop: 14 }}>היכולת הקנונית קיימת; רק הפרזנטציה החדשה נשארת לבנייה. לא מציגים את הישן כהחלטה חדשה.</div>
+          <div className="sod29-muted">Evidence</div><b>קרבה חזותית אינה מעלה Truth או Independence</b>
         </aside>
       </div>
+
+      <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">ADAPTIVE ACTION SLOTS</div>
+            <h2>אותו ממצא · עומקים שונים</h2>
+          </div>
+          <span className="sod29-chip">NO EXPENSIVE I/O</span>
+        </div>
+        <div className="sod29-actions" style={{ flexWrap: "wrap" }}>
+          <span className="sod29-chip">Raziel · BUILDING</span>
+          <span className="sod29-chip">Neighborhood · BUILDING</span>
+          <span className="sod29-chip">Axis Continuation · BUILDING</span>
+          <span className="sod29-chip">Spatial · BUILDING</span>
+          <span className="sod29-chip">Deep Research · BUILDING</span>
+        </div>
+        <p className="sod29-muted" style={{ marginTop: 12 }}>
+          Neighborhood / Axis Continuation נשמרים כאן כנקודות הרחבה בלבד. חוקי האינטליגנציה שלהם ייקבעו מאוחר יותר מתוך דוגמאות מחקר אמיתיות, בלי לחסום את G3.
+        </p>
+      </section>
     </section>
   </Sod2029Shell>;
 }
