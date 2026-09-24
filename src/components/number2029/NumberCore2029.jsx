@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
-import CurationMark2029 from "../experience2029/CurationMark2029.jsx";\nimport MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
+import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
+import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -148,7 +149,7 @@ function MethodInspector({
   onRazielAction,
   onExpandRaziel,
   onOpenHeichal,
-  onClose,
+  methodLensSelection,\n  onMethodLensExpression,\n  onClose,
 }) {
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
@@ -292,7 +293,7 @@ export default function NumberCore2029({
   journeyLabel = null,
   onRazielAction,
   onExpandRaziel,
-} = {}) {
+  methodLensSelection = null,\n  onMethodLensExpression = null,\n} = {}) {
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [showCalculation, setShowCalculation] = useState(false);
@@ -722,7 +723,7 @@ export default function NumberCore2029({
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
-          onClose={() => setShowCalculation(false)}
+          methodLensSelection={methodLensSelection}\n          onMethodLensExpression={onMethodLensExpression}\n          onClose={() => setShowCalculation(false)}
         /> : null}
 
         <footer className="sod29-number-v10-stage-actions">
