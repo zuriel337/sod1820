@@ -27,11 +27,14 @@ export default function LegacyNowSystemPreview() {
           <span className="diamond-facet f3" aria-hidden />
           <span className="diamond-core" aria-hidden />
           <span className="diamond-copy">
-            <small>מתוך פוסט חי</small>
             <strong>צורת יהלום</strong>
-            <b>787</b>
-            <em>פתח את הפוסט</em>
+            <b>= 787</b>
           </span>
+        </Link>
+
+        <Link to="/yam-hamelach-tiferet-geula" className="sod-now-preview-source">
+          <small>מתוך הפוסט</small>
+          <strong>ים המלח הוא ספירת תפארת — ולכן משם תצא הגאולה</strong>
         </Link>
 
         <div className="sod-now-preview-locked l1">● עוד גימטריות 🔒</div>
@@ -73,9 +76,10 @@ export default function LegacyNowSystemPreview() {
         .diamond-facet{position:absolute;inset:0;pointer-events:none}.diamond-facet.f1{clip-path:polygon(0 0,50% 50%,0 100%);background:linear-gradient(90deg,rgba(246,226,122,.20),transparent)}.diamond-facet.f2{clip-path:polygon(0 0,100% 0,50% 50%);background:linear-gradient(180deg,rgba(255,255,255,.15),transparent)}.diamond-facet.f3{clip-path:polygon(100% 0,100% 100%,50% 50%);background:linear-gradient(270deg,rgba(62,166,255,.16),transparent)}
         .diamond-core{position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:#fff3b0;transform:translate(-50%,-50%) translateZ(28px);box-shadow:0 0 12px #fff3b0,0 0 30px rgba(62,166,255,.75),0 0 55px rgba(212,175,55,.42);animation:sodCorePulse 2.6s ease-in-out infinite}
         .diamond-copy{position:absolute;z-index:5;left:50%;top:50%;width:120px;text-align:center;display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-50%) rotateZ(-45deg) rotateX(-58deg) translateZ(42px);text-shadow:0 2px 12px #000}
-        .diamond-copy small{color:${C.goldLight};font:700 8px ${F.heading}}.diamond-copy strong{color:${C.goldBright};font:900 13px ${F.body};white-space:nowrap}.diamond-copy b{color:#fff3b0;font:900 29px ${F.mono};line-height:1.05;letter-spacing:1px}.diamond-copy em{color:#b9dcff;font:800 8px ${F.heading};font-style:normal;margin-top:5px}
+        .diamond-copy strong{color:${C.goldBright};font:900 13px ${F.body};white-space:nowrap}.diamond-copy b{color:#fff3b0;font:900 25px ${F.mono};line-height:1.05;letter-spacing:1px}
         .sod-now-preview-diamond:hover{animation-play-state:paused;box-shadow:0 0 28px rgba(246,226,122,.5),0 0 72px rgba(62,166,255,.25),inset 0 0 34px rgba(255,255,255,.14)}
         @keyframes sodDiamondFloat{0%,100%{transform:translate(-50%,-50%) rotateX(58deg) rotateZ(45deg) translateY(0)}50%{transform:translate(-50%,-50%) rotateX(54deg) rotateZ(49deg) translateY(-7px)}}@keyframes sodCorePulse{0%,100%{opacity:.72;scale:.82}50%{opacity:1;scale:1.18}}
+        .sod-now-preview-source{position:absolute;z-index:5;left:50%;bottom:48px;transform:translateX(-50%);width:min(88%,330px);display:grid;gap:2px;text-align:center;text-decoration:none;padding:7px 10px;border-radius:10px;background:rgba(7,5,3,.78);border:1px solid rgba(212,175,55,.16);backdrop-filter:blur(8px)}.sod-now-preview-source small{color:${C.goldDim};font:700 8px ${F.heading}}.sod-now-preview-source strong{color:${C.goldLight};font:800 9px/1.45 ${F.body}}.sod-now-preview-source:hover strong{color:${C.goldBright}}
         .sod-now-preview-node{position:absolute;z-index:3;padding:8px 10px;border:1px solid rgba(212,175,55,.24);border-radius:11px;background:rgba(12,8,4,.9)}.sod-now-preview-node small{display:block;color:${C.goldDim};font:700 8px ${F.heading}}.sod-now-preview-node strong{display:block;color:${C.goldLight};font:800 11px ${F.body};white-space:nowrap}.sod-now-preview-node.year{top:18px;right:12px}.sod-now-preview-node.ronen{top:18px;left:12px}
         .sod-now-preview-locked{position:absolute;z-index:2;color:${C.goldDim};font:700 8px ${F.heading};opacity:.65}.sod-now-preview-locked.l1{bottom:52px;right:14px}.sod-now-preview-locked.l2{bottom:20px;right:70px}.sod-now-preview-locked.l3{bottom:20px;left:70px}.sod-now-preview-locked.l4{bottom:52px;left:14px}
         .sod-now-preview-pipe{position:absolute;z-index:1;left:50%;top:52%;height:1px;width:142px;transform-origin:0 50%;background:linear-gradient(90deg,rgba(212,175,55,.05),rgba(246,226,122,.72),rgba(62,166,255,.22));box-shadow:0 0 9px rgba(212,175,55,.28);overflow:visible}.sod-now-preview-pipe::after{content:"";position:absolute;top:-2px;left:0;width:5px;height:5px;border-radius:50%;background:#fff3b0;box-shadow:0 0 10px rgba(62,166,255,.9);animation:sodSignal 2.8s linear infinite}@keyframes sodSignal{from{left:0;opacity:.15}20%{opacity:1}to{left:100%;opacity:.15}}.sod-now-preview-pipe.p1{transform:rotate(-52deg)}.sod-now-preview-pipe.p2{transform:rotate(232deg)}.sod-now-preview-pipe.p3{transform:rotate(33deg)}.sod-now-preview-pipe.p4{transform:rotate(147deg)}.sod-now-preview-pipe.p5{transform:rotate(72deg)}.sod-now-preview-pipe.p6{transform:rotate(108deg)}
