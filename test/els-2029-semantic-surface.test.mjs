@@ -29,8 +29,11 @@ test("ELS 2029 is projection-only and does not embed or implement an ELS engine"
   assert.match(src, /קרבה חזותית אינה מעלה Truth או Independence/);
 });
 
-test("ELS Intelligence extensions remain BUILDING rather than silently active", () => {
-  for (const label of ["Raziel", "Neighborhood", "Axis Continuation", "Spatial", "Deep Research"]) {
+test("deep ELS Intelligence extensions remain BUILDING while Raziel is only a verified-context consumer", () => {
+  assert.match(src, /ElsRazielEntry/);
+  assert.match(src, /ready=\{replayMatched && layeredReady\}/);
+  assert.match(src, /רזיאל · ממתין למופע מאומת/);
+  for (const label of ["Neighborhood", "Axis Continuation", "Spatial", "Deep Research"]) {
     assert.ok(src.includes(label + " · BUILDING"), label + " must remain a future action slot");
   }
   assert.match(src, /דוגמאות מחקר אמיתיות/);
