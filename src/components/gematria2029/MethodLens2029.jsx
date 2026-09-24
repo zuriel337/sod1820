@@ -1,12 +1,22 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchMethodLensProjection } from "../../lib/research/methodLensProjection.js";\n\nfunction methodLensDeterministicNote(item) {\n  const relation = item?.relation || {};\n  if (relation.sameWordMultiset) return "אותן מילים/סדר שונה — תלות מנורמלת";\n  if (relation.sameLetterMultiset) return "אותו מאגר אותיות — תלות מנורמלת";\n  if (relation.effectiveIndependentGroupCount > 1) return relation.effectiveIndependentGroupCount + " משפחות שיטה עצמאיות";\n  if (relation.status === "dependent") return "קשר תלוי — מוצג לשקיפות";\n  return "התאמה מאומתת בשיטה";\n}
+import { fetchMethodLensProjection } from "../../lib/research/methodLensProjection.js";
 import "./methodLens2029.css";
+
+function deterministicNote(item) {
+  const relation = item?.relation || {};
+  if (relation.sameWordMultiset) return "אותן מילים / סדר שונה — תלות מנורמלת";
+  if (relation.sameLetterMultiset) return "אותו מאגר אותיות — תלות מנורמלת";
+  if (relation.effectiveIndependentGroupCount > 1) return relation.effectiveIndependentGroupCount + " משפחות שיטה עצמאיות";
+  if (relation.status === "dependent") return "קשר תלוי — נשאר גלוי לשקיפות";
+  if (relation.status === "current") return "הביטוי הפעיל";
+  return "התאמה מאומתת בשיטה";
+}
 
 export default function MethodLens2029({ selection, compact = false, onOpenExpression = null } = {}) {
   const [requestedKey, setRequestedKey] = useState("");
   const [state, setState] = useState({ loading: false, data: null, error: null });
   const [showDependent, setShowDependent] = useState(false);
-  const key = selection ? [selection.expression, selection.methodKey, selection.resultValue, selection.dbColumn].join("::") : "";
+  const key = selection ? [selection.expression, selection.methodKey, selection.resultValue].join("::") : "";
 
   useEffect(() => {
     setRequestedKey("");
@@ -18,7 +28,11 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
     if (!selection || !requestedKey || requestedKey !== key) return undefined;
     let alive = true;
     setState({ loading: true, data: null, error: null });
-    fetchMethodLensProjection({ expression: selection.expression, methodKey: selection.methodKey, value: selection.resultValue })
+    fetchMethodLensProjection({
+      expression: selection.expression,
+      methodKey: selection.methodKey,
+      value: selection.resultValue,
+    })
       .then((data) => { if (alive) setState({ loading: false, data, error: null }); })
       .catch((error) => { if (alive) setState({ loading: false, data: null, error }); });
     return () => { alive = false; };
@@ -26,8 +40,8 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
 
   const data = state.data;
   const items = Array.isArray(data?.items) ? data.items : [];
-  const primary = useMemo(() => items.filter((item) => !item?.relation?.dependent), [items]);
-  const dependent = useMemo(() => items.filter((item) => item?.relation?.dependent), [items]);
+  const primary = useMemo(() => items.filter((item) => item?.relation?.status !== "dependent"), [items]);
+  const dependent = useMemo(() => items.filter((item) => item?.relation?.status === "dependent"), [items]);
 
   if (!selection || selection.resultValue == null) return null;
 
@@ -49,10 +63,10 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
         <strong>{selection.methodLabel || selection.methodKey} = {selection.resultValue}</strong>
         <small>{selection.expression} · המידע עצמו, לא סיכום AI</small>
       </div>
-      {data?.counts ? <div className="sod29-method-lens-counts">
-        <b>{data.counts.independentVisible ?? 0}<small>גלויים</small></b>
-        <b>{data.counts.dependent ?? 0}<small>תלויים</small></b>
-        <b>{data.counts.raw ?? 0}<small>raw</small></b>
+      {data ? <div className="sod29-method-lens-counts">
+        <b>{data.effectiveIndependentCount ?? 0}<small>עצמאיים</small></b>
+        <b>{data.dependentCount ?? 0}<small>תלויים</small></b>
+        <b>{data.rawMatchCount ?? 0}<small>raw</small></b>
       </div> : null}
     </header>
 
@@ -69,9 +83,8 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
         <div className="sod29-method-lens-badges">
           <em>מאומת</em>
           {item.relation?.effectiveIndependentGroupCount > 1 ? <em>{item.relation.effectiveIndependentGroupCount} משפחות עצמאיות</em> : null}
-          {item.world ? <em>{item.world}</em> : null}
         </div>
-        <small>{methodLensDeterministicNote(item)}</small>
+        <small>{deterministicNote(item)}</small>
       </article>)}
     </div> : null}
 
@@ -86,7 +99,7 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
             <span>{selection.methodLabel || selection.methodKey} = {item.value}</span>
           </button>
           <div className="sod29-method-lens-badges"><em>תלוי</em><em>מאומת</em></div>
-          <small>{methodLensDeterministicNote(item)}</small>
+          <small>{deterministicNote(item)}</small>
         </article>)}
       </div> : null}
     </> : null}
