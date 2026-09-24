@@ -22,6 +22,9 @@ const livingWorldCss = read("src/components/number2029/numberLivingWorld2029.css
 const lightRoutes = read("src/lib/lightRoutes.js");
 const vercel = JSON.parse(read("vercel.json"));
 const browserAcceptance = read("tests/world2029-release.spec.cjs");
+const methodLensModel = read("src/lib/research/methodLensProjection.js");
+const methodLensComponent = read("src/components/gematria2029/MethodLens2029.jsx");
+const calculator2029 = read("src/pages/Calculator2029Page.jsx");
 
 for (const required of [
   "Sod2029Shell",
@@ -85,6 +88,21 @@ assert.equal(page.includes('navigate("/heichal")'), false, "Number 2029 must not
 assert.equal(drawer.includes('go?.("/heichal"'), false, "Number Drawer must not navigate to unopened Heichal");
 assert.match(coreCss, /\.sod29-miluy-spatial/);
 assert.match(coreCss, /prefers-reduced-motion/);
+
+// Shared Method Lens 2029 — evidence-first, deterministic, same consumer in Calculator + Number.
+assert.match(methodLensModel, /getNumberLookup/);
+assert.match(methodLensModel, /getRelationCandidate/);
+assert.match(methodLensModel, /lookupSource:\s*"fn_number_lookup"/);
+assert.match(methodLensModel, /normalizationSource:\s*"fn_relation_candidate"/);
+assert.doesNotMatch(methodLensModel, /\.from\(["']gematria_words["']\)/);
+assert.doesNotMatch(methodLensModel, /getAiAnalysis|ai-analyze|anthropic|openai/i);
+assert.match(methodLensComponent, /פתח את השיטה/);
+assert.match(methodLensComponent, /primary\.map/);
+assert.match(methodLensComponent, /dependent\.map/);
+assert.match(methodLensComponent, /relation\?\.methods/);
+assert.match(core, /MethodLens2029/);
+assert.match(calculator2029, /MethodLens2029/);
+assert.doesNotMatch(calculator2029, /getAiAnalysis|ai-analyze|anthropic|openai/i);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /openCapability/);
 assert.match(frame, /openNumber/);
