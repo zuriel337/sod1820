@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 const migration = readFileSync("supabase/migrations/20260922191500_operational_trace_runtime_v1.sql", "utf8");
 const edge = readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
 const browser = readFileSync("src/lib/supabase.js", "utf8");
+const researchExtract = readFileSync("supabase/functions/research-extract/index.ts", "utf8");
 
 const requiredMigration = [
   "create table if not exists public.op_trace_roots",
@@ -104,6 +105,40 @@ assert.equal(
   browser.includes("trace_id: interactionId"),
   false,
   "browser correlation must never let the client choose the canonical trace_id",
+);
+
+
+for (const needle of [
+  'sb.rpc("op_trace_begin_v1"',
+  'sb.rpc("op_trace_record_span_v1"',
+  'sb.rpc("op_trace_finish_v1"',
+  'sb.rpc("op_trace_link_ai_cost_v1"',
+  'capability: "research-extract"',
+  'name: "research-extract:model"',
+  'kind: "model_call"',
+  'provider: "anthropic"',
+  'name: "research-extract:fn_all_methods"',
+  'kind: "db_rpc"',
+  'name: "research-extract:persist-candidates"',
+  'trace_id: trace?.traceId || null',
+  'span_id: trace?.traceId ? spanId : null',
+  'rawPrivatePayloadLogged: false',
+]) {
+  assert.ok(researchExtract.includes(needle), `research-extract trace coverage must include: ${needle}`);
+}
+assert.ok(
+  researchExtract.includes('inputRef: "sha256:" + await payloadHash(content)'),
+  "research-extract replay must reference hashed content, not raw private payload",
+);
+assert.equal(
+  researchExtract.includes('subject_ref: source_ref'),
+  false,
+  "research-extract must not place source_ref/chat identity into operational subject_ref",
+);
+assert.equal(
+  researchExtract.includes('await sb.from("ai_token_log").insert({ source: "research-extract"'),
+  false,
+  "research-extract must not keep an untraced standalone token-log insert",
 );
 
 console.log("Operational Trace Runtime v1 static acceptance: PASS");
