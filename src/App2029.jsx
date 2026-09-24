@@ -16,7 +16,7 @@ const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
 const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
-const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
+const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));\nconst Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
@@ -69,7 +69,7 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/2029" element={<Home2029Page />} />
+              <Route path="/2029" element={<Home2029Page />} />\n              <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/post/:slug" element={<Post2029Page />} />
