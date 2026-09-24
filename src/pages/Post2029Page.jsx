@@ -152,7 +152,7 @@ function PostReadingBody() {
     updateFocusContext();
     const subject = activeFocus.number
       ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
-      : { id: activeFocus.primary, type: "phrase", label: activeFocus.primary, href: "/world" };
+      : { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` };
     research.updateResearchContext?.({
       subject,
       selection: {
