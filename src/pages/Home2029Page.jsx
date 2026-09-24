@@ -76,6 +76,20 @@ function TemporalNowCard({ item, onOpen }) {
   </article>;
 }
 
+function ConnectedGoldenStory({ onOpenPost, onOpenHeichal }) {
+  return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
+    <div>
+      <div className="sod29-kicker">מקור חי · Connected Golden</div>
+      <h3>רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז</h3>
+      <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם, אל המספר ואל רזיאל — עם חזרה מדויקת לאותה נקודה.</p>
+    </div>
+    <div className="sod29-actions">
+      <button className="sod29-action primary" type="button" onClick={onOpenPost}>פתח את הפוסט ←</button>
+      <button className="sod29-action" type="button" onClick={onOpenHeichal}>היכנס להיכל ◇</button>
+    </div>
+  </article>;
+}
+
 function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
@@ -150,6 +164,10 @@ function HomeBody() {
 
       {homeState.loading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
       {!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+      <ConnectedGoldenStory
+        onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
+        onOpenHeichal={() => shell.go("/heichal")}
+      />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
 
@@ -166,7 +184,7 @@ function HomeBody() {
         </div>
         <div className="sod29-orbit-map" aria-label="הקשר אחד שממשיך איתך">
           <div className="sod29-orbit-center">עולם<br />אחד</div>
-          <span className="sod29-orbit-node n1">עוגן</span>
+          <span className="sod29-orbit-node n1">מוקד</span>
           <span className="sod29-orbit-node n2">מקורות</span>
           <span className="sod29-orbit-node n3">מסע</span>
           <span className="sod29-orbit-node n4">רזיאל</span>
@@ -193,7 +211,7 @@ function HomeBody() {
       <article className="sod29-home-lane">
         <div className="sod29-kicker">בשבילי</div>
         <h2>מה השתנה בשבילי</h2>
-        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למחקר שלך. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
+        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למה ששמרת או פתחת. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
         <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>פתח תשומת־לב אישית</button></div>
       </article>
     </section>
