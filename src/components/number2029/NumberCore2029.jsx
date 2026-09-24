@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
-import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
+import CurationMark2029 from "../experience2029/CurationMark2029.jsx";\nimport MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -200,6 +200,7 @@ function MethodInspector({
         onRazielAction={onRazielAction}
         onOpenHeichal={onOpenHeichal}
       />
+      <MethodLens2029 selection={methodLensSelection} compact onOpenExpression={onMethodLensExpression} />
     </div> : null}
 
     {tab === "learn" ? <div className="sod29-number-method-inspector-pane sod29-number-method-learn">
