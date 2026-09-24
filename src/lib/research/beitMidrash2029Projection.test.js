@@ -1,0 +1,98 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import {
+  buildBeitMidrashSystemNow,
+  selectMethodMenu,
+  countRegisteredInactive,
+  resolveSelectedMethod,
+  resolveHeroFocal,
+} from "./beitMidrash2029Projection.js";
+
+test("buildBeitMidrashSystemNow shapes convergence/growth/communication/activity without inventing data", () => {
+  const out = buildBeitMidrashSystemNow({
+    convergence: [{ number: 358 }, { number: 137 }],
+    growth: [{ title: "a" }, { title: "b" }, { title: "c" }],
+    communication: [{ channel: "main" }],
+    activity: { searches24h: 5, numbersOpened: 2, discussionsActive: 1 },
+    counts: { convergence: 2, growth: 3, channels: 1 },
+  });
+  assert.equal(out.counts.convergence, 2);
+  assert.equal(out.counts.growth, 3);
+  assert.equal(out.counts.channels, 1);
+  assert.equal(out.topConvergence.length, 2);
+  assert.equal(out.topGrowth.length, 3);
+  assert.deepEqual(out.activity, { searches24h: 5, numbersOpened: 2, discussionsActive: 1 });
+});
+
+test("buildBeitMidrashSystemNow fails honest on missing/malformed input", () => {
+  const out = buildBeitMidrashSystemNow(null);
+  assert.deepEqual(out.topConvergence, []);
+  assert.deepEqual(out.topGrowth, []);
+  assert.equal(out.channelCount, 0);
+  assert.equal(out.activity, null);
+});
+
+test("selectMethodMenu returns only active methods, sorted, with no computed value invented", () => {
+  const rows = [
+    { method_key: "b", display_label: "ב", active: true, sort_order: 2 },
+    { method_key: "a", display_label: "א", active: true, sort_order: 1 },
+    { method_key: "c", display_label: "ג", active: false, registered: true },
+  ];
+  const menu = selectMethodMenu(rows);
+  assert.equal(menu.length, 2);
+  assert.equal(menu[0].methodKey, "a");
+  assert.equal(menu[1].methodKey, "b");
+  assert.equal("computedValue" in menu[0], false);
+});
+
+test("countRegisteredInactive counts only registered+not-active rows", () => {
+  const rows = [
+    { registered: true, active: true },
+    { registered: true, active: false },
+    { registered: false, active: false },
+  ];
+  assert.equal(countRegisteredInactive(rows), 1);
+});
+
+test("resolveSelectedMethod never fabricates soul/sub/computedValue when absent", () => {
+  const rows = [{ method_key: "x", display_label: "X", active: true, execution_kind: "sql_function" }];
+  const resolved = resolveSelectedMethod(rows, [], "x");
+  assert.equal(resolved.hasComputed, false);
+  assert.equal(resolved.computedValue, null);
+  assert.equal(resolved.soul, null);
+  assert.equal(resolved.sub, null);
+});
+
+test("resolveSelectedMethod surfaces context_activated honestly", () => {
+  const rows = [{ method_key: "y", display_label: "Y", active: true, execution_kind: "context_activated" }];
+  const resolved = resolveSelectedMethod(rows, [], "y");
+  assert.equal(resolved.contextActivated, true);
+});
+
+test("resolveSelectedMethod returns null for unknown method key", () => {
+  assert.equal(resolveSelectedMethod([{ method_key: "x" }], [], "missing"), null);
+  assert.equal(resolveSelectedMethod([{ method_key: "x" }], [], null), null);
+});
+
+test("resolveHeroFocal prefers a live convergence over growth", () => {
+  const now = buildBeitMidrashSystemNow({
+    convergence: [{ number: 358, events: [{}, {}] }],
+    growth: [{ title: "חידוש חדש", type: "חידוש" }],
+  });
+  const focal = resolveHeroFocal(now);
+  assert.equal(focal.kind, "convergence");
+  assert.match(focal.label, /358/);
+  assert.match(focal.detail, /2/);
+});
+
+test("resolveHeroFocal falls back to top growth when no convergence exists", () => {
+  const now = buildBeitMidrashSystemNow({ convergence: [], growth: [{ title: "חידוש חדש", type: "חידוש" }] });
+  const focal = resolveHeroFocal(now);
+  assert.equal(focal.kind, "growth");
+  assert.equal(focal.label, "חידוש חדש");
+});
+
+test("resolveHeroFocal never fabricates a focal when live state has neither", () => {
+  assert.equal(resolveHeroFocal(null), null);
+  assert.equal(resolveHeroFocal(buildBeitMidrashSystemNow({ convergence: [], growth: [] })), null);
+});

@@ -1,8 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, Suspense, lazy } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+
+// BEIT_MIDRASH_2029_GOLDEN_V1 preview mount: ?golden=beit-midrash renders the isolated Golden
+// preview in place of the normal Home body. This does not touch App2029.jsx/vercel.json routing
+// and leaves /2029 byte-semantically unchanged for every other query string, including none.
+// Lazy: the Golden preview page and its dependencies must not enter every /2029 visitor's bundle.
+const BeitMidrash2029Page = lazy(() => import("./BeitMidrash2029Page.jsx"));
+const GOLDEN_PREVIEW_KEYS = { "beit-midrash": BeitMidrash2029Page };
 
 function HomeBody() {
   const navigate = useNavigate();
@@ -98,8 +105,16 @@ function HomeBody() {
 }
 
 export default function Home2029Page() {
+  const [searchParams] = useSearchParams();
+  const goldenPreview = searchParams.get("golden");
+  const GoldenPreview = goldenPreview ? GOLDEN_PREVIEW_KEYS[goldenPreview] : null;
+
   useEffect(() => {
+    if (GoldenPreview) return; // preview owns its own applySeo/title
     applySeo({ title: "SOD1820 · 2029", description: "שער הכניסה למערכת המחקר החדשה של SOD1820", path: "/2029" });
-  }, []);
+  }, [GoldenPreview]);
+
+  if (GoldenPreview) return <Suspense fallback={null}><GoldenPreview /></Suspense>;
+
   return <Sod2029Shell surface="home" symbol="✦" eyebrow="DISCOVER · RESUME · RESEARCH" title="SOD1820 2029" description="שער רגוע למערכת אחת: פותחים עוגן, ממשיכים מחקר קיים, ורואים שינוי ציבורי ואישי בלי לערבב ביניהם."><HomeBody /></Sod2029Shell>;
 }
