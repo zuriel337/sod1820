@@ -124,7 +124,7 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
             <select value={methodB?.methodKey || ""} onChange={(event) => setMethodBKey(event.target.value)} aria-label="בחר שיטה לביטוי B">
               {methodsB.map((method) => (
                 <option key={method.methodKey} value={method.methodKey}>
-                  {method.label} · {method.computedValue ?? calculationAvailabilityLabel(method) || "—"}
+                  {method.label} · {(method.computedValue ?? calculationAvailabilityLabel(method)) || "—"}
                 </option>
               ))}
             </select>
