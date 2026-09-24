@@ -13,6 +13,7 @@ const clean = (value) => {
 };
 
 function toInt(value) {
+  if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isInteger(n) ? n : null;
 }
