@@ -58,4 +58,30 @@ test("Raziel context preserves Journey and exact locus without creating evidence
   assert.equal("canonical" in out, false);
 });
 
+test("Raziel adapter keeps absent exact fields null instead of inventing zero", () => {
+  const out = buildElsRazielSurfaceContext({
+    researchContext: { lens: "els", journey: { id: "path-2", kind: "research_path", position: null } },
+    projection: {
+      contract: "els_2029_projection_v1",
+      status: "OK",
+      completion: { totalHits: null, returnedHits: null, truncated: false },
+      selectedOccurrence: {
+        occurrenceId: "occ-null",
+        corpusId: "torah-v1",
+        skip: 9,
+        dir: 1,
+        start: 50,
+        end: null,
+        positions: [50, null, 68],
+        dependencyGroup: "g-null",
+        coordinateConvention: "zero_based_character_index",
+      },
+    },
+  });
+  assert.equal(out.occurrence.end, null);
+  assert.deepEqual(out.occurrence.positions, [50, 68]);
+  assert.equal(out.result.totalHits, null);
+  assert.equal(out.journey.position, null);
+});
+
 console.log("ELS Raziel surface context adapter: PASS");
