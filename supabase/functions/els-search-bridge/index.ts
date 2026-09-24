@@ -134,7 +134,7 @@ Deno.serve(async (req: Request) => {
   try { body = await req.json(); }
   catch { return json({ error: "invalid_json" }, 400); }
 
-  const op = body?.op === "verify" ? "verify" : body?.op === "page" ? "page" : null;
+  const op = body?.op === "verify" ? "verify" : body?.op === "page" ? "page" : body?.op === "search" ? "search" : null;
   const term = typeof body?.term === "string" ? body.term.trim().slice(0, 200) : "";
   const scope = body?.scope === "tanakh" ? "tanakh" : "torah";
   if (!op || term.length < 2) return json({ error: "invalid_request" }, 400);
@@ -153,6 +153,7 @@ Deno.serve(async (req: Request) => {
     after_skip: body?.after_skip ?? null,
     after_start: body?.after_start ?? null,
     after_dir: body?.after_dir ?? null,
+    max_hits: body?.max_hits ?? null,
   }));
   const trace = await traceBegin(userId ? "user" : "anon", op, inputHash);
 
@@ -180,6 +181,105 @@ Deno.serve(async (req: Request) => {
         replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v3", "els_single_engine_law v2"] },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       });
+      await traceFinish(trace, "success");
+      return json({ result, trace_id: trace?.traceId || null, rate });
+    }
+
+    if (op === "search") {
+      const cap = Math.max(1, Math.min(intOrNull(body?.max_hits) ?? 4000, 4000));
+      const pageSize = Math.min(500, cap);
+      const maxPages = Math.ceil(cap / pageSize);
+      const hits: any[] = [];
+      let cursor: { skip: number; start: number; dir: number } | null = null;
+      let first: any = null;
+      let last: any = null;
+
+      for (let pageIndex = 0; pageIndex < maxPages; pageIndex++) {
+        const startedAt = new Date().toISOString();
+        const result = await serviceRpc("els_search_page_core_v1", {
+          p_term: term,
+          p_scope: scope,
+          p_skip_min: 2,
+          p_skip_max: null,
+          p_page_size: pageSize,
+          p_after_skip: cursor?.skip ?? null,
+          p_after_start: cursor?.start ?? null,
+          p_after_dir: cursor?.dir ?? null,
+          p_selection_protocol: body?.selection_protocol || "POST_HOC_EXPLORATORY",
+        });
+        const endedAt = new Date().toISOString();
+        await traceSpan(trace, "els_search_page_core_v1", startedAt, endedAt, "success", {
+          capability: "els:search",
+          owner_ref: "els_research_layer_law v3",
+          output_use: "used",
+          resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+          cost: { certainty: "not_billable" },
+          replay: {
+            inputRef: `sha256:${inputHash}`,
+            ownerRuleRefs: ["els_research_layer_law v3", "els_single_engine_law v2"],
+            parametersRef: `page:${pageIndex + 1};cap:${cap};page_size:${pageSize}`,
+          },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        });
+
+        first ||= result;
+        last = result;
+        const pageHits = Array.isArray(result?.hits) ? result.hits : [];
+        hits.push(...pageHits.slice(0, Math.max(0, cap - hits.length)));
+
+        if (result?.status !== "OK" && result?.status !== "EXECUTED_EMPTY") break;
+        const hasMore = result?.completion?.has_more === true;
+        const after = result?.completion?.continuation?.after;
+        if (!hasMore || !after || hits.length >= cap) break;
+        cursor = {
+          skip: Number(after.skip),
+          start: Number(after.start),
+          dir: Number(after.dir),
+        };
+        if (!Number.isInteger(cursor.skip) || !Number.isInteger(cursor.start) || ![-1, 1].includes(cursor.dir)) break;
+      }
+
+      const hasMore = last?.completion?.has_more === true;
+      const status = hits.length ? "OK" : (first?.status || "EXECUTED_EMPTY");
+      const result = {
+        contract: "els_regular_search_bridge_v1",
+        status,
+        scope: first?.scope || scope,
+        corpus_id: first?.corpus_id ?? null,
+        input: first?.input ?? { normalized: term },
+        hits,
+        selection_protocol: body?.selection_protocol || "POST_HOC_EXPLORATORY",
+        search: {
+          ...(first?.search || {}),
+          ordering: "skip,start,forward-before-back-on-exact-tie",
+          sampling: {
+            policy: "ordered_prefix_v1",
+            representative: false,
+            legacy_dispersal_preserved: false,
+          },
+          full_domain: true,
+        },
+        completion: {
+          executed: first?.completion?.executed !== false,
+          returned_hits: hits.length,
+          cap,
+          pages: Math.ceil(hits.length / pageSize) || (first ? 1 : 0),
+          truncated: hasMore,
+          has_more: hasMore,
+          continuation: hasMore ? (last?.completion?.continuation ?? null) : null,
+        },
+        engine: {
+          id: "els-sql-core",
+          version: 2,
+          bridge: "els-search-bridge:regular-v1",
+          owner: "els_research_layer_law:v3",
+        },
+        provenance: {
+          ...(first?.provenance || {}),
+          occurrence_boundary: "els_search_page_core_v1",
+          selection_projection: "ordered_prefix_v1",
+        },
+      };
       await traceFinish(trace, "success");
       return json({ result, trace_id: trace?.traceId || null, rate });
     }

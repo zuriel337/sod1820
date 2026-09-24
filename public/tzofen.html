@@ -1598,6 +1598,22 @@
       postHost({type:"engine-request",requestId,op,payload});
     });
   }
+  async function canonicalEmbeddedTorahSearch(raw,cap=4000){
+    const reply=await engineRequest("search",{
+      term:raw,scope:"torah",max_hits:cap,selection_protocol:"POST_HOC_EXPLORATORY"
+    },60000);
+    if(!reply||!reply.ok||!reply.result)return {error:(reply&&reply.error)||"canonical-search-unavailable"};
+    const r=reply.result;
+    if(r.status!=="OK"&&r.status!=="EXECUTED_EMPTY")return {error:r.status||"canonical-search-failed"};
+    const hits=(Array.isArray(r.hits)?r.hits:[]).map(h=>({
+      skip:Number(h.skip),dir:Number(h.dir),start:Number(h.start),
+      positions:Array.isArray(h.positions)?h.positions.map(Number):[]
+    })).filter(h=>Number.isFinite(h.skip)&&Number.isFinite(h.dir)&&Number.isFinite(h.start));
+    return {
+      hits,capped:r.completion?.truncated===true,t:norm(raw),canonical:true,
+      search:r.search||null,completion:r.completion||null,traceId:reply.trace_id||null
+    };
+  }
 
   // ── 🛰️ חוזה-המצב היוצא (`state`) — Work Area · Phase 1 ────────────────────────────────
   // ⚠️ **סריאליזציה בלבד.** כל שדה כאן כבר קיים בזיכרון (st · occ() · blockOf() · shownHitsOf()).
@@ -1833,7 +1849,16 @@
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      st.res=_slow?await findAllAdaptive(w,4000):findAll(w,4000);   // תנ״ך=מותאם (probe→ואם צריך parallel) · תורה=סינכרוני כרגיל
+      if(EMBED&&st.scope==="torah"){
+        st.res=await canonicalEmbeddedTorahSearch(w,4000);
+        if(st.res&&st.res.error){
+          go.disabled=false;go.textContent=goLabel();hideSearchStat();
+          toast("החיפוש הקנוני אינו זמין כרגע — נסו שוב בעוד רגע");
+          return;
+        }
+      }else{
+        st.res=_slow?await findAllAdaptive(w,4000):findAll(w,4000);
+      }
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";

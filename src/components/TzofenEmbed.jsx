@@ -257,7 +257,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (!d || d.source !== "tzofen") return;
       if (d.type === "engine-request") {
         const requestId = typeof d.requestId === "string" ? d.requestId.slice(0, 120) : "";
-        const op = d.op === "page" || d.op === "verify" ? d.op : null;
+        const op = d.op === "page" || d.op === "verify" || d.op === "search" ? d.op : null;
         if (!requestId || !op) {
           if (requestId) postToTool({ type: "engine-result", requestId, ok: false, error: "invalid_request" });
           return;
