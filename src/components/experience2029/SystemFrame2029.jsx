@@ -857,7 +857,7 @@ export default function SystemFrame2029({
     /></PanelShell>;
   };
 
-  return (
+  const frame = (
     <ShellContext.Provider value={shellApi}>
       <div
         className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
@@ -956,4 +956,5 @@ export default function SystemFrame2029({
       </div>
     </ShellContext.Provider>
   );
+  return surface === "heichal" ? <PaletteProvider value={palette}>{frame}</PaletteProvider> : frame;
 }
