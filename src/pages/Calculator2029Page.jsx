@@ -275,7 +275,7 @@ function CalculatorBody() {
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>
               <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
-                {showOpening ? "סגור פתיחה" : "פתח את השיטה"}
+                {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
               </button>
               <button
                 type="button"
