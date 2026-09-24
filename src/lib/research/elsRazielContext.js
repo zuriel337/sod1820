@@ -1,3 +1,5 @@
+import { stableIdentityDigest } from "./researchRepresentations.js";
+
 const clean = (value) => {
   if (value == null) return null;
   const text = String(value).trim();
@@ -28,14 +30,15 @@ export function buildElsRazielSurfaceContext({
     lens: researchContext?.lens === "els" ? "els" : clean(researchContext?.lens),
     subject: subject
       ? {
-          id: clean(subject.id),
+          ref: clean(subject.id) ? `anon:${stableIdentityDigest(subject.id)}` : null,
           type: clean(subject.type),
-          href: clean(subject.href),
         }
       : null,
     occurrence: selected
       ? {
-          occurrenceId: clean(selected.occurrenceId),
+          occurrenceRef: clean(selected.occurrenceId)
+            ? `anon:${stableIdentityDigest(selected.occurrenceId)}`
+            : null,
           corpusId: clean(selected.corpusId || projection?.corpusId),
           skip: safeInt(selected.skip),
           dir: [-1, 1].includes(safeInt(selected.dir)) ? safeInt(selected.dir) : null,
@@ -44,7 +47,9 @@ export function buildElsRazielSurfaceContext({
           positions: Array.isArray(selected.positions)
             ? selected.positions.map(safeInt).filter(Number.isInteger).slice(0, 256)
             : [],
-          dependencyGroup: clean(selected.dependencyGroup || selectedLayer?.dependencyGroup),
+          dependencyRef: clean(selected.dependencyGroup || selectedLayer?.dependencyGroup)
+            ? `anon:${stableIdentityDigest(selected.dependencyGroup || selectedLayer?.dependencyGroup)}`
+            : null,
           coordinateConvention: clean(selected.coordinateConvention),
         }
       : null,
@@ -92,7 +97,7 @@ export function buildElsRazielGuidance(surfaceContext) {
   const result = surfaceContext?.result || null;
   const exactReplay = Boolean(
     surfaceContext?.surface === "els"
-    && occurrence?.occurrenceId
+    && occurrence?.occurrenceRef
     && result?.contract === "els_2029_projection_v1"
     && result?.status === "OK"
     && result?.presentationPolicy === "exact_replay_v1"
@@ -123,7 +128,7 @@ export function buildElsRazielGuidance(surfaceContext) {
     voice: "raziel",
     source: Object.freeze({
       surface: "els",
-      occurrenceId: clean(occurrence.occurrenceId),
+      occurrenceRef: clean(occurrence.occurrenceRef),
       projectionContract: clean(result.contract),
       presentationPolicy: clean(result.presentationPolicy),
     }),
