@@ -11,6 +11,11 @@ const cleanString = (value) => {
   const s = String(value).trim();
   return s || null;
 };
+const cleanInteger = (value) => {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isInteger(n) ? n : null;
+};
 
 function normalizeSubject(value) {
   if (!isObject(value)) return null;
@@ -52,10 +57,10 @@ function normalizeSelection(value) {
     corpus: cleanString(value.corpus),
     corpusVersion: cleanString(value.corpusVersion),
     occurrenceId: cleanString(value.occurrenceId),
-    start: Number.isInteger(Number(value.start)) ? Number(value.start) : null,
-    end: Number.isInteger(Number(value.end)) ? Number(value.end) : null,
-    skip: Number.isInteger(Number(value.skip)) ? Number(value.skip) : null,
-    dir: [-1, 1].includes(Number(value.dir)) ? Number(value.dir) : null,
+    start: cleanInteger(value.start),
+    end: cleanInteger(value.end),
+    skip: cleanInteger(value.skip),
+    dir: [-1, 1].includes(cleanInteger(value.dir)) ? cleanInteger(value.dir) : null,
   };
   return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
