@@ -105,3 +105,58 @@
   .sod29-workspace-card,.sod29-workspace-card.wide,.sod29-workspace-card.full{grid-column:1}
   .sod29-workspace-backdrop{padding:8px}
 }
+
+
+/* Home Global Now Golden: current-time discovery is a projection, not a feed. */
+.sod29-home-now-first{margin-top:0}
+.sod29-home-now-card{margin-top:16px;border:1px solid var(--s29-line-strong);border-radius:24px;padding:clamp(18px,2.8vw,28px);background:radial-gradient(circle at 18% 12%,color-mix(in srgb,var(--s29-accent) 14%,transparent),transparent 34%),color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);box-shadow:0 18px 60px color-mix(in srgb,var(--s29-panel) 28%,transparent)}
+.sod29-home-now-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.sod29-home-now-head h3{margin:5px 0 0;font-size:clamp(30px,5vw,52px);line-height:1;color:var(--s29-accent-text)}
+.sod29-home-now-live{border:1px solid var(--s29-line-strong);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;color:var(--s29-accent-text);white-space:nowrap}
+.sod29-home-now-lead{max-width:720px;margin:18px 0 0;font-size:clamp(16px,2vw,20px);line-height:1.7;color:var(--s29-ink)}
+.sod29-home-now-findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.sod29-home-now-finding{border:1px solid var(--s29-line);border-radius:17px;padding:14px 16px;background:color-mix(in srgb,var(--s29-panel) 74%,transparent)}
+.sod29-home-now-finding strong{display:block;font-size:16px;line-height:1.55;color:var(--s29-ink)}
+.sod29-home-now-finding small{display:block;margin-top:4px;color:var(--s29-muted);line-height:1.45}
+.sod29-home-now-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-top:18px;padding-top:16px;border-top:1px solid var(--s29-line)}
+.sod29-home-now-foot>div{display:grid;gap:4px}.sod29-home-now-foot strong{font-size:13px;color:var(--s29-ink)}.sod29-home-now-foot small{color:var(--s29-muted);line-height:1.5}
+.sod29-home-now-empty{margin-top:16px;border:1px dashed var(--s29-line);border-radius:18px;padding:18px;color:var(--s29-muted)}
+@media(max-width:620px){.sod29-home-now-findings{grid-template-columns:1fr}.sod29-home-now-foot{align-items:stretch;flex-direction:column}.sod29-home-now-foot .sod29-action{width:100%}.sod29-home-now-head h3{font-size:34px}}
+
+
+/* Home temporal Treasures: contextual Curation projection, never a fixed gallery. */
+.sod29-home-now-treasures{margin-top:18px;padding:15px;border:1px solid var(--s29-line);border-radius:19px;background:color-mix(in srgb,var(--s29-panel) 72%,transparent)}
+.sod29-home-now-treasures-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sod29-home-now-treasures-head>div{display:grid;gap:2px}
+.sod29-home-now-treasures-head small{font-size:10px;font-weight:900;color:var(--s29-accent-text)}
+.sod29-home-now-treasures-head strong{font-size:14px;color:var(--s29-ink)}
+.sod29-home-now-treasures-head>span{min-width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:10px}
+.sod29-home-now-treasure-list{display:grid;gap:8px;margin-top:11px}
+.sod29-home-now-treasure{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent)}
+.sod29-home-now-treasure>div{min-width:0;display:grid;gap:2px}
+.sod29-home-now-treasure strong{font-size:13px;line-height:1.45;color:var(--s29-ink)}
+.sod29-home-now-treasure small{font-size:9px;color:var(--s29-muted)}
+.sod29-home-now-treasures>p{margin:10px 2px 0;font-size:9px;line-height:1.55;color:var(--s29-muted)}
+
+
+/* Connected Golden bridge: Home → source Post / Heichal. */
+.sod29-connected-golden-story{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  padding:18px 20px;
+  border:1px solid var(--s29-line-strong);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 36%),
+    var(--s29-panel-grad);
+}
+.sod29-connected-golden-story h3{margin:5px 0 7px;font-size:clamp(20px,2.5vw,28px);line-height:1.2}
+.sod29-connected-golden-story p{margin:0;color:var(--s29-muted);line-height:1.65;max-width:760px}
+.sod29-connected-golden-story .sod29-actions{justify-content:flex-end}
+@media(max-width:760px){
+  .sod29-connected-golden-story{grid-template-columns:1fr;padding:16px}
+  .sod29-connected-golden-story .sod29-actions{justify-content:flex-start}
+}

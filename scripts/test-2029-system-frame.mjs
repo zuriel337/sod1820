@@ -118,11 +118,11 @@ assert.match(frame, /journey:\s*target\.journey \|\| null/);
 assert.match(frame, /returnTo:\s*null/);
 
 // Quick Inspect and Selection Intelligence stay temporary context projections. The native NumberDrawer2029 may be mounted as a 2029 projection, but the Legacy NumberDrawer/numberDrawer owners remain forbidden above.
-assert.match(frame, /TEMPORARY SELECTION/);
+assert.match(frame, /בחירה זמנית/);
 assert.match(frame, /selectionchange/);
-assert.match(frame, /Selection זמני ≠ Finding ≠ Claim ≠ Canonical/);
-assert.match(frame, /Number \/ Expression · Quick Inspect/);
-assert.match(frame, /Follow runtime נשאר ב־PR #486/);
+assert.match(frame, /בחירה זמנית אינה הופכת חיבור לעובדה/);
+assert.match(frame, /מספר \/ ביטוי · בדיקה מהירה/);
+assert.match(frame, /המעקב המלא יחובר בהמשך/);
 
 // Cross-cutting actions consume canonical capability seams where they already exist.
 assert.match(frame, /makeEntity/);
@@ -143,6 +143,32 @@ assert.match(css, /sod29-raziel-orb/);
 assert.match(css, /sod29-raziel-breathe/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
+
+// Public-language projection: global chrome must not expose laboratory/Research OS jargon.
+// Heichal may keep expert language inside its own workbench surface; this assertion is SystemFrame-only.
+for (const forbiddenPublicCopy of [
+  "קבע כפוקוס מחקר",
+  "הוסף למחקר",
+  "Research Context",
+  "Research OS",
+  "מחקר ישיר",
+  "נוכחות מחקרית",
+  "adapter pending",
+  "runtime pending",
+]) {
+  assert.equal(frame.includes(forbiddenPublicCopy), false, `System Frame public copy must not expose lab jargon: ${forbiddenPublicCopy}`);
+}
+for (const preferredPublicCopy of [
+  "התמקד בזה",
+  "＋ שמור",
+  "ההקשר שלך",
+  "גילוי וכלים",
+  "רזיאל · איתך כאן",
+  "מה רזיאל רואה עכשיו",
+]) {
+  assert.equal(frame.includes(preferredPublicCopy), true, `missing public-language projection: ${preferredPublicCopy}`);
+}
+
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
@@ -156,7 +182,7 @@ assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
-assert.match(frame, /Surface \+ Selection → Action → Capability → Panel/);
+assert.match(frame, /מה שבחרת נשאר איתך כשנפתח כלי או עולם/);
 assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "unopened Heichal must not be a System Frame navigation entry");
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
