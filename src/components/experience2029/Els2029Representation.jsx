@@ -75,8 +75,10 @@ export default function Els2029Representation({ layers = null }) {
           {model.bands.map((band) => <section key={"fallback:" + band.occurrenceId}>
             <h4>{band.role === "axis" ? "ציר תצוגה" : "מופע"} · {band.occurrenceId}</h4>
             <dl>
-              <div><dt>Corpus</dt><dd>{fmt(band.corpusId)}</dd></div>
+              <div><dt>Corpus / version</dt><dd>{fmt(band.corpusId)} / {fmt(band.corpusVersion)}</dd></div>
+              <div><dt>Start / end</dt><dd>{fmt(band.start)} / {fmt(band.end)}</dd></div>
               <div><dt>Skip / dir</dt><dd>{fmt(band.skip)} / {fmt(band.dir)}</dd></div>
+              <div><dt>Coordinate convention</dt><dd>{fmt(band.coordinateConvention)}</dd></div>
               <div><dt>Dependency group</dt><dd>{fmt(band.dependencyGroup)}</dd></div>
               <div><dt>Positions</dt><dd>{band.positions.length ? band.positions.join(" · ") : "—"}</dd></div>
             </dl>
