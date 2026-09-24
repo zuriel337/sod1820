@@ -70,7 +70,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/2029/number/(.*)", "/world", "/post/(.*)", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source);
   assert.ok(item, `missing isolated 2029 rewrite: ${source}`);
@@ -119,5 +119,4 @@ assert.equal(manifest.start_url, "/", "this pass must not silently cut over the 
 assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
 assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
 
-// PR #564 final release trigger: semantic assertions above are the gate.
-console.log("2029 hard-isolation source regression: PASS");
+// Post2029 Reading Surface Golden rides the existing hard-isolation gate rather than creating parallel CI.\nawait import("./test-2029-post-reading.mjs");\n\n// PR #564 final release trigger: semantic assertions above are the gate.\nconsole.log("2029 hard-isolation source regression: PASS");
