@@ -29,7 +29,7 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
       : null,
     [ready, researchContext, projection, layers]
   );
-  const available = Boolean(surfaceContext?.occurrence?.occurrenceId);
+  const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
 
   return <button
     className={available ? "sod29-action primary" : "sod29-action"}
