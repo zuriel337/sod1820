@@ -190,7 +190,48 @@ export default async function handler(req, res) {
     const qi = rp.indexOf('?');
     if (qi >= 0) { try { vParam = new URLSearchParams(rp.slice(qi + 1)).get('v') || ''; } catch { /* ignore */ } }
   }
-  if (key === '/gematria' || key === '/גימטריה') {
+  if (key === '/2029/gematria') {
+    // 2029 viral Gematria result — projection only. Never recalculate in OG.
+    // The live page re-verifies q+m+v through fn_method_profile before presenting it as canonical.
+    const rawPath = String((req.query && req.query.path) || '');
+    let sharedParams = new URLSearchParams();
+    const qi = rawPath.indexOf('?');
+    if (qi >= 0) {
+      try { sharedParams = new URLSearchParams(rawPath.slice(qi + 1)); } catch { /* keep empty */ }
+    }
+    const pick = (name) => String((req.query && req.query[name]) || sharedParams.get(name) || '').trim();
+    const q = pick('q');
+    const m = pick('m');
+    const vRaw = pick('v');
+    const d = pick('d');
+    const s = pick('s');
+    const v = vRaw !== '' && Number.isFinite(Number(vRaw)) ? Number(vRaw) : null;
+
+    robots = 'noindex, nofollow';
+    type = 'website';
+    if (q && m && v != null) {
+      title = `${q} = ${v} · ${m} · ${SITE_NAME}`;
+      desc = d
+        ? `תוצאת גימטריה משותפת: ${q} = ${v} בשיטת ${m}. קשר מאומת שנבחר: ${d} = ${v}. שוויון מספרי אינו הוכחה למשמעות. מה מסתתר בשם שלך?`
+        : `תוצאת גימטריה משותפת: ${q} = ${v} בשיטת ${m}. מה מסתתר בשם שלך? חשבו דרך מנוע SOD1820.`;
+      image = cardUrl({
+        w: q,
+        n: v,
+        sub: `${m} · תוצאה משותפת`,
+        cap: d ? `${d} = ${v} · מה מסתתר בשם שלך?` : 'מה מסתתר בשם שלך?',
+        sig: 'gem',
+      });
+      const canonicalParams = new URLSearchParams({ q, m, v: String(v) });
+      if (d) canonicalParams.set('d', d);
+      if (s) canonicalParams.set('s', s);
+      canonical = `${SITE}/2029/gematria?${canonicalParams.toString()}`;
+    } else {
+      title = `מה מסתתר בשם שלך? · ${SITE_NAME}`;
+      desc = 'חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.';
+      image = cardUrl({ w: 'מה מסתתר בשם שלך?', sub: 'מחשבון גימטריה 2029', cap: 'חשב · גלה · שתף', sig: 'gem' });
+      canonical = SITE + '/2029/gematria';
+    }
+  } else if (key === '/gematria' || key === '/גימטריה') {
     // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
     const w = String((req.query && req.query.w) || '').trim();
     const nq = parseInt(String((req.query && req.query.n) || ''), 10);
