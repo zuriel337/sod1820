@@ -282,6 +282,119 @@ export function createSupabaseOps(client) {
   };
 }
 
+// ---- Cross-batch dependency-safe ordering ----------------------------------------------------
+//
+// `runBoundedImport` used to slice `messages` into batches in raw input order. `planImport`
+// (planner.mjs) already resolves a parent within one batch order-independently, but it can only
+// see the batch it's given — a parent that lands in a *later* batch than its child has not been
+// imported yet at the moment the child's batch runs, so `parent_id` resolves to `null` and,
+// because no later batch ever revisits an earlier batch's rows, stays `null` forever. Real-corpus
+// rehearsal (task_key=G3_COMMUNITY_CORE_PR636_CROSS_BATCH_PARENT_ORDER_V1) found this would drop
+// 9,583 of 32,116 present parent refs at the default batchSize=500 — not because those parents
+// are missing, but purely because of raw CSV order relative to the batch boundary.
+//
+// This reorders `messages` (pure — only output position changes; every row's own fields,
+// including `created_at`, are passed through untouched, so import execution order stays purely
+// operational and never rewrites chronology) so every parent that is present in `messages` is
+// placed no later than its child, via a stable topological sort: Kahn's algorithm, always
+// expanding the ready row with the smallest original index next, so the fix moves only the rows
+// that actually need moving and leaves everything else in its original relative order. A parent
+// referenced by `parent_message_id` that does not appear anywhere in `messages` is not an
+// ordering concern at all — that dependency is resolved (or, if genuinely absent, left `null`)
+// by `resolveImportState`/`planImport` against already-committed `contribution_links`, exactly as
+// before. A cyclic or otherwise unsatisfiable dependency (including a row whose
+// `parent_message_id` is its own `message_id`) fails closed — it throws rather than silently
+// dropping the link or guessing an order.
+class MinIndexHeap {
+  constructor() {
+    this._heap = [];
+  }
+  get size() {
+    return this._heap.length;
+  }
+  push(index) {
+    const heap = this._heap;
+    heap.push(index);
+    let i = heap.length - 1;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (heap[parent] <= heap[i]) break;
+      [heap[parent], heap[i]] = [heap[i], heap[parent]];
+      i = parent;
+    }
+  }
+  pop() {
+    const heap = this._heap;
+    const top = heap[0];
+    const last = heap.pop();
+    if (heap.length > 0) {
+      heap[0] = last;
+      let i = 0;
+      for (;;) {
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+        let smallest = i;
+        if (left < heap.length && heap[left] < heap[smallest]) smallest = left;
+        if (right < heap.length && heap[right] < heap[smallest]) smallest = right;
+        if (smallest === i) break;
+        [heap[i], heap[smallest]] = [heap[smallest], heap[i]];
+        i = smallest;
+      }
+    }
+    return top;
+  }
+}
+
+export function orderMessagesForBoundedImport(messages) {
+  const n = messages.length;
+
+  // Only the first occurrence of a given message_id can ever become the real inserted row
+  // (planImport's own within-batch dedup mirrors this) — later duplicate rows depend on nothing
+  // and nothing depends on them.
+  const idToFirstIndex = new Map();
+  for (let i = 0; i < n; i++) {
+    const id = messages[i].message_id;
+    if (id != null && !idToFirstIndex.has(id)) idToFirstIndex.set(id, i);
+  }
+
+  const childrenOf = new Map(); // parent row index -> dependent row indices
+  const indegree = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    const parentId = messages[i].parent_message_id;
+    if (parentId == null) continue;
+    const parentIndex = idToFirstIndex.get(parentId);
+    if (parentIndex === undefined) continue; // parent not present in this message set at all
+    if (!childrenOf.has(parentIndex)) childrenOf.set(parentIndex, []);
+    childrenOf.get(parentIndex).push(i);
+    indegree[i] += 1;
+  }
+
+  const ready = new MinIndexHeap();
+  for (let i = 0; i < n; i++) if (indegree[i] === 0) ready.push(i);
+
+  const orderedIndices = [];
+  while (ready.size > 0) {
+    const i = ready.pop();
+    orderedIndices.push(i);
+    for (const child of childrenOf.get(i) || []) {
+      indegree[child] -= 1;
+      if (indegree[child] === 0) ready.push(child);
+    }
+  }
+
+  if (orderedIndices.length !== n) {
+    const placed = new Set(orderedIndices);
+    const unresolved = [];
+    for (let i = 0; i < n; i++) if (!placed.has(i)) unresolved.push(messages[i].message_id);
+    throw new Error(
+      `orderMessagesForBoundedImport: invalid dependency graph — cyclic or unsatisfiable ` +
+        `parent_message_id reference(s) among message_id(s): ${unresolved.join(', ')}`
+    );
+  }
+
+  return orderedIndices.map((i) => messages[i]);
+}
+
 // ---- Bounded, resumable batch execution ------------------------------------------------------
 //
 // Transactional-execution design for a future authorized run: 41,080 rows in one DB transaction
@@ -294,10 +407,16 @@ export function createSupabaseOps(client) {
 // the run before starting the next batch — the caller must reconcile those links (they are
 // captured in `batches[i].linkFailures`) before resuming forward; this function is safe to call
 // again afterward with the same `messages` array, from the beginning, with no other bookkeeping.
+//
+// Before batching, `messages` is passed through `orderMessagesForBoundedImport` so a parent that
+// appears later in raw input order is never split into a later batch than its child (see that
+// function's header) — batch *contents* still follow this dependency-safe order, only the split
+// points move; nothing about a row's own stored data changes.
 export async function runBoundedImport(client, messages, { batchSize = 500, execute = false, confirm = null } = {}) {
   const ops = execute ? createSupabaseOps(client) : null;
+  const orderedMessages = orderMessagesForBoundedImport(messages);
   const batches = [];
-  for (let i = 0; i < messages.length; i += batchSize) batches.push(messages.slice(i, i + batchSize));
+  for (let i = 0; i < orderedMessages.length; i += batchSize) batches.push(orderedMessages.slice(i, i + batchSize));
 
   const batchResults = [];
   for (const batch of batches) {

@@ -1,0 +1,47 @@
+[
+  {
+    "message_id": "ow-3002-grandchild-first",
+    "parent_message_id": "ow-3001-child-middle",
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-02-10T09:10:00Z",
+    "body": "תגובה-נכד שמופיעה בקובץ ראשונה, לפני האב ולפני הסבא.",
+    "author_openweb_user_id": "ow-user-cbo-grandchild",
+    "author_email": "cbo.grandchild@example.com",
+    "author_email_verified": false,
+    "author_display_name": "נכד-קבוצות",
+    "likes": 0,
+    "dislikes": 0,
+    "moderation_state": "published"
+  },
+  {
+    "message_id": "ow-3001-child-middle",
+    "parent_message_id": "ow-3000-root-last",
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-02-10T09:05:00Z",
+    "body": "תגובה-אב באמצע הקובץ, לפני השורש שלה עצמה.",
+    "author_openweb_user_id": "ow-user-cbo-child",
+    "author_email": "cbo.child@example.com",
+    "author_email_verified": false,
+    "author_display_name": "אב-קבוצות",
+    "likes": 0,
+    "dislikes": 0,
+    "moderation_state": "published"
+  },
+  {
+    "message_id": "ow-3000-root-last",
+    "parent_message_id": null,
+    "url": "https://sod1820.example/community/chat",
+    "url_kind": "general_chat",
+    "created_at": "2026-02-10T09:00:00Z",
+    "body": "ההודעה המקורית (השורש): מופיעה אחרונה בקובץ, אך עם חותמת הזמן המוקדמת ביותר — בדיוק המחלקה שנמצאה בדגימת 41,080 השורות האמיתית: הורה מאוחר-יותר-בקובץ שחותמת-הזמן שלו מוקדמת מהילד.",
+    "author_openweb_user_id": "ow-user-cbo-root",
+    "author_email": "cbo.root@example.com",
+    "author_email_verified": false,
+    "author_display_name": "שורש-קבוצות",
+    "likes": 2,
+    "dislikes": 0,
+    "moderation_state": "published"
+  }
+]
