@@ -29,6 +29,7 @@ assert.match(page,/sod29-reading-source/);
 assert.match(page,/dangerouslySetInnerHTML=\{\{ __html: post\.content/);
 assert.match(page,/ReadingContextRail2029/);
 assert.match(page,/sod29-reading-spine/);
+assert.match(page,/noindex: projection\.draft \|\| projection\.privateStage/);
 assert.equal(page.includes("AI Summary"),false);
 assert.equal(page.includes("תוספת הבינה המלאכותית"),false);
 
