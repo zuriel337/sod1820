@@ -207,21 +207,21 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">SEARCH / COMMAND ENTRY</div>
-        <h3>פתח פוקוס בלי לעזוב את המקום.</h3>
-        <p>ה־Command מתרגם כוונה ל־Capability בתוך אותו Frame. Number/Expression כבר נפתחים דרך ה־Capability Host; Resolver עתידי יוכל להרחיב intents בלי לשנות את ה־Context או ה־Panel.</p>
+        <div className="sod29-kicker">חיפוש מכל מקום</div>
+        <h3>פתח מספר, ביטוי או חיבור בלי לאבד את המקום.</h3>
+        <p>כתוב מה מסקרן אותך. המערכת תפתח את הכלי המתאים ותשמור מאיפה הגעת.</p>
       </div>
       <form className="sod29-frame-command" onSubmit={onSubmit}>
         <input
           data-autofocus
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="358 · משיח · ביטוי למחקר"
+          placeholder="358 · משיח · ביטוי לבדיקה"
           aria-label="חיפוש או פקודה"
         />
         <button className="sod29-action primary" type="submit">בדוק</button>
       </form>
-      <div className="sod29-frame-hint"><kbd>⌘K</kbd><span>פתיחה מכל מקום</span><kbd>Esc</kbd><span>חזרה מדויקת למשטח</span></div>
+      <div className="sod29-frame-hint"><kbd>⌘K</kbd><span>פתיחה מכל מקום</span><kbd>Esc</kbd><span>חזרה בדיוק למקום</span></div>
       <button className="sod29-action" type="button" onClick={onClose}>סגור</button>
     </>
   );
@@ -229,30 +229,30 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
 
 function InspectProjection({ target, context, onSetFocus, onAddResearch }) {
   if (!target) {
-    return <FrameState kind="empty" title="אין כרגע אובייקט לבדיקה">סמן ביטוי/מספר בטקסט, פתח Command או בחר ישות במשטח פעיל. ה־Frame לא ממציא עוגן.</FrameState>;
+    return <FrameState kind="empty" title="אין כרגע משהו לבדוק">סמן ביטוי או מספר בטקסט, חפש משהו או בחר פריט. המערכת לא ממציאה חיבור שלא קיים.</FrameState>;
   }
 
   const numericFamily = target.type === "number" || target.type === "phrase";
   return (
     <>
       <section className="sod29-inspect-identity">
-        <div className="sod29-kicker">{target.source === "selection" ? "TEMPORARY SELECTION" : "CURRENT SUBJECT"}</div>
+        <div className="sod29-kicker">{target.source === "selection" ? "בחירה זמנית" : "מוקד נוכחי"}</div>
         <strong>{target.label}</strong>
         <span>{target.type}</span>
       </section>
 
       {numericFamily ? (
-        <FrameState title="Number / Expression · Quick Inspect">
-          בדיקה שומרת את הזהות וה־Context. חישוב נפתח כ־Number capability באותו Panel Host — לא כמערכת חלוניות נפרדת ולא דרך ה־Legacy NumberDrawer.
+        <FrameState title="מספר / ביטוי · בדיקה מהירה">
+          הבדיקה שומרת את המקום וההקשר. אפשר לפתוח את החישוב בלי לצאת למסך אחר ובלי לאבד את הדרך חזרה.
         </FrameState>
       ) : (
-        <FrameState title="Entity Quick Inspect">אותו Inspect מיועד גם לספר/מקור, אדם, Event, Finding וישויות נוספות כשה־owner שלהן מספק projection.</FrameState>
+        <FrameState title="בדיקה מהירה">אותה בדיקה יכולה להיפתח גם על ספר, מקור, אדם, אירוע או גילוי כשהחיבור קיים במערכת.</FrameState>
       )}
 
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ קבע כפוקוס מחקר</button>
-        <button className="sod29-action" type="button" onClick={() => onAddResearch(target)}>＋ הוסף למחקר</button>
-        <button className="sod29-action" type="button" disabled title="Follow runtime נשאר ב־PR #486 עד release gate">♢ מעקב · runtime pending</button>
+        <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
+        <button className="sod29-action" type="button" onClick={() => onAddResearch(target)}>＋ שמור</button>
+        <button className="sod29-action" type="button" disabled title="המעקב המלא יחובר בהמשך">♢ עקוב</button>
       </div>
 
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
@@ -267,9 +267,9 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch }) {
       </div>
 
       <div className="sod29-panel-context-card">
-        <b>Research Context</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין עוגן שמור"}</span>
-        <small>Selection זמני ≠ Finding ≠ Claim ≠ Canonical.</small>
+        <b>ההקשר שלך</b>
+        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <small>בחירה זמנית אינה הופכת חיבור לעובדה.</small>
       </div>
     </>
   );
@@ -305,14 +305,14 @@ function ActionProjection({
 }) {
   const actions = resolveContextActions({ surface, target });
   if (!target && !actions.length) {
-    return <FrameState kind="empty" title="אין כרגע אובייקט לפעולה">סמן שורה, ביטוי, מספר או ישות. פעולה משתמשת ב־Selection כשיש בחירה, אחרת ב־Research Context הנוכחי.</FrameState>;
+    return <FrameState kind="empty" title="אין כרגע משהו לפעול עליו">סמן שורה, ביטוי, מספר או פריט. הפעולות יתאימו את עצמן למה שבחרת או למה שאתה רואה עכשיו.</FrameState>;
   }
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">CONTEXT ACTIONS · {String(surface || "system").toUpperCase()}</div>
+        <div className="sod29-kicker">מה אפשר לעשות כאן</div>
         <h3>{target ? "מה אפשר לעשות עם הבחירה הזאת?" : "מה אפשר לעשות במשטח הזה?"}</h3>
-        <p>Surface + Subject + Selection מרכיבים את הפעולות הזמינות. אותה פעולה שומרת זהות סמנטית גם כשהמיקום והעדיפות משתנים.</p>
+        <p>הפעולות משתנות לפי המקום והדבר שבחרת, בלי לאבד את ההקשר.</p>
       </div>
       {target ? <div className="sod29-selection-summary">
         <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
@@ -321,9 +321,9 @@ function ActionProjection({
       </div> : null}
       <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} go={go} />
       <div className="sod29-panel-context-card">
-        <b>One Context</b>
-        <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "Subject · לא נקבע"}</span>
-        <small>Surface + Selection → Action → Capability → Panel</small>
+        <b>אותו הקשר</b>
+        <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <small>מה שבחרת נשאר איתך כשנפתח כלי או עולם.</small>
       </div>
     </>
   );
@@ -333,17 +333,17 @@ function AttentionProjection({ context, onWorkspace }) {
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">NOW / ATTENTION</div>
+        <div className="sod29-kicker">מה קורה עכשיו</div>
         <h3>מה באמת דורש תשומת לב עכשיו?</h3>
-        <p>Projection אחד מעל owners קיימים. אין כאן Notification store חדש ואין מספרים מומצאים.</p>
+        <p>כאן יופיע רק מה שבאמת חדש, רלוונטי או דורש תשומת לב.</p>
       </div>
       <div className="sod29-attention-projection">
-        <FrameState kind="unavailable" title="האתר / זרם">adapter 2029 ל־site/content stream עדיין לא מחובר ל־Frame המבודד.</FrameState>
-        <FrameState kind="unavailable" title="אני עוקב">Follow נשאר owner עצמאי; PR #486 אינו נעקף דרך UI מקומי.</FrameState>
-        <FrameState kind="unavailable" title="הודעות / mentions">ה־Frame לא יורש את UserCenter/legacy notifications presentation.</FrameState>
-        <FrameState kind="unavailable" title="Raziel Research Pulse">Silence Gate: בלי שינוי מחקרי מהותי ומוכח אין pulse.</FrameState>
+        <FrameState kind="unavailable" title="עדכונים">זרם העדכונים של 2029 עדיין לא מחובר כאן.</FrameState>
+        <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
+        <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
+        <FrameState kind="unavailable" title="רזיאל מציע">רזיאל יופיע כאן רק כשיש משהו חדש ומשמעותי להראות.</FrameState>
       </div>
-      {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח רציפות אישית</button> : null}
+      {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
   );
 }
@@ -353,9 +353,9 @@ function ToolsProjection({ surface, target, go, onCapability }) {
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">CONTEXTUAL TOOLS · {String(surface || "system").toUpperCase()}</div>
-        <h3>הכלים מגיעים אל המחקר.</h3>
-        <p>הסדר משתנה לפי המשטח והאובייקט הפעיל, אבל כל capability נשאר בבעלות המקורית שלו. אין רשימת כלים נפרדת לכל דף.</p>
+        <div className="sod29-kicker">כלים שמתאימים לכאן</div>
+        <h3>הכלים מגיעים למה שאתה רואה.</h3>
+        <p>הכלים משתנים לפי המקום והדבר שבחרת. אין צורך לחפש אותם במסך אחר.</p>
       </div>
       {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{target.label}</strong><small>{target.type}</small></div> : null}
       <ContextualActionButtons actions={tools} target={target} onCapability={onCapability} go={go} />
@@ -364,7 +364,7 @@ function ToolsProjection({ surface, target, go, onCapability }) {
 }
 
 function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null }) {
-  const label = target?.label || context?.subject?.label || context?.subject?.id || "המחקר הנוכחי";
+  const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
@@ -382,23 +382,23 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       const methodLabel = numberFocus.methodLabel || numberFocus.method || "השיטה הפעילה";
       return {
         title: `תגובה מהירה · ${methodLabel}`,
-        text: `${methodLabel} מחושבת דרך המנוע הקנוני על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח Trace כדי לראות את שלבי החישוב; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את זהות ה־Root.`,
-        boundary: "חישוב = deterministic. משמעות/פרשנות נשארות שכבה נפרדת.",
+        text: `${methodLabel} מחושבת דרך המנוע הקנוני על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח את החישוב כדי לראות את השלבים; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את הביטוי שבחרת.`,
+        boundary: "החישוב מאומת בנפרד; המשמעות נשארת פרשנות.",
       };
     }
     if (numberFocus.kind === "crossing") {
       const names = Array.isArray(numberFocus.methods) ? numberFocus.methods.map((item) => item?.methodLabel).filter(Boolean).join(" · ") : "";
       return {
         title: "תגובה מהירה · הצלבה",
-        text: `${numberFocus.expression || numberFocus.root} והביטוי ${numberFocus.partner || numberFocus.crossingPartner || "המקביל"} נפגשים סביב ${numberFocus.root}${names ? ` דרך ${names}` : ""}. זו הצלבה חישובית; היא מעניינת למחקר אבל אינה מסקנה בפני עצמה.`,
-        boundary: "שוויון מספרי ≠ הצלבה בלתי־תלויה ≠ התכנסות מחקרית.",
+        text: `${numberFocus.expression || numberFocus.root} והביטוי ${numberFocus.partner || numberFocus.crossingPartner || "המקביל"} נפגשים סביב ${numberFocus.root}${names ? ` דרך ${names}` : ""}. זו הצלבה חישובית; היא פותחת חיבור לבדיקה אבל אינה מסקנה בפני עצמה.`,
+        boundary: "שוויון מספרי לבדו אינו הוכחה למשמעות.",
       };
     }
     if (numberFocus.kind === "world") {
       return {
-        title: `תגובה מהירה · ${numberFocus.world || "עולם מחקר"}`,
-        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר מחקרי עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
-        boundary: "World = context/projection, לא engine result.",
+        title: `תגובה מהירה · ${numberFocus.world || "עולם"}`,
+        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        boundary: "העולם מציג הקשר; הוא לא תוצאת חישוב.",
       };
     }
     if (numberFocus.kind === "world_hub") {
@@ -412,8 +412,8 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     }
     return {
       title: `תגובה מהירה · ${intentLabel || "המספר"}`,
-      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך ל־Trace, להשוואה או למחקר עמוק בלי לאבד את ה־Context.`,
-      boundary: "אותו Context, עומק שונה.",
+      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
+      boundary: "אותו הקשר, עומק שונה.",
     };
   })();
   return (
@@ -421,9 +421,9 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       <section className="sod29-raziel-native-hero">
         <RazielOrb />
         <div>
-          <div className="sod29-kicker">ONE COMPANION · MICRO → PANEL → DEEP</div>
-          <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה לעוגן מחקר"}</h3>
-          <p>זה אותו רזיאל שקיבל את ה־Micro מהחלונית. הרחבה משנה עומק וכלים — לא זהות, Context או אמת.</p>
+          <div className="sod29-kicker">רזיאל · איתך כאן</div>
+          <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה למה שמסקרן אותך"}</h3>
+          <p>זה אותו רזיאל בכל האתר. הוא יודע איפה אתה ומה פתחת, והעמקה לא מאבדת את ההקשר.</p>
         </div>
       </section>
       {numberFocus ? <section className="sod29-panel-context-card">
@@ -438,12 +438,12 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <small>{quickInsight.boundary}</small>
       </section> : null}
       <div className="sod29-panel-context-card">
-        <b>Research Context שניתן לרזיאל</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין עוגן שמור"}</span>
+        <b>מה רזיאל רואה עכשיו</b>
+        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" disabled title="Native Raziel conversation adapter עדיין לא מחובר">✦ המשך שיחה · adapter pending</button>
+        <button className="sod29-action primary" type="button" disabled title="השיחה המלאה עם רזיאל תחובר בהמשך">✦ המשך עם רזיאל</button>
       </div>
     </>
   );
@@ -479,14 +479,14 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">MY WORKSPACE · ONE RESEARCH OS</div>
+        <div className="sod29-kicker">האזור שלי · המשכיות</div>
         <h3>המרחב האישי שלי</h3>
-        <p>Projection אחת למחקר, מסלולים שמורים, Follow/Attention, חומר פרטי ורזיאל. Research Path שומר רציפות; הוא לא Store שני ולא Truth חדש.</p>
+        <p>כאן נשמרים המסלולים שלך, הדברים שבחרת לשמור ורזיאל. אפשר להמשיך בדיוק מהמקום שבו עצרת.</p>
       </div>
 
       {subject ? (
         <section className="sod29-workspace-resume-native">
-          <span>ACTIVE CONTEXT</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+          <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
           <div className="sod29-actions">
             {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
             <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
@@ -497,12 +497,12 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
 
       {savedSubject ? (
         <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-          <span>SAVED RESEARCH PATH</span>
+          <span>מסלול שמור</span>
           <strong>{savedSubject.label}</strong>
           <small>
             {savedSubject.type}
             {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
-            {" · נשמר כמצב ניווט פרטי; אמת נבדקת מחדש ביעד"}
+            {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
           </small>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
@@ -511,10 +511,10 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
       ) : null}
 
       {!subject && !savedSubject && !pathResume?.loading ? (
-        <FrameState kind="empty" title="אין מחקר פעיל או מסלול שמור">המערכת לא ממציאה Resume מטראפיק או משיחה.</FrameState>
+        <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
       ) : null}
-      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן רציפות מחקרית">ה־Context הפעיל לא מוחלף בזמן הקריאה.</FrameState> : null}
-      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">Revision {actionState.revision} נשמר פרטי; Canonical/Published לא משתנים.</FrameState> : null}
+      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
+      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
       {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
 
       <div className="sod29-attention-lanes native">
@@ -822,18 +822,18 @@ export default function SystemFrame2029({
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
-    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SYSTEM FRAME" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="ACTION / CONTEXT" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SOD1820" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
-      if (capability === "number") return <PanelShell {...common} icon="123" kicker="CAPABILITY · NUMBER" title={inspectTarget?.label || context?.subject?.label || "מספר / ביטוי"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
-      return <PanelShell {...common} icon="◇" kicker="CAPABILITY" title={capability || "יכולת"}><FrameState kind="unavailable" title="ה־capability עדיין לא מחובר ל־Host">אותו Panel Host מוכן לקבל projections נוספים בלי לפתוח מערכת חלוניות מקבילה.</FrameState></PanelShell>;
+      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title={inspectTarget?.label || context?.subject?.label || "מספר / ביטוי"}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+      return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS / CAPABILITIES" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
-    return <PanelShell {...common} icon="◎" kicker="PERSONAL" title="האזור האישי שלי"><WorkspaceProjection
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
+    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} /></PanelShell>;
+    return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
       onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
@@ -861,15 +861,15 @@ export default function SystemFrame2029({
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
           <Link to="/2029" className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
-            <span><b>SOD 1820</b><small>One Reality · Research OS</small></span>
+            <span><b>SOD 1820</b><small>One Reality · גילוי חי</small></span>
           </Link>
           <nav className="sod29-nav">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
-            <NavGroup title="מחקר ישיר" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
           </nav>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · Context אחד.</small></div>
+          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
         <div className="sod29-main">
@@ -896,9 +896,9 @@ export default function SystemFrame2029({
                   {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                   {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
                   {description ? <p>{description}</p> : null}
-                  {context ? <div className="sod29-context-strip" aria-label="Research Context פעיל">
-                    {context.subject ? <span>עוגן · {context.subject.label || context.subject.id}</span> : null}
-                    {context.lens ? <span>עדשה · {context.lens}</span> : null}
+                  {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+                    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
+                    {context.lens ? <span>מבט · {context.lens}</span> : null}
                     {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
                     {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
                   </div> : null}
@@ -922,7 +922,7 @@ export default function SystemFrame2029({
           >
             <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button></div>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
-            <NavGroup title="מחקר ישיר" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
           </aside>
         </> : null}
