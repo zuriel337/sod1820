@@ -26,11 +26,26 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
   let nextId = 1;
   const ensure = (name) => (tables[name] = tables[name] || []);
 
+  // Mirrors cl_openweb_message_derived_from_uniq (see the PR #636 final-blockers migration): at
+  // most one contribution_links row may exist for a given (target_type='openweb_message',
+  // target_id, relation_type='derived_from') triple. Lets tests simulate the DB-level race the
+  // real partial unique index guards against, without a live Postgres.
+  function violatesOpenwebMessageUniqueIndex(insertTable, row) {
+    if (insertTable !== 'contribution_links') return false;
+    if (row.target_type !== 'openweb_message' || row.relation_type !== 'derived_from') return false;
+    return ensure('contribution_links').some(
+      (r) =>
+        r.target_type === 'openweb_message' && r.relation_type === 'derived_from' && r.target_id === row.target_id
+    );
+  }
+
   function from(table) {
     const rows = ensure(table);
     const builder = {
       _filters: [],
       _patch: null,
+      _deleting: false,
+      _insertError: null,
       select() {
         return this;
       },
@@ -50,13 +65,26 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
         return { data: matched[0] || null, error: null };
       },
       async single() {
+        if (this._insertError) return { data: null, error: this._insertError };
         const matched = rows.filter((r) => this._filters.every((f) => f(r)));
         return matched.length ? { data: matched[0], error: null } : { data: null, error: { message: 'not_found' } };
       },
       insert(row) {
+        if (violatesOpenwebMessageUniqueIndex(table, row)) {
+          this._insertError = {
+            code: '23505',
+            message: 'duplicate key value violates unique constraint "cl_openweb_message_derived_from_uniq"',
+          };
+          this._filters = [() => false];
+          return this;
+        }
         const withId = { id: row.id || `fake-${table}-${nextId++}`, ...row };
         rows.push(withId);
         this._filters = [(r) => r === withId];
+        return this;
+      },
+      delete() {
+        this._deleting = true;
         return this;
       },
       update(patch) {
@@ -73,6 +101,19 @@ function makeFakeClient(seed = {}, { failUpdates = false } = {}) {
       // Makes `await client.from(t).select().eq(...)` work without an explicit terminal call,
       // exactly like supabase-js's thenable PostgrestFilterBuilder.
       then(resolve) {
+        if (this._insertError) {
+          resolve({ data: null, error: this._insertError });
+          return;
+        }
+        if (this._deleting) {
+          const matched = rows.filter((r) => this._filters.every((f) => f(r)));
+          for (const r of matched) {
+            const idx = rows.indexOf(r);
+            if (idx >= 0) rows.splice(idx, 1);
+          }
+          resolve({ data: matched, error: null });
+          return;
+        }
         if (this._patch) {
           if (failUpdates) {
             resolve({ data: null, error: { message: 'simulated_update_failure' } });
@@ -279,4 +320,69 @@ test('dry-run (execute:false) never touches the client', async () => {
   const result = await runBoundedImport(client, messages, { batchSize: 10, execute: false });
   assert.equal(result.batches[0].executed, false);
   for (const rows of Object.values(client.tables)) assert.equal(rows.length, 0, 'dry-run must never write a row');
+});
+
+// ---- PR #636 final-blockers fix: DB-level provenance race (cl_openweb_message_derived_from_uniq) ---
+//
+// resolveImportState()/skipDuplicate() are a read-before-write check: they cannot see a
+// concurrent writer's contribution_links row that commits after that read but before this
+// call's own insert. This simulates exactly that loss — the fake client raises the same
+// unique_violation (23505) the real partial index would — and asserts insertContribution backs
+// out its own orphaned research_contributions row and resolves to the row that actually won.
+test('insertContribution: a DB-level provenance conflict resolves to the winner and leaves no orphan row', async () => {
+  const client = makeFakeClient({
+    research_contributions: [{ id: 'existing-contrib-id', body: 'the concurrent winner’s row' }],
+    contribution_links: [
+      {
+        id: 'existing-link-id',
+        from_contribution_id: 'existing-contrib-id',
+        target_type: 'openweb_message',
+        target_id: 'ow-race-1',
+        relation_type: 'derived_from',
+      },
+    ],
+  });
+  const ops = createSupabaseOps(client);
+
+  const op = {
+    contribution: {
+      id: 'planned:ow-race-1',
+      intent: 'community_message',
+      origin: 'openweb',
+      research_state: 'active',
+      status: 'approved',
+      parent_id: null,
+      author_user_id: null,
+      author_contributor_id: null,
+      author_name: 'Racer',
+      body: 'this batch lost the race',
+      reactions: {},
+      created_at: '2026-01-01T00:00:00Z',
+    },
+    contributor_op: null,
+    visitor_identity_op: null,
+    provenance_link: {
+      target_type: 'openweb_message',
+      target_id: 'ow-race-1',
+      relation_type: 'derived_from',
+      note: '{}',
+    },
+    identity_link: null,
+  };
+
+  const result = await ops.insertContribution(op);
+
+  assert.equal(result.skipped, true);
+  assert.equal(result.id, 'existing-contrib-id', 'must resolve to whichever contribution actually won the race');
+  assert.equal(
+    client.tables.research_contributions.length,
+    1,
+    'the losing call\'s own research_contributions row must be rolled back, never left as an orphan duplicate'
+  );
+  assert.equal(client.tables.research_contributions[0].id, 'existing-contrib-id');
+  assert.equal(
+    client.tables.contribution_links.filter((l) => l.target_id === 'ow-race-1').length,
+    1,
+    'still exactly one provenance link for this source message, never two'
+  );
 });

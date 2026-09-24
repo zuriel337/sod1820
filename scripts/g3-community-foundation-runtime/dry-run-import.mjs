@@ -5,10 +5,14 @@ import { planImport } from './planner.mjs';
 
 function loadState(path) {
   const raw = JSON.parse(fs.readFileSync(path, 'utf8'));
+  // Field names must match planner.mjs's planImport(messages, state) contract exactly —
+  // importedMessageIds / linkedOpenwebUserIds / contributorsByOpenwebUserId, never a legacy
+  // email-keyed shape. Keyed by the source-native openweb_user_id, never by email: two distinct
+  // openweb_user_ids that happen to share one verified email must stay two source identities.
   return {
     importedMessageIds: new Set(raw.importedMessageIds || []),
-    usersByVerifiedEmail: new Map(Object.entries(raw.usersByVerifiedEmail || {})),
-    contributorsByEmail: new Map(Object.entries(raw.contributorsByEmail || {})),
+    linkedOpenwebUserIds: new Map(Object.entries(raw.linkedOpenwebUserIds || {})),
+    contributorsByOpenwebUserId: new Map(Object.entries(raw.contributorsByOpenwebUserId || {})),
   };
 }
 

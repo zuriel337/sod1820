@@ -19,8 +19,28 @@ import { runImport } from './executor.mjs';
 
 const CONTRIBUTOR_PLACEHOLDER_PREFIX = 'planned-contributor:openweb-user:';
 
+// Postgres unique_violation. Only code the DB-level provenance guard
+// (cl_openweb_message_derived_from_uniq, see the PR #636 final-blockers migration) is expected
+// to raise; every other error still throws.
+const UNIQUE_VIOLATION = '23505';
+
 function assertNoError(context, error) {
   if (error) throw new Error(`${context}: ${error.message || String(error)}`);
+}
+
+// Shared by skipDuplicate/resolveExistingParentId (the pre-write replay guard) and
+// insertContribution's post-conflict resolution (the DB-level race guard) — both answer the same
+// question, "which contribution, if any, already carries this exact OpenWeb source message?".
+async function resolveContributionIdByOpenwebMessage(client, context, sourceMessageId) {
+  const { data, error } = await client
+    .from('contribution_links')
+    .select('from_contribution_id')
+    .eq('target_type', OPENWEB_SOURCE_TARGET_TYPE)
+    .eq('target_id', sourceMessageId)
+    .limit(1)
+    .maybeSingle();
+  assertNoError(context, error);
+  return data ? data.from_contribution_id : null;
 }
 
 // A stable, non-PII slug derived from the source-native id only — never from email/display_name,
@@ -192,6 +212,30 @@ export function createSupabaseOps(client) {
           relation_type: op.provenance_link.relation_type,
           note: op.provenance_link.note,
         });
+        if (
+          error &&
+          error.code === UNIQUE_VIOLATION &&
+          op.provenance_link.target_type === OPENWEB_SOURCE_TARGET_TYPE
+        ) {
+          // Lost a race: some other writer's contribution_links row for this exact source
+          // message committed between our pre-write resolveImportState()/skipDuplicate() check
+          // and this insert, and cl_openweb_message_derived_from_uniq (partial unique index,
+          // see the PR #636 final-blockers migration) just caught the duplicate this adapter
+          // was about to create. Back out the research_contributions row this call already
+          // inserted — never leave an orphaned, unlinked duplicate authored item behind — and
+          // resolve to whichever contribution actually won the race, exactly like skipDuplicate.
+          const { error: rollbackError } = await client
+            .from('research_contributions')
+            .delete()
+            .eq('id', contribution.id);
+          assertNoError('insertContribution:rollback(research_contributions)', rollbackError);
+          const existingId = await resolveContributionIdByOpenwebMessage(
+            client,
+            'insertContribution:resolveAfterConflict',
+            op.provenance_link.target_id
+          );
+          return { id: existingId, skipped: true };
+        }
         assertNoError('insertContribution:contribution_links(provenance)', error);
       }
 
@@ -209,17 +253,14 @@ export function createSupabaseOps(client) {
     },
 
     async skipDuplicate(op) {
-      const { data, error } = await client
-        .from('contribution_links')
-        .select('from_contribution_id')
-        .eq('target_type', OPENWEB_SOURCE_TARGET_TYPE)
-        .eq('target_id', op.message_id)
-        .limit(1)
-        .maybeSingle();
-      assertNoError('skipDuplicate:contribution_links', error);
       // Replaying an already-imported message_id resolves and returns the existing contribution
       // rather than inserting a duplicate — never a second research_contributions row.
-      return { skipped: true, existing_contribution_id: data ? data.from_contribution_id : null };
+      const existingId = await resolveContributionIdByOpenwebMessage(
+        client,
+        'skipDuplicate:contribution_links',
+        op.message_id
+      );
+      return { skipped: true, existing_contribution_id: existingId };
     },
 
     async linkParent({ contribution_id, parent_id }) {
@@ -232,15 +273,11 @@ export function createSupabaseOps(client) {
     },
 
     async resolveExistingParentId(parentMessageId) {
-      const { data, error } = await client
-        .from('contribution_links')
-        .select('from_contribution_id')
-        .eq('target_type', OPENWEB_SOURCE_TARGET_TYPE)
-        .eq('target_id', parentMessageId)
-        .limit(1)
-        .maybeSingle();
-      assertNoError('resolveExistingParentId:contribution_links', error);
-      return data ? data.from_contribution_id : null;
+      return resolveContributionIdByOpenwebMessage(
+        client,
+        'resolveExistingParentId:contribution_links',
+        parentMessageId
+      );
     },
   };
 }
