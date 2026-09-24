@@ -38,7 +38,8 @@ export function buildCalculationSelection(expression, method) {
     methodLabel: clean(method?.label || method?.displayLabel || methodKey) || methodKey,
     resultValue: value,
     methodVersion: Number.isFinite(Number(method?.definitionVersion)) ? Number(method.definitionVersion) : null,
-    executionKind: clean(method?.executionKind) || null,\n    dbColumn: clean(method?.dbColumn) || null,
+    executionKind: clean(method?.executionKind) || null,
+    dbColumn: clean(method?.dbColumn) || null,
     requiredEntitlement: clean(method?.requiredEntitlement) || null,
     sourceOfTruth: clean(method?.sourceOfTruth) || "public.gematria_methods + fn_method_profile",
     provenance: Object.freeze({
