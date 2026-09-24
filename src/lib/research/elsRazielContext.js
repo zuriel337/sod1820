@@ -86,4 +86,57 @@ export function buildElsRazielSurfaceContext({
   return Object.freeze(surfaceContext);
 }
 
+
+export function buildElsRazielGuidance(surfaceContext) {
+  const occurrence = surfaceContext?.occurrence || null;
+  const result = surfaceContext?.result || null;
+  const exactReplay = Boolean(
+    surfaceContext?.surface === "els"
+    && occurrence?.occurrenceId
+    && result?.contract === "els_2029_projection_v1"
+    && result?.status === "OK"
+    && result?.presentationPolicy === "exact_replay_v1"
+  );
+  if (!exactReplay) return null;
+
+  const direction = occurrence.dir === -1 ? "לאחור" : occurrence.dir === 1 ? "קדימה" : "בכיוון שמור";
+  const skip = safeInt(occurrence.skip);
+  const start = safeInt(occurrence.start);
+  const end = safeInt(occurrence.end);
+  const positionCount = Array.isArray(occurrence.positions) ? occurrence.positions.length : 0;
+  const skipText = skip == null ? "בדילוג שמור" : `בדילוג של ${skip}`;
+  const spanText = start != null && end != null
+    ? `בין מיקום ${start} למיקום ${end}`
+    : "על פני המיקומים המאומתים";
+  const pointsText = positionCount === 1 ? "נקודה אחת בטקסט" : `${positionCount} נקודות בטקסט`;
+
+  const lead = `אתה מסתכל על מופע ELS שאומת מול המנוע הקנוני. הוא עובר ${skipText} ${direction}, ${spanText}, דרך ${pointsText}.`;
+  const boundary = "הציר שמודגש כאן עוזר לראות את המופע שבחרת; ההדגשה והקרבה על המסך אינן מוסיפות לו חוזק ראייתי.";
+  const inactive = "כרגע אני מסביר רק את מה שאומת ואת צורת ההצגה. בדיקת הסביבה, המשך הציר והמשמעות המחקרית עדיין אינן פעילות בשכבה הזאת.";
+  const question = "מה מסקרן אותך להבין מכאן — איך הדילוג בנוי, מה משמעות הכיוון, או מה עדיין חסר כדי להעמיק?";
+  const spokenScript = [lead, boundary, inactive, question].join(" ");
+
+  return Object.freeze({
+    contract: "els_raziel_guidance_v1",
+    kind: "structural_explanation",
+    language: "he",
+    voice: "raziel",
+    source: Object.freeze({
+      surface: "els",
+      occurrenceId: clean(occurrence.occurrenceId),
+      projectionContract: clean(result.contract),
+      presentationPolicy: clean(result.presentationPolicy),
+    }),
+    title: "מה אתה רואה כאן?",
+    lead,
+    boundary,
+    inactive,
+    question,
+    spokenScript,
+    interpretation: false,
+    evidencePromotion: false,
+    audioExecuted: false,
+  });
+}
+
 export default buildElsRazielSurfaceContext;
