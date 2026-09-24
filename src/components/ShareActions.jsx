@@ -20,7 +20,7 @@ import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 // הערוצים באים מ-CHANNELS (lib/share.js) — אותו מקור-אמת של הלשונית הצפה. עריכה שם → מתעדכן בשניהם.
 const ALL = ["native", ...Object.keys(CH), "copy"];
 
-export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, force = false, style }) {
+export default function ShareActions({ type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, force = false, style, onShare = null }) {
   const P = usePalette();
   const { pathname } = useLocation();
   const [copied, setCopied] = useState(false);
@@ -46,7 +46,7 @@ export default function ShareActions({ type = "page", url, title = "", image = n
   // האדמין). לפני-כן נרשם event_type=<channel> → לא נספר במונה השיתופים. אירועים היסטוריים
   // (event_type=whatsapp/copy/…) נשארים בטבלה וניתנים לספירה דרך section='share'.
   // ⚠️ נשאר track() ולא trackShare() בכוונה — לא מוסיפים קריאת-קרדיט חדשה (Human-Gate נפרד, לא-נגעו).
-  const logShare = useCallback((channel) => { try { track("share", destSlug(), "share", { platform: channel, content_type: type, url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, destSlug, fullUrl, image]);
+  const logShare = useCallback((channel) => { try { track("share", destSlug(), "share", { platform: channel, content_type: type, url: fullUrl, image: image || undefined }); onShare?.(channel, fullUrl); } catch { /* noop */ } }, [type, destSlug, fullUrl, image, onShare]);
 
   const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: taggedShareUrl(fullUrl, "native") }); }, [text, fullUrl, logShare]);
 
