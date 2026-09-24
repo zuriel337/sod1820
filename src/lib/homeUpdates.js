@@ -2,7 +2,7 @@
 // נועד לשימוש-חוזר בפוסט/צ'אט בלי מערכת-visibility מקבילה (reuse Home logic, לא query חדש).
 // ⚠️ אם הבית מסתיר פריט (home_hidden / תגית / curator_hidden / anchor-cipher) — הוא מוסתר גם כאן,
 //    כי אלה בדיוק אותן פונקציות-שליפה ואותו סינון שהבית משתמש בהם.
-import { supabase, getPostsFromSupabase, getGalleryUpdates, getFeaturedResearchers } from "./supabase.js";
+import { supabase, SUPABASE_URL, SUPABASE_ANON, getPostsFromSupabase, getGalleryUpdates, getFeaturedResearchers } from "./supabase.js";
 import { getSystemCiphers } from "./elsMatrices.js";   // צפני-מערכת — אותו מקור כמו HomeNewPage
 
 // 🔠 עוגן צפני-מערכת ל«עדכונים אחרונים» — קבוע (זהה ל-HomeNewPage), לא חלון-זמן.
@@ -44,13 +44,55 @@ export async function fetchPinnedPosts({ category = null, tag = null, year = nul
   return data || [];
 }
 
+// 🧊 PostgREST responses do not currently guarantee browser cache-busting.
+// Legacy Home is a "what changed now" surface, so its public post reads must be fresh.
+// Keep this scoped here: no global Supabase-client override and no parallel feed/store.
+const publicHomePostsUrl = ({ limit = 32, pinned = false } = {}) => {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/posts`);
+  url.searchParams.set("select", "*");
+  if (pinned) {
+    url.searchParams.set("tree_priority", "gte.50");
+    url.searchParams.set("order", "tree_priority.desc.nullslast,modified.desc.nullslast");
+  } else {
+    url.searchParams.set("order", "modified.desc.nullslast");
+  }
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.append("tags", "not.cs.{טיוטה}");
+  url.searchParams.append("tags", "not.cs.{פורום}");
+  return url.toString();
+};
+
+export async function fetchFreshPublicHomePosts({ limit = 32, pinned = false, fetchImpl = globalThis.fetch } = {}) {
+  if (typeof fetchImpl !== "function") throw new Error("fetch unavailable");
+  const res = await fetchImpl(publicHomePostsUrl({ limit, pinned }), {
+    cache: "no-store",
+    headers: {
+      apikey: SUPABASE_ANON,
+      Authorization: `Bearer ${SUPABASE_ANON}`,
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) throw new Error(`Legacy Home posts request failed: ${res.status}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
 // פוסטים לבית/Latest Updates — 18 האחרונים + כל הנעוצים, גם אם הם מחוץ לחלון האחרון.
-// dedup לפי זהות הפוסט; נעוצים תמיד ראשונים, ואז האחרונים לפי זמן. נעוץ מוסתר נשאר מוסתר.
+// fresh-first: כל ענף נטען בנפרד, כך שכשל בנעוצים לא מוחק את הפוסטים האחרונים ולהפך.
+// fallback ל-client הישן שומר זמינות במקרה של כשל רשת זמני.
 export async function fetchHomePosts() {
-  const [{ posts: recent }, pinned] = await Promise.all([
-    getPostsFromSupabase({ limit: 32, orderBy: "modified" }),
-    fetchPinnedPosts(),
+  const [freshRecent, freshPinned] = await Promise.allSettled([
+    fetchFreshPublicHomePosts({ limit: 32 }),
+    fetchFreshPublicHomePosts({ limit: 50, pinned: true }),
   ]);
+
+  const recent = freshRecent.status === "fulfilled"
+    ? freshRecent.value
+    : await getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(r => r.posts || []).catch(() => []);
+
+  const pinned = freshPinned.status === "fulfilled"
+    ? freshPinned.value
+    : await fetchPinnedPosts().catch(() => []);
 
   const visiblePinned = (pinned || []).filter((p) => isPinnedPost(p) && !hiddenAtHome(p));
   const visibleRecent = (recent || []).filter((p) => !hiddenAtHome(p)).slice(0, 18);
