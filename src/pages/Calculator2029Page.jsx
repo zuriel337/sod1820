@@ -521,7 +521,7 @@ export default function Calculator2029Page() {
       title: "מחשבון גימטריה 2029 · SOD1820",
       description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
       path: "/2029/gematria",
-      noindex: true,
+      robots: "noindex,nofollow",
     });
   }, []);
 
