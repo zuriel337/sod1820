@@ -7,6 +7,7 @@ test("search result projection preserves canonical occurrence identity and coord
     contract: "els_regular_search_result_v1",
     status: "OK",
     corpus_id: "torah-v1",
+    corpus_version: "mt-text-v1",
     input: { normalized: "משיח" },
     selection_protocol: "HYPOTHESIS_DRIVEN_FOLLOWUP",
     search: {
@@ -32,12 +33,17 @@ test("search result projection preserves canonical occurrence identity and coord
       end: 151,
       positions: [100,117,134,151],
       dependency_group: "els:torah-v1:משיח",
+      coordinate_convention: "zero_based_character_index",
     }],
   }, { selectedOccurrenceId: "els:torah-v1:משיח:17:1:100" });
 
   assert.equal(out.contract, "els_2029_projection_v1");
+  assert.equal(out.corpusVersion, "mt-text-v1");
   assert.equal(out.occurrences[0].occurrenceId, "els:torah-v1:משיח:17:1:100");
+  assert.equal(out.occurrences[0].corpusVersion, "mt-text-v1");
   assert.equal(out.occurrences[0].direction, "fwd");
+  assert.equal(out.occurrences[0].end, 151);
+  assert.equal(out.occurrences[0].coordinateConvention, "zero_based_character_index");
   assert.equal(out.occurrences[0].spatialReady, true);
   assert.equal(out.selectedOccurrence.occurrenceId, out.occurrences[0].occurrenceId);
   assert.equal(out.completion.totalHits, 12);
@@ -67,8 +73,17 @@ test("exact replay projects only a canonical MATCH occurrence", () => {
     status: "OK",
     verification_state: "MATCH",
     corpus_id: "torah-v1",
+    corpus: { version: "mt-text-v2" },
     input: { normalized: "דוד" },
-    occurrence: { occurrence_id: "els:torah-v1:דוד:9:1:50", skip: 9, dir: 1, start: 50, positions: [50,59,68] },
+    occurrence: {
+      occurrence_id: "els:torah-v1:דוד:9:1:50",
+      skip: 9,
+      dir: 1,
+      start: 50,
+      end: 68,
+      positions: [50,59,68],
+      coordinate_convention: "zero_based_character_index",
+    },
   });
   const mismatch = projectEls2029Result({
     contract: "els_occurrence_replay_v1",
@@ -78,7 +93,9 @@ test("exact replay projects only a canonical MATCH occurrence", () => {
     input: { normalized: "דוד" },
   });
 
+  assert.equal(match.corpusVersion, "mt-text-v2");
   assert.equal(match.selectedOccurrence.occurrenceId, "els:torah-v1:דוד:9:1:50");
+  assert.equal(match.selectedOccurrence.end, 68);
   assert.equal(match.presentation.policy, "exact_replay_v1");
   assert.equal(mismatch.selectedOccurrence, null);
   assert.equal(mismatch.occurrences.length, 0);
