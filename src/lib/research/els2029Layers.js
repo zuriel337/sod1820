@@ -4,9 +4,15 @@ const clean = (value) => {
   return text || null;
 };
 
+const toInt = (value) => {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isInteger(n) ? n : null;
+};
+
 function cellFromPosition(position, occurrenceId, role) {
-  const i = Number(position);
-  if (!Number.isInteger(i) || i < 0) return null;
+  const i = toInt(position);
+  if (i == null || i < 0) return null;
   return Object.freeze({
     corpusIndex: i,
     occurrenceId,
@@ -48,10 +54,10 @@ export function projectEls2029Layers(projection) {
       corpusId: clean(occurrence.corpusId) || clean(projection.corpusId),
       corpusVersion: clean(occurrence.corpusVersion) || clean(projection.corpusVersion),
       dependencyGroup: clean(occurrence.dependencyGroup),
-      skip: Number.isInteger(Number(occurrence.skip)) ? Number(occurrence.skip) : null,
-      dir: [-1, 1].includes(Number(occurrence.dir)) ? Number(occurrence.dir) : null,
-      start: Number.isInteger(Number(occurrence.start)) ? Number(occurrence.start) : null,
-      end: Number.isInteger(Number(occurrence.end)) ? Number(occurrence.end) : null,
+      skip: toInt(occurrence.skip),
+      dir: [-1, 1].includes(toInt(occurrence.dir)) ? toInt(occurrence.dir) : null,
+      start: toInt(occurrence.start),
+      end: toInt(occurrence.end),
       coordinateConvention: clean(occurrence.coordinateConvention),
       positions: Object.freeze([...positions]),
       cells,
