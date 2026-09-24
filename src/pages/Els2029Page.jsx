@@ -69,7 +69,7 @@ export default function Els2029Page({ layeredProjection = null }) {
         });
       });
     return () => { alive = false; };
-  }, [replayKey, elsState.loading, elsState.blocked, layeredProjection, selection]);
+  }, [replayKey, elsState.loading, elsState.blocked, layeredProjection]); // replayKey fully identifies the bounded request
 
   const replayProjection = useMemo(
     () => projectEls2029Result(replay.result),
