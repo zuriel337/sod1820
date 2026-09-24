@@ -32,7 +32,11 @@
     "test:g3-community-core-pr636-source-verified-email-claim": "node --test scripts/test-g3-community-core-pr636-source-verified-email-claim.mjs",
     "test:g3-community-core-pr636-atomic-parent-link": "node --test scripts/test-g3-community-core-pr636-atomic-parent-link.mjs",
     "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
-    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs"
+    "test:calculator-2029-golden": "node scripts/test-calculator-2029-golden.mjs",
+    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs",
+    "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs",
+    "test:calculator-2029-compare": "node scripts/test-calculator-2029-compare.mjs",
+    "test:calculator-2029-opening": "node scripts/test-calculator-2029-opening.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"

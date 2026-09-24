@@ -3,6 +3,7 @@ import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
+import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -148,11 +149,18 @@ function MethodInspector({
   onRazielAction,
   onExpandRaziel,
   onOpenHeichal,
+  onMethodLensExpression,
   onClose,
 }) {
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
   const raziel = projection?.razielMicro;
+  const methodLensSelection = {
+    expression: projection?.expression || "",
+    methodKey: method.methodKey,
+    methodLabel: publicMethodLabel(method),
+    resultValue: method.computedValue ?? null,
+  };
 
   return <div className="sod29-number-method-inspector" data-method-inspector={method.methodKey}>
     <div className="sod29-number-method-inspector-head">
@@ -200,6 +208,7 @@ function MethodInspector({
         onRazielAction={onRazielAction}
         onOpenHeichal={onOpenHeichal}
       />
+      <MethodLens2029 selection={methodLensSelection} compact onOpenExpression={onMethodLensExpression} />
     </div> : null}
 
     {tab === "learn" ? <div className="sod29-number-method-inspector-pane sod29-number-method-learn">
@@ -721,6 +730,7 @@ export default function NumberCore2029({
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
+          onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase)}
           onClose={() => setShowCalculation(false)}
         /> : null}
 
