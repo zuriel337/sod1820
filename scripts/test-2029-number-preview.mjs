@@ -25,6 +25,7 @@ const browserAcceptance = read("tests/world2029-release.spec.cjs");
 const methodLensModel = read("src/lib/research/methodLensProjection.js");
 const methodLensComponent = read("src/components/gematria2029/MethodLens2029.jsx");
 const calculator2029 = read("src/pages/Calculator2029Page.jsx");
+const calculatorCompare2029 = read("src/components/gematria2029/CalculatorCompare2029.jsx");
 
 for (const required of [
   "Sod2029Shell",
@@ -103,6 +104,15 @@ assert.match(methodLensComponent, /relation\?\.methods/);
 assert.match(core, /MethodLens2029/);
 assert.match(calculator2029, /MethodLens2029/);
 assert.doesNotMatch(calculator2029, /getAiAnalysis|ai-analyze|anthropic|openai/i);
+
+// Calculator Compare/Crossing stays deterministic and explicit-action only.
+assert.match(calculatorCompare2029, /fetchNumberMethodProfile/);
+assert.match(calculatorCompare2029, /getRelationCandidate/);
+assert.match(calculatorCompare2029, /onClick=\{checkCrossing\}/);
+assert.match(calculatorCompare2029, /DERIVED_OPERATION · SUM/);
+assert.doesNotMatch(calculatorCompare2029, /gematria\.js/);
+assert.doesNotMatch(calculatorCompare2029, /getAiAnalysis|ai-analyze|anthropic|openai/i);
+assert.match(calculator2029, /CalculatorCompare2029/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /openCapability/);
 assert.match(frame, /openNumber/);
