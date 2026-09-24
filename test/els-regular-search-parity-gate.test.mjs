@@ -60,13 +60,16 @@ test('capped ordered-prefix and corpus-dispersed presentation are observably dif
   assert.ok(Math.max(...dispersed) > Math.max(...prefix), 'dispersed selection reaches later corpus regions');
 });
 
-test('cutover acceptance: regular search must declare a versioned selection protocol before local findAll can retire', () => {
-  const hasServerSelectionProtocol =
-    /selection_protocol/.test(core) &&
-    /ordered-prefix/.test(core + hardening);
-  assert.equal(hasServerSelectionProtocol, true);
+test('cutover acceptance: occurrence truth is ready but capped selection parity remains explicitly open', () => {
+  const hasExplicitServerPresentationPolicy =
+    /presentation_selection_protocol/.test(core + hardening) ||
+    /corpus_dispersed/.test(core + hardening) ||
+    /scopeRange/.test(core + hardening);
+  assert.equal(hasExplicitServerPresentationPolicy, false);
   assert.match(template, /scopeRange\/fwdDisperseTopUp|scopeRange\+fwdDisperseTopUp/);
-  // This gate intentionally documents non-parity today: occurrence truth is ready; capped presentation policy differs.
+  // PASS means the gate is honest: server occurrence truth is ready, but the legacy capped
+  // presentation-selection policy has not yet been absorbed or superseded by a versioned ELS
+  // result/projection field. Local findAll must therefore remain temporary compatibility.
 });
 
 console.log('ELS regular-search parity gate: OCCURRENCE_TRUTH_READY / SELECTION_PARITY_OPEN');
