@@ -190,6 +190,19 @@ function CalculatorExperience() {
     selectedMethod ? buildCalculationSelection(profile.expression, selectedMethod) : null
   ), [profile.expression, selectedMethod]);
 
+  const handleExpressionChange = (value) => {
+    setExpression(value);
+    if (clean(value) !== clean(profile.expression)) {
+      setProfile({ loading: false, rows: [], error: null, expression: "" });
+      setSelectedKey(null);
+      setTrace({ loading: false, finding: null, error: null, key: null });
+      setShowCompare(false);
+      setShowOpening(false);
+      setShareDiscovery(null);
+      setSharedRestored(false);
+    }
+  };
+
   const submitCompute = async (event) => {
     event.preventDefault();
     await compute(expression);
@@ -305,7 +318,7 @@ function CalculatorExperience() {
             ref={inputRef}
             id="calculator-2029-input"
             value={expression}
-            onChange={(event) => setExpression(event.target.value)}
+            onChange={(event) => handleExpressionChange(event.target.value)}
             placeholder="למשל: צוריאל"
             dir="rtl"
             autoComplete="off"
