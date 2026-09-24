@@ -13,7 +13,6 @@ import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
-import LegacyNowSystemPreview from "../components/LegacyNowSystemPreview.jsx";
 import { track } from "../lib/tracking.js";
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
@@ -224,7 +223,6 @@ function LatestPostsRail({ posts, onPost }) {
 
   return (
     <div style={{ direction: "rtl" }}>
-      <LegacyNowSystemPreview />
       <div style={{ fontSize: 15.5, color: C.goldLight, letterSpacing: 4, fontFamily: F.heading, textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>
         📜 עדכונים אחרונים
       </div>
