@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";\nimport MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
+import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
