@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchMethodLens2029, methodLensDeterministicNote } from "../../lib/research/methodLens2029.js";
+import { fetchMethodLensProjection } from "../../lib/research/methodLensProjection.js";\n\nfunction methodLensDeterministicNote(item) {\n  const relation = item?.relation || {};\n  if (relation.sameWordMultiset) return "אותן מילים/סדר שונה — תלות מנורמלת";\n  if (relation.sameLetterMultiset) return "אותו מאגר אותיות — תלות מנורמלת";\n  if (relation.effectiveIndependentGroupCount > 1) return relation.effectiveIndependentGroupCount + " משפחות שיטה עצמאיות";\n  if (relation.status === "dependent") return "קשר תלוי — מוצג לשקיפות";\n  return "התאמה מאומתת בשיטה";\n}
 import "./methodLens2029.css";
 
 export default function MethodLens2029({ selection, compact = false, onOpenExpression = null } = {}) {
@@ -18,7 +18,7 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
     if (!selection || !requestedKey || requestedKey !== key) return undefined;
     let alive = true;
     setState({ loading: true, data: null, error: null });
-    fetchMethodLens2029(selection)
+    fetchMethodLensProjection({ expression: selection.expression, methodKey: selection.methodKey, value: selection.resultValue })
       .then((data) => { if (alive) setState({ loading: false, data, error: null }); })
       .catch((error) => { if (alive) setState({ loading: false, data: null, error }); });
     return () => { alive = false; };
@@ -29,7 +29,7 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
   const primary = useMemo(() => items.filter((item) => !item?.relation?.dependent), [items]);
   const dependent = useMemo(() => items.filter((item) => item?.relation?.dependent), [items]);
 
-  if (!selection || selection.resultValue == null || !selection.dbColumn) return null;
+  if (!selection || selection.resultValue == null) return null;
 
   if (!requestedKey) {
     return <section className="sod29-method-lens is-idle" data-method-lens="idle">
@@ -68,7 +68,7 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
         </button>
         <div className="sod29-method-lens-badges">
           <em>מאומת</em>
-          {item.relation?.effectiveIndependentGroups > 1 ? <em>{item.relation.effectiveIndependentGroups} משפחות עצמאיות</em> : null}
+          {item.relation?.effectiveIndependentGroupCount > 1 ? <em>{item.relation.effectiveIndependentGroupCount} משפחות עצמאיות</em> : null}
           {item.world ? <em>{item.world}</em> : null}
         </div>
         <small>{methodLensDeterministicNote(item)}</small>
@@ -91,6 +91,6 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
       </div> : null}
     </> : null}
 
-    {data ? <footer>מקור: {data.source} · נרמול משנה הצגה/משקל, לא מוחק ראיות.</footer> : null}
+    {data ? <footer>מקור: {data.boundary?.lookupSource || "fn_number_lookup"} + {data.boundary?.normalizationSource || "fn_relation_candidate"} · נרמול משנה הצגה/משקל, לא מוחק ראיות.</footer> : null}
   </section>;
 }
