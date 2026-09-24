@@ -24,6 +24,14 @@
 // import_v1.sql) — a single function invocation is Postgres's own transaction unit, so any failure
 // inside it (including the expected cl_openweb_message_derived_from_uniq race) rolls back every
 // write that call made. See that migration's header for the full atomicity contract.
+//
+// Source-verified-email claim evidence gate (task_key=
+// G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1): the RPC now also accepts
+// p_promote_contributor_email, set when planImport finds a real, already-existing contributor
+// with no claim-evidence email yet and this row's own source email verified — see
+// supabase/migrations/*_g3_community_core_pr636_source_verified_email_claim_v1.sql for the guarded
+// (email IS NULL only) update this adds, in the same atomic call, and planner.mjs's
+// sourceVerifiedEmail for the gate itself.
 import { OPENWEB_SOURCE_TARGET_TYPE, OPENWEB_USER_TARGET_TYPE, planImport } from './planner.mjs';
 import { runImport } from './executor.mjs';
 
@@ -132,7 +140,7 @@ export async function resolveImportState(client, messages) {
     if (contributorIds.length > 0) {
       const { data: contributors, error: contributorsError } = await client
         .from('contributors')
-        .select('id, dossier_settings')
+        .select('id, dossier_settings, email')
         .in('id', contributorIds);
       assertNoError('resolveImportState:contributors', contributorsError);
       contributorsById = new Map((contributors || []).map((c) => [c.id, c]));
@@ -147,9 +155,13 @@ export async function resolveImportState(client, messages) {
         linkedOpenwebUserIds.set(link.target_id, contribution.author_user_id);
       } else if (contribution.author_contributor_id && !contributorsByOpenwebUserId.has(link.target_id)) {
         const contributor = contributorsById.get(contribution.author_contributor_id);
+        // `email` travels here so planImport can tell an already-source-verified contributor
+        // (never overwrite/downgrade) apart from one still awaiting evidence (eligible for the
+        // source-verified-email promotion path — see planner.mjs sourceVerifiedEmail).
         contributorsByOpenwebUserId.set(link.target_id, {
           id: contribution.author_contributor_id,
           dossier_settings: contributor ? contributor.dossier_settings : null,
+          email: contributor ? contributor.email || null : null,
         });
       }
     }
@@ -180,8 +192,15 @@ export function createSupabaseOps(client) {
       // of its own minting; a real, already-resolved uuid (state.contributorsByOpenwebUserId) must
       // never be re-inserted here.
       const isNewContributor =
-        op.contributor_op && author_contributor_id === op.contributor_op.id &&
+        op.contributor_op && !op.contributor_op.promote_email && author_contributor_id === op.contributor_op.id &&
         String(author_contributor_id).startsWith(CONTRIBUTOR_PLACEHOLDER_PREFIX);
+
+      // Source-verified-email claim evidence gate (task_key=
+      // G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1): planImport emits this instead of
+      // a create when a real, already-existing contributor (from a prior batch/session) had no
+      // claim-evidence email yet and this row supplies one that source-verified. Applied in the
+      // same atomic RPC call as this row's own insert — never a second round-trip.
+      const isEmailPromotion = Boolean(op.contributor_op && op.contributor_op.promote_email);
 
       const openwebUserId = op.identity_link ? op.identity_link.target_id : author_contributor_id;
 
@@ -193,10 +212,11 @@ export function createSupabaseOps(client) {
         p_create_contributor: isNewContributor,
         p_contributor_slug: isNewContributor ? slugForOpenwebUser(openwebUserId) : null,
         p_contributor_display_name: isNewContributor ? op.contributor_op.display_name || null : null,
-        p_contributor_email: isNewContributor ? op.contributor_op.email || null : null,
+        p_contributor_email: isNewContributor || isEmailPromotion ? op.contributor_op.email || null : null,
         p_contributor_source: isNewContributor ? op.contributor_op.source || null : null,
         // Already forced private by planImport; never widened here.
         p_contributor_dossier_settings: isNewContributor ? op.contributor_op.dossier_settings || null : null,
+        p_promote_contributor_email: isEmailPromotion,
         p_author_contributor_id: isNewContributor ? null : author_contributor_id || null,
         p_author_user_id: op.contribution.author_user_id || null,
         p_author_name: op.contribution.author_name || null,

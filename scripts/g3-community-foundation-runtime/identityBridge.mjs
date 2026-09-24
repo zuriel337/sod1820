@@ -10,6 +10,20 @@
 // This module exists so the claim invariant has one pure, unit-testable JS description that
 // both the executor (below) and the SQL function's own doc comment can be checked against —
 // it is not a second identity store, it does not persist anything.
+//
+// Source-verified-email claim evidence gate (task_key=
+// G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1): a legacy claim is only ever safe when
+// BOTH (1) the legacy/source email was independently verified at source and (2) the current
+// caller's email is confirmed. This function only checks (2) — the caller side — directly; it
+// trusts `contributor.email` for (1) because the schema carries no separate source_verified
+// column, so the *only* place that invariant can be enforced is upstream, at import time:
+// planner.mjs's sourceVerifiedEmail() and the atomic RPC's p_promote_contributor_email guard
+// (supabase/migrations/*_g3_community_core_pr636_source_verified_email_claim_v1.sql) are the sole
+// writers of contributors.email, and both refuse to write anything but a source-verified email
+// (or null). A contributor row with a non-null email is therefore, by construction, already
+// source-verified — resolveLegacyClaim below never re-derives that, it relies on the invariant
+// holding. Any future writer of contributors.email that bypasses those two call sites would
+// silently break this function's safety and must not be added.
 
 // contributor: { id, email, user_id }                (as read from `contributors`)
 // caller: { id, email, emailConfirmed }               (as read from `auth.users` / the request's JWT;

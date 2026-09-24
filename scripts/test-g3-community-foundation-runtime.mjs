@@ -57,7 +57,11 @@ test('a not-yet-linked openweb_user_id becomes a private legacy contributor, nev
   // The RLS default on contributors.dossier_settings->>'visibility' is public
   // (COALESCE(..., 'public')), so an unresolved legacy identity MUST set this
   // explicitly or its email leaks through contributors_read to every visitor.
-  assert.equal(op.contributor_op.email, 'avi.legacy@example.com');
+  // ow-1001's fixture email is source-unverified (author_email_verified: false) — per the
+  // source-verified-email claim gate (task_key=G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_
+  // CLAIM_V1, scripts/test-g3-community-core-pr636-source-verified-email-claim.mjs), an
+  // unverified export email must never become contributor claim evidence.
+  assert.equal(op.contributor_op.email, null);
 });
 
 test('no operation ever creates an auth.users row from an import', () => {

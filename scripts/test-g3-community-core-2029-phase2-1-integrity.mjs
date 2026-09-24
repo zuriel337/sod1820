@@ -65,7 +65,11 @@ test('the same anonymous archetype (no user_id at all) never creates a contribut
 test('an identified author plans a visitor_identity soft carrier keyed openweb:<user_id>, email as evidence only', () => {
   const ops = planImport(messages, freshState());
   const op = ops.find((o) => o.op === 'insert_contribution' && o.message_id === 'ow-1001');
-  assert.deepEqual(op.visitor_identity_op, { visitor: 'openweb:ow-user-avi', email: 'avi.legacy@example.com' });
+  // ow-1001's fixture email is source-unverified (author_email_verified: false), so per the
+  // source-verified-email claim gate (task_key=G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_
+  // CLAIM_V1) it must never appear here — see
+  // scripts/test-g3-community-core-pr636-source-verified-email-claim.mjs for the verified case.
+  assert.deepEqual(op.visitor_identity_op, { visitor: 'openweb:ow-user-avi', email: null });
 });
 
 test('an already-linked openweb_user_id (explicitly claimed in a prior session) needs no new contributor/visitor_identity plan', () => {

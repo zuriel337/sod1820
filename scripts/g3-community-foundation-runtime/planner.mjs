@@ -13,7 +13,10 @@
 // G3_COMMUNITY_CORE_PR636_PARENT_RECONSTRUCTION_V1), and
 // docs/g3-community-core-pr636-two-phase-executor-branch-notes.md for the two-phase insert/link
 // executor fix applied on top of this planner's output (task_key=
-// G3_COMMUNITY_CORE_PR636_TWO_PHASE_EXECUTOR_V1) — this module itself is unchanged by that pass.
+// G3_COMMUNITY_CORE_PR636_TWO_PHASE_EXECUTOR_V1) — this module itself is unchanged by that pass,
+// and docs/g3-community-core-pr636-source-verified-email-claim-branch-notes.md for the
+// source-verified-only claim evidence gate applied in this pass (task_key=
+// G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1).
 //
 // This module only *plans* database operations from OpenWeb-shaped fixture messages.
 // It never opens a DB connection and never writes anything — callers decide, in a later,
@@ -82,6 +85,22 @@ function isBlankBody(body) {
 
 function privateDossierSettings(existing) {
   return { ...(existing || {}), visibility: 'private' };
+}
+
+// Source-verified-email claim evidence gate (task_key=
+// G3_COMMUNITY_CORE_PR636_SOURCE_VERIFIED_EMAIL_CLAIM_V1). A real-archive dry-run found this
+// planner previously carried `msg.author_email` into contributors.email/visitor_identity.email
+// unconditionally, ignoring `msg.author_email_verified` — 7,817 messages belong to identified
+// OpenWeb users whose export email was never independently verified at source, and that
+// unverified email could later satisfy contributors_claim_legacy's exact-match check just as
+// easily as a genuinely source-verified one. Only an email OpenWeb itself marked verified
+// (`author_email_verified === true`) may ever become claim evidence; a missing/false flag must
+// always resolve to no email at all (never a fabricated/guessed verification), so the resulting
+// contributor stays claimable only via manual relink. The schema carries no separate
+// `source_verified` column — this function *is* the enforcement point: nothing downstream of it
+// may write a source email into contributors.email/visitor_identity.email that didn't pass here.
+function sourceVerifiedEmail(msg) {
+  return msg.author_email_verified === true ? msg.author_email || null : null;
 }
 
 // state: {
@@ -155,21 +174,42 @@ export function planImport(messages, state) {
     } else if (linkedOpenwebUserIds.has(openwebUserId)) {
       author_user_id = linkedOpenwebUserIds.get(openwebUserId);
     } else {
-      const existingContributor =
-        contributorsByOpenwebUserId.get(openwebUserId) || newContributorsByOpenwebUserId.get(openwebUserId);
+      const plannedContributor = newContributorsByOpenwebUserId.get(openwebUserId);
+      const committedContributor = contributorsByOpenwebUserId.get(openwebUserId);
+      const existingContributor = committedContributor || plannedContributor;
       if (existingContributor) {
         author_contributor_id = existingContributor.id;
+        // Deterministic evidence accumulation across a batch (a row for this openweb_user_id
+        // earlier in the batch, or an already-committed contributor from a prior session): this
+        // never merges/creates a second contributor, and it only ever upgrades a still-empty
+        // email with source-verified evidence — an already-set email (verified in a prior row) is
+        // never overwritten or downgraded by a later unverified/missing one.
+        const verifiedEmail = sourceVerifiedEmail(msg);
+        if (verifiedEmail && !existingContributor.email) {
+          existingContributor.email = verifiedEmail;
+          if (existingContributor === committedContributor) {
+            // A real, already-existing contributor row (from a prior batch/session) with no claim
+            // evidence yet: promote it via an explicit, guarded update in the same atomic
+            // adapter/RPC path as this row's own insert. A contributor still only planned earlier
+            // in *this* batch (existingContributor === plannedContributor) needs no separate op —
+            // it has not been inserted yet, so mutating its still-pending contributor_op above
+            // (the very object newContributorsByOpenwebUserId holds) already carries the upgraded
+            // email into its own eventual create-op.
+            contributor_op = { promote_email: true, id: existingContributor.id, email: verifiedEmail };
+          }
+        }
       } else {
         // NEVER auto-create an auth.users row from an export email — only a soft, private
         // contributor row, keyed by the source-native user id, that can later be claimed
-        // (contributors_claim_legacy) once a real account's *confirmed* email matches. The id is
+        // (contributors_claim_legacy) once a real account's *confirmed* email matches AND this
+        // row's own source email was independently verified (sourceVerifiedEmail above). The id is
         // a stable, non-PII placeholder key — the email itself lives only in the contributor
         // row's own `email` field, never in an identifier, and is never used to merge two
         // distinct openweb_user_ids together.
         const plannedId = `planned-contributor:openweb-user:${openwebUserId}`;
         contributor_op = {
           id: plannedId,
-          email: msg.author_email || null,
+          email: sourceVerifiedEmail(msg),
           display_name: msg.author_display_name || null,
           source: 'openweb_import',
           dossier_settings: privateDossierSettings(null),
@@ -178,8 +218,9 @@ export function planImport(messages, state) {
         author_contributor_id = plannedId;
       }
       // Soft identity carrier, reusing the existing `visitor_identity` table rather than a new
-      // store: email here is private claim evidence only, never an import-time merge key.
-      visitor_identity_op = { visitor: `openweb:${openwebUserId}`, email: msg.author_email || null };
+      // store: email here is private claim evidence only, never an import-time merge key, and
+      // never anything but source-verified (or null) per sourceVerifiedEmail.
+      visitor_identity_op = { visitor: `openweb:${openwebUserId}`, email: sourceVerifiedEmail(msg) };
       identity_link = { target_type: OPENWEB_USER_TARGET_TYPE, target_id: openwebUserId, relation_type: 'authored_by_external' };
     }
 
