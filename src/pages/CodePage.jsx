@@ -76,7 +76,7 @@ function CodeClosed({ message, user }) {
         {user ? (
           <>
             <a
-              href="https://www.thefirstverse.com/he?via=user-31"
+              href="https://www.thefirstverse.com/he/els?via=user-31&s=code-page"
               target="_blank"
               rel="noopener noreferrer sponsored"
               style={{
@@ -114,13 +114,7 @@ function CodeClosed({ message, user }) {
         )}
       </section>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14, margin: "34px 0 22px" }}>
-        <figure style={{ margin: 0, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 22, padding: 10, overflow: "hidden" }}>
-          <img src="/els-rebuild-crown-preview.webp" alt="כיוון המיתוג והעולם החזותי החדש" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 15, display: "block" }} />
-          <figcaption style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, padding: "10px 5px 3px", textAlign: "center" }}>
-            כיוון המיתוג והעולם החזותי החדש
-          </figcaption>
-        </figure>
+      <div style={{ maxWidth: 760, margin: "34px auto 22px" }}>
         <figure style={{ margin: 0, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 22, padding: 10, overflow: "hidden" }}>
           <img src={ELS_PREMIUM_PREVIEW} alt="הצצה איכותית לכיוון מערכת המחקר החדשה" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", maxHeight: 520, objectFit: "cover", borderRadius: 15, display: "block", background: P.cardSoft || P.card }} />
           <figcaption style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, padding: "10px 5px 3px", textAlign: "center" }}>
