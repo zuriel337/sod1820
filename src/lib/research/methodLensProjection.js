@@ -46,6 +46,7 @@ function relationShape(relation) {
 
   return {
     status,
+    hasDependencyCollapse: raw != null && effective != null && effective < raw,
     rawIndependentGroupCount: raw,
     effectiveIndependentGroupCount: effective,
     dependentExpressionGroupCount: dependent,
@@ -101,6 +102,7 @@ export async function fetchMethodLensProjection({
       rawMatchCount: 0,
       effectiveIndependentCount: 0,
       dependentCount: 0,
+      counts: Object.freeze({ raw: 0, visible: 0, independentVisible: 0, dependent: 0 }),
       items: Object.freeze([]),
       boundary: Object.freeze({ aiUsed: false, evidenceFirst: true, lazySelectionOnly: true }),
     });
@@ -124,7 +126,7 @@ export async function fetchMethodLensProjection({
       current: rowPhrase === phrase,
       source: clean(row?.source) || null,
       category: clean(row?.category) || null,
-      leadRank: finite(row?.method_version) != null && Number.isFinite(Number(row?.lead_rank)) ? Number(row.lead_rank) : null,
+      leadRank: Number.isFinite(Number(row?.lead_rank)) ? Number(row.lead_rank) : null,
       provenance: clean(row?.provenance) || null,
       relation: relationShape(null),
     });
@@ -163,6 +165,12 @@ export async function fetchMethodLensProjection({
     rawMatchCount: items.filter((item) => !item.current).length,
     effectiveIndependentCount: independent,
     dependentCount: dependent,
+    counts: Object.freeze({
+      raw: items.filter((item) => !item.current).length,
+      visible: items.length,
+      independentVisible: independent,
+      dependent,
+    }),
     items: Object.freeze(items.map((item) => Object.freeze(item))),
     boundary: Object.freeze({
       aiUsed: false,
