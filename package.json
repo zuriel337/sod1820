@@ -20,7 +20,11 @@
     "test:research-path-resume": "node scripts/test-research-path-resumability-runtime.mjs",
     "test:2029-cheap-hardening": "node scripts/test-2029-cheap-hardening.mjs",
     "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
-    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs"
+    "test:calculator-2029-golden": "node scripts/test-calculator-2029-golden.mjs",
+    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs",
+    "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs",
+    "test:calculator-2029-compare": "node scripts/test-calculator-2029-compare.mjs",
+    "test:calculator-2029-opening": "node scripts/test-calculator-2029-opening.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
