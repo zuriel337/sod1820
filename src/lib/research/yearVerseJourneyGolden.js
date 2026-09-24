@@ -1,6 +1,7 @@
 import { verseIdentity } from "./tanakhVerseIdentity.js";
 
 export const YEAR_VERSE_COUNTING_SCHEME = Object.freeze({
+  SOURCE_ATTESTED_ORDINAL_V1: "source_attested_ordinal_v1",
   SOD_REGULAR_5845_V1: "sod_regular_5845_v1",
   TANACH_VERSES_5846_V1: "tanach_verses_5846_v1",
 });
@@ -50,7 +51,7 @@ export const YEAR_VERSE_JOURNEY_GOLDEN = Object.freeze([
     year: 2216,
     verseRef: { book: "שמות", chapter: 25, verse: 23 },
     sourceOrdinal: 2216,
-    sourceCountingScheme: YEAR_VERSE_COUNTING_SCHEME.SOD_REGULAR_5845_V1,
+    sourceCountingScheme: YEAR_VERSE_COUNTING_SCHEME.SOURCE_ATTESTED_ORDINAL_V1,
     technicalOrdinal: 2216,
     sourceRef: "posts:5028",
     sourceNote: "SOD Hachashmal source states Exodus 25:23 is verse 2216 from Torah start and links it to year 2216.",
