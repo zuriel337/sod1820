@@ -815,8 +815,7 @@ export default function SystemFrame2029({
     if (slot.trigger === "number") { openNumber(activeTarget); return; }
     if (slot.trigger === "attention") { openAttention(); return; }
     if (slot.trigger === "tools") { openTools(); return; }
-    if (slot.trigger === "world") { go("/world"); return; }
-    if (slot.trigger === "heichal") { go("/heichal"); }
+    if (slot.trigger === "route" && slot.href) { go(slot.href); }
   }, [activeTarget, openAction, openInspect, openNumber, openAttention, openTools, go]);
 
   const shellApi = useMemo(() => ({
