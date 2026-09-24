@@ -12,13 +12,14 @@ test("ELS 2029 consumes the existing Research Context and live availability gate
   assert.match(src, /updateResearchContext\?\.\(\{ lens: "els" \}\)/);
 });
 
-test("ELS 2029 exact replay is fail-closed on full coordinate identity", () => {
+test("ELS 2029 exact replay is fail-closed through the canonical replay request boundary", () => {
   assert.match(src, /selection\?\.entityType === "els"/);
-  assert.match(src, /selection\?\.corpus/);
-  assert.match(src, /selection\?\.start/);
-  assert.match(src, /selection\?\.skip/);
-  assert.match(src, /selection\?\.dir/);
-  assert.match(src, /נדרש Result Bundle עם coordinates מלאים/);
+  assert.match(src, /buildEls2029ReplayRequest\(selection\)/);
+  assert.match(src, /els2029ReplaySelectionKey\(selection\)/);
+  assert.match(src, /verifyEls2029Selection\(selection/);
+  assert.match(src, /supabase\.functions\.invoke\("els-search-bridge", \{ body \}\)/);
+  assert.match(src, /נדרש term \+ corpus \+ start \+ skip \+ direction/);
+  assert.match(src, /replayMatched \? "MATCH · occurrence אומת בשרת"/);
 });
 
 test("ELS 2029 is projection-only and does not embed or implement an ELS engine", () => {
