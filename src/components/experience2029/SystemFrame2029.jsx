@@ -367,7 +367,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
   const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
-  const elsFocus = elsSurfaceContext?.surface === "els" && elsSurfaceContext?.occurrence?.occurrenceId
+  const elsFocus = elsSurfaceContext?.surface === "els"
+    && elsSurfaceContext?.occurrence?.occurrenceId
+    && elsSurfaceContext?.result?.contract === "els_2029_projection_v1"
+    && elsSurfaceContext?.result?.status === "OK"
+    && elsSurfaceContext?.result?.presentationPolicy === "exact_replay_v1"
     ? elsSurfaceContext
     : null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
