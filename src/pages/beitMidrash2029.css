@@ -1,0 +1,162 @@
+/* BEIT_MIDRASH_2029_GOLDEN_V1 — scoped presentation only. All color/spacing/motion values
+   come from the shared sod2029 design tokens (--s29-*); this file adds no second palette. */
+
+.sod29-beit-midrash {
+  display: grid;
+  gap: 28px;
+}
+
+.sod29-bm-hero {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: var(--s29-radius, 18px);
+  background: var(--s29-panel-grad, var(--s29-panel));
+  border: 1px solid var(--s29-line);
+}
+
+.sod29-bm-hero h2 {
+  margin: 0;
+  font-size: clamp(22px, 3.4vw, 30px);
+}
+
+.sod29-bm-hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sod29-bm-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr);
+  gap: 20px;
+}
+
+.sod29-bm-now-lane {
+  display: grid;
+  gap: 10px;
+}
+
+.sod29-bm-now-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--s29-line);
+  border-radius: 12px;
+  background: var(--s29-panel-soft, var(--s29-panel));
+}
+
+.sod29-bm-methods {
+  display: grid;
+  gap: 16px;
+}
+
+.sod29-bm-method-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sod29-bm-method-chip {
+  border: 1px solid var(--s29-line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  min-height: var(--s29-control-min, 40px);
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sod29-bm-method-chip.is-selected {
+  border-color: var(--s29-accent);
+  color: var(--s29-accent-text, var(--s29-accent));
+  box-shadow: 0 0 0 1px var(--s29-accent);
+}
+
+.sod29-bm-method-detail {
+  border: 1px solid var(--s29-line-strong, var(--s29-line));
+  border-radius: var(--s29-radius, 16px);
+  padding: 18px;
+  background: var(--s29-panel);
+  display: grid;
+  gap: 10px;
+}
+
+.sod29-bm-method-detail .sod29-bm-computed {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--s29-line);
+  background: var(--s29-panel-soft, var(--s29-panel));
+  width: fit-content;
+}
+
+.sod29-bm-trace {
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--s29-panel-soft, var(--s29-panel));
+  border: 1px solid var(--s29-line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sod29-bm-example {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sod29-bm-example input {
+  min-height: var(--s29-control-min, 40px);
+  border-radius: 999px;
+  border: 1px solid var(--s29-line);
+  padding: 0 14px;
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.sod29-bm-continuation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sod29-bm-building {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .sod29-bm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .sod29-bm-hero {
+    padding: 16px;
+  }
+  .sod29-bm-now-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sod29-beit-midrash * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
