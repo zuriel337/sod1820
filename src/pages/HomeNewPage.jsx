@@ -187,9 +187,6 @@ export default function HomeNewPage() {
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "עולם המחקר של סוד 1820 — התכנסויות, מספרים, מקורות וחכמת הקשרים.", path: "/home-new" });
-    // «עדכונים אחרונים» — פוסטים לבית דרך המקור הקנוני היחיד (homeUpdates.fetchHomePosts):
-    // אותה שאילתה + אותו סינון «לא-בבית»/«הינוקא»/home_hidden. מקור-אמת אחד, משותף עם פוסט/צ'אט.
-    fetchHomePosts().then(r => { setPosts(r); markSeenKey("home-posts"); }).catch(() => {});
     // רמזי-הזרם נטענים ב-effect נפרד, מותנה בדגל lock_reality (ראה למטה)
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
@@ -201,6 +198,44 @@ export default function HomeNewPage() {
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
     markSeenKey("home-radar");
+  }, []);
+
+  // 📜 Legacy Home Latest Updates is a live surface: fresh read on mount and whenever
+  // the visitor returns to the tab/window. This prevents a long-lived SPA/BFCache session
+  // from keeping a weeks-old post snapshot while other feed branches continue updating.
+  useEffect(() => {
+    let cancelled = false;
+    let inFlight = false;
+
+    const refreshPosts = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try {
+        const rows = await fetchHomePosts();
+        if (!cancelled) {
+          setPosts(rows || []);
+          markSeenKey("home-posts");
+        }
+      } catch {
+        // Keep the last good snapshot on transient failure; never blank the rail.
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const onFocus = () => refreshPosts();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refreshPosts();
+    };
+
+    refreshPosts();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
   // 🌊 רמזי הזרם נטענים לכולם — כטיזר: תמונה קטנה ב«עדכונים אחרונים» (החלטת צוריאל 9.7.2026).
