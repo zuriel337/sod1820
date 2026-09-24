@@ -264,6 +264,11 @@ export default function ResearchProvider({ children }) {
         const current = normalizeResearchContext(prev);
         const sameSelection = current?.selection?.entityType === "els"
           && current?.selection?.locator === locator
+          && current?.selection?.term === term
+          && current?.selection?.corpus === scope
+          && (current?.selection?.start ?? null) === start
+          && (current?.selection?.skip ?? null) === (Number.isInteger(skip) ? skip : null)
+          && (current?.selection?.dir ?? null) === dir
           && current?.lens === "els";
         if (current?.subject && sameSelection) return prev;
         const directSubject = {
