@@ -98,7 +98,7 @@ export function projectEls2029Representation(layers) {
       corpusVersion: clean(layer?.corpusVersion) || clean(layers.corpusVersion),
       dependencyGroup: clean(layer?.dependencyGroup),
       skip: toInt(layer?.skip),
-      dir: [-1, 1].includes(Number(layer?.dir)) ? Number(layer.dir) : null,
+      dir: [-1, 1].includes(toInt(layer?.dir)) ? toInt(layer.dir) : null,
       start: toInt(layer?.start),
       end: toInt(layer?.end),
       coordinateConvention: clean(layer?.coordinateConvention),
