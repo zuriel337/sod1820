@@ -70,16 +70,23 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
     [profileB.expression, expressionB, methodB],
   );
 
+  useEffect(() => {
+    setRelationState({ loading: false, data: null, error: null });
+    setShowDerivedSum(false);
+  }, [selectionA?.expression, selectionA?.methodKey, selectionA?.resultValue, methodBKey]);
+
   const aValue = selectionA?.resultValue;
   const bValue = selectionB?.resultValue;
   const bothComputed = aValue != null && bValue != null && Number.isFinite(Number(aValue)) && Number.isFinite(Number(bValue));
   const equal = bothComputed && Number(aValue) === Number(bValue);
+  const distinctExpressions = clean(selectionA?.expression) !== clean(selectionB?.expression);
+  const crossingEligible = equal && distinctExpressions;
   const derivedSum = bothComputed ? Number(aValue) + Number(bValue) : null;
   const relation = relationState.data;
   const normalized = relationSummary(relation);
 
   const checkCrossing = async () => {
-    if (!equal || !selectionA?.expression || !selectionB?.expression) return;
+    if (!crossingEligible || !selectionA?.expression || !selectionB?.expression) return;
     setRelationState({ loading: true, data: null, error: null });
     try {
       const data = await getRelationCandidate(selectionA.expression, selectionB.expression);
@@ -135,7 +142,7 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
 
       {bothComputed ? (
         <div className={"sod29-calc-compare-outcome" + (equal ? " is-crossing" : "")}>
-          {equal ? (
+          {crossingEligible ? (
             <>
               <span>CROSSING</span>
               <strong>{selectionA.expression} = {selectionB.expression} = {aValue}</strong>
@@ -143,6 +150,12 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
               <button type="button" onClick={checkCrossing} disabled={relationState.loading}>
                 {relationState.loading ? "מנרמל תלות…" : "בדוק הצלבה במנוע"}
               </button>
+            </>
+          ) : equal ? (
+            <>
+              <span>SAME EXPRESSION</span>
+              <strong>{selectionA.expression} = {aValue}</strong>
+              <small>אותו ביטוי אינו נספר כהצלבה עם עצמו.</small>
             </>
           ) : (
             <>
