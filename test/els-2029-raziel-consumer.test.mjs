@@ -67,6 +67,9 @@ test("ELS Raziel surface context remains text-private by default and carries no 
   assert.equal(out.surface, "els");
   assert.equal(out.privacy.includeText, false);
   assert.equal("text" in out, false);
+  assert.match(out.subject.ref, /^anon:/);
+  assert.equal("id" in out.subject, false);
+  assert.equal("href" in out.subject, false);
   assert.equal("label" in out.subject, false);
   assert.equal("term" in out.result, false);
   assert.equal("truth" in out, false);
