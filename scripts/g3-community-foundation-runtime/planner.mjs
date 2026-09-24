@@ -9,8 +9,11 @@
 // and blank-body fixes applied in that pass (task_key=
 // G3_COMMUNITY_CORE_2029_PHASE2_2_SOURCE_FIDELITY_V1), and
 // docs/g3-community-core-pr636-parent-reconstruction-branch-notes.md for the order-independent
-// parent resolution fix applied in this pass (task_key=
-// G3_COMMUNITY_CORE_PR636_PARENT_RECONSTRUCTION_V1).
+// parent resolution fix applied in that pass (task_key=
+// G3_COMMUNITY_CORE_PR636_PARENT_RECONSTRUCTION_V1), and
+// docs/g3-community-core-pr636-two-phase-executor-branch-notes.md for the two-phase insert/link
+// executor fix applied on top of this planner's output (task_key=
+// G3_COMMUNITY_CORE_PR636_TWO_PHASE_EXECUTOR_V1) — this module itself is unchanged by that pass.
 //
 // This module only *plans* database operations from OpenWeb-shaped fixture messages.
 // It never opens a DB connection and never writes anything — callers decide, in a later,
