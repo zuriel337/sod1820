@@ -86,9 +86,19 @@ export async function fetchHomePosts() {
     fetchFreshPublicHomePosts({ limit: 50, pinned: true }),
   ]);
 
-  const recent = freshRecent.status === "fulfilled"
-    ? freshRecent.value
-    : await getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(r => r.posts || []).catch(() => []);
+  let recent;
+  if (freshRecent.status === "fulfilled") {
+    recent = freshRecent.value;
+  } else {
+    try {
+      const fallback = await getPostsFromSupabase({ limit: 32, orderBy: "modified" });
+      recent = fallback.posts || [];
+    } catch {
+      // The recent branch is the essential Home feed. Bubble failure so the page keeps
+      // its last good snapshot instead of replacing it with an empty/stale partial list.
+      throw new Error("Legacy Home recent posts unavailable");
+    }
+  }
 
   const pinned = freshPinned.status === "fulfilled"
     ? freshPinned.value
