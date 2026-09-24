@@ -264,7 +264,11 @@ jobs:
             const install2029Rewrite = async (targetPage) => {
               await targetPage.route('**/2029/gematria*', async (route) => {
                 const response = await targetPage.request.get(`${BASE}/2029.html`);
-                await route.fulfill({ response });
+                await route.fulfill({
+                  status: response.status(),
+                  headers: response.headers(),
+                  body: await response.body(),
+                });
               });
             };
             await install2029Rewrite(page);
