@@ -22,7 +22,8 @@
     "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
     "test:calculator-2029-golden": "node scripts/test-calculator-2029-golden.mjs",
     "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs",
-    "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs"
+    "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs",
+    "test:calculator-2029-compare": "node scripts/test-calculator-2029-compare.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
