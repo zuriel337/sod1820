@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getFeaturedResearchers } from "../lib/supabase.js";
+import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
@@ -115,7 +115,6 @@ export default function HomeNewPage() {
   const [editImg, setEditImg] = useState(null); // עריכת רמז (מנהל)
   const [posts, setPosts] = useState([]);
   const [hints, setHints] = useState([]);   // רמזים שעלו לזרם המציאות — מוצגים גם כאן ומובילים לגלריה
-  const [researchers, setResearchers] = useState([]); // 🎗 כתבים מודגשים (feature_media) — כרטיס-כתב ב«עדכונים אחרונים»
   const [imgCount, setImgCount] = useState(0); // סך תמונות הארכיון — לבאנר האוצר
   const [topNums, setTopNums] = useState([]);   // המספרים החזקים בכל המאגר (אגרגציה) — לבועות-העל
   const [selHint, setSelHint] = useState(null); // התמונה הנבחרת בתצוגה הגדולה (ברירת מחדל: האחרונה)
@@ -243,7 +242,6 @@ export default function HomeNewPage() {
   // (מגודר בתוכו, site_flags_lock_law) מציג לאנונימי את טיזר-ההרשמה במקום הזרם.
   useEffect(() => {
     getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
-    getFeaturedResearchers(6).then(r => setResearchers(r || [])).catch(() => {});
     getSavedMatrices(20).then(r => setCiphers(r || [])).catch(() => {});
     // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מהעוגן ואילך (CIPHER_FEED_SINCE) — קבוע, נשאר תמיד, לא חלון-זמן
     getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) >= CIPHER_FEED_SINCE))).catch(() => {});
@@ -559,7 +557,7 @@ export default function HomeNewPage() {
             }}>
               אנחנו בונים עכשיו את הדור הבא של האתר. במהלך השדרוג חלק מהעדכונים והפרסומים החדשים מושהים זמנית, והאזורים החדשים נפתחים בהדרגה כשהם מוכנים.
             </div>
-            <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+            <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
             <div className="hn-build-title">🏗️ האתר מתחדש — הנה מה כבר נבנה</div>
