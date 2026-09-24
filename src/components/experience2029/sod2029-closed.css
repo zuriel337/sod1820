@@ -137,3 +137,26 @@
 .sod29-home-now-treasure strong{font-size:13px;line-height:1.45;color:var(--s29-ink)}
 .sod29-home-now-treasure small{font-size:9px;color:var(--s29-muted)}
 .sod29-home-now-treasures>p{margin:10px 2px 0;font-size:9px;line-height:1.55;color:var(--s29-muted)}
+
+
+/* Connected Golden bridge: Home → source Post / Heichal. */
+.sod29-connected-golden-story{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  padding:18px 20px;
+  border:1px solid var(--s29-line-strong);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 36%),
+    var(--s29-panel-grad);
+}
+.sod29-connected-golden-story h3{margin:5px 0 7px;font-size:clamp(20px,2.5vw,28px);line-height:1.2}
+.sod29-connected-golden-story p{margin:0;color:var(--s29-muted);line-height:1.65;max-width:760px}
+.sod29-connected-golden-story .sod29-actions{justify-content:flex-end}
+@media(max-width:760px){
+  .sod29-connected-golden-story{grid-template-columns:1fr;padding:16px}
+  .sod29-connected-golden-story .sod29-actions{justify-content:flex-start}
+}
