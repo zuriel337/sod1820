@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const model = readFileSync(new URL("../src/lib/research/methodLens2029.js", import.meta.url), "utf8");
+const model = readFileSync(new URL("../src/lib/research/methodLensProjection.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../src/components/gematria2029/MethodLens2029.jsx", import.meta.url), "utf8");
 const calculator = readFileSync(new URL("../src/pages/Calculator2029Page.jsx", import.meta.url), "utf8");
 const numberCore = readFileSync(new URL("../src/components/number2029/NumberCore2029.jsx", import.meta.url), "utf8");
