@@ -257,6 +257,114 @@ jobs:
             }
           });
 
+
+          test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
+            const calculatorPath = '/2029/gematria';
+            const goldens = ['צוריאל', 'צוריאל פולייס', 'שער נון', 'אנכי'];
+
+            for (const width of [390, 1440]) {
+              const aiRequests = [];
+              page.on('request', (request) => {
+                if (/ai-analyze|anthropic|openai/i.test(request.url())) aiRequests.push(request.url());
+              });
+              await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
+              await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
+              await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/i);
+
+              const input = page.locator('#calculator-2029-input');
+              await input.fill(goldens[0]);
+              await page.waitForTimeout(400);
+              await expect(page.locator('.sod29-calc2029-results')).toHaveCount(0);
+              expect(aiRequests).toEqual([]);
+
+              await page.getByRole('button', { name: 'חשב', exact: true }).click();
+              await expect(page.locator('.sod29-calc2029-results')).toBeVisible({ timeout: 20_000 });
+              const inspector = page.locator('.sod29-calc2029-inspector');
+              await expect(inspector).toBeVisible();
+              await expect(inspector).toContainText(goldens[0]);
+              const selectedMethod = await inspector.getAttribute('data-calculation-selection');
+              expect(selectedMethod).toBeTruthy();
+              const selectedValue = (await page.locator('.sod29-calc2029-selection-value').innerText()).trim();
+              expect(selectedValue).toMatch(/^\d+$/);
+
+              const metrics = await page.evaluate(() => ({
+                clientWidth: document.documentElement.clientWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+              }));
+              expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+
+              const badTargets = await page.evaluate(() => Array.from(
+                document.querySelectorAll('.sod29-calc2029 button:not([disabled]), .sod29-calc2029 a[href]')
+              ).filter((el) => {
+                const r = el.getBoundingClientRect();
+                return r.width > 0 && r.height > 0 && (r.width < 44 || r.height < 44);
+              }).map((el) => ({ text: (el.textContent || '').trim(), width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height })));
+              expect(badTargets).toEqual([]);
+
+              const methodOpen = page.getByRole('button', { name: 'פתח את השיטה' });
+              if (await methodOpen.count()) {
+                await methodOpen.click();
+                await expect(page.locator('[data-method-lens="evidence"]')).toBeVisible({ timeout: 20_000 });
+              }
+
+              const share = page.locator('.sod29-calc2029-share');
+              await expect(share).toBeVisible();
+              const shareUrl = await share.getAttribute('data-share-url');
+              expect(shareUrl).toContain('q=');
+              expect(shareUrl).toContain('m=');
+              expect(shareUrl).toContain('v=');
+              expect(shareUrl).toContain('s=');
+
+              await page.locator('.sod29-calc2029-actions .is-raziel').click();
+              const dialog = page.getByRole('dialog');
+              await expect(dialog).toBeVisible();
+              await expect(dialog).toContainText(goldens[0]);
+              await expect(dialog).toContainText(selectedValue);
+              await page.keyboard.press('Escape');
+
+              await page.screenshot({
+                path: `test-results/release-visual/gematria-viral-${width}.png`,
+                fullPage: true,
+              });
+
+              const shared = await page.context().newPage();
+              await shared.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
+              await shared.goto(shareUrl, { waitUntil: 'networkidle' });
+              const sharedCard = shared.locator('.sod29-calc2029-shared');
+              await expect(sharedCard).toBeVisible({ timeout: 20_000 });
+              await expect(sharedCard).toContainText(goldens[0]);
+              await expect(sharedCard).toContainText(selectedValue);
+              await shared.getByRole('button', { name: 'מה מסתתר בשם שלך?' }).click();
+              await expect(shared.locator('#calculator-2029-input')).toBeFocused();
+              await expect(shared.locator('#calculator-2029-input')).toHaveValue('');
+              await shared.close();
+
+              if (width === 390) {
+                await page.getByRole('button', { name: 'השווה', exact: true }).click();
+                await expect(page.locator('.sod29-calc-compare')).toBeVisible();
+                await page.locator('#calculator-compare-b').fill('צוריאל פולייס');
+                await expect(page.locator('.sod29-calc-compare-b-result')).toBeVisible({ timeout: 20_000 });
+                await page.getByRole('button', { name: 'סגור השוואה' }).click();
+
+                for (const phrase of goldens.slice(1)) {
+                  await input.fill(phrase);
+                  await page.waitForTimeout(300);
+                  await expect(page.locator('.sod29-calc2029-results')).toHaveCount(0);
+                  await page.getByRole('button', { name: 'חשב', exact: true }).click();
+                  await expect(page.locator('.sod29-calc2029-inspector')).toContainText(phrase, { timeout: 20_000 });
+                }
+
+                const noRelation = 'תתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתתת';
+                await input.fill(noRelation);
+                await page.getByRole('button', { name: 'חשב', exact: true }).click();
+                await expect(page.locator('.sod29-calc2029-selection-value')).toHaveText('16000', { timeout: 20_000 });
+                const noRelationOpen = page.getByRole('button', { name: 'פתח את השיטה' });
+                await noRelationOpen.click();
+                await expect(page.getByText('אין כרגע ביטוי נוסף מאומת בשיטה ובערך האלה.')).toBeVisible({ timeout: 20_000 });
+              }
+            }
+          });
+
           EOF
           npx playwright test .release-gate/release-visual.spec.cjs --reporter=line
 
