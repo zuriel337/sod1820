@@ -333,7 +333,7 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await expect(inspector).toContainText('RAZIEL MICRO');
   await inspector.getByRole('button', { name: 'השווה שיטות' }).click();
 
-  const razielPanel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
+  const razielPanel = page.getByRole('dialog', { name: 'רזיאל' });
   await expect(razielPanel).toBeVisible();
   await expect(razielPanel).toContainText('השווה שיטות');
   await expect(razielPanel).toContainText('1237');
