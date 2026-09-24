@@ -9,6 +9,7 @@ export default function ReadingContextRail2029({
 }) {
   if (!focus) return null;
   const verified = focus?.verification?.verified === true;
+  const cueSignals = [focus.primary, ...(focus.signals || [])].filter(Boolean).slice(0, 2);
 
   return <>
     <aside
@@ -41,10 +42,13 @@ export default function ReadingContextRail2029({
       type="button"
       className="sod29-reading-mobile-cue"
       onClick={onOpenContext}
-      aria-label={`פתח ${focus.signals?.length || 0} חיבורים לחלק הזה`}
+      aria-label={`פתח חיבורים: ${cueSignals.join(" · ")}`}
     >
-      <span>✦</span>
-      <b>{Math.max(1, focus.signals?.length || 0)} חיבורים</b>
+      <span className="sod29-reading-mobile-cue-icon">✦</span>
+      <span className="sod29-reading-mobile-cue-copy">
+        <b>{Math.max(1, focus.signals?.length || 0)} חיבורים כאן</b>
+        <small>{cueSignals.join(" · ")}</small>
+      </span>
     </button>
   </>;
 }
