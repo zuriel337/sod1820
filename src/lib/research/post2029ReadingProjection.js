@@ -1,4 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
+import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
@@ -126,7 +127,9 @@ function defaultRegionsFromSource(content = "") {
 
 export async function fetchPost2029ReadingProjection(slug) {
   const publicPost = await getPostBySlug(slug);
-  const post = publicPost || await fetchPrivateGoldenStage(slug);
+  const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
+  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
+  const post = publicPost || privateStage || previewSnapshot;
   if (!post) return null;
 
   const isGolden = post.slug === GOLDEN_SLUG;
@@ -155,6 +158,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     golden: isGolden,
     draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
     privateStage: post._privateStage === true,
+    previewSnapshot: post._previewSnapshot === true,
     caveat: isGolden
       ? "המקור נשמר כלשונו. החיבורים בשוליים הם שכבת SOD1820 נפרדת."
       : "שכבת ההקשר אינה חלק מדברי המקור.",
