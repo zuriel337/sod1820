@@ -261,9 +261,13 @@ jobs:
           test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
             const calculatorPath = '/2029/gematria';
             const goldens = ['צוריאל', 'צוריאל פולייס', 'שער נון', 'אנכי'];
-            await page.addInitScript(() => {
-              if (location.pathname.endsWith('/2029.html')) history.replaceState(null, '', '/2029/gematria');
-            });
+            const install2029Rewrite = async (targetPage) => {
+              await targetPage.route('**/2029/gematria*', async (route) => {
+                const response = await targetPage.request.get(`${BASE}/2029.html`);
+                await route.fulfill({ response });
+              });
+            };
+            await install2029Rewrite(page);
 
             for (const width of [390, 1440]) {
               const aiRequests = [];
@@ -271,7 +275,7 @@ jobs:
                 if (/ai-analyze|anthropic|openai/i.test(request.url())) aiRequests.push(request.url());
               });
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
-              await page.goto(`${BASE}/2029.html`, { waitUntil: 'networkidle' });
+              await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
 
               const input = page.locator('#calculator-2029-input');
               await input.fill(goldens[0]);
@@ -331,10 +335,8 @@ jobs:
 
               const shared = await page.context().newPage();
               await shared.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
-              const sharedParsed = new URL(shareUrl);
-              const sharedRoute = sharedParsed.pathname + sharedParsed.search;
-              await shared.addInitScript((route) => history.replaceState(null, '', route), sharedRoute);
-              await shared.goto(`${BASE}/2029.html`, { waitUntil: 'networkidle' });
+              await install2029Rewrite(shared);
+              await shared.goto(shareUrl, { waitUntil: 'networkidle' });
               const sharedCard = shared.locator('.sod29-calc2029-shared');
               await expect(sharedCard).toBeVisible({ timeout: 20_000 });
               await expect(sharedCard).toContainText(goldens[0]);
