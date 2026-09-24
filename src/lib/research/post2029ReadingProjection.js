@@ -81,15 +81,18 @@ async function fetchPrivateGoldenStage(slug) {
   // Existing Research Intake owner is the private pre-publication home. RLS exposes this
   // row only to authenticated admins; anon gets zero rows. Once published, Posts is the
   // sole public Publication identity and this fallback is no longer needed.
-  const { data, error } = await supabase
-    .from("research_objects")
-    .select("id,status,privacy_scope,meta")
-    .contains("meta", { checkpoint_key: "sod-hashmal-sukkot-5787-source-root" })
-    .eq("privacy_scope", "private")
-    .limit(1)
-    .maybeSingle();
-  if (error || !data?.meta?.staged_post) return null;
-  const staged = data.meta.staged_post;
+  const { data, error } = await supabase.rpc("admin_research_feed", {
+    p_status: "candidate",
+    p_kind: "observation",
+    p_limit: 200,
+  });
+  if (error) return null;
+  const dataRow = (data || []).find((row) =>
+    row?.privacy_scope === "private"
+    && row?.meta?.checkpoint_key === "sod-hashmal-sukkot-5787-source-root"
+  ) || null;
+  if (!dataRow?.meta?.staged_post) return null;
+  const staged = dataRow.meta.staged_post;
   return {
     id: staged.id,
     wp_id: staged.wp_id,
@@ -105,7 +108,7 @@ async function fetchPrivateGoldenStage(slug) {
     theme: staged.theme,
     content: staged.content_html || "",
     _privateStage: true,
-    _sourceRootId: data.id,
+    _sourceRootId: dataRow.id,
   };
 }
 
