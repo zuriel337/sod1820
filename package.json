@@ -20,7 +20,8 @@
     "test:research-path-resume": "node scripts/test-research-path-resumability-runtime.mjs",
     "test:2029-cheap-hardening": "node scripts/test-2029-cheap-hardening.mjs",
     "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
-    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs"
+    "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs",
+    "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
