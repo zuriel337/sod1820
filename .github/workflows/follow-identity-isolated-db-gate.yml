@@ -1,0 +1,159 @@
+name: Follow Identity Isolated DB Gate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/follow-identity-isolated-db-gate.yml'
+      - 'tests/g3-f2/**'
+      - 'supabase/migrations/20260916182500_g3_f_follow_identity_one_tree_v1.sql'
+      - 'supabase/migrations/20260916182550_g3_f_internal_function_acl_gate_v1.sql'
+      - 'supabase/migrations/20260916182600_g3_f_follow_event_side_effect_gate_v1.sql'
+      - 'supabase/migrations/20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql'
+      - 'supabase/migrations/20260916182800_g3_f_guest_account_claim_lock_v1.sql'
+      - 'supabase/migrations/20260916182900_g3_f_follow_subject_contract_v1.sql'
+      - 'src/lib/followIdentity.js'
+      - 'src/lib/followIdentity.test.js'
+      - 'src/lib/followSubject.js'
+      - 'src/lib/emailVerificationIntent.js'
+      - 'src/lib/emailVerificationIntent.test.js'
+      - 'src/components/WatchButton.jsx'
+      - 'src/components/EmailVerify.jsx'
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres17-auth-rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Assert exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          expected="${{ github.event.pull_request.head.sha }}"
+          echo "exact_head=$actual"
+          test "$actual" = "$expected"
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1 action
+        with:
+          version: latest
+
+      - name: Record toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          docker --version
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Prepare isolated Supabase PostgreSQL 17 workdir
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .tmp/g3-f2-follow-db
+          mkdir -p .tmp/g3-f2-follow-db
+          cd .tmp/g3-f2-follow-db
+          supabase init
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('supabase/config.toml')
+          text = p.read_text()
+          updated, n = re.subn(r'(?m)^major_version\s*=\s*\d+\s*$', 'major_version = 17', text)
+          if n != 1:
+              raise SystemExit(f'expected one db.major_version line, changed {n}')
+          p.write_text(updated)
+          PY
+          mkdir -p supabase/migrations
+          cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-default-privileges.sql" \
+             supabase/migrations/20260916175900_g3_f2_follow_identity_live_default_privileges.sql
+          cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-baseline.sql" \
+             supabase/migrations/20260916180000_g3_f2_follow_identity_live_baseline.sql
+          cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-acl-tail.sql" \
+             supabase/migrations/20260916180100_g3_f2_follow_identity_live_acl_tail.sql
+          for f in \
+            20260916182500_g3_f_follow_identity_one_tree_v1.sql \
+            20260916182550_g3_f_internal_function_acl_gate_v1.sql \
+            20260916182600_g3_f_follow_event_side_effect_gate_v1.sql \
+            20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql \
+            20260916182800_g3_f_guest_account_claim_lock_v1.sql \
+            20260916182900_g3_f_follow_subject_contract_v1.sql; do
+            cp "$GITHUB_WORKSPACE/supabase/migrations/$f" "supabase/migrations/$f"
+          done
+          cat > /tmp/g3f2-expected-migrations.txt <<'EOF'
+          20260916175900_g3_f2_follow_identity_live_default_privileges.sql
+          20260916180000_g3_f2_follow_identity_live_baseline.sql
+          20260916180100_g3_f2_follow_identity_live_acl_tail.sql
+          20260916182500_g3_f_follow_identity_one_tree_v1.sql
+          20260916182550_g3_f_internal_function_acl_gate_v1.sql
+          20260916182600_g3_f_follow_event_side_effect_gate_v1.sql
+          20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql
+          20260916182800_g3_f_guest_account_claim_lock_v1.sql
+          20260916182900_g3_f_follow_subject_contract_v1.sql
+          EOF
+          find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sort > /tmp/g3f2-actual-migrations.txt
+          diff -u /tmp/g3f2-expected-migrations.txt /tmp/g3f2-actual-migrations.txt
+          echo 'migration_order:'
+          cat /tmp/g3f2-actual-migrations.txt
+          grep -q '^major_version = 17$' supabase/config.toml
+
+      - name: Full isolated migration replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd .tmp/g3-f2-follow-db
+          supabase start
+          # Clean reconstruction is the release gate: verified-live baseline fixtures, then the
+          # complete PR #486 migration set in timestamp order.
+          supabase db reset --local
+          server_num="$(psql "$DB_URL" -X -Atc 'show server_version_num')"
+          echo "postgres_server_version_num=$server_num"
+          test "${server_num%%??}" -ge 1700
+
+      - name: SQL and RLS negative acceptance suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f tests/g3-f2/follow-identity-negative.sql
+
+      - name: Claim and duplicate concurrency acceptance
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/g3-f2/follow-identity-concurrency.sh
+
+      - name: All existing Follow tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          mapfile -t follow_tests < <(find src -type f \( -iname '*follow*.test.js' -o -name 'emailVerificationIntent.test.js' \) -print | sort)
+          printf 'follow_tests:\n%s\n' "${follow_tests[*]}"
+          test "${#follow_tests[@]}" -gt 0
+          node --test "${follow_tests[@]}"
+
+      - name: Build
+        shell: bash
+        run: npm run build
+
+      - name: Stop isolated stack
+        if: always()
+        shell: bash
+        run: |
+          cd .tmp/g3-f2-follow-db 2>/dev/null || exit 0
+          supabase stop --no-backup || true
