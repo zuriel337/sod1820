@@ -12,17 +12,17 @@ function deterministicNote(item) {
   return "התאמה מאומתת בשיטה";
 }
 
-export default function MethodLens2029({ selection, compact = false, onOpenExpression = null } = {}) {
+export default function MethodLens2029({ selection, compact = false, autoOpen = false, onOpened = null, onProjection = null, onOpenExpression = null } = {}) {
   const [requestedKey, setRequestedKey] = useState("");
   const [state, setState] = useState({ loading: false, data: null, error: null });
   const [showDependent, setShowDependent] = useState(false);
   const key = selection ? [selection.expression, selection.methodKey, selection.resultValue].join("::") : "";
 
   useEffect(() => {
-    setRequestedKey("");
+    setRequestedKey(autoOpen && key ? key : "");
     setState({ loading: false, data: null, error: null });
     setShowDependent(false);
-  }, [key]);
+  }, [key, autoOpen]);
 
   useEffect(() => {
     if (!selection || !requestedKey || requestedKey !== key) return undefined;
@@ -33,10 +33,10 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
       methodKey: selection.methodKey,
       value: selection.resultValue,
     })
-      .then((data) => { if (alive) setState({ loading: false, data, error: null }); })
+      .then((data) => { if (alive) { setState({ loading: false, data, error: null }); onProjection?.(data); } })
       .catch((error) => { if (alive) setState({ loading: false, data: null, error }); });
     return () => { alive = false; };
-  }, [selection, requestedKey, key]);
+  }, [selection, requestedKey, key, onProjection]);
 
   const data = state.data;
   const items = Array.isArray(data?.items) ? data.items : [];
@@ -52,7 +52,7 @@ export default function MethodLens2029({ selection, compact = false, onOpenExpre
         <strong>מה יש בתוך {selection.methodLabel || selection.methodKey} = {selection.resultValue}?</strong>
         <small>הביטויים עצמם · מאגר מאומת · נרמול מנוע · בלי AI</small>
       </div>
-      <button type="button" onClick={() => setRequestedKey(key)}>פתח את השיטה</button>
+      <button type="button" onClick={() => { onOpened?.(); setRequestedKey(key); }}>פתח את השיטה</button>
     </section>;
   }
 
