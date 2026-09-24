@@ -118,7 +118,7 @@ assert.match(frame, /journey:\s*target\.journey \|\| null/);
 assert.match(frame, /returnTo:\s*null/);
 
 // Quick Inspect and Selection Intelligence stay temporary context projections. The native NumberDrawer2029 may be mounted as a 2029 projection, but the Legacy NumberDrawer/numberDrawer owners remain forbidden above.
-assert.match(frame, /TEMPORARY SELECTION/);
+assert.match(frame, /בחירה זמנית/);
 assert.match(frame, /selectionchange/);
 assert.match(frame, /בחירה זמנית אינה הופכת חיבור לעובדה/);
 assert.match(frame, /מספר \/ ביטוי · בדיקה מהירה/);
