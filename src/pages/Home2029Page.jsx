@@ -76,7 +76,7 @@ function TemporalNowCard({ item, onOpen }) {
   </article>;
 }
 
-function ConnectedGoldenStory({ onOpenPost, onOpenHeichal }) {
+function ConnectedGoldenStory({ onOpenPost }) {
   return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
     <div>
       <div className="sod29-kicker">מקור חי · Connected Golden</div>
@@ -85,7 +85,6 @@ function ConnectedGoldenStory({ onOpenPost, onOpenHeichal }) {
     </div>
     <div className="sod29-actions">
       <button className="sod29-action primary" type="button" onClick={onOpenPost}>פתח את הפוסט ←</button>
-      <button className="sod29-action" type="button" onClick={onOpenHeichal}>היכנס להיכל ◇</button>
     </div>
   </article>;
 }
@@ -166,7 +165,6 @@ function HomeBody() {
       {!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
       <ConnectedGoldenStory
         onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
-        onOpenHeichal={() => shell.go("/heichal")}
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
