@@ -71,5 +71,6 @@ assert.match(css,/prefers-reduced-motion:reduce/);
 assert.match(page,/returnTo:\s*exactReturn/);
 assert.match(page,/#source-region-/);
 assert.match(page,/locator:/);
+assert.equal(page.includes('type: "phrase", label: activeFocus.primary'),false,"Reading-region UI labels must not mint canonical Phrase identities");
 
 console.log("Post2029 Reading Surface Golden contract: PASS");
