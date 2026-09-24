@@ -108,4 +108,13 @@ test("DOM renderer exposes semantic acceptance and accessible fallback without C
   assert.doesNotMatch(src, /canvas|webgl|webgpu|TzofenEmbed|tzofen\.html|findAllAdaptive|els_search_core_v1/i);
 });
 
+
+test("/els consumes an explicit layered projection and does not recompute renderer truth", () => {
+  const src = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
+  assert.match(src, /Els2029Page\\(\\{ layeredProjection = null \\}\\)/);
+  assert.match(src, /layeredProjection\\?\\.contract === "els_2029_layers_v1"/);
+  assert.match(src, /<Els2029Representation layers=\\{layeredProjection\\} \\/>/);
+  assert.doesNotMatch(src, /projectEls2029Result|projectEls2029Layers|projectEls2029Representation/);
+});
+
 console.log("ELS 2029 visual representation V1 contract: PASS");
