@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";\nimport MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
@@ -290,11 +290,17 @@ function CalculatorBody() {
               </div>
             ) : null}
 
-            <div className="sod29-calc2029-next">
-              <span>METHOD LENS · NEXT</span>
-              <strong>הצגת הביטויים והקשרים עצמם בתוך השיטה הזאת.</strong>
-              <small>ייטען אחרי בחירה בלבד, לא בזמן הקלדה, וישמש גם את דף המספר.</small>
-            </div>
+            <MethodLens2029
+              selection={selection}
+              onOpenExpression={(item) => {
+                if (!item?.phrase || selection.resultValue == null) return;
+                const href = numberExpressionFocusHref(selection.resultValue, {
+                  expression: item.phrase,
+                  method: selection.methodKey,
+                });
+                if (href) navigate(href);
+              }}
+            />
           </section>
         ) : null}
       </section>
