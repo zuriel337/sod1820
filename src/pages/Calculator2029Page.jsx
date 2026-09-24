@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
+import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
@@ -35,6 +36,7 @@ function CalculatorBody() {
   const [selectedKey, setSelectedKey] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
+  const [showOpening, setShowOpening] = useState(false);
   const [trace, setTrace] = useState({ loading: false, finding: null, error: null, key: null });
 
   useEffect(() => {
@@ -78,6 +80,7 @@ function CalculatorBody() {
   const chooseMethod = (method) => {
     setSelectedKey(method.methodKey);
     setTrace({ loading: false, finding: null, error: null, key: null });
+    setShowOpening(false);
     const next = buildCalculationSelection(profile.expression || expression, method);
     if (!next) return;
     research.updateResearchContext?.({
@@ -271,6 +274,9 @@ function CalculatorBody() {
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>
+              <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
+                {showOpening ? "סגור פתיחה" : "פתח את השיטה"}
+              </button>
               <button
                 type="button"
                 className="is-premium"
@@ -297,6 +303,12 @@ function CalculatorBody() {
             ) : null}
 
             {showCompare ? <CalculatorCompare2029 selectionA={selection} onClose={() => setShowCompare(false)} /> : null}
+
+            <CalculatorOpening2029
+              selection={selection}
+              open={showOpening}
+              onClose={() => setShowOpening(false)}
+            />
 
             <MethodLens2029
               selection={selection}
