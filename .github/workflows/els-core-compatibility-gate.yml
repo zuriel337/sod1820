@@ -9,6 +9,18 @@ on:
       - 'test/els-core-compatibility-fixture.sql'
       - 'test/els-core-compatibility.sql'
       - '.github/workflows/els-core-compatibility-gate.yml'
+      - 'src/lib/research/els2029*.js'
+      - 'src/lib/research/elsRazielContext.js'
+      - 'src/lib/research/researchContext.js'
+      - 'src/lib/research/ResearchProvider.jsx'
+      - 'src/pages/Els2029Page.jsx'
+      - 'src/components/experience2029/Els2029Representation.jsx'
+      - 'src/components/experience2029/els2029-representation.css'
+      - 'test/els-2029-*.test.mjs'
+      - 'test/els-raziel-context.test.mjs'
+      - 'test/els-exact-replay-bridge.test.mjs'
+      - 'test/els-host-bridge.test.mjs'
+      - 'test/els-search-bridge.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -37,6 +49,19 @@ jobs:
 
       - name: Static one-engine contract tests
         run: node --test test/els-core-compatibility.test.mjs
+
+      - name: Exact replay and 2029 projection acceptance
+        run: |
+          node --test \
+            test/els-host-bridge.test.mjs \
+            test/els-search-bridge.test.mjs \
+            test/els-exact-replay-bridge.test.mjs \
+            test/els-2029-semantic-surface.test.mjs \
+            test/els-2029-result-projection.test.mjs \
+            test/els-2029-layered-projection.test.mjs \
+            test/els-2029-visual-representation.test.mjs \
+            test/els-2029-exact-replay-visual-feed.test.mjs \
+            test/els-raziel-context.test.mjs
 
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
