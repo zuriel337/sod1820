@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
+import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
@@ -17,6 +18,37 @@ function StateRow({ label, value, state = "ready" }) {
     <small>{label}</small>
     <b>{value}</b>
   </div>;
+}
+
+
+function ElsRazielEntry({ researchContext, projection, layers, ready }) {
+  const shell = use2029Shell();
+  const surfaceContext = useMemo(
+    () => ready
+      ? buildElsRazielSurfaceContext({ researchContext, projection, layers })
+      : null,
+    [ready, researchContext, projection, layers]
+  );
+  const available = Boolean(surfaceContext?.occurrence?.occurrenceId);
+
+  return <button
+    className={available ? "sod29-action primary" : "sod29-action"}
+    type="button"
+    disabled={!available}
+    data-els-raziel-entry={available ? "context-ready" : "building"}
+    onClick={() => {
+      if (!available) return;
+      shell.openRaziel({
+        razielMicroIntent: "explain_els_occurrence",
+        elsSurfaceContext: surfaceContext,
+      });
+    }}
+    title={available
+      ? "פתח את אותו רזיאל עם context של המופע המאומת"
+      : "רזיאל יקבל context רק אחרי exact replay מאומת"}
+  >
+    {available ? "✦ רזיאל · פתח על הממצא" : "✦ רזיאל · ממתין למופע מאומת"}
+  </button>;
 }
 
 export default function Els2029Page() {
@@ -194,7 +226,12 @@ export default function Els2029Page() {
           <span className="sod29-chip">NO EXPENSIVE I/O</span>
         </div>
         <div className="sod29-actions" style={{ flexWrap: "wrap" }}>
-          <span className="sod29-chip">Raziel · BUILDING</span>
+          <ElsRazielEntry
+            researchContext={context}
+            projection={replayProjection}
+            layers={replayLayers}
+            ready={replayMatched && layeredReady}
+          />
           <span className="sod29-chip">Neighborhood · BUILDING</span>
           <span className="sod29-chip">Axis Continuation · BUILDING</span>
           <span className="sod29-chip">Spatial · BUILDING</span>

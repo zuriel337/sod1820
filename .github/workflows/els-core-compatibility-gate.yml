@@ -15,6 +15,7 @@ on:
       - 'src/lib/research/ResearchProvider.jsx'
       - 'src/pages/Els2029Page.jsx'
       - 'src/components/experience2029/Els2029Representation.jsx'
+      - 'src/components/experience2029/SystemFrame2029.jsx'
       - 'src/components/experience2029/els2029-representation.css'
       - 'test/els-2029-*.test.mjs'
       - 'test/els-raziel-context.test.mjs'
@@ -61,6 +62,7 @@ jobs:
             test/els-2029-layered-projection.test.mjs \
             test/els-2029-visual-representation.test.mjs \
             test/els-2029-exact-replay-visual-feed.test.mjs \
+            test/els-2029-raziel-consumer.test.mjs \
             test/els-raziel-context.test.mjs
 
       - name: Install PostgreSQL client

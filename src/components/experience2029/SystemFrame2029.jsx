@@ -363,10 +363,17 @@ function ToolsProjection({ surface, target, go, onCapability }) {
   );
 }
 
-function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null }) {
+function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
+  const elsFocus = elsSurfaceContext?.surface === "els"
+    && elsSurfaceContext?.occurrence?.occurrenceId
+    && elsSurfaceContext?.result?.contract === "els_2029_projection_v1"
+    && elsSurfaceContext?.result?.status === "OK"
+    && elsSurfaceContext?.result?.presentationPolicy === "exact_replay_v1"
+    ? elsSurfaceContext
+    : null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
@@ -377,6 +384,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     explain_world_context: "הסבר את מרכז העולמות",
     expand_panel: "המשך מה־Micro",
     explain_reading_focus: "הסבר את החלק שאני קורא",
+    explain_els_occurrence: "הסבר את מופע ה־ELS",
   }[microIntent] || null;
   const quickInsight = (() => {
     if (!numberFocus) return null;
@@ -434,12 +442,19 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.sourceLabel ? <small>מקור · {readingFocus.sourceLabel}</small> : null}
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
+      {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
+        <b>{intentLabel || "ELS · occurrence context"}</b>
+        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
+        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
+        {elsFocus.occurrence.dependencyGroup ? <small>dependency · {elsFocus.occurrence.dependencyGroup}</small> : null}
+        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+      </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
         <b>{intentLabel || "Number Core focus"}</b>
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
         {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+      </section> : !readingFocus && !elsFocus ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
@@ -658,7 +673,9 @@ export default function SystemFrame2029({
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
-    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent || payload?.readingFocus ? payload : null;
+    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent || payload?.readingFocus || payload?.elsSurfaceContext
+      ? payload
+      : null;
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
@@ -845,7 +862,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
