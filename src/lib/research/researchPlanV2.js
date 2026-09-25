@@ -311,15 +311,22 @@ export function buildResearchPlanV2({
   contextType = "public_user",
   surfaceContext = null,
   requestedCapabilities = [],
+  capabilityAllowlist = null,
   requestedDepth = null,
 } = {}) {
   const resolved = identityResolution || { identities: [], text_calculation_allowed: true };
-  const capabilityHints = inferExplicitCapabilityHints({
+  const inferredCapabilityHints = inferExplicitCapabilityHints({
     question,
     intent,
     identityResolution: resolved,
     requestedCapabilities,
   });
+  const capabilityAllowset = Array.isArray(capabilityAllowlist)
+    ? new Set(capabilityAllowlist.map(clean).filter(Boolean))
+    : null;
+  const capabilityHints = capabilityAllowset
+    ? inferredCapabilityHints.filter(capability => capabilityAllowset.has(capability))
+    : inferredCapabilityHints;
 
   const strategy = deriveStrategy({ identityResolution: resolved, capabilityHints });
   const checkOrder = deriveCheckOrder(capabilityHints);
@@ -344,6 +351,7 @@ export function buildResearchPlanV2({
     route_grammar: routeGrammar,
     requested_depth: requestedDepth,
     requested_capabilities: capabilityHints,
+    capability_allowlist: capabilityAllowset ? [...capabilityAllowset] : null,
     check_order: checkOrder,
     guards: {
       identity_first: true,
@@ -355,6 +363,7 @@ export function buildResearchPlanV2({
       no_auto_publication: true,
       raw_authorization_context_never_in_output: true,
       route_grammar_is_semantic_hint_only: true,
+      capability_allowlist_applied_before_strategy: capabilityAllowset !== null,
     },
   };
 }
