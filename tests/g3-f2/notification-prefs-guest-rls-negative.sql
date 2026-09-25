@@ -70,6 +70,55 @@ begin
 end
 $$;
 
+-- A UUID that has already been claimed by an account must become invisible/immutable
+-- to the guest RPC even if the caller possesses that exact old browser UUID.
+delete from public.notification_prefs
+where user_id='00000000-0000-0000-0000-0000000000a1'
+   or visitor_id='33333333-3333-4333-8333-333333333333';
+
+insert into public.notification_prefs(user_id, visitor_id, topics, channels, email)
+values (
+  '00000000-0000-0000-0000-0000000000a1',
+  '33333333-3333-4333-8333-333333333333',
+  array['claimed-only'],
+  '{}'::text[],
+  'claimed@example.invalid'
+);
+
+select set_config('request.jwt.claim.sub','',false);
+select set_config('request.jwt.claims','{"role":"anon"}',false);
+set role anon;
+select g3f2_test.assert_true(
+  public.notification_prefs_guest_get_v1('33333333-3333-4333-8333-333333333333') is null,
+  'guest read must not expose a visitor UUID after the row is claimed by an account'
+);
+select g3f2_test.assert_raises(
+  $$select public.notification_prefs_guest_save_v1(
+    '33333333-3333-4333-8333-333333333333',
+    array['attacker-change'],
+    '{}'::text[],
+    null,
+    null,
+    false,
+    null,
+    false
+  )$$,
+  'guest save must reject a visitor UUID after the row is claimed by an account'
+);
+reset role;
+
+select g3f2_test.assert_true((
+  select topics = array['claimed-only']::text[]
+     and email = 'claimed@example.invalid'
+  from public.notification_prefs
+  where user_id='00000000-0000-0000-0000-0000000000a1'
+    and visitor_id='33333333-3333-4333-8333-333333333333'
+), 'claimed account row must remain unchanged after guest RPC attempts');
+
+delete from public.notification_prefs
+where user_id='00000000-0000-0000-0000-0000000000a1'
+   or visitor_id='33333333-3333-4333-8333-333333333333';
+
 delete from public.notification_prefs
 where visitor_id in (
   '11111111-1111-4111-8111-111111111111',
