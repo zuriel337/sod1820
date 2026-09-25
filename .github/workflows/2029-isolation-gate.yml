@@ -92,6 +92,12 @@ jobs:
         run: node test/account-person-completeness-foundation.test.mjs
       - name: Person public resolver foundation acceptance
         run: node test/person-public-resolver-foundation.test.mjs
+      - name: People identity projection acceptance
+        run: node test/people-identity-review-2029-contract.test.mjs
+      - name: Person Profile 2029 projection acceptance
+        run: node test/person-profile-2029-projection.test.mjs
+      - name: People Directory 2029 projection acceptance
+        run: node test/people-directory-2029-projection.test.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
       - name: World Convergence PR591 focused acceptance
