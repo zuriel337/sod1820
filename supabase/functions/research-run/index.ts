@@ -11,7 +11,7 @@
 // Identity inference/private research_objects/graph resolution are intentionally out of scope.
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
-import { createCanonicalW2Executors } from "../../../src/lib/research/researchW2Executors.js";
+import { createCanonicalW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
 import { normalizePublicNumberResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
 
 const URL = (Deno.env.get("SUPABASE_URL") || "").trim();
