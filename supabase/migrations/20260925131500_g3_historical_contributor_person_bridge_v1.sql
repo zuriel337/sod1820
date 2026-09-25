@@ -44,6 +44,7 @@ declare
   v_person uuid;
   v_person_created boolean := false;
   v_account_person_count integer := 0;
+  v_contribution_count integer := 0;
 
   v_first_seen timestamptz;
   v_last_seen timestamptz;
@@ -86,6 +87,15 @@ begin
 
   if nullif(btrim(coalesce(v_merged_into, '')), '') is not null then
     raise exception 'contributor is marked merged_into; resolve canonical contributor before materialization';
+  end if;
+
+  select count(*)
+    into v_contribution_count
+    from public.research_contributions rc
+   where rc.author_contributor_id = p_contributor_id;
+
+  if v_contribution_count < 1 then
+    raise exception 'contributor has no currently-attributed contributions; resolve canonical contributor after reconciliation';
   end if;
 
   -- Historical bounds come first from exact OpenWeb message provenance, then from
