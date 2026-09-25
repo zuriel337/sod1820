@@ -277,7 +277,7 @@ comment on function public.person_public_profile_v1(uuid) is
   'Public-safe Person Profile 2029 resolver over canonical persons. Returns null for ineligible/private-only Persons and never exposes contact/raw identity/source identifiers. Lifecycle is intentionally not inferred.';
 
 create or replace function public.people_public_rows_v1(
-  p_limit integer default 250,
+  p_limit integer default 100,
   p_offset integer default 0
 )
 returns jsonb
@@ -288,39 +288,301 @@ set search_path to 'public'
 as $function$
 with bounded as (
   select
-    least(greatest(coalesce(p_limit,250),1),500) as lim,
+    least(greatest(coalesce(p_limit,100),1),250) as lim,
     greatest(coalesce(p_offset,0),0) as off
 ),
-eligible_persons as (
-  select p.person_id,p.last_seen
+eligible_ids as (
+  select p.person_id
   from public.persons p
   where p.account_user_id is not null
-     or exists (
-       select 1
-       from public.identity_edges ie
-       join public.contributors c
-         on ie.kind='legacy_seed'
-        and ie.legacy_id='contributor:' || c.id::text
-       where ie.person_id=p.person_id
-         and nullif(btrim(coalesce(c.merged_into,'')),'') is null
-         and coalesce(c.active,true)
-         and not coalesce(c.locked,false)
-         and coalesce(c.kind,'community') <> 'private'
-     )
+
+  union
+
+  select distinct ie.person_id
+  from public.identity_edges ie
+  join public.contributors c
+    on ie.kind='legacy_seed'
+   and ie.legacy_id='contributor:' || c.id::text
+  where nullif(btrim(coalesce(c.merged_into,'')),'') is null
+    and coalesce(c.active,true)
+    and not coalesce(c.locked,false)
+    and coalesce(c.kind,'community') <> 'private'
 ),
-page as (
-  select ep.person_id
-  from eligible_persons ep
-  order by ep.last_seen desc nulls last,ep.person_id
+page_people as (
+  select
+    p.person_id,
+    p.account_user_id,
+    p.first_seen,
+    p.last_seen,
+    u.username,
+    u.display_name as user_display_name,
+    u.avatar_url as user_avatar_url,
+    u.created_at as account_created_at,
+    coalesce(u.is_researcher,false) as account_is_researcher
+  from eligible_ids ei
+  join public.persons p on p.person_id=ei.person_id
+  left join public.users u on u.id=p.account_user_id
+  order by p.last_seen desc nulls last,p.person_id
   limit (select lim from bounded)
   offset (select off from bounded)
 ),
+linked_ids as (
+  select pp.person_id,c.id contributor_id,0 source_priority
+  from page_people pp
+  join public.contributors c
+    on pp.account_user_id is not null
+   and c.user_id=pp.account_user_id
+
+  union all
+
+  select pp.person_id,c.id contributor_id,1 source_priority
+  from page_people pp
+  join public.identity_edges ie
+    on ie.person_id=pp.person_id
+   and ie.kind='legacy_seed'
+  join public.contributors c
+    on ie.legacy_id='contributor:' || c.id::text
+),
+linked_ranked as (
+  select
+    li.person_id,
+    c.*,
+    min(li.source_priority) as source_priority
+  from linked_ids li
+  join public.contributors c on c.id=li.contributor_id
+  where nullif(btrim(coalesce(c.merged_into,'')),'') is null
+  group by li.person_id,c.id
+),
+public_contributors as (
+  select lr.*
+  from linked_ranked lr
+  where coalesce(lr.active,true)
+    and not coalesce(lr.locked,false)
+    and coalesce(lr.kind,'community') <> 'private'
+),
+primary_contributor as (
+  select *
+  from (
+    select
+      pc.*,
+      row_number() over (
+        partition by pc.person_id
+        order by
+          pc.source_priority,
+          case pc.kind
+            when 'researcher' then 0
+            when 'writer' then 1
+            when 'author' then 2
+            when 'contributor' then 3
+            when 'community' then 4
+            when 'vip' then 5
+            when 'external' then 6
+            else 7
+          end,
+          pc.created_at,
+          pc.id
+      ) rn
+    from public_contributors pc
+  ) ranked
+  where rn=1
+),
+capabilities as (
+  select
+    pp.person_id,
+    (
+      pp.account_is_researcher
+      or coalesce(bool_or(pc.kind='researcher'),false)
+    ) researcher,
+    coalesce(bool_or(pc.kind in ('writer','author')),false) writer,
+    coalesce(bool_or(pc.kind='author'),false) author,
+    count(pc.id)>0 contributor,
+    coalesce(bool_or(coalesce(pc.vip,false)),false) vip,
+    count(pc.id)::int public_contributor_count
+  from page_people pp
+  left join public_contributors pc on pc.person_id=pp.person_id
+  group by pp.person_id,pp.account_is_researcher
+),
+contrib_person as (
+  select
+    pp.person_id,
+    rc.id,
+    rc.research_state,
+    rc.projected_insight_id,
+    rc.created_at,
+    rc.image_url,
+    rc.media
+  from page_people pp
+  join public.research_contributions rc
+    on pp.account_user_id is not null
+   and rc.author_user_id=pp.account_user_id
+  where rc.status in ('approved','published')
+
+  union
+
+  select
+    pc.person_id,
+    rc.id,
+    rc.research_state,
+    rc.projected_insight_id,
+    rc.created_at,
+    rc.image_url,
+    rc.media
+  from public_contributors pc
+  join public.research_contributions rc
+    on rc.author_contributor_id=pc.id
+  where rc.status in ('approved','published')
+),
+contrib_metrics as (
+  select
+    cp.person_id,
+    count(*)::int contribution_count,
+    count(*) filter(
+      where cp.research_state in ('validated','canonical')
+    )::int validated_contribution_count,
+    count(*) filter(
+      where cp.projected_insight_id is not null
+    )::int projected_insight_count,
+    count(*) filter(
+      where nullif(btrim(coalesce(cp.image_url,'')),'') is not null
+         or (cp.media is not null and cp.media <> '{}'::jsonb and cp.media <> '[]'::jsonb)
+    )::int media_count
+  from contrib_person cp
+  group by cp.person_id
+),
+message_metrics as (
+  select cp.person_id,count(distinct cp.id)::int message_count
+  from contrib_person cp
+  join public.contribution_links cl
+    on cl.from_contribution_id=cp.id
+   and cl.target_type='openweb_message'
+  group by cp.person_id
+),
+activity_dates as (
+  select cp.person_id,cp.created_at::date day
+  from contrib_person cp
+
+  union
+
+  select pp.person_id,ua.created_at::date day
+  from page_people pp
+  join public.user_activity ua
+    on pp.account_user_id is not null
+   and ua.user_id=pp.account_user_id
+),
+activity_metrics as (
+  select ad.person_id,count(distinct ad.day)::int active_days
+  from activity_dates ad
+  group by ad.person_id
+),
+alias_metrics as (
+  select ie.person_id,count(*)::int openweb_alias_count
+  from public.identity_edges ie
+  join page_people pp on pp.person_id=ie.person_id
+  where ie.kind='legacy_seed'
+    and ie.legacy_id like 'openweb_user:%'
+  group by ie.person_id
+),
+standing as (
+  select
+    pp.person_id,
+    case
+      when c.researcher and pp.account_user_id is not null
+      then public.researcher_reputation(pp.account_user_id)
+      else null
+    end dossier
+  from page_people pp
+  join capabilities c on c.person_id=pp.person_id
+),
 profiles as (
-  select public.person_public_profile_v1(page.person_id) as profile
-  from page
+  select
+    pp.person_id,
+    pp.last_seen,
+    jsonb_build_object(
+      'version','person-public-resolver-v1',
+      'person',jsonb_build_object(
+        'personRef','person:' || pp.person_id::text || ':self',
+        'displayName',coalesce(
+          nullif(btrim(pp.user_display_name),''),
+          nullif(btrim(pc.display_name),''),
+          nullif(btrim(pp.username),''),
+          'חבר קהילה'
+        ),
+        'username',nullif(btrim(pp.username),''),
+        'avatarUrl',coalesce(
+          nullif(btrim(pp.user_avatar_url),''),
+          nullif(btrim(pc.avatar_url),'')
+        ),
+        'joinedAt',pp.account_created_at,
+        'firstSeen',pp.first_seen,
+        'lastSeen',pp.last_seen,
+        'activityState',null
+      ),
+      'identityCount',(
+        case when pp.account_user_id is not null then 1 else 0 end
+        + c.public_contributor_count
+        + coalesce(am.openweb_alias_count,0)
+      ),
+      'capabilities',jsonb_build_object(
+        'researcher',c.researcher,
+        'writer',c.writer,
+        'author',c.author,
+        'contributor',c.contributor,
+        'vip',c.vip
+      ),
+      'metrics',jsonb_build_object(
+        'messages',coalesce(mm.message_count,0),
+        'activeDays',coalesce(ac.active_days,0),
+        'hints',0,
+        'media',coalesce(cm.media_count,0),
+        'findings',0,
+        'sources',0,
+        'methods',0,
+        'els',0,
+        'publications',0,
+        'openThreads',0,
+        'tenureDays',greatest(0,(current_date - pp.first_seen::date))
+      ),
+      'communityImpact',jsonb_build_object(
+        'score',null,
+        'reactionsReceived',0,
+        'uniqueResponders',0,
+        'repliesReceived',0,
+        'explain','[]'::jsonb
+      ),
+      'researchStanding',
+        case
+          when c.researcher and s.dossier is not null
+          then jsonb_build_object(
+            'level',null,
+            'label',s.dossier->>'rank',
+            'summary',null,
+            'explain',jsonb_build_array(
+              'accepted=' || coalesce(s.dossier->>'accepted','0'),
+              'validated=' || coalesce(s.dossier->>'validated','0'),
+              'promoted=' || coalesce(s.dossier->>'promoted_to_insights','0')
+            ),
+            'calibrationVersion',null
+          )
+          else null
+        end,
+      'whyNow','[]'::jsonb,
+      'publicEvidence',jsonb_build_object(
+        'contributionCount',coalesce(cm.contribution_count,0),
+        'validatedContributionCount',coalesce(cm.validated_contribution_count,0),
+        'projectedInsightCount',coalesce(cm.projected_insight_count,0)
+      )
+    ) profile
+  from page_people pp
+  join capabilities c on c.person_id=pp.person_id
+  left join primary_contributor pc on pc.person_id=pp.person_id
+  left join contrib_metrics cm on cm.person_id=pp.person_id
+  left join message_metrics mm on mm.person_id=pp.person_id
+  left join activity_metrics ac on ac.person_id=pp.person_id
+  left join alias_metrics am on am.person_id=pp.person_id
+  left join standing s on s.person_id=pp.person_id
 )
 select coalesce(
-  jsonb_agg(profile) filter(where profile is not null),
+  jsonb_agg(profile order by last_seen desc nulls last,person_id),
   '[]'::jsonb
 )
 from profiles
@@ -330,4 +592,4 @@ revoke all on function public.people_public_rows_v1(integer,integer) from public
 grant execute on function public.people_public_rows_v1(integer,integer) to anon, authenticated;
 
 comment on function public.people_public_rows_v1(integer,integer) is
-  'Public-safe bounded People 2029 row resolver. Returns canonical Person profiles only; source identities are never independent rows.';
+  'Public-safe bounded bulk People 2029 row resolver. Aggregates a Person page in one set-oriented query; source identities are never independent rows.';
