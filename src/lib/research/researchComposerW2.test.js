@@ -231,3 +231,20 @@ test("generic planner intent does not steal explicit conversational meaning", ()
   assert.equal(plan.intent, "research");
   assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
 });
+
+
+test("Raziel Route Grammar does not match route verbs inside unrelated longer words", () => {
+  const hebrew = buildRazielRouteGrammar({
+    question: "שלח את זה לחברים שלי",
+    surfaceContext: { surface: "post" },
+  });
+  const english = buildRazielRouteGrammar({
+    question: "walk across the page",
+    surfaceContext: { surface: "post" },
+  });
+
+  assert.equal(hebrew.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(hebrew.requested_by, "surface_default");
+  assert.equal(english.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(english.requested_by, "surface_default");
+});
