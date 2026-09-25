@@ -5,6 +5,10 @@ import {
   capabilityResult,
   composeResearchResultBundle,
 } from "./researchResultBundle.js";
+import {
+  failedResearchSynthesis,
+  normalizeResearchSynthesis,
+} from "./researchSynthesis.js";
 
 // W2.1 — Cross-capability Research Composer.
 // Canonical owners/adapters are dependency-injected; this layer owns no engine truth or registry.
@@ -78,6 +82,7 @@ export async function composeResearchW2({
   ranking = [],
   resolvedRunSnapshot = null,
   nextActions = [],
+  synthesizer = null,
   signal = null,
 } = {}) {
   const identityResolution = resolveResearchIdentities({
@@ -159,7 +164,7 @@ export async function composeResearchW2({
     requested_depth: requestedDepth,
   };
 
-  return composeResearchResultBundle({
+  const baseBundle = composeResearchResultBundle({
     query: {
       raw_input: rawInput ?? question,
       question,
@@ -174,6 +179,26 @@ export async function composeResearchW2({
     synthesis: null,
     accessDescriptor: plan.access,
   });
+
+  if (typeof synthesizer !== "function") return baseBundle;
+
+  try {
+    const rawSynthesis = await synthesizer({ bundle: baseBundle, signal });
+    const synthesis = normalizeResearchSynthesis(rawSynthesis, {
+      allowedFindingIds: baseBundle.findings.map((x) => x.id),
+      frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
+      sourceBundleContractVersion: baseBundle.contract_version,
+    });
+    return { ...baseBundle, synthesis };
+  } catch (error) {
+    return {
+      ...baseBundle,
+      synthesis: failedResearchSynthesis(error, {
+        frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
+        sourceBundleContractVersion: baseBundle.contract_version,
+      }),
+    };
+  }
 }
 
 export default composeResearchW2;

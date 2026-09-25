@@ -7,6 +7,7 @@ import {
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2, RESEARCH_CAPABILITY } from "./researchPlanV2.js";
+import { buildRazielRouteGrammar, RAZIEL_ROUTE_ACTION } from "./razielRouteGrammar.js";
 import {
   CAPABILITY_STATUS,
   capabilityResult,
@@ -145,4 +146,105 @@ test("future capability plugs in without changing bundle schema or consumer cont
   assert.equal(bundle.contract_version, 1);
   assert.equal(bundle.invariants.no_auto_canonicalization, true);
   assert.equal(bundle.invariants.no_auto_publication, true);
+});
+
+
+test("Raziel Route Grammar exposes four stable semantic actions without execution authority", () => {
+  const grammar = buildRazielRouteGrammar({
+    question: "מה זה 1820?",
+    surfaceContext: { surface: "number", subject: { type: "number" } },
+    identityResolution: {
+      primary: { type: "number", value: 1820, label: "1820" },
+      identities: [{ type: "number", value: 1820, label: "1820" }],
+    },
+  });
+  assert.deepEqual(grammar.actions.map((x) => x.id), [
+    RAZIEL_ROUTE_ACTION.UNDERSTAND,
+    RAZIEL_ROUTE_ACTION.RESEARCH,
+    RAZIEL_ROUTE_ACTION.CONNECT,
+    RAZIEL_ROUTE_ACTION.CONTINUE,
+  ]);
+  assert.equal(grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(grammar.guards.no_tool_execution, true);
+  assert.equal(grammar.guards.no_navigation_execution, true);
+  assert.equal(grammar.guards.no_second_router, true);
+});
+
+test("Raziel Route Grammar gives explicit user language priority over surface defaults", () => {
+  const connect = buildRazielRouteGrammar({
+    question: "מה הקשר בין 455 ל-424?",
+    surfaceContext: { surface: "number" },
+  });
+  const research = buildRazielRouteGrammar({
+    question: "תחקור לי את השם שלי לעומק",
+    surfaceContext: { surface: "home" },
+  });
+  const next = buildRazielRouteGrammar({
+    question: "תמשיך מהמסע מהמקום שעצרתי",
+    surfaceContext: { surface: "number" },
+  });
+  assert.equal(connect.requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(research.requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
+  assert.equal(next.requested_action, RAZIEL_ROUTE_ACTION.CONTINUE);
+  assert.equal(connect.requested_by, "user_language");
+});
+
+test("Raziel Route Grammar uses existing surface roles only as a fallback", () => {
+  assert.equal(buildRazielRouteGrammar({ surfaceContext: { surface: "world" } }).requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(buildRazielRouteGrammar({ surfaceContext: { surface: "journey" } }).requested_action, RAZIEL_ROUTE_ACTION.CONTINUE);
+  assert.equal(buildRazielRouteGrammar({ surfaceContext: { surface: "els" } }).requested_action, RAZIEL_ROUTE_ACTION.RESEARCH);
+  assert.equal(buildRazielRouteGrammar({ surfaceContext: { surface: "post" } }).requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+});
+
+test("Research Plan carries Route Grammar additively without changing strategy/capability authority", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "מה הקשר בין 455 ל-424?",
+    candidates: [
+      { type: "number", value: 455, label: "455", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+      { type: "number", value: 424, label: "424", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+  });
+  const plan = buildResearchPlanV2({
+    question: resolved.raw_input,
+    identityResolution: resolved,
+    surfaceContext: { surface: "number" },
+  });
+  assert.equal(plan.strategy, "number_research");
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.RELATIONS), true);
+  assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.CONNECT);
+  assert.equal(plan.route_grammar.guards.semantic_hint_only, true);
+  assert.equal(plan.guards.route_grammar_is_semantic_hint_only, true);
+});
+
+test("generic planner intent does not steal explicit conversational meaning", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "מה זה 1820?",
+    candidates: [
+      { type: "number", value: 1820, label: "1820", source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL, confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT },
+    ],
+  });
+  const plan = buildResearchPlanV2({
+    question: resolved.raw_input,
+    identityResolution: resolved,
+    surfaceContext: { surface: "number" },
+  });
+  assert.equal(plan.intent, "research");
+  assert.equal(plan.route_grammar.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+});
+
+
+test("Raziel Route Grammar does not match route verbs inside unrelated longer words", () => {
+  const hebrew = buildRazielRouteGrammar({
+    question: "שלח את זה לחברים שלי",
+    surfaceContext: { surface: "post" },
+  });
+  const english = buildRazielRouteGrammar({
+    question: "walk across the page",
+    surfaceContext: { surface: "post" },
+  });
+
+  assert.equal(hebrew.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(hebrew.requested_by, "surface_default");
+  assert.equal(english.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
+  assert.equal(english.requested_by, "surface_default");
 });
