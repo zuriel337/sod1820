@@ -67,7 +67,15 @@ function lower(value) {
 
 function includesAny(text, terms) {
   const q = lower(text);
+  return terms.some((term) => {
+    const t = lower(term);
+    if (!t) return false;
+    const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, "\\function includesAny(text, terms) {
+  const q = lower(text);
   return terms.some((term) => q.includes(term));
+}");
+    return new RegExp(`(^|[^\\p{L}\\p{N}_])${escaped}($|[^\\p{L}\\p{N}_])`, "u").test(q);
+  });
 }
 
 function normalizedSurface(surfaceContext) {
