@@ -49,6 +49,8 @@ assert.doesNotMatch(bridge, /kind\s*=\s*'openweb'|kind\s*=\s*'contributor'/i);
 // Account-linked Contributor does not let this RPC mint a second account Person.
 assert.match(bridge, /v_account_person_count\s*<>\s*1/i);
 assert.match(bridge, /requires exactly one existing account Person/i);
+assert.doesNotMatch(bridge, /min\s*\(\s*(?:\w+\.)?person_id\s*\)/i, "PostgreSQL live has no min(uuid) aggregate");
+assert.match(bridge, /order by p\.created_at, p\.person_id/i);
 
 // Unclaimed historical materialization is serialized per Contributor.
 assert.match(bridge, /pg_advisory_xact_lock/i);
