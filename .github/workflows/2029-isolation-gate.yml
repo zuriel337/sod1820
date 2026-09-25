@@ -86,6 +86,8 @@ jobs:
         run: node scripts/test-2029-system-frame.mjs
       - name: Canonical 2029 contract wiring acceptance
         run: node scripts/test-2029-canonical-contract-wiring.mjs
+      - name: Person identity bridge foundation acceptance
+        run: node test/person-identity-bridge-foundation.test.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
       - name: World Convergence PR591 focused acceptance
