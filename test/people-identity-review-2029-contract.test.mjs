@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {
+  normalizePeopleIdentityRow,
+  filterPeopleIdentityRows,
+  peopleIdentityCounts,
+} from "../src/lib/research/peopleIdentityProjection.js";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const projection = read("src/lib/research/peopleIdentityProjection.js");
@@ -36,3 +41,21 @@ assert.doesNotMatch(sql, /jsonb_build_object\([^)]*'email'/is);
 assert.doesNotMatch(sql, /\b(insert|update|delete|merge|truncate)\b\s+(?:into\s+|from\s+|table\s+)?public\./i);
 
 console.log("people identity review 2029 contract: PASS");
+
+
+const behavioral = [
+  normalizePeopleIdentityRow({ source_id:"a", display_name:"Alpha", identity_state:"SITE_ACCOUNT_ANCHOR", site_account_match:true, site_username:"alpha", messages:4, active_days:2, blocked_ratio:0.1 }),
+  normalizePeopleIdentityRow({ source_id:"b", display_name:"Beta", identity_state:"VERIFIED_UNIQUE_ANCHOR", email_verified:true, messages:8, active_days:4, blocked_ratio:0 }),
+  normalizePeopleIdentityRow({ source_id:"c", display_name:"Gamma", identity_state:"VERIFIED_PRIMARY_WITH_COLLISION_TAIL", email_verified:true, historical_same_name_ids:3, verified_same_name_ids:1, blocked_ratio:0.02 }),
+  normalizePeopleIdentityRow({ source_id:"d", display_name:"Delta", identity_state:"LONG_LIVED_UNVERIFIED", messages:140, active_days:60, blocked_ratio:0.04 }),
+  normalizePeopleIdentityRow({ source_id:"e", display_name:"Noise", identity_state:"HIGH_BLOCK_NOISE", blocked_ratio:9 }),
+];
+
+assert.equal(behavioral[4].blockedRatio, 1, "normalization must clamp ratios to 1");
+assert.deepEqual(peopleIdentityCounts(behavioral), {
+  all: 5, site: 1, verified: 1, collision: 1, unclaimed: 1, review: 1,
+});
+assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"site" }).map((x) => x.displayName), ["Alpha"]);
+assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"collision" }).map((x) => x.displayName), ["Gamma"]);
+assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"alpha" }).map((x) => x.displayName), ["Alpha"]);
+assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"עוגן מאומת" }).map((x) => x.displayName), ["Beta"]);
