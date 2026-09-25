@@ -60,6 +60,8 @@ assert.match(bridge, /order by p\.created_at, p\.person_id/i);
 // Unclaimed historical materialization is serialized per Contributor.
 assert.match(bridge, /pg_advisory_xact_lock/i);
 assert.match(bridge, /person_contributor:/i);
+assert.match(bridge, /person_openweb_source:/i);
+assert.match(bridge, /array_agg\(distinct cl\.target_id order by cl\.target_id\)/i);
 
 // Cross-Person ownership conflicts abort; no silent move/merge or merged_into mutation.
 assert.match(bridge, /already belongs to another Person/i);
