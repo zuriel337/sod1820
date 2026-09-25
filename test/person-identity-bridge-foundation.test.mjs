@@ -37,6 +37,9 @@ assert.match(bridge, /v_contribution_count\s*<\s*1/i);
 assert.match(bridge, /no currently-attributed contributions/i);
 assert.match(bridge, /cl\.target_type\s*=\s*'openweb_user'/i);
 assert.match(bridge, /cl\.target_type\s*=\s*'openweb_message'/i);
+assert.match(bridge, /clu\.target_type\s*=\s*'openweb_user'/i);
+assert.match(bridge, /clm\.target_type\s*=\s*'openweb_message'/i);
+assert.match(bridge, /s\.user_id\s*=\s*v_source_id/i);
 assert.doesNotMatch(bridge, /\bc\.email\b|\bs\.email\b|\bu\.email\b/i);
 assert.doesNotMatch(bridge, /display_name\s*=|lower\([^)]*display_name/i);
 
