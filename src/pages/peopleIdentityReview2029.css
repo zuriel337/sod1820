@@ -1,0 +1,19 @@
+.sod29-people-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.8fr);gap:22px;align-items:end}
+.sod29-people-hero h2{margin:6px 0 10px;font-size:clamp(30px,5vw,56px);line-height:1.04}
+.sod29-people-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sod29-people-summary>div,.sod29-people-metrics>div{border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel-soft) 91%,transparent);padding:12px;display:grid;gap:3px}
+.sod29-people-summary strong,.sod29-people-metrics strong{color:var(--s29-hero);font-size:22px;font-variant-numeric:tabular-nums}
+.sod29-people-summary span,.sod29-people-metrics span{color:var(--s29-muted);font-size:10px;font-weight:800}
+.sod29-people-controls{display:grid;gap:16px}
+.sod29-people-list{display:grid;gap:12px}
+.sod29-people-row{border:1px solid var(--s29-line);border-radius:20px;background:color-mix(in srgb,var(--s29-panel-soft) 93%,transparent);overflow:hidden}
+.sod29-people-row-main{padding:17px;display:grid;gap:14px}
+.sod29-people-row-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.sod29-people-row-head h3{margin:4px 0 0;color:var(--s29-ink);font-size:clamp(20px,3vw,30px)}
+.sod29-people-chips{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}
+.sod29-people-link{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-inline-start:2px solid var(--s29-accent);background:color-mix(in srgb,var(--s29-panel) 86%,transparent);border-radius:12px}
+.sod29-people-link strong{color:var(--s29-ink);font-size:11px}.sod29-people-link span{color:var(--s29-muted);font-size:12px}
+.sod29-people-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sod29-people-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--s29-muted);font-size:11px}
+@media(max-width:760px){.sod29-people-hero{grid-template-columns:1fr}.sod29-people-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-people-row-head{display:grid}.sod29-people-chips{justify-content:flex-start}}
+@media(max-width:480px){.sod29-people-summary,.sod29-people-metrics{grid-template-columns:1fr 1fr}}
