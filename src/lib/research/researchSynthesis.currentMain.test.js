@@ -4,11 +4,21 @@ import assert from "node:assert/strict";
 import { composeResearchW2 } from "./researchComposerW2.js";
 import { normalizeResearchSynthesis } from "./researchSynthesis.js";
 
-test("Research Synthesis forbids universal truth scores", () => {
+test("Research Synthesis forbids universal scores at every nesting depth", () => {
   assert.throws(() => normalizeResearchSynthesis({
     truth_score: 91,
     claims: [{ id: "c1", text: "claim" }],
   }), /truth_score is forbidden/);
+
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "claim" }],
+    explain_why: { nested: { accuracy_score: 97 } },
+  }), /accuracy_score is forbidden/);
+
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "claim" }],
+    provenance: { nested: [{ canonicalScore: 100 }] },
+  }), /canonicalScore is forbidden/);
 });
 
 test("Research Synthesis cannot cite findings outside the access-filtered Bundle", () => {
@@ -32,13 +42,9 @@ test("W2 composer exposes one optional canonical synthesis socket over the safe 
         message: "one canonical synthesis",
         claims: [{ id: "claim:1", text: "atomic interpretation" }],
         motifs: [{ key: "integration", claim_ids: ["claim:1"] }],
-        calibration: {
-          state: "holdout_pending",
-          bias_controls: {
-            message_frozen_before_validation: true,
-            validation_data_hidden_during_synthesis: true,
-          },
-        },
+        calibration: { state: "should_not_project" },
+        resonance: { shares: 999 },
+        learning: { champion_ref: "should_not_project" },
       };
     },
   });
@@ -49,6 +55,10 @@ test("W2 composer exposes one optional canonical synthesis socket over the safe 
   assert.equal(bundle.synthesis.message, "one canonical synthesis");
   assert.equal(bundle.synthesis.freeze.frozen, true);
   assert.equal(bundle.synthesis.invariants.synthesis_is_not_truth, true);
+  assert.equal(bundle.synthesis.invariants.no_calibration_or_learning_policy_in_this_contract, true);
+  assert.equal(Object.prototype.hasOwnProperty.call(bundle.synthesis, "calibration"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(bundle.synthesis, "resonance"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(bundle.synthesis, "learning"), false);
 });
 
 test("Synthesis failure is explicit and preserves the Result Bundle", async () => {
