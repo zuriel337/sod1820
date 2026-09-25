@@ -33,6 +33,8 @@ assert.doesNotMatch(bridge, /create\s+table/i);
 // No name/email identity inference. Source IDs are derived from already-attributed
 // contributions and canonical contribution_links only.
 assert.match(bridge, /rc\.author_contributor_id\s*=\s*p_contributor_id/i);
+assert.match(bridge, /v_contribution_count\s*<\s*1/i);
+assert.match(bridge, /no currently-attributed contributions/i);
 assert.match(bridge, /cl\.target_type\s*=\s*'openweb_user'/i);
 assert.match(bridge, /cl\.target_type\s*=\s*'openweb_message'/i);
 assert.doesNotMatch(bridge, /\bc\.email\b|\bs\.email\b|\bu\.email\b/i);
