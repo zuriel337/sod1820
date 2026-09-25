@@ -6,6 +6,10 @@ import {
   filterPeopleIdentityRows,
   peopleIdentityCounts,
 } from "../src/lib/research/peopleIdentityProjection.js";
+import {
+  planPeopleIdentityAction,
+  maySendHistoricalClaimInvite,
+} from "../src/lib/research/peopleIdentityDecision.js";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const projection = read("src/lib/research/peopleIdentityProjection.js");
@@ -25,6 +29,8 @@ assert.match(page, /useAuth/);
 assert.match(page, /!isAdmin/);
 assert.match(page, /אין מיילים גולמיים במסך/);
 assert.match(page, /אין Merge \/ Claim \/ Delete/);
+assert.match(page, /המלצת פעולה · לא מבוצעת/);
+assert.match(page, /planPeopleIdentityAction/);
 assert.doesNotMatch(page, /email\s*[:=]/i);
 
 // Current branch intentionally does not wire a route while App2029 has another active writer.
@@ -62,3 +68,21 @@ assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"site" }).map((x)
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"collision" }).map((x) => x.displayName), ["Gamma"]);
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"alpha" }).map((x) => x.displayName), ["Alpha"]);
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"עוגן מאומת" }).map((x) => x.displayName), ["Beta", "Gamma"]);
+
+
+assert.equal(planPeopleIdentityAction(behavioral[0]).key, "REVIEW_EXISTING_ACCOUNT_LINK");
+assert.equal(planPeopleIdentityAction(behavioral[1]).key, "INVITE_TO_CLAIM");
+assert.equal(maySendHistoricalClaimInvite(behavioral[1]), true);
+assert.equal(planPeopleIdentityAction(behavioral[2]).key, "REVIEW_COLLISIONS_THEN_INVITE");
+assert.equal(maySendHistoricalClaimInvite(behavioral[2]), false);
+assert.equal(planPeopleIdentityAction(behavioral[3]).key, "PRESERVE_UNCLAIMED");
+assert.equal(planPeopleIdentityAction(behavioral[4]).key, "NO_OUTREACH");
+assert.equal(
+  planPeopleIdentityAction(behavioral[0], { preserveSeparate:true }).key,
+  "PRESERVE_SEPARATE",
+);
+assert.equal(
+  maySendHistoricalClaimInvite({ emailVerified:false, identityState:"REVIEW", siteAccountMatch:false }),
+  false,
+  "unverified historical email must never authorize outreach",
+);
