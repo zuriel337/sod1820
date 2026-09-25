@@ -17,3 +17,7 @@
 .sod29-people-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--s29-muted);font-size:11px}
 @media(max-width:760px){.sod29-people-hero{grid-template-columns:1fr}.sod29-people-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-people-row-head{display:grid}.sod29-people-chips{justify-content:flex-start}}
 @media(max-width:480px){.sod29-people-summary,.sod29-people-metrics{grid-template-columns:1fr 1fr}}
+
+.sod29-people-recommendation{display:grid;grid-template-columns:minmax(150px,.55fr) minmax(0,1.45fr);gap:14px;padding:12px 14px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel) 82%,transparent)}
+.sod29-people-recommendation>div{display:grid;gap:4px}.sod29-people-recommendation strong{color:var(--s29-ink);font-size:13px}.sod29-people-recommendation p{margin:0;color:var(--s29-muted);font-size:12px;line-height:1.7}
+@media(max-width:620px){.sod29-people-recommendation{grid-template-columns:1fr}}
