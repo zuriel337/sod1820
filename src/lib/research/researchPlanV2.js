@@ -10,6 +10,7 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   GRAPH: "graph",
   NUMERIC: "numeric",
   GEMATRIA: "gematria",
+  GEMATRIA_RELATIONS: "gematria_relations",
   OPERATORS: "numeric_operators",
   RELATIONS: "numeric_relations",
   FIBONACCI_ZECKENDORF: "sequence:fibonacci:zeckendorf",
@@ -59,6 +60,9 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
 
   if (i === "els" || includesAny(q, ["דילוג", "דילוגים", "els", "צופן אותיות"])) hints.push(RESEARCH_CAPABILITY.ELS);
   if (i === "gematria" || includesAny(q, ["גימטריה", "גימטריא", "חשב את", "כמה שווה"])) hints.push(RESEARCH_CAPABILITY.GEMATRIA);
+  if (includesAny(q, ["הצלבה", "הצלבות", "אותן שיטות", "אותה שיטה", "נפגשים", "cross"])) {
+    hints.push(RESEARCH_CAPABILITY.GEMATRIA, RESEARCH_CAPABILITY.GEMATRIA_RELATIONS);
+  }
   if (includesAny(q, ["מקור", "מקורות", "ספר", "עמוד", "כתב יד", "עד נוסח"])) hints.push(RESEARCH_CAPABILITY.SOURCES);
   if (includesAny(q, ["משפחה", "אבא", "אמא", "בן שלי", "בת שלי", "ילד", "הורה"])) hints.push(RESEARCH_CAPABILITY.FAMILY);
   if (containsClockMoment(q) || includesAny(q, ["שעה", "בשעה", "רגע", "שעון"])) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.OPERATORS);
@@ -78,7 +82,11 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
     }
   }
   if (hasIdentityKind(identityResolution, "person")) hints.push(RESEARCH_CAPABILITY.PERSON, RESEARCH_CAPABILITY.GRAPH);
-  if (hasIdentityKind(identityResolution, "name")) hints.push(RESEARCH_CAPABILITY.NAME);
+  if (hasIdentityKind(identityResolution, "name")) {
+    // research_strategy_layer_law Name Research: canonical Gematria + dependency-normalized Cross
+    // are owner-native capabilities of the same plan, not local Name-engine arithmetic.
+    hints.push(RESEARCH_CAPABILITY.NAME, RESEARCH_CAPABILITY.GEMATRIA, RESEARCH_CAPABILITY.GEMATRIA_RELATIONS);
+  }
   if (hasIdentityKind(identityResolution, "event")) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
   if (hasIdentityKind(identityResolution, "topic")) hints.push(RESEARCH_CAPABILITY.GRAPH, RESEARCH_CAPABILITY.RESEARCH_OBJECTS);
 
@@ -114,6 +122,7 @@ function deriveCheckOrder(capabilityHints) {
     RESEARCH_CAPABILITY.RELATIONS,
     RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF,
     RESEARCH_CAPABILITY.GEMATRIA,
+    RESEARCH_CAPABILITY.GEMATRIA_RELATIONS,
     RESEARCH_CAPABILITY.NAME,
     RESEARCH_CAPABILITY.ELS,
     RESEARCH_CAPABILITY.RESEARCH_OBJECTS,

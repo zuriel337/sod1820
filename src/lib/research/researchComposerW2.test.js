@@ -12,6 +12,8 @@ import {
   capabilityResult,
   composeResearchResultBundle,
 } from "./researchResultBundle.js";
+import { composeResearchW2 } from "./researchComposerW2.js";
+import { normalizeResearchSynthesis } from "./researchSynthesis.js";
 
 function finding(id, kind = "other", label = id) {
   return makeUniversalFinding({
@@ -58,6 +60,24 @@ test("explicit gematria request may calculate the Book title as text without cha
   assert.equal(resolved.text_calculation_allowed, true);
   assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA), true);
   assert.equal(plan.identities[0].identity_key, "book:ahavat-torah");
+});
+
+test("Name Research requests canonical Gematria plus dependency-normalized Cross capability", () => {
+  const resolved = resolveResearchIdentities({
+    rawInput: "נתח את השם אב גד",
+    candidates: [{
+      type: "name",
+      key: "name:test:synthetic-ab-gad",
+      label: "אב גד",
+      source: RESEARCH_IDENTITY_SOURCE.EXPLICIT_REF,
+      confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    }],
+  });
+  const plan = buildResearchPlanV2({ question: resolved.raw_input, intent: "research", identityResolution: resolved });
+  assert.equal(plan.strategy, "name_research");
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA), true);
+  assert.equal(plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA_RELATIONS), true);
+  assert.equal(plan.check_order.indexOf(RESEARCH_CAPABILITY.GEMATRIA) < plan.check_order.indexOf(RESEARCH_CAPABILITY.GEMATRIA_RELATIONS), true);
 });
 
 test("personal family + clock context requests privacy-first person/time/operator capabilities", () => {
@@ -145,4 +165,152 @@ test("future capability plugs in without changing bundle schema or consumer cont
   assert.equal(bundle.contract_version, 1);
   assert.equal(bundle.invariants.no_auto_canonicalization, true);
   assert.equal(bundle.invariants.no_auto_publication, true);
+});
+
+test("synthesis contract forbids universal truth scores and keeps Tarot auxiliary-only", () => {
+  assert.throws(() => normalizeResearchSynthesis({
+    truth_score: 91,
+    claims: [{ id: "c1", text: "claim" }],
+  }), /truth_score is forbidden/);
+
+  const synthesis = normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "bounded interpretation" }],
+    motifs: [{ key: "integration", claim_ids: ["c1"] }],
+    auxiliary_signals: [{
+      kind: "tarot",
+      result: { cards: [9, 11, 14] },
+      evidence_weight: 99,
+      included_in_empirical_fit: true,
+    }],
+  });
+
+  assert.equal(synthesis.invariants.no_universal_truth_score, true);
+  assert.equal(synthesis.auxiliary_signals[0].evidence_weight, 0);
+  assert.equal(synthesis.auxiliary_signals[0].included_in_empirical_fit, false);
+});
+
+test("empirical person-fit is rejected unless the message was frozen before validation", () => {
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "claim" }],
+    calibration: {
+      individual: { tested_claims: 1, supported_claims: 1, empirical_fit_percent: 100 },
+      bias_controls: { message_frozen_before_validation: false },
+    },
+  }), /message_frozen_before_validation=true/);
+
+  const synthesis = normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "claim" }],
+    calibration: {
+      state: "calibrating",
+      individual: { tested_claims: 1, supported_claims: 1, empirical_fit_percent: 100 },
+      bias_controls: {
+        message_frozen_before_validation: true,
+        validation_data_hidden_during_synthesis: true,
+      },
+    },
+  });
+  assert.equal(synthesis.calibration.individual.empirical_fit_percent, 100);
+  assert.equal(synthesis.invariants.empirical_person_fit_is_not_verification, true);
+});
+
+test("synthesis cannot cite a finding that did not survive the Result Bundle boundary", () => {
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{
+      id: "c1",
+      text: "claim",
+      support: { finding_ids: ["uf:private:not-in-bundle"] },
+    }],
+  }, { allowedFindingIds: ["uf:public:1"] }), /unavailable finding/);
+});
+
+test("W2 composer fills the single canonical synthesis socket and freezes it before validation", async () => {
+  const bundle = await composeResearchW2({
+    question: "bounded synthesis test",
+    requestedCapabilities: [],
+    synthesizer: async ({ bundle: safeBundle }) => {
+      assert.equal(Object.prototype.hasOwnProperty.call(safeBundle, "access"), true);
+      return {
+        message: "one canonical synthesis",
+        claims: [{ id: "claim:1", text: "atomic interpretation" }],
+        motifs: [{ key: "integration", label: "Integration", claim_ids: ["claim:1"] }],
+        calibration: {
+          state: "holdout_pending",
+          bias_controls: {
+            message_frozen_before_validation: true,
+            validation_data_hidden_during_synthesis: true,
+          },
+        },
+      };
+    },
+  });
+
+  assert.equal(bundle.synthesis.status, "composed");
+  assert.equal(bundle.synthesis.message, "one canonical synthesis");
+  assert.equal(bundle.synthesis.freeze.frozen, true);
+  assert.equal(bundle.synthesis.invariants.tarot_is_auxiliary_only, true);
+});
+
+test("Cross Signatures are Bundle-backed while resonance and model agreement remain non-evidential", () => {
+  const relation = finding("uf:test:relation", "gematria-relation", "אב ↔ גד");
+  const synthesis = normalizeResearchSynthesis({
+    claims: [{
+      id: "c1",
+      text: "bounded Cross motif",
+      support: { finding_ids: [relation.id] },
+    }],
+    cross_signatures: [{
+      finding_id: relation.id,
+      relation_ref: "relation:test",
+      effective_independent_group_count: 2,
+      raw_group_count: 4,
+      noise_flags: ["dependency_normalized"],
+    }],
+    research_strength: {
+      independent_evidence_groups: 2,
+      cross_domain_dimensions: ["gematria", "number_math"],
+      reproducibility: "replayable",
+    },
+    resonance: {
+      analyses: 1889,
+      up_votes: 162,
+      down_votes: 3,
+      research_actions: 391,
+    },
+    model_robustness: {
+      providers: ["anthropic", "google", "openai"],
+      independent_runs: 3,
+      shared_motifs: ["integration"],
+    },
+    corpus_context: {
+      corpus_ref: "gematria_words",
+      population_size: 4835,
+      search_space_size: 258502,
+      multiple_comparison_control: "declared",
+    },
+  }, { allowedFindingIds: [relation.id] });
+
+  assert.equal(synthesis.cross_signatures.length, 1);
+  assert.equal(synthesis.resonance.included_in_research_strength, false);
+  assert.equal(synthesis.resonance.included_in_empirical_fit, false);
+  assert.equal(synthesis.model_robustness.included_as_independent_evidence, false);
+  assert.equal(synthesis.invariants.cross_signatures_must_be_bundle_backed, true);
+  assert.equal(synthesis.invariants.historical_resonance_is_not_accuracy, true);
+
+  assert.throws(() => normalizeResearchSynthesis({
+    claims: [{ id: "x", text: "unsupported Cross" }],
+    cross_signatures: [{ finding_id: "uf:missing" }],
+  }, { allowedFindingIds: [relation.id] }), /must reference a relation Finding available/);
+});
+
+test("synthesis failure is explicit and never destroys the underlying research bundle", async () => {
+  const bundle = await composeResearchW2({
+    question: "synthesis failure test",
+    requestedCapabilities: [],
+    synthesizer: async () => ({ truth_score: 100, claims: [{ id: "x", text: "bad" }] }),
+  });
+
+  assert.equal(bundle.synthesis.status, "failed");
+  assert.match(bundle.synthesis.explain_why.reason, /truth_score is forbidden/);
+  assert.equal(Array.isArray(bundle.findings), true);
+  assert.equal(bundle.invariants.no_auto_canonicalization, true);
 });
