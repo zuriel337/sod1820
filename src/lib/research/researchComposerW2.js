@@ -78,6 +78,7 @@ export async function composeResearchW2({
   contextType = "public_user",
   surfaceContext = null,
   requestedCapabilities = [],
+  capabilityAllowlist = null,
   requestedDepth = null,
   executors = {},
   ranking = [],
@@ -101,6 +102,7 @@ export async function composeResearchW2({
     contextType,
     surfaceContext,
     requestedCapabilities,
+    capabilityAllowlist,
     requestedDepth,
   });
 
