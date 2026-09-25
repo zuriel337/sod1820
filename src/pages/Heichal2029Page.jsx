@@ -4,6 +4,11 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { composeResearchW2 } from "../lib/research/researchComposerW2.js";
+import { createCanonicalNumberW2Executors } from "../lib/research/researchW2Executors.js";
+import { RESEARCH_IDENTITY_CONFIDENCE, RESEARCH_IDENTITY_SOURCE } from "../lib/research/researchIdentityResolver.js";
+import { isRazielNextAction } from "../lib/research/razielActionContract.js";
+import { supabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 
@@ -142,6 +147,50 @@ function ActiveResearchEnvironment() {
     });
   };
 
+  const openRazielFromCanonicalResult = async () => {
+    // First real W2 consumer is intentionally bounded to a canonical numeric identity.
+    // Other Heichal subjects keep the existing generic Raziel entry until their own W2
+    // executor path is real; no local adapter or route mapper is invented here.
+    const numericValue = subject?.type === "number" ? Number(subject.id) : null;
+    if (!Number.isSafeInteger(numericValue) || numericValue < 0) {
+      shell.openRaziel();
+      return;
+    }
+
+    try {
+      const bundle = await composeResearchW2({
+        question: "",
+        intent: "research",
+        rawInput: String(numericValue),
+        identityCandidates: [{
+          type: "number",
+          id: String(numericValue),
+          ref: `number:${numericValue}`,
+          value: numericValue,
+          label: subject.label || String(numericValue),
+          source: RESEARCH_IDENTITY_SOURCE.SURFACE_CONTEXT,
+          confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+        }],
+        contextType: "public_user",
+        surfaceContext: {
+          surface: "heichal",
+          subject: { type: "number", id: String(numericValue) },
+        },
+        executors: createCanonicalNumberW2Executors({ supabase }),
+      });
+
+      const razielRouteAction = (Array.isArray(bundle?.next_actions) ? bundle.next_actions : [])
+        .find((item) => isRazielNextAction(item)) || null;
+
+      // Invalid/missing action fails closed: generic Raziel may still open on the SAME
+      // Research Context, but no caller-supplied or locally synthesized action is forwarded.
+      shell.openRaziel(razielRouteAction ? { razielRouteAction } : null);
+    } catch {
+      // The existing context survives a failed W2 run; there is no local answer/fallback text.
+      shell.openRaziel();
+    }
+  };
+
   const selectionText = [
     context?.selection?.entityType && context?.selection?.entityId ? `${context.selection.entityType}:${context.selection.entityId}` : null,
     context?.selection?.expression ? `ביטוי: ${context.selection.expression}` : null,
@@ -155,7 +204,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={openRazielFromCanonicalResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
         <span>שורש · {subject.label || subject.id}</span>
@@ -215,7 +264,7 @@ function ActiveResearchEnvironment() {
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
-        <button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button>
+        <button className="sod29-action" onClick={openRazielFromCanonicalResult}>✦ שאל את רזיאל</button>
       </div>
     </section>
 
