@@ -58,6 +58,8 @@ assert.match(edge, /op_trace_finish_v1/);
 assert.equal(edge.indexOf("fn_capability_execution_gate_v1") < edge.indexOf("bundle = await composeResearchW2"), true);
 
 // The canonical executors receive caller credentials, never service-role credentials.
+assert.match(edge, /researchW2ExecutorsBase\.js/);
+assert.doesNotMatch(edge, /researchW2Executors\.js/);
 assert.match(edge, /const callerRpc = rpcTransport\(ANON, authHeader\)/);
 assert.match(edge, /createCanonicalW2Executors\(\{[\s\S]*supabase: callerRpc,[\s\S]*serverContext: false/);
 assert.doesNotMatch(edge, /createCanonicalW2Executors\(\{[\s\S]{0,300}SERVICE/);
