@@ -13,7 +13,9 @@ assert.match(sql, /'person:'\s*\|\|\s*e\.person_id::text\s*\|\|\s*':self'/i);
 // Public eligibility is Account OR reviewed/public Contributor edge, never source identity alone.
 assert.match(sql, /pr\.account_user_id\s+is\s+not\s+null\s+or\s+exists\s*\(select\s+1\s+from\s+public_contributors\)/is);
 assert.match(sql, /ie\.legacy_id\s*=\s*'contributor:'\s*\|\|\s*c\.id::text/i);
-assert.doesNotMatch(sql, /openweb_user:/i, "raw OpenWeb source IDs must never become public Person rows");
+assert.doesNotMatch(sql, /'historical:openweb:'\s*\|\|/i, "raw OpenWeb source IDs must never become public Person rows");
+assert.match(sql, /ie\.legacy_id\s+like\s+'openweb_user:%'/i, "public identityCount may count reviewed historical aliases only");
+assert.doesNotMatch(sql, /count\(\*\)\s+from\s+public\.identity_edges\s+ie\s+where\s+ie\.person_id=e\.person_id\s*\)/is, "device/login edge volume must not leak into public identityCount");
 
 // Capability authority is explicit, not inferred from free-text role/senior level.
 assert.match(sql, /u\.is_researcher/i);
