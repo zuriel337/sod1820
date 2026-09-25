@@ -132,6 +132,16 @@ begin
      and cl.target_id is not null
      and btrim(cl.target_id) <> '';
 
+  -- Serialize ownership decisions for every currently-attributed OpenWeb source.
+  -- v_source_ids is deterministically sorted by array_agg(... order by target_id),
+  -- so overlapping admin calls acquire locks in the same order and avoid deadlocks.
+  foreach v_source_id in array v_source_ids
+  loop
+    perform pg_advisory_xact_lock(
+      hashtextextended('person_openweb_source:' || v_source_id, 1820)
+    );
+  end loop;
+
   if v_user_id is not null then
     -- Serialize this bridge against other bridge calls for the same account. V1 still
     -- refuses to create an account Person; normal account/login ownership remains separate.
