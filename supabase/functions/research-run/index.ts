@@ -241,6 +241,7 @@ Deno.serve(async (req: Request) => {
       contextType: identityClass,
       surfaceContext: run.surface_context,
       requestedCapabilities: run.requested_capabilities,
+      capabilityAllowlist: run.requested_capabilities,
       requestedDepth: "golden_public_number_v1",
       executors,
       executionObserver: (event: any) => capabilityEvents.push(event),
