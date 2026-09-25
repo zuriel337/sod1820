@@ -1,4 +1,3 @@
-import { CLAIM_VALIDATION_STATE } from "./researchSynthesis.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
 
 // F3 — pure Calibration Harness.
@@ -39,11 +38,11 @@ export const CALIBRATION_PROTOCOL_AUTHORITY = Object.freeze({
 const VALID_EVALUATOR_CLASSES = new Set(Object.values(CALIBRATION_EVALUATOR_CLASS));
 const VALID_PROTOCOL_AUTHORITIES = new Set(Object.values(CALIBRATION_PROTOCOL_AUTHORITY));
 const ADJUDICATED_STATES = new Set([
-  CLAIM_VALIDATION_STATE.SUPPORTED,
-  CLAIM_VALIDATION_STATE.PARTIALLY_SUPPORTED,
-  CLAIM_VALIDATION_STATE.CONTRADICTED,
-  CLAIM_VALIDATION_STATE.NOT_TESTABLE,
-  CLAIM_VALIDATION_STATE.TOO_GENERIC,
+  "supported",
+  "partially_supported",
+  "contradicted",
+  "not_testable",
+  "too_generic",
 ]);
 
 function clean(value) {
