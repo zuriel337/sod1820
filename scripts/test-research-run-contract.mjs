@@ -50,8 +50,53 @@ for (const event of events) {
   assert.equal(Object.prototype.hasOwnProperty.call(event, "findings"), false, "observer must not receive raw findings");
 }
 
+// Free-text must never widen the public Number execution plan beyond the normalized allowlist.
+// Route grammar may still inspect the original user wording, but capability execution stays bounded.
+const hostileReq = normalizePublicNumberResearchRunRequest({
+  number: "358",
+  question: "בדוק ELS דילוג מקורות graph גימטריה של 358",
+  visitor_id: "11111111-1111-4111-8111-111111111111",
+  requested_capabilities: ["numeric", "numeric_operators"],
+  surface: "heichal",
+});
+const hostileCalls = [];
+const hostileExecutor = (key) => async () => {
+  hostileCalls.push(key);
+  return {
+    owner: "test-owner",
+    status: "executed",
+    findings: [],
+    sourceRefs: [],
+    versionRefs: ["test:v1"],
+  };
+};
+const hostileBundle = await composeResearchW2({
+  question: hostileReq.question,
+  intent: hostileReq.intent,
+  identityCandidates: hostileReq.identity_candidates,
+  rawInput: String(hostileReq.number),
+  surfaceContext: hostileReq.surface_context,
+  requestedCapabilities: hostileReq.requested_capabilities,
+  capabilityAllowlist: hostileReq.requested_capabilities,
+  executors: {
+    numeric: hostileExecutor("numeric"),
+    numeric_operators: hostileExecutor("numeric_operators"),
+    graph: hostileExecutor("graph"),
+    els: hostileExecutor("els"),
+    gematria: hostileExecutor("gematria"),
+    sources: hostileExecutor("sources"),
+  },
+});
+assert.deepEqual(hostileCalls, ["numeric", "numeric_operators"]);
+assert.deepEqual(hostileBundle.plan.requested_capabilities, ["numeric", "numeric_operators"]);
+assert.deepEqual(hostileBundle.plan.check_order, ["numeric", "numeric_operators"]);
+assert.deepEqual(hostileBundle.plan.capability_allowlist, ["numeric", "numeric_operators"]);
+assert.equal(hostileBundle.plan.guards.capability_allowlist_applied_before_strategy, true);
+assert.equal(hostileBundle.plan.route_grammar.surface, "heichal");
+
 // Server gate and trace must precede/contain the real runtime boundary.
 assert.match(edge, /fn_capability_execution_gate_v1/);
+assert.match(edge, /capabilityAllowlist:\s*run\.requested_capabilities/);
 assert.match(edge, /op_trace_begin_v1/);
 assert.match(edge, /op_trace_record_span_v1/);
 assert.match(edge, /op_trace_finish_v1/);
