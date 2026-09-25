@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { transformWithEsbuild } from "vite";
+import { transformWithOxc } from "vite";
 import {
   normalizePeopleIdentityRow,
   filterPeopleIdentityRows,
@@ -13,7 +13,7 @@ const page = read("src/pages/PeopleIdentityReview2029Page.jsx");
 const sql = read("docs/g3-people-identity-review-admin-rpc-v1.sql");
 const app = read("src/App2029.jsx");
 
-await transformWithEsbuild(page, "PeopleIdentityReview2029Page.jsx", { loader:"jsx", jsx:"automatic" });
+await transformWithOxc(page, "PeopleIdentityReview2029Page.jsx", { jsx:{ runtime:"automatic" } });
 
 assert.match(projection, /admin_people_identity_review_v1/);
 assert.doesNotMatch(projection, /\.from\(["'](?:contributors|users|g3_openweb_import_stage)["']\)/);
