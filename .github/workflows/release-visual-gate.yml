@@ -54,11 +54,14 @@ jobs:
         run: |
           mkdir -p test-results/release-visual .release-gate
           cat > .release-gate/release-visual.spec.cjs <<'EOF'
+          const fs = require('fs');
+          const path = require('path');
           const { test, expect } = require('@playwright/test');
 
           const BASE = 'http://127.0.0.1:4173';
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
+          const dist2029Html = fs.readFileSync(path.join(__dirname, '..', 'dist', '2029.html'), 'utf8');
 
           async function assertHealthy(page, width, mode = 'dark') {
             const suffix = mode === 'dark' ? '' : `?mode=${mode}`;
@@ -263,11 +266,10 @@ jobs:
             const goldens = ['צוריאל', 'צוריאל פולייס', 'שער נון', 'אנכי'];
             const install2029Rewrite = async (targetPage) => {
               await targetPage.route('**/2029/gematria*', async (route) => {
-                const response = await targetPage.request.get(`${BASE}/2029.html`);
                 await route.fulfill({
-                  status: response.status(),
-                  headers: response.headers(),
-                  body: await response.body(),
+                  status: 200,
+                  contentType: 'text/html; charset=utf-8',
+                  body: dist2029Html,
                 });
               });
             };
