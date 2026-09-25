@@ -70,10 +70,7 @@ function includesAny(text, terms) {
   return terms.some((term) => {
     const t = lower(term);
     if (!t) return false;
-    const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, "\\function includesAny(text, terms) {
-  const q = lower(text);
-  return terms.some((term) => q.includes(term));
-}");
+    const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, (ch) => `\\${ch}`);
     return new RegExp(`(^|[^\\p{L}\\p{N}_])${escaped}($|[^\\p{L}\\p{N}_])`, "u").test(q);
   });
 }
