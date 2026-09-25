@@ -5,6 +5,8 @@ on:
     paths:
       - 'supabase/migrations/20260916150900_g3_els_core_compatibility_extension_v1.sql'
       - 'supabase/migrations/20260916151000_g3_els_core_compatibility_truth_hardening_v1.sql'
+      - 'supabase/migrations/20260924215700_g3_els_full_domain_regular_projection_v1.sql'
+      - 'test/els-full-domain-regular-projection.test.mjs'
       - 'test/els-core-compatibility.test.mjs'
       - 'test/els-core-compatibility-fixture.sql'
       - 'test/els-core-compatibility.sql'
@@ -36,7 +38,9 @@ jobs:
           node-version: 20
 
       - name: Static one-engine contract tests
-        run: node --test test/els-core-compatibility.test.mjs
+        run: |
+          node --test test/els-core-compatibility.test.mjs
+          node --test test/els-full-domain-regular-projection.test.mjs
 
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
@@ -57,4 +61,5 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916150800_g3_els_legacy_projection_parity_v1.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916150900_g3_els_core_compatibility_extension_v1.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916151000_g3_els_core_compatibility_truth_hardening_v1.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260924215700_g3_els_full_domain_regular_projection_v1.sql
           psql -v ON_ERROR_STOP=1 -f test/els-core-compatibility.sql
