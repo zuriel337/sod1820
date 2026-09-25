@@ -47,7 +47,8 @@ assert.doesNotMatch(writers, /create\s+table/i);
 // Backfill covers ALL missing accounts, not just active accounts.
 assert.match(backfill, /from\s+public\.users\s+u/i);
 assert.match(backfill, /not\s+exists\s*\(\s*select\s+1\s+from\s+public\.persons/is);
-assert.doesNotMatch(backfill, /where[^;]*(?:user_activity|research_contributions)[^;]*(?:exists|count)/is);
+assert.doesNotMatch(backfill, /where\s+exists\s*\(\s*select\s+1\s+from\s+public\.(?:user_activity|research_contributions)/is);
+assert.doesNotMatch(backfill, /join\s+public\.(?:user_activity|research_contributions)\b/i, "activity/research evidence may extend last_seen but must not gate account inclusion");
 assert.match(backfill, /on\s+conflict\s*\(account_user_id\)\s+where\s+account_user_id\s+is\s+not\s+null\s+do\s+nothing/is);
 
 // Account backfill is conservative about historical identity.
