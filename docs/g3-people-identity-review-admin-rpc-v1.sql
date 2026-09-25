@@ -62,6 +62,21 @@ begin
     where s.user_id is not null and btrim(s.user_id)<>''
     group by 1
   ),
+  openweb_contributor_map as (
+    select
+      cl.target_id as source_id,
+      case
+        when count(distinct rc.author_contributor_id) filter(where rc.author_contributor_id is not null)=1
+        then (array_agg(distinct rc.author_contributor_id) filter(where rc.author_contributor_id is not null))[1]
+        else null
+      end as contributor_id,
+      count(distinct rc.author_contributor_id) filter(where rc.author_contributor_id is not null)::integer as contributor_id_count
+    from public.contribution_links cl
+    join public.research_contributions rc
+      on rc.id=cl.from_contribution_id
+    where cl.target_type='openweb_user'
+    group by cl.target_id
+  ),
   normalized as (
     select
       q.source_id,
@@ -80,15 +95,17 @@ begin
       c.role as contributor_role,
       c.source as contributor_source,
       (c.user_id is not null) as linked_user,
+      coalesce(m.contributor_id_count,0) as contributor_id_count,
       u.id as site_user_id,
       u.display_name as site_display_name,
       u.username as site_username
     from source_ids q
     join name_stats n
       on n.name_n=lower(regexp_replace(btrim(q.display_name),'\\s+',' ','g'))
+    left join openweb_contributor_map m
+      on m.source_id=q.source_id
     left join public.contributors c
-      on c.source='openweb_import'
-     and c.slug=('openweb-'||q.source_id)
+      on c.id=m.contributor_id
     left join public.users u
       on q.email_verified
      and q.email_n is not null
@@ -97,6 +114,8 @@ begin
   classified as (
     select n.*,
       case
+        when n.contributor_id_count<>1
+          then 'REVIEW'
         when n.site_user_id is not null
           and (
             lower(coalesce(n.site_display_name,''))=lower(n.display_name)
@@ -156,6 +175,7 @@ begin
     'historical_same_name_ids',historical_same_name_ids,
     'verified_same_name_ids',verified_same_name_ids,
     'linked_user',linked_user,
+    'contributor_id_count',contributor_id_count,
     'contributor_kind',contributor_kind,
     'contributor_role',contributor_role,
     'contributor_source',contributor_source
