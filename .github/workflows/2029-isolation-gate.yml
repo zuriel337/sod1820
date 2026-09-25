@@ -94,6 +94,8 @@ jobs:
         run: node scripts/test-2029-topic-surface.mjs
       - name: Native Researcher corpus acceptance
         run: node scripts/test-2029-researcher-corpus.mjs
+      - name: People Identity Review contract acceptance
+        run: node test/people-identity-review-2029-contract.test.mjs
       - name: Native Number preview acceptance
         run: node scripts/test-2029-number-preview.mjs
       - name: Production build
