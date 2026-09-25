@@ -1,3 +1,4 @@
+import { RAZIEL_ROUTE_ACTION } from "./razielRouteGrammar.js";
 // SOD1820 Raziel Action Contract v1.
 //
 // Projection over an already-built Research Plan / Result Bundle.
@@ -10,6 +11,7 @@
 
 export const RAZIEL_ACTION_CONTRACT_VERSION = 1;
 export const RAZIEL_NEXT_ACTION_KEY = "raziel_route";
+const VALID_ROUTE_ACTIONS = new Set(Object.values(RAZIEL_ROUTE_ACTION));
 
 function clean(value) {
   if (value == null) return "";
@@ -106,6 +108,21 @@ export function buildRazielNextAction({
       one_context_required: true,
     }),
   });
+}
+
+export function isRazielNextAction(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (value.action !== RAZIEL_NEXT_ACTION_KEY) return false;
+  if (Number(value.contract_version) !== RAZIEL_ACTION_CONTRACT_VERSION) return false;
+  if (!VALID_ROUTE_ACTIONS.has(clean(value.route_action))) return false;
+  if (!clean(value.label) || !clean(value.task_mode)) return false;
+  if (value.synthesis?.local_message != null) return false;
+  if (value.guards?.semantic_action_only !== true) return false;
+  if (value.guards?.no_navigation_execution !== true) return false;
+  if (value.guards?.no_tool_execution !== true) return false;
+  if (value.guards?.no_local_message_generation !== true) return false;
+  if (value.synthesis?.state === "composed" && value.synthesis?.message_authority !== "bundle.synthesis") return false;
+  return true;
 }
 
 export function mergeRazielNextAction(existingNextActions = [], razielAction = null) {
