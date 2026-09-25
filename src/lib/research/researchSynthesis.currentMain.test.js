@@ -1,3 +1,4 @@
+// Current-main acceptance for the canonical Research Synthesis seam.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { composeResearchW2 } from "./researchComposerW2.js";
