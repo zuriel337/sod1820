@@ -84,6 +84,7 @@ export async function composeResearchW2({
   resolvedRunSnapshot = null,
   nextActions = [],
   synthesizer = null,
+  executionObserver = null,
   signal = null,
 } = {}) {
   const identityResolution = resolveResearchIdentities({
@@ -121,6 +122,7 @@ export async function composeResearchW2({
       }));
       continue;
     }
+    const capabilityStartedAt = new Date().toISOString();
     const executed = await executeCapability({
       capability,
       executor: byCapability.get(capability),
@@ -129,7 +131,26 @@ export async function composeResearchW2({
       signal,
       authorizationContext,
     });
+    const capabilityEndedAt = new Date().toISOString();
     capabilityResults.push(executed);
+    if (typeof executionObserver === "function") {
+      try {
+        executionObserver(Object.freeze({
+          type: "capability",
+          capability,
+          started_at: capabilityStartedAt,
+          ended_at: capabilityEndedAt,
+          status: executed.status || null,
+          owner: executed.owner || null,
+          finding_count: Array.isArray(executed.findings) ? executed.findings.length : 0,
+          bounded: executed.bounded ? {
+            returned_count: executed.bounded.returned_count ?? null,
+            total_count: executed.bounded.total_count ?? null,
+            truncated: executed.bounded.truncated === true,
+          } : null,
+        }));
+      } catch { /* observability consumer may not alter research semantics */ }
+    }
     // Continuation is first-class: a bounded capability tells the caller exactly how to ask for the
     // rest of the source population instead of leaving a window to look source-exhaustive.
     if (executed.bounded?.truncated && executed.bounded?.continuation) {
