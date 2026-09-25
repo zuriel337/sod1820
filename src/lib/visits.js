@@ -260,6 +260,27 @@ export async function getSystemHealth() {
   if (error) throw error;
   return data || null;
 }
+
+// G3 Internal Control Plane: bounded read projection over the live No-Black-Box owner.
+export async function getOperationalTraceList(days = 7, limit = 100) {
+  if (!supabase) return [];
+  const safeDays = Math.max(1, Math.min(Number(days) || 7, 90));
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 100, 500));
+  const { data, error } = await supabase.rpc("admin_op_trace_list_v1", {
+    p_days: safeDays,
+    p_limit: safeLimit,
+  });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+export async function getOperationalTrace(traceId) {
+  const id = String(traceId || "").trim();
+  if (!supabase || !id) return null;
+  const { data, error } = await supabase.rpc("admin_op_trace_v1", { p_trace_id: id });
+  if (error) throw error;
+  return data || null;
+}
 export async function reviewRecommendation(id, status, note = null) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_recommendation_review", { p_id: id, p_status: status, p_note: note });
