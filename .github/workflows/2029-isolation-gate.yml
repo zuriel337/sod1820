@@ -88,6 +88,8 @@ jobs:
         run: node scripts/test-2029-canonical-contract-wiring.mjs
       - name: Person identity bridge foundation acceptance
         run: node test/person-identity-bridge-foundation.test.mjs
+      - name: Account Person completeness foundation acceptance
+        run: node test/account-person-completeness-foundation.test.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
       - name: World Convergence PR591 focused acceptance
