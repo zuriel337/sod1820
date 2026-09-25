@@ -93,6 +93,8 @@ jobs:
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
         run: node scripts/test-2029-system-frame.mjs
+      - name: Raziel server-gated Result Bundle consumer acceptance
+        run: node --test src/lib/research/razielServerGatedConsumer.currentMain.test.js
       - name: Canonical 2029 contract wiring acceptance
         run: node scripts/test-2029-canonical-contract-wiring.mjs
       - name: Native World surface acceptance
