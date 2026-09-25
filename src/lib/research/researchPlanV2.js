@@ -1,4 +1,5 @@
 import { hasIdentityKind, identityKinds } from "./researchIdentityResolver.js";
+import { buildRazielRouteGrammar } from "./razielRouteGrammar.js";
 
 // W2.1 — Identity-first Research Plan builder.
 //
@@ -322,6 +323,12 @@ export function buildResearchPlanV2({
 
   const strategy = deriveStrategy({ identityResolution: resolved, capabilityHints });
   const checkOrder = deriveCheckOrder(capabilityHints);
+  const routeGrammar = buildRazielRouteGrammar({
+    question,
+    intent,
+    identityResolution: resolved,
+    surfaceContext,
+  });
 
   return {
     v: 2,
@@ -334,6 +341,7 @@ export function buildResearchPlanV2({
     // W2.2b: output-safe access descriptor ONLY. The raw authorization context never lands here.
     access: buildAccessDescriptor(authorizationContext, contextType),
     surface_context: surfaceContext,
+    route_grammar: routeGrammar,
     requested_depth: requestedDepth,
     requested_capabilities: capabilityHints,
     check_order: checkOrder,
@@ -346,6 +354,7 @@ export function buildResearchPlanV2({
       no_auto_canonicalization: true,
       no_auto_publication: true,
       raw_authorization_context_never_in_output: true,
+      route_grammar_is_semantic_hint_only: true,
     },
   };
 }
