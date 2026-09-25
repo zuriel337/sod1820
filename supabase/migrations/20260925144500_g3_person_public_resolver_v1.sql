@@ -458,19 +458,19 @@ message_metrics as (
   group by cp.person_id
 ),
 activity_dates as (
-  select cp.person_id,cp.created_at::date day
+  select cp.person_id,cp.created_at::date as activity_day
   from contrib_person cp
 
   union
 
-  select pp.person_id,ua.created_at::date day
+  select pp.person_id,ua.created_at::date as activity_day
   from page_people pp
   join public.user_activity ua
     on pp.account_user_id is not null
    and ua.user_id=pp.account_user_id
 ),
 activity_metrics as (
-  select ad.person_id,count(distinct ad.day)::int active_days
+  select ad.person_id,count(distinct ad.activity_day)::int active_days
   from activity_dates ad
   group by ad.person_id
 ),
