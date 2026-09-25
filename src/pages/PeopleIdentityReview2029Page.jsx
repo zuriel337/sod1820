@@ -7,6 +7,7 @@ import {
   filterPeopleIdentityRows,
 } from "../lib/research/peopleIdentityProjection.js";
 import { applySeo } from "../lib/seo.js";
+import "./researcher2029.css";
 import "./peopleIdentityReview2029.css";
 
 function dateLabel(value) {
