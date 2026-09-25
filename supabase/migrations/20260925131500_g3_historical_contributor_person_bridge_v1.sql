@@ -276,8 +276,18 @@ begin
 
     select min(s.created_at), max(s.created_at)
       into v_source_first, v_source_last
-      from public.g3_openweb_import_stage s
-     where s.user_id = v_source_id;
+      from public.research_contributions rc
+      join public.contribution_links clu
+        on clu.from_contribution_id = rc.id
+       and clu.target_type = 'openweb_user'
+       and clu.target_id = v_source_id
+      join public.contribution_links clm
+        on clm.from_contribution_id = rc.id
+       and clm.target_type = 'openweb_message'
+      join public.g3_openweb_import_stage s
+        on s.message_id = clm.target_id
+       and s.user_id = v_source_id
+     where rc.author_contributor_id = p_contributor_id;
 
     v_source_first := coalesce(v_source_first, v_first_seen);
     v_source_last := coalesce(v_source_last, v_last_seen);
