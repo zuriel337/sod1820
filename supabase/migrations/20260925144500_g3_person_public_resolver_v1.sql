@@ -56,6 +56,10 @@ linked_ids as (
   join public.identity_edges ie
     on ie.person_id = pr.person_id
    and ie.kind = 'legacy_seed'
+   and ie.confidence = 100
+   and coalesce(ie.meta->>'human_gate','false') = 'true'
+   and ie.meta->>'contract' = 'admin_person_materialize_contributor_history_v1'
+   and ie.meta->>'provider' = 'contributors'
   join public.contributors c
     on ie.legacy_id = 'contributor:' || c.id::text
 ),
@@ -182,6 +186,10 @@ identity_count as (
           from public.identity_edges ie
           where ie.person_id=e.person_id
             and ie.kind='legacy_seed'
+            and ie.confidence=100
+            and coalesce(ie.meta->>'human_gate','false')='true'
+            and ie.meta->>'contract'='admin_person_materialize_contributor_history_v1'
+            and ie.meta->>'provider'='openweb_import'
             and ie.legacy_id like 'openweb_user:%'
         )
     )::int as n
@@ -302,6 +310,10 @@ eligible_ids as (
   from public.identity_edges ie
   join public.contributors c
     on ie.kind='legacy_seed'
+   and ie.confidence=100
+   and coalesce(ie.meta->>'human_gate','false')='true'
+   and ie.meta->>'contract'='admin_person_materialize_contributor_history_v1'
+   and ie.meta->>'provider'='contributors'
    and ie.legacy_id='contributor:' || c.id::text
   where nullif(btrim(coalesce(c.merged_into,'')),'') is null
     and coalesce(c.active,true)
@@ -340,6 +352,10 @@ linked_ids as (
   join public.identity_edges ie
     on ie.person_id=pp.person_id
    and ie.kind='legacy_seed'
+   and ie.confidence=100
+   and coalesce(ie.meta->>'human_gate','false')='true'
+   and ie.meta->>'contract'='admin_person_materialize_contributor_history_v1'
+   and ie.meta->>'provider'='contributors'
   join public.contributors c
     on ie.legacy_id='contributor:' || c.id::text
 ),
@@ -479,6 +495,10 @@ alias_metrics as (
   from public.identity_edges ie
   join page_people pp on pp.person_id=ie.person_id
   where ie.kind='legacy_seed'
+    and ie.confidence=100
+    and coalesce(ie.meta->>'human_gate','false')='true'
+    and ie.meta->>'contract'='admin_person_materialize_contributor_history_v1'
+    and ie.meta->>'provider'='openweb_import'
     and ie.legacy_id like 'openweb_user:%'
   group by ie.person_id
 ),
