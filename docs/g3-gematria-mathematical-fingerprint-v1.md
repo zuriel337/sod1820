@@ -54,22 +54,32 @@ A mathematical relation is a deterministic structure fact. It is NOT automatical
 
 Human Gate remains required for interpretation or promotion.
 
-## Golden fixture — צוריאל פולייס
+## Canonical live fixture — צוריאל פולייס
 
-The focused test fixture proves the engine can derive, mechanically:
+Live canonical verification on 2026-09-25 used:
 
-- `533 = 13 × 41`, φ=480, τ=4, σ=588, λ=120, rad=533, Composite #433;
-- `3731 = 7 × 533`, retaining factors 13 and 41;
-- factor 13 shared by 65, 533, 1118 and 3731;
-- factor 37 shared by 2368, 3811 and 60273;
+`public.fn_method_profile('צוריאל פולייס','value')`.
+
+The current canonical profile is NOT identical to the externally supplied/raw report that motivated this slice. The engine fixture therefore follows live truth and proves, among other relations:
+
+- `רגיל = 533` and `גדול = 533` — same numeric output, not independent evidence;
+- `משולש מילה + משולש הפוך = 6929 = 13 × 533`;
+- factor 13 shared by 533, 1118 and 6929;
+- factor 37 shared by 777, 2368 and 60273;
 - factor 181 shared by 2172 and 60273;
-- 137 and 139 are a twin-prime pair;
-- 47 = L8 and 11 = L5 under `L0=2, L1=1`;
-- 545 includes centered-square form `C4(17)`;
-- 11 includes centered-decagonal form `C10(2)`;
-- repeated 533/47 outputs across methods are marked deterministic same-value collisions and explicitly do not count as independent evidence.
+- duplicate live outputs at 137, 2368, 60273 and 2172 are grouped and do not inflate evidence.
 
-`Equivalence = 1865.5` is intentionally NOT implemented because no canonical operation definition was resolved for that label in this scope.
+## External/raw compatibility fixture
+
+The supplied report is retained only as a compatibility fixture for the mathematical analyzer. It is explicitly NOT labeled current canonical Gematria truth because live verification found DRIFT, including:
+
+- current `אי"ק בכ"ר = 1242`, while the supplied report said 3332;
+- current `מילוי = 1178`, while the supplied report said 1160;
+- the supplied 47 / 11 / 139 values are not present as active outputs in the current live method profile.
+
+Given those raw numbers, the adapter still correctly recognizes the mathematical structure `3731 = 7 × 533`, 137/139 twin primes, `47=L8`, `11=L5`, and the factor families — but this proves analyzer compatibility only, not canonical Gematria verification.
+
+`Equivalence = 1865.5` remains intentionally NOT implemented because no canonical operation definition was resolved for that label in this scope.
 
 ## Consumer
 
