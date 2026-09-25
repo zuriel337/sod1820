@@ -282,13 +282,18 @@ export function projectPersonProfile2029(payload = {}, {
       : Object.freeze([]),
   };
 
-  if (safeViewer === PERSON_PROFILE_VIEWERS.SELF || safeViewer === PERSON_PROFILE_VIEWERS.ADMIN) {
+  if (safeViewer === PERSON_PROFILE_VIEWERS.SELF) {
     profile.private = safePrivateContext(payload?.privateContext);
     profile.economy = safeEconomy(payload?.economy);
     profile.referrals = safeReferral(payload?.referrals);
   }
 
   if (safeViewer === PERSON_PROFILE_VIEWERS.ADMIN) {
+    profile.economy = safeEconomy(payload?.economy);
+    profile.referrals = safeReferral(payload?.referrals);
+    if (payload?.admin?.privateActivityAuthorized === true) {
+      profile.private = safePrivateContext(payload?.privateContext);
+    }
     profile.admin = Object.freeze({
       identities: freezeArray((Array.isArray(payload?.identities) ? payload.identities : []).map(safeAdminIdentity)),
       claimState: clean(payload?.admin?.claimState || payload?.admin?.claim_state) || null,
