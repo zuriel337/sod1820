@@ -16,3 +16,5 @@ orphan-preview.html
 scripts/.card-preview/
 supabase/functions/expression-extract/.build/
 supabase/.temp/
+
+supabase/functions/research-run/.build/
