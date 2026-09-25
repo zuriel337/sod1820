@@ -176,7 +176,14 @@ identity_count as (
   select
     (
       case when e.account_user_id is not null then 1 else 0 end
-      + (select count(*) from public.identity_edges ie where ie.person_id=e.person_id)
+      + (select count(*) from public_contributors)
+      + (
+          select count(*)
+          from public.identity_edges ie
+          where ie.person_id=e.person_id
+            and ie.kind='legacy_seed'
+            and ie.legacy_id like 'openweb_user:%'
+        )
     )::int as n
   from eligibility e
 )
