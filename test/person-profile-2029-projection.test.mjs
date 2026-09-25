@@ -95,6 +95,19 @@ assert.equal(communitySelf.economy.credits, 150);
 assert.equal(communitySelf.referrals.invitedCount, 5);
 assert.equal(communitySelf.private.activityItems[0].ref, "private:query:1");
 
+const communityAdminDefault = projectPersonProfile2029(communityPayload, {
+  viewer: PERSON_PROFILE_VIEWERS.ADMIN,
+});
+assert.equal("private" in communityAdminDefault, false, "admin must not receive raw private activity by default");
+
+const communityAdminAuthorized = projectPersonProfile2029({
+  ...communityPayload,
+  admin: { privateActivityAuthorized: true },
+}, {
+  viewer: PERSON_PROFILE_VIEWERS.ADMIN,
+});
+assert.equal(communityAdminAuthorized.private.activityItems[0].ref, "private:query:1");
+
 // Researcher/writer: same profile family, capability-gated depth.
 const researcherPayload = {
   person: {
