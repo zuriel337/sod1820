@@ -47,10 +47,12 @@ assert.doesNotMatch(sql, /person_state|person_daily/i);
 assert.match(sql, /public\.researcher_reputation\(e\.account_user_id\)/i);
 assert.match(sql, /when\s+c\.researcher\s+and\s+s\.dossier\s+is\s+not\s+null/i);
 
-// Directory is bounded/paginated and projects Persons through the same profile resolver.
+// Directory is bounded/paginated and bulk-projects the selected Person page.
 assert.match(sql, /people_public_rows_v1/i);
-assert.match(sql, /least\(greatest\(coalesce\(p_limit,250\),1\),500\)/i);
-assert.match(sql, /public\.person_public_profile_v1\(page\.person_id\)/i);
+assert.match(sql, /least\(greatest\(coalesce\(p_limit,100\),1\),250\)/i);
+assert.doesNotMatch(sql, /select\s+public\.person_public_profile_v1\(page\.person_id\)/i, "directory must not N+1 call the profile resolver");
+assert.match(sql, /contrib_person as/i);
+assert.match(sql, /group by cp\.person_id/i);
 
 // Least-privilege public read: functions are explicit public projections, not table grants.
 assert.match(sql, /revoke all on function public\.person_public_profile_v1\(uuid\) from public/i);
