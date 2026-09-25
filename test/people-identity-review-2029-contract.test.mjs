@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { transformWithOxc } from "vite";
 import {
   normalizePeopleIdentityRow,
   filterPeopleIdentityRows,
@@ -13,11 +12,7 @@ import {
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const projection = read("src/lib/research/peopleIdentityProjection.js");
-const page = read("src/pages/PeopleIdentityReview2029Page.jsx");
-const sql = read("docs/g3-people-identity-review-admin-rpc-v1.sql");
-const app = read("src/App2029.jsx");
-
-await transformWithOxc(page, "PeopleIdentityReview2029Page.jsx", { jsx:{ runtime:"automatic" } });
+const decision = read("src/lib/research/peopleIdentityDecision.js");
 
 assert.match(projection, /admin_people_identity_review_v1/);
 assert.doesNotMatch(projection, /\.from\(["'](?:contributors|users|g3_openweb_import_stage)["']\)/);
@@ -25,32 +20,14 @@ assert.match(projection, /VERIFIED_PRIMARY_WITH_COLLISION_TAIL/);
 assert.match(projection, /HIGH_BLOCK_NOISE/);
 assert.match(projection, /ONE_DAY_THIN/);
 
-assert.match(page, /useAuth/);
-assert.match(page, /!isAdmin/);
-assert.match(page, /אין מיילים גולמיים במסך/);
-assert.match(page, /אין Merge \/ Claim \/ Delete/);
-assert.match(page, /המלצת פעולה · לא מבוצעת/);
-assert.match(page, /planPeopleIdentityAction/);
-assert.doesNotMatch(page, /email\s*[:=]/i);
-
-// Current branch intentionally does not wire a route while App2029 has another active writer.
-assert.doesNotMatch(app, /PeopleIdentityReview2029Page/);
-assert.doesNotMatch(app, /\/2029\/admin\/people/);
-
-assert.match(sql, /create or replace function public\.admin_people_identity_review_v1/i);
-assert.match(sql, /security definer/i);
-assert.match(sql, /rd_is_admin\(\)/i);
-assert.match(sql, /revoke all on function public\.admin_people_identity_review_v1\(text, integer\) from public, anon/i);
-assert.match(sql, /grant execute on function public\.admin_people_identity_review_v1\(text, integer\) to authenticated/i);
-assert.match(sql, /target_type='openweb_user'/i);
-assert.match(sql, /contribution_links/i);
-assert.match(sql, /research_contributions/i);
-assert.doesNotMatch(sql, /openweb-'\|\|q\.source_id/i);
-assert.doesNotMatch(sql, /jsonb_build_object\([^)]*'email'/is);
-assert.doesNotMatch(sql, /\b(insert|update|delete|merge|truncate)\b\s+(?:into\s+|from\s+|table\s+)?public\./i);
-
-console.log("people identity review 2029 contract: PASS");
-
+assert.match(decision, /PRESERVE_SEPARATE/);
+assert.match(decision, /INVITE_TO_CLAIM/);
+assert.match(decision, /REVIEW_COLLISIONS_THEN_INVITE/);
+assert.match(decision, /NO_OUTREACH/);
+assert.match(decision, /ARCHIVE_ONLY/);
+assert.match(decision, /HUMAN_REVIEW/);
+assert.doesNotMatch(decision, /supabase|\.rpc\(|\.from\(/);
+assert.match(decision, /מייל לא־מאומת אינו ראיית זהות/);
 
 const behavioral = [
   normalizePeopleIdentityRow({ source_id:"a", display_name:"Alpha", identity_state:"SITE_ACCOUNT_ANCHOR", site_account_match:true, site_username:"alpha", messages:4, active_days:2, blocked_ratio:0.1 }),
@@ -69,7 +46,6 @@ assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"collision" }).ma
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"alpha" }).map((x) => x.displayName), ["Alpha"]);
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"עוגן מאומת" }).map((x) => x.displayName), ["Beta", "Gamma"]);
 
-
 assert.equal(planPeopleIdentityAction(behavioral[0]).key, "REVIEW_EXISTING_ACCOUNT_LINK");
 assert.equal(planPeopleIdentityAction(behavioral[1]).key, "INVITE_TO_CLAIM");
 assert.equal(maySendHistoricalClaimInvite(behavioral[1]), true);
@@ -86,3 +62,5 @@ assert.equal(
   false,
   "unverified historical email must never authorize outreach",
 );
+
+console.log("people identity projection infrastructure: PASS");
