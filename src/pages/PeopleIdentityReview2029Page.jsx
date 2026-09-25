@@ -6,6 +6,7 @@ import {
   fetchPeopleIdentityReview,
   filterPeopleIdentityRows,
 } from "../lib/research/peopleIdentityProjection.js";
+import { planPeopleIdentityAction } from "../lib/research/peopleIdentityDecision.js";
 import { applySeo } from "../lib/seo.js";
 import "./researcher2029.css";
 import "./peopleIdentityReview2029.css";
@@ -20,6 +21,7 @@ function pct(value) {
 }
 
 function IdentityRow({ row }) {
+  const action = planPeopleIdentityAction(row);
   return <article className="sod29-people-row">
     <div className="sod29-people-row-main">
       <div className="sod29-people-row-head">
@@ -44,6 +46,14 @@ function IdentityRow({ row }) {
         <div><strong>{row.activeDays.toLocaleString("he-IL")}</strong><span>ימי פעילות</span></div>
         <div><strong>{pct(row.blockedRatio)}</strong><span>חסימות מקור</span></div>
         <div><strong>{row.verifiedSameNameIds}</strong><span>עוגנים מאומתים בשם</span></div>
+      </div>
+
+      <div className="sod29-people-recommendation">
+        <div>
+          <span className="sod29-kicker">המלצת פעולה · לא מבוצעת</span>
+          <strong>{action.label}</strong>
+        </div>
+        <p>{action.reason}</p>
       </div>
 
       <div className="sod29-people-foot">
