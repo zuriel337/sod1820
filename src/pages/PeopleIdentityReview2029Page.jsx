@@ -87,7 +87,7 @@ function PeopleIdentityReviewBody() {
   if (authLoading) return <FrameState kind="loading" title="בודק הרשאת מנהל">טוען זהות והרשאה.</FrameState>;
   if (!isAdmin) return <FrameState kind="gated" title="מסך מנהל בלבד">מפת הזהויות כוללת provenance פנימי ואינה משטח ציבורי.</FrameState>;
   if (state.loading) return <FrameState kind="loading" title="טוען מפת אנשים">קורא projection מנהלי בלבד; אין שינוי בזהויות.</FrameState>;
-  if (state.error) return <FrameState kind="building" title="People Review עדיין Branch-only">ה־UI מוכן, אך RPC המנהל טרם שוחרר ל־DB החי.</FrameState>;
+  if (state.error) return <FrameState kind="unavailable" title="People Review עדיין Branch-only">ה־UI מוכן, אך RPC המנהל טרם שוחרר ל־DB החי.</FrameState>;
 
   const summary = state.data?.summary || {};
   return <>
