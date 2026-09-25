@@ -25,10 +25,13 @@ export function lucasIndexForValue(input, maxSearchDepth = SOURCE.maxSearchDepth
   const query = String(input ?? '').trim();
   if (!/^\d+$/.test(query)) return null;
   const target = BigInt(query);
-  const terms = lucasTerms(maxSearchDepth);
-  for (let i = 0; i < terms.length; i += 1) {
-    if (terms[i] === target) return i;
-    if (i >= 2 && terms[i] > target) return null;
+  const depth = Math.max(1, Math.min(Number(maxSearchDepth) || 1, SOURCE.maxSearchDepth));
+  let a = 2n;
+  let b = 1n;
+  for (let i = 0; i < depth; i += 1) {
+    if (a === target) return i;
+    if (i >= 2 && a > target) return null;
+    [a, b] = [b, a + b];
   }
   return null;
 }
