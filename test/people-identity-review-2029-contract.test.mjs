@@ -28,6 +28,10 @@ assert.match(sql, /security definer/i);
 assert.match(sql, /rd_is_admin\(\)/i);
 assert.match(sql, /revoke all on function public\.admin_people_identity_review_v1\(text, integer\) from public, anon/i);
 assert.match(sql, /grant execute on function public\.admin_people_identity_review_v1\(text, integer\) to authenticated/i);
+assert.match(sql, /target_type='openweb_user'/i);
+assert.match(sql, /contribution_links/i);
+assert.match(sql, /research_contributions/i);
+assert.doesNotMatch(sql, /openweb-'\|\|q\.source_id/i);
 assert.doesNotMatch(sql, /jsonb_build_object\([^)]*'email'/is);
 assert.doesNotMatch(sql, /\b(insert|update|delete|merge|truncate)\b\s+(?:into\s+|from\s+|table\s+)?public\./i);
 
