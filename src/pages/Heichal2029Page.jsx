@@ -4,6 +4,9 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { isRazielNextAction } from "../lib/research/razielActionContract.js";
+import { supabase } from "../lib/supabase.js";
+import { getVisitorId } from "../lib/visitorId.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 
@@ -142,6 +145,48 @@ function ActiveResearchEnvironment() {
     });
   };
 
+  const openRazielFromServerGatedResult = async () => {
+    // The first real Result Bundle consumer is deliberately bounded to the public Number
+    // runtime that owns gate + trace + caller-RLS on PR #701. Other subjects keep the
+    // existing generic Raziel entry until their own canonical server runtime exists.
+    const numericValue = subject?.type === "number" ? Number(subject.id) : null;
+    if (!Number.isSafeInteger(numericValue) || numericValue < 0) {
+      shell.openRaziel();
+      return;
+    }
+
+    try {
+      let visitorId = null;
+      try { visitorId = getVisitorId(); } catch { visitorId = null; }
+
+      const { data: run, error } = await supabase.functions.invoke("research-run", {
+        body: {
+          number: String(numericValue),
+          question: subject.label || String(numericValue),
+          visitor_id: visitorId,
+          requested_capabilities: ["numeric", "numeric_operators"],
+          surface: "heichal",
+        },
+      });
+
+      if (error || run?.status !== "ok" || !run?.bundle) {
+        throw error || new Error("research-run unavailable");
+      }
+
+      const razielRouteAction = (Array.isArray(run.bundle.next_actions) ? run.bundle.next_actions : [])
+        .find((item) => isRazielNextAction(item)) || null;
+
+      // Invalid/missing action fails closed. Never manufacture a local route/message and
+      // never bypass the server runtime by falling back to browser-side composition.
+      shell.openRaziel(razielRouteAction ? { razielRouteAction } : null);
+    } catch {
+      // Preserve the existing Research Context and generic Raziel entry on any transport,
+      // identity, gate, trace, or runtime failure. No local answer/fallback text.
+      shell.openRaziel();
+    }
+  };
+
+
   const selectionText = [
     context?.selection?.entityType && context?.selection?.entityId ? `${context.selection.entityType}:${context.selection.entityId}` : null,
     context?.selection?.expression ? `ביטוי: ${context.selection.expression}` : null,
@@ -155,7 +200,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
         <span>שורש · {subject.label || subject.id}</span>
@@ -215,7 +260,7 @@ function ActiveResearchEnvironment() {
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
-        <button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button>
+        <button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>
       </div>
     </section>
 
