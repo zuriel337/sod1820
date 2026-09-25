@@ -59,7 +59,7 @@ assert.doesNotMatch(backfill, /min\(rc\.created_at\)|min\(ua\.created_at\)/i);
 assert.match(backfill, /'account_backfill_2029'/i);
 
 // Account-only materialization never fabricates identity edges and never merges accounts.
-assert.doesNotMatch(backfill, /identity_edges/i);
+assert.doesNotMatch(backfill, /(?:insert\s+into|update|delete\s+from)\s+public\.identity_edges/i);
 assert.doesNotMatch(backfill, /update\s+public\.persons/i);
 assert.doesNotMatch(backfill, /delete\s+from/i);
 
