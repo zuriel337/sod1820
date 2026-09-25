@@ -98,6 +98,8 @@ jobs:
         run: node test/people-identity-review-2029-contract.test.mjs
       - name: Person Profile 2029 projection acceptance
         run: node test/person-profile-2029-projection.test.mjs
+      - name: People Directory 2029 projection acceptance
+        run: node test/people-directory-2029-projection.test.mjs
       - name: Native Number preview acceptance
         run: node scripts/test-2029-number-preview.mjs
       - name: Production build
