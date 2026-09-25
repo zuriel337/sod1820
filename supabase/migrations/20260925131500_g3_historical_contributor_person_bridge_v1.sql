@@ -129,8 +129,8 @@ begin
       hashtextextended('person_account:' || v_user_id::text, 1820)
     );
 
-    select count(*), min(p.person_id)
-      into v_account_person_count, v_person
+    select count(*)
+      into v_account_person_count
       from public.persons p
      where p.account_user_id = v_user_id;
 
@@ -139,6 +139,13 @@ begin
         'account-linked contributor requires exactly one existing account Person; found %',
         v_account_person_count;
     end if;
+
+    select p.person_id
+      into v_person
+      from public.persons p
+     where p.account_user_id = v_user_id
+     order by p.created_at, p.person_id
+     limit 1;
   else
     select e.person_id
       into v_person
