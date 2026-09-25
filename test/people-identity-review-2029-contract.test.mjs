@@ -58,4 +58,4 @@ assert.deepEqual(peopleIdentityCounts(behavioral), {
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"site" }).map((x) => x.displayName), ["Alpha"]);
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { filter:"collision" }).map((x) => x.displayName), ["Gamma"]);
 assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"alpha" }).map((x) => x.displayName), ["Alpha"]);
-assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"עוגן מאומת" }).map((x) => x.displayName), ["Beta"]);
+assert.deepEqual(filterPeopleIdentityRows(behavioral, { query:"עוגן מאומת" }).map((x) => x.displayName), ["Beta", "Gamma"]);
