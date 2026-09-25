@@ -164,6 +164,7 @@ const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test
 const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
 
 export default async function handler(req, res) {
+  const searchCrawlerDocument = String((req.query && req.query.crawler) || '') === 'search';
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
 
@@ -644,7 +645,7 @@ ${articleMeta}
 <meta name="twitter:description" content="${esc(desc)}"/>
 <meta name="twitter:image" content="${esc(image)}"/>
 ${jsonLd}
-<meta http-equiv="refresh" content="0; url=${esc(canonical)}"/>
+${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc(canonical)}"/>`}
 </head><body>
 <h1>${esc(title)}</h1>
 <p>${esc(desc)}</p>
@@ -653,5 +654,9 @@ ${jsonLd}
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
+  if (searchCrawlerDocument) {
+    res.setHeader('X-Robots-Tag', robots);
+    res.setHeader('Vary', 'User-Agent');
+  }
   res.status(200).send(html);
 }
