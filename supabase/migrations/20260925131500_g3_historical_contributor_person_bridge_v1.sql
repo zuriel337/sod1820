@@ -216,7 +216,7 @@ begin
          end
    where p.person_id = v_person;
 
-  insert into public.identity_edges (
+  insert into public.identity_edges as ie (
     sod_id,
     person_id,
     kind,
@@ -245,9 +245,9 @@ begin
   on conflict (sod_id, person_id, legacy_id)
     where kind = 'legacy_seed' and legacy_id is not null
   do update
-    set first_seen = least(public.identity_edges.first_seen, excluded.first_seen),
-        last_seen = greatest(public.identity_edges.last_seen, excluded.last_seen),
-        meta = coalesce(public.identity_edges.meta, '{}'::jsonb) || excluded.meta
+    set first_seen = least(ie.first_seen, excluded.first_seen),
+        last_seen = greatest(ie.last_seen, excluded.last_seen),
+        meta = coalesce(ie.meta, '{}'::jsonb) || excluded.meta
   returning id into v_edge_id;
 
   v_edges := v_edges || jsonb_build_array(
@@ -272,7 +272,7 @@ begin
     v_source_first := coalesce(v_source_first, v_first_seen);
     v_source_last := coalesce(v_source_last, v_last_seen);
 
-    insert into public.identity_edges (
+    insert into public.identity_edges as ie (
       sod_id,
       person_id,
       kind,
@@ -302,9 +302,9 @@ begin
     on conflict (sod_id, person_id, legacy_id)
       where kind = 'legacy_seed' and legacy_id is not null
     do update
-      set first_seen = least(public.identity_edges.first_seen, excluded.first_seen),
-          last_seen = greatest(public.identity_edges.last_seen, excluded.last_seen),
-          meta = coalesce(public.identity_edges.meta, '{}'::jsonb) || excluded.meta
+      set first_seen = least(ie.first_seen, excluded.first_seen),
+          last_seen = greatest(ie.last_seen, excluded.last_seen),
+          meta = coalesce(ie.meta, '{}'::jsonb) || excluded.meta
     returning id into v_edge_id;
 
     v_edges := v_edges || jsonb_build_array(
