@@ -106,4 +106,73 @@ assert.equal(
   "browser correlation must never let the client choose the canonical trace_id",
 );
 
+
+const guardStart = edge.indexOf("// AI_NUMERIC_TRUTH_GUARD_START");
+const guardEnd = edge.indexOf("// AI_NUMERIC_TRUTH_GUARD_END");
+assert.ok(guardStart >= 0 && guardEnd > guardStart, "numeric truth guard source markers must exist");
+const guardSource = edge.slice(guardStart, guardEnd);
+const guardFactory = new Function(
+  `${guardSource}\nreturn { numericLiterals, validateNumericOutput, numericTruthRetryInstruction, numericTruthFallback };`,
+);
+const {
+  numericLiterals,
+  validateNumericOutput,
+  numericTruthRetryInstruction,
+  numericTruthFallback,
+} = guardFactory();
+
+assert.deepEqual(numericLiterals("878 · 1,820 · +0138 · -0"), ["878", "1820", "138", "0"]);
+assert.equal(
+  validateNumericOutput("878 נשאר העוגן.", ["878"]).ok,
+  true,
+  "trusted numeric literal may be repeated by the interpreter",
+);
+const observedSmokeViolation = validateNumericOutput(
+  "878 מתפרק ל-80+798, וגם 8+7+8=23.",
+  ["878"],
+);
+assert.equal(observedSmokeViolation.ok, false, "invented arithmetic must be rejected");
+for (const value of ["80", "798", "8", "7", "23"]) {
+  assert.ok(observedSmokeViolation.invented.includes(value), `missing invented numeric literal ${value}`);
+}
+assert.equal(
+  validateNumericOutput("787 הוא העוגן והקשר המאומת מפנה ל-138.", ["787", "prime index 138", "צמח=138"]).ok,
+  true,
+  "numbers already present in verified inputs remain usable",
+);
+assert.equal(
+  validateNumericOutput("1,820", ["1820"]).ok,
+  true,
+  "format-only thousands separators must not create a new numeric fact",
+);
+const callerBoundary = validateNumericOutput("9999", ["9999"]);
+assert.equal(callerBoundary.ok, true, "guard constrains output to supplied numeric inputs");
+assert.deepEqual(callerBoundary.permitted, ["9999"]);
+assert.equal("trusted" in callerBoundary, false, "guard must not relabel caller-supplied input as verified truth");
+assert.equal(
+  validateNumericOutput(numericTruthRetryInstruction(), []).ok,
+  true,
+  "retry instruction itself must not inject numeric literals",
+);
+assert.equal(
+  validateNumericOutput(numericTruthFallback(), []).ok,
+  true,
+  "never-silent fallback itself must not invent numeric literals",
+);
+
+for (const needle of [
+  'name: "ai-analyze:model-truth-retry"',
+  'routing_reason: "numeric_truth_guard_retry"',
+  'escalation_reason: "untrusted_numeric_literal"',
+  'retry_ordinal: 1',
+  'output_use: out.error ? "not_applicable" : firstGuard.ok ? "used" : "rejected"',
+  'output_use: retryOut.error ? "not_applicable" : retryGuard.ok ? "used" : "rejected"',
+  'This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.',
+  'fallback_reason: fallbackUsed ? "numeric_truth_guard" : null',
+  'numeric_truth_guard_fallback',
+]) {
+  assert.ok(edge.includes(needle), `numeric truth guard runtime must include: ${needle}`);
+}
+assert.equal(edge.includes("retry_ordinal: 2"), false, "numeric truth guard is bounded to one retry");
+
 console.log("Operational Trace Runtime v1 static acceptance: PASS");

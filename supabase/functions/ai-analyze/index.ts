@@ -129,10 +129,55 @@ function safeTraceUuid(value: unknown): string | null {
   return UUID_RE.test(v) ? v : null;
 }
 
+
 function safeOperationalRef(value: unknown): string | null {
   const v = String(value || "").trim();
   return SAFE_REF_RE.test(v) ? v : null;
 }
+
+// AI_NUMERIC_TRUTH_GUARD_START
+function canonicalNumericLiteral(value) {
+  const raw = String(value ?? "").trim().replace(/,/g, "").replace(/^\+/, "");
+  if (!raw) return null;
+  if (/^-?\d+$/.test(raw)) {
+    try { return BigInt(raw).toString(); } catch { return raw; }
+  }
+  if (/^-?\d+\.\d+$/.test(raw)) {
+    const [wholeRaw, fractionRaw] = raw.split(".");
+    let whole = wholeRaw;
+    try { whole = BigInt(wholeRaw).toString(); } catch { /* preserve */ }
+    const fraction = fractionRaw.replace(/0+$/, "");
+    return fraction ? `${whole}.${fraction}` : whole;
+  }
+  return raw;
+}
+
+function numericLiterals(value) {
+  const text = String(value ?? "");
+  const matches = text.match(/(?<![\p{L}\p{N}_])[+-]?\d+(?:,\d{3})*(?:\.\d+)?(?![\p{L}\p{N}_])/gu) || [];
+  return [...new Set(matches.map(canonicalNumericLiteral).filter(Boolean))];
+}
+
+function validateNumericOutput(output, permittedTexts = []) {
+  const permitted = new Set(permittedTexts.flatMap(numericLiterals));
+  const outputNumbers = numericLiterals(output);
+  const invented = outputNumbers.filter((value) => !permitted.has(value));
+  return Object.freeze({
+    ok: invented.length === 0,
+    permitted: Object.freeze([...permitted]),
+    output: Object.freeze(outputNumbers),
+    invented: Object.freeze(invented),
+  });
+}
+
+function numericTruthRetryInstruction() {
+  return "\n\nתיקון חובה: בטיוטה הקודמת הופיעה טענה מספרית שלא הייתה בחומר שסופק. כתוב מחדש בלי להוסיף שום מספר, חישוב, פירוק, סכום או ערך שלא הופיע במפורש בחומר שסופק. פרש בלבד.";
+}
+
+function numericTruthFallback() {
+  return "אין לי מספיק חומר מספרי שסופק כדי להוסיף חישוב בלי להמציא. אפשר להמשיך מתוך הנתונים שכבר נמסרו בלבד.";
+}
+// AI_NUMERIC_TRUTH_GUARD_END
 
 async function traceRpc(name: string, payload: Record<string, unknown>): Promise<any | null> {
   try {
@@ -923,13 +968,22 @@ Deno.serve(async (req: Request) => {
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
     const model = engine === "gemini" ? GEMINI_MODEL : (body?.fast ? FAST_MODEL : MODEL);
+    // Input-bound provenance guard only: subject/facts may originate at the caller boundary.\n    // This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.\n    const permittedNumericTexts = [subject, facts, mtxFacts];
+    const callSelectedModel = (prompt) => engine === "gemini"
+      ? runGemini(prompt, maxTokens, sys)
+      : runClaude(model, prompt, maxTokens, sys);
+
     const modelSpanId = crypto.randomUUID();
     const modelStartedAt = new Date().toISOString();
-    const out = engine === "gemini" ? await runGemini(user, maxTokens, sys) : await runClaude(model, user, maxTokens, sys);
+    const out = await callSelectedModel(user);
     const modelEndedAt = new Date().toISOString();
+    const firstGuard = out.error
+      ? { ok: true, invented: [] }
+      : validateNumericOutput(out.text || "", permittedNumericTexts);
     const modelOutcome = out.error
       ? (out.error === "refusal" ? "failed_with_reason" : "provider_error")
-      : "success";
+      : firstGuard.ok ? "success" : "failed_with_reason";
+
     await recordOperationalSpan(activeTrace, {
       spanId: modelSpanId,
       parentSpanId: contextSpanId,
@@ -946,8 +1000,9 @@ Deno.serve(async (req: Request) => {
         provider: engine === "gemini" ? "google" : "anthropic",
         model,
         routing_reason: body?.engine ? "caller_selected_engine" : "default_engine",
-        output_use: out.error ? "not_applicable" : "used",
-        stop_reason: out.error || null,
+        output_use: out.error ? "not_applicable" : firstGuard.ok ? "used" : "rejected",
+        stop_reason: out.error || (firstGuard.ok ? null : "numeric_truth_guard_untrusted_literal"),
+        retry_ordinal: 0,
         resources: {
           input_tokens: out.usage?.input_tokens ?? null,
           output_tokens: out.usage?.output_tokens ?? null,
@@ -956,9 +1011,9 @@ Deno.serve(async (req: Request) => {
         },
         cost: { certainty: "unknown" },
         replay: {
-          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3", "truth_axes_foundation_law v3"],
           parametersRef: planRef,
-          searchBoundsRef: `max_tokens:${maxTokens}`,
+          searchBoundsRef: `max_tokens:${maxTokens};numeric_truth_guard:v1`,
           continuationRef: again ? safeTraceUuid(body?.interaction_id) : null,
         },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -969,39 +1024,112 @@ Deno.serve(async (req: Request) => {
       await finishOperationalTrace(activeTrace, modelOutcome, out.error);
       return json({ analysis: null, engine, model, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
     }
-    const tokenLogId = await logTokens(
+
+    const firstTokenLogId = await logTokens(
       kind || "analyze",
       model,
       out.usage,
       identity,
       { traceId: activeTrace?.traceId, spanId: modelSpanId },
     );
-    await linkOperationalAiCost(activeTrace, modelSpanId, tokenLogId);
+    await linkOperationalAiCost(activeTrace, modelSpanId, firstTokenLogId);
+
+    let finalOut = out;
+    let finalModelSpanId = modelSpanId;
+    let fallbackUsed = false;
+
+    if (!firstGuard.ok) {
+      const retrySpanId = crypto.randomUUID();
+      const retryStartedAt = new Date().toISOString();
+      const retryOut = await callSelectedModel(user + numericTruthRetryInstruction());
+      const retryEndedAt = new Date().toISOString();
+      const retryGuard = retryOut.error
+        ? { ok: false, invented: [] }
+        : validateNumericOutput(retryOut.text || "", permittedNumericTexts);
+      const retryOutcome = retryOut.error
+        ? (retryOut.error === "refusal" ? "failed_with_reason" : "provider_error")
+        : retryGuard.ok ? "success" : "failed_with_reason";
+
+      await recordOperationalSpan(activeTrace, {
+        spanId: retrySpanId,
+        parentSpanId: modelSpanId,
+        kind: "model_call",
+        name: "ai-analyze:model-truth-retry",
+        startedAt: retryStartedAt,
+        endedAt: retryEndedAt,
+        outcome: retryOutcome,
+        detail: {
+          capability: `ai-analyze:${kind || "analyze"}`,
+          owner_ref: "ai_analyze_contract v2 + truth_axes_foundation_law v3",
+          plan_ref: planRef,
+          intelligence_level: isDeep ? "deep" : "fast",
+          provider: engine === "gemini" ? "google" : "anthropic",
+          model,
+          routing_reason: "numeric_truth_guard_retry",
+          escalation_reason: "untrusted_numeric_literal",
+          output_use: retryOut.error ? "not_applicable" : retryGuard.ok ? "used" : "rejected",
+          stop_reason: retryOut.error || (retryGuard.ok ? null : "numeric_truth_guard_untrusted_literal"),
+          retry_ordinal: 1,
+          resources: {
+            input_tokens: retryOut.usage?.input_tokens ?? null,
+            output_tokens: retryOut.usage?.output_tokens ?? null,
+            api_calls: 1,
+            latency_ms: Math.max(0, Date.parse(retryEndedAt) - Date.parse(retryStartedAt)),
+          },
+          cost: { certainty: "unknown" },
+          replay: {
+            ownerRuleRefs: ["ai_analyze_contract v2", "truth_axes_foundation_law v3", "system_suggestions_law v3"],
+            parametersRef: planRef,
+            searchBoundsRef: `max_tokens:${maxTokens};numeric_truth_guard:v1;retry:1`,
+            idempotencyKey: safeTraceUuid(body?.interaction_id),
+          },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
+
+      const retryTokenLogId = await logTokens(
+        kind || "analyze",
+        model,
+        retryOut.usage,
+        identity,
+        { traceId: activeTrace?.traceId, spanId: retrySpanId },
+      );
+      await linkOperationalAiCost(activeTrace, retrySpanId, retryTokenLogId);
+
+      finalModelSpanId = retrySpanId;
+      if (!retryOut.error && retryGuard.ok) {
+        finalOut = retryOut;
+      } else {
+        finalOut = { text: numericTruthFallback() };
+        fallbackUsed = true;
+      }
+    }
 
     const synthesisSpanId = crypto.randomUUID();
     const synthesisStartedAt = new Date().toISOString();
     const responseRef = activeTrace ? `trace:${activeTrace.traceId}:response` : null;
-    const responseBody = { analysis: out.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null };
+    const responseBody = { analysis: finalOut.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null };
     const synthesisEndedAt = new Date().toISOString();
     await recordOperationalSpan(activeTrace, {
       spanId: synthesisSpanId,
-      parentSpanId: modelSpanId,
+      parentSpanId: finalModelSpanId,
       kind: "synthesis",
       name: "ai-analyze:synthesis",
       startedAt: synthesisStartedAt,
       endedAt: synthesisEndedAt,
-      outcome: "success",
+      outcome: fallbackUsed ? "degraded_fallback" : "success",
       detail: {
         capability: `ai-analyze:${kind || "analyze"}`,
         owner_ref: "ai_analyze_contract v2 + system_suggestions_law v3",
         plan_ref: planRef,
         output_use: "used",
+        fallback_reason: fallbackUsed ? "numeric_truth_guard" : null,
         resources: { latency_ms: Math.max(0, Date.parse(synthesisEndedAt) - Date.parse(synthesisStartedAt)) },
         cost: { certainty: "not_billable" },
         replay: {
           inputRef: /^\d{1,18}$/.test(subject) ? `number:${subject}` : null,
-          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
-          sourceBundleRef: `span:${modelSpanId}`,
+          ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3", "truth_axes_foundation_law v3"],
+          sourceBundleRef: `span:${finalModelSpanId}`,
           resultBundleRef: responseRef,
           exactReturnRef: responseRef,
           idempotencyKey: safeTraceUuid(body?.interaction_id),
@@ -1009,7 +1137,7 @@ Deno.serve(async (req: Request) => {
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       },
     });
-    await finishOperationalTrace(activeTrace, "success");
+    await finishOperationalTrace(activeTrace, fallbackUsed ? "degraded_fallback" : "success", fallbackUsed ? "numeric_truth_guard_fallback" : null);
     return json(responseBody);
   } catch (e) {
     await finishOperationalTrace(activeTrace, "failed_with_reason", "unhandled_exception");
