@@ -74,95 +74,384 @@ function sourceWitnessLanguage(content: string, explicit: unknown): { lang: stri
   return { lang: null, basis: "unknown" };
 }
 
-async function allMethods(w: string): Promise<Record<string, number> | null> {
-  try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && (data as any)["רגיל"]) ? (data as any) : null; } catch { return null; }
+type OperationalTraceHandle = {
+  traceId: string;
+  rootSpanId: string;
+  startedAt: string;
+};
+
+async function payloadHash(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value || "");
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function beginResearchTrace(source: string, content: string): Promise<OperationalTraceHandle | null> {
+  try {
+    const traceId = crypto.randomUUID();
+    const rootSpanId = crypto.randomUUID();
+    const startedAt = new Date().toISOString();
+    const sourceKey = String(source || "manual").trim().toLowerCase().replace(/[^a-z0-9:_./-]+/g, "-").slice(0, 80) || "manual";
+    const { data, error } = await sb.rpc("op_trace_begin_v1", {
+      p_trace_id: traceId,
+      p_root_span_id: rootSpanId,
+      p_context: {
+        capability: "research-extract",
+        surface: "edge:research-extract",
+        channel: "internal",
+        locale: "he",
+        identity_class: "service",
+        subject_ref: "research-source:" + sourceKey,
+        owner_ref: "research_intake_foundation_contract",
+        root_name: "research-extract",
+        payload_hash: await payloadHash(content),
+      },
+      p_started_at: startedAt,
+    });
+    if (error || !data) return null;
+    return {
+      traceId: String((data as any)?.trace_id || traceId),
+      rootSpanId: String((data as any)?.root_span_id || rootSpanId),
+      startedAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function recordResearchSpan(
+  trace: OperationalTraceHandle | null,
+  opts: {
+    spanId: string;
+    parentSpanId?: string | null;
+    kind: string;
+    name: string;
+    startedAt: string;
+    endedAt: string;
+    outcome: string;
+    detail?: Record<string, unknown>;
+  },
+) {
+  if (!trace) return;
+  try {
+    await sb.rpc("op_trace_record_span_v1", {
+      p_trace_id: trace.traceId,
+      p_span_id: opts.spanId,
+      p_parent_span_id: opts.parentSpanId || trace.rootSpanId,
+      p_kind: opts.kind,
+      p_name: opts.name,
+      p_started_at: opts.startedAt,
+      p_ended_at: opts.endedAt,
+      p_outcome: opts.outcome,
+      p_detail: opts.detail || {},
+    });
+  } catch { /* trace must not break extraction */ }
+}
+
+async function finishResearchTrace(trace: OperationalTraceHandle | null, outcome: string, stopReason: string | null = null) {
+  if (!trace) return;
+  try {
+    await sb.rpc("op_trace_finish_v1", {
+      p_trace_id: trace.traceId,
+      p_root_span_id: trace.rootSpanId,
+      p_outcome: outcome,
+      p_ended_at: new Date().toISOString(),
+      p_stop_reason: stopReason,
+    });
+  } catch { /* trace must not break extraction */ }
+}
+
+async function logResearchTokens(
+  usage: { input_tokens?: number; output_tokens?: number } | undefined,
+  trace: OperationalTraceHandle | null,
+  spanId: string,
+): Promise<number | null> {
+  try {
+    if (!usage) return null;
+    const row = {
+      source: "research-extract",
+      kind: "extract",
+      model: MODEL,
+      input_tokens: usage.input_tokens || 0,
+      output_tokens: usage.output_tokens || 0,
+      trace_id: trace?.traceId || null,
+      span_id: trace?.traceId ? spanId : null,
+    };
+    const { data, error } = await sb.from("ai_token_log").insert(row).select("id").maybeSingle();
+    if (error) {
+      const { data: legacy, error: legacyError } = await sb.from("ai_token_log").insert({
+        source: "research-extract",
+        kind: "extract",
+        model: MODEL,
+        input_tokens: usage.input_tokens || 0,
+        output_tokens: usage.output_tokens || 0,
+      }).select("id").maybeSingle();
+      if (legacyError) return null;
+      return Number((legacy as any)?.id) || null;
+    }
+    const id = Number((data as any)?.id) || null;
+    if (id && trace) {
+      await sb.rpc("op_trace_link_ai_cost_v1", {
+        p_trace_id: trace.traceId,
+        p_span_id: spanId,
+        p_ai_token_log_id: id,
+      }).catch(() => null);
+    }
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+async function allMethods(
+  w: string,
+  trace: OperationalTraceHandle | null = null,
+  parentSpanId: string | null = null,
+): Promise<Record<string, number> | null> {
+  const spanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  try {
+    const { data, error } = await sb.rpc("fn_all_methods", { p_word: w });
+    const endedAt = new Date().toISOString();
+    await recordResearchSpan(trace, {
+      spanId,
+      parentSpanId,
+      kind: "db_rpc",
+      name: "research-extract:fn_all_methods",
+      startedAt,
+      endedAt,
+      outcome: error ? "engine_error" : "success",
+      detail: {
+        capability: "gematria:all-methods",
+        owner_ref: "gematria_engine_law v2",
+        tool_version: "fn_all_methods",
+        output_use: error ? "not_applicable" : "used",
+        resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: "sha256:" + await payloadHash(w), ownerRuleRefs: ["gematria_engine_law v2"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    if (error) return null;
+    return (data && (data as any)["רגיל"]) ? (data as any) : null;
+  } catch {
+    const endedAt = new Date().toISOString();
+    await recordResearchSpan(trace, {
+      spanId,
+      parentSpanId,
+      kind: "db_rpc",
+      name: "research-extract:fn_all_methods",
+      startedAt,
+      endedAt,
+      outcome: "engine_error",
+      detail: {
+        capability: "gematria:all-methods",
+        owner_ref: "gematria_engine_law v2",
+        tool_version: "fn_all_methods",
+        output_use: "not_applicable",
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: "sha256:" + await payloadHash(w), ownerRuleRefs: ["gematria_engine_law v2"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    return null;
+  }
 }
 
 async function extractText(content: string, source: string, source_ref: string | null, contributor: string | null, source_lang: string | null = null) {
   if (!content || content.trim().length < 8) return { inserted: 0, objects: [] as any[] };
+  const trace = await beginResearchTrace(source, content);
   const witnessLanguage = sourceWitnessLanguage(content, source_lang);
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST", headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: MODEL, max_tokens: 1900, system: SYSTEM,
-      messages: [{ role: "user", content: `מקור: ${source}\nשפת מקור מוצהרת/מזוהה: ${witnessLanguage.lang || "לא ידועה"}\n\nהטקסט:\n"""\n${content.slice(0, 6000)}\n"""\n\nהחזר JSON array בלבד לפי השפה.` }] }),
-  });
-  if (!resp.ok) return { inserted: 0, error: `anthropic_${resp.status}` };
-  const d = await resp.json();
-  const txt = (d?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
-  try { await sb.from("ai_token_log").insert({ source: "research-extract", kind: "extract", model: MODEL, input_tokens: d?.usage?.input_tokens || 0, output_tokens: d?.usage?.output_tokens || 0 }); } catch { /* noop */ }
-  let arr: any;
-  try { const i = txt.indexOf("["), j = txt.lastIndexOf("]"); arr = JSON.parse(txt.slice(i, j + 1)); } catch { return { inserted: 0, error: "parse", raw: txt.slice(0, 200) }; }
-  if (!Array.isArray(arr)) return { inserted: 0, objects: [] };
+  const modelSpanId = crypto.randomUUID();
+  const modelStartedAt = new Date().toISOString();
 
-  const ref: string | null = (typeof source_ref === "string" && source_ref.length > 0) ? source_ref : null;
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: MODEL, max_tokens: 1900, system: SYSTEM,
+        messages: [{ role: "user", content: `מקור: ${source}\nשפת מקור מוצהרת/מזוהה: ${witnessLanguage.lang || "לא ידועה"}\n\nהטקסט:\n"""\n${content.slice(0, 6000)}\n"""\n\nהחזר JSON array בלבד לפי השפה.` }] }),
+    });
 
-  let inserted = 0, absorbed = 0; const out: any[] = [];
-  for (const o of arr.slice(0, 20)) {
-    const kind = String(o?.kind || "").toLowerCase();
-    if (!KINDS.includes(kind)) continue;
-    const statement = String(o?.statement || "").slice(0, 500).trim();
-    if (!statement) continue;
-    const presentationTitle = String(o?.title || "").slice(0, 180).trim() || null;
-    const presentationSummary = String(o?.summary || "").slice(0, 700).trim() || null;
-    const hasHumanPresentation = Boolean(presentationTitle || presentationSummary);
-    const terms = (Array.isArray(o?.terms) ? o.terms : []).map(String).slice(0, 6);
-    const relates = (Array.isArray(o?.relates) ? o.relates : []).map(String).slice(0, 4);
-    const value = (o?.value != null && !isNaN(+o.value)) ? Math.trunc(+o.value) : null;
-
-    let engine_verified: boolean | null = null; let engine_detail: any = null;
-    if ((kind === "fact" || kind === "relation") && value != null) {
-      const det: Record<string, any> = {}; let anyHeb = false, matched = false;
-      for (const t of [...terms, ...relates]) {
-        if (hasHeb(t)) { anyHeb = true; const m = await allMethods(t); if (m) { det[t] = m; if (Object.values(m).some((v) => v === value)) matched = true; } }
-      }
-      if (anyHeb) { engine_verified = matched; engine_detail = det; }
+    const modelEndedAt = new Date().toISOString();
+    if (!resp.ok) {
+      await recordResearchSpan(trace, {
+        spanId: modelSpanId,
+        kind: "model_call",
+        name: "research-extract:model",
+        startedAt: modelStartedAt,
+        endedAt: modelEndedAt,
+        outcome: "provider_error",
+        detail: {
+          capability: "research-extract",
+          owner_ref: "research_intake_foundation_contract",
+          intelligence_level: "deep",
+          provider: "anthropic",
+          model: MODEL,
+          routing_reason: "canonical_research_extractor",
+          output_use: "not_applicable",
+          stop_reason: `anthropic_${resp.status}`,
+          resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(modelEndedAt) - Date.parse(modelStartedAt)) },
+          cost: { certainty: "unknown" },
+          replay: { inputRef: "sha256:" + await payloadHash(content), ownerRuleRefs: ["research_intake_foundation_contract"] },
+          privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        },
+      });
+      await finishResearchTrace(trace, "provider_error", `anthropic_${resp.status}`);
+      return { inserted: 0, error: `anthropic_${resp.status}`, trace_id: trace?.traceId || null };
     }
 
-    const exQ = sb.from("research_objects").select("id").eq("kind", kind).eq("statement", statement);
-    const { data: ex } = await (ref === null ? exQ.is("source_ref", null) : exQ.eq("source_ref", ref)).maybeSingle();
-    if (ex) continue;
+    const d = await resp.json();
+    await recordResearchSpan(trace, {
+      spanId: modelSpanId,
+      kind: "model_call",
+      name: "research-extract:model",
+      startedAt: modelStartedAt,
+      endedAt: modelEndedAt,
+      outcome: "success",
+      detail: {
+        capability: "research-extract",
+        owner_ref: "research_intake_foundation_contract",
+        intelligence_level: "deep",
+        provider: "anthropic",
+        model: MODEL,
+        routing_reason: "canonical_research_extractor",
+        output_use: "used",
+        resources: {
+          input_tokens: d?.usage?.input_tokens ?? null,
+          output_tokens: d?.usage?.output_tokens ?? null,
+          api_calls: 1,
+          latency_ms: Math.max(0, Date.parse(modelEndedAt) - Date.parse(modelStartedAt)),
+        },
+        cost: { certainty: "unknown" },
+        replay: { inputRef: "sha256:" + await payloadHash(content), ownerRuleRefs: ["research_intake_foundation_contract"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    await logResearchTokens(d?.usage, trace, modelSpanId);
 
-    const presentationMeta = {
-      ext: {
-        presentation: {
-          v: 1,
-          default_locale: "he",
-          statement_lang: "he",
-          statement_role: "research_statement",
-          source_witness_lang: witnessLanguage.lang,
-          source_witness_lang_basis: witnessLanguage.basis,
-          variants: hasHumanPresentation ? {
-            he: {
-              title: presentationTitle,
-              summary: presentationSummary,
-              source_label: null,
+    const txt = (d?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
+    let arr: any;
+    try {
+      const i = txt.indexOf("["), j = txt.lastIndexOf("]");
+      arr = JSON.parse(txt.slice(i, j + 1));
+    } catch {
+      await finishResearchTrace(trace, "failed_with_reason", "parse_error");
+      return { inserted: 0, error: "parse", raw: txt.slice(0, 200), trace_id: trace?.traceId || null };
+    }
+    if (!Array.isArray(arr)) {
+      await finishResearchTrace(trace, "success", "empty_or_non_array");
+      return { inserted: 0, objects: [], trace_id: trace?.traceId || null };
+    }
+
+    const ref: string | null = (typeof source_ref === "string" && source_ref.length > 0) ? source_ref : null;
+    let inserted = 0, absorbed = 0;
+    const out: any[] = [];
+    const persistenceStartedAt = new Date().toISOString();
+
+    for (const o of arr.slice(0, 20)) {
+      const kind = String(o?.kind || "").toLowerCase();
+      if (!KINDS.includes(kind)) continue;
+      const statement = String(o?.statement || "").slice(0, 500).trim();
+      if (!statement) continue;
+      const presentationTitle = String(o?.title || "").slice(0, 180).trim() || null;
+      const presentationSummary = String(o?.summary || "").slice(0, 700).trim() || null;
+      const hasHumanPresentation = Boolean(presentationTitle || presentationSummary);
+      const terms = (Array.isArray(o?.terms) ? o.terms : []).map(String).slice(0, 6);
+      const relates = (Array.isArray(o?.relates) ? o.relates : []).map(String).slice(0, 4);
+      const value = (o?.value != null && !isNaN(+o.value)) ? Math.trunc(+o.value) : null;
+
+      let engine_verified: boolean | null = null;
+      let engine_detail: any = null;
+      if ((kind === "fact" || kind === "relation") && value != null) {
+        const det: Record<string, any> = {};
+        let anyHeb = false, matched = false;
+        for (const t of [...terms, ...relates]) {
+          if (hasHeb(t)) {
+            anyHeb = true;
+            const m = await allMethods(t, trace, modelSpanId);
+            if (m) {
+              det[t] = m;
+              if (Object.values(m).some((v) => v === value)) matched = true;
+            }
+          }
+        }
+        if (anyHeb) { engine_verified = matched; engine_detail = det; }
+      }
+
+      const exQ = sb.from("research_objects").select("id").eq("kind", kind).eq("statement", statement);
+      const { data: ex } = await (ref === null ? exQ.is("source_ref", null) : exQ.eq("source_ref", ref)).maybeSingle();
+      if (ex) continue;
+
+      const presentationMeta = {
+        ext: {
+          presentation: {
+            v: 1,
+            default_locale: "he",
+            statement_lang: "he",
+            statement_role: "research_statement",
+            source_witness_lang: witnessLanguage.lang,
+            source_witness_lang_basis: witnessLanguage.basis,
+            variants: hasHumanPresentation ? {
+              he: { title: presentationTitle, summary: presentationSummary, source_label: null },
+            } : {},
+            compiled: {
+              mode: "research_extract_single_pass",
+              generated_by: "research-extract",
+              model: MODEL,
+              generated_at: new Date().toISOString(),
+              source_ref: ref,
+              presentation_complete: hasHumanPresentation,
             },
-          } : {},
-          compiled: {
-            mode: "research_extract_single_pass",
-            generated_by: "research-extract",
-            model: MODEL,
-            generated_at: new Date().toISOString(),
-            source_ref: ref,
-            presentation_complete: hasHumanPresentation,
           },
         },
-      },
-    };
+      };
 
-    const { error: insErr } = await sb.from("research_objects").insert({
-      kind, statement, terms, value, relates, source, source_ref: ref, contributor,
-      confidence: (o?.confidence != null && !isNaN(+o.confidence)) ? Math.trunc(+o.confidence) : null,
-      engine_verified, engine_detail, evidence: String(o?.evidence || "").slice(0, 600), status: "candidate",
-      meta: presentationMeta,
-    });
-    if (insErr) {
-      if ((insErr as any).code === "23505") { absorbed++; continue; }
-      throw insErr;
+      const { error: insErr } = await sb.from("research_objects").insert({
+        kind, statement, terms, value, relates, source, source_ref: ref, contributor,
+        confidence: (o?.confidence != null && !isNaN(+o.confidence)) ? Math.trunc(+o.confidence) : null,
+        engine_verified, engine_detail, evidence: String(o?.evidence || "").slice(0, 600), status: "candidate",
+        meta: presentationMeta,
+      });
+      if (insErr) {
+        if ((insErr as any).code === "23505") { absorbed++; continue; }
+        throw insErr;
+      }
+      inserted++;
+      out.push({ kind, statement, title: presentationTitle, value, engine_verified, presentation_complete: hasHumanPresentation });
     }
-    inserted++; out.push({ kind, statement, title: presentationTitle, value, engine_verified, presentation_complete: hasHumanPresentation });
+
+    const persistenceEndedAt = new Date().toISOString();
+    await recordResearchSpan(trace, {
+      spanId: crypto.randomUUID(),
+      parentSpanId: modelSpanId,
+      kind: "db_rpc",
+      name: "research-extract:persist-candidates",
+      startedAt: persistenceStartedAt,
+      endedAt: persistenceEndedAt,
+      outcome: "success",
+      detail: {
+        capability: "research-intake:persist-candidates",
+        owner_ref: "research_intake_foundation_contract",
+        tool_version: "research_objects",
+        output_use: "used",
+        resources: {
+          inserted,
+          absorbed,
+          candidate_count: Math.min(arr.length, 20),
+          latency_ms: Math.max(0, Date.parse(persistenceEndedAt) - Date.parse(persistenceStartedAt)),
+        },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: "sha256:" + await payloadHash(content), ownerRuleRefs: ["research_intake_foundation_contract"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+
+    await finishResearchTrace(trace, "success");
+    return { inserted, absorbed, objects: out, trace_id: trace?.traceId || null };
+  } catch (e) {
+    await finishResearchTrace(trace, "failed_with_reason", "unhandled_exception");
+    throw e;
   }
-  return { inserted, absorbed, objects: out };
 }
 
 async function buildConversation(chatId: string): Promise<{ text: string; name: string }> {
