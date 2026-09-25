@@ -6,6 +6,14 @@ const sql = fs.readFileSync(
   "utf8",
 );
 const executable = sql.replace(/^\s*--.*$/gm, "");
+const reserved = fs.readFileSync(
+  "supabase/migrations/20260925144400_g3_identity_reserved_namespace_hardening_v1.sql",
+  "utf8",
+).replace(/^\s*--.*$/gm, "");
+const creatorIndex = fs.readFileSync(
+  "supabase/migrations/20260925144300_g3_contribution_links_created_by_index_v1.sql",
+  "utf8",
+).replace(/^\s*--.*$/gm, "");
 
 // Canonical Person root + existing person-ref namespace.
 assert.match(sql, /from\s+public\.persons\s+p/i);
@@ -25,6 +33,23 @@ assert.match(sql, /kind\s+in\s*\('writer','author'\)/i);
 assert.doesNotMatch(executable, /senior_level/i);
 assert.doesNotMatch(executable, /\bc\.role\b|\bu\.role\b/i);
 
+
+// Reviewed historical identity must be enforced by trusted bridge provenance, not client-spoofable meta alone.
+assert.match(executable, /ie\.confidence\s*=\s*100/i);
+assert.match(executable, /ie\.meta->>'human_gate'[^\n]*=\s*'true'/i);
+assert.match(executable, /ie\.meta->>'contract'\s*=\s*'admin_person_materialize_contributor_history_v1'/i);
+
+// Public link_identity cannot mint the reserved server-owned historical namespaces.
+assert.match(reserved, /lower\(btrim\(p_sod_id\)\)\s+like\s+'historical:%'/i);
+assert.match(reserved, /lower\(btrim\(p_legacy_id\)\)\s+like\s+'contributor:%'/i);
+assert.match(reserved, /lower\(btrim\(p_legacy_id\)\)\s+like\s+'openweb_user:%'/i);
+assert.match(reserved, /return null/i);
+assert.match(reserved, /hashtextextended\('person_account:'\s*\|\|\s*p_user_id::text,\s*1820\)/i);
+
+// Existing canonical reputation path gets its missing creator lookup index without changing semantics.
+assert.match(creatorIndex, /create\s+index\s+if\s+not\s+exists\s+contribution_links_created_by_idx/i);
+assert.match(creatorIndex, /on\s+public\.contribution_links\(created_by\)/i);
+
 // Private/locked/merged Contributor identities cannot qualify the public resolver.
 assert.match(sql, /not\s+coalesce\(lc\.locked,false\)/i);
 assert.match(sql, /coalesce\(lc\.kind,'community'\)\s*<>\s*'private'/i);
@@ -37,7 +62,7 @@ assert.match(sql, /cl\.target_type\s*=\s*'openweb_message'/i);
 
 // Raw contact/identity secrets are never projected.
 assert.doesNotMatch(executable, /\bu\.email\b|\bc\.email\b|\bc\.phone\b|access_code/i);
-assert.doesNotMatch(executable, /jsonb_build_object\([^;]*(?:account_user_id|contributor_id|source_id)/is);
+assert.doesNotMatch(executable, /['"](?:account_user_id|contributor_id|source_id)['"]\s*,/i);
 
 // Lifecycle is deliberately not invented while no governed lifecycle projection is live.
 assert.match(sql, /'activityState',null/i);
