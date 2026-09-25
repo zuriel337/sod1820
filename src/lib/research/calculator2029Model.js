@@ -1,5 +1,4 @@
 import { canonicalMethodPublicLabel, sortMethodsByCanonicalOrder } from "../presentation/canonicalPresentation.js";
-import { buildGematriaMathFingerprint } from "./gematriaMathFingerprint.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -23,14 +22,6 @@ export function splitCalculatorMethods(rows = [], limit = CALCULATOR_2029_CORE_M
     rest: methods.slice(cap),
     all: methods,
   };
-}
-
-export function buildCalculatorMathFingerprint(expression, rows = [], options = {}) {
-  return buildGematriaMathFingerprint({
-    expression: clean(expression),
-    methodProfile: normalizeCalculatorMethods(rows),
-    options,
-  });
 }
 
 export function buildCalculationSelection(expression, method) {
