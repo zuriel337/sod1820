@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
-import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 import { shareOrCopy } from "../lib/share.js";
-import { track } from "../lib/tracking.js";
+import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
+import { emitShare, attributedShareUrl } from "../lib/share/shareTelemetry.js";
+import { landingKey } from "../lib/propagation.js";
 
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // היררכיה (לא ערימה): ➕ הוסף למחקר = ראשי מלא · ⭐ שמור · 🔗 שתף = משניים · ⋯ = תפריט-גלישה
@@ -30,11 +31,26 @@ export default function QuickActions({ entity, onShare, onAnalyze, extra, style,
   const share = () => {
     emit(EVENTS.ITEM_SHARE, entity);
     if (onShare) return onShare();
-    const url = typeof window !== "undefined" ? taggedShareUrl(window.location.href, "copy") : "https://sod1820.co.il";
-    try {
-      const slug = typeof window !== "undefined" ? landingKey(window.location.pathname) : null;
-      track("share", slug, "share", { platform: "copy", content_type: entity.type || entity.kind || null, content_id: entity.id ?? null });
-    } catch { /* noop */ }
+    const here = typeof window !== "undefined" ? window.location.href : "https://sod1820.co.il";
+    const url = typeof window !== "undefined" ? attributedShareUrl(here, "copy") : here;
+    // 🔗 W1 Slice 2: עובר דרך שכבת-הטלמטריה המשותפת (lib/share/shareTelemetry) במקום
+    // לבנות meta מקומי. ⚠️ ה-payload נשאר **זהה בסריאליזציה** למה שנרשם קודם —
+    // platform/content_type/content_id בדיוק כפי שהיו, בלי url ובלי image (הבנאי משמיט
+    // שדות שהמפיק הזה מעולם לא שלח). ה-evidence העשיר נוסף תוספתית תחת meta.share_object.
+    const intent = createShareIntent({
+      entityType: entity.type || entity.kind, entityId: entity.id, canonicalUrl: here,
+      sourceSurface: "QuickActions", channel: "copy", modality: "link", title: entity.title,
+    });
+    emitShare({
+      channel: "copy",
+      // ⚠️ slug נשאר landingKey(pathname) בדיוק כפי שהיה כאן — ולא shareSlug — כי
+      // shareSlug מוסיף בדיקת-hostname שלמפיק הזה מעולם לא הייתה. בפרודקשן התוצאה זהה,
+      // אבל על host לא-קנוני היא הייתה משתנה, וזה שינוי-נתונים שאסור לי לעשות כאן.
+      slug: typeof window !== "undefined" ? landingKey(window.location.pathname) : null,
+      contentType: entity.type || entity.kind || null,
+      contentId: entity.id ?? null,
+      intent, resolved: resolveModality(intent, {}),
+    });
     shareOrCopy({ title: entity.title || "סוד 1820", url });
   };
   const copy = () => { emit(EVENTS.ITEM_COPY, entity); try { navigator.clipboard?.writeText(entity.title); } catch { /* noop */ } };
