@@ -751,7 +751,7 @@ function NumberPageBody() {
 
   useEffect(() => {
     setInitialLayoutStable(false);
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
+  }, [root]);
 
   useEffect(() => {
     if (initialLayoutStable) return undefined;
