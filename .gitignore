@@ -15,4 +15,5 @@ orphan-preview.html
 /_*.mjs
 scripts/.card-preview/
 supabase/functions/expression-extract/.build/
+supabase/functions/research-run/.build/
 supabase/.temp/

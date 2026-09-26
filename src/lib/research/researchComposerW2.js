@@ -78,12 +78,18 @@ export async function composeResearchW2({
   contextType = "public_user",
   surfaceContext = null,
   requestedCapabilities = [],
+  // Passthrough to buildResearchPlanV2's OPTIONAL capability allowlist seam — see researchPlanV2.js.
+  capabilityAllowlist = null,
   requestedDepth = null,
   executors = {},
   ranking = [],
   resolvedRunSnapshot = null,
   nextActions = [],
   synthesizer = null,
+  // OPTIONAL, privacy-safe execution observer. Called once per executed capability with timestamps/
+  // status/counts ONLY — never raw Findings or content. It must never alter composition semantics:
+  // a throwing observer is swallowed and composition proceeds exactly as if it were absent.
+  executionObserver = null,
   signal = null,
 } = {}) {
   const identityResolution = resolveResearchIdentities({
@@ -100,6 +106,7 @@ export async function composeResearchW2({
     contextType,
     surfaceContext,
     requestedCapabilities,
+    capabilityAllowlist,
     requestedDepth,
   });
 
@@ -121,6 +128,7 @@ export async function composeResearchW2({
       }));
       continue;
     }
+    const capabilityStartedAt = new Date().toISOString();
     const executed = await executeCapability({
       capability,
       executor: byCapability.get(capability),
@@ -129,7 +137,26 @@ export async function composeResearchW2({
       signal,
       authorizationContext,
     });
+    const capabilityEndedAt = new Date().toISOString();
     capabilityResults.push(executed);
+    if (typeof executionObserver === "function") {
+      try {
+        executionObserver(Object.freeze({
+          type: "capability",
+          capability,
+          started_at: capabilityStartedAt,
+          ended_at: capabilityEndedAt,
+          status: executed.status || null,
+          owner: executed.owner || null,
+          finding_count: Array.isArray(executed.findings) ? executed.findings.length : 0,
+          bounded: executed.bounded ? {
+            returned_count: executed.bounded.returned_count ?? null,
+            total_count: executed.bounded.total_count ?? null,
+            truncated: executed.bounded.truncated === true,
+          } : null,
+        }));
+      } catch { /* observability consumer may never alter research semantics */ }
+    }
     // Continuation is first-class: a bounded capability tells the caller exactly how to ask for the
     // rest of the source population instead of leaving a window to look source-exhaustive.
     if (executed.bounded?.truncated && executed.bounded?.continuation) {
