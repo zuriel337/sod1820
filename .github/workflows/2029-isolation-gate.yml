@@ -14,6 +14,8 @@ on:
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/webVitalsCore.js"
+      - "src/lib/webVitals2029.js"
       - "src/lib/supabase.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/researchComposerW2.js"
@@ -40,6 +42,7 @@ on:
       - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
       - "scripts/test-replayable-golden-no-black-box.mjs"
+      - "scripts/test-web-vitals-2029.mjs"
       - "supabase/functions/ai-analyze/index.ts"
       - "supabase/functions/research-run/index.ts"
       - "scripts/package-research-run.mjs"
@@ -57,6 +60,7 @@ on:
       - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -75,6 +79,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Web Vitals metric core acceptance
+        run: node scripts/test-web-vitals-2029.mjs
       - name: Operational Trace Runtime persistence acceptance
         run: npm run test:operational-trace-runtime
       - name: AI-Analyze early paid paths trace coverage acceptance
