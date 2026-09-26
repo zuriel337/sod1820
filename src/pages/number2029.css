@@ -1189,5 +1189,3 @@
 .sod29-number-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
 @media(max-width:680px){.sod29-number-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-number-focus-ribbon .sod29-actions{width:100%;justify-content:flex-start}}
 
-/* First hard-load paint: reserve the Number body while its bounded initial async projections settle. */
-.sod29-number-initial-stability{min-height:max(640px,calc(100vh - 170px));display:block;}
