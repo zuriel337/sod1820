@@ -73,12 +73,12 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 
 | Responsibility | Canonical owner |
 |---|---|
-| universal research intake / source orchestration / Contextual Source Gap | `research_intake_foundation_contract_law` **v9 ACTIVE** |
+| universal research intake / source orchestration / Contextual Source Gap | `research_intake_foundation_contract_law` **v13 ACTIVE** |
 | corpus admission | `corpus_admission_foundation_v1` |
 | exact expression/source extraction | `shared_expression_extraction_contract_v1` under Intake |
 | writer/contributor material source flow | `writer_material_home_law` under Intake |
 
-`research_intake_foundation_contract_law v9` owns the 2029 Contextual Source Gap: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
+`research_intake_foundation_contract_law v13` owns the 2029 Contextual Source Gap: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
 
 ### E. TRUTH / HUMAN GATE
 
@@ -95,7 +95,7 @@ Interpretive research theses are Research OS/provenance, not global governance l
 
 | Responsibility | Canonical owner |
 |---|---|
-| One Reality Graph / One Tree / relations | `reality_graph_law` v7 |
+| One Reality Graph / One Tree / relations | `reality_graph_law` v8 |
 | Cross / Method Convergence | `cross_vs_convergence_criteria` v4 |
 | World ranking / contextual prominence | `research_gold_hints_law` |
 | Reality Stream semantic projection | `reality_stream_law` under Reality |
