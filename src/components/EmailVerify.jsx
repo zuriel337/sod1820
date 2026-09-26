@@ -5,6 +5,7 @@ import { subscribeEmail } from "../lib/supabase.js";
 import { trackSubscribe } from "../lib/marketing.js";
 import { broadcastJoin } from "../lib/joinEvents.js";
 import { shouldSubscribeEmailDuringVerification } from "../lib/emailVerificationIntent.js";
+import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../lib/emailOtp.js";
 
 /**
  * אימות מייל בשני שלבים (Supabase Auth OTP) — רכיב קבוע וניתן-להצבה.
@@ -90,8 +91,8 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   async function checkCode(e) {
     e?.preventDefault?.();
     setErr("");
-    if (!/^\d{4,8}$/.test(code.trim())) {
-      setErr("הקוד הוא 6 ספרות שקיבלתם במייל");
+    if (!isValidEmailOtp(code)) {
+      setErr("הזינו את הקוד המלא שקיבלתם במייל (6–10 ספרות)");
       return;
     }
     setBusy(true);
@@ -113,8 +114,9 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
           שלחנו קוד אל <span style={{ color: C.goldLight }} dir="ltr">{email}</span>. הזינו אותו כאן:
         </div>
         <input
-          value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
-          placeholder="● ● ● ● ● ●" dir="ltr" inputMode="numeric" autoFocus
+          value={code} onChange={e => setCode(sanitizeEmailOtp(e.target.value))}
+          maxLength={EMAIL_OTP_MAX_LENGTH} autoComplete="one-time-code"
+          placeholder="קוד כניסה" dir="ltr" inputMode="numeric" autoFocus
           style={{ ...inputStyle, letterSpacing: 6, fontSize: 22, fontWeight: 700 }} />
         <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <button type="submit" disabled={busy} style={btnStyle(busy)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>

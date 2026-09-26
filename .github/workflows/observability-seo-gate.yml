@@ -40,6 +40,9 @@ jobs:
       - name: Observability/SEO route coverage check
         run: node scripts/check-observability-seo-gate.mjs
 
+      - name: Email OTP length compatibility
+        run: node --test src/lib/emailOtp.test.js
+
       - name: W2 Research contract tests
         run: |
           node --test \
