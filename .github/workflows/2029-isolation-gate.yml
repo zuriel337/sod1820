@@ -46,6 +46,7 @@ on:
       - "scripts/test-2029-topic-surface.mjs"
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
+      - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
       - ".github/workflows/2029-isolation-gate.yml"
@@ -108,6 +109,8 @@ jobs:
         run: node scripts/test-2029-researcher-corpus.mjs
       - name: Native Number preview acceptance
         run: node scripts/test-2029-number-preview.mjs
+      - name: Native 2029 Control Plane trace drill-down acceptance
+        run: node scripts/test-2029-control-plane.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
