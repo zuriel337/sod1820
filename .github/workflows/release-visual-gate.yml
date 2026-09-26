@@ -60,10 +60,50 @@ jobs:
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
 
+          async function installClsObserver(page) {
+            await page.addInitScript(() => {
+              window.__sodCls = { windowStart: null, lastShiftAt: null, windowValue: 0, maxValue: 0, sources: [] };
+              try {
+                const observer = new PerformanceObserver((list) => {
+                  for (const entry of list.getEntries()) {
+                    if (entry.hadRecentInput) continue;
+                    const s = window.__sodCls;
+                    if (
+                      s.windowStart == null ||
+                      s.lastShiftAt == null ||
+                      entry.startTime - s.lastShiftAt >= 1000 ||
+                      entry.startTime - s.windowStart >= 5000
+                    ) {
+                      s.windowStart = entry.startTime;
+                      s.windowValue = 0;
+                    }
+                    s.windowValue += entry.value;
+                    s.lastShiftAt = entry.startTime;
+                    if (s.windowValue > s.maxValue) {
+                      s.maxValue = s.windowValue;
+                      s.sources = Array.from(entry.sources || []).map((source) => {
+                        const node = source?.node;
+                        if (!node || node.nodeType !== 1) return null;
+                        const id = node.id ? `#${node.id}` : '';
+                        const cls = typeof node.className === 'string'
+                          ? node.className.trim().split(/\\s+/).filter(Boolean).slice(0, 3).map((x) => `.${x}`).join('')
+                          : '';
+                        return `${String(node.tagName || '').toLowerCase()}${id}${cls}`;
+                      }).filter(Boolean).slice(0, 6);
+                    }
+                  }
+                });
+                observer.observe({ type: 'layout-shift', buffered: true });
+              } catch {}
+            });
+          }
+
           async function assertHealthy(page, width, mode = 'dark') {
             const suffix = mode === 'dark' ? '' : `?mode=${mode}`;
+            await installClsObserver(page);
             await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
             await page.goto(`${BASE}${PATH}${suffix}`, { waitUntil: 'networkidle' });
+            await page.waitForTimeout(500);
             await expect(page.locator('body')).not.toBeEmpty();
             await expect(page.locator('#sp29-title')).toBeVisible();
 
@@ -71,9 +111,12 @@ jobs:
               clientWidth: document.documentElement.clientWidth,
               scrollWidth: document.documentElement.scrollWidth,
               bodyText: document.body.innerText.trim().length,
+              cls: Number(window.__sodCls?.maxValue || 0),
+              clsSources: window.__sodCls?.sources || [],
             }));
             expect(metrics.bodyText).toBeGreaterThan(100);
             expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+            expect(metrics.cls, `CLS ${metrics.cls.toFixed(4)} exceeded 0.1; latest max-window sources: ${metrics.clsSources.join(', ') || 'unknown'}`).toBeLessThanOrEqual(0.1);
 
             const interactive = page.locator('a, button, [tabindex="0"]');
             expect(await interactive.count()).toBeGreaterThan(3);

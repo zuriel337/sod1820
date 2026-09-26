@@ -7,6 +7,7 @@ import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
+import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
@@ -32,6 +33,8 @@ function RouteEffects2029() {
     initGA();
     initMarketing();
     ensureIdentity();
+    const stopWebVitals = startWebVitals2029();
+    return () => { try { stopWebVitals?.(); } catch { /* observability never blocks runtime */ } };
   }, []);
 
   useEffect(() => {
