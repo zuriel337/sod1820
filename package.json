@@ -38,7 +38,8 @@
     "test:calculator-2029-compare": "node scripts/test-calculator-2029-compare.mjs",
     "test:calculator-2029-opening": "node scripts/test-calculator-2029-opening.mjs",
     "package:research-run": "node scripts/package-research-run.mjs",
-    "test:research-run": "node scripts/test-research-run-contract.mjs"
+    "test:research-run": "node scripts/test-research-run-contract.mjs",
+    "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
