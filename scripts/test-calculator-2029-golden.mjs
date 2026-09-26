@@ -43,4 +43,7 @@ assert.doesNotMatch(viral, /gematria\.js|fn_method_value|RAGIL|METHODS/);
 assert.match(app, /Calculator2029Page/);
 assert.match(app, /path="\/2029\/gematria"/);
 
+assert.match(page, /surface="number"/);
+assert.equal(page.includes('surface="calculator"'), false);
+
 console.log("PASS Calculator 2029 viral Golden static contract");
