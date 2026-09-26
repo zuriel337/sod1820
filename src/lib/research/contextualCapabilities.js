@@ -17,6 +17,7 @@ const ROUTES = Object.freeze({
   WORLD: "/world",
   BOOKS: "/books",
   ELS: "/els",
+  HEICHAL: "/heichal",
 });
 
 function numericFamily(target) {
@@ -126,4 +127,51 @@ export function describeContextCapabilityResolution({ surface = "system", target
     owner: "research_strategy_layer_law v15 + research_workspace_law v4",
     boundary: "presentation-composition-only",
   };
+}
+
+
+/**
+ * Visual-trial projection for the 2029 command island.
+ * Two semantic anchors stay stable in SystemFrame (Command + Raziel).
+ * This resolver owns only the three contextual presentation slots between/around them.
+ * It is not a capability registry, router, entitlement source or truth owner.
+ */
+export function resolveCommandIslandSlots({ surface = "system", target = null } = {}) {
+  const key = clean(surface);
+  const isCalculation = Boolean(
+    target?.focusKind === "calculation"
+    || target?.method
+    || target?.methodKey
+    || (target?.expression && target?.resultValue != null)
+  );
+
+  if (isCalculation) {
+    return [
+      { id: "inspect-calculation", trigger: "inspect", icon: "◎", label: "מה יש כאן" },
+      { id: "open-number", trigger: "number", icon: "123", label: "מספר" },
+      { id: "open-heichal", trigger: "route", href: ROUTES.HEICHAL, icon: "◇", label: "היכל" },
+    ];
+  }
+
+  if (numericFamily(target)) {
+    return [
+      { id: "inspect-number", trigger: "inspect", icon: "◎", label: key === "number" ? "חיבורים" : "בדוק" },
+      { id: "open-world", trigger: "route", href: ROUTES.WORLD, icon: "◌", label: "עולם" },
+      { id: "open-heichal", trigger: "heichal", icon: "◇", label: "היכל" },
+    ];
+  }
+
+  if (sourceFamily(target)) {
+    return [
+      { id: "inspect-source", trigger: "inspect", icon: "◎", label: "בדוק" },
+      { id: "source-actions", trigger: "action", icon: "↟", label: "פעולה" },
+      { id: "source-tools", trigger: "tools", icon: "▤", label: "מקורות" },
+    ];
+  }
+
+  return [
+    { id: "context-action", trigger: "action", icon: "◎", label: "פעולה" },
+    { id: "attention", trigger: "attention", icon: "◉", label: "עכשיו" },
+    { id: "context-tools", trigger: "tools", icon: "◇", label: "כלים" },
+  ];
 }

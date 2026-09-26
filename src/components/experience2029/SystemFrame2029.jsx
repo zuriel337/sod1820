@@ -18,6 +18,7 @@ import {
   CONTEXT_ACTION_KIND,
   resolveContextActions,
   resolveContextTools,
+  resolveCommandIslandSlots,
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
@@ -100,6 +101,11 @@ function normalizeTarget(input, source = "context") {
     locator: input.locator || null,
     href: input.href || input.link || null,
     source: input.source || source,
+    expression: input.expression || null,
+    method: input.method || input.methodKey || null,
+    methodKey: input.methodKey || input.method || null,
+    resultValue: input.resultValue ?? null,
+    focusKind: input.focusKind || null,
   };
 }
 
@@ -787,6 +793,31 @@ export default function SystemFrame2029({
     openCapability("number", target, { source: "command" });
   }, [commandQuery, openCapability]);
 
+  const commandIslandSlots = useMemo(
+    () => resolveCommandIslandSlots({ surface, target: activeTarget }),
+    [surface, activeTarget],
+  );
+
+  const commandIslandSlotPressed = useCallback((slot) => {
+    if (!slot) return false;
+    if (slot.trigger === "action") return transient?.kind === TRANSIENT.ACTION;
+    if (slot.trigger === "inspect") return transient?.kind === TRANSIENT.INSPECT;
+    if (slot.trigger === "number") return transient?.kind === TRANSIENT.CAPABILITY && transient?.payload?.capability === "number";
+    if (slot.trigger === "attention") return transient?.kind === TRANSIENT.ATTENTION;
+    if (slot.trigger === "tools") return transient?.kind === TRANSIENT.TOOLS;
+    return false;
+  }, [transient]);
+
+  const runCommandIslandSlot = useCallback((slot) => {
+    if (!slot) return;
+    if (slot.trigger === "action") { openAction(activeTarget); return; }
+    if (slot.trigger === "inspect") { openInspect(activeTarget); return; }
+    if (slot.trigger === "number") { openNumber(activeTarget); return; }
+    if (slot.trigger === "attention") { openAttention(); return; }
+    if (slot.trigger === "tools") { openTools(); return; }
+    if (slot.trigger === "route" && slot.href) { go(slot.href); }
+  }, [activeTarget, openAction, openInspect, openNumber, openAttention, openTools, go]);
+
   const shellApi = useMemo(() => ({
     experience,
     openCommand,
@@ -943,12 +974,36 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו" data-raziel-anchor="center">
-          <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-          <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
+        <div
+          className="sod29-command-island"
+          role="toolbar"
+          aria-label="פעולות זמינות עכשיו"
+          data-raziel-anchor="center"
+          data-adaptive-command-island="visual-trial-v1"
+        >
+          <button
+            type="button"
+            data-command-anchor="fixed"
+            onClick={openCommand}
+            aria-pressed={transientKind === TRANSIENT.COMMAND}
+          ><span>⌘</span><small>פקודה</small></button>
+          {commandIslandSlots.slice(0, 1).map((slot) => <button
+            type="button"
+            key={slot.id}
+            data-adaptive-slot="1"
+            data-slot-id={slot.id}
+            onClick={() => runCommandIslandSlot(slot)}
+            aria-pressed={commandIslandSlotPressed(slot)}
+          ><span>{slot.icon}</span><small>{slot.label}</small></button>)}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-          <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+          {commandIslandSlots.slice(1).map((slot, index) => <button
+            type="button"
+            key={slot.id}
+            data-adaptive-slot={String(index + 2)}
+            data-slot-id={slot.id}
+            onClick={() => runCommandIslandSlot(slot)}
+            aria-pressed={commandIslandSlotPressed(slot)}
+          ><span>{slot.icon}</span><small>{slot.label}</small></button>)}
         </div>
 
         {renderTransient()}
