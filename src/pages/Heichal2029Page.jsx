@@ -6,6 +6,8 @@ import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
+import { runPublicNumberResearch } from "../lib/research/researchRunClient.js";
+import { isRazielNextAction } from "../lib/research/razielActionContract.js";
 
 const ACTIONS = [
   { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
@@ -130,6 +132,28 @@ function ActiveResearchEnvironment() {
     sources: data?.sources?.length || 0,
   }), [data]);
 
+  // Canonical non-negative Number subjects get the real server-gated Raziel route: research-run
+  // owns capability/entitlement gate + caller-RLS executors + Operational Trace. Any invalid/
+  // missing/error/auth/identity/gate outcome fails closed to the existing generic Raziel entry on
+  // the SAME Research Context — no local message, no client compose, no direct executor call.
+  const askRaziel = async () => {
+    if (subject?.type !== "number") { shell.openRaziel(); return; }
+    const number = Number(subject.id);
+    if (!Number.isSafeInteger(number) || number < 0) { shell.openRaziel(); return; }
+    try {
+      const result = await runPublicNumberResearch({
+        number,
+        surface: "heichal",
+        question: subject.label || String(number),
+      });
+      const action = result?.status === "ok"
+        ? (result.bundle?.next_actions || []).find(isRazielNextAction)
+        : null;
+      if (action) { shell.openRaziel({ razielRouteAction: action }); return; }
+    } catch { /* fail closed below */ }
+    shell.openRaziel();
+  };
+
   const addSubject = () => {
     if (!subject) return;
     research.addToResearch?.({
@@ -155,7 +179,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={askRaziel}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
         <span>שורש · {subject.label || subject.id}</span>
@@ -215,7 +239,7 @@ function ActiveResearchEnvironment() {
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
-        <button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button>
+        <button className="sod29-action" onClick={askRaziel}>✦ שאל את רזיאל</button>
       </div>
     </section>
 
