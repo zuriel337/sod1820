@@ -42,6 +42,7 @@ test("W2 composer exposes one optional canonical synthesis socket over the safe 
         message: "one canonical synthesis",
         claims: [{ id: "claim:1", text: "atomic interpretation" }],
         motifs: [{ key: "integration", claim_ids: ["claim:1"] }],
+        freeze: { frozen: true },
         calibration: { state: "should_not_project" },
         resonance: { shares: 999 },
         learning: { champion_ref: "should_not_project" },
@@ -75,6 +76,13 @@ test("Synthesis failure is explicit and preserves the Result Bundle", async () =
   assert.equal(Array.isArray(bundle.findings), true);
   assert.equal(bundle.invariants.no_auto_canonicalization, true);
   assert.equal(bundle.invariants.no_auto_publication, true);
+});
+
+test("Omitted freeze normalizes fail-closed to frozen:false", () => {
+  const out = normalizeResearchSynthesis({
+    claims: [{ id: "c1", text: "claim" }],
+  });
+  assert.equal(out.freeze.frozen, false);
 });
 
 test("No synthesizer preserves pre-existing Bundle behavior", async () => {
