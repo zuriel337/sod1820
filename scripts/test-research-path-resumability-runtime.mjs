@@ -94,6 +94,47 @@ assert.equal(resumed.journey.revisionId, "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
 assert.equal(resumed.journey.revisionNo, 4);
 assert.equal(resumeHrefFromResearchPath({ ok: true, representation: rep }), "/heichal");
 
+
+// Golden 878: persistence identity (Research Path UUID) and semantic Journey identity
+// must coexist. The path UUID remains journey.id after resume; the Golden identity
+// is carried inside durable Context dimensions and therefore reopens the same World Journey.
+const golden878Context = normalizeResearchContext({
+  subject: { id: "1202", type: "number", label: "1202", href: "/world" },
+  selection: { entityId: "1202", entityType: "number" },
+  lens: "world",
+  dimensions: {
+    journeySource: "world-golden-878",
+    journeySemanticId: "golden:878:v1",
+    journeyRoot: 878,
+    journeyVisitedValues: [878, 1202],
+    journeyMeetingSlugs: ["charvot-barzel-1202"],
+  },
+  journey: { id: "golden:878:v1", kind: "golden", position: 1, findingId: "charvot-barzel-1202" },
+  returnTo: { href: "/world", label: "מסע 878" },
+});
+const golden878Rep = buildResearchPathRepresentation(golden878Context, {
+  href: "/world",
+  label: "מסע 878 · 1202",
+  surface: "world",
+});
+assert.equal(golden878Rep.context.dimensions.journeySemanticId, "golden:878:v1");
+assert.equal(golden878Rep.context.journey.id, "golden:878:v1");
+
+const golden878Resumed = contextFromResearchPathSnapshot({
+  ok: true,
+  path_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  revision_id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+  revision_no: 2,
+  steps: [{ step_index: 0 }, { step_index: 1 }],
+  representation: golden878Rep,
+});
+assert.equal(golden878Resumed.journey.id, "cccccccc-cccc-4ccc-8ccc-cccccccccccc");
+assert.equal(golden878Resumed.journey.kind, "research_path");
+assert.equal(golden878Resumed.dimensions.journeySemanticId, "golden:878:v1");
+assert.equal(golden878Resumed.dimensions.journeyRoot, 878);
+assert.deepEqual(golden878Resumed.dimensions.journeyVisitedValues, [878, 1202]);
+assert.equal(resumeHrefFromResearchPath({ ok: true, representation: golden878Rep }), "/world");
+
 // Server contract: direct tables remain closed, the RPC owns auth/ownership and
 // user writes can never self-promote governance/publication/access.
 for (const fn of ["fn_research_path_append_v1", "fn_research_path_resume_v1", "fn_research_path_fork_v1"]) {

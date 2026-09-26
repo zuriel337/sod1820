@@ -648,6 +648,7 @@ function LiveWorldLanding({ research, shell, context }) {
       journey: { id: journey.id, kind: journey.kind || "golden", position: 0 },
       dimensions: {
         journeySource: "world-landing",
+        journeySemanticId: journey.id,
         journeyRoot: root,
         journeyVisitedValues: [root],
         journeyMeetingSlugs: [],
@@ -675,6 +676,7 @@ function LiveWorldLanding({ research, shell, context }) {
       },
       dimensions: {
         journeySource: "saved-research",
+        journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
         journeyRoot: root,
         journeyVisitedValues: visited,
         journeyMeetingSlugs: [],
@@ -1163,7 +1165,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
   const goldenJourney = journeyState.data;
-  const journeyIsActive = context?.journey?.id === GOLDEN_WORLD_JOURNEY_878.id;
+  // Research Path resume owns journey.id with its durable path UUID. The semantic
+  // journey identity survives separately in dimensions so the World can restore
+  // the same Golden experience without conflating persistence identity with meaning.
+  const journeySemanticId = context?.dimensions?.journeySemanticId
+    || (context?.journey?.kind === GOLDEN_WORLD_JOURNEY_878.kind ? context?.journey?.id : null);
+  const journeyIsActive = journeySemanticId === GOLDEN_WORLD_JOURNEY_878.id;
   const currentJourneyValue = subject.type === "number" && Number.isSafeInteger(Number(subject.id)) ? Number(subject.id) : null;
   const savedGoldenJourney = useMemo(() => (
     Array.isArray(research.journeys)
@@ -1232,6 +1239,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       dimensions: {
         ...(context?.dimensions || {}),
         journeySource: "world-golden-878",
+        journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
         journeyRoot: root,
         journeyVisitedValues: [root],
         journeyMeetingSlugs: [],
