@@ -65,6 +65,21 @@ test("message freezes before the 3-card draw and Tarot cannot rewrite the messag
   assert.equal(out.invariants.no_personal_message_engine, true);
 });
 
+test("non-composed synthesis fails closed before any Tarot draw", async () => {
+  for (const status of ["failed", "insufficient_evidence"]) {
+    let draws = 0;
+    await assert.rejects(
+      composeNormalizedMessageReflection({
+        bundle: { contract_version: 1, findings: [] },
+        synthesizer: async () => ({ status, message: null, claims: [] }),
+        tarotProvider: async () => { draws += 1; return DRAW; },
+      }),
+      /requires composed synthesis/
+    );
+    assert.equal(draws, 0);
+  }
+});
+
 test("three-card reflection rejects missing, duplicate or extra positions", () => {
   assert.throws(() => normalizeThreeCardReflection({ cards: DRAW.cards.slice(0, 2) }), /exactly 3 cards/);
   assert.throws(() => normalizeThreeCardReflection({
