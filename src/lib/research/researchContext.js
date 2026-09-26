@@ -11,6 +11,11 @@ const cleanString = (value) => {
   const s = String(value).trim();
   return s || null;
 };
+const cleanInteger = (value) => {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isInteger(n) ? n : null;
+};
 
 function normalizeSubject(value) {
   if (!isObject(value)) return null;
@@ -45,6 +50,17 @@ function normalizeSelection(value) {
     resultValue: Number.isFinite(resultValueNumber) ? resultValueNumber : null,
     focusKind: cleanString(value.focusKind),
     crossingPartner: cleanString(value.crossingPartner),
+
+    // ELS exact-locus selection is bounded navigation/replay intent only.
+    // It never means the occurrence is verified; the canonical ELS verify boundary must replay it.
+    term: cleanString(value.term),
+    corpus: cleanString(value.corpus),
+    corpusVersion: cleanString(value.corpusVersion),
+    occurrenceId: cleanString(value.occurrenceId),
+    start: cleanInteger(value.start),
+    end: cleanInteger(value.end),
+    skip: cleanInteger(value.skip),
+    dir: [-1, 1].includes(cleanInteger(value.dir)) ? cleanInteger(value.dir) : null,
   };
   return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
