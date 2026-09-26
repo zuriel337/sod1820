@@ -739,3 +739,23 @@ and the system can return one bounded, versioned, cacheable representation witho
 - fetching a heavier representation than the surface requires;
 - losing provenance;
 - hiding the operational cost.
+
+
+---
+
+## Retention / archive / storage-cost boundary — Research Intake v13
+
+Media delivery and media retention are different concerns.
+
+1. **Original media identity is independent from provider/location.** Moving an object from Supabase Storage to an archive/R2 tier does not create a new source or research identity when provenance/access/replay are preserved.
+2. **Load-bearing media stays addressable.** Structural/spatial/witness/OCR-dispute media governed by Research Intake §12 remains `KEEP_ORIGINAL` unless an archive tier preserves authorized exact replay.
+3. **No-research-signal does not imply delete.** It may be hidden from default research attention while its source occurrence remains.
+4. **Physical dedup may save bytes; source occurrences remain distinct.** Filename/OCR/visual similarity alone does not prove binary identity.
+5. **Derivatives have their own lifecycle.** Regenerable thumbs/posters/transcodes may be bounded independently; having a derivative never authorizes deleting the original.
+6. **Preview before purge.** Control Plane should expose original/derivative bytes, active/live blockers, research/load-bearing refs, archive candidates, purge candidates, unknown bytes and projected savings. Unknown is never counted as reclaimable.
+7. **No guessed retention windows.** Any duration policy is set later per class from measured cost/growth + replay/audit/privacy/runtime requirements.
+8. **Storage schema safety.** Read `storage.objects` metadata for inventory/size only. File mutation uses Storage API/S3-compatible operations so provider bytes and metadata remain consistent.
+9. **Self-maintenance may recommend, not destroy.** `system_suggestions_law` may surface storage growth/egress/large-object/archive opportunities. Destructive cleanup remains a separate Human-Gated release action.
+
+Current channel-update media calibration at the v13 decision: 448 matched objects, ~1.67 GB, largest ~42.91 MB. This is a baseline for Control Plane visibility, not a purge list.
+

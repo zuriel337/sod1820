@@ -228,7 +228,7 @@ Build/verify:
 - immutable/versioned public derivatives use cache semantics appropriate to their identity; replacement/invalidation never silently changes asset identity;
 - Storage/CDN egress is observable operational cost, not truth: preserve bytes/cache hit-miss/top-object attribution where measurable; provider-exact usage is `EXACT`, internal estimation is `ESTIMATED`, unavailable provider usage is `UNKNOWN` — never invented as zero;
 - Control Plane drill-down must be able to surface storage size, large objects, missing/oversized derivatives, original-as-thumbnail defects, hottest assets when provider logs permit it, processing failures and provider quota state;
-- media retention/cleanup consumes the existing `admin_retention_preview()` / Research Intake v11 dry-run boundary rather than a Media Cleanup store;
+- media retention/cleanup consumes the existing `admin_retention_preview()` / Research Intake v13 source-vs-binary dry-run boundary rather than a Media Cleanup store; source-row retention and binary-media disposition are evaluated independently;
 - media processing spans join No-Black-Box trace.
 
 Current relevant work:
@@ -997,3 +997,25 @@ The 2029 foundation is “ready for open-ended growth” when all are true:
 12. release/rollback/recovery are verified rather than inferred.
 
 Literal “100% future-proof” cannot be guaranteed because unknown future capabilities will exist. The architectural target is instead: **unknown future capability can attach without redesigning the tree.**
+
+
+### Source/Binary Media Retention acceptance gate — v13
+
+Before any destructive media executor is release-eligible:
+
+- owner remains Research Intake v13 + existing media/source owners; no Retention/Media store;
+- preview reports bytes as well as rows;
+- source-row decision is separate from binary-media decision;
+- load-bearing media from Research Intake §12 is protected;
+- live surface / featured-media / OCR / transcription readers are dependency blockers;
+- source-only/spam can leave research worklists without deleting provenance;
+- `KEEP_SOURCE_LIGHT` requires a durable media tombstone/fingerprint under an existing owner;
+- if the current model cannot preserve that tombstone without a broken URL, purge fails closed;
+- strong physical dedup does not merge source occurrences;
+- archive/tiering preserves identity/access/replay;
+- Storage mutations use Storage API, never direct `storage.objects` SQL mutation;
+- executor is idempotent, reference-aware, auditable, privacy-safe and recoverable;
+- dependencies are re-checked immediately before mutation;
+- no arbitrary retention duration is introduced without a separate measured Human-Gate decision;
+- system-watchman/system_suggestions may recommend/prepare, never autonomously purge.
+
