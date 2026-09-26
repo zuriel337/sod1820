@@ -52,7 +52,10 @@ async function installClsObserver(page) {
             const cls = typeof node.className === 'string'
               ? node.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map((x) => `.${x}`).join('')
               : '';
-            const label = `${String(node.tagName || '').toLowerCase()}${id}${cls}`;
+            const prev = source?.previousRect || {};
+            const next = source?.currentRect || {};
+            const rect = `[${Math.round(Number(prev.y) || 0)}→${Math.round(Number(next.y) || 0)};h${Math.round(Number(prev.height) || 0)}→${Math.round(Number(next.height) || 0)}]`;
+            const label = `${String(node.tagName || '').toLowerCase()}${id}${cls}${rect}`;
             if (label && !state.windowSources.includes(label)) state.windowSources.push(label);
             if (state.windowSources.length >= 8) break;
           }
