@@ -251,10 +251,39 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
-    function onMsg(e) {
+    async function onMsg(e) {
       if (e.origin !== window.location.origin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
+      if (d.type === "engine-request") {
+        const requestId = typeof d.requestId === "string" ? d.requestId.slice(0, 120) : "";
+        const op = d.op === "page" || d.op === "verify" ? d.op : null;
+        if (!requestId || !op) {
+          if (requestId) postToTool({ type: "engine-result", requestId, ok: false, error: "invalid_request" });
+          return;
+        }
+        try {
+          const payload = d.payload && typeof d.payload === "object" ? d.payload : {};
+          const { data, error } = await supabase.functions.invoke("els-search-bridge", {
+            body: { op, ...payload },
+          });
+          if (error) {
+            postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+            return;
+          }
+          postToTool({
+            type: "engine-result",
+            requestId,
+            ok: true,
+            result: data?.result ?? null,
+            trace_id: data?.trace_id ?? null,
+            rate: data?.rate ?? null,
+          });
+        } catch {
+          postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+        }
+        return;
+      }
       if (d.type === "ready") {
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
         pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
