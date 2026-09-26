@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { mergeResearchContext, normalizeResearchContext } from "../src/lib/research/researchContext.js";
 import { resolveContextActions, resolveContextTools } from "../src/lib/research/contextualCapabilities.js";
+import { isRazielNextAction } from "../src/lib/research/razielActionContract.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -134,6 +135,33 @@ assert.match(frame, /force/);
 // Navigation may name World, but Frame operation must not hard-code World as the destination of inspect/search/tools.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
 assert.equal(worldLiteralCount, 1, "System Frame may list World in global navigation but must not route generic actions through World");
+
+// Raziel route-action consumer is fail-closed and presentation-only.
+const validRazielRoute = {
+  action: "raziel_route",
+  contract_version: 1,
+  route_action: "connect",
+  label: "לחבר",
+  task_mode: "discover_connections",
+  preferred_home: "world",
+  synthesis: { state: "composed", message_authority: "bundle.synthesis", local_message: null },
+  guards: {
+    semantic_action_only: true,
+    no_navigation_execution: true,
+    no_tool_execution: true,
+    no_local_message_generation: true,
+  },
+};
+assert.equal(isRazielNextAction(validRazielRoute), true);
+assert.equal(isRazielNextAction({ ...validRazielRoute, route_action: "invented" }), false);
+assert.equal(isRazielNextAction({ ...validRazielRoute, synthesis: { ...validRazielRoute.synthesis, local_message: "forbidden" } }), false);
+assert.match(frame, /isRazielNextAction/);
+assert.match(frame, /payload\?\.razielRouteAction/);
+assert.match(frame, /razielRouteAction=\{transient\?\.payload\?\.razielRouteAction \|\| null\}/);
+assert.match(frame, /data-raziel-route-action/);
+assert.match(frame, /data-raziel-route-home/);
+assert.match(frame, /routeActionValid \? <button/);
+assert.match(frame, /type="button"\s*\n\s*disabled\s*\n\s*data-raziel-route-action/);
 
 // Raziel is one compact presence with domain-semantic tokens, not truth/status color.
 assert.match(tokens, /RAZIEL_PRESENCE/);
