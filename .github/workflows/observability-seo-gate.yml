@@ -50,6 +50,7 @@ jobs:
             src/lib/research/researchW2Executors.358.test.js \
             src/lib/research/researchComposerW2.canonical358.test.js \
             src/lib/research/researchW2FoundationHardening.test.js \
+            src/lib/research/researchUniversalIntake.test.js \
             src/lib/research/researchW2GematriaMultiAnchorControls.test.js \
             src/lib/research/numericRelationOperations.test.js \
             src/lib/research/researchSynthesis.currentMain.test.js \
