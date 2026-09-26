@@ -149,7 +149,7 @@ export default function ResearchHome({ onOpen }) {
   const gateGo = e => { e.preventDefault(); const v = gateQ.trim(); if (v) navigate(`/research?tool=number&n=${encodeURIComponent(v)}`); };
 
   const containedUser = !!user && !isAdmin;
-  const visibleBigIds = containedUser ? ["number", "els"] : BIG;
+  const visibleBigIds = containedUser ? ["gematria", "number", "els"] : BIG;
   const bigTools = visibleBigIds.map(id => TOOLS.find(t => t.id === id)).filter(Boolean);
   const restTools = containedUser ? [] : TOOLS.filter(t => !BIG.includes(t.id));
   // 🪜 Progressive Disclosure (research_workspace_law): הכלים הפתוחים גלויים תמיד;
@@ -169,7 +169,7 @@ export default function ResearchHome({ onOpen }) {
         <div className="hh-hero-in">
           <div className="hh-eyebrow">סביבת המחקר של סוד 1820</div>
           <h1 className="hh-title">🏛️ ההיכל</h1>
-          <p className="hh-sub">{containedUser ? "מה שאתם רואים כאן היום הוא רק קצה קטן ממה שנבנה. ההיכל נמצא בתהליך בנייה מחדש; כרגע דף המספר פתוח לכם, והכלים הנוספים ייפתחו בהדרגה כשהם יהיו מוכנים באמת." : "כל מנועי המחקר במקום אחד — גימטריה, דילוגים, פסוקים ומספרים. הקלידו מילה, שם או מספר וצאו למסע."}</p>
+          <p className="hh-sub">{containedUser ? "מה שאתם רואים כאן היום הוא רק קצה קטן ממה שנבנה. ההיכל נמצא בתהליך בנייה מחדש; כרגע מחשבון הגימטריה ודף המספר פתוחים לכם, והכלים הנוספים ייפתחו בהדרגה כשהם יהיו מוכנים באמת." : "כל מנועי המחקר במקום אחד — גימטריה, דילוגים, פסוקים ומספרים. הקלידו מילה, שם או מספר וצאו למסע."}</p>
           {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
           <form className="hh-search" onSubmit={gateGo}>
             <span className="hh-search-ic" aria-hidden>🔎</span>
