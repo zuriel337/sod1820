@@ -6,6 +6,7 @@ const read = (path) => fs.readFileSync(path, "utf8");
 const app = read("src/App.jsx");
 const research = read("src/pages/ResearchPage.jsx");
 const home = read("src/components/ResearchHome.jsx");
+const beit = read("src/pages/BeitMidrashPage.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const topic = read("src/pages/Topic2029Page.jsx");
 const books = read("src/pages/Books2029Page.jsx");
@@ -20,6 +21,7 @@ assert.match(home, /visibleBigIds\s*=\s*containedUser\s*\?\s*\["gematria", "numb
 assert.match(home, /מחשבון גימטריה · פתוח/);
 assert.match(home, /דף המספר · פתוח/);
 assert.match(home, /הצופן התנ״כי · סגור/);
+assert.match(beit, /במערכת החדשה של סוד 1820 נבנה עבורו שדרוג גדול/, "legacy calculator must show the approved upgrade notice");
 
 for (const [name, source] of [
   ["SystemFrame2029", frame],
