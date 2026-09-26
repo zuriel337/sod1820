@@ -37,6 +37,7 @@
     "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs",
     "test:calculator-2029-compare": "node scripts/test-calculator-2029-compare.mjs",
     "test:calculator-2029-opening": "node scripts/test-calculator-2029-opening.mjs",
+    "test:calculator-2029-semantic-surface": "node scripts/test-calculator-2029-semantic-surface.mjs",
     "package:research-run": "node scripts/package-research-run.mjs",
     "test:research-run": "node scripts/test-research-run-contract.mjs"
   },
