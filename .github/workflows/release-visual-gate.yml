@@ -355,7 +355,7 @@ jobs:
                 await expect(page.locator('.sod29-calc-compare')).toBeVisible();
                 await page.locator('#calculator-compare-b').fill('צוריאל פולייס');
                 await expect(page.locator('.sod29-calc-compare-b-result')).toBeVisible({ timeout: 20_000 });
-                await page.getByRole('button', { name: 'סגור השוואה', exact: true }).click();
+                await page.locator('.sod29-calc2029-actions button[aria-expanded="true"]').click();
 
                 for (const phrase of goldens.slice(1)) {
                   await input.fill(phrase);
