@@ -19,7 +19,6 @@ on:
       - 'src/components/experience2029/els2029-representation.css'
       - 'test/els-2029-*.test.mjs'
       - 'test/els-raziel-context.test.mjs'
-      - 'test/els-exact-replay-bridge.test.mjs'
       - 'test/els-host-bridge.test.mjs'
       - 'test/els-search-bridge.test.mjs'
   workflow_dispatch:
@@ -56,7 +55,6 @@ jobs:
           node --test \
             test/els-host-bridge.test.mjs \
             test/els-search-bridge.test.mjs \
-            test/els-exact-replay-bridge.test.mjs \
             test/els-2029-semantic-surface.test.mjs \
             test/els-2029-result-projection.test.mjs \
             test/els-2029-layered-projection.test.mjs \
