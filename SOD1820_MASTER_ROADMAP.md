@@ -225,6 +225,7 @@ This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through 
 - **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + hydrated canonical/meta/OG/structured-data projection. **DRIFT / NOW:** the initial 2029 HTML document still serves generic metadata to ordinary crawlers before hydration; server/document canonical/title/description/OG/JSON-LD parity must be closed before calling SEO/AI discovery foundation complete. Preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - **Number Mathematical / Prime Lens:** extend the released `number_math_profile` with bounded prime context/relations and one-tree numeric re-entry; Golden fixture `787 → prime index 138 → Number 138 → verified צמח=138`; Heichal consumes the same Context as a bounded Prime/Pattern deep-research lane, while Beit Midrash owns the learning explanation. `138` remains a curated strong-number / anchor candidate until a separate Human-Gate anchor decision. Detailed plan: `docs/2029-number-prime-lens-beit-midrash-plan-v1.md`;
 - internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
+- **Community Core 2029 / historical conversation absorption — LIVE VERIFIED:** one shared social/research substrate; Community Core runtime/security foundation is merged and canonical OpenWeb archive absorption is complete in canonical Supabase (41,080/41,080 source messages imported with source-native provenance, reply lineage and replay idempotency verified; 0 pending). WordPress remains compatible historical conversation projection where applicable. Public Community UI cutover, avatar recovery, rich presence/notifications and visual polish remain later Experience work and are **not** G3 Foundation blockers;
 - Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; **Legacy UX parity is not a G3 goal** and obsolete Legacy UI/routes may be frozen or made explicitly unavailable instead of repaired. Retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion text/tool runtime;
@@ -248,6 +249,8 @@ Detailed acceptance:
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
 
 It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, reconcile the live Legacy writer-shutdown matrix against verified 2029 replacements/consumers, preserve provenance and rerun fresh-agent/release-state acceptance.
+
+**Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
 
@@ -299,7 +302,6 @@ Only decision-changing open items belong here:
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
 - final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
-- final Community/Forum disposition in the greenfield experience;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof; Legacy UX maintenance/parity itself is no longer an objective;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
