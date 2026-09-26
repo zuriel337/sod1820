@@ -53,6 +53,7 @@ jobs:
             src/lib/research/researchW2GematriaMultiAnchorControls.test.js \
             src/lib/research/numericRelationOperations.test.js \
             src/lib/research/researchSynthesis.currentMain.test.js \
+            src/lib/research/razielActionContract.currentMain.test.js \
             test/research-object-universal-finding.test.mjs
 
       - name: Canonical presentation regressions
