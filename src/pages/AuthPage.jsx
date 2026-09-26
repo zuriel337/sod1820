@@ -4,6 +4,7 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
 import { signInWithGoogle, requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../lib/auth.js";
+import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../lib/emailOtp.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 export default function AuthPage() {
@@ -73,7 +74,7 @@ export default function AuthPage() {
   async function verifyCode(e) {
     e.preventDefault();
     setErr("");
-    if (!/^\d{6}$/.test(code.trim())) { setErr("הזינו קוד בן 6 ספרות מהמייל"); return; }
+    if (!isValidEmailOtp(code)) { setErr("הזינו את הקוד המלא שקיבלתם במייל (6–10 ספרות)"); return; }
     setBusy(true);
     try {
       await verifyEmailOtp(email, code);
@@ -109,13 +110,13 @@ export default function AuthPage() {
               <div style={{ fontSize: 38, marginBottom: 10 }}>✉️</div>
               <div style={{ color: P.ink, fontFamily: F.royal, fontSize: 17, fontWeight: 700, marginBottom: 6 }}>הזינו את הקוד מהמייל</div>
               <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>
-                שלחנו קוד בן 6 ספרות אל <b style={{ color: P.accentText }} dir="ltr">{email}</b>
+                שלחנו קוד כניסה אל <b style={{ color: P.accentText }} dir="ltr">{email}</b>
               </div>
             </div>
             <input
-              type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} dir="ltr"
-              placeholder="______" autoFocus
-              onChange={e => { setCode(e.target.value.replace(/\D/g, "")); setErr(""); }}
+              type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={EMAIL_OTP_MAX_LENGTH} value={code} dir="ltr"
+              placeholder="קוד כניסה" autoFocus
+              onChange={e => { setCode(sanitizeEmailOtp(e.target.value)); setErr(""); }}
               style={{ width: "100%", padding: "14px", background: P.cardSoft, color: P.accentText, textAlign: "center",
                 letterSpacing: 10, fontSize: 26, fontFamily: F.mono,
                 border: `1px solid ${err ? C.danger : P.borderStrong}`, borderRadius: 8, outline: "none", boxSizing: "border-box" }}
