@@ -14,6 +14,7 @@ import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
+import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
   CONTEXT_ACTION_KIND,
   resolveContextActions,
@@ -364,10 +365,17 @@ function ToolsProjection({ surface, target, go, onCapability }) {
   );
 }
 
-function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null }) {
+function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
+  const routeActionValid = isRazielNextAction(razielRouteAction);
+  const routeHomeLabel = routeActionValid ? ({
+    current: "כאן",
+    world: "בעולם",
+    heichal: "בהיכל",
+    journey: "במסע",
+  }[razielRouteAction.preferred_home] || null) : null;
   const elsFocus = elsSurfaceContext?.surface === "els"
     && elsSurfaceContext?.occurrence?.occurrenceRef
     && elsSurfaceContext?.result?.contract === "els_2029_projection_v1"
@@ -463,7 +471,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
         {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus && !elsFocus ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
@@ -475,7 +483,15 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" disabled title="השיחה המלאה עם רזיאל תחובר בהמשך">✦ המשך עם רזיאל</button>
+        {routeActionValid ? <button
+          className="sod29-action primary"
+          type="button"
+          disabled
+          data-raziel-route-action={razielRouteAction.route_action}
+          data-raziel-route-home={razielRouteAction.preferred_home}
+          title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
+        >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
+        <button className={routeActionValid ? "sod29-action" : "sod29-action primary"} type="button" disabled title="השיחה המלאה עם רזיאל תחובר בהמשך">✦ המשך עם רזיאל</button>
       </div>
     </>
   );
@@ -682,7 +698,7 @@ export default function SystemFrame2029({
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
-    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent || payload?.readingFocus || payload?.elsSurfaceContext
+    const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent || payload?.readingFocus || payload?.elsSurfaceContext || payload?.razielRouteAction
       ? payload
       : null;
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
@@ -871,7 +887,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
