@@ -19,6 +19,12 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
   projectGoldenJourney878,
 } from "../src/lib/research/worldJourneyProjection.js";
+import {
+  buildResearchPathRepresentation,
+  contextFromResearchPathSnapshot,
+  resumeHrefFromResearchPath,
+} from "../src/lib/research/researchPathRuntime.js";
+import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
 
 const live878Snapshot = Object.freeze([
   Object.freeze({ slug: "charvot-barzel-1202", title: "חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח", numbers: [1202, 776, 878], highlight_numbers: [1202] }),
@@ -60,6 +66,39 @@ assert.equal(numberMath878.input.value, 878);
 assert.equal(numberMath878.coverage.deterministic, true);
 assert.equal(journey878.id, GOLDEN_WORLD_JOURNEY_878.id);
 assert.deepEqual(journey878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
+
+const golden878Context = normalizeResearchContext({
+  subject: { id: "1202", type: "number", label: "1202", href: "/world" },
+  selection: { entityId: "1202", entityType: "number" },
+  lens: "world",
+  dimensions: {
+    journeySource: "world-golden-878",
+    journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
+    journeyRoot: 878,
+    journeyVisitedValues: [878, 1202],
+    journeyMeetingSlugs: ["charvot-barzel-1202"],
+  },
+  journey: { id: GOLDEN_WORLD_JOURNEY_878.id, kind: GOLDEN_WORLD_JOURNEY_878.kind, position: 1 },
+  returnTo: { href: "/world", label: "מסע 878" },
+});
+const golden878PathRep = buildResearchPathRepresentation(golden878Context, {
+  href: "/world",
+  label: "מסע 878 · 1202",
+  surface: "world",
+});
+const golden878PathResume = contextFromResearchPathSnapshot({
+  ok: true,
+  path_id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  revision_id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+  revision_no: 2,
+  steps: [{ step_index: 0 }, { step_index: 1 }],
+  representation: golden878PathRep,
+});
+assert.equal(golden878PathResume.journey.kind, "research_path");
+assert.equal(golden878PathResume.journey.id, "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
+assert.equal(golden878PathResume.dimensions.journeySemanticId, GOLDEN_WORLD_JOURNEY_878.id);
+assert.equal(golden878PathResume.dimensions.journeyRoot, 878);
+assert.equal(resumeHrefFromResearchPath({ ok: true, representation: golden878PathRep }), "/world");
 
 const root = createTraceRoot({
   traceId: "golden-trace-878-v1",
@@ -204,6 +243,32 @@ function makeSpans() {
       resources: { tool_calls: 1, search_space_examined: 138 },
       cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
       replay: { searchBoundsRef: "prime-index:1..138", resultBundleRef: "negative:bounded-search" },
+    }),
+    createTraceSpan({
+      traceId: root.traceId,
+      spanId: "25-cache-hit",
+      parentSpanId: "10-plan",
+      kind: TRACE_SPAN_KIND.CACHE,
+      name: "research-context-cache",
+      capability: root.capability,
+      owner: "experience_context_contract",
+      planRef,
+      routingReason: "reuse-replayable-context",
+      startedAt: "2026-09-23T00:00:02.100Z",
+      endedAt: "2026-09-23T00:00:02.110Z",
+      outcome: TRACE_OUTCOME.CACHE_HIT,
+      outputUse: TRACE_OUTPUT_USE.USED,
+      resources: { latency_ms: 10, api_calls: 0 },
+      cost: { certainty: TRACE_COST_CERTAINTY.NOT_BILLABLE },
+      replay: {
+        inputRef: "context:golden-878",
+        sourceBundleRef: "cache:research-context:golden-878:v1",
+        resultBundleRef: "bundle:cached-research-context-878",
+      },
+      privacy: {
+        redactionApplied: true,
+        payloadHash: "sha256:golden-878-cache-key",
+      },
     }),
     createTraceSpan({
       traceId: root.traceId,
@@ -379,6 +444,14 @@ assert.ok(multi.used >= 1);
 assert.ok(multi.partiallyUsed >= 1);
 assert.ok(multi.rejected >= 1);
 assert.ok(multi.superseded >= 1);
+
+const cacheHit = spans.find((span) => span.kind === TRACE_SPAN_KIND.CACHE && span.outcome === TRACE_OUTCOME.CACHE_HIT);
+assert.ok(cacheHit, "Golden trace must include a cache-hit span");
+assert.equal(cacheHit.outputUse, TRACE_OUTPUT_USE.USED);
+assert.equal(cacheHit.cost.certainty, TRACE_COST_CERTAINTY.NOT_BILLABLE);
+assert.equal(cacheHit.resources.api_calls, 0);
+assert.equal(cacheHit.replay.resultBundleRef, "bundle:cached-research-context-878");
+assert.equal(cacheHit.privacy.rawPrivatePayloadLogged, false);
 
 assert.ok(spans.some((span) => span.retryOrdinal === 1), "retry ordinal must be preserved");
 assert.ok(spans.some((span) => span.continuationOrdinal === 1), "continuation ordinal must be preserved");

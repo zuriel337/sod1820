@@ -120,6 +120,7 @@ assert.match(frame, /capability === "number"/);
 assert.match(frame, /NumberDrawer2029/);
 assert.match(provider, /\(2029\\\/\)\?number/);
 assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*"golden:878:v1"/);
+assert.match(page, /journeySemanticId:\s*GOLDEN_878_JOURNEY_ID/);
 assert.match(page, /navigate\("\/world"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
