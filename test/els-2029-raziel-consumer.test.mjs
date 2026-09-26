@@ -35,7 +35,7 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
 
 test("ELS Raziel panel is context-only; full conversation remains explicitly inactive", () => {
   assert.match(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
-  assert.match(frame, /<button className="sod29-action primary" type="button" disabled/);
+  assert.match(frame, /className=\{routeActionValid \? "sod29-action" : "sod29-action primary"\} type="button" disabled/);
   assert.doesNotMatch(frame, /onClick=\{[^}]*askRaziel/);
   assert.doesNotMatch(page, /synthesisPreview|razielRouteAction|local_message/);
 });
