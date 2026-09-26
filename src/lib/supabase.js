@@ -2273,29 +2273,47 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
 // מקור אחד לכל הערוצים. שורה לכל זהות: userId (מחובר) או visitorId (אנונימי).
 export async function getNotificationPrefs({ userId = null, visitorId = null } = {}) {
   if (!supabase) return null;
-  let q = supabase.from('notification_prefs').select('topics, channels, email, intensity, muted_until');
-  if (userId) q = q.eq('user_id', userId);
-  else if (visitorId) q = q.eq('visitor_id', visitorId);
-  else return null;
-  const { data } = await q.maybeSingle();
-  return data || null;
+  if (userId) {
+    const { data, error } = await supabase
+      .from('notification_prefs')
+      .select('topics, channels, email, intensity, muted_until')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) throw error;
+    return data || null;
+  }
+  if (visitorId) {
+    const { data, error } = await supabase.rpc('notification_prefs_guest_get_v1', { p_visitor: visitorId });
+    if (error) throw error;
+    return data || null;
+  }
+  return null;
 }
 
 export async function saveNotificationPrefs({ userId = null, visitorId = null, topics = [], channels = [], email = null, intensity = undefined, mutedUntil = undefined }) {
   if (!supabase) return { ok: false };
-  const row = { topics, channels, email: email || null, updated_at: new Date().toISOString() };
-  if (intensity !== undefined) row.intensity = intensity;
-  if (mutedUntil !== undefined) row.muted_until = mutedUntil;
-  let res;
   if (userId) {
-    row.user_id = userId;
-    res = await supabase.from('notification_prefs').upsert(row, { onConflict: 'user_id' });
+    const row = { user_id: userId, topics, channels, email: email || null, updated_at: new Date().toISOString() };
+    if (intensity !== undefined) row.intensity = intensity;
+    if (mutedUntil !== undefined) row.muted_until = mutedUntil;
+    const { error } = await supabase.from('notification_prefs').upsert(row, { onConflict: 'user_id' });
+    if (error) throw error;
   } else if (visitorId) {
-    row.visitor_id = visitorId;
-    res = await supabase.from('notification_prefs').upsert(row, { onConflict: 'visitor_id' });
-  } else return { ok: false };
-  if (res.error) throw res.error;
-  // בחר ערוץ מייל ויש כתובת → לוודא שהוא ברשימת התפוצה הקיימת (בלי כפילות, בלי מערכת מקבילה).
+    const { error } = await supabase.rpc('notification_prefs_guest_save_v1', {
+      p_visitor: visitorId,
+      p_topics: topics,
+      p_channels: channels,
+      p_email: email || null,
+      p_intensity: intensity ?? null,
+      p_set_intensity: intensity !== undefined,
+      p_muted_until: mutedUntil ?? null,
+      p_set_muted_until: mutedUntil !== undefined,
+    });
+    if (error) throw error;
+  } else {
+    return { ok: false };
+  }
+  // Explicit Email channel consent remains owned by the existing subscriber path.
   if (channels.includes('email') && email) {
     try { await subscribeEmail({ email, source: 'notification-center' }); } catch { /* noop */ }
   }
@@ -2304,14 +2322,11 @@ export async function saveNotificationPrefs({ userId = null, visitorId = null, t
 
 // תפר השדרוג (אנונימי → חשבון): כשמבקר מתחבר, "תובעים" את שורת ההעדפות שלו
 // (visitor_id) ומקשרים אותה ל-user_id. מריצים בשתיקה בעת התחברות.
-export async function claimVisitorPrefs(userId, visitorId) {
-  if (!supabase || !userId || !visitorId) return;
-  try {
-    await supabase.from('notification_prefs')
-      .update({ user_id: userId })
-      .eq('visitor_id', visitorId)
-      .is('user_id', null);
-  } catch { /* silent */ }
+export async function claimVisitorPrefs(_userId, _visitorId) {
+  // G3 identity spine owns guest→account Follow projection.
+  // stitchLogin() writes the canonical identity edge; PR #692's DB trigger performs the
+  // verified claim under ordered advisory locks. Do not mutate guest rows directly from client code.
+  return;
 }
 
 // ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
