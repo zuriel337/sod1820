@@ -117,7 +117,7 @@ const SNAPSHOTS = {
       { key: "alphabet", label: "מטריצות אלפבית", family: "representation", status: "supported" },
       { key: "milui", label: "מילוי וחילוץ", family: "representation", status: "supported" },
       { key: "initials", label: "ראשי / סופי תיבות", family: "procedure", status: "supported" },
-      { key: "klal", label: "כלל / קדמי / ריבוע", family: "operator", status: "partial" },
+      { key: "klal", label: "כלל / משולש / ריבוע", family: "operator", status: "partial" },
       { key: "depth", label: "עומק / אורך / רוחב", family: "spatial-language", status: "supported" },
       { key: "kriktiv", label: "קרי / כתיב", family: "textual-version", status: "supported" },
       { key: "forms", label: "צורות אות", family: "representation", status: "supported" },

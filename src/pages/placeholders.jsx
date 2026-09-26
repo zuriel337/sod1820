@@ -16,6 +16,7 @@ import { stripHtml, formatDateHe } from "../lib/format.js";
 import { METHODS as GEM_METHODS, onlyHeb } from "../lib/gematria.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
+import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 
 export function ArchivePage() {
   return <UnderConstruction emoji="🖼" title="ארכיון ההתגלות"
@@ -163,7 +164,7 @@ export function CommunityCalculatorPage() {
   useEffect(() => {
     applySeo({
       title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם",
-      description: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות (רגיל, מילוי, מסתתר, קדמי, אתב\"ש ועוד), השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים. נסו עכשיו ושתפו בוואטסאפ ✨",
+      description: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות (רגיל, מילוי, מסתתר, משולש, אתב\"ש ועוד), השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים. נסו עכשיו ושתפו בוואטסאפ ✨",
       path: "/community/calculator",
     });
   }, []);
@@ -205,7 +206,7 @@ export function CommunityCalculatorPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(104px,1fr))", gap: 8 }}>
           {r.all.map(a => (
             <Link key={a.key} to={`/number/${a.value}`} title={a.sub} style={{ textDecoration: "none", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 6px", textAlign: "center" }}>
-              <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{a.key}</div>
+              <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 11 }}>{canonicalMethodPublicLabel(a.key)}</div>
               <div style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
             </Link>
           ))}

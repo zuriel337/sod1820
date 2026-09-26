@@ -8,9 +8,9 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { collectionConvergences, persistDiscoveries } from "../lib/deepAnalysis.js";
 
 // 🌳 מילים שוות — מרכז-המחקר המתקדם של הערך, בטור הימני (מסך-מלא): כל הביטויים השווים,
-// מד-נדירות, סינון חוצה-שיטות (רגיל/מסתתר/קדמי), «עוד», התכנסות רשומה, והצעת ביטוי חדש.
+// מד-נדירות, סינון חוצה-שיטות (רגיל/מסתתר/משולש), «עוד», התכנסות רשומה, והצעת ביטוי חדש.
 // לחיצה על ביטוי → ממקדת אותו (ENTITY_FOCUS) לראות את כל שיטותיו. מקור קנוני: getGematriaByValue.
-const METHOD_TABS = [{ key: "ragil", label: "רגיל" }, { key: "misratar", label: "מסתתר" }, { key: "kadmi", label: "קדמי" }];
+const METHOD_TABS = [{ key: "ragil", label: "רגיל" }, { key: "misratar", label: "מסתתר" }, { key: "kadmi", label: "משולש" }];
 const methodHe = k => (METHOD_TABS.find(t => t.key === k) || {}).label || k;
 function rarity(count) {
   if (count == null || count <= 0) return null;

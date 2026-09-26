@@ -10,6 +10,7 @@ import ErrorBoundary from "./ErrorBoundary.jsx";
 import { setForcedMode } from "../lib/themeMode.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 
 // 🏛️ ResearchShell — «מעבדת המחקר». שלד קבוע, סרגלים בסגנון ChatGPT.
 // ימין = «מנועי המחקר · [הכלי הפעיל]» (דינמי-הקשרי — ארגז-הכלים של המודול).
@@ -66,7 +67,7 @@ function MidrashNav() {
         <div className="rw-muted" style={{ margin: "14px 0 7px", fontSize: 12, fontWeight: 700 }}>📐 קפיצה לשיטה</div>
         <div className="rw-mchips">
           {MIDRASH_METHODS.map(m => (
-            <button key={m} className="rw-mchip" onClick={() => go("methods", m)} title={`לימוד שיטת ${m}`}>{m}</button>
+            <button key={m} className="rw-mchip" onClick={() => go("methods", m)} title={`לימוד שיטת ${canonicalMethodPublicLabel(m)}`}>{canonicalMethodPublicLabel(m)}</button>
           ))}
         </div>
         <div className="rw-muted" style={{ marginTop: 9, fontSize: 11.5, lineHeight: 1.6 }}>לחיצה על שיטה → קופץ ללימוד שלה במרכז, עם דוגמה חיה.</div>

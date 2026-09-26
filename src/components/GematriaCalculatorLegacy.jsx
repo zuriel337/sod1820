@@ -446,7 +446,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
                         <div style={{ color: "#1f9d57", fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 5 }}>✅ עובדה — מאומת במנוע</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                           {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["קדמי", FT.kadmi]].map(([k, v]) => (
-                            <span key={k} style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 800, color: L.goldDeep, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 9px" }}>{k} <span style={{ color: L.ink }}>{v ?? "—"}</span></span>
+                            <span key={k} style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 800, color: L.goldDeep, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 9px" }}>{methodLabel(k)} <span style={{ color: L.ink }}>{v ?? "—"}</span></span>
                           ))}
                         </div>
                         {FT.hidden_vs_revealed && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>מוסתר↔גלוי: {FT.hidden_vs_revealed}</div>}
