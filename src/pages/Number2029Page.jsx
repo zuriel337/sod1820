@@ -224,7 +224,6 @@ function NumberPageBody() {
   const [deepRequested, setDeepRequested] = useState(false);
   const [focusExplicit, setFocusExplicit] = useState(false);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState("");
-  const [initialLayoutStable, setInitialLayoutStable] = useState(false);
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
@@ -749,44 +748,6 @@ function NumberPageBody() {
     };
   }, [contextualWorld]);
 
-  useEffect(() => {
-    setInitialLayoutStable(false);
-  }, [root]);
-
-  useEffect(() => {
-    if (initialLayoutStable) return undefined;
-    const busy = (
-      state.loading
-      || !data
-      || (families.length > 0 && !clean(activeExpression))
-      || curationState.loading
-      || methodProfileState.loading
-      || methodResultState.loading
-      || languageBridgeState.loading
-      || regularPhraseState.loading
-      || hiddenCrossState.loading
-      || systemMethodsState.loading
-    );
-    if (busy) return undefined;
-    // Hidden crossings/system methods deliberately start after 220/280ms. A quiet window longer
-    // than those deferrals prevents one-frame "ready" flashes before the initial async layout
-    // actually settles, while keeping later user-driven loads outside this one-time gate.
-    const timer = window.setTimeout(() => setInitialLayoutStable(true), 650);
-    return () => window.clearTimeout(timer);
-  }, [
-    initialLayoutStable,
-    state.loading,
-    data,
-    activeExpression,
-    curationState.loading,
-    methodProfileState.loading,
-    methodResultState.loading,
-    languageBridgeState.loading,
-    regularPhraseState.loading,
-    hiddenCrossState.loading,
-    systemMethodsState.loading,
-  ]);
-
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
   const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
   const focusExpression = focusExplicit ? clean(activeExpression) : "";
@@ -1074,12 +1035,6 @@ function NumberPageBody() {
   if (state.error || !data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">לא מוצג חומר חלופי ולא נעשה fallback ל־Legacy בתוך עץ 2029.</FrameState>;
   }
-  if (!initialLayoutStable) {
-    return <div className="sod29-number-initial-stability" data-number-initial-stability="pending">
-      <FrameState kind="loading" title={`מייצב את ${root}`}>טוען את שכבות המספר הראשוניות בלי להזיז את המשטח.</FrameState>
-    </div>;
-  }
-
   return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
