@@ -134,7 +134,7 @@ Deno.serve(async (req: Request) => {
   try { body = await req.json(); }
   catch { return json({ error: "invalid_json" }, 400); }
 
-  const op = body?.op === "verify" ? "verify" : body?.op === "page" ? "page" : null;
+  const op = body?.op === "verify" ? "verify" : body?.op === "search" ? "search" : body?.op === "page" ? "page" : null;
   const term = typeof body?.term === "string" ? body.term.trim().slice(0, 200) : "";
   const scope = body?.scope === "tanakh" ? "tanakh" : "torah";
   if (!op || term.length < 2) return json({ error: "invalid_request" }, 400);
@@ -173,6 +173,28 @@ Deno.serve(async (req: Request) => {
       const endedAt = new Date().toISOString();
       await traceSpan(trace, "els_verify_occurrence_v1", startedAt, endedAt, "success", {
         capability: "els:verify",
+        owner_ref: "els_research_layer_law v3",
+        output_use: "used",
+        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v3", "els_single_engine_law v2"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      });
+      await traceFinish(trace, "success");
+      return json({ result, trace_id: trace?.traceId || null, rate });
+    }
+
+    if (op === "search") {
+      const startedAt = new Date().toISOString();
+      const result = await serviceRpc("els_search_regular_core_v1", {
+        p_term: term,
+        p_scope: scope,
+        p_maxhits: 4000,
+        p_selection_protocol: body?.selection_protocol || null,
+      });
+      const endedAt = new Date().toISOString();
+      await traceSpan(trace, "els_search_regular_core_v1", startedAt, endedAt, "success", {
+        capability: "els:search",
         owner_ref: "els_research_layer_law v3",
         output_use: "used",
         resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
