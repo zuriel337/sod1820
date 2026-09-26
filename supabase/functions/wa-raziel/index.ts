@@ -26,7 +26,7 @@ const SERVICES_INTENT = /(מה אתה|מה אפשר|מה יש|שירות|יכו�
 const EN_DOMINANT = (t) => (t.match(/[a-zA-Z]/g)||[]).length > (t.match(/[א-ת]/g)||[]).length * 1.5;
 const ACCOUNT_INTENT = /(יש לי (כבר )?חשבון|כבר יש לי חשבון|כבר נרשמתי|כבר רשומ|יש לי משתמש|יש לי מנוי|רשומ באתר|נרשמתי לאתר|יש לי כרטיס|קיים לי חשבון|כבר חבר)/i;
 const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
-const CODE_RE = /\b(\d{6})\b/;
+const EMAIL_OTP_CODE_RE = /\b(\d{6,10})\b/;
 const CANCEL_RE = /^(ביטול|בטל|עצור|לא עכשיו|אחר כך)\b/;
 const LINK_FLOW_TTL_MIN = 20;
 const GREETING_RE = /^(היי|הי|שלום|אהלן|הלו|אולן|בוקר טוב|ערב טוב|צהריים טובים|לילה טוב|מה קורה|מה נשמע|מה המצב|מי אתה|נעים מאוד)/i;
@@ -600,7 +600,7 @@ async function handleAllDMs(nowSec, policy) {
         let msg;
         if (em) {
           const sent = await startEmailOtp(em.toLowerCase());
-          if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין, שלחתי קוד בן 6 ספרות למייל ${em}. מה הקוד?\n— רזיאל · סוד 1820`; }
+          if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין, שלחתי קוד כניסה למייל ${em}. מה הקוד?\n— רזיאל · סוד 1820`; }
           else { await clearLinkFlow(phone); msg = `לא הצלחתי למצוא חשבון עם ${em}. אם יש מייל אחר — שלח אותו. להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
         } else {
           msg = `כדי לחבר את הוואטסאפ לחשבון — מה המייל שאיתו נרשמת? (או ביטול)\n— רזיאל · סוד 1820`;
@@ -610,7 +610,7 @@ async function handleAllDMs(nowSec, policy) {
         continue;
       }
       if (flow?.state === "awaiting_code") {
-        const code = (text.match(CODE_RE) || [])[1];
+        const code = (text.match(EMAIL_OTP_CODE_RE) || [])[1];
         const otherEmail = (text.match(EMAIL_RE) || [])[0];
         let msg; let outcome = "[link-code]";
         if (code && flow.email) {
@@ -623,15 +623,15 @@ async function handleAllDMs(nowSec, policy) {
           } else {
             const att = (flow.attempts || 0) + 1;
             if (att >= 4) { await clearLinkFlow(phone); msg = `הקוד לא הסתדר. אפשר לנסות שוב מאוחר יותר, או לחבר דרך האתר: ${regUrlLink}\n— רזיאל · סוד 1820`; outcome = "[link-fail]"; }
-            else { await setLinkFlow(phone, "awaiting_code", flow.email, att); msg = `הקוד לא תואם. נסה שוב — מה 6 הספרות? (או ביטול)\n— רזיאל · סוד 1820`; outcome = "[link-code-retry]"; }
+            else { await setLinkFlow(phone, "awaiting_code", flow.email, att); msg = `הקוד לא תואם. נסה שוב — מה הקוד המלא שקיבלת במייל? (או ביטול)\n— רזיאל · סוד 1820`; outcome = "[link-code-retry]"; }
           }
         } else if (otherEmail) {
           const sent = await startEmailOtp(otherEmail.toLowerCase());
-          if (sent) { await setLinkFlow(phone, "awaiting_code", otherEmail.toLowerCase()); msg = `שלחתי קוד חדש ל-${otherEmail}. מה 6 הספרות?\n— רזיאל · סוד 1820`; }
+          if (sent) { await setLinkFlow(phone, "awaiting_code", otherEmail.toLowerCase()); msg = `שלחתי קוד חדש ל-${otherEmail}. מה הקוד שקיבלת?\n— רזיאל · סוד 1820`; }
           else { await clearLinkFlow(phone); msg = `לא מצאתי חשבון עם ${otherEmail}. להרשמה: ${regUrlLink}\n— רזיאל · סוד 1820`; }
           outcome = "[link-email]";
         } else {
-          msg = `כמעט שם. שלחתי קוד בן 6 ספרות למייל שלך — מה הקוד? (או ביטול)\n— רזיאל · סוד 1820`;
+          msg = `כמעט שם. שלחתי קוד כניסה למייל שלך — מה הקוד? (או ביטול)\n— רזיאל · סוד 1820`;
         }
         const okId = await sendVerified({ chatId, message: msg }); if (!okId) await enqueueOutbox("raziel-link:"+msgId, chatId, msg, text);
         await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM-anon", text_in: text.slice(0,500), reply_out: outcome, action: "raziel_dm" });
