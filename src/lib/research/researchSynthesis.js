@@ -134,7 +134,7 @@ export function normalizeResearchSynthesis(input, {
     claims: Object.freeze(claims),
     motifs: Object.freeze(motifs),
     freeze: Object.freeze({
-      frozen: freezeIn.frozen !== false,
+      frozen: freezeIn.frozen === true,
       frozen_at: clean(freezeIn.frozen_at || freezeIn.frozenAt) || clean(frozenAt),
       policy_version: clean(freezeIn.policy_version || freezeIn.policyVersion) || "research-synthesis-seam-v1",
       source_bundle_contract_version: sourceBundleContractVersion ?? null,
