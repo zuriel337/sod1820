@@ -1,5 +1,5 @@
 import { aggregateFindings } from "../nameNormalize.js";
-import { normalizeResearchSynthesis } from "./researchSynthesis.js";
+import { normalizeResearchSynthesis, SYNTHESIS_STATUS } from "./researchSynthesis.js";
 
 export const NORMALIZED_MESSAGE_REFLECTION_VERSION = "normalized-message-reflection-v1";
 export const THREE_CARD_POSITIONS = Object.freeze(["המצב", "האתגר", "העצה"]);
@@ -140,6 +140,9 @@ export async function composeNormalizedMessageReflection({
     frozenAt,
     sourceBundleContractVersion: safeBundle?.contract_version ?? null,
   });
+  if (synthesis?.status !== SYNTHESIS_STATUS.COMPOSED) {
+    throw new TypeError("normalizedMessageReflection: reflection requires composed synthesis");
+  }
   if (!synthesis?.freeze?.frozen) {
     throw new TypeError("normalizedMessageReflection: synthesis must be frozen before reflection");
   }
