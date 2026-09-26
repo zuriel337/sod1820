@@ -275,29 +275,11 @@ jobs:
 
             for (const width of [390, 1440]) {
               const aiRequests = [];
-              const calcDiagnostics = { pageErrors: [], consoleErrors: [], requestFailures: [] };
               page.on('request', (request) => {
                 if (/ai-analyze|anthropic|openai/i.test(request.url())) aiRequests.push(request.url());
               });
-              page.on('pageerror', (error) => calcDiagnostics.pageErrors.push(String(error?.stack || error?.message || error)));
-              page.on('console', (message) => {
-                if (message.type() === 'error') calcDiagnostics.consoleErrors.push(message.text());
-              });
-              page.on('requestfailed', (request) => {
-                calcDiagnostics.requestFailures.push({ url: request.url(), failure: request.failure()?.errorText || null });
-              });
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
-              await page.waitForTimeout(1200);
-              console.log('[calculator-2029-diagnostic]', JSON.stringify({
-                width,
-                url: page.url(),
-                title: await page.title(),
-                rootText: (await page.locator('#root').innerText().catch(() => '')).slice(0, 800),
-                bodyPrefix: (await page.locator('body').innerText().catch(() => '')).slice(0, 800),
-                inputCount: await page.locator('#calculator-2029-input').count(),
-                ...calcDiagnostics,
-              }));
 
               const input = page.locator('#calculator-2029-input');
               await input.fill(goldens[0]);
