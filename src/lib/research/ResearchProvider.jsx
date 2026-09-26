@@ -1,5 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useLayoutEffect, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "../AuthContext.jsx";
+import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
+import { trackResearch } from "../tracking.js";
+import { signalAiBehavior } from "../supabase.js";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
@@ -11,43 +15,15 @@ import {
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
-import { useAuth } from "../AuthContext.jsx";
-import { getCloudResearch, saveCloudResearch } from "../auth.js";
-import { trackResearch } from "../tracking.js";
-import { signalAiBehavior } from "../supabase.js";
+import { entityRef, makeResearchOp, principalToken } from "./researchSyncState.js";
+import { createResearchSyncRuntime } from "./researchSyncRuntime.js";
 
-const KEY = "sod_research_v1";
-const CONTEXT_SESSION_KEY = "sod_research_context_session_v1";
 const MODE_ROLLOUT_KEY = "sod_mode_rollout_v1";
+const LEGACY_UNSCOPED_KEY = "sod_research_v1";
 const Ctx = createContext(null);
 export const useResearch = () => useContext(Ctx) || {};
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
-}
-
-function loadSessionContext() {
-  try { return normalizeResearchContext(JSON.parse(sessionStorage.getItem(CONTEXT_SESSION_KEY) || "null")); }
-  catch { return null; }
-}
-
-function persistSessionContext(context) {
-  try {
-    if (context) sessionStorage.setItem(CONTEXT_SESSION_KEY, JSON.stringify(context));
-    else sessionStorage.removeItem(CONTEXT_SESSION_KEY);
-  } catch { /* noop */ }
-}
-
-function initialMode(init) {
-  try {
-    if (localStorage.getItem(MODE_ROLLOUT_KEY) !== "1") {
-      const returning = localStorage.getItem(KEY) != null;
-      localStorage.setItem(MODE_ROLLOUT_KEY, "1");
-      if (returning) return "discovery";
-    }
-  } catch { /* noop */ }
-  return init.mode === "discovery" ? "discovery" : "reader";
-}
+function browserStorage(name) { try { return globalThis[name]; } catch { return null; } }
+const publishContext = (context) => emit(EVENTS.RESEARCH_CONTEXT_CHANGE, context);
 
 function numberRouteSelection(pathname, search = "") {
   const match = String(pathname || "").match(/^\/(2029\/)?number\/([^/?#]+)/);
@@ -83,81 +59,138 @@ function numberRouteSelection(pathname, search = "") {
 }
 
 export default function ResearchProvider({ children }) {
+  const { user, loading } = useAuth();
+  // A new account gets a new component BEFORE children render. No A-state/B-identity frame.
+  // Same-account token refresh is not a new principal and keeps the research session intact.
+  const principal = loading ? "auth:pending" : principalToken(user?.id);
+  return (
+    <PrincipalResearchProvider key={principal} userId={loading ? null : user?.id || null} disabled={!!loading}>
+      {children}
+    </PrincipalResearchProvider>
+  );
+}
+
+function PrincipalResearchProvider({ children, userId, disabled }) {
   const { pathname, search } = useLocation();
-  const init = load();
-  const [cart, setCart] = useState(() => init.cart || []);
-  const [saved, setSaved] = useState(() => init.saved || []);
-  const [pinned, setPinned] = useState(() => init.pinned || []);
-  const [history, setHistory] = useState(() => init.history || []);
-  const [collections, setCollections] = useState(() => init.collections || []);
-  const [journeys, setJourneys] = useState(() => init.journeys || []);
-  // Active Research Context is tab/session navigation state. Local/cloud context remains only a durable last snapshot.
-  const [context, setContextState] = useState(loadSessionContext);
-  const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
+  const [runtime] = useState(() => createResearchSyncRuntime({
+    userId, disabled,
+    storage: browserStorage("localStorage"), session: browserStorage("sessionStorage"),
+    readCloud: getCloudResearch, writeCloud: applyCloudResearchOps, onContext: publishContext,
+  }));
+  const state = useSyncExternalStore(runtime.subscribe, runtime.getSnapshot, runtime.getSnapshot);
+  useLayoutEffect(() => { runtime.start(); return () => runtime.stop(); }, [runtime]);
+  useEffect(() => {
+    const reconnect = () => { void runtime.retry(); };
+    window.addEventListener("online", reconnect);
+    return () => window.removeEventListener("online", reconnect);
+  }, [runtime]);
+
+  // One-time discovery-mode rollout nudge for a returning local (pre-sync) user. Applied at most
+  // once per browser, and never for a fresh/guest install that never had local research state.
+  useEffect(() => {
+    if (disabled) return;
+    try {
+      const storage = browserStorage("localStorage");
+      if (!storage || storage.getItem(MODE_ROLLOUT_KEY) === "1") return;
+      const returning = storage.getItem(LEGACY_UNSCOPED_KEY) != null;
+      storage.setItem(MODE_ROLLOUT_KEY, "1");
+      if (returning) runtime.setMode("discovery");
+    } catch { /* noop */ }
+  }, [disabled, runtime]);
+
   const [pathResume, setPathResume] = useState({ loading: false, latest: null, error: null });
-  const [mode, setModeState] = useState(() => initialMode(init));
 
-  useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, context, mode })); } catch { /* noop */ }
-  }, [cart, saved, pinned, history, collections, journeys, context, mode]);
-
-  useEffect(() => { persistSessionContext(context); }, [context]);
-
-  const { user } = useAuth();
-  const pulled = useRef(false);
-  const previousUserId = useRef(user?.id || null);
-
-  // Logout/account switch ends only the active Context. Saved/workspace state is untouched.
-  useEffect(() => {
-    const prev = previousUserId.current;
-    const next = user?.id || null;
-    if (prev && prev !== next) {
-      setContextState(null);
-      persistSessionContext(null);
-      setPathResume({ loading: false, latest: null, error: null });
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
+  const actions = useMemo(() => {
+    const now = () => runtime.getSnapshot();
+    const op = makeResearchOp;
+    const history = (entity) => op("history_add", { entity: { ...entity, t: Date.now() } });
+    function remove(bucket, key, id) {
+      const e = now()[key].find((x) => x.id === id);
+      return e ? runtime.commit([op("item_delete", { bucket, entity_type: e.type, entity_ref: entityRef(e) })]) : false;
     }
-    previousUserId.current = next;
-  }, [user?.id]);
+    function setContext(value, merge = false) {
+      const current = now().context;
+      const resolved = typeof value === "function" ? value(current) : value;
+      const context = merge ? mergeResearchContext(current, resolved) : resolved == null ? null : mergeResearchContext(null, resolved);
+      return runtime.commit([op("context_set", { context })]);
+    }
+    return {
+      addToResearch(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const ok = runtime.commit([op("item_upsert", { bucket: "cart", entity }), history(entity)]);
+        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); trackResearch("add", { type: entity.type }); signalAiBehavior("research"); }
+        return ok;
+      },
+      removeFromResearch: (id) => remove("cart", "cart", id),
+      clearResearch() {
+        const ok = runtime.commit([op("item_clear_bucket", { bucket: "cart" })]);
+        if (ok) emit(EVENTS.RESEARCH_CLEAR);
+        return ok;
+      },
+      saveItem(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const ok = runtime.commit([op("item_upsert", { bucket: "library", entity }), history(entity)]);
+        if (ok) { emit(EVENTS.ITEM_SAVE, entity); trackResearch("save", { type: entity.type }); }
+        return ok;
+      },
+      removeSaved: (id) => remove("library", "saved", id),
+      togglePin(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const on = now().pinned.some((e) => e.id === entity.id);
+        const ok = on ? remove("pinned", "pinned", entity.id) : runtime.commit([op("item_upsert", { bucket: "pinned", entity })]);
+        if (ok) emit(on ? EVENTS.PIN_REMOVE : EVENTS.PIN_ADD, entity);
+        return ok;
+      },
+      isPinned: (id) => now().pinned.some((e) => e.id === id),
+      logHistory: (entity) => (entity?.id ? runtime.commit([history(entity)]) : false),
+      clearHistory: () => runtime.commit([op("history_clear")]),
+      addCollection(name, meta = {}) {
+        const id = `c${crypto.randomUUID()}`;
+        const collection = {
+          id, name: (name || "אוסף").trim(), topic: meta.topic || null, world: meta.world || null,
+          number: meta.number == null ? null : Number(meta.number), year: meta.year == null ? null : Number(meta.year),
+        };
+        return runtime.commit([op("collection_add", { collection })]) ? id : null;
+      },
+      updateCollection: (id, patch) => runtime.commit([op("collection_update", { id, patch })]),
+      removeCollection: (id) => runtime.commit([op("collection_remove", { id })]),
+      assignCollection(itemId, collId) {
+        const e = now().saved.find((x) => x.id === itemId);
+        return e ? runtime.commit([op("collection_assign", { entity_type: e.type, entity_ref: entityRef(e), coll_id: collId || null })]) : false;
+      },
+      addJourney(j) {
+        if (j?.root == null) return false;
+        const journey = { id: `j${j.root}`, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
+        const ok = runtime.commit([op("journey_add", { journey })]);
+        if (ok) trackResearch("journey", { root: j.root });
+        return ok;
+      },
+      removeJourney: (id) => runtime.commit([op("journey_remove", { id })]),
+      clearJourneys: () => runtime.commit([op("journey_clear")]),
+      setResearchContext: (value) => setContext(value),
+      updateResearchContext: (patch) => setContext(patch, true),
+      clearResearchContext: () => setContext(null),
+      setMode: runtime.setMode,
+      enterDiscovery: () => runtime.setMode("discovery"),
+      toggleMode: () => runtime.setMode(now().mode === "discovery" ? "reader" : "discovery"),
+      retryResearchSync: runtime.retry,
+      resolveResearchSyncConflict: runtime.resolveConflict,
+      exportPendingResearch: runtime.exportPending,
+      listResearchRecoveryJournals: runtime.listRecoveryJournals,
+      recoverResearchJournal: runtime.recoverJournal,
+      exportLegacyResearch: runtime.exportLegacy,
+    };
+  }, [runtime]);
 
-  // Cloud owns durable user state, but may never overwrite the active tab's Research Context.
-  // d.context is intentionally treated as a last-session snapshot for future explicit resume, not auto-activation.
-  useEffect(() => {
-    pulled.current = false;
-    if (!user) return;
-    let alive = true;
-    getCloudResearch(user.id).then(d => {
-      if (!alive) return;
-      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length) || d.context);
-      if (has) {
-        if (Array.isArray(d.cart)) setCart(d.cart);
-        if (Array.isArray(d.saved)) setSaved(d.saved);
-        if (Array.isArray(d.pinned)) setPinned(d.pinned);
-        if (Array.isArray(d.history)) setHistory(d.history);
-        if (Array.isArray(d.collections)) setCollections(d.collections);
-        if (Array.isArray(d.journeys)) setJourneys(d.journeys);
-      } else {
-        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {});
-      }
-      pulled.current = true;
-      setCloudHydrationRevision(v => v + 1);
-    }).catch(() => {
-      pulled.current = true;
-      if (alive) setCloudHydrationRevision(v => v + 1);
-    });
-    return () => { alive = false; };
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Path resumability is a separate explicit continuity projection. Loading the
-  // latest saved Path NEVER activates it; only resumeResearchPath() may replace
-  // the active session Context.
+  // Path resumability is a separate explicit continuity projection over the same runtime Context.
+  // Loading the latest saved Path NEVER activates it; only resumeResearchPath() may replace it.
   useEffect(() => {
     let alive = true;
-    if (!user?.id) {
+    if (!userId) {
       setPathResume({ loading: false, latest: null, error: null });
       return () => { alive = false; };
     }
-    setPathResume((state) => ({ ...state, loading: true, error: null }));
+    setPathResume((prev) => ({ ...prev, loading: true, error: null }));
     getLatestResearchPath().then((snapshot) => {
       if (!alive) return;
       if (snapshot?.ok) setPathResume({ loading: false, latest: snapshot, error: null });
@@ -166,67 +199,117 @@ export default function ResearchProvider({ children }) {
       if (alive) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
     });
     return () => { alive = false; };
-  }, [user?.id]);
+  }, [userId]);
 
-  useEffect(() => {
-    if (!user || !pulled.current) return;
-    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {}); }, 700);
-    return () => clearTimeout(t);
-  }, [user, cart, saved, pinned, history, collections, journeys, context]);
+  const saveCurrentResearchPath = useMemo(() => async ({ href = null, label = null, surface = null } = {}) => {
+    if (!userId) return { ok: false, error: "authentication_required" };
+    const current = normalizeResearchContext(runtime.getSnapshot().context);
+    if (!current?.subject) return { ok: false, error: "no_research_context" };
 
-  const logHistory = useCallback((entity) => {
-    if (!entity || !entity.id) return;
-    setHistory(h => [{ ...entity, t: Date.now() }, ...h.filter(e => e.id !== entity.id)].slice(0, 50));
-  }, []);
-  const clearHistory = useCallback(() => setHistory([]), []);
+    const activePathId = current.journey?.kind === "research_path" && isResearchPathId(current.journey?.id)
+      ? current.journey.id
+      : null;
+    const expectedRevisionNo = activePathId && Number.isInteger(current.journey?.revisionNo)
+      ? current.journey.revisionNo
+      : null;
 
-  const setResearchContext = useCallback((next) => {
-    setContextState((prev) => {
-      const value = typeof next === "function" ? next(prev) : next;
-      const normalized = value == null ? null : mergeResearchContext(null, value);
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
-      return normalized;
+    setPathResume((prev) => ({ ...prev, loading: true, error: null }));
+    const saveKey = researchPathOperationKey("save");
+    let result;
+    try {
+      result = await saveResearchPathSnapshot({
+        context: current, href, label, surface, pathId: activePathId, expectedRevisionNo, saveKey,
+      });
+
+      // One bounded recovery pass: a second tab/device may have appended after
+      // this Context was loaded. Refresh the latest revision and retry with the
+      // SAME operation key so a network-uncertain first write remains idempotent.
+      if (activePathId && result?.error === "revision_conflict") {
+        const latest = await getLatestResearchPath(activePathId);
+        if (latest?.ok && Number.isInteger(latest.revision_no)) {
+          result = await saveResearchPathSnapshot({
+            context: current, href, label, surface, pathId: activePathId, expectedRevisionNo: latest.revision_no, saveKey,
+          });
+        }
+      }
+    } catch (error) {
+      result = { ok: false, error: error?.message || "save_failed" };
+    }
+
+    if (!result?.ok) {
+      setPathResume((prev) => ({ ...prev, loading: false, error: result?.error || "save_failed" }));
+      return result;
+    }
+
+    const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
+    actions.updateResearchContext({
+      journey: { id: result.path_id, kind: "research_path", position, revisionId: result.revision_id, revisionNo: result.revision_no },
     });
-  }, []);
-  const updateResearchContext = useCallback((patch) => {
-    setContextState((prev) => {
-      const normalized = mergeResearchContext(prev, patch);
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
-      return normalized;
-    });
-  }, []);
-  const clearResearchContext = useCallback(() => {
-    persistSessionContext(null);
-    setContextState(null);
-    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
-  }, []);
+    setPathResume({ loading: false, latest: result, error: null });
+    trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
+    return result;
+  }, [userId, runtime, actions]);
+
+  const resumeResearchPath = useMemo(() => async (pathId = null) => {
+    if (!userId) return { ok: false, error: "authentication_required" };
+    setPathResume((prev) => ({ ...prev, loading: true, error: null }));
+    let snapshot;
+    try {
+      snapshot = await getLatestResearchPath(pathId || pathResume.latest?.path_id || null);
+    } catch (error) {
+      snapshot = { ok: false, error: error?.message || "resume_failed" };
+    }
+    if (!snapshot?.ok) {
+      setPathResume((prev) => ({ ...prev, loading: false, error: snapshot?.error || "not_found" }));
+      return snapshot;
+    }
+    const next = contextFromResearchPathSnapshot(snapshot);
+    if (!next?.subject) {
+      const failure = { ok: false, error: "resume_context_unavailable", path_id: snapshot.path_id };
+      setPathResume({ loading: false, latest: snapshot, error: failure.error });
+      return failure;
+    }
+
+    // Explicit user action only: now restore the stored navigation state. Access
+    // was intentionally stripped from the durable snapshot and must be resolved
+    // again by the destination surface/current session.
+    actions.setResearchContext(next);
+    setPathResume({ loading: false, latest: snapshot, error: null });
+    trackResearch("path_resume", { revision: snapshot.revision_no });
+    return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
+  }, [userId, pathResume.latest?.path_id, actions]);
 
   useEffect(() => {
     const route = numberRouteSelection(pathname, search);
     if (!route) return;
-    setContextState((prev) => {
-      const current = normalizeResearchContext(prev);
-      const sameSelection = current?.selection?.entityId === route.selection.entityId
-        && current?.selection?.entityType === route.selection.entityType
-        && (current?.selection?.expression || null) === (route.selection.expression || null)
-        && (current?.selection?.method || null) === (route.selection.method || null)
-        && (current?.selection?.crossingPartner || null) === (route.selection.crossingPartner || null)
-        && current?.lens === "number";
-      if (current?.subject && sameSelection) return prev;
-      const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit) };
-      const next = current?.subject
-        ? mergeResearchContext(current, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions })
-        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions });
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-      return next;
-    });
-  }, [pathname, search, cloudHydrationRevision]);
+    const current = normalizeResearchContext(runtime.getSnapshot().context);
+    const sameSelection = current?.selection?.entityId === route.selection.entityId
+      && current?.selection?.entityType === route.selection.entityType
+      && (current?.selection?.expression || null) === (route.selection.expression || null)
+      && (current?.selection?.method || null) === (route.selection.method || null)
+      && (current?.selection?.crossingPartner || null) === (route.selection.crossingPartner || null)
+      && current?.lens === "number";
+    if (current?.subject && sameSelection) return;
+    const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit) };
+    const next = current?.subject
+      ? mergeResearchContext(current, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions })
+      : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions });
+    actions.setResearchContext(next);
+  }, [pathname, search, runtime, actions]);
 
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
-    const onElsState = (e) => {
-      if (e.origin !== window.location.origin) return;
-      const d = e.data;
+    const onElsState = (event) => {
+      if (event.origin !== window.location.origin) return;
+      // Reject detached/old-principal frames, even when origin and claimed source text match.
+      const currentFrame = [...document.querySelectorAll("iframe")].some((frame) => {
+        try {
+          const url = new URL(frame.src, location.href);
+          return url.origin === location.origin && frame.contentWindow === event.source;
+        } catch { return false; }
+      });
+      if (!currentFrame) return;
+      const d = event.data;
       if (!d || d.source !== "tzofen" || d.type !== "state" || d.status !== "ok") return;
       const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
       if (!term) return;
@@ -252,238 +335,40 @@ export default function ResearchProvider({ children }) {
       // Context preserves replay intent only. These coordinates are NOT treated as verified truth;
       // /els must replay them through the canonical server verify boundary before rendering.
       const elsSelection = {
-        entityType: "els",
-        locator,
-        term,
-        corpus: scope,
-        corpusVersion,
-        occurrenceId,
-        start,
-        skip,
-        dir,
+        entityType: "els", locator, term, corpus: scope, corpusVersion, occurrenceId, start, skip, dir,
       };
-      setContextState((prev) => {
-        const current = normalizeResearchContext(prev);
-        const sameSelection = current?.selection?.entityType === "els"
-          && current?.selection?.locator === locator
-          && current?.selection?.term === term
-          && current?.selection?.corpus === scope
-          && (current?.selection?.start ?? null) === start
-          && (current?.selection?.skip ?? null) === skip
-          && (current?.selection?.dir ?? null) === dir
-          && current?.lens === "els";
-        if (current?.subject && sameSelection) return prev;
-        const directSubject = {
-          id: term,
-          type: "phrase",
-          label: term,
-          href: `/research?tool=els&q=${encodeURIComponent(term)}`,
-        };
+      const current = normalizeResearchContext(runtime.getSnapshot().context);
+      const sameSelection = current?.selection?.entityType === "els"
+        && current?.selection?.locator === locator
+        && current?.selection?.term === term
+        && current?.selection?.corpus === scope
+        && (current?.selection?.start ?? null) === start
+        && (current?.selection?.skip ?? null) === skip
+        && (current?.selection?.dir ?? null) === dir
+        && current?.lens === "els";
+      if (!(current?.subject && sameSelection)) {
+        const directSubject = { id: term, type: "phrase", label: term, href: `/research?tool=els&q=${encodeURIComponent(term)}` };
         const next = current?.subject
           ? mergeResearchContext(current, { selection: elsSelection, lens: "els" })
           : mergeResearchContext(null, { subject: directSubject, selection: elsSelection, lens: "els" });
-        emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-        return next;
-      });
+        actions.setResearchContext(next);
+      }
 
-      logHistory({
+      actions.logHistory({
         id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
-        type: "els",
-        title: `ELS · ${term}`,
-        label: term,
-        term,
-        scope,
-        skip,
-        searchKind,
+        type: "els", title: `ELS · ${term}`, label: term, term, scope, skip, searchKind,
         href: `/lab/els?q=${encodeURIComponent(term)}`,
         metadata: {
-          engine: "tzofen",
-          corpus: scope,
-          hitId,
-          skip,
-          searchKind,
-          findingCount: Array.isArray(d.findings) ? d.findings.length : 0,
-          matrixVersion: d?.matrix?.v || null,
+          engine: "tzofen", corpus: scope, hitId, skip, searchKind,
+          findingCount: Array.isArray(d.findings) ? d.findings.length : 0, matrixVersion: d?.matrix?.v || null,
         },
       });
     };
     window.addEventListener("message", onElsState);
     return () => window.removeEventListener("message", onElsState);
-  }, [logHistory]);
+  }, [runtime, actions]);
 
-  const addToResearch = useCallback((entity) => {
-    setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
-    logHistory(entity);
-    emit(EVENTS.RESEARCH_ADD, entity);
-    trackResearch("add", { type: entity.type });
-    signalAiBehavior("research");
-  }, [logHistory]);
-  const removeFromResearch = useCallback((id) => setCart(c => c.filter(e => e.id !== id)), []);
-  const clearResearch = useCallback(() => { setCart([]); emit(EVENTS.RESEARCH_CLEAR); }, []);
-
-  const saveItem = useCallback((entity) => {
-    setSaved(s => (s.some(e => e.id === entity.id) ? s : [entity, ...s]));
-    logHistory(entity);
-    emit(EVENTS.ITEM_SAVE, entity);
-    trackResearch("save", { type: entity.type });
-  }, [logHistory]);
-  const removeSaved = useCallback((id) => setSaved(s => s.filter(e => e.id !== id)), []);
-
-  const togglePin = useCallback((entity) => {
-    setPinned(p => {
-      const on = p.some(e => e.id === entity.id);
-      const next = on ? p.filter(e => e.id !== entity.id) : [entity, ...p];
-      emit(on ? EVENTS.PIN_REMOVE : EVENTS.PIN_ADD, entity);
-      return next;
-    });
-  }, []);
-  const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
-
-  const addCollection = useCallback((name, meta) => {
-    const id = "c" + Date.now();
-    const { topic, world, number, year } = meta || {};
-    setCollections(cs => [...cs, {
-      id, name: (name || "אוסף").trim(),
-      topic: topic || null, world: world || null,
-      number: (number || number === 0) ? Number(number) : null,
-      year: (year || year === 0) ? Number(year) : null,
-    }]);
-    return id;
-  }, []);
-  const updateCollection = useCallback((id, patch) => {
-    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c)));
-  }, []);
-  const removeCollection = useCallback((id) => {
-    setCollections(cs => cs.filter(c => c.id !== id));
-    setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
-  }, []);
-  const assignCollection = useCallback((itemId, collId) => {
-    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
-  }, []);
-
-  const addJourney = useCallback((j) => {
-    if (!j || j.root == null) return;
-    const rec = { id: "j" + j.root, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
-    setJourneys(js => [rec, ...js.filter(x => x.root !== j.root)].slice(0, 30));
-    trackResearch("journey", { root: j.root });
-  }, []);
-  const removeJourney = useCallback((id) => setJourneys(js => js.filter(j => j.id !== id)), []);
-  const clearJourneys = useCallback(() => setJourneys([]), []);
-
-  const saveCurrentResearchPath = useCallback(async ({ href = null, label = null, surface = null } = {}) => {
-    if (!user?.id) return { ok: false, error: "authentication_required" };
-    const current = normalizeResearchContext(context);
-    if (!current?.subject) return { ok: false, error: "no_research_context" };
-
-    const activePathId = current.journey?.kind === "research_path" && isResearchPathId(current.journey?.id)
-      ? current.journey.id
-      : null;
-    const expectedRevisionNo = activePathId && Number.isInteger(current.journey?.revisionNo)
-      ? current.journey.revisionNo
-      : null;
-
-    setPathResume((state) => ({ ...state, loading: true, error: null }));
-    const saveKey = researchPathOperationKey("save");
-    let result;
-    try {
-      result = await saveResearchPathSnapshot({
-        context: current,
-        href,
-        label,
-        surface,
-        pathId: activePathId,
-        expectedRevisionNo,
-        saveKey,
-      });
-
-      // One bounded recovery pass: a second tab/device may have appended after
-      // this Context was loaded. Refresh the latest revision and retry with the
-      // SAME operation key so a network-uncertain first write remains idempotent.
-      if (activePathId && result?.error === "revision_conflict") {
-        const latest = await getLatestResearchPath(activePathId);
-        if (latest?.ok && Number.isInteger(latest.revision_no)) {
-          result = await saveResearchPathSnapshot({
-            context: current,
-            href,
-            label,
-            surface,
-            pathId: activePathId,
-            expectedRevisionNo: latest.revision_no,
-            saveKey,
-          });
-        }
-      }
-    } catch (error) {
-      result = { ok: false, error: error?.message || "save_failed" };
-    }
-
-    if (!result?.ok) {
-      setPathResume((state) => ({ ...state, loading: false, error: result?.error || "save_failed" }));
-      return result;
-    }
-
-    const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
-    setContextState((prev) => {
-      const next = mergeResearchContext(prev, {
-        journey: {
-          id: result.path_id,
-          kind: "research_path",
-          position,
-          revisionId: result.revision_id,
-          revisionNo: result.revision_no,
-        },
-      });
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-      return next;
-    });
-    setPathResume({ loading: false, latest: result, error: null });
-    trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
-    return result;
-  }, [user?.id, context]);
-
-  const resumeResearchPath = useCallback(async (pathId = null) => {
-    if (!user?.id) return { ok: false, error: "authentication_required" };
-    setPathResume((state) => ({ ...state, loading: true, error: null }));
-    let snapshot;
-    try {
-      snapshot = await getLatestResearchPath(pathId || pathResume.latest?.path_id || null);
-    } catch (error) {
-      snapshot = { ok: false, error: error?.message || "resume_failed" };
-    }
-    if (!snapshot?.ok) {
-      setPathResume((state) => ({ ...state, loading: false, error: snapshot?.error || "not_found" }));
-      return snapshot;
-    }
-    const next = contextFromResearchPathSnapshot(snapshot);
-    if (!next?.subject) {
-      const failure = { ok: false, error: "resume_context_unavailable", path_id: snapshot.path_id };
-      setPathResume({ loading: false, latest: snapshot, error: failure.error });
-      return failure;
-    }
-
-    // Explicit user action only: now restore the stored navigation state. Access
-    // was intentionally stripped from the durable snapshot and must be resolved
-    // again by the destination surface/current session.
-    persistSessionContext(next);
-    setContextState(next);
-    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-    setPathResume({ loading: false, latest: snapshot, error: null });
-    trackResearch("path_resume", { revision: snapshot.revision_no });
-    return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
-  }, [user?.id, pathResume.latest?.path_id]);
-
-  const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
-  const enterDiscovery = useCallback(() => setModeState("discovery"), []);
-  const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
-
-  const value = {
-    cart, saved, pinned, history, collections, journeys, context, pathResume,
-    addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
-    logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
-    addJourney, removeJourney, clearJourneys,
-    setResearchContext, updateResearchContext, clearResearchContext,
-    saveCurrentResearchPath, resumeResearchPath,
-    mode, setMode, enterDiscovery, toggleMode,
-  };
+  const value = useMemo(() => ({ ...state, pathResume, saveCurrentResearchPath, resumeResearchPath, ...actions }),
+    [state, pathResume, saveCurrentResearchPath, resumeResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

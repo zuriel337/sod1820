@@ -166,7 +166,9 @@ assert.match(provider, /saveCurrentResearchPath/);
 assert.match(provider, /resumeResearchPath/);
 assert.match(provider, /revision_conflict/);
 assert.match(provider, /SAME operation key/);
-assert.match(provider, /persistSessionContext\(next\)/);
+// Sync-runtime era: explicit resume commits the restored Context through the same
+// principal-bound runtime (which persists it), not a bespoke sessionStorage writer.
+assert.match(provider, /actions\.setResearchContext\(next\)/);
 assert.match(frame, /data-research-path-resume="available"/);
 assert.match(frame, /שמור מסלול/);
 assert.match(frame, /המשך מהמסלול השמור/);
