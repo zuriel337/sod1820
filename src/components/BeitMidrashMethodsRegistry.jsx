@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistry.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
+import { methodMechanicalDefinition } from "../lib/research/beitMidrashMethodDefinition.js";
 
 // 📐 ספריית שיטות הגימטריה — Registry/Engine projection (GEMATRIA_METHOD_EXPLANATION_PROJECTION_V1).
 // זהו Reader בלבד מעל fetchGematriaMethodStates + fetchNumberMethodProfile + fetchGematriaMethodTrace
@@ -18,7 +19,6 @@ const EXECUTION_KIND_LABEL = {
   context_activated: "מופעלת בהקשר",
   unimplemented: "טרם מומשה במנוע",
 };
-const OPERATOR_LABEL = { sum: "+", diff: "−" };
 const NOT_SCANNABLE_REASON_LABEL = {
   scannable_flag_false_human_gate: "לא נסרקת כרגע (שער אנושי)",
   not_active_human_gate: "לא פעילה כרגע (שער אנושי)",
@@ -60,8 +60,7 @@ function MethodCard({ row, sampleExpression, profileByKey, labelByKey, palette: 
   const hasComputed = profileRow && Number.isFinite(profileRow.computedValue);
   const derivedFrom = Array.isArray(row.derived_from) ? row.derived_from : (Array.isArray(profileRow?.derivedFrom) ? profileRow.derivedFrom : []);
   const operator = row.operator || profileRow?.operator || null;
-  const soul = profileRow?.soul || null;
-  const sub = profileRow?.sub || null;
+  const definition = methodMechanicalDefinition(row, profileRow || {}, labelByKey);
   const scannable = row.scannable !== false;
   const executionKindLabel = EXECUTION_KIND_LABEL[row.execution_kind] || row.execution_kind || null;
 
@@ -103,18 +102,29 @@ function MethodCard({ row, sampleExpression, profileByKey, labelByKey, palette: 
         )}
       </div>
 
-      {derivedFrom.length > 0 && (
-        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: "0 0 8px" }}>
-          <b style={{ color: L.goldDeep }}>מבנה מכני: </b>
-          {row.display_label || row.method_key} = {derivedFrom.map(k => labelByKey.get(k) || k).join(` ${OPERATOR_LABEL[operator] || operator || "·"} `)}
+      <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
+        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: 0 }}>
+          <b style={{ color: L.goldDeep }}>מה השיטה עושה: </b>{definition.what}
         </p>
-      )}
-      {(soul || sub) && (
-        <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "0 0 8px" }}>
-          {sub && <span><b style={{ color: L.goldDeep }}>תת-קטגוריה: </b>{sub}{soul ? " · " : ""}</span>}
-          {soul && <span><b style={{ color: L.goldDeep }}>נשמה: </b>{soul}</span>}
-        </p>
-      )}
+        {definition.structure && (
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, margin: 0 }}>
+            <b style={{ color: L.goldDeep }}>איך היא בנויה: </b>{definition.structure}
+          </p>
+        )}
+        {definition.dependencies.length > 0 && (
+          <div style={{ display: "grid", gap: 4 }}>
+            <b style={{ color: L.goldDeep, fontFamily: F.body, fontSize: 13 }}>מתי צריך להיזהר מספירה כפולה:</b>
+            {definition.dependencies.map((item, index) => (
+              <span key={index} style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}>• {item}</span>
+            ))}
+          </div>
+        )}
+        {definition.interpretation && (
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+            <b style={{ color: L.goldDeep }}>רעיון מחקרי: </b>{definition.interpretation}
+          </p>
+        )}
+      </div>
 
       <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 11, margin: "2px 0 6px" }}>דוגמה חיה · {sampleExpression}</div>
       {hasComputed ? (
