@@ -1309,7 +1309,29 @@ export default function BeitMidrashPage() {
             </div>
 
             {tab === "searches" && isAdmin && <SearchesTab />}
-            {tab === "calc" && <CalcTab initial={nParam} seed={wParam} />}
+            {tab === "calc" && (
+              <>
+                <div
+                  role="status"
+                  aria-label="הודעת שדרוג המחשבון"
+                  style={{
+                    marginBottom: 16,
+                    padding: "12px 14px",
+                    border: `1px solid ${L.line}`,
+                    borderRadius: 12,
+                    background: L.soft,
+                    color: L.sub,
+                    fontFamily: F.heading,
+                    fontSize: 13.5,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  <strong style={{ color: L.goldDeep }}>המחשבון ממשיך לעבוד כרגיל.</strong>{" "}
+                  במערכת החדשה של סוד 1820 נבנה עבורו שדרוג גדול — עם חיבור עמוק יותר לשיטות, למחקר ולהצלבות.
+                </div>
+                <CalcTab initial={nParam} seed={wParam} />
+              </>
+            )}
             {tab === "crosses" && <CrossesTab />}
             {tab === "methods" && <MethodsTab focusMethodKey={methodFocusKey} />}
             {tab === "atlas" && <AtlasFindings />}
