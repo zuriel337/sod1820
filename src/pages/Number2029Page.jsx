@@ -758,7 +758,7 @@ function NumberPageBody() {
     const busy = (
       state.loading
       || !data
-      || !clean(activeExpression)
+      || (families.length > 0 && !clean(activeExpression))
       || curationState.loading
       || methodProfileState.loading
       || methodResultState.loading
