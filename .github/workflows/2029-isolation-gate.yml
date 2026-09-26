@@ -16,6 +16,8 @@ on:
       - "src/lib/operationalTraceContract.js"
       - "src/lib/supabase.js"
       - "src/lib/research/researchContext.js"
+      - "src/lib/research/researchComposerW2.js"
+      - "src/lib/research/researchRunRequest.js"
       - "src/lib/research/ResearchProvider.jsx"
       - "src/lib/research/numberExpressionFocus.js"
       - "src/lib/research/world2029Presentation.js"
@@ -38,6 +40,9 @@ on:
       - "scripts/test-operational-trace-runtime.mjs"
       - "scripts/test-replayable-golden-no-black-box.mjs"
       - "supabase/functions/ai-analyze/index.ts"
+      - "supabase/functions/research-run/index.ts"
+      - "scripts/package-research-run.mjs"
+      - "scripts/test-research-run-contract.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
@@ -72,6 +77,10 @@ jobs:
         run: npm run test:replayable-golden
       - name: Server capability execution gate acceptance
         run: npm run test:server-capability-gate
+      - name: W2 public Number research runtime acceptance
+        run: npm run test:research-run
+      - name: Package W2 research-run Edge transport
+        run: npm run package:research-run
       - name: 2029 server SEO / AI metadata parity
         run: npm run test:2029-server-seo-ai
       - name: Research Path resumability runtime acceptance

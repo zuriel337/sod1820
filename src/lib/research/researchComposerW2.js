@@ -9,6 +9,7 @@ import {
   failedResearchSynthesis,
   normalizeResearchSynthesis,
 } from "./researchSynthesis.js";
+import { buildRazielNextAction, mergeRazielNextAction } from "./razielActionContract.js";
 
 // W2.1 — Cross-capability Research Composer.
 // Canonical owners/adapters are dependency-injected; this layer owns no engine truth or registry.
@@ -77,12 +78,14 @@ export async function composeResearchW2({
   contextType = "public_user",
   surfaceContext = null,
   requestedCapabilities = [],
+  capabilityAllowlist = null,
   requestedDepth = null,
   executors = {},
   ranking = [],
   resolvedRunSnapshot = null,
   nextActions = [],
   synthesizer = null,
+  executionObserver = null,
   signal = null,
 } = {}) {
   const identityResolution = resolveResearchIdentities({
@@ -99,6 +102,7 @@ export async function composeResearchW2({
     contextType,
     surfaceContext,
     requestedCapabilities,
+    capabilityAllowlist,
     requestedDepth,
   });
 
@@ -120,6 +124,7 @@ export async function composeResearchW2({
       }));
       continue;
     }
+    const capabilityStartedAt = new Date().toISOString();
     const executed = await executeCapability({
       capability,
       executor: byCapability.get(capability),
@@ -128,7 +133,26 @@ export async function composeResearchW2({
       signal,
       authorizationContext,
     });
+    const capabilityEndedAt = new Date().toISOString();
     capabilityResults.push(executed);
+    if (typeof executionObserver === "function") {
+      try {
+        executionObserver(Object.freeze({
+          type: "capability",
+          capability,
+          started_at: capabilityStartedAt,
+          ended_at: capabilityEndedAt,
+          status: executed.status || null,
+          owner: executed.owner || null,
+          finding_count: Array.isArray(executed.findings) ? executed.findings.length : 0,
+          bounded: executed.bounded ? {
+            returned_count: executed.bounded.returned_count ?? null,
+            total_count: executed.bounded.total_count ?? null,
+            truncated: executed.bounded.truncated === true,
+          } : null,
+        }));
+      } catch { /* observability consumer may not alter research semantics */ }
+    }
     // Continuation is first-class: a bounded capability tells the caller exactly how to ask for the
     // rest of the source population instead of leaving a window to look source-exhaustive.
     if (executed.bounded?.truncated && executed.bounded?.continuation) {
@@ -175,12 +199,27 @@ export async function composeResearchW2({
     capabilities: capabilityResults,
     ranking,
     resolvedRunSnapshot: snapshot,
-    nextActions: [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+    nextActions: mergeRazielNextAction(
+      [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+      null,
+    ),
     synthesis: null,
     accessDescriptor: plan.access,
   });
 
-  if (typeof synthesizer !== "function") return baseBundle;
+  const withRazielAction = (bundle, synthesis = null) => {
+    const action = buildRazielNextAction({
+      plan: bundle?.plan || null,
+      synthesis,
+      coverage: bundle?.coverage || null,
+    });
+    return {
+      ...bundle,
+      next_actions: mergeRazielNextAction(bundle?.next_actions, action),
+    };
+  };
+
+  if (typeof synthesizer !== "function") return withRazielAction(baseBundle, null);
 
   try {
     const rawSynthesis = await synthesizer({ bundle: baseBundle, signal });
@@ -189,15 +228,13 @@ export async function composeResearchW2({
       frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
       sourceBundleContractVersion: baseBundle.contract_version,
     });
-    return { ...baseBundle, synthesis };
+    return withRazielAction({ ...baseBundle, synthesis }, synthesis);
   } catch (error) {
-    return {
-      ...baseBundle,
-      synthesis: failedResearchSynthesis(error, {
-        frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
-        sourceBundleContractVersion: baseBundle.contract_version,
-      }),
-    };
+    const synthesis = failedResearchSynthesis(error, {
+      frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
+      sourceBundleContractVersion: baseBundle.contract_version,
+    });
+    return withRazielAction({ ...baseBundle, synthesis }, synthesis);
   }
 }
 
