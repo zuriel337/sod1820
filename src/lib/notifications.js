@@ -1,6 +1,9 @@
+import { supabase } from "./supabase.js";
+import { canonicalFollowTopic } from "./followIdentity.js";
+
 // ===== מרכז התראות — נושאים וערוצים (תשתית, ערוץ-אגנוסטי) =====
-// מקור אחד לכל הערוצים: מייל (פעיל), Push ו-WhatsApp (עתיד). כל משתמש בוחר
-// אילו נושאים מעניינים אותו — וכל ערוץ ישלח בעתיד רק את מה שסומן.
+// מקור אחד לכל ההתראות: Follow נשמר ככוונת-מעקב, וה-Dispatcher החי שולח כרגע In-App.
+// Email / Push / WhatsApp הם ערוצי delivery נפרדים שדורשים consent מפורש אחרי זהות.
 // העדפות נשמרות ב-notification_prefs (לפי user_id / visitor_id).
 
 // רשימה רזה בכוונה — נושא רחב אחד לכל "עולם". אין צורך לפצל (התכנסות/הצלבה =
@@ -11,25 +14,26 @@ export const NOTIFICATION_TOPICS = [
   { key: "gematria",     label: "גימטריה",          emoji: "🔢" },
   { key: "hints",        label: "רמזים",            emoji: "🔍" },
   { key: "news",         label: "חדשות ואירועים",   emoji: "🗞️" },
-  { key: "els",          label: "דילוגי אותיות",    emoji: "🧩" },
-  { key: "num_1820",     label: "מספר 1820",        emoji: "👑" },
+  { key: "codes:new",    label: "דילוגי אותיות",    emoji: "🧩" },
+  { key: "number:1820",  label: "מספר 1820",        emoji: "👑" },
   { key: "courses",      label: "קורסים ושיעורים",  emoji: "🎓" },
 ];
 
-// ערוץ פעיל אחד (מייל) + שניים עתידיים שמוצגים מנוטרלים — שומר על החזון בלי לבלבל.
+// Follow v19: שום ערוץ חיצוני אינו מופעל מעצם Follow.
+// ערוץ הופך פעיל רק בהליך consent נפרד אחרי identity verification.
 export const NOTIFICATION_CHANNELS = [
-  { key: "email",    label: "מייל",         emoji: "📧", available: true,  note: "" },
+  { key: "email",    label: "מייל",         emoji: "📧", available: false, note: "הפעלה מפורשת בהמשך" },
   { key: "push",     label: "התראות דפדפן", emoji: "🔔", available: false, note: "בקרוב" },
   { key: "whatsapp", label: "וואטסאפ",      emoji: "💬", available: false, note: "עתיד" },
 ];
 
-export const DEFAULT_CHANNELS = ["email"];
+export const DEFAULT_CHANNELS = [];
 
 // ===== טקס הכניסה (Onboarding) — שערים = עדשה חווייתית מעל אותם topics =====
 // אין מערכת מקבילה: בחירת שער = בחירת קבוצת נושאים שנשמרת ל-notification_prefs.
 export const ONBOARDING_GATES = [
   { key: "consciousness", emoji: "🔮", title: "שער התודעה", desc: "מחשבה, עומק, חיבורים בין רעיונות", topics: ["beit_midrash", "gematria"] },
-  { key: "signs",         emoji: "🔢", title: "שער הרמזים", desc: "גימטריה, מספרים, 1820, סימני מציאות", topics: ["hints", "num_1820", "gematria"] },
+  { key: "signs",         emoji: "🔢", title: "שער הרמזים", desc: "גימטריה, מספרים, 1820, סימני מציאות", topics: ["hints", "number:1820", "gematria"] },
   { key: "flow",          emoji: "🗞️", title: "שער הזרימה", desc: "חדשות, עדכונים, אירועים בזמן אמת", topics: ["news"] },
 ];
 
@@ -48,9 +52,8 @@ export function gatesToTopics(gateKeys = []) {
 }
 
 // ===== 🔔 תיבת ההתראות האישית (inbox) — עדשה על user_notifications =====
-// RLS מסננת אוטומטית לשורות של המשתמש המחובר. נכתב רק בצד-השרת (approve_chiddush
-// ועתידיים); הלקוח קורא ומסמן «נקרא» בלבד. אותה מערכת לכל התראה עתידית — לא מקביל.
-import { supabase } from "./supabase.js";
+// RLS מסננת אוטומטית לשורות של המשתמש המחובר. נכתב רק בצד-השרת;
+// הלקוח קורא ומסמן «נקרא» בלבד. אותה מערכת לכל התראה עתידית — לא מקביל.
 
 // שם-התצוגה של מדור חידושי-הקהילה — מקור-אמת אחד (החלטת שם: «חידושי הקהילה»).
 // הערה: תגית-המנוע נשארת 'חידושי גולשים' כמפתח-סינון פנימי יציב (לא מוצג למשתמש).
@@ -69,12 +72,11 @@ export async function getMyNotifications(limit = 30) {
 }
 
 // ===== שכבת-הייצוג (label resolution) — ההופכי של resolve_topics שב-DB =====
-// topic קנוני (cat:/author:/number:/stream:reality/codes:new + נושאי-שער ישנים) → תצוגה ידידותית.
-// זו נקודת-הבידוד בצד-הלקוח (Future-Proof v12): כשנעבור ל-cat:<id>/author:<id>, רק כאן נפתור id→שם
-// (או לפי locale) — בלי לגעת בשאר ה-UI. הזהות היא ה-topic; השם/האייקון/הקישור = ייצוג בלבד.
+// canonicalFollowTopic מאחד aliases קיימים לצורך תצוגה בלבד. ה-DB נשאר authority לזהות/dispatch.
+// cat:/author: עדיין compatibility label keys עד stable-ID migration; Number כבר stable.
 export function topicLabel(topic) {
   if (!topic) return null;
-  const t = String(topic);
+  const t = canonicalFollowTopic(topic);
   if (t.startsWith("cat:"))    { const v = t.slice(4);  return { icon: "📁", label: v, link: `/category/${encodeURIComponent(v)}`, kind: "קטגוריה" }; }
   if (t.startsWith("author:")) { const v = t.slice(7);  return { icon: "✍️", label: v, link: `/community/researcher/${encodeURIComponent(v)}`, kind: "כתב" }; }
   if (t.startsWith("number:")) { const v = t.slice(7);  return { icon: "🔢", label: v, link: `/number/${v}`, kind: "מספר" }; }
@@ -87,7 +89,7 @@ export function topicLabel(topic) {
   return { icon: "🔔", label: t, link: null, kind: "" };
 }
 
-// שלושת המצבים — לעולם לא מתערבבים (subscription_funnel_law). כרגע רק הראשון פעיל.
+// שלושת המצבים — לעולם לא מתערבבים (subscription_funnel_law).
 export const FOLLOW_STATES = [
   { key: "follow",  icon: "🔔", label: "אני עוקב",     note: "בחירה מפורשת שלך",       live: true  },
   { key: "signal",  icon: "🟢", label: "רלוונטי אליך", note: "סיגנל שהמערכת תזהה",     live: false },

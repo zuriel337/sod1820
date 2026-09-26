@@ -7,11 +7,12 @@ import { getNotificationPrefs } from "../lib/supabase.js";
 import { watchToggle } from "../lib/commandCenter.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
+import { includesFollowSubject } from "../lib/followIdentity.js";
 import EmailVerify from "./EmailVerify.jsx";
 
 // 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
-// «מה מקבלים» · (4) Follow קודם, ערוץ אח"כ (escalation: אחרי Follow → הצעת Push, לא לפני) ·
+// «מה מקבלים» · (4) Follow קודם; guest מקבל identity verification בלבד; channel opt-in רק אחרי account ·
 // (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
@@ -22,8 +23,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const { user } = useAuth();
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [justFollowed, setJustFollowed] = useState(false);   // להצגת escalation מיד אחרי Follow
-  const [showReg, setShowReg] = useState(false);             // קריאה-להרשמה למי שעקב ועדיין לא רשום
+  const [justFollowed, setJustFollowed] = useState(false);
+  const [showReg, setShowReg] = useState(false);
   const [pushOn, setPushOn] = useState(false);
   const [pushMsg, setPushMsg] = useState("");
   const pushReady = PUSH_CONFIGURED && pushSupported();
@@ -32,7 +33,10 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const load = useCallback(() => {
     if (!topic) return;
     getNotificationPrefs(idObj)
-      .then(p => { setFollowing(!!p?.topics?.includes(topic)); setPushOn(!!p?.channels?.includes("push")); })
+      .then(p => {
+        setFollowing(includesFollowSubject(p?.topics, topic));
+        setPushOn(!!p?.channels?.includes("push"));
+      })
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic, user?.id]);
@@ -42,19 +46,20 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     if (!topic || busy) return;
     setBusy(true);
     const next = !following;
-    setFollowing(next);   // אופטימי
+    setFollowing(next);
     try {
       await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
       if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
       else setJustFollowed(false);
-    } catch { setFollowing(!next); }   // כשל → חזרה
+    } catch { setFollowing(!next); }
     finally { setBusy(false); }
   }
 
   async function turnOnPush() {
-    if (!pushReady) return;
+    // Follow v19: guest Follow never turns into channel consent. Identity first.
+    if (!pushReady || !user?.id) return;
     setPushMsg("");
-    const r = await enablePush({ userId: user?.id || null, topics: [] });
+    const r = await enablePush({ userId: user.id, topics: [] });
     if (r?.ok) { setPushOn(true); setPushMsg("✓ ההתראות המיידיות הופעלו"); try { trackConversion("push_enabled", { source }); } catch { /* noop */ } }
     else setPushMsg(r?.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל כרגע");
   }
@@ -83,7 +88,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
 
   const gold = P.accentText, soft = P.glow || "rgba(212,175,55,0.15)";
 
-  const outline = following || ghost;   // מתאר: תמיד כשעוקבים, וגם ghost כברירת-מחדל (פעולה משנית סמוכה)
+  const outline = following || ghost;
   const btn = {
     cursor: busy ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
     minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
@@ -114,8 +119,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     );
   }
 
-  // הצעת-Push אחרי Follow (חוק #4: הפעולה הבאה בלבד) — רק אם הופעל עכשיו, יש תמיכה, ועוד לא פעיל
-  const pushOffer = !noPush && justFollowed && following && pushReady && !pushOn && (
+  // Channel opt-in מוצע רק למשתמש מחובר. guest מקבל identity step בלבד.
+  const pushOffer = !!user?.id && !noPush && justFollowed && following && pushReady && !pushOn && (
     <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: gate ? "center" : "flex-start" }}>
       <span style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
       <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
@@ -123,15 +128,15 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   );
   const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
 
-  // 🔑 קריאה-להרשמה — למי שעקב ועדיין אינו מחובר. המעקב האנונימי כבר נשמר (visitor_id),
-  //   ובהרשמה הוא עובר אוטומטית לחשבון (claimVisitorPrefs ב-AuthContext) + נפתחות התראות-מייל.
+  // 🔑 guest → verified identity. ה-Follow כבר נשמר; אימות החשבון רק קושר אותו לזהות הקנונית.
+  // אין כאן Email/Push consent אוטומטי.
   const regCta = !user && justFollowed && following && (
     <div style={{ marginTop: 11, background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 12, padding: "12px 14px", textAlign: gate ? "center" : "start" }}>
       {!showReg ? (
         <>
           <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>הירשם בקליק (מייל בלבד) — כדי שהמעקב יישמר לחשבון שלך ותקבל התראה כשמתפרסם משהו חדש.</div>
-          <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ הירשם לשמירת המעקב</button>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
+          <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
         </>
       ) : (
         <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => { setShowReg(false); setJustFollowed(false); }} />
