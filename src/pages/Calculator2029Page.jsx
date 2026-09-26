@@ -504,7 +504,7 @@ function CalculatorBody() {
   return (
     <Sod2029Shell
       wide
-      surface="calculator"
+      surface="number"
       symbol="∑"
       eyebrow="ONE GEMATRIA ENGINE · ONE DISCOVERY PATH"
       title="מה מסתתר בשם שלך?"

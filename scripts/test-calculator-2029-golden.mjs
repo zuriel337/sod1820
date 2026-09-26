@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 const page = fs.readFileSync("src/pages/Calculator2029Page.jsx", "utf8");
 const model = fs.readFileSync("src/lib/research/calculator2029Model.js", "utf8");
 const viral = fs.readFileSync("src/lib/research/calculator2029Viral.js", "utf8");
-const app = fs.readFileSync("src/App2029.jsx", "utf8");
+const app = fs.readFileSync("src/App2029.jsx", "utf8");\nconst css = fs.readFileSync("src/pages/calculator2029.css", "utf8");
 
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /fetchGematriaMethodTrace/);
@@ -42,5 +42,10 @@ assert.doesNotMatch(viral, /gematria\.js|fn_method_value|RAGIL|METHODS/);
 
 assert.match(app, /Calculator2029Page/);
 assert.match(app, /path="\/2029\/gematria"/);
+
+assert.match(page, /surface="number"/);
+assert.equal(page.includes('surface="calculator"'), false);
+
+assert.match(css, /sod29-calc2029-share[\\s\\S]*min-height:\\s*44px\\s*!important/);
 
 console.log("PASS Calculator 2029 viral Golden static contract");

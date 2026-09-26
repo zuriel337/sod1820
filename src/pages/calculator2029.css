@@ -519,6 +519,11 @@
   min-width: 0;
 }
 
+.sod29-calc2029-share a,
+.sod29-calc2029-share button {
+  min-height: 44px !important;
+}
+
 .sod29-calc2029-share > div:first-child {
   display: grid;
   gap: 4px;
