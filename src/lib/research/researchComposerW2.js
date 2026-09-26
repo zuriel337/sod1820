@@ -9,6 +9,7 @@ import {
   failedResearchSynthesis,
   normalizeResearchSynthesis,
 } from "./researchSynthesis.js";
+import { buildRazielNextAction, mergeRazielNextAction } from "./razielActionContract.js";
 
 // W2.1 — Cross-capability Research Composer.
 // Canonical owners/adapters are dependency-injected; this layer owns no engine truth or registry.
@@ -175,12 +176,27 @@ export async function composeResearchW2({
     capabilities: capabilityResults,
     ranking,
     resolvedRunSnapshot: snapshot,
-    nextActions: [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+    nextActions: mergeRazielNextAction(
+      [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
+      null,
+    ),
     synthesis: null,
     accessDescriptor: plan.access,
   });
 
-  if (typeof synthesizer !== "function") return baseBundle;
+  const withRazielAction = (bundle, synthesis = null) => {
+    const action = buildRazielNextAction({
+      plan: bundle?.plan || null,
+      synthesis,
+      coverage: bundle?.coverage || null,
+    });
+    return {
+      ...bundle,
+      next_actions: mergeRazielNextAction(bundle?.next_actions, action),
+    };
+  };
+
+  if (typeof synthesizer !== "function") return withRazielAction(baseBundle, null);
 
   try {
     const rawSynthesis = await synthesizer({ bundle: baseBundle, signal });
@@ -189,15 +205,13 @@ export async function composeResearchW2({
       frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
       sourceBundleContractVersion: baseBundle.contract_version,
     });
-    return { ...baseBundle, synthesis };
+    return withRazielAction({ ...baseBundle, synthesis }, synthesis);
   } catch (error) {
-    return {
-      ...baseBundle,
-      synthesis: failedResearchSynthesis(error, {
-        frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
-        sourceBundleContractVersion: baseBundle.contract_version,
-      }),
-    };
+    const synthesis = failedResearchSynthesis(error, {
+      frozenAt: baseBundle.resolved_run_snapshot?.generated_at || null,
+      sourceBundleContractVersion: baseBundle.contract_version,
+    });
+    return withRazielAction({ ...baseBundle, synthesis }, synthesis);
   }
 }
 
