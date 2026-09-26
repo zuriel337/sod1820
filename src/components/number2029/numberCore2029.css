@@ -1988,6 +1988,9 @@
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(104px,1fr));
   gap:6px;
+  /* Six primary methods are a stable product contract. Reserve their first row before the
+     async canonical method profile resolves so the research stage below cannot jump. */
+  min-height:58px;
 }
 .sod29-number-v10-method-card{
   min-width:0;
@@ -2623,7 +2626,7 @@
   .sod29-number-v10-method-switcher{padding:8px;border-radius:16px}
   .sod29-number-v10-method-head strong{font-size:10px}
   .sod29-number-v10-method-head>small{font-size:6.5px}
-  .sod29-number-v10-method-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .sod29-number-v10-method-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-height:109px}
   .sod29-number-v10-method-card{min-height:52px;border-radius:12px;padding:5px 3px}
   .sod29-number-v10-more-methods-panel{grid-template-columns:repeat(2,minmax(0,1fr));max-height:190px}
   .sod29-number-v10-method-card>strong{font-size:15px}
@@ -2651,7 +2654,7 @@
   .sod29-number-v10-premium-ready{align-items:flex-start}
 }
 @media(max-width:350px){
-  .sod29-number-v10-method-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-number-v10-method-grid{grid-template-columns:repeat(2,minmax(0,1fr));min-height:166px}
   .sod29-number-v10-chip-list{grid-template-columns:1fr}
   .sod29-number-v10-crossing-more{grid-template-columns:1fr}
   .sod29-number-v10-stage-head{grid-template-columns:1fr}
