@@ -6,6 +6,7 @@ const read = (path) => fs.readFileSync(path, "utf8");
 const app = read("src/App.jsx");
 const research = read("src/pages/ResearchPage.jsx");
 const home = read("src/components/ResearchHome.jsx");
+const beit = read("src/pages/BeitMidrashPage.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const topic = read("src/pages/Topic2029Page.jsx");
 const books = read("src/pages/Books2029Page.jsx");
@@ -14,11 +15,13 @@ const drawer = read("src/components/number2029/NumberDrawer2029.jsx");
 const contextual = read("src/lib/research/contextualCapabilities.js");
 
 assert.match(app, /<Locked flag="lock_research"><ResearchPage \/><\/Locked>/, "legacy /research must consume canonical registered-only site flag");
-assert.match(research, /legacyPublicToolBlocked\s*=\s*!isAdmin\s*&&\s*!!tool\s*&&\s*tool\s*!==\s*"number"/, "registered non-admin users must be contained to Number");
-assert.match(research, /\(isAdmin \|\| t\.id === "number"\)/, "legacy Research subnav must hide non-Number tools from registered users");
-assert.match(home, /visibleBigIds\s*=\s*containedUser\s*\?\s*\["number", "els"\]/, "legacy landing must show Number plus closed ELS only");
+assert.match(research, /legacyPublicToolBlocked\s*=\s*!isAdmin\s*&&\s*!!tool\s*&&\s*!\["number", "midrash", "gematria"\]\.includes\(tool\)/, "registered non-admin users must be contained to Number + canonical Gematria calculator aliases");
+assert.match(research, /\(isAdmin \|\| t\.id === "number" \|\| t\.id === "midrash"\)/, "legacy Research subnav must expose only Number + canonical Gematria calculator to registered users");
+assert.match(home, /visibleBigIds\s*=\s*containedUser\s*\?\s*\["gematria", "number", "els"\]/, "legacy landing must show Gematria + Number plus closed ELS");
+assert.match(home, /מחשבון גימטריה · פתוח/);
 assert.match(home, /דף המספר · פתוח/);
 assert.match(home, /הצופן התנ״כי · סגור/);
+assert.match(beit, /במערכת החדשה של סוד 1820 נבנה עבורו שדרוג גדול/, "legacy calculator must show the approved upgrade notice");
 
 for (const [name, source] of [
   ["SystemFrame2029", frame],
