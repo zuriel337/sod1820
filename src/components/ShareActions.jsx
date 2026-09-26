@@ -102,7 +102,7 @@ export default function ShareActions({
 
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
     background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
-    fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 40, whiteSpace: "nowrap", flexShrink: 0 };
+    fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 44, whiteSpace: "nowrap", flexShrink: 0 };
   const label = (t) => compact ? null : <span>{t}</span>;
 
   return (
