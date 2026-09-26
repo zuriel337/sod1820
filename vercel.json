@@ -732,6 +732,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/control",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -739,6 +743,15 @@
   "headers": [
     {
       "source": "/2029/gematria",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/control",
       "headers": [
         {
           "key": "X-Robots-Tag",

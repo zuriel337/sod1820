@@ -18,6 +18,7 @@ const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
+const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
@@ -34,6 +35,8 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
+    // Internal Control Plane is operational/admin traffic, not public product analytics.
+    if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {
       trackPageview(pathname);
       trackMarketingPageview();
@@ -82,6 +85,7 @@ export default function App2029() {
               <Route path="/היכל" element={<Heichal2029Page />} />
               <Route path="/researcher/:slug" element={<Researcher2029Page />} />
               <Route path="/2029/number/:value" element={<Number2029Page />} />
+              <Route path="/2029/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
           </Suspense>
