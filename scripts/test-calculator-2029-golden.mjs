@@ -5,6 +5,23 @@ const page = fs.readFileSync("src/pages/Calculator2029Page.jsx", "utf8");
 const model = fs.readFileSync("src/lib/research/calculator2029Model.js", "utf8");
 const viral = fs.readFileSync("src/lib/research/calculator2029Viral.js", "utf8");
 const app = fs.readFileSync("src/App2029.jsx", "utf8");
+const compare = fs.readFileSync("src/components/gematria2029/CalculatorCompare2029.jsx", "utf8");
+const opening = fs.readFileSync("src/components/gematria2029/CalculatorOpening2029.jsx", "utf8");
+const methodLens = fs.readFileSync("src/components/gematria2029/MethodLens2029.jsx", "utf8");
+
+// Local-authority modules that native Calculator2029/gematria2029 surfaces must never
+// import or reference; they must consume fetchNumberMethodProfile/fetchGematriaMethodTrace instead.
+const forbiddenLocalAuthorityPattern = /gematria\.js|CanonicalGematriaCalculator|GematriaCalculatorLegacy|gematriaCalculationContract|coreEngine|MethodAnalyze/;
+for (const [name, source] of [
+  ["Calculator2029Page.jsx", page],
+  ["calculator2029Model.js", model],
+  ["calculator2029Viral.js", viral],
+  ["CalculatorCompare2029.jsx", compare],
+  ["CalculatorOpening2029.jsx", opening],
+  ["MethodLens2029.jsx", methodLens],
+]) {
+  assert.doesNotMatch(source, forbiddenLocalAuthorityPattern, `${name} must not import/reference local-calculation authority modules`);
+}
 
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /fetchGematriaMethodTrace/);
