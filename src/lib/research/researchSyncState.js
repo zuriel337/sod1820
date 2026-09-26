@@ -2,6 +2,7 @@
 export const RESEARCH_LOCAL_PREFIX = 'sod_research_v2';
 export const RESEARCH_CONTEXT_PREFIX = 'sod_research_context_v2';
 export const LEGACY_UNSCOPED_KEY = 'sod_research_v1';
+export const LEGACY_CONTEXT_SESSION_KEY = 'sod_research_context_session_v1';
 export const MAX_RESEARCH_OPS_PER_BATCH = 100;
 export const principalToken = id => id ? `user:${String(id).trim()}` : 'guest';
 export const principalStateKey = p => `${RESEARCH_LOCAL_PREFIX}:${p || 'guest'}`;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createResearchSyncRuntime } from './researchSyncRuntime.js';
-import { applyResearchOps, emptyResearchState, appendResearchOp, principalStateKey, principalContextKey, principalToken } from './researchSyncState.js';
+import { applyResearchOps, emptyResearchState, appendResearchOp, principalStateKey, principalContextKey, principalToken, LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
 import { readFile } from 'node:fs/promises';
 const copy = x => JSON.parse(JSON.stringify(x));
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -197,4 +197,44 @@ test('legacy recovery export requires explicit local-access confirmation and nev
   const f=await ready(setup({storage}));assert.equal(f.runtime.exportLegacy(),null);
   assert.deepEqual(f.runtime.exportLegacy({confirmLocalAccess:true}),{source:'sod_research_v1',owner:'unknown',raw});
   assert.equal(f.runtime.getSnapshot().saved.length,0);assert.equal(f.server.calls.length,0);f.runtime.stop();
+});
+
+test('guest legacy session context is adopted once and the old key retired',()=>{
+  const session=new Storage(),legacy={subject:{id:'1820',type:'number'},selection:{entityId:'1820',entityType:'number'},lens:'world'};
+  session.setItem(LEGACY_CONTEXT_SESSION_KEY,JSON.stringify(legacy));
+  const f=setup({uid:null,session});
+  assert.deepEqual(f.runtime.getSnapshot().context,legacy);
+  assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),null);
+  assert.equal(session.getItem(principalContextKey('guest')),JSON.stringify(legacy));
+  f.runtime.stop();
+});
+
+test('malformed legacy session context is never adopted and cannot crash startup',()=>{
+  const session=new Storage();session.setItem(LEGACY_CONTEXT_SESSION_KEY,'not json');
+  const f=setup({uid:null,session});
+  assert.equal(f.runtime.getSnapshot().context,null);
+  assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),'not json');
+  f.runtime.stop();
+  const arraySession=new Storage();arraySession.setItem(LEGACY_CONTEXT_SESSION_KEY,JSON.stringify([1,2,3]));
+  const g=setup({uid:null,session:arraySession});
+  assert.equal(g.runtime.getSnapshot().context,null);g.runtime.stop();
+});
+
+test('authenticated principal never adopts the unscoped guest legacy context',()=>{
+  const session=new Storage(),legacy={subject:{id:'1820',type:'number'}};
+  session.setItem(LEGACY_CONTEXT_SESSION_KEY,JSON.stringify(legacy));
+  const f=setup({uid:'A',session});
+  assert.equal(f.runtime.getSnapshot().context,null);
+  assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),JSON.stringify(legacy));
+  f.runtime.stop();
+});
+
+test('an existing guest principal context key always wins over the legacy key',()=>{
+  const session=new Storage(),current={subject:{id:'878',type:'number'}},legacy={subject:{id:'1820',type:'number'}};
+  session.setItem(principalContextKey('guest'),JSON.stringify(current));
+  session.setItem(LEGACY_CONTEXT_SESSION_KEY,JSON.stringify(legacy));
+  const f=setup({uid:null,session});
+  assert.deepEqual(f.runtime.getSnapshot().context,current);
+  assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),JSON.stringify(legacy));
+  f.runtime.stop();
 });

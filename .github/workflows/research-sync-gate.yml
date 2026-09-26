@@ -36,6 +36,6 @@ jobs:
         run: psql -h localhost -U postgres -d research_sync_fixture -v ON_ERROR_STOP=1 -f scripts/test-research-sync.sql
       - run: npm ci
       - name: Install isolated mounted-provider test helper (no package/lockfile change)
-        run: npm install --no-save --package-lock=false --ignore-scripts react-test-renderer@19.3.0
+        run: npm install --no-save --package-lock=false esbuild@0.28.2 react-test-renderer@19.3.0
       - name: Mounted React provider / principal boundary
         run: node --test scripts/test-research-sync-provider.mjs

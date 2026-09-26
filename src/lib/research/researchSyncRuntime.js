@@ -2,13 +2,26 @@
 // Same research_items/user_research. A fixed principal, immutable queued batches, one in-flight
 // request, server revision CAS and durable receipts prevent stale/duplicate destructive replay.
 import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeResearchState,
-  newResearchId, principalToken, principalStateKey, principalContextKey, LEGACY_UNSCOPED_KEY } from './researchSyncState.js';
+  newResearchId, principalToken, principalStateKey, principalContextKey, LEGACY_UNSCOPED_KEY,
+  LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
 function read(storage, key, fallback) {
   const raw = storage?.getItem(key);
   return raw == null ? fallback : JSON.parse(raw);
+}
+// Pre-migration guest context lived unscoped in sessionStorage. Bounded, one-way, guest-only:
+// a malformed/foreign shape is simply not adopted, never thrown, so a bad legacy value cannot
+// break the current read.
+function readLegacyContext(session) {
+  try {
+    const raw = session?.getItem(LEGACY_CONTEXT_SESSION_KEY);
+    if (raw == null) return null;
+    const value = JSON.parse(raw);
+    if (!object(value) || !object(value.subject)) return null;
+    return value;
+  } catch { return null; }
 }
 export function createResearchSyncRuntime({ userId = null, storage, session, readCloud, writeCloud,
   onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false } = {}) {
@@ -17,11 +30,18 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   const contextKey = principalContextKey(principal);
   let restoredFrom = null, restoredRaw = null, storageFault = false;
   let cached = {}, journal = { revision: null, queue: [], inflight: null }, activeContext = null;
+  let legacyContextKeyToRetire = null;
   try {
     if (disabled) { storage = null; session = null; }
     cached = read(storage, key, {});
     if (!object(cached)) throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
     activeContext = read(session, contextKey, null);
+    // Guest only, and only when the current principal key is empty: the new key always wins.
+    // Never adopt the unscoped legacy context into an authenticated principal.
+    if (principal === 'guest' && activeContext == null) {
+      const legacy = readLegacyContext(session);
+      if (legacy) { activeContext = legacy; legacyContextKeyToRetire = LEGACY_CONTEXT_SESSION_KEY; }
+    }
     restoredFrom = session?.getItem(pointerKey);
     if (restoredFrom?.startsWith(`${key}:pending:`)) {
       restoredRaw = storage?.getItem(restoredFrom);
@@ -41,7 +61,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         }
       }
     }
-  } catch { storageFault = true; journal = { revision: null, queue: [], inflight: null }; cached = {}; activeContext = null; }
+  } catch { storageFault = true; journal = { revision: null, queue: [], inflight: null }; cached = {}; activeContext = null; legacyContextKeyToRetire = null; }
   let state = { ...normalizeResearchState(cached.state || cached), context: activeContext };
   let mode = cached.mode === 'discovery' ? 'discovery' : 'reader';
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
@@ -87,6 +107,12 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       storage.setItem(key, JSON.stringify({ state, mode, revision }));
       if (state.context == null) session.removeItem(contextKey);
       else session.setItem(contextKey, JSON.stringify(state.context));
+      // Retire the legacy unscoped key only once its content is durably persisted under the
+      // principal-scoped key, so a mid-write failure leaves the recoverable original in place.
+      if (legacyContextKeyToRetire) {
+        session.removeItem(legacyContextKeyToRetire);
+        legacyContextKeyToRetire = null;
+      }
       return true;
     } catch { status = 'local_error'; return false; }
   }
