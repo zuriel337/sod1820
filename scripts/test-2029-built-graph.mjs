@@ -35,6 +35,12 @@ const forbiddenSources = [
   "src/components/UpdateBanner.jsx",
   "src/components/SitePromoPopup.jsx",
   "src/components/RoyalShareWidget.jsx",
+  "src/lib/gematria.js",
+  "src/components/CanonicalGematriaCalculator.jsx",
+  "src/components/GematriaCalculatorLegacy.jsx",
+  "src/lib/research/gematriaCalculationContract.js",
+  "src/lib/research/coreEngine.js",
+  "src/components/MethodAnalyze.jsx",
 ];
 
 const reachable = [...seen].map((key) => ({ key, ...manifest[key] }));
