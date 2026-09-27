@@ -71,5 +71,8 @@ jobs:
           node scripts/test_gematria_methods.mjs
           node scripts/test_canonical_presentation.mjs
 
+      - name: Calculator 2029 interaction contract
+        run: npm run test:calculator-2029-golden
+
       - name: Build
         run: npm run build
