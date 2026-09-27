@@ -40,7 +40,8 @@
     "test:calculator-2029-semantic-surface": "node scripts/test-calculator-2029-semantic-surface.mjs",
     "package:research-run": "node scripts/package-research-run.mjs",
     "test:research-run": "node scripts/test-research-run-contract.mjs",
-    "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs"
+    "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs",
+    "test:journey-2029-pulse": "node scripts/test-journey-2029-pulse.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
