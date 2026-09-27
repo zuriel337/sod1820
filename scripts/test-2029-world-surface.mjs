@@ -927,6 +927,7 @@ const publicLandingFixture = buildWorldLandingContributorProjection({
     { id: "shimon-id", slug: "shimon-haimov", display_name: "שמעון חיימוב", wa_names: [] },
     { id: "yaniv-id", slug: "yaniv-levi", display_name: "יניב לוי", wa_names: [] },
     { id: "shachar-id", slug: "shachar-kandro", display_name: "יצחק שחר קנדרו", wa_names: [] },
+    { id: "zion-id", slug: "zion-siboni", display_name: "ציון סיבוני", wa_names: [], trusted: true, active: true },
     { id: "fifth-id", slug: "not-approved", display_name: "לא מאושר", wa_names: [] },
   ],
   publicContributions: [
