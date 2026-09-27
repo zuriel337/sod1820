@@ -47,6 +47,178 @@ function eventProps(selection, extra = {}) {
   };
 }
 
+const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
+  seedExpression = "",
+  resetToken = 0,
+  inputRef,
+  profile,
+  selectedKey,
+  onTypingStart,
+  onSettleExpression,
+  onChooseMethod,
+}) {
+  const [draft, setDraft] = useState(seedExpression);
+  const [showAll, setShowAll] = useState(false);
+  const settleTimerRef = useRef(null);
+  const typingBurstRef = useRef(false);
+
+  useEffect(() => {
+    setDraft(seedExpression || "");
+    setShowAll(false);
+    typingBurstRef.current = false;
+    if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current);
+  }, [resetToken]);
+
+  useEffect(() => () => {
+    if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current);
+  }, []);
+
+  const fastPreview = useMemo(
+    () => buildCalculator2029FastPreview(draft),
+    [draft]
+  );
+  const canonicalSettled = clean(profile.expression) === clean(draft)
+    && Array.isArray(profile.rows)
+    && profile.rows.length > 0
+    && !profile.loading;
+  const displayRows = canonicalSettled ? profile.rows : (fastPreview?.methods || []);
+  const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
+
+  const handleDraftChange = (value) => {
+    const next = String(value ?? "");
+    setDraft(next);
+
+    if (!typingBurstRef.current) {
+      typingBurstRef.current = true;
+      onTypingStart?.();
+    }
+
+    if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current);
+    const phrase = clean(next);
+    if (!phrase) {
+      typingBurstRef.current = false;
+      onSettleExpression?.("");
+      return;
+    }
+
+    settleTimerRef.current = window.setTimeout(() => {
+      typingBurstRef.current = false;
+      onSettleExpression?.(phrase);
+    }, CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS);
+  };
+
+  return (
+    <>
+      <form className="sod29-calc2029-command" onSubmit={(event) => event.preventDefault()}>
+        <label htmlFor="calculator-2029-input">שם, מילה או ביטוי</label>
+        <div className="sod29-calc2029-input-row">
+          <input
+            ref={inputRef}
+            id="calculator-2029-input"
+            value={draft}
+            onChange={(event) => handleDraftChange(event.target.value)}
+            placeholder="למשל: צוריאל"
+            dir="rtl"
+            autoComplete="off"
+            spellCheck="false"
+            aria-describedby="calculator-2029-help"
+            data-fast-core-local="true"
+          />
+        </div>
+        <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
+          <span>התוצאות מתעדכנות אוטומטית</span>
+          <span>AI ורזיאל רק בפעולה מפורשת</span>
+          <span>מנוע + Registry קנוניים</span>
+        </div>
+      </form>
+
+      <div
+        className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
+        aria-live="polite"
+        role={profile.error ? "alert" : undefined}
+        data-engine-status={profile.error ? "error" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
+      >
+        {profile.error
+          ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
+            ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
+            : "לא ניתן לקבל כרגע את פרופיל השיטות."
+          : profile.loading
+            ? "מאמת מול המנוע הקנוני…"
+            : canonicalSettled
+              ? "מאומת"
+              : "מיידי"}
+      </div>
+
+      {methods.all.length ? (
+        <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
+          <header>
+            <div>
+              <span>תוצאות</span>
+              <strong>{clean(draft) || "הקלידו שם, מילה או ביטוי"}</strong>
+            </div>
+            <button
+              type="button"
+              className={!methods.rest.length ? "is-placeholder" : ""}
+              onClick={() => methods.rest.length && setShowAll((value) => !value)}
+              aria-expanded={methods.rest.length ? showAll : false}
+              aria-hidden={!methods.rest.length}
+              tabIndex={methods.rest.length ? 0 : -1}
+            >
+              {showAll && methods.rest.length ? "צמצם" : "כל השיטות"}
+            </button>
+          </header>
+
+          <div className="sod29-calc2029-grid">
+            {methods.core.map((method) => {
+              const active = !method.previewOnly && method.methodKey === selectedKey;
+              const unavailable = calculationAvailabilityLabel(method);
+              return (
+                <button
+                  type="button"
+                  key={method.methodKey}
+                  className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
+                  onClick={() => !method.previewOnly && onChooseMethod?.(method, draft)}
+                  aria-pressed={active}
+                  disabled={Boolean(method.previewOnly)}
+                  data-preview-state={method.previewOnly ? "preview" : "verified"}
+                >
+                  <span>{method.label}</span>
+                  <strong>{method.computedValue ?? "—"}</strong>
+                  {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
+                </button>
+              );
+            })}
+          </div>
+
+          {showAll ? (
+            <div className="sod29-calc2029-all" aria-label="כל השיטות">
+              {methods.rest.map((method) => {
+                const active = !method.previewOnly && method.methodKey === selectedKey;
+                const unavailable = calculationAvailabilityLabel(method);
+                return (
+                  <button
+                    type="button"
+                    key={method.methodKey}
+                    className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
+                    onClick={() => !method.previewOnly && onChooseMethod?.(method, draft)}
+                    aria-pressed={active}
+                    disabled={Boolean(method.previewOnly)}
+                    data-preview-state={method.previewOnly ? "preview" : "verified"}
+                  >
+                    <span>{method.label}</span>
+                    <strong>{method.computedValue ?? "—"}</strong>
+                    {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+    </>
+  );
+});
+
 function CalculatorExperience() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,7 +235,7 @@ function CalculatorExperience() {
   const [expression, setExpression] = useState(sharedState.expression || "");
   const [profile, setProfile] = useState({ loading: false, rows: [], error: null, expression: "" });
   const [selectedKey, setSelectedKey] = useState(null);
-  const [showAll, setShowAll] = useState(false);
+  const [fastResetToken, setFastResetToken] = useState(0);
   const [showCompare, setShowCompare] = useState(false);
   const [showOpening, setShowOpening] = useState(false);
   const [trace, setTrace] = useState({ loading: false, finding: null, error: null, key: null });
@@ -193,60 +365,37 @@ function CalculatorExperience() {
     });
   }, [sharedState, compute]);
 
-  const fastPreview = useMemo(
-    () => buildCalculator2029FastPreview(expression),
-    [expression]
-  );
-  const canonicalSettled = clean(profile.expression) === clean(expression)
-    && Array.isArray(profile.rows)
-    && profile.rows.length > 0
-    && !profile.loading;
-  const displayRows = canonicalSettled
-    ? profile.rows
-    : (fastPreview?.methods || []);
-  const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
+  const canonicalMethods = useMemo(() => splitCalculatorMethods(profile.rows), [profile.rows]);
   const selectedMethod = useMemo(() => (
-    methods.all.find((row) => row.methodKey === selectedKey && !row.previewOnly) || null
-  ), [methods, selectedKey]);
+    canonicalMethods.all.find((row) => row.methodKey === selectedKey) || null
+  ), [canonicalMethods, selectedKey]);
   const selection = useMemo(() => (
     selectedMethod ? buildCalculationSelection(profile.expression, selectedMethod) : null
   ), [profile.expression, selectedMethod]);
 
-  const handleExpressionChange = (value) => {
-    const next = String(value ?? "");
-    setExpression(next);
-    if (clean(next) !== clean(profile.expression)) {
-      computeRequestRef.current += 1;
-      setProfile({ loading: false, rows: [], error: null, expression: "" });
-      setSelectedKey(null);
-      setTrace({ loading: false, finding: null, error: null, key: null });
-      setShowCompare(false);
-      setShowOpening(false);
-      setShareDiscovery(null);
-      setSharedRestored(false);
-      if (sharedState.isShared && location.search) {
-        navigate("/2029/gematria", { replace: true });
-      }
-    }
-  };
+  const beginFastTyping = useCallback(() => {
+    computeRequestRef.current += 1;
+    setProfile({ loading: false, rows: [], error: null, expression: "" });
+    setSelectedKey(null);
+    setTrace({ loading: false, finding: null, error: null, key: null });
+    setShowCompare(false);
+    setShowOpening(false);
+    setShareDiscovery(null);
+    setSharedRestored(false);
+    if (location.search) navigate("/2029/gematria", { replace: true });
+  }, [location.search, navigate]);
 
-  useEffect(() => {
-    const phrase = clean(expression);
-    if (!phrase || sharedState.isShared) return undefined;
-    const timer = window.setTimeout(() => {
-      computeRef.current?.(phrase);
-    }, CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
-  }, [expression, sharedState.isShared]);
+  const settleFastExpression = useCallback((raw) => {
+    const phrase = clean(raw);
+    setExpression(phrase);
+    if (!phrase) return;
+    computeRef.current?.(phrase);
+  }, []);
 
-  const submitCompute = (event) => {
-    event.preventDefault();
-  };
-
-  const chooseMethod = (method) => {
+  const chooseMethod = useCallback((method, phrase) => {
     if (method?.previewOnly) return;
-    commitMethod(method, profile.expression || expression, "manual_method");
-  };
+    commitMethod(method, profile.expression || phrase || expression, "manual_method");
+  }, [commitMethod, expression, profile.expression]);
 
   const loadTrace = async () => {
     if (!selection || selection.resultValue == null) return;
@@ -326,6 +475,7 @@ function CalculatorExperience() {
   const startOwnCompute = () => {
     computeRequestRef.current += 1;
     setExpression("");
+    setFastResetToken((value) => value + 1);
     setProfile({ loading: false, rows: [], error: null, expression: "" });
     setSelectedKey(null);
     setTrace({ loading: false, finding: null, error: null, key: null });
@@ -350,119 +500,16 @@ function CalculatorExperience() {
         </section>
       ) : null}
 
-      <form className="sod29-calc2029-command" onSubmit={submitCompute}>
-        <label htmlFor="calculator-2029-input">שם, מילה או ביטוי</label>
-        <div className="sod29-calc2029-input-row">
-          <input
-            ref={inputRef}
-            id="calculator-2029-input"
-            value={expression}
-            onChange={(event) => handleExpressionChange(event.target.value)}
-            placeholder="למשל: צוריאל"
-            dir="rtl"
-            autoComplete="off"
-            spellCheck="false"
-            aria-describedby="calculator-2029-help"
-          />
-        </div>
-        <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
-          <span>התוצאות מתעדכנות אוטומטית</span>
-          <span>AI ורזיאל רק בפעולה מפורשת</span>
-          <span>מנוע + Registry קנוניים</span>
-        </div>
-      </form>
-
-      <div
-        className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
-        aria-live="polite"
-        role={profile.error ? "alert" : undefined}
-        data-engine-status={
-          profile.error
-            ? "error"
-            : profile.loading
-              ? "verifying"
-              : canonicalSettled
-                ? "verified"
-                : "instant"
-        }
-      >
-        {profile.error
-          ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
-            ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
-            : "לא ניתן לקבל כרגע את פרופיל השיטות."
-          : profile.loading
-            ? "מאמת מול המנוע הקנוני…"
-            : canonicalSettled
-              ? "מאומת"
-              : "מיידי"}
-      </div>
-
-      {methods.all.length ? (
-        <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
-          <header>
-            <div>
-              <span>תוצאות</span>
-              <strong>{clean(profile.expression) || clean(expression) || "הקלידו שם, מילה או ביטוי"}</strong>
-            </div>
-            <button
-              type="button"
-              className={!methods.rest.length ? "is-placeholder" : ""}
-              onClick={() => methods.rest.length && setShowAll((value) => !value)}
-              aria-expanded={methods.rest.length ? showAll : false}
-              aria-hidden={!methods.rest.length}
-              tabIndex={methods.rest.length ? 0 : -1}
-            >
-              {showAll && methods.rest.length ? "צמצם" : "כל השיטות"}
-            </button>
-          </header>
-
-          <div className="sod29-calc2029-grid">
-            {methods.core.map((method) => {
-              const active = method.methodKey === selectedMethod?.methodKey;
-              const unavailable = calculationAvailabilityLabel(method);
-              return (
-                <button
-                  type="button"
-                  key={method.methodKey}
-                  className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
-                  onClick={() => chooseMethod(method)}
-                  aria-pressed={active}
-                  disabled={Boolean(method.previewOnly)}
-                  data-preview-state={method.previewOnly ? "preview" : "verified"}
-                >
-                  <span>{method.label}</span>
-                  <strong>{method.computedValue ?? "—"}</strong>
-                  {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
-                </button>
-              );
-            })}
-          </div>
-
-          {showAll ? (
-            <div className="sod29-calc2029-all" aria-label="כל השיטות">
-              {methods.rest.map((method) => {
-                const active = method.methodKey === selectedMethod?.methodKey;
-                const unavailable = calculationAvailabilityLabel(method);
-                return (
-                  <button
-                    type="button"
-                    key={method.methodKey}
-                    className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
-                    onClick={() => chooseMethod(method)}
-                    aria-pressed={active}
-                    disabled={Boolean(method.previewOnly)}
-                    data-preview-state={method.previewOnly ? "preview" : "verified"}
-                  >
-                    <span>{method.label}</span>
-                    <strong>{method.computedValue ?? "—"}</strong>
-                    {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
-        </section>
-      ) : null}
+      <CalculatorFastCore2029
+        seedExpression={expression}
+        resetToken={fastResetToken}
+        inputRef={inputRef}
+        profile={profile}
+        selectedKey={selectedKey}
+        onTypingStart={beginFastTyping}
+        onSettleExpression={settleFastExpression}
+        onChooseMethod={chooseMethod}
+      />
 
       {selection ? (
         <section className="sod29-calc2029-inspector" data-calculation-selection={selection.methodKey}>

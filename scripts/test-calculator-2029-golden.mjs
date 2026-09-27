@@ -27,6 +27,11 @@ for (const [name, source] of [
 
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /buildCalculator2029FastPreview/);
+assert.match(page, /CalculatorFastCore2029 = React\.memo/);
+assert.match(page, /data-fast-core-local="true"/);
+assert.match(page, /setDraft\(next\)/);
+assert.match(page, /typingBurstRef/);
+assert.match(page, /settleTimerRef/);
 assert.match(page, /data-preview-state/);
 assert.match(page, /sod29-calc2029-engine-status/);
 assert.match(page, /מאמת מול המנוע הקנוני/);
@@ -58,8 +63,9 @@ assert.deepEqual(buildCalculator2029FastPreview("abc")?.methods.map((row) => row
 assert.match(page, /fetchGematriaMethodTrace/);
 assert.doesNotMatch(page, />חשב</);
 assert.match(page, /CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240/);
-assert.match(page, /window\.setTimeout\(\(\) => \{[\s\S]*?computeRef\.current\?\.\(phrase\)/);
-assert.match(page, /\[expression, sharedState\.isShared\]/);
+assert.match(page, /onSettleExpression\?\.\(phrase\)/);
+assert.match(page, /computeRef\.current\?\.\(phrase\)/);
+assert.doesNotMatch(page, /\[expression, sharedState\.isShared\]/);
 assert.match(page, /התוצאות מתעדכנות אוטומטית/);
 assert.match(page, /AI ורזיאל רק בפעולה מפורשת/);
 assert.match(page, /✦ רזיאל · תסביר לי/);
