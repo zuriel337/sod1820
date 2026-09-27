@@ -28,6 +28,8 @@ import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
+import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
+import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -478,6 +480,8 @@ export default function ContributorPage() {
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
   const [waFindings, setWaFindings] = useState([]); // 💬 חומר «הגילוי היומי» של הכתב (RPC · עוקף RLS) — כשאין channel_updates
+  // 🔬 עדשת Research OS מלאה לחוקר — Human-Gate/Admin בלבד: כוללת גם private/candidate ולכן לעולם לא נטענת בתצוגה ציבורית.
+  const [findingsLens, setFindingsLens] = useState({ loading: false, projection: null, error: null });
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
   //    הדף לפני שאר העדכונים, ואז לפי חדש→ישן. בקשת צוריאל: בכל דף-כתב הגימטריה למעלה, ראשונה.
@@ -504,6 +508,23 @@ export default function ContributorPage() {
   const isOwner = !!(user?.id && c?.user_id && user.id === c.user_id);
   const effIsOwner = asPublic ? false : isOwner;
   const { matrices, joinedAt, settings, saveSettings, promoteMatrix } = useDossierData(c, effIsOwner, setDossierCount);
+
+  useEffect(() => {
+    let alive = true;
+    if (!effIsAdmin || !c?.slug) {
+      setFindingsLens({ loading: false, projection: null, error: null });
+      return () => { alive = false; };
+    }
+    setFindingsLens({ loading: true, projection: null, error: null });
+    fetchContributorFindingsProjection(c.slug)
+      .then((projection) => {
+        if (alive) setFindingsLens({ loading: false, projection, error: null });
+      })
+      .catch((error) => {
+        if (alive) setFindingsLens({ loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, [effIsAdmin, c?.slug]);
 
   useEffect(() => {
     let alive = true;
@@ -957,6 +978,19 @@ export default function ContributorPage() {
 
       {/* 🧑 על הכותב — למעלה אצל כולם (בקשת צוריאל): אינטרו קצר + גימטריית-השם, מיד אחרי הכותרת. */}
       <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
+
+      {/* 🔬 Human-Gate · Research OS 2029 — source → findings → verification → Topic.
+          כולל private/candidate ולכן אדמין בלבד; ?view=public לעולם לא טוען אותו. */}
+      {effIsAdmin && (
+        <div style={{ marginBlock: 24 }}>
+          <ContributorFindingsLens
+            projection={findingsLens.projection}
+            loading={findingsLens.loading}
+            error={findingsLens.error}
+            recentDays={7}
+          />
+        </div>
+      )}
 
       {/* ═══ סלוט 2 · 🧠 המרכז שלי ═══ (מנוע-המרכז לפי specialty; המסגרת זהה אצל כולם) */}
       <WriterSlot P={P} emoji="🧠" title="המרכז שלי" empty={!c.specialty_label} emptyText="המרכז בבנייה — יופיע כאן מנוע-המחקר הייחודי של הכתב.">
