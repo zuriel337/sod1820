@@ -33,6 +33,44 @@ test("normalizer collapses equivalent spellings and exposes shared numeric basis
   assert.match(out.ranking_boundary, /not independent evidence/);
 });
 
+test("Cross Signature normalization preserves unknowns and canonical dependency counts without inventing zero", () => {
+  const bundle = {
+    contract_version: 1,
+    findings: [{
+      id: "uf:cross:313",
+      kind: "cross-signature",
+      projection: { dimensions: { cross_signature: {
+        value: 313,
+        phrase_count: null,
+        independent_phrase_count: 60,
+        dependent_expression_phrase_count: 12,
+        p1_hits: 9,
+        independent_p1_method_count: 6,
+        methods: ["רגיל", "קדמי"],
+        dependent_methods: ["גדול"],
+        dependent_phrase_count: null,
+        unregistered_methods: [],
+        sample_rows: [{ phrase: "בושה", method: "רגיל", value: 313, method_version: null }],
+        sample_window: { returned_count: 1, total_count: null, truncated: null },
+      } } },
+    }],
+  };
+  const out = buildNormalizedMessageContext([], { bundle });
+  assert.equal(out.cross_signatures.length, 1);
+  const sig = out.cross_signatures[0];
+  assert.equal(sig.value, 313);
+  assert.equal(sig.phrase_count, null);
+  assert.equal(sig.independent_phrase_count, 60);
+  assert.equal(sig.independent_p1_method_count, 6);
+  assert.equal(sig.dependent_phrase_count, null);
+  assert.equal(sig.sample_window.total_count, null);
+  assert.equal(sig.sample_rows[0].method_version, null);
+  assert.deepEqual(sig.dependent_methods, ["גדול"]);
+  assert.match(out.cross_signature_boundary, /cross_method_strength owns dependency normalization/);
+  assert.equal(Object.isFrozen(sig), true);
+  assert.equal(Object.isFrozen(sig.methods), true);
+});
+
 test("message freezes before the 3-card draw and Tarot cannot rewrite the message", async () => {
   const events = [];
   const bundle = { contract_version: 1, findings: [{ id: "uf:337" }] };
