@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
+import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
 
 
@@ -169,6 +170,131 @@ function HomeSystemPulse({ pulse, loading }) {
   </section>;
 }
 
+function HomeMiniGematria({ onOpenCalculator }) {
+  const [expression, setExpression] = useState("");
+  const preview = useMemo(() => buildCalculator2029FastPreview(expression), [expression]);
+  const methods = preview?.methods || [];
+  const hasExpression = expression.trim().length > 0;
+
+  return <section
+    className="sod29-home-mini-gematria"
+    data-experience-capability="home-gematria-fast-core"
+    aria-label="מחשבון גימטריה מהיר"
+  >
+    <div className="sod29-home-mini-gematria-copy">
+      <div className="sod29-kicker">גימטריה · Fast Core</div>
+      <h2>כתוב משהו. תשע שיטות נדלקות מיד.</h2>
+      <p>זו תצוגה מיידית מאותו Fast Preview של מחשבון 2029. האימות הסופי נשאר במנוע הקנוני.</p>
+      <div className="sod29-home-mini-gematria-input">
+        <input
+          value={expression}
+          onChange={(event) => setExpression(event.target.value)}
+          placeholder="למשל: משיח"
+          aria-label="ביטוי לחישוב גימטריה מהיר"
+          dir="rtl"
+          autoComplete="off"
+          spellCheck="false"
+        />
+        <button
+          type="button"
+          className="sod29-action primary"
+          onClick={() => onOpenCalculator(expression)}
+        >
+          פתח במחשבון ←
+        </button>
+      </div>
+      <small>{hasExpression ? "מיידי · טרם אומת במנוע" : "הקלד כדי לראות ערכים מיידיים"}</small>
+    </div>
+    <div className="sod29-home-mini-gematria-grid" aria-label="תשע שיטות Core">
+      {methods.map((method) => <div
+        className="sod29-home-mini-gematria-method"
+        key={method.methodKey}
+        data-preview-state="preview"
+      >
+        <span>{method.displayLabel}</span>
+        <strong>{method.computedValue ?? 0}</strong>
+      </div>)}
+    </div>
+  </section>;
+}
+
+function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onOpenWorld }) {
+  if (loading) {
+    return <section className="sod29-home-world-preview is-loading" aria-label="העולם חי">
+      <div className="sod29-kicker">העולם חי</div>
+      <h2>מחבר את המחקר הציבורי…</h2>
+    </section>;
+  }
+  if (!preview) return null;
+
+  const research = Array.isArray(preview.research) ? preview.research : [];
+  const people = Array.isArray(preview.people) ? preview.people : [];
+  if (!research.length && !people.length) return null;
+
+  return <section
+    className="sod29-home-world-preview"
+    data-experience-capability="home-world-discovery"
+    aria-label="העולם חי"
+  >
+    <div className="sod29-home-world-preview-head">
+      <div>
+        <div className="sod29-kicker">העולם חי</div>
+        <h2>מחקרים נפתחים. אנשים מחברים.</h2>
+        <p>אותם מפגשים וחוקרים שכבר חיים ב־World — כאן כחלון קטן למה שקורה במערכת.</p>
+      </div>
+      <button type="button" className="sod29-action" onClick={onOpenWorld}>פתח את העולם ←</button>
+    </div>
+
+    <div className="sod29-home-world-preview-grid">
+      <div className="sod29-home-world-research-lane">
+        <div className="sod29-home-world-lane-head">
+          <strong>חדש במחקר</strong>
+          <small>מפגשים ציבוריים שאושרו לאחרונה</small>
+        </div>
+        <div className="sod29-home-world-research-list">
+          {research.slice(0, 5).map((item) => <button
+            type="button"
+            className="sod29-home-world-research-item"
+            key={item.id}
+            onClick={() => item.slug && onOpenTopic(item.slug)}
+            disabled={!item.slug}
+          >
+            <span>{item.value != null ? item.value : "✦"}</span>
+            <div>
+              <strong>{item.label}</strong>
+              <small>{item.creator}{item.at ? " · " + formatPulseDate(item.at) : ""}</small>
+            </div>
+          </button>)}
+        </div>
+      </div>
+
+      <div className="sod29-home-world-people-lane" data-experience-capability="home-researchers">
+        <div className="sod29-home-world-lane-head">
+          <strong>חוקרים וכותבים</strong>
+          <small>זהויות ציבוריות שכבר אושרו במערכת</small>
+        </div>
+        <div className="sod29-home-world-people-list">
+          {people.slice(0, 4).map((person) => <button
+            type="button"
+            className="sod29-home-world-person"
+            key={person.id}
+            onClick={() => onOpenResearcher(person.slug)}
+          >
+            <span className="sod29-home-world-person-mark" aria-hidden="true">
+              {(person.displayName || "?").trim().slice(0, 1)}
+            </span>
+            <div>
+              <strong>{person.displayName}</strong>
+              <small>{person.role || "חוקר בסוד 1820"}</small>
+              {person.meetingCount > 0 ? <em>{person.meetingCount} מפגשים ציבוריים</em> : null}
+            </div>
+          </button>)}
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
 function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
@@ -229,6 +355,22 @@ function HomeBody() {
   };
 
   const temporalNow = homeState.projection?.temporalNow || null;
+  const worldPreview = homeState.projection?.worldPreview || null;
+
+  const openCalculator = (expression) => {
+    const phrase = String(expression || "").trim();
+    navigate(phrase ? `/2029/gematria?q=${encodeURIComponent(phrase)}` : "/2029/gematria");
+  };
+
+  const openTopic = (slug) => {
+    if (!slug) return;
+    navigate(`/topic/${encodeURIComponent(slug)}`);
+  };
+
+  const openResearcher = (slug) => {
+    if (!slug) return;
+    navigate(`/researcher/${encodeURIComponent(slug)}`);
+  };
 
   return <>
     <section className="sod29-global-now-stage sod29-home-now-first" id="global-now">
@@ -274,6 +416,16 @@ function HomeBody() {
         </div>
       </div>
     </section>
+
+    <HomeMiniGematria onOpenCalculator={openCalculator} />
+
+    <HomeWorldPreview
+      preview={worldPreview}
+      loading={homeState.loading}
+      onOpenTopic={openTopic}
+      onOpenResearcher={openResearcher}
+      onOpenWorld={() => navigate("/world")}
+    />
 
     <section className="sod29-home-continuity" aria-label="רציפות אישית">
       <article className="sod29-home-lane">
