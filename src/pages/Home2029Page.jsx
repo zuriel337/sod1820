@@ -4,6 +4,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
+import { getJourneyPulse } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 
 
@@ -89,6 +90,42 @@ function ConnectedGoldenStory({ onOpenPost }) {
   </article>;
 }
 
+function JourneyPulse2029() {
+  const [state, setState] = useState({ loading: true, data: null });
+
+  useEffect(() => {
+    let live = true;
+    const load = () => getJourneyPulse()
+      .then((data) => { if (live) setState({ loading: false, data: data || null }); })
+      .catch(() => { if (live) setState({ loading: false, data: null }); });
+    load();
+    const id = window.setInterval(() => { if (!document.hidden) load(); }, 60000);
+    return () => { live = false; window.clearInterval(id); };
+  }, []);
+
+  const peopleToday = Number(state.data?.journey_2029_people_today || 0);
+  const startsToday = Number(state.data?.journey_2029_starts_today || 0);
+  const starts7d = Number(state.data?.journey_2029_starts_7d || 0);
+
+  return <section className="sod29-journey-pulse" aria-label="דופק המסעות החדשים">
+    <div className="sod29-journey-pulse-copy">
+      <div className="sod29-kicker">JOURNEY 2029 · דופק המסעות</div>
+      <h2>כמה יצאו למסע</h2>
+      <p>נספרים רק המסעות החדשים של 2029. חיפוש או חישוב לבדם אינם מסע, והמסעות הישנים אינם נכנסים למד.</p>
+    </div>
+    <div className="sod29-journey-pulse-metrics" aria-live="polite">
+      <div className="sod29-journey-pulse-primary">
+        <strong>{state.loading ? "…" : peopleToday.toLocaleString("he-IL")}</strong>
+        <span>חוקרים יצאו למסע היום</span>
+      </div>
+      <div className="sod29-journey-pulse-secondary">
+        <div><strong>{state.loading ? "…" : startsToday.toLocaleString("he-IL")}</strong><span>מסעות התחילו היום</span></div>
+        <div><strong>{state.loading ? "…" : starts7d.toLocaleString("he-IL")}</strong><span>מסעות ב־7 ימים</span></div>
+      </div>
+    </div>
+  </section>;
+}
+
 function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
@@ -168,6 +205,8 @@ function HomeBody() {
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
+
+    <JourneyPulse2029 />
 
     <section className="sod29-focus-stage" id="universal-entry">
       <div className="sod29-command-shell">
