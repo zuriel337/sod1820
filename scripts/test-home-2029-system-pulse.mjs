@@ -45,4 +45,29 @@ assert.match(css, /\.sod29-home-system-pulse\{/);
 assert.match(css, /\.sod29-home-system-pulse-grid\{/);
 assert.match(css, /@media\(max-width:620px\)/);
 
-console.log("Home 2029 System Pulse mini acceptance: PASS");
+
+
+// Enrichment stays projection-only: reuse existing Calculator Fast Preview and World owners.
+assert.match(home, /buildCalculator2029FastPreview/);
+assert.match(home, /data-experience-capability="home-gematria-fast-core"/);
+assert.match(home, /תשע שיטות נדלקות מיד/);
+assert.match(home, /טרם אומת במנוע/);
+assert.match(home, /\/2029\/gematria\?q=/);
+assert.equal(/from "\.\.\/lib\/gematria\.js"/.test(home), false, "Home must not own a duplicate Gematria engine");
+
+assert.match(projection, /fetchWorldLandingContributorProjection/);
+assert.match(projection, /fetchWorldDiscoveryStream/);
+assert.match(projection, /worldPreview/);
+assert.match(home, /data-experience-capability="home-world-discovery"/);
+assert.match(home, /data-experience-capability="home-researchers"/);
+assert.match(home, /חדש במחקר/);
+assert.match(home, /חוקרים וכותבים/);
+assert.match(home, /\/topic\//);
+assert.match(home, /\/researcher\//);
+
+assert.match(css, /\.sod29-home-mini-gematria\{/);
+assert.match(css, /\.sod29-home-mini-gematria-grid\{/);
+assert.match(css, /\.sod29-home-world-preview\{/);
+assert.match(css, /\.sod29-home-world-preview-grid\{/);
+
+console.log("Home 2029 System Pulse + enrichment acceptance: PASS");
