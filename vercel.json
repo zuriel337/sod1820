@@ -581,6 +581,17 @@
       "destination": "/api/og?path=/world&crawler=search"
     },
     {
+      "source": "/world/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/world/$1&crawler=search"
+    },
+    {
       "source": "/topic/(.*)",
       "has": [
         {
@@ -696,6 +707,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/world/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/topic/(.*)",
       "destination": "/2029.html"
     },
@@ -741,6 +756,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/world/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
     {
       "source": "/2029/gematria",
       "headers": [
