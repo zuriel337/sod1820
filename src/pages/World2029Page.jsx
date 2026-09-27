@@ -5,6 +5,7 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
+import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -44,6 +45,7 @@ import {
 import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
@@ -441,6 +443,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
   const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
+  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, loading: false, projection: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -500,6 +503,25 @@ function LiveWorldLanding({ research, shell, context }) {
       });
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    let alive = true;
+    const slug = writerFilter === "all" ? null : writerFilter;
+    if (!isAdmin || !slug) {
+      setContributorFindingsState({ slug: null, loading: false, projection: null, error: null });
+      return () => { alive = false; };
+    }
+
+    setContributorFindingsState({ slug, loading: true, projection: null, error: null });
+    fetchContributorFindingsProjection(slug)
+      .then((projection) => {
+        if (alive) setContributorFindingsState({ slug, loading: false, projection, error: null });
+      })
+      .catch((error) => {
+        if (alive) setContributorFindingsState({ slug, loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, [isAdmin, writerFilter]);
 
   useEffect(() => {
     let alive = true;
@@ -918,6 +940,18 @@ function LiveWorldLanding({ research, shell, context }) {
           {person.meetingCount ? <span>{person.meetingCount} {CONVERGENCES_LABEL}</span> : <span>החומר שלו בעולם</span>}
         </button>)}
       </div> : null}
+    </section> : null}
+
+    {selectedWriter && isAdmin ? <section
+      className="sod29-section sod29-world-contributor-findings-section"
+      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
+      data-experience-capability="world-contributor-findings-projection"
+    >
+      <ContributorFindingsLens
+        projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
+        loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
+        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
+      />
     </section> : null}
 
     {!landing.loading && topicFacet ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
