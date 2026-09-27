@@ -8,6 +8,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const projection = read("src/lib/research/home2029Projection.js");
 const home = read("src/pages/Home2029Page.jsx");
 const css = read("src/components/experience2029/sod2029-closed.css");
+const og = read("api/og.js");
 
 assert.match(home, /data-experience-capability="home-system-pulse"/);
 assert.match(home, /דופק המערכת/);
@@ -69,5 +70,17 @@ assert.match(css, /\.sod29-home-mini-gematria\{/);
 assert.match(css, /\.sod29-home-mini-gematria-grid\{/);
 assert.match(css, /\.sod29-home-world-preview\{/);
 assert.match(css, /\.sod29-home-world-preview-grid\{/);
+
+// Public naming must consume canonical presentation language, never internal/deprecated labels.
+for (const forbiddenPublicCopy of ["מפגש", "מפגשים", "Connected Golden", "Fast Core", "Fast Preview"]) {
+  assert.equal(home.includes(forbiddenPublicCopy), false, `Home 2029 must not expose deprecated/developer copy: ${forbiddenPublicCopy}`);
+}
+assert.match(home, /התכנסויות ציבוריות/);
+assert.match(home, /גימטריה · חישוב מיידי/);
+assert.match(home, /שכבת התצוגה המהירה/);
+assert.equal(projection.includes('["קדמי", "kadmi"]'), false, "Home treasure projection must not expose internal קדמי label");
+assert.match(projection, /\["משולש", "kadmi"\]/);
+assert.equal(og.includes("רגיל · מסתתר · קדמי"), false, "Public OG copy must not expose internal קדמי label");
+assert.match(og, /רגיל · מסתתר · משולש/);
 
 console.log("Home 2029 System Pulse + enrichment acceptance: PASS");
