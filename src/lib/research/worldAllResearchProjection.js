@@ -240,7 +240,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
     mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
-    href: value != null ? "/number/" + value : null,
+    href: value != null ? "/2029/number/" + value : null,
   };
 }
 
