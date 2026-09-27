@@ -53,6 +53,7 @@ const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.
 const app = read("src/App2029.jsx");
 const legacyApp = read("src/App.jsx");
 const sitemapSource = read("api/sitemap.js");
+const ogSource = read("api/og.js");
 const vercelConfig = JSON.parse(read("vercel.json"));
 const experienceContext = read("src/lib/experienceContext.js");
 const graphAdapter = read("src/lib/research/entityGraphFinding.js");
@@ -93,6 +94,30 @@ assert.equal(world.includes("AskRaziel"), false);
 assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false);
 assert.match(world, /status="עולם · גילוי"/);
+
+// Direct-addressable World number lenses reuse the one World surface and Research Context.
+assert.match(app, /path="\\/world\\/:value" element=\\{<World2029Page \\/>/);
+assert.match(world, /WORLD_DIRECT_GOLDEN_NUMBERS = Object\\.freeze\\(\\[70, 1820, 358\\]\\)/);
+assert.match(world, /entrySource:\\s*"world-direct-number-route"/);
+assert.match(world, /goldenStarter:\\s*WORLD_DIRECT_GOLDEN_NUMBERS\\.includes\\(directNumber\\)/);
+assert.match(world, /href:\\s*\`\\/world\\/\\$\\{directNumber\\}\`/);
+assert.match(world, /noindex:\\s*directRouteRequested/);
+assert.match(world, /path:\\s*directNumber != null \\? \`\\/world\\/\\$\\{directNumber\\}\` : "\\/world"/);
+assert.match(world, /research\\.setResearchContext\\?\\.\\(routeContext\\)/);
+
+const directWorldRewrite = (vercelConfig.rewrites || []).find((row) =>
+  row.source === "/world/(.*)" && row.destination === "/2029.html" && !Array.isArray(row.has)
+);
+assert.ok(directWorldRewrite, "direct World number route must stay on the 2029 runtime");
+const directWorldSearchRewrite = (vercelConfig.rewrites || []).find((row) =>
+  row.source === "/world/(.*)" && Array.isArray(row.has) && row.destination === "/api/og?path=/world/$1&crawler=search"
+);
+assert.ok(directWorldSearchRewrite, "search crawlers need direct World number OG projection");
+const directWorldHeader = (vercelConfig.headers || []).find((row) => row.source === "/world/(.*)");
+assert.equal(directWorldHeader?.headers?.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)), true);
+assert.match(ogSource, /key\\.startsWith\\('\\/world\\/'\\)/);
+assert.match(ogSource, /robots = 'noindex, nofollow'/);
+assert.match(ogSource, /canonical = \`\\$\\{SITE\\}\\/world\\/\\$\\{n\\}\`/);
 
 // Landing World Core replaces the decorative orbit with real, accessible navigation over
 // the already-loaded landing facets. It owns no new taxonomy/data and keeps motion optional.
