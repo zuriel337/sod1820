@@ -10,8 +10,8 @@ export default function WorldAnchorMap({ projection, loading, error, onOpen }) {
     <div className="sod29-section-head">
       <div>
         <div className="sod29-kicker">מפת עוגנים חיה</div>
-        <h2>עוגני המחקר</h2>
-        <div className="sod29-muted">עוגן הוא נקודת ניווט שאושרה אנושית. המחוברים אליו הם קשרי מחקר חיים — לא דירוג אמת.</div>
+        <h2>עוגנים נבחרים</h2>
+        <div className="sod29-muted">אלה עוגנים נבחרים שכבר קיבלו חיבור חי בגרף. זו אינה רשימת כל העוגנים בעולם, והמחוברים אליהם אינם דירוג אמת.</div>
       </div>
     </div>
 
