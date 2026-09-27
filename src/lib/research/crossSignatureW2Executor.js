@@ -423,19 +423,27 @@ export function createCrossSignatureW2Executor({
           ? { kind: "increase_cross_signature_sample_window", current_limit: cap }
           : null,
       },
-      trace: {
-        adapter: CROSS_SIGNATURE_ADAPTER_VERSION,
-        reader_status: "ok",
-        access_tier: read.accessTier,
-        value: anchor.value,
-        independent_p1_method_count: signature.independent_p1_method_count,
-        independent_phrase_count: signature.independent_phrase_count,
-        dependent_method_count: signature.dependent_methods.length,
-        unregistered_method_count: signature.unregistered_methods.length,
-        lookup_sample_count: lookupRows.length,
-        lookup_error: lookupResult?.error ? (lookupResult.error?.name || "Error") : null,
-        truth_boundary: signature.truth_boundary,
-      },
+      trace: read.accessTier === "public"
+        ? {
+            adapter: CROSS_SIGNATURE_ADAPTER_VERSION,
+            reader_status: "ok",
+            access_tier: read.accessTier,
+            value: anchor.value,
+            independent_p1_method_count: signature.independent_p1_method_count,
+            independent_phrase_count: signature.independent_phrase_count,
+            dependent_method_count: signature.dependent_methods.length,
+            unregistered_method_count: signature.unregistered_methods.length,
+            lookup_sample_count: lookupRows.length,
+            lookup_error: lookupResult?.error ? (lookupResult.error?.name || "Error") : null,
+            truth_boundary: signature.truth_boundary,
+          }
+        : {
+            adapter: CROSS_SIGNATURE_ADAPTER_VERSION,
+            reader_status: "ok",
+            access_tier: read.accessTier,
+            restricted_payload_redacted: true,
+            truth_boundary: "restricted Cross payload is withheld from capability trace; composition boundary decides Finding access",
+          },
     };
   };
 }
