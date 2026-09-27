@@ -970,7 +970,7 @@ assert.match(app, /path="\/world"/);
 
 // Every World -> Books transition goes through the shared Frame so return_exact is snapshotted.
 assert.equal(world.includes('to="/books"'), false);
-assert.match(world, /import \{ Link \} from "react-router-dom"/, "canonical Topic identities should be crawlable real links");
+assert.match(world, /import \{ Link, useParams \} from "react-router-dom"/, "World keeps canonical Topic links while direct number routes consume route params");
 const shellBookTransitions = [...world.matchAll(/shell\.go\((?:`|")\/books/g)].length;
 assert.equal(shellBookTransitions, 3);
 assert.match(world, /fetchEntityHubProjection\(\{ nodeId: targetNodeId/);
