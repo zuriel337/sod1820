@@ -445,12 +445,11 @@
 /* FUTURE_GEMATRIA_VIRAL_GATE_V1 */
 .sod29-calc2029-input-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   align-items: stretch;
 }
 
-.sod29-calc2029-input-row > button,
 .sod29-calc2029-shared > button {
   min-height: 58px;
   border: 0;
@@ -461,11 +460,6 @@
   font: inherit;
   font-weight: 900;
   cursor: pointer;
-}
-
-.sod29-calc2029-input-row > button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
 }
 
 .sod29-calc2029-shared {
@@ -539,11 +533,6 @@
 @media (max-width: 640px) {
   .sod29-calc2029-input-row {
     grid-template-columns: 1fr;
-  }
-
-  .sod29-calc2029-input-row > button {
-    width: 100%;
-    min-height: 52px;
   }
 
   .sod29-calc2029-shared > button {

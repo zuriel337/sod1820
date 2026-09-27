@@ -25,8 +25,12 @@ for (const [name, source] of [
 
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /fetchGematriaMethodTrace/);
-assert.match(page, /type="submit"/);
-assert.match(page, />חשב</);
+assert.doesNotMatch(page, />חשב</);
+assert.match(page, /CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240/);
+assert.match(page, /window\.setTimeout\(\(\) => \{[\s\S]*?computeRef\.current\?\.\(phrase\)/);
+assert.match(page, /\[expression, sharedState\.isShared\]/);
+assert.match(page, /התוצאות מתעדכנות אוטומטית/);
+assert.match(page, /AI ורזיאל רק בפעולה מפורשת/);
 assert.match(page, /✦ רזיאל · תסביר לי/);
 assert.match(page, /shell\.openRaziel/);
 assert.match(page, /ShareActions/);
@@ -39,7 +43,7 @@ assert.match(page, /result_selected/);
 assert.match(page, /method_opened/);
 assert.match(page, /raziel_opened/);
 assert.match(page, /share_created/);
-assert.doesNotMatch(page, /setTimeout\([\s\S]*fetchNumberMethodProfile/);
+assert.doesNotMatch(page, /setTimeout\([\s\S]*getAiAnalysis|setTimeout\([\s\S]*ai-analyze|setTimeout\([\s\S]*functions\.invoke/);
 assert.doesNotMatch(page, /רזיאל · Premium/);
 assert.doesNotMatch(page, /GematriaCalculatorLegacy/);
 assert.doesNotMatch(page, /from\s+["'][^"']*gematria\.js["']/);
