@@ -46,7 +46,7 @@ Detailed domain semantics live in owners, not here:
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
-- No Black Box / full execution trace / system recommendations / Incident Intelligence → active `system_suggestions_law` **v4**;
+- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
@@ -254,7 +254,16 @@ It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/d
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
 
-**Incident Intelligence closure check:** G3 cannot close while `G3_INCIDENT_INTELLIGENCE_RUNTIME_V1` remains unimplemented or deferred. Before closure, the live runtime path `IssueReport → events → incident detection/system_suggestions → Control Plane/Watchman` must be implemented, released and live-verified under active `system_suggestions_law` v4 + `canonical_ui_components_law` v6; contract-only state is insufficient. **Current 2026-09-27:** contracts LIVE; runtime DEFERRED pending builder availability.
+**Reliability / Incident Intelligence closure check:** G3 cannot close while `G3_RELIABILITY_PRECLOSE_V1` is incomplete. Before closure, all of the following must be implemented, released and live-verified under active `system_suggestions_law` v5 + existing owners; contract-only state is insufficient:
+
+- canonical `IssueReport → events → incident detection/system_suggestions → Control Plane/Watchman`;
+- event-driven client runtime-error capture (no polling);
+- sparse deterministic Synthetic Critical Journeys — post-deploy + at most 4 scheduled passes/day by default, zero-AI;
+- sensor/notification dead-man so “no data” cannot masquerade as “all healthy”;
+- exact-SHA post-deploy production canary, fail-closed for the next release but no automatic rollback;
+- at least one isolated restore drill proving recovery, not merely existence of backups.
+
+Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; no new incident-monitoring cron faster than 15 minutes without evidence + Human Gate. **Current 2026-09-27:** contracts LIVE; `health-watch` reduced from 5m to 15m; runtime set DEFERRED pending builder availability.
 
 ## Later program sequence
 
