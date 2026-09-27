@@ -204,6 +204,50 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
+test('direct Golden World number routes own the anchor and override stale session context', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(({ key }) => {
+    sessionStorage.setItem(key, JSON.stringify({
+      version: 1,
+      subject: { id: '999', type: 'number', label: '999', href: '/world' },
+      selection: { entityId: '999', entityType: 'number' },
+      lens: 'world',
+      dimensions: { entrySource: 'stale-test-context' },
+      journey: null,
+      returnTo: null,
+    }));
+  }, { key: CONTEXT_KEY });
+
+  for (const value of [70, 1820, 358]) {
+    await page.goto(`${BASE}/world/${value}`, { waitUntil: 'domcontentloaded' });
+    const projection = page.locator('.sod29-world-native-projection');
+    await expect(projection).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText(String(value));
+    await expect(projection).toHaveAttribute('data-experience-surface', 'world');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://sod1820.co.il/world/${value}`);
+
+    await expect.poll(async () => page.evaluate((key) => {
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+        return {
+          id: stored?.subject?.id || null,
+          entrySource: stored?.dimensions?.entrySource || null,
+          goldenStarter: stored?.dimensions?.goldenStarter ?? null,
+        };
+      } catch {
+        return null;
+      }
+    }, CONTEXT_KEY)).toEqual({
+      id: String(value),
+      entrySource: 'world-direct-number-route',
+      goldenStarter: true,
+    });
+
+    await assertNoHorizontalOverflow(page);
+  }
+});
+
 test('World catalog exposes the full canonical convergence index with server pagination and search', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
