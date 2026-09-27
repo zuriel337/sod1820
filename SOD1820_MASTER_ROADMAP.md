@@ -1,6 +1,6 @@
 # SOD1820 — MASTER ROADMAP v6.5 COMPACT
 
-**Date:** 2026-09-22  
+**Date:** 2026-09-27  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -44,12 +44,12 @@ Detailed domain semantics live in owners, not here:
 - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v7**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
-- Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
+- Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
-- No Black Box / full execution trace / system recommendations → active `system_suggestions_law` **v3**;
+- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
-- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
+- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
 
 Historical Roadmap v5.6 remains provenance only. Normal routing starts from the current owner tree, not from the historical Roadmap body.
 
@@ -102,6 +102,8 @@ Dependency chain:
 
 `ELS engine/result contract → ELS 2029 surface → layered/spatial representation → Raziel-in-ELS text/context → guided/spoken ELS → high-end spatial/3D → research-to-media`
 
+**Current ELS state pointer · 2026-09-27:** active owner is `els_research_layer_law` **v8**. Dynamic Matrix Volume / vector/depth primitives are implemented only on PR #748 and remain **BRANCH-ONLY / NOT MERGED / NOT DEPLOYED**; runtime scanner, seeded nulls/FDR and SQL provenance reconciliation remain open before ELS runtime closure. No GPU/3D renderer is required to close the current G3 Foundation/runtime layer.
+
 The 3D renderer may evolve independently, but it never becomes an ELS truth/engine owner.
 
 ### E. Raziel text/tool runtime before live voice
@@ -139,7 +141,7 @@ Once the semantic core and English Golden Locale are stable:
 - cross-channel companion continuity;
 - XR/VR projection.
 
-These remain preserved capabilities under `platform_tiers_law v4`; defer != delete and only explicit Human Gate cancels/retires.
+These remain preserved capabilities under `platform_tiers_law v5`; defer != delete and only explicit Human Gate cancels/retires.
 
 ## G3 opening order
 
@@ -253,6 +255,17 @@ It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/d
 **Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
+
+**Reliability / Incident Intelligence closure check:** G3 cannot close while `G3_RELIABILITY_PRECLOSE_V1` is incomplete. Before closure, all of the following must be implemented, released and live-verified under active `system_suggestions_law` v5 + existing owners; contract-only state is insufficient:
+
+- canonical `IssueReport → events → incident detection/system_suggestions → Control Plane/Watchman`;
+- event-driven client runtime-error capture (no polling);
+- sparse deterministic Synthetic Critical Journeys — post-deploy + at most 4 scheduled passes/day by default, zero-AI;
+- sensor/notification dead-man so “no data” cannot masquerade as “all healthy”;
+- exact-SHA post-deploy production canary, fail-closed for the next release but no automatic rollback;
+- at least one isolated restore drill proving recovery, not merely existence of backups.
+
+Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; no new incident-monitoring cron faster than 15 minutes without evidence + Human Gate. **Current 2026-09-27:** contracts LIVE; `health-watch` is 15m and DB-size-alone false alerts are fixed LIVE; runtime remains DEFERRED pending builder availability.
 
 ## Later program sequence
 
