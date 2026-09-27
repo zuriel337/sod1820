@@ -463,7 +463,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         contributorPromise,
-        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [] })),
+        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
