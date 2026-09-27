@@ -325,10 +325,20 @@ jobs:
               await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
 
               const input = page.locator('#calculator-2029-input');
+              await input.fill('א');
+              const fastPreview = page.locator('.sod29-calc2029-fast-preview');
+              await expect(fastPreview).toBeVisible();
+              await expect(fastPreview).toContainText('1');
+              await input.fill('אב');
+              await expect(fastPreview).toContainText('3');
+              await input.fill('אבא');
+              await expect(fastPreview).toContainText('4');
+
               await input.fill(goldens[0]);
               await expect(page.getByRole('button', { name: 'חשב', exact: true })).toHaveCount(0);
               expect(aiRequests).toEqual([]);
               await expect(page.locator('.sod29-calc2029-results')).toBeVisible({ timeout: 20_000 });
+              await expect(fastPreview).toHaveAttribute('data-fast-preview-state', 'verified', { timeout: 20_000 });
               expect(aiRequests).toEqual([]);
               const inspector = page.locator('.sod29-calc2029-inspector');
               await expect(inspector).toBeVisible();
