@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createCrossSignatureW2Executor } from "./crossSignatureW2Executor.js";
 import {
   runCrossSignatureReflectionRuntime,
+  composeCrossSignatureBundle,
   CROSS_SIGNATURE_REFLECTION_FAILURE_REASON,
 } from "./crossSignatureReflectionRuntime.js";
 
@@ -104,6 +105,29 @@ test("Cross Signature runtime completes Bundle -> normalization -> atomic claims
   assert.ok(reflection.claims.some((claim) => claim.id === "cross-313-expression-independence"));
   assert.ok(reflection.claims.some((claim) => claim.id === "cross-313-dependency-controls"));
   assert.deepEqual(reflection.trace.source_finding_ids.length, 1);
+});
+
+test("public Result Bundle filters public_candidate Cross payload and trace exposes no restricted strength counts", async () => {
+  const executor = createCrossSignatureW2Executor({
+    supabase: fakeSupabase(),
+    fetchCrossMethodStrength: async () => ({
+      status: "ok",
+      row: strength,
+      accessTier: "public_candidate",
+      sourceRef: "governed-reader:cross_method_strength",
+      versionRef: "cross_method_strength:test-v1",
+    }),
+  });
+  const bundle = await composeCrossSignatureBundle({ number: 313, crossSignatureExecutor: executor });
+
+  assert.equal(bundle.findings.length, 0);
+  assert.equal(bundle.coverage.access_filtered, 1);
+  const cap = bundle.capability_trace.find((item) => item.key === "gematria_cross_signature");
+  assert.ok(cap);
+  assert.equal(cap.access_filtered.count, 1);
+  assert.equal(cap.trace.restricted_payload_redacted, true);
+  assert.equal(JSON.stringify(cap.trace).includes("independent_p1_method_count"), false);
+  assert.equal(JSON.stringify(cap.trace).includes('"60"'), false);
 });
 
 test("runtime fails closed before AI/Tarot when governed Cross has no Finding", async () => {
