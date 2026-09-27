@@ -162,6 +162,9 @@
 }
 
 .sod29-calc2029-results > header button {
+  width: 112px;
+  min-width: 112px;
+  flex: 0 0 112px;
   min-height: 44px;
   border: 1px solid var(--s29-line);
   border-radius: 999px;
@@ -169,6 +172,11 @@
   color: var(--s29-ink);
   padding: 8px 14px;
   cursor: pointer;
+}
+
+.sod29-calc2029-results > header button.is-placeholder {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .sod29-calc2029-grid,
