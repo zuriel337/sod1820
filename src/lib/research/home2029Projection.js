@@ -264,7 +264,7 @@ const TREASURE_METHOD_FIELDS = Object.freeze([
   ["גדול", "gadol"],
   ["סידורי", "siduri"],
   ["מילוי", "miluy"],
-  ["קדמי", "kadmi"],
+  ["משולש", "kadmi"],
   ["אתב״ש", "atbash"],
   ["אלב״ם", "albam"],
   ["מסתתר", "misratar"],

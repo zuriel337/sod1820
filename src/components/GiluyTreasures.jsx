@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getGiluyTreasures } from "../lib/supabase.js";
+import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 
 // 🔷 אוצרות הגילוי — הצלבה חוצת-שיטות (לא התכנסות!): אותו ערך-עוגן שמתגלה שוב ושוב
-// בשיטות חישוב שונות (רגיל · גדול · מילוי · קדמי · דילוג). יושבת על עמוד המספר הקנוני
+// בשיטות חישוב שונות (רגיל · גדול · מילוי · משולש · דילוג). יושבת על עמוד המספר הקנוני
 // ומצביעה להתכנסויות התמטיות (שמופיעות מעליה) — לא משכפלת אותן.
 // היררכיה נעולה בגרף (otzarot_giluy_hierarchy): שכבה 1 «האוצרות» · שכבה 2 «השלמה לאוצרות».
 export default function GiluyTreasures({ value }) {
@@ -33,7 +34,7 @@ export default function GiluyTreasures({ value }) {
       <span style={{ color: P.ink, fontFamily: F.regal, fontSize: big ? 15.5 : 13.5, fontWeight: 700 }}>{it.phrase}</span>
       {it.method && (
         <span style={{ color: P.onAccent, background: P.accentBtn, fontFamily: F.heading, fontWeight: 800,
-          fontSize: big ? 10.5 : 9.5, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{it.method}</span>
+          fontSize: big ? 10.5 : 9.5, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{canonicalMethodPublicLabel(it.method)}</span>
       )}
     </Link>
   );
@@ -45,7 +46,7 @@ export default function GiluyTreasures({ value }) {
         <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 14.5, fontWeight: 800 }}>{value} בכל שיטה</span>
       </div>
       <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 13 }}>
-        הצלבה — אותו ערך שמתגלה שוב ושוב בשיטות חישוב שונות (רגיל · גדול · מילוי · קדמי · דילוג). לא התכנסות אחת אלא נפילה של הכול על אותה נקודה.
+        הצלבה — אותו ערך שמתגלה שוב ושוב בשיטות חישוב שונות (רגיל · גדול · מילוי · משולש · דילוג). לא התכנסות אחת אלא נפילה של הכול על אותה נקודה.
       </div>
 
       {t.core.length > 0 && (

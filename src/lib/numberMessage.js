@@ -1,5 +1,6 @@
 import { METHODS, onlyHeb } from "./gematria.js";
 import { KEY_NUMBERS } from "../theme.js";
+import { canonicalMethodPublicLabel } from "./presentation/canonicalPresentation.js";
 
 // ===== מנוע המסרים — תמיד משהו אמיתי להגיד על מספר/שם (מפל A→F) =====
 // A נגיעה בעוגן · B מילה שווה (DB) · C הד פנימי בין-שיטתי · D מבנה המספר · E נשמת האותיות · F פיוטי.
@@ -14,7 +15,7 @@ const ANCHORS = {
   137: "קבלה", 248: "אברהם · רמ״ח איברים", 314: "שדי · מטטרון", 318: "אליעזר",
   358: "משיח · נחש", 424: "משיח בן דוד", 541: "ישראל", 543: "אהיה אשר אהיה",
   604: "תדר", 611: "תורה", 776: "ביאת המשיח", 1202: "עוגן", 1237: "התגלות",
-  1820: "סוד השם × עמים",
+  1820: "סוד × יהוה · 70×26",
 };
 
 const FINAL2BASE = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
@@ -49,7 +50,7 @@ export function buildMessages({ term, value, isNumber, phrases = [], goldLabels 
   if (!isNumber && term) {
     for (const key of ["מילוי", "מסתתר", "קדמי", "אתבש", "הכפלה"]) {
       const v = M[key]?.(term);
-      if (v && v !== value && ANCHORS[v]) { add("C", true, `ב${key}: ${v} — ${ANCHORS[v]}`); break; }
+      if (v && v !== value && ANCHORS[v]) { add("C", true, `ב${canonicalMethodPublicLabel(key)}: ${v} — ${ANCHORS[v]}`); break; }
     }
   }
 

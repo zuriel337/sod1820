@@ -252,7 +252,7 @@ export default async function handler(req, res) {
       const w = String((req.query && req.query.w) || '').trim();
       if (w) {
         title = `«${w}» בשיטת המפתח · ${SITE_NAME}`;
-        desc = `פירוק «${w}» בשיטת המפתח — עובדת-מנוע (רגיל · מסתתר · קדמי) לצד שכבת-פרשנות. גלו את השכבות בסוד 1820.`;
+        desc = `פירוק «${w}» בשיטת המפתח — עובדת-מנוע (רגיל · מסתתר · משולש) לצד שכבת-פרשנות. גלו את השכבות בסוד 1820.`;
         image = `${SITE}/api/card?w=${encodeURIComponent(w)}&sub=${encodeURIComponent('שיטת המפתח · פירוק אותיות')}&cap=${encodeURIComponent('כל מילה נפתחת לשכבותיה · סוד 1820')}&sig=gem`;
       } else {
         title = `שיטת המפתח — פירוק אותיות · ${SITE_NAME}`;

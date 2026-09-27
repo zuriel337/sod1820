@@ -85,7 +85,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   }, [word, ragilVal]);
 
   // 🔑 שיטת המפתח (lab) — עדשת פירוק-אותיות פרשנית מהמנוע (fn_maftech_decompose).
-  // מפריד עובדה (רגיל/מסתתר/קדמי — מאומת) מהשערה (משמעות-אות/מראה/חיתוך). נטען לפי בקשה, לא בכל הקשה.
+  // מפריד עובדה (רגיל/מסתתר/משולש — מאומת) מהשערה (משמעות-אות/מראה/חיתוך). נטען לפי בקשה, לא בכל הקשה.
   const [maftechOpen, setMaftechOpen] = useState(false);
   const [maftechData, setMaftechData] = useState(null);
   const [maftechLoading, setMaftechLoading] = useState(false);
@@ -445,7 +445,7 @@ export default function GematriaCalculator({ seed, onResult, research = false })
                       <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 10, padding: "10px 12px" }}>
                         <div style={{ color: "#1f9d57", fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 5 }}>✅ עובדה — מאומת במנוע</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["קדמי", FT.kadmi]].map(([k, v]) => (
+                          {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["משולש", FT.kadmi]].map(([k, v]) => (
                             <span key={k} style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 800, color: L.goldDeep, background: L.soft, border: `1px solid ${L.line}`, borderRadius: 7, padding: "2px 9px" }}>{k} <span style={{ color: L.ink }}>{v ?? "—"}</span></span>
                           ))}
                         </div>

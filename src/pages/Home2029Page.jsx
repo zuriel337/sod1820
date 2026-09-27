@@ -80,7 +80,7 @@ function TemporalNowCard({ item, onOpen }) {
 function ConnectedGoldenStory({ onOpenPost }) {
   return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
     <div>
-      <div className="sod29-kicker">מקור חי · Connected Golden</div>
+      <div className="sod29-kicker">מקור חי</div>
       <h3>רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז</h3>
       <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם, אל המספר ואל רזיאל — עם חזרה מדויקת לאותה נקודה.</p>
     </div>
@@ -182,9 +182,9 @@ function HomeMiniGematria({ onOpenCalculator }) {
     aria-label="מחשבון גימטריה מהיר"
   >
     <div className="sod29-home-mini-gematria-copy">
-      <div className="sod29-kicker">גימטריה · Fast Core</div>
+      <div className="sod29-kicker">גימטריה · חישוב מיידי</div>
       <h2>כתוב משהו. תשע שיטות נדלקות מיד.</h2>
-      <p>זו תצוגה מיידית מאותו Fast Preview של מחשבון 2029. האימות הסופי נשאר במנוע הקנוני.</p>
+      <p>התוצאות מופיעות מיד מתוך שכבת התצוגה המהירה של מחשבון 2029. האימות הסופי נשאר במנוע הקנוני.</p>
       <div className="sod29-home-mini-gematria-input">
         <input
           value={expression}
@@ -240,7 +240,7 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
       <div>
         <div className="sod29-kicker">העולם חי</div>
         <h2>מחקרים נפתחים. אנשים מחברים.</h2>
-        <p>אותם מפגשים וחוקרים שכבר חיים ב־World — כאן כחלון קטן למה שקורה במערכת.</p>
+        <p>אותן התכנסויות וחוקרים שכבר חיים בעולם — כאן כחלון קטן למה שקורה במערכת.</p>
       </div>
       <button type="button" className="sod29-action" onClick={onOpenWorld}>פתח את העולם ←</button>
     </div>
@@ -249,7 +249,7 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
       <div className="sod29-home-world-research-lane">
         <div className="sod29-home-world-lane-head">
           <strong>חדש במחקר</strong>
-          <small>מפגשים ציבוריים שאושרו לאחרונה</small>
+          <small>התכנסויות ציבוריות שאושרו לאחרונה</small>
         </div>
         <div className="sod29-home-world-research-list">
           {research.slice(0, 5).map((item) => <button
@@ -286,7 +286,7 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
             <div>
               <strong>{person.displayName}</strong>
               <small>{person.role || "חוקר בסוד 1820"}</small>
-              {person.meetingCount > 0 ? <em>{person.meetingCount} מפגשים ציבוריים</em> : null}
+              {person.meetingCount > 0 ? <em>{person.meetingCount} התכנסויות ציבוריות</em> : null}
             </div>
           </button>)}
         </div>
