@@ -156,6 +156,9 @@ test("access-controlled Cross result remains source_access_controlled and carrie
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
   assert.equal(out.accessClass, ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED);
   assert.equal(out.findings[0].access.tier, "public_candidate");
+  assert.equal(out.trace.restricted_payload_redacted, true);
+  assert.equal(JSON.stringify(out.trace).includes("independent_p1_method_count"), false);
+  assert.equal(JSON.stringify(out.trace).includes('"60"'), false);
 });
 
 test("restricted number identity is refused before reader/lookup and raw value does not enter trace", async () => {
