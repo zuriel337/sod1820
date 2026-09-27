@@ -199,13 +199,23 @@ export function createCrossSignatureW2Executor({
   supabase,
   sampleLimit = 24,
 } = {}) {
-  if (!supabase || typeof supabase.from !== "function" || typeof supabase.rpc !== "function") {
-    throw new Error("crossSignatureW2Executor: canonical Supabase from()+rpc() client required");
-  }
   const cap = Math.max(1, Math.min(Number(sampleLimit) || 24, 64));
 
   return async ({ identityResolution } = {}) => {
     const value = numberFromIdentity(identityResolution);
+    if (!supabase || typeof supabase.from !== "function" || typeof supabase.rpc !== "function") {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.MISSING_ADAPTER,
+        reason: "cross signature requires canonical Supabase from()+rpc() read capabilities",
+        findings: [],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        sourceRefs: value == null ? [] : [`number:${value}`],
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
+        trace: { value, adapter_available: false },
+      };
+    }
     if (value == null) {
       return {
         owner: "research_strategy_layer_law",
