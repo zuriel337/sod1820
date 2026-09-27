@@ -222,6 +222,7 @@ export function createCanonicalNumberW2Executors(options = {}) {
 
   const crossSignature = createCrossSignatureW2Executor({
     supabase: options.supabase,
+    fetchCrossMethodStrength: options.fetchCrossMethodStrength ?? null,
     sampleLimit: options.crossSignatureSampleLimit ?? 24,
   });
 
