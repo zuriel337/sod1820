@@ -55,6 +55,7 @@ function CalculatorExperience() {
   const firstComputeRef = useRef(false);
   const restoredRef = useRef("");
   const computeRequestRef = useRef(0);
+  const computeRef = useRef(null);
   const sharedState = useMemo(() => parseCalculatorShareState(location.search), [location.search]);
   const arrivalShareIdRef = useRef(sharedState.shareId || null);
 
@@ -175,6 +176,10 @@ function CalculatorExperience() {
   }, [commitMethod, sharedState.shareId]);
 
   useEffect(() => {
+    computeRef.current = compute;
+  }, [compute]);
+
+  useEffect(() => {
     if (!sharedState.isShared) return;
     const key = [sharedState.expression, sharedState.methodKey, sharedState.resultValue, sharedState.shareId].join("::");
     if (restoredRef.current === key) return;
@@ -217,10 +222,10 @@ function CalculatorExperience() {
     const phrase = clean(expression);
     if (!phrase || sharedState.isShared) return undefined;
     const timer = window.setTimeout(() => {
-      compute(phrase);
+      computeRef.current?.(phrase);
     }, CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [expression, sharedState.isShared, compute]);
+  }, [expression, sharedState.isShared]);
 
   const submitCompute = (event) => {
     event.preventDefault();
