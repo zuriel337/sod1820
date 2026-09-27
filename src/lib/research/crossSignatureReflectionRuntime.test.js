@@ -32,24 +32,8 @@ const strength = {
   unregistered_methods: [],
 };
 
-function fakeSupabase({ hasStrength = true } = {}) {
+function fakeSupabase() {
   return {
-    from(name) {
-      assert.equal(name, "cross_method_strength");
-      return {
-        select() {
-          return {
-            eq() {
-              return {
-                async maybeSingle() {
-                  return { data: hasStrength ? strength : null, error: null };
-                },
-              };
-            },
-          };
-        },
-      };
-    },
     async rpc(name, args) {
       assert.equal(name, "fn_number_lookup");
       return {
@@ -63,9 +47,20 @@ function fakeSupabase({ hasStrength = true } = {}) {
   };
 }
 
-test("Cross Signature runtime completes Bundle -> normalization -> frozen synthesis -> exactly 3-card reflection", async () => {
+const strengthReader = (hasStrength = true) => async () => ({
+  status: hasStrength ? "ok" : "not_found",
+  row: hasStrength ? strength : null,
+  accessTier: "public",
+  sourceRef: "governed-reader:cross_method_strength",
+  versionRef: "cross_method_strength:test-v1",
+});
+
+test("Cross Signature runtime completes Bundle -> normalization -> atomic claims -> prose -> frozen synthesis -> exactly 3-card reflection", async () => {
   const events = [];
-  const baseExecutor = createCrossSignatureW2Executor({ supabase: fakeSupabase() });
+  const baseExecutor = createCrossSignatureW2Executor({
+    supabase: fakeSupabase(),
+    fetchCrossMethodStrength: strengthReader(true),
+  });
   const out = await runCrossSignatureReflectionRuntime({
     number: 313,
     crossSignatureExecutor: async (ctx) => {
@@ -98,6 +93,7 @@ test("Cross Signature runtime completes Bundle -> normalization -> frozen synthe
   assert.equal(out.cross_signature.independent_p1_method_count, 6);
   assert.equal(out.cross_signature.p1_hits, 9);
   assert.deepEqual(out.cross_signature.dependent_methods, ["גדול", "רגיל+משולש"]);
+
   const reflection = out.payload.messageReflection;
   assert.match(reflection.message, /313 מציג מבנה Cross רחב/);
   assert.equal(reflection.cards.length, 3);
@@ -110,10 +106,13 @@ test("Cross Signature runtime completes Bundle -> normalization -> frozen synthe
   assert.deepEqual(reflection.trace.source_finding_ids.length, 1);
 });
 
-test("runtime fails closed before AI/Tarot when canonical Cross has no Finding", async () => {
+test("runtime fails closed before AI/Tarot when governed Cross has no Finding", async () => {
   let aiCalls = 0;
   let tarotCalls = 0;
-  const executor = createCrossSignatureW2Executor({ supabase: fakeSupabase({ hasStrength: false }) });
+  const executor = createCrossSignatureW2Executor({
+    supabase: fakeSupabase(),
+    fetchCrossMethodStrength: strengthReader(false),
+  });
   const out = await runCrossSignatureReflectionRuntime({
     number: 999999,
     crossSignatureExecutor: executor,
@@ -129,7 +128,10 @@ test("runtime fails closed before AI/Tarot when canonical Cross has no Finding",
 
 test("AI unavailable fails closed with zero Tarot draws", async () => {
   let tarotCalls = 0;
-  const executor = createCrossSignatureW2Executor({ supabase: fakeSupabase() });
+  const executor = createCrossSignatureW2Executor({
+    supabase: fakeSupabase(),
+    fetchCrossMethodStrength: strengthReader(true),
+  });
   const out = await runCrossSignatureReflectionRuntime({
     number: 313,
     crossSignatureExecutor: executor,
@@ -139,6 +141,23 @@ test("AI unavailable fails closed with zero Tarot draws", async () => {
 
   assert.equal(out.status, "failed_closed");
   assert.equal(out.reason, CROSS_SIGNATURE_REFLECTION_FAILURE_REASON.AI_UNAVAILABLE);
+  assert.equal(tarotCalls, 0);
+});
+
+test("missing governed Cross reader fails closed before AI/Tarot", async () => {
+  let aiCalls = 0;
+  let tarotCalls = 0;
+  const executor = createCrossSignatureW2Executor({ supabase: fakeSupabase() });
+  const out = await runCrossSignatureReflectionRuntime({
+    number: 313,
+    crossSignatureExecutor: executor,
+    aiAnalysisProvider: async () => { aiCalls += 1; return "should not happen"; },
+    tarotProvider: async () => { tarotCalls += 1; return DRAW; },
+  });
+
+  assert.equal(out.status, "failed_closed");
+  assert.equal(out.reason, CROSS_SIGNATURE_REFLECTION_FAILURE_REASON.ZERO_FINDINGS);
+  assert.equal(aiCalls, 0);
   assert.equal(tarotCalls, 0);
 });
 
