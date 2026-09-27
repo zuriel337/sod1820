@@ -58,6 +58,10 @@ assert.equal(previewA?.methods.find((row) => row.methodKey === "ריבוע")?.co
 assert.equal(previewAb?.methods.find((row) => row.methodKey === "רגיל")?.computedValue, 3);
 assert.equal(previewAba?.methods.find((row) => row.methodKey === "רגיל")?.computedValue, 4);
 assert.ok(previewAba?.methods.every((row) => row.previewOnly === true && row.canonical === false));
+assert.match(fastPreviewSource, /canonicalMethodPublicLabel/);
+const trianglePreview = previewAba?.methods.find((row) => row.methodKey === "קדמי");
+assert.equal(trianglePreview?.displayLabel, "משולש");
+assert.equal(trianglePreview?.methodKey, "קדמי");
 assert.equal(buildCalculator2029FastPreview("abc")?.methodCount, 9);
 assert.deepEqual(buildCalculator2029FastPreview("abc")?.methods.map((row) => row.computedValue), Array(9).fill(0));
 assert.match(page, /fetchGematriaMethodTrace/);
