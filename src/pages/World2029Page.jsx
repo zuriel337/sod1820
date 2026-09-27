@@ -906,9 +906,9 @@ function LiveWorldLanding({ research, shell, context }) {
 
       </div>
       {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
-      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="סינון התכנסויות לפי חוקר או כותב">
+      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת חוקר או כותב">
         <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
-          <strong>הכול</strong><small>כל ההתכנסויות</small>
+          <strong>הכול</strong><small>ללא סינון חוקר</small>
         </button>
         {landing.contributors.people.map((person) => <button
           type="button"
@@ -919,7 +919,7 @@ function LiveWorldLanding({ research, shell, context }) {
         >
           <strong>{person.displayName}</strong>
           <small>{person.role || "חוקר / כותב"}</small>
-          {person.meetingCount ? <span>{person.meetingCount} {CONVERGENCES_LABEL}</span> : <span>החומר שלו בעולם</span>}
+          <span>פתח את חומר המחקר שלו בעולם</span>
         </button>)}
       </div> : null}
     </section> : null}
