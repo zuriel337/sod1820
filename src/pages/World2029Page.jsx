@@ -419,7 +419,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
-  const { isAdmin } = useAuth();
+  const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE || isAdmin;
   const [landing, setLanding] = useState({
     loading: true,
@@ -921,6 +921,14 @@ function LiveWorldLanding({ research, shell, context }) {
           <div className="sod29-kicker">מי מביא את החומר</div>
           <h2>חוקרים וכתבים</h2>
           <div className="sod29-muted">בחר אדם כדי לראות את ההתכנסויות שמיוחסות אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
+        </div>
+        <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
+          {authLoading ? <span className="sod29-chip">בודק חשבון…</span> : user ? <>
+            <span className="sod29-chip">
+              {isAdmin ? "מנהל" : "מחובר"} · {profile?.display_name || profile?.username || user.email}
+            </span>
+            {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
+          </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
         </div>
       </div>
       {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
