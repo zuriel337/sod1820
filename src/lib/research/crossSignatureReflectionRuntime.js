@@ -11,6 +11,7 @@ import {
 import { toRazielMessageReflectionPayload } from "./normalizedMessageReflectionProjection.js";
 import {
   buildCrossSignatureBoundedFacts,
+  buildCrossSignatureSynthesisStructure,
   composeCrossSignatureEvidenceBackedSynthesisDraft,
 } from "./crossSignatureSynthesis.js";
 
@@ -117,8 +118,12 @@ export async function runCrossSignatureReflectionRuntime({
   const signatures = Array.isArray(normalized?.cross_signatures) ? normalized.cross_signatures : [];
   if (!signatures.length) return failedClosed(CROSS_SIGNATURE_REFLECTION_FAILURE_REASON.ZERO_FINDINGS);
 
-  // 3) AI sees only bounded normalized structural facts. It is not asked to calculate or promote truth.
-  const facts = buildCrossSignatureBoundedFacts(normalized);
+  // 3) Atomic structural claims/motifs are built BEFORE prose. AI can never author or reshape them.
+  const structure = buildCrossSignatureSynthesisStructure(normalized);
+  if (!structure.claims.length) return failedClosed(CROSS_SIGNATURE_REFLECTION_FAILURE_REASON.ZERO_FINDINGS);
+
+  // 4) AI sees bounded normalized facts + the already-built structural claims. It is not asked to calculate or promote truth.
+  const facts = buildCrossSignatureBoundedFacts(normalized, { structuralClaims: structure.claims });
   const aiMessage = clean(await aiAnalysisProvider({
     kind: "research",
     subject: String(value),
@@ -131,11 +136,12 @@ export async function runCrossSignatureReflectionRuntime({
   const synthesizer = async ({ normalized: normalizedAtSynthesis }) =>
     composeCrossSignatureEvidenceBackedSynthesisDraft({
       normalized: normalizedAtSynthesis,
+      structure,
       aiMessage,
       frozenAt,
     });
 
-  // 4) Existing shared seam enforces explicit freeze BEFORE tarotProvider is ever called.
+  // 5) Existing shared seam enforces explicit freeze BEFORE tarotProvider is ever called.
   const result = await composeNormalizedMessageReflection({
     trackLists: [],
     bundle,
