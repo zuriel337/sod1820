@@ -12,7 +12,7 @@ import { entityFromPhrase } from "../lib/research/entity.js";
 // 🔑 שיטת המפתח — כרטיס-תצוגה חי בהיכל (lab).
 // ממיר את אב-הטיפוס (HTML) לרכיב React שמונע *ישירות מהמנוע* (fn_maftech_decompose):
 // עובר בין 3 מילות-הדגמה אמיתיות (רזה/הרגע/קרבים) ומציג 3 שכבות מופרדות ויזואלית —
-//   ✅ עובדה (רגיל · מסתתר · קדמי + מד מוסתר↔גלוי)  ·  🔑 מפתח-האותיות (השערה)  ·  ✂️ חיתוך תת-מילים.
+//   ✅ עובדה (רגיל · מסתתר · משולש + מד מוסתר↔גלוי)  ·  🔑 מפתח-האותיות (השערה)  ·  ✂️ חיתוך תת-מילים.
 // חוק-ברזל (gematria_engine_law): שום ערך לא מחושב כאן — הכל נמשך מהמנוע הרשמי.
 // חותם אפיסטמי: המספרים = עובדת-מנוע · משמעות-האותיות/המראה/החיתוך = שיטה פרשנית («המפתח») במצב lab.
 // עץ אחד: הכרטיס הוא הדגמה בלבד — פירוק-מילה-משלך מפנה למחשבון (🔑 שם), לא משכפל.
@@ -98,7 +98,7 @@ export default function MaftechShowcase({ seed = "" }) {
   // בונה מחרוזת-עובדות לפרומפט: עובדות-מנוע מסומנות ✅, שכבת-המפתח מסומנת השערה.
   const buildAiFacts = () => {
     const lines = [`מילה: ${active.word}`];
-    lines.push(`עובדות מנוע (מאומת): רגיל=${FT.ragil}, מסתתר=${FT.misratar}, קדמי=${FT.kadmi}.`);
+    lines.push(`עובדות מנוע (מאומת): רגיל=${FT.ragil}, מסתתר=${FT.misratar}, משולש=${FT.kadmi}.`);
     if (FT.hidden_vs_revealed) lines.push(`מוסתר↔גלוי: ${FT.hidden_vs_revealed}`);
     if ((IN.letters || []).length) lines.push(`שיטת המפתח (השערה פרשנית, לא עובדה) — מפתח האותיות: ${IN.letters.map(l => `${l.letter}=${l.meaning || "?"}`).join(" · ")}`);
     if ((IN.mirror || []).length) lines.push(`מראה (השערה): ${IN.mirror.join(", ")}`);
@@ -237,7 +237,7 @@ export default function MaftechShowcase({ seed = "" }) {
           <section style={S.layer}>
             <div style={{ ...S.layerH, color: C.green }}>✅ עובדה — מאומת במנוע</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-              {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["קדמי", FT.kadmi]].map(([k, v]) => (
+              {[["רגיל", FT.ragil], ["מסתתר", FT.misratar], ["משולש", FT.kadmi]].map(([k, v]) => (
                 v ? (
                   <Link key={k} to={numHref(v)} title={`דף המספר ${v}`} style={{ ...S.factChip, textDecoration: "none" }}>
                     {k} <span style={{ color: C.ink }}>{v}</span> <span style={{ opacity: 0.5, fontSize: 10 }}>↗</span>
@@ -347,7 +347,7 @@ export default function MaftechShowcase({ seed = "" }) {
         </button>
         {howOpen && (
           <div className="mft-fade" style={S.howBody}>
-            <p style={S.howP}><b style={{ color: C.green }}>✅ עובדה — מהמנוע הרשמי.</b> רגיל · מסתתר · קדמי מחושבים במנוע. <b>מד מוסתר↔גלוי</b> משווה את הערך הגלוי (רגיל) לנסתר (מסתתר): מוסתר נמוך = שקיפות/ריפוי (טורקיז), מוסתר גבוה = קליפה נושאת יותר (ענבר).</p>
+            <p style={S.howP}><b style={{ color: C.green }}>✅ עובדה — מהמנוע הרשמי.</b> רגיל · מסתתר · משולש מחושבים במנוע. <b>מד מוסתר↔גלוי</b> משווה את הערך הגלוי (רגיל) לנסתר (מסתתר): מוסתר נמוך = שקיפות/ריפוי (טורקיז), מוסתר גבוה = קליפה נושאת יותר (ענבר).</p>
             <p style={S.howP}><b style={{ color: C.blue }}>🔑 מפתח האותיות — השערה.</b> לכל אות משמעות בשיטה. <b>מראה</b> = אותיות שמשקפות זו את זו (ק↔א · ר↔ב · ש↔ג). <b>ניצוצות-יוד</b> = אותיות יוד כניצוץ פנימי.</p>
             <p style={S.howP}><b>✂️ חיתוך · 🔁 היפוך.</b> המילה מכילה תת-מילים מהמאגר והתנ״ך (📖). <b>היפוך</b> = תת-מילה שנקראת אחורה כמילה מוכרת.</p>
             <p style={{ ...S.howP, marginBottom: 0, color: C.goldDeep }}><b>יושר:</b> המספרים = עובדה מאומתת. משמעות-האותיות, המראה, החיתוך וההיפוך = <b>פרשנות</b> («שיטת המפתח», lab) — רמז, לא אמת מוחלטת.</p>
