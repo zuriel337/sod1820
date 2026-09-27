@@ -90,6 +90,13 @@ assert.equal(drawer.includes('go?.("/heichal"'), false, "Number Drawer must not 
 assert.match(coreCss, /\.sod29-miluy-spatial/);
 assert.match(coreCss, /prefers-reduced-motion/);
 
+assert.match(page, /regularExpressionsLoading=\{regularPhraseState\.loading\}/);
+assert.match(core, /regularExpressionsLoading = false/);
+assert.match(core, /data-experience-state="regular-expressions-loading"/);
+assert.match(core, /sod29-number-v11-regular-placeholder/);
+assert.match(coreCss, /\.sod29-number-v11-regular-placeholder\{/);
+assert.match(coreCss, /\.sod29-number-core2029\.is-page \.sod29-number-v10-stage\{[\s\S]*min-block-size:342px/);
+
 // Shared Method Lens 2029 — evidence-first, deterministic, same consumer in Calculator + Number.
 assert.match(methodLensModel, /getNumberLookup/);
 assert.match(methodLensModel, /getRelationCandidate/);
