@@ -1,12 +1,52 @@
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 
-export const WORLD_APPROVED_CONTRIBUTOR_SLUGS = Object.freeze([
+export const WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS = Object.freeze([
   "tzvi-opoc",
   "shimon-haimov",
   "yaniv-levi",
   "shachar-kandro",
 ]);
+// Compatibility export only. Admission is no longer owned by this frozen list:
+// live trusted contributors are added from the canonical contributors table.
+export const WORLD_APPROVED_CONTRIBUTOR_SLUGS = WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS;
+
+function contributorIsWorldAdmitted(row) {
+  const slug = clean(row?.slug);
+  if (!slug || row?.active === false) return false;
+  if (row?.trusted === true) return true;
+  return WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS.includes(slug);
+}
+
+function worldAdmittedContributors(rows = []) {
+  const seen = new Set();
+  return (Array.isArray(rows) ? rows : [])
+    .filter(contributorIsWorldAdmitted)
+    .filter((row) => {
+      const slug = clean(row?.slug);
+      if (!slug || seen.has(slug)) return false;
+      seen.add(slug);
+      return true;
+    })
+    .sort((a, b) => {
+      const ai = WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS.indexOf(clean(a?.slug));
+      const bi = WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS.indexOf(clean(b?.slug));
+      const ar = ai === -1 ? 999 : ai;
+      const br = bi === -1 ? 999 : bi;
+      return ar - br || clean(a?.display_name).localeCompare(clean(b?.display_name), "he");
+    });
+}
+
+async function fetchWorldAdmittedContributorRows(supabase) {
+  const fields = "id,slug,display_name,kind,role,wa_names,trusted,active,dossier_settings";
+  const [legacyResult, trustedResult] = await Promise.all([
+    supabase.from("contributors").select(fields).in("slug", WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS),
+    supabase.from("contributors").select(fields).eq("active", true).eq("trusted", true).neq("kind", "external"),
+  ]);
+  if (legacyResult.error) throw legacyResult.error;
+  if (trustedResult.error) throw trustedResult.error;
+  return worldAdmittedContributors([...(legacyResult.data || []), ...(trustedResult.data || [])]);
+}
 
 function contributorAliases(row) {
   return [...new Set([
@@ -68,8 +108,7 @@ export function buildWorldContributorLens({
   topicRows = [],
   anchor = {},
 } = {}) {
-  const allowed = new Set(WORLD_APPROVED_CONTRIBUTOR_SLUGS);
-  const approved = (contributors || []).filter((row) => allowed.has(clean(row?.slug)));
+  const approved = worldAdmittedContributors(contributors);
   const contributorById = new Map(approved.map((row) => [String(row.id), row]));
   const contributorByName = new Map(approved.map((row) => [clean(row.display_name), row]));
   const aliasToSlug = new Map();
@@ -121,7 +160,11 @@ export function buildWorldContributorLens({
         convergenceRows: convergencesBySlug[row.slug].length,
       },
     }))
-    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
+    .sort((a, b) => {
+      const ai = WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS.indexOf(a.slug);
+      const bi = WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS.indexOf(b.slug);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi) || a.displayName.localeCompare(b.displayName, "he");
+    });
 
   return {
     contributors: contributorRows,
@@ -132,7 +175,7 @@ export function buildWorldContributorLens({
       topicSlugs: [...topicSlugsBySlug[row.slug]],
       convergences: convergencesBySlug[row.slug],
     }])),
-    approvedSlugs: [...WORLD_APPROVED_CONTRIBUTOR_SLUGS],
+    approvedSlugs: contributorRows.map((row) => row.slug),
     note: "World contributor lens is presentation/provenance only. It never attributes canonical engine rows to a person and never guesses missing authorship.",
   };
 }
@@ -142,10 +185,7 @@ export function buildWorldLandingContributorProjection({
   contributors = [],
   publicContributions = [],
 } = {}) {
-  const allowed = new Set(WORLD_APPROVED_CONTRIBUTOR_SLUGS);
-  const approved = (contributors || [])
-    .filter((row) => allowed.has(clean(row?.slug)))
-    .sort((a, b) => WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(a.slug) - WORLD_APPROVED_CONTRIBUTOR_SLUGS.indexOf(b.slug));
+  const approved = worldAdmittedContributors(contributors);
   const contributorById = new Map(approved.map((row) => [String(row.id), row]));
   const meetingsBySlug = Object.fromEntries(approved.map((row) => [row.slug, []]));
   const seen = new Set();
@@ -195,11 +235,7 @@ export function buildWorldLandingContributorProjection({
 
 export async function fetchWorldLandingContributorProjection() {
   const { supabase } = await import("../supabase.js");
-  const { data: contributors, error: contributorError } = await supabase
-    .from("contributors")
-    .select("id,slug,display_name,kind,role,wa_names")
-    .in("slug", WORLD_APPROVED_CONTRIBUTOR_SLUGS);
-  if (contributorError) throw contributorError;
+  const contributors = await fetchWorldAdmittedContributorRows(supabase);
 
   const ids = (contributors || []).map((row) => row.id).filter(Boolean);
   let publicContributions = [];
@@ -227,11 +263,7 @@ export async function fetchWorldContributorLens({
 } = {}) {
   const { supabase } = await import("../supabase.js");
 
-  const { data: contributors, error: contributorError } = await supabase
-    .from("contributors")
-    .select("id,slug,display_name,kind,role,wa_names")
-    .in("slug", WORLD_APPROVED_CONTRIBUTOR_SLUGS);
-  if (contributorError) throw contributorError;
+  const contributors = await fetchWorldAdmittedContributorRows(supabase);
 
   const ids = (contributors || []).map((row) => row.id).filter(Boolean);
   let contributions = [];
