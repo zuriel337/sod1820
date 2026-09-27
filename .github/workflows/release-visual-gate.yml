@@ -345,11 +345,15 @@ jobs:
               await expect(page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]')).toHaveCount(9);
               await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'רגיל' }).first()).toContainText('4');
 
+              const gridTopBeforeSettle = await page.locator('.sod29-calc2029-grid').evaluate((el) => el.getBoundingClientRect().top);
               await input.fill(goldens[0]);
               await expect(page.getByRole('button', { name: 'חשב', exact: true })).toHaveCount(0);
               expect(aiRequests).toEqual([]);
+              await expect(page.locator('.sod29-calc2029-engine-status')).toBeVisible();
               await expect(page.locator('.sod29-calc2029-results')).toBeVisible({ timeout: 20_000 });
               await expect(page.locator('.sod29-calc2029-grid button[data-preview-state="verified"]').first()).toBeVisible({ timeout: 20_000 });
+              const gridTopAfterSettle = await page.locator('.sod29-calc2029-grid').evaluate((el) => el.getBoundingClientRect().top);
+              expect(Math.abs(gridTopAfterSettle - gridTopBeforeSettle)).toBeLessThanOrEqual(2);
               expect(aiRequests).toEqual([]);
               const inspector = page.locator('.sod29-calc2029-inspector');
               await expect(inspector).toBeVisible();
