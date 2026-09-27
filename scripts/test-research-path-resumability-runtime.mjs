@@ -10,6 +10,16 @@ import {
   resumeHrefFromResearchPath,
 } from "../src/lib/research/researchPathRuntime.js";
 import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import {
+  JOURNEY_2029_EVENTS,
+  JOURNEY_2029_KINDS,
+  JOURNEY_2029_MODES,
+  buildJourney2029ContextPatch,
+  buildJourney2029Telemetry,
+  normalizeJourney2029Event,
+  normalizeJourney2029Kind,
+  normalizeJourney2029Mode,
+} from "../src/lib/research/journey2029Telemetry.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -94,6 +104,58 @@ assert.equal(resumed.journey.revisionId, "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
 assert.equal(resumed.journey.revisionNo, 4);
 assert.equal(resumeHrefFromResearchPath({ ok: true, representation: rep }), "/heichal");
 
+// Journey 2029 foundation: one bounded vocabulary + privacy-safe telemetry envelope.
+assert.deepEqual(JOURNEY_2029_EVENTS, ["start", "step", "save", "resume", "fork", "complete"]);
+assert.deepEqual(JOURNEY_2029_MODES, ["organic", "guided"]);
+assert.ok(JOURNEY_2029_KINDS.includes("discovery"));
+assert.ok(JOURNEY_2029_KINDS.includes("person_life"));
+assert.equal(normalizeJourney2029Kind("person_life"), "person_life");
+assert.equal(normalizeJourney2029Kind("unknown-kind"), "general_research");
+assert.equal(normalizeJourney2029Mode("guided"), "guided");
+assert.equal(normalizeJourney2029Mode("anything-else"), "organic");
+assert.equal(normalizeJourney2029Event("start"), "start");
+assert.equal(normalizeJourney2029Event("landing"), null);
+assert.deepEqual(buildJourney2029ContextPatch({ kind: "els", mode: "guided", sourceSurface: "Heichal 2029" }), {
+  dimensions: {
+    journey2029: {
+      active: true,
+      kind: "els",
+      mode: "guided",
+      sourceSurface: "heichal_2029",
+    },
+  },
+});
+
+const privateJourneyContext = normalizeResearchContext({
+  subject: { id: "person:PRIVATE-REF:self", type: "person", label: "Private Name", href: "/private" },
+  selection: { entityId: "person:PRIVATE-REF:self", entityType: "person", expression: "SECRET SEARCH TERM" },
+  lens: "person",
+  dimensions: {
+    journey2029: { active: true, kind: "person_life", mode: "organic", sourceSurface: "person" },
+    privateName: "SECRET FAMILY NAME",
+  },
+});
+const telemetry = buildJourney2029Telemetry("start", {
+  context: privateJourneyContext,
+  pathId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+});
+assert.equal(telemetry.surface, "journey_2029");
+assert.equal(telemetry.eventType, "start");
+assert.equal(telemetry.options.journeyId, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+assert.deepEqual(telemetry.options.props, {
+  journey_kind: "person_life",
+  journey_mode: "organic",
+  source_surface: "person",
+  root_type: "person",
+  has_path: true,
+});
+const telemetryJson = JSON.stringify(telemetry);
+for (const forbidden of ["PRIVATE-REF", "Private Name", "SECRET SEARCH TERM", "SECRET FAMILY NAME"]) {
+  assert.equal(telemetryJson.includes(forbidden), false, "Journey telemetry must never leak private/root content");
+}
+assert.equal(buildJourney2029Telemetry("landing", { context: privateJourneyContext }), null);
+assert.equal(buildJourney2029Telemetry("save", { context, pathId: "not-a-path-id" }).options.journeyId, null);
+
 // Golden 878: persistence identity (Research Path UUID) and semantic Journey identity
 // must coexist. The path UUID remains journey.id after resume; the Golden identity
 // is carried inside durable Context dimensions and therefore reopens the same World Journey.
@@ -166,6 +228,9 @@ assert.match(provider, /saveCurrentResearchPath/);
 assert.match(provider, /resumeResearchPath/);
 assert.match(provider, /revision_conflict/);
 assert.match(provider, /SAME operation key/);
+assert.match(provider, /emitJourney2029\("save"/);
+assert.match(provider, /emitJourney2029\("resume"/);
+assert.equal(/emitJourney2029\("start"/.test(provider), false, "Path save/resume must not fabricate Journey starts");
 // Sync-runtime era: explicit resume commits the restored Context through the same
 // principal-bound runtime (which persists it), not a bespoke sessionStorage writer.
 assert.match(provider, /actions\.setResearchContext\(next\)/);
