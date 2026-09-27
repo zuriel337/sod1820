@@ -74,9 +74,11 @@ test("Cross Signature runtime completes Bundle -> normalization -> frozen synthe
     },
     aiAnalysisProvider: async ({ kind, subject, facts, operation }) => {
       events.push("ai");
-      assert.equal(kind, "research");
+      assert.equal(kind, "cross_signature");
       assert.equal(subject, "313");
       assert.equal(operation, "cross_signature_message");
+      assert.match(facts, /Atomic structural claims were built before this prose request/);
+      assert.match(facts, /cross-313-method-independence/);
       assert.match(facts, /independent_p1_methods=6/);
       assert.match(facts, /p1_hits=9/);
       assert.match(facts, /dependent_methods_preserved_not_counted_independent/);
