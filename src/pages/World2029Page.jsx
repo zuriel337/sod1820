@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
@@ -56,6 +56,15 @@ const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
 const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true;
+export const WORLD_DIRECT_GOLDEN_NUMBERS = Object.freeze([70, 1820, 358]);
+
+function parseWorldNumberParam(value) {
+  if (value == null || value === "") return null;
+  const text = String(value).trim();
+  if (!/^\d+$/.test(text)) return null;
+  const number = Number(text);
+  return Number.isSafeInteger(number) && number >= 0 ? number : null;
+}
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
@@ -1859,28 +1868,70 @@ function AnchoredWorld({ research, shell, subject, context }) {
   </>;
 }
 
-function WorldBody() {
+function WorldBody({ directNumber = null, directRouteRequested = false }) {
   const research = useResearch();
   const shell = use2029Shell();
-  const context = research.context || null;
+  const storedContext = research.context || null;
+
+  const routeContext = directNumber != null ? {
+    subject: {
+      id: String(directNumber),
+      type: "number",
+      label: String(directNumber),
+      href: `/world/${directNumber}`,
+    },
+    selection: { entityId: String(directNumber), entityType: "number" },
+    lens: "world",
+    dimensions: {
+      entrySource: "world-direct-number-route",
+      directWorldNumber: directNumber,
+      goldenStarter: WORLD_DIRECT_GOLDEN_NUMBERS.includes(directNumber),
+    },
+    returnTo: { href: "/world", label: "העולם" },
+  } : null;
+
+  const context = routeContext || storedContext;
   const subject = context?.subject || null;
 
   useEffect(() => {
+    if (directNumber != null) {
+      const current = research.context;
+      const sameDirect = current?.subject?.type === "number"
+        && Number(current?.subject?.id) === directNumber
+        && current?.dimensions?.entrySource === "world-direct-number-route";
+      if (!sameDirect) research.setResearchContext?.(routeContext);
+      return;
+    }
     research.updateResearchContext?.({ lens: "world" });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [directNumber]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (directRouteRequested && directNumber == null) {
+    return <FrameState kind="unavailable" title="המספר בכתובת אינו תקין">
+      <Link className="sod29-action" to="/world">חזור לעולם</Link>
+    </FrameState>;
+  }
 
   if (!subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
 export default function World2029Page() {
+  const { value: routeValue } = useParams();
+  const directRouteRequested = routeValue != null;
+  const directNumber = parseWorldNumberParam(routeValue);
+
   useEffect(() => {
     applySeo({
-      title: `העולם · ${WORLD_EXPERIENCE.brand.canonicalLatinIdentity}`,
-      description: "העולם של סוד 1820 — מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך.",
-      path: "/world",
+      title: directNumber != null
+        ? `${directNumber} · העולם`
+        : `העולם · ${WORLD_EXPERIENCE.brand.canonicalLatinIdentity}`,
+      description: directNumber != null
+        ? `העולם סביב ${directNumber} — ביטויים, מקורות, קשרים, גימטריה ומחקר שנפתחים מאותו עוגן מספרי.`
+        : "העולם של סוד 1820 — מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך.",
+      path: directNumber != null ? `/world/${directNumber}` : "/world",
+      noindex: directRouteRequested,
     });
-  }, []);
+  }, [directNumber, directRouteRequested]);
 
   return (
     <Sod2029Shell
@@ -1891,7 +1942,7 @@ export default function World2029Page() {
       description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
       status="עולם · גילוי"
     >
-      <WorldBody />
+      <WorldBody directNumber={directNumber} directRouteRequested={directRouteRequested} />
     </Sod2029Shell>
   );
 }
