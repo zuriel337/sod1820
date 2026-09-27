@@ -193,34 +193,24 @@ function CalculatorExperience() {
     });
   }, [sharedState, compute]);
 
-  const methods = useMemo(() => splitCalculatorMethods(profile.rows), [profile.rows]);
-  const selectedMethod = useMemo(() => (
-    methods.all.find((row) => row.methodKey === selectedKey) || null
-  ), [methods, selectedKey]);
-  const selection = useMemo(() => (
-    selectedMethod ? buildCalculationSelection(profile.expression, selectedMethod) : null
-  ), [profile.expression, selectedMethod]);
-
   const fastPreview = useMemo(
     () => buildCalculator2029FastPreview(expression),
     [expression]
   );
-  const canonicalRegularValue = useMemo(() => {
-    if (clean(profile.expression) !== clean(expression)) return null;
-    const row = (Array.isArray(profile.rows) ? profile.rows : [])
-      .find((item) => item?.methodKey === "רגיל");
-    const value = Number(row?.computedValue);
-    return Number.isFinite(value) ? value : null;
-  }, [expression, profile.expression, profile.rows]);
-  const fastDisplayValue = canonicalRegularValue ?? fastPreview?.value ?? null;
-  const fastPreviewState = canonicalRegularValue != null
-    ? "verified"
-    : fastPreview
-      ? "preview"
-      : "empty";
-  const fastPreviewMismatch = canonicalRegularValue != null
-    && fastPreview?.value != null
-    && canonicalRegularValue !== fastPreview.value;
+  const canonicalSettled = clean(profile.expression) === clean(expression)
+    && Array.isArray(profile.rows)
+    && profile.rows.length > 0
+    && !profile.loading;
+  const displayRows = canonicalSettled
+    ? profile.rows
+    : (fastPreview?.methods || []);
+  const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
+  const selectedMethod = useMemo(() => (
+    methods.all.find((row) => row.methodKey === selectedKey && !row.previewOnly) || null
+  ), [methods, selectedKey]);
+  const selection = useMemo(() => (
+    selectedMethod ? buildCalculationSelection(profile.expression, selectedMethod) : null
+  ), [profile.expression, selectedMethod]);
 
   const handleExpressionChange = (value) => {
     const next = String(value ?? "");
@@ -253,7 +243,10 @@ function CalculatorExperience() {
     event.preventDefault();
   };
 
-  const chooseMethod = (method) => commitMethod(method, profile.expression || expression, "manual_method");
+  const chooseMethod = (method) => {
+    if (method?.previewOnly) return;
+    commitMethod(method, profile.expression || expression, "manual_method");
+  };
 
   const loadTrace = async () => {
     if (!selection || selection.resultValue == null) return;
@@ -372,18 +365,6 @@ function CalculatorExperience() {
             aria-describedby="calculator-2029-help"
           />
         </div>
-        {fastDisplayValue != null ? (
-          <div
-            className={`sod29-calc2029-fast-preview is-${fastPreviewState}`}
-            data-fast-preview-state={fastPreviewState}
-            data-fast-preview-mismatch={fastPreviewMismatch ? "true" : "false"}
-            aria-label={fastPreviewState === "verified" ? "ערך רגיל מאומת" : "תצוגה מיידית של ערך רגיל"}
-          >
-            <span>רגיל</span>
-            <strong>{fastDisplayValue}</strong>
-            <small>{fastPreviewState === "verified" ? "מאומת" : "מיידי · אימות קנוני בדרך"}</small>
-          </div>
-        ) : null}
         <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
           <span>התוצאות מתעדכנות אוטומטית</span>
           <span>AI ורזיאל רק בפעולה מפורשת</span>
@@ -412,7 +393,7 @@ function CalculatorExperience() {
           <header>
             <div>
               <span>תוצאות</span>
-              <strong>{profile.expression} · בחר שיטה</strong>
+              <strong>{clean(profile.expression) || clean(expression)} · {canonicalSettled ? "בחר שיטה" : "תצוגה מיידית"}</strong>
             </div>
             {methods.rest.length ? (
               <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
@@ -429,13 +410,15 @@ function CalculatorExperience() {
                 <button
                   type="button"
                   key={method.methodKey}
-                  className={active ? "is-active" : ""}
+                  className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
                   onClick={() => chooseMethod(method)}
                   aria-pressed={active}
+                  disabled={Boolean(method.previewOnly)}
+                  data-preview-state={method.previewOnly ? "preview" : "verified"}
                 >
                   <span>{method.label}</span>
                   <strong>{method.computedValue ?? "—"}</strong>
-                  {unavailable ? <small>{unavailable}</small> : null}
+                  {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
                 </button>
               );
             })}
@@ -450,13 +433,15 @@ function CalculatorExperience() {
                   <button
                     type="button"
                     key={method.methodKey}
-                    className={active ? "is-active" : ""}
+                    className={`${active ? "is-active" : ""}${method.previewOnly ? " is-preview" : ""}`}
                     onClick={() => chooseMethod(method)}
                     aria-pressed={active}
+                    disabled={Boolean(method.previewOnly)}
+                    data-preview-state={method.previewOnly ? "preview" : "verified"}
                   >
                     <span>{method.label}</span>
                     <strong>{method.computedValue ?? "—"}</strong>
-                    {unavailable ? <small>{unavailable}</small> : null}
+                    {method.previewOnly ? <small>מיידי</small> : unavailable ? <small>{unavailable}</small> : null}
                   </button>
                 );
               })}
