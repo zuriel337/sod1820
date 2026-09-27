@@ -792,6 +792,14 @@ function LiveWorldLanding({ research, shell, context }) {
           <p>כל ההתכנסויות הציבוריות האחרונות במקום אחד. מתחילים מהכול, ואז מסננים לפי מי שהביא את החומר.</p>
         </div>
         <div className="sod29-actions">
+          <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
+            {authLoading ? <span className="sod29-chip">בודק חשבון…</span> : user ? <>
+              <span className="sod29-chip">
+                {isAdmin ? "מנהל" : "מחובר"} · {profile?.display_name || profile?.username || user.email}
+              </span>
+              {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
+            </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
+          </div>
           <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
           <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
         </div>
@@ -922,14 +930,7 @@ function LiveWorldLanding({ research, shell, context }) {
           <h2>חוקרים וכתבים</h2>
           <div className="sod29-muted">בחר אדם כדי לראות את ההתכנסויות שמיוחסות אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
         </div>
-        <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
-          {authLoading ? <span className="sod29-chip">בודק חשבון…</span> : user ? <>
-            <span className="sod29-chip">
-              {isAdmin ? "מנהל" : "מחובר"} · {profile?.display_name || profile?.username || user.email}
-            </span>
-            {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
-          </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
-        </div>
+
       </div>
       {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
       {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="סינון התכנסויות לפי חוקר או כותב">
