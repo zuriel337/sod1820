@@ -325,19 +325,25 @@ jobs:
               await page.goto(`${BASE}${calculatorPath}`, { waitUntil: 'networkidle' });
 
               const input = page.locator('#calculator-2029-input');
+              const fixedCore = page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]');
+              await expect(fixedCore).toHaveCount(9);
+              for (let index = 0; index < 9; index += 1) {
+                await expect(fixedCore.nth(index).locator('strong')).toHaveText('0');
+              }
+
               await input.fill('א');
-              const previewCoreA = page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]');
-              expect(await previewCoreA.count()).toBeGreaterThanOrEqual(9);
+              await expect(page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]')).toHaveCount(9);
               await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'רגיל' }).first()).toContainText('1');
+              await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'מילוי' }).first()).toContainText('111');
+              await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'ריבוע' }).first()).toContainText('1');
 
               await input.fill('אב');
-              expect(await page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]').count()).toBeGreaterThanOrEqual(9);
+              await expect(page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]')).toHaveCount(9);
               await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'רגיל' }).first()).toContainText('3');
 
               await input.fill('אבא');
-              expect(await page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]').count()).toBeGreaterThanOrEqual(9);
+              await expect(page.locator('.sod29-calc2029-grid button[data-preview-state="preview"]')).toHaveCount(9);
               await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'רגיל' }).first()).toContainText('4');
-              await expect(page.locator('.sod29-calc2029-grid button').filter({ hasText: 'מילוי' }).first()).toBeVisible();
 
               await input.fill(goldens[0]);
               await expect(page.getByRole('button', { name: 'חשב', exact: true })).toHaveCount(0);
