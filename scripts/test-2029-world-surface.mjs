@@ -119,7 +119,8 @@ assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributo
 assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /התכנסויות לפי חוקר/);
+assert.match(world, /בחירת חוקר או כותב/);
+assert.match(world, /פתח את חומר המחקר שלו בעולם/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
