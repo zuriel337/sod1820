@@ -402,13 +402,18 @@ function CalculatorExperience() {
           <header>
             <div>
               <span>תוצאות</span>
-              <strong>{clean(profile.expression) || clean(expression)} · {canonicalSettled ? "בחר שיטה" : "תצוגה מיידית"}</strong>
+              <strong>{clean(profile.expression) || clean(expression) || "הקלידו שם, מילה או ביטוי"}</strong>
             </div>
-            {methods.rest.length ? (
-              <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
-                {showAll ? "צמצם" : "כל " + methods.all.length + " השיטות"}
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={!methods.rest.length ? "is-placeholder" : ""}
+              onClick={() => methods.rest.length && setShowAll((value) => !value)}
+              aria-expanded={methods.rest.length ? showAll : false}
+              aria-hidden={!methods.rest.length}
+              tabIndex={methods.rest.length ? 0 : -1}
+            >
+              {showAll && methods.rest.length ? "צמצם" : "כל השיטות"}
+            </button>
           </header>
 
           <div className="sod29-calc2029-grid">
