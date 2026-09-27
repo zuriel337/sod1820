@@ -22,7 +22,67 @@ function freezeNormalizedFinding(finding) {
   });
 }
 
-export function buildNormalizedMessageContext(trackLists = []) {
+function freezeStringList(values) {
+  return Object.freeze((Array.isArray(values) ? values : []).map((value) => String(value)));
+}
+
+function freezeSampleRows(values) {
+  return freezeList((Array.isArray(values) ? values : []).map((row) => ({
+    phrase: clean(row?.phrase),
+    method: clean(row?.method),
+    value: Number.isSafeInteger(Number(row?.value)) ? Number(row.value) : null,
+    atomic_or_composite: clean(row?.atomic_or_composite),
+    bid_id: clean(row?.bid_id),
+    word_id: clean(row?.word_id),
+    method_version: Number.isSafeInteger(Number(row?.method_version)) ? Number(row.method_version) : null,
+  })));
+}
+
+export function normalizedCrossSignaturesFromBundle(bundle) {
+  const findings = Array.isArray(bundle?.findings) ? bundle.findings : [];
+  return freezeList(findings
+    .filter((finding) => finding?.kind === "cross-signature")
+    .map((finding) => {
+      const signature = finding?.projection?.dimensions?.cross_signature;
+      if (!signature || typeof signature !== "object" || Array.isArray(signature)) return null;
+      const value = Number(signature.value ?? finding?.subject?.value ?? finding?.subject?.label);
+      if (!Number.isSafeInteger(value)) return null;
+      return {
+        source_finding_id: clean(finding.id),
+        value,
+        phrase_count: Number.isSafeInteger(Number(signature.phrase_count)) ? Number(signature.phrase_count) : null,
+        independent_phrase_count: Number.isSafeInteger(Number(signature.independent_phrase_count)) ? Number(signature.independent_phrase_count) : null,
+        dependent_expression_phrase_count: Number.isSafeInteger(Number(signature.dependent_expression_phrase_count)) ? Number(signature.dependent_expression_phrase_count) : null,
+        p1_hits: Number.isSafeInteger(Number(signature.p1_hits)) ? Number(signature.p1_hits) : null,
+        independent_p1_method_count: Number.isSafeInteger(Number(signature.independent_p1_method_count)) ? Number(signature.independent_p1_method_count) : null,
+        methods: freezeStringList(signature.methods),
+        dependent_methods: freezeStringList(signature.dependent_methods),
+        dependent_phrase_count: Number.isSafeInteger(Number(signature.dependent_phrase_count)) ? Number(signature.dependent_phrase_count) : null,
+        unregistered_methods: freezeStringList(signature.unregistered_methods),
+        signal: clean(signature.signal),
+        core_presence: Object.freeze({
+          regular: signature?.core_presence?.regular === true,
+          hidden: signature?.core_presence?.hidden === true,
+          triangle: signature?.core_presence?.triangle === true,
+        }),
+        sample_rows: freezeSampleRows(signature.sample_rows),
+        sample_window: Object.freeze({
+          returned_count: Number.isSafeInteger(Number(signature?.sample_window?.returned_count))
+            ? Number(signature.sample_window.returned_count) : null,
+          total_count: Number.isSafeInteger(Number(signature?.sample_window?.total_count))
+            ? Number(signature.sample_window.total_count) : null,
+          truncated: typeof signature?.sample_window?.truncated === "boolean"
+            ? signature.sample_window.truncated : null,
+        }),
+        independence_source: clean(signature.independence_source) || "public.cross_method_strength",
+        truth_boundary: clean(signature.truth_boundary)
+          || "Cross signature is synthesis fuel; convergence/derivation only, never independent truth by itself",
+      };
+    })
+    .filter(Boolean));
+}
+
+export function buildNormalizedMessageContext(trackLists = [], { bundle = null } = {}) {
   const findings = aggregateFindings(trackLists).map(freezeNormalizedFinding);
   const valueGroups = new Map();
   for (const finding of findings) {
@@ -37,9 +97,12 @@ export function buildNormalizedMessageContext(trackLists = []) {
     valueGroups.set(finding.value, group);
   }
 
+  const crossSignatures = normalizedCrossSignaturesFromBundle(bundle);
+
   return Object.freeze({
     version: NORMALIZED_MESSAGE_REFLECTION_VERSION,
     findings: Object.freeze(findings),
+    cross_signatures: crossSignatures,
     numeric_basis_groups: freezeList([...valueGroups.values()].map((group) => ({
       value: group.value,
       normalized_keys: Object.freeze([...new Set(group.normalized_keys)]),
@@ -47,7 +110,8 @@ export function buildNormalizedMessageContext(trackLists = []) {
       member_count: new Set(group.normalized_keys).size,
       independence: "unresolved_until_dependency_normalization",
     }))),
-    ranking_boundary: "normalized presentation order only; engine count is not independent evidence",
+    ranking_boundary: "normalized presentation order only; engine/method count is not independent evidence until canonical dependency normalization says so",
+    cross_signature_boundary: "cross_method_strength owns dependency normalization; this layer only projects supplied independent/dependent counts",
   });
 }
 
@@ -146,8 +210,8 @@ export async function composeNormalizedMessageReflection({
   }
 
   // Order is load-bearing: normalize first, synthesize/freeze second, draw cards last.
-  const normalized = buildNormalizedMessageContext(trackLists);
   const safeBundle = bundle && typeof bundle === "object" && !Array.isArray(bundle) ? bundle : null;
+  const normalized = buildNormalizedMessageContext(trackLists, { bundle: safeBundle });
   const allowedFindingIds = Array.isArray(safeBundle?.findings)
     ? safeBundle.findings.map((finding) => clean(finding?.id)).filter(Boolean)
     : [];
