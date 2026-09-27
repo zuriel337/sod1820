@@ -18,6 +18,7 @@
     "test:server-capability-gate": "node scripts/test-server-capability-gate.mjs",
     "test:2029-server-seo-ai": "node scripts/test-2029-server-seo-ai-parity.mjs",
     "test:research-path-resume": "node scripts/test-research-path-resumability-runtime.mjs",
+    "test:home-2029-pulse": "node scripts/test-home-2029-system-pulse.mjs",
     "test:2029-cheap-hardening": "node scripts/test-2029-cheap-hardening.mjs",
     "test:g3-community-foundation-runtime": "node --test scripts/test-g3-community-foundation-runtime.mjs",
     "test:g3-community-core-2029-phase2": "node --test scripts/test-g3-community-core-2029-phase2.mjs",
