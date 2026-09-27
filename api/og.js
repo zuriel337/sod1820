@@ -316,6 +316,30 @@ export default async function handler(req, res) {
         if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);
       }
     } catch { title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc; }
+  } else if (key.startsWith('/world/')) {
+    // Direct World number route = addressable/shareable research lens, not a second canonical
+    // Number identity. Keep it noindex while projecting the exact route for social/AI previews.
+    let raw = key.slice('/world/'.length);
+    try { raw = decodeURIComponent(raw); } catch { /* keep */ }
+    const n = /^\d+$/.test(raw) ? Number(raw) : null;
+    robots = 'noindex, nofollow';
+    type = 'website';
+    if (Number.isSafeInteger(n) && n >= 0) {
+      title = `${n} · העולם · ${SITE_NAME}`;
+      desc = `העולם סביב ${n} — ביטויים, מקורות, קשרים, גימטריה ומחקר שנפתחים מאותו עוגן מספרי.`;
+      image = cardUrl({
+        w: String(n),
+        sub: 'העולם · עוגן מספרי',
+        cap: 'ביטויים · מקורות · קשרים · מחקר',
+        sig: 'gem',
+      });
+      canonical = `${SITE}/world/${n}`;
+    } else {
+      title = STATIC['/world'].title;
+      desc = STATIC['/world'].desc;
+      image = cardUrl(STATIC['/world'].card);
+      canonical = SITE + '/world';
+    }
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
