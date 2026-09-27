@@ -11,6 +11,7 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   GRAPH: "graph",
   NUMERIC: "numeric",
   GEMATRIA: "gematria",
+  CROSS_SIGNATURE: "gematria_cross_signature",
   OPERATORS: "numeric_operators",
   RELATIONS: "numeric_relations",
   FIBONACCI_ZECKENDORF: "sequence:fibonacci:zeckendorf",
@@ -60,6 +61,9 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
 
   if (i === "els" || includesAny(q, ["דילוג", "דילוגים", "els", "צופן אותיות"])) hints.push(RESEARCH_CAPABILITY.ELS);
   if (i === "gematria" || includesAny(q, ["גימטריה", "גימטריא", "חשב את", "כמה שווה"])) hints.push(RESEARCH_CAPABILITY.GEMATRIA);
+  if (i === "gematria_cross_signature" || includesAny(q, ["הצלבת שיטות", "חתימת שיטות", "cross signature", "cross-method", "חוצה שיטות"])) {
+    hints.push(RESEARCH_CAPABILITY.CROSS_SIGNATURE);
+  }
   if (includesAny(q, ["מקור", "מקורות", "ספר", "עמוד", "כתב יד", "עד נוסח"])) hints.push(RESEARCH_CAPABILITY.SOURCES);
   if (includesAny(q, ["משפחה", "אבא", "אמא", "בן שלי", "בת שלי", "ילד", "הורה"])) hints.push(RESEARCH_CAPABILITY.FAMILY);
   if (containsClockMoment(q) || includesAny(q, ["שעה", "בשעה", "רגע", "שעון"])) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.OPERATORS);
@@ -115,6 +119,7 @@ function deriveCheckOrder(capabilityHints) {
     RESEARCH_CAPABILITY.RELATIONS,
     RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF,
     RESEARCH_CAPABILITY.GEMATRIA,
+    RESEARCH_CAPABILITY.CROSS_SIGNATURE,
     RESEARCH_CAPABILITY.NAME,
     RESEARCH_CAPABILITY.ELS,
     RESEARCH_CAPABILITY.RESEARCH_OBJECTS,
