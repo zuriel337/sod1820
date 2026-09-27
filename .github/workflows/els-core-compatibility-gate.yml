@@ -58,6 +58,9 @@ jobs:
             test/els-2029-semantic-surface.test.mjs \
             test/els-2029-result-projection.test.mjs \
             test/els-2029-layered-projection.test.mjs \
+            test/els-2029-vector-geometry.test.mjs \
+            test/els-2029-spatial-depth.test.mjs \
+            test/els-2029-matrix-volume.test.mjs \
             test/els-2029-visual-representation.test.mjs \
             test/els-2029-exact-replay-visual-feed.test.mjs \
             test/els-2029-raziel-consumer.test.mjs \
