@@ -36,6 +36,12 @@ assert.match(number, /123 · דף המספר 2029/);
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
+const world70 = await renderResponse("/world/70");
+assert.match(world70.body, /70 · העולם · SOD1820/);
+assert.match(world70.body, /<meta name="robots" content="noindex, nofollow"\/>/);
+assert.match(world70.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/world\/70"\/>/);
+assert.equal(world70.headers.get("x-robots-tag"), "noindex, nofollow");
+
 let researcherFetches = [];
 const researcher = await render("/researcher/admin-only", async (url) => {
   researcherFetches.push(String(url));
@@ -109,14 +115,14 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 10, "search crawlers must be routed only across the explicit native/public 2029 document family");
+assert.equal(searchRules.length, 11, "search crawlers must be routed only across the explicit native/public 2029 document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
   assert.ok(ua.includes("bingbot"), `bingbot must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/2029", "/world", "/topic/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)"]) {
+for (const route of ["/2029", "/world", "/world/(.*)", "/topic/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)"]) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "Google/Bing must never be sent through a global crawler catch-all");
