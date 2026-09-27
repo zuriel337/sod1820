@@ -1,4 +1,5 @@
 import { METHODS } from "../gematria.js";
+import { canonicalMethodPublicLabel } from "../presentation/canonicalPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const HEBREW_LETTER_RE = /[\u05D0-\u05EA]/u;
@@ -29,7 +30,7 @@ export function buildCalculator2029FastPreview(input) {
     const value = Number(rawValue);
     return Object.freeze({
       methodKey: method.key,
-      displayLabel: method.key,
+      displayLabel: canonicalMethodPublicLabel(method),
       computedValue: Number.isFinite(value) ? value : 0,
       sortOrder: index,
       executionKind: "client_preview",
