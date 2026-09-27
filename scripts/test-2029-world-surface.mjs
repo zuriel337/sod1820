@@ -465,7 +465,7 @@ assert.match(world, /controlMode \? <section id="world-admin-tools"/);
 assert.match(world, /CONVERGENCE INDEX · PUBLIC PROJECTION/);
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
 assert.match(world, /topicFacet && selectedWriter/);
-assert.equal(world.includes(`${CONVERGENCES_LABEL} בולטות`), false, "landing must not render a second generic 'prominent convergences' surface");
+assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
 assert.match(worldAnchorMapSource, /עוגנים נבחרים/);
 assert.match(worldAnchorMapSource, /אינה רשימת כל העוגנים בעולם/);
 assert.match(contributorFindingsComponent, /\/2029\/number\/\$\{value\}/);
