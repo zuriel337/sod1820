@@ -9,22 +9,7 @@ import {
 export const CROSS_SIGNATURE_ADAPTER_VERSION = "cross-signature-w2-v1";
 export const CROSS_SIGNATURE_CAPABILITY = "gematria_cross_signature";
 
-const CROSS_METHOD_FIELDS = [
-  "value",
-  "phrase_count",
-  "independent_phrase_count",
-  "dependent_expression_phrase_count",
-  "p1_hits",
-  "independent_p1_method_count",
-  "methods",
-  "in_ragil",
-  "in_misratar",
-  "in_kadmi",
-  "signal",
-  "dependent_methods",
-  "dependent_phrase_count",
-  "unregistered_methods",
-].join(",");
+const VALID_ACCESS_TIERS = new Set(["public", "public_candidate", "personal", "private"]);
 
 function clean(value) {
   if (value == null) return null;
@@ -32,15 +17,21 @@ function clean(value) {
   return text || null;
 }
 
-function numberFromIdentity(identityResolution) {
+function numberAnchor(identityResolution) {
   for (const identity of Array.isArray(identityResolution?.identities) ? identityResolution.identities : []) {
     if (identity?.type !== "number") continue;
     const raw = identity?.value ?? identity?.ref ?? identity?.key ?? identity?.label;
-    if (typeof raw === "number" && Number.isSafeInteger(raw) && raw >= 0) return raw;
-    if (typeof raw === "string" && /^\d+$/.test(raw.trim())) {
-      const value = Number(raw.trim());
-      if (Number.isSafeInteger(value) && value >= 0) return value;
+    let value = null;
+    if (typeof raw === "number" && Number.isSafeInteger(raw) && raw >= 0) value = raw;
+    else if (typeof raw === "string" && /^\d+$/.test(raw.trim())) {
+      const parsed = Number(raw.trim());
+      if (Number.isSafeInteger(parsed) && parsed >= 0) value = parsed;
     }
+    if (value == null) continue;
+    return {
+      value,
+      accessTier: clean(identity?.access?.tier),
+    };
   }
   return null;
 }
@@ -79,6 +70,28 @@ function safeLookupRows(rows, limit) {
   return out;
 }
 
+function accessClassForTier(accessTier) {
+  return accessTier === "public"
+    ? ACCESS_CLASS.PUBLIC_SOURCE
+    : ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED;
+}
+
+function normalizeStrengthRead(read) {
+  if (!read || typeof read !== "object" || Array.isArray(read)) return null;
+  const status = clean(read.status);
+  const accessTier = clean(read.accessTier ?? read.access_tier);
+  if (!["ok", "not_found", "denied", "failed"].includes(status)) return null;
+  if (!accessTier || !VALID_ACCESS_TIERS.has(accessTier)) return null;
+  return Object.freeze({
+    status,
+    accessTier,
+    row: read.row ?? read.data ?? null,
+    sourceRef: clean(read.sourceRef ?? read.source_ref) || "view:cross_method_strength",
+    versionRef: clean(read.versionRef ?? read.version_ref) || "cross_method_strength:live",
+    reason: clean(read.reason),
+  });
+}
+
 export function normalizeCrossMethodStrengthRow(row) {
   if (!row || typeof row !== "object" || Array.isArray(row)) return null;
   const value = integerOrNull(row.value);
@@ -109,12 +122,16 @@ export function crossSignatureToUniversalFinding(signature, {
   sampleRows = [],
   sampleTotalCount = null,
   sampleLimit = 24,
+  accessTier,
+  strengthSourceRef,
 } = {}) {
   if (!signature) return null;
   const value = integerOrNull(signature.value);
-  if (value == null) return null;
+  const tier = clean(accessTier);
+  if (value == null || !tier || !VALID_ACCESS_TIERS.has(tier)) return null;
   const samples = safeLookupRows(sampleRows, Math.max(1, Math.min(Number(sampleLimit) || 24, 64)));
   const sourceIdentity = `cross-signature:${value}:v1`;
+  const crossSourceRef = clean(strengthSourceRef) || "view:cross_method_strength";
 
   return makeUniversalFinding({
     kind: "cross-signature",
@@ -127,7 +144,7 @@ export function crossSignatureToUniversalFinding(signature, {
     source: {
       engine: "relation-engine",
       adapter: CROSS_SIGNATURE_ADAPTER_VERSION,
-      sourceRef: "view:cross_method_strength",
+      sourceRef: crossSourceRef,
       method: "cross_method_strength",
     },
     identity: {
@@ -150,7 +167,7 @@ export function crossSignatureToUniversalFinding(signature, {
     evidence: {
       refs: [
         `number:${value}`,
-        "view:cross_method_strength",
+        crossSourceRef,
         "rpc:fn_number_lookup",
       ],
       facts: [{
@@ -169,8 +186,10 @@ export function crossSignatureToUniversalFinding(signature, {
       }],
     },
     access: {
-      tier: "public",
-      reason: "cross_method_strength + fn_number_lookup are canonical public read surfaces",
+      tier,
+      reason: tier === "public"
+        ? "governed reader explicitly projected this Cross Signature as public"
+        : "inherits the governed reader access tier; composition boundary decides whether it may leave",
     },
     provenance: {
       createdBy: "ENGINE:relation-engine",
@@ -195,89 +214,170 @@ export function crossSignatureToUniversalFinding(signature, {
   });
 }
 
+/**
+ * Governed-reader seam.
+ *
+ * cross_method_strength is canonical computation but is NOT directly SELECT-able by browser
+ * anon/authenticated roles. This W2 adapter therefore never opens a grant and never reads the view
+ * directly. A caller must inject fetchCrossMethodStrength(value), returning:
+ *   {status:"ok"|"not_found"|"denied"|"failed", row, accessTier, sourceRef?, versionRef?, reason?}
+ * The explicit accessTier is load-bearing; an unclassified reader result fails closed.
+ */
 export function createCrossSignatureW2Executor({
   supabase,
+  fetchCrossMethodStrength = null,
   sampleLimit = 24,
 } = {}) {
   const cap = Math.max(1, Math.min(Number(sampleLimit) || 24, 64));
 
   return async ({ identityResolution } = {}) => {
-    const value = numberFromIdentity(identityResolution);
-    if (!supabase || typeof supabase.from !== "function" || typeof supabase.rpc !== "function") {
-      return {
-        owner: "research_strategy_layer_law",
-        status: CAPABILITY_STATUS.MISSING_ADAPTER,
-        reason: "cross signature requires canonical Supabase from()+rpc() read capabilities",
-        findings: [],
-        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
-        semanticClass: SEMANTIC_CLASS.DERIVATION,
-        sourceRefs: value == null ? [] : [`number:${value}`],
-        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
-        trace: { value, adapter_available: false },
-      };
-    }
-    if (value == null) {
+    const anchor = numberAnchor(identityResolution);
+    if (!anchor) {
       return {
         owner: "research_strategy_layer_law",
         status: CAPABILITY_STATUS.SKIPPED,
         reason: "cross signature requires one canonical number identity",
         findings: [],
-        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
         semanticClass: SEMANTIC_CLASS.DERIVATION,
         versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
-        trace: { value: null },
+        trace: { anchor_present: false },
       };
     }
 
-    const strengthQuery = supabase
-      .from("cross_method_strength")
-      .select(CROSS_METHOD_FIELDS)
-      .eq("value", value);
+    // V1 privacy guard: a restricted numeric identity must first gain a privacy-safe relation
+    // identity projection. Never echo its raw value through this generic capability trace.
+    if (anchor.accessTier && anchor.accessTier !== "public") {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: "cross signature v1 refuses restricted/personal number identities until a privacy-safe relation identity projection is available",
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
+        trace: { restricted_input: true },
+      };
+    }
 
-    const [{ data: strengthRow, error: strengthError }, lookupResult] = await Promise.all([
-      typeof strengthQuery.maybeSingle === "function"
-        ? strengthQuery.maybeSingle()
-        : Promise.resolve({ data: null, error: new Error("maybeSingle unavailable") }),
-      supabase.rpc("fn_number_lookup", {
-        p_value: value,
-        p_limit: cap,
-        p_after_bid_id: null,
-      }),
-    ]);
+    if (typeof fetchCrossMethodStrength !== "function") {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.MISSING_ADAPTER,
+        reason: "cross_method_strength requires an injected governed reader; direct browser SELECT is intentionally not granted",
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        sourceRefs: [`number:${anchor.value}`],
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, "view:cross_method_strength"],
+        trace: { reader_available: false, value: anchor.value },
+      };
+    }
+    if (!supabase || typeof supabase.rpc !== "function") {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.MISSING_ADAPTER,
+        reason: "cross signature examples require canonical fn_number_lookup RPC transport",
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        sourceRefs: [`number:${anchor.value}`],
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
+        trace: { reader_available: true, lookup_transport_available: false, value: anchor.value },
+      };
+    }
 
-    if (strengthError) {
+    let read;
+    try {
+      read = normalizeStrengthRead(await fetchCrossMethodStrength(anchor.value));
+    } catch (error) {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: "governed cross_method_strength reader refused or failed before a classified result was returned",
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
+        trace: { reader_available: true, error_class: error?.name || "Error" },
+      };
+    }
+
+    if (!read) {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: "governed cross_method_strength reader must return explicit status + accessTier",
+        findings: [],
+        accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION],
+        trace: { reader_available: true, classified_result: false },
+      };
+    }
+
+    const accessClass = accessClassForTier(read.accessTier);
+    if (read.status === "denied") {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+        reason: read.reason || "governed cross_method_strength reader denied this access context",
+        findings: [],
+        accessClass,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, read.versionRef],
+        trace: { reader_status: "denied", access_tier: read.accessTier },
+      };
+    }
+    if (read.status === "failed") {
       return {
         owner: "research_strategy_layer_law",
         status: CAPABILITY_STATUS.FAILED,
-        reason: "canonical cross_method_strength read failed",
+        reason: read.reason || "governed cross_method_strength reader failed",
         findings: [],
-        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        accessClass,
         semanticClass: SEMANTIC_CLASS.DERIVATION,
-        sourceRefs: [`number:${value}`],
-        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, "view:cross_method_strength"],
-        trace: { value, error_class: strengthError?.name || "Error" },
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, read.versionRef],
+        trace: { reader_status: "failed", access_tier: read.accessTier },
       };
     }
-
-    const signature = normalizeCrossMethodStrengthRow(strengthRow);
-    if (!signature) {
+    if (read.status === "not_found") {
       return {
         owner: "research_strategy_layer_law",
         status: CAPABILITY_STATUS.NEGATIVE_RESULT,
-        reason: "canonical cross_method_strength has no row for this number",
+        reason: "governed cross_method_strength reader completed and found no row for this number",
         findings: [],
         negativeScope: {
-          value,
-          source: "public.cross_method_strength",
+          value: anchor.value,
+          source: read.sourceRef,
         },
-        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        accessClass,
         semanticClass: SEMANTIC_CLASS.DERIVATION,
-        sourceRefs: [`number:${value}`, "view:cross_method_strength"],
-        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, "view:cross_method_strength"],
-        trace: { value, strength_row: false },
+        sourceRefs: [`number:${anchor.value}`, read.sourceRef],
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, read.versionRef],
+        trace: { reader_status: "not_found", access_tier: read.accessTier },
       };
     }
 
+    const signature = normalizeCrossMethodStrengthRow(read.row);
+    if (!signature || signature.value !== anchor.value) {
+      return {
+        owner: "research_strategy_layer_law",
+        status: CAPABILITY_STATUS.FAILED,
+        reason: "governed cross_method_strength reader returned an invalid or mismatched row",
+        findings: [],
+        accessClass,
+        semanticClass: SEMANTIC_CLASS.DERIVATION,
+        versionRefs: [CROSS_SIGNATURE_ADAPTER_VERSION, read.versionRef],
+        trace: { reader_status: "ok", access_tier: read.accessTier, row_valid: false },
+      };
+    }
+
+    const lookupResult = await supabase.rpc("fn_number_lookup", {
+      p_value: anchor.value,
+      p_limit: cap,
+      p_after_bid_id: null,
+    });
     const lookupRows = lookupResult?.error
       ? []
       : Array.isArray(lookupResult?.data) ? lookupResult.data : [];
@@ -288,6 +388,8 @@ export function createCrossSignatureW2Executor({
       sampleRows: lookupRows,
       sampleTotalCount: totalCount,
       sampleLimit: cap,
+      accessTier: read.accessTier,
+      strengthSourceRef: read.sourceRef,
     });
 
     return {
@@ -297,19 +399,19 @@ export function createCrossSignatureW2Executor({
       findingOutcomes: finding ? [{
         findingId: finding.id,
         evidenceRelation: EVIDENCE_RELATION.CONVERGENCE,
-        convergenceKey: `cross-signature:number:${value}`,
+        convergenceKey: `cross-signature:number:${anchor.value}`,
         reason: "dependency-normalized Cross signature is synthesis fuel, but remains a convergence/derivation rather than independent corroboration",
       }] : [],
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      accessClass,
       semanticClass: SEMANTIC_CLASS.DERIVATION,
       sourceRefs: [
-        `number:${value}`,
-        "view:cross_method_strength",
+        `number:${anchor.value}`,
+        read.sourceRef,
         "rpc:fn_number_lookup",
       ],
       versionRefs: [
         CROSS_SIGNATURE_ADAPTER_VERSION,
-        "cross_method_strength:live",
+        read.versionRef,
         "fn_number_lookup:live",
       ],
       bounded: {
@@ -323,7 +425,9 @@ export function createCrossSignatureW2Executor({
       },
       trace: {
         adapter: CROSS_SIGNATURE_ADAPTER_VERSION,
-        value,
+        reader_status: "ok",
+        access_tier: read.accessTier,
+        value: anchor.value,
         independent_p1_method_count: signature.independent_p1_method_count,
         independent_phrase_count: signature.independent_phrase_count,
         dependent_method_count: signature.dependent_methods.length,
