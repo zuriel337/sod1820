@@ -97,6 +97,8 @@ jobs:
         run: npm run test:2029-server-seo-ai
       - name: Research Path resumability runtime acceptance
         run: npm run test:research-path-resume
+      - name: Home 2029 System Pulse acceptance
+        run: npm run test:home-2029-pulse
       - name: 2029 cheap route/test/least-privilege hardening
         run: npm run test:2029-cheap-hardening
       - name: Legacy Research containment + unopened Heichal entrypoint acceptance
