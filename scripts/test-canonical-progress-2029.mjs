@@ -34,7 +34,7 @@ const books = fs.readFileSync("src/pages/Books2029Page.jsx", "utf8");
 const heichal = fs.readFileSync("src/pages/Heichal2029Page.jsx", "utf8");
 const els = fs.readFileSync("src/pages/Els2029Page.jsx", "utf8");
 const design = fs.readFileSync("SOD1820_DESIGN_CONTRACT_V1.md", "utf8");
-const migration = fs.readFileSync("supabase/migrations/20260919235300_g3_canonical_long_task_progress_v1.sql", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20260927084600_g3_canonical_long_task_progress_v2.sql", "utf8");
 
 assert.match(component, /aria-busy="true"/);
 assert.match(component, /role="progressbar"/);
@@ -65,7 +65,12 @@ assert.match(design, /Stable geometry is mandatory/);
 assert.match(design, /localization-ready copy/i);
 
 assert.match(migration, /canonical_ui_components_law/);
-assert.match(migration, /rule_version=6|rule_version,\s*6|canonical_ui_components_law v6/i);
+assert.match(migration, /v_prev\.rule_version <> 6|expected canonical_ui_components_law v6/i);
+assert.match(migration, /rule_version=7|rule_version,\s*7|canonical_ui_components_law v7/i);
+assert.match(migration, /supersedes_version[\s\S]*?6|\n\s*6,\n\s*v_prev\.weight/);
+assert.match(migration, /canonical_progress_preserves_issue_report_v6/);
+assert.match(migration, /coalesce\(v_prev\.metadata/);
+assert.match(migration, /coalesce\(v_prev\.description/);
 assert.match(migration, /CanonicalProgress/);
 assert.match(migration, /NO FAKE ETA/);
 assert.match(migration, /CLS-STABLE SLOT/);
