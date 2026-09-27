@@ -229,7 +229,7 @@ export function buildWorldLandingContributorProjection({
       ...person,
       meetings: meetingsBySlug[person.slug] || [],
     }])),
-    note: "Public World landing shows only Human-Gate-approved contributor identities and APPROVED source-attributed meeting projections. Unknown authorship is never guessed.",
+    note: "Public World landing uses the existing curated contributor set plus live trusted contributor identities, with APPROVED source-attributed convergence projections. Unknown authorship is never guessed.",
   };
 }
 
