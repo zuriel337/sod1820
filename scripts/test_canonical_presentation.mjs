@@ -234,6 +234,33 @@ eq("P1 continuity keeps semantic reopen method", p1Context.continuity.methodKey,
 eq("P1 continuity keeps semantic reopen focus", p1Context.continuity.focus, "number");
 
 
+const publicNamingSources = {
+  home2029: fs.readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8"),
+  fastPreview: fs.readFileSync(new URL("../src/lib/research/calculator2029FastPreview.js", import.meta.url), "utf8"),
+  homeProjection: fs.readFileSync(new URL("../src/lib/research/home2029Projection.js", import.meta.url), "utf8"),
+  og: fs.readFileSync(new URL("../api/og.js", import.meta.url), "utf8"),
+  giluyTreasures: fs.readFileSync(new URL("../src/components/GiluyTreasures.jsx", import.meta.url), "utf8"),
+  maftech: fs.readFileSync(new URL("../src/components/MaftechShowcase.jsx", import.meta.url), "utf8"),
+  legacyCalculator: fs.readFileSync(new URL("../src/components/GematriaCalculatorLegacy.jsx", import.meta.url), "utf8"),
+  numberMessage: fs.readFileSync(new URL("../src/lib/numberMessage.js", import.meta.url), "utf8"),
+};
+
+for (const forbidden of ["מפגש", "מפגשים", "Connected Golden", "Fast Core", "Fast Preview"]) {
+  eq(`Home 2029 excludes deprecated/developer public copy: ${forbidden}`, publicNamingSources.home2029.includes(forbidden), false);
+}
+eq("Home 2029 uses public convergence language", publicNamingSources.home2029.includes("התכנסויות ציבוריות"), true);
+eq("Fast Preview consumes canonical method labels", publicNamingSources.fastPreview.includes("canonicalMethodPublicLabel(method)"), true);
+eq("Home treasure Kadmi field projects as Triangle", publicNamingSources.homeProjection.includes('["משולש", "kadmi"]'), true);
+eq("Public OG excludes old Kadmi label", publicNamingSources.og.includes("רגיל · מסתתר · קדמי"), false);
+eq("Public OG uses Triangle label", publicNamingSources.og.includes("רגיל · מסתתר · משולש"), true);
+eq("Giluy treasures static copy excludes old Kadmi label", publicNamingSources.giluyTreasures.includes("רגיל · גדול · מילוי · קדמי · דילוג"), false);
+eq("Giluy treasures renders canonical method label", publicNamingSources.giluyTreasures.includes("canonicalMethodPublicLabel(it.method)"), true);
+eq("Maftech public facts exclude old Kadmi label", publicNamingSources.maftech.includes("רגיל · מסתתר · קדמי"), false);
+eq("Maftech Triangle chip keeps Kadmi data field", publicNamingSources.maftech.includes('["משולש", FT.kadmi]'), true);
+eq("Legacy calculator fact chip shows Triangle", publicNamingSources.legacyCalculator.includes('["משולש", FT.kadmi]'), true);
+eq("Number message presents methods canonically", publicNamingSources.numberMessage.includes("canonicalMethodPublicLabel(key)"), true);
+eq("Number 1820 message uses verified public signature", publicNamingSources.numberMessage.includes('1820: "סוד × יהוה · 70×26"'), true);
+
 const goldenCardSource = fs.readFileSync(new URL("../src/components/GematriaCard.jsx", import.meta.url), "utf8");
 const goldenCardCss = fs.readFileSync(new URL("../src/components/gematriaCard.css", import.meta.url), "utf8");
 
