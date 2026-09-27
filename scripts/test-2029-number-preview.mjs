@@ -60,6 +60,9 @@ for (const forbidden of [
 
 assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence vocabulary must use התכנסות");
 assert.match(page, /fetchNumberMethodProfile/);
+assert.match(page, /const regularFamily = families\.find/);
+assert.match(page, /const first = regularFamily \|\| anchorFamily \|\| families\[0\]/);
+assert.match(page, /anchorIsRegular/);
 assert.match(coreProjection, /fn_method_profile/);
 assert.match(coreProjection, /dependency_rules/);
 assert.match(coreProjection, /שיטה משולבת/);
