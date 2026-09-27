@@ -10,6 +10,7 @@
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
 import { createElsW2Executor } from './elsW2Executor.js';
+import { createCrossSignatureW2Executor, CROSS_SIGNATURE_CAPABILITY } from './crossSignatureW2Executor.js';
 import { analyzeNumericRelations, numericRelationsToUniversalFindings, zeckendorfToUniversalFinding, NUMERIC_RELATION_ENGINE_VERSION } from './numericRelationOperations.js';
 import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
 import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
@@ -219,6 +220,11 @@ export function createCanonicalNumberW2Executors(options = {}) {
     selectionProtocol: options.elsSelectionProtocol ?? null,
   });
 
+  const crossSignature = createCrossSignatureW2Executor({
+    supabase: options.supabase,
+    sampleLimit: options.crossSignatureSampleLimit ?? 24,
+  });
+
   const fibonacciZeckendorf = async ({ identityResolution }) => {
     const anchors = numericRelationAnchors(identityResolution, 2);
     if (anchors.length !== 1) {
@@ -377,6 +383,10 @@ export function createCanonicalNumberW2Executors(options = {}) {
     'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
     'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
     gematria,
+    [CROSS_SIGNATURE_CAPABILITY]: wrapMultiNumberExecutor(crossSignature, {
+      maxAnchors: maxNumberAnchors,
+      capability: CROSS_SIGNATURE_CAPABILITY,
+    }),
     els,
   };
 }
