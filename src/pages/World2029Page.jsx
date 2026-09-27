@@ -1671,7 +1671,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div>
             <div className="sod29-kicker">חוקר / כותב</div>
             <h3>סנן חומר מיוחס</h3>
-            <p className="sod29-muted">כרגע מאושרים ב־World רק צבי, שמעון חיימוב, יניב לוי ויצחק שחר קנדרו. ברירת המחדל היא הכול. הסינון משתמש רק ב־attribution קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
+            <p className="sod29-muted">World מציג את קבוצת החוקרים/כותבים שאושרה בעבר ובנוסף זהויות חיות שמסומנות trusted במאגר הקנוני. ברירת המחדל היא הכול. הסינון משתמש רק ב־attribution קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
           </div>
           {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא attribution והרשאות מנהל.</FrameState> : null}
           {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר ה־World ממשיך לפעול ללא ניחוש attribution.</FrameState> : null}
