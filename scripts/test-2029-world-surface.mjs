@@ -424,10 +424,20 @@ assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct 
 assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
-assert.match(world, /const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true/);
-assert.match(world, /const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE \|\| isAdmin/);
+assert.match(world, /const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = false/);
+assert.match(world, /const \[adminToolsOpen, setAdminToolsOpen\] = useState\(false\)/);
+assert.match(world, /const controlMode = isAdmin && adminToolsOpen/);
+assert.match(world, /aria-controls="world-admin-tools"/);
+assert.match(world, /adminToolsOpen \? "סגור כלי מנהל" : "כלי מנהל"/);
 assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);
 assert.match(world, /setAdminMode\(Boolean\(controlMode\)\)/);
+assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
+assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
+assert.ok(
+  world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
+  "researcher/content discovery must appear before internal admin tooling",
+);
+assert.match(world, /controlMode \? <section id="world-admin-tools"/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /private · גלוי לך/);
