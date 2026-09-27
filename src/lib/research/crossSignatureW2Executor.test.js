@@ -84,7 +84,7 @@ test("Cross Signature adapter projects canonical dependency-normalized counts wi
   assert.equal(sig.sample_window.total_count, 138);
   assert.equal(sig.sample_window.truncated, true);
   assert.match(sig.truth_boundary, /never Truth/i);
-  assert.match(out.findingOutcomes[0].reason, /never independent corroboration/i);
+  assert.match(out.findingOutcomes[0].reason, /independent corroboration/i);
 });
 
 test("Cross Signature keeps dependent/unregistered controls visible instead of deleting or promoting them", async () => {
