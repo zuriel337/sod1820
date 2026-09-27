@@ -104,6 +104,10 @@ Dependency chain:
 
 The 3D renderer may evolve independently, but it never becomes an ELS truth/engine owner.
 
+**ELS Dynamic Matrix Volume pointer (Human-Gate ZURIEL · 27.9.2026):** ELS spatial research uses one bounded Matrix Volume / one scanner, not separate “depth”, “diagonal” or “3D” engines. Preserve two distinct concepts: (1) **Slice Shift** — the v7 whole-window transform `baseCorpusIndex + k×S`, useful for layered/2.5D comparison but not an independent Z because `+S` is also one row in an `S`-wide matrix; and (2) **True Volume** — a frozen independent 3D basis. Default rectangular basis for plane height `H`: `eX=+1`, `eY=+S`, `eZ=+(S×H)`, so `corpusIndex = origin + x + y×S + z×(S×H)`. All straight/diagonal/depth paths are bounded primitive vectors `(dx,dy,dz)` over the same result lineage.
+
+The box starts at the smallest sufficient Anchor volume and expands only when existing Research Strength / Information Gain justifies it. Expansion may be asymmetric along the unresolved vector/face/depth. Three- and four-letter tokens are allowed only inside a bounded **hot** subvolume after stronger non-short/structural evidence already made the area worth deeper inspection, or when explicitly pre-registered/requested; a short token cannot by itself make a cold box hot. Same-line extension, intersections, parallel/volume continuation, rarity, repeated motifs, controls/contradictions and Human research intent can justify expansion. Stop when added space produces only dependent/duplicate noise or low information. Canonical semantics live in active `els_research_layer_law`; Experience/GPU/3D only renders them.
+
 ### E. Raziel text/tool runtime before live voice
 
 - one Raziel identity + Research Context;
