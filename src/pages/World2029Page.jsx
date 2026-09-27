@@ -739,8 +739,31 @@ function LiveWorldLanding({ research, shell, context }) {
   }, [landing.discovery, discoveryCreator]);
   const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
   const openDiscoveryItem = (item) => {
-    if (!item?.slug) return;
-    openCard({ id: item.id, facet: "topic", label: item.label, sub: item.summary, refId: item.slug });
+    if (!item) return;
+    if (item.kind === "convergence" && item.slug) {
+      openCard({ id: item.id, facet: "topic", label: item.label, sub: item.summary, refId: item.slug });
+      return;
+    }
+    if (item.kind === "finding") {
+      if (Number.isFinite(Number(item.value))) {
+        const value = Number(item.value);
+        research.setResearchContext?.({
+          subject: { id: String(value), type: "number", label: String(value), href: "/world" },
+          selection: { entityId: String(value), entityType: "number" },
+          lens: "world",
+          dimensions: { entrySource: "world-discovery-finding", sourceRef: item.sourceRef || null },
+          returnTo: { href: "/world", label: "מה חדש בעולם" },
+        });
+        return;
+      }
+      const slug = item.creatorSlug || landing.contributors?.people?.find((person) => person.displayName === item.creator)?.slug || null;
+      if (slug && landing.contributors?.bySlug?.[slug]) {
+        setWriterFilter(slug);
+        requestAnimationFrame(() => document.getElementById("world-researchers")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        return;
+      }
+      shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
+    }
   };
   const discoveryDate = (value) => {
     if (!value) return "זמן לא צוין";
@@ -790,7 +813,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · DISCOVERY WORLD</div>
           <h2>מה חדש בעולם?</h2>
-          <p>כל ההתכנסויות הציבוריות האחרונות במקום אחד. מתחילים מהכול, ואז מסננים לפי מי שהביא את החומר.</p>
+          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -834,7 +857,7 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
@@ -844,7 +867,7 @@ function LiveWorldLanding({ research, shell, context }) {
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
             </button>)}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מציג חומר ציבורי מאושר לפי זמן אישור/יצירה. סדר חדש ≠ דירוג אמת.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מאחד Research Findings מורשים והתכנסויות מאושרות. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
@@ -874,7 +897,7 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
+    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="חוקרים וכתבים">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מי מביא את החומר</div>
@@ -940,9 +963,9 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">CANONICAL CONVERGENCE INDEX</div>
+          <div className="sod29-kicker">CONVERGENCE INDEX · PUBLIC PROJECTION</div>
           <h2>כל ההתכנסויות</h2>
-          <div className="sod29-muted">זהו הקטלוג המלא של ההתכנסויות הציבוריות. “מה חדש” מציג זמן; “בולטות” מציגה סדר גילוי; כאן אפשר להגיע לכל זהות קנונית. הסדר הוא סדר תצוגה בלבד — לא דירוג אמת.</div>
+          <div className="sod29-muted">זהו קטלוג התצוגה הציבורי של התכנסויות מאושרות. הוא projection על חומר קיים — לא הכרזה שכל Topic היסטורי כבר הפך לזהות קנונית לפי חוק ההתכנסות החדש.</div>
         </div>
         <span className="sod29-chip">
           {allConvergences.total != null ? `${allConvergences.cards.length} מתוך ${allConvergences.total}` : `${allConvergences.cards.length} נטענו`}
@@ -966,7 +989,7 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
 
-      {allConvergences.loading ? <FrameState kind="loading" title="טוען את כל ההתכנסויות">החיפוש והסינון מתבצעים מול אותו מקור ציבורי קנוני.</FrameState> : null}
+      {allConvergences.loading ? <FrameState kind="loading" title="טוען את כל ההתכנסויות">החיפוש והסינון מתבצעים מול projection ההתכנסויות הציבורי המאושר.</FrameState> : null}
       {allConvergences.error && !allConvergences.cards.length ? <FrameState kind="error" title="הקטלוג לא נטען כרגע">לא נחליף רשימה חסרה בחומר אחר.</FrameState> : null}
       {!allConvergences.loading && !allConvergences.cards.length && !allConvergences.error ? <FrameState kind="empty" title="לא נמצאו התכנסויות במסנן הזה">שנה את החיפוש או חזור ל״הכול״.</FrameState> : null}
 
@@ -991,23 +1014,17 @@ function LiveWorldLanding({ research, shell, context }) {
       {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
     </section>
 
-    {!landing.loading && topicFacet ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
+    {!landing.loading && topicFacet && selectedWriter ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מה נפגש כאן</div>
-          <h2>{selectedWriter ? `${CONVERGENCES_LABEL} של ${selectedWriter.displayName}` : `${CONVERGENCES_LABEL} בולטות`}</h2>
+          <h2>{`${CONVERGENCES_LABEL} של ${selectedWriter.displayName}`}</h2>
           <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר מתכנסים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות היא התמונה המחקרית הרחבה.</div>
         </div>
       </div>
-      {selectedWriter ? (
-        writerMeetings.length ? <div className="sod29-book-grid">
-          {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
-        </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>
-      ) : (
-        (landing.sections.topic || []).length ? <div className="sod29-book-grid">
-          {(landing.sections.topic || []).map((card) => <WorldCard key={`${card.facet}:${card.id}`} card={card} onOpen={openCard} />)}
-        </div> : <FrameState kind="empty" title="אין כרגע התכנסויות זמינות">לא נוצרת התכנסות חלופית כשאין חומר אמיתי.</FrameState>
-      )}
+      {writerMeetings.length ? <div className="sod29-book-grid">
+        {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
+      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>}
     </section> : null}
 
     {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
