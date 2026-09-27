@@ -806,3 +806,5 @@ test('private researcher corpus stays gated for non-admin 2029 sessions', async 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/researcher-corpus-gated-390.png', fullPage: true });
 });
+
+// CURRENT_MAIN_2029_CLS_BASELINE_PROBE_V1: comment-only trigger; no test/runtime semantics changed.
