@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
   fetchBookEntities,
@@ -126,7 +126,7 @@ function LibraryView() {
     return () => { alive = false; };
   }, []);
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספרייה הפעילה…</div></section>;
+  if (state.loading) return <section className="sod29-section"><FrameState kind="loading" title="טוען את הספרייה הפעילה" progress={{ phase: "קורא את זהויות הספרים הפעילות" }}>הספרייה מתחברת לזהויות ולכיסוי המחקר הקיימים.</FrameState></section>;
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לטעון את הספרייה: {String(state.error?.message || state.error)}</div></section>;
 
   return <>
@@ -208,7 +208,7 @@ function BookDetail({ slug }) {
   const residuals = Array.isArray(coverage.residuals) ? coverage.residuals : [];
   const unresolvedTotal = Number(coverage.unresolved_total || 0) || 0;
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספר ואת המחקר המקושר אליו…</div></section>;
+  if (state.loading) return <section className="sod29-section"><FrameState kind="loading" title="טוען את הספר והמחקר" progress={{ phase: "קורא זהות מקור ומחקר מקושר" }}>הספר נשאר אותו ספר; המערכת אוספת את שכבות המקור והמחקר להצגה אחת.</FrameState></section>;
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
   if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
