@@ -10,10 +10,13 @@ on:
       - "src/pages/ResearchPage.jsx"
       - "src/components/ResearchHome.jsx"
       - "src/components/experience2029/**"
+      - "src/components/CanonicalProgress.jsx"
+      - "src/components/canonicalProgress.css"
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
       - "src/lib/operationalTraceContract.js"
+      - "src/lib/canonicalProgressModel.js"
       - "src/lib/webVitalsCore.js"
       - "src/lib/webVitals2029.js"
       - "src/lib/supabase.js"
@@ -40,6 +43,7 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-operational-trace-contract.mjs"
+      - "scripts/test-canonical-progress-2029.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
       - "scripts/test-replayable-golden-no-black-box.mjs"
       - "scripts/test-web-vitals-2029.mjs"
@@ -60,6 +64,8 @@ on:
       - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "SOD1820_DESIGN_CONTRACT_V1.md"
+      - "supabase/migrations/20260927084600_g3_canonical_long_task_progress_v2.sql"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -79,6 +85,8 @@ jobs:
         run: npm run test:experience-context
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
+      - name: Canonical long-task progress acceptance
+        run: node scripts/test-canonical-progress-2029.mjs
       - name: Web Vitals metric core acceptance
         run: node scripts/test-web-vitals-2029.mjs
       - name: Operational Trace Runtime persistence acceptance
