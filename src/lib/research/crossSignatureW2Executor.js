@@ -50,6 +50,7 @@ function arrayOf(value) {
 }
 
 function integerOrNull(value) {
+  if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isSafeInteger(n) ? n : null;
 }
