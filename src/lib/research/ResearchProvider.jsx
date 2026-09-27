@@ -15,6 +15,7 @@ import {
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
+import { emitJourney2029, makeJourney2029InstanceKey } from "./journey2029Telemetry.js";
 import { entityRef, makeResearchOp, principalToken } from "./researchSyncState.js";
 import { createResearchSyncRuntime } from "./researchSyncRuntime.js";
 
@@ -250,6 +251,75 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return result;
   }, [userId, runtime, actions]);
 
+  const startResearchJourney = useMemo(() => async ({
+    journeyKind = "general_research",
+    journeyMode = "organic",
+    sourceSurface = null,
+    rootType = null,
+    publicInstanceKey = null,
+    href = null,
+    label = null,
+    surface = null,
+  } = {}) => {
+    const current = normalizeResearchContext(runtime.getSnapshot().context);
+    if (!current?.subject) return { ok: false, error: "no_research_context" };
+
+    const instanceKey = publicInstanceKey || makeJourney2029InstanceKey(journeyKind);
+    let persisted = null;
+    if (userId) {
+      persisted = await saveCurrentResearchPath({
+        href,
+        label,
+        surface: surface || sourceSurface,
+      });
+    }
+
+    const active = normalizeResearchContext(runtime.getSnapshot().context);
+    const pathId = persisted?.ok && isResearchPathId(persisted.path_id)
+      ? persisted.path_id
+      : (active?.journey?.kind === "research_path" && isResearchPathId(active?.journey?.id)
+        ? active.journey.id
+        : null);
+
+    emitJourney2029("start", {
+      journeyKind,
+      journeyMode,
+      sourceSurface: sourceSurface || surface,
+      rootType: rootType || current.subject.type,
+      pathId,
+      publicInstanceKey: instanceKey,
+    });
+
+    return {
+      ok: true,
+      persisted: Boolean(persisted?.ok),
+      path_id: pathId,
+      journey_instance: instanceKey,
+      save_error: persisted && !persisted.ok ? persisted.error || "save_failed" : null,
+    };
+  }, [userId, runtime, saveCurrentResearchPath]);
+
+  const recordResearchJourneyEvent = useMemo(() => (eventType, {
+    journeyKind = null,
+    journeyMode = null,
+    sourceSurface = null,
+    rootType = null,
+    publicInstanceKey = null,
+  } = {}) => {
+    const current = normalizeResearchContext(runtime.getSnapshot().context);
+    const pathId = current?.journey?.kind === "research_path" && isResearchPathId(current?.journey?.id)
+      ? current.journey.id
+      : null;
+    return emitJourney2029(eventType, {
+      journeyKind: journeyKind || current?.dimensions?.journeyKind || "general_research",
+      journeyMode: journeyMode || current?.dimensions?.journeyMode || "organic",
+      sourceSurface: sourceSurface || current?.dimensions?.journeySource || null,
+      rootType: rootType || current?.subject?.type || null,
+      pathId,
+      publicInstanceKey: publicInstanceKey || current?.dimensions?.journeyInstance || null,
+    });
+  }, [runtime]);
+
   const resumeResearchPath = useMemo(() => async (pathId = null) => {
     if (!userId) return { ok: false, error: "authentication_required" };
     setPathResume((prev) => ({ ...prev, loading: true, error: null }));
@@ -368,7 +438,14 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return () => window.removeEventListener("message", onElsState);
   }, [runtime, actions]);
 
-  const value = useMemo(() => ({ ...state, pathResume, saveCurrentResearchPath, resumeResearchPath, ...actions }),
-    [state, pathResume, saveCurrentResearchPath, resumeResearchPath, actions]);
+  const value = useMemo(() => ({
+    ...state,
+    pathResume,
+    saveCurrentResearchPath,
+    startResearchJourney,
+    recordResearchJourneyEvent,
+    resumeResearchPath,
+    ...actions,
+  }), [state, pathResume, saveCurrentResearchPath, startResearchJourney, recordResearchJourneyEvent, resumeResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
