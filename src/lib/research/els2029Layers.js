@@ -1,3 +1,5 @@
+import { extractElsVectorGeometry } from "./els2029VectorGeometry.js";
+
 const clean = (value) => {
   if (value == null) return null;
   const text = String(value).trim();
@@ -32,6 +34,7 @@ export function projectEls2029Layers(projection) {
       corpusVersion: null,
       layers: Object.freeze([]),
       axisOccurrenceId: null,
+      vectorGeometry: null,
       projectionOnly: true,
     });
   }
@@ -69,6 +72,21 @@ export function projectEls2029Layers(projection) {
 
   layers.sort((a, b) => a.order - b.order || a.occurrenceId.localeCompare(b.occurrenceId));
 
+  const axisLayer = layers.find((layer) => layer.role === "axis") || null;
+  const axisWidth = axisLayer && Number.isInteger(axisLayer.skip) && axisLayer.skip > 0
+    ? Math.abs(axisLayer.skip)
+    : null;
+  const vectorGeometry = axisWidth == null
+    ? null
+    : extractElsVectorGeometry({
+      axisWidth,
+      occurrences: layers.map((layer) => ({
+        occurrenceId: layer.occurrenceId,
+        dir: layer.dir,
+        positions: layer.positions,
+      })),
+    });
+
   return Object.freeze({
     contract: "els_2029_layers_v1",
     status: clean(projection.status) || "UNVERIFIED",
@@ -77,12 +95,15 @@ export function projectEls2029Layers(projection) {
     term: clean(projection.term),
     axisOccurrenceId: selectedId,
     layers: Object.freeze(layers),
+    vectorGeometry,
     projectionOnly: true,
     semantics: Object.freeze({
       visualProximityIsEvidence: false,
       dependencyPreserved: true,
       glyphIdentityCanonicalized: false,
       rendererMayChange: true,
+      vectorGeometryDerivedFromCoordinates: vectorGeometry?.status === "READY",
+      vectorGeometryPromotesTruth: false,
     }),
   });
 }
