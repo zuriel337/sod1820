@@ -46,7 +46,7 @@ Detailed domain semantics live in owners, not here:
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
-- No Black Box / full execution trace / system recommendations → active `system_suggestions_law` **v3**;
+- No Black Box / full execution trace / system recommendations / Incident Intelligence → active `system_suggestions_law` **v4**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
@@ -253,6 +253,8 @@ It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/d
 **Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
+
+**Incident Intelligence closure check:** G3 cannot close while `G3_INCIDENT_INTELLIGENCE_RUNTIME_V1` remains unimplemented or deferred. Before closure, the live runtime path `IssueReport → events → incident detection/system_suggestions → Control Plane/Watchman` must be implemented, released and live-verified under active `system_suggestions_law` v4 + `canonical_ui_components_law` v6; contract-only state is insufficient. **Current 2026-09-27:** contracts LIVE; runtime DEFERRED pending builder availability.
 
 ## Later program sequence
 
