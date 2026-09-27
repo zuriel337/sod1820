@@ -10,6 +10,12 @@ const clean = (value) => {
   return text || null;
 };
 
+const integerOrNull = (value) => {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : null;
+};
+
 function freezeList(items) {
   return Object.freeze(items.map((item) => Object.freeze(item)));
 }
