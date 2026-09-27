@@ -372,21 +372,30 @@ function CalculatorExperience() {
         </div>
       </form>
 
-      {!profile.expression && !profile.loading ? (
-        <div className="sod29-calc2029-empty">
-          <strong>פעולה אחת, ואז נפתח העומק.</strong>
-          <span>אחרי החישוב אפשר לבחור שיטה, להבין איך חושב, לגלות התאמות, להשוות, לפתוח ברזיאל ולשתף.</span>
-        </div>
-      ) : null}
-
-      {profile.loading ? <div className="sod29-calc2029-status" aria-live="polite">מחשב דרך המנוע הקנוני…</div> : null}
-      {profile.error ? (
-        <div className="sod29-calc2029-status is-error" role="alert">
-          {String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
+      <div
+        className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
+        aria-live="polite"
+        role={profile.error ? "alert" : undefined}
+        data-engine-status={
+          profile.error
+            ? "error"
+            : profile.loading
+              ? "verifying"
+              : canonicalSettled
+                ? "verified"
+                : "instant"
+        }
+      >
+        {profile.error
+          ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
             ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
-            : "לא ניתן לקבל כרגע את פרופיל השיטות."}
-        </div>
-      ) : null}
+            : "לא ניתן לקבל כרגע את פרופיל השיטות."
+          : profile.loading
+            ? "מאמת מול המנוע הקנוני…"
+            : canonicalSettled
+              ? "מאומת"
+              : "מיידי"}
+      </div>
 
       {methods.all.length ? (
         <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
