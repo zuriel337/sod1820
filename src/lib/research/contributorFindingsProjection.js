@@ -344,9 +344,10 @@ export async function fetchContributorFindingsProjection(slug) {
   if (!contributor) return null;
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
 
+  const sourceMessagesPromise = fetchSourceMessages(aliases).catch(() => []);
   const [research, sourceMessages, contributions, topics] = await Promise.all([
     fetchResearchObjects(aliases),
-    fetchSourceMessages(aliases),
+    sourceMessagesPromise,
     fetchContributorContributions(contributor.id),
     fetchContributorTopics(aliases),
   ]);
