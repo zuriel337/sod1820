@@ -1,6 +1,8 @@
 import { supabase } from "../supabase.js";
 import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
+import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
+import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -113,6 +115,33 @@ async function fetchHomeSystemPulse2029() {
     journeysToday: null,
     searchesToday: null,
     calculatorComputesToday: null,
+  };
+}
+
+async function fetchHomeWorldPreview2029() {
+  const contributors = await fetchWorldLandingContributorProjection();
+  const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
+  const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
+  return {
+    people: publicPeople.slice(0, 4).map((person) => ({
+      id: person.id,
+      slug: person.slug,
+      displayName: person.displayName,
+      role: person.role,
+      kind: person.kind,
+      meetingCount: Number(person.meetingCount || 0),
+    })),
+    research: (Array.isArray(discovery?.items) ? discovery.items : []).slice(0, 6).map((item) => ({
+      id: item.id,
+      kind: item.kind,
+      label: item.label,
+      summary: item.summary,
+      creator: item.creator,
+      at: item.at,
+      slug: item.slug,
+      value: item.value,
+      numbers: item.numbers,
+    })),
   };
 }
 
@@ -298,12 +327,13 @@ async function fetchTemporalTreasures(catalog) {
 
 export async function fetchHome2029Projection() {
   const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
+  const worldPreviewPromise = fetchHomeWorldPreview2029().catch(() => null);
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
-  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise };
+  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
   const yearVerification = await verifyCurrentYear(temporalContext);
-  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise };
+  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);
   const [contributions, postFindings, treasures] = await Promise.all([
@@ -328,10 +358,11 @@ export async function fetchHome2029Projection() {
   const sourceCount = new Set(findings.map((row) => row.sourceKey)).size;
 
   // Materiality gate: Global Now should stay silent rather than manufacture a story.
-  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise };
+  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
   return {
     systemPulse: await pulsePromise,
+    worldPreview: await worldPreviewPromise,
     temporalNow: {
       kind: "temporal_now",
       publicLabel: "העת עכשיו",
