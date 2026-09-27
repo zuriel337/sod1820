@@ -21,7 +21,7 @@ function signatureList(normalized) {
   return Array.isArray(normalized?.cross_signatures) ? normalized.cross_signatures : [];
 }
 
-export function buildCrossSignatureBoundedFacts(normalized, { maxSamples = 12 } = {}) {
+export function buildCrossSignatureBoundedFacts(normalized, { maxSamples = 12, structuralClaims = [] } = {}) {
   const signatures = signatureList(normalized);
   if (!signatures.length) return "";
   const sampleCap = Math.max(0, Math.min(Number(maxSamples) || 12, 24));
@@ -29,6 +29,11 @@ export function buildCrossSignatureBoundedFacts(normalized, { maxSamples = 12 } 
     "חתימות Cross מנורמלות — נתוני מבנה/קונברגנציה בלבד; אינן אמת קנונית ואינן ראיה עצמאית כשלעצמן.",
     "עצמאות שיטות וביטויים נקבעת רק ע״י public.cross_method_strength; אין להסיק עצמאות מספירת שיטות גולמית.",
   ];
+
+  if (Array.isArray(structuralClaims) && structuralClaims.length) {
+    lines.push("Atomic structural claims were built before this prose request and may not be changed by the AI:");
+    for (const claim of structuralClaims) lines.push(`  [${claim.id}] ${claim.text}`);
+  }
 
   for (const signature of signatures) {
     const methods = publicMethods(signature.methods);
@@ -71,30 +76,12 @@ function supportFor(signature, extra = {}) {
   };
 }
 
-export function composeCrossSignatureEvidenceBackedSynthesisDraft({
-  normalized,
-  aiMessage,
-  frozenAt = null,
-} = {}) {
+/**
+ * Atomic claims are built before any prose/AI call. This is the measurement layer:
+ * deterministic structural summaries over already-normalized canonical Cross data.
+ */
+export function buildCrossSignatureSynthesisStructure(normalized) {
   const signatures = signatureList(normalized);
-  if (!signatures.length) {
-    return {
-      status: SYNTHESIS_STATUS.INSUFFICIENT_EVIDENCE,
-      message: null,
-      claims: [],
-      motifs: [],
-      freeze: {
-        frozen: true,
-        frozen_at: clean(frozenAt) || new Date().toISOString(),
-        policy_version: CROSS_SIGNATURE_SYNTHESIS_VERSION,
-      },
-      provenance: {
-        source_refs: ["view:cross_method_strength"],
-        version_refs: [CROSS_SIGNATURE_SYNTHESIS_VERSION],
-      },
-    };
-  }
-
   const claims = [];
   const motifs = [];
 
@@ -165,18 +152,74 @@ export function composeCrossSignatureEvidenceBackedSynthesisDraft({
     }
   }
 
+  return Object.freeze({
+    signatures: Object.freeze([...signatures]),
+    claims: Object.freeze(claims.map((claim) => Object.freeze({
+      ...claim,
+      support: Object.freeze({
+        ...claim.support,
+        finding_ids: Object.freeze([...(claim.support?.finding_ids || [])]),
+        dependency_groups: Object.freeze([...(claim.support?.dependency_groups || [])]),
+        derivation_refs: Object.freeze([...(claim.support?.derivation_refs || [])]),
+        negative_or_control_refs: Object.freeze([...(claim.support?.negative_or_control_refs || [])]),
+      }),
+    }))),
+    motifs: Object.freeze(motifs.map((motif) => Object.freeze({
+      ...motif,
+      claim_ids: Object.freeze([...(motif.claim_ids || [])]),
+    }))),
+  });
+}
+
+export function composeCrossSignatureEvidenceBackedSynthesisDraft({
+  normalized,
+  structure = null,
+  aiMessage,
+  frozenAt = null,
+} = {}) {
+  const built = structure || buildCrossSignatureSynthesisStructure(normalized);
+  const signatures = Array.isArray(built?.signatures) ? built.signatures : [];
+  const claims = Array.isArray(built?.claims) ? built.claims : [];
+  const motifs = Array.isArray(built?.motifs) ? built.motifs : [];
+
+  if (!signatures.length || !claims.length) {
+    return {
+      status: SYNTHESIS_STATUS.INSUFFICIENT_EVIDENCE,
+      message: null,
+      claims: [],
+      motifs: [],
+      freeze: {
+        frozen: true,
+        frozen_at: clean(frozenAt) || new Date().toISOString(),
+        policy_version: CROSS_SIGNATURE_SYNTHESIS_VERSION,
+      },
+      provenance: {
+        source_refs: ["view:cross_method_strength"],
+        version_refs: [CROSS_SIGNATURE_SYNTHESIS_VERSION],
+      },
+    };
+  }
+
   return {
-    status: claims.length ? SYNTHESIS_STATUS.COMPOSED : SYNTHESIS_STATUS.INSUFFICIENT_EVIDENCE,
+    status: SYNTHESIS_STATUS.COMPOSED,
     message: clean(aiMessage),
-    claims,
-    motifs,
+    claims: claims.map((claim) => ({
+      ...claim,
+      support: {
+        finding_ids: [...claim.support.finding_ids],
+        dependency_groups: [...claim.support.dependency_groups],
+        derivation_refs: [...claim.support.derivation_refs],
+        negative_or_control_refs: [...claim.support.negative_or_control_refs],
+      },
+    })),
+    motifs: motifs.map((motif) => ({ ...motif, claim_ids: [...motif.claim_ids] })),
     freeze: {
       frozen: true,
       frozen_at: clean(frozenAt) || new Date().toISOString(),
       policy_version: CROSS_SIGNATURE_SYNTHESIS_VERSION,
     },
     explain_why: {
-      summary: "המסר נשען על Cross Signatures מנורמלות שתלויות ב־Finding IDs אמיתיים.",
+      summary: "המסר נשען על Atomic Cross claims שנבנו לפני הפרוזה ותלויים ב־Finding IDs אמיתיים.",
       reason: "raw method count is never treated as independent evidence; dependency-normalized counts come from the canonical Cross owner.",
       refs: signatures.map((signature) => signature.source_finding_id).filter(Boolean),
     },
