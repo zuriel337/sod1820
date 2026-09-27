@@ -28,7 +28,10 @@ for (const [name, source] of [
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /buildCalculator2029FastPreview/);
 assert.match(page, /data-preview-state/);
-assert.match(page, /sod29-calc2029-engine-status/);\nassert.match(page, /מאמת מול המנוע הקנוני/);\nassert.match(page, /"מאומת"/);\nassert.match(page, /"מיידי"/);
+assert.match(page, /sod29-calc2029-engine-status/);
+assert.match(page, /מאמת מול המנוע הקנוני/);
+assert.match(page, /"מאומת"/);
+assert.match(page, /"מיידי"/);
 assert.match(page, /<small>מיידי<\/small>/);
 assert.match(page, /disabled=\{Boolean\(method\.previewOnly\)\}/);
 assert.match(fastPreviewSource, /from "..\/gematria\.js"/);
