@@ -181,11 +181,10 @@ export function createSupabaseThreeCardProvider(supabase) {
   };
 }
 
-// Explicit-freeze guard (load-bearing): researchSynthesis.normalizeResearchSynthesis defaults
-// freeze.frozen to true whenever the synthesizer's draft omits `freeze` entirely. This seam must
-// never inherit that default — only a synthesizer draft that itself affirmatively sets
-// freeze.frozen === true may unlock a Tarot draw. Checked against the RAW draft, before
-// normalization, so a defaulted-true value can never be mistaken for an affirmative one.
+// Explicit-freeze guard (load-bearing): shared Research Synthesis now also fails closed when
+// freeze.frozen is omitted. This seam intentionally keeps its own RAW-draft affirmative check as
+// defense-in-depth: only a synthesizer draft that itself sets freeze.frozen === true may unlock a
+// Tarot draw. A future normalization/default change therefore cannot silently weaken chronology.
 function requireExplicitFreezeIntent(synthesisDraft) {
   const draftFreeze = synthesisDraft && typeof synthesisDraft === "object" && !Array.isArray(synthesisDraft)
     ? synthesisDraft.freeze
