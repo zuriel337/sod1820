@@ -51,8 +51,8 @@ export function normalizedCrossSignaturesFromBundle(bundle) {
     .map((finding) => {
       const signature = finding?.projection?.dimensions?.cross_signature;
       if (!signature || typeof signature !== "object" || Array.isArray(signature)) return null;
-      const value = Number(signature.value ?? finding?.subject?.value ?? finding?.subject?.label);
-      if (!Number.isSafeInteger(value)) return null;
+      const value = integerOrNull(signature.value ?? finding?.subject?.value ?? finding?.subject?.label);
+      if (value == null) return null;
       return {
         source_finding_id: clean(finding.id),
         value,
