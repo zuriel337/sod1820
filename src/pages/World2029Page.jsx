@@ -879,7 +879,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">מי מביא את החומר</div>
           <h2>חוקרים וכתבים</h2>
-          <div className="sod29-muted">בחר אדם כדי לראות את ההתכנסויות שמיוחסות אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
+          <div className="sod29-muted">בחר חוקר כדי לראות קודם את חומר המחקר שמיוחס אליו. התכנסויות הן שכבה נוספת — לא תחליף לממצאים ולמקורות.</div>
         </div>
 
       </div>
@@ -913,6 +913,16 @@ function LiveWorldLanding({ research, shell, context }) {
         error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
       />
     </section> : null}
+
+    {selectedWriter && !isAdmin ? <NativeStateSection>
+      <FrameState
+        kind="gated"
+        title={`כל הממצאים של ${selectedWriter.displayName}`}
+        action={!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : null}
+      >
+        שכבת המחקר המלאה שמורה ל־Human Gate. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
+      </FrameState>
+    </NativeStateSection> : null}
 
 
     {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
