@@ -1066,6 +1066,7 @@ function NumberPageBody() {
         methodsLoading={methodProfileState.loading}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
+        regularExpressionsLoading={regularPhraseState.loading}
         onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
