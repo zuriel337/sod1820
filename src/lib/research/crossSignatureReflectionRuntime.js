@@ -125,7 +125,7 @@ export async function runCrossSignatureReflectionRuntime({
   // 4) AI sees bounded normalized facts + the already-built structural claims. It is not asked to calculate or promote truth.
   const facts = buildCrossSignatureBoundedFacts(normalized, { structuralClaims: structure.claims });
   const aiMessage = clean(await aiAnalysisProvider({
-    kind: "research",
+    kind: "cross_signature",
     subject: String(value),
     facts,
     operation: "cross_signature_message",
