@@ -1,6 +1,6 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-27  
 **Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
@@ -148,9 +148,11 @@ G3 is **Foundation runtime / implementation against the frozen current owners**.
 
 **Current live checkpoint · 23.9.2026:** the immediate 2029 Foundation hardening chain is **MERGED · DEPLOYED · LIVE · VERIFIED** at main `5376523be8c4a81b42b428eab30b970e4506e797`. Live canonical Supabase now includes Operational Trace persistence, the server capability/entitlement/budget gate, authenticated private Research Path save/resume/fork, and the bounded legacy Journey telemetry hardening; `ai-analyze` v36 emits the unified execution gate inside Operational Trace. Production Vercel for the same main SHA is READY. The next dependency is replayable Golden fixtures, not Legacy UX restoration.
 
+**Current live checkpoint · 27.9.2026:** origin/main is `96b3d5dc7dab3c91fd72972b77095a10a440342c`. Active current owners include `system_suggestions_law v5`, `canonical_ui_components_law v6`, `els_research_layer_law v8`, `raziel_companion_layer_law v3`, `research_workspace_law v4`, `research_intake_foundation_contract_law v13`, `reality_graph_law v8`, `platform_tiers_law v5`, and `inter_agent_coordination_law v13`. Email OTP compatibility and the corrected 15-minute health watcher are LIVE/VERIFIED. Reliability contracts are LIVE but `G3_RELIABILITY_RUNTIME_V1` remains DEFERRED and is a mandatory pre-close blocker. ELS v8 semantics are LIVE in the owner, while PR #748 runtime primitives remain BRANCH-ONLY and must not be described as deployed capability.
+
 Opening priorities:
 
-1. **Inter-agent event-driven dispatch runtime** under `inter_agent_coordination_law v11` so work_log assignments can wake/claim GPT/CLAUDE without ZURIEL acting as messenger. This must preserve idempotency, lease/claim, duplicate suppression, timeout/retry/failure/deferred/cancelled, one-writer safety and provenance; it never auto-authorizes WRITE/merge/deploy/publish/canonicalization.
+1. **Inter-agent event-driven dispatch runtime** under `inter_agent_coordination_law v13` so work_log assignments can wake/claim GPT/CLAUDE without ZURIEL acting as messenger. This must preserve idempotency, lease/claim, duplicate suppression, timeout/retry/failure/deferred/cancelled, one-writer safety and provenance; it never auto-authorizes WRITE/merge/deploy/publish/canonicalization.
 2. **Agent media/file tool adapter** over the already-proven agent upload bridge so GPT/CLAUDE can receive/generated files, upload through least-privilege single-use tickets, verify hash/size/mime/reference, and return the canonical artifact reference. Domain placement remains owned by Post/Reality/Brand/Research owners. Private books/documents remain a separate private-storage/RLS lane.
 3. Core runtime seams: server-authoritative entitlement, privacy/data lifecycle, callable ELS boundary, replay/idempotency/failure recovery, canonical adapters.
 4. Replayable Goldens, beginning with existing locked 878 and Year/Verse carry-forwards.
@@ -159,6 +161,10 @@ Opening priorities:
 Mandatory before leaving G3:
 
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`
+
+Additional pre-close blocker: `G3_RELIABILITY_PRECLOSE_V1` must be **IMPLEMENTED · RELEASED · LIVE · VERIFIED** before G3 closure. Required evidence covers canonical IssueReport/incident flow, browser runtime-error capture, sparse deterministic synthetic journeys, sensor/notification dead-man, exact-SHA post-deploy canary, and at least one isolated restore drill. Normal monitoring remains zero-AI/event-driven-first by default.
+
+ELS current-state pointer: active semantic owner is `els_research_layer_law v8`; PR #748 remains branch-only runtime work and is not release evidence.
 
 ## 9. Future-admission rule — anti-inflation
 
