@@ -46,6 +46,46 @@
   outline-offset: 2px;
 }
 
+.sod29-calc2029-fast-preview {
+  min-height: 78px;
+  border: 1px solid var(--s29-line);
+  border-radius: 18px;
+  background: var(--s29-panel-soft);
+  display: grid;
+  grid-template-columns: auto minmax(72px, auto) auto;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-align: center;
+}
+
+.sod29-calc2029-fast-preview span,
+.sod29-calc2029-fast-preview small {
+  color: var(--s29-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sod29-calc2029-fast-preview strong {
+  color: var(--s29-ink);
+  font-size: clamp(30px, 7vw, 44px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sod29-calc2029-fast-preview.is-verified {
+  border-color: color-mix(in srgb, var(--s29-accent) 42%, var(--s29-line));
+}
+
+@media (max-width: 520px) {
+  .sod29-calc2029-fast-preview {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    min-height: 88px;
+  }
+}
+
 .sod29-calc2029-command-meta {
   display: flex;
   gap: 8px;

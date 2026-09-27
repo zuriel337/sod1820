@@ -9,6 +9,7 @@ import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
+import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import {
   buildCalculationSelection,
@@ -200,6 +201,27 @@ function CalculatorExperience() {
     selectedMethod ? buildCalculationSelection(profile.expression, selectedMethod) : null
   ), [profile.expression, selectedMethod]);
 
+  const fastPreview = useMemo(
+    () => buildCalculator2029FastPreview(expression),
+    [expression]
+  );
+  const canonicalRegularValue = useMemo(() => {
+    if (clean(profile.expression) !== clean(expression)) return null;
+    const row = (Array.isArray(profile.rows) ? profile.rows : [])
+      .find((item) => item?.methodKey === "רגיל");
+    const value = Number(row?.computedValue);
+    return Number.isFinite(value) ? value : null;
+  }, [expression, profile.expression, profile.rows]);
+  const fastDisplayValue = canonicalRegularValue ?? fastPreview?.value ?? null;
+  const fastPreviewState = canonicalRegularValue != null
+    ? "verified"
+    : fastPreview
+      ? "preview"
+      : "empty";
+  const fastPreviewMismatch = canonicalRegularValue != null
+    && fastPreview?.value != null
+    && canonicalRegularValue !== fastPreview.value;
+
   const handleExpressionChange = (value) => {
     const next = String(value ?? "");
     setExpression(next);
@@ -350,6 +372,18 @@ function CalculatorExperience() {
             aria-describedby="calculator-2029-help"
           />
         </div>
+        {fastDisplayValue != null ? (
+          <div
+            className={`sod29-calc2029-fast-preview is-${fastPreviewState}`}
+            data-fast-preview-state={fastPreviewState}
+            data-fast-preview-mismatch={fastPreviewMismatch ? "true" : "false"}
+            aria-label={fastPreviewState === "verified" ? "ערך רגיל מאומת" : "תצוגה מיידית של ערך רגיל"}
+          >
+            <span>רגיל</span>
+            <strong>{fastDisplayValue}</strong>
+            <small>{fastPreviewState === "verified" ? "מאומת" : "מיידי · אימות קנוני בדרך"}</small>
+          </div>
+        ) : null}
         <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
           <span>התוצאות מתעדכנות אוטומטית</span>
           <span>AI ורזיאל רק בפעולה מפורשת</span>
