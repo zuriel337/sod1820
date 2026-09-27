@@ -117,12 +117,10 @@ assert.equal(normalizeJourney2029Event("start"), "start");
 assert.equal(normalizeJourney2029Event("landing"), null);
 assert.deepEqual(buildJourney2029ContextPatch({ kind: "els", mode: "guided", sourceSurface: "Heichal 2029" }), {
   dimensions: {
-    journey2029: {
-      active: true,
-      kind: "els",
-      mode: "guided",
-      sourceSurface: "heichal_2029",
-    },
+    journey2029Active: true,
+    journey2029Kind: "els",
+    journey2029Mode: "guided",
+    journey2029SourceSurface: "heichal_2029",
   },
 });
 
@@ -131,7 +129,10 @@ const privateJourneyContext = normalizeResearchContext({
   selection: { entityId: "person:PRIVATE-REF:self", entityType: "person", expression: "SECRET SEARCH TERM" },
   lens: "person",
   dimensions: {
-    journey2029: { active: true, kind: "person_life", mode: "organic", sourceSurface: "person" },
+    journey2029Active: true,
+    journey2029Kind: "person_life",
+    journey2029Mode: "organic",
+    journey2029SourceSurface: "person",
     privateName: "SECRET FAMILY NAME",
   },
 });
