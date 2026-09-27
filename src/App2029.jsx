@@ -78,6 +78,7 @@ export default function App2029() {
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />\n              <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/world" element={<World2029Page />} />
+              <Route path="/world/:value" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/books" element={<Books2029Page />} />
