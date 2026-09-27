@@ -632,15 +632,9 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  const startJourney = (journey) => {
+  const startJourney = async (journey) => {
     const root = Number(journey?.rootValue);
     if (!Number.isSafeInteger(root)) return;
-    research.addJourney?.({
-      root,
-      path: [{ type: "number", value: root }],
-      world: "world",
-      msg: journey.id,
-    });
     research.setResearchContext?.({
       subject: { id: String(root), type: "number", label: String(root), href: "/world" },
       selection: { entityId: String(root), entityType: "number" },
@@ -649,40 +643,40 @@ function LiveWorldLanding({ research, shell, context }) {
       dimensions: {
         journeySource: "world-landing",
         journeySemanticId: journey.id,
+        journeyKind: "number_expression",
+        journeyMode: "guided",
+        journeyInstance: journey.id,
         journeyRoot: root,
         journeyVisitedValues: [root],
         journeyMeetingSlugs: [],
       },
       returnTo: { href: "/world", label: "העולם" },
     });
+    await research.startResearchJourney?.({
+      journeyKind: "number_expression",
+      journeyMode: "guided",
+      sourceSurface: "world",
+      rootType: "number",
+      publicInstanceKey: journey.id,
+      href: "/world",
+      label: `מסע ${root}`,
+      surface: "world",
+    });
   };
 
-  const resumeJourney = (savedJourney) => {
-    const root = Number(savedJourney?.root);
-    if (root !== GOLDEN_WORLD_JOURNEY_878.rootValue) return;
-    const pathValues = (Array.isArray(savedJourney.path) ? savedJourney.path : [])
-      .map((step) => Number(step?.value ?? step))
-      .filter(Number.isSafeInteger);
-    const visited = [...new Set([root, ...pathValues])];
-    const current = visited[visited.length - 1] || root;
-    research.setResearchContext?.({
-      subject: { id: String(current), type: "number", label: String(current), href: "/world" },
-      selection: { entityId: String(current), entityType: "number" },
-      lens: "world",
-      journey: {
-        id: GOLDEN_WORLD_JOURNEY_878.id,
-        kind: GOLDEN_WORLD_JOURNEY_878.kind,
-        position: Math.max(0, visited.length - 1),
-      },
-      dimensions: {
-        journeySource: "saved-research",
-        journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
-        journeyRoot: root,
-        journeyVisitedValues: visited,
-        journeyMeetingSlugs: [],
-      },
-      returnTo: { href: "/world", label: "העולם" },
-    });
+  const resumeJourney = async (savedPath) => {
+    if (!savedPath?.path_id) return;
+    const result = await research.resumeResearchPath?.(savedPath.path_id);
+    if (result?.ok) {
+      research.recordResearchJourneyEvent?.("resume", {
+        journeyKind: "number_expression",
+        journeyMode: "guided",
+        sourceSurface: "world",
+        rootType: "number",
+        publicInstanceKey: GOLDEN_WORLD_JOURNEY_878.id,
+      });
+      if (result.href && result.href !== "/world") shell.go(result.href);
+    }
   };
 
   const topicNumbers = useMemo(() => (
@@ -705,9 +699,10 @@ function LiveWorldLanding({ research, shell, context }) {
   const writerMeetings = selectedWriter ? selectedWriter.meetings || [] : landing.contributors?.meetings || [];
   const topicFacet = WORLD_FACETS.find((facet) => facet.key === "topic");
   const otherPopulatedSections = populatedSections.filter((facet) => facet.key !== "topic");
-  const lastJourney = Array.isArray(research.journeys)
-    ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
-    : null;
+  const latestGoldenPath = (
+    research.pathResume?.latest?.identity_metadata?.root_type === "number"
+    && Number(research.pathResume?.latest?.identity_metadata?.root_ref) === GOLDEN_WORLD_JOURNEY_878.rootValue
+  ) ? research.pathResume.latest : null;
 
   const discoveryItems = useMemo(() => {
     const items = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
@@ -939,14 +934,14 @@ function LiveWorldLanding({ research, shell, context }) {
       )}
     </section> : null}
 
-    {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
+    {!landing.loading && (landing.journey || latestGoldenPath || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">המסע הראשון של 2029</div>
           <h2>מסע 878</h2>
           <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
         </div>
-        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
+        {latestGoldenPath ? <button className="sod29-action" type="button" onClick={() => resumeJourney(latestGoldenPath)}>המשך את מסע 878</button> : null}
       </div>
       {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או התכנסות בלי להמציא מסלול חלופי.</FrameState> : null}
       {landing.journey ? <div className="sod29-world-journey-invitation">
@@ -1172,20 +1167,20 @@ function AnchoredWorld({ research, shell, subject, context }) {
     || (context?.journey?.kind === GOLDEN_WORLD_JOURNEY_878.kind ? context?.journey?.id : null);
   const journeyIsActive = journeySemanticId === GOLDEN_WORLD_JOURNEY_878.id;
   const currentJourneyValue = subject.type === "number" && Number.isSafeInteger(Number(subject.id)) ? Number(subject.id) : null;
-  const savedGoldenJourney = useMemo(() => (
-    Array.isArray(research.journeys)
-      ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
-      : null
-  ), [research.journeys]);
+  const savedGoldenPath = useMemo(() => {
+    const snapshot = research.pathResume?.latest || null;
+    if (snapshot?.identity_metadata?.root_type !== "number") return null;
+    return Number(snapshot?.identity_metadata?.root_ref) === GOLDEN_WORLD_JOURNEY_878.rootValue ? snapshot : null;
+  }, [research.pathResume?.latest]);
   const journeyVisitedValues = useMemo(() => {
     const contextRaw = Array.isArray(context?.dimensions?.journeyVisitedValues) ? context.dimensions.journeyVisitedValues : [];
     const contextValues = contextRaw.map(Number).filter(Number.isSafeInteger);
-    const savedValues = (Array.isArray(savedGoldenJourney?.path) ? savedGoldenJourney.path : [])
-      .map((step) => Number(step?.value ?? step))
+    const savedValues = (Array.isArray(savedGoldenPath?.steps) ? savedGoldenPath.steps : [])
+      .map((step) => Number(step?.entity_ref))
       .filter(Number.isSafeInteger);
     const values = savedValues.length > contextValues.length ? savedValues : contextValues;
     return [...new Set(values.length ? values : (journeyIsActive ? [GOLDEN_WORLD_JOURNEY_878.rootValue] : []))];
-  }, [context?.dimensions?.journeyVisitedValues, journeyIsActive, savedGoldenJourney]);
+  }, [context?.dimensions?.journeyVisitedValues, journeyIsActive, savedGoldenPath]);
   const journeyMeetingSlugs = useMemo(() => {
     const raw = Array.isArray(context?.dimensions?.journeyMeetingSlugs) ? context.dimensions.journeyMeetingSlugs : [];
     return [...new Set(raw.map((value) => String(value || "").trim()).filter(Boolean))];
@@ -1222,15 +1217,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
     });
   };
 
-  const activateGoldenJourney = () => {
+  const activateGoldenJourney = async () => {
     if (!goldenJourney) return;
     const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
-    research.addJourney?.({
-      root,
-      path: [{ type: "number", value: root }],
-      world: "world",
-      msg: GOLDEN_WORLD_JOURNEY_878.id,
-    });
     research.setResearchContext?.({
       subject: { id: String(root), type: "number", label: String(root), href: "/world" },
       selection: { entityId: String(root), entityType: "number" },
@@ -1240,6 +1229,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
         ...(context?.dimensions || {}),
         journeySource: "world-golden-878",
         journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
+        journeyKind: "number_expression",
+        journeyMode: "guided",
+        journeyInstance: GOLDEN_WORLD_JOURNEY_878.id,
         journeyRoot: root,
         journeyVisitedValues: [root],
         journeyMeetingSlugs: [],
@@ -1254,13 +1246,26 @@ function AnchoredWorld({ research, shell, subject, context }) {
         journey: context.journey || null,
       } : { href: "/world", label: "העולם" },
     });
+    await research.startResearchJourney?.({
+      journeyKind: "number_expression",
+      journeyMode: "guided",
+      sourceSurface: "world",
+      rootType: "number",
+      publicInstanceKey: GOLDEN_WORLD_JOURNEY_878.id,
+      href: "/world",
+      label: "מסע 878",
+      surface: "world",
+    });
   };
 
-  const followGoldenJourneyPath = (path) => {
+  const followGoldenJourneyPath = async (path) => {
     if (!goldenJourney || !path?.targetValue) return;
     const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
     const target = Number(path.targetValue);
     if (!Number.isSafeInteger(target)) return;
+
+    if (!journeyIsActive) await activateGoldenJourney();
+
     const baseVisited = journeyIsActive && journeyVisitedValues.length ? journeyVisitedValues : [root];
     const visited = [...new Set([...baseVisited, target])];
     const meetingSlugs = [...new Set([
@@ -1268,25 +1273,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
       ...(path.meetingSlug ? [path.meetingSlug] : []),
     ])];
 
-    research.addJourney?.({
-      root,
-      path: visited.map((value) => ({ type: "number", value })),
-      world: "world",
-      msg: GOLDEN_WORLD_JOURNEY_878.id,
-    });
-    research.setResearchContext?.({
+    research.updateResearchContext?.({
       subject: { id: String(target), type: "number", label: String(target), href: "/world" },
       selection: { entityId: String(target), entityType: "number" },
       lens: "world",
-      journey: {
-        id: GOLDEN_WORLD_JOURNEY_878.id,
-        kind: GOLDEN_WORLD_JOURNEY_878.kind,
-        position: Math.max(0, visited.length - 1),
-        findingId: path.meetingSlug || null,
-      },
       dimensions: {
         ...(context?.dimensions || {}),
         journeySource: "world-golden-878",
+        journeySemanticId: GOLDEN_WORLD_JOURNEY_878.id,
+        journeyKind: "number_expression",
+        journeyMode: "guided",
+        journeyInstance: GOLDEN_WORLD_JOURNEY_878.id,
         journeyRoot: root,
         journeyVisitedValues: visited,
         journeyMeetingSlugs: meetingSlugs,
@@ -1300,6 +1297,19 @@ function AnchoredWorld({ research, shell, subject, context }) {
         dimensions: context?.dimensions || {},
         journey: context?.journey || null,
       },
+    });
+
+    await research.saveCurrentResearchPath?.({
+      href: "/world",
+      label: `מסע 878 · ${target}`,
+      surface: "world",
+    });
+    research.recordResearchJourneyEvent?.("step", {
+      journeyKind: "number_expression",
+      journeyMode: "guided",
+      sourceSurface: "world",
+      rootType: "number",
+      publicInstanceKey: GOLDEN_WORLD_JOURNEY_878.id,
     });
   };
 
