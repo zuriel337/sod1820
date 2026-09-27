@@ -22,6 +22,7 @@ on:
       - "src/lib/research/researchPlanV2.js"
       - "src/lib/research/researchRunRequest.js"
       - "src/lib/research/ResearchProvider.jsx"
+      - "src/lib/research/journey2029Telemetry.js"
       - "src/lib/research/numberExpressionFocus.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
@@ -58,9 +59,11 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "scripts/test-2029-control-plane.mjs"
+      - "scripts/test-journey-2029-pulse.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
+      - "supabase/migrations/20260927121500_journey_2029_pulse_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -97,6 +100,8 @@ jobs:
         run: npm run test:2029-server-seo-ai
       - name: Research Path resumability runtime acceptance
         run: npm run test:research-path-resume
+      - name: Journey 2029 unified path + pulse acceptance
+        run: npm run test:journey-2029-pulse
       - name: 2029 cheap route/test/least-privilege hardening
         run: npm run test:2029-cheap-hardening
       - name: Legacy Research containment + unopened Heichal entrypoint acceptance
