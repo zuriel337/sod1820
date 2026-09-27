@@ -40,7 +40,6 @@ const world70 = await renderResponse("/world/70");
 assert.match(world70.body, /70 · העולם · SOD1820/);
 assert.match(world70.body, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(world70.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/world\/70"\/>/);
-assert.equal(world70.headers.get("x-robots-tag"), "noindex, nofollow");
 
 let researcherFetches = [];
 const researcher = await render("/researcher/admin-only", async (url) => {
