@@ -60,6 +60,10 @@ jobs:
             src/lib/research/razielActionContract.currentMain.test.js \
             src/lib/research/corpusBaseline.test.js \
             src/lib/research/gematriaRelationW2Executor.test.js \
+            src/lib/research/crossSignatureW2Executor.test.js \
+            src/lib/research/crossSignatureReflectionRuntime.test.js \
+            src/lib/research/normalizedMessageReflection.test.js \
+            src/lib/research/normalizedMessageReflectionProjection.test.js \
             src/lib/research/historicalAiBenchmark.test.js \
             src/lib/research/providerOrchestration.test.js \
             src/lib/research/researchCalibration.test.js \
