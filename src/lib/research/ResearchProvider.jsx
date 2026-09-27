@@ -15,6 +15,7 @@ import {
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
+import { emitJourney2029 } from "./journey2029Telemetry.js";
 import { entityRef, makeResearchOp, principalToken } from "./researchSyncState.js";
 import { createResearchSyncRuntime } from "./researchSyncRuntime.js";
 
@@ -247,6 +248,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     });
     setPathResume({ loading: false, latest: result, error: null });
     trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
+    emitJourney2029("save", { context: current, sourceSurface: surface, pathId: result.path_id });
     return result;
   }, [userId, runtime, actions]);
 
@@ -276,6 +278,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     actions.setResearchContext(next);
     setPathResume({ loading: false, latest: snapshot, error: null });
     trackResearch("path_resume", { revision: snapshot.revision_no });
+    emitJourney2029("resume", { context: next, pathId: snapshot.path_id });
     return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
   }, [userId, pathResume.latest?.path_id, actions]);
 
