@@ -118,7 +118,7 @@ Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Arch
 
 | Responsibility | Canonical owner |
 |---|---|
-| ELS research semantics/capability | `els_research_layer_law` v3 |
+| ELS research semantics/capability | `els_research_layer_law` **v8 ACTIVE** |
 | ONE canonical ELS engine invariant | `els_single_engine_law` under ELS owner |
 | bounded seed continuation | `els_seed_expansion_law` under ELS owner |
 | testimony / non-prophecy safety | `testimony_not_prophecy` under ELS owner |
@@ -129,7 +129,7 @@ Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only 
 
 | Responsibility | Canonical owner |
 |---|---|
-| Raziel companion / 2029 Continuous Research Presence / cross-surface continuity | `raziel_companion_layer_law` **v2 ACTIVE** |
+| Raziel companion / 2029 Continuous Research Presence / cross-surface continuity | `raziel_companion_layer_law` **v3 ACTIVE** |
 | capability × intelligence × permission routing | `raziel_routing_law` v2 |
 | response envelope | `raziel_response_contract` |
 | full answer / completion | `raziel_full_answer_and_route_law` v3 |
@@ -137,7 +137,7 @@ Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only 
 | group/private channel boundary | `raziel_group_privacy_law` |
 | System Operations / Metatron recommendations | `system_suggestions_law` |
 
-`raziel_companion_layer_law v2` owns the compact 2029 North Star previously carried in Roadmap v5.6: Continuous Research State, authorized longitudinal memory, Research Pulse, Silence Gate, self-audit, Next Best Research Action/STOP, one companion across surfaces/channels, multimodal one-research identity, adaptive deterministic-first intelligence, Trust/Why-Now calibration and Golden acceptance moments. It creates no second memory/context/truth system.
+`raziel_companion_layer_law v3` owns the compact 2029 North Star previously carried in Roadmap v5.6: Continuous Research State, authorized longitudinal memory, Research Pulse, Silence Gate, self-audit, Next Best Research Action/STOP, one companion across surfaces/channels, multimodal one-research identity, adaptive deterministic-first intelligence, Trust/Why-Now calibration and Golden acceptance moments. It creates no second memory/context/truth system.
 
 Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit successor-owner pointers into the current Raziel/Strategy/Reality tree.
 
@@ -147,7 +147,7 @@ Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit 
 |---|---|
 | Person / group / personal-data processing / Personal Reality projection | `person_foundation_contract_law` **v6 ACTIVE** |
 | Follow / notification / subscription funnel | `subscription_funnel_law` v19 |
-| entitlement/access product seam | `platform_tiers_law` v2 |
+| entitlement/access product seam | `platform_tiers_law` **v5 ACTIVE** |
 | one credit currency | `unified_credit_system` under Access |
 
 `person_foundation_contract_law v6` owns Personal Reality as an authorized contextual projection over the same One Reality: personal context may change relevance/resume/emphasis but never global truth; private material is filtered before composition; private→public research is explicit and Human-Gated; Follow ≠ inferred relevance ≠ Raziel suggestion.
@@ -173,7 +173,7 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 | Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v7 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V1.md` |
-| canonical reusable UI primitives | `canonical_ui_components_law` |
+| canonical reusable UI primitives | `canonical_ui_components_law` **v6 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 
@@ -184,7 +184,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 | Responsibility | Canonical owner |
 |---|---|
 | traffic / analytics measurement truth | `traffic_intelligence_law` v8 |
-| system diagnostics / recommendations | `system_suggestions_law` |
+| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v5 ACTIVE** |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
 ## 4. Active-tree freeze — CLOSED G2 result
