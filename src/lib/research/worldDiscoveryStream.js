@@ -123,26 +123,27 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   };
 }
 
-export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [] } = {}) {
+export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [], includeResearch = false } = {}) {
   const requested = Math.max(1, Math.min(Number(limit) || 18, 40));
-  const [topicResult, researchResult] = await Promise.all([
-    fetchTopicCardList({
-      limit: Math.min(40, Math.max(requested, 24)),
-      offset: 0,
-      rankByMeterScore: false,
-    }),
-    import("../supabase.js").then(async ({ supabase }) => {
-      const { data, error } = await supabase
-        .from("research_objects")
-        .select("id,created_at,kind,statement,evidence,value,source_ref,contributor,status")
-        .in("status", ["approved", "canonical"])
-        .order("created_at", { ascending: false })
-        .limit(Math.min(80, Math.max(requested * 2, 40)));
-      if (error) throw error;
-      return Array.isArray(data) ? data : [];
-    }),
-  ]);
+  const topicPromise = fetchTopicCardList({
+    limit: Math.min(40, Math.max(requested, 24)),
+    offset: 0,
+    rankByMeterScore: false,
+  });
+  const researchPromise = includeResearch
+    ? import("../supabase.js").then(async ({ supabase }) => {
+        const { data, error } = await supabase
+          .from("research_objects")
+          .select("id,created_at,kind,statement,evidence,value,source_ref,contributor,status")
+          .in("status", ["approved", "canonical"])
+          .order("created_at", { ascending: false })
+          .limit(Math.min(80, Math.max(requested * 2, 40)));
+        if (error) throw error;
+        return Array.isArray(data) ? data : [];
+      })
+    : Promise.resolve([]);
 
+  const [topicResult, researchResult] = await Promise.all([topicPromise, researchPromise]);
   const topics = Array.isArray(topicResult?.rows) ? topicResult.rows : [];
   return buildWorldDiscoveryStream(
     { topics, research: researchResult },
