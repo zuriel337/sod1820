@@ -8,6 +8,8 @@ const app = fs.readFileSync("src/App2029.jsx", "utf8");
 const compare = fs.readFileSync("src/components/gematria2029/CalculatorCompare2029.jsx", "utf8");
 const opening = fs.readFileSync("src/components/gematria2029/CalculatorOpening2029.jsx", "utf8");
 const methodLens = fs.readFileSync("src/components/gematria2029/MethodLens2029.jsx", "utf8");
+const fastPreviewSource = fs.readFileSync("src/lib/research/calculator2029FastPreview.js", "utf8");
+const { buildCalculator2029FastPreview } = await import("../src/lib/research/calculator2029FastPreview.js");
 
 // Local-authority modules that native Calculator2029/gematria2029 surfaces must never
 // import or reference; they must consume fetchNumberMethodProfile/fetchGematriaMethodTrace instead.
@@ -24,6 +26,18 @@ for (const [name, source] of [
 }
 
 assert.match(page, /fetchNumberMethodProfile/);
+assert.match(page, /buildCalculator2029FastPreview/);
+assert.match(page, /data-fast-preview-state/);
+assert.match(page, /מיידי · אימות קנוני בדרך/);
+assert.match(page, /מאומת/);
+assert.match(fastPreviewSource, /gematriaCalculationContract/);
+assert.match(fastPreviewSource, /previewOnly:\s*true/);
+assert.match(fastPreviewSource, /canonical:\s*false/);
+assert.match(fastPreviewSource, /canonicalSettle:\s*"fn_method_profile"/);
+assert.equal(buildCalculator2029FastPreview("א")?.value, 1);
+assert.equal(buildCalculator2029FastPreview("אב")?.value, 3);
+assert.equal(buildCalculator2029FastPreview("אבא")?.value, 4);
+assert.equal(buildCalculator2029FastPreview("abc"), null);
 assert.match(page, /fetchGematriaMethodTrace/);
 assert.doesNotMatch(page, />חשב</);
 assert.match(page, /CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240/);
