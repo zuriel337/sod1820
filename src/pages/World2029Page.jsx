@@ -57,7 +57,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
-const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true;
+const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = false;
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
@@ -420,7 +420,8 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
-  const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE || isAdmin;
+  const [adminToolsOpen, setAdminToolsOpen] = useState(false);
+  const controlMode = isAdmin && adminToolsOpen;
   const [landing, setLanding] = useState({
     loading: true,
     sections: {},
@@ -800,6 +801,13 @@ function LiveWorldLanding({ research, shell, context }) {
               {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
             </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
           </div>
+          {isAdmin ? <button
+            className="sod29-action"
+            type="button"
+            aria-expanded={adminToolsOpen}
+            aria-controls="world-admin-tools"
+            onClick={() => setAdminToolsOpen((open) => !open)}
+          >{adminToolsOpen ? "סגור כלי מנהל" : "כלי מנהל"}</button> : null}
           <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
           <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
         </div>
@@ -866,8 +874,58 @@ function LiveWorldLanding({ research, shell, context }) {
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    <WorldConvergenceLens state={allResearchState} />
-    <WorldAllResearchTable state={allResearchState} />
+    {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">מי מביא את החומר</div>
+          <h2>חוקרים וכתבים</h2>
+          <div className="sod29-muted">בחר אדם כדי לראות את ההתכנסויות שמיוחסות אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
+        </div>
+
+      </div>
+      {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
+      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="סינון התכנסויות לפי חוקר או כותב">
+        <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
+          <strong>הכול</strong><small>כל ההתכנסויות</small>
+        </button>
+        {landing.contributors.people.map((person) => <button
+          type="button"
+          key={person.slug}
+          className={`sod29-world-person-card${writerFilter === person.slug ? " is-active" : ""}`}
+          aria-pressed={writerFilter === person.slug}
+          onClick={() => setWriterFilter(person.slug)}
+        >
+          <strong>{person.displayName}</strong>
+          <small>{person.role || "חוקר / כותב"}</small>
+          {person.meetingCount ? <span>{person.meetingCount} {CONVERGENCES_LABEL}</span> : <span>החומר שלו בעולם</span>}
+        </button>)}
+      </div> : null}
+    </section> : null}
+
+    {selectedWriter && isAdmin ? <section
+      className="sod29-section sod29-world-contributor-findings-section"
+      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
+      data-experience-capability="world-contributor-findings-projection"
+    >
+      <ContributorFindingsLens
+        projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
+        loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
+        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
+      />
+    </section> : null}
+
+
+    {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">כלי מנהל</div>
+          <h2>בקרה פנימית</h2>
+          <div className="sod29-muted">כלי Human Gate ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
+        </div>
+      </div>
+      <WorldConvergenceLens state={allResearchState} />
+      <WorldAllResearchTable state={allResearchState} />
+    </section> : null}
 
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
@@ -922,46 +980,6 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
       {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
     </section>
-
-    {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">מי מביא את החומר</div>
-          <h2>חוקרים וכתבים</h2>
-          <div className="sod29-muted">בחר אדם כדי לראות את ההתכנסויות שמיוחסות אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
-        </div>
-
-      </div>
-      {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
-      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="סינון התכנסויות לפי חוקר או כותב">
-        <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
-          <strong>הכול</strong><small>כל ההתכנסויות</small>
-        </button>
-        {landing.contributors.people.map((person) => <button
-          type="button"
-          key={person.slug}
-          className={`sod29-world-person-card${writerFilter === person.slug ? " is-active" : ""}`}
-          aria-pressed={writerFilter === person.slug}
-          onClick={() => setWriterFilter(person.slug)}
-        >
-          <strong>{person.displayName}</strong>
-          <small>{person.role || "חוקר / כותב"}</small>
-          {person.meetingCount ? <span>{person.meetingCount} {CONVERGENCES_LABEL}</span> : <span>החומר שלו בעולם</span>}
-        </button>)}
-      </div> : null}
-    </section> : null}
-
-    {selectedWriter && isAdmin ? <section
-      className="sod29-section sod29-world-contributor-findings-section"
-      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
-      data-experience-capability="world-contributor-findings-projection"
-    >
-      <ContributorFindingsLens
-        projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
-        loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
-      />
-    </section> : null}
 
     {!landing.loading && topicFacet ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
       <div className="sod29-section-head">
