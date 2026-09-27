@@ -25,6 +25,7 @@ import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+const CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240;
 
 function traceSteps(finding) {
   const raw = finding?.projection?.dimensions?.trace?.steps;
@@ -53,6 +54,7 @@ function CalculatorExperience() {
   const inputRef = useRef(null);
   const firstComputeRef = useRef(false);
   const restoredRef = useRef("");
+  const computeRequestRef = useRef(0);
   const sharedState = useMemo(() => parseCalculatorShareState(location.search), [location.search]);
   const arrivalShareIdRef = useRef(sharedState.shareId || null);
 
@@ -122,6 +124,7 @@ function CalculatorExperience() {
   const compute = useCallback(async (raw, { restore = false, preferredMethodKey = null, expectedValue = null } = {}) => {
     const phrase = clean(raw);
     if (!phrase) return;
+    const requestId = ++computeRequestRef.current;
     setProfile({ loading: true, rows: [], error: null, expression: phrase });
     setSelectedKey(null);
     setTrace({ loading: false, finding: null, error: null, key: null });
@@ -130,6 +133,7 @@ function CalculatorExperience() {
     setShareDiscovery(null);
     try {
       const rows = await fetchNumberMethodProfile(phrase);
+      if (requestId !== computeRequestRef.current) return;
       const list = Array.isArray(rows) ? rows : [];
       const preferred = preferredMethodKey
         ? list.find((row) => row.methodKey === preferredMethodKey)
@@ -165,6 +169,7 @@ function CalculatorExperience() {
         }
       }
     } catch (error) {
+      if (requestId !== computeRequestRef.current) return;
       setProfile({ loading: false, rows: [], error, expression: phrase });
     }
   }, [commitMethod, sharedState.shareId]);
@@ -191,8 +196,10 @@ function CalculatorExperience() {
   ), [profile.expression, selectedMethod]);
 
   const handleExpressionChange = (value) => {
-    setExpression(value);
-    if (clean(value) !== clean(profile.expression)) {
+    const next = String(value ?? "");
+    setExpression(next);
+    if (clean(next) !== clean(profile.expression)) {
+      computeRequestRef.current += 1;
       setProfile({ loading: false, rows: [], error: null, expression: "" });
       setSelectedKey(null);
       setTrace({ loading: false, finding: null, error: null, key: null });
@@ -200,13 +207,23 @@ function CalculatorExperience() {
       setShowOpening(false);
       setShareDiscovery(null);
       setSharedRestored(false);
+      if (sharedState.isShared && location.search) {
+        navigate("/2029/gematria", { replace: true });
+      }
     }
   };
 
-  const submitCompute = async (event) => {
+  useEffect(() => {
+    const phrase = clean(expression);
+    if (!phrase || sharedState.isShared) return undefined;
+    const timer = window.setTimeout(() => {
+      compute(phrase);
+    }, CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [expression, sharedState.isShared, compute]);
+
+  const submitCompute = (event) => {
     event.preventDefault();
-    await compute(expression);
-    if (arrivalShareIdRef.current && location.search) navigate("/2029/gematria", { replace: true });
   };
 
   const chooseMethod = (method) => commitMethod(method, profile.expression || expression, "manual_method");
@@ -287,6 +304,7 @@ function CalculatorExperience() {
   }, [selection, sharedState.discoveryPhrase]);
 
   const startOwnCompute = () => {
+    computeRequestRef.current += 1;
     setExpression("");
     setProfile({ loading: false, rows: [], error: null, expression: "" });
     setSelectedKey(null);
@@ -294,6 +312,7 @@ function CalculatorExperience() {
     setShowCompare(false);
     setShowOpening(false);
     setSharedRestored(false);
+    if (location.search) navigate("/2029/gematria", { replace: true });
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
@@ -325,11 +344,10 @@ function CalculatorExperience() {
             spellCheck="false"
             aria-describedby="calculator-2029-help"
           />
-          <button type="submit" disabled={!clean(expression) || profile.loading}>חשב</button>
         </div>
         <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
-          <span>חישוב רק בלחיצה</span>
-          <span>אין AI בזמן הקלדה</span>
+          <span>התוצאות מתעדכנות אוטומטית</span>
+          <span>AI ורזיאל רק בפעולה מפורשת</span>
           <span>מנוע + Registry קנוניים</span>
         </div>
       </form>
