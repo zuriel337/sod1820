@@ -224,10 +224,6 @@ function CalculatorExperience() {
 
   const submitCompute = (event) => {
     event.preventDefault();
-    const phrase = clean(expression);
-    if (!phrase || sharedState.isShared) return;
-    computeRequestRef.current += 1;
-    compute(phrase);
   };
 
   const chooseMethod = (method) => commitMethod(method, profile.expression || expression, "manual_method");
