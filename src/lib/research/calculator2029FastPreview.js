@@ -1,38 +1,49 @@
-import { calculateGematriaEnvelope } from "./gematriaCalculationContract.js";
+import { METHODS } from "../gematria.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const HEBREW_LETTER_RE = /[\u05D0-\u05EA]/u;
 
+export const CALCULATOR_2029_FAST_CORE_KEYS = Object.freeze([
+  "רגיל",
+  "מילוי",
+  "מסתתר",
+  "קדמי",
+  "ריבוע",
+  "גדול",
+  "סידורי",
+  "אתבש",
+  "אלבם",
+]);
+
+const CLIENT_METHOD_BY_KEY = new Map(METHODS.map((method) => [method.key, method]));
+const FAST_CORE_METHODS = CALCULATOR_2029_FAST_CORE_KEYS
+  .map((key) => CLIENT_METHOD_BY_KEY.get(key))
+  .filter(Boolean);
+
 export function buildCalculator2029FastPreview(input) {
   const expression = clean(input);
-  if (!expression || !HEBREW_LETTER_RE.test(expression)) return null;
+  const hasHebrew = HEBREW_LETTER_RE.test(expression);
 
-  const envelope = calculateGematriaEnvelope(expression, null);
-  const methods = (Array.isArray(envelope?.results) ? envelope.results : [])
-    .map((row) => {
-      const value = Number(row?.value);
-      if (!row?.methodKey || !Number.isFinite(value)) return null;
-      return Object.freeze({
-        methodKey: row.methodKey,
-        displayLabel: row.methodKey,
-        computedValue: value,
-        executionKind: "client_preview",
-        previewOnly: true,
-        canonical: false,
-        sourceOfTruth: "client_preview_only",
-      });
-    })
-    .filter(Boolean);
-
-  if (!methods.length) return null;
-  const regular = methods.find((row) => row.methodKey === "רגיל") || null;
+  const methods = FAST_CORE_METHODS.map((method, index) => {
+    const rawValue = hasHebrew ? method.fn(expression) : 0;
+    const value = Number(rawValue);
+    return Object.freeze({
+      methodKey: method.key,
+      displayLabel: method.key,
+      computedValue: Number.isFinite(value) ? value : 0,
+      sortOrder: index,
+      executionKind: "client_preview",
+      previewOnly: true,
+      canonical: false,
+      sourceOfTruth: "client_preview_only",
+    });
+  });
 
   return Object.freeze({
     kind: "gematria_fast_preview",
     expression,
     methods: Object.freeze(methods),
     methodCount: methods.length,
-    value: regular?.computedValue ?? null,
     previewOnly: true,
     canonical: false,
     authority: "client_preview_only",
