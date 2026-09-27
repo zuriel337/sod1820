@@ -54,7 +54,6 @@ as $function$
         nullif(e.sod_id, ''),
         nullif(e.session_id, '')
       ) as actor_key,
-      public.fn_ti_report_day(e.ts) as report_day,
       coalesce(
         nullif(e.props->>'journey_instance', ''),
         nullif(e.journey_id, ''),
@@ -74,7 +73,7 @@ as $function$
       and public.fn_ti_report_day(e.ts) between (tz.now_il::date - 6) and tz.now_il::date
   ),
   starts_7d as (
-    select distinct actor_key, report_day, journey_key
+    select distinct actor_key, journey_key
     from starts_7d_raw
     where actor_key is not null
       and journey_key is not null
