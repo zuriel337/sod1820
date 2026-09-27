@@ -36,11 +36,11 @@ function freezeSampleRows(values) {
   return freezeList((Array.isArray(values) ? values : []).map((row) => ({
     phrase: clean(row?.phrase),
     method: clean(row?.method),
-    value: Number.isSafeInteger(Number(row?.value)) ? Number(row.value) : null,
+    value: integerOrNull(row?.value),
     atomic_or_composite: clean(row?.atomic_or_composite),
     bid_id: clean(row?.bid_id),
     word_id: clean(row?.word_id),
-    method_version: Number.isSafeInteger(Number(row?.method_version)) ? Number(row.method_version) : null,
+    method_version: integerOrNull(row?.method_version),
   })));
 }
 
@@ -56,14 +56,14 @@ export function normalizedCrossSignaturesFromBundle(bundle) {
       return {
         source_finding_id: clean(finding.id),
         value,
-        phrase_count: Number.isSafeInteger(Number(signature.phrase_count)) ? Number(signature.phrase_count) : null,
-        independent_phrase_count: Number.isSafeInteger(Number(signature.independent_phrase_count)) ? Number(signature.independent_phrase_count) : null,
-        dependent_expression_phrase_count: Number.isSafeInteger(Number(signature.dependent_expression_phrase_count)) ? Number(signature.dependent_expression_phrase_count) : null,
-        p1_hits: Number.isSafeInteger(Number(signature.p1_hits)) ? Number(signature.p1_hits) : null,
-        independent_p1_method_count: Number.isSafeInteger(Number(signature.independent_p1_method_count)) ? Number(signature.independent_p1_method_count) : null,
+        phrase_count: integerOrNull(signature.phrase_count),
+        independent_phrase_count: integerOrNull(signature.independent_phrase_count),
+        dependent_expression_phrase_count: integerOrNull(signature.dependent_expression_phrase_count),
+        p1_hits: integerOrNull(signature.p1_hits),
+        independent_p1_method_count: integerOrNull(signature.independent_p1_method_count),
         methods: freezeStringList(signature.methods),
         dependent_methods: freezeStringList(signature.dependent_methods),
-        dependent_phrase_count: Number.isSafeInteger(Number(signature.dependent_phrase_count)) ? Number(signature.dependent_phrase_count) : null,
+        dependent_phrase_count: integerOrNull(signature.dependent_phrase_count),
         unregistered_methods: freezeStringList(signature.unregistered_methods),
         signal: clean(signature.signal),
         core_presence: Object.freeze({
@@ -73,10 +73,8 @@ export function normalizedCrossSignaturesFromBundle(bundle) {
         }),
         sample_rows: freezeSampleRows(signature.sample_rows),
         sample_window: Object.freeze({
-          returned_count: Number.isSafeInteger(Number(signature?.sample_window?.returned_count))
-            ? Number(signature.sample_window.returned_count) : null,
-          total_count: Number.isSafeInteger(Number(signature?.sample_window?.total_count))
-            ? Number(signature.sample_window.total_count) : null,
+          returned_count: integerOrNull(signature?.sample_window?.returned_count),
+          total_count: integerOrNull(signature?.sample_window?.total_count),
           truncated: typeof signature?.sample_window?.truncated === "boolean"
             ? signature.sample_window.truncated : null,
         }),
