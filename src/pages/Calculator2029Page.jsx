@@ -372,34 +372,48 @@ function CalculatorExperience() {
         </div>
       </form>
 
-      {!profile.expression && !profile.loading ? (
-        <div className="sod29-calc2029-empty">
-          <strong>פעולה אחת, ואז נפתח העומק.</strong>
-          <span>אחרי החישוב אפשר לבחור שיטה, להבין איך חושב, לגלות התאמות, להשוות, לפתוח ברזיאל ולשתף.</span>
-        </div>
-      ) : null}
-
-      {profile.loading ? <div className="sod29-calc2029-status" aria-live="polite">מחשב דרך המנוע הקנוני…</div> : null}
-      {profile.error ? (
-        <div className="sod29-calc2029-status is-error" role="alert">
-          {String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
+      <div
+        className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
+        aria-live="polite"
+        role={profile.error ? "alert" : undefined}
+        data-engine-status={
+          profile.error
+            ? "error"
+            : profile.loading
+              ? "verifying"
+              : canonicalSettled
+                ? "verified"
+                : "instant"
+        }
+      >
+        {profile.error
+          ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
             ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
-            : "לא ניתן לקבל כרגע את פרופיל השיטות."}
-        </div>
-      ) : null}
+            : "לא ניתן לקבל כרגע את פרופיל השיטות."
+          : profile.loading
+            ? "מאמת מול המנוע הקנוני…"
+            : canonicalSettled
+              ? "מאומת"
+              : "מיידי"}
+      </div>
 
       {methods.all.length ? (
         <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
           <header>
             <div>
               <span>תוצאות</span>
-              <strong>{clean(profile.expression) || clean(expression)} · {canonicalSettled ? "בחר שיטה" : "תצוגה מיידית"}</strong>
+              <strong>{clean(profile.expression) || clean(expression) || "הקלידו שם, מילה או ביטוי"}</strong>
             </div>
-            {methods.rest.length ? (
-              <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
-                {showAll ? "צמצם" : "כל " + methods.all.length + " השיטות"}
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={!methods.rest.length ? "is-placeholder" : ""}
+              onClick={() => methods.rest.length && setShowAll((value) => !value)}
+              aria-expanded={methods.rest.length ? showAll : false}
+              aria-hidden={!methods.rest.length}
+              tabIndex={methods.rest.length ? 0 : -1}
+            >
+              {showAll && methods.rest.length ? "צמצם" : "כל השיטות"}
+            </button>
           </header>
 
           <div className="sod29-calc2029-grid">
