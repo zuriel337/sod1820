@@ -49,12 +49,12 @@ export function normalizeJourney2029Event(value) {
 }
 
 export function journey2029StateFromContext(context) {
-  const state = context?.dimensions?.journey2029;
-  if (!state || typeof state !== "object") return null;
+  const dimensions = context?.dimensions;
+  if (!dimensions || dimensions.journey2029Active !== true) return null;
   return {
-    kind: normalizeJourney2029Kind(state.kind),
-    mode: normalizeJourney2029Mode(state.mode),
-    sourceSurface: cleanToken(state.sourceSurface || state.source_surface),
+    kind: normalizeJourney2029Kind(dimensions.journey2029Kind),
+    mode: normalizeJourney2029Mode(dimensions.journey2029Mode),
+    sourceSurface: cleanToken(dimensions.journey2029SourceSurface),
   };
 }
 
@@ -65,12 +65,10 @@ export function buildJourney2029ContextPatch({
 } = {}) {
   return {
     dimensions: {
-      journey2029: {
-        active: true,
-        kind: normalizeJourney2029Kind(kind),
-        mode: normalizeJourney2029Mode(mode),
-        sourceSurface: cleanToken(sourceSurface),
-      },
+      journey2029Active: true,
+      journey2029Kind: normalizeJourney2029Kind(kind),
+      journey2029Mode: normalizeJourney2029Mode(mode),
+      journey2029SourceSurface: cleanToken(sourceSurface),
     },
   };
 }
