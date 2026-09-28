@@ -281,6 +281,14 @@ begin
         ) h
       ),
       'storage_egress_observed_basis', 'OBSERVED_STORAGE_LOGS',
+      'supabase_egress_historical_exact', (
+        select payload
+        from public.analytics_cache
+        where cache_key like 'infra_egress_provider_history:%'
+        order by computed_at desc
+        limit 1
+      ),
+      'supabase_egress_historical_exact_basis', 'EXACT_BILLING_HISTORY',
       'storage_egress_guard', jsonb_build_object(
         'warn_hour_bytes', 100 * 1024 * 1024,
         'critical_hour_bytes', 500 * 1024 * 1024,
