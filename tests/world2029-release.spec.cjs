@@ -651,7 +651,8 @@ test('RICH 1820 projects real published media without legacy gallery UI', async 
 test('RICH 1820 remains useful when research rows are access-filtered', async ({ page }) => {
   const projection = await openWorldAnchor(page, 1820, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'rich');
-  await expect(page.getByText('חלק מהחומר אינו זמין בהרשאה הנוכחית')).toBeVisible();
+  await expect(page.getByText('החומר הציבורי פתוח.')).toBeVisible();
+  await expect(page.getByText(/כל מה שכבר ציבורי סביב 1820/)).toBeVisible();
   await selectWorldLane(page, 'קשרים');
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
   await selectWorldLane(page, 'מקורות');
