@@ -739,3 +739,84 @@ and the system can return one bounded, versioned, cacheable representation witho
 - fetching a heavier representation than the surface requires;
 - losing provenance;
 - hiding the operational cost.
+
+
+---
+
+# 18. 2026-09-28 Cached Egress incident — root hardening + monitoring
+
+This incident extends the existing Media / Traffic Intelligence / System Health owners. It does not create a new media store, cost store, monitoring system, or SEO owner.
+
+## 18.1 Live evidence
+
+Canonical project: `linswmnnkjxvweumprav`.
+
+Observed public Storage inventory at diagnosis:
+
+- `media + gallery`: ~14.10 GiB / 20,255 objects;
+- video: 635 objects / ~7.28 GiB;
+- 77 public video objects had `cacheControl=no-cache`;
+- 3 public objects exceeded 50 MiB;
+- largest observed public video GET in the sampled evidence: 114,883,491 bytes.
+
+Observed Storage GET evidence for the sampled 2026-09-27 UTC day:
+
+- total: 548,407,171 bytes;
+- browser/client: 333,953,805 bytes;
+- bots: 193,009,591 bytes;
+- headless acceptance: 21,443,775 bytes;
+- one browser fetched nine MP4s nearly simultaneously (~144.7 MB).
+
+These numbers are **OBSERVED_STORAGE_LOGS**, not Supabase billed Cached Egress. Provider billed usage remains `UNKNOWN` unless read from an authorized provider usage source.
+
+## 18.2 Root cause
+
+The public client still invoked `ensureVideoThumbs()` from four story/home call paths. The compatibility helper created a hidden `<video preload="auto">` and could fetch several MP4s in a fresh browser merely to manufacture a poster.
+
+Legacy/imported post HTML could also mount multiple `<video>` / `<audio>` nodes with eager preload/autoplay intent. A real legacy post containing many MP4s matched the observed parallel-download burst.
+
+Backend poster generation already exists through the active `gallery-thumbs`, `post-thumbs`, and `channel-thumbs` jobs. Client derivative generation therefore had no valid remaining owner.
+
+## 18.3 Runtime invariant
+
+Public/client presentation MUST NOT generate a video derivative during page view.
+
+For imported/raw HTML presentation:
+
+- remove `autoplay`;
+- force `preload="none"` on video/audio;
+- preserve source URL, controls, identity and stored source HTML;
+- explicit user Play may load the media normally.
+
+Dedicated players may load media only after the user opens/plays them.
+
+## 18.4 Monitoring projection
+
+Use the existing chain only:
+
+`Storage logs → analytics_cache observation → admin_system_health() → /2029/control → fn_health_watch()/notify_admin`.
+
+Hourly observation keys:
+
+`infra_egress_hour:<UTC-hour>`
+
+Truth basis:
+
+- hourly Storage log bytes = `OBSERVED_STORAGE_LOGS`;
+- provider Cached Egress = `UNKNOWN` until a provider-authorized source is connected;
+- never infer provider billing from object inventory or observed request bytes.
+
+Initial guardrails:
+
+- WARN: >=100 MiB observed in one hour;
+- CRITICAL: >=500 MiB observed in one hour;
+- WARN: >=2 GiB rolling observed 24h;
+- CRITICAL: >=5 GiB rolling observed 24h;
+- WARN: bot share >=50% when the hour is also >=50 MiB;
+- STALE: no fresh hourly observation for >2 hours after the sensor has begun reporting.
+
+The watcher must preserve a dead-man state: missing observations are not “healthy”.
+
+## 18.5 Coordination boundary
+
+SEO / Video discovery / sitemap / VideoObject semantics are owned by the separate concurrent SEO scope. Runtime egress hardening and operational monitoring must not silently seize that owner.
