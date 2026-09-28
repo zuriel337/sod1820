@@ -228,10 +228,14 @@ export default function HomeNewPage() {
     };
 
     refreshPosts();
+    // Temporary Legacy live pulse until Home 2029 replaces this surface:
+    // keep an already-open homepage fresh without requiring a manual reload.
+    const refreshTimer = window.setInterval(refreshPosts, 15000);
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
+      window.clearInterval(refreshTimer);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
     };
@@ -241,10 +245,23 @@ export default function HomeNewPage() {
   // «לפתוח» את הזרם עצמו אי-אפשר בלי רישום: הלחיצה גוללת ל-#reality-home, ושם RealityWorld
   // (מגודר בתוכו, site_flags_lock_law) מציג לאנונימי את טיזר-ההרשמה במקום הזרם.
   useEffect(() => {
-    getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    let alive = true;
+    const refreshHints = () => getGalleryUpdates(40).then(r => { if (alive) setHints(r || []); }).catch(() => {});
+    refreshHints();
+    const hintTimer = window.setInterval(refreshHints, 15000);
+    const onRealityFocus = () => refreshHints();
+    const onRealityVisibility = () => { if (document.visibilityState === "visible") refreshHints(); };
+    window.addEventListener("focus", onRealityFocus);
+    document.addEventListener("visibilitychange", onRealityVisibility);
     getSavedMatrices(20).then(r => setCiphers(r || [])).catch(() => {});
     // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מהעוגן ואילך (CIPHER_FEED_SINCE) — קבוע, נשאר תמיד, לא חלון-זמן
     getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) >= CIPHER_FEED_SINCE))).catch(() => {});
+    return () => {
+      alive = false;
+      window.clearInterval(hintTimer);
+      window.removeEventListener("focus", onRealityFocus);
+      document.removeEventListener("visibilitychange", onRealityVisibility);
+    };
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
