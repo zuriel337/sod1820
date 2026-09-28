@@ -29,6 +29,22 @@ function isGeneric(v: unknown): boolean {
   return GENERIC.has(cleanText(v));
 }
 
+function validHebrewValue(v: unknown): string | null {
+  const s = cleanText(v);
+  if (!s || !/[א-ת]/u.test(s)) return null;
+  const low = s.toLowerCase();
+  if (["string", "string|null", "null", "undefined", "speaker", "title"].includes(low)) return null;
+  return s;
+}
+
+function validTopics(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return [...new Set(v
+    .map((x: unknown) => validHebrewValue(x))
+    .filter((x): x is string => !!x))]
+    .slice(0, 5);
+}
+
 function fallbackSpeaker(text: string): string | null {
   const compact = cleanText(text);
   const patterns = [
@@ -150,11 +166,9 @@ async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; ti
     if (!m) return null;
 
     const p = JSON.parse(m[0]);
-    const title = cleanText(p?.title || "");
-    const speaker = cleanText(p?.speaker || "");
-    const topics = Array.isArray(p?.topics)
-      ? [...new Set(p.topics.map((x: unknown) => cleanText(x)).filter(Boolean))].slice(0, 5)
-      : [];
+    const title = validHebrewValue(p?.title);
+    const speaker = validHebrewValue(p?.speaker);
+    const topics = validTopics(p?.topics);
 
     if (!title) return null;
     return {
@@ -272,11 +286,9 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
   if (!m) return fallback;
   try {
     const p = JSON.parse(m[0]);
-    const speaker = cleanText(p?.speaker || "") || fallback.speaker;
-    const title = cleanText(p?.title || "") || fallback.title;
-    const topics = Array.isArray(p?.topics)
-      ? [...new Set(p.topics.map((x: unknown) => cleanText(x)).filter(Boolean))].slice(0, 5)
-      : fallback.topics;
+    const speaker = validHebrewValue(p?.speaker) || fallback.speaker;
+    const title = validHebrewValue(p?.title) || fallback.title;
+    const topics = validTopics(p?.topics);
     return {
       speaker: speaker ? speaker.slice(0, 80) : null,
       title: title ? title.slice(0, 100) : null,
