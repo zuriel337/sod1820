@@ -289,7 +289,7 @@ function PageBody({ bodyHtml }) {
         margin: "0 auto 40px",
         textAlign: "center",
       }}
-      dangerouslySetInnerHTML={{ __html: bodyHtml }}
+      dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(bodyHtml) }}
     />
   );
 }
