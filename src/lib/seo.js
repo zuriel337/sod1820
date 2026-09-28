@@ -369,7 +369,7 @@ export function setOrGeulaVideosJsonLd(rows = []) {
   const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url)).slice(0, 50);
   if (!vids.length) { removeJsonLd("sod-orgeula-vid-ld"); return; }
   const items = vids.map((v, i) => {
-    const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
+    const name = clean(v.seo_title || v.text).slice(0, 110) || "אור הגאולה — סרטון";
     return {
       "@type": "ListItem",
       position: i + 1,
@@ -381,7 +381,7 @@ export function setOrGeulaVideosJsonLd(rows = []) {
         thumbnailUrl: [resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula")],
         uploadDate: videoUploadDate(v.created_at),
         contentUrl: v.image_url,
-        url: `${SITE_URL}/or-geula?v=${v.id}`,
+        url: `${SITE_URL}/or-geula/video/${v.id}`,
         inLanguage: "he-IL",
         publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
       },
@@ -464,7 +464,7 @@ export function setOrGeulaSingleVideoJsonLd(v, path) {
   const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
   if (!v || !v.image_url || !OG_VIDEO_RE.test(v.image_url)) { removeJsonLd("sod-orgeula-one-ld"); return false; }
   const canonical = SITE_URL + (path || `/or-geula/video/${v.id}`);
-  const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
+  const name = clean(v.seo_title || v.text).slice(0, 110) || "אור הגאולה — סרטון";
   // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb.
   const thumb = resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula");
   setJsonLd("sod-orgeula-one-ld", {

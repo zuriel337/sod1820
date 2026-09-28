@@ -41,7 +41,7 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
 const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
 function videoUrlTag(v) {
-  const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
+  const title = cleanCap(v.seo_title || v.text).slice(0, 100) || 'אור הגאולה — סרטון';
   const desc = cleanCap(v.text).slice(0, 2048) || title;
   // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb ממותד. thumbnail_loc חובה.
   const thumb = resolveThumb([v.thumb_url], title, 'אור הגאולה · סרטון', 'orgeula');
@@ -244,7 +244,7 @@ export default async function handler(req, res) {
   // ── סרטוני אור-הגאולה → Video Sitemap (video:video) ──
   let videoUrls = [];
   try {
-    const rows = await fetchAll('channel_updates?select=id,text,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
+    const rows = await fetchAll('channel_updates?select=id,text,seo_title,topics,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
     // כל סרטון נכנס — thumbnail אמיתי אם יש, אחרת כרטיס-ממותד זמני (videoUrlTag דואג לנפילה).
     videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url));
   } catch (e) { /* ממשיכים גם בלי סרטונים */ }
