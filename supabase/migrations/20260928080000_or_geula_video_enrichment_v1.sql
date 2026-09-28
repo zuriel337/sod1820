@@ -1,6 +1,6 @@
 -- OR_GEULA_VIDEO_ENRICHMENT_V1
--- Additive enrichment for WhatsApp channel videos. No source caption is overwritten unless it is
--- the generic placeholder "🎬 עדכון וידאו"; in that case a grounded STT-derived title replaces it.
+-- Additive enrichment for WhatsApp channel videos. Source WhatsApp text is never overwritten.
+-- Grounded SEO metadata is stored separately; generic captions use STT only as enrichment evidence.
 
 create or replace function public.wa_video_enrich_openai_key()
 returns text
@@ -20,6 +20,22 @@ grant execute on function public.wa_video_enrich_openai_key() to service_role;
 
 comment on function public.wa_video_enrich_openai_key() is
   'Service-role-only secret bridge for wa-video-enrich STT. Never callable by anon/authenticated.';
+
+alter table public.channel_updates
+  add column if not exists seo_title text,
+  add column if not exists topics text[] not null default '{}'::text[],
+  add column if not exists enrichment_status text not null default 'pending',
+  add column if not exists enrichment_source text,
+  add column if not exists enriched_at timestamptz;
+
+comment on column public.channel_updates.seo_title is
+  'Grounded SEO/display title derived only from source caption/transcript; source text remains unchanged.';
+comment on column public.channel_updates.topics is
+  'Grounded topical labels derived only from source caption/transcript.';
+comment on column public.channel_updates.enrichment_status is
+  'pending|enriched|retry_stt|failed for wa-video-enrich.';
+comment on column public.channel_updates.enrichment_source is
+  'caption|stt; provenance for enrichment metadata.';
 
 -- Explicit canonical mapping for all existing public Or-Geula videos.
 update public.channel_updates
