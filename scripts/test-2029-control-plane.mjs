@@ -64,7 +64,7 @@ assert.match(egressMigration, /'critical_24h_bytes', 5::bigint \* 1024 \* 1024 \
 assert.match(egressMigration, /topic = '🚨 ניטור Egress\/Storage \(אוטומטי\)'/);
 assert.match(egressMigration, /status = 'sensor_stale'/);
 assert.ok(!/create table/i.test(egressMigration), "egress monitoring must reuse analytics_cache, not create a parallel ledger");
-assert.ok(!/api\/sitemap|video:content_loc|VideoObject/i.test(egressMigration), "egress monitoring must not seize the parallel SEO scope");
+assert.ok(!/api\/sitemap\.js|video:content_loc|setVideoGalleryJsonLd|setPostVideoJsonLd|setOrGeulaVideosJsonLd/i.test(egressMigration), "egress monitoring must not seize the parallel SEO implementation scope");
 
 // Public surfaces cannot generate thumbnails by fetching hidden videos anymore.
 for (const [name, source] of [
