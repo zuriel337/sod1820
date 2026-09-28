@@ -16,8 +16,12 @@ const page = read("src/pages/Researcher2029Page.jsx");
 const projection = read("src/lib/research/researcherCorpusProjection.js");
 
 assert.equal(app.includes('path="/researcher/:slug"'), true);
-assert.equal(page.includes("if (!isAdmin)"), true);
-assert.match(page, /מסך מנהל בלבד/);
+assert.match(page, /ResearcherPublicTopic/);
+assert.match(page, /ContributorFindingsLens/);
+assert.match(page, /fetchContributorFindingsProjection/);
+assert.match(page, /researcher-public-topic/);
+assert.match(page, /גם מה שיעלה בהמשך נשאר באותו נושא מחקרי/);
+assert.match(page, /if \(!isAdmin\) return null/, "admin decoded corpus stays optional without gating the public researcher topic");
 assert.equal(page.includes("fetchResearcherCorpusBySlug"), true);
 assert.equal(page.includes('shell.go("/world", { preserve: false })'), true);
 assert.equal(page.includes("returnTo:"), true);
