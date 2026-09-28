@@ -98,4 +98,14 @@ assert.equal(/preload="auto"/i.test(hardened), false);
 assert.match(legacy, /hardenPassiveMediaHtml\(\(post\?\.content \?\? ""\)/);
 assert.match(post2029, /hardenPassiveMediaHtml\(post\.content \|\| ""\)/);
 
+// ONE OWNER / NO ISLANDS: Legacy /traffic is only a temporary projection of the exact same
+// canonical System Health RPC consumed by /2029/control.
+assert.match(legacy, /import \{ getSystemHealth \} from "\.\.\/lib\/visits\.js"/);
+assert.match(legacy, /isAdmin \? getSystemHealth\(\)/);
+assert.match(legacy, /אותה הקרנה של admin_system_health\(\) שמזינה את \/2029\/control/);
+assert.match(legacy, /Control Plane 2029/);
+assert.equal((legacy.match(/admin_system_health/g) || []).length, 1,
+  "Legacy /traffic may name the canonical RPC in copy only; it must not define/call a second health RPC directly");
+
+
 console.log("2029-control-plane-trace: PASS");
