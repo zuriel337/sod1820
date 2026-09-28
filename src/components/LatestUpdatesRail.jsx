@@ -45,13 +45,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: streamDate(h), data: h }));
     if (!ownOnly) (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
-    // 📌 פוסטים נעוצים תמיד ראשונים (sticky), ואז לפי זמן-עדכון
-    return out.sort((a, b) => {
-      const pa = a.type === "post" && isPinnedPost(a.data) ? 1 : 0;
-      const pb = b.type === "post" && isPinnedPost(b.data) ? 1 : 0;
-      if (pa !== pb) return pb - pa;
-      return b.when - a.when;
-    }).slice(0, 20);
+    // «עדכונים אחרונים» הוא זרם זמן אמיתי: החדש ביותר קודם.
+    // נעיצה נשארת תג/הדגשה על הפוסט עצמו, אבל אינה רשאית לקבור פוסט או רמז חדש מתחת לתוכן ישן.
+    return out.sort((a, b) => b.when - a.when).slice(0, 20);
   }, [posts, convergences, hints, researchers, ciphers, ownOnly]);
 
   // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
