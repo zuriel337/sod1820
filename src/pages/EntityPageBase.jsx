@@ -667,13 +667,11 @@ export default function EntityPage({ embedPhrase } = {}) {
   // "יהלום" לפי אותה החלטה קנונית של ה-sitemap. is_number_indexable(n) גוזר ישירות
   // מ-public.sitemap_numbers() (מקור-אמת יחיד, בלי כפילות-לוגיקה). null=טרם-ידוע.
   const [searchAdmitted, setSearchAdmitted] = useState(null);
-  // מספר: FAIL-CLOSED — index אך-ורק כש-searchAdmitted===true (יהלום מאומת).
-  // pending/error/null → noindex,follow (כשל-ה-RPC לא מפרסם דף לסריקה).
-  // דפי-ביטוי (isNumber=false) — index כרגיל, לא מושפעים.
-  const numberNoindex = isNumber ? (searchAdmitted !== true) : false;
-  // structured-data eligibility = אותה החלטה: מספר מאונדקס בלבד מקבל DefinedTerm/WebPage;
-  // מספר לא-admitted מנקה אותם. דפי-ביטוי — תמיד עם ה-JSON-LD (התנהגות ללא-שינוי).
-  const showEntityLd = !isNumber || searchAdmitted === true;
+  // FAIL-CLOSED לכל ישות: מספר או ביטוי מאונדקסים רק כשה-RPC הקנוני מחזיר true.
+  // מספרים נגזרים מ-sitemap_numbers(); ביטויים נגזרים מ-sitemap_phrases_v1.
+  // pending/error/null → noindex,follow. אותו verdict שולט גם ב-structured data.
+  const entityNoindex = searchAdmitted !== true;
+  const showEntityLd = searchAdmitted === true;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -728,13 +726,13 @@ export default function EntityPage({ embedPhrase } = {}) {
       description: epDesc,
       path: epPath,
       image: DEFAULT_IMAGE,
-      noindex: numberNoindex,   // 🔎 admitted(יהלום)→index · לא-admitted→noindex (מקור=sitemap_numbers)
+      noindex: entityNoindex,   // 🔎 אותו SSOT: sitemap_numbers / sitemap_phrases_v1
     });
     // נעילת צוריאל #2 — JSON-LD ישות (DefinedTerm+WebPage+BreadcrumbList), לא Article.
     // structured-data eligibility = אותה החלטה יחידה: רק דף מאונדקס מקבל אותה.
     if (showEntityLd) setEntityJsonLd({ term, value, isNumber, path: epPath, description: epDesc, image: DEFAULT_IMAGE });
     else clearEntityJsonLd();
-  }, [term, value, isNumber, phrase, numberNoindex, showEntityLd]); // eslint-disable-line
+  }, [term, value, isNumber, phrase, entityNoindex, showEntityLd]); // eslint-disable-line
 
   // ── טעינת-נתונים + שאילתת-admission + לוגים (כבד; לא רץ-מחדש על שינוי-admission) ──
   useEffect(() => {
@@ -746,11 +744,14 @@ export default function EntityPage({ embedPhrase } = {}) {
       if (!bigNumberPage) { logView("number", value); track("number", String(value)); }
       getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});
     }
-    // 🔎 Search gate — האם הערך "יהלום" לפי אותה החלטה קנונית של ה-sitemap (מקור-אמת יחיד).
-    if (isNumber && value != null && supabase) {
-      supabase.rpc("is_number_indexable", { p_value: Number(value) })
+    // 🔎 Search gate — מספר וביטוי משתמשים באותה ארכיטקטורה: החלטת DB אחת משותפת לעמוד ול-sitemap.
+    if (supabase) {
+      const admission = isNumber && value != null
+        ? supabase.rpc("is_number_indexable", { p_value: Number(value) })
+        : supabase.rpc("is_phrase_indexable", { p_phrase: String(term || "").trim() });
+      admission
         .then(({ data: ok, error }) => { if (alive && !error) setSearchAdmitted(ok === true); })
-        .catch(() => { /* אי-ודאות → נשאר null → שמירת bigNumberPage הישנה */ });
+        .catch(() => { /* אי-ודאות → נשאר null → fail-closed noindex */ });
     }
     Promise.all([
       getBundle({ term, value, isNumber }),
