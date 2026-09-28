@@ -260,7 +260,7 @@ Deno.serve(async (req) => {
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at")
       .eq("channel", "or-geula")
       .ilike("image_url", "%.mp4%")
-      .neq("enrichment_status", "enriched")
+      .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) return json({ error: "batch_lookup_failed", detail: error.message }, 500);
