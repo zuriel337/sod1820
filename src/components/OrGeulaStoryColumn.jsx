@@ -7,7 +7,6 @@ import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
-import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { withinFresh } from "../lib/crossesNew.js";
 
 // נקודת «חדש» רק אם טרם-נצפה וגם עלה ב-24 השעות האחרונות (בקשת צוריאל: לא נקודות על סטורי מעל 24ש׳).
@@ -346,7 +345,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     let alive = true;
     // מקור-נתונים מותאם-מיתוג (למשל «צפונות בתורה» = פוסטים לפי קטגוריה) — עוקף את שאילתת הערוץ
     if (brand.fetchRows) {
-      brand.fetchRows(limit).then(data => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } }).catch(() => { if (alive) setRows([]); });
+      brand.fetchRows(limit).then(data => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); } }).catch(() => { if (alive) setRows([]); });
       return () => { alive = false; };
     }
     const nowIso = new Date().toISOString();
@@ -355,7 +354,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
       .eq("channel", brand.channel).not("image_url", "is", null)
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)   // סטורי-שבוע פג לבד; שאר הפריטים (expires_at=null) נשארים
       .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(limit)   // מוצמד (priority↑) ראשון
-      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } });
+      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); } });
     return () => { alive = false; };
   }, [limit, brand.channel, brand.fetchRows]);
 
