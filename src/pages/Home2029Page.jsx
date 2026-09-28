@@ -90,6 +90,92 @@ function ConnectedGoldenStory({ onOpenPost }) {
   </article>;
 }
 
+function HomeRealityGoldenGallery({ items = [], loading, onOpenNumber, onOpenWorld }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [items]);
+
+  if (loading) {
+    return <section
+      className="sod29-home-reality-gallery is-loading"
+      data-experience-capability="home-reality-gallery"
+      aria-label="זרם המציאות"
+    >
+      <div className="sod29-kicker">זרם המציאות · GOLDEN</div>
+      <h2>פותח את התמונות האחרונות…</h2>
+    </section>;
+  }
+
+  if (!items.length) return null;
+  const active = items[Math.min(activeIndex, items.length - 1)] || items[0];
+  const number = active.primaryValue;
+
+  return <section
+    className="sod29-home-reality-gallery"
+    data-experience-capability="home-reality-gallery"
+    aria-label="זרם המציאות"
+  >
+    <div className="sod29-home-reality-head">
+      <div>
+        <div className="sod29-kicker">זרם המציאות · GOLDEN</div>
+        <h2>התמונה היא השער. המספר פותח את הסיפור.</h2>
+        <p>אותם רמזים שכבר חיים במערכת — עכשיו כחלון חזותי אחד אל המציאות, המספר והמשך המחקר.</p>
+      </div>
+      <span className="sod29-chip">חי עכשיו</span>
+    </div>
+
+    <div className="sod29-home-reality-stage">
+      <button
+        type="button"
+        className="sod29-home-reality-image"
+        onClick={() => number && onOpenNumber(number, active)}
+        aria-label={number ? `פתח את מספר ${number}` : "פתח את הרמז"}
+      >
+        <img src={active.imageUrl} alt={active.title || "רמז מזרם המציאות"} />
+        {number ? <span className="sod29-home-reality-number">{number}</span> : null}
+      </button>
+
+      <div className="sod29-home-reality-copy">
+        <div>
+          <small>{active.streamAt ? new Date(active.streamAt).toLocaleDateString("he-IL") : "זרם המציאות"}</small>
+          <h3>{active.title}</h3>
+          {active.description ? <p>{active.description}</p> : null}
+        </div>
+
+        {active.numbers?.length ? <div className="sod29-home-reality-numbers" aria-label="מספרים ברמז">
+          {active.numbers.slice(0, 6).map((value) => <button
+            type="button"
+            key={value}
+            onClick={() => onOpenNumber(value, active)}
+          >{value}</button>)}
+        </div> : null}
+
+        <div className="sod29-actions">
+          {number ? <button className="sod29-action primary" type="button" onClick={() => onOpenNumber(number, active)}>
+            פתח את {number} ←
+          </button> : null}
+          <button className="sod29-action" type="button" onClick={() => onOpenWorld(active)}>המשך בעולם ←</button>
+        </div>
+      </div>
+    </div>
+
+    {items.length > 1 ? <div className="sod29-home-reality-rail" aria-label="רמזים אחרונים">
+      {items.slice(0, 8).map((item, index) => <button
+        type="button"
+        key={item.id}
+        className={`sod29-home-reality-thumb${index === activeIndex ? " is-active" : ""}`}
+        onClick={() => setActiveIndex(index)}
+        aria-label={item.title || `רמז ${index + 1}`}
+      >
+        <img src={item.thumbUrl || item.imageUrl} alt="" />
+        {item.primaryValue ? <span>{item.primaryValue}</span> : null}
+      </button>)}
+    </div> : null}
+  </section>;
+}
+
 function formatPulseNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value).toLocaleString("he-IL") : null;
 }
@@ -356,6 +442,7 @@ function HomeBody() {
 
   const temporalNow = homeState.projection?.temporalNow || null;
   const worldPreview = homeState.projection?.worldPreview || null;
+  const realityGallery = homeState.projection?.realityGallery || [];
 
   const openCalculator = (expression) => {
     const phrase = String(expression || "").trim();
@@ -370,6 +457,59 @@ function HomeBody() {
   const openResearcher = (slug) => {
     if (!slug) return;
     navigate(`/researcher/${encodeURIComponent(slug)}`);
+  };
+
+  const openRealityNumber = (value, item) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) return;
+    const id = String(numeric);
+    research.setResearchContext?.({
+      subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+      selection: { entityId: id, entityType: "number" },
+      lens: "world",
+      locale: "he",
+      dimensions: {
+        source: "reality_stream",
+        realitySignalId: item?.id || null,
+        streamAt: item?.streamAt || null,
+      },
+      returnTo: {
+        href: "/2029",
+        label: "דף הבית",
+        subject: null,
+        selection: null,
+        lens: "home",
+        dimensions: {},
+        journey: null,
+      },
+    });
+    navigate(`/2029/number/${id}`);
+  };
+
+  const openRealityWorld = (item) => {
+    const numeric = Number(item?.primaryValue);
+    const id = Number.isFinite(numeric) && numeric > 0 ? String(numeric) : null;
+    research.setResearchContext?.({
+      subject: id ? { id, type: "number", label: id, href: `/2029/number/${id}` } : null,
+      selection: id ? { entityId: id, entityType: "number" } : null,
+      lens: "world",
+      locale: "he",
+      dimensions: {
+        source: "reality_stream",
+        realitySignalId: item?.id || null,
+        streamAt: item?.streamAt || null,
+      },
+      returnTo: {
+        href: "/2029",
+        label: "דף הבית",
+        subject: null,
+        selection: null,
+        lens: "home",
+        dimensions: {},
+        journey: null,
+      },
+    });
+    navigate("/world");
   };
 
   return <>
@@ -390,6 +530,13 @@ function HomeBody() {
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
+
+    <HomeRealityGoldenGallery
+      items={realityGallery}
+      loading={homeState.loading}
+      onOpenNumber={openRealityNumber}
+      onOpenWorld={openRealityWorld}
+    />
 
     <HomeSystemPulse
       pulse={homeState.projection?.systemPulse || null}
