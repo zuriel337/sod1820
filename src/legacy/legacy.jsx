@@ -38,6 +38,7 @@ import { track, trackWhatsapp, trackWhatsappJoin } from "../lib/tracking.js";
 import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import PostGematriaCardPilot, { GOLDEN_POST_GEMATRIA_PILOT_SLUG } from "../components/PostGematriaCardPilot.jsx";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -4730,7 +4731,7 @@ function PostPageBySlug({ onNav }) {
   // 🟢 חוק התוכן הנקי: פוסט שנכתב אצלנו (source='ai') שומר על <style> מכוון (אנימציות/גרפיקה) —
   // מחיקת <style> היא ניקוי-וורדפרס והיא חלה רק על פוסטים ישנים. וורדפרס לא נכנס לתחום הנקי.
   const isCleanPost = post?.source === "ai";
-  const content  = (post?.content ?? "")
+  const content  = hardenPassiveMediaHtml((post?.content ?? "")
     // strip injected full-HTML boilerplate (common from pasted AI-generated content)
     .replace(/<!DOCTYPE[^>]*>/gi, "")
     .replace(/<\/?html[^>]*>/gi, "")
@@ -4745,7 +4746,7 @@ function PostPageBySlug({ onNav }) {
     .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
     .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
     // עוטף שורת "מאת …" רק בתחילת טקסט (אחרי >) — לא בתוך תכונות כמו alt= (שובר את ה-<img>)
-    .replace(/(^|>)(\s*)(מאת[:\s]+[^\n<]{2,40})/g, '$1$2<span class="post-author">$3</span>');
+    .replace(/(^|>)(\s*)(מאת[:\s]+[^\n<]{2,40})/g, '$1$2<span class="post-author">$3</span>'));
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
