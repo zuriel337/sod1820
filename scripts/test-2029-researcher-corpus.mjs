@@ -106,3 +106,8 @@ console.log("2029 researcher corpus acceptance: PASS");
 assert.match(projection, /Promise\.allSettled/);
 assert.match(projection, /sourceAvailability/);
 assert.match(projection, /must not collapse the whole researcher topic/);
+
+assert.match(page, /researcher-admin-review-gate/);
+assert.match(page, /researcher-admin-review-all/);
+assert.match(page, /777 ממצאים המפוענחים/);
+assert.match(page, /REVIEW ALL · ADMIN · לא פורסם/);
