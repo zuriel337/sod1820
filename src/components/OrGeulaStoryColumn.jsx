@@ -7,7 +7,6 @@ import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
-import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { withinFresh } from "../lib/crossesNew.js";
 
 // נקודת «חדש» רק אם טרם-נצפה וגם עלה ב-24 השעות האחרונות (בקשת צוריאל: לא נקודות על סטורי מעל 24ש׳).
@@ -164,7 +163,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
     let alive = true;
     if (ogOnly) { setVideos([]); }   // אור הגאולה בלבד — לא מושכים סרטוני-צופן (CIPHERS)
     else getVideoStories({ limit: 10 }).then(c => { if (alive) setVideos(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setVideos([]); });
-    fetchBrandRows(OG, limit).then(r => { if (alive) { setOgRows(r); ensureVideoThumbs(r); } }).catch(() => { if (alive) setOgRows([]); });
+    fetchBrandRows(OG, limit).then(r => { if (alive) setOgRows(r); }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
   }, [limit, ogOnly]);
 
@@ -346,7 +345,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     let alive = true;
     // מקור-נתונים מותאם-מיתוג (למשל «צפונות בתורה» = פוסטים לפי קטגוריה) — עוקף את שאילתת הערוץ
     if (brand.fetchRows) {
-      brand.fetchRows(limit).then(data => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } }).catch(() => { if (alive) setRows([]); });
+      brand.fetchRows(limit).then(data => { if (alive) setRows(Array.isArray(data) ? data : []); }).catch(() => { if (alive) setRows([]); });
       return () => { alive = false; };
     }
     const nowIso = new Date().toISOString();
