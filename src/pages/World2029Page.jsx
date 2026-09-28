@@ -919,32 +919,30 @@ function LiveWorldLanding({ research, shell, context }) {
         >
           <strong>{person.displayName}</strong>
           <small>{person.role || "חוקר / כותב"}</small>
-          <span>פתח את חומר המחקר שלו בעולם</span>
+          <span>הצג את החומר כאן</span>
         </button>)}
       </div> : null}
     </section> : null}
 
-    {selectedWriter && isAdmin ? <section
+    {selectedWriter ? <section
       className="sod29-section sod29-world-contributor-findings-section"
-      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
+      aria-label={`נושא המחקר של ${selectedWriter.displayName}`}
       data-experience-capability="world-contributor-findings-projection"
     >
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">נושא מחקרי · חוקר / כותב</div>
+          <h2>{selectedWriter.displayName}</h2>
+          <div className="sod29-muted">כל החומר הציבורי שמיוחס לחוקר מתכנס כאן לפי provenance: מקורות, ממצאים, מספרים, מדיה, פעילות והתכנסויות. חומר פרטי נשאר מאחורי ההרשאות שלו.</div>
+        </div>
+        <button className="sod29-action primary" type="button" onClick={() => shell.go(`/researcher/${encodeURIComponent(selectedWriter.slug)}`)}>פתח נושא מחקר מלא ←</button>
+      </div>
       <ContributorFindingsLens
         projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
         loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
         error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
       />
     </section> : null}
-
-    {selectedWriter && !isAdmin ? <NativeStateSection>
-      <FrameState
-        kind="gated"
-        title={`כל הממצאים של ${selectedWriter.displayName}`}
-        action={!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : null}
-      >
-        שכבת המחקר המלאה שמורה ל־Human Gate. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
-      </FrameState>
-    </NativeStateSection> : null}
 
 
     {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
