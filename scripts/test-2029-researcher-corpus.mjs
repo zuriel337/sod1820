@@ -102,3 +102,7 @@ assert.equal(filterResearcherCorpus(rows, { query: "מלאך" }).map((r) => r.id
 assert.equal(filterResearcherCorpus(rows, { query: "1062" }).map((r) => r.id).includes("s1"), true);
 
 console.log("2029 researcher corpus acceptance: PASS");
+
+assert.match(projection, /Promise\.allSettled/);
+assert.match(projection, /sourceAvailability/);
+assert.match(projection, /must not collapse the whole researcher topic/);
