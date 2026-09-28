@@ -796,6 +796,8 @@ Use the existing chain only:
 
 `Storage logs → analytics_cache observation → admin_system_health() → /2029/control → fn_health_watch()/notify_admin`.
 
+`/traffic` is a **temporary Legacy projection** of the same `admin_system_health()` owner while Legacy remains live; it MUST NOT define a second egress/health calculation, store, RPC or alert path.
+
 Hourly observation keys:
 
 `infra_egress_hour:<UTC-hour>`
