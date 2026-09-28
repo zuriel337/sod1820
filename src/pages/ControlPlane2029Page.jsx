@@ -7,6 +7,9 @@ import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideo
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => n(v).toLocaleString("he-IL");
 const cost = v => v == null ? "—" : `₪${n(v).toFixed(4)}`;
+const mib = v => v == null ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
+const gib = v => v == null ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
+const pct = v => v == null ? "—" : `${(n(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
 const when = v => v ? new Date(v).toLocaleString("he-IL") : "—";
 const certainty = v => v === "exact" ? "מדויק" : v === "estimated" ? "הערכה" : v === "not_billable" ? "לא לחיוב" : "לא ידוע";
 
@@ -87,6 +90,13 @@ export default function ControlPlane2029Page() {
   const usage = health.usage || {};
   const db = health.db || {};
   const media = health.media || {};
+  const deliveryRisk = media.delivery_risk || {};
+  const dedupe = media.dedupe_latest || {};
+  const egressLatest = usage.storage_egress_observed_latest || {};
+  const egressTraffic = egressLatest.traffic_classes || {};
+  const egressGuard = usage.storage_egress_guard || {};
+  const providerHistory = usage.supabase_egress_historical_exact || {};
+  const egressHistory = Array.isArray(usage.storage_egress_observed_history_24h) ? usage.storage_egress_observed_history_24h : [];
   const videoMap = state.videoMap || {};
   const videoSummary = videoMap.summary || {};
   const videoAi = videoMap.ai || {};
@@ -118,9 +128,82 @@ export default function ControlPlane2029Page() {
       <div className="sod29-grid">
         <Metric label="AI · 7 ימים" value={usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={`בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
         <Metric label="DB connections" value={`${num(db.connections)} / ${num(db.max_connections)}`} note={`idle tx: ${num(db.idle_in_transaction)}`} />
-        <Metric label="Media objects" value={num(media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
+        <Metric label="Media objects" value={num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
         <Metric label="Traces · 7 ימים" value={num(state.traces.length)} note="לחיצה פותחת spans ועלות" />
       </div>
+    </section>
+
+    <section className="sod29-section" data-experience-capability="storage-egress-health">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">MEDIA / EGRESS</div>
+          <h2>מה יוצא החוצה — ומה אנחנו באמת יודעים</h2>
+          <div className="sod29-muted">
+            OBSERVED = bytes שנראו ב־Storage logs. Provider Cached Egress הוא חשבון Supabase ונשאר UNKNOWN עד חיבור מקור provider מורשה.
+          </div>
+        </div>
+        <div className="sod29-actions">
+          <span className="sod29-chip">{egressGuard.state || "NO_HOURLY_DATA"}</span>
+          <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
+        </div>
+      </div>
+      <div className="sod29-grid">
+        <Metric
+          label="Observed · שעה אחרונה"
+          value={mib(egressLatest.storage_get_bytes)}
+          note={`snapshot: ${when(usage.storage_egress_observed_latest_at)}`}
+        />
+        <Metric
+          label="Observed · 24 שעות"
+          value={mib(usage.storage_egress_observed_24h_bytes)}
+          note={`WARN ${mib(egressGuard.warn_24h_bytes)} · CRITICAL ${mib(egressGuard.critical_24h_bytes)}`}
+        />
+        <Metric
+          label="Bot share"
+          value={pct(egressTraffic.bot_share)}
+          note={`דפדפנים ${mib(egressTraffic.human_or_browser_bytes)} · bots ${mib(egressTraffic.bot_bytes)}`}
+        />
+        <Metric
+          label="Public video"
+          value={`${num(deliveryRisk.public_video_objects)} · ${gib(deliveryRisk.public_video_bytes)}`}
+          note={`no-cache: ${num(deliveryRisk.public_video_no_cache)} · >50MB: ${num(deliveryRisk.public_over_50mb)}`}
+        />
+        <Metric
+          label="Video thumbnails"
+          value={num(deliveryRisk.channel_video_missing_thumb)}
+          note="חסרים ב־channel_updates · יצירה בבקאנד בלבד"
+        />
+        <Metric
+          label="Duplicate candidates"
+          value={dedupe.duplicate_groups == null ? "—" : `${num(dedupe.duplicate_groups)} groups · ${gib(dedupe.redundant_candidate_bytes)}`}
+          note={dedupe.classification ? `${dedupe.classification} · video ${gib(dedupe.redundant_video_candidate_bytes)} · אין מחיקה אוטומטית` : "ETag+size snapshot עדיין לא קיים"}
+        />
+        <Metric
+          label="Provider · מחזור קודם"
+          value={providerHistory.cached_egress_gb == null ? "—" : `${n(providerHistory.cached_egress_gb).toFixed(3)} GB cached`}
+          note={providerHistory.cycle_start ? `${providerHistory.cycle_start} → ${providerHistory.cycle_end} · EXACT_BILLING_HISTORY` : "אין היסטוריה מתועדת"}
+        />
+        <Metric
+          label="Provider · מחזור נוכחי"
+          value={usage.supabase_cached_egress == null ? "UNKNOWN" : gib(usage.supabase_cached_egress)}
+          note={`בסיס: ${usage.supabase_cached_egress_basis || "UNKNOWN"} · לא נגזר מ־OBSERVED`}
+        />
+      </div>
+      {Array.isArray(egressLatest.root_causes) && egressLatest.root_causes.length ? (
+        <div className="sod29-actions" aria-label="גורמי egress שנצפו">
+          {egressLatest.root_causes.map((cause) => <span key={cause} className="sod29-chip">{cause}</span>)}
+        </div>
+      ) : null}
+      {egressHistory.length ? <div className="sod29-list" aria-label="היסטוריית egress ב־24 שעות">
+        {egressHistory.slice(-8).reverse().map((row, index) => <div className="sod29-row" key={`${row.at || "row"}:${index}`}>
+          <div><strong>{when(row.at)}</strong><small>OBSERVED_STORAGE_LOGS</small></div>
+          <div className="sod29-actions">
+            <span className="sod29-chip">{mib(row.bytes)}</span>
+            <span className="sod29-chip">bots {pct(row.bot_share)}</span>
+            {n(row.burst_files) > 1 ? <span className="sod29-chip">{num(row.burst_files)} MP4 burst</span> : null}
+          </div>
+        </div>)}
+      </div> : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
     </section>
 
     <section className="sod29-section">
