@@ -10,6 +10,15 @@ export const DEFAULT_DESC =
 // תמונת ברירת מחדל לשיתוף — PNG (לא SVG: רשתות חברתיות וגוגל לא מציגות SVG).
 export const DEFAULT_IMAGE = SITE_URL + "/logo.png";
 
+// Cost/safety boundary: public Supabase Storage originals are delivery bytes, not SEO metadata.
+// Publishing them as contentUrl caused crawlers to download large MP4 originals directly.
+const SUPABASE_PUBLIC_STORAGE_RE = /^https:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\//i;
+function seoSafeContentUrl(url) {
+  const value = String(url || "").trim();
+  if (!value || SUPABASE_PUBLIC_STORAGE_RE.test(value)) return undefined;
+  return value;
+}
+
 // ניקוי טקסט לתיאור מטא: הסרת HTML/בוילרפלייט, קיצור לגבול מילה (~160 תווים).
 export function cleanDescription(raw = "", max = 160) {
   let s = String(raw)
@@ -341,7 +350,7 @@ export function setVideoGalleryJsonLd(videos = []) {
       thumbnailUrl: [resolveThumb([v.poster_url, `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`], plain(v.title || "", 60))],
       uploadDate: videoUploadDate(v.uploaded_at),
       embedUrl: v.yt ? `https://www.youtube-nocookie.com/embed/${v.yt}` : undefined,
-      contentUrl: v.video_url || (v.yt ? `https://www.youtube.com/watch?v=${v.yt}` : undefined),
+      contentUrl: seoSafeContentUrl(v.video_url),
       url: v.slug ? `${SITE_URL}/${v.slug}` : `https://youtu.be/${v.yt}`,
       inLanguage: "he-IL",
       publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
@@ -380,7 +389,7 @@ export function setOrGeulaVideosJsonLd(rows = []) {
         // Thumbnail Validity Gate: thumb_url רק אם תמונה; אחרת cardThumb.
         thumbnailUrl: [resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula")],
         uploadDate: videoUploadDate(v.created_at),
-        contentUrl: v.image_url,
+        contentUrl: seoSafeContentUrl(v.image_url),
         url: `${SITE_URL}/or-geula?v=${v.id}`,
         inLanguage: "he-IL",
         publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
@@ -445,7 +454,7 @@ export function setPostVideoJsonLd({ post = {}, path, description, primary = tru
     description: desc,
     thumbnailUrl: [thumb],
     uploadDate: videoUploadDate(post.date || post.modified),
-    contentUrl: v.contentUrl || undefined,
+    contentUrl: seoSafeContentUrl(v.contentUrl),
     embedUrl: v.embedUrl || undefined,
     url: canonical,
     mainEntityOfPage: primary ? { "@type": "WebPage", "@id": canonical } : undefined,
@@ -475,7 +484,7 @@ export function setOrGeulaSingleVideoJsonLd(v, path) {
     description: clean(v.text).slice(0, 300) || name,
     thumbnailUrl: [thumb],
     uploadDate: videoUploadDate(v.created_at),
-    contentUrl: v.image_url,
+    contentUrl: seoSafeContentUrl(v.image_url),
     url: canonical,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     inLanguage: "he-IL",
