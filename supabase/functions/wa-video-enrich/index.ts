@@ -49,6 +49,124 @@ function fallbackTitle(text: string): string | null {
   return first.slice(0, 90);
 }
 
+function imageMediaType(url: string): string {
+  const u = String(url || "").toLowerCase().split("?")[0];
+  if (u.endsWith(".png")) return "image/png";
+  if (u.endsWith(".webp")) return "image/webp";
+  if (u.endsWith(".gif")) return "image/gif";
+  return "image/jpeg";
+}
+
+function toBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+async function nearbyContext(row: any): Promise<string | null> {
+  try {
+    const t = new Date(row.created_at).getTime();
+    if (!Number.isFinite(t)) return null;
+    const from = new Date(t - 20_000).toISOString();
+    const to = new Date(t + 20_000).toISOString();
+
+    let q = sb.from("channel_updates")
+      .select("id,text,created_at,credit,source")
+      .eq("channel", "or-geula")
+      .neq("id", row.id)
+      .gte("created_at", from)
+      .lte("created_at", to)
+      .order("created_at", { ascending: true })
+      .limit(12);
+
+    if (row.credit) q = q.eq("credit", row.credit);
+
+    const { data, error } = await q;
+    if (error) return null;
+
+    const candidates = (data || [])
+      .map((x: any) => ({ ...x, clean: cleanText(x.text) }))
+      .filter((x: any) => x.clean && !GENERIC.has(x.clean));
+
+    if (!candidates.length) return null;
+
+    candidates.sort((a: any, b: any) =>
+      Math.abs(new Date(a.created_at).getTime() - t) -
+      Math.abs(new Date(b.created_at).getTime() - t)
+    );
+
+    const best = candidates[0];
+    const delta = Math.abs(new Date(best.created_at).getTime() - t);
+    return delta <= 20_000 ? best.clean : null;
+  } catch {
+    return null;
+  }
+}
+
+async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
+  if (!ANTHROPIC_KEY || !row?.thumb_url) return null;
+  try {
+    const r = await fetch(row.thumb_url);
+    if (!r.ok) return null;
+    const buf = await r.arrayBuffer();
+    if (!buf.byteLength || buf.byteLength > 1_500_000) return null;
+
+    const b64 = toBase64(buf);
+    const prompt =
+      "Analyze this video thumbnail only. Return strict JSON only: " +
+      '{"speaker":string|null,"title":string|null,"topics":string[]}. ' +
+      "Do not identify anyone from their face. speaker may be set only when the exact Hebrew name is visibly written. " +
+      "title must describe only text/scene visibly supported by the thumbnail, in concise Hebrew, 20-90 characters. " +
+      "topics: 0-5 short Hebrew labels visibly supported. No prophecy, hidden meaning, diagnosis, or inference about the unseen video. " +
+      "If there is not enough evidence for a useful title, title=null.";
+
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": ANTHROPIC_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 260,
+        messages: [{ role: "user", content: [
+          { type: "image", source: { type: "base64", media_type: imageMediaType(row.thumb_url), data: b64 } },
+          { type: "text", text: prompt },
+        ] }],
+      }),
+    });
+    if (!resp.ok) return null;
+
+    const data = await resp.json();
+    await logTokens(data?.usage);
+
+    const raw = (data?.content || []).find((x: any) => x?.type === "text")?.text || "";
+    const m = String(raw).match(/\{[\s\S]*\}/);
+    if (!m) return null;
+
+    const p = JSON.parse(m[0]);
+    const title = cleanText(p?.title || "");
+    const speaker = cleanText(p?.speaker || "");
+    const topics = Array.isArray(p?.topics)
+      ? [...new Set(p.topics.map((x: unknown) => cleanText(x)).filter(Boolean))].slice(0, 5)
+      : [];
+
+    if (!title) return null;
+    return {
+      title: title.slice(0, 100),
+      speaker: speaker ? speaker.slice(0, 80) : null,
+      topics,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function getOpenAiKey(): Promise<string> {
   const { data, error } = await sb.rpc("wa_video_enrich_openai_key");
   if (error) throw new Error("openai_key_rpc:" + error.message);
