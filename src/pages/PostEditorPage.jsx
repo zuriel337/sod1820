@@ -504,7 +504,7 @@ export default function PostEditorPage() {
 
   // ✏️ עריכה חיה בתצוגה-המקדימה — מזריקים את ה-HTML פעם אחת בכניסה למצב; ההקלדה מסנכרנת חזרה
   //   ל-content בלי לרנדר-מחדש את הצומת (שומר על הסמן). data-gem/קישורים לא פעילים בזמן עריכה.
-  useEffect(() => { if (liveEdit && liveRef.current) liveRef.current.innerHTML = content || ""; /* eslint-disable-next-line */ }, [liveEdit]);
+  useEffect(() => { if (liveEdit && liveRef.current) liveRef.current.innerHTML = hardenPassiveMediaHtml(content || ""); /* eslint-disable-next-line */ }, [liveEdit]);
 
   if (!hasKey && authLoading) return <div dir="rtl" style={{ padding: 40, textAlign: "center", color: C.goldDim, fontFamily: F.body }}>בודק הרשאות…</div>;
   if (!canEdit) {
@@ -930,7 +930,7 @@ export default function PostEditorPage() {
             </div>
             {previewRev.image_url && <img src={thumb(previewRev.image_url, 400)} alt="" style={{ maxWidth: 260, borderRadius: 8, marginBottom: 12 }} />}
             <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg }}>
-              <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: previewRev.content || "<p>(אין תוכן)</p>" }} />
+              <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(previewRev.content || "<p>(אין תוכן)</p>") }} />
             </div>
           </div>
         </div>
