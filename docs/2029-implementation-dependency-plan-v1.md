@@ -400,6 +400,35 @@ NOW:
 5. **FOUNDATION LIVE:** canonical/meta/sitemap/OG/WebPage+Breadcrumb structured-data/internal-link parity is in native Topic 2029; continue measured Search/AI quality verification before any indexability change.
 6. expose AI-readable provenance/truth distinctions from the same public owner-backed content, not AI-only pages/stores.
 
+#### 7D.2 Unified Video + Search Discovery 2029
+
+**Scope: greenfield 2029 product tree only.** Legacy routes/data may feed the projection for provenance/compatibility, but they are not target product identities.
+
+Canonical pipeline:
+
+`source / media asset → canonical projection → 2029 product route → indexability verdict → server/crawler metadata → sitemap admission → crawler access → GSC verification`
+
+Required routing identity:
+- post-owned media → `/post/:slug`;
+- media without a richer 2029 owner → `/video/:assetId`;
+- convergence → `/topic/:slug`;
+- Number 2029 → `/2029/number/:value`;
+- Books/Sources → `/book/:slug`;
+- ELS context remains under `/els`.
+
+Rules:
+- Legacy root-slug / Legacy video surfaces are source/adapter/provenance only; do not spend G3 on visual/SEO parity there.
+- one immutable media identity may have many placements but one primary Google landing page;
+- sitemap/indexability/server metadata must converge on the same 2029 URL identity;
+- a generic video page is indexable only after grounded metadata is ready;
+- Googlebot/Bingbot receive server metadata for 2029 `/post` and `/video` routes before hydration;
+- public/index-worthy 2029 URLs must remain reachable to public goodbots under the existing edge policy;
+- GSC is verification/feedback, never a canonical owner;
+- true HTTP status semantics (200 current · 301 replaced · 404 nonexistent) belong at the 2029 routing/server boundary, not inside CN/SG quarantine middleware.
+
+Released foundation: PR #779 (Unified Video Projection + Search indexability baseline).  
+Current G3 cutover work: route unified video through `App2029`, move post/video primary landing identities to 2029 routes, add crawler metadata parity, and preserve the open true-404 routing blocker until server-boundary proof exists.
+
 LATER:
 - bounded public machine projection only after native Topic + indexability contract are proven;
 - RSS/JSON Feed/publishing freshness projection;
@@ -464,6 +493,7 @@ Homes:
 - ELS;
 - Journey;
 - Posts / Updates;
+- Video / Media asset projection;
 - Workspace / Personal Area;
 - Internal Control Plane / Admin (non-public Human-Gate + operations home).
 
@@ -480,6 +510,7 @@ Global capabilities:
 Rules:
 
 - surfaces consume Context/Research/Access/Share/Analytics rails;
+- Video / Media is a 2029 projection over canonical asset identity and placements; it never becomes a second media registry/storage owner;
 - Internal Control Plane consumes owner-native operational projections and admin-only actions; it never becomes the owner of research truth, media identity, delivery state, traffic truth, security truth or cost truth;
 - no Legacy WarRoom/CommandCenter layout inheritance obligation; only current capabilities/owners survive;
 - no local truth/access/palette/action identity;
