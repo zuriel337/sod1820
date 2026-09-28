@@ -74,5 +74,8 @@ jobs:
       - name: Calculator 2029 interaction contract
         run: npm run test:calculator-2029-golden
 
+      - name: Unified Video Projection 2029 acceptance
+        run: node scripts/test-unified-video-projection-2029.mjs
+
       - name: Build
         run: npm run build
