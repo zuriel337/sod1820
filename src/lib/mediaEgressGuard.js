@@ -5,7 +5,7 @@
 
 function withoutAttr(attrs, name) {
   const re = new RegExp(
-    String.raw`\\s+${name}(?:\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+))?`,
+    "\\s+" + name + "(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\\s>]+))?",
     "gi",
   );
   return String(attrs || "").replace(re, "");
