@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 // ===== ORNAMENTS =====
 
@@ -140,7 +141,7 @@ export function PageBody({ bodyHtml }) {
         margin: "0 auto 40px",
         textAlign: "center",
       }}
-      dangerouslySetInnerHTML={{ __html: bodyHtml }}
+      dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(bodyHtml) }}
     />
   );
 }
