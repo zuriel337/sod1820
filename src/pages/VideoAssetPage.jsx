@@ -97,6 +97,17 @@ export default function VideoAssetPage() {
   const target = asset && !asset.uses_generic_page ? internalPath(asset.primary_page_url) : null;
 
   useEffect(() => {
+    if (state.loading || asset) return;
+    applySeo({
+      title: "הסרטון לא נמצא",
+      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820 2029.",
+      path: `/video/${assetId || ""}`,
+      noindex: true,
+    });
+    clearUnifiedVideoJsonLd();
+  }, [state.loading, asset, assetId]);
+
+  useEffect(() => {
     if (!asset || !asset.uses_generic_page) return;
     const path = `/video/${asset.public_id}`;
     const topics = Array.isArray(asset.topics) ? asset.topics.filter(Boolean) : [];
