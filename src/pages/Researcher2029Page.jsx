@@ -118,7 +118,7 @@ function ResearcherPublicTopic({ slug }) {
 }
 
 function ResearcherCorpusView({ slug }) {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, user, loading: authLoading } = useAuth();
   const research = useResearch();
   const shell = use2029Shell();
   const [state, setState] = useState({ loading: false, contributor: null, rows: [], counts: {}, error: null });
@@ -156,19 +156,28 @@ function ResearcherCorpusView({ slug }) {
   };
 
   if (authLoading) return <FrameState kind="loading" title="בודק הרשאת מנהל">טוען זהות והרשאה.</FrameState>;
-  if (!isAdmin) return null;
+  if (!isAdmin) return <section className="sod29-section sod29-researcher-review-gate" data-experience-capability="researcher-admin-review-gate">
+    <div className="sod29-section-head">
+      <div>
+        <div className="sod29-kicker">סקירת כל החומר · מנהל</div>
+        <h2>החומר הפרטי לא פורסם — אבל אפשר לראות אותו בסקירת מנהל</h2>
+        <div className="sod29-muted">ה־777 ממצאים המפוענחים של צבי נשארים private. כדי לראות אותם לפני החלטת הפרסום צריך להיות מחובר כמנהל גם בדומיין ה־Preview הזה.</div>
+      </div>
+      {!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : <span className="sod29-chip">מחובר ללא הרשאת מנהל פעילה</span>}
+    </div>
+  </section>;
   if (state.loading) return <FrameState kind="loading" title="טוען קורפוס מפוענח">קורא את חומר החוקר מתוך Research Objects הקיימים.</FrameState>;
   if (state.error) return <FrameState kind="error" title="הקורפוס לא נטען">{String(state.error?.message || state.error)}</FrameState>;
   if (!state.contributor) return <FrameState kind="empty" title="החוקר לא נמצא">לא נוצרה זהות חלופית ולא בוצע חיבור לפי שם.</FrameState>;
 
   return <>
-    <section className="sod29-focus-stage sod29-researcher-hero">
+    <section className="sod29-focus-stage sod29-researcher-hero" data-experience-capability="researcher-admin-review-all">
       <div>
-        <div className="sod29-kicker">RESEARCHER CORPUS · ADMIN DEEP VIEW</div>
-        <h2>{state.contributor.display_name}</h2>
-        <p className="sod29-muted">{state.contributor.specialty_label || state.contributor.role || "קורפוס מחקר מפוענח"}</p>
+        <div className="sod29-kicker">REVIEW ALL · ADMIN · לא פורסם</div>
+        <h2>כל החומר המפוענח של {state.contributor.display_name}</h2>
+        <p className="sod29-muted">זהו מצב סקירה לפני החלטת פרסום. הוא מציג למנהל את כל מה שה־RLS מרשה למנהל לקרוא, כולל חומר private; עצם ההצגה כאן לא משנה privacy_scope, סטטוס, אימות או Publication.</p>
         <div className="sod29-actions">
-          <span className="sod29-chip">{state.counts.all || 0} ממצאים</span>
+          <span className="sod29-chip">{state.counts.all || 0} ממצאים בסקירה</span>
           <span className="sod29-chip">{state.counts.multiplication || 0} עם כפל</span>
           <span className="sod29-chip">{state.counts.addition || 0} עם חיבור</span>
           <span className="sod29-chip">{state.counts.unresolved || 0} דורשים בירור</span>
