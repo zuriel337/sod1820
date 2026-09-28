@@ -91,6 +91,7 @@ Build the stable surfaces over the same lower contracts:
 - ELS;
 - Journey;
 - Posts / Updates;
+- Video / Media asset projection;
 - Workspace / Personal Area;
 - canonical adaptive action slots for Listen / Raziel / Spatial / Deep Research / Brief / Media / Private Corpus / Pulse.
 
@@ -227,7 +228,7 @@ This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through 
 ### 5. Broader G3 product/runtime implementation
 
 - 2029 System Frame / Global Now/Home adapters;
-- World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
+- World / Heichal / Number / Books / ELS / Journey / Post / Video-Media / Workspace semantic surfaces;
 - **2029 Search / Video Discovery Foundation:** G3 treats Search/Video as a 2029 rail, not a Legacy UX repair. Canonical public flow is `source/asset → 2029 projection → 2029 route → indexability → server metadata → sitemap → crawler access → GSC verification`. Primary product URLs are `/post/:slug`, `/video/:assetId`, `/topic/:slug`, `/2029/number/:value`, `/book/:slug` and `/els`; Legacy root-slug/video routes are source/compatibility only and are not new product homes. Unified Video Projection is released via PR #779; the G3 cutover slice must keep video landing identity on the 2029 runtime and preserve one asset / many placements / one Google primary-page semantics. Search Console validation is external verification, not a second truth owner. True HTTP 404 for invalid **2029 public routes** remains a routing-infrastructure closure item; do not spend G3 effort restoring Legacy soft-404 parity. Detailed closure map: `docs/2029-search-indexing-closure-map-v1.md`;
 - **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + hydrated canonical/meta/OG/structured-data projection. **DRIFT / NOW:** the initial 2029 HTML document still serves generic metadata to ordinary crawlers before hydration; server/document canonical/title/description/OG/JSON-LD parity must be closed before calling SEO/AI discovery foundation complete. Preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - **Number Mathematical / Prime Lens:** extend the released `number_math_profile` with bounded prime context/relations and one-tree numeric re-entry; Golden fixture `787 → prime index 138 → Number 138 → verified צמח=138`; Heichal consumes the same Context as a bounded Prime/Pattern deep-research lane, while Beit Midrash owns the learning explanation. `138` remains a curated strong-number / anchor candidate until a separate Human-Gate anchor decision. Detailed plan: `docs/2029-number-prime-lens-beit-midrash-plan-v1.md`;
