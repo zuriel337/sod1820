@@ -168,6 +168,7 @@ Build:
 - timeout/cancel/retry/idempotency/circuit-breaker semantics;
 - per-capability/user/session/background budgets;
 - provider failover without identity/truth changes;
+- latency-critical external provider/network I/O must not hold a PostgreSQL connection while waiting on a remote service when the governed action can execute through the existing async Edge/background path; preserve action identity, idempotency, retry/delivery provenance and trace across the handoff rather than creating a second transport owner;
 - feature-level kill switches;
 - privacy-safe trace references/hashes instead of blind raw payload logging;
 - cost/latency/error SLO and alert surfaces.
@@ -335,6 +336,8 @@ Target business answer:
 
 `where user came from → what they opened → what research/AI ran → exact cost → whether output helped → whether they saved/followed/shared/signed up/paid/returned`.
 
+2029 cutover rule: new semantic telemetry converges on the canonical `events`/Traffic family. Existing `site_visits`, `visitor_events`, `page_views`, `search_log` and other Legacy telemetry may remain historical/compatibility inputs while live readers still depend on them, but 2029 must not permanently dual-write the same interaction into parallel analytics authorities. End-of-G3 requires writer/read-model parity proof, then freeze of superseded Legacy writers; historical raw rows are retained/archived under measured retention policy, never deleted merely because a replacement exists.
+
 ### 7B Share / propagation rail
 
 Before broad 2029 share UI, define one typed Share Object / Intent over existing share owners:
@@ -472,6 +475,8 @@ The internal 2029 Control Plane is an **Experience projection over existing owne
 - admin-only/server-authorized roll-up + drill-down across owner-native health/status surfaces: Attention/Human Gate, Research governance, Content/Publishing, Media/Sources, People/Identity, Communications, Growth/Traffic, Operations/Cost/Security and Release/Roadmap;
 - owner-native operational state remains authoritative (`cron`, queue/outbox, delivery, AI-cost, traffic, security, retention, media, release); Control Plane composes it and links back to the underlying evidence rather than copying domain semantics;
 - reuse existing operational projections such as `admin_retention_preview()` and future bounded admin health projections; no duplicate retention/health ledger;
+- health has two cost classes under the same owner: a **FAST snapshot** for routine Control Plane/watch use (connections, recent failures/incidents, current egress/usage, cached storage summary, alert state) and **DEEP drill-down** for retention/dependency/dedupe/storage scans computed on demand or into the existing `analytics_cache`; the fast path must not synchronously rerun a multi-second full retention census on every health read;
+- the end-of-G3 retention census must cover all material operational families, not only the current WhatsApp/source preview: canonical/Legacy telemetry and logs, cron history, security/AI/trace logs, import-stage/backup/cleanup tables, media/storage, and legacy semantic/candidate stores. Each family remains governed by its own owner and may return KEEP/ARCHIVE/PURGE-CANDIDATE/HUMAN-REVIEW; no universal delete clock is invented;
 - automated alerts terminate in the canonical `notify_admin` path; UI attention is a projection of the same owner facts, not an independent alert system;
 - exact/estimated/unknown measurement state stays explicit for external-provider usage (Supabase/Vercel/AI/media providers);
 - Legacy WarRoom/CommandCenter/SystemSuggestions presentation is reference/compatibility only; replacement preserves useful capability, not old component ownership.
@@ -568,9 +573,42 @@ Before live voice:
 - full execution/cost trace;
 - graceful text fallback;
 - memory/continuity from governed Research state, not transcript illusion;
+- every channel adapter, including WhatsApp, consumes the same canonical capability/Method Profile/Research OS/Convergence boundaries; channel code may adapt transport and presentation but must not maintain its own fixed method list, independent convergence truth, or local research brain that can drift from site Raziel;
+- provider transport is outside Raziel truth: synchronous DB-held outbound HTTP on a latency-critical Raziel path is a G3 runtime debt to absorb into the governed asynchronous/Edge execution path with idempotency, retry, delivery outcome and trace preserved;
 - proactive silence by default unless material change.
 
 **Exit gate:** Raziel can correctly operate in ELS/World/Heichal/Post/Journey in text and tools before microphone complexity is introduced.
+
+---
+
+## G3.5 — PRE-G4 LIVE REBASELINE / OPTIMIZATION RESCAN
+
+**Goal:** rerun the system census after representative 2029 traffic exists, because the early-G3 table/query/consumer picture is not stable enough to be a final cleanup oracle.
+
+Mandatory live inputs:
+
+- current `origin/main`, production and canonical Supabase object state;
+- table/index/storage size and growth since the prior scan;
+- writer/readers for every Legacy/staging/compatibility candidate;
+- `pg_stat_statements` hot RPC/query paths and real call counts;
+- RLS/advisor findings, duplicate/missing index candidates and actual index usage;
+- dead tuples/autovacuum/analyze state on hot tables;
+- canonical `events` versus Legacy telemetry write/read parity;
+- cron/Edge/background worker inventory and execution cost;
+- Raziel/site/channel routing and external-provider network boundaries;
+- Control Plane fast-health latency versus deep retention/storage drill-down cost;
+- media derivative/cache/egress/dedupe/archive evidence;
+- full retention census coverage and reference/provenance blockers;
+- staging/backup/import tables and any new islands created while 2029 was being built.
+
+Outputs:
+
+1. refreshed KEEP / TEMPORARY_COMPATIBILITY / ABSORB_THEN_ARCHIVE / RETIRE_REMOVE decisions;
+2. bounded implementation batches ordered by user-facing latency/safety impact;
+3. measured pre-G4 baseline for route/RPC/Raziel/query/cache/egress/error metrics;
+4. explicit Human-Gate list for destructive purge, permanent retirement or major cutover.
+
+This is a rerun of existing owners/gates, not a new Optimization System or monitoring store. Current live evidence always supersedes the September calibration counts.
 
 ---
 
@@ -597,6 +635,8 @@ Minimum Golden set should cover:
 - system outage/fail-closed path.
 
 G3/G4 acceptance should produce reusable fixtures for future English/Voice/3D tests.
+
+Performance acceptance is measured, not adjective-based: record route/input responsiveness, p50/p95 server/RPC/tool latency where measurable, query count/DB time, Raziel completion/tool latency, cache hit/miss behavior, Storage/CDN egress, error/fallback rates and operational-trace completeness for the Golden set. Do not purge the raw/Legacy evidence needed to compare before/after until the Golden window closes and required rollups/replay are proven.
 
 ---
 
