@@ -7,7 +7,6 @@ import { galThumb } from "../lib/img.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
-import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 import WatchButton from "./WatchButton.jsx";
 
@@ -28,7 +27,7 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
       .select("id,text,image_url,thumb_url,created_at")
       .eq("channel", "or-geula").not("image_url", "is", null)
       .order("created_at", { ascending: false }).limit(limit)
-      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } });
+      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); } });
     return () => { alive = false; };
   }, [limit]);
 
