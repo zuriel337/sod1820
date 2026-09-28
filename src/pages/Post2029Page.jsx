@@ -51,6 +51,16 @@ function PostReadingBody() {
     });
   }, [state.projection]);
 
+  useEffect(() => {
+    if (state.loading || state.projection) return;
+    applySeo({
+      title: "הפוסט לא נמצא",
+      description: "המקור המבוקש אינו זמין ב-SOD1820 2029.",
+      path: `/post/${slug || ""}`,
+      noindex: true,
+    });
+  }, [state.loading, state.projection, slug]);
+
   const regions = state.projection?.regions || [];
   const activeFocus = useMemo(
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
