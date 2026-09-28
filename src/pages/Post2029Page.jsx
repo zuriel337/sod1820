@@ -5,6 +5,7 @@ import ReadingContextRail2029 from "../components/experience2029/ReadingContextR
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -244,7 +245,7 @@ function PostReadingBody() {
         ref={sourceRef}
         className="sod29-reading-source"
         aria-label="טקסט המקור"
-        dangerouslySetInnerHTML={{ __html: post.content || "" }}
+        dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
       <nav className="sod29-reading-spine" aria-label="עומק זמין לאורך המקור">
