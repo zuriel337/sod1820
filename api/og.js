@@ -560,6 +560,11 @@ export default async function handler(req, res) {
         }
       } catch { /* try next variant */ }
     }
+    if (key.startsWith('/post/') && !post) {
+      robots = 'noindex, follow';
+      title = 'הפוסט לא נמצא · ' + SITE_NAME;
+      desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
+    }
   }
 
   // וידוא תמונת שיתוף ידידותית לוואטסאפ (WebP → JPEG דרך render) — לפני בניית המטא וה-JSON-LD.
