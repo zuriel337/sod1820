@@ -440,6 +440,25 @@ jobs:
             }
           });
 
+          test('public page view never requests self-hosted video before explicit intent', async ({ page }) => {
+            const eager = [];
+            page.on('request', (req) => {
+              const url = req.url();
+              if (
+                /\.supabase\.co\/storage\/v1\/object\/public\//i.test(url) &&
+                /\.(?:mp4|webm|m4v|mov)(?:[?#]|$)/i.test(url)
+              ) eager.push(url);
+            });
+
+            await page.setViewportSize({ width: 390, height: 844 });
+            for (const path of ['/', '/the-location-of-the-location']) {
+              eager.length = 0;
+              await page.goto(BASE + path, { waitUntil: 'domcontentloaded' });
+              await page.waitForTimeout(4500);
+              expect(eager, `${path} emitted self-hosted video before user intent: ${eager.join(', ')}`).toEqual([]);
+            }
+          });
+
           EOF
           npx playwright test .release-gate/release-visual.spec.cjs --reporter=line
 

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { C, F, POST_CONTENT_CSS } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 // ── ממשק עריכת פוסט מתקדם (אדמין) ──
 // סרגל כלים שמזריק HTML בנקודת הסימון, תצוגה מקדימה חיה בעיצוב האתר,
@@ -125,7 +126,7 @@ export default function AdvancedPostEditor({ draft, setDraft, onSave, onCancel, 
 
       {preview ? (
         <div className="ape-preview-pane" data-theme={P.mode} style={{ background: P.mode === "light" ? "#f6f1e6" : "rgba(5,4,0,0.4)" }}>
-          <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: draft.content || "<p>(אין תוכן)</p>" }} />
+          <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(draft.content || "<p>(אין תוכן)</p>") }} />
         </div>
       ) : (
         <textarea ref={taRef} value={draft.content} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}

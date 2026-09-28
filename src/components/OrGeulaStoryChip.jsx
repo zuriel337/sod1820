@@ -3,7 +3,6 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
-import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { timeAgoHe } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
 import StoryViewer from "./StoryViewer.jsx";
@@ -31,7 +30,7 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
       .select("id,text,image_url,thumb_url,created_at")
       .eq("channel", "or-geula").not("image_url", "is", null)
       .order("created_at", { ascending: false }).limit(20)
-      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } });
+      .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
     return () => { alive = false; };
   }, []);
 

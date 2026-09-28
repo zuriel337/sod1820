@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { supabase } from "../lib/supabase.js";
 import { usePalette } from "../lib/palette.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 /**
  * חוק מערכת: ai_disclaimer_law + ai_box_theme_aware (חקוקים ב-nodes)
@@ -57,7 +58,7 @@ export function AiAdditionBox({ html, number }) {
   if (!html) return null;
   return (
     <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto 28px", textAlign: "center" }}>
-      <div style={{ display: "inline-block", textAlign: "right", color: P.ink }} dangerouslySetInnerHTML={{ __html: html }} />
+      <div style={{ display: "inline-block", textAlign: "right", color: P.ink }} dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(html) }} />
       {number && eq.length > 0 && (
         <div style={{
           maxWidth: 520, margin: "10px auto 0", padding: "8px 14px", borderRadius: 10,

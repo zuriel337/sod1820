@@ -38,6 +38,8 @@ import { track, trackWhatsapp, trackWhatsappJoin } from "../lib/tracking.js";
 import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import PostGematriaCardPilot, { GOLDEN_POST_GEMATRIA_PILOT_SLUG } from "../components/PostGematriaCardPilot.jsx";
+import { getSystemHealth } from "../lib/visits.js";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -288,7 +290,7 @@ function PageBody({ bodyHtml }) {
         margin: "0 auto 40px",
         textAlign: "center",
       }}
-      dangerouslySetInnerHTML={{ __html: bodyHtml }}
+      dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(bodyHtml) }}
     />
   );
 }
@@ -3252,12 +3254,15 @@ function trafBucketKey(dateStr, gran) {
 }
 
 function TrafficDashboardPage({ onNav }) {
+  const { isAdmin } = useAuth();
   const [authed, setAuthed]   = useState(false);
   const [pw, setPw]           = useState("");
   const [pwError, setPwError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr]         = useState("");
   const [data, setData]       = useState({ yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] });
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [systemHealthError, setSystemHealthError] = useState("");
   const [year, setYear]       = useState("all");
   const [gran, setGran]       = useState("monthly");
   const [inbox, setInbox]     = useState({ messages: [], subscribers: [], unread: 0, subscriber_count: 0 });
@@ -3279,10 +3284,21 @@ function TrafficDashboardPage({ onNav }) {
       // מי שאינו אדמין מחובר יקבל "not authorized" והתיבה תישאר ריקה, כמתוכנן.
       getAdminInbox().catch(() => inboxEmpty),
       getOldSiteComments().catch(() => []),
+      isAdmin ? getSystemHealth().catch((error) => {
+        setSystemHealthError(error?.message || "System Health לא זמין");
+        return null;
+      }) : Promise.resolve(null),
     ])
-      .then(([d, ib, oc]) => { setData(d); setInbox(ib || inboxEmpty); setOldComments(oc || []); setLoading(false); })
+      .then(([d, ib, oc, health]) => {
+        setData(d);
+        setInbox(ib || inboxEmpty);
+        setOldComments(oc || []);
+        setSystemHealth(health);
+        if (health) setSystemHealthError("");
+        setLoading(false);
+      })
       .catch(e => { setErr(e?.message || "שגיאה בטעינת הנתונים"); setLoading(false); });
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => { if (authed) reload(); }, [authed, reload]);
 
@@ -3471,6 +3487,59 @@ function TrafficDashboardPage({ onNav }) {
                 <div style={{ fontSize: 9.5, color: C.muted, marginTop: 6, letterSpacing: 2, fontFamily: F.heading, textTransform: "uppercase" }}>{label}</div>
               </div>
             ))}
+          </div>
+
+          {/* SAME OWNER: temporary Legacy projection of canonical /2029 Control Plane health. */}
+          <div style={{ ...cardStyle, marginBottom: 28, borderTop: `2px solid ${C.gold}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+              <div>
+                <div style={panelTitle}>SYSTEM HEALTH · MEDIA / EGRESS</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
+                  אותה הקרנה של admin_system_health() שמזינה את /2029/control. אין מערכת ניטור שנייה.
+                </div>
+              </div>
+              <a href="/2029/control" style={{ ...smallBtn, textDecoration: "none" }}>Control Plane 2029 ↗</a>
+            </div>
+            {!isAdmin ? (
+              <div style={{ color: C.goldDim, fontFamily: F.body, lineHeight: 1.8 }}>
+                נתוני Egress/Storage דורשים חשבון מנהל אמיתי. הסיסמה הישנה של לוח הגלישה אינה עוקפת הרשאות.
+                <a href="/login" style={{ color: C.goldBright, marginInlineStart: 8 }}>התחבר כמנהל</a>
+              </div>
+            ) : systemHealthError ? (
+              <div style={{ color: "#c05050", fontFamily: F.body }}>{systemHealthError}</div>
+            ) : systemHealth ? (() => {
+              const usage = systemHealth.usage || {};
+              const media = systemHealth.media || {};
+              const risk = media.delivery_risk || {};
+              const latest = usage.storage_egress_observed_latest || {};
+              const guard = usage.storage_egress_guard || {};
+              const traffic = latest.traffic_classes || {};
+              const bytes = (v) => v == null ? "—" : `${(Number(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
+              const gib = (v) => v == null ? "—" : `${(Number(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
+              const pct = (v) => v == null ? "—" : `${(Number(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
+              return <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12 }}>
+                  {[
+                    ["Observed שעה", bytes(latest.storage_get_bytes)],
+                    ["Observed 24 שעות", bytes(usage.storage_egress_observed_24h_bytes)],
+                    ["Bots", pct(traffic.bot_share)],
+                    ["וידאו ציבורי", `${nf(risk.public_video_objects)} · ${gib(risk.public_video_bytes)}`],
+                    ["וידאו no-cache", nf(risk.public_video_no_cache)],
+                    ["Provider נוכחי", usage.supabase_cached_egress == null ? "UNKNOWN" : gib(usage.supabase_cached_egress)],
+                  ].map(([label, value]) => <div key={label} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14 }}>
+                    <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 18, fontWeight: 800 }}>{value}</div>
+                    <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 10.5, marginTop: 5 }}>{label}</div>
+                  </div>)}
+                </div>
+                <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <span style={smallBtn}>State: {guard.state || "NO_HOURLY_DATA"}</span>
+                  <span style={smallBtn}>Observed basis: {usage.storage_egress_observed_basis || "UNKNOWN"}</span>
+                  <span style={smallBtn}>Provider basis: {usage.supabase_cached_egress_basis || "UNKNOWN"}</span>
+                </div>
+              </>;
+            })() : (
+              <div style={{ color: C.muted, fontFamily: F.body }}>טוען System Health…</div>
+            )}
           </div>
 
           {/* ציר זמן — יומי / שבועי / חודשי / שנתי */}
@@ -4756,7 +4825,7 @@ function PostPageBySlug({ onNav }) {
   // 🟢 חוק התוכן הנקי: פוסט שנכתב אצלנו (source='ai') שומר על <style> מכוון (אנימציות/גרפיקה) —
   // מחיקת <style> היא ניקוי-וורדפרס והיא חלה רק על פוסטים ישנים. וורדפרס לא נכנס לתחום הנקי.
   const isCleanPost = post?.source === "ai";
-  const content  = (post?.content ?? "")
+  const content  = hardenPassiveMediaHtml((post?.content ?? "")
     // strip injected full-HTML boilerplate (common from pasted AI-generated content)
     .replace(/<!DOCTYPE[^>]*>/gi, "")
     .replace(/<\/?html[^>]*>/gi, "")
@@ -4771,7 +4840,7 @@ function PostPageBySlug({ onNav }) {
     .replace(/<p[^>]*>(\s|&nbsp;)*<\/p>/gi, "")
     .replace(/<div[^>]*style="[^"]*height:\s*\d+px[^"]*"[^>]*>\s*<\/div>/gi, "")
     // עוטף שורת "מאת …" רק בתחילת טקסט (אחרי >) — לא בתוך תכונות כמו alt= (שובר את ה-<img>)
-    .replace(/(^|>)(\s*)(מאת[:\s]+[^\n<]{2,40})/g, '$1$2<span class="post-author">$3</span>');
+    .replace(/(^|>)(\s*)(מאת[:\s]+[^\n<]{2,40})/g, '$1$2<span class="post-author">$3</span>'));
   const cats     = post?.categories ?? [];
   const tags     = post?.tags ?? [];
 
