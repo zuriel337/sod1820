@@ -2,7 +2,9 @@
 
 **Date:** 2026-09-28  
 **Owner posture:** EXTEND_EXISTING — no new SEO registry/system.  
-**Canonical owners:** `api/sitemap.js`, `src/lib/seo.js`, route owners, `public.sitemap_numbers()`, `public.is_number_indexable()`, `public.sitemap_phrases_v1`, `public.is_phrase_indexable()`, edge crawler policy, Vercel routing.
+**Canonical owners:** `api/sitemap.js`, `src/lib/seo.js`, 2029 route owners, canonical indexability projections, edge crawler policy, Vercel routing.
+
+**G3 scope correction · 2026-09-28:** this map now targets the **2029 product tree only**. Legacy UI/routes are source, compatibility or provenance where still required; they are not product/SEO parity targets. Any Legacy containment already released may remain until retirement, but new Search/Video work must converge on 2029 routes.
 
 ## Goal
 
@@ -35,7 +37,11 @@ A URL is not "healthy" merely because Google discovered it, and an excluded URL 
 | Excluded by `noindex` | correct when intentional; must use the same indexability owner as sitemap | CONTRACT ACTIVE |
 | Crawled/discovered currently not indexed | review representative samples only after index-worthiness/canonical/access checks | GSC SAMPLE REVIEW |
 
-## Phrase pages — closed SSOT drift
+## Legacy phrase containment — compatibility only
+
+The phrase SSOT released in PR #779 prevents arbitrary Legacy phrase URLs from remaining blindly indexable and preserves verified phrase provenance. It is **containment**, not the target 2029 Expression surface. G3 does not spend further product/SEO effort on Legacy phrase UX. When native 2029 Expression identity is opened, it must consume the same canonical expression/indexability owners rather than inheriting the Legacy route.
+
+### Released containment
 
 Previous state:
 - arbitrary `/number/<phrase>` was addressable and indexable;
@@ -51,13 +57,14 @@ Previous state:
 
 No new content registry was created.
 
-## Video pages
+## Video pages — 2029 target
 
 Unified Video Projection rules:
 - one media asset can have many placements;
 - one primary Google landing page;
 - Video Sitemap reads the deduplicated asset projection rather than the `וידאו` category;
-- orphan public video may use `/video/:assetId`;
+- post-owned video converges on the 2029 `/post/:slug` route;
+- orphan public video uses the 2029 `/video/:assetId` route;
 - generic/orphan video is not Google-ready until grounded metadata exists;
 - `uploadDate` is timezone-normalized;
 - legacy media is not copied merely for SEO;
@@ -73,7 +80,7 @@ Public + index-worthy means:
 
 A crawler challenge/proof is not Human proof; this contract is about public crawl access only.
 
-## Real 404 blocker
+## Real 404 blocker — 2029 routing boundary
 
 The app still has SPA catch-all behavior:
 - Vercel rewrites broad paths to the SPA document;
@@ -84,7 +91,7 @@ Mitigation already applied:
 - missing/unverifiable post slugs set `noindex` and clear stale VideoObject JSON-LD.
 
 Closure requirement:
-- introduce a routing/server boundary that can determine "known route / known slug / nonexistent" before a 200 SPA document is committed;
+- introduce a 2029 routing/server boundary that can determine "known 2029 route / known entity / nonexistent" before a 200 SPA document is committed;
 - nonexistent -> HTTP 404;
 - legacy replacement -> 301;
 - current canonical -> 200.
