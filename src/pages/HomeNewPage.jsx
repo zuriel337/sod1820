@@ -228,10 +228,12 @@ export default function HomeNewPage() {
     };
 
     refreshPosts();
+    const timer = window.setInterval(refreshPosts, 30000);
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
     };
@@ -241,10 +243,36 @@ export default function HomeNewPage() {
   // «לפתוח» את הזרם עצמו אי-אפשר בלי רישום: הלחיצה גוללת ל-#reality-home, ושם RealityWorld
   // (מגודר בתוכו, site_flags_lock_law) מציג לאנונימי את טיזר-ההרשמה במקום הזרם.
   useEffect(() => {
-    getGalleryUpdates(40).then(r => setHints(r || [])).catch(() => {});
+    let cancelled = false;
+    let inFlight = false;
+    const refreshHints = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try {
+        const rows = await getGalleryUpdates(40);
+        if (!cancelled) setHints(rows || []);
+      } catch { /* keep last good snapshot */ }
+      finally { inFlight = false; }
+    };
+    const refreshHintsIfVisible = () => {
+      if (document.visibilityState === "visible") refreshHints();
+    };
+
+    refreshHints();
+    const timer = window.setInterval(refreshHints, 30000);
+    window.addEventListener("focus", refreshHints);
+    document.addEventListener("visibilitychange", refreshHintsIfVisible);
+
     getSavedMatrices(20).then(r => setCiphers(r || [])).catch(() => {});
     // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מהעוגן ואילך (CIPHER_FEED_SINCE) — קבוע, נשאר תמיד, לא חלון-זמן
     getSystemCiphers(20).then(r => setRecentCiphers((r || []).filter(c => +new Date(c.created_at || 0) >= CIPHER_FEED_SINCE))).catch(() => {});
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshHints);
+      document.removeEventListener("visibilitychange", refreshHintsIfVisible);
+    };
   }, []);
 
   // רקע: לילה = שקוף → הקוסמוס הסגול הגלובלי (SpaceBackground) מציץ מאחור;
