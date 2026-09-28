@@ -354,7 +354,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
       .eq("channel", brand.channel).not("image_url", "is", null)
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)   // סטורי-שבוע פג לבד; שאר הפריטים (expires_at=null) נשארים
       .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(limit)   // מוצמד (priority↑) ראשון
-      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } });
+      .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
     return () => { alive = false; };
   }, [limit, brand.channel, brand.fetchRows]);
 
