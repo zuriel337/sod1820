@@ -5,6 +5,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { getPostBySlug } from "../lib/supabase.js";
 import { crossesCutoff } from "../lib/crossesNew.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 /**
  * חוק מערכת: insight_card_law (עודכן — עץ אחד)
@@ -33,7 +34,7 @@ function extHref(insight) {
 }
 // תוכן הפוסט לתצוגה אינליין — מסירים את מרקר הגלריה (מוצג מלא רק בעמוד הפוסט)
 function cleanContent(html) {
-  return String(html || "").replace(/<div data-sod-gallery(?:-id)?="\d+"><\/div>/g, "");
+  return hardenPassiveMediaHtml(String(html || "").replace(/<div data-sod-gallery(?:-id)?="\d+"><\/div>/g, ""));
 }
 
 export default function InsightCard({ insight, badgeVariant = "ai" }) {
