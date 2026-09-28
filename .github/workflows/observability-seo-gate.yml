@@ -80,5 +80,8 @@ jobs:
       - name: Search Indexing 2029 closure acceptance
         run: node scripts/test-search-indexing-2029.mjs
 
+      - name: G3 2029 video/search cutover acceptance
+        run: node scripts/test-g3-2029-video-search-cutover.mjs
+
       - name: Build
         run: npm run build
