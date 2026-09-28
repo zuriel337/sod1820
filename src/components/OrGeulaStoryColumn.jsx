@@ -163,7 +163,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
     let alive = true;
     if (ogOnly) { setVideos([]); }   // אור הגאולה בלבד — לא מושכים סרטוני-צופן (CIPHERS)
     else getVideoStories({ limit: 10 }).then(c => { if (alive) setVideos(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setVideos([]); });
-    fetchBrandRows(OG, limit).then(r => { if (alive) { setOgRows(r); ensureVideoThumbs(r); } }).catch(() => { if (alive) setOgRows([]); });
+    fetchBrandRows(OG, limit).then(r => { if (alive) { setOgRows(r); } }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
   }, [limit, ogOnly]);
 
