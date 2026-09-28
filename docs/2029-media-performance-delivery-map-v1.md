@@ -817,6 +817,20 @@ Initial guardrails:
 
 The watcher must preserve a dead-man state: missing observations are not “healthy”.
 
-## 18.5 Coordination boundary
+## 18.5 Duplicate-candidate inventory
+
+Public `media + gallery` currently contain 4,524 ETag+size duplicate-candidate groups covering 9,552 objects.
+
+Potential redundant bytes under that candidate classification:
+
+- all media: 5,097,377,160 bytes (~4.747 GiB);
+- video groups: 178;
+- video candidate redundancy: 2,478,931,735 bytes (~2.309 GiB).
+
+This is `STORAGE_ETAG_SIZE_MATCH`, not a deletion authorization. ETag+size is evidence for reconciliation; source references, provenance and public URLs must be resolved before any delete/move/canonical-path operation.
+
+A daily aggregate snapshot belongs in existing `analytics_cache` under `infra_media_dedupe_snapshot:<UTC-date>`. No raw object-path list is required by the Control Plane.
+
+## 18.6 Coordination boundary
 
 SEO / Video discovery / sitemap / VideoObject semantics are owned by the separate concurrent SEO scope. Runtime egress hardening and operational monitoring must not silently seize that owner.
