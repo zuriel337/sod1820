@@ -9,14 +9,81 @@ as
 with post_base as (
   select
     p.*,
-    (regexp_match(coalesce(p.content,''), '(https?://[^"''[:space:]<>]+\.(?:mp4|webm|m4v)(?:\?[^"''[:space:]<>]*)?)', 'i'))[1] as direct_url,
-    (regexp_match(coalesce(p.content,''), '(?:youtube(?:-nocookie)?\.com/(?:embed/|watch\?v=)|youtu\.be/)([A-Za-z0-9_-]{11})', 'i'))[1] as youtube_id,
-    (regexp_match(coalesce(p.content,''), 'drive\.google\.com/(?:file/d/|open\?id=)([A-Za-z0-9_-]+)', 'i'))[1] as drive_id,
-    (regexp_match(coalesce(p.content,''), 'vimeo\.com/(?:video/)?([0-9]{5,})', 'i'))[1] as vimeo_id,
     (regexp_match(coalesce(p.content,''), '<iframe[^>]+src=["'']([^"'']+)["'']', 'i'))[1] as iframe_url
   from public.posts p
   where not ('טיוטה'=any(coalesce(p.tags,'{}'::text[])))
     and not ('פורום'=any(coalesce(p.tags,'{}'::text[])))
+),
+post_media_raw as (
+  select
+    p.id as post_id,
+    'selfhost'::text as video_kind,
+    regexp_replace(m[1], '[?#].*$', '') as media_url,
+    null::text as youtube_id
+  from post_base p
+  cross join lateral regexp_matches(
+    coalesce(p.content,''),
+    '(https?://[^"''[:space:]<>]+\\.(?:mp4|webm|m4v)(?:\\?[^"''[:space:]<>]*)?)',
+    'gi'
+  ) m
+
+  union all
+
+  select
+    p.id,
+    'youtube',
+    'https://www.youtube.com/watch?v='||m[1],
+    m[1]
+  from post_base p
+  cross join lateral regexp_matches(
+    coalesce(p.content,''),
+    '(?:youtube(?:-nocookie)?\\.com/(?:embed/|watch\\?v=)|youtu\\.be/)([A-Za-z0-9_-]{11})',
+    'gi'
+  ) m
+
+  union all
+
+  select
+    p.id,
+    'vimeo',
+    'https://vimeo.com/'||m[1],
+    null::text
+  from post_base p
+  cross join lateral regexp_matches(
+    coalesce(p.content,''),
+    'vimeo\\.com/(?:video/)?([0-9]{5,})',
+    'gi'
+  ) m
+
+  union all
+
+  select
+    p.id,
+    'gdrive',
+    'https://drive.google.com/file/d/'||m[1],
+    null::text
+  from post_base p
+  cross join lateral regexp_matches(
+    coalesce(p.content,''),
+    'drive\\.google\\.com/(?:file/d/|open\\?id=)([A-Za-z0-9_-]+)',
+    'gi'
+  ) m
+),
+post_media_refs as (
+  select distinct post_id,video_kind,media_url,youtube_id
+  from post_media_raw
+
+  union all
+
+  select
+    p.id,
+    'legacy_external'::text,
+    p.iframe_url,
+    null::text
+  from post_base p
+  where 'וידאו'=any(coalesce(p.categories,'{}'::text[]))
+    and p.iframe_url is not null
+    and not exists (select 1 from post_media_raw r where r.post_id=p.id)
 ),
 post_rows as (
   select
@@ -26,23 +93,9 @@ post_rows as (
     p.modified as updated_at,
     p.title,
     p.slug,
-    case
-      when p.direct_url is not null then 'selfhost'
-      when p.youtube_id is not null then 'youtube'
-      when p.vimeo_id is not null then 'vimeo'
-      when p.drive_id is not null then 'gdrive'
-      when 'וידאו'=any(coalesce(p.categories,'{}'::text[])) and p.iframe_url is not null then 'legacy_external'
-      else null
-    end as video_kind,
-    case
-      when p.direct_url is not null then regexp_replace(p.direct_url, '[?#].*$', '')
-      when p.youtube_id is not null then 'https://www.youtube.com/watch?v='||p.youtube_id
-      when p.vimeo_id is not null then 'https://vimeo.com/'||p.vimeo_id
-      when p.drive_id is not null then 'https://drive.google.com/file/d/'||p.drive_id
-      when 'וידאו'=any(coalesce(p.categories,'{}'::text[])) then p.iframe_url
-      else null
-    end as media_url,
-    p.youtube_id,
+    r.video_kind,
+    r.media_url,
+    r.youtube_id,
     p.image_url as poster_url,
     p.thumb_url,
     'https://sod1820.co.il/'||p.slug as page_url,
@@ -57,14 +110,10 @@ post_rows as (
     coalesce(p.categories,'{}'::text[]) as categories,
     case when 'וידאו'=any(coalesce(p.categories,'{}'::text[])) then 10 else 20 end as placement_priority,
     true as dedicated_page,
-    (p.direct_url is not null or p.youtube_id is not null or p.vimeo_id is not null) as google_indexable,
-    p.direct_url is null and p.youtube_id is null and p.vimeo_id is null as needs_review
+    (r.video_kind in ('selfhost','youtube','vimeo')) as google_indexable,
+    (r.video_kind not in ('selfhost','youtube','vimeo')) as needs_review
   from post_base p
-  where p.direct_url is not null
-     or p.youtube_id is not null
-     or p.vimeo_id is not null
-     or p.drive_id is not null
-     or ('וידאו'=any(coalesce(p.categories,'{}'::text[])) and p.iframe_url is not null)
+  join post_media_refs r on r.post_id=p.id
 ),
 channel_rows as (
   select
@@ -97,7 +146,7 @@ channel_rows as (
     false as needs_review
   from public.channel_updates c
   where c.status='live'
-    and c.image_url ~* '\.(mp4|webm|m4v)(\?|$)'
+    and c.image_url ~* '\\.(mp4|webm|m4v)(\\?|$)'
 ),
 home_rows as (
   select
