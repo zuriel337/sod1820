@@ -76,6 +76,17 @@ G3 cannot close until all are true:
 8. Branch-only / merged / deployed / live / verified implementation states are reconciled exactly.
 9. Full provenance remains available in Git, inactive rules, work_log and migration history.
 10. Fresh-agent replay after G3 resolves only current owners/runtime for normal tasks and opens legacy history on demand.
+11. **Writer cutover proof:** every 2029 user-facing path has canonical writers/readers; superseded Legacy writers are frozen only after replacement + replay + live-consumer proof.
+12. **Telemetry one tree:** `events`/Traffic is the forward semantic event family; Legacy `site_visits`/`visitor_events`/`page_views`/`search_log` dual-write/read dependencies are inventoried and removed from 2029 one by one, with historical retention/rollups preserved.
+13. **Full retention census:** the final dry-run covers source/WhatsApp plus telemetry/logs, cron/security/AI/trace history, import/staging/backups, media/storage and legacy semantic/candidate stores. Every destructive action stays a separate Human-Gated step; age or “replacement exists” is never enough.
+14. **Query/RLS/index right-sizing:** use live `pg_stat_statements` + advisors + `EXPLAIN`/consumer evidence to fix measured hot RPCs, add needed indexes, remove true duplicates/redundancy, and avoid speculative index churn.
+15. **No DB-held remote wait on hot paths:** latency-critical external provider calls, especially Raziel/channel delivery, must not retain a DB connection while waiting on remote HTTP when the governed action can be moved to the existing async Edge/background path without changing identity or delivery semantics.
+16. **Raziel one brain:** channel adapters may alter transport/presentation only; no channel-local fixed method list, convergence authority or research brain may remain as a future architecture dependency.
+17. **Monitoring one tree + cost split:** routine health is a bounded fast snapshot; expensive retention/dedupe/storage dependency scans are cached/background/on-demand under the same owners. Legacy dashboards may project the same health owner during transition but never become a second monitor.
+18. **Media/storage compaction:** originals/source fidelity stay protected; bounded derivatives/cache are verified; duplicate/archive candidates require content/reference/provenance proof; reclaimable bytes are measured before any destructive action.
+19. **Staging/backups/legacy stores:** import-stage, backup, cleanup-manifest and dormant legacy tables receive explicit KEEP/ARCHIVE/RETIRE decisions with reader/writer proof; production DB is not a permanent attic by accident.
+20. **Physical maintenance after logical changes:** only after cutover/index/schema decisions, refresh statistics and run evidence-based VACUUM/ANALYZE/REPACK where needed; do not use table rewrites as a substitute for semantic cleanup.
+21. **Performance baseline:** record representative pre-G4 route/RPC/Raziel/query/cache/egress/error metrics; “fast” without measured evidence is not closure.
 
 ## Known G2 carry-forward candidates
 
@@ -103,6 +114,10 @@ This list is routing calibration, not permission to retire blindly. Live impleme
 ## Ordering
 
 Run this gate after G3 runtime/Golden implementation has enough verified replacements to make retirement decisions evidence-based, and before G4.
+
+### Mandatory G3.5 live rescan
+
+The first deep scan is calibration only while 2029 is still being built. Immediately before G4 entry, repeat the live census against current main + production + canonical Supabase and supersede earlier counts. The rescan must cover DB/table/index/storage growth, current writers/readers, cron/Edge workers, legacy islands, `pg_stat_statements`, RLS/index advisors, vacuum/dead-tuple state, telemetry parity, Raziel/provider paths, monitoring latency, media/egress and retention coverage. New islands found by the rescan are added to this same gate; no parallel cleanup plan is created.
 
 The G3 opening event-driven inter-agent dispatcher does not replace this gate; it should help execute it with direct GPT↔CLAUDE challenge/verification once implemented.
 
