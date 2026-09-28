@@ -5,6 +5,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { getPostBySlug } from "../lib/supabase.js";
 import { crossesCutoff } from "../lib/crossesNew.js";
 import VerifiedBadge from "./VerifiedBadge.jsx";
+import { deferLegacyHtmlMedia } from "../lib/mediaDelivery.js";
 
 /**
  * חוק מערכת: insight_card_law (עודכן — עץ אחד)
@@ -120,7 +121,7 @@ export default function InsightCard({ insight, badgeVariant = "ai" }) {
               <div style={{ color: C.muted, fontFamily: F.body, fontSize: 14, padding: "8px 0" }}>טוען את הפוסט…</div>
             ) : post ? (
               <>
-                <div className="ic-postbody" dangerouslySetInnerHTML={{ __html: cleanContent(post.content) }} />
+                <div className="ic-postbody" dangerouslySetInnerHTML={{ __html: deferLegacyHtmlMedia(cleanContent(post.content)) }} />
                 <div style={{ marginTop: 14 }}>
                   <Link to={`/${slug}`} style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
                     לפוסט המלא →
