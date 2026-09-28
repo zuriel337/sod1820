@@ -115,7 +115,10 @@ assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly 
 assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical contributor findings lens");
 assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
-assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributor findings remain Human-Gate/admin only");
+assert.match(world, /selectedWriter \? <section/, "selected researcher public material should project inside World without an admin-only presentation gate");
+assert.match(world, /פתח נושא מחקר מלא/);
+assert.match(contributorFindingsComponent, /contributor-public-activity/);
+assert.match(contributorFindingsComponent, /פעילות/);
 assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
