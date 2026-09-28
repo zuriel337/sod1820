@@ -19,6 +19,9 @@ assert.match(mig, /create or replace view public\.video_media_assets_v1[\s\S]*se
 assert.doesNotMatch(mig, /create\s+table\s+(?:public\.)?(?:videos|video_assets|video_registry)\b/i);
 assert.match(mig, /md5\(a\.asset_key\) as public_id/i);
 assert.match(mig, /placement_count>1 as is_duplicate_asset/i);
+assert.match(mig, /cross join lateral regexp_matches\(/i);
+assert.match(mig, /post_media_refs as/i);
+assert.match(mig, /select distinct post_id,video_kind,media_url,youtube_id/i);
 assert.match(mig, /'https:\/\/sod1820\.co\.il\/video\/'\|\|md5\(a\.asset_key\)/i);
 
 // Google consumes the deduplicated projection, not taxonomy membership.
