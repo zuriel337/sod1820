@@ -94,6 +94,7 @@ export default function ControlPlane2029Page() {
   const egressLatest = usage.storage_egress_observed_latest || {};
   const egressTraffic = egressLatest.traffic_classes || {};
   const egressGuard = usage.storage_egress_guard || {};
+  const providerHistory = usage.supabase_egress_historical_exact || {};
   const egressHistory = Array.isArray(usage.storage_egress_observed_history_24h) ? usage.storage_egress_observed_history_24h : [];
   const rollup = detail.data?.rollup || {};
   const spans = Array.isArray(detail.data?.spans) ? detail.data.spans : [];
@@ -167,7 +168,12 @@ export default function ControlPlane2029Page() {
           note="חסרים ב־channel_updates · יצירה בבקאנד בלבד"
         />
         <Metric
-          label="Provider Cached Egress"
+          label="Provider · מחזור קודם"
+          value={providerHistory.cached_egress_gb == null ? "—" : `${n(providerHistory.cached_egress_gb).toFixed(3)} GB cached`}
+          note={providerHistory.cycle_start ? `${providerHistory.cycle_start} → ${providerHistory.cycle_end} · EXACT_BILLING_HISTORY` : "אין היסטוריה מתועדת"}
+        />
+        <Metric
+          label="Provider · מחזור נוכחי"
           value={usage.supabase_cached_egress == null ? "UNKNOWN" : gib(usage.supabase_cached_egress)}
           note={`בסיס: ${usage.supabase_cached_egress_basis || "UNKNOWN"} · לא נגזר מ־OBSERVED`}
         />
