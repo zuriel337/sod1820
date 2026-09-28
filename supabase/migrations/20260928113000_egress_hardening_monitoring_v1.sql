@@ -156,6 +156,20 @@ begin
         'image_rows', (select count(*) from public.channel_updates where image_url is not null),
         'missing_thumb', (select count(*) from public.channel_updates where image_url is not null and thumb_url is null)
       ),
+      'dedupe_latest', (
+        select payload
+        from public.analytics_cache
+        where cache_key like 'infra_media_dedupe_snapshot:%'
+        order by computed_at desc
+        limit 1
+      ),
+      'dedupe_latest_at', (
+        select computed_at
+        from public.analytics_cache
+        where cache_key like 'infra_media_dedupe_snapshot:%'
+        order by computed_at desc
+        limit 1
+      ),
       'delivery_risk', jsonb_build_object(
         'public_bucket_objects', (
           select count(*) from storage.objects where bucket_id in ('media','gallery')
