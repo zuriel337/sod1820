@@ -27,7 +27,7 @@ post_media_raw as (
   from post_base p
   cross join lateral regexp_matches(
     coalesce(p.content,''),
-    '(https?://[^"''[:space:]<>]+\\.(?:mp4|webm|m4v)(?:\\?[^"''[:space:]<>]*)?)',
+    '(https?://[^"''[:space:]<>]+\.(?:mp4|webm|m4v)(?:\?[^"''[:space:]<>]*)?)',
     'gi'
   ) m
 
@@ -41,7 +41,7 @@ post_media_raw as (
   from post_base p
   cross join lateral regexp_matches(
     coalesce(p.content,''),
-    '(?:youtube(?:-nocookie)?\\.com/(?:embed/|watch\\?v=)|youtu\\.be/)([A-Za-z0-9_-]{11})',
+    '(?:youtube(?:-nocookie)?\.com/(?:embed/|watch\?v=)|youtu\.be/)([A-Za-z0-9_-]{11})',
     'gi'
   ) m
 
@@ -55,7 +55,7 @@ post_media_raw as (
   from post_base p
   cross join lateral regexp_matches(
     coalesce(p.content,''),
-    'vimeo\\.com/(?:video/)?([0-9]{5,})',
+    'vimeo\.com/(?:video/)?([0-9]{5,})',
     'gi'
   ) m
 
@@ -69,7 +69,7 @@ post_media_raw as (
   from post_base p
   cross join lateral regexp_matches(
     coalesce(p.content,''),
-    'drive\\.google\\.com/(?:file/d/|open\\?id=)([A-Za-z0-9_-]+)',
+    'drive\.google\.com/(?:file/d/|open\?id=)([A-Za-z0-9_-]+)',
     'gi'
   ) m
 ),
@@ -147,7 +147,7 @@ channel_rows as (
     false as needs_review
   from public.channel_updates c
   where c.status='live'
-    and c.image_url ~* '\\.(mp4|webm|m4v)(\\?|$)'
+    and c.image_url ~* '\.(mp4|webm|m4v)(\?|$)'
 ),
 home_rows as (
   select
