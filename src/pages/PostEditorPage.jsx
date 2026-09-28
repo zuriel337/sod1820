@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase.js";
 // 🔑 כניסה עם קוד-סוד (בלי התחברות) — ?key=<code>. הקוד עצמו לא נשמר בצד-הלקוח:
 // כל key פותח את הטופס, אבל השמירה מאומתת בשרת (post-save token) — key שגוי → נדחה.
 import { thumb } from "../lib/img.js";
+import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 
 // ✍️ עורך הפוסטים המתקדם (אדמין) — /editor (חדש) · /editor/:slug (עריכה). מחוץ ל-/admin/ (honeypot).
 // כתיבה/עריכה עם כל השדות + עוזר-AI שעורך את התוכן (מנוע ברירת-מחדל: Gemini — ה-AI שנקנה בטוקנים, לא חשבון ה-Anthropic).
@@ -699,7 +700,7 @@ export default function PostEditorPage() {
               )}
               {view === "preview" && (
                 <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg }}>
-                  <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: content || "<p>(אין תוכן)</p>" }} />
+                  <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(content || "<p>(אין תוכן)</p>") }} />
                 </div>
               )}
               {view === "live" && (
@@ -742,7 +743,7 @@ export default function PostEditorPage() {
             {aiResult?.html && (
               <div style={{ marginTop: 12 }}>
                 <div className="pe-prev" data-theme={P.mode} style={{ background: T.prevBg, maxHeight: "40vh" }}>
-                  <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: aiResult.html }} />
+                  <div className="sod-post-content clean" dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(aiResult.html) }} />
                 </div>
                 <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
                   <button type="button" className="pe-btn pe-save" onClick={() => applyAi("replace")}>✓ החלף את התוכן</button>
