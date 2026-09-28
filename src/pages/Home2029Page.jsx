@@ -133,8 +133,14 @@ function HomeRealityGoldenGallery({ items = [], loading, onOpenNumber, onOpenWor
         onClick={() => number && onOpenNumber(number, active)}
         aria-label={number ? `פתח את מספר ${number}` : "פתח את הרמז"}
       >
+        <span className="sod29-home-reality-field" aria-hidden="true">
+          <i className="ring r1" />
+          <i className="ring r2" />
+          <i className="ring r3" />
+        </span>
         <img src={active.imageUrl} alt={active.title || "רמז מזרם המציאות"} />
-        {number ? <span className="sod29-home-reality-number">{number}</span> : null}
+        <span className="sod29-home-reality-live-dot" aria-hidden="true" />
+        {number ? <span className="sod29-home-reality-number"><small>אות חי</small><b>{number}</b></span> : null}
       </button>
 
       <div className="sod29-home-reality-copy">
@@ -161,7 +167,13 @@ function HomeRealityGoldenGallery({ items = [], loading, onOpenNumber, onOpenWor
       </div>
     </div>
 
-    {items.length > 1 ? <div className="sod29-home-reality-rail" aria-label="רמזים אחרונים">
+    {items.length > 1 ? <>
+      <div className="sod29-home-reality-index" aria-hidden="true">
+        <span>{String(activeIndex + 1).padStart(2, "0")}</span>
+        <i />
+        <span>{String(Math.min(items.length, 8)).padStart(2, "0")}</span>
+      </div>
+      <div className="sod29-home-reality-rail" aria-label="רמזים אחרונים">
       {items.slice(0, 8).map((item, index) => <button
         type="button"
         key={item.id}
@@ -172,7 +184,8 @@ function HomeRealityGoldenGallery({ items = [], loading, onOpenNumber, onOpenWor
         <img src={item.thumbUrl || item.imageUrl} alt="" />
         {item.primaryValue ? <span>{item.primaryValue}</span> : null}
       </button>)}
-    </div> : null}
+    </div>
+    </> : null}
   </section>;
 }
 
