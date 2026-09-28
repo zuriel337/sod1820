@@ -176,7 +176,8 @@ export default async function handler(req, res) {
   let convergenceLd = null;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
-  let orgeulaVid = null;   // 🎬 סרטון אור-הגאולה ספציפי (?v=) — ל-VideoObject + og:video
+  let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
+  let videoCanonical = null;
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
@@ -310,12 +311,49 @@ export default async function handler(req, res) {
         title = (t ? t.slice(0, 70) : 'אור הגאולה — סרטון') + ' · ' + SITE_NAME;
         desc = cleanDesc(t || STATIC['/or-geula'].desc, 180) || DEFAULT_DESC;
         type = 'video.other';
-        if (isVid) orgeulaVid = { contentUrl: c.image_url, thumb: c.thumb_url || (waSafeImage(image)), name: (t ? t.slice(0, 110) : 'אור הגאולה — סרטון'), desc, uploadDate: c.created_at };
+        if (isVid) {
+          orgeulaVid = { contentUrl: c.image_url, thumb: c.thumb_url || (waSafeImage(image)), name: (t ? t.slice(0, 110) : 'אור הגאולה — סרטון'), desc, uploadDate: c.created_at };
+          videoCanonical = `${SITE}/or-geula?v=${encodeURIComponent(vParam)}`;
+        }
       } else {
         title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc;
         if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);
       }
     } catch { title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc; }
+  } else if (key.startsWith('/video/')) {
+    // 🎬 2029 unified video landing — server metadata from the same asset projection as /video/:assetId.
+    const assetId = key.slice('/video/'.length).trim();
+    if (/^[0-9a-f]{32}$/i.test(assetId)) {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
+        const rows = await r.json();
+        const v = Array.isArray(rows) && rows[0];
+        if (v) {
+          const nm = stripHtml(v.title || 'וידאו').trim();
+          title = `${nm || 'וידאו'} · ${SITE_NAME}`;
+          const topics = Array.isArray(v.topics) ? v.topics.filter(Boolean).slice(0, 5) : [];
+          desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820 2029`, 180) || DEFAULT_DESC;
+          image = waSafeImage(v.thumb_url || v.poster_url || DEFAULT_IMAGE);
+          type = 'video.other';
+          robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
+          canonical = `${SITE}/video/${assetId}`;
+          videoCanonical = canonical;
+          orgeulaVid = {
+            contentUrl: v.media_url,
+            thumb: v.thumb_url || v.poster_url || image,
+            name: nm || 'וידאו',
+            desc,
+            uploadDate: v.first_seen_at || v.last_seen_at,
+          };
+        } else {
+          robots = 'noindex, follow';
+        }
+      } catch {
+        robots = 'noindex, follow';
+      }
+    } else {
+      robots = 'noindex, follow';
+    }
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;
@@ -489,7 +527,7 @@ export default async function handler(req, res) {
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
     // בסגנון וורדפרס (%d7%aa…). הרובוט מגיע עם הנתיב המפוענח, לכן מנסים את שתי הצורות:
     // (1) ה-slug המפוענח, (2) קידוד-אחוזים באותיות קטנות (כמו שוורדפרס שמר).
-    let slug = key.replace(/^\//, '');
+    let slug = key.startsWith('/post/') ? key.slice('/post/'.length) : key.replace(/^\//, '');
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
     const variants = [slug];
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
@@ -614,7 +652,7 @@ export default async function handler(req, res) {
       thumbnailUrl: orgeulaVid.thumb ? [orgeulaVid.thumb] : undefined,
       uploadDate: vidUploadIso(orgeulaVid.uploadDate),
       contentUrl: orgeulaVid.contentUrl,
-      url: `${SITE}/or-geula?v=${encodeURIComponent(vParam)}`,
+      url: videoCanonical || canonical,
       inLanguage: 'he-IL',
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
     };
