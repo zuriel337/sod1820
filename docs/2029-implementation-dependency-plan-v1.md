@@ -493,6 +493,7 @@ Homes:
 - ELS;
 - Journey;
 - Posts / Updates;
+- Video / Media asset projection;
 - Workspace / Personal Area;
 - Internal Control Plane / Admin (non-public Human-Gate + operations home).
 
@@ -509,6 +510,7 @@ Global capabilities:
 Rules:
 
 - surfaces consume Context/Research/Access/Share/Analytics rails;
+- Video / Media is a 2029 projection over canonical asset identity and placements; it never becomes a second media registry/storage owner;
 - Internal Control Plane consumes owner-native operational projections and admin-only actions; it never becomes the owner of research truth, media identity, delivery state, traffic truth, security truth or cost truth;
 - no Legacy WarRoom/CommandCenter layout inheritance obligation; only current capabilities/owners survive;
 - no local truth/access/palette/action identity;
