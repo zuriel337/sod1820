@@ -1328,3 +1328,8 @@ assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method
 assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower calculator-era expression duplication must stay retired");
 
 console.log("2029 native World surface acceptance: PASS");
+
+assert.match(world, /world-public-open-material/);
+assert.match(world, /החומר הציבורי פתוח/);
+assert.match(world, /publicSurface\.galleries/);
+assert.match(world, /publicSurface\.posts/);
