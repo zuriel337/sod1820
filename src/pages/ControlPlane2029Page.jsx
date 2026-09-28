@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getOperationalTrace, getOperationalTraceList, getSystemHealth } from "../lib/visits.js";
+import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => n(v).toLocaleString("he-IL");
@@ -51,18 +51,18 @@ function SpanRow({ span }) {
 
 export default function ControlPlane2029Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, traces: [], error: null });
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
     setState(current => ({ ...current, loading: true, error: null }));
     try {
-      const [health, traces] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100)]);
-      setState({ loading: false, health, traces, error: null });
+      const [health, traces, videoMap] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
+      setState({ loading: false, health, videoMap, traces, error: null });
       setSelectedId(current => current || traces?.[0]?.trace_id || null);
     } catch (error) {
-      setState({ loading: false, health: null, traces: [], error });
+      setState({ loading: false, health: null, videoMap: null, traces: [], error });
     }
   }, []);
 
@@ -87,6 +87,11 @@ export default function ControlPlane2029Page() {
   const usage = health.usage || {};
   const db = health.db || {};
   const media = health.media || {};
+  const videoMap = state.videoMap || {};
+  const videoSummary = videoMap.summary || {};
+  const videoAi = videoMap.ai || {};
+  const videoCron = videoMap.cron || {};
+  const videoChannels = videoMap.channel_enrichment?.by_channel || {};
   const rollup = detail.data?.rollup || {};
   const spans = Array.isArray(detail.data?.spans) ? detail.data.spans : [];
   const selected = useMemo(() => state.traces.find(row => row.trace_id === selectedId) || null, [state.traces, selectedId]);
@@ -115,6 +120,30 @@ export default function ControlPlane2029Page() {
         <Metric label="DB connections" value={`${num(db.connections)} / ${num(db.max_connections)}`} note={`idle tx: ${num(db.idle_in_transaction)}`} />
         <Metric label="Media objects" value={num(media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
         <Metric label="Traces · 7 ימים" value={num(state.traces.length)} note="לחיצה פותחת spans ועלות" />
+      </div>
+    </section>
+
+    <section className="sod29-section">
+      <div className="sod29-section-head">
+        <div><div className="sod29-kicker">VIDEO MAP · 2029</div><h2>וידאו — מיפוי, Google ועלות</h2>
+          <div className="sod29-muted">Projection אחד מעל Posts · WhatsApp · Home Videos · Stories. המיפוי הדטרמיניסטי אינו צורך טוקנים.</div></div>
+        <div className="sod29-actions">
+          <span className="sod29-chip">{videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
+          <span className="sod29-chip">{videoCron.schedule || "—"}</span>
+        </div>
+      </div>
+      <div className="sod29-grid">
+        <Metric label="Video assets" value={num(videoSummary.unique_assets)} note={`${num(videoSummary.placements)} placements · ${num(videoSummary.duplicate_assets)} assets כפולים`} />
+        <Metric label="Google Video" value={num(videoSummary.google_indexable_assets)} note={`${num(videoSummary.generic_google_pages)} דפי /video fallback`} />
+        <Metric label="Backlog ערוצים" value={num(videoMap.channel_enrichment?.pending)} note={`אור הגאולה: ${num(videoChannels["or-geula"]?.pending)} · תורת הרמז: ${num(videoChannels["torat-haremez"]?.pending)}`} />
+        <Metric label="Video AI · 7 ימים" value={`${num(videoAi.input_tokens_7d)} + ${num(videoAi.output_tokens_7d)} tok`}
+          note={`Anthropic · ${videoMap.ai_policy?.metadata_model || "—"} · ~${cost(videoAi.estimated_cost_ils_7d)}`} />
+      </div>
+      <div className="sod29-list">
+        <div className="sod29-row"><div><strong>Projection owner</strong><small>{videoMap.owners?.projection || "—"}</small></div><span className="sod29-chip">0 tokens</span></div>
+        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{videoAi.calls_7d || 0} calls / 7d</span></div>
+        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
+        <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
     </section>
 
