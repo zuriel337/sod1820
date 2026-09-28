@@ -369,8 +369,8 @@ export function clearVideoGalleryJsonLd() { removeJsonLd("sod-video-ld"); }
 // ── JSON-LD לדף «אור הגאולה» (/or-geula) — ItemList של VideoObject מקבצי-הווידאו של הערוץ ──
 // מזין את דוח «וידאו» ב-Search Console → הסרטונים של אור הגאולה מופיעים כתוצאות-וידאו עשירות
 // (thumbnail + כותרת) בגוגל. אלו **קבצי-מדיה** (channel_updates: image_url=mp4, thumb_url=תמונה),
-// לא יוטיוב — לכן VideoObject עם contentUrl (הקובץ) + thumbnailUrl + uploadDate + url לסרטון הספציפי
-// (/or-geula?v=id, ה-deep-link הקיים). דרישות גוגל ל-VideoObject: name · thumbnailUrl · uploadDate · contentUrl.
+// self-hosted media keeps VideoObject identity via name + thumbnailUrl + uploadDate + canonical watch URL.
+// Raw Supabase Storage bytes are intentionally omitted from contentUrl to avoid crawler-driven bulk egress.
 const OG_VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 export function setOrGeulaVideosJsonLd(rows = []) {
   if (typeof document === "undefined") return;
@@ -428,7 +428,8 @@ export function extractPostVideo(post = {}) {
 }
 
 // ── JSON-LD VideoObject לפוסט שיש בו סרטון מוטמע (video-primary או incidental) ──
-// דרישות גוגל: name · thumbnailUrl · uploadDate · (contentUrl|embedUrl). מתקן «הסרטון לא מופיע בדף
+// Google-required identity fields are name · thumbnailUrl · uploadDate; contentUrl/embedUrl are recommended.
+// Self-hosted Supabase bytes are omitted from contentUrl; YouTube embedUrl remains available. מתקן «הסרטון לא מופיע בדף
 // צפייה» — GSC מזהה סרטון מוטמע בעמוד (crawl/render) בלי JSON-LD תואם ומדווח שהוא "נעלם". לכן
 // מיושם על **כל** פוסט עם וידאו-בתוכן, לא רק category='וידאו' (תיקון 1.9.2026 — פוסטים ישנים עם
 // סרטון-אגבי, כמו "עילוי נשמה"/"מסר חדש", דווחו חסרים כי נגזרו על-ידי בדיקת-קטגוריה בלבד).
@@ -467,7 +468,7 @@ export function setPostVideoJsonLd({ post = {}, path, description, primary = tru
 export function clearPostVideoJsonLd() { removeJsonLd("sod-post-video-ld"); }
 
 // ── JSON-LD VideoObject יחיד לדף-הצפייה של סרטון אור-הגאולה (/or-geula/video/:id) ──
-// canonical עצמאי לכל סרטון (מתקן את קריסת-ה-canonical של /or-geula?v=). mainEntityOfPage = ה-watch URL.
+// canonical עצמאי לכל סרטון; raw Supabase bytes are not advertised as contentUrl. mainEntityOfPage = watch URL.
 export function setOrGeulaSingleVideoJsonLd(v, path) {
   if (typeof document === "undefined") return false;
   const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
