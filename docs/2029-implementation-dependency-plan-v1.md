@@ -426,8 +426,9 @@ Rules:
 - GSC is verification/feedback, never a canonical owner;
 - true HTTP status semantics (200 current · 301 replaced · 404 nonexistent) belong at the 2029 routing/server boundary, not inside CN/SG quarantine middleware.
 
-Released foundation: PR #779 (Unified Video Projection + Search indexability baseline).  
-Current G3 cutover work: route unified video through `App2029`, move post/video primary landing identities to 2029 routes, add crawler metadata parity, and preserve the open true-404 routing blocker until server-boundary proof exists.
+**RELEASED · DEPLOYED · LIVE:** PR #779 established Unified Video Projection + Search indexability baseline; PR #782 completed the 2029-only route/crawler cutover. Unified video now runs through `App2029`, post/video primary landing identities converge on `/post/:slug` or `/video/:assetId`, and Googlebot/Bingbot receive server metadata before hydration. Legacy remains source/compatibility/provenance only.
+
+**Residual before G4 closure:** owner-specific route-legitimacy checks for false dynamic Topic/Book/Number entities, GSC recrawl/validation, and unrelated 2029 CLS/reliability blockers continue under their owners; they are not reasons to restore Legacy parity.
 
 LATER:
 - bounded public machine projection only after native Topic + indexability contract are proven;
@@ -575,7 +576,9 @@ Before live voice:
 
 ## PHASE 11 — G4 Golden Experiences
 
-Run real/replayable acceptance journeys, not simulated UI demos.
+**Entry semantics:** G4 begins only after the mandatory G3 implementation/compaction gate says the foundation is sufficiently closed. Changing G3→G4 does not itself switch on deferred capabilities.
+
+Run real/replayable acceptance journeys, not simulated UI demos. G4 validates the whole path across the already-released 2029 stack; a failed Golden returns to its owning lower layer for repair. G4 does not grant automatic activation to G5 Product/Entitlements, G6 localization rollout, later Voice/Multimodal, Spatial/3D, Research-to-Media, Pulse or XR.
 
 Minimum Golden set should cover:
 
