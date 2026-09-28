@@ -156,6 +156,32 @@ function TopicCard({ topic, P, S }) {
   </Link>;
 }
 
+function ContributionActivity({ rows = [], P, S }) {
+  if (!rows.length) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין כרגע פעילות ציבורית נוספת של החוקר בעדשה הזו.</div>;
+  return <div style={{ display: "grid", gap: SPACE[2] }}>
+    {rows.map((row, index) => {
+      const title = clean(row.title || row.statement || row.body) || "פעילות מחקרית";
+      const claim = row.gematriaClaim || row.gematria_claim || {};
+      const value = Number.isFinite(Number(row.value ?? claim.value)) ? Number(row.value ?? claim.value) : null;
+      return <article key={row.id || `activity-${index}`} data-experience-capability="contributor-public-activity" style={{ ...S.box, padding: SPACE[3] }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: SPACE[2], flexWrap: "wrap" }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>
+              {dt(row.createdAt || row.created_at)} · {clean(row.origin || row.intent || row.kind) || "תרומה / דיון"}
+            </div>
+            <strong style={{ display: "block", marginTop: SPACE[1], ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink }}>{title}</strong>
+            {clean(row.body) && clean(row.body) !== title ? <p style={{ margin: `${SPACE[1]}px 0 0`, ...TYPE_SCALE.body, fontFamily: F.body, color: P.inkSoft }}>{clean(row.body).slice(0, 360)}</p> : null}
+          </div>
+          {value != null ? <Link to={`/2029/number/${value}`} style={{ ...S.pill, textDecoration: "none", color: P.accentText, fontFamily: F.numeric }}>{value}</Link> : null}
+        </div>
+        <div style={{ marginTop: SPACE[2], ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
+          פעילות ציבורית נשמרת כפעילות/מקור. היא אינה הופכת אוטומטית לממצא מאומת או להתכנסות.
+        </div>
+      </article>;
+    })}
+  </div>;
+}
+
 export default function ContributorFindingsLens({
   projection,
   loading = false,
@@ -209,6 +235,7 @@ export default function ContributorFindingsLens({
           ["ממצאים שחולצו", projection.counts.researchObjects],
           ["אימותי מנוע", projection.counts.engineVerified],
           ["Topics קיימים", projection.counts.topics],
+          ["פעילות / תרומות", projection.counts.contributions || 0],
           ["ערכים מספריים", projection.counts.uniqueValues],
         ].map(([label, value]) => <div key={label} style={{ ...S.box, padding: SPACE[2] }}>
           <strong style={{ ...TYPE_SCALE.title, fontFamily: F.numeric, color: P.accentText }}>{value}</strong>
@@ -224,6 +251,7 @@ export default function ContributorFindingsLens({
           ["all", "כל הממצאים"],
           ["verified", "עם אימות מנוע"],
           ["topics", `Topics · ${projection.counts.topics}`],
+          ["activity", `פעילות · ${projection.counts.contributions || 0}`],
         ].map(([key, label]) => <button
           key={key}
           type="button"
@@ -267,6 +295,8 @@ export default function ContributorFindingsLens({
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: SPACE[2] }}>
         {(projection.topics || []).map((topic) => <TopicCard key={topic.id} topic={topic} P={P} S={S} />)}
       </div>
+    ) : mode === "activity" ? (
+      <ContributionActivity rows={projection.contributions || []} P={P} S={S} />
     ) : groups.length ? (
       <div style={{ display: "grid", gap: SPACE[3] }}>
         {groups.map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} />)}
