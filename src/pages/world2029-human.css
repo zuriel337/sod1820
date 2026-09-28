@@ -1645,3 +1645,21 @@
 .sod29-world-focus-ribbon strong{color:var(--s29-ink);font-size:17px}
 .sod29-world-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
 @media(max-width:680px){.sod29-world-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-world-focus-ribbon .sod29-actions{width:100%}}
+
+/* G3 public-first World: private research never visually closes already-public material. */
+.sod29-world-access-note{margin:12px 0;padding:11px 14px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;color:var(--s29-muted);font-size:11px;line-height:1.55}
+.sod29-world-access-note strong{color:var(--s29-ink);font-size:12px}
+.sod29-world-public-open{background:radial-gradient(circle at 88% 14%,color-mix(in srgb,var(--s29-accent) 9%,transparent),transparent 28%),var(--s29-panel-grad)}
+.sod29-world-public-open-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+.sod29-world-public-open-stats button{min-height:88px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);color:var(--s29-ink);display:grid;align-content:center;gap:5px;text-align:start;padding:13px;cursor:pointer}
+.sod29-world-public-open-stats button:hover{border-color:var(--s29-accent)}
+.sod29-world-public-open-stats strong{font-size:26px;line-height:1;color:var(--s29-accent-text);font-variant-numeric:tabular-nums}
+.sod29-world-public-open-stats span{font-size:10px;color:var(--s29-muted)}
+.sod29-world-public-subhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--s29-line)}
+.sod29-world-public-subhead:first-of-type{margin-top:8px}
+.sod29-world-public-subhead strong{font-size:13px}.sod29-world-public-subhead span{font-size:10px;color:var(--s29-muted)}
+.sod29-world-public-posts{display:grid;gap:8px}
+.sod29-world-public-post{width:100%;cursor:pointer;text-align:start;color:var(--s29-ink)}
+.sod29-world-public-post:disabled{cursor:default;opacity:.7}
+.sod29-world-public-post>span{color:var(--s29-accent-text);font-weight:800}
+@media(max-width:620px){.sod29-world-public-open-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-world-access-note{display:grid}}
