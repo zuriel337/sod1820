@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
+import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import {
   RESEARCHER_OPERATION_FILTERS,
   fetchResearcherCorpusBySlug,
@@ -67,6 +69,54 @@ function CorpusRow({ row, onOpenToken }) {
   );
 }
 
+function ResearcherPublicTopic({ slug }) {
+  const shell = use2029Shell();
+  const [state, setState] = useState({ loading: true, projection: null, error: null });
+
+  useEffect(() => {
+    let alive = true;
+    setState({ loading: true, projection: null, error: null });
+    fetchContributorFindingsProjection(slug)
+      .then((projection) => { if (alive) setState({ loading: false, projection, error: null }); })
+      .catch((error) => { if (alive) setState({ loading: false, projection: null, error }); });
+    return () => { alive = false; };
+  }, [slug]);
+
+  const p = state.projection;
+  if (state.loading) return <FrameState kind="loading" title="מחבר את נושא המחקר">מקורות, ממצאים, פעילות והתכנסויות נטענים מאותו Research OS.</FrameState>;
+  if (state.error) return <FrameState kind="error" title="נושא המחקר לא נטען כרגע">לא יוצג חומר חלופי במקום המידע שלא נטען.</FrameState>;
+  if (!p) return <FrameState kind="empty" title="החוקר לא נמצא">לא נוצרה זהות חלופית לפי שם.</FrameState>;
+
+  return <>
+    <section className="sod29-focus-stage sod29-researcher-public-hero" data-experience-capability="researcher-public-topic">
+      <div>
+        <div className="sod29-kicker">נושא מחקרי · חוקר / כותב</div>
+        <h2>{p.contributor.displayName}</h2>
+        <p className="sod29-muted">מקום אחד לכל החומר הציבורי שמיוחס לחוקר: המקור, מה שחולץ ממנו, המספרים, המדיה, הפעילות וההתכנסויות. החוקר הוא עדשת provenance — לא עץ נוסף.</p>
+        <div className="sod29-actions">
+          <span className="sod29-chip">{p.counts.sourceGroups || 0} מקורות</span>
+          <span className="sod29-chip">{p.counts.researchObjects || 0} ממצאים</span>
+          <span className="sod29-chip">{p.counts.contributions || 0} פעילות / תרומות</span>
+          <span className="sod29-chip">{p.counts.topics || 0} התכנסויות</span>
+          <button className="sod29-action" type="button" onClick={() => shell.go("/world")}>חזרה לעולם</button>
+        </div>
+      </div>
+    </section>
+
+    <section className="sod29-section sod29-researcher-future-intake" aria-label="פעילות עתידית של החוקר">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">ONE TREE · CONTINUOUS INTAKE</div>
+          <h2>גם מה שיעלה בהמשך נשאר באותו נושא מחקרי</h2>
+          <div className="sod29-muted">פוסט, הודעת מקור, תרומה, צ׳אט או פורום שמיוחסים לחוקר יכולים להופיע כאן כפעילות/מקור דרך ה־owners הקיימים. הם לא הופכים אוטומטית לממצא מאומת, Topic או אמת קנונית.</div>
+        </div>
+      </div>
+    </section>
+
+    <ContributorFindingsLens projection={p} loading={false} error={null} />
+  </>;
+}
+
 function ResearcherCorpusView({ slug }) {
   const { isAdmin, loading: authLoading } = useAuth();
   const research = useResearch();
@@ -106,7 +156,7 @@ function ResearcherCorpusView({ slug }) {
   };
 
   if (authLoading) return <FrameState kind="loading" title="בודק הרשאת מנהל">טוען זהות והרשאה.</FrameState>;
-  if (!isAdmin) return <FrameState kind="gated" title="מסך מנהל בלבד">הקורפוס המפוענח כולל חומר פרטי. ההרשאות הקיימות אינן מורחבות כדי למלא את המסך.</FrameState>;
+  if (!isAdmin) return null;
   if (state.loading) return <FrameState kind="loading" title="טוען קורפוס מפוענח">קורא את חומר החוקר מתוך Research Objects הקיימים.</FrameState>;
   if (state.error) return <FrameState kind="error" title="הקורפוס לא נטען">{String(state.error?.message || state.error)}</FrameState>;
   if (!state.contributor) return <FrameState kind="empty" title="החוקר לא נמצא">לא נוצרה זהות חלופית ולא בוצע חיבור לפי שם.</FrameState>;
@@ -114,7 +164,7 @@ function ResearcherCorpusView({ slug }) {
   return <>
     <section className="sod29-focus-stage sod29-researcher-hero">
       <div>
-        <div className="sod29-kicker">RESEARCHER CORPUS · ADMIN</div>
+        <div className="sod29-kicker">RESEARCHER CORPUS · ADMIN DEEP VIEW</div>
         <h2>{state.contributor.display_name}</h2>
         <p className="sod29-muted">{state.contributor.specialty_label || state.contributor.role || "קורפוס מחקר מפוענח"}</p>
         <div className="sod29-actions">
@@ -171,8 +221,8 @@ export default function Researcher2029Page() {
   const { slug } = useParams();
   useEffect(() => {
     applySeo({
-      title: "קורפוס חוקר · SOD1820",
-      description: "Admin researcher corpus projection in SOD1820 2029",
+      title: "חוקר / כותב · SOD1820 2029",
+      description: "נושא מחקרי ציבורי של חוקר או כותב ב-SOD1820 2029",
       path: `/researcher/${encodeURIComponent(slug || "")}`,
       noindex: true,
     });
@@ -183,10 +233,11 @@ export default function Researcher2029Page() {
       surface="world"
       symbol="⌁"
       eyebrow="RESEARCHER CORPUS · 2029"
-      title="קורפוס חוקר"
-      description="החומר המפוענח של החוקר במקום אחד: חיפוש, סינון ופתיחה ישירה של מילה או מספר — בלי מסלול Legacy באמצע."
-      status="מנהל · מחקר"
+      title="חוקר / כותב"
+      description="נושא מחקרי אחד שמחבר את המקורות, הממצאים, הפעילות, המספרים וההתכנסויות של החוקר."
+      status="2029 · נושא מחקרי"
     >
+      <ResearcherPublicTopic slug={slug} />
       <ResearcherCorpusView slug={slug} />
     </Sod2029Shell>
   );
