@@ -235,6 +235,22 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי דפי מספר */ }
 
+  // ── דפי ביטוי מאומתים → /number/:phrase — אותו SSOT של robots בעמוד עצמו.
+  // רק verified + published + visible מתוך sitemap_phrases_v1; ביטוי מספרי נשאר בבעל-המספר.
+  try {
+    const phrases = await fetchAll('sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc');
+    for (const row of phrases) {
+      const phrase = String(row?.phrase || '').trim();
+      if (!phrase || /^\d+$/.test(phrase)) continue;
+      urls.push({
+        loc: '/number/' + encodeURIComponent(phrase),
+        lastmod: row.lastmod || undefined,
+        changefreq: 'monthly',
+        priority: '0.5',
+      });
+    }
+  } catch (e) { /* fail-closed: בלי view אין הכרזה על דפי-ביטוי */ }
+
   // ── צירי התכנסות מאושרים → /topic/:slug ──
   try {
     const topics = await fetchAll('topic_cards_public?select=slug,approved_at,created_at');
