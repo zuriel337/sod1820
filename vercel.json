@@ -670,6 +670,32 @@
     },
     {
       "source": "/post/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/post/$1&crawler=search"
+    },
+    {
+      "source": "/video/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "/api/og?path=/video/$1&crawler=search"
+    },
+    {
+      "source": "/post/(.*)",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/video/(.*)",
       "destination": "/2029.html"
     },
     {

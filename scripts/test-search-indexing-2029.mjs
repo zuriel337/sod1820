@@ -47,7 +47,7 @@ const spaCatchAll = (vercel.rewrites || []).some(r => r.source === "/(.*)" && r.
 assert.equal(spaCatchAll, true, "SPA catch-all still exists; route legitimacy must remain an explicit Edge layer");
 assert.match(map, /LIVE_VERIFY/);
 assert.match(map, /RESIDUAL/);
-assert.match(map, /HTTP 404 at Edge/);
+assert.match(map, /Edge[^\n]{0,80}HTTP 404|HTTP 404[^\n]{0,80}Edge/i);
 assert.match(map, /GSC_VERIFIED/);
 
 console.log("search-indexing-2029: PASS");

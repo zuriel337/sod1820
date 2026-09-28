@@ -375,12 +375,28 @@ export default async function middleware(request, context) {
   }
 
   // Route legitimacy runs only after security/quarantine decisions. It does not alter CN/SG semantics.
-  if ((request.method === 'GET' || request.method === 'HEAD')
-      && isSingleSegmentRoute(path)
-      && !isKnownSingleSegmentRoute(path)) {
-    const exists = await publicPostSlugExists(path);
-    if (exists === false) return routeNotFoundResponse();
-    // null = Supabase unavailable/uncertain -> fail-open, preserving site availability.
+  if (request.method === 'GET' || request.method === 'HEAD') {
+    // Legacy single-segment containment remains for compatibility, but G3 targets /post/:slug.
+    if (isSingleSegmentRoute(path) && !isKnownSingleSegmentRoute(path)) {
+      const exists = await publicPostSlugExists(path);
+      if (exists === false) return routeNotFoundResponse();
+      // null = Supabase unavailable/uncertain -> fail-open, preserving site availability.
+    }
+
+    // 2029 Post uses the same exact indexed slug owner — no second route-validity system.
+    const post2029 = path.match(/^\/post\/([^/]+)\/?$/);
+    if (post2029) {
+      const exists = await publicPostSlugExists('/' + post2029[1]);
+      if (exists === false) return routeNotFoundResponse();
+    }
+
+    // /video/:assetId is a 2029 public route. Reject impossible IDs without any DB I/O.
+    // A well-formed but missing id stays fail-closed/noindex in the Video owner until a cheap,
+    // bounded existence lookup can be proven without evaluating the heavy asset projection here.
+    const video2029 = path.match(/^\/video\/([^/]+)\/?$/);
+    if (video2029 && !/^[0-9a-f]{32}$/i.test(video2029[1])) {
+      return routeNotFoundResponse();
+    }
   }
 
   // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:

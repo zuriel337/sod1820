@@ -80,6 +80,63 @@ assert.doesNotMatch(topicSearchCrawler.body, /http-equiv="refresh"/);
 assert.equal(topicSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.equal(topicSearchCrawler.headers.get("vary"), "User-Agent");
 
+const postSearchCrawler = await renderResponse("/post/demo-2029", async (url) => {
+  const u = String(url);
+  if (u.includes("/posts?slug=eq.demo-2029")) {
+    return {
+      ok: true,
+      async json() {
+        return [{
+          title: "פוסט 2029",
+          excerpt: "תיאור פוסט",
+          content: "<p>מקור</p>",
+          image_url: null,
+          date: "2026-09-28T08:00:00+00:00",
+          modified: "2026-09-28T09:00:00+00:00",
+          tags: [],
+          categories: ["מחקר"],
+          author: "SOD1820",
+        }];
+      },
+    };
+  }
+  throw new Error("unexpected 2029 post fetch: " + u);
+}, { crawler: "search" });
+assert.match(postSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/post\/demo-2029"/);
+assert.match(postSearchCrawler.body, /"@type":"Article"/);
+assert.equal(postSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.doesNotMatch(postSearchCrawler.body, /http-equiv="refresh"/);
+
+const videoId = "0123456789abcdef0123456789abcdef";
+const videoSearchCrawler = await renderResponse(`/video/${videoId}`, async (url) => {
+  const u = String(url);
+  if (u.includes("/video_media_assets_v1?")) {
+    return {
+      ok: true,
+      async json() {
+        return [{
+          public_id: videoId,
+          title: "סרטון 2029",
+          video_kind: "selfhost",
+          media_url: "https://example.test/video.mp4",
+          youtube_id: null,
+          poster_url: "https://example.test/poster.jpg",
+          thumb_url: "https://example.test/thumb.jpg",
+          topics: ["מחקר"],
+          google_indexable: true,
+          first_seen_at: "2026-09-28T08:00:00+00:00",
+          last_seen_at: "2026-09-28T09:00:00+00:00",
+        }];
+      },
+    };
+  }
+  throw new Error("unexpected 2029 video fetch: " + u);
+}, { crawler: "search" });
+assert.match(videoSearchCrawler.body, new RegExp(`canonical" href="https:\\\/\\\/sod1820\\.co\\.il\\/video\\/${videoId}"`));
+assert.match(videoSearchCrawler.body, /"@type":"VideoObject"/);
+assert.equal(videoSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.doesNotMatch(videoSearchCrawler.body, /http-equiv="refresh"/);
+
 const elsLocked = await render("/els", async (url) => {
   const u = String(url);
   if (u.includes("/site_flags?")) {
@@ -109,14 +166,14 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 10, "search crawlers must be routed only across the explicit native/public 2029 document family");
+assert.equal(searchRules.length, 12, "search crawlers must be routed only across the explicit native/public 2029 document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
   assert.ok(ua.includes("bingbot"), `bingbot must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/2029", "/world", "/topic/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)"]) {
+for (const route of ["/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)"]) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "Google/Bing must never be sent through a global crawler catch-all");

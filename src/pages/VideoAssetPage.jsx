@@ -23,9 +23,10 @@ function decodeHtml(value) {
 function internalPath(url) {
   try {
     const u = new URL(url);
-    if (u.origin === window.location.origin || u.hostname === "sod1820.co.il" || u.hostname === "www.sod1820.co.il") {
-      return u.pathname + u.search + u.hash;
-    }
+    const sameSite = u.origin === window.location.origin || u.hostname === "sod1820.co.il" || u.hostname === "www.sod1820.co.il";
+    if (!sameSite) return null;
+    const path = u.pathname + u.search + u.hash;
+    if (/^\/(?:2029(?:\/|$)|world(?:\/|$)|topic\/|post\/|video\/|book\/|books(?:\/|$)|els(?:\/|$)|heichal(?:\/|$)|researcher\/)/.test(u.pathname)) return path;
   } catch { /* noop */ }
   return null;
 }
@@ -97,6 +98,17 @@ export default function VideoAssetPage() {
   const target = asset && !asset.uses_generic_page ? internalPath(asset.primary_page_url) : null;
 
   useEffect(() => {
+    if (state.loading || asset) return;
+    applySeo({
+      title: "הסרטון לא נמצא",
+      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820 2029.",
+      path: `/video/${assetId || ""}`,
+      noindex: true,
+    });
+    clearUnifiedVideoJsonLd();
+  }, [state.loading, asset, assetId]);
+
+  useEffect(() => {
     if (!asset || !asset.uses_generic_page) return;
     const path = `/video/${asset.public_id}`;
     const topics = Array.isArray(asset.topics) ? asset.topics.filter(Boolean) : [];
@@ -114,7 +126,7 @@ export default function VideoAssetPage() {
   const linkedPlacements = useMemo(() => {
     const seen = new Set();
     return placements.filter(p => {
-      if (!p?.page_url || seen.has(p.page_url)) return false;
+      if (!p?.page_url || seen.has(p.page_url) || !internalPath(p.page_url)) return false;
       seen.add(p.page_url);
       return true;
     });
@@ -125,7 +137,7 @@ export default function VideoAssetPage() {
   if (state.loading) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: P.inkSoft }}>טוען סרטון…</div>;
   if (state.error || !asset) return <div style={{ direction: "rtl", maxWidth: 780, margin: "60px auto", padding: 24, color: P.ink }}>
     <h1>הסרטון לא נמצא</h1><p style={{ color: P.inkSoft }}>הקישור אינו קיים או שהמדיה אינה ציבורית.</p>
-    <Link to="/post">חזרה לתוכן</Link>
+    <Link to="/world">חזרה לעולם</Link>
   </div>;
 
   const series = Array.isArray(asset.series_keys) ? asset.series_keys : [];
@@ -142,7 +154,7 @@ export default function VideoAssetPage() {
       {(series.length || topics.length || ciphers.length) ? <section style={{ marginTop: 22, display: "flex", flexWrap: "wrap", gap: 8 }}>
         {series.map(s => <span key={"s"+s} style={{ border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 11px", fontSize: 12 }}>{SERIES_LABELS[s] || s}</span>)}
         {topics.map(t => <span key={"t"+t} style={{ border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 11px", fontSize: 12 }}>{t}</span>)}
-        {ciphers.map(c => <Link key={"c"+c} to={`/codes/${encodeURIComponent(c)}`} style={{ border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 11px", fontSize: 12 }}>צופן: {c}</Link>)}
+        {ciphers.map(c => <Link key={"c"+c} to={`/els?cipher=${encodeURIComponent(c)}`} style={{ border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 11px", fontSize: 12 }}>צופן: {c}</Link>)}
       </section> : null}
 
       {linkedPlacements.length ? <section style={{ marginTop: 30, borderTop: `1px solid ${P.border}`, paddingTop: 20 }}>
@@ -151,9 +163,7 @@ export default function VideoAssetPage() {
           {linkedPlacements.map((p, i) => {
             const path = internalPath(p.page_url);
             const label = decodeHtml(p.title || p.source_type || "מקור");
-            return path
-              ? <Link key={p.page_url+i} to={path} style={{ color: P.accentText }}>{label}</Link>
-              : <a key={p.page_url+i} href={p.page_url} rel="noopener noreferrer">{label}</a>;
+            return <Link key={p.page_url+i} to={path} style={{ color: P.accentText }}>{label}</Link>;
           })}
         </div>
       </section> : null}

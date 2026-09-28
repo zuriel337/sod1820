@@ -8,6 +8,7 @@ import {
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const app = read("src/App.jsx");
+const app2029 = read("src/App2029.jsx");
 const middleware = read("middleware-core.js");
 const migration = read("supabase/migrations/20260928103044_route_legitimacy_2029_v1.sql");
 const notFound = read("src/pages/NotFoundPage.jsx");
@@ -57,6 +58,12 @@ assert.match(middleware, /if \(!r\.ok\) return null/);
 assert.match(middleware, /if \(exists === false\) return routeNotFoundResponse\(\)/);
 assert.match(middleware, /status: 404/);
 assert.match(middleware, /x-sod-route': 'not-found'/);
+assert.match(app2029, /path="\/post\/:slug"/);
+assert.match(app2029, /path="\/video\/:assetId"/);
+assert.match(middleware, /const post2029 = path\.match\(\/\^\\\/post\\\/\(\[\^\/\]\+\)\\\/\?\$\//);
+assert.match(middleware, /publicPostSlugExists\('\/' \+ post2029\[1\]\)/);
+assert.match(middleware, /const video2029 = path\.match\(\/\^\\\/video\\\/\(\[\^\/\]\+\)\\\/\?\$\//);
+assert.match(middleware, /!\/\^\[0-9a-f\]\{32\}\$\/i\.test\(video2029\[1\]\)/);
 
 // Security/country policy must run before route legitimacy, so this slice changes routing only.
 const quarantinePos = middleware.indexOf("Smart Quarantine 2029");
