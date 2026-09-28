@@ -260,6 +260,8 @@ Detailed acceptance:
 
 It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, reconcile the live Legacy writer-shutdown matrix against verified 2029 replacements/consumers, preserve provenance and rerun fresh-agent/release-state acceptance.
 
+**Data/query compaction + performance baseline (end-of-G3):** after enough real 2029 usage exists, run an evidence-based optimization pass over the existing owners: classify legacy/staging/operational stores, fix measured hot queries/RPCs/index/RLS costs, remove duplicate/unused indexes only with live-consumer proof, preserve provenance/retention-safe data, and record storage/growth + core-latency baselines before G4. **One Tree does not mean one SQL table**; do not bulk-merge or purge tables merely to reduce table count.
+
 **Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
@@ -284,6 +286,8 @@ Run representative real journeys and surfaces against live/replayable fixtures. 
 **Transition semantics:** entering G4 means the G3 foundation/runtime is sufficiently closed to test complete experiences. It does **not** auto-enable G5+ capabilities. G4 consumes what already exists, finds real cross-layer failures, and promotes only journeys that pass Golden acceptance. Failed journeys route back to the owning G3 layer for repair without reopening Legacy UX as the target.
 
 Golden order should include ELS + Raziel/context before broad localization/media rollout.
+
+Golden acceptance also includes measured end-to-end performance on core journeys against live/replayable production-like data. A latency/query/storage regression routes back to its owning G3 layer for repair; G5 is not a database-cleanup stage.
 
 ### G5 — Product / Entitlement Matrix
 
