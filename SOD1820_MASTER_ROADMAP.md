@@ -24,6 +24,8 @@ Closure evidence:
 
 **Current phase: G3 — Foundation runtime / implementation.**
 
+**G3→G4 transition rule · 2026-09-28:** G4 does not activate later capabilities merely because the gate number changes. G3 must first close its implementation/compaction blockers; G4 then runs real/replayable **Golden Experiences** over the already-built 2029 capabilities. A capability becomes Golden only after its real journey passes; English, entitlement/pricing, Voice/Multimodal, Spatial/3D and XR remain governed by their later program stages and do not auto-open at G4.
+
 Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
 
 **Human-Gate implementation focus · 2026-09-22 — 2029 FIRST.**
@@ -229,7 +231,7 @@ This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through 
 
 - 2029 System Frame / Global Now/Home adapters;
 - World / Heichal / Number / Books / ELS / Journey / Post / Video-Media / Workspace semantic surfaces;
-- **2029 Search / Video Discovery Foundation:** G3 treats Search/Video as a 2029 rail, not a Legacy UX repair. Canonical public flow is `source/asset → 2029 projection → 2029 route → indexability → server metadata → sitemap → crawler access → GSC verification`. Primary product URLs are `/post/:slug`, `/video/:assetId`, `/topic/:slug`, `/2029/number/:value`, `/book/:slug` and `/els`; Legacy root-slug/video routes are source/compatibility only and are not new product homes. Unified Video Projection is released via PR #779; the G3 cutover slice must keep video landing identity on the 2029 runtime and preserve one asset / many placements / one Google primary-page semantics. Search Console validation is external verification, not a second truth owner. True HTTP 404 for invalid **2029 public routes** remains a routing-infrastructure closure item; do not spend G3 effort restoring Legacy soft-404 parity. Detailed closure map: `docs/2029-search-indexing-closure-map-v1.md`;
+- **2029 Search / Video Discovery Foundation — RELEASED · DEPLOYED · LIVE (PR #779 + #782):** Search/Video is a 2029 rail, not a Legacy UX repair. Canonical public flow is `source/asset → 2029 projection → 2029 route → indexability → server metadata → sitemap → crawler access → GSC verification`. Primary product URLs are `/post/:slug`, `/video/:assetId`, `/topic/:slug`, `/2029/number/:value`, `/book/:slug` and `/els`; Legacy root-slug/video routes are source/compatibility only and are not new product homes. Unified Video Projection + Search indexability landed in #779; native 2029 route/crawler cutover landed in #782. Preserve one asset / many placements / one Google primary-page semantics. Search Console validation is external verification, not a second truth owner. Residual route-legitimacy closure remains owner-specific for false dynamic entities beyond the already-covered post/video cases. Detailed closure map: `docs/2029-search-indexing-closure-map-v1.md`;
 - **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + hydrated canonical/meta/OG/structured-data projection. **DRIFT / NOW:** the initial 2029 HTML document still serves generic metadata to ordinary crawlers before hydration; server/document canonical/title/description/OG/JSON-LD parity must be closed before calling SEO/AI discovery foundation complete. Preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
 - **Number Mathematical / Prime Lens:** extend the released `number_math_profile` with bounded prime context/relations and one-tree numeric re-entry; Golden fixture `787 → prime index 138 → Number 138 → verified צמח=138`; Heichal consumes the same Context as a bounded Prime/Pattern deep-research lane, while Beit Midrash owns the learning explanation. `138` remains a curated strong-number / anchor candidate until a separate Human-Gate anchor decision. Detailed plan: `docs/2029-number-prime-lens-beit-midrash-plan-v1.md`;
 - internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
@@ -278,6 +280,8 @@ Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; n
 ### G4 — Golden Experiences
 
 Run representative real journeys and surfaces against live/replayable fixtures. No simulated PASS.
+
+**Transition semantics:** entering G4 means the G3 foundation/runtime is sufficiently closed to test complete experiences. It does **not** auto-enable G5+ capabilities. G4 consumes what already exists, finds real cross-layer failures, and promotes only journeys that pass Golden acceptance. Failed journeys route back to the owning G3 layer for repair without reopening Legacy UX as the target.
 
 Golden order should include ELS + Raziel/context before broad localization/media rollout.
 
