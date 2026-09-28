@@ -120,18 +120,17 @@ async function logTokens(usage: any) {
   } catch { /* telemetry must never block enrichment */ }
 }
 
-async function aiMetadata(text: string, needTitle: boolean): Promise<{ speaker: string | null; title: string | null }> {
-  const fallback = { speaker: fallbackSpeaker(text), title: needTitle ? fallbackTitle(text) : null };
+async function aiMetadata(text: string): Promise<{ speaker: string | null; title: string | null; topics: string[] }> {
+  const fallback = { speaker: fallbackSpeaker(text), title: fallbackTitle(text), topics: [] as string[] };
   if (!ANTHROPIC_KEY || !cleanText(text)) return fallback;
 
   const system =
     "You enrich video metadata for SOD1820. Use ONLY the supplied caption/transcript. " +
     "Never invent identities, facts, prophecies, or claims. Return strict JSON only: " +
-    '{"speaker":string|null,"title":string|null}. ' +
+    '{"speaker":string|null,"title":string|null,"topics":string[]}. ' +
     "speaker: only a person's name if explicitly named or unambiguously self-identified in the source; otherwise null. " +
-    (needTitle
-      ? "title: concise factual Hebrew title, 25-90 characters, describing what is actually said; no clickbait; otherwise null."
-      : "title: always null.");
+    "title: concise factual Hebrew title, 25-90 characters, describing what is actually said; no clickbait; otherwise null. " +
+    "topics: 0-5 short Hebrew topic labels explicitly supported by the source; no inferred ideology, diagnosis, prophecy, or hidden meaning.";
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -156,10 +155,14 @@ async function aiMetadata(text: string, needTitle: boolean): Promise<{ speaker: 
   try {
     const p = JSON.parse(m[0]);
     const speaker = cleanText(p?.speaker || "") || fallback.speaker;
-    const title = needTitle ? (cleanText(p?.title || "") || fallback.title) : null;
+    const title = cleanText(p?.title || "") || fallback.title;
+    const topics = Array.isArray(p?.topics)
+      ? [...new Set(p.topics.map((x: unknown) => cleanText(x)).filter(Boolean))].slice(0, 5)
+      : fallback.topics;
     return {
       speaker: speaker ? speaker.slice(0, 80) : null,
       title: title ? title.slice(0, 100) : null,
+      topics,
     };
   } catch {
     return fallback;
@@ -184,32 +187,37 @@ async function enrichRow(row: any) {
       transcript = await transcribe(row);
       basis = transcript;
     } catch (e) {
-      if (Object.keys(updates).length) {
-        await sb.from("channel_updates").update(updates).eq("id", row.id);
-      }
-      return { id: row.id, ok: false, retryable: true, stage: "stt", error: String((e as Error)?.message || e) };
+      updates.enrichment_status = "retry_stt";
+      updates.enrichment_source = "stt";
+      const { error: markError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+      return {
+        id: row.id,
+        ok: false,
+        retryable: true,
+        stage: "stt",
+        error: String((e as Error)?.message || e),
+        mark_error: markError?.message || null,
+      };
     }
   }
 
-  const needSpeaker = row.speaker == null;
-  const meta = (needSpeaker || generic)
-    ? await aiMetadata(basis, generic)
-    : { speaker: row.speaker || null, title: null };
+  const meta = await aiMetadata(basis);
+  const title = meta.title || fallbackTitle(basis);
 
-  if (needSpeaker) updates.speaker = meta.speaker || "";
-  if (generic) {
-    const title = meta.title || fallbackTitle(basis);
-    if (title) {
-      updates.text = title;
-      if (transcript) {
-        try {
-          await sb.from("video_transcripts")
-            .update({ title })
-            .eq("video_key", `or-geula:${row.id}`)
-            .eq("lang", "he");
-        } catch { /* noop */ }
-      }
-    }
+  if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
+  if (title) updates.seo_title = title;
+  updates.topics = meta.topics || [];
+  updates.enrichment_status = "enriched";
+  updates.enrichment_source = generic ? "stt" : "caption";
+  updates.enriched_at = new Date().toISOString();
+
+  if (transcript && title) {
+    try {
+      await sb.from("video_transcripts")
+        .update({ title })
+        .eq("video_key", `or-geula:${row.id}`)
+        .eq("lang", "he");
+    } catch { /* noop */ }
   }
 
   const { error } = await sb.from("channel_updates").update(updates).eq("id", row.id);
@@ -222,7 +230,9 @@ async function enrichRow(row: any) {
     generic_before: generic,
     transcribed: !!transcript,
     speaker: meta.speaker || null,
-    title_changed: generic && !!updates.text,
+    seo_title: title || null,
+    topics: meta.topics || [],
+    enrichment_source: generic ? "stt" : "caption",
   };
 }
 
@@ -240,17 +250,17 @@ Deno.serve(async (req) => {
   let rows: any[] = [];
   if (rowId) {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,created_at")
+      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at")
       .eq("id", rowId)
       .maybeSingle();
     if (error) return json({ error: "row_lookup_failed", detail: error.message }, 500);
     if (data) rows = [data];
   } else {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,created_at")
+      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at")
       .eq("channel", "or-geula")
       .ilike("image_url", "%.mp4%")
-      .or("link_url.is.null,speaker.is.null")
+      .neq("enrichment_status", "enriched")
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) return json({ error: "batch_lookup_failed", detail: error.message }, 500);
