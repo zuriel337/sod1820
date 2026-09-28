@@ -486,6 +486,36 @@ export function setOrGeulaSingleVideoJsonLd(v, path) {
 }
 export function clearOrGeulaSingleVideoJsonLd() { removeJsonLd("sod-orgeula-one-ld"); }
 
+// ── JSON-LD VideoObject אחיד ל-/video/:assetId (fallback קנוני ל-assets בלי דף עשיר) ──
+export function setUnifiedVideoJsonLd(asset, path) {
+  if (typeof document === "undefined") return false;
+  if (!asset || !asset.media_url) { removeJsonLd("sod-unified-video-ld"); return false; }
+  const canonical = SITE_URL + (path || `/video/${asset.public_id || ""}`);
+  const name = plain(asset.title || "סרטון", 110) || "סרטון";
+  const topics = Array.isArray(asset.topics) ? asset.topics.filter(Boolean) : [];
+  const desc = topics.length ? `${name} — ${topics.slice(0, 5).join(" · ")}` : name;
+  const thumb = resolveThumb([asset.thumb_url, asset.poster_url], name, "SOD1820 · וידאו", "video");
+  const yt = asset.youtube_id || (asset.video_kind === "youtube" ? String(asset.media_url || "").match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1] : null);
+  const vimeo = asset.video_kind === "vimeo" ? String(asset.media_url || "").match(/vimeo\.com\/(\d+)/)?.[1] : null;
+  setJsonLd("sod-unified-video-ld", {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "@id": canonical + "#video",
+    name,
+    description: desc.slice(0, 300),
+    thumbnailUrl: [thumb],
+    uploadDate: videoUploadDate(asset.first_seen_at || asset.last_seen_at),
+    contentUrl: asset.video_kind === "selfhost" ? asset.media_url : undefined,
+    embedUrl: yt ? `https://www.youtube-nocookie.com/embed/${yt}` : (vimeo ? `https://player.vimeo.com/video/${vimeo}` : undefined),
+    url: canonical,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    inLanguage: "he-IL",
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+  });
+  return true;
+}
+export function clearUnifiedVideoJsonLd() { removeJsonLd("sod-unified-video-ld"); }
+
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {
   if (typeof document === "undefined") return;
