@@ -77,5 +77,8 @@ jobs:
       - name: Unified Video Projection 2029 acceptance
         run: node scripts/test-unified-video-projection-2029.mjs
 
+      - name: Search Indexing 2029 closure acceptance
+        run: node scripts/test-search-indexing-2029.mjs
+
       - name: Build
         run: npm run build
