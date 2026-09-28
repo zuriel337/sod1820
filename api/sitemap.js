@@ -95,6 +95,51 @@ function postVideoUrlTag(p) {
   ].filter(Boolean).join('\n');
 }
 
+
+function canonicalVideoLoc(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  return s.includes('%') ? s : encodeURI(s);
+}
+function canonicalVideoPath(raw) {
+  try { return new URL(String(raw || '')).pathname.toLowerCase(); } catch { return ''; }
+}
+function unifiedVideoBlock(v) {
+  const title = cleanCap(v.title).slice(0, 100) || 'SOD1820 — סרטון';
+  const desc = title;
+  const thumb = resolveThumb([v.thumb_url, v.poster_url], title, 'SOD1820 · סרטון', 'video');
+  let pub; try { pub = v.first_seen_at ? new Date(v.first_seen_at).toISOString() : undefined; } catch { pub = undefined; }
+  const yt = v.youtube_id || (v.video_kind === 'youtube' ? (String(v.media_url || '').match(/[?&]v=([A-Za-z0-9_-]{11})/) || [])[1] : null);
+  const vm = v.video_kind === 'vimeo' ? (String(v.media_url || '').match(/vimeo\.com\/(\d+)/) || [])[1] : null;
+  return [
+    '    <video:video>',
+    `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
+    `      <video:title>${esc(title)}</video:title>`,
+    `      <video:description>${esc(desc)}</video:description>`,
+    v.video_kind === 'selfhost' ? `      <video:content_loc>${esc(v.media_url)}</video:content_loc>` : '',
+    yt ? `      <video:player_loc>${esc('https://www.youtube-nocookie.com/embed/' + yt)}</video:player_loc>` : '',
+    (!yt && vm) ? `      <video:player_loc>${esc('https://player.vimeo.com/video/' + vm)}</video:player_loc>` : '',
+    pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
+    '    </video:video>',
+  ].filter(Boolean).join('\n');
+}
+function unifiedVideoPageTag(pageUrl, assets = []) {
+  const loc = canonicalVideoLoc(pageUrl);
+  if (!loc || !assets.length) return '';
+  let lastmod;
+  try {
+    const latest = assets.map(v => v.last_seen_at || v.first_seen_at).filter(Boolean).sort().at(-1);
+    lastmod = latest ? new Date(latest).toISOString().slice(0, 10) : undefined;
+  } catch { lastmod = undefined; }
+  return [
+    '  <url>',
+    `    <loc>${esc(loc)}</loc>`,
+    lastmod ? `    <lastmod>${lastmod}</lastmod>` : '',
+    ...assets.slice(0, 1000).map(unifiedVideoBlock),
+    '  </url>',
+  ].filter(Boolean).join('\n');
+}
+
 // עמודי-על קנוניים (מקבילים ל-scripts/gen-sitemap.mjs)
 const STATIC = [
   { loc: '/',             priority: '1.0', changefreq: 'daily'   },
@@ -142,27 +187,34 @@ async function fetchAll(path) {
 export default async function handler(req, res) {
   const urls = [...STATIC];
 
-  // ── פוסטים video-primary (קטגוריה «וידאו») → video:video על ה-canonical של הפוסט ──
-  //    נבנים ראשונים כדי לדלג עליהם בלולאת-הפוסטים הרגילה (loc יחיד לכל דף — בלי כפילות).
-  const postVideoUrls = [];
-  const videoPrimarySlugs = new Set();
+  // ── Unified Video Projection → asset אחד, placements רבים, primary Google page אחד ──
+  // כולל פוסטים גם מחוץ לקטגוריית «וידאו», Or-Geula, home_videos וערוצי WhatsApp ציבוריים.
+  const unifiedVideoPages = new Map();
+  const videoPrimaryPaths = new Set();
   try {
-    const vposts = await fetchAll(`posts?select=slug,title,content,image_url,date,modified&categories=cs.%7B${encodeURIComponent('וידאו')}%7D${POST_PUBLISHED_FILTER}&order=date.desc`);
-    for (const p of vposts) {
-      const tag = postVideoUrlTag(p);
-      if (tag) { postVideoUrls.push(tag); if (p.slug) videoPrimarySlugs.add(p.slug); }
+    const assets = await fetchAll('video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at&google_indexable=eq.true&order=last_seen_at.desc');
+    for (const v of assets) {
+      if (!v.primary_page_url || !v.media_url) continue;
+      const list = unifiedVideoPages.get(v.primary_page_url) || [];
+      list.push(v);
+      unifiedVideoPages.set(v.primary_page_url, list);
+      const path = canonicalVideoPath(v.primary_page_url);
+      if (path) videoPrimaryPaths.add(path);
     }
-  } catch (e) { /* ממשיכים גם בלי וידאו-פוסטים */ }
+  } catch (e) { /* ממשיכים גם בלי Projection וידאו */ }
+  const unifiedVideoUrls = [...unifiedVideoPages.entries()].map(([pageUrl, assets]) => unifiedVideoPageTag(pageUrl, assets));
 
-  // ── פוסטים → /<slug> (מדלגים על video-primary — הם נכנסים עם video:video למטה) ──
+  // ── פוסטים → /<slug> (מדלגים על עמודים שכבר נכנסים עם video:video מה-Projection) ──
   try {
     const posts = await fetchAll(`posts?select=slug,modified,date${POST_PUBLISHED_FILTER}&order=date.desc`);
     for (const p of posts) {
-      if (!p.slug || videoPrimarySlugs.has(p.slug)) continue;
+      if (!p.slug) continue;
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
       // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-%
       // ל-%25 → קידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק עברית "נקייה".
       const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
+      const postPath = ('/' + encodedSlug).toLowerCase();
+      if (videoPrimaryPaths.has(postPath)) continue;
       urls.push({ loc: '/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי פוסטים */ }
@@ -241,20 +293,11 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי דפי-כתבים */ }
 
-  // ── סרטוני אור-הגאולה → Video Sitemap (video:video) ──
-  let videoUrls = [];
-  try {
-    const rows = await fetchAll('channel_updates?select=id,text,seo_title,topics,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
-    // כל סרטון נכנס — thumbnail אמיתי אם יש, אחרת כרטיס-ממותד זמני (videoUrlTag דואג לנפילה).
-    videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url));
-  } catch (e) { /* ממשיכים גם בלי סרטונים */ }
-
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
     urls.map(urlTag).join('\n'),
-    postVideoUrls.join('\n'),
-    videoUrls.map(videoUrlTag).join('\n'),
+    unifiedVideoUrls.join('\n'),
     '</urlset>',
     '',
   ].filter(Boolean).join('\n');
