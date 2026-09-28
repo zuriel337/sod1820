@@ -344,13 +344,26 @@ export async function fetchContributorFindingsProjection(slug) {
   if (!contributor) return null;
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
 
-  const sourceMessagesPromise = fetchSourceMessages(aliases).catch(() => []);
-  const [research, sourceMessages, contributions, topics] = await Promise.all([
+  // Public-first projection: each source is independently RLS-governed. One restricted
+  // or temporarily failing source must not collapse the whole researcher topic.
+  const emptyPaged = () => ({ rows: [], total: 0, truncated: false });
+  const [researchResult, sourceMessagesResult, contributionsResult, topicsResult] = await Promise.allSettled([
     fetchResearchObjects(aliases),
-    sourceMessagesPromise,
+    fetchSourceMessages(aliases),
     fetchContributorContributions(contributor.id),
     fetchContributorTopics(aliases),
   ]);
+  const research = researchResult.status === "fulfilled" ? researchResult.value : emptyPaged();
+  const sourceMessages = sourceMessagesResult.status === "fulfilled" ? sourceMessagesResult.value : [];
+  const contributions = contributionsResult.status === "fulfilled" ? contributionsResult.value : emptyPaged();
+  const topics = topicsResult.status === "fulfilled" ? topicsResult.value : [];
+
+  const sourceAvailability = Object.freeze({
+    researchObjects: researchResult.status === "fulfilled",
+    sourceMessages: sourceMessagesResult.status === "fulfilled",
+    contributions: contributionsResult.status === "fulfilled",
+    topics: topicsResult.status === "fulfilled",
+  });
 
   const terms = uniq(research.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
   let lexicalRows = [];
@@ -378,6 +391,7 @@ export async function fetchContributorFindingsProjection(slug) {
       contributionsTruncated: contributions.truncated,
       sourceMessagesLoaded: sourceMessages.length,
       topicsLoaded: topics.length,
+      sourceAvailability,
     },
   };
 }
