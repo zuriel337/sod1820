@@ -40,7 +40,7 @@ end $$;
 
 select cron.schedule(
   'wa-video-enrich',
-  '*/10 * * * *',
+  '*/30 * * * *',
   $cron$
     with s as (
       select decrypted_secret as key
@@ -55,7 +55,7 @@ select cron.schedule(
         'Content-Type','application/json',
         'x-fb-admin-key',s.key
       ),
-      body := '{"limit":4}'::jsonb,
+      body := '{"limit":8}'::jsonb,
       timeout_milliseconds := 50000
     )
     from s
