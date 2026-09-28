@@ -836,6 +836,7 @@
   "git": {
     "deploymentEnabled": {
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
+      "gpt/home-2029-reality-gallery-golden-v1": true,
       "gpt/*": false,
       "claude/*": false
     }
