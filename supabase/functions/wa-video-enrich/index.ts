@@ -169,7 +169,7 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
   }
 }
 
-async function enrichRow(row: any) {
+async function enrichRow(row: any, allowStt = false) {
   if (!row?.id || row.channel !== "or-geula" || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_or_geula_video" };
   }
@@ -181,34 +181,62 @@ async function enrichRow(row: any) {
   const generic = isGeneric(row.text);
   let basis = cleanText(row.text);
   let transcript: string | null = null;
+  let meta: { speaker: string | null; title: string | null; topics: string[] } | null = null;
+  let enrichmentSource = "caption";
 
   if (generic) {
-    try {
-      transcript = await transcribe(row);
-      basis = transcript;
-    } catch (e) {
-      updates.enrichment_status = "retry_stt";
-      updates.enrichment_source = "stt";
-      const { error: markError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
-      return {
-        id: row.id,
-        ok: false,
-        retryable: true,
-        stage: "stt",
-        error: String((e as Error)?.message || e),
-        mark_error: markError?.message || null,
-      };
+    const neighbor = await nearbyContext(row);
+    if (neighbor) {
+      basis = neighbor;
+      enrichmentSource = "neighbor_context";
+      meta = await aiMetadata(basis);
+    } else {
+      meta = await thumbnailMetadata(row);
+      if (meta?.title) {
+        enrichmentSource = "thumbnail_vision";
+      } else if (allowStt) {
+        try {
+          transcript = await transcribe(row);
+          basis = transcript;
+          enrichmentSource = "stt";
+          meta = await aiMetadata(basis);
+        } catch (e) {
+          updates.enrichment_status = "retry_stt";
+          updates.enrichment_source = "stt";
+          const { error: markError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+          return {
+            id: row.id,
+            ok: false,
+            retryable: true,
+            stage: "stt",
+            error: String((e as Error)?.message || e),
+            mark_error: markError?.message || null,
+          };
+        }
+      } else {
+        updates.enrichment_status = "retry_stt";
+        updates.enrichment_source = "thumbnail_unresolved";
+        const { error: markError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+        return {
+          id: row.id,
+          ok: false,
+          retryable: true,
+          stage: "needs_stt",
+          error: "no_grounded_caption_or_thumbnail_metadata",
+          mark_error: markError?.message || null,
+        };
+      }
     }
   }
 
-  const meta = await aiMetadata(basis);
+  if (!meta) meta = await aiMetadata(basis);
   const title = meta.title || fallbackTitle(basis);
 
   if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
   if (title) updates.seo_title = title;
   updates.topics = meta.topics || [];
   updates.enrichment_status = "enriched";
-  updates.enrichment_source = generic ? "stt" : "caption";
+  updates.enrichment_source = enrichmentSource;
   updates.enriched_at = new Date().toISOString();
 
   if (transcript && title) {
@@ -232,7 +260,7 @@ async function enrichRow(row: any) {
     speaker: meta.speaker || null,
     seo_title: title || null,
     topics: meta.topics || [],
-    enrichment_source: generic ? "stt" : "caption",
+    enrichment_source: enrichmentSource,
   };
 }
 
@@ -245,19 +273,20 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { /* empty body = backfill */ }
 
   const rowId = cleanText(body?.row_id);
+  const allowStt = body?.allow_stt === true;
   const limit = Math.max(1, Math.min(10, Number(body?.limit || 4)));
 
   let rows: any[] = [];
   if (rowId) {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at")
+      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("id", rowId)
       .maybeSingle();
     if (error) return json({ error: "row_lookup_failed", detail: error.message }, 500);
     if (data) rows = [data];
   } else {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at")
+      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("channel", "or-geula")
       .ilike("image_url", "%.mp4%")
       .eq("enrichment_status", "pending")
@@ -268,7 +297,7 @@ Deno.serve(async (req) => {
   }
 
   const results = [];
-  for (const row of rows) results.push(await enrichRow(row));
+  for (const row of rows) results.push(await enrichRow(row, allowStt));
   return json({
     ok: true,
     selected: rows.length,
