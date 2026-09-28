@@ -1,4 +1,4 @@
-import { supabase } from "../supabase.js";
+import { supabase, getGalleryUpdates } from "../supabase.js";
 import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
@@ -143,6 +143,44 @@ async function fetchHomeWorldPreview2029() {
       numbers: item.numbers,
     })),
   };
+}
+
+function realityDisplayTitle(row) {
+  const raw = clean(row?.name);
+  const legacyLog = /^(?:עדכון|עודכן|נוספ|הקפצ)/i.test(raw);
+  if (raw && !legacyLog) return raw;
+  const value = Number(row?.primary_value);
+  return Number.isFinite(value) && value > 0 ? `רמז ${value}` : "רמז מהמציאות";
+}
+
+function realityExcerpt(value, max = 220) {
+  const text = stripTags(value);
+  if (text.length <= max) return text;
+  return text.slice(0, max - 1).trimEnd() + "…";
+}
+
+async function fetchHomeRealityGallery2029() {
+  const rows = await getGalleryUpdates(10);
+  return (rows || []).slice(0, 8).map((row) => {
+    const primaryValue = Number(row?.primary_value);
+    const numbers = [...new Set([
+      ...(Number.isFinite(primaryValue) && primaryValue > 0 ? [primaryValue] : []),
+      ...(Array.isArray(row?.all_values) ? row.all_values : []),
+    ].map(Number).filter((value) => Number.isFinite(value) && value > 0))];
+
+    return {
+      id: row.id,
+      imageUrl: row.image_url,
+      thumbUrl: row.thumb_url || row.image_url,
+      title: realityDisplayTitle(row),
+      sourceLabel: clean(row?.name) || null,
+      description: realityExcerpt(row?.description || ""),
+      primaryValue: Number.isFinite(primaryValue) && primaryValue > 0 ? primaryValue : (numbers[0] || null),
+      numbers,
+      occurredAt: row.occurred_at || null,
+      streamAt: row.stream_at || row.created_at || null,
+    };
+  }).filter((item) => item.imageUrl);
 }
 
 function stripTags(html = "") {
@@ -328,12 +366,13 @@ async function fetchTemporalTreasures(catalog) {
 export async function fetchHome2029Projection() {
   const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
   const worldPreviewPromise = fetchHomeWorldPreview2029().catch(() => null);
+  const realityGalleryPromise = fetchHomeRealityGallery2029().catch(() => []);
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
-  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise, realityGallery: await realityGalleryPromise };
 
   const yearVerification = await verifyCurrentYear(temporalContext);
-  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise, realityGallery: await realityGalleryPromise };
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);
   const [contributions, postFindings, treasures] = await Promise.all([
@@ -358,11 +397,12 @@ export async function fetchHome2029Projection() {
   const sourceCount = new Set(findings.map((row) => row.sourceKey)).size;
 
   // Materiality gate: Global Now should stay silent rather than manufacture a story.
-  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise, realityGallery: await realityGalleryPromise };
 
   return {
     systemPulse: await pulsePromise,
     worldPreview: await worldPreviewPromise,
+    realityGallery: await realityGalleryPromise,
     temporalNow: {
       kind: "temporal_now",
       publicLabel: "העת עכשיו",
