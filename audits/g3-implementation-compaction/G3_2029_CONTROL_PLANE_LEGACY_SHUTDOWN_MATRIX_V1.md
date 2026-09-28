@@ -149,3 +149,45 @@ Major Legacy→2029 cutover and permanent capability/history retirement remain e
 ## 7. PR #489 overlap note
 
 Open PR #489 (gpt/g3-research-trust-partner-source-roadmap-v1) contains separate Research Trust / External Partner Source planning. This package does not cancel or overwrite that scope. Unique partner-source material must be reconciled independently before that branch is closed or superseded.
+
+## 8. Deep live-scan delta — 2026-09-28
+
+This section refreshes the 18.9 planning evidence without rewriting historical counts. Live reality wins.
+
+### 8.1 Current scale / pressure calibration
+
+- canonical database ≈ **1.5 GB**; public relations ≈ **660 MB heap + 561 MB indexes**;
+- Storage ≈ **15.17 GB / 20,285 objects**; current dedupe observation classifies ≈ **4.747 GiB** as duplicate candidates, including ≈ **2.309 GiB video** — evidence only, no delete authority;
+- Legacy telemetry footprint: `visitor_events` ≈184 MB + `site_visits` ≈75 MB + `page_views` ≈15 MB + `search_log` ≈12 MB, while canonical partitioned `events` July–September ≈194 MB; 2029 still invokes the shared `trackVisit` path, so dual-write retirement is not yet proven;
+- backup/stage/cleanup-named public tables together are ≈ **76 MB**; `g3_openweb_import_stage` alone ≈42 MB and still has live DB consumers, therefore it is not purge-safe;
+- `cron.job_run_details` ≈ **55 MB / ~89k rows** and already has a 14-day daily retention job — this is a valid bounded operational retention pattern, not permission to copy “14 days” to other domains;
+- `admin_retention_preview()` remains DRY_RUN_ONLY and currently assesses only six WhatsApp/source families; this is a **coverage gap** for final G3 compaction, not a second-retention-system request;
+- measured DB hot-path evidence includes legacy/compat RPCs and provider calls. `wa_admin` still performs synchronous external HTTP inside PostgreSQL with a 20s cap; cumulative stats show it as a material connection-holding path. `admin_retention_preview` / `admin_system_health` are also multi-second in current cumulative samples and need fast/deep projection separation before routine Control Plane use;
+- duplicate/redundant index evidence exists (including duplicate GIN word indexes on `tanach_verses`, plus smaller duplicates on discoveries/posts/calculator anchors); missing covering-FK candidates exist on current 2029 families such as `research_objects.parent_id`, contributor/research-contribution links, Gematria→node and Operational Trace parent linkage. These are **candidates**, not automatic DDL authorization;
+- RLS performance review remains material on canonical tables; optimize only with policy-equivalence/security proof.
+
+### 8.2 New/clarified island dispositions
+
+| Area / island | Live evidence | Target | Gate before action |
+|---|---|---|---|
+| Legacy telemetry writers/readers | `site_visits` / `visitor_events` / `page_views` / `search_log` still have active writers/readers while 2029 also emits `events` | **ABSORB_THEN_ARCHIVE** as forward authority; preserve bounded historical data | canonical Traffic/event parity + replacement of live readers + Golden comparison window |
+| Raziel WhatsApp local research wiring | channel Edge code still carries local fixed method list/direct Gematria and legacy Convergence reads | **ABSORB_THEN_ARCHIVE** local brain; transport adapter survives | canonical Raziel routing/Method Profile/Research OS/Convergence adapter parity + trace |
+| DB-held provider HTTP (`wa_admin`) | synchronous Green API HTTP can hold a DB connection while remote call waits | **ABSORB_THEN_ARCHIVE** from latency-critical execution | async existing Edge/background transport proves idempotency, retry, delivery outcome, auth and trace |
+| Retention preview coverage | six source/WhatsApp families only | **EXTEND_EXISTING** Research Intake v13 preview/census | per-owner reference/provenance logic; no generic delete engine |
+| Control Plane health read | same canonical owner, but deep retention/storage work can dominate read cost | **KEEP_CURRENT + split cost class** | fast cached health equivalence + deep on-demand/background drilldown |
+| Backup/stage/cleanup tables | ≈76 MB; some still consumed | **HUMAN_REVIEW → ARCHIVE/RETIRE where proven** | reader/writer census + export/replay/recovery proof |
+| `raw_gematria` | 9,748 dormant rows; last create June | **ABSORB_THEN_ARCHIVE** | promoted/current material reconstruction + no live reader/writer dependency |
+| `gematria_wall` | 21,056 rows; still updated 28.9 | **NEEDS_ADJUDICATION** then freeze Legacy wall writer or map only to governed interest telemetry | owner decision + 2029 Calculator/Traffic replacement proof |
+| `convergences` | 8,917 rows; generator stale but many DB/Raziel consumers remain | **KEEP_COMPATIBILITY until rewire**, then bounded archive/re-admission | consumer-by-consumer adapter migration; no bulk delete |
+| `journey_seeds` | 805 rows; still consumed by Number Journey/Metatron | **ABSORB_THEN_ARCHIVE** as product authority | Research Context/Path replacement + replay parity |
+| `research_candidates` / `insights` | small but still live consumers/workflows | **ABSORB_THEN_ARCHIVE** after Human-Gate workflow migration | pending/unique knowledge adjudicated |
+| `discovery_events` | effectively dead/minimal | **RETIRE_REMOVE runtime / preserve required history** | final reader/writer check |
+| `bot_health` | empty; only old disabled watchdog function references it | **RETIRE candidate** | verify no current System Intelligence/Control Plane dependency |
+| Legacy contributor presentation `contributor_content` | only a handful of rows; 2029 writer/research projections exist | **REVIEW_FOR_RETIREMENT** | contributor dossier/research projection parity |
+| duplicate/unused indexes | measured candidate set, including ~19 MB duplicate Tanakh GIN pair | **RIGHT-SIZE** | current usage + query-plan proof + security/replay tests |
+| missing covering indexes / RLS hot policies | measured advisor candidates on current canonical families | **RIGHT-SIZE** | workload evidence + security-equivalent policy/index migration |
+
+### 8.3 Mandatory second scan as 2029 rises
+
+Immediately before G4, rerun this matrix from live sources. Recalculate counts, current writers/readers, hot queries, RLS/index candidates, cron/workers, storage/dedupe/egress, telemetry parity, Raziel routing and retention blockers. Any item that became active again loses its retirement candidacy; any Legacy dependency that disappeared may move to archive/retire. The 28.9 values are never reused as future truth.
+
