@@ -8,6 +8,7 @@ const sitemap = read("api/sitemap.js");
 const app = read("src/App.jsx");
 const page = read("src/pages/VideoAssetPage.jsx");
 const worker = read("supabase/functions/wa-video-enrich/index.ts");
+const ingest = read("supabase/functions/wa-channel-ingest/index.ts");
 const research = read("src/lib/researchAdmission.js");
 const control = read("src/pages/ControlPlane2029Page.jsx");
 const visits = read("src/lib/visits.js");
@@ -45,6 +46,10 @@ assert.match(worker, /PUBLIC_VIDEO_CHANNELS = \["or-geula", "torat-haremez"\]/);
 assert.match(worker, /const allowStt = body\?\.allow_stt === true/);
 assert.match(worker, /thumbnailMetadata\(row\)/);
 assert.match(worker, /nearbyContext\(row\)/);
+assert.match(ingest, /sod1820\/2029\/video\/\$\{yyyy\}\/\$\{mm\}\/\$\{assetId\}\/original\.\$\{ext\}/);
+assert.match(ingest, /MEDIA_2029_BUCKET = "media"/);
+assert.match(ingest, /if \(kind === "video"\)/);
+assert.match(ingest, /upsert: false/);
 
 // Research OS receives Representation/Admission only; no truth promotion.
 assert.match(research, /export function videoAssetToResearchAdmission/);
