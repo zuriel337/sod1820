@@ -62,6 +62,7 @@ const ProfilePage = React.lazy(() => import("./pages/ProfilePage.jsx"));
 const CreditsBuyPage = React.lazy(() => import("./pages/CreditsBuyPage.jsx"));
 const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const PrivacyPage = React.lazy(() => import("./pages/PrivacyPage.jsx"));
+const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage.jsx"));
 const UnsubscribePage = React.lazy(() => import("./pages/UnsubscribePage.jsx"));
 const JoinPage = React.lazy(() => import("./pages/JoinPage.jsx"));
 const WelcomePage = React.lazy(() => import("./pages/WelcomePage.jsx"));
@@ -439,7 +440,7 @@ export default function App() {
 
           {/* קנוני: כתובת שורש = סלאג של פוסט (1,200 פוסטים מאונדקסים) */}
           <Route path="/:slug" element={<PostBySlugRoute />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
         </Routes>
         </React.Suspense>

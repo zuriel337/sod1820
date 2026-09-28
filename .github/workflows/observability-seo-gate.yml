@@ -80,5 +80,8 @@ jobs:
       - name: Search Indexing 2029 closure acceptance
         run: node scripts/test-search-indexing-2029.mjs
 
+      - name: Route Legitimacy 2029 acceptance
+        run: node scripts/test-route-legitimacy-2029.mjs
+
       - name: Build
         run: npm run build

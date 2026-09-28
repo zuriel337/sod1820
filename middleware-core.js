@@ -1,4 +1,5 @@
 import { next } from '@vercel/edge';
+import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -252,6 +253,50 @@ async function bigContentSet() {
   return BIG_OK;
 }
 
+// ── Route Legitimacy 2029 ────────────────────────────────────────────────────
+// סוגר את ה-soft-404 של /:slug לפני שה-SPA מחזיר index.html ב-200.
+// זה אינו bot/country policy: אותה תשובת 404 ניתנת לדפדפן ול-goodbot.
+// lookup רק ל-single-segment שאינו route/redirect ידוע; exact+indexed; cache קצר; כשל DB = fail-open.
+const POST_ROUTE_CACHE_MS = 10 * 60 * 1000;
+const POST_ROUTE_CACHE_MAX = 512;
+const POST_ROUTE_CACHE = new Map();
+
+async function publicPostSlugExists(path) {
+  const now = Date.now();
+  const cached = POST_ROUTE_CACHE.get(path);
+  if (cached && now - cached.at < POST_ROUTE_CACHE_MS) return cached.exists;
+
+  const { decoded, encodedLower } = postSlugVariants(path);
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_post_slug_exists`, {
+      method: 'POST',
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_slug: decoded, p_encoded_slug: encodedLower }),
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    const exists = data === true;
+    if (POST_ROUTE_CACHE.size >= POST_ROUTE_CACHE_MAX) POST_ROUTE_CACHE.clear();
+    POST_ROUTE_CACHE.set(path, { exists, at: now });
+    return exists;
+  } catch {
+    return null;
+  }
+}
+
+function routeNotFoundResponse() {
+  const html = '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>העמוד לא נמצא · SOD1820</title></head><body><main style="font-family:system-ui,sans-serif;max-width:680px;margin:12vh auto;padding:24px;text-align:center"><h1>העמוד לא נמצא</h1><p>הכתובת שביקשתם אינה קיימת ב-SOD1820.</p><a href="/">חזרה לדף הראשי</a></main></body></html>';
+  return new Response(html, {
+    status: 404,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'public, max-age=60, s-maxage=300',
+      'x-robots-tag': 'noindex, follow',
+      'x-sod-route': 'not-found',
+    },
+  });
+}
+
 export default async function middleware(request, context) {
   const country = request.headers.get('x-vercel-ip-country') || 'XX';
   const uaRaw = request.headers.get('user-agent') || '';
@@ -327,6 +372,15 @@ export default async function middleware(request, context) {
     const level = countryPolicy.strictLevel;
     const risk = quarantineBrowserRisk(request, uaRaw, path);
     if (!hasQuarantineProof(request, country, risk)) return quarantineBrowserChallenge(country, level, risk);
+  }
+
+  // Route legitimacy runs only after security/quarantine decisions. It does not alter CN/SG semantics.
+  if ((request.method === 'GET' || request.method === 'HEAD')
+      && isSingleSegmentRoute(path)
+      && !isKnownSingleSegmentRoute(path)) {
+    const exists = await publicPostSlugExists(path);
+    if (exists === false) return routeNotFoundResponse();
+    // null = Supabase unavailable/uncertain -> fail-open, preserving site availability.
   }
 
   // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:

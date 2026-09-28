@@ -41,11 +41,13 @@ for (const publicPath of ["/video", "/number", "/codes", "/post", "/world", "/or
     `${publicPath} must not be intentionally blocked for public crawlers`);
 }
 
-// True HTTP 404 is intentionally not misrepresented as closed while SPA catch-all remains.
+// Vercel still has an SPA catch-all, but ROUTE_LEGITIMACY_2029 closes the main legacy /:slug
+// soft-404 source at Edge. The map must remain explicit about residual nested/dynamic false IDs.
 const spaCatchAll = (vercel.rewrites || []).some(r => r.source === "/(.*)" && r.destination === "/index.html");
-assert.equal(spaCatchAll, true, "closure map must be revisited when the SPA catch-all is removed/replaced");
-assert.match(map, /INFRASTRUCTURE BLOCKER OPEN/);
-assert.match(map, /Do \*\*not\*\* mark this CLOSED until HTTP status is verified/i);
+assert.equal(spaCatchAll, true, "SPA catch-all still exists; route legitimacy must remain an explicit Edge layer");
+assert.match(map, /LIVE_VERIFY/);
+assert.match(map, /RESIDUAL/);
+assert.match(map, /HTTP 404 at Edge/);
 assert.match(map, /GSC_VERIFIED/);
 
 console.log("search-indexing-2029: PASS");
