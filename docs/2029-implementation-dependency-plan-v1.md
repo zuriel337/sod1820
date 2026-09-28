@@ -427,7 +427,7 @@ Rules:
 - true HTTP status semantics (200 current · 301 replaced · 404 nonexistent) belong at the 2029 routing/server boundary, not inside CN/SG quarantine middleware.
 
 Released foundation: PR #779 (Unified Video Projection + Search indexability baseline).  
-Current G3 cutover work: route unified video through `App2029`, move post/video primary landing identities to 2029 routes, add crawler metadata parity, and preserve the open true-404 routing blocker until server-boundary proof exists.
+**G3 cutover RELEASED via PR #782:** unified video is routed through `App2029` / System Frame; post-owned media converges on `/post/:slug`; remaining media converges on `/video/:assetId`; Googlebot/Bingbot receive server metadata before hydration; route legitimacy covers native 2029 post paths and malformed video IDs. Legacy is source/compatibility only. Residual route-legitimacy work is limited to owner-specific well-formed missing entities where no cheap indexed existence check exists yet.
 
 LATER:
 - bounded public machine projection only after native Topic + indexability contract are proven;
