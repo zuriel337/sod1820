@@ -1176,6 +1176,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [goldenJourneyRelevant, subject.id]);
 
   const data = state.data;
+  const publicSurface = data?.surface || {};
+  const publicGalleries = Array.isArray(publicSurface.galleries) ? publicSurface.galleries : [];
+  const publicPosts = Array.isArray(publicSurface.posts) ? publicSurface.posts : [];
+  const publicPhrases = Array.isArray(publicSurface.phrases) ? publicSurface.phrases : [];
 
   useEffect(() => {
     if (!adminMode || !isAdmin || !data?.identity) return undefined;
@@ -1277,10 +1281,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
     return [...new Set(raw.map((value) => String(value || "").trim()).filter(Boolean))];
   }, [context?.dimensions?.journeyMeetingSlugs]);
   const laneCounts = {
-    overview: prominenceItems.length,
-    media: mediaItems.length,
-    calculations: visibleGematriaRows.length,
-    sources: sourceRows.length,
+    overview: prominenceItems.length + publicGalleries.length + publicPosts.length,
+    media: mediaItems.length + publicGalleries.length + publicPosts.length,
+    calculations: Math.max(visibleGematriaRows.length, publicPhrases.length),
+    sources: sourceRows.length + publicPosts.length,
     relations: graphRelations.length,
     research: (adminMode ? filteredResearchFindings.length : visibleResearchFindings.length) + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
     timeline: data?.timeline?.length || 0,
@@ -1689,7 +1693,31 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
-      {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
+      {data.research?.access?.available === false ? <div className="sod29-world-access-note" role="note">
+        <strong>החומר הציבורי פתוח.</strong>
+        <span>קיימת גם שכבת מחקר פרטית/מוגנת שאינה נפתחת בהרשאה הזאת; היא לא מסתירה את הגלריות, הפוסטים, הגימטריות, המקורות והקשרים הציבוריים.</span>
+      </div> : null}
+
+      {activeLane === "overview" && (publicGalleries.length || publicPosts.length || publicPhrases.length) ? <section
+        className="sod29-section sod29-world-public-open"
+        data-experience-capability="world-public-open-material"
+        aria-label={`החומר הציבורי סביב ${data.identity.label}`}
+      >
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">פתוח עכשיו · PUBLIC FIRST</div>
+            <h2>כל מה שכבר ציבורי סביב {data.identity.label}</h2>
+            <div className="sod29-muted">World מתחיל ממה שכבר פתוח במערכת. חומר פרטי נשאר פרטי, אבל הוא לא סוגר או מסתיר את החומר הציבורי.</div>
+          </div>
+          <span className="sod29-chip">{(publicSurface.postsCount || publicPosts.length) + (publicSurface.galleriesCount || publicGalleries.length) + (publicSurface.phrasesCount || publicPhrases.length)} פריטים/חיבורים</span>
+        </div>
+        <div className="sod29-world-public-open-stats">
+          <button type="button" onClick={() => setActiveLane("calculations")}><strong>{publicSurface.phrasesCount ?? publicPhrases.length}</strong><span>ביטויים וגימטריות</span></button>
+          <button type="button" onClick={() => setActiveLane("media")}><strong>{publicSurface.galleriesCount ?? publicGalleries.length}</strong><span>תמונות גלריה</span></button>
+          <button type="button" onClick={() => setActiveLane("media")}><strong>{publicSurface.postsCount ?? publicPosts.length}</strong><span>פוסטים</span></button>
+          <button type="button" onClick={() => setActiveLane("sources")}><strong>{sourceRows.length}</strong><span>מקורות</span></button>
+        </div>
+      </section> : null}
 
       {activeLane === "overview" && state.prominenceError ? <NativeStateSection><FrameState kind="unavailable" title="העיקר עדיין לא זמין">שאר שכבות העולם ממשיכות להופיע. לא נבחר תחליף מלאכותי.</FrameState></NativeStateSection> : null}
 
@@ -1799,9 +1827,47 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
           {data?.media?.totalEligible > mediaItems.length ? <span className="sod29-chip">מוצגות {mediaItems.length} מתוך {data.media.totalEligible}</span> : null}
         </div>
-        {data?.media?.access?.available === false ? <FrameState kind="unavailable" title="המדיה אינה זמינה בהרשאה הנוכחית">שאר שכבות העולם נשארות זמינות.</FrameState> : null}
-        {data?.media?.access?.available !== false && !mediaItems.length ? <FrameState kind="empty" title="אין כרגע תמונות מחוברות לנקודה הזאת">לא מוצגת תמונה חלופית אם אין ייצוג חזותי מחובר וגלוי.</FrameState> : null}
-        {mediaItems.length ? <div className="sod29-world-media-grid">
+        {data?.media?.access?.available === false && !publicGalleries.length ? <FrameState kind="unavailable" title="שכבת המדיה הגרפית אינה זמינה בהרשאה הנוכחית">תמונות ציבוריות מהמאגר עדיין מוצגות אם קיימות.</FrameState> : null}
+        {!mediaItems.length && !publicGalleries.length && !publicPosts.length ? <FrameState kind="empty" title="אין כרגע חומר חזותי ציבורי מחובר לנקודה הזאת">לא מוצגת תמונה חלופית אם אין ייצוג חזותי גלוי.</FrameState> : null}
+
+        {publicGalleries.length ? <>
+          <div className="sod29-world-public-subhead"><strong>תמונות ציבוריות מהגלריות</strong><span>{publicSurface.galleriesCount ?? publicGalleries.length}</span></div>
+          <div className="sod29-world-media-grid sod29-world-public-gallery-grid">
+            {publicGalleries.map((item, index) => {
+              const src = item.thumb_url || item.image_url || item.thumbUrl || item.imageUrl;
+              if (!src) return null;
+              const label = humanMediaLabel({ label: item.name || item.description || null }, data.identity.label);
+              return <article className="sod29-world-media-card" key={item.id || `public-gallery-${index}`}>
+                <div className="sod29-world-media-frame"><img src={src} alt={label} loading="lazy" /></div>
+                <div className="sod29-world-media-copy">
+                  <div className="sod29-world-primary-meta"><span>גלריה ציבורית</span>{item.primary_value ? <span>{item.primary_value}</span> : null}</div>
+                  <h3>{label}</h3>
+                  {item.description ? <div className="sod29-muted">{String(item.description).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 180)}</div> : null}
+                </div>
+              </article>;
+            })}
+          </div>
+        </> : null}
+
+        {publicPosts.length ? <>
+          <div className="sod29-world-public-subhead"><strong>פוסטים ציבוריים</strong><span>{publicSurface.postsCount ?? publicPosts.length}</span></div>
+          <div className="sod29-world-public-posts">
+            {publicPosts.map((post, index) => <button
+              type="button"
+              className="sod29-row sod29-world-public-post"
+              key={post.id || post.slug || `public-post-${index}`}
+              onClick={() => post.slug && shell.go(`/post/${encodeURIComponent(post.slug)}`)}
+              disabled={!post.slug}
+            >
+              <div><strong>{post.title || "פוסט ציבורי"}</strong><small>{post.author || "SOD1820"}{post.modified || post.date ? ` · ${new Date(post.modified || post.date).toLocaleDateString("he-IL")}` : ""}</small></div>
+              <span>פתח ←</span>
+            </button>)}
+          </div>
+        </> : null}
+
+        {mediaItems.length ? <>
+          <div className="sod29-world-public-subhead"><strong>מדיה מחוברת ב־Reality Graph</strong><span>{mediaItems.length}</span></div>
+          <div className="sod29-world-media-grid">
           {mediaItems.map((item) => {
             const label = humanMediaLabel(item, data.identity.label);
             const date = mediaDate(item);
@@ -1822,7 +1888,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
               </div>
             </article>;
           })}
-        </div> : null}
+        </div>
+        </> : null}
       </section> : null}
 
       {activeLane === "relations" && graphRelations.length ? <section className="sod29-section">
