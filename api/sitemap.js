@@ -40,39 +40,29 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
 // 🎬 Video Sitemap (video:video) — כל סרטון של אור-הגאולה = תוצאת-וידאו בגוגל.
 const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
-function videoUrlTag(v) {
-  const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
-  const desc = cleanCap(v.text).slice(0, 2048) || title;
-  // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb ממותד. thumbnail_loc חובה.
-  const thumb = resolveThumb([v.thumb_url], title, 'אור הגאולה · סרטון', 'orgeula');
-  let pub; try { pub = v.created_at ? new Date(v.created_at).toISOString() : undefined; } catch { pub = undefined; }
-  return [
-    '  <url>',
-    // דף-צפייה קנוני עצמאי לכל סרטון (לא ?v= שקורס ל-/or-geula) — Sitemap URL == Canonical Watch URL.
-    `    <loc>${esc(SITE + '/or-geula/video/' + v.id)}</loc>`,
-    '    <video:video>',
-    `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
-    `      <video:title>${esc(title)}</video:title>`,
-    `      <video:description>${esc(desc)}</video:description>`,
-    `      <video:content_loc>${esc(v.image_url)}</video:content_loc>`,
-    pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
-    '    </video:video>',
-    '  </url>',
-  ].filter(Boolean).join('\n');
+function videoWatchPage(v) {
+  let lastmod;
+  try { lastmod = v.created_at ? new Date(v.created_at).toISOString().slice(0, 10) : undefined; } catch { lastmod = undefined; }
+  return {
+    loc: '/or-geula/video/' + v.id,
+    lastmod,
+    changefreq: 'monthly',
+    priority: '0.6',
+  };
 }
 
 // 🎬 פוסט video-primary (קטגוריה «וידאו») → video:video על ה-canonical של הפוסט (/<slug>).
 //    הסרטון הוא הישות המרכזית של הדף (דף-צפייה עצמאי) → thumbnail + content_loc/player_loc.
 const YT_RE = /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/i;
-const MP4_IN_RE = /<(?:source|video)[^>]+src="([^"]+\.mp4[^"]*)"/i;
 function postVideoUrlTag(p) {
   if (!p.slug) return '';
-  const c = String(p.content || '');
-  const mp4 = (c.match(MP4_IN_RE) || c.match(/(https?:\/\/[^"'\s<>]+\.mp4)/i) || [])[1];
-  const yt = (c.match(YT_RE) || [])[1];
-  if (!mp4 && !yt) return '';
-  const poster = (c.match(/poster="([^"]+)"/i) || [])[1];
-  // Thumbnail Validity Gate: image_url/poster רק אם תמונה (לא mp4/וידאו); אחרת cardThumb ממותד.
+  const source = String(p.content || '');
+  const yt = (source.match(YT_RE) || [])[1];
+  // Self-hosted MP4 pages stay indexable through the normal sitemap, but we no longer
+  // advertise raw Storage bytes to crawlers. Google accepts player_loc as the required
+  // alternative for embeddable providers such as YouTube.
+  if (!yt) return '';
+  const poster = (source.match(/poster="([^"]+)"/i) || [])[1];
   const thumb = resolveThumb([p.image_url, poster], cleanCap(p.title).slice(0, 60));
   const title = cleanCap(p.title).slice(0, 100) || 'סוד1820 — סרטון';
   const desc = cleanCap(p.title).slice(0, 2048) || title;
@@ -87,8 +77,7 @@ function postVideoUrlTag(p) {
     `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
     `      <video:title>${esc(title)}</video:title>`,
     `      <video:description>${esc(desc)}</video:description>`,
-    mp4 ? `      <video:content_loc>${esc(mp4)}</video:content_loc>` : '',
-    (yt && !mp4) ? `      <video:player_loc>${esc('https://www.youtube-nocookie.com/embed/' + yt)}</video:player_loc>` : '',
+    `      <video:player_loc>${esc('https://www.youtube-nocookie.com/embed/' + yt)}</video:player_loc>`,
     pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
     '    </video:video>',
     '  </url>',
@@ -241,12 +230,15 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי דפי-כתבים */ }
 
-  // ── סרטוני אור-הגאולה → Video Sitemap (video:video) ──
-  let videoUrls = [];
+  // ── סרטוני אור-הגאולה → canonical watch pages only ──
+  // Raw Supabase MP4 URLs are intentionally NOT emitted as video:content_loc.
+  // The watch pages remain indexable in the ordinary sitemap; self-hosted video discovery
+  // can happen from the page itself without turning the sitemap into a bulk-download list.
   try {
-    const rows = await fetchAll('channel_updates?select=id,text,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
-    // כל סרטון נכנס — thumbnail אמיתי אם יש, אחרת כרטיס-ממותד זמני (videoUrlTag דואג לנפילה).
-    videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url));
+    const rows = await fetchAll('channel_updates?select=id,image_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
+    for (const row of rows) {
+      if (row.image_url && VIDEO_RE.test(row.image_url)) urls.push(videoWatchPage(row));
+    }
   } catch (e) { /* ממשיכים גם בלי סרטונים */ }
 
   const xml = [
@@ -254,7 +246,6 @@ export default async function handler(req, res) {
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
     urls.map(urlTag).join('\n'),
     postVideoUrls.join('\n'),
-    videoUrls.map(videoUrlTag).join('\n'),
     '</urlset>',
     '',
   ].filter(Boolean).join('\n');
