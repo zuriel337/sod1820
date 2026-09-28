@@ -128,7 +128,7 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
     "You enrich video metadata for SOD1820. Use ONLY the supplied caption/transcript. " +
     "Never invent identities, facts, prophecies, or claims. Return strict JSON only: " +
     '{"speaker":string|null,"title":string|null,"topics":string[]}. ' +
-    "speaker: only a person's name if explicitly named or unambiguously self-identified in the source; otherwise null. " +
+    "speaker: only if the source explicitly identifies the person as the speaker/teacher/interviewee; copy the exact Hebrew spelling from the source, never translate or transliterate; otherwise null. " +
     "title: concise factual Hebrew title, 25-90 characters, describing what is actually said; no clickbait; otherwise null. " +
     "topics: 0-5 short Hebrew topic labels explicitly supported by the source; no inferred ideology, diagnosis, prophecy, or hidden meaning.";
 
