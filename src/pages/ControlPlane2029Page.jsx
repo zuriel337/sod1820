@@ -91,6 +91,7 @@ export default function ControlPlane2029Page() {
   const db = health.db || {};
   const media = health.media || {};
   const deliveryRisk = media.delivery_risk || {};
+  const dedupe = media.dedupe_latest || {};
   const egressLatest = usage.storage_egress_observed_latest || {};
   const egressTraffic = egressLatest.traffic_classes || {};
   const egressGuard = usage.storage_egress_guard || {};
@@ -166,6 +167,11 @@ export default function ControlPlane2029Page() {
           label="Video thumbnails"
           value={num(deliveryRisk.channel_video_missing_thumb)}
           note="חסרים ב־channel_updates · יצירה בבקאנד בלבד"
+        />
+        <Metric
+          label="Duplicate candidates"
+          value={dedupe.duplicate_groups == null ? "—" : `${num(dedupe.duplicate_groups)} groups · ${gib(dedupe.redundant_candidate_bytes)}`}
+          note={dedupe.classification ? `${dedupe.classification} · video ${gib(dedupe.redundant_video_candidate_bytes)} · אין מחיקה אוטומטית` : "ETag+size snapshot עדיין לא קיים"}
         />
         <Metric
           label="Provider · מחזור קודם"
