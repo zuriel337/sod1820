@@ -4,7 +4,7 @@
 **Owner posture:** EXTEND_EXISTING — no new SEO registry/system.  
 **Canonical owners:** `api/sitemap.js`, `src/lib/seo.js`, 2029 route owners, canonical indexability projections, `route-legitimacy.js`, edge crawler policy and Vercel routing.
 
-**G3 scope correction · 2026-09-28:** this closure map targets the **2029 product tree**. Legacy routes/data remain source, compatibility and provenance only where still required. Existing Legacy containment may stay live until retirement, but new Search/Video work must converge on 2029 routes rather than receiving Legacy parity work.
+**G3 scope correction · 2026-09-28:** this closure map targets the **2029 product tree only**. Legacy routes/data remain source, compatibility and provenance only where still required. Existing Legacy containment may stay live until retirement, but new Search/Video work must converge on 2029 routes rather than receiving Legacy parity work.
 
 ## Goal
 
