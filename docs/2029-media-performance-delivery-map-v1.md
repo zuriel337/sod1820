@@ -739,3 +739,67 @@ and the system can return one bounded, versioned, cacheable representation witho
 - fetching a heavier representation than the surface requires;
 - losing provenance;
 - hiding the operational cost.
+
+
+---
+
+# 9. 2026-09-28 Cached Egress incident closure
+
+Live restriction observed on canonical project `linswmnnkjxvweumprav`:
+`exceed_cached_egress_quota`.
+
+This incident does **not** create a new media/monitoring system. It extends the same
+Research Intake / Traffic Intelligence / System Health owners.
+
+## 9.1 Decision-changing live evidence
+
+- Supabase Pro organization; historical billing baseline already recorded in this map:
+  **278.865 GB Cached Egress**, above the 250 GB Pro cached quota.
+- Public Storage currently contains **635 video objects / 7,816,095,264 bytes**.
+- **117** public video objects exceed 20 MB; **3** exceed 50 MB; max observed object
+  is **114,883,491 bytes**.
+- Sampled successful public Storage responses for 2026-09-27 totaled roughly 548 MB:
+  browser/client ~334 MB, bots ~193 MB, headless acceptance ~21 MB.
+- A legacy post with 10 `<video preload="metadata">` elements generated nine parallel
+  MP4 fetches (~145 MB) on one page render.
+- Public story/home consumers called `ensureVideoThumbs()`, which created hidden client
+  `<video preload="auto">` elements and could process up to three missing posters per
+  fresh browser/session.
+- Search metadata advertised raw Supabase Storage MP4s via `video:content_loc` and
+  VideoObject `contentUrl`, explicitly making original bytes crawler-discoverable.
+
+## 9.2 Locked delivery corrections
+
+1. **No browser derivative generation.** `videoThumb.js` is a zero-network compatibility
+   shim; public consumers no longer call it. Existing server/background thumb workers own
+   poster generation.
+2. **Imported HTML is presentation-normalized.** Every in-scope post renderer/preview runs
+   through `deferLegacyHtmlMedia()`: video/audio preload becomes `none`, autoplay is
+   removed. Stored source HTML is not rewritten.
+3. **Crawler discovery ≠ raw byte discovery.** Self-hosted Supabase MP4 URLs are not emitted
+   as video-sitemap `content_loc` and are suppressed from VideoObject `contentUrl`.
+   Canonical watch/post pages and thumbnails remain indexable. YouTube may use
+   `player_loc/embedUrl`.
+4. **CI is enforcement, not documentation.** `test:media-egress` fails if client thumbnail
+   capture, eager legacy media, raw Storage video SEO discovery, or unguarded post-content
+   rendering returns.
+5. **Exact provider usage remains honest.** `admin_system_health().usage.supabase_cached_egress`
+   remains `UNKNOWN` until a provider-authorized usage/log source is connected. Inventory
+   and delivery-risk evidence MUST NOT be relabeled as billed Cached Egress.
+
+## 9.3 Monitoring gap that remains Human-Gated
+
+The existing `health-watch` and `admin_system_health()` are the canonical monitor.
+They can observe DB/cron/media inventory and thumbnail health, but the runtime currently
+has no fine-grained Supabase Management analytics credential. Exact billing-cycle Cached
+Egress therefore cannot be pulled by the project itself yet.
+
+Closure path (no new monitor):
+- create a **fine-grained read-only Supabase Management token** restricted to analytics
+  read/log usage;
+- store it as a server-only secret (never browser, never repo);
+- extend the existing System Health owner to record provider-observed egress with
+  `basis=EXACT`, then alert through the existing `fn_health_watch → notify_admin` path
+  before the quota threshold.
+
+Until that Human Gate setup is completed, `UNKNOWN` is a monitored defect, never zero.
