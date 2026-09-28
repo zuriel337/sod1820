@@ -38,6 +38,7 @@ import { track, trackWhatsapp, trackWhatsappJoin } from "../lib/tracking.js";
 import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import PostGematriaCardPilot, { GOLDEN_POST_GEMATRIA_PILOT_SLUG } from "../components/PostGematriaCardPilot.jsx";
+import { deferLegacyHtmlMedia } from "../lib/mediaDelivery.js";
 
 // פוסטי תפילה/רפואה שבהם מוצג חלון "העבירו את האור הלאה" (לפי wp_id):
 // 29289 — סדר תפילה לרפואה שלמה (רבי פנחס מקוריץ) · 36173 — תפילה לרפואה של הינוקא.
@@ -5065,7 +5066,7 @@ function PostPageBySlug({ onNav }) {
                   • <div data-spatial-reveal="REVEAL_ID"></div>  → גימטריה מרחבית (SpatialGematriaReveal, spatialReveals.js; המזהה = reveal_id יציב, לא slug)
                   ⛔ הפוסט אינו מכיל את מימוש-האנימציה — רק מרקר/ref. אם אין spec למפתח → המרקר נבלע (fallback רגיל). */}
               {(() => {
-                const src = String(content);
+                const src = deferLegacyHtmlMedia(content);
                 const re = /<div data-sod-gallery(-id)?="(\d+)"><\/div>|<div data-spatial-reveal="([a-z0-9_-]+)"><\/div>/g;
                 const out = []; let last = 0, m, k = 0;
                 while ((m = re.exec(src)) !== null) {
