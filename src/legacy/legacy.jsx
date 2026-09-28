@@ -4592,11 +4592,37 @@ function PostPageBySlug({ onNav }) {
     setLoading(true);
     getPostBySlug(slug)
       .then(row => {
-        if (row) { setPost(row); const rs = row.slug || slug; logView("post", rs); getViewCount("post", rs, 7).then(n => setHotWeek((n || 0) >= 5)).catch(() => {}); }   // מעקב פנימי; מציג רק דגל "חם" (בלי המספר)
-        else setError("הפוסט לא נמצא");
+        if (row) {
+          setPost(row);
+          const rs = row.slug || slug;
+          logView("post", rs);
+          getViewCount("post", rs, 7).then(n => setHotWeek((n || 0) >= 5)).catch(() => {});
+        } else {
+          setError("הפוסט לא נמצא");
+          // SPA עדיין מחזיר HTTP 200 בשכבה החיצונית; לפחות דף לא-קיים לעולם לא נשאר indexable.
+          // HTTP 404 אמיתי הוא Infrastructure blocker נפרד (Vercel catch-all), לא מזייפים כאן.
+          applySeo({
+            title: "העמוד לא נמצא",
+            description: "העמוד שביקשתם אינו קיים ב-SOD1820.",
+            path: `/${slug}`,
+            noindex: true,
+          });
+          clearPostVideoJsonLd();
+        }
         setLoading(false);
       })
-      .catch(() => { setError("שגיאה בטעינה"); setLoading(false); });
+      .catch(() => {
+        // אי-ודאות/כשל-קריאה => fail-closed ל-SEO. לא מפרסמים URL כשלא הצלחנו לאמת שהוא קיים.
+        setError("שגיאה בטעינה");
+        applySeo({
+          title: "העמוד אינו זמין כרגע",
+          description: "לא ניתן היה לאמת את העמוד כרגע.",
+          path: `/${slug}`,
+          noindex: true,
+        });
+        clearPostVideoJsonLd();
+        setLoading(false);
+      });
   }, [slug]);
 
   // מאתר-מספר: כשמגיעים מחיפוש (?n=...) — הדגשה וגלילה אוטומטית למיקום בפוסט

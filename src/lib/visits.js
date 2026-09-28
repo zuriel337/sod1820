@@ -261,6 +261,14 @@ export async function getSystemHealth() {
   return data || null;
 }
 
+// 🎬 Unified Video Projection 2029 — admin-only health/coverage/cost projection.
+export async function getVideoMapHealth() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_video_map_health");
+  if (error) throw error;
+  return data || null;
+}
+
 // G3 Internal Control Plane: bounded read projection over the live No-Black-Box owner.
 export async function getOperationalTraceList(days = 7, limit = 100) {
   if (!supabase) return [];

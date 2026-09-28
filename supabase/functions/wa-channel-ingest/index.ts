@@ -5,6 +5,8 @@
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
 // 🔗 איחוד-זהות (20.7.2026): שם-שולח גולמי מוואטסאפ (למשל «אריאל ואצאפ») ממופה לשם התורם הקנוני לפי contributors.wa_names.
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
+// 2029 media: new PUBLIC video only -> media/sod1820/2029/video/YYYY/MM/<asset-id>/original.*;
+// legacy URLs are never moved. Private media keeps submission-inbox semantics.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
@@ -15,8 +17,9 @@ const RECOVERY_HISTORY_COUNT = 1000;
 const RECOVERY_BATCH = 10;
 const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
 const STORY_LIVE_CHANNELS = new Set(["or-geula"]);
-const BUCKET = "gallery";
-const MEDIA_DIR = "sod1820/broadcasts";
+const LEGACY_PUBLIC_BUCKET = "gallery";
+const LEGACY_PUBLIC_MEDIA_DIR = "sod1820/broadcasts";
+const MEDIA_2029_BUCKET = "media";
 const MAX_MEDIA = 45 * 1024 * 1024;
 const BOT_CREDIT = "רזיאל · AI";
 
@@ -126,10 +129,25 @@ async function rehost(
       return `storage-object:${up.data.id}`;
     }
 
-    const path = `${MEDIA_DIR}/${msgId}.${ext}`;
-    const up = await sb.storage.from(BUCKET).upload(path, buf, { contentType: ct, upsert: true });
+    // Forward-only 2029 rule: every NEW public video receives one immutable asset UUID.
+    // Existing broadcasts stay on their legacy URLs; images retain the legacy public path until
+    // the shared image derivative pipeline takes ownership. No migration/copy happens here.
+    if (kind === "video") {
+      const d = new Date(sourceTs * 1000);
+      const yyyy = String(d.getUTCFullYear());
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const assetId = crypto.randomUUID();
+      const path = `sod1820/2029/video/${yyyy}/${mm}/${assetId}/original.${ext}`;
+      const up = await sb.storage.from(MEDIA_2029_BUCKET).upload(path, buf, { contentType: ct, upsert: false });
+      if (up.error) { trace.push({ msgId, step: "video-2029-upload", error: String(up.error.message || up.error) }); return null; }
+      trace.push({ msgId, step: "video-2029-uploaded", assetId });
+      return sb.storage.from(MEDIA_2029_BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+
+    const path = `${LEGACY_PUBLIC_MEDIA_DIR}/${msgId}.${ext}`;
+    const up = await sb.storage.from(LEGACY_PUBLIC_BUCKET).upload(path, buf, { contentType: ct, upsert: true });
     if (up.error) { trace.push({ msgId, step: "upload", error: String(up.error.message || up.error) }); return null; }
-    return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    return sb.storage.from(LEGACY_PUBLIC_BUCKET).getPublicUrl(path).data.publicUrl;
   } catch (e) { trace.push({ msgId, step: "throw", error: String(e) }); return null; }
 }
 

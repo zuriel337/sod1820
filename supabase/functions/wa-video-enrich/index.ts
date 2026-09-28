@@ -1,5 +1,6 @@
-// wa-video-enrich — enriches WhatsApp "or-geula" videos without changing source truth.
-// Flow: canonical link -> speaker from caption -> STT only for generic captions -> grounded SEO title.
+// wa-video-enrich — enriches public WhatsApp video channels without changing source truth.
+// Automatic flow: caption -> nearby channel context -> thumbnail vision -> grounded SEO metadata.
+// Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron.
 // Protected by FB_ADMIN_KEY. OPENAI_API_KEY is retrieved through a service-role-only RPC.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -12,6 +13,7 @@ const SITE_URL = "https://sod1820.co.il";
 const MAX_STT_BYTES = 24 * 1024 * 1024;
 const VIDEO_RE = /\.(mp4|mov|webm|m4v)(?:[?#]|$)/i;
 const GENERIC = new Set(["", "🎬 עדכון וידאו", "📷 עדכון"]);
+const PUBLIC_VIDEO_CHANNELS = ["or-geula", "torat-haremez"];
 
 const sb = createClient(SB_URL, SB_KEY);
 
@@ -92,7 +94,7 @@ async function nearbyContext(row: any): Promise<string | null> {
 
     let q = sb.from("channel_updates")
       .select("id,text,created_at,credit,source")
-      .eq("channel", "or-geula")
+      .eq("channel", row.channel)
       .neq("id", row.id)
       .gte("created_at", from)
       .lte("created_at", to)
@@ -190,7 +192,7 @@ async function getOpenAiKey(): Promise<string> {
 }
 
 async function saveTranscript(row: any, transcript: string, title: string | null = null) {
-  const videoKey = `or-geula:${row.id}`;
+  const videoKey = `${row.channel || "video"}:${row.id}`;
   const { error } = await sb.from("video_transcripts").upsert({
     video_key: videoKey,
     video_id: null,
@@ -220,7 +222,7 @@ async function transcribe(row: any): Promise<string> {
   const ext = (url.match(/\.(mp4|webm|m4v|mov)(?:[?#]|$)/i)?.[1] || "mp4").toLowerCase();
   const type = blob.type || (ext === "webm" ? "video/webm" : "video/mp4");
   const form = new FormData();
-  form.append("file", new File([blob], `or-geula-${row.id}.${ext}`, { type }));
+  form.append("file", new File([blob], `${row.channel || "video"}-${row.id}.${ext}`, { type }));
   form.append("model", "gpt-transcribe");
   form.append("language", "he");
 
@@ -300,13 +302,15 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
 }
 
 async function enrichRow(row: any, allowStt = false) {
-  if (!row?.id || row.channel !== "or-geula" || !VIDEO_RE.test(String(row.image_url || ""))) {
-    return { id: row?.id || null, ok: false, skipped: "not_or_geula_video" };
+  if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
+    return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
   }
 
-  const canonical = `${SITE_URL}/or-geula/video/${row.id}`;
+  const canonical = row.channel === "or-geula"
+    ? `${SITE_URL}/or-geula/video/${row.id}`
+    : (row.link_url || null);
   const updates: Record<string, unknown> = {};
-  if (row.link_url !== canonical) updates.link_url = canonical;
+  if (row.channel === "or-geula" && row.link_url !== canonical) updates.link_url = canonical;
 
   const generic = isGeneric(row.text);
   let basis = cleanText(row.text);
@@ -373,7 +377,7 @@ async function enrichRow(row: any, allowStt = false) {
     try {
       await sb.from("video_transcripts")
         .update({ title })
-        .eq("video_key", `or-geula:${row.id}`)
+        .eq("video_key", `${row.channel || "video"}:${row.id}`)
         .eq("lang", "he");
     } catch { /* noop */ }
   }
@@ -417,7 +421,8 @@ Deno.serve(async (req) => {
   } else {
     const { data, error } = await sb.from("channel_updates")
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
-      .eq("channel", "or-geula")
+      .in("channel", PUBLIC_VIDEO_CHANNELS)
+      .eq("status", "live")
       .ilike("image_url", "%.mp4%")
       .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })

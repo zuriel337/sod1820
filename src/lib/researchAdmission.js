@@ -164,3 +164,57 @@ export function galleryImageToResearchAdmission(row = {}, context = {}) {
     legacyRelations: context.legacyRelations,
   });
 }
+
+
+export function videoAssetToResearchAdmission(asset = {}, context = {}) {
+  const publicId = asset.public_id ? String(asset.public_id) : null;
+  if (!publicId) return { admitted: false, reason: 'missing_source_identity' };
+
+  const series = Array.isArray(asset.series_keys) ? asset.series_keys.filter(Boolean) : [];
+  const ciphers = Array.isArray(asset.cipher_slugs) ? asset.cipher_slugs.filter(Boolean) : [];
+  const topics = Array.isArray(asset.topics) ? asset.topics.filter(Boolean) : [];
+  const placements = Array.isArray(asset.placements) ? asset.placements : [];
+
+  const legacyRelations = [
+    ...series.map(key => ({ type: 'series', target: key })),
+    ...ciphers.map(slug => ({ type: 'cipher', target: slug })),
+    ...placements
+      .filter(row => row?.page_url)
+      .map(row => ({ type: 'placement', target: row.page_url, sourceType: row.source_type || null })),
+  ];
+
+  return makeResearchAdmissionEnvelope({
+    sourceType: 'video_asset_projection',
+    sourceRef: `video:${publicId}`,
+    intrinsicPayload: {
+      publicId,
+      mediaKind: asset.video_kind || 'video',
+      mediaUrl: asset.media_url || null,
+      youtubeId: asset.youtube_id || null,
+      title: asset.title || null,
+      posterUrl: asset.poster_url || null,
+      thumbUrl: asset.thumb_url || null,
+      primaryPageUrl: asset.primary_page_url || null,
+      placementCount: Number(asset.placement_count || placements.length || 0),
+      topics,
+      series,
+      cipherSlugs: ciphers,
+    },
+    historicalContext: {
+      firstSeenAt: asset.first_seen_at || null,
+      lastSeenAt: asset.last_seen_at || null,
+      placements,
+      sourceTypes: Array.isArray(asset.source_types) ? asset.source_types : [],
+    },
+    provenance: {
+      source: 'video_media_assets_v1',
+      witness: context.witness ?? null,
+      lineage: context.lineage ?? 'Unified Video Projection 2029 v1',
+    },
+    extraction: context.extraction ?? null,
+    verification: context.verification,
+    projectionReason: context.projectionReason || 'public_video_asset',
+    automation: context.automation,
+    legacyRelations,
+  });
+}

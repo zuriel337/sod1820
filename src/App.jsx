@@ -73,6 +73,7 @@ const ThemePage = React.lazy(() => import("./pages/ThemePage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const OrGeulaPage = React.lazy(() => import("./pages/OrGeulaPage.jsx"));
+const VideoAssetPage = React.lazy(() => import("./pages/VideoAssetPage.jsx"));
 const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
 const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
@@ -403,6 +404,7 @@ export default function App() {
           <Route path="/forum" element={<Locked flag="lock_forum"><ForumPage /></Locked>} />
           <Route path="/or-geula" element={<OrGeulaPage />} />
           <Route path="/or-geula/video/:id" element={<OrGeulaPage />} />
+          <Route path="/video/:assetId" element={<VideoAssetPage />} />
           <Route path="/אור-הגאולה" element={<OrGeulaPage />} />
           <Route path="/forum/:id" element={<Locked flag="lock_forum"><ForumThreadPage /></Locked>} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
