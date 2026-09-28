@@ -295,7 +295,14 @@ select
        else 'https://sod1820.co.il/video/'||md5(a.asset_key) end as primary_page_url,
   pr.source_type as primary_source_type,
   pr.source_id as primary_source_id,
-  (pr.video_kind in ('selfhost','youtube','vimeo')) as google_indexable,
+  (
+    pr.video_kind in ('selfhost','youtube','vimeo')
+    and (
+      (pr.google_indexable and pr.dedicated_page and pr.page_url is not null)
+      or coalesce(nullif(btrim(pr.seo_title),''),nullif(btrim(pr.title),''),'')
+         not in ('','🎬 עדכון וידאו','📷 עדכון')
+    )
+  ) as google_indexable,
   a.placement_count,a.google_candidate_placements,a.placement_count>1 as is_duplicate_asset,a.has_unresolved_placement,
   a.first_seen_at,a.last_seen_at,a.source_types,
   case when c.cipher_slugs is not null and not ('cipher'=any(coalesce(s.series_keys,'{}'::text[])))
@@ -347,6 +354,7 @@ begin
     'unique_assets',count(*),
     'google_indexable_assets',count(*) filter(where google_indexable),
     'generic_google_pages',count(*) filter(where google_indexable and uses_generic_page),
+    'generic_pages_waiting_enrichment',count(*) filter(where uses_generic_page and not google_indexable),
     'duplicate_assets',count(*) filter(where is_duplicate_asset),
     'assets_with_unresolved_placement',count(*) filter(where has_unresolved_placement),
     'cipher_assets',count(*) filter(where cardinality(cipher_slugs)>0),
