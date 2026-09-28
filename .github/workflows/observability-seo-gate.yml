@@ -74,5 +74,8 @@ jobs:
       - name: Calculator 2029 interaction contract
         run: npm run test:calculator-2029-golden
 
+      - name: Media cached-egress regression guard
+        run: npm run test:media-egress
+
       - name: Build
         run: npm run build
