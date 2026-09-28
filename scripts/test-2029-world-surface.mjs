@@ -14,7 +14,7 @@ import {
 } from "../src/lib/research/world2029Presentation.js";
 import { numberAnchorToUniversalFinding } from "../src/lib/research/numberAnchorFinding.js";
 import {
-  WORLD_APPROVED_CONTRIBUTOR_SLUGS,
+  WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS,
   buildWorldContributorLens,
   buildWorldLandingContributorProjection,
   contributionTouchesWorldAnchor,
@@ -30,7 +30,7 @@ import {
   filterWorldResearchFindings,
   researchFindingAxes,
 } from "../src/lib/research/worldResearchControl.js";
-import { buildWorldDiscoveryStream, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
+import { buildWorldDiscoveryStream, researchRowToWorldUpdate, topicRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
 import {
   buildWorldAllResearchProjection,
   filterWorldAllResearchRows,
@@ -68,6 +68,9 @@ const worldAllResearchComponent = read("src/components/research/WorldAllResearch
 const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensProjection.js");
 const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
 const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
+const contributorFindingsComponent = read("src/components/research/ContributorFindingsLens.jsx");
+const topicConvergenceContent = read("src/components/research/TopicConvergenceContent.jsx");
+const worldAnchorMapSource = read("src/components/research/WorldAnchorMap.jsx");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
@@ -116,7 +119,8 @@ assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributo
 assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /התכנסויות לפי חוקר/);
+assert.match(world, /בחירת חוקר או כותב/);
+assert.match(world, /פתח את חומר המחקר שלו בעולם/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
@@ -141,20 +145,39 @@ assert.equal(creatorQuery.search, "1820");
 assert.equal(creatorQuery.rangeStart, 24);
 
 
-const discoveryFixture = buildWorldDiscoveryStream([
-  { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
-  { id: "b", slug: "b", title: "חדש ב", created_by: "צבי", approved_at: "2026-09-19T13:00:00Z", numbers: [1020] },
-  { id: "c", slug: "c", title: "חדש ג", created_by: "מנוע · זהב אחר", approved_at: "2026-09-18T13:00:00Z", numbers: [358] },
-  { id: "d", slug: "d", title: "חדש ד", created_by: "שם לא מאושר", approved_at: "2026-09-17T13:00:00Z", numbers: [777] },
-], {
+const discoveryFixture = buildWorldDiscoveryStream({
+  topics: [
+    { id: "a", slug: "a", title: "חדש א", created_by: "AI", approved_at: "2026-09-19T12:00:00Z", numbers: [888] },
+    { id: "b", slug: "b", title: "חדש ב", created_by: "צבי", approved_at: "2026-09-19T13:00:00Z", numbers: [1020] },
+    { id: "c", slug: "c", title: "חדש ג", created_by: "מנוע · זהב אחר", approved_at: "2026-09-18T13:00:00Z", numbers: [358] },
+    { id: "d", slug: "d", title: "חדש ד", created_by: "שם לא מאושר", approved_at: "2026-09-17T13:00:00Z", numbers: [777] },
+  ],
+  research: [
+    { id: "r-new", created_at: "2026-09-20T08:00:00Z", kind: "relation", statement: "ממצא חי של צבי", value: 170, contributor: "צבי (OPOC)", status: "approved", source_ref: "channel_updates:1" },
+    { id: "r-candidate", created_at: "2026-09-21T08:00:00Z", kind: "relation", statement: "לא מאושר", value: 999, contributor: "צבי (OPOC)", status: "candidate" },
+  ],
+}, {
   limit: 10,
-  publicPeople: [{ displayName: "צבי (OPOC)", aliases: ["צבי"] }],
+  publicPeople: [{ slug: "tzvi-opoc", displayName: "צבי (OPOC)", aliases: ["צבי"] }],
 });
-assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["חדש ב", "חדש א", "חדש ג", "חדש ד"]);
+assert.deepEqual(discoveryFixture.items.map((item) => item.label), ["ממצא חי של צבי", "חדש ב", "חדש א", "חדש ג", "חדש ד"]);
 assert.deepEqual(discoveryFixture.creators, ["AI", "צבי (OPOC)", "מנוע · זהב אחר", "מקור ציבורי"]);
+assert.equal(discoveryFixture.sourceCounts.findings, 1);
+assert.equal(discoveryFixture.sourceCounts.convergences, 4);
 assert.equal(topicRowToWorldUpdate({ id: "x", title: "X", created_by: "AI" }).creator, "AI");
 assert.equal(topicRowToWorldUpdate({ id: "y", title: "Y", created_by: "שם לא מאושר" }).creator, "מקור ציבורי");
+const researchUpdate = researchRowToWorldUpdate(
+  { id: "r", created_at: "2026-09-20T08:00:00Z", kind: "fact", statement: "מחקר", contributor: "צבי (OPOC)", status: "approved", value: 170 },
+  { publicPeople: [{ slug: "tzvi-opoc", displayName: "צבי (OPOC)", aliases: ["צבי"] }] },
+);
+assert.equal(researchUpdate.kind, "finding");
+assert.equal(researchUpdate.creatorSlug, "tzvi-opoc");
+assert.equal(researchUpdate.value, 170);
+assert.equal(researchRowToWorldUpdate({ id: "candidate", status: "candidate" }), null);
 assert.equal(discoveryFixture.note.includes("truth rank"), true);
+assert.match(world, /includeResearch: true/);
+assert.match(world, /item\.kind === "finding"/);
+assert.match(world, /world-discovery-finding/);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
 assert.match(world, /WORLD RESEARCH CONTROL/);
@@ -424,10 +447,33 @@ assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct 
 assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
-assert.match(world, /const WORLD_CONTROL_MODE_ALWAYS_VISIBLE = true/);
-assert.match(world, /const controlMode = WORLD_CONTROL_MODE_ALWAYS_VISIBLE \|\| isAdmin/);
+assert.match(world, /const \[adminToolsOpen, setAdminToolsOpen\] = useState\(false\)/);
+assert.match(world, /const controlMode = isAdmin && adminToolsOpen/);
+assert.match(world, /aria-controls="world-admin-tools"/);
+assert.match(world, /adminToolsOpen \? "סגור כלי מנהל" : "כלי מנהל"/);
 assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);
-assert.match(world, /setAdminMode\(Boolean\(controlMode\)\)/);
+assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
+assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
+assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
+assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
+assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
+assert.ok(
+  world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
+  "researcher/content discovery must appear before internal admin tooling",
+);
+assert.match(world, /controlMode \? <section id="world-admin-tools"/);
+assert.match(world, /CONVERGENCE INDEX · PUBLIC PROJECTION/);
+assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
+assert.match(world, /topicFacet && selectedWriter/);
+assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
+assert.match(worldAnchorMapSource, /עוגנים נבחרים/);
+assert.match(worldAnchorMapSource, /אינה רשימת כל העוגנים בעולם/);
+assert.match(contributorFindingsComponent, /\/2029\/number\/\$\{value\}/);
+assert.equal(contributorFindingsComponent.includes("to={\`/number/"), false, "Contributor Findings must not jump back to Legacy Number");
+assert.match(worldAllResearchSource, /"\/2029\/number\/" \+ value/);
+assert.match(worldConvergenceLensSource, /"\/2029\/number\/" \+ value/);
+assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
+assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /private · גלוי לך/);
@@ -823,19 +869,21 @@ assert.match(world, /מיון קשרים/);
 assert.match(world, /useAuth/);
 assert.match(world, /const \{ isAdmin \} = useAuth\(\)/);
 assert.match(world, /מצב מנהל/);
-assert.match(world, /מצב הניהול של World פתוח כרגע תמיד בתקופת הבנייה/);
+assert.match(world, /מצב הניהול של World נפתח רק כשמנהל בוחר בו/);
 assert.match(world, /אינו עוקף הרשאות נתונים/);
 assert.match(world, /גישה ·/);
 assert.match(world, /ממשל ·/);
 assert.match(world, /אימות ·/);
 assert.equal(/canonicalize|publishFinding|setGovernance|updateAccess/.test(world), false, "World admin view must not become a truth/publication writer");
 
-// Admin contributor lens is a bounded projection over EXACTLY the four Human-Gate-approved identities.
-assert.deepEqual(WORLD_APPROVED_CONTRIBUTOR_SLUGS, ["tzvi-opoc", "shimon-haimov", "yaniv-levi", "shachar-kandro"]);
+// Contributor admission extends the old curated set with live trusted identities.
+assert.deepEqual(WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS, ["tzvi-opoc", "shimon-haimov", "yaniv-levi", "shachar-kandro"]);
+assert.match(contributorLensSource, /live trusted contributors are added from the canonical contributors table/);
+assert.match(contributorLensSource, /\.eq\("trusted", true\)/);
+assert.match(contributorLensSource, /WORLD_LEGACY_CURATED_CONTRIBUTOR_SLUGS/);
 assert.match(world, /fetchWorldContributorLens/);
 assert.match(world, /חוקר \/ כותב/);
-assert.match(world, /כרגע מאושרים ב־World רק צבי, שמעון חיימוב, יניב לוי ויצחק שחר קנדרו/);
-assert.equal(world.includes("עמית מייק רוב"), false, "no fifth contributor may leak into the approved World filter");
+assert.equal(world.includes("כרגע מאושרים ב־World רק צבי, שמעון חיימוב, יניב לוי ויצחק שחר קנדרו"), false, "World must not publish a stale frozen contributor admission list");
 assert.match(contributorLensSource, /admin_all_contributions/);
 assert.match(contributorLensSource, /convergences_for_author/);
 assert.equal(contributorLensSource.includes(".insert("), false);
@@ -848,6 +896,7 @@ const contributorFixture = buildWorldContributorLens({
     { id: "shimon-id", slug: "shimon-haimov", display_name: "שמעון חיימוב", wa_names: [] },
     { id: "yaniv-id", slug: "yaniv-levi", display_name: "יניב לוי", wa_names: [] },
     { id: "shachar-id", slug: "shachar-kandro", display_name: "יצחק שחר קנדרו", wa_names: ["שחר יצחק קנדרו"] },
+    { id: "zion-id", slug: "zion-siboni", display_name: "ציון סיבוני", wa_names: [], trusted: true, active: true },
     { id: "fifth-id", slug: "not-approved", display_name: "לא מאושר", wa_names: [] },
   ],
   contributions: [
@@ -865,7 +914,8 @@ const contributorFixture = buildWorldContributorLens({
   topicRows: [{ slug: "tzvi-1020" }],
   anchor: { type: "number", label: "1820" },
 });
-assert.equal(contributorFixture.contributors.length, 4);
+assert.equal(contributorFixture.contributors.length, 5);
+assert.ok(contributorFixture.bySlug["zion-siboni"], "live trusted contributor must join the World without hard-coded admission");
 assert.equal(contributorFixture.bySlug["yaniv-levi"].convergences.length, 1);
 assert.equal(contributorFixture.bySlug["yaniv-levi"].relevantContributions.length, 1);
 assert.equal(contributorFixture.bySlug["tzvi-opoc"].researchObjectIds.includes("r1"), true);
@@ -878,6 +928,7 @@ const publicLandingFixture = buildWorldLandingContributorProjection({
     { id: "shimon-id", slug: "shimon-haimov", display_name: "שמעון חיימוב", wa_names: [] },
     { id: "yaniv-id", slug: "yaniv-levi", display_name: "יניב לוי", wa_names: [] },
     { id: "shachar-id", slug: "shachar-kandro", display_name: "יצחק שחר קנדרו", wa_names: [] },
+    { id: "zion-id", slug: "zion-siboni", display_name: "ציון סיבוני", wa_names: [], trusted: true, active: true },
     { id: "fifth-id", slug: "not-approved", display_name: "לא מאושר", wa_names: [] },
   ],
   publicContributions: [
@@ -885,7 +936,8 @@ const publicLandingFixture = buildWorldLandingContributorProjection({
     { id: "p2", author_contributor_id: "fifth-id", title: "לא אמור להיכנס", target_type: "number", target_id: "999", convergence_slug: "fifth-999", gematria_claim: { value: 999 } },
   ],
 });
-assert.equal(publicLandingFixture.people.length, 4);
+assert.equal(publicLandingFixture.people.length, 5);
+assert.ok(publicLandingFixture.bySlug["zion-siboni"], "trusted contributor must appear in the public World landing projection");
 assert.equal(publicLandingFixture.bySlug["yaniv-levi"].meetings.length, 1);
 assert.equal(publicLandingFixture.bySlug["not-approved"], undefined);
 const publicLandingFetcherSlice = contributorLensSource.slice(

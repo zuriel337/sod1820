@@ -360,7 +360,7 @@ function makeCandidateRow(row) {
     classification,
     href: topicSlug
       ? "/topic/" + encodeURIComponent(topicSlug)
-      : value != null ? "/number/" + value : null,
+      : value != null ? "/2029/number/" + value : null,
   };
   out.explainWhy = [];
   if (decisionChanging) out.explainWhy.push("מועמד עם mismatch/contradiction מפורש שיכול לשנות החלטה קיימת.");
