@@ -836,3 +836,62 @@ A daily aggregate snapshot belongs in existing `analytics_cache` under `infra_me
 ## 18.6 Coordination boundary
 
 SEO / Video discovery / sitemap / VideoObject semantics are owned by the separate concurrent SEO scope. Runtime egress hardening and operational monitoring must not silently seize that owner.
+
+---
+
+# 19. 2026-09-29 live delta — canonical ingest, crawler egress, poster backlog
+
+This section extends the same Media/Traffic/System owners; it does not create a new delivery or monitoring system.
+
+## 19.1 Canonical source-video ingress advanced
+
+PR #797 is LIVE: the existing ticket-scoped `agent-upload` path can accept a TikTok page/share URL, reuse the existing guarded resolver, validate actual MP4 bytes and store the file directly in the canonical media bucket.
+
+Consequences:
+
+- source-platform URLs remain provenance, not storage identity;
+- Dropbox/manual-download intermediary workflows are not future architecture dependencies;
+- future source-specific resolvers must terminate in the same canonical upload/media identity path;
+- any older workaround is retired only after live-consumer/provenance proof, not by deleting its historical evidence.
+
+## 19.2 Crawler metadata guard advanced, but egress is not closed
+
+PR #802/#803 are LIVE:
+
+- non-search crawler/social/AI metadata no longer exposes raw MP4 through `og:video` / VideoObject `contentUrl`;
+- video-valued poster/thumb metadata falls back to a real image/site image rather than the MP4;
+- search-crawler video indexing remains under the SEO owner.
+
+An immediate deployment sample showed Applebot raw-MP4 downloads at zero in the checked 10-minute window. That is useful evidence, not closure.
+
+Later live observation on 29.9 for 11:00–12:00 UTC still showed:
+
+- Storage GET bytes ≈ **85.6 MB**;
+- bot-classified share ≈ **97.7%**;
+- four-distinct-MP4 burst ≈ **35.4 MB**;
+- rolling observed 24h ≈ **460 MB**;
+- guard state = **WARN**.
+
+Therefore the broader crawler/bot media-egress problem remains open. G3.5 must re-attribute the remaining requests by crawler/surface/object where provider evidence permits and verify that any later fix reduces measured bytes without breaking indexability.
+
+## 19.3 Poster coverage remains an active dependency
+
+Live audit found a bounded set of self-hosted videos whose poster/thumb fields are absent or point back to video media. PR #804 extends the **existing** thumbnail queue to classify these rows and process a bounded batch, but remains branch-only.
+
+Closure requires:
+
+`classify affected public video → queue existing poster worker → produce real image poster → bind as dependent representation → verify public consumers stop falling back to video/or generic image → remeasure egress`
+
+Do not retire the egress guard or client/server fallback until real poster coverage and consumer behavior are live-verified.
+
+## 19.4 2029 surface growth must trigger another media scan
+
+Home 2029 Reality Gallery and Book/Spatial projections are actively expanding. Immediately before G4:
+
+- inventory every newly live media consumer;
+- verify card/list surfaces request bounded derivatives, not originals;
+- verify no hidden video/preload/derivative generation returned;
+- remeasure public video poster coverage, no-cache objects, bot/crawler bytes, hot-object bursts and duplicate candidates;
+- reconcile any branch-only media/spatial prototype into the canonical owner or archive it.
+
+Current September counts are calibration only.
