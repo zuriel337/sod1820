@@ -34,7 +34,7 @@ async function render(path, fetchImpl, query = {}) {
 const homeSearchCrawler = await renderResponse("/", async () => {
   throw new Error("home server document must not require Supabase fetch");
 }, { crawler: "search" });
-assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/"/);
+assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il"/);
 assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
 
