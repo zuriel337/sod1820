@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
+import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
 import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
+import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
@@ -69,6 +71,7 @@ export default function Els2029Page() {
     traceId: null,
     error: null,
   });
+  const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -115,6 +118,13 @@ export default function Els2029Page() {
   const layeredReady = replayLayers?.contract === "els_2029_layers_v1"
     && Array.isArray(replayLayers.layers)
     && replayLayers.layers.length > 0;
+  const profileModel = useMemo(() => projectElsMatrixProfile({
+    profile: matrixProfile,
+    replayMatched,
+    researchSignal: layeredReady ? "WARM" : "COLD",
+    razielAvailable: replayMatched && layeredReady,
+  }), [matrixProfile, replayMatched, layeredReady]);
+  const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
@@ -152,7 +162,10 @@ export default function Els2029Page() {
               : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר. אין כאן חיפוש חופשי מומצא כשאין Anchor."}
           </div>
         </div>
-        <span className="sod29-chip">{subject ? "CONTEXT READY" : "CONTEXT REQUIRED"}</span>
+        <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+          <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+          <span className="sod29-chip">{subject ? "CONTEXT READY" : "CONTEXT REQUIRED"}</span>
+        </div>
       </div>
 
       <div className="sod29-els-architecture">
@@ -188,8 +201,8 @@ export default function Els2029Page() {
                 state={replayMatched ? "ready" : "building"}
               />
               <StateRow
-                label="2D / 2.5D projection feed"
-                value={layeredReady ? "canonical replay → projection → layers → renderer" : "אין occurrence מאומת להקרנה"}
+                label={researchProfile ? "2D / 2.5D projection feed" : "Classic 2D projection"}
+                value={layeredReady ? (researchProfile ? "canonical replay → projection → layers → renderer" : "אותו replay מאומת · תצוגה ישירה ללא הרחבת מחקר") : "אין occurrence מאומת להקרנה"}
                 state={layeredReady ? "ready" : "building"}
               />
               <StateRow
@@ -199,11 +212,11 @@ export default function Els2029Page() {
               />
             </div>
 
-            <Els2029Representation layers={replayLayers} />
+            <Els2029Representation layers={replayLayers} profile={matrixProfile} />
           </div>
         </div>
 
-        <aside className="sod29-inspector">
+        {researchProfile ?         <aside className="sod29-inspector">
           <div className="sod29-kicker">FOUNDATION → PROJECTION</div>
           <h3 style={{ marginTop: 5 }}>מה המשטח רשאי לעשות</h3>
           <div className="sod29-divider" />
@@ -214,10 +227,10 @@ export default function Els2029Page() {
           <div className="sod29-muted">Spatial</div><b>Matrix / layers / 3D הם representation בלבד</b>
           <div className="sod29-divider" />
           <div className="sod29-muted">Evidence</div><b>קרבה חזותית אינה מעלה Truth או Independence</b>
-        </aside>
+        </aside> : null}
       </div>
 
-      <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
+      {researchProfile ?       <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
         <div className="sod29-section-head">
           <div>
             <div className="sod29-kicker">ADAPTIVE ACTION SLOTS</div>
@@ -240,7 +253,21 @@ export default function Els2029Page() {
         <p className="sod29-muted" style={{ marginTop: 12 }}>
           Neighborhood / Axis Continuation נשמרים כאן כנקודות הרחבה בלבד. חוקי האינטליגנציה שלהם ייקבעו מאוחר יותר מתוך דוגמאות מחקר אמיתיות, בלי לחסום את G3.
         </p>
-      </section>
+      </section> : <section className="sod29-section" aria-label="ELS Classic compatibility" style={{ marginTop: 18 }}>
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">CLASSIC · DIRECT 2D</div>
+            <h2>המטריצה הקלאסית נשמרת</h2>
+            <div className="sod29-muted">אותו occurrence ואותו Research Context נשארים פעילים. מצב קלאסי אינו מפעיל Raziel, עומק אדפטיבי או חיפוש נוסף.</div>
+          </div>
+          <span className="sod29-chip">ONE ENGINE · SAME STATE</span>
+        </div>
+        <div className="sod29-actions">
+          <a className="sod29-action" href="/lab/els">פתח Work Area קלאסי מלא</a>
+          <span className="sod29-chip">/lab/els · COMPATIBILITY</span>
+        </div>
+        <p className="sod29-muted" style={{ marginTop: 12 }}>ה־Work Area הוותיק נשאר זמין בזמן שהיכולות שלו נספגות בהדרגה במשטח 2029. הוא אינו הופך למנוע או מקור אמת נפרד.</p>
+      </section>}
     </section>
   </Sod2029Shell>;
 }
