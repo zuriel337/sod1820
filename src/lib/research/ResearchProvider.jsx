@@ -9,6 +9,7 @@ import { normalizeResearchContext, mergeResearchContext } from "./researchContex
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import {
   contextFromResearchPathSnapshot,
+  forkResearchPathSnapshot,
   getLatestResearchPath,
   isResearchPathId,
   researchPathOperationKey,
@@ -282,6 +283,61 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
   }, [userId, pathResume.latest?.path_id, actions]);
 
+  const forkResearchPath = useMemo(() => async ({
+    context: requestedContext = null,
+    href = null,
+    label = null,
+    surface = null,
+    branchPointStepIndex = null,
+  } = {}) => {
+    if (!userId) return { ok: false, error: "authentication_required" };
+    const current = normalizeResearchContext(requestedContext || runtime.getSnapshot().context);
+    const parentPathId = current?.journey?.kind === "research_path" && isResearchPathId(current?.journey?.id)
+      ? current.journey.id
+      : null;
+    const parentRevisionId = isResearchPathId(current?.journey?.revisionId)
+      ? current.journey.revisionId
+      : null;
+    if (!parentPathId || !parentRevisionId) {
+      return { ok: false, error: "research_path_resume_required" };
+    }
+
+    const branchPoint = Number.isInteger(branchPointStepIndex)
+      ? branchPointStepIndex
+      : Number.isInteger(current?.journey?.position) ? current.journey.position : 0;
+
+    setPathResume((prev) => ({ ...prev, loading: true, error: null }));
+    let result;
+    try {
+      result = await forkResearchPathSnapshot({
+        parentPathId,
+        parentRevisionId,
+        branchPointStepIndex: branchPoint,
+        context: current,
+        href,
+        label,
+        surface,
+        forkKey: researchPathOperationKey("fork"),
+      });
+    } catch (error) {
+      result = { ok: false, error: error?.message || "fork_failed" };
+    }
+
+    if (!result?.ok) {
+      setPathResume((prev) => ({ ...prev, loading: false, error: result?.error || "fork_failed" }));
+      return result;
+    }
+
+    const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
+    actions.updateResearchContext({
+      journey: { id: result.path_id, kind: "research_path", position, revisionId: result.revision_id, revisionNo: result.revision_no },
+    });
+    setPathResume({ loading: false, latest: result, error: null });
+    trackResearch("path_fork", { revision: result.revision_no, surface: surface || null });
+    emitJourney2029("fork", { context: current, sourceSurface: surface, pathId: result.path_id });
+    return result;
+  }, [userId, runtime, actions]);
+
   useEffect(() => {
     const route = numberRouteSelection(pathname, search);
     if (!route) return;
@@ -371,7 +427,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return () => window.removeEventListener("message", onElsState);
   }, [runtime, actions]);
 
-  const value = useMemo(() => ({ ...state, pathResume, saveCurrentResearchPath, resumeResearchPath, ...actions }),
-    [state, pathResume, saveCurrentResearchPath, resumeResearchPath, actions]);
+  const value = useMemo(() => ({ ...state, pathResume, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
+    [state, pathResume, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
