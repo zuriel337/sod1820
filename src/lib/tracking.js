@@ -3,6 +3,7 @@ import { trackConversion } from "./marketing.js";
 import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
 import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
+import { installRuntimeErrorCapture } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_RUNTIME_CORE_V1
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
@@ -352,3 +353,7 @@ function markInstalledOnce(kind, meta) {
   track("app", null, "install", m);
   trackConversion("app_install", m);
 }
+
+// G3_RELIABILITY_RUNTIME_CORE_V1 — שגיאות window/unhandledrejection דרך track() הקיים
+// (surface=runtime_error → events). נקרא פעם אחת מנקודות-הכניסה; ה-gate של בוטים חל כרגיל.
+export const initRuntimeErrorCapture = () => installRuntimeErrorCapture(track);
