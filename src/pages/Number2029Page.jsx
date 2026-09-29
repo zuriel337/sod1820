@@ -391,26 +391,11 @@ function NumberPageBody() {
     if (!families.length) return;
     if (activeExpression && selectedMethodKey) return;
 
-    const regularFamily = families.find((group) => (
-      isRegularMethodIdentity(methodKey(group)) || isRegularMethodIdentity(methodLabel(group))
-    )) || null;
     const anchorFamily = anchorPhrase
       ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
       : null;
-    // Canonical presentation rule: without explicit Method Context, Regular is the default
-    // whenever it is available. This also prevents the Number stage from silently jumping to
-    // another method result after async profile settle (a real CLS source on /2029/number/1237).
-    const first = regularFamily || anchorFamily || families[0];
-    const anchorIsRegular = Boolean(
-      anchorPhrase
-      && regularFamily
-      && (regularFamily?.phrases || []).some((item) => phraseOf(item) === anchorPhrase),
-    );
-    const phrase = activeExpression
-      || (anchorIsRegular ? anchorPhrase : phraseOf(regularFamily?.phrases?.[0]))
-      || anchorPhrase
-      || phraseOf(first?.phrases?.[0])
-      || String(root);
+    const first = anchorFamily || families[0];
+    const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
     if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
     if (!activeExpression) setActiveExpression(phrase);
   }, [families, root, selectedMethodKey, activeExpression, anchorPhrase]);
