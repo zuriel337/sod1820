@@ -45,12 +45,26 @@ jobs:
             if [ "$S" = "success" ]; then SHA=$(gh api "repos/${{ github.repository }}/deployments/$i" --jq '.sha'); break; fi
           done
           echo "current production sha: ${SHA:-unknown}"
+          if [ -z "$SHA" ]; then
+            echo "cannot resolve current successful Production deployment SHA" >&2
+            exit 1
+          fi
           BOOTSTRAP_ARG=""
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           if [ -n "$BASE_SHA" ]; then
-            if ! gh api "repos/${{ github.repository }}/contents/scripts/release-canary-gate.mjs?ref=$BASE_SHA" >/dev/null 2>&1; then
-              echo "canary gate bootstrap install release: base does not contain gate runtime"
-              BOOTSTRAP_ARG="--allow-bootstrap"
+            set +e
+            BASE_PROBE=$(gh api "repos/${{ github.repository }}/contents/scripts/release-canary-gate.mjs?ref=$BASE_SHA" 2>&1)
+            BASE_RC=$?
+            set -e
+            if [ "$BASE_RC" -ne 0 ]; then
+              if printf '%s' "$BASE_PROBE" | grep -q 'HTTP 404'; then
+                echo "canary gate bootstrap install release: base does not contain gate runtime"
+                BOOTSTRAP_ARG="--allow-bootstrap"
+              else
+                echo "failed to verify base canary-gate runtime; failing closed" >&2
+                printf '%s\n' "$BASE_PROBE" >&2
+                exit 1
+              fi
             fi
           fi
           node scripts/release-canary-gate.mjs --production-sha "$SHA" $BOOTSTRAP_ARG
