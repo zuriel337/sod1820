@@ -5,7 +5,7 @@
 import { pathToFileURL } from "node:url";
 
 export async function checkGate(productionSha, { fetchImpl = fetch, env = process.env, allowBootstrap = false } = {}) {
-  const key = env.SUPABASE_SERVICE_KEY;
+  const key = env.SUPABASE_SERVICE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) return { allowed: false, reason: "reporting_authority_missing" };
   const base = String(env.SUPABASE_URL || "https://linswmnnkjxvweumprav.supabase.co").replace(/\/+$/, "");
   const res = await fetchImpl(`${base}/rest/v1/rpc/fn_release_canary_gate`, {
