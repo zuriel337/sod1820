@@ -45,8 +45,14 @@ function decodeB64(s:string):Uint8Array {
   return out;
 }
 
+function ownedArrayBuffer(bytes:Uint8Array):ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 async function sha256Hex(bytes:Uint8Array) {
-  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", ownedArrayBuffer(bytes)));
   return Array.from(d).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
@@ -69,7 +75,7 @@ async function putBuffered(t:Ticket, bytes:Uint8Array) {
   if (bytes.byteLength === 0 || bytes.byteLength > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
   const hash = await sha256Hex(bytes);
   if (t.sha256 && hash !== t.sha256) return json({ ok:false, error:"sha256 mismatch" },422);
-  return await putBytes(t, bytes, { sha256:hash, size:bytes.byteLength });
+  return await putBytes(t, ownedArrayBuffer(bytes), { sha256:hash, size:bytes.byteLength });
 }
 
 function baseContentType(value:string) {
