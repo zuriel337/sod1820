@@ -3,9 +3,9 @@
 // G0: current live OCR_RUN_KEY is not configured, so a dedicated-key candidate would fail closed and break Source Video.
 // Reuse the existing server-to-server FB_ADMIN_KEY root already present in Edge env + Vault; never expose service_role.
 import {
+  fetchTikTokMedia,
   isAllowedTikTokMediaUrl,
   isTikTokPageUrl,
-  mediaFetchHeaders,
   resolveTikTokSource,
 } from "../_shared/tiktokSourceResolver.js";
 
@@ -49,12 +49,6 @@ async function resolveSource(src: string): Promise<ResolvedSource> {
   return await resolveTikTokSource(src) as ResolvedSource;
 }
 
-function mediaRequestInit(resolution: ResolvedSource, rangeProbe = false): RequestInit {
-  const headers = new Headers(mediaFetchHeaders(resolution));
-  if (rangeProbe) headers.set("Range", "bytes=0-0");
-  return { method: "GET", headers, redirect: "follow" };
-}
-
 function applyResolutionProvenance(out: Record<string, unknown>, resolution: ResolvedSource) {
   out.source_kind = resolution.kind;
   if (resolution.kind !== "tiktok") return;
@@ -67,6 +61,17 @@ function applyResolutionProvenance(out: Record<string, unknown>, resolution: Res
 function resolvedMediaResponseAllowed(resolution: ResolvedSource, response: Response) {
   if (resolution.kind !== "tiktok") return true;
   return isAllowedTikTokMediaUrl(response.url || resolution.mediaUrl);
+}
+
+async function fetchResolvedMedia(resolution: ResolvedSource, rangeProbe = false): Promise<{ response: Response; finalUrl: string }> {
+  if (resolution.kind === "tiktok") {
+    const response = await fetchTikTokMedia(resolution, fetch, { rangeProbe });
+    return { response, finalUrl: response.url || resolution.mediaUrl };
+  }
+  const headers = new Headers();
+  if (rangeProbe) headers.set("Range", "bytes=0-0");
+  const response = await fetch(resolution.mediaUrl, { method: "GET", headers, redirect: "follow" });
+  return { response, finalUrl: response.url || resolution.mediaUrl };
 }
 
 Deno.serve(async (req: Request) => {
@@ -105,19 +110,19 @@ Deno.serve(async (req: Request) => {
         }
 
         if (dryRun) {
-          const probe = await fetch(resolution.mediaUrl, mediaRequestInit(resolution, true));
+          const { response: probe, finalUrl } = await fetchResolvedMedia(resolution, true);
           const probeType = probe.headers.get("content-type") || "";
           const allowed = probe.ok && resolvedMediaResponseAllowed(resolution, probe) && !contentLooksLikeHtml(probeType);
           out.status = allowed ? "source_ok" : `source_fail_${probe.status}`;
           out.source_status = probe.status;
           out.source_content_type = probeType || null;
-          out.resolved_media_host = (() => { try { return new URL(probe.url || resolution.mediaUrl).hostname; } catch { return null; } })();
+          out.resolved_media_host = (() => { try { return new URL(finalUrl).hostname; } catch { return null; } })();
           try { await probe.body?.cancel(); } catch { /* best effort */ }
           results.push(out);
           continue;
         }
 
-        const resp = await fetch(resolution.mediaUrl, mediaRequestInit(resolution));
+        const { response: resp, finalUrl } = await fetchResolvedMedia(resolution);
         if (!resp.ok) { out.status = `source_fail_${resp.status}`; results.push(out); continue; }
         if (!resolvedMediaResponseAllowed(resolution, resp)) { out.status = "resolved_media_host_rejected"; results.push(out); continue; }
         const len = Number(resp.headers.get("content-length") || "0");
@@ -127,7 +132,7 @@ Deno.serve(async (req: Request) => {
         const buf = await resp.arrayBuffer();
         out.bytes = buf.byteLength;
         out.source_content_type = ct;
-        out.resolved_media_host = (() => { try { return new URL(resp.url || resolution.mediaUrl).hostname; } catch { return null; } })();
+        out.resolved_media_host = (() => { try { return new URL(finalUrl).hostname; } catch { return null; } })();
         if (buf.byteLength < 1024) { out.status = "too_small_likely_error_page"; results.push(out); continue; }
         if (buf.byteLength > MAX_BYTES) { out.status = "too_large"; results.push(out); continue; }
         await uploadToStorage(dest, buf, ct.startsWith("video") ? ct : "video/mp4");
