@@ -25,7 +25,7 @@ test("ELS 2029 defaults to Research and switches presentation without replay/sea
   assert.match(page, /const researchProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.RESEARCH/);
   assert.match(page, /<Els2029Representation layers=\{replayLayers\} profile=\{matrixProfile\}/);
 
-  const replayEffect = page.slice(page.indexOf("verifyEls2029Selection"), page.indexOf("const replayProjection"));
+  const replayEffect = page.slice(page.indexOf("if (elsState.loading || elsState.blocked || !replayKey)"), page.indexOf("const replayProjection"));
   assert.doesNotMatch(replayEffect, /matrixProfile|researchProfile/);
 
   assert.match(page, /researchProfile \?\s*<aside className="sod29-inspector"/);
