@@ -72,7 +72,9 @@ assert.equal(ctx.path, "/number/358");
 assert.equal(ctx.surface, "numberscript");
 assert.equal(ctx.viewport, "phone");
 assert.equal(ctx.auth, "anonymous");
-assert.equal(m.buildIssueReportContext({ signedIn: true }).auth, "member");
+assert.equal(m.buildIssueReportContext({ signedIn: true }).auth, "registered");
+assert.equal(m.buildIssueReportContext({ signedIn: true, isAdmin: true }).auth, "admin");
+assert.equal(m.buildIssueReportContext({ isAdmin: true }).auth, "admin");
 assert.equal(m.viewportClass(800), "tablet");
 assert.equal(m.viewportClass(1440), "desktop");
 

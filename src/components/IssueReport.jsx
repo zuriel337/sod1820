@@ -39,6 +39,7 @@ export function buildIssueReportContext({
   locale = null,
   width = null,
   signedIn = false,
+  isAdmin = false,
   interactionId = null,
   now = new Date(),
 } = {}) {
@@ -50,7 +51,7 @@ export function buildIssueReportContext({
     at: now instanceof Date && !Number.isNaN(now.getTime()) ? now.toISOString() : null,
     locale: boundKey(locale),
     viewport: viewportClass(width),
-    auth: signedIn ? "member" : "anonymous",
+    auth: isAdmin ? "admin" : signedIn ? "registered" : "anonymous",
     interaction_id: interactionId || null,
   };
 }
@@ -67,7 +68,7 @@ export function emitIssueReport(context, text) {
 }
 
 export default function IssueReport({ pathname, surface = null, capability = null, locale = null, onDone }) {
-  const { user } = useAuth() || {};
+  const { user, isAdmin } = useAuth() || {};
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
   const sentRef = useRef(false);
@@ -79,8 +80,9 @@ export default function IssueReport({ pathname, surface = null, capability = nul
     locale: locale || (typeof navigator !== "undefined" ? navigator.language : null),
     width: typeof window !== "undefined" ? window.innerWidth : null,
     signedIn: Boolean(user),
+    isAdmin: Boolean(isAdmin),
     interactionId: newInteractionId(),
-  }), [pathname, surface, capability, locale, user]);
+  }), [pathname, surface, capability, locale, user, isAdmin]);
 
   const submit = useCallback((event) => {
     event.preventDefault();
