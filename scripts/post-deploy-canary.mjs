@@ -44,7 +44,7 @@ export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000 } =
 }
 
 function rpcConfig(env) {
-  const key = env.SUPABASE_SERVICE_KEY;
+  const key = (env.SUPABASE_SERVICE_KEY || env.SUPABASE_SERVICE_ROLE_KEY);
   if (!key) throw new Error("reporting authority missing: SUPABASE_SERVICE_KEY is not set");
   const base = String(env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, "");
   if (!env.GITHUB_RUN_ID || !env.GITHUB_REPOSITORY) throw new Error("GitHub run identity missing (GITHUB_RUN_ID/GITHUB_REPOSITORY)");
