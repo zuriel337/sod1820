@@ -62,10 +62,10 @@ Owner families below are routing categories only — never umbrella super-laws.
 | Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
 | Workspace / one Research OS / projection consolidation | `research_workspace_law` **v5 ACTIVE** |
 | adaptive semantic zones/layout | `workspace_layout_standard` |
-| Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v16 ACTIVE** |
+| Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v17 ACTIVE** |
 | source-native research-object identity invariant | `research_object_identity_invariant_law` |
 
-`research_strategy_layer_law v16` owns the current compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
+`research_strategy_layer_law v17` owns the current compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
 
 Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v15 / Truth.
 
