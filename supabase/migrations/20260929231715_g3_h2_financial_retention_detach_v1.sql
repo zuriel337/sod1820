@@ -21,9 +21,33 @@ do $patch$
 declare
   v_def text;
   v_new text;
-  v_guard text := E'  if exists(select 1 from public.credit_ledger where user_id=v_uid)\n     or exists(select 1 from public.payment_requests where user_id=v_uid)\n     or exists(\n       select 1\n       from public.paid_subscribers ps\n       where exists (\n         select 1\n         from public.wa_account_links l\n         where l.user_id=v_uid\n           and public.wa_norm_phone(l.phone)=public.wa_norm_phone(ps.wa_sender)\n       )\n     ) then\n    raise exception ''account_erasure_financial_retention_policy_pending'' using errcode=''P0001'';\n  end if;\n';
-  v_phone_anchor text := E'  select coalesce(array_agg(distinct regexp_replace(l.phone,''@.*$'','''')),''{}''::text[]) into v_phones from public.wa_account_links l where l.user_id=v_uid;\n';
-  v_detach text := E'\n  -- Human Gate 2026-09-30: retain financial history, detach/redact account identity.\n  update public.credit_ledger\n     set user_id=null,\n         meta=(coalesce(meta,''{}''::jsonb)-''user_id''-''email''-''phone''-''display_name'')\n              || jsonb_build_object(''erasure_state'',''financial_retained_identity_detached'')\n   where user_id=v_uid;
+  v_guard text := $guard$
+  if exists(select 1 from public.credit_ledger where user_id=v_uid)
+     or exists(select 1 from public.payment_requests where user_id=v_uid)
+     or exists(
+       select 1
+       from public.paid_subscribers ps
+       where exists (
+         select 1
+         from public.wa_account_links l
+         where l.user_id=v_uid
+           and public.wa_norm_phone(l.phone)=public.wa_norm_phone(ps.wa_sender)
+       )
+     ) then
+    raise exception 'account_erasure_financial_retention_policy_pending' using errcode='P0001';
+  end if;
+$guard$;
+  v_phone_anchor text := $anchor$
+  select coalesce(array_agg(distinct regexp_replace(l.phone,'@.*$','')),'{}'::text[]) into v_phones from public.wa_account_links l where l.user_id=v_uid;
+$anchor$;
+  v_detach text := $detach$
+
+  -- Human Gate 2026-09-30: retain financial history, detach/redact account identity.
+  update public.credit_ledger
+     set user_id=null,
+         meta=(coalesce(meta,'{}'::jsonb)-'user_id'-'email'-'phone'-'display_name'-'by')
+              || jsonb_build_object('erasure_state','financial_retained_identity_detached')
+   where user_id=v_uid;
 
   if nullif(btrim(coalesce(v_email,'')),'') is not null then
     update public.credit_ledger
@@ -33,7 +57,11 @@ declare
        and lower(coalesce(meta->>'invitee',''))=lower(v_email);
   end if;
 
-  update public.payment_requests\n     set user_id=null, reference=null, proof_url=null\n   where user_id=v_uid;\n\n  if coalesce(array_length(v_phones,1),0) > 0 then
+  update public.payment_requests
+     set user_id=null, reference=null, proof_url=null
+   where user_id=v_uid;
+
+  if coalesce(array_length(v_phones,1),0) > 0 then
     update public.subscriber_payments sp
        set notes=null
      where sp.subscriber_id in (
@@ -46,7 +74,15 @@ declare
          )
      );
 
-    update public.paid_subscribers ps\n       set display_name=''חשבון שנמחק'', wa_sender=null, ai_sources=''{}''::text[], active=false, notes=null\n     where ps.wa_sender is not null\n       and exists (\n         select 1 from unnest(v_phones) p(phone)\n         where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)\n       );\n  end if;\n';
+    update public.paid_subscribers ps
+       set display_name='חשבון שנמחק', wa_sender=null, ai_sources='{}'::text[], active=false, notes=null
+     where ps.wa_sender is not null
+       and exists (
+         select 1 from unnest(v_phones) p(phone)
+         where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)
+       );
+  end if;
+$detach$;
 begin
   select pg_get_functiondef(p.oid) into v_def
   from pg_proc p join pg_namespace n on n.oid=p.pronamespace
