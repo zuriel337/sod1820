@@ -163,6 +163,38 @@ assert.match(legacyNumberSearchCrawler.body, /עוגן 1237/);
 assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(legacyNumberSearchCrawler.body, /http-equiv="refresh"/);
 
+
+const appleVideoCrawler = await renderResponse(`/video/${videoId}`, async (url) => {
+  const u = String(url);
+  if (u.includes("/video_media_assets_v1?")) {
+    return {
+      ok: true,
+      async json() {
+        return [{
+          public_id: videoId,
+          title: "סרטון Applebot",
+          video_kind: "selfhost",
+          media_url: "https://example.test/heavy-video.mp4",
+          youtube_id: null,
+          poster_url: "https://example.test/poster.jpg",
+          thumb_url: "https://example.test/thumb.jpg",
+          topics: ["מחקר"],
+          google_indexable: true,
+          first_seen_at: "2026-09-28T08:00:00+00:00",
+          last_seen_at: "2026-09-28T09:00:00+00:00",
+        }];
+      },
+    };
+  }
+  throw new Error("unexpected Applebot video fetch: " + u);
+}, { crawler: "apple" });
+assert.match(appleVideoCrawler.body, /"@type":"VideoObject"/);
+assert.doesNotMatch(appleVideoCrawler.body, /heavy-video\.mp4/);
+assert.doesNotMatch(appleVideoCrawler.body, /property="og:video"/);
+assert.equal(appleVideoCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.equal(appleVideoCrawler.headers.get("vary"), "User-Agent");
+assert.doesNotMatch(appleVideoCrawler.body, /http-equiv="refresh"/);
+
 const elsLocked = await render("/els", async (url) => {
   const u = String(url);
   if (u.includes("/site_flags?")) {
@@ -190,6 +222,15 @@ const socialAiUa = socialAiRule.has.find((h) => h.key === "user-agent").value;
 for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "CCBot", "Google-Extended", "Bytespider"]) {
   assert.ok(socialAiUa.includes(token), `AI crawler UA must be included: ${token}`);
 }
+
+
+const appleLiteRule = uaRules.find((r) => r.source === "/(.*)" && r.destination === "/api/og?path=/$1&crawler=apple");
+assert.ok(appleLiteRule, "Applebot lightweight crawler rule must exist");
+assert.ok(appleLiteRule.has.find((h) => h.key === "user-agent").value.includes("Applebot"));
+assert.ok(
+  vercel.rewrites.indexOf(appleLiteRule) < vercel.rewrites.indexOf(socialAiRule),
+  "Applebot lightweight rule must precede generic social/AI crawler catch-all",
+);
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
 assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
