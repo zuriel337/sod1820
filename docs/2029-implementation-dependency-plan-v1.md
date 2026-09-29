@@ -166,6 +166,7 @@ Build:
 - provider-native price + effective pricing + FX snapshot + ILS exact/estimated/unknown;
 - output-use (`used/partial/rejected/superseded`) for multi-engine workflows;
 - timeout/cancel/retry/idempotency/circuit-breaker semantics;
+- application/business conflicts must use non-retryable transport/error semantics where appropriate; a semantic conflict must not masquerade as a retryable database serialization failure and create request amplification/retry storms. The 29.9 Research Sync incident is the calibration case: a SQLSTATE 40001 application conflict caused millions of PostgREST retries until the conflict code was corrected to an HTTP-409-style non-retryable contract;
 - per-capability/user/session/background budgets;
 - provider failover without identity/truth changes;
 - latency-critical external provider/network I/O must not hold a PostgreSQL connection while waiting on a remote service when the governed action can execute through the existing async Edge/background path; preserve action identity, idempotency, retry/delivery provenance and trace across the handoff rather than creating a second transport owner;
@@ -236,6 +237,9 @@ Current relevant work:
 
 - **PR #499 — RELEASED** one-tree media intake + private submission inbox + resumable TUS upload + contribution media binding/moderation; this is the released continuation of the #495 media foundation package.
 - **PR #511 — RELEASED** native World 2029 media projection over existing Gallery/Reality Graph records; public World gate is `gallery_images.published=1` + not curator-hidden.
+- **PR #797 — RELEASED / LIVE (29.9.2026):** the existing `agent-upload` owner now accepts a ticket-scoped TikTok link and stores the actual MP4 directly in the canonical media bucket through the existing resolver/security boundary. This removes Dropbox/manual-download as a future architecture dependency; any such workaround remains compatibility only until reader/provenance proof allows retirement.
+- **PR #802 + #803 — RELEASED / LIVE (29.9.2026):** crawler/server-document media metadata no longer exposes raw MP4 to non-search crawler/social/AI paths or uses video bytes as thumbnail metadata. Search-video indexing semantics remain under the existing SEO owner.
+- **PR #804 — BRANCH-ONLY:** bounded real-poster backfill through the existing thumbnail queue for the currently identified public videos with missing/video-valued poster/thumb fields. It is not live evidence until merged/deployed/workflow-verified.
 - PR #485 — media/OCR admission boundary; semantic admission adapter.
 - PR #464 — Universal Intake transport; older branch, reconcile/absorb rather than independently ship if superseded by newer intake work.
 - Delivery/performance implementation map: `docs/2029-media-performance-delivery-map-v1.md`. It records the Legacy resize/thumb/video lessons, bounded derivative ladder, poster/transcode rules, egress/Control Plane metrics and retirement gates without creating a new Media owner.
@@ -429,7 +433,7 @@ Rules:
 - GSC is verification/feedback, never a canonical owner;
 - true HTTP status semantics (200 current · 301 replaced · 404 nonexistent) belong at the 2029 routing/server boundary, not inside CN/SG quarantine middleware.
 
-**RELEASED · DEPLOYED · LIVE:** PR #779 established Unified Video Projection + Search indexability baseline; PR #782 completed the 2029-only route/crawler cutover. Unified video now runs through `App2029`, post/video primary landing identities converge on `/post/:slug` or `/video/:assetId`, and Googlebot/Bingbot receive server metadata before hydration. Legacy remains source/compatibility/provenance only.
+**RELEASED · DEPLOYED · LIVE:** PR #779 established Unified Video Projection + Search indexability baseline; PR #782 completed the 2029-only route/crawler cutover. Unified video now runs through `App2029`, post/video primary landing identities converge on `/post/:slug` or `/video/:assetId`, and Googlebot/Bingbot receive server metadata before hydration. On 29.9, the same server-document path was extended to root/Home and Legacy Number crawler traffic, and video crawler egress guards removed raw-MP4 hints from non-search crawler/social/AI metadata while preserving search-video indexing. Legacy remains source/compatibility/provenance only; G3.5 must remeasure whether server-document routing actually reduces SPA DB reads and Storage egress rather than assuming success from code shape alone.
 
 **Residual before G4 closure:** owner-specific route-legitimacy checks for false dynamic Topic/Book/Number entities, GSC recrawl/validation, and unrelated 2029 CLS/reliability blockers continue under their owners; they are not reasons to restore Legacy parity.
 
@@ -597,7 +601,9 @@ Mandatory live inputs:
 - cron/Edge/background worker inventory and execution cost;
 - Raziel/site/channel routing and external-provider network boundaries;
 - Control Plane fast-health latency versus deep retention/storage drill-down cost;
-- media derivative/cache/egress/dedupe/archive evidence;
+- media derivative/cache/egress/dedupe/archive evidence, including poster coverage and crawler-specific raw-media delivery;
+- request-amplification/retry-storm evidence across RPC/API boundaries, including non-retryable application conflicts;
+- direct canonical source-ingest paths versus temporary/manual transport workarounds;
 - full retention census coverage and reference/provenance blockers;
 - staging/backup/import tables and any new islands created while 2029 was being built.
 
