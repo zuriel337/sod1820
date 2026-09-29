@@ -1,0 +1,72 @@
+-- G3 H2: Human-Gated financial retention closure — RETAIN + DETACH.
+-- ZURIEL decision: keep financial history; erase direct account identity.
+-- Extends existing H2 erasure/export owner. No financial rows are deleted.
+
+begin;
+
+alter table public.credit_ledger alter column user_id drop not null;
+alter table public.credit_ledger drop constraint if exists credit_ledger_user_id_fkey;
+alter table public.credit_ledger
+  add constraint credit_ledger_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete set null;
+
+alter table public.payment_requests alter column user_id drop not null;
+
+comment on column public.credit_ledger.user_id is
+  'Nullable attribution. Financial rows survive account erasure; direct identity is detached.';
+comment on column public.payment_requests.user_id is
+  'Nullable attribution. Payment-request rows survive account erasure; direct identity is detached.';
+
+do $patch$
+declare
+  v_def text;
+  v_new text;
+  v_guard text := E'  if exists(select 1 from public.credit_ledger where user_id=v_uid)\n     or exists(select 1 from public.payment_requests where user_id=v_uid)\n     or exists(\n       select 1\n       from public.paid_subscribers ps\n       where exists (\n         select 1\n         from public.wa_account_links l\n         where l.user_id=v_uid\n           and public.wa_norm_phone(l.phone)=public.wa_norm_phone(ps.wa_sender)\n       )\n     ) then\n    raise exception ''account_erasure_financial_retention_policy_pending'' using errcode=''P0001'';\n  end if;\n';
+  v_phone_anchor text := E'  select coalesce(array_agg(distinct regexp_replace(l.phone,''@.*$'','''')),''{}''::text[]) into v_phones from public.wa_account_links l where l.user_id=v_uid;\n';
+  v_detach text := E'\n  -- Human Gate 2026-09-30: retain financial history, detach/redact account identity.\n  update public.credit_ledger\n     set user_id=null,\n         meta=(coalesce(meta,''{}''::jsonb)-''user_id''-''email''-''phone''-''display_name'')\n              || jsonb_build_object(''erasure_state'',''financial_retained_identity_detached'')\n   where user_id=v_uid;\n\n  update public.payment_requests\n     set user_id=null, reference=null, proof_url=null\n   where user_id=v_uid;\n\n  if coalesce(array_length(v_phones,1),0) > 0 then\n    update public.paid_subscribers ps\n       set display_name=''חשבון שנמחק'', wa_sender=null, ai_sources=''{}''::text[], active=false, notes=null\n     where ps.wa_sender is not null\n       and exists (\n         select 1 from unnest(v_phones) p(phone)\n         where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)\n       );\n  end if;\n';
+begin
+  select pg_get_functiondef(p.oid) into v_def
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname='erasure_my_account_prepare_v2' and p.pronargs=0;
+
+  if v_def is null then raise exception 'erasure_my_account_prepare_v2 missing'; end if;
+  if position('financial_retained_identity_detached' in v_def) > 0 then return; end if;
+
+  v_new := replace(v_def, v_guard, '');
+  if v_new=v_def then raise exception 'financial guard removal failed'; end if;
+
+  v_new := replace(v_new, v_phone_anchor, v_phone_anchor || v_detach);
+  if v_new=v_def or position('financial_retained_identity_detached' in v_new)=0 then
+    raise exception 'financial detach injection failed';
+  end if;
+
+  v_new := replace(v_new,
+    '''financial_retention_guard'',''passed_no_rows''',
+    '''financial_retention_policy'',''retain_detach''');
+
+  execute v_new;
+end
+$patch$;
+
+-- The export must describe the resolved Human-Gate policy truthfully.
+do $patch$
+declare v_def text; v_new text;
+begin
+  select pg_get_functiondef(p.oid) into v_def
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname='export_my_data_v1' and p.pronargs=0;
+
+  if v_def is null then raise exception 'export_my_data_v1 missing'; end if;
+  if position('Financial records are retained after erasure with account identity detached/redacted.' in v_def) > 0 then return; end if;
+
+  v_new := replace(
+    v_def,
+    'Retention/erasure disposition is Human-Gate pending; export does not authorize deletion.',
+    'Financial records are retained after erasure with account identity detached/redacted; export does not authorize deletion.'
+  );
+  if v_new=v_def then raise exception 'export retention-note patch failed'; end if;
+  execute v_new;
+end
+$patch$;
+
+commit;
