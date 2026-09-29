@@ -68,7 +68,11 @@ jobs:
         id: canary
         if: steps.target.outputs.skip != 'true'
         continue-on-error: true
-        run: node scripts/post-deploy-canary.mjs --url "${{ steps.target.outputs.url }}" --sha "${{ steps.target.outputs.sha }}" --kind "${{ steps.target.outputs.kind }}"
+        env:
+          TARGET_URL: ${{ steps.target.outputs.url }}
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+          CANARY_KIND: ${{ steps.target.outputs.kind }}
+        run: node scripts/post-deploy-canary.mjs --url "$TARGET_URL" --sha "$TARGET_SHA" --kind "$CANARY_KIND"
       - name: Record exact-SHA canary status
         if: always() && steps.target.outputs.skip != 'true'
         env:
