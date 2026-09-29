@@ -872,7 +872,22 @@ Later live observation on 29.9 for 11:00–12:00 UTC still showed:
 - rolling observed 24h ≈ **460 MB**;
 - guard state = **WARN**.
 
-Therefore the broader crawler/bot media-egress problem remains open. G3.5 must re-attribute the remaining requests by crawler/surface/object where provider evidence permits and verify that any later fix reduces measured bytes without breaking indexability.
+Therefore the broader automation/media-egress problem remains open. G3.5 must re-attribute the remaining requests by caller purpose/surface/object where provider evidence permits and verify that any later fix reduces measured bytes without breaking indexability.
+
+### Authorized external processing is not public delivery
+
+A deeper 29.9 log correlation changes the interpretation of the largest `node-fetch/1.0` burst. Raw Storage requests for canonical `media/sod1820/agent/sharshar-*.mp4` objects align closely with the same objects being imported/transcribed in the authorized Descript research/editing workflow. The evidence is strong temporal/object correlation, but UA/cloud-AS alone does not prove actor identity.
+
+Operational consequences:
+
+- keep the bytes in egress/cost accounting — legitimate research-tool transfer still costs bandwidth;
+- do **not** label every non-browser/node-fetch request as crawler leakage;
+- separate public delivery, authorized external processing/research-tool transfer, CI/headless acceptance, named crawler and unknown automation when explicit trace/correlation evidence exists;
+- UA/IP/ASN are evidence, not authorization identity;
+- avoid repeatedly importing the same source into an external tool when the tool can reuse an already-ingested project/media object;
+- future Research-to-Media/tool orchestration should correlate external media fetch intent to the existing Operational Trace/Research Context so the Control Plane can explain **why** bytes moved without creating a new egress store.
+
+The public website egress question and the research-tool egress question therefore remain separate performance lanes under the same Traffic/Media owners.
 
 ## 19.3 Poster coverage remains an active dependency
 
