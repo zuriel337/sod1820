@@ -116,6 +116,27 @@ async function traceSpan(trace: any, name: string, startedAt: string, endedAt: s
   } catch { /* trace fail-open */ }
 }
 
+// Like traceSpan but reports whether the span was durably recorded (used to fail closed on the gate).
+async function recordSpan(trace: any, name: string, startedAt: string, endedAt: string, outcome: string, detail: Record<string, unknown>) {
+  if (!trace) return false;
+  try {
+    const r = await serviceRpc("op_trace_record_span_v1", {
+      p_trace_id: trace.traceId,
+      p_span_id: crypto.randomUUID(),
+      p_parent_span_id: trace.rootSpanId,
+      p_kind: "db_rpc",
+      p_name: name,
+      p_started_at: startedAt,
+      p_ended_at: endedAt,
+      p_outcome: outcome,
+      p_detail: detail,
+    });
+    return !!r;
+  } catch {
+    return false;
+  }
+}
+
 async function traceFinish(trace: any, outcome: string, reason: string | null = null) {
   if (!trace) return;
   try {
@@ -128,6 +149,13 @@ async function traceFinish(trace: any, outcome: string, reason: string | null = 
     });
   } catch { /* trace fail-open */ }
 }
+
+// B0 (G3): direct compatibility page search is bounded at this Edge policy boundary. The canonical
+// SQL engine (els_search_page_core_v1) semantics are untouched; exact verify is NOT subject to this
+// ceiling (it is a single explicit occurrence replay, e.g. skip 1820/10065).
+const PAGE_SKIP_MAX_CEILING = 500;
+const ELS_LOCK_FLAG = "lock_els";
+const GATE_OWNER_REFS = ["site_flags_lock_law v3", "platform_tiers_law v4", "ai_quota_law v3"];
 
 function intOrNull(value: unknown) {
   if (value == null || value === "") return null;
@@ -164,8 +192,51 @@ Deno.serve(async (req: Request) => {
     after_dir: body?.after_dir ?? null,
   }));
   const trace = await traceBegin(userId ? "user" : "anon", op, inputHash, safeInteractionId(body?.interaction_id));
+  // Fail closed: the gate decision must be witnessed by a server-issued trace root.
+  if (!trace) return json({ error: "trace_unavailable" }, 503);
 
   try {
+    // ── Server capability gate: MUST run before any canonical ELS engine RPC ─────────────────
+    const gateStartedAt = new Date().toISOString();
+    let gate: any = null;
+    try {
+      gate = await serviceRpc("fn_capability_execution_gate_v1", {
+        p_capability: `els:${op}`,
+        p_flag_key: ELS_LOCK_FLAG,
+        p_required_entitlement: "public",
+        p_user_ref: userId,
+        p_visitor: null,
+        p_identity: null,
+        p_budget_kind: "none",
+        p_budget_tier: null,
+        p_budget_limit_override: null,
+      });
+    } catch { gate = null; }
+    const gateEndedAt = new Date().toISOString();
+    const gateAllowed = gate?.allowed === true;
+    const gateStop = gate ? (gateAllowed ? null : "gate_denied") : "gate_unavailable";
+    const gateTraced = await recordSpan(trace, "fn_capability_execution_gate_v1", gateStartedAt, gateEndedAt,
+      gate ? (gateAllowed ? "success" : "access_filtered") : "failed_with_reason", {
+        capability: `els:${op}`,
+        owner_ref: GATE_OWNER_REFS.join(" + "),
+        output_use: "not_applicable",
+        stop_reason: gateStop,
+        resources: { rpc_calls: 1 },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: GATE_OWNER_REFS },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      });
+    // Fail closed on the gate itself AND on an unwitnessed gate decision.
+    if (!gate || !gateAllowed || !gateTraced) {
+      const reason = !gate ? "gate_unavailable" : !gateAllowed ? "gate_denied" : "trace_incomplete";
+      await traceFinish(trace, gate ? "access_filtered" : "failed_with_reason", reason);
+      // Privacy-safe: no entitlement/identity detail is echoed to the caller.
+      return json(
+        { error: !gate ? "gate_unavailable" : !gateAllowed ? "access_filtered" : "trace_incomplete", trace_id: trace.traceId },
+        !gate || !gateTraced ? 503 : 403,
+      );
+    }
+
     if (op === "verify") {
       const skip = intOrNull(body?.skip);
       const dir = intOrNull(body?.dir);
@@ -195,6 +266,15 @@ Deno.serve(async (req: Request) => {
 
     const skipMin = Math.max(2, intOrNull(body?.skip_min) ?? 2);
     const skipMax = intOrNull(body?.skip_max);
+    // Explicit bounded search contract: null/missing skip_max must never expand to full_domain.
+    if (skipMax == null || skipMax < skipMin) {
+      await traceFinish(trace, "failed_with_reason", "skip_max_required");
+      return json({ error: "skip_max_required", ceiling: PAGE_SKIP_MAX_CEILING, trace_id: trace.traceId }, 400);
+    }
+    if (skipMax > PAGE_SKIP_MAX_CEILING) {
+      await traceFinish(trace, "failed_with_reason", "budget_exceeded");
+      return json({ error: "budget_exceeded", ceiling: PAGE_SKIP_MAX_CEILING, trace_id: trace.traceId }, 400);
+    }
     const pageSize = Math.max(1, Math.min(intOrNull(body?.page_size) ?? 250, 500));
     const afterSkip = intOrNull(body?.after_skip);
     const afterStart = intOrNull(body?.after_start);
