@@ -28,6 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+      - name: Reliability pre-close focused contract
+        run: node --test test/g3-reliability-preclose.test.mjs
+
       - name: Gate on latest production canary
         env:
           GH_TOKEN: ${{ github.token }}
