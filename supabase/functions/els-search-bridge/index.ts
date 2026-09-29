@@ -155,7 +155,7 @@ async function traceFinish(trace: any, outcome: string, reason: string | null = 
 // ceiling (it is a single explicit occurrence replay, e.g. skip 1820/10065).
 const PAGE_SKIP_MAX_CEILING = 500;
 const ELS_LOCK_FLAG = "lock_els";
-const GATE_OWNER_REFS = ["site_flags_lock_law v3", "platform_tiers_law v4", "ai_quota_law v3"];
+const GATE_OWNER_REFS = ["site_flags_lock_law v3", "platform_tiers_law v5", "ai_quota_law v3"];
 
 function intOrNull(value: unknown) {
   if (value == null || value === "") return null;
