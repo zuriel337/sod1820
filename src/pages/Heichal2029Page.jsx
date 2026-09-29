@@ -7,6 +7,7 @@ import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js
 import { isRazielNextAction } from "../lib/research/razielActionContract.js";
 import { supabase } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/visitorId.js";
+import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 
@@ -164,6 +165,8 @@ function ActiveResearchEnvironment() {
           number: String(numericValue),
           question: subject.label || String(numericValue),
           visitor_id: visitorId,
+          // One non-PII interaction id per material action; the server owns trace_id/root_span_id.
+          interaction_id: newInteractionId(),
           requested_capabilities: ["numeric", "numeric_operators"],
           surface: "heichal",
         },

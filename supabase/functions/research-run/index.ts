@@ -170,7 +170,7 @@ Deno.serve(async (req: Request) => {
       identity_class: identityClass,
       subject_ref: `number:${run.number}`,
       root_name: "research-run",
-      owner_ref: "research_strategy_layer_law v15 + research_workspace_law v4",
+      owner_ref: "research_strategy_layer_law v17 + research_workspace_law v5",
     },
     p_started_at: traceStartedAt,
   });
@@ -299,7 +299,7 @@ Deno.serve(async (req: Request) => {
     p_outcome: bundleOutcome(bundle),
     p_detail: {
       capability: "research-w2:public-number",
-      owner_ref: "research_strategy_layer_law v15",
+      owner_ref: "research_strategy_layer_law v17",
       plan_ref: planRef,
       routing_reason: "explicit_public_number_golden",
       output_use: "used",
@@ -307,7 +307,7 @@ Deno.serve(async (req: Request) => {
       cost: { certainty: "not_billable" },
       replay: {
         inputRef: `number:${run.number}`,
-        ownerRuleRefs: ["research_strategy_layer_law v15", "research_workspace_law v4"],
+        ownerRuleRefs: ["research_strategy_layer_law v17", "research_workspace_law v5"],
         parametersRef: "public-number-research-run-v1",
       },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -329,7 +329,7 @@ Deno.serve(async (req: Request) => {
       p_outcome: capabilityOutcome(event.status),
       p_detail: {
         capability: event.capability,
-        owner_ref: event.owner || "research_strategy_layer_law v15",
+        owner_ref: event.owner || "research_strategy_layer_law v17",
         plan_ref: planRef,
         output_use: event.finding_count > 0 ? "used" : "not_applicable",
         resources: {
