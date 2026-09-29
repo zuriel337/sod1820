@@ -1,5 +1,13 @@
 import { supabase } from "../src/lib/supabase.js";
 import { newInteractionId, safeInteractionId } from "../src/lib/research/interactionCorrelation.js";
+import { getVisitorId } from "../src/lib/visitorId.js";
+
+const memory = new Map();
+globalThis.localStorage = {
+  getItem: (key) => memory.get(String(key)) ?? null,
+  setItem: (key, value) => { memory.set(String(key), String(value)); },
+  removeItem: (key) => { memory.delete(String(key)); },
+};
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const interactionId = newInteractionId();
