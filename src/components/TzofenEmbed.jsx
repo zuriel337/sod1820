@@ -6,6 +6,7 @@ import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "..
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
+import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 import { useUniversalWorkspace } from "../lib/research/useUniversalWorkspace.js";
 import { elsStateToUniversalFindings } from "../lib/research/universalFinding.js";
@@ -265,7 +266,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         try {
           const payload = d.payload && typeof d.payload === "object" ? d.payload : {};
           const { data, error } = await supabase.functions.invoke("els-search-bridge", {
-            body: { op, ...payload },
+            body: { op, ...payload, interaction_id: newInteractionId() },
           });
           if (error) {
             postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });

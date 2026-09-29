@@ -63,7 +63,15 @@ async function rateLimit(req: Request, userId: string | null) {
   });
 }
 
-async function traceBegin(identityClass: string, operation: string, inputHash: string) {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+// Client may correlate one action via interaction_id only; trace_id/root_span_id stay server-issued.
+function safeInteractionId(value: unknown): string | null {
+  const text = String(value || "").trim();
+  return UUID_RE.test(text) ? text : null;
+}
+
+async function traceBegin(identityClass: string, operation: string, inputHash: string, interactionId: string | null) {
   const traceId = crypto.randomUUID();
   const rootSpanId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
@@ -72,13 +80,14 @@ async function traceBegin(identityClass: string, operation: string, inputHash: s
       p_trace_id: traceId,
       p_root_span_id: rootSpanId,
       p_context: {
+        interaction_id: interactionId,
         capability: `els:${operation}`,
         surface: "edge:els-search-bridge",
         channel: "web",
         locale: "he",
         identity_class: identityClass,
         subject_ref: "els:torah",
-        owner_ref: "els_research_layer_law v3 + els_single_engine_law v2",
+        owner_ref: "els_research_layer_law v9 + els_single_engine_law v2",
         root_name: "els-search-bridge",
         replay: { inputRef: `sha256:${inputHash}` },
       },
@@ -154,7 +163,7 @@ Deno.serve(async (req: Request) => {
     after_start: body?.after_start ?? null,
     after_dir: body?.after_dir ?? null,
   }));
-  const trace = await traceBegin(userId ? "user" : "anon", op, inputHash);
+  const trace = await traceBegin(userId ? "user" : "anon", op, inputHash, safeInteractionId(body?.interaction_id));
 
   try {
     if (op === "verify") {
@@ -173,11 +182,11 @@ Deno.serve(async (req: Request) => {
       const endedAt = new Date().toISOString();
       await traceSpan(trace, "els_verify_occurrence_v1", startedAt, endedAt, "success", {
         capability: "els:verify",
-        owner_ref: "els_research_layer_law v3",
+        owner_ref: "els_research_layer_law v9",
         output_use: "used",
         resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
         cost: { certainty: "not_billable" },
-        replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v3", "els_single_engine_law v2"] },
+        replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       });
       await traceFinish(trace, "success");
@@ -211,11 +220,11 @@ Deno.serve(async (req: Request) => {
     const endedAt = new Date().toISOString();
     await traceSpan(trace, "els_search_page_core_v1", startedAt, endedAt, "success", {
       capability: "els:page",
-      owner_ref: "els_research_layer_law v3",
+      owner_ref: "els_research_layer_law v9",
       output_use: "used",
       resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
       cost: { certainty: "not_billable" },
-      replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v3", "els_single_engine_law v2"] },
+      replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     });
     await traceFinish(trace, "success");

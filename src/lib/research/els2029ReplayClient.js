@@ -1,3 +1,5 @@
+import { newInteractionId } from "./interactionCorrelation.js";
+
 const clean = (value) => {
   if (value == null) return null;
   const text = String(value).trim();
@@ -41,7 +43,8 @@ export function els2029ReplaySelectionKey(selection) {
 }
 
 export async function verifyEls2029Selection(selection, invoke) {
-  const request = buildEls2029ReplayRequest(selection);
+  const built = buildEls2029ReplayRequest(selection);
+  const request = built ? Object.freeze({ ...built, interaction_id: newInteractionId() }) : null;
   if (!request) {
     return Object.freeze({
       ok: false,
