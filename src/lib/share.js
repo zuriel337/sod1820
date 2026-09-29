@@ -73,7 +73,20 @@ export async function shareOrCopy({ title = "", url, text = "" } = {}) {
 // 🖼️ שיתוף-קובץ-תמונה (כרטיס-PNG מיוצר) — יכולת נבדלת משיתוף-קישור, גם היא מרוכזת כאן.
 // זורק AbortError אם המשתמש ביטל (כדי שהקורא יטפל כמו קודם). מקור-אמת יחיד ל-navigator.share.
 export const canShareFile = (file) => typeof navigator !== "undefined" && !!navigator.canShare && navigator.canShare({ files: [file] });
-export const shareImageFile = (file, { title = "", text = "" } = {}) => navigator.share({ files: [file], title, text });
+// 🔗 הקישור חייב לשרוד: אפליקציות רבות (וואטסאפ/אינסטגרם ב-iOS ועוד) משמיטות את `text` כשמצורף קובץ →
+//    נשלחה רק התמונה בלי הקישור. לכן: (1) מעבירים גם `url` כשדה נפרד (iOS מצרף אותו כפריט נוסף);
+//    (2) מעתיקים את הכיתוב+הקישור ללוח מראש — אם היעד השמיט אותם, מדביקים. url נגזר מהטקסט אם לא הועבר.
+export const shareImageFile = (file, { title = "", text = "", url = "" } = {}) => {
+  const link = url || ((text || "").match(/https?:\/\/\S+/) || [""])[0];
+  const full = text && link && !text.includes(link) ? `${text}\n${link}` : (text || link);
+  // בלי await — לא לעכב את navigator.share (Safari דורש שהשיתוף יקרה סמוך ללחיצה).
+  if (full) { try { navigator.clipboard?.writeText(full)?.catch(() => {}); } catch { /* לוח חסום — לא חוסם שיתוף */ } }
+  // url כשדה נפרד; מוסר מהטקסט כדי שאנדרואיד (שמחבר text+url) לא יציג את הקישור פעמיים.
+  const bare = link ? (text || "").replace(link, "").trim() : text;
+  const withUrl = { files: [file], title, text: bare, url: link };
+  if (link && (!navigator.canShare || navigator.canShare(withUrl))) return navigator.share(withUrl);
+  return navigator.share({ files: [file], title, text });
+};
 
 // 📲 שיתוף שמביא תנועה *לאתר* — משתף **קישור בלבד** (לעולם לא את קובץ-הווידאו!).
 // עיקרון (בקשת צוריאל 8.8.2026): השיתוף מכניס אנשים פנימה לצפות באתר, לא מפיץ את החומר החוצה.
