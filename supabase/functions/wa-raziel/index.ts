@@ -35,6 +35,97 @@ const isOpenerMsg = (t) => { const c = (t || "").replace(RAZIEL_TRIGGER, "").tri
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 let trace = [];
 
+async function traceHash(value) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value || "")));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function beginRazielTrace(chatId, message) {
+  try {
+    const traceId = crypto.randomUUID();
+    const rootSpanId = crypto.randomUUID();
+    const startedAt = new Date().toISOString();
+    const chatHash = await traceHash(chatId);
+    const inputHash = await traceHash(message);
+    const { data, error } = await sb.rpc("op_trace_begin_v1", {
+      p_trace_id: traceId,
+      p_root_span_id: rootSpanId,
+      p_context: {
+        capability: "wa-raziel:reply",
+        surface: "edge:wa-raziel",
+        channel: "whatsapp",
+        locale: "he",
+        identity_class: "service",
+        subject_ref: "wa-chat:sha256:" + chatHash,
+        owner_ref: "raziel_companion_layer_law v3 + system_suggestions_law v5",
+        root_name: "wa-raziel:reply",
+        replay: { inputRef: "sha256:" + inputHash },
+      },
+      p_started_at: startedAt,
+    });
+    if (error || !data) return null;
+    return { traceId, rootSpanId, startedAt, inputHash };
+  } catch { return null; }
+}
+async function recordRazielSpan(t, { spanId, kind, name, startedAt, endedAt, outcome, detail }) {
+  if (!t) return;
+  try {
+    await sb.rpc("op_trace_record_span_v1", {
+      p_trace_id: t.traceId,
+      p_span_id: spanId,
+      p_parent_span_id: t.rootSpanId,
+      p_kind: kind,
+      p_name: name,
+      p_started_at: startedAt,
+      p_ended_at: endedAt,
+      p_outcome: outcome,
+      p_detail: detail || {},
+    });
+  } catch { /* tracing must not change reply behavior */ }
+}
+async function finishRazielTrace(t, outcome, stopReason = null) {
+  if (!t) return;
+  try {
+    await sb.rpc("op_trace_finish_v1", {
+      p_trace_id: t.traceId,
+      p_root_span_id: t.rootSpanId,
+      p_outcome: outcome,
+      p_ended_at: new Date().toISOString(),
+      p_stop_reason: stopReason,
+    });
+  } catch { /* tracing must not change reply behavior */ }
+}
+async function logRazielTokens(usage, t, spanId) {
+  if (!usage) return null;
+  try {
+    const row = {
+      source: "wa-raziel",
+      kind: "raziel_reply",
+      model: MODEL,
+      input_tokens: Number(usage?.input_tokens || 0),
+      output_tokens: Number(usage?.output_tokens || 0),
+      trace_id: t?.traceId || null,
+      span_id: t?.traceId ? spanId : null,
+    };
+    let { data, error } = await sb.from("ai_token_log").insert(row).select("id").maybeSingle();
+    if (error) {
+      ({ data, error } = await sb.from("ai_token_log").insert({
+        source: "wa-raziel", kind: "raziel_reply", model: MODEL,
+        input_tokens: row.input_tokens, output_tokens: row.output_tokens,
+      }).select("id").maybeSingle());
+    }
+    if (error) return null;
+    const id = Number(data?.id) || null;
+    if (id && t) {
+      await sb.rpc("op_trace_link_ai_cost_v1", {
+        p_trace_id: t.traceId,
+        p_span_id: spanId,
+        p_ai_token_log_id: id,
+      }).catch(() => null);
+    }
+    return id;
+  } catch { return null; }
+}
+
 async function waAdmin(method, payload) {
   const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "POST" });
   return data;
@@ -343,6 +434,9 @@ async function postFacts(query) {
 async function razielRespond(text, chatId, quotedId, opts = {}) {
   const cleanText = text.replace(RAZIEL_TRIGGER, "").trim();
   if (!cleanText) return { status: "permanent_error" };
+  const opTrace = await beginRazielTrace(chatId, cleanText);
+  const modelSpanId = crypto.randomUUID();
+  const modelStartedAt = new Date().toISOString();
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const posts = await postFacts(cleanText);
@@ -364,29 +458,95 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
     });
   } catch (e) {
     trace.push({ step: "ai_throw", e: String(e) });
+    const endedAt = new Date().toISOString();
+    await recordRazielSpan(opTrace, {
+      spanId: modelSpanId, kind: "model_call", name: "wa-raziel:anthropic-reply",
+      startedAt: modelStartedAt, endedAt, outcome: "provider_error",
+      detail: {
+        capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
+        provider: "anthropic", model: MODEL, intelligence_level: "deep",
+        output_use: "not_applicable", stop_reason: "provider_throw",
+        resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(modelStartedAt)) },
+        cost: { certainty: "unknown" },
+        replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    await finishRazielTrace(opTrace, "failed_with_reason", "provider_throw");
     if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; }
     return { status: "retryable_error" };
   }
   if (!resp.ok) {
     trace.push({ step: "ai_http", st: resp.status });
+    const endedAt = new Date().toISOString();
+    await recordRazielSpan(opTrace, {
+      spanId: modelSpanId, kind: "model_call", name: "wa-raziel:anthropic-reply",
+      startedAt: modelStartedAt, endedAt, outcome: "provider_error",
+      detail: {
+        capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
+        provider: "anthropic", model: MODEL, intelligence_level: "deep",
+        output_use: "not_applicable", stop_reason: "anthropic_" + resp.status,
+        resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(modelStartedAt)) },
+        cost: { certainty: "unknown" },
+        replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    await finishRazielTrace(opTrace, "failed_with_reason", "anthropic_" + resp.status);
     if (TRANSIENT_HTTP.has(resp.status) && !opts.lastAttempt) return { status: "retryable_error" };
     await guardian(); return { status: "refused_with_fallback" };
   }
   let d;
   try { d = await resp.json(); }
-  catch { if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; } return { status: "retryable_error" }; }
+  catch {
+    const endedAt = new Date().toISOString();
+    await recordRazielSpan(opTrace, {
+      spanId: modelSpanId, kind: "model_call", name: "wa-raziel:anthropic-reply",
+      startedAt: modelStartedAt, endedAt, outcome: "failed_with_reason",
+      detail: {
+        capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
+        provider: "anthropic", model: MODEL, output_use: "not_applicable", stop_reason: "provider_json_parse",
+        resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(modelStartedAt)) },
+        cost: { certainty: "unknown" },
+        replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    await finishRazielTrace(opTrace, "failed_with_reason", "provider_json_parse");
+    if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; }
+    return { status: "retryable_error" };
+  }
+  const modelEndedAt = new Date().toISOString();
   const refused = d?.stop_reason === "refusal";
   let reply = refused ? "" : (d?.content||[]).filter((c)=>c.type==="text").map((c)=>c.text).join("\n").trim();
+  await recordRazielSpan(opTrace, {
+    spanId: modelSpanId, kind: "model_call", name: "wa-raziel:anthropic-reply",
+    startedAt: modelStartedAt, endedAt: modelEndedAt, outcome: refused ? "refused" : (reply ? "success" : "empty_output"),
+    detail: {
+      capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
+      provider: "anthropic", model: MODEL, intelligence_level: "deep",
+      output_use: reply ? "used" : "not_applicable", stop_reason: refused ? "provider_refusal" : (!reply ? "empty_output" : null),
+      resources: {
+        input_tokens: d?.usage?.input_tokens ?? null, output_tokens: d?.usage?.output_tokens ?? null,
+        api_calls: 1, latency_ms: Math.max(0, Date.parse(modelEndedAt) - Date.parse(modelStartedAt)),
+      },
+      cost: { certainty: "unknown" },
+      replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  await logRazielTokens(d?.usage, opTrace, modelSpanId);
   if (refused || !reply) {
     await guardian();
+    await finishRazielTrace(opTrace, "success", refused ? "guardian_fallback_refusal" : "guardian_fallback_empty");
     return { status: "refused_with_fallback" };
   }
-  try { await sb.from("ai_token_log").insert({source:"wa-raziel",kind:"raziel_reply",model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch { /* noop */ }
   if (opts.welcome) reply = opts.welcome + reply;
   const payload = { chatId, message: reply };
   if (quotedId) payload.quotedMessageId = quotedId;
   const okId = await sendVerified(payload);
   if (!okId) await enqueueOutbox("raziel:"+(quotedId||chatId), chatId, reply, cleanText);
+  await finishRazielTrace(opTrace, "success", okId ? null : "queued_outbox");
   return { status: "answered" };
 }
 const rzOk = (s) => s === "answered" || s === "refused_with_fallback";
