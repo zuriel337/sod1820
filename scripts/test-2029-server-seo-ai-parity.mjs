@@ -144,8 +144,8 @@ assert.match(videoSearchCrawler.body, new RegExp(`canonical" href="https:\\\/\\\
 assert.match(videoSearchCrawler.body, /"@type":"VideoObject"/);
 assert.equal(videoSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(videoSearchCrawler.body, /http-equiv="refresh"/);
-assert.match(videoSearchCrawler.body, /"contentUrl":"https:\\/\\/example\.test\\/video\.mp4"/);
-assert.match(videoSearchCrawler.body, /property="og:video" content="https:\/\/example\.test\/video\.mp4"/);
+assert.ok(videoSearchCrawler.body.includes('"contentUrl":"https://example.test/video.mp4"'));
+assert.ok(videoSearchCrawler.body.includes('property="og:video" content="https://example.test/video.mp4"'));
 
 const videoSocialCrawler = await renderResponse(`/video/${videoId}`, async (url) => {
   const u = String(url);
