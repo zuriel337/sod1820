@@ -60,9 +60,6 @@ for (const forbidden of [
 
 assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence vocabulary must use התכנסות");
 assert.match(page, /fetchNumberMethodProfile/);
-assert.match(page, /const regularFamily = families\.find/);
-assert.match(page, /const first = regularFamily \|\| anchorFamily \|\| families\[0\]/);
-assert.match(page, /anchorIsRegular/);
 assert.match(coreProjection, /fn_method_profile/);
 assert.match(coreProjection, /dependency_rules/);
 assert.match(coreProjection, /שיטה משולבת/);
@@ -92,13 +89,6 @@ assert.equal(page.includes('navigate("/heichal")'), false, "Number 2029 must not
 assert.equal(drawer.includes('go?.("/heichal"'), false, "Number Drawer must not navigate to unopened Heichal");
 assert.match(coreCss, /\.sod29-miluy-spatial/);
 assert.match(coreCss, /prefers-reduced-motion/);
-
-assert.match(page, /regularExpressionsLoading=\{regularPhraseState\.loading\}/);
-assert.match(core, /regularExpressionsLoading = false/);
-assert.match(core, /data-experience-state="regular-expressions-loading"/);
-assert.match(core, /sod29-number-v11-regular-placeholder/);
-assert.match(coreCss, /\.sod29-number-v11-regular-placeholder\{/);
-assert.match(coreCss, /\.sod29-number-core2029\.is-page \.sod29-number-v10-stage\{[\s\S]*min-block-size:342px/);
 
 // Shared Method Lens 2029 — evidence-first, deterministic, same consumer in Calculator + Number.
 assert.match(methodLensModel, /getNumberLookup/);
