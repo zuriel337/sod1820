@@ -620,7 +620,7 @@ Deno.serve(async (req) => {
       name: "wa-video-enrich:item",
       startedAt: itemStartedAt,
       endedAt: itemEndedAt,
-      outcome: result.ok ? "success" : result.retryable ? "retryable" : result.skipped ? "skipped" : "failed_with_reason",
+      outcome: result.ok ? "success" : result.retryable ? "continuation_required" : result.skipped ? "negative_result" : "failed_with_reason",
       detail: {
         capability: "wa-video-enrich:item",
         owner_ref: "research_strategy_layer_law v17",

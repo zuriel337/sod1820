@@ -523,7 +523,7 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   let reply = refused ? "" : (d?.content||[]).filter((c)=>c.type==="text").map((c)=>c.text).join("\n").trim();
   await recordRazielSpan(opTrace, {
     spanId: modelSpanId, kind: "model_call", name: "wa-raziel:anthropic-reply",
-    startedAt: modelStartedAt, endedAt: modelEndedAt, outcome: refused ? "refused" : (reply ? "success" : "empty_output"),
+    startedAt: modelStartedAt, endedAt: modelEndedAt, outcome: reply ? "success" : "failed_with_reason",
     detail: {
       capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
       provider: "anthropic", model: MODEL, intelligence_level: "deep",

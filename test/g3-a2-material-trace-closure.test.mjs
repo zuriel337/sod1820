@@ -16,6 +16,8 @@ test('A2 wa-raziel emits one canonical trace root and linked model cost without 
   assert.doesNotMatch(raziel, /op_trace_link_ai_cost_v1[\s\S]{0,260}\.catch\(/);
   assert.match(raziel, /rawPrivatePayloadLogged:\s*false/);
   assert.match(raziel, /wa-chat:sha256:/);
+  assert.doesNotMatch(raziel, /outcome:\s*refused\s*\?\s*"refused"/);
+  assert.match(raziel, /outcome:\s*reply\s*\?\s*"success"\s*:\s*"failed_with_reason"/);
   assert.doesNotMatch(raziel, /subject_ref:\s*chatId/);
 });
 
@@ -33,6 +35,9 @@ test('A2 wa-video-enrich traces batch plus Anthropic calls and OpenAI STT tool',
   assert.match(video, /aiMetadata\(basis, opTrace, null\)/);
   assert.match(video, /transcribe\(row, opTrace, null\)/);
   assert.doesNotMatch(video, /kind:\s*"tool"/);
+  assert.doesNotMatch(video, /outcome:\s*result\.ok\s*\?\s*"success"\s*:\s*result\.retryable\s*\?\s*"retryable"/);
+  assert.match(video, /result\.retryable\s*\?\s*"continuation_required"/);
+  assert.match(video, /result\.skipped\s*\?\s*"negative_result"/);
   assert.doesNotMatch(video, /op_trace_link_ai_cost_v1[\s\S]{0,260}\.catch\(/);
 });
 
