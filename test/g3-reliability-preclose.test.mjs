@@ -132,3 +132,49 @@ test("workflows: canary is sparse (<=4 cron/day), exact SHA, service key; gate i
   assert.match(g, /release-canary-gate:/);
   assert.match(g, /scripts\/release-canary-gate\.mjs --production-sha/);
 });
+
+test("canary truth: exit follows the server's effective outcome (heartbeat is folded in server-side)", () => {
+  const sc = read("scripts/post-deploy-canary.mjs");
+  assert.match(sc, /rep\.ok !== true/, "script consumes the effective ok from the report");
+  const mig = read("supabase/migrations/20260929170000_g3_reliability_preclose_v1.sql");
+  const fn = mig.slice(mig.indexOf("function public.fn_release_canary_report("), mig.indexOf("function public.fn_release_canary_gate("));
+  assert.ok(fn.indexOf("reliability_heartbeat:health_watch") < fn.indexOf("release_canary:latest"), "heartbeat evaluated before evidence is stored");
+  assert.match(fn, /v_ok := coalesce\(p_ok, false\) and v_age is not null and v_age <= 45/);
+  assert.match(fn, /'ok', v_ok/, "stored payload uses the effective outcome");
+  assert.match(fn, /if v_ok then[\s\S]*release_canary:last_success/, "last_success only on effective success");
+  assert.ok(!/'ok', coalesce\(p_ok/.test(fn));
+});
+
+test("canary truth: a stale-heartbeat run exits 1 even when synthetic checks pass", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { createServer } = await import("node:http");
+  const calls = [];
+  const srv = createServer((req, res) => {
+    let b = ""; req.on("data", (d) => (b += d)); req.on("end", () => {
+      calls.push(req.url); res.setHeader("content-type", "application/json");
+      if (req.url.endsWith("fn_release_canary_slot")) return res.end(JSON.stringify({ allowed: true }));
+      if (req.url.endsWith("fn_release_canary_report")) return res.end(JSON.stringify(JSON.parse(process.env.__REP)));
+      if (req.url === "/") return res.end('<div id="root"></div><script src="/assets/i.js"></script>');
+      res.setHeader("content-type", "text/plain");
+      res.end(req.url.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000));
+    });
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const port = srv.address().port;
+  const run = (rep) => {
+    process.env.__REP = JSON.stringify(rep);
+    return new Promise((resolve) => {
+      const { spawn } = require_child();
+      const c = spawn(process.execPath, ["scripts/post-deploy-canary.mjs", "--url", `http://127.0.0.1:${port}`, "--sha", SHA, "--kind", "deploy"],
+        { env: { ...process.env, ...ENV, SUPABASE_URL: `http://127.0.0.1:${port}` }, cwd: new URL("..", import.meta.url).pathname });
+      c.on("close", (code) => resolve(code));
+    });
+  };
+  function require_child() { return { spawn: (...a) => spawnImpl(...a) }; }
+  const spawnImpl = (await import("node:child_process")).spawn;
+  try {
+    assert.equal(await run({ recorded: true, ok: false, failed: ["health_watch_heartbeat"], health_watch_heartbeat_age_minutes: 120 }), 1, "stale heartbeat => exit 1");
+    assert.equal(await run({ recorded: true, ok: false, failed: ["health_watch_heartbeat"], health_watch_heartbeat_age_minutes: null }), 1, "missing heartbeat => exit 1");
+    assert.equal(await run({ recorded: true, ok: true, failed: [], health_watch_heartbeat_age_minutes: 3 }), 0, "healthy => exit 0");
+  } finally { srv.close(); }
+});

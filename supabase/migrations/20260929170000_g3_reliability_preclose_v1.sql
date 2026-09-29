@@ -416,6 +416,9 @@ as $function$
 declare
   v_payload jsonb;
   v_hb timestamptz;
+  v_age numeric;
+  v_ok boolean;
+  v_failed jsonb;
 begin
   if p_sha is null or p_sha !~ '^[0-9a-f]{40}$' then raise exception 'sha must be a 40-hex git sha'; end if;
   if p_run_id is null or p_run_id !~ '^[0-9]{1,20}$' then raise exception 'run_id must be a numeric GitHub run id'; end if;
@@ -423,14 +426,24 @@ begin
     raise exception 'run_url must be a zuriel337/sod1820 actions run';
   end if;
   if p_kind not in ('deploy', 'scheduled', 'manual') then raise exception 'invalid kind'; end if;
+  -- SERVER-AUTHORITATIVE outcome: the health-watch heartbeat (written every 15m) is evaluated BEFORE evidence is
+  -- finalised. A missing or >45m heartbeat means monitoring is not proven alive, so the stored/gate-visible canary
+  -- is a FAILURE even if every synthetic check passed. The caller's p_ok can only lower, never raise, the outcome.
+  select computed_at into v_hb from public.analytics_cache where cache_key = 'reliability_heartbeat:health_watch';
+  v_age := case when v_hb is null then null else round(extract(epoch from (now() - v_hb)) / 60) end;
+  v_ok := coalesce(p_ok, false) and v_age is not null and v_age <= 45;
+  v_failed := coalesce(p_failed, '[]'::jsonb);
+  if v_age is null or v_age > 45 then
+    v_failed := v_failed || to_jsonb('health_watch_heartbeat'::text);
+  end if;
   v_payload := jsonb_build_object(
-    'sha', p_sha, 'run_id', p_run_id, 'run_url', p_run_url, 'ok', coalesce(p_ok, false),
-    'failed', coalesce(p_failed, '[]'::jsonb), 'kind', p_kind, 'reported_at', now(),
+    'sha', p_sha, 'run_id', p_run_id, 'run_url', p_run_url, 'ok', v_ok,
+    'failed', v_failed, 'kind', p_kind, 'health_watch_heartbeat_age_minutes', v_age, 'reported_at', now(),
     'substitutes_goldens', false);
   insert into public.analytics_cache(cache_key, payload, computed_at)
   values ('release_canary:latest', v_payload, now())
   on conflict (cache_key) do update set payload = excluded.payload, computed_at = excluded.computed_at;
-  if coalesce(p_ok, false) then
+  if v_ok then
     insert into public.analytics_cache(cache_key, payload, computed_at)
     values ('release_canary:last_success', v_payload, now())
     on conflict (cache_key) do update set payload = excluded.payload, computed_at = excluded.computed_at;
@@ -438,16 +451,15 @@ begin
     insert into public.work_log(session_date, topic, what_we_did, status, open_threads)
     values (current_date, '🚨 Canary פרודקשן נכשל (אוטומטי)',
       format('sha=%s run=%s נכשל: %s. משחרר הבא חסום עד canary מוצלח או override מפורש של Human Gate. אין rollback אוטומטי.',
-             p_sha, p_run_url, coalesce(p_failed::text, '[]')),
+             p_sha, p_run_url, v_failed::text),
       'alert', 'release_canary:' || p_sha);
     begin
       perform public.notify_admin('🚨 סוד1820 — canary פרודקשן נכשל' || chr(10) || left(p_sha, 12) || chr(10) || p_run_url);
     exception when others then null;
     end;
   end if;
-  select computed_at into v_hb from public.analytics_cache where cache_key = 'reliability_heartbeat:health_watch';
-  return jsonb_build_object('recorded', true, 'sha', p_sha,
-    'health_watch_heartbeat_age_minutes', case when v_hb is null then null else round(extract(epoch from (now() - v_hb)) / 60) end);
+  return jsonb_build_object('recorded', true, 'sha', p_sha, 'ok', v_ok, 'failed', v_failed,
+    'health_watch_heartbeat_age_minutes', v_age);
 end;
 $function$;
 
@@ -539,7 +551,8 @@ begin
       || '1. PREFLIGHT ADDITION. AUTO-RELEASE PREFLIGHT (v2 §5) additionally requires select public.fn_release_canary_gate(<current production git sha>) -> allowed=true. The gate reads exact-SHA production canary evidence written only by the post-deploy-canary workflow (service_role, GitHub run identity). Arbitrary events rows are never release evidence.' || E'\n'
       || '2. BLOCK, DO NOT ROLL BACK. A failed latest canary, a canary for a different SHA than production, or no canary evidence blocks the NEXT release only. There is no automatic rollback. Recovery = a fixing release that itself passes its canary, or an explicit override.' || E'\n'
       || '3. EXPLICIT AUDITED OVERRIDE. Only ZURIEL Human Gate may authorise select public.fn_release_canary_override(<reason>, <hours 1..72>); it writes work_log and expires. The override never marks the canary as passed.' || E'\n'
-      || '4. SYNTHETIC ≠ GOLDEN. A synthetic canary PASS is a small deterministic zero-AI smoke set (max 4 scheduled/manual runs per UTC day; deploy-triggered runs always allowed) and never substitutes Golden/CI/security gates.',
+      || '4. SYNTHETIC ≠ GOLDEN. A synthetic canary PASS is a small deterministic zero-AI smoke set (max 4 scheduled/manual runs per UTC day; deploy-triggered runs always allowed) and never substitutes Golden/CI/security gates.' || E'\n'
+      || '5. HEARTBEAT IS PART OF CANARY TRUTH. fn_release_canary_report evaluates the health-watch heartbeat server-side before storing evidence; a missing or >45m heartbeat stores ok=false, so a failed workflow can never leave release_canary:latest as success.',
     coalesce(v_prev.metadata, '{}'::jsonb) || jsonb_build_object(
       'release_canary_gate', 'fn_release_canary_gate',
       'release_canary_override', 'fn_release_canary_override',

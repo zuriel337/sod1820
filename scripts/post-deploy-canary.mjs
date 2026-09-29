@@ -93,10 +93,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log(JSON.stringify({ sha, url, kind, ...result }, null, 2));
     const rep = await reportCanary({ ...result, sha, kind });
     console.log(JSON.stringify(rep));
-    // health-watch heartbeat is written every 15 minutes; a stale/missing heartbeat means the watcher itself is down.
-    const age = rep.health_watch_heartbeat_age_minutes;
-    if (age === null || age === undefined || age > 45) {
-      console.error(`health-watch heartbeat stale/missing (age=${age}); monitoring is not proven alive`);
+    // The stored/gate-visible outcome is decided server-side (fn_release_canary_report folds in the health-watch
+    // heartbeat: missing or >45m => ok=false). The exit code follows that effective outcome, never the local one alone.
+    if (rep.ok !== true) {
+      console.error(`canary effective outcome FAILED (local ok=${result.ok}, failed=${JSON.stringify(rep.failed)}, heartbeat age=${rep.health_watch_heartbeat_age_minutes})`);
       process.exit(1);
     }
     process.exit(result.ok ? 0 : 1);

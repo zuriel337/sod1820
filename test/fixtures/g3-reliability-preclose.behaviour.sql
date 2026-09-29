@@ -48,6 +48,18 @@ begin
   perform public.fn_release_canary_report(repeat('a',40),'11','https://github.com/zuriel337/sod1820/actions/runs/11',false,'["home_200"]');
   r := public.fn_release_canary_gate(repeat('a',40)); assert r->>'reason'='latest_canary_failed' and (r->>'allowed')='false', 'failed canary blocks next release';
   select count(*) into n from work_log where topic like '%Canary פרודקשן נכשל%'; assert n = 1, 'failure alerts';
+  -- canary truth: synthetic PASS + stale/missing heartbeat => stored ok=false, gate blocks, never last_success
+  update analytics_cache set computed_at = now() - interval '46 minutes' where cache_key='reliability_heartbeat:health_watch';
+  r := public.fn_release_canary_report(repeat('a',40),'20','https://github.com/zuriel337/sod1820/actions/runs/20',true);
+  assert (r->>'ok')='false' and r->'failed' ? 'health_watch_heartbeat', 'stale heartbeat => effective failure';
+  assert (select (payload->>'ok')::boolean from analytics_cache where cache_key='release_canary:latest')=false, 'latest stored ok=false on stale heartbeat';
+  r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='false' and r->>'reason'='latest_canary_failed', 'gate blocks on stale-heartbeat canary';
+  assert (select count(*) from analytics_cache where cache_key='release_canary:last_success')=0, 'no last_success from stale heartbeat';
+  delete from analytics_cache where cache_key='reliability_heartbeat:health_watch';
+  r := public.fn_release_canary_report(repeat('a',40),'21','https://github.com/zuriel337/sod1820/actions/runs/21',true);
+  assert (r->>'ok')='false' and r->'health_watch_heartbeat_age_minutes'='null'::jsonb, 'missing heartbeat => effective failure';
+  r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='false', 'gate blocks on missing-heartbeat canary';
+  insert into analytics_cache(cache_key,payload,computed_at) values ('reliability_heartbeat:health_watch','{}',now()) on conflict (cache_key) do update set computed_at=now();
   perform public.fn_release_canary_report(repeat('a',40),'12','https://github.com/zuriel337/sod1820/actions/runs/12',true);
   r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='true', 'exact-sha success allows';
   r := public.fn_release_canary_gate(repeat('b',40)); assert r->>'reason'='canary_not_for_current_production_sha', 'sha mismatch blocks';
