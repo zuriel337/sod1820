@@ -143,3 +143,11 @@
 @media(prefers-reduced-motion:reduce){
   .sod29-root.surface-heichal{transition:none}
 }
+
+/* IssueReport — semantic tokens only (canonical_colors_law v2); no local control/status colors */
+.sod29-issue-report{display:grid;gap:14px}
+.sod29-issue-report-field{display:grid;gap:6px;color:var(--s29-muted);font-size:12px}
+.sod29-issue-report-field textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel-soft);color:var(--s29-ink);padding:12px;font:inherit;font-size:16px;line-height:1.55}
+.sod29-issue-report-field small{justify-self:end;color:var(--s29-muted)}
+.sod29-header-actions .sod29-header-issue{min-width:44px;min-height:44px}
+@media(max-width:620px){.sod29-header-actions .issue-label{display:none}}

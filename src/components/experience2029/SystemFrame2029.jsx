@@ -22,6 +22,7 @@ import {
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
+import IssueReport from "../IssueReport.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
@@ -37,6 +38,7 @@ const TRANSIENT = Object.freeze({
   TOOLS: "tools",
   RAZIEL: "raziel",
   WORKSPACE: "workspace",
+  ISSUE: "issue",
 });
 
 const ShellContext = createContext({
@@ -50,6 +52,7 @@ const ShellContext = createContext({
   openRaziel: () => {},
   closeRaziel: () => {},
   openWorkspace: () => {},
+  openIssueReport: () => {},
   closeWorkspace: () => {},
   closeTransient: () => {},
   go: () => {},
@@ -722,6 +725,7 @@ export default function SystemFrame2029({
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
+  const openIssueReport = useCallback(() => openTransient(TRANSIENT.ISSUE), [openTransient]);
   const closeRaziel = useCallback(() => { if (transient?.kind === TRANSIENT.RAZIEL) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
 
@@ -859,11 +863,12 @@ export default function SystemFrame2029({
     openRaziel,
     closeRaziel,
     openWorkspace,
+    openIssueReport,
     closeWorkspace,
     closeTransient,
     go,
     returnExact,
-  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, closeWorkspace, closeTransient, go, returnExact]);
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -906,6 +911,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח" title="דווח על בעיה"><IssueReport pathname={location.pathname} surface={surface} capability={transient?.payload?.capability || null} locale={locale} onDone={closeTransient} /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
@@ -958,6 +964,7 @@ export default function SystemFrame2029({
             <div className="sod29-header-actions">
               <button className="sod29-header-search" type="button" onClick={openCommand}><span>⌘</span><span className="label">חיפוש / פקודה</span></button>
               <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span>↩</span><span className="return-label"> חזרה מדויקת</span></button>
+              <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
               <button type="button" onClick={openWorkspace}>◎ <span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
@@ -998,6 +1005,7 @@ export default function SystemFrame2029({
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
+            <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
           </aside>
         </> : null}
 
