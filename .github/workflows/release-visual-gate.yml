@@ -41,7 +41,15 @@ jobs:
             if [ "$S" = "success" ]; then SHA=$(gh api "repos/${{ github.repository }}/deployments/$i" --jq '.sha'); break; fi
           done
           echo "current production sha: ${SHA:-unknown}"
-          node scripts/release-canary-gate.mjs --production-sha "$SHA"
+          BOOTSTRAP_ARG=""
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          if [ -n "$BASE_SHA" ]; then
+            if ! gh api "repos/${{ github.repository }}/contents/scripts/release-canary-gate.mjs?ref=$BASE_SHA" >/dev/null 2>&1; then
+              echo "canary gate bootstrap install release: base does not contain gate runtime"
+              BOOTSTRAP_ARG="--allow-bootstrap"
+            fi
+          fi
+          node scripts/release-canary-gate.mjs --production-sha "$SHA" $BOOTSTRAP_ARG
 
   mobile-accessibility:
     name: Mobile + Accessibility Acceptance
