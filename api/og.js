@@ -164,7 +164,11 @@ const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test
 const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
 
 export default async function handler(req, res) {
-  const searchCrawlerDocument = String((req.query && req.query.crawler) || '') === 'search';
+  const crawlerMode = String((req.query && req.query.crawler) || '');
+  const searchCrawlerDocument = crawlerMode === 'search';
+  const directVideoMetadataAllowed = searchCrawlerDocument;
+  const isVideoUrl = (url = '') => /\.(mp4|mov|webm|m4v|avi|mkv)(?:$|[?#])/i.test(String(url || ''));
+  const safeVideoThumb = (thumb, fallback) => thumb && !isVideoUrl(thumb) ? thumb : fallback;
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
 
@@ -303,7 +307,7 @@ export default async function handler(req, res) {
       const c = Array.isArray(rows) && rows[0];
       if (c) {
         const isVid = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i.test(c.image_url || '');
-        const img = c.thumb_url || (!isVid ? c.image_url : null);
+        const img = safeVideoThumb(c.thumb_url, !isVid ? c.image_url : null);
         if (img) image = waSafeImage(img);
         else if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);   // אין thumb → כרטיס אור-הגאולה הממותג (לא כרטיס-הבית)
         let t = stripHtml(c.text || '').trim();
@@ -312,7 +316,7 @@ export default async function handler(req, res) {
         desc = cleanDesc(t || STATIC['/or-geula'].desc, 180) || DEFAULT_DESC;
         type = 'video.other';
         if (isVid) {
-          orgeulaVid = { contentUrl: c.image_url, thumb: c.thumb_url || (waSafeImage(image)), name: (t ? t.slice(0, 110) : 'אור הגאולה — סרטון'), desc, uploadDate: c.created_at };
+          orgeulaVid = { contentUrl: c.image_url, thumb: safeVideoThumb(c.thumb_url, waSafeImage(image)), name: (t ? t.slice(0, 110) : 'אור הגאולה — סרטון'), desc, uploadDate: c.created_at };
           videoCanonical = `${SITE}/or-geula?v=${encodeURIComponent(vParam)}`;
         }
       } else {
@@ -333,14 +337,14 @@ export default async function handler(req, res) {
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
           const topics = Array.isArray(v.topics) ? v.topics.filter(Boolean).slice(0, 5) : [];
           desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820 2029`, 180) || DEFAULT_DESC;
-          image = waSafeImage(v.thumb_url || v.poster_url || DEFAULT_IMAGE);
+          image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
           canonical = `${SITE}/video/${assetId}`;
           videoCanonical = canonical;
           orgeulaVid = {
             contentUrl: v.media_url,
-            thumb: v.thumb_url || v.poster_url || image,
+            thumb: image,
             name: nm || 'וידאו',
             desc,
             uploadDate: v.first_seen_at || v.last_seen_at,
@@ -656,7 +660,7 @@ export default async function handler(req, res) {
       description: orgeulaVid.desc,
       thumbnailUrl: orgeulaVid.thumb ? [orgeulaVid.thumb] : undefined,
       uploadDate: vidUploadIso(orgeulaVid.uploadDate),
-      contentUrl: orgeulaVid.contentUrl,
+      ...(directVideoMetadataAllowed ? { contentUrl: orgeulaVid.contentUrl } : {}),
       url: videoCanonical || canonical,
       inLanguage: 'he-IL',
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
@@ -681,7 +685,7 @@ export default async function handler(req, res) {
 <meta property="og:image:secure_url" content="${esc(image)}"/>
 <meta property="og:image:type" content="${imgType}"/>
 ${imgDims ? `<meta property="og:image:width" content="${imgDims.w}"/><meta property="og:image:height" content="${imgDims.h}"/>` : ''}
-${orgeulaVid ? `<meta property="og:video" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:secure_url" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:type" content="${ogVideoType(orgeulaVid.contentUrl)}"/>` : ''}
+${orgeulaVid && directVideoMetadataAllowed ? `<meta property="og:video" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:secure_url" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:type" content="${ogVideoType(orgeulaVid.contentUrl)}"/>` : ''}
 ${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>

@@ -647,7 +647,7 @@ function phraseDir(p) {
   return DIR_LENS[t.slice("כיוון:".length)] || null;
 }
 
-export default function EntityPage({ embedPhrase } = {}) {
+export default function EntityPage({ embedPhrase, pausePublicTrafficSurface = false } = {}) {
   const params = useParams();
   // embedPhrase מסופק כשהדף מוטמע בתוך המעבדה (נשארים במעבדה תוך כדי טיול במספרים)
   const phrase = embedPhrase != null ? String(embedPhrase) : params.phrase;
@@ -1254,11 +1254,11 @@ export default function EntityPage({ embedPhrase } = {}) {
     const p = `/number/${encodeURIComponent(phrase)}`;
     // 🔎 Search Indexability Contract — מקור-אמת יחיד: admitted(יהלום)→index · אחרת→noindex.
     // מחליף את שער-ה-bigEmpty הישן; החלטת-הסריקה זהה לזו של ה-sitemap (is_number_indexable).
-    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: numberNoindex });
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: entityNoindex });
     // structured-data eligibility = אותה החלטה: רק מספר מאונדקס מקבל DefinedTerm/WebPage.
     if (showEntityLd) setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
     else clearEntityJsonLd();
-  }, [story.seoDescription, data, term, value, isNumber, phrase, numberNoindex, showEntityLd]); // eslint-disable-line
+  }, [story.seoDescription, data, term, value, isNumber, phrase, entityNoindex, showEntityLd]); // eslint-disable-line
 
   // 🖼 סיווג הגלריה «תמונות מהמאגר» — «על המספר»+«אזכור משמעותי» = main · «מקרי/תאריך» = incidental.
   // מחושב פעם אחת, משמש גם בשכבה 2 (גלה עוד) וגם בשכבה 3 (היכל הגילוי) — בלי כפילות לוגיקה.
@@ -1462,15 +1462,27 @@ export default function EntityPage({ embedPhrase } = {}) {
                   <div style={{ color: tier.c, fontFamily: F.heading, fontSize: 14, fontWeight: 800 }}>דופק · {tier.nm}</div>
                 </div>
 
-                {/* 2 נתונים קטנים — חיבורים · צפיות (בדיו כהה, קריא בבהיר) */}
+                {/* 2 נתונים קטנים — חיבורים · צפיות. בניסוי התנועה מחליפים את הצפיות
+                    באופן הצהרתי בתוך React, בלי MutationObserver/DOM mutation חיצוני. */}
                 <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                  {[{ e: "🔗", v: totalConn, l: "חיבורים" }, { e: "👁️", v: searched, l: "צפיות" }].map((x, i) => (
-                    <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
-                      <span style={{ fontSize: 13 }}>{x.e}</span>
-                      <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(x.v || 0).toLocaleString("he")}</span>
-                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>{x.l}</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                    <span style={{ fontSize: 13 }}>🔗</span>
+                    <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(totalConn || 0).toLocaleString("he")}</span>
+                    <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>חיבורים</span>
+                  </span>
+                  {pausePublicTrafficSurface ? (
+                    <span aria-label="מונה התנועה — אזור בבנייה" title="נתוני התנועה ממשיכים להימדד ברקע אך אינם מוצגים כרגע"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                      <span style={{ fontSize: 13 }}>🚧</span>
+                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, fontWeight: 800 }}>אזור בבנייה</span>
                     </span>
-                  ))}
+                  ) : (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                      <span style={{ fontSize: 13 }}>👁️</span>
+                      <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(searched || 0).toLocaleString("he")}</span>
+                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>צפיות</span>
+                    </span>
+                  )}
                 </div>
               </div>
             );

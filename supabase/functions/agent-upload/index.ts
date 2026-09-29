@@ -1,5 +1,6 @@
 // agent-upload — single-use least-privilege Storage upload for agent runtimes.
 import { fetchRemoteImage } from "./remote-url.ts";
+import { fetchTikTokMedia, isTikTokPageUrl, resolveTikTokSource } from "../_shared/tiktokSourceResolver.js";
 
 const SR = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -44,8 +45,14 @@ function decodeB64(s:string):Uint8Array {
   return out;
 }
 
+function ownedArrayBuffer(bytes:Uint8Array):ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 async function sha256Hex(bytes:Uint8Array) {
-  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", ownedArrayBuffer(bytes)));
   return Array.from(d).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
@@ -68,7 +75,82 @@ async function putBuffered(t:Ticket, bytes:Uint8Array) {
   if (bytes.byteLength === 0 || bytes.byteLength > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
   const hash = await sha256Hex(bytes);
   if (t.sha256 && hash !== t.sha256) return json({ ok:false, error:"sha256 mismatch" },422);
-  return await putBytes(t, bytes, { sha256:hash, size:bytes.byteLength });
+  return await putBytes(t, ownedArrayBuffer(bytes), { sha256:hash, size:bytes.byteLength });
+}
+
+function baseContentType(value:string) {
+  return String(value || "").split(";")[0].trim().toLowerCase();
+}
+
+function looksLikeMp4(bytes:Uint8Array) {
+  return bytes.byteLength >= 12
+    && String.fromCharCode(...bytes.slice(4, 8)) === "ftyp";
+}
+
+async function readCappedResponse(response:Response, maxBytes:number):Promise<Uint8Array|null> {
+  const declared = Number(response.headers.get("content-length") || "0");
+  if (Number.isFinite(declared) && declared > maxBytes) return null;
+  if (!response.body) return null;
+  const reader = response.body.getReader();
+  const chunks:Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      try { await reader.cancel("too large"); } catch { /* ignore */ }
+      return null;
+    }
+    chunks.push(value);
+  }
+  if (!total) return null;
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.byteLength; }
+  return out;
+}
+
+async function fetchTikTokVideoBytes(rawUrl:string, maxBytes:number) {
+  if (!isTikTokPageUrl(rawUrl)) return { ok:false as const, status:403, error:"TikTok URL required" };
+  const resolution:any = await resolveTikTokSource(rawUrl);
+  const candidates = (Array.isArray(resolution.mediaCandidates) && resolution.mediaCandidates.length
+    ? resolution.mediaCandidates
+    : [{ url: resolution.mediaUrl, source: resolution.resolutionSource }]
+  ).slice(0, 8);
+
+  let lastStatus = 502;
+  for (const candidate of candidates) {
+    const candidateResolution = { ...resolution, mediaUrl:candidate.url, resolutionSource:candidate.source || null };
+    let response:Response;
+    try {
+      response = await fetchTikTokMedia(candidateResolution);
+    } catch {
+      continue;
+    }
+    lastStatus = response.status || 502;
+    if (!response.ok) {
+      try { await response.body?.cancel(); } catch { /* ignore */ }
+      continue;
+    }
+    const ct = baseContentType(response.headers.get("content-type") || "");
+    if (ct && ct !== "video/mp4" && ct !== "application/octet-stream") {
+      try { await response.body?.cancel(); } catch { /* ignore */ }
+      continue;
+    }
+    const bytes = await readCappedResponse(response, maxBytes);
+    if (!bytes) return { ok:false as const, status:413, error:"TikTok video exceeds ticket size" };
+    if (!looksLikeMp4(bytes)) continue;
+    return {
+      ok:true as const,
+      bytes,
+      platform_video_id:resolution.platformVideoId || null,
+      resolved_page_url:resolution.resolvedPageUrl || rawUrl,
+      resolution_source:candidate.source || resolution.resolutionSource || null,
+    };
+  }
+  return { ok:false as const, status:502, error:`no fetchable TikTok MP4 candidate (last status ${lastStatus})` };
 }
 
 Deno.serve(async req => {
@@ -104,6 +186,25 @@ Deno.serve(async req => {
     const remote = await fetchRemoteImage(b.url.trim(), t.mime, t.max_bytes);
     if (!remote.ok) return json({ ok:false, error:remote.error }, remote.status);
     return await putBuffered(t, remote.bytes);
+  }
+
+  if (mode === "tiktok") {
+    if (t.mime !== "video/mp4") return json({ ok:false, error:"mode=tiktok requires video/mp4 ticket" },415);
+    let b:any; try { b = await req.json(); } catch { return json({ ok:false, error:"invalid JSON" },400); }
+    if (!b || typeof b.url !== "string" || !b.url.trim()) return json({ ok:false, error:"url required" },400);
+    const remote = await fetchTikTokVideoBytes(b.url.trim(), t.max_bytes);
+    if (!remote.ok) return json({ ok:false, error:remote.error }, remote.status);
+    const stored = await putBuffered(t, remote.bytes);
+    if (!stored.ok) return stored;
+    const payload = await stored.clone().json().catch(()=>({}));
+    return json({
+      ...payload,
+      source_kind:"tiktok",
+      platform:"tiktok",
+      platform_video_id:remote.platform_video_id,
+      resolved_page_url:remote.resolved_page_url,
+      resolution_source:remote.resolution_source,
+    }, stored.status);
   }
 
   // form: a real multipart/form-data attachment — what a file picker, a FormData post or

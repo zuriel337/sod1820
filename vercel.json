@@ -559,12 +559,23 @@
       "destination": "/api/honeypot"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/&crawler=search"
+    },
+    {
       "source": "/2029",
       "has": [
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/2029&crawler=search"
@@ -575,7 +586,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/world&crawler=search"
@@ -586,7 +597,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/topic/$1&crawler=search"
@@ -597,7 +608,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/books&crawler=search"
@@ -608,7 +619,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/book/$1&crawler=search"
@@ -619,7 +630,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/els&crawler=search"
@@ -630,7 +641,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/heichal&crawler=search"
@@ -641,7 +652,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/היכל&crawler=search"
@@ -652,7 +663,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/researcher/$1&crawler=search"
@@ -663,10 +674,21 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/2029/number/$1&crawler=search"
+    },
+    {
+      "source": "/number/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/number/$1&crawler=search"
     },
     {
       "source": "/post/(.*)",
@@ -674,7 +696,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/post/$1&crawler=search"
@@ -685,7 +707,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
       "destination": "/api/og?path=/video/$1&crawler=search"

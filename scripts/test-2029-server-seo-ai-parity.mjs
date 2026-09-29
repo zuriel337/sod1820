@@ -30,6 +30,14 @@ async function render(path, fetchImpl, query = {}) {
   return (await renderResponse(path, fetchImpl, query)).body;
 }
 
+
+const homeSearchCrawler = await renderResponse("/", async () => {
+  throw new Error("home server document must not require Supabase fetch");
+}, { crawler: "search" });
+assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/"/);
+assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
+
 const number = await render("/2029/number/123");
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(number, /123 · דף המספר 2029/);
@@ -136,6 +144,56 @@ assert.match(videoSearchCrawler.body, new RegExp(`canonical" href="https:\\\/\\\
 assert.match(videoSearchCrawler.body, /"@type":"VideoObject"/);
 assert.equal(videoSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(videoSearchCrawler.body, /http-equiv="refresh"/);
+assert.match(videoSearchCrawler.body, /"contentUrl":"https:\\/\\/example\.test\\/video\.mp4"/);
+assert.match(videoSearchCrawler.body, /property="og:video" content="https:\/\/example\.test\/video\.mp4"/);
+
+const videoSocialCrawler = await renderResponse(`/video/${videoId}`, async (url) => {
+  const u = String(url);
+  if (u.includes("/video_media_assets_v1?")) {
+    return {
+      ok: true,
+      async json() {
+        return [{
+          public_id: videoId,
+          title: "סרטון 2029",
+          video_kind: "selfhost",
+          media_url: "https://example.test/video.mp4",
+          youtube_id: null,
+          poster_url: "https://example.test/video.mp4",
+          thumb_url: "https://example.test/video.mp4",
+          topics: ["מחקר"],
+          google_indexable: true,
+          first_seen_at: "2026-09-28T08:00:00+00:00",
+          last_seen_at: "2026-09-28T09:00:00+00:00",
+        }];
+      },
+    };
+  }
+  throw new Error("unexpected social video fetch: " + u);
+});
+assert.doesNotMatch(videoSocialCrawler.body, /property="og:video"/);
+assert.doesNotMatch(videoSocialCrawler.body, /"contentUrl":/);
+assert.doesNotMatch(videoSocialCrawler.body, /og:image" content="https:\/\/example\.test\/video\.mp4"/);
+assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/example\.test\/video\.mp4"\]/);
+
+
+
+const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
+  const u = String(url);
+  if (u.includes("/number_anchors?")) {
+    return {
+      ok: true,
+      async json() {
+        return [{ fact: "עוגן 1237", hint: "תיאור קצר" }];
+      },
+    };
+  }
+  throw new Error("unexpected legacy number fetch: " + u);
+}, { crawler: "search" });
+assert.match(legacyNumberSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/number\/1237"/);
+assert.match(legacyNumberSearchCrawler.body, /עוגן 1237/);
+assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.doesNotMatch(legacyNumberSearchCrawler.body, /http-equiv="refresh"/);
 
 const elsLocked = await render("/els", async (url) => {
   const u = String(url);
@@ -166,17 +224,18 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 12, "search crawlers must be routed only across the explicit native/public 2029 document family");
+assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
   assert.ok(ua.includes("bingbot"), `bingbot must receive server document for ${rule.source}`);
+  assert.ok(ua.includes("Baiduspider"), `Baiduspider must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)"]) {
+for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
-assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "Google/Bing must never be sent through a global crawler catch-all");
+assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "search crawlers must never be sent through a global crawler catch-all");
 assert.ok(
   vercel.rewrites.indexOf(searchRules[0]) < vercel.rewrites.indexOf(socialAiRule),
   "search-crawler document rules must precede the generic social/AI crawler catch-all",

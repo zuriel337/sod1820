@@ -1,5 +1,6 @@
 import React from "react";
 import { C, F } from "../theme.js";
+import { track } from "../lib/tracking.js";
 
 // מגן קריסות גלובלי — מונע "דף שחור" כשרכיב נופל. מציג הודעה + רענון, במקום מסך ריק.
 export default class ErrorBoundary extends React.Component {
@@ -12,6 +13,14 @@ export default class ErrorBoundary extends React.Component {
   }
   componentDidCatch(error, info) {
     console.error("ErrorBoundary caught:", error, info);
+    try {
+      const route = typeof window !== "undefined" ? window.location.pathname : null;
+      track("runtime_error", route, "error_boundary", {
+        name: String(error?.name || "Error").slice(0, 80),
+        message: String(error?.message || error || "unknown").slice(0, 320),
+        component_stack: String(info?.componentStack || "").slice(0, 1200),
+      });
+    } catch { /* telemetry must never affect recovery UI */ }
   }
   componentDidUpdate(prev) {
     // איפוס בשינוי route — כך שגלישה לדף אחר מתאוששת
