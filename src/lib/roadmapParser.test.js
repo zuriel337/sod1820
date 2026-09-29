@@ -1,8 +1,8 @@
 // Tests for roadmapParser.js — run with: node --test src/lib/roadmapParser.test.js
 // Zero external dependencies (uses Node's built-in test runner, Node >=18).
-// Canonical location (single-engine): this parser is used both by the
-// standalone tools/roadmap-map/ dev harness and by the live admin Command
-// Center Roadmap tab (src/components/admin/RoadmapMap3D.jsx). Do not fork it.
+// Historical Stage-1 parser contract. The live 3D Roadmap consumer was retired by Human Gate
+// on 2026-09-15; the current Admin Roadmap is a raw-text projection of the compact Roadmap.
+// Keep this parser test anchored to the immutable v5.3 fixture it was designed to parse.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -12,7 +12,7 @@ import path from "node:path";
 import { parseRoadmap, summarizeCoverage, _internal } from "./roadmapParser.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROADMAP_PATH = path.join(__dirname, "..", "..", "SOD1820_MASTER_ROADMAP.md");
+const ROADMAP_PATH = path.join(__dirname, "..", "..", "docs", "archive", "SOD1820_MASTER_ROADMAP_v5.3_2026-08-25.md");
 
 function loadRoadmap() {
   return readFileSync(ROADMAP_PATH, "utf8");
@@ -50,9 +50,9 @@ test("active_now: WS-GEMATRIA-CORPUS-PACKAGES is identified with explicit confid
   assert.equal(vm.active_now.confidence, "explicit");
 });
 
-test("workstreams: all 24 canonical WS-* cards are found, each with core fields", () => {
+test("workstreams: all 25 archived v5.3 WS-* cards are found, each with core fields", () => {
   const vm = parseRoadmap(loadRoadmap());
-  assert.equal(vm.workstreams.length, 24);
+  assert.equal(vm.workstreams.length, 25);
   const ids = vm.workstreams.map((w) => w.id);
   const expectedSample = [
     "WS-CC",
@@ -75,6 +75,7 @@ test("workstreams: all 24 canonical WS-* cards are found, each with core fields"
     "WS-KU3D",
     "WS-FEATURE-CONTROL",
     "WS-NUMBER-LANGUAGE",
+    "WS-NUMERIC-ROUTER",
     "WS-NAMELAB",
     "WS-TIME-DISAMBIGUATION",
     "WS-READ-COMPOSER",
@@ -195,7 +196,7 @@ test("gate_mentions: extracted from HUMAN_GATE/WHAT_IS_OPEN only, as a mention s
   assert.deepEqual(byId["WS-ELS-IDENTITY"].gate_mentions, [4]);
   assert.deepEqual(byId["WS-JUDGE-UNIFICATION"].gate_mentions, [18]);
   assert.deepEqual(byId["WS-CC"].gate_mentions, [9]);
-  assert.deepEqual(byId["WS-ELS-CAPABILITY-AUDIT"].gate_mentions, [15]);
+  assert.deepEqual(byId["WS-ELS-CAPABILITY-AUDIT"].gate_mentions, []);
   assert.deepEqual(byId["WS-NAMELAB"].gate_mentions, [17]);
   assert.deepEqual(byId["WS-RESEARCH-OBJECT-FRAMEWORK"].gate_mentions, [20]);
   // WS-SEC mentions "Gate #18" only as a dateline for when 2 unrelated security
@@ -275,7 +276,7 @@ test("ambiguity: a synthetic malformed card produces a warning, not a guessed va
 test("summarizeCoverage returns sane counters for the real file", () => {
   const vm = parseRoadmap(loadRoadmap());
   const cov = summarizeCoverage(vm);
-  assert.equal(cov.workstreams, 24);
+  assert.equal(cov.workstreams, 25);
   assert.equal(cov.workstreams_with_warnings, 1);
   assert.equal(cov.gates, 21); // v5.3 (25.8.2026): Gate #21 OD-TIME-8 added
   assert.equal(cov.gates_closed, 5); // Gate #4 closed 22.8.2026, Gate #18 closed 23.8.2026
