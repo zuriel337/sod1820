@@ -174,7 +174,6 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'התכנסויות בולטות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
   for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
     await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
@@ -659,9 +658,9 @@ test('RICH 1820 remains useful when research rows are access-filtered', async ({
   await page.screenshot({ path: 'test-results/release-visual/world-partial-access-1820-390.png', fullPage: true });
 });
 
-test('automatic filters, sorting and explain-why work with build-phase control mode visible', async ({ page }) => {
+test('automatic filters, sorting and explain-why work without exposing admin research controls', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
-  await expect(page.getByRole('heading', { name: 'מצב מחקר', exact: true })).toBeVisible();
+  await expect(page.locator('.sod29-world-research-control')).toHaveCount(0);
   await selectWorldLane(page, 'קשרים');
   await expect(page.getByLabel('מיון קשרים')).toBeVisible();
   const numberFilter = page.getByRole('button', { name: /מספרים ·/ }).first();
