@@ -307,7 +307,7 @@ export default async function handler(req, res) {
       const c = Array.isArray(rows) && rows[0];
       if (c) {
         const isVid = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i.test(c.image_url || '');
-        const img = c.thumb_url || (!isVid ? c.image_url : null);
+        const img = safeVideoThumb(c.thumb_url, !isVid ? c.image_url : null);
         if (img) image = waSafeImage(img);
         else if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);   // אין thumb → כרטיס אור-הגאולה הממותג (לא כרטיס-הבית)
         let t = stripHtml(c.text || '').trim();
@@ -337,14 +337,14 @@ export default async function handler(req, res) {
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
           const topics = Array.isArray(v.topics) ? v.topics.filter(Boolean).slice(0, 5) : [];
           desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820 2029`, 180) || DEFAULT_DESC;
-          image = waSafeImage(v.thumb_url || v.poster_url || DEFAULT_IMAGE);
+          image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
           canonical = `${SITE}/video/${assetId}`;
           videoCanonical = canonical;
           orgeulaVid = {
             contentUrl: v.media_url,
-            thumb: safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, image)),
+            thumb: image,
             name: nm || 'וידאו',
             desc,
             uploadDate: v.first_seen_at || v.last_seen_at,
