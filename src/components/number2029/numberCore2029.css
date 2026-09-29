@@ -1146,6 +1146,10 @@
 .sod29-number-core2029.is-drawer .sod29-number-dashboard-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 
 @media(max-width:720px){
+  /* CLS reservation: async regular phrases + stage hydration may change content, never geometry. */
+  .sod29-number-core2029.is-page .sod29-number-v10-stage{
+    min-block-size:342px;
+  }
   .sod29-number-dashboard-identity{grid-template-columns:86px minmax(0,1fr);gap:12px;padding:12px}
   .sod29-number-dashboard-art{max-height:105px;border-radius:14px}
   .sod29-number-dashboard-number-line b{font-size:46px}
@@ -2738,6 +2742,17 @@
   76%{transform:translateX(5px)}
 }
 .sod29-number-v11-regular-track::-webkit-scrollbar{display:none}
+.sod29-number-v11-regular-placeholder{
+  flex:0 0 auto;
+  width:118px;
+  min-height:47px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
+}
+.sod29-number-v11-regular-rail.is-loading{
+  pointer-events:none;
+}
 .sod29-number-v11-regular-track button{
   flex:0 0 auto;
   min-width:118px;
