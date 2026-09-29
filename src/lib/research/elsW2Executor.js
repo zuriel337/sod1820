@@ -41,7 +41,7 @@ async function runEls(supabase, representation, options) {
  * Canonical W2 ELS executor.
  *
  * This executor owns no ELS arithmetic/search. It invokes ONLY public.els_search_v1, the bounded
- * projection over the single server core. A number-only request remains CONTEXT_REQUIRED until an
+ * projection over the single server core. A number-only request remains MISSING_ADAPTER until an
  * exact text/expression representation exists; a numeric identity is never converted to letters.
  */
 export function createElsW2Executor({
@@ -68,7 +68,7 @@ export function createElsW2Executor({
         findings: [],
         accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
         semanticClass: SEMANTIC_CLASS.EVIDENCE,
-        versionRefs: ['els_search_v1:canonical-callable', 'els_research_layer_law:v3'],
+        versionRefs: ['els_search_v1:canonical-callable', 'els_research_layer_law:v9'],
         trace: { representation_count: 0, scope, max_skip: boundedSkip, max_hits: boundedHits, missing_adapter: 'number_to_text' },
       };
     }
@@ -190,7 +190,7 @@ export function createElsW2Executor({
         ? { kind: 'bounded_els_searches', searches: negativeScopes }
         : null,
       sourceRefs: representations.map(x => x.ref),
-      versionRefs: ['els_search_v1:canonical-callable', 'els-sql-core:v1', 'els_research_layer_law:v3', 'els_single_engine_law:v2'],
+      versionRefs: ['els_search_v1:canonical-callable', 'els-sql-core:v1', 'els_research_layer_law:v9', 'els_single_engine_law:v2'],
       bounded: {
         total_count: totalHits || (status === CAPABILITY_STATUS.NEGATIVE_RESULT ? 0 : null),
         returned_count: returnedHits,
