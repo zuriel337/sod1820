@@ -202,6 +202,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
     return {
       kind: 'tiktok',
       mediaUrl: finalUrl,
+      mediaCandidates: [{ url: finalUrl, source: 'direct-video-response' }],
       resolvedPageUrl: finalUrl,
       platformVideoId: extractTikTokVideoId(finalUrl),
       resolutionSource: 'direct-video-response',
@@ -227,6 +228,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
   return {
     kind: 'tiktok',
     mediaUrl: chosen.url,
+    mediaCandidates: candidates.slice(0, 8).map((candidate) => ({ url: candidate.url, source: candidate.source })),
     resolvedPageUrl: finalUrl,
     platformVideoId: videoId,
     resolutionSource: chosen.source,

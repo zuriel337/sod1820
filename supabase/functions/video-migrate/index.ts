@@ -19,6 +19,7 @@ const MAX_BYTES = 1024 * 1024 * 1024; // 1 GiB safety ceiling for this legacy bu
 type ResolvedSource = {
   kind: "direct" | "tiktok";
   mediaUrl: string;
+  mediaCandidates?: Array<{ url: string; source?: string | null }>;
   resolvedPageUrl?: string | null;
   platformVideoId?: string | null;
   resolutionSource?: string | null;
@@ -66,11 +67,66 @@ function resolvedMediaResponseAllowed(resolution: ResolvedSource, response: Resp
   return isAllowedTikTokMediaUrl(response.url || resolution.mediaUrl);
 }
 
-async function fetchResolvedMedia(resolution: ResolvedSource, rangeProbe = false): Promise<{ response: Response; finalUrl: string }> {
+async function fetchResolvedMedia(
+  resolution: ResolvedSource,
+  rangeProbe = false,
+): Promise<{ response: Response; finalUrl: string; selectedCandidateSource?: string | null; attemptedCandidates?: number }> {
   if (resolution.kind === "tiktok") {
-    const response = await fetchTikTokMedia(resolution, fetch, { rangeProbe });
-    return { response, finalUrl: response.url || resolution.mediaUrl };
+    const candidates = (resolution.mediaCandidates?.length
+      ? resolution.mediaCandidates
+      : [{ url: resolution.mediaUrl, source: resolution.resolutionSource }]
+    ).slice(0, 8);
+
+    let lastResponse: Response | null = null;
+    let lastUrl = resolution.mediaUrl;
+    let lastSource: string | null | undefined = resolution.resolutionSource;
+    let lastError: unknown = null;
+    let attempted = 0;
+
+    for (const candidate of candidates) {
+      attempted += 1;
+      const candidateResolution: ResolvedSource = {
+        ...resolution,
+        mediaUrl: candidate.url,
+        resolutionSource: candidate.source || null,
+      };
+      try {
+        const response = await fetchTikTokMedia(candidateResolution, fetch, { rangeProbe });
+        const finalUrl = response.url || candidate.url;
+        const contentType = response.headers.get("content-type") || "";
+        const usable = response.ok
+          && resolvedMediaResponseAllowed(candidateResolution, response)
+          && !contentLooksLikeHtml(contentType)
+          && !contentLooksLikeAudio(contentType);
+        if (usable) {
+          return {
+            response,
+            finalUrl,
+            selectedCandidateSource: candidate.source || null,
+            attemptedCandidates: attempted,
+          };
+        }
+        lastResponse = response;
+        lastUrl = finalUrl;
+        lastSource = candidate.source;
+        try { await response.body?.cancel(); } catch { /* best effort */ }
+      } catch (error) {
+        lastError = error;
+        lastSource = candidate.source;
+      }
+    }
+
+    if (lastResponse) {
+      return {
+        response: lastResponse,
+        finalUrl: lastUrl,
+        selectedCandidateSource: lastSource || null,
+        attemptedCandidates: attempted,
+      };
+    }
+    throw lastError || new Error("tiktok_candidates_exhausted");
   }
+
   const headers = new Headers();
   if (rangeProbe) headers.set("Range", "bytes=0-0");
   const response = await fetch(resolution.mediaUrl, { method: "GET", headers, redirect: "follow" });
@@ -113,7 +169,9 @@ Deno.serve(async (req: Request) => {
         }
 
         if (dryRun) {
-          const { response: probe, finalUrl } = await fetchResolvedMedia(resolution, true);
+          const { response: probe, finalUrl, selectedCandidateSource, attemptedCandidates } = await fetchResolvedMedia(resolution, true);
+          if (selectedCandidateSource) out.resolution_source = selectedCandidateSource;
+          if (attemptedCandidates) out.attempted_candidates = attemptedCandidates;
           const probeType = probe.headers.get("content-type") || "";
           const isAudio = contentLooksLikeAudio(probeType);
           const allowed = probe.ok && resolvedMediaResponseAllowed(resolution, probe) && !contentLooksLikeHtml(probeType) && !isAudio;
@@ -126,7 +184,9 @@ Deno.serve(async (req: Request) => {
           continue;
         }
 
-        const { response: resp, finalUrl } = await fetchResolvedMedia(resolution);
+        const { response: resp, finalUrl, selectedCandidateSource, attemptedCandidates } = await fetchResolvedMedia(resolution);
+        if (selectedCandidateSource) out.resolution_source = selectedCandidateSource;
+        if (attemptedCandidates) out.attempted_candidates = attemptedCandidates;
         if (!resp.ok) { out.status = `source_fail_${resp.status}`; results.push(out); continue; }
         if (!resolvedMediaResponseAllowed(resolution, resp)) { out.status = "resolved_media_host_rejected"; results.push(out); continue; }
         const len = Number(resp.headers.get("content-length") || "0");
