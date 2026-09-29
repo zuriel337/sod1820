@@ -41,6 +41,7 @@ on:
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
+      - "scripts/test-a3-client-correlation-live.mjs"
       - "scripts/test-replayable-golden-no-black-box.mjs"
       - "scripts/test-web-vitals-2029.mjs"
       - "supabase/functions/ai-analyze/index.ts"
@@ -135,6 +136,8 @@ jobs:
         run: node scripts/test-2029-number-preview.mjs
       - name: Native 2029 Control Plane trace drill-down acceptance
         run: node scripts/test-2029-control-plane.mjs
+      - name: A3 live client-to-trace correlation acceptance
+        run: node scripts/test-a3-client-correlation-live.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
