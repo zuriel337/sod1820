@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.5 COMPACT
+# SOD1820 — MASTER ROADMAP v6.6 COMPACT
 
-**Date:** 2026-09-27  
+**Date:** 2026-09-29  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -24,6 +24,8 @@ Closure evidence:
 
 **Current phase: G3 — Foundation runtime / implementation.**
 
+**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
+
 **G3→G4 transition rule · 2026-09-28:** G4 does not activate later capabilities merely because the gate number changes. G3 must first close its implementation/compaction blockers; G4 then runs real/replayable **Golden Experiences** over the already-built 2029 capabilities. A capability becomes Golden only after its real journey passes; English, entitlement/pricing, Voice/Multimodal, Spatial/3D and XR remain governed by their later program stages and do not auto-open at G4.
 
 Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
@@ -43,13 +45,14 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 
 Detailed domain semantics live in owners, not here:
 
+- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
 - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v7**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
-- Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
+- Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
 - No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
-- Translation / source-language evidence integrity → active `content_translation_law` **v3**;
+- Translation / source-language evidence integrity → active `content_translation_law` **v4**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
 
@@ -251,7 +254,17 @@ This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through 
 
 ## Mandatory end-of-G3 gate
 
-Before G4, run:
+Before formal G3 CLOSED, run a **Maintenance Acceptance Matrix reconciliation** across operational requirements gathered during G3. For every row record exactly:
+
+`OWNER → SIGNAL → ENFORCEMENT → PROJECTION → STATUS`
+
+Allowed status: `LIVE_VERIFIED` · `IMPLEMENTED_NOT_LIVE` · `PLANNED_G3` · `LATER_STAGE` · `GAP`.
+
+Minimum coverage: reliability/health · browser/runtime failures · dead-man · exact-SHA canary · operational trace/correlation · provider/AI cost · cache/billable state · egress · DB/query performance · capacity/growth/top-growers · retention/compaction · privacy/RLS failures · restore/recovery evidence · release health.
+
+A protective requirement is not CLOSED when only its signal/dashboard exists; required owner-native enforcement must also be verified. Telemetry remains privacy-safe operational evidence, not a Truth Store. Parallel-session duplicates must be reconciled to one canonical owner/runtime/projection. A load-bearing `GAP` blocks ascent; a genuinely later-stage item receives explicit carry-forward and does not keep G3 open.
+
+Then run:
 
 **G3 Implementation Compaction / Archive Pass**
 
