@@ -276,6 +276,7 @@ export default function NumberCore2029({
   methodsLoading = false,
   languageBridges = [],
   regularExpressions = [],
+  regularExpressionsLoading = false,
   hiddenCrossings = [],
   hiddenCrossingsLoading = false,
   systemMethods = [],
@@ -505,6 +506,21 @@ export default function NumberCore2029({
             /> : null}
           </div>;
         })}
+      </div>
+    </section> : regularExpressionsLoading && !compact ? <section
+      className="sod29-number-v11-regular-rail is-loading"
+      data-experience-state="regular-expressions-loading"
+      aria-hidden="true"
+    >
+      <div className="sod29-number-v11-regular-head">
+        <div>
+          <span>רגיל = {root}</span>
+          <strong>ביטויים רגילים על אותו מספר</strong>
+        </div>
+        <small>טוען ביטויים…</small>
+      </div>
+      <div className="sod29-number-v11-regular-track">
+        <div className="sod29-number-v11-regular-placeholder" />
       </div>
     </section> : null}
 
