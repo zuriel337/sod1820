@@ -12,7 +12,7 @@ import {
   parseSourceRefLocator,
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
-import { applySeo } from "../lib/seo.js";
+import { applySeo } from "../lib/seo.js";\nimport BookSpatialResearch2029 from "../components/spatial/BookSpatialResearch2029.jsx";
 
 const COVERAGE_LABELS = {
   structural: "מיפוי מבני",
