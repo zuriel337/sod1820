@@ -43,16 +43,26 @@ jobs:
           set -euo pipefail
           KIND="manual"
           SKIP="false"
-          if [ "$EVENT" = "deployment_status" ]; then
-            SHA="$EVENT_SHA"; URL="$EVENT_URL"; KIND="deploy"
-          else
-            ID=""
+          resolve_latest_production_sha() {
+            local id="" state=""
             for i in $(gh api "repos/${{ github.repository }}/deployments?environment=Production&per_page=20" --jq '.[].id'); do
-              S=$(gh api "repos/${{ github.repository }}/deployments/$i/statuses?per_page=1" --jq '.[0].state')
-              if [ "$S" = "success" ]; then ID="$i"; break; fi
+              state=$(gh api "repos/${{ github.repository }}/deployments/$i/statuses?per_page=1" --jq '.[0].state')
+              if [ "$state" = "success" ]; then id="$i"; break; fi
             done
-            if [ -z "$ID" ]; then echo "::error::no successful Production deployment"; exit 1; fi
-            SHA=$(gh api "repos/${{ github.repository }}/deployments/$ID" --jq '.sha')
+            if [ -z "$id" ]; then echo "::error::no successful Production deployment" >&2; return 1; fi
+            gh api "repos/${{ github.repository }}/deployments/$id" --jq '.sha'
+          }
+          if [ "$EVENT" = "deployment_status" ]; then
+            SHA="$EVENT_SHA"
+            URL="https://sod1820.co.il"
+            KIND="deploy"
+            CURRENT_PRODUCTION_SHA="$(resolve_latest_production_sha)"
+            if [ "$CURRENT_PRODUCTION_SHA" != "$SHA" ]; then
+              echo "::error::Production alias is not bound to event SHA: event=$SHA current=$CURRENT_PRODUCTION_SHA"
+              exit 1
+            fi
+          else
+            SHA="$(resolve_latest_production_sha)"
             URL="https://sod1820.co.il"
             if [ "$EVENT" = "schedule" ]; then KIND="scheduled"; fi
             TODAY="$(date -u +%Y-%m-%dT00:00:00Z)"
