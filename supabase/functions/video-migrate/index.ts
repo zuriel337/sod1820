@@ -43,6 +43,9 @@ function contentLooksLikeHtml(contentType: string) {
   const ct = String(contentType || "").toLowerCase();
   return ct.includes("text/html") || ct.includes("application/xhtml+xml");
 }
+function contentLooksLikeAudio(contentType: string) {
+  return String(contentType || "").toLowerCase().startsWith("audio/");
+}
 
 async function resolveSource(src: string): Promise<ResolvedSource> {
   if (!isTikTokPageUrl(src)) return { kind: "direct", mediaUrl: src };
@@ -112,8 +115,9 @@ Deno.serve(async (req: Request) => {
         if (dryRun) {
           const { response: probe, finalUrl } = await fetchResolvedMedia(resolution, true);
           const probeType = probe.headers.get("content-type") || "";
-          const allowed = probe.ok && resolvedMediaResponseAllowed(resolution, probe) && !contentLooksLikeHtml(probeType);
-          out.status = allowed ? "source_ok" : `source_fail_${probe.status}`;
+          const isAudio = contentLooksLikeAudio(probeType);
+          const allowed = probe.ok && resolvedMediaResponseAllowed(resolution, probe) && !contentLooksLikeHtml(probeType) && !isAudio;
+          out.status = isAudio ? "source_not_video_audio" : (allowed ? "source_ok" : `source_fail_${probe.status}`);
           out.source_status = probe.status;
           out.source_content_type = probeType || null;
           out.resolved_media_host = (() => { try { return new URL(finalUrl).hostname; } catch { return null; } })();
@@ -129,6 +133,7 @@ Deno.serve(async (req: Request) => {
         if (len > MAX_BYTES) { out.status = "too_large"; results.push(out); continue; }
         const ct = resp.headers.get("content-type") || "video/mp4";
         if (contentLooksLikeHtml(ct)) { out.status = "source_not_video_html"; results.push(out); continue; }
+        if (contentLooksLikeAudio(ct)) { out.status = "source_not_video_audio"; results.push(out); continue; }
         const buf = await resp.arrayBuffer();
         out.bytes = buf.byteLength;
         out.source_content_type = ct;
