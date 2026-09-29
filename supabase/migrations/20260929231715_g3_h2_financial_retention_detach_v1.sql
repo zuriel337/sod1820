@@ -33,7 +33,20 @@ declare
        and lower(coalesce(meta->>'invitee',''))=lower(v_email);
   end if;
 
-  update public.payment_requests\n     set user_id=null, reference=null, proof_url=null\n   where user_id=v_uid;\n\n  if coalesce(array_length(v_phones,1),0) > 0 then\n    update public.paid_subscribers ps\n       set display_name=''חשבון שנמחק'', wa_sender=null, ai_sources=''{}''::text[], active=false, notes=null\n     where ps.wa_sender is not null\n       and exists (\n         select 1 from unnest(v_phones) p(phone)\n         where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)\n       );\n  end if;\n';
+  update public.payment_requests\n     set user_id=null, reference=null, proof_url=null\n   where user_id=v_uid;\n\n  if coalesce(array_length(v_phones,1),0) > 0 then
+    update public.subscriber_payments sp
+       set notes=null
+     where sp.subscriber_id in (
+       select ps.id
+       from public.paid_subscribers ps
+       where ps.wa_sender is not null
+         and exists (
+           select 1 from unnest(v_phones) p(phone)
+           where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)
+         )
+     );
+
+    update public.paid_subscribers ps\n       set display_name=''חשבון שנמחק'', wa_sender=null, ai_sources=''{}''::text[], active=false, notes=null\n     where ps.wa_sender is not null\n       and exists (\n         select 1 from unnest(v_phones) p(phone)\n         where public.wa_norm_phone(p.phone)=public.wa_norm_phone(ps.wa_sender)\n       );\n  end if;\n';
 begin
   select pg_get_functiondef(p.oid) into v_def
   from pg_proc p join pg_namespace n on n.oid=p.pronamespace
