@@ -191,3 +191,34 @@ This section refreshes the 18.9 planning evidence without rewriting historical c
 
 Immediately before G4, rerun this matrix from live sources. Recalculate counts, current writers/readers, hot queries, RLS/index candidates, cron/workers, storage/dedupe/egress, telemetry parity, Raziel routing and retention blockers. Any item that became active again loses its retirement candidacy; any Legacy dependency that disappeared may move to archive/retire. The 28.9 values are never reused as future truth.
 
+## 9. Live delta — 2026-09-29
+
+This delta records decision-changing changes since the 28.9 scan. It is current-state evidence only; G3.5 must rescan again.
+
+### 9.1 Changes that reduce future Legacy/island debt
+
+- **Canonical TikTok link ingestion is LIVE:** PR #797 extends the existing `agent-upload`/video resolver path so a TikTok URL can be resolved and the MP4 written directly into the canonical media bucket under ticket/hash/MIME/host controls. Future 2029 source-video intake must use this owner path. Dropbox/manual-download or source-specific copy workarounds are compatibility only, not future media architecture.
+- **Crawler server documents advanced:** Home/root and Legacy Number search-crawler routes now use the existing server-document path; video metadata guards remove raw MP4 hints from non-search crawler/social/AI metadata and avoid video-valued thumbnails. This advances route/runtime retirement but does not by itself prove lower DB/egress cost.
+- **Research Sync retry storm closed live:** the application conflict code was changed away from SQLSTATE 40001 after a retry storm generated millions of PostgREST retries. Future G3 acceptance must classify business conflicts separately from transport/database retryable failures.
+- **Legacy Home/Number fixes are explicitly temporary:** recent Home freshness/recent-gematria work and Number crash/error-telemetry fixes keep current production usable while 2029 rises; they do not become future semantic owners.
+
+### 9.2 Still-open work that must remain visible
+
+- **Media poster debt:** live audit identified 46 self-hosted videos (~638 MB source bytes in the PR #804 calibration) with missing/video-valued poster/thumb semantics. PR #804 is branch-only; do not claim poster closure until merge/deploy/backfill verification.
+- **Storage egress is still WARN after the first crawler guard:** latest observed 29.9 11:00–12:00 UTC snapshot = ~85.6 MB Storage GET, ~97.7% classified bot bytes, with an MP4 burst across four distinct files. The earlier Applebot-specific deployment check showed zero MP4 fetches in its sampled 10-minute window, so the broader bot/media egress cause is **not closed**. Keep monitoring + poster/crawler investigation active.
+- **Home 2029 Reality Gallery PR #789** and **Bentov Spatial Golden PR #808** are branch-only 2029 projections over existing owners. Final G3 compaction must either absorb/release them through their owner gates or archive them; branch-only prototypes must not remain ambiguous runtime pointers.
+- **PR #809** is a test-only SEO parity drift fix. It is not runtime authority and should be reconciled/closed with the owning active branch.
+- Obvious superseded open PR candidates include **#801** (superseded by #802/#803), **#805** (superseded by #806/#807) and **#783** (its unique live-state/transition material was absorbed by merged #784). These are branch-hygiene candidates for closure, not runtime deletion.
+
+### 9.3 Updated end-state implications
+
+| 29.9 area | Current state | End-of-G3 target |
+|---|---|---|
+| TikTok/media ingress | canonical direct link ingest LIVE | KEEP_CURRENT; retire/manual-source transport workarounds after consumer proof |
+| Search crawler server docs | expanded LIVE | KEEP_CURRENT; remeasure DB reads/egress and retire SPA crawler compatibility where safe |
+| Video crawler/social metadata | raw-MP4 hints reduced LIVE | KEEP_CURRENT; verify no indexing regression and continue bot-egress attribution |
+| Video posters | PR #804 branch-only | RELEASE/VERIFY existing poster pipeline before retiring original/video-valued fallback |
+| Research Sync conflict/retry | hotfix LIVE | preserve semantic conflict behavior; add retry-storm regression/monitoring |
+| Legacy Home/Number hotfixes | LIVE temporary compatibility | retire with native 2029 Home/Number acceptance, preserve provenance only |
+| 2029 Reality/Spatial previews | branch-only PR #789/#808 | reconcile through canonical projection owners or archive |
+| superseded PR clutter | multiple open stale PRs | close/archive from active routing before G4 |
