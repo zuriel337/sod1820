@@ -129,6 +129,56 @@ async function openWorldAnchor(page, value, width = 390) {
   return projection;
 }
 
+
+test('A3 live client correlation: ELS replay carries client interaction_id into a server trace', async ({ page }) => {
+  const context = {
+    version: 1,
+    subject: { id: 'els:golden:torah-50', type: 'els', label: 'תורה · 50', href: '/els' },
+    selection: {
+      entityType: 'els',
+      locator: 'els:torah:תורה:golden:torah-50:50',
+      term: 'תורה',
+      corpus: 'torah',
+      corpusVersion: '0b022e8eef6f9c16',
+      occurrenceId: 'els:0b022e8eef6f9c16:תורה:50:1:5',
+      start: 5,
+      skip: 50,
+      dir: 1,
+    },
+    lens: 'els',
+    dimensions: {},
+    journey: null,
+    returnTo: null,
+  };
+
+  await page.addInitScript(({ key, seeded }) => {
+    sessionStorage.setItem(key, JSON.stringify(seeded));
+  }, { key: CONTEXT_KEY, seeded: context });
+
+  const responsePromise = page.waitForResponse((response) =>
+    response.request().method() === 'POST'
+      && /\/functions\/v1\/els-search-bridge(?:\?|$)/.test(response.url())
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/els`, { waitUntil: 'domcontentloaded' });
+
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+
+  const requestBody = response.request().postDataJSON();
+  const responseBody = await response.json();
+  const interactionId = String(requestBody?.interaction_id || '');
+  const traceId = String(responseBody?.trace_id || '');
+
+  expect(interactionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  expect(traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  expect(responseBody?.result?.verification_state).toBe('MATCH');
+  await expect(page.getByText('MATCH · occurrence אומת בשרת')).toBeVisible({ timeout: 30_000 });
+
+  console.log(`A3_CLIENT_CORRELATION_EVIDENCE interaction_id=${interactionId} trace_id=${traceId}`);
+});
+
 async function layoutMetrics(page) {
   return page.evaluate(() => {
     const root = document.querySelector('.sod29-root');
