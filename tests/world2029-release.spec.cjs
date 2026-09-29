@@ -131,22 +131,14 @@ async function openWorldAnchor(page, value, width = 390) {
 
 
 test('A3 live client correlation: Heichal research-run carries client interaction_id into a server trace', async ({ page }) => {
-  const context = {
-    version: 1,
-    subject: { id: '878', type: 'number', label: '878', href: '/2029/number/878' },
-    selection: { entityId: '878', entityType: 'number', resultValue: 878 },
-    lens: 'heichal',
-    dimensions: {},
-    journey: null,
-    returnTo: null,
-  };
-
-  await page.addInitScript(({ key, seeded }) => {
-    sessionStorage.setItem(key, JSON.stringify(seeded));
-  }, { key: CONTEXT_KEY, seeded: context });
-
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/heichal`, { waitUntil: 'domcontentloaded' });
+
+  const input = page.getByRole('textbox', { name: 'נושא למחקר בהיכל' });
+  await expect(input).toBeVisible({ timeout: 30_000 });
+  await input.fill('878');
+  await page.getByRole('button', { name: 'קבע עוגן מחקר' }).click();
+
   const action = page.locator('.sod29-resume-panel').getByRole('button', { name: /רזיאל/ }).first();
   await expect(action).toBeVisible({ timeout: 30_000 });
 
