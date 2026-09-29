@@ -238,6 +238,8 @@ function BookDetail({ slug }) {
       </div>
     </section>
 
+    <BookSpatialResearch2029 book={book} rows={rows} />
+
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">המקור</div><h2>מאיפה החומר מגיע</h2><div className="sod29-muted">הספר, המהדורה, העדות ומראה־המקום נשארים זהויות נפרדות; כאן מציגים אותם בשפה קריאה.</div></div></div>
       <div className="sod29-grid">
