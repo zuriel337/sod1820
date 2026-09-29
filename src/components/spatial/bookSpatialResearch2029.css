@@ -1,0 +1,26 @@
+.sod29-book-spatial-section{overflow:visible}
+.sod29-book-spatial-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.sod29-book-spatial-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.34fr);gap:14px;align-items:stretch}
+.sod29-book-spatial-canvas{min-height:620px;position:relative;overflow:hidden;border:1px solid var(--s29-line-strong);border-radius:26px;background:radial-gradient(circle at 50% 48%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 28%),linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 96%,transparent),color-mix(in srgb,var(--s29-panel-soft) 86%,transparent));perspective:900px;box-shadow:0 24px 70px color-mix(in srgb,var(--s29-panel) 28%,transparent),0 0 72px color-mix(in srgb,var(--s29-glow) 18%,transparent) inset}
+.sod29-book-spatial-canvas:after{content:"";position:absolute;inset:50% 6% auto;height:1px;background:linear-gradient(90deg,transparent,var(--s29-line-strong),transparent);opacity:.28;transform:rotate(-7deg);pointer-events:none}
+.sod29-book-spatial-rings{position:absolute;inset:0;pointer-events:none}
+.sod29-book-spatial-rings i{position:absolute;inset:50% auto auto 50%;border:1px solid color-mix(in srgb,var(--s29-accent) 16%,transparent);border-radius:50%;transform:translate(-50%,-50%) rotateX(62deg)}
+.sod29-book-spatial-rings i:nth-child(1){width:32%;height:32%}.sod29-book-spatial-rings i:nth-child(2){width:58%;height:58%;border-style:dashed}.sod29-book-spatial-rings i:nth-child(3){width:84%;height:84%;opacity:.55}
+.sod29-book-spatial-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sod29-book-spatial-links line{stroke:color-mix(in srgb,var(--s29-accent) 34%,transparent);stroke-width:.22;vector-effect:non-scaling-stroke}
+.sod29-book-spatial-node{position:absolute;transform:translate(-50%,-50%) translateZ(calc(var(--s29-spatial-depth,0) * 9px));width:min(154px,24%);min-height:58px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 92%,transparent);color:var(--s29-ink);padding:8px 9px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:7px;align-items:center;text-align:start;cursor:pointer;box-shadow:0 calc(8px + var(--s29-spatial-depth,0) * 2px) calc(22px + var(--s29-spatial-depth,0) * 5px) color-mix(in srgb,var(--s29-panel) 34%,transparent);transition:transform var(--s29-motion),border-color var(--s29-motion),box-shadow var(--s29-motion);z-index:2}
+.sod29-book-spatial-node:hover,.sod29-book-spatial-node.is-focused{border-color:var(--s29-line-strong);transform:translate(-50%,-50%) translateZ(calc(var(--s29-spatial-depth,0) * 9px)) scale(1.045);box-shadow:0 16px 36px color-mix(in srgb,var(--s29-glow) 34%,transparent)}
+.sod29-book-spatial-node.role-control{border-style:dashed;opacity:.92}
+.sod29-book-spatial-node.role-source_bridge{border-width:2px}
+.sod29-book-spatial-node strong{font-size:11.5px;line-height:1.25;overflow-wrap:anywhere}
+.sod29-book-spatial-glyph{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--s29-line-strong);background:color-mix(in srgb,var(--s29-accent) 9%,transparent);color:var(--s29-accent-text);font-size:12px;font-weight:900;box-shadow:0 0 20px color-mix(in srgb,var(--s29-glow) 24%,transparent)}
+.sod29-book-spatial-inspector{min-height:620px;display:flex;flex-direction:column;justify-content:center}
+.sod29-book-spatial-inspector h3{font-size:clamp(22px,2.5vw,34px);line-height:1.1;margin:7px 0 8px}
+.sod29-book-spatial-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.sod29-book-spatial-meta span{display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid var(--s29-line);color:var(--s29-muted);font-size:10px}
+.sod29-book-spatial-fallback{margin-top:14px;border:1px solid var(--s29-line);border-radius:16px;padding:10px 12px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent)}
+.sod29-book-spatial-fallback>summary{cursor:pointer;color:var(--s29-accent-text);font-weight:800;font-size:12px;padding:5px}
+.sod29-book-spatial-fallback .sod29-list{margin-top:9px;max-height:420px;overflow:auto}
+@media(max-width:980px){.sod29-book-spatial-layout{grid-template-columns:1fr}.sod29-book-spatial-canvas{min-height:580px}.sod29-book-spatial-inspector{min-height:0}}
+@media(max-width:700px){.sod29-book-spatial-canvas{min-height:680px}.sod29-book-spatial-node{width:min(138px,34%);grid-template-columns:28px minmax(0,1fr);padding:7px}.sod29-book-spatial-glyph{width:28px;height:28px;font-size:10px}.sod29-book-spatial-node strong{font-size:10px}.sod29-book-spatial-rings i:nth-child(1){width:42%;height:28%}.sod29-book-spatial-rings i:nth-child(2){width:72%;height:52%}.sod29-book-spatial-rings i:nth-child(3){width:96%;height:78%}}
+@media(prefers-reduced-motion:reduce){.sod29-book-spatial-node{transition:none;transform:translate(-50%,-50%)}.sod29-book-spatial-node:hover,.sod29-book-spatial-node.is-focused{transform:translate(-50%,-50%) scale(1.02)}}
