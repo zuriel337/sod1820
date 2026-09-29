@@ -261,4 +261,6 @@ assert.equal(frame.includes("fetchEntityHubProjection"), false);
 assert.equal(frame.includes("explorerFacets"), false);
 assert.equal(frame.includes("TopicConvergenceContent"), false);
 
+await import("./test-canonical-progress-2029.mjs");
+
 console.log("2029 System Frame acceptance: PASS");
