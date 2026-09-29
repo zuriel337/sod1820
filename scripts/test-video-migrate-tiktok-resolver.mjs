@@ -3,6 +3,8 @@ import fs from "node:fs";
 import {
   extractTikTokMediaCandidatesFromHtml,
   extractTikTokVideoId,
+  fetchFollowingAllowedRedirects,
+  fetchTikTokMedia,
   isAllowedTikTokMediaUrl,
   isTikTokPageUrl,
   resolveTikTokSource,
@@ -41,12 +43,13 @@ function mockResponse({
   type = "text/html",
   text = "",
   json = null,
+  headers = {},
 }) {
   return {
     ok: status >= 200 && status < 300,
     status,
     url,
-    headers: new Headers({ "content-type": type }),
+    headers: new Headers({ "content-type": type, ...headers }),
     text: async () => text,
     json: async () => json,
   };
@@ -80,9 +83,53 @@ await assert.rejects(
   /tiktok_media_not_found/,
 );
 
+
+const pageRedirectFetch = async (url) => {
+  if (String(url).startsWith("https://vt.tiktok.com/")) {
+    return mockResponse({
+      status: 302,
+      url: String(url),
+      headers: { location: "https://evil.example/steal" },
+    });
+  }
+  throw new Error("must not fetch rejected redirect target");
+};
+await assert.rejects(
+  () => fetchFollowingAllowedRedirects(
+    "https://vt.tiktok.com/ZSqPf4qb4/",
+    pageRedirectFetch,
+    {},
+    isTikTokPageUrl,
+    "tiktok_page",
+  ),
+  /tiktok_page_redirect_host_rejected/,
+);
+
+const mediaResolution = {
+  kind: "tiktok",
+  mediaUrl: "https://v16-webapp-prime.us.tiktok.com/video/tos/a.mp4",
+  resolvedPageUrl: "https://www.tiktok.com/@x/video/7551234567890123456",
+};
+const mediaRedirectFetch = async (url) => {
+  if (String(url).includes("tiktok.com")) {
+    return mockResponse({
+      status: 302,
+      url: String(url),
+      type: "video/mp4",
+      headers: { location: "https://evil.example/video.mp4" },
+    });
+  }
+  throw new Error("must not fetch rejected media redirect target");
+};
+await assert.rejects(
+  () => fetchTikTokMedia(mediaResolution, mediaRedirectFetch),
+  /tiktok_media_redirect_host_rejected/,
+);
+
 const migrateSource = fs.readFileSync(new URL("../supabase/functions/video-migrate/index.ts", import.meta.url), "utf8");
 assert.match(migrateSource, /resolveTikTokSource/);
 assert.match(migrateSource, /tiktok_resolve_failed/);
+assert.match(migrateSource, /fetchTikTokMedia/);
 assert.match(migrateSource, /resolved_media_host_rejected/);
 assert.match(migrateSource, /source_not_video_html/);
 assert.match(migrateSource, /public_url/);
