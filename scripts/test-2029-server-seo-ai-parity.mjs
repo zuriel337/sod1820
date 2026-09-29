@@ -144,6 +144,38 @@ assert.match(videoSearchCrawler.body, new RegExp(`canonical" href="https:\\\/\\\
 assert.match(videoSearchCrawler.body, /"@type":"VideoObject"/);
 assert.equal(videoSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(videoSearchCrawler.body, /http-equiv="refresh"/);
+assert.match(videoSearchCrawler.body, /"contentUrl":"https:\\/\\/example\.test\\/video\.mp4"/);
+assert.match(videoSearchCrawler.body, /property="og:video" content="https:\/\/example\.test\/video\.mp4"/);
+
+const videoSocialCrawler = await renderResponse(`/video/${videoId}`, async (url) => {
+  const u = String(url);
+  if (u.includes("/video_media_assets_v1?")) {
+    return {
+      ok: true,
+      async json() {
+        return [{
+          public_id: videoId,
+          title: "סרטון 2029",
+          video_kind: "selfhost",
+          media_url: "https://example.test/video.mp4",
+          youtube_id: null,
+          poster_url: "https://example.test/video.mp4",
+          thumb_url: "https://example.test/video.mp4",
+          topics: ["מחקר"],
+          google_indexable: true,
+          first_seen_at: "2026-09-28T08:00:00+00:00",
+          last_seen_at: "2026-09-28T09:00:00+00:00",
+        }];
+      },
+    };
+  }
+  throw new Error("unexpected social video fetch: " + u);
+});
+assert.doesNotMatch(videoSocialCrawler.body, /property="og:video"/);
+assert.doesNotMatch(videoSocialCrawler.body, /"contentUrl":/);
+assert.doesNotMatch(videoSocialCrawler.body, /og:image" content="https:\/\/example\.test\/video\.mp4"/);
+assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/example\.test\/video\.mp4"\]/);
+
 
 
 const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
