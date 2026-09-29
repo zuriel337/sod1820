@@ -40,7 +40,8 @@ assert.match(registryTab, /השיטה המבוקשת לא נמצאה ברישו�
 
 // 5. Mechanical-only structure derivation — never soul/sub invention when the registry has none.
 assert.match(registryTab, /derivedFrom/, "composite structure must be derived from operator/derivedFrom");
-assert.match(registryTab, /\(soul \|\| sub\) &&/, "soul/sub must only render when the registry actually has them — never invented");
+assert.match(registryTab, /methodMechanicalDefinition/, "method structure must come from the current mechanical definition projection");
+assert.doesNotMatch(registryTab, /\(soul \|\| sub\)/, "legacy soul/sub presentation branch must stay absent");
 
 // 6. Lazy trace — the explain/trace fetch must be gated behind an explicit user action, not eager.
 assert.match(registryTab, /onClick=\{\(\) => onExplain\(row\.method_key\)\}/, "trace must be fetched only on an explicit explain action, not eagerly on load");

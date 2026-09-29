@@ -6,7 +6,8 @@ const component = fs.readFileSync("src/components/gematria2029/CalculatorOpening
 
 assert.match(page, /CalculatorOpening2029/);
 assert.match(page, /showOpening/);
-assert.match(page, /פתח את השיטה/);
+assert.match(page, /ראה פתיחה/);
+assert.match(page, /סגור פתיחה/);
 assert.match(component, /useGematriaOpeningOperation/);
 assert.match(component, /enabled:\s*Boolean\(open/);
 assert.match(component, /DERIVED_OPERATION/);
