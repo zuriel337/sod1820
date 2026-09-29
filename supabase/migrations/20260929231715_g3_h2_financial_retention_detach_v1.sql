@@ -41,7 +41,7 @@ declare
   -- Human Gate 2026-09-30: retain financial history, detach/redact account identity.
   update public.credit_ledger
      set user_id=null,
-         meta=(coalesce(meta,'{}'::jsonb)-'user_id'-'email'-'phone'-'display_name'-'by')
+         meta=(coalesce(meta,'{}'::jsonb)-'user_id'-'email'-'phone'-'display_name')
               || jsonb_build_object('erasure_state','financial_retained_identity_detached')
    where user_id=v_uid;
 
@@ -54,7 +54,7 @@ declare
   end if;
 
   update public.payment_requests
-     set user_id=null, reference=null, proof_url=null
+     set user_id=null, proof_url=null
    where user_id=v_uid;
 
   if coalesce(array_length(v_phones,1),0) > 0 then
