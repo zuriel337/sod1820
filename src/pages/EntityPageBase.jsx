@@ -1254,11 +1254,11 @@ export default function EntityPage({ embedPhrase, pausePublicTrafficSurface = fa
     const p = `/number/${encodeURIComponent(phrase)}`;
     // 🔎 Search Indexability Contract — מקור-אמת יחיד: admitted(יהלום)→index · אחרת→noindex.
     // מחליף את שער-ה-bigEmpty הישן; החלטת-הסריקה זהה לזו של ה-sitemap (is_number_indexable).
-    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: numberNoindex });
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: entityNoindex });
     // structured-data eligibility = אותה החלטה: רק מספר מאונדקס מקבל DefinedTerm/WebPage.
     if (showEntityLd) setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
     else clearEntityJsonLd();
-  }, [story.seoDescription, data, term, value, isNumber, phrase, numberNoindex, showEntityLd]); // eslint-disable-line
+  }, [story.seoDescription, data, term, value, isNumber, phrase, entityNoindex, showEntityLd]); // eslint-disable-line
 
   // 🖼 סיווג הגלריה «תמונות מהמאגר» — «על המספר»+«אזכור משמעותי» = main · «מקרי/תאריך» = incidental.
   // מחושב פעם אחת, משמש גם בשכבה 2 (גלה עוד) וגם בשכבה 3 (היכל הגילוי) — בלי כפילות לוגיקה.
