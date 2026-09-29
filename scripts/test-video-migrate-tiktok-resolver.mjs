@@ -22,6 +22,9 @@ const universal = JSON.stringify({
     "webapp.video-detail": {
       itemInfo: {
         itemStruct: {
+          music: {
+            playUrl: "https://v58.tiktokcdn.com/audio/wrong.mp3",
+          },
           video: {
             playAddr: "https://v16-webapp-prime.us.tiktok.com/video/tos/a.mp4",
             downloadAddr: "https://v16-webapp-prime.us.tiktok.com/video/tos/b.mp4",
@@ -33,7 +36,7 @@ const universal = JSON.stringify({
 });
 const universalHtml = `<html><script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="application/json">${universal}</script></html>`;
 const candidates = extractTikTokMediaCandidatesFromHtml(universalHtml);
-assert.equal(candidates.length, 2);
+assert.equal(candidates.length, 3);
 assert.match(candidates[0].url, /a\.mp4$/);
 assert.match(candidates[1].url, /b\.mp4$/);
 
@@ -132,6 +135,7 @@ assert.match(migrateSource, /tiktok_resolve_failed/);
 assert.match(migrateSource, /fetchTikTokMedia/);
 assert.match(migrateSource, /resolved_media_host_rejected/);
 assert.match(migrateSource, /source_not_video_html/);
+assert.match(migrateSource, /source_not_video_audio/);
 assert.match(migrateSource, /public_url/);
 assert.match(migrateSource, /kind: "direct"/);
 
