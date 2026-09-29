@@ -145,6 +145,14 @@ export function extractTikTokMediaCandidatesFromHtml(html) {
   return out.sort((a, b) => a.priority - b.priority);
 }
 
+function filterVideoCandidates(candidates) {
+  return candidates.filter((candidate) => {
+    const source = String(candidate?.source || '');
+    if (source.startsWith('raw:')) return true;
+    return /video|bitrate/i.test(source) && !/music|audio|avatar|author|image|cover/i.test(source);
+  });
+}
+
 export function extractTikTokMediaCandidatesFromJson(value, source = 'api') {
   const out = [];
   const seen = new Set();
@@ -201,7 +209,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
   }
 
   const html = await pageResponse.text();
-  let candidates = extractTikTokMediaCandidatesFromHtml(html);
+  let candidates = filterVideoCandidates(extractTikTokMediaCandidatesFromHtml(html));
   const videoId = extractTikTokVideoId(finalUrl) || extractTikTokVideoId(src);
 
   if (!candidates.length && videoId) {
@@ -211,7 +219,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
       'Accept': 'application/json,text/plain,*/*',
       'Referer': finalUrl,
     });
-    if (apiJson) candidates = extractTikTokMediaCandidatesFromJson(apiJson, 'item-detail');
+    if (apiJson) candidates = filterVideoCandidates(extractTikTokMediaCandidatesFromJson(apiJson, 'item-detail'));
   }
 
   const chosen = candidates[0];
