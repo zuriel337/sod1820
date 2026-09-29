@@ -435,8 +435,6 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const cleanText = text.replace(RAZIEL_TRIGGER, "").trim();
   if (!cleanText) return { status: "permanent_error" };
   const opTrace = await beginRazielTrace(chatId, cleanText);
-  const modelSpanId = crypto.randomUUID();
-  const modelStartedAt = new Date().toISOString();
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const posts = await postFacts(cleanText);
@@ -450,6 +448,8 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const system = RAZIEL_SYSTEM + rulesBlock + ((opts.teach) ? TEACH_ADDON : "");
   const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם מבקשים לבדוק נושא-גימטריה מפורש; אם שיחתי/תודה/תמשיך — התעלם):\n${facts||"(לא זוהו ערכים)"}${convNote}${posts?`\n\nמתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}`:""}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
   const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome, mtx);
+  const modelSpanId = crypto.randomUUID();
+  const modelStartedAt = new Date().toISOString();
   let resp;
   try {
     resp = await fetch("https://api.anthropic.com/v1/messages",{
