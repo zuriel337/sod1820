@@ -8,12 +8,41 @@ on:
 
 permissions:
   contents: read
+  deployments: read
 
 concurrency:
   group: release-visual-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # G3_RELIABILITY_PRECLOSE — deploy_on_request v3 preflight: the NEXT release requires the latest exact-SHA
+  # production canary to be a SUCCESS (fn_release_canary_gate). Failure/missing evidence blocks; no auto rollback.
+  release-canary-gate:
+    name: Production Canary Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Gate on latest production canary
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          set -euo pipefail
+          SHA=""
+          for i in $(gh api "repos/${{ github.repository }}/deployments?environment=Production&per_page=20" --jq '.[].id'); do
+            S=$(gh api "repos/${{ github.repository }}/deployments/$i/statuses?per_page=1" --jq '.[0].state')
+            if [ "$S" = "success" ]; then SHA=$(gh api "repos/${{ github.repository }}/deployments/$i" --jq '.sha'); break; fi
+          done
+          echo "current production sha: ${SHA:-unknown}"
+          node scripts/release-canary-gate.mjs --production-sha "$SHA"
+
   mobile-accessibility:
     name: Mobile + Accessibility Acceptance
     runs-on: ubuntu-latest
