@@ -1,7 +1,7 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-09-27  
-**Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED  
+**Date:** 2026-09-30  
+**Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 PRE-CLOSE** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
 
@@ -142,9 +142,15 @@ Historical release immediately before closure:
 
 - legacy spatial / 3D UI retirement: **MERGED · DEPLOYED · LIVE · VERIFIED** at `f1972c9944e6f0e7a094cc500dba5963221ea21d`.
 
-## 8. Current program position — G3 OPEN
+## 8. Current program position — G3 PRE-CLOSE
 
-G3 is **Foundation runtime / implementation against the frozen current owners**.
+G3 is in **final Foundation acceptance against the current live owners**.
+
+**Current live pre-close checkpoint · 30.9.2026:** `origin/main` = Production = `fe0f87d57a723e5c6f40e57596b3578ca4722077`, Vercel READY, exact-SHA post-deploy canary SUCCESS. Closed/live-verified Foundation lanes now include Security preclosure; Reliability; ELS runtime; A1/A2/A3 effective cost/material trace/client correlation; C-8; D1 governed Research Path save→revision→resume→fork/replay; D2 service-role-only server capability gate enforced before material AI/research/ELS execution; A4 three-engine Operational Trace fan-out/fan-in with independent latency/cost/output-use and exact rollup; H2 export/erasure with Human-Gated financial `retain_detach`; and H1 real physical-backup restore drill. H1 restored schema/data/roles/RLS/Goldens successfully with observed RTO ≤ 3m55.7s; restore-point evidence showed the selected daily backup's actual last-known source state at 17:03:58 UTC. Temporary restore projects remain cleanup-only and are not production authorities.
+
+**Pre-close barrier:** G3 remains OPEN until current documented pointers are reconciled, the final `OWNER → SIGNAL → ENFORCEMENT → PROJECTION → STATUS` Maintenance Acceptance Matrix has no load-bearing GAP, an independent Foundation challenge passes, the two temporary Supabase restore-test projects are deleted, and ZURIEL + Main Controller explicitly declare closure.
+
+The dated checkpoints below are preserved as historical current-state snapshots; this 30.9 checkpoint supersedes them for present routing.
 
 **Current live checkpoint · 23.9.2026:** the immediate 2029 Foundation hardening chain is **MERGED · DEPLOYED · LIVE · VERIFIED** at main `5376523be8c4a81b42b428eab30b970e4506e797`. Live canonical Supabase now includes Operational Trace persistence, the server capability/entitlement/budget gate, authenticated private Research Path save/resume/fork, and the bounded legacy Journey telemetry hardening; `ai-analyze` v36 emits the unified execution gate inside Operational Trace. Production Vercel for the same main SHA is READY. The next dependency is replayable Golden fixtures, not Legacy UX restoration.
 
