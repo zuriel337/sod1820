@@ -134,8 +134,8 @@ export function extractTikTokMediaCandidatesFromHtml(html) {
 
   // Fallback for server variants that inline the same JSON without a stable script id.
   const rawPatterns = [
-    { re: /[#']playAddr[#']\s*:\s*["']([^"']+)["']/gi, priority: 10, source: 'raw:playAddr' },
-    { re: /["']downloadAddr[#']\s*:\s*["']([^"']+)["']/gi, priority: 40, source: 'raw:downloadAddr' },
+    { re: /["']playAddr["']\s*:\s*["']([^"']+)["']/gi, priority: 10, source: 'raw:playAddr' },
+    { re: /["']downloadAddr["']\s*:\s*["']([^"']+)["']/gi, priority: 40, source: 'raw:downloadAddr' },
   ];
   for (const pattern of rawPatterns) {
     let match;
@@ -152,8 +152,22 @@ export function extractTikTokMediaCandidatesFromJson(value, source = 'api') {
   return out.sort((a, b) => a.priority - b.priority);
 }
 
+export async function fetchFollowingAllowedRedirects(url, fetchImpl, init, allowUrl, label, maxRedirects = 5) {
+  let current = new URL(url).toString();
+  for (let hop = 0; hop <= maxRedirects; hop++) {
+    if (!allowUrl(current)) throw new Error(`${label}_redirect_host_rejected`);
+    const response = await fetchImpl(current, { ...init, redirect: 'manual' });
+    if (response.status < 300 || response.status >= 400) return response;
+    const location = response.headers.get('location');
+    if (!location) throw new Error(`${label}_redirect_without_location`);
+    if (hop === maxRedirects) throw new Error(`${label}_too_many_redirects`);
+    current = new URL(location, current).toString();
+  }
+  throw new Error(`${label}_redirect_failed`);
+}
+
 async function fetchJsonIfAvailable(url, fetchImpl, headers) {
-  const response = await fetchImpl(url, { headers, redirect: 'follow' });
+  const response = await fetchFollowingAllowedRedirects(url, fetchImpl, { headers }, isTikTokPageUrl, 'tiktok_api');
   if (!response.ok) return null;
   const type = (response.headers.get('content-type') || '').toLowerCase();
   if (!type.includes('json') && !type.includes('text/plain')) return null;
@@ -163,10 +177,13 @@ async function fetchJsonIfAvailable(url, fetchImpl, headers) {
 export async function resolveTikTokSource(src, fetchImpl = fetch) {
   if (!isTikTokPageUrl(src)) throw new Error('not_tiktok_url');
 
-  const pageResponse = await fetchImpl(src, {
-    headers: TIKTOK_BROWSER_HEADERS,
-    redirect: 'follow',
-  });
+  const pageResponse = await fetchFollowingAllowedRedirects(
+    src,
+    fetchImpl,
+    { headers: TIKTOK_BROWSER_HEADERS },
+    isTikTokPageUrl,
+    'tiktok_page',
+  );
   if (!pageResponse.ok) throw new Error(`tiktok_page_${pageResponse.status}`);
 
   const finalUrl = pageResponse.url || src;
@@ -206,6 +223,21 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
     platformVideoId: videoId,
     resolutionSource: chosen.source,
   };
+}
+
+export async function fetchTikTokMedia(resolution, fetchImpl = fetch, { rangeProbe = false } = {}) {
+  if (resolution?.kind !== 'tiktok' || !isAllowedTikTokMediaUrl(resolution?.mediaUrl)) {
+    throw new Error('tiktok_media_url_rejected');
+  }
+  const headers = new Headers(mediaFetchHeaders(resolution));
+  if (rangeProbe) headers.set('Range', 'bytes=0-0');
+  return await fetchFollowingAllowedRedirects(
+    resolution.mediaUrl,
+    fetchImpl,
+    { method: 'GET', headers },
+    isAllowedTikTokMediaUrl,
+    'tiktok_media',
+  );
 }
 
 export function mediaFetchHeaders(resolution) {
