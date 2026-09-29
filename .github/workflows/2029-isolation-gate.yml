@@ -50,6 +50,7 @@ on:
       - "supabase/functions/research-extract/index.ts"
       - "test/ai-analyze-early-trace-coverage.test.mjs"
       - "scripts/test-2029-isolation.mjs"
+      - "scripts/test-2029-server-seo-ai-parity.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
