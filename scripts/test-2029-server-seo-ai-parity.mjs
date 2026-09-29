@@ -30,6 +30,14 @@ async function render(path, fetchImpl, query = {}) {
   return (await renderResponse(path, fetchImpl, query)).body;
 }
 
+
+const homeSearchCrawler = await renderResponse("/", async () => {
+  throw new Error("home server document must not require Supabase fetch");
+}, { crawler: "search" });
+assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/"/);
+assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
+
 const number = await render("/2029/number/123");
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(number, /123 · דף המספר 2029/);
@@ -184,7 +192,7 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 13, "search crawlers must be routed only across the explicit native/public document family");
+assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
@@ -192,7 +200,7 @@ for (const rule of searchRules) {
   assert.ok(ua.includes("Baiduspider"), `Baiduspider must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
+for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "search crawlers must never be sent through a global crawler catch-all");
