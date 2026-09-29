@@ -7,6 +7,7 @@ import {
   fetchTikTokMedia,
   isAllowedTikTokMediaUrl,
   isTikTokPageUrl,
+  mediaFetchHeaders,
   resolveTikTokSource,
 } from "../supabase/functions/_shared/tiktokSourceResolver.js";
 
@@ -59,8 +60,11 @@ function mockResponse({
 }
 
 const pageOnlyFetch = async (url) => {
-  if (String(url).includes("/api/item/detail/")) throw new Error("item-detail fallback should not be needed");
-  return mockResponse({ text: universalHtml });
+  if (String(url).includes("/api/item/detail/")) return mockResponse({ status: 404, type: "application/json" });
+  return mockResponse({
+    text: universalHtml,
+    headers: { "set-cookie": "tt_session=test-cookie; Path=/; Secure" },
+  });
 };
 const resolved = await resolveTikTokSource("https://vt.tiktok.com/ZSqPf4qb4/", pageOnlyFetch);
 assert.equal(resolved.kind, "tiktok");
@@ -68,6 +72,8 @@ assert.equal(resolved.platformVideoId, "7551234567890123456");
 assert.match(resolved.mediaUrl, /a\.mp4$/);
 assert.equal(resolved.mediaCandidates.length, 2);
 assert.equal(resolved.mediaCandidates.some((candidate) => /music/i.test(candidate.source)), false);
+assert.equal(resolved.requestCookie, "tt_session=test-cookie");
+assert.equal(mediaFetchHeaders(resolved).Cookie, "tt_session=test-cookie");
 
 const apiFallbackFetch = async (url) => {
   if (String(url).includes("/api/item/detail/")) {
@@ -80,6 +86,18 @@ const apiFallbackFetch = async (url) => {
 };
 const apiResolved = await resolveTikTokSource("https://www.tiktok.com/@x/video/7551234567890123456", apiFallbackFetch);
 assert.match(apiResolved.mediaUrl, /api\.mp4$/);
+
+const mergedCandidateFetch = async (url) => {
+  if (String(url).includes("/api/item/detail/")) {
+    return mockResponse({
+      type: "application/json",
+      json: { itemInfo: { itemStruct: { video: { playAddrH264: "https://v16-webapp-prime.us.tiktok.com/video/tos/h264.mp4" } } } },
+    });
+  }
+  return mockResponse({ text: universalHtml });
+};
+const mergedResolved = await resolveTikTokSource("https://www.tiktok.com/@x/video/7551234567890123456", mergedCandidateFetch);
+assert.equal(mergedResolved.mediaCandidates.some((candidate) => /h264\.mp4$/.test(candidate.url)), true);
 
 const poisonedHtml = `<script id="SIGI_STATE" type="application/json">${JSON.stringify({ ItemModule: { x: { video: { playAddr: "https://evil.example/a.mp4" } } } })}</script>`;
 const poisonedFetch = async () => mockResponse({ text: poisonedHtml });
