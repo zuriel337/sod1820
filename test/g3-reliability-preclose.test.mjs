@@ -97,9 +97,10 @@ test("canary: pass / non-200 / network failure", async () => {
   assert.equal((await runCanary("https://e.test", { fetchImpl: async () => { throw new Error("net"); } })).ok, false);
 });
 
-test("canary reporting fails closed: missing authority/identity/sha, non-2xx", async () => {
+test("canary reporting fails closed: missing authority/identity/sha, non-2xx; accepts canonical service-role alias", async () => {
   const good = { ok: true, sha: SHA, kind: "deploy", checks: [] };
-  await assert.rejects(() => reportCanary(good, { env: { ...ENV, SUPABASE_SERVICE_KEY: "" }, fetchImpl: async () => ({ ok: true, json: async () => ({}) }) }), /authority missing/);
+  await assert.rejects(() => reportCanary(good, { env: { ...ENV, SUPABASE_SERVICE_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "" }, fetchImpl: async () => ({ ok: true, json: async () => ({}) }) }), /authority missing/);
+  await reportCanary(good, { env: { ...ENV, SUPABASE_SERVICE_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "role-k" }, fetchImpl: async () => ({ ok: true, json: async () => ({ recorded: true }) }) });
   await assert.rejects(() => reportCanary(good, { env: { ...ENV, GITHUB_RUN_ID: "" }, fetchImpl: async () => ({ ok: true, json: async () => ({}) }) }), /run identity/);
   await assert.rejects(() => reportCanary({ ...good, sha: "abc" }, { env: ENV, fetchImpl: async () => ({ ok: true }) }), /40 hex/);
   await assert.rejects(() => reportCanary(good, { env: ENV, fetchImpl: async () => ({ ok: false, status: 401 }) }), /non-2xx: 401/);
@@ -117,6 +118,7 @@ test("canary reporting fails closed: missing authority/identity/sha, non-2xx", a
 
 test("release gate script: bootstrap only for first install; otherwise fail closed", async () => {
   assert.equal((await checkGate(SHA, { env: {} })).allowed, false);
+  assert.equal((await checkGate(SHA, { env: { SUPABASE_SERVICE_ROLE_KEY: "role-k" }, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
   assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
   const first404 = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: false, status: 404 }) });
   assert.equal(first404.allowed, true); assert.equal(first404.reason, "bootstrap_gate_not_live_on_base");
