@@ -115,10 +115,15 @@ test("canary reporting fails closed: missing authority/identity/sha, non-2xx", a
   await assert.rejects(() => takeSlot("x", { env: { ...ENV, SUPABASE_SERVICE_KEY: "" } }), /authority missing/);
 });
 
-test("release gate script: blocks on missing config, non-2xx, and not-allowed; passes only on allowed", async () => {
+test("release gate script: bootstrap only for first install; otherwise fail closed", async () => {
   assert.equal((await checkGate(SHA, { env: {} })).allowed, false);
   assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
-  assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: false, reason: "latest_canary_failed" }) }) })).reason, "latest_canary_failed");
+  const first404 = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: false, status: 404 }) });
+  assert.equal(first404.allowed, true); assert.equal(first404.reason, "bootstrap_gate_not_live_on_base");
+  const noEvidence = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: false, reason: "no_canary_evidence" }) }) });
+  assert.equal(noEvidence.allowed, true); assert.equal(noEvidence.reason, "bootstrap_no_prior_canary");
+  const failed = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: false, reason: "latest_canary_failed" }) }) });
+  assert.equal(failed.allowed, false); assert.equal(failed.reason, "latest_canary_failed");
   assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: true, reason: "latest_canary_success" }) }) })).allowed, true);
 });
 
@@ -131,6 +136,9 @@ test("workflows: canary is sparse (<=4 cron/day), exact SHA, service key; gate i
   const g = read(".github/workflows/release-visual-gate.yml");
   assert.match(g, /release-canary-gate:/);
   assert.match(g, /scripts\/release-canary-gate\.mjs --production-sha/);
+  assert.match(g, /github\.event\.pull_request\.base\.sha/);
+  assert.match(g, /contents\/scripts\/release-canary-gate\.mjs\?ref=\$BASE_SHA/);
+  assert.match(g, /--allow-bootstrap/);
 });
 
 test("canary truth: exit follows the server's effective outcome (heartbeat is folded in server-side)", () => {
