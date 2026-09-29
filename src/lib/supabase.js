@@ -3278,6 +3278,25 @@ export async function getAllValuePhrases(value, limit = 500) {
     for (const r of (data || [])) { if (r.phrase && !seen.has(r.phrase)) { seen.add(r.phrase); out.push(r); } }
     return out;
   } catch { return []; }
+
+}
+
+// 🆕 Legacy Home projection: הגימטריות האחרונות שנוספו למאגר הקנוני.
+// Projection בלבד — לא מחשבת ולא מאמתת מחדש; מציגה רק רשומות שכבר verified+published.
+export async function getRecentPublishedGematria(limit = 8) {
+  if (!supabase) return [];
+  try {
+    const safeLimit = Math.max(1, Math.min(20, Number(limit) || 8));
+    const { data } = await supabase.from("gematria_words")
+      .select("id,phrase,ragil,created_at")
+      .eq("is_verified", true)
+      .eq("is_published", true)
+      .eq("is_encrypted", false)
+      .not("phrase", "is", null)
+      .order("created_at", { ascending: false, nullsFirst: false })
+      .limit(safeLimit);
+    return (data || []).filter(r => r.phrase && Number.isFinite(Number(r.ragil)));
+  } catch { return []; }
 }
 
 // ⚖️ מצב-ממשל קנוני של השיטות (v_method_states) — מקור-אמת יחיד, לקריאה בלבד, במטמון.
