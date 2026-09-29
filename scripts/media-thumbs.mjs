@@ -16,7 +16,8 @@ async function post(fn, body) {
 }
 
 async function main() {
-  const list = await post("media-thumb-queue", { op: "list", limit: 100 });
+  const requestedLimit = Math.min(50, Math.max(1, Number(process.env.MEDIA_THUMB_LIMIT) || 10));
+  const list = await post("media-thumb-queue", { op: "list", limit: requestedLimit });
   if (!list.ok) { console.error("list failed:", JSON.stringify(list)); process.exit(1); }
   const rows = list.rows || [];
   console.log(`pending videos without thumbnail: ${rows.length}`);
