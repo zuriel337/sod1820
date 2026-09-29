@@ -189,7 +189,7 @@ async function nearbyContext(row: any): Promise<string | null> {
   }
 }
 
-async function thumbnailMetadata(row: any, opTrace: VideoTrace | null = null, parentSpanId: string | null = null): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
+async function thumbnailMetadataTraced(row: any, opTrace: VideoTrace | null = null, parentSpanId: string | null = null): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
   if (!ANTHROPIC_KEY || !row?.thumb_url) return null;
   try {
     const r = await fetch(row.thumb_url);
@@ -278,6 +278,10 @@ async function thumbnailMetadata(row: any, opTrace: VideoTrace | null = null, pa
   } catch {
     return null;
   }
+}
+
+async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
+  return await thumbnailMetadataTraced(row, null, null);
 }
 
 async function getOpenAiKey(): Promise<string> {
@@ -487,7 +491,9 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
       enrichmentSource = "neighbor_context";
       meta = await aiMetadata(basis, opTrace, itemSpanId);
     } else {
-      meta = await thumbnailMetadata(row, opTrace, itemSpanId);
+      meta = opTrace
+        ? await thumbnailMetadataTraced(row, opTrace, itemSpanId)
+        : await thumbnailMetadata(row);
       if (meta?.title) {
         enrichmentSource = "thumbnail_vision";
       } else if (allowStt) {
