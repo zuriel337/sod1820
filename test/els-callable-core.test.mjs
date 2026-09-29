@@ -111,7 +111,7 @@ test('bare Number does not get fabricated into an ELS term', async () => {
   const out = await createElsW2Executor({ supabase })({
     identityResolution: { identities: [{ type: 'number', key: 'number:358', label: '358', value: 358 }] },
   });
-  assert.equal(out.status, CAPABILITY_STATUS.CONTEXT_REQUIRED);
+  assert.equal(out.status, CAPABILITY_STATUS.MISSING_ADAPTER);
   assert.equal(called, false);
 });
 
