@@ -229,10 +229,23 @@ async function nearbyContext(row: any): Promise<string | null> {
   }
 }
 
-async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
+async function thumbnailMetadata(row: any, opTrace: VideoTraceHandle | null): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
   if (!ANTHROPIC_KEY || !row?.thumb_url) return null;
+  const fetchSpanId = crypto.randomUUID();
+  const fetchStartedAt = new Date().toISOString();
   try {
     const r = await fetch(row.thumb_url);
+    const fetchEndedAt = new Date().toISOString();
+    await recordVideoEnrichSpan(
+      opTrace, fetchSpanId, "network", "wa-video-enrich:thumbnail-fetch",
+      fetchStartedAt, fetchEndedAt, r.ok ? "success" : "provider_error",
+      {
+        provider: "storage_http",
+        output_use: r.ok ? "used" : "not_applicable",
+        stop_reason: r.ok ? null : `http_${r.status}`,
+        resources: { http_status: r.status },
+      },
+    );
     if (!r.ok) return null;
     const buf = await r.arrayBuffer();
     if (!buf.byteLength || buf.byteLength > 1_500_000) return null;
@@ -246,6 +259,8 @@ async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; ti
       "topics: 0-5 short Hebrew labels visibly supported. No prophecy, hidden meaning, diagnosis, or inference about the unseen video. " +
       "If there is not enough evidence for a useful title, title=null.";
 
+    const modelSpanId = crypto.randomUUID();
+    const modelStartedAt = new Date().toISOString();
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -262,10 +277,33 @@ async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; ti
         ] }],
       }),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      await recordVideoEnrichSpan(
+        opTrace, modelSpanId, "model_call", "wa-video-enrich:thumbnail-metadata",
+        modelStartedAt, new Date().toISOString(), "provider_error",
+        {
+          provider: "anthropic", model: MODEL, output_use: "not_applicable",
+          stop_reason: `anthropic_${resp.status}`,
+          resources: { api_calls: 1, http_status: resp.status },
+        },
+      );
+      return null;
+    }
 
     const data = await resp.json();
-    await logTokens(data?.usage);
+    await recordVideoEnrichSpan(
+      opTrace, modelSpanId, "model_call", "wa-video-enrich:thumbnail-metadata",
+      modelStartedAt, new Date().toISOString(), "success",
+      {
+        provider: "anthropic", model: MODEL, output_use: "used",
+        resources: {
+          api_calls: 1,
+          input_tokens: Number(data?.usage?.input_tokens || 0),
+          output_tokens: Number(data?.usage?.output_tokens || 0),
+        },
+      },
+    );
+    await logTokens(data?.usage, opTrace, modelSpanId);
 
     const raw = (data?.content || []).find((x: any) => x?.type === "text")?.text || "";
     const m = String(raw).match(/\{[\s\S]*\}/);
@@ -283,6 +321,11 @@ async function thumbnailMetadata(row: any): Promise<{ speaker: string | null; ti
       topics,
     };
   } catch {
+    await recordVideoEnrichSpan(
+      opTrace, fetchSpanId, "network", "wa-video-enrich:thumbnail-fetch",
+      fetchStartedAt, new Date().toISOString(), "provider_error",
+      { provider: "storage_http", output_use: "not_applicable", stop_reason: "fetch_or_parse_error" },
+    );
     return null;
   }
 }
@@ -314,9 +357,32 @@ async function saveTranscript(row: any, transcript: string, title: string | null
   if (error) throw new Error("transcript_upsert:" + error.message);
 }
 
-async function transcribe(row: any): Promise<string> {
+async function transcribe(row: any, opTrace: VideoTraceHandle | null): Promise<string> {
   const key = await getOpenAiKey();
-  const media = await fetch(row.image_url);
+
+  const mediaSpanId = crypto.randomUUID();
+  const mediaStartedAt = new Date().toISOString();
+  let media: Response;
+  try {
+    media = await fetch(row.image_url);
+  } catch (error) {
+    await recordVideoEnrichSpan(
+      opTrace, mediaSpanId, "network", "wa-video-enrich:media-fetch",
+      mediaStartedAt, new Date().toISOString(), "provider_error",
+      { provider: "storage_http", output_use: "not_applicable", stop_reason: "media_fetch_throw" },
+    );
+    throw error;
+  }
+  await recordVideoEnrichSpan(
+    opTrace, mediaSpanId, "network", "wa-video-enrich:media-fetch",
+    mediaStartedAt, new Date().toISOString(), media.ok ? "success" : "provider_error",
+    {
+      provider: "storage_http",
+      output_use: media.ok ? "used" : "not_applicable",
+      stop_reason: media.ok ? null : `http_${media.status}`,
+      resources: { http_status: media.status },
+    },
+  );
   if (!media.ok) throw new Error(`media_fetch_${media.status}`);
   const blob = await media.blob();
   if (!blob.size) throw new Error("media_empty");
@@ -330,12 +396,39 @@ async function transcribe(row: any): Promise<string> {
   form.append("model", "gpt-transcribe");
   form.append("language", "he");
 
-  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}` },
-    body: form,
-  });
+  const sttSpanId = crypto.randomUUID();
+  const sttStartedAt = new Date().toISOString();
+  let r: Response;
+  try {
+    r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}` },
+      body: form,
+    });
+  } catch (error) {
+    await recordVideoEnrichSpan(
+      opTrace, sttSpanId, "model_call", "wa-video-enrich:transcription",
+      sttStartedAt, new Date().toISOString(), "provider_error",
+      {
+        provider: "openai", model: "gpt-transcribe", output_use: "not_applicable",
+        stop_reason: "stt_fetch_throw", resources: { api_calls: 1 },
+      },
+    );
+    throw error;
+  }
+
   const raw = await r.text();
+  await recordVideoEnrichSpan(
+    opTrace, sttSpanId, "model_call", "wa-video-enrich:transcription",
+    sttStartedAt, new Date().toISOString(), r.ok ? "success" : "provider_error",
+    {
+      provider: "openai", model: "gpt-transcribe",
+      output_use: r.ok ? "used" : "not_applicable",
+      stop_reason: r.ok ? null : `stt_${r.status}`,
+      resources: { api_calls: 1, http_status: r.status, media_bytes: blob.size },
+      cost: { certainty: "unknown" },
+    },
+  );
   if (!r.ok) throw new Error(`stt_${r.status}:${raw.slice(0, 240)}`);
   let parsed: any = null;
   try { parsed = JSON.parse(raw); } catch { /* noop */ }
@@ -376,7 +469,7 @@ async function logTokens(usage: any, opTrace: VideoTraceHandle | null, spanId: s
   } catch { /* telemetry must never block enrichment */ }
 }
 
-async function aiMetadata(text: string): Promise<{ speaker: string | null; title: string | null; topics: string[] }> {
+async function aiMetadata(text: string, opTrace: VideoTraceHandle | null): Promise<{ speaker: string | null; title: string | null; topics: string[] }> {
   const fallback = { speaker: fallbackSpeaker(text), title: fallbackTitle(text), topics: [] as string[] };
   if (!ANTHROPIC_KEY || !cleanText(text)) return fallback;
 
@@ -388,23 +481,58 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
     "title: concise factual Hebrew title, 25-90 characters, describing what is actually said; no clickbait; otherwise null. " +
     "topics: 0-5 short Hebrew topic labels explicitly supported by the source; no inferred ideology, diagnosis, prophecy, or hidden meaning.";
 
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": ANTHROPIC_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 220,
-      system,
-      messages: [{ role: "user", content: cleanText(text).slice(0, 7000) }],
-    }),
-  });
-  if (!r.ok) return fallback;
+  const spanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  let r: Response;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": ANTHROPIC_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 220,
+        system,
+        messages: [{ role: "user", content: cleanText(text).slice(0, 7000) }],
+      }),
+    });
+  } catch {
+    await recordVideoEnrichSpan(
+      opTrace, spanId, "model_call", "wa-video-enrich:text-metadata",
+      startedAt, new Date().toISOString(), "provider_error",
+      { provider: "anthropic", model: MODEL, output_use: "not_applicable", stop_reason: "anthropic_fetch_throw", resources: { api_calls: 1 } },
+    );
+    return fallback;
+  }
+
+  if (!r.ok) {
+    await recordVideoEnrichSpan(
+      opTrace, spanId, "model_call", "wa-video-enrich:text-metadata",
+      startedAt, new Date().toISOString(), "provider_error",
+      {
+        provider: "anthropic", model: MODEL, output_use: "not_applicable",
+        stop_reason: `anthropic_${r.status}`, resources: { api_calls: 1, http_status: r.status },
+      },
+    );
+    return fallback;
+  }
   const data = await r.json();
-  await logTokens(data?.usage);
+  await recordVideoEnrichSpan(
+    opTrace, spanId, "model_call", "wa-video-enrich:text-metadata",
+    startedAt, new Date().toISOString(), "success",
+    {
+      provider: "anthropic", model: MODEL, output_use: "used",
+      resources: {
+        api_calls: 1,
+        input_tokens: Number(data?.usage?.input_tokens || 0),
+        output_tokens: Number(data?.usage?.output_tokens || 0),
+      },
+    },
+  );
+  await logTokens(data?.usage, opTrace, spanId);
   const out = (data?.content || []).find((x: any) => x?.type === "text")?.text || "";
   const m = String(out).match(/\{[\s\S]*\}/);
   if (!m) return fallback;
@@ -423,7 +551,7 @@ async function aiMetadata(text: string): Promise<{ speaker: string | null; title
   }
 }
 
-async function enrichRow(row: any, allowStt = false) {
+async function enrichRow(row: any, allowStt = false, opTrace: VideoTraceHandle | null = null) {
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
   }
@@ -445,14 +573,14 @@ async function enrichRow(row: any, allowStt = false) {
     if (neighbor) {
       basis = neighbor;
       enrichmentSource = "neighbor_context";
-      meta = await aiMetadata(basis);
+      meta = await aiMetadata(basis, opTrace);
     } else {
-      meta = await thumbnailMetadata(row);
+      meta = await thumbnailMetadata(row, opTrace);
       if (meta?.title) {
         enrichmentSource = "thumbnail_vision";
       } else if (allowStt) {
         try {
-          transcript = await transcribe(row);
+          transcript = await transcribe(row, opTrace);
           basis = transcript;
           enrichmentSource = "stt";
           meta = await aiMetadata(basis);
@@ -485,7 +613,7 @@ async function enrichRow(row: any, allowStt = false) {
     }
   }
 
-  if (!meta) meta = await aiMetadata(basis);
+  if (!meta) meta = await aiMetadata(basis, opTrace);
   const title = meta.title || fallbackTitle(basis);
 
   if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
@@ -531,6 +659,7 @@ Deno.serve(async (req) => {
   const rowId = cleanText(body?.row_id);
   const allowStt = body?.allow_stt === true;
   const limit = Math.max(1, Math.min(10, Number(body?.limit || 4)));
+  const opTrace = await beginVideoEnrichTrace({ rowId, allowStt, limit });
 
   let rows: any[] = [];
   if (rowId) {
@@ -538,7 +667,10 @@ Deno.serve(async (req) => {
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("id", rowId)
       .maybeSingle();
-    if (error) return json({ error: "row_lookup_failed", detail: error.message }, 500);
+    if (error) {
+      await finishVideoEnrichTrace(opTrace, "failed_with_reason", "row_lookup_failed");
+      return json({ error: "row_lookup_failed", detail: error.message }, 500);
+    }
     if (data) rows = [data];
   } else {
     const { data, error } = await sb.from("channel_updates")
@@ -549,12 +681,20 @@ Deno.serve(async (req) => {
       .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })
       .limit(limit);
-    if (error) return json({ error: "batch_lookup_failed", detail: error.message }, 500);
+    if (error) {
+      await finishVideoEnrichTrace(opTrace, "failed_with_reason", "batch_lookup_failed");
+      return json({ error: "batch_lookup_failed", detail: error.message }, 500);
+    }
     rows = data || [];
   }
 
   const results = [];
-  for (const row of rows) results.push(await enrichRow(row, allowStt));
+  for (const row of rows) results.push(await enrichRow(row, allowStt, opTrace));
+  await finishVideoEnrichTrace(
+    opTrace,
+    results.some((x: any) => x.ok === false && !x.retryable) ? "partial" : "success",
+    results.some((x: any) => x.retryable) ? "retryable_items" : null,
+  );
   return json({
     ok: true,
     selected: rows.length,
