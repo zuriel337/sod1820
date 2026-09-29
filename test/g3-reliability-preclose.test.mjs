@@ -117,6 +117,8 @@ test("canary reporting fails closed: missing authority/identity/sha, non-2xx; ac
 });
 
 test("release gate script: bootstrap only for first install; otherwise fail closed", async () => {
+  assert.equal((await checkGate("", { env: ENV })).reason, "production_sha_missing_or_invalid");
+  assert.equal((await checkGate("abc", { env: ENV })).allowed, false);
   assert.equal((await checkGate(SHA, { env: {} })).allowed, false);
   assert.equal((await checkGate(SHA, { env: { SUPABASE_SERVICE_ROLE_KEY: "role-k" }, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
   assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
@@ -141,6 +143,10 @@ test("workflows: canary is sparse (<=4 cron/day), exact SHA, service key; gate i
   assert.match(g, /github\.event\.pull_request\.base\.sha/);
   assert.match(g, /contents\/scripts\/release-canary-gate\.mjs\?ref=\$BASE_SHA/);
   assert.match(g, /--allow-bootstrap/);
+  assert.match(g, /cannot resolve current successful Production deployment SHA/);
+  assert.match(g, /BASE_RC/);
+  assert.match(g, /HTTP 404/);
+  assert.match(g, /failed to verify base canary-gate runtime; failing closed/);
 });
 
 test("canary truth: exit follows the server's effective outcome (heartbeat is folded in server-side)", () => {
