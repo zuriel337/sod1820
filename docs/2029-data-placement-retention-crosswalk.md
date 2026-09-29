@@ -50,7 +50,7 @@ One Tree does **not** mean one SQL table.
 | `journey_seeds` | legacy/internal Journey seed product authority still read by compatibility functions | TEMPORARY_COMPATIBILITY | no new 2029 product dependency; replace with Research Context/Path |
 | `discovery_events` | stale discovery runtime/history | REVIEW_FOR_RETIREMENT | preserve unique history, retire writer/runtime after final consumer proof |
 | backup / `*_bak*` / cleanup-manifest tables | operational recovery/audit artifacts accidentally resident in live DB | HUMAN_REVIEW | export/archive/drop only after recovery/provenance/consumer proof; not permanent active storage by default |
-| `bot_health` | empty legacy watchdog store; current watchdog cron disabled | REVIEW_FOR_RETIREMENT | verify no current System Intelligence consumer before retirement |
+| `bot_health` | dormant historical watchdog store (4,740 rows; last check 2026-07-22); current watchdog cron disabled | REVIEW_FOR_RETIREMENT / ARCHIVE_FIRST | preserve/export required history and verify no current System Intelligence consumer before retirement |
 
 ## Retention safety
 
