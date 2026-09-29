@@ -109,7 +109,7 @@ function collectFromJson(root, source, out, seen) {
       if (k === 'playaddr' || k === 'playurl') addCandidate(out, seen, child, 10, `${source}:${nextPath}`);
       else if (k === 'playaddrh264' || k === 'playaddrbytevc1') addCandidate(out, seen, child, 20, `${source}:${nextPath}`);
       else if (k === 'downloadaddr' || k === 'downloadurl') addCandidate(out, seen, child, 40, `${source}:${nextPath}`);
-      else if ((k === 'urllist' || k === 'url_list') && /video|play|bitrate/i.test(path)) addCandidate(out, seen, child, 30, `${source}:${nextPath}`);
+      else if ((k === 'urllist' || k === 'url_list') && /video|play|bitrate|download/i.test(path)) addCandidate(out, seen, child, 30, `${source}:${nextPath}`);
       if (child && typeof child === 'object') stack.push({ value: child, path: nextPath });
     }
   }
