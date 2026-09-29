@@ -99,3 +99,5 @@ Any future `Purge` action remains separately Human-Gated and must be reference-a
 ## End-of-G3 / G3.5 revalidation
 
 Data placement is not frozen by this document. Immediately before G4, rerun the crosswalk from live main/DB/production and refresh writer/readers, growth, last-write time, provenance references and replacement status. A store may move from TEMPORARY_COMPATIBILITY/HUMAN_REVIEW to ARCHIVE/RETIRE only when the later scan proves the dependency disappeared; a store that gained a real 2029 dependency remains under its owner.
+
+29.9 calibration adds two required checks to that rescan: (1) temporary/manual media transport paths must be reviewed against the now-live canonical TikTok-link ingestion path before retirement; and (2) operational telemetry retention must preserve enough raw evidence to diagnose retry amplification and crawler/egress incidents until bounded rollups/replay prove equivalent.
