@@ -5,6 +5,9 @@
 import { pathToFileURL } from "node:url";
 
 export async function checkGate(productionSha, { fetchImpl = fetch, env = process.env, allowBootstrap = false } = {}) {
+  if (!/^[0-9a-f]{40}$/.test(String(productionSha || ""))) {
+    return { allowed: false, reason: "production_sha_missing_or_invalid" };
+  }
   const key = env.SUPABASE_SERVICE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) return { allowed: false, reason: "reporting_authority_missing" };
   const base = String(env.SUPABASE_URL || "https://linswmnnkjxvweumprav.supabase.co").replace(/\/+$/, "");
