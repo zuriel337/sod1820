@@ -17,6 +17,110 @@ const PUBLIC_VIDEO_CHANNELS = ["or-geula", "torat-haremez"];
 
 const sb = createClient(SB_URL, SB_KEY);
 
+type VideoTraceHandle = {
+  traceId: string;
+  rootSpanId: string;
+  startedAt: string;
+  inputRef: string;
+};
+
+async function sha256Ref(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value || "");
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return "sha256:" + Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function beginVideoEnrichTrace(input: { rowId: string; allowStt: boolean; limit: number }): Promise<VideoTraceHandle | null> {
+  try {
+    const traceId = crypto.randomUUID();
+    const rootSpanId = crypto.randomUUID();
+    const startedAt = new Date().toISOString();
+    const inputRef = await sha256Ref(JSON.stringify(input));
+    const { data, error } = await sb.rpc("op_trace_begin_v1", {
+      p_trace_id: traceId,
+      p_root_span_id: rootSpanId,
+      p_context: {
+        capability: "wa-video-enrich:batch",
+        surface: "edge:wa-video-enrich",
+        channel: "background",
+        locale: "he",
+        identity_class: "service",
+        subject_ref: "wa-video-enrich:" + inputRef.slice(7, 23),
+        owner_ref: "media_asset_law v3 + research_intake_foundation_contract_law",
+        root_name: "wa-video-enrich:batch",
+        replay: {
+          inputRef,
+          ownerRuleRefs: ["media_asset_law v3", "system_suggestions_law v5"],
+        },
+      },
+      p_started_at: startedAt,
+    });
+    if (error || !data) return null;
+    return {
+      traceId: String((data as any)?.trace_id || traceId),
+      rootSpanId: String((data as any)?.root_span_id || rootSpanId),
+      startedAt,
+      inputRef,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function recordVideoEnrichSpan(
+  opTrace: VideoTraceHandle | null,
+  spanId: string,
+  kind: string,
+  name: string,
+  startedAt: string,
+  endedAt: string,
+  outcome: string,
+  detail: Record<string, unknown> = {},
+) {
+  if (!opTrace) return;
+  try {
+    await sb.rpc("op_trace_record_span_v1", {
+      p_trace_id: opTrace.traceId,
+      p_span_id: spanId,
+      p_parent_span_id: opTrace.rootSpanId,
+      p_kind: kind,
+      p_name: name,
+      p_started_at: startedAt,
+      p_ended_at: endedAt,
+      p_outcome: outcome,
+      p_detail: {
+        capability: "wa-video-enrich:batch",
+        owner_ref: "media_asset_law v3 + research_intake_foundation_contract_law",
+        output_use: "used",
+        resources: {
+          latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)),
+          ...((detail.resources as Record<string, unknown>) || {}),
+        },
+        cost: { certainty: "unknown" },
+        replay: {
+          inputRef: opTrace.inputRef,
+          ownerRuleRefs: ["media_asset_law v3", "system_suggestions_law v5"],
+        },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+        ...detail,
+      },
+    });
+  } catch { /* Operational Trace must never block enrichment. */ }
+}
+
+async function finishVideoEnrichTrace(opTrace: VideoTraceHandle | null, outcome: string, stopReason: string | null = null) {
+  if (!opTrace) return;
+  try {
+    await sb.rpc("op_trace_finish_v1", {
+      p_trace_id: opTrace.traceId,
+      p_root_span_id: opTrace.rootSpanId,
+      p_outcome: outcome,
+      p_ended_at: new Date().toISOString(),
+      p_stop_reason: stopReason,
+    });
+  } catch { /* Operational Trace must never block enrichment. */ }
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -241,16 +345,34 @@ async function transcribe(row: any): Promise<string> {
   return transcript;
 }
 
-async function logTokens(usage: any) {
+async function logTokens(usage: any, opTrace: VideoTraceHandle | null, spanId: string) {
   if (!usage) return;
+  const base = {
+    source: "wa-video-enrich",
+    kind: "metadata",
+    model: MODEL,
+    input_tokens: Number(usage?.input_tokens || 0),
+    output_tokens: Number(usage?.output_tokens || 0),
+  };
   try {
-    await sb.from("ai_token_log").insert({
-      source: "wa-video-enrich",
-      kind: "metadata",
-      model: MODEL,
-      input_tokens: Number(usage?.input_tokens || 0),
-      output_tokens: Number(usage?.output_tokens || 0),
-    });
+    const row = {
+      ...base,
+      trace_id: opTrace?.traceId || null,
+      span_id: opTrace ? spanId : null,
+    };
+    const { data, error } = await sb.from("ai_token_log").insert(row).select("id").maybeSingle();
+    if (error) {
+      await sb.from("ai_token_log").insert(base);
+      return;
+    }
+    const id = Number((data as any)?.id) || null;
+    if (id && opTrace) {
+      await sb.rpc("op_trace_link_ai_cost_v1", {
+        p_trace_id: opTrace.traceId,
+        p_span_id: spanId,
+        p_ai_token_log_id: id,
+      }).catch(() => null);
+    }
   } catch { /* telemetry must never block enrichment */ }
 }
 
