@@ -129,7 +129,6 @@ async function openWorldAnchor(page, value, width = 390) {
   return projection;
 }
 
-
 async function layoutMetrics(page) {
   return page.evaluate(() => {
     const root = document.querySelector('.sod29-root');
