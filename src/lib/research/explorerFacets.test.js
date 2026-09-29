@@ -106,12 +106,12 @@ test("normalizePageResult: bare array (fetchBookEntities' shape) infers hasMore 
 
 test("normalizePageResult: {rows,hasMore} object shape (the Slice-1 list functions) passes through unchanged", () => {
   const result = normalizePageResult({ rows: [{ id: 1 }], hasMore: true }, 24);
-  assert.deepEqual(result, { rows: [{ id: 1 }], hasMore: true });
+  assert.deepEqual(result, { rows: [{ id: 1 }], hasMore: true, total: null });
 });
 
 test("normalizePageResult: null/undefined input never throws, returns an empty page", () => {
-  assert.deepEqual(normalizePageResult(null, 24), { rows: [], hasMore: false });
-  assert.deepEqual(normalizePageResult(undefined, 24), { rows: [], hasMore: false });
+  assert.deepEqual(normalizePageResult(null, 24), { rows: [], hasMore: false, total: null });
+  assert.deepEqual(normalizePageResult(undefined, 24), { rows: [], hasMore: false, total: null });
 });
 
 // ── Slice 3: card refId — the reference a Research Context selection carries forward. The final
