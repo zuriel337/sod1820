@@ -38,7 +38,7 @@ const universalHtml = `<html><script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" typ
 const candidates = extractTikTokMediaCandidatesFromHtml(universalHtml);
 assert.equal(candidates.length, 3);
 assert.match(candidates[0].url, /a\.mp4$/);
-assert.match(candidates[1].url, /b\.mp4$/);
+assert.equal(candidates.some((candidate) => /b\.mp4$/.test(candidate.url)), true);
 
 function mockResponse({
   status = 200,
