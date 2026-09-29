@@ -32,7 +32,8 @@ function projectionOf(row) {
 }
 
 function findingKeyOf(row) {
-  return clean(row?.meta?.ext?.bentov_book2?.finding_key || row?.meta?.ext?.finding_key || row?.id);
+  const projection = projectionOf(row);
+  return clean(projection?.node_key || row?.id);
 }
 
 function visibleInLens(projection, lens) {
