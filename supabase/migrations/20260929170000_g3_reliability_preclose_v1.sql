@@ -385,7 +385,7 @@ create or replace function public.fn_reliability_heartbeat_status()
  returns jsonb
  language plpgsql
  security definer
- set search_path to 'public'
+ set search_path to ''
 as $function$
 declare
   v_hb timestamptz;
@@ -430,7 +430,7 @@ create or replace function public.fn_release_canary_override_status()
  returns jsonb
  language plpgsql
  security definer
- set search_path to 'public'
+ set search_path to ''
 as $function$
 declare
   v_ovr jsonb;
