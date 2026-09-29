@@ -78,13 +78,13 @@ assert.equal(m.viewportClass(1440), "desktop");
 
 const long = "א".repeat(5000) + "\u0000";
 const payload = m.emitIssueReport(ctx, long);
-assert.equal(payload.text.length, m.ISSUE_REPORT_MAX_TEXT);
+assert.equal(payload.message.length, m.ISSUE_REPORT_MAX_TEXT);
 assert.equal(calls.length, 1);
 assert.deepEqual(calls[0].slice(0, 3), ["issue_report", "numberscript", "issue_report"]);
 assert.equal(calls[0][3].auth, "anonymous");
 // Text is optional
 const empty = m.emitIssueReport(ctx, "   ");
-assert.equal("text" in empty, false);
+assert.equal("message" in empty, false);
 
 fs.rmSync(dir, { recursive: true, force: true });
 console.log("issue-report canonical emitter: ok");

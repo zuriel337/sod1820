@@ -57,7 +57,7 @@ export function buildIssueReportContext({
 
 export function buildIssueReportPayload(context, text) {
   const note = boundIssueText(text);
-  return { ...context, ...(note ? { text: note } : {}) };
+  return { ...context, ...(note ? { message: note } : {}) };
 }
 
 export function emitIssueReport(context, text) {
