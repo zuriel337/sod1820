@@ -3,8 +3,9 @@ import { newInteractionId, safeInteractionId } from "../src/lib/research/interac
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const interactionId = newInteractionId();
+const visitorId = newInteractionId();
 
-if (!safeInteractionId(interactionId)) {
+if (!safeInteractionId(interactionId) || !safeInteractionId(visitorId)) {
   throw new Error("interaction_id_not_uuid");
 }
 
@@ -13,6 +14,7 @@ const { data, error } = await supabase.functions.invoke("research-run", {
     number: "878",
     question: "878",
     interaction_id: interactionId,
+    visitor_id: visitorId,
     requested_capabilities: ["numeric", "numeric_operators"],
     surface: "heichal",
   },
