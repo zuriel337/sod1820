@@ -66,6 +66,8 @@ const resolved = await resolveTikTokSource("https://vt.tiktok.com/ZSqPf4qb4/", p
 assert.equal(resolved.kind, "tiktok");
 assert.equal(resolved.platformVideoId, "7551234567890123456");
 assert.match(resolved.mediaUrl, /a\.mp4$/);
+assert.equal(resolved.mediaCandidates.length, 2);
+assert.equal(resolved.mediaCandidates.some((candidate) => /music/i.test(candidate.source)), false);
 
 const apiFallbackFetch = async (url) => {
   if (String(url).includes("/api/item/detail/")) {
@@ -136,6 +138,8 @@ assert.match(migrateSource, /fetchTikTokMedia/);
 assert.match(migrateSource, /resolved_media_host_rejected/);
 assert.match(migrateSource, /source_not_video_html/);
 assert.match(migrateSource, /source_not_video_audio/);
+assert.match(migrateSource, /attempted_candidates/);
+assert.match(migrateSource, /mediaCandidates/);
 assert.match(migrateSource, /public_url/);
 assert.match(migrateSource, /kind: "direct"/);
 
