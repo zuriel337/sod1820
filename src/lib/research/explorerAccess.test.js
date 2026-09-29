@@ -1,56 +1,55 @@
-import { describe, expect, it } from "vitest";
+import { test } from "node:test";
+import assert from "node:assert/strict";
 import { EXPLORER_DEPTH, resolveExplorerDepth } from "./explorerAccess.js";
 
-function expectPublicSurfacePreserved(profile) {
-  expect(profile.publicListsVisible).toBe(true);
-  expect(profile.publicRoutesVisible).toBe(true);
-  expect(profile.publicTopicDetailVisible).toBe(true);
-  expect(profile.premiumDepthEnabled).toBe(false);
-  expect(profile.adminInspectionEnabled).toBe(false);
+function assertPublicSurfacePreserved(profile) {
+  assert.equal(profile.publicListsVisible, true);
+  assert.equal(profile.publicRoutesVisible, true);
+  assert.equal(profile.publicTopicDetailVisible, true);
+  assert.equal(profile.premiumDepthEnabled, false);
+  assert.equal(profile.adminInspectionEnabled, false);
 }
 
-describe("Explorer Slice 6 progressive depth/access projection", () => {
-  it("keeps anonymous users on L0 without hiding any existing public Explorer surface", () => {
-    const p = resolveExplorerDepth();
-    expect(p.depth).toBe(EXPLORER_DEPTH.PUBLIC);
-    expect(p.registeredIdentity).toBe(false);
-    expect(p.memberIdentityRecognized).toBe(false);
-    expectPublicSurfacePreserved(p);
-  });
+test("keeps anonymous users on L0 without hiding any existing public Explorer surface", () => {
+  const p = resolveExplorerDepth();
+  assert.equal(p.depth, EXPLORER_DEPTH.PUBLIC);
+  assert.equal(p.registeredIdentity, false);
+  assert.equal(p.memberIdentityRecognized, false);
+  assertPublicSurfacePreserved(p);
+});
 
-  it("recognizes an existing authenticated session as L1 without inventing extra data access", () => {
-    const p = resolveExplorerDepth({ verified: true });
-    expect(p.depth).toBe(EXPLORER_DEPTH.REGISTERED);
-    expect(p.registeredIdentity).toBe(true);
-    expect(p.memberIdentityRecognized).toBe(false);
-    expectPublicSurfacePreserved(p);
-  });
+test("recognizes an existing authenticated session as L1 without inventing extra data access", () => {
+  const p = resolveExplorerDepth({ verified: true });
+  assert.equal(p.depth, EXPLORER_DEPTH.REGISTERED);
+  assert.equal(p.registeredIdentity, true);
+  assert.equal(p.memberIdentityRecognized, false);
+  assertPublicSurfacePreserved(p);
+});
 
-  it("recognizes member identity but never equates it with a live Premium entitlement", () => {
-    const p = resolveExplorerDepth({ verified: true, isMember: true });
-    expect(p.depth).toBe(EXPLORER_DEPTH.MEMBER_RECOGNIZED);
-    expect(p.registeredIdentity).toBe(true);
-    expect(p.memberIdentityRecognized).toBe(true);
-    expect(p.premiumDepthEnabled).toBe(false);
-    expectPublicSurfacePreserved(p);
-  });
+test("recognizes member identity but never equates it with a live Premium entitlement", () => {
+  const p = resolveExplorerDepth({ verified: true, isMember: true });
+  assert.equal(p.depth, EXPLORER_DEPTH.MEMBER_RECOGNIZED);
+  assert.equal(p.registeredIdentity, true);
+  assert.equal(p.memberIdentityRecognized, true);
+  assert.equal(p.premiumDepthEnabled, false);
+  assertPublicSurfacePreserved(p);
+});
 
-  it("recognizes admin with highest precedence but exposes no new admin inspection data", () => {
-    const p = resolveExplorerDepth({ verified: true, isMember: true, isAdmin: true });
-    expect(p.depth).toBe(EXPLORER_DEPTH.ADMIN);
-    expect(p.registeredIdentity).toBe(true);
-    expect(p.memberIdentityRecognized).toBe(true);
-    expect(p.adminInspectionEnabled).toBe(false);
-    expectPublicSurfacePreserved(p);
-  });
+test("recognizes admin with highest precedence but exposes no new admin inspection data", () => {
+  const p = resolveExplorerDepth({ verified: true, isMember: true, isAdmin: true });
+  assert.equal(p.depth, EXPLORER_DEPTH.ADMIN);
+  assert.equal(p.registeredIdentity, true);
+  assert.equal(p.memberIdentityRecognized, true);
+  assert.equal(p.adminInspectionEnabled, false);
+  assertPublicSurfacePreserved(p);
+});
 
-  it("never changes public visibility as identity depth increases", () => {
-    const profiles = [
-      resolveExplorerDepth(),
-      resolveExplorerDepth({ verified: true }),
-      resolveExplorerDepth({ verified: true, isMember: true }),
-      resolveExplorerDepth({ verified: true, isAdmin: true }),
-    ];
-    for (const profile of profiles) expectPublicSurfacePreserved(profile);
-  });
+test("never changes public visibility as identity depth increases", () => {
+  const profiles = [
+    resolveExplorerDepth(),
+    resolveExplorerDepth({ verified: true }),
+    resolveExplorerDepth({ verified: true, isMember: true }),
+    resolveExplorerDepth({ verified: true, isAdmin: true }),
+  ];
+  for (const profile of profiles) assertPublicSurfacePreserved(profile);
 });
