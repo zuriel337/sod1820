@@ -87,11 +87,28 @@ test("migration: additive one-tree reliability + narrow public readers; no publi
   assert.match(mig, /'release_canary_auto_rollback', false/);
 });
 
-test("canary: pass / non-200 / network failure", async () => {
+test("canary: representation-aware pass / non-200 / network failure", async () => {
   const wrap = (fn) => async (u) => { const r = await fn(u); return { status: r.status, text: async () => r.text }; };
-  const ok = wrap(async (u) => ({ status: 200, text: u.endsWith("/") ? '<div id="root"></div><script src="/assets/index-abc.js"></script>' : u.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000) }));
-  assert.equal((await runCanary("https://e.test/", { fetchImpl: ok })).ok, true);
-  const bad = wrap(async (u) => ({ status: u.endsWith("robots.txt") ? 500 : 200, text: (u.endsWith("/") ? '<div id="root"></div><script src="/assets/i.js"></script>' : "x".repeat(2000)) }));
+  const ok = wrap(async (u) => {
+    if (u.endsWith("/")) return { status: 200, text: "<!doctype html><html><body><main>server document or browser policy projection</main></body></html>" + "x".repeat(300) };
+    if (u.endsWith("/index.html")) return { status: 200, text: '<!doctype html><html><body><div id="root"></div><script type="module" src="/assets/index-abc.js"></script></body></html>' };
+    if (u.endsWith("/api/sitemap-public")) return { status: 200, text: "<urlset></urlset>" };
+    if (u.endsWith("/robots.txt")) return { status: 200, text: "User-agent: *" };
+    return { status: 200, text: "x".repeat(2000) };
+  });
+  const pass = await runCanary("https://e.test/", { fetchImpl: ok });
+  assert.equal(pass.ok, true);
+  assert.ok(pass.checks.some((x) => x.name === "home_html" && x.ok));
+  assert.ok(pass.checks.some((x) => x.name === "index_has_entry_bundle" && x.ok));
+  assert.ok(pass.checks.some((x) => x.name === "sitemap_200" && x.ok));
+
+  const bad = wrap(async (u) => {
+    if (u.endsWith("/robots.txt")) return { status: 500, text: "bad" };
+    if (u.endsWith("/index.html")) return { status: 200, text: '<div id="root"></div><script src="/assets/i.js"></script>' };
+    if (u.endsWith("/api/sitemap-public")) return { status: 200, text: "<urlset></urlset>" };
+    if (u.endsWith("/")) return { status: 200, text: "<html><body>" + "x".repeat(300) + "</body></html>" };
+    return { status: 200, text: "x".repeat(2000) };
+  });
   assert.equal((await runCanary("https://e.test", { fetchImpl: bad })).ok, false);
   assert.equal((await runCanary("https://e.test", { fetchImpl: async () => { throw new Error("net"); } })).ok, false);
 });
