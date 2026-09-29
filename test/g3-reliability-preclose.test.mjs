@@ -6,12 +6,12 @@ import {
   createRuntimeErrorCapture, RUNTIME_ERROR_LIMITS, installRuntimeErrorCapture, getSharedCapture,
   sanitizeText, sanitizeRoute, buildIncidentMeta, _resetSharedCaptureForTests,
 } from "../src/lib/runtimeErrorCapture.js";
-import { runCanary, reportCanary, takeSlot } from "../scripts/post-deploy-canary.mjs";
-import { checkGate } from "../scripts/release-canary-gate.mjs";
+import { runCanary, readHeartbeat } from "../scripts/post-deploy-canary.mjs";
+import { checkGate, CANARY_STATUS_CONTEXT } from "../scripts/release-canary-gate.mjs";
 
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const SHA = "a".repeat(40);
-const ENV = { SUPABASE_SERVICE_KEY: "k", GITHUB_RUN_ID: "42", GITHUB_REPOSITORY: "zuriel337/sod1820" };
+const ENV = { GH_TOKEN: "gh", GITHUB_REPOSITORY: "zuriel337/sod1820", SUPABASE_ANON_KEY: "anon" };
 
 test("capture: dedupe, per-minute and per-session caps, never throws", () => {
   const got = []; let t = 1_000_000;
@@ -44,7 +44,7 @@ test("privacy: query/hash, emails, tokens, long numbers never leave the browser"
 
 test("one incident tree: window.error + unhandledrejection + ErrorBoundary share one capture and one surface", () => {
   _resetSharedCaptureForTests();
-  const l = {}; const win = { location: { pathname: "/p", search: "?secret=1" }, addEventListener: (n, f) => { l[n] = f; } };
+  const l = {}; const win = { location: { pathname: "/p", search: "?secret=1" }, addEventListener: (n, fn) => { l[n] = fn; } };
   const sent = [];
   const report = (...a) => sent.push(a);
   assert.equal(installRuntimeErrorCapture(report, win), true);
@@ -53,9 +53,9 @@ test("one incident tree: window.error + unhandledrejection + ErrorBoundary share
   l.error({ target: {} });
   l.unhandledrejection({ reason: new Error("rej") });
   getSharedCapture(report, win)("error_boundary", "boundary boom", { name: "Error", component_stack: "at X" });
-  assert.deepEqual(sent.map((s) => [s[0], s[1], s[2]]),
+  assert.deepEqual(sent.map((x) => [x[0], x[1], x[2]]),
     [["runtime_error", "/p", "window_error"], ["runtime_error", "/p", "unhandled_rejection"], ["runtime_error", "/p", "error_boundary"]]);
-  assert.ok(sent.every((s) => !JSON.stringify(s[3]).includes("secret=1") && !JSON.stringify(s[3]).includes("u=1")));
+  assert.ok(sent.every((x) => !JSON.stringify(x[3]).includes("secret=1") && !JSON.stringify(x[3]).includes("u=1")));
   _resetSharedCaptureForTests();
 });
 
@@ -70,26 +70,25 @@ test("wiring: boundary + window handlers go through track(); entries install onc
   assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
 });
 
-test("migration: additive, one-tree, on the 15m path, measured threshold, service_role-only", () => {
+test("migration: additive one-tree reliability + narrow public readers; no public write", () => {
   const mig = read("supabase/migrations/20260929170000_g3_reliability_preclose_v1.sql");
   assert.ok(!/create\s+table|cron\.schedule|drop\s+table|detect_suggestions/i.test(mig.replace(/^--.*$/gm, "")), "no new store/cron; detect_suggestions untouched");
-  assert.match(mig, /perform public\.fn_reliability_watch\(\)/, "reliability watch is invoked from fn_health_watch");
+  assert.match(mig, /perform public\.fn_reliability_watch\(\)/);
   assert.match(mig, /c_dead_man_minutes constant int := 90/);
-  assert.match(mig, /p99\.9=17\.7m/, "threshold documented with measured evidence");
-  assert.match(mig, /surface not in \('runtime_error', 'canary'\)/, "canary/runtime_error never prove ingest alive");
-  assert.match(mig, /v_last is null or v_gap > c_dead_man_minutes/, "no data alerts");
-  for (const f of ["fn_release_canary_slot", "fn_release_canary_report", "fn_release_canary_gate", "fn_release_canary_override"]) {
-    assert.match(mig, new RegExp(`grant execute on function public\\.${f}\\([^)]*\\) to service_role`));
-    assert.match(mig, new RegExp(`revoke all on function public\\.${f}\\([^)]*\\) from public, anon, authenticated`));
-  }
-  assert.match(mig, /rule_id = 'deploy_on_request'/);
+  assert.match(mig, /p99\.9=17\.7m/);
+  assert.match(mig, /surface not in \('runtime_error', 'canary'\)/);
+  assert.match(mig, /fn_reliability_heartbeat_status/);
+  assert.match(mig, /fn_release_canary_override_status/);
+  assert.match(mig, /grant execute on function public\.fn_reliability_heartbeat_status\(\) to anon, authenticated, service_role/);
+  assert.match(mig, /grant execute on function public\.fn_release_canary_override_status\(\) to anon, authenticated, service_role/);
+  assert.match(mig, /revoke all on function public\.fn_release_canary_override\(text, int\) from public, anon, authenticated/);
+  assert.ok(!/fn_release_canary_report|fn_release_canary_slot|fn_release_canary_gate\(/.test(mig), "no CI service-role report/gate RPCs");
+  assert.match(mig, /github_status:sod1820\/post-deploy-canary/);
   assert.match(mig, /'release_canary_auto_rollback', false/);
 });
 
-const okFetch = async (u) => ({ status: 200, text: async () => (u.endsWith("/") ? '<div id="root"></div><script src="/assets/index-abc.js"></script>' : u.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000)) });
-
 test("canary: pass / non-200 / network failure", async () => {
-  const wrap = (f) => async (u) => { const r = await f(u); return { status: r.status, text: async () => r.text }; };
+  const wrap = (fn) => async (u) => { const r = await fn(u); return { status: r.status, text: async () => r.text }; };
   const ok = wrap(async (u) => ({ status: 200, text: u.endsWith("/") ? '<div id="root"></div><script src="/assets/index-abc.js"></script>' : u.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000) }));
   assert.equal((await runCanary("https://e.test/", { fetchImpl: ok })).ok, true);
   const bad = wrap(async (u) => ({ status: u.endsWith("robots.txt") ? 500 : 200, text: (u.endsWith("/") ? '<div id="root"></div><script src="/assets/i.js"></script>' : "x".repeat(2000)) }));
@@ -97,100 +96,74 @@ test("canary: pass / non-200 / network failure", async () => {
   assert.equal((await runCanary("https://e.test", { fetchImpl: async () => { throw new Error("net"); } })).ok, false);
 });
 
-test("canary reporting fails closed: missing authority/identity/sha, non-2xx; accepts canonical service-role alias", async () => {
-  const good = { ok: true, sha: SHA, kind: "deploy", checks: [] };
-  await assert.rejects(() => reportCanary(good, { env: { ...ENV, SUPABASE_SERVICE_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "" }, fetchImpl: async () => ({ ok: true, json: async () => ({}) }) }), /authority missing/);
-  await reportCanary(good, { env: { ...ENV, SUPABASE_SERVICE_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "role-k" }, fetchImpl: async () => ({ ok: true, json: async () => ({ recorded: true }) }) });
-  await assert.rejects(() => reportCanary(good, { env: { ...ENV, GITHUB_RUN_ID: "" }, fetchImpl: async () => ({ ok: true, json: async () => ({}) }) }), /run identity/);
-  await assert.rejects(() => reportCanary({ ...good, sha: "abc" }, { env: ENV, fetchImpl: async () => ({ ok: true }) }), /40 hex/);
-  await assert.rejects(() => reportCanary(good, { env: ENV, fetchImpl: async () => ({ ok: false, status: 401 }) }), /non-2xx: 401/);
+test("heartbeat reader is public-read transport and fails closed on non-2xx", async () => {
   let seen;
-  await reportCanary({ ...good, ok: false, checks: [{ name: "home_200", ok: false }] }, { env: ENV, fetchImpl: async (u, o) => { seen = { u, o }; return { ok: true, json: async () => ({ recorded: true }) }; } });
-  const body = JSON.parse(seen.o.body);
-  assert.match(seen.u, /rpc\/fn_release_canary_report$/);
-  assert.equal(body.p_sha, SHA); assert.equal(body.p_run_id, "42");
-  assert.equal(body.p_run_url, "https://github.com/zuriel337/sod1820/actions/runs/42");
-  assert.deepEqual(body.p_failed, ["home_200"]);
-  assert.match(seen.o.headers.Authorization, /^Bearer k$/);
-  assert.ok(!/ingest_event/.test(seen.u), "never anon event rows");
-  await assert.rejects(() => takeSlot("x", { env: { ...ENV, SUPABASE_SERVICE_KEY: "" } }), /authority missing/);
+  const out = await readHeartbeat({
+    env: { SUPABASE_URL: "https://sb.test", SUPABASE_ANON_KEY: "anon" },
+    fetchImpl: async (u, o) => { seen = { u, o }; return { ok: true, status: 200, json: async () => ({ healthy: true, age_minutes: 3, max_age_minutes: 45 }) }; },
+  });
+  assert.equal(out.healthy, true);
+  assert.match(seen.u, /rpc\/fn_reliability_heartbeat_status$/);
+  assert.equal(seen.o.headers.apikey, "anon");
+  await assert.rejects(() => readHeartbeat({ env: { SUPABASE_URL: "https://sb.test", SUPABASE_ANON_KEY: "anon" }, fetchImpl: async () => ({ ok: false, status: 404 }) }), /non-2xx: 404/);
 });
 
-test("release gate script: bootstrap only for first install; otherwise fail closed", async () => {
+function gateFetch({ override = { allowed: false }, overrideStatus = 200, statuses = [], githubStatus = 200 } = {}) {
+  return async (url) => {
+    if (url.includes("fn_release_canary_override_status")) return { ok: overrideStatus >= 200 && overrideStatus < 300, status: overrideStatus, json: async () => override };
+    if (url.includes("api.github.com")) return { ok: githubStatus >= 200 && githubStatus < 300, status: githubStatus, json: async () => statuses };
+    throw new Error("unexpected URL " + url);
+  };
+}
+
+test("release gate: exact-SHA GitHub status, bounded bootstrap, override, and fail-closed transport", async () => {
   assert.equal((await checkGate("", { env: ENV })).reason, "production_sha_missing_or_invalid");
-  assert.equal((await checkGate("abc", { env: ENV })).allowed, false);
-  assert.equal((await checkGate(SHA, { env: {} })).allowed, false);
-  assert.equal((await checkGate(SHA, { env: { SUPABASE_SERVICE_ROLE_KEY: "role-k" }, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
-  assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: false, status: 404 }) })).allowed, false);
-  const first404 = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: false, status: 404 }) });
-  assert.equal(first404.allowed, true); assert.equal(first404.reason, "bootstrap_gate_not_live_on_base");
-  const noEvidence = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: false, reason: "no_canary_evidence" }) }) });
-  assert.equal(noEvidence.allowed, true); assert.equal(noEvidence.reason, "bootstrap_no_prior_canary");
-  const failed = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: false, reason: "latest_canary_failed" }) }) });
-  assert.equal(failed.allowed, false); assert.equal(failed.reason, "latest_canary_failed");
-  assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: async () => ({ ok: true, json: async () => ({ allowed: true, reason: "latest_canary_success" }) }) })).allowed, true);
+  assert.equal((await checkGate(SHA, { env: { ...ENV, GH_TOKEN: "" } })).reason, "github_token_missing");
+  assert.equal((await checkGate(SHA, { env: ENV, fetchImpl: gateFetch({ overrideStatus: 500 }) })).reason, "override_rpc_non_2xx_500");
+  assert.equal((await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: gateFetch({ overrideStatus: 404, statuses: [] }) })).reason, "bootstrap_no_prior_canary");
+  const ov = await checkGate(SHA, { env: ENV, fetchImpl: gateFetch({ override: { allowed: true, reason: "human_gate_override" } }) });
+  assert.equal(ov.allowed, true); assert.equal(ov.reason, "human_gate_override");
+  const none = await checkGate(SHA, { env: ENV, fetchImpl: gateFetch({ statuses: [] }) });
+  assert.equal(none.allowed, false); assert.equal(none.reason, "no_canary_evidence");
+  const first = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: gateFetch({ statuses: [] }) });
+  assert.equal(first.allowed, true); assert.equal(first.reason, "bootstrap_no_prior_canary");
+  const failed = await checkGate(SHA, { env: ENV, allowBootstrap: true, fetchImpl: gateFetch({ statuses: [{ context: CANARY_STATUS_CONTEXT, state: "failure" }] }) });
+  assert.equal(failed.allowed, false); assert.equal(failed.reason, "latest_canary_failure");
+  const passed = await checkGate(SHA, { env: ENV, fetchImpl: gateFetch({ statuses: [{ context: CANARY_STATUS_CONTEXT, state: "success" }] }) });
+  assert.equal(passed.allowed, true); assert.equal(passed.reason, "latest_canary_success");
 });
 
-test("workflows: canary is sparse (<=4 cron/day), exact SHA, service key; gate is a PR job", () => {
+test("workflows: exact-SHA commit status, sparse budget, no service-role CI secret", () => {
   const w = read(".github/workflows/post-deploy-canary.yml");
   assert.match(w, /cron: "17 1,7,13,19 \* \* \*"/);
-  assert.match(w, /SUPABASE_SERVICE_KEY: \$\{\{ secrets\.SUPABASE_SERVICE_KEY \}\}/);
-  assert.ok(!/SUPABASE_ANON_KEY/.test(w));
-  assert.match(w, /--sha "\$\{\{ steps\.target\.outputs\.sha \}\}"/);
+  assert.match(w, /statuses: write/);
+  assert.match(w, /sod1820\/post-deploy-canary/);
+  assert.match(w, /steps\.target\.outputs\.sha/);
+  assert.match(w, /COUNT=.*workflow_runs/);
+  assert.match(w, /\[ "\$COUNT" -gt 4 \]/);
+  assert.ok(!/SUPABASE_SERVICE_KEY|SUPABASE_SERVICE_ROLE_KEY/.test(w));
+  assert.match(w, /continue-on-error: true/);
+  assert.match(w, /Enforce canary outcome/);
+
   const g = read(".github/workflows/release-visual-gate.yml");
-  assert.match(g, /release-canary-gate:/);
+  assert.match(g, /statuses: read/);
   assert.match(g, /scripts\/release-canary-gate\.mjs --production-sha/);
   assert.match(g, /github\.event\.pull_request\.base\.sha/);
   assert.match(g, /contents\/scripts\/release-canary-gate\.mjs\?ref=\$BASE_SHA/);
   assert.match(g, /--allow-bootstrap/);
   assert.match(g, /cannot resolve current successful Production deployment SHA/);
-  assert.match(g, /BASE_RC/);
   assert.match(g, /HTTP 404/);
-  assert.match(g, /failed to verify base canary-gate runtime; failing closed/);
+  assert.ok(!/SUPABASE_SERVICE_KEY|SUPABASE_SERVICE_ROLE_KEY/.test(g));
 });
 
-test("canary truth: exit follows the server's effective outcome (heartbeat is folded in server-side)", () => {
+test("canary truth includes external health-watch heartbeat before GitHub status can pass", () => {
   const sc = read("scripts/post-deploy-canary.mjs");
-  assert.match(sc, /rep\.ok !== true/, "script consumes the effective ok from the report");
-  const mig = read("supabase/migrations/20260929170000_g3_reliability_preclose_v1.sql");
-  const fn = mig.slice(mig.indexOf("function public.fn_release_canary_report("), mig.indexOf("function public.fn_release_canary_gate("));
-  assert.ok(fn.indexOf("reliability_heartbeat:health_watch") < fn.indexOf("release_canary:latest"), "heartbeat evaluated before evidence is stored");
-  assert.match(fn, /v_ok := coalesce\(p_ok, false\) and v_age is not null and v_age <= 45/);
-  assert.match(fn, /'ok', v_ok/, "stored payload uses the effective outcome");
-  assert.match(fn, /if v_ok then[\s\S]*release_canary:last_success/, "last_success only on effective success");
-  assert.ok(!/'ok', coalesce\(p_ok/.test(fn));
-});
-
-test("canary truth: a stale-heartbeat run exits 1 even when synthetic checks pass", async () => {
-  const { spawnSync } = await import("node:child_process");
-  const { createServer } = await import("node:http");
-  const calls = [];
-  const srv = createServer((req, res) => {
-    let b = ""; req.on("data", (d) => (b += d)); req.on("end", () => {
-      calls.push(req.url); res.setHeader("content-type", "application/json");
-      if (req.url.endsWith("fn_release_canary_slot")) return res.end(JSON.stringify({ allowed: true }));
-      if (req.url.endsWith("fn_release_canary_report")) return res.end(JSON.stringify(JSON.parse(process.env.__REP)));
-      if (req.url === "/") return res.end('<div id="root"></div><script src="/assets/i.js"></script>');
-      res.setHeader("content-type", "text/plain");
-      res.end(req.url.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000));
-    });
-  });
-  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
-  const port = srv.address().port;
-  const run = (rep) => {
-    process.env.__REP = JSON.stringify(rep);
-    return new Promise((resolve) => {
-      const { spawn } = require_child();
-      const c = spawn(process.execPath, ["scripts/post-deploy-canary.mjs", "--url", `http://127.0.0.1:${port}`, "--sha", SHA, "--kind", "deploy"],
-        { env: { ...process.env, ...ENV, SUPABASE_URL: `http://127.0.0.1:${port}` }, cwd: new URL("..", import.meta.url).pathname });
-      c.on("close", (code) => resolve(code));
-    });
-  };
-  function require_child() { return { spawn: (...a) => spawnImpl(...a) }; }
-  const spawnImpl = (await import("node:child_process")).spawn;
-  try {
-    assert.equal(await run({ recorded: true, ok: false, failed: ["health_watch_heartbeat"], health_watch_heartbeat_age_minutes: 120 }), 1, "stale heartbeat => exit 1");
-    assert.equal(await run({ recorded: true, ok: false, failed: ["health_watch_heartbeat"], health_watch_heartbeat_age_minutes: null }), 1, "missing heartbeat => exit 1");
-    assert.equal(await run({ recorded: true, ok: true, failed: [], health_watch_heartbeat_age_minutes: 3 }), 0, "healthy => exit 0");
-  } finally { srv.close(); }
+  assert.match(sc, /fn_reliability_heartbeat_status/);
+  assert.match(sc, /heartbeat\?\.healthy === true/);
+  assert.match(sc, /name: "health_watch_heartbeat"/);
+  assert.match(sc, /checks\.every\(\(c\) => c\.ok\)/);
+  const wf = read(".github/workflows/post-deploy-canary.yml");
+  assert.match(wf, /STATE="failure"/);
+  assert.match(wf, /STATE="success"/);
+  assert.match(wf, /statuses\/\$\{\{ steps\.target\.outputs\.sha \}\}/);
 });
