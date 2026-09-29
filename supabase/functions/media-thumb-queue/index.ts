@@ -26,11 +26,19 @@ Deno.serve(async (req) => {
     if (op === "list") {
       const limit = Math.min(200, Math.max(1, +body.limit || 60));
       const channel = body.channel ? `&channel=eq.${encodeURIComponent(String(body.channel))}` : "";
-      const url = `${SB}/rest/v1/channel_updates?select=id,image_url,channel&or=(thumb_url.is.null,thumb_url.eq.)&image_url=not.is.null&order=created_at.desc&limit=${limit}${channel}`;
+      const url = `${SB}/rest/v1/channel_updates?select=id,image_url,thumb_url,channel&image_url=not.is.null&order=created_at.desc&limit=${Math.min(500, Math.max(limit * 6, 60))}${channel}`;
       const r = await fetch(url, { headers: H });
       const d = await r.json().catch(() => []);
       if (!r.ok) return json({ ok: false, error: d?.message || `list ${r.status}` }, 502);
-      const rows = (Array.isArray(d) ? d : []).filter((x: any) => VID.test(x.image_url || "")).map((x: any) => ({ id: x.id, url: x.image_url }));
+      const rows = (Array.isArray(d) ? d : [])
+        .filter((x: any) => VID.test(x.image_url || ""))
+        .filter((x: any) => {
+          const thumb = String(x.thumb_url || "").trim();
+          const image = String(x.image_url || "").trim();
+          return !thumb || thumb === image || VID.test(thumb);
+        })
+        .slice(0, limit)
+        .map((x: any) => ({ id: x.id, url: x.image_url }));
       return json({ ok: true, rows });
     }
 
