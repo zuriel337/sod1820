@@ -1,0 +1,27 @@
+name: Video Ingest Gate
+
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/video-migrate/**"
+      - "supabase/functions/_shared/tiktokSourceResolver.js"
+      - "scripts/test-video-migrate-tiktok-resolver.mjs"
+      - ".github/workflows/video-ingest-gate.yml"
+  workflow_dispatch:
+
+jobs:
+  tiktok-source-resolver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: TikTok source resolver + direct-video compatibility
+        run: node scripts/test-video-migrate-tiktok-resolver.mjs
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Supabase Edge runtime typecheck
+        run: deno check supabase/functions/video-migrate/index.ts
