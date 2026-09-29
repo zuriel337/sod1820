@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
+import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getRecentPublishedGematria } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
@@ -125,6 +125,7 @@ export default function HomeNewPage() {
   const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"
   const [ciphers, setCiphers] = useState([]); // 🔠 צפנים חדשים (els_records published) — רצועה מעל «עדכונים אחרונים»
   const [recentCiphers, setRecentCiphers] = useState([]); // 🔠 צפני-מערכת של 24 השעות האחרונות → «עדכונים אחרונים»
+  const [recentGematria, setRecentGematria] = useState([]); // 🧮 הגימטריות האחרונות שנוספו למאגר הקנוני
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
   // 🎠 קרוסלת הירו
@@ -196,6 +197,7 @@ export default function HomeNewPage() {
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
+    getRecentPublishedGematria(8).then(rows => setRecentGematria(rows || [])).catch(() => {});
     markSeenKey("home-radar");
   }, []);
 
@@ -575,6 +577,46 @@ export default function HomeNewPage() {
               אנחנו בונים עכשיו את הדור הבא של האתר. במהלך השדרוג חלק מהעדכונים והפרסומים החדשים מושהים זמנית, והאזורים החדשים נפתחים בהדרגה כשהם מוכנים.
             </div>
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
+            {recentGematria.length > 0 && (
+              <section aria-label="גימטריות אחרונות שנוספו" style={{
+                marginTop: 14,
+                padding: "13px 14px",
+                border: `1px solid ${P.borderStrong}`,
+                borderRadius: 13,
+                background: P.card,
+              }}>
+                <div style={{
+                  fontFamily: F.heading,
+                  color: P.accentText,
+                  fontWeight: 900,
+                  fontSize: 15,
+                  marginBottom: 10,
+                }}>🧮 גימטריות אחרונות שנוספו</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {recentGematria.map(row => (
+                    <Link
+                      key={row.id}
+                      to={`/number/${encodeURIComponent(row.ragil)}`}
+                      style={{
+                        textDecoration: "none",
+                        border: `1px solid ${P.border}`,
+                        background: P.cardSoft,
+                        color: P.ink,
+                        borderRadius: 999,
+                        padding: "7px 11px",
+                        fontFamily: F.body,
+                        fontSize: 13,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      <b style={{ color: P.accentText }}>{row.phrase}</b>
+                      <span aria-hidden> = </span>
+                      <span style={{ fontFamily: F.mono, fontWeight: 800 }}>{row.ragil}</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
             <div className="hn-build-title">🏗️ האתר מתחדש — הנה מה כבר נבנה</div>
