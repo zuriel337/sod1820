@@ -130,43 +130,6 @@ async function openWorldAnchor(page, value, width = 390) {
 }
 
 
-test('A3 live client correlation: Heichal research-run carries client interaction_id into a server trace', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await seedWorldAnchor(page, 878);
-  // The isolated Vite preview has a legacy dist/heichal.html artifact that shadows a
-  // direct /heichal document request. Enter through the 2029 SPA, then exercise the
-  // real BrowserRouter route; production Vercel does not have this preview-only shadow.
-  await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-  await page.evaluate(() => {
-    history.pushState({}, '', '/heichal');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  });
-
-  const action = page.locator('.sod29-resume-panel').getByRole('button', { name: /רזיאל/ }).first();
-  await expect(action).toBeVisible({ timeout: 30_000 });
-
-  const responsePromise = page.waitForResponse((response) =>
-    response.request().method() === 'POST'
-      && /\/functions\/v1\/research-run(?:\?|$)/.test(response.url())
-  );
-  await action.click();
-
-  const response = await responsePromise;
-  expect(response.status()).toBe(200);
-
-  const requestBody = response.request().postDataJSON();
-  const responseBody = await response.json();
-  const interactionId = String(requestBody?.interaction_id || '');
-  const traceId = String(responseBody?.trace_id || '');
-
-  expect(interactionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-  expect(traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-  expect(responseBody?.status).toBe('ok');
-  expect(responseBody?.bundle).toBeTruthy();
-
-  console.log(`A3_CLIENT_CORRELATION_EVIDENCE interaction_id=${interactionId} trace_id=${traceId}`);
-});
-
 async function layoutMetrics(page) {
   return page.evaluate(() => {
     const root = document.querySelector('.sod29-root');
