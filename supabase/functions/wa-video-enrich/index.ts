@@ -258,7 +258,7 @@ async function thumbnailMetadata(row: any, opTrace: VideoTrace | null = null, pa
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       },
     });
-    await logTokens(data?.usage, opTrace, modelSpanId, "thumbnail_metadata");
+    await logTokens(data?.usage, opTrace, modelSpanId);
 
     const raw = (data?.content || []).find((x: any) => x?.type === "text")?.text || "";
     const m = String(raw).match(/\{[\s\S]*\}/);
@@ -444,7 +444,7 @@ async function aiMetadata(text: string, opTrace: VideoTrace | null = null, paren
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
   });
-  await logTokens(data?.usage, opTrace, modelSpanId, "text_metadata");
+  await logTokens(data?.usage, opTrace, modelSpanId);
   const out = (data?.content || []).find((x: any) => x?.type === "text")?.text || "";
   const m = String(out).match(/\{[\s\S]*\}/);
   if (!m) return fallback;
@@ -463,7 +463,7 @@ async function aiMetadata(text: string, opTrace: VideoTrace | null = null, paren
   }
 }
 
-async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null) {
+async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null) {
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
   }
@@ -485,17 +485,17 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     if (neighbor) {
       basis = neighbor;
       enrichmentSource = "neighbor_context";
-      meta = await aiMetadata(basis, opTrace);
+      meta = await aiMetadata(basis, opTrace, itemSpanId);
     } else {
-      meta = await thumbnailMetadata(row, opTrace);
+      meta = await thumbnailMetadata(row, opTrace, itemSpanId);
       if (meta?.title) {
         enrichmentSource = "thumbnail_vision";
       } else if (allowStt) {
         try {
-          transcript = await transcribe(row, opTrace);
+          transcript = await transcribe(row, opTrace, itemSpanId);
           basis = transcript;
           enrichmentSource = "stt";
-          meta = await aiMetadata(basis, opTrace);
+          meta = await aiMetadata(basis, opTrace, itemSpanId);
         } catch (e) {
           updates.enrichment_status = "retry_stt";
           updates.enrichment_source = "stt";
@@ -525,7 +525,7 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     }
   }
 
-  if (!meta) meta = await aiMetadata(basis, opTrace);
+  if (!meta) meta = await aiMetadata(basis, opTrace, itemSpanId);
   const title = meta.title || fallbackTitle(basis);
 
   if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
@@ -579,7 +579,10 @@ Deno.serve(async (req) => {
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("id", rowId)
       .maybeSingle();
-    if (error) return json({ error: "row_lookup_failed", detail: error.message }, 500);
+    if (error) {
+      await finishVideoTrace(opTrace, "failed_with_reason", "row_lookup_failed");
+      return json({ error: "row_lookup_failed", detail: error.message }, 500);
+    }
     if (data) rows = [data];
   } else {
     const { data, error } = await sb.from("channel_updates")
@@ -590,12 +593,39 @@ Deno.serve(async (req) => {
       .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })
       .limit(limit);
-    if (error) return json({ error: "batch_lookup_failed", detail: error.message }, 500);
+    if (error) {
+      await finishVideoTrace(opTrace, "failed_with_reason", "batch_lookup_failed");
+      return json({ error: "batch_lookup_failed", detail: error.message }, 500);
+    }
     rows = data || [];
   }
 
   const results = [];
-  for (const row of rows) results.push(await enrichRow(row, allowStt, opTrace));
+  for (const row of rows) {
+    const itemSpanId = crypto.randomUUID();
+    const itemStartedAt = new Date().toISOString();
+    const result = await enrichRow(row, allowStt, opTrace, itemSpanId);
+    const itemEndedAt = new Date().toISOString();
+    await recordVideoSpan(opTrace, {
+      spanId: itemSpanId,
+      kind: "tool",
+      name: "wa-video-enrich:item",
+      startedAt: itemStartedAt,
+      endedAt: itemEndedAt,
+      outcome: result.ok ? "success" : result.retryable ? "retryable" : result.skipped ? "skipped" : "failed_with_reason",
+      detail: {
+        capability: "wa-video-enrich:item",
+        owner_ref: "research_strategy_layer_law v17",
+        output_use: result.ok ? "used" : "not_applicable",
+        stop_reason: result.ok ? null : (result.stage || result.skipped || "row_failure"),
+        resources: { api_calls: 0, latency_ms: Math.max(0, Date.parse(itemEndedAt) - Date.parse(itemStartedAt)) },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+    results.push(result);
+  }
   const failed = results.filter((x: any) => !x.ok && !x.retryable && !x.skipped).length;
   await finishVideoTrace(opTrace, failed ? "failed_with_reason" : "success", failed ? "row_failure" : null);
   return json({
