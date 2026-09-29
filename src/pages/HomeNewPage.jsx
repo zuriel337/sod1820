@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers } from "../lib/supabase.js";
+import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getRecentPublishedGematria } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
@@ -125,6 +125,7 @@ export default function HomeNewPage() {
   const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"
   const [ciphers, setCiphers] = useState([]); // 🔠 צפנים חדשים (els_records published) — רצועה מעל «עדכונים אחרונים»
   const [recentCiphers, setRecentCiphers] = useState([]); // 🔠 צפני-מערכת של 24 השעות האחרונות → «עדכונים אחרונים»
+  const [recentGematria, setRecentGematria] = useState([]); // 🧮 הגימטריות האחרונות שנוספו למאגר הקנוני
   const [q, setQ] = useState("");
   const go = e => { e.preventDefault(); const v = q.trim(); if (v) nav(`/number/${encodeURIComponent(v)}`); };
   // 🎠 קרוסלת הירו
@@ -196,6 +197,7 @@ export default function HomeNewPage() {
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
+    getRecentPublishedGematria(8).then(rows => setRecentGematria(rows || [])).catch(() => {});
     markSeenKey("home-radar");
   }, []);
 
@@ -731,7 +733,24 @@ export default function HomeNewPage() {
             />
           </div>
         )}
-        <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
+        {recentGematria.length > 0 && (
+          <div style={{ marginTop: 14, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "13px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#57c98a", boxShadow: "0 0 7px #57c98a" }} />
+              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>🧮 גימטריות אחרונות שנוספו</span>
+              <Link to="/numbers" style={{ marginInlineStart: "auto", textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>עץ המספרים →</Link>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {recentGematria.map(row => (
+                <Link key={row.id} to={`/number/${encodeURIComponent(row.ragil)}`}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 10px 5px 12px", color: P.ink }}>
+                  <span style={{ color: P.accentText, fontFamily: F.mono, fontWeight: 800 }}>{row.ragil}</span>
+                  <span style={{ fontFamily: F.body, fontSize: 13, fontWeight: 650 }}>{row.phrase}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
         {/* 🔒 חיפושים = סודיים. לגולש RecentSearches רק משכפל את ActivityPulse הקומפקטי מלמעלה →
             מציגים אותו לאדמין בלבד (חיפושים אמיתיים). הציבור נשאר עם דופק-פעילות אחד, בלי כפילות ובלי טיזר. */}
         {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/research" /></div>}
