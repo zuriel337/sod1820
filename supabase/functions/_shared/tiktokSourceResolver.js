@@ -153,6 +153,29 @@ function filterVideoCandidates(candidates) {
   });
 }
 
+function mergeCandidateLists(...lists) {
+  const seen = new Set();
+  const merged = [];
+  for (const list of lists) {
+    for (const candidate of list || []) {
+      if (!candidate?.url || seen.has(candidate.url)) continue;
+      seen.add(candidate.url);
+      merged.push(candidate);
+    }
+  }
+  return merged.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+}
+
+function cookieHeaderFrom(headers) {
+  const values = typeof headers?.getSetCookie === 'function'
+    ? headers.getSetCookie()
+    : [headers?.get?.('set-cookie')].filter(Boolean);
+  return values
+    .map((value) => String(value).split(';', 1)[0].trim())
+    .filter(Boolean)
+    .join('; ');
+}
+
 export function extractTikTokMediaCandidatesFromJson(value, source = 'api') {
   const out = [];
   const seen = new Set();
@@ -195,6 +218,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
   if (!pageResponse.ok) throw new Error(`tiktok_page_${pageResponse.status}`);
 
   const finalUrl = pageResponse.url || src;
+  const requestCookie = cookieHeaderFrom(pageResponse.headers);
   if (!isTikTokPageUrl(finalUrl)) throw new Error('tiktok_redirect_outside_tiktok');
   const pageType = (pageResponse.headers.get('content-type') || '').toLowerCase();
   if (pageType.startsWith('video/')) {
@@ -203,6 +227,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
       kind: 'tiktok',
       mediaUrl: finalUrl,
       mediaCandidates: [{ url: finalUrl, source: 'direct-video-response' }],
+      requestCookie: requestCookie || null,
       resolvedPageUrl: finalUrl,
       platformVideoId: extractTikTokVideoId(finalUrl),
       resolutionSource: 'direct-video-response',
@@ -213,14 +238,19 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
   let candidates = filterVideoCandidates(extractTikTokMediaCandidatesFromHtml(html));
   const videoId = extractTikTokVideoId(finalUrl) || extractTikTokVideoId(src);
 
-  if (!candidates.length && videoId) {
+  if (videoId) {
     const apiUrl = `https://www.tiktok.com/api/item/detail/?itemId=${encodeURIComponent(videoId)}`;
-    const apiJson = await fetchJsonIfAvailable(apiUrl, fetchImpl, {
+    const apiHeaders = {
       ...TIKTOK_BROWSER_HEADERS,
       'Accept': 'application/json,text/plain,*/*',
       'Referer': finalUrl,
-    });
-    if (apiJson) candidates = filterVideoCandidates(extractTikTokMediaCandidatesFromJson(apiJson, 'item-detail'));
+    };
+    if (requestCookie) apiHeaders['Cookie'] = requestCookie;
+    const apiJson = await fetchJsonIfAvailable(apiUrl, fetchImpl, apiHeaders);
+    if (apiJson) {
+      const apiCandidates = filterVideoCandidates(extractTikTokMediaCandidatesFromJson(apiJson, 'item-detail'));
+      candidates = mergeCandidateLists(candidates, apiCandidates);
+    }
   }
 
   const chosen = candidates[0];
@@ -229,6 +259,7 @@ export async function resolveTikTokSource(src, fetchImpl = fetch) {
     kind: 'tiktok',
     mediaUrl: chosen.url,
     mediaCandidates: candidates.slice(0, 8).map((candidate) => ({ url: candidate.url, source: candidate.source })),
+    requestCookie: requestCookie || null,
     resolvedPageUrl: finalUrl,
     platformVideoId: videoId,
     resolutionSource: chosen.source,
@@ -252,9 +283,14 @@ export async function fetchTikTokMedia(resolution, fetchImpl = fetch, { rangePro
 
 export function mediaFetchHeaders(resolution) {
   if (resolution?.kind !== 'tiktok') return {};
-  return {
+  const headers = {
     'User-Agent': TIKTOK_BROWSER_HEADERS['User-Agent'],
     'Accept': 'video/mp4,video/*;q=0.9,*/*;q=0.8',
     'Referer': resolution.resolvedPageUrl || 'https://www.tiktok.com/',
+    'Sec-Fetch-Dest': 'video',
+    'Sec-Fetch-Mode': 'no-cors',
+    'Sec-Fetch-Site': 'same-site',
   };
+  if (resolution.requestCookie) headers['Cookie'] = resolution.requestCookie;
+  return headers;
 }
