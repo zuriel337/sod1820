@@ -20,29 +20,18 @@ export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000 } =
   const add = (name, ok, detail = "") => checks.push({ name, ok: !!ok, detail: String(detail).slice(0, 200) });
 
   try {
-    // Public / may legitimately project a server document or a browser-policy representation.
-    // Availability is the invariant here; deployed client-artifact integrity is checked directly below.
     const home = await get("/");
     add("home_200", home.status === 200, `status=${home.status}`);
-    add("home_html", home.status === 200 && /<html\b/i.test(home.text) && home.text.length > 200, `bytes=${home.text.length}`);
-
-    // Direct artifact path bypasses route/middleware representation while proving the deployed SPA bundle exists.
-    const artifact = await get("/index.html");
-    add("index_200", artifact.status === 200, `status=${artifact.status}`);
-    add("index_has_root", /id=["']root["']/.test(artifact.text));
-    const entry = artifact.text.match(/\/assets\/[\w./-]+\.js/);
-    add("index_has_entry_bundle", !!entry);
+    add("home_has_root", /id=["']root["']/.test(home.text));
+    const entry = home.text.match(/\/assets\/[\w./-]+\.js/);
+    add("home_has_entry_bundle", !!entry);
     if (entry) {
       const js = await get(entry[0]);
       add("entry_bundle_200", js.status === 200 && js.text.length > 1000, `status=${js.status} bytes=${js.text.length}`);
     }
-
     const robots = await get("/robots.txt");
     add("robots_200", robots.status === 200, `status=${robots.status}`);
-
-    // api/sitemap-public is the current public sitemap projection owner behind /sitemap.xml.
-    // Probe it directly so routing/middleware representation cannot create a false negative.
-    const sitemap = await get("/api/sitemap-public");
+    const sitemap = await get("/sitemap.xml");
     add("sitemap_200", sitemap.status === 200 && /<urlset|<sitemapindex/.test(sitemap.text), `status=${sitemap.status}`);
   } catch (e) {
     add("request_error", false, e?.message || e);
