@@ -686,10 +686,13 @@ function NumberPageBody() {
     heroMedia: leadMedia,
   }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
-  const stageData = Number.isSafeInteger(Number(activeResult)) && Number(activeResult) !== root
-    ? (methodResultState.key === Number(activeResult) ? methodResultState.data : null)
+  const explicitStageResult = focusExplicit && Number.isSafeInteger(Number(activeResult))
+    ? Number(activeResult)
+    : root;
+  const stageData = explicitStageResult !== root
+    ? (methodResultState.key === explicitStageResult ? methodResultState.data : null)
     : data;
-  const stageRoot = Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : root;
+  const stageRoot = explicitStageResult;
   const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
   const stageTopics = Array.isArray(stageData?.topics?.rows) ? stageData.topics.rows : [];
   const stageRelations = Array.isArray(stageData?.graph?.relations) ? stageData.graph.relations : [];
