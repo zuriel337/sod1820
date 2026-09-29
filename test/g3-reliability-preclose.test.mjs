@@ -95,7 +95,6 @@ test("canary: pass / non-200 / network failure", async () => {
   assert.equal((await runCanary("https://e.test", { fetchImpl: bad })).ok, false);
   assert.equal((await runCanary("https://e.test", { fetchImpl: async () => { throw new Error("net"); } })).ok, false);
 });
-
 test("heartbeat reader is public-read transport and fails closed on non-2xx", async () => {
   let seen;
   const out = await readHeartbeat({
@@ -144,6 +143,14 @@ test("workflows: exact-SHA commit status, sparse budget, no service-role CI secr
   assert.ok(!/SUPABASE_SERVICE_KEY|SUPABASE_SERVICE_ROLE_KEY/.test(w));
   assert.match(w, /continue-on-error: true/);
   assert.match(w, /Enforce canary outcome/);
+  assert.match(w, /Re-confirm exact Production SHA after smoke/);
+  assert.match(w, /steps\.target_post\.outcome/);
+  assert.match(w, /Production SHA changed during canary/);
+  assert.ok(w.includes('URL="https://sod1820.co.il"'));
+  assert.ok(w.includes('CURRENT_PRODUCTION_SHA="$(resolve_latest_production_sha)"'));
+  assert.ok(w.includes('if [ "$CURRENT_PRODUCTION_SHA" != "$SHA" ]; then'));
+  assert.ok(!w.includes('SHA="$EVENT_SHA"; URL="$EVENT_URL"'), "protected unique deployment URL is not the canary target");
+
 
   const g = read(".github/workflows/release-visual-gate.yml");
   assert.match(g, /statuses: read/);
