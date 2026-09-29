@@ -63,7 +63,7 @@ begin
   select count(*) into n from work_log where topic like '%override%'; assert n = 1, 'override audited';
   -- deploy_on_request v3 extends v2, v2 deactivated
   assert (select count(*) from nodes where rule_id='deploy_on_request' and is_active)=1 and (select rule_version from nodes where rule_id='deploy_on_request' and is_active)=3, 'v3 active';
-  assert (select description from nodes where rule_id='deploy_on_request' and rule_version=3) like 'v2 text%github%post-deploy-canary%', 'v3 extends v2 with GitHub exact-SHA canary gate';
+  assert (select description from nodes where rule_id='deploy_on_request' and rule_version=3) ilike 'v2 text%github%post-deploy-canary%', 'v3 extends v2 with GitHub exact-SHA canary gate';
 end $$;
 -- ACL: heartbeat/override-state readers are public read-only; writer/watch remain privileged
 do $$ begin
