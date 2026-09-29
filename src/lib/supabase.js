@@ -3286,7 +3286,7 @@ export async function getAllValuePhrases(value, limit = 500) {
 export async function getRecentPublishedGematria(limit = 8) {
   if (!supabase) return [];
   try {
-    const safeLimit = Math.max(1, Math.min(20, Number(limit) || 8));
+    const safeLimit = Math.max(1, Math.min(50, Number(limit) || 50));
     const { data } = await supabase.from("gematria_words")
       .select("id,phrase,ragil,created_at")
       .eq("is_verified", true)
