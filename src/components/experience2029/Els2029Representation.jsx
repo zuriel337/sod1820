@@ -14,9 +14,10 @@ function BandMeta({ band }) {
   </div>;
 }
 
-export default function Els2029Representation({ layers = null }) {
+export default function Els2029Representation({ layers = null, profile = "RESEARCH" }) {
   const model = useMemo(() => projectEls2029Representation(layers), [layers]);
   const ready = model.status === "READY" && model.bands.length > 0;
+  const classic = String(profile || "").toUpperCase() === "CLASSIC";
 
   return <section
     className="sod29-els-representation"
@@ -24,14 +25,17 @@ export default function Els2029Representation({ layers = null }) {
     data-els-representation-contract={model.contract}
     data-els-source-contract={model.sourceContract}
     data-els-representation-status={model.status}
+    data-els-matrix-profile={classic ? "classic" : "research"}
     aria-labelledby="els-representation-title"
   >
     <div className="sod29-els-rep-head">
       <div>
-        <div className="sod29-kicker">2D / 2.5D REPRESENTATION</div>
-        <h3 id="els-representation-title">שכבות מעל אותו occurrence</h3>
+        <div className="sod29-kicker">{classic ? "CLASSIC · 2D REPRESENTATION" : "2D / 2.5D REPRESENTATION"}</div>
+        <h3 id="els-representation-title">{classic ? "מטריצה קלאסית · אותו occurrence" : "שכבות מעל אותו occurrence"}</h3>
         <p className="sod29-muted">
-          זהו renderer של coordinates קיימים בלבד. ציר הוא תפקיד תצוגה; קרבה חזותית אינה חוזק ראיה.
+          {classic
+            ? "תצוגה ישירה ושטוחה של אותם coordinates מאומתים. אין הרחבת עומק, AI או חיפוש נוסף במעבר למצב קלאסי."
+            : "זהו renderer של coordinates קיימים בלבד. ציר הוא תפקיד תצוגה; קרבה חזותית אינה חוזק ראיה."}
         </p>
       </div>
       <span className="sod29-chip">{ready ? "DOM · READY" : "FEED REQUIRED"}</span>
