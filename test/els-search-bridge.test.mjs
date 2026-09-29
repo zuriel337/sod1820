@@ -22,10 +22,40 @@ test('ELS server bridge reuses canonical abuse protection and Operational Trace'
   assert.match(src, /sha256:\$\{inputHash\}/);
 });
 
-test('full-domain page bridge does not silently impose the public 500 skip ceiling', () => {
+test('B0: capability gate precedes every canonical engine RPC, names lock_els, is traced and fails closed', () => {
+  const gate = src.indexOf('serviceRpc("fn_capability_execution_gate_v1"');
+  assert.ok(gate > 0);
+  assert.ok(gate < src.indexOf('serviceRpc("els_verify_occurrence_v1"'));
+  assert.ok(gate < src.indexOf('serviceRpc("els_search_page_core_v1"'));
+  assert.match(src, /ELS_LOCK_FLAG = "lock_els"/);
+  assert.match(src, /p_flag_key:\s*ELS_LOCK_FLAG/);
+  assert.match(src, /"fn_capability_execution_gate_v1", gateStartedAt/);
+  assert.match(src, /!gate \|\| !gateAllowed \|\| !gateTraced/);
+  assert.match(src, /gate_unavailable/);
+  assert.match(src, /access_filtered/);
+  assert.match(src, /if \(!trace\) return json\(\{ error: "trace_unavailable" \}, 503\)/);
+  // privacy-safe denial: entitlement/identity detail is never echoed
+  assert.doesNotMatch(src, /json\(\{[^}]*\bgate\b[^}]*\}/);
+});
+
+test('B0: page search is explicitly bounded; verify keeps large exact skips', () => {
+  assert.match(src, /PAGE_SKIP_MAX_CEILING = 500/);
+  assert.match(src, /skipMax == null \|\| skipMax < skipMin/);
+  assert.match(src, /skip_max_required/);
+  assert.match(src, /skipMax > PAGE_SKIP_MAX_CEILING/);
+  assert.match(src, /budget_exceeded/);
   assert.match(src, /p_skip_max:\s*skipMax/);
   assert.match(src, /pageSize = Math\.max\(1, Math\.min\([^\n]*500\)\)/);
-  assert.doesNotMatch(src, /Math\.min\([^\n]*skipMax[^\n]*500/);
+  // verify path has no ceiling applied to skip (1820 / 10065 remain valid)
+  const verifyBlock = src.slice(src.indexOf('if (op === "verify")'), src.indexOf('const skipMin'));
+  assert.doesNotMatch(verifyBlock, /CEILING|500/);
+  assert.match(verifyBlock, /skip < 2/);
+});
+
+test('B0: trace root stays server-issued; interaction_id correlation preserved', () => {
+  assert.match(src, /const traceId = crypto\.randomUUID\(\)/);
+  assert.match(src, /interaction_id: interactionId/);
+  assert.doesNotMatch(src, /body\??\.trace_id|body\??\.root_span_id/);
 });
 
 test('Tanakh remains delegated to canonical MISSING_ADAPTER behavior', () => {
