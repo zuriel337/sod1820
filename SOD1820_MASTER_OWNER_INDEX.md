@@ -1,6 +1,6 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-29  
 **Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 ENTRY**
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
@@ -40,7 +40,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| Foundation gate sequence / closure / compaction | `foundation_closure_protocol_law` v5 |
+| Foundation gate sequence / closure / compaction | `foundation_closure_protocol_law` v6 |
 | Live-state sync | `live_state_sync_law` |
 | Live-state conflict resolution | `live_state_resolution_law` under Live State |
 | Release authorization | `deploy_on_request` |
@@ -60,12 +60,12 @@ Owner families below are routing categories only — never umbrella super-laws.
 | Responsibility | Canonical owner |
 |---|---|
 | Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
-| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v4 ACTIVE** |
+| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v5 ACTIVE** |
 | adaptive semantic zones/layout | `workspace_layout_standard` |
-| Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v15 ACTIVE** |
+| Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v16 ACTIVE** |
 | source-native research-object identity invariant | `research_object_identity_invariant_law` |
 
-`research_strategy_layer_law v15` owns the compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
+`research_strategy_layer_law v16` owns the current compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
 
 Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v15 / Truth.
 
@@ -107,7 +107,7 @@ Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Arch
 | Responsibility | Canonical owner |
 |---|---|
 | deterministic Gematria execution/verification routing | `project_codex.gematria_engine` + active `gematria_engine_law` v2 |
-| Method identity / registry / aliases / conditional equivalence | `canonical_methods_registry_law` v5 |
+| Method identity / registry / aliases / conditional equivalence | `canonical_methods_registry_law` v6 |
 | Method lifecycle | `method_lifecycle` |
 | execution/scanning authority | `engine_governance_registry_authority_law` |
 | numeric/system rule-family routing | `project_codex.numeric_rule_family_index` |
@@ -118,7 +118,7 @@ Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Arch
 
 | Responsibility | Canonical owner |
 |---|---|
-| ELS research semantics/capability | `els_research_layer_law` **v8 ACTIVE** |
+| ELS research semantics/capability | `els_research_layer_law` **v9 ACTIVE** |
 | ONE canonical ELS engine invariant | `els_single_engine_law` under ELS owner |
 | bounded seed continuation | `els_seed_expansion_law` under ELS owner |
 | testimony / non-prophecy safety | `testimony_not_prophecy` under ELS owner |
@@ -160,7 +160,7 @@ Privacy/RLS rules are scoped invariants under Person/Foundation owners, not para
 |---|---|
 | publishing conventions / Post identity | `project_codex.publishing_conventions` |
 | legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
-| translation / source-language integrity | `content_translation_law` v3 |
+| translation / source-language integrity | `content_translation_law` v4 |
 | contributor/source material | Research Intake + Research OS owners |
 | share UI primitive family | `canonical_ui_components_law` under Experience |
 
@@ -183,7 +183,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 
 | Responsibility | Canonical owner |
 |---|---|
-| traffic / analytics measurement truth | `traffic_intelligence_law` v8 |
+| traffic / analytics measurement truth | `traffic_intelligence_law` v11 |
 | system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v5 ACTIVE** |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
