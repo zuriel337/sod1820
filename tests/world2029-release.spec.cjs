@@ -130,22 +130,12 @@ async function openWorldAnchor(page, value, width = 390) {
 }
 
 
-test('A3 live client correlation: ELS replay carries client interaction_id into a server trace', async ({ page }) => {
+test('A3 live client correlation: Heichal research-run carries client interaction_id into a server trace', async ({ page }) => {
   const context = {
     version: 1,
-    subject: { id: 'els:golden:torah-50', type: 'els', label: 'תורה · 50', href: '/els' },
-    selection: {
-      entityType: 'els',
-      locator: 'els:torah:תורה:golden:torah-50:50',
-      term: 'תורה',
-      corpus: 'torah',
-      corpusVersion: '0b022e8eef6f9c16',
-      occurrenceId: 'els:0b022e8eef6f9c16:תורה:50:1:5',
-      start: 5,
-      skip: 50,
-      dir: 1,
-    },
-    lens: 'els',
+    subject: { id: '878', type: 'number', label: '878', href: '/2029/number/878' },
+    selection: { entityId: '878', entityType: 'number', resultValue: 878 },
+    lens: 'heichal',
     dimensions: {},
     journey: null,
     returnTo: null,
@@ -155,13 +145,16 @@ test('A3 live client correlation: ELS replay carries client interaction_id into 
     sessionStorage.setItem(key, JSON.stringify(seeded));
   }, { key: CONTEXT_KEY, seeded: context });
 
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/heichal`, { waitUntil: 'domcontentloaded' });
+  const action = page.locator('.sod29-resume-panel').getByRole('button', { name: /רזיאל/ }).first();
+  await expect(action).toBeVisible({ timeout: 30_000 });
+
   const responsePromise = page.waitForResponse((response) =>
     response.request().method() === 'POST'
-      && /\/functions\/v1\/els-search-bridge(?:\?|$)/.test(response.url())
+      && /\/functions\/v1\/research-run(?:\?|$)/.test(response.url())
   );
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/els`, { waitUntil: 'domcontentloaded' });
+  await action.click();
 
   const response = await responsePromise;
   expect(response.status()).toBe(200);
@@ -173,8 +166,8 @@ test('A3 live client correlation: ELS replay carries client interaction_id into 
 
   expect(interactionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
   expect(traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-  expect(responseBody?.result?.verification_state).toBe('MATCH');
-  await expect(page.getByText('MATCH · occurrence אומת בשרת')).toBeVisible({ timeout: 30_000 });
+  expect(responseBody?.status).toBe('ok');
+  expect(responseBody?.bundle).toBeTruthy();
 
   console.log(`A3_CLIENT_CORRELATION_EVIDENCE interaction_id=${interactionId} trace_id=${traceId}`);
 });
