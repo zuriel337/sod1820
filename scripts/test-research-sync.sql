@@ -20,10 +20,12 @@ grant select,insert,update,delete on public.research_items,public.user_research 
 grant all on public.research_items,public.user_research to service_role;
 insert into auth.users values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
 \ir ../supabase/migrations/20260916141000_g3_personal_research_sync_hardening_v1.sql
+\ir ../supabase/migrations/20260929123500_research_sync_40001_retry_storm_hotfix_v1.sql
 create function pg_temp.ok(condition boolean,label text) returns void language plpgsql as $$begin if condition is distinct from true then raise exception 'FAIL: %',label; end if;raise notice 'PASS: %',label;end$$;
-create function pg_temp.fails(statement text,pattern text) returns void language plpgsql as $$declare caught boolean:=false;begin
+create function pg_temp.fails(statement text,pattern text) returns void language plpgsql as $declare caught boolean:=false;begin
  begin execute statement; exception when others then if position(pattern in SQLERRM)=0 then raise;end if;caught:=true;end;
  if not caught then raise exception 'EXPECTED FAILURE: %',pattern;end if;raise notice 'PASS expected failure: %',pattern;end$$;
+select pg_temp.ok(position('PT409' in pg_get_functiondef('public.research_state_apply_ops_v1(uuid,jsonb,bigint,uuid)'::regprocedure))>0,'sync conflict uses non-retryable PT409');
 set role anon;
 select pg_temp.fails($q$select public.research_state_snapshot_v1('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')$q$,'permission denied');
 reset role;
