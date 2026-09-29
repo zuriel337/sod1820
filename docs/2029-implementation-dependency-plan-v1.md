@@ -599,6 +599,7 @@ Mandatory live inputs:
 - dead tuples/autovacuum/analyze state on hot tables;
 - canonical `events` versus Legacy telemetry write/read parity;
 - crawler/bot attribution from provider/edge/storage logs where semantic `events` cannot observe crawler traffic; zero `events.is_bot` must not be interpreted as zero bot egress;
+- egress-purpose attribution: public delivery, authorized external research/media processing, CI/headless acceptance, named crawler and unknown automation remain distinct operational causes when evidence permits; do not infer authorization or hostility from user-agent alone;
 - cron/Edge/background worker inventory and execution cost;
 - Raziel/site/channel routing and external-provider network boundaries;
 - Control Plane fast-health latency versus deep retention/storage drill-down cost;
