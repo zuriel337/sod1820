@@ -658,9 +658,9 @@ test('RICH 1820 remains useful when research rows are access-filtered', async ({
   await page.screenshot({ path: 'test-results/release-visual/world-partial-access-1820-390.png', fullPage: true });
 });
 
-test('automatic filters, sorting and explain-why work with build-phase control mode visible', async ({ page }) => {
+test('automatic filters, sorting and explain-why work without exposing admin research controls', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
-  await expect(page.getByRole('heading', { name: 'מצב מחקר', exact: true })).toBeVisible();
+  await expect(page.locator('.sod29-world-research-control')).toHaveCount(0);
   await selectWorldLane(page, 'קשרים');
   await expect(page.getByLabel('מיון קשרים')).toBeVisible();
   const numberFilter = page.getByRole('button', { name: /מספרים ·/ }).first();
