@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "supabase/functions/video-migrate/**"
+      - "supabase/functions/agent-upload/**"
       - "supabase/functions/_shared/tiktokSourceResolver.js"
       - "scripts/test-video-migrate-tiktok-resolver.mjs"
       - ".github/workflows/video-ingest-gate.yml"
@@ -20,8 +21,12 @@ jobs:
           node-version-file: .nvmrc
       - name: TikTok source resolver + direct-video compatibility
         run: node scripts/test-video-migrate-tiktok-resolver.mjs
+      - name: Agent TikTok link-only upload acceptance
+        run: node --experimental-strip-types supabase/functions/agent-upload/tiktok-mode.test.mts
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
       - name: Supabase Edge runtime typecheck
-        run: deno check supabase/functions/video-migrate/index.ts
+        run: |
+          deno check supabase/functions/video-migrate/index.ts
+          deno check supabase/functions/agent-upload/index.ts
