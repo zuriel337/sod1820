@@ -131,7 +131,7 @@ export default function BookSpatialResearch2029({ book, rows }) {
               style={{
                 left: `${point.x}%`,
                 top: `${point.y}%`,
-                "--s29-spatial-depth": point.depth,
+                "--s29-spatial-depth-px": `${Math.max(0, point.depth * 9)}px`,
               }}
               onClick={() => setFocusId(node.id)}
               aria-pressed={selected}
