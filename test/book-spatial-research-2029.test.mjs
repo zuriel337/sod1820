@@ -25,8 +25,7 @@ const rows = [
     source_ref: "book:test#p10",
     engine_verified: false,
     meta: { ext: {
-      bentov_book2: { finding_key: "a" },
-      spatial_projection: { enabled: true, layer: "origin", sort_order: 10, label: "א", summary: "מסלול א", lenses: ["overview","deep"], links: ["b"], visual_hint: "spine" },
+      spatial_projection: { node_key: "a", enabled: true, layer: "origin", sort_order: 10, label: "א", summary: "מסלול א", lenses: ["overview","deep"], links: ["b"], visual_hint: "spine" },
     } },
   },
   {
@@ -38,8 +37,7 @@ const rows = [
     engine_verified: true,
     engine_detail: { verification_state: "match" },
     meta: { ext: {
-      bentov_book2: { finding_key: "b" },
-      spatial_projection: { enabled: true, layer: "language", sort_order: 20, label: "ב", summary: "מסלול ב", lenses: ["overview","deep"], links: [], visual_hint: "ring22" },
+      spatial_projection: { node_key: "b", enabled: true, layer: "language", sort_order: 20, label: "ב", summary: "מסלול ב", lenses: ["overview","deep"], links: [], visual_hint: "ring22" },
     } },
   },
   {
@@ -50,8 +48,7 @@ const rows = [
     source_ref: "book:test#p12",
     engine_verified: false,
     meta: { ext: {
-      bentov_book2: { finding_key: "c" },
-      spatial_projection: { enabled: true, layer: "challenge", sort_order: 30, label: "Challenge", summary: "ביקורת", lenses: ["challenge","deep"], links: ["a"], visual_hint: "control" },
+      spatial_projection: { node_key: "c", enabled: true, layer: "challenge", sort_order: 30, label: "Challenge", summary: "ביקורת", lenses: ["challenge","deep"], links: ["a"], visual_hint: "control" },
     } },
   },
 ];
