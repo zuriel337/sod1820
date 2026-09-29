@@ -197,7 +197,7 @@ export default function HomeNewPage() {
     }).catch(() => {});
     getAxisEvents(30).then(e => setEvents(e || [])).catch(() => {});
     getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});
-    getRecentPublishedGematria(8).then(rows => setRecentGematria(rows || [])).catch(() => {});
+    getRecentPublishedGematria(50).then(rows => setRecentGematria(rows || [])).catch(() => {});
     markSeenKey("home-radar");
   }, []);
 
