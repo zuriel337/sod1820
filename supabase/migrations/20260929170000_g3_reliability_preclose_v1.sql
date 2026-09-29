@@ -552,7 +552,8 @@ begin
       || '2. BLOCK, DO NOT ROLL BACK. A failed latest canary, a canary for a different SHA than production, or no canary evidence blocks the NEXT release only. There is no automatic rollback. Recovery = a fixing release that itself passes its canary, or an explicit override.' || E'\n'
       || '3. EXPLICIT AUDITED OVERRIDE. Only ZURIEL Human Gate may authorise select public.fn_release_canary_override(<reason>, <hours 1..72>); it writes work_log and expires. The override never marks the canary as passed.' || E'\n'
       || '4. SYNTHETIC ≠ GOLDEN. A synthetic canary PASS is a small deterministic zero-AI smoke set (max 4 scheduled/manual runs per UTC day; deploy-triggered runs always allowed) and never substitutes Golden/CI/security gates.' || E'\n'
-      || '5. HEARTBEAT IS PART OF CANARY TRUTH. fn_release_canary_report evaluates the health-watch heartbeat server-side before storing evidence; a missing or >45m heartbeat stores ok=false, so a failed workflow can never leave release_canary:latest as success.',
+      || '5. HEARTBEAT IS PART OF CANARY TRUTH. fn_release_canary_report evaluates the health-watch heartbeat server-side before storing evidence; a missing or >45m heartbeat stores ok=false, so a failed workflow can never leave release_canary:latest as success.' || E'\n'
+      || '6. ONE-TIME INSTALL BOOTSTRAP. The single PR that first installs this canary gate may pass its PR preflight only when its base-main does not yet contain scripts/release-canary-gate.mjs, and only for missing gate RPC or no prior canary evidence. Missing reporting authority or an explicit failed canary never bootstrap-pass. Once the gate runtime exists on main, every later release fails closed without exact-SHA success or explicit audited Human-Gate override.',
     coalesce(v_prev.metadata, '{}'::jsonb) || jsonb_build_object(
       'release_canary_gate', 'fn_release_canary_gate',
       'release_canary_override', 'fn_release_canary_override',
