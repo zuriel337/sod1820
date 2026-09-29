@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   deployments: read
+  statuses: read
 
 concurrency:
   group: release-visual-${{ github.event.pull_request.number || github.ref }}
@@ -34,9 +35,6 @@ jobs:
       - name: Gate on latest production canary
         env:
           GH_TOKEN: ${{ github.token }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
           SHA=""
