@@ -560,22 +560,8 @@ export default function HomeNewPage() {
       {/* ===== 🏗️ בנייה + עדכונים — בדסקטופ מד-הבנייה בצד שמאל, עדכונים בטור יחיד ===== */}
       <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
         <div className="hn-home-top">
-          <div className="hn-updates-col">\n            <LegacyNowSystemPreview />
-            <div role="status" style={{
-              marginBottom: 14,
-              padding: "12px 14px",
-              border: `1px solid ${P.borderStrong}`,
-              borderRadius: 13,
-              background: P.card,
-              color: P.accentText,
-              fontFamily: F.body,
-              fontSize: 14,
-              fontWeight: 700,
-              lineHeight: 1.7,
-              textAlign: "center"
-            }}>
-              אנחנו בונים עכשיו את הדור הבא של האתר. במהלך השדרוג חלק מהעדכונים והפרסומים החדשים מושהים זמנית, והאזורים החדשים נפתחים בהדרגה כשהם מוכנים.
-            </div>
+          <div className="hn-updates-col">
+            <LegacyNowSystemPreview />
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
