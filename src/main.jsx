@@ -5,9 +5,12 @@ import './adminTheme.css'
 import './components/LightboxVisualFoundation.css'
 import './components/VisualFoundationBase.css'
 import { initAppHeal } from './lib/appHeal.js'
+import { initRuntimeErrorCapture } from './lib/tracking.js'
 
 // ריפוי-עצמי לבאנדל ישן — חייב להירשם לפני שראוטים עצלים מתחילים להיטען
 initAppHeal()
+
+initRuntimeErrorCapture()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

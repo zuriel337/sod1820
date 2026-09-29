@@ -8,12 +8,65 @@ on:
 
 permissions:
   contents: read
+  deployments: read
+  statuses: read
 
 concurrency:
   group: release-visual-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # G3_RELIABILITY_PRECLOSE — deploy_on_request v3 preflight: the NEXT release requires the latest exact-SHA
+  # production canary to be a SUCCESS (fn_release_canary_gate). Failure/missing evidence blocks; no auto rollback.
+  release-canary-gate:
+    name: Production Canary Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Reliability pre-close focused contract
+        run: node --test test/g3-reliability-preclose.test.mjs
+
+      - name: Gate on latest production canary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA=""
+          for i in $(gh api "repos/${{ github.repository }}/deployments?environment=Production&per_page=20" --jq '.[].id'); do
+            S=$(gh api "repos/${{ github.repository }}/deployments/$i/statuses?per_page=1" --jq '.[0].state')
+            if [ "$S" = "success" ]; then SHA=$(gh api "repos/${{ github.repository }}/deployments/$i" --jq '.sha'); break; fi
+          done
+          echo "current production sha: ${SHA:-unknown}"
+          if [ -z "$SHA" ]; then
+            echo "cannot resolve current successful Production deployment SHA" >&2
+            exit 1
+          fi
+          BOOTSTRAP_ARG=""
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          if [ -n "$BASE_SHA" ]; then
+            set +e
+            BASE_PROBE=$(gh api "repos/${{ github.repository }}/contents/scripts/release-canary-gate.mjs?ref=$BASE_SHA" 2>&1)
+            BASE_RC=$?
+            set -e
+            if [ "$BASE_RC" -ne 0 ]; then
+              if printf '%s' "$BASE_PROBE" | grep -q 'HTTP 404'; then
+                echo "canary gate bootstrap install release: base does not contain gate runtime"
+                BOOTSTRAP_ARG="--allow-bootstrap"
+              else
+                echo "failed to verify base canary-gate runtime; failing closed" >&2
+                printf '%s\n' "$BASE_PROBE" >&2
+                exit 1
+              fi
+            fi
+          fi
+          node scripts/release-canary-gate.mjs --production-sha "$SHA" $BOOTSTRAP_ARG
+
   mobile-accessibility:
     name: Mobile + Accessibility Acceptance
     runs-on: ubuntu-latest
