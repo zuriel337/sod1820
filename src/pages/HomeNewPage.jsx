@@ -577,46 +577,6 @@ export default function HomeNewPage() {
               אנחנו בונים עכשיו את הדור הבא של האתר. במהלך השדרוג חלק מהעדכונים והפרסומים החדשים מושהים זמנית, והאזורים החדשים נפתחים בהדרגה כשהם מוכנים.
             </div>
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
-            {recentGematria.length > 0 && (
-              <section aria-label="גימטריות אחרונות שנוספו" style={{
-                marginTop: 14,
-                padding: "13px 14px",
-                border: `1px solid ${P.borderStrong}`,
-                borderRadius: 13,
-                background: P.card,
-              }}>
-                <div style={{
-                  fontFamily: F.heading,
-                  color: P.accentText,
-                  fontWeight: 900,
-                  fontSize: 15,
-                  marginBottom: 10,
-                }}>🧮 גימטריות אחרונות שנוספו</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {recentGematria.map(row => (
-                    <Link
-                      key={row.id}
-                      to={`/number/${encodeURIComponent(row.ragil)}`}
-                      style={{
-                        textDecoration: "none",
-                        border: `1px solid ${P.border}`,
-                        background: P.cardSoft,
-                        color: P.ink,
-                        borderRadius: 999,
-                        padding: "7px 11px",
-                        fontFamily: F.body,
-                        fontSize: 13,
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      <b style={{ color: P.accentText }}>{row.phrase}</b>
-                      <span aria-hidden> = </span>
-                      <span style={{ fontFamily: F.mono, fontWeight: 800 }}>{row.ragil}</span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
             <div className="hn-build-title">🏗️ האתר מתחדש — הנה מה כבר נבנה</div>
@@ -773,7 +733,24 @@ export default function HomeNewPage() {
             />
           </div>
         )}
-        <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
+        {recentGematria.length > 0 && (
+          <div style={{ marginTop: 14, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "13px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#57c98a", boxShadow: "0 0 7px #57c98a" }} />
+              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800 }}>🧮 גימטריות אחרונות שנוספו</span>
+              <Link to="/numbers" style={{ marginInlineStart: "auto", textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>עץ המספרים →</Link>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {recentGematria.map(row => (
+                <Link key={row.id} to={`/number/${encodeURIComponent(row.ragil)}`}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 10px 5px 12px", color: P.ink }}>
+                  <span style={{ color: P.accentText, fontFamily: F.mono, fontWeight: 800 }}>{row.ragil}</span>
+                  <span style={{ fontFamily: F.body, fontSize: 13, fontWeight: 650 }}>{row.phrase}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
         {/* 🔒 חיפושים = סודיים. לגולש RecentSearches רק משכפל את ActivityPulse הקומפקטי מלמעלה →
             מציגים אותו לאדמין בלבד (חיפושים אמיתיים). הציבור נשאר עם דופק-פעילות אחד, בלי כפילות ובלי טיזר. */}
         {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/research" /></div>}
