@@ -143,10 +143,10 @@ test("workflows: exact-SHA commit status, sparse budget, no service-role CI secr
   assert.ok(!/SUPABASE_SERVICE_KEY|SUPABASE_SERVICE_ROLE_KEY/.test(w));
   assert.match(w, /continue-on-error: true/);
   assert.match(w, /Enforce canary outcome/);
-  assert.match(w, /URL="https:\\/\\/sod1820\\.co\\.il"/);
-  assert.match(w, /CURRENT_PRODUCTION_SHA="\\$\\(resolve_latest_production_sha\\)"/);
-  assert.match(w, /CURRENT_PRODUCTION_SHA.*!=.*SHA/);
-  assert.ok(!/SHA="\\$EVENT_SHA"; URL="\\$EVENT_URL"/.test(w), "protected unique deployment URL is not the canary target");
+  assert.ok(w.includes('URL="https://sod1820.co.il"'));
+  assert.ok(w.includes('CURRENT_PRODUCTION_SHA="$(resolve_latest_production_sha)"'));
+  assert.ok(w.includes('if [ "$CURRENT_PRODUCTION_SHA" != "$SHA" ]; then'));
+  assert.ok(!w.includes('SHA="$EVENT_SHA"; URL="$EVENT_URL"'), "protected unique deployment URL is not the canary target");
 
 
   const g = read(".github/workflows/release-visual-gate.yml");
