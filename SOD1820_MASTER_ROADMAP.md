@@ -1,7 +1,7 @@
 # SOD1820 — MASTER ROADMAP v6.6 COMPACT
 
-**Date:** 2026-09-29  
-**Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
+**Date:** 2026-09-30  
+**Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 PRE-CLOSE** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
 
@@ -22,7 +22,9 @@ Closure evidence:
 - production deployment READY and public site HTTP-verified;
 - detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
 
-**Current phase: G3 — Foundation runtime / implementation.**
+**Current phase: G3 — PRE-CLOSE / final Foundation acceptance.**
+
+**LIVE PRE-CLOSE CHECKPOINT · 2026-09-30:** current `origin/main` = Production = `fe0f87d57a723e5c6f40e57596b3578ca4722077`; Vercel READY and `sod1820/post-deploy-canary` SUCCESS on the exact SHA. Bottom-up runtime closure has live evidence for Security preclosure, Reliability, ELS runtime, A1/A2/A3, C-8, D1 governed Research Path save→revision→resume→fork/replay, D2 server-authoritative Capability/Access enforcement, A4 three-engine trace fan-out/fan-in with exact no-double-count rollup, H1 physical-backup restore drill, and H2 export/erasure including the Human-Gated `retain_detach` financial-retention policy. H1 technical acceptance is PASS; two temporary restore-test projects remain cleanup-only. G3 is **not CLOSED yet**: remaining gates are documented-state reconciliation, the final Maintenance Acceptance Matrix, independent Foundation challenge, temporary-project cleanup, and the final ZURIEL + Main Controller closure decision. Dated checkpoints below remain history and do not override this block.
 
 **BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
 
@@ -39,7 +41,7 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 - source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
 - target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired.
 
-**Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v2** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
+**Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
 
 ## 2029 North Star — owner pointers only
 
