@@ -87,6 +87,10 @@ G3 cannot close until all are true:
 19. **Staging/backups/legacy stores:** import-stage, backup, cleanup-manifest and dormant legacy tables receive explicit KEEP/ARCHIVE/RETIRE decisions with reader/writer proof; production DB is not a permanent attic by accident.
 20. **Physical maintenance after logical changes:** only after cutover/index/schema decisions, refresh statistics and run evidence-based VACUUM/ANALYZE/REPACK where needed; do not use table rewrites as a substitute for semantic cleanup.
 21. **Performance baseline:** record representative pre-G4 route/RPC/Raziel/query/cache/egress/error metrics; “fast” without measured evidence is not closure.
+22. **Retry amplification guard:** semantic/application conflicts must not surface through retryable transport/database error codes that can create backend retry storms; Golden/reliability acceptance includes a bounded conflict/retry case.
+23. **Crawler-cost reproof:** server-document/crawler metadata changes are accepted only after live DB-read and Storage-egress measurement confirms the intended reduction without breaking indexability/provenance.
+24. **Temporary Legacy hotfix retirement:** emergency fixes made only to keep current Legacy production usable (for example Legacy Home freshness/recent-gematria projections and Legacy Number crash guards) remain TEMPORARY_COMPATIBILITY and are revalidated for retirement once the native 2029 Home/Number path passes.
+25. **Branch/PR hygiene:** superseded open PRs/branches and branch-only prototypes are closed/archived or explicitly carried forward with an owner/removal condition so agents do not treat stale implementation branches as current architecture.
 
 ## Known G2 carry-forward candidates
 
@@ -117,7 +121,7 @@ Run this gate after G3 runtime/Golden implementation has enough verified replace
 
 ### Mandatory G3.5 live rescan
 
-The first deep scan is calibration only while 2029 is still being built. Immediately before G4 entry, repeat the live census against current main + production + canonical Supabase and supersede earlier counts. The rescan must cover DB/table/index/storage growth, current writers/readers, cron/Edge workers, legacy islands, `pg_stat_statements`, RLS/index advisors, vacuum/dead-tuple state, telemetry parity, Raziel/provider paths, monitoring latency, media/egress and retention coverage. New islands found by the rescan are added to this same gate; no parallel cleanup plan is created.
+The first deep scan is calibration only while 2029 is still being built. Immediately before G4 entry, repeat the live census against current main + production + canonical Supabase and supersede earlier counts. The rescan must cover DB/table/index/storage growth, current writers/readers, cron/Edge workers, legacy islands, `pg_stat_statements`, RLS/index advisors, vacuum/dead-tuple state, telemetry parity, retry amplification, Raziel/provider paths, monitoring latency, media/egress/crawler behavior, direct source-ingest paths, open/superseded PRs and retention coverage. New islands found by the rescan are added to this same gate; no parallel cleanup plan is created.
 
 The G3 opening event-driven inter-agent dispatcher does not replace this gate; it should help execute it with direct GPT↔CLAUDE challenge/verification once implemented.
 
