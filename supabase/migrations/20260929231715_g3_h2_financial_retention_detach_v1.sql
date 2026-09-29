@@ -21,8 +21,7 @@ do $patch$
 declare
   v_def text;
   v_new text;
-  v_guard text := $guard$
-  if exists(select 1 from public.credit_ledger where user_id=v_uid)
+  v_guard text := $guard$  if exists(select 1 from public.credit_ledger where user_id=v_uid)
      or exists(select 1 from public.payment_requests where user_id=v_uid)
      or exists(
        select 1
@@ -35,11 +34,8 @@ declare
        )
      ) then
     raise exception 'account_erasure_financial_retention_policy_pending' using errcode='P0001';
-  end if;
-$guard$;
-  v_phone_anchor text := $anchor$
-  select coalesce(array_agg(distinct regexp_replace(l.phone,'@.*$','')),'{}'::text[]) into v_phones from public.wa_account_links l where l.user_id=v_uid;
-$anchor$;
+  end if;$guard$;
+  v_phone_anchor text := $anchor$  select coalesce(array_agg(distinct regexp_replace(l.phone,'@.*$','')),'{}'::text[]) into v_phones from public.wa_account_links l where l.user_id=v_uid;$anchor$;
   v_detach text := $detach$
 
   -- Human Gate 2026-09-30: retain financial history, detach/redact account identity.
@@ -116,7 +112,7 @@ begin
   where n.nspname='public' and p.proname='export_my_data_v1' and p.pronargs=0;
 
   if v_def is null then raise exception 'export_my_data_v1 missing'; end if;
-  if position('Financial records are retained after erasure with account identity detached/redacted.' in v_def) > 0 then return; end if;
+  if position('Financial records are retained after erasure with account identity detached/redacted;' in v_def) > 0 then return; end if;
 
   v_new := replace(
     v_def,
