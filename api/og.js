@@ -164,7 +164,9 @@ const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test
 const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
 
 export default async function handler(req, res) {
-  const searchCrawlerDocument = String((req.query && req.query.crawler) || '') === 'search';
+  const crawlerMode = String((req.query && req.query.crawler) || '');
+  const searchCrawlerDocument = crawlerMode === 'search' || crawlerMode === 'apple';
+  const directVideoMetadataAllowed = crawlerMode !== 'apple';
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
 
@@ -656,7 +658,7 @@ export default async function handler(req, res) {
       description: orgeulaVid.desc,
       thumbnailUrl: orgeulaVid.thumb ? [orgeulaVid.thumb] : undefined,
       uploadDate: vidUploadIso(orgeulaVid.uploadDate),
-      contentUrl: orgeulaVid.contentUrl,
+      contentUrl: directVideoMetadataAllowed ? orgeulaVid.contentUrl : undefined,
       url: videoCanonical || canonical,
       inLanguage: 'he-IL',
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
@@ -681,7 +683,7 @@ export default async function handler(req, res) {
 <meta property="og:image:secure_url" content="${esc(image)}"/>
 <meta property="og:image:type" content="${imgType}"/>
 ${imgDims ? `<meta property="og:image:width" content="${imgDims.w}"/><meta property="og:image:height" content="${imgDims.h}"/>` : ''}
-${orgeulaVid ? `<meta property="og:video" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:secure_url" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:type" content="${ogVideoType(orgeulaVid.contentUrl)}"/>` : ''}
+${orgeulaVid && directVideoMetadataAllowed ? `<meta property="og:video" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:secure_url" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:type" content="${ogVideoType(orgeulaVid.contentUrl)}"/>` : ''}
 ${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>
