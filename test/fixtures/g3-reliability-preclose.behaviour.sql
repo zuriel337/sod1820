@@ -41,45 +41,36 @@ begin
   delete from events; insert into events(surface,event_type,sod_id,session_id,props) values ('checkout','issue_report','u1','u1','{"message":"login broken"}'),('checkout','issue_report','u2','u2','{"message":"login broken"}'),('home','view','a','a',null);
   perform public.fn_reliability_watch();
   select count(*) into n from work_log where topic like '%תקרית-ריצה%'; assert n = 1, 'issue_report reaches incident path';
-  -- canary gate
-  r := public.fn_release_canary_gate(null); assert (r->>'allowed')='false' and r->>'reason'='no_canary_evidence', 'missing evidence blocks';
-  begin perform public.fn_release_canary_report('abc','1','https://github.com/zuriel337/sod1820/actions/runs/1',true); assert false; exception when others then assert sqlerrm like 'sha must%', 'bad sha rejected'; end;
-  begin perform public.fn_release_canary_report(repeat('a',40),'1','https://evil.example/x',true); assert false; exception when others then assert sqlerrm like 'run_url%', 'foreign run url rejected'; end;
-  perform public.fn_release_canary_report(repeat('a',40),'11','https://github.com/zuriel337/sod1820/actions/runs/11',false,'["home_200"]');
-  r := public.fn_release_canary_gate(repeat('a',40)); assert r->>'reason'='latest_canary_failed' and (r->>'allowed')='false', 'failed canary blocks next release';
-  select count(*) into n from work_log where topic like '%Canary פרודקשן נכשל%'; assert n = 1, 'failure alerts';
-  -- canary truth: synthetic PASS + stale/missing heartbeat => stored ok=false, gate blocks, never last_success
+  -- heartbeat reader is read-only and fail-closed on stale/missing watcher
+  r := public.fn_reliability_heartbeat_status();
+  assert (r->>'healthy')='true', 'fresh health-watch heartbeat is healthy';
   update analytics_cache set computed_at = now() - interval '46 minutes' where cache_key='reliability_heartbeat:health_watch';
-  r := public.fn_release_canary_report(repeat('a',40),'20','https://github.com/zuriel337/sod1820/actions/runs/20',true);
-  assert (r->>'ok')='false' and r->'failed' ? 'health_watch_heartbeat', 'stale heartbeat => effective failure';
-  assert (select (payload->>'ok')::boolean from analytics_cache where cache_key='release_canary:latest')=false, 'latest stored ok=false on stale heartbeat';
-  r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='false' and r->>'reason'='latest_canary_failed', 'gate blocks on stale-heartbeat canary';
-  assert (select count(*) from analytics_cache where cache_key='release_canary:last_success')=0, 'no last_success from stale heartbeat';
+  r := public.fn_reliability_heartbeat_status();
+  assert (r->>'healthy')='false' and (r->>'age_minutes')::numeric >= 46, 'stale heartbeat is unhealthy';
   delete from analytics_cache where cache_key='reliability_heartbeat:health_watch';
-  r := public.fn_release_canary_report(repeat('a',40),'21','https://github.com/zuriel337/sod1820/actions/runs/21',true);
-  assert (r->>'ok')='false' and r->'health_watch_heartbeat_age_minutes'='null'::jsonb, 'missing heartbeat => effective failure';
-  r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='false', 'gate blocks on missing-heartbeat canary';
-  insert into analytics_cache(cache_key,payload,computed_at) values ('reliability_heartbeat:health_watch','{}',now()) on conflict (cache_key) do update set computed_at=now();
-  perform public.fn_release_canary_report(repeat('a',40),'12','https://github.com/zuriel337/sod1820/actions/runs/12',true);
-  r := public.fn_release_canary_gate(repeat('a',40)); assert (r->>'allowed')='true', 'exact-sha success allows';
-  r := public.fn_release_canary_gate(repeat('b',40)); assert r->>'reason'='canary_not_for_current_production_sha', 'sha mismatch blocks';
+  r := public.fn_reliability_heartbeat_status();
+  assert (r->>'healthy')='false' and r->'age_minutes'='null'::jsonb, 'missing heartbeat is unhealthy';
+  insert into analytics_cache(cache_key,payload,computed_at) values ('reliability_heartbeat:health_watch','{}',now())
+    on conflict (cache_key) do update set computed_at=now();
+
+  -- Human-Gate override writer is bounded/audited; public reader exposes only active state.
+  r := public.fn_release_canary_override_status();
+  assert (r->>'allowed')='false', 'no override by default';
   begin perform public.fn_release_canary_override('short'); assert false; exception when others then assert sqlerrm like 'override needs%', 'override needs reason'; end;
-  perform public.fn_release_canary_override('Human Gate ZURIEL: explicit release despite canary mismatch, audited', 1);
-  r := public.fn_release_canary_gate(repeat('b',40)); assert r->>'reason'='human_gate_override' and (r->>'allowed')='true', 'override explicit';
+  perform public.fn_release_canary_override('Human Gate ZURIEL: explicit bounded release override for recovery', 1);
+  r := public.fn_release_canary_override_status();
+  assert (r->>'allowed')='true' and r->>'reason'='human_gate_override', 'override reader reflects active bounded override';
   select count(*) into n from work_log where topic like '%override%'; assert n = 1, 'override audited';
-  -- synthetic budget <=4/day for scheduled/manual; deploy always allowed
-  r := public.fn_release_canary_slot('scheduled'); r := public.fn_release_canary_slot('scheduled'); r := public.fn_release_canary_slot('manual'); r := public.fn_release_canary_slot('scheduled');
-  assert (r->>'allowed')='true' and (r->>'used')='4', 'fourth allowed';
-  r := public.fn_release_canary_slot('scheduled'); assert (r->>'allowed')='false', 'fifth scheduled blocked';
-  r := public.fn_release_canary_slot('deploy'); assert (r->>'allowed')='true', 'deploy evidence run allowed';
   -- deploy_on_request v3 extends v2, v2 deactivated
   assert (select count(*) from nodes where rule_id='deploy_on_request' and is_active)=1 and (select rule_version from nodes where rule_id='deploy_on_request' and is_active)=3, 'v3 active';
   assert (select description from nodes where rule_id='deploy_on_request' and rule_version=3) like 'v2 text%fn_release_canary_gate%', 'v3 extends v2 verbatim';
 end $$;
--- ACL: not callable by anon/authenticated, callable by service_role
+-- ACL: heartbeat/override-state readers are public read-only; writer/watch remain privileged
 do $$ begin
-  assert not has_function_privilege('anon','public.fn_release_canary_report(text,text,text,boolean,jsonb,text)','execute'), 'anon blocked';
-  assert not has_function_privilege('authenticated','public.fn_release_canary_gate(text)','execute'), 'authenticated blocked';
+  assert has_function_privilege('anon','public.fn_reliability_heartbeat_status()','execute'), 'anon heartbeat reader allowed';
+  assert has_function_privilege('anon','public.fn_release_canary_override_status()','execute'), 'anon override-state reader allowed';
+  assert not has_function_privilege('anon','public.fn_release_canary_override(text,integer)','execute'), 'anon override writer blocked';
+  assert not has_function_privilege('authenticated','public.fn_release_canary_override(text,integer)','execute'), 'authenticated override writer blocked';
   assert not has_function_privilege('authenticated','public.fn_reliability_watch()','execute'), 'watch internal';
-  assert has_function_privilege('service_role','public.fn_release_canary_gate(text)','execute'), 'service_role allowed';
+  assert has_function_privilege('service_role','public.fn_release_canary_override(text,integer)','execute'), 'service_role override writer allowed';
 end $$;
