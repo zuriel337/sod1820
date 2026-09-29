@@ -598,6 +598,7 @@ Mandatory live inputs:
 - RLS/advisor findings, duplicate/missing index candidates and actual index usage;
 - dead tuples/autovacuum/analyze state on hot tables;
 - canonical `events` versus Legacy telemetry write/read parity;
+- crawler/bot attribution from provider/edge/storage logs where semantic `events` cannot observe crawler traffic; zero `events.is_bot` must not be interpreted as zero bot egress;
 - cron/Edge/background worker inventory and execution cost;
 - Raziel/site/channel routing and external-provider network boundaries;
 - Control Plane fast-health latency versus deep retention/storage drill-down cost;
@@ -605,7 +606,8 @@ Mandatory live inputs:
 - request-amplification/retry-storm evidence across RPC/API boundaries, including non-retryable application conflicts;
 - direct canonical source-ingest paths versus temporary/manual transport workarounds;
 - full retention census coverage and reference/provenance blockers;
-- staging/backup/import tables and any new islands created while 2029 was being built.
+- staging/backup/import tables and any new islands created while 2029 was being built;
+- every open PR/branch against current main, with explicit RELEASE / REBASE / ABSORB / ARCHIVE / SUPERSEDED disposition.
 
 Outputs:
 
