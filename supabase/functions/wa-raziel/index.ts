@@ -116,11 +116,13 @@ async function logRazielTokens(usage, t, spanId) {
     if (error) return null;
     const id = Number(data?.id) || null;
     if (id && t) {
-      await sb.rpc("op_trace_link_ai_cost_v1", {
-        p_trace_id: t.traceId,
-        p_span_id: spanId,
-        p_ai_token_log_id: id,
-      }).catch(() => null);
+      try {
+        await sb.rpc("op_trace_link_ai_cost_v1", {
+          p_trace_id: t.traceId,
+          p_span_id: spanId,
+          p_ai_token_log_id: id,
+        });
+      } catch { /* cost linkage must not block reply behavior */ }
     }
     return id;
   } catch { return null; }

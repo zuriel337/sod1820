@@ -337,7 +337,7 @@ async function transcribe(row: any, opTrace: VideoTrace | null = null, parentSpa
   const endedAt = new Date().toISOString();
   const raw = await r.text();
   await recordVideoSpan(opTrace, {
-    spanId, parentSpanId, kind: "tool", name: "wa-video-enrich:openai-transcribe",
+    spanId, parentSpanId, kind: "tool_call", name: "wa-video-enrich:openai-transcribe",
     startedAt, endedAt, outcome: r.ok ? "success" : "provider_error",
     detail: {
       capability: "wa-video-enrich:transcribe", owner_ref: "research_strategy_layer_law v17",
@@ -380,11 +380,13 @@ async function logTokens(usage: any, opTrace: VideoTrace | null = null, spanId: 
     if (error) return null;
     const id = Number(data?.id) || null;
     if (id && opTrace && spanId) {
-      await sb.rpc("op_trace_link_ai_cost_v1", {
-        p_trace_id: opTrace.traceId,
-        p_span_id: spanId,
-        p_ai_token_log_id: id,
-      }).catch(() => null);
+      try {
+        await sb.rpc("op_trace_link_ai_cost_v1", {
+          p_trace_id: opTrace.traceId,
+          p_span_id: spanId,
+          p_ai_token_log_id: id,
+        });
+      } catch { /* cost linkage must not block enrichment */ }
     }
     return id;
   } catch { return null; }
@@ -489,19 +491,19 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     if (neighbor) {
       basis = neighbor;
       enrichmentSource = "neighbor_context";
-      meta = await aiMetadata(basis, opTrace, itemSpanId);
+      meta = await aiMetadata(basis, opTrace, null);
     } else {
       meta = opTrace
-        ? await thumbnailMetadataTraced(row, opTrace, itemSpanId)
+        ? await thumbnailMetadataTraced(row, opTrace, null)
         : await thumbnailMetadata(row);
       if (meta?.title) {
         enrichmentSource = "thumbnail_vision";
       } else if (allowStt) {
         try {
-          transcript = await transcribe(row, opTrace, itemSpanId);
+          transcript = await transcribe(row, opTrace, null);
           basis = transcript;
           enrichmentSource = "stt";
-          meta = await aiMetadata(basis, opTrace, itemSpanId);
+          meta = await aiMetadata(basis, opTrace, null);
         } catch (e) {
           updates.enrichment_status = "retry_stt";
           updates.enrichment_source = "stt";
@@ -531,7 +533,7 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     }
   }
 
-  if (!meta) meta = await aiMetadata(basis, opTrace, itemSpanId);
+  if (!meta) meta = await aiMetadata(basis, opTrace, null);
   const title = meta.title || fallbackTitle(basis);
 
   if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
@@ -614,7 +616,7 @@ Deno.serve(async (req) => {
     const itemEndedAt = new Date().toISOString();
     await recordVideoSpan(opTrace, {
       spanId: itemSpanId,
-      kind: "tool",
+      kind: "tool_call",
       name: "wa-video-enrich:item",
       startedAt: itemStartedAt,
       endedAt: itemEndedAt,
