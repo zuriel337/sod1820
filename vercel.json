@@ -559,6 +559,17 @@
       "destination": "/api/honeypot"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/&crawler=search"
+    },
+    {
       "source": "/2029",
       "has": [
         {
