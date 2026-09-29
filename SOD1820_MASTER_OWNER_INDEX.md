@@ -1,7 +1,7 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-**Date:** 2026-09-29  
-**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 ENTRY**
+**Date:** 2026-09-30  
+**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 PRE-CLOSE**
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
 
@@ -43,7 +43,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 | Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v7 ACTIVE** |
 | Live-state sync | `live_state_sync_law` |
 | Live-state conflict resolution | `live_state_resolution_law` under Live State |
-| Release authorization | `deploy_on_request` |
+| Release authorization | `deploy_on_request` **v3 ACTIVE** |
 | Work-log current/history semantics | `work_log_authority_law` |
 | Capability availability | `site_flags_lock_law` |
 
@@ -53,7 +53,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 |---|---|
 | task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v13 ACTIVE** |
 
-**G3 priority:** v13 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
+**G3 runtime state:** `inter_agent_coordination_law v13` owns the LIVE event-driven GPT↔CLAUDE assignment/claim/lease/result transport over `work_log`. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -67,7 +67,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 `research_strategy_layer_law v17` owns the compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
 
-Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v15 / Truth.
+Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by current Workspace v5 / Strategy v17 / Truth.
 
 ### D. RESEARCH INTAKE / SOURCE / REPRESENTATION
 
