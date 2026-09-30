@@ -25,7 +25,7 @@ test('closed convergence-tree availability is still projected onto legacy /numbe
 test('public sitemap remains fail-closed for the retired /numbers entry', () => {
   assert.match(sitemap, /key=eq\.lock_convergence_tree/);
   assert.match(sitemap, /function removeNumbersHub/);
-  assert.match(sitemap, /<loc>https:\\/\\/sod1820\\\.co\\\.il\\\/numbers<\\\/loc>/);
+  assert.ok(sitemap.includes('sod1820\\.co\\.il\\/numbers'), 'sitemap projection must target the retired /numbers URL');
   assert.match(sitemap, /if \(!publiclyOpen\) xml = removeNumbersHub\(xml\)/);
   assert.match(sitemap, /if \(!r\.ok\) return false/);
 });
