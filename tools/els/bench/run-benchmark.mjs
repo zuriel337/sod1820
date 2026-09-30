@@ -43,7 +43,7 @@ const corpus = S.loadCorpus(); meta.corpusLetters = corpus.text.length; meta.ind
 for (const scope of SCOPES) {
   const ctx = S.makeCtx(corpus, scope); const SN = S.scopeLen(scope); meta.indexBuildMs[scope] = +ctx.idx.buildMs.toFixed(1);
   const legacy = S.loadLegacy(corpus, scope);
-  for (const [cls, term] of TERMS) {
+  for (const [cls, rawTerm] of TERMS) { const term = S.normalize(rawTerm);
     const L = term.length; const full = S.fullMaxSkip(SN, L);
     const legacyCache = new Map();
     for (const domain of DOMAINS) {

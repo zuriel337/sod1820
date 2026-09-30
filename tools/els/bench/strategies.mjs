@@ -42,7 +42,7 @@ export function buildIndex(corpus, SN) {
 
 export const scopeLen = (scope) => (scope === 'torah' ? TORAH_LEN : TANAKH_LEN);
 export const fullMaxSkip = (SN, L) => Math.max(1, Math.floor((SN - 1) / Math.max(1, L - 1)));
-const encode = (term) => Array.from(term, (c) => c.charCodeAt(0) - 0x5d0);
+const encode = (term) => Array.from(normalize(term), (c) => c.charCodeAt(0) - 0x5d0);
 const lb = (a, x) => { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] < x) lo = m + 1; else hi = m; } return lo; };
 
 export const canonicalCmp = (a, b) => a.skip - b.skip || a.start - b.start || b.dir - a.dir;
@@ -58,7 +58,7 @@ function makeRun(deadlineMs) {
 // ---------------------------------------------------------------------------------------------
 // Independent replay verifier: works on the raw canonical string, not on the strategy's typed arrays.
 export function replay(text, term, h, SN, minSkip = 2) {
-  const L = term.length;
+  term = normalize(term); const L = term.length;
   if (!(h.skip >= minSkip) || (h.dir !== 1 && h.dir !== -1)) return false;
   const end = h.start + h.dir * h.skip * (L - 1);
   if (h.start < 0 || h.start >= SN || end < 0 || end >= SN) return false;
@@ -211,7 +211,7 @@ function finish(strategy, run, hits, c) {
 // Result-contract (els_search_result_v1) envelope: preserves corpus_id, zero-based coordinates, dependency group,
 // selection-protocol slot and replay-verifiable occurrence records. Strategy/policy live under completion + search.
 export function toResultV1(ctx, q, r) {
-  const L = q.term.length; const cid = CORPUS_IDS[q.scope];
+  const L = normalize(q.term).length; const cid = CORPUS_IDS[q.scope];
   return {
     contract: 'els_search_result_v1', scope: q.scope, corpus_id: cid, selection_protocol: q.selectionProtocol ?? null,
     coordinate: { position_base: 0, space: 'canonical_corpus_character_index', start_semantics: 'first_letter_of_searched_expression', direction_values: { fwd: 1, back: -1 } },

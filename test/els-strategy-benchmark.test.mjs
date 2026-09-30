@@ -84,3 +84,13 @@ test('legacy browser findAll baseline is runnable from the template extraction',
   assert.equal(r.timedOut, false); assert.ok(r.hits.length > 0);
   for (const h of r.hits) assert.ok(S.replay(corpus.text, 'יונה', h, S.TORAH_LEN, 1));
 });
+
+test('final-letter terms are normalised (ירושלים / נון) and replay-verified in every strategy', () => {
+  for (const raw of ['ירושלים', 'נון']) {
+    const term = S.normalize(raw); assert.ok(!/[ךםןףץ]/.test(term));
+    for (const fn of [S.runExact, S.runAnchorFast, S.runHybrid]) {
+      const r = fn(ctxK, { term: raw, scope: 'tanakh', maxskip: 40, cap: 50, budgetMs: 20000 });
+      for (const h of r.hits) assert.ok(S.replay(corpus.text, term, h, S.TANAKH_LEN));
+    }
+  }
+});
