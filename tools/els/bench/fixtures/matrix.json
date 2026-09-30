@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "caps": [
+    16,
+    400,
+    3000,
+    4000
+  ],
+  "scopes": [
+    "torah",
+    "tanakh"
+  ],
+  "domains": {
+    "bounded": 500,
+    "full": null
+  },
+  "terms": [
+    {
+      "term": "אל",
+      "class": "short_common"
+    },
+    {
+      "term": "אור",
+      "class": "short_common"
+    },
+    {
+      "term": "משיח",
+      "class": "medium"
+    },
+    {
+      "term": "שלום",
+      "class": "medium"
+    },
+    {
+      "term": "אברהם",
+      "class": "medium"
+    },
+    {
+      "term": "טוטפת",
+      "class": "rare"
+    },
+    {
+      "term": "צדקיהו",
+      "class": "rare"
+    },
+    {
+      "term": "דוד",
+      "class": "palindrome"
+    },
+    {
+      "term": "אבא",
+      "class": "palindrome"
+    },
+    {
+      "term": "רגל",
+      "class": "reverse_sensitive"
+    },
+    {
+      "term": "זזזזזזזז",
+      "class": "no_result_probe"
+    },
+    {
+      "term": "תורה",
+      "class": "golden"
+    }
+  ],
+  "goldens": [
+    {
+      "id": "torah-skip50-genesis-first-tav",
+      "term": "תורה",
+      "scope": "torah",
+      "skip": 50,
+      "dir": 1,
+      "start": 5,
+      "note": "first ת of בראשית; the well-known Genesis ELS 50 'תורה'"
+    },
+    {
+      "id": "torah-skip50-exodus-first-tav",
+      "term": "תורה",
+      "scope": "torah",
+      "skip": 50,
+      "dir": 1,
+      "start": 78071,
+      "note": "first ת of שמות (book start 78064 + 7); the well-known Exodus ELS 50 'תורה'"
+    }
+  ]
+}
