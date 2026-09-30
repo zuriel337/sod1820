@@ -110,17 +110,14 @@ function dateOnly(value) {
 function markFz1073RegionHeadings(content = "") {
   let html = String(content || "");
   for (const region of FZ1073_REGIONS) {
-    const heading = String(region.heading || "").replace(/[.*+?^$()|[\]\\]/g, "\\
-function stripTags(html = "") {");
-    const pattern = new RegExp("<h([1-6])([^>]*)>(\\s*" + heading + "\\s*)<\\/h\\1>", "i");
-    html = html.replace(pattern, (match, level, attrs, inner) => {
-      if (/data-source-heading\s*=/.test(attrs)) return match;
-      return "<h" + level + attrs + " data-source-heading=\"true\">" + inner + "</h" + level + ">";
+    const pattern = new RegExp("(<h[1-6][^>]*)(>\\s*)" + region.heading + "(\\s*<\\/h[1-6]>)", "i");
+    html = html.replace(pattern, (match, open, separator, close) => {
+      if (/data-source-heading\s*=/.test(open)) return match;
+      return open + " data-source-heading=\"true\"" + separator + region.heading + close;
     });
   }
   return html;
 }
-
 function buildFz1073Experience(post, topic363 = null) {
   const href = "/post/" + FZ1073_SLUG;
   const connections = [
