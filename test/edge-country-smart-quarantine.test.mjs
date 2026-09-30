@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const source = readFileSync(new URL('../middleware.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../middleware-core.js', import.meta.url), 'utf8');
 const migration = readFileSync(new URL('../supabase/migrations/20260914140000_cn_smart_quarantine_2029.sql', import.meta.url), 'utf8');
 
 // One canonical owner; quarantine extends the existing mode vocabulary instead of creating a parallel system.
