@@ -53,12 +53,12 @@ $function$;
 revoke all on function public.fn_els_search(text,integer,integer) from public;
 grant execute on function public.fn_els_search(text,integer,integer) to anon, authenticated, service_role;
 
-revoke all on function public.els_search_geometry_v1(text,text,integer,integer,text,integer,integer,integer[],integer) from public;
-revoke execute on function public.els_search_geometry_v1(text,text,integer,integer,text,integer,integer,integer[],integer) from anon, authenticated;
-grant execute on function public.els_search_geometry_v1(text,text,integer,integer,text,integer,integer,integer[],integer) to service_role;
+revoke all on function public.els_search_geometry_v1(text,text,integer,integer,integer,integer,integer,integer[],integer) from public;
+revoke execute on function public.els_search_geometry_v1(text,text,integer,integer,integer,integer,integer,integer[],integer) from anon, authenticated;
+grant execute on function public.els_search_geometry_v1(text,text,integer,integer,integer,integer,integer,integer[],integer) to service_role;
 
 comment on function public.fn_els_search(text,integer,integer) is
   'TEMPORARY_COMPATIBILITY legacy projection over canonical els_search_core_v1. No independent occurrence generation. Retire after fn_els_for_name/fn_name_multi consumer rewire.';
 
-comment on function public.els_search_geometry_v1(text,text,integer,integer,text,integer,integer,integer[],integer) is
+comment on function public.els_search_geometry_v1(text,text,integer,integer,integer,integer,integer,integer[],integer) is
   'Internal/service compatibility wrapper over els_search_geometry_core_v1. Public anon/auth execution revoked in G3 One-Engine closure.';
