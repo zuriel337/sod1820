@@ -8,6 +8,9 @@ on:
       - 'test/els-core-compatibility.test.mjs'
       - 'test/els-core-compatibility-fixture.sql'
       - 'test/els-core-compatibility.sql'
+      - 'supabase/migrations/20260930083354_g3_els_tanakh_canonical_stream_build_v1.sql'
+      - 'test/els-tanakh-canonical-stream.test.mjs'
+      - 'test/els-tanakh-canonical-stream-fixture.sql'
       - '.github/workflows/els-core-compatibility-gate.yml'
       - 'src/lib/research/els2029*.js'
       - 'src/lib/research/elsRazielContext.js'
@@ -49,6 +52,9 @@ jobs:
 
       - name: Static one-engine contract tests
         run: node --test test/els-core-compatibility.test.mjs
+
+      - name: Tanakh canonical stream oracle + admission contract
+        run: node --test test/els-tanakh-canonical-stream.test.mjs
 
       - name: Exact replay and 2029 projection acceptance
         run: |
