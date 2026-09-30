@@ -33,4 +33,11 @@ for (const token of ['NOT_', 'PENDING', 'BLOCKER', 'OPEN', 'IN_PROGRESS', 'BRANC
 assert.match(sql, /revoke all on function public\.admin_worklog_archive_done\(\) from public, anon/i);
 assert.match(sql, /grant execute on function public\.admin_worklog_archive_done\(\) to authenticated, service_role/i);
 
+
+for (const token of ['PAUSED', 'STOPPED_AT_GATE', 'DECISION_READY', 'HUMAN_GATE']) {
+  assert.match(sql, new RegExp(token, 'i'), `archive predicate must preserve unresolved gate token: ${token}`);
+}
+assert.match(sql, /NOT\[ _-\]\*\(MERGED\|DEPLOYED\|LIVE\|CANONICAL/i);
+assert.match(sql, /HUMAN_GATE_REJECTED\|REJECTED_BY_HUMAN_GATE/i);
+
 console.log('g3-retention-enforcement-contract: PASS');
