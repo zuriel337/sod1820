@@ -1,6 +1,22 @@
 import React from "react";
 
 export default function PostEvidenceMedia2029({ media }) {
+  if (media?.wireframe) {
+    return <section
+      className="sod29-post-evidence-media is-wireframe"
+      data-experience-capability="post-source-media"
+      aria-label="מדיית המקור · מבנה בלבד"
+    >
+      <div className="sod29-wireframe-block">
+        <b>HIGHLIGHT</b>
+        <span>כאן יוצג רק רגע הראיה מתוך הסרטון</span>
+      </div>
+      <div className="sod29-wireframe-block">
+        <b>FULL SOURCE</b>
+        <span>כאן נשמרת גישה ברורה למקור המלא</span>
+      </div>
+    </section>;
+  }
   if (!media?.highlight?.src && !media?.fullSource?.href) return null;
   return <section
     className="sod29-post-evidence-media"
