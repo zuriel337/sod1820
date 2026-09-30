@@ -1,0 +1,24 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { post2029ReadingInternals } from "../src/lib/research/post2029ReadingProjection.js";
+
+test("Bennett salt Golden reuses existing tree identities", () => {
+  const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, buildBennettSaltExperience } = post2029ReadingInternals;
+  assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
+  assert.equal(BENNETT_SALT_REGIONS.length, 5);
+  const experience = buildBennettSaltExperience({ date: "2026-10-01T00:00:00.000Z" });
+  assert.equal(experience.connections.find((row) => row.id === "bennett-631")?.href, "/sharshar-elections-redemption-hints-draft");
+  assert.equal(experience.connections.find((row) => row.id === "dead-sea-133")?.href, "/yam-hamelach-tiferet-geula");
+  assert.equal(experience.timeline.find((row) => row.id === "bennett-salt-event")?.temporalRole, "occurred");
+  assert.equal(experience.trail.length, 3);
+  assert.equal(experience.media.fullSource.href.includes("mako.co.il"), true);
+});
+
+test("Bennett salt exact slug redirects to Post 2029", () => {
+  const config = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const match = (config.redirects || []).find((row) => row.source === "/bennett-melach-631-78");
+  assert.ok(match);
+  assert.equal(match.destination, "/post/bennett-melach-631-78");
+  assert.equal(match.permanent, true);
+});
