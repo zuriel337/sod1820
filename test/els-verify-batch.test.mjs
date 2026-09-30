@@ -199,7 +199,7 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     const tk = oracle('שדי', 2, 2, 0, TORAH_LEN - 1).slice(0, 3);
     const dname = (d) => (d === 1 ? 'fwd' : 'back');
     db(`insert into public.els_records(id,search_term,scope,skip_distance,direction,status,visibility,slug,source) values ('11111111-1111-1111-1111-111111111111','שדי','torah',2,null,'published','public','legacy-incomplete','admin')`);
-    tk.forEach((h, i) => db(`insert into public.els_records(id,search_term,scope,skip_distance,direction,start_index,corpus_id,status,visibility,slug,source) values ('2222222${i}-2222-2222-2222-222222222222','שדי','torah',2,'${dname(h.dir)}',${h.start},'0b022e8eef6f9c16','pending','private','pend-${i}','community')`));
+    tk.forEach((h, i) => db(`insert into public.els_records(id,owner_user_id,search_term,scope,skip_distance,direction,start_index,corpus_id,status,visibility,slug,source) values ('2222222${i}-2222-2222-2222-222222222222','00000000-0000-0000-0000-00000000000b','שדי','torah',2,'${dname(h.dir)}',${h.start},'0b022e8eef6f9c16','pending','private','pend-${i}','community')`));
     const beforeLegacy = J(`select row_to_json(e)::text from public.els_records e where slug='legacy-incomplete'`);
     r = file(`supabase/migrations/${GATE}`); assert.equal(r.status, 0, r.stderr);
     const ADMIN = '00000000-0000-0000-0000-00000000000a', USER = '00000000-0000-0000-0000-00000000000b';
@@ -233,14 +233,27 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     // (e) current-pending analogue: identity-complete MATCH pending rows remain publishable; pending/hidden transitions ungated
     for (let i = 0; i < 3; i++) { r = as(ADMIN, `select public.moderate_els_matrix('2222222${i}-2222-2222-2222-222222222222','published')`); assert.equal(r.status, 0, r.stderr); }
     assert.equal(J(`select json_agg(status order by slug)::text from public.els_records where slug like 'pend-%'`).join(','), 'published,published,published');
+
+    // (f) post-approval mutation: owner cannot edit approved evidence in place; admin can edit only while primary replay still MATCHes.
+    const pub1 = '22222221-2222-2222-2222-222222222222';
+    fails(as(USER, `select public.update_els_matrix('${pub1}','{"forged":true}'::jsonb,null,null,null)`), /published_requires_remoderation/);
+    assert.equal(J(`select positions is null from public.els_records where id='${pub1}'`), true, 'rejected owner edit leaves published row unchanged');
+    r = as(ADMIN, `select public.update_els_matrix('${pub1}','{"admin_note":"verified-primary"}'::jsonb,null,null,null)`); assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(J(`select positions::text from public.els_records where id='${pub1}'`), { admin_note: 'verified-primary' }, 'admin edit allowed only after stored primary MATCH gate');
+    // The save/upsert path also cannot mutate an owner-published row: same identity becomes a NEW pending variant.
+    const ownerStart = tk[2].start, ownerDir = dname(tk[2].dir);
+    r = save(USER, 'שדי', 2, ownerDir, ownerStart); assert.equal(r.status, 0, r.stderr);
+    assert.equal(J(`select count(*) from public.els_records where owner_user_id='${USER}' and start_index=${ownerStart} and status='published'`), 1);
+    assert.equal(J(`select count(*) from public.els_records where owner_user_id='${USER}' and start_index=${ownerStart} and status='pending'`), 1, 'owner re-save creates pending variant instead of mutating approved evidence');
+
     r = as(ADMIN, `select public.moderate_els_matrix('11111111-1111-1111-1111-111111111111','hidden')`); assert.equal(r.status, 0, r.stderr);
-    // (f) forward-only: no historical row rewritten by the migration or the gate
+    // (g) forward-only: no historical row rewritten by the migration or the gate
     db(`update public.els_records set status='published' where slug='legacy-incomplete'`);
     const afterLegacy = J(`select row_to_json(e)::text from public.els_records e where slug='legacy-incomplete'`);
     assert.deepEqual({ ...afterLegacy, status: null }, { ...beforeLegacy, status: null }, 'legacy row untouched');
     // already-published rows are not re-gated (no rewrite): re-publishing the legacy published row is a no-op success
     r = as(ADMIN, `select public.moderate_els_matrix('11111111-1111-1111-1111-111111111111','published')`); assert.equal(r.status, 0, r.stderr);
-    // (g) ACL: gate helper not callable by public roles
+    // (h) ACL: gate helper not callable by public roles
     r = db(`select concat(has_function_privilege('anon','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'),has_function_privilege('authenticated','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'),has_function_privilege('service_role','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'))`);
     assert.equal(r.stdout.trim(), 'fft');
     // batch verifier ACL still service-role-only after the gate migration
