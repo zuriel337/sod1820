@@ -82,7 +82,7 @@ export default function Layout() {
             להחזרה: הסר את false. */}
         {false && showBanner && <CosmicVerseBanner mode={mode} />}
         {/* 📡 טיקר-החדשות/בקרוב — גלובלי, כולל דף הבית. משתמש באותו LiveActivityBar קנוני ובאותם ticker_messages. */}
-        <LiveActivityBar />
+        <LiveActivityBar prominent={isHome} />
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
             מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
