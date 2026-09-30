@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { getScope } from './lib/corpus.mjs';
+import { getScope, normalizeTerm } from './lib/corpus.mjs';
 import { runStrategy, enumerateViaAnchor, unpackKey, bandEdges, SEGMENTS, STRATEGY } from './lib/strategies.mjs';
 import { replayResult } from './lib/verify.mjs';
 import { runLegacy } from './lib/legacy.mjs';
@@ -19,7 +19,7 @@ const BUDGET = Number(opt('budget-ms', 15000));
 const TRUTH = Number(opt('truth-ms', 40000));
 const scopes = opt('scope') ? [opt('scope')] : matrix.scopes;
 const domains = opt('domain') ? [opt('domain')] : Object.keys(matrix.domains);
-const terms = opt('term') ? matrix.terms.filter(t => t.term === opt('term')) : matrix.terms;
+const terms = (opt('term') ? matrix.terms.filter(t => t.term === opt('term')) : matrix.terms).map(t => ({ ...t, term: normalizeTerm(t.term) }));   // canonical normalization (folds final letters) before any verification
 const withLegacy = !argv.includes('--no-legacy');
 const SLOW_MS = 1500;   // a strategy that takes longer than this on its first run is not repeated
 
