@@ -25,6 +25,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/enter",
   "/entity-hub-preview",
   "/experience",
+  "/flydubai-fz1073-363-14000-remzei-geula",
   "/explorer-preview",
   "/forum",
   "/galaxy",
