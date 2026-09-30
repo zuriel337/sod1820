@@ -1,6 +1,6 @@
 import { getPostBySlug, supabase } from "../supabase.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
-import { projectPost2029Experience } from "./post2029ExperienceProjection.js";
+import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
@@ -140,6 +140,15 @@ export async function fetchPost2029ReadingProjection(slug) {
     verification: region.number === 787 ? yearVerification : null,
   }));
 
+  const projectedExperience = projectPost2029Experience(post);
+  const experience = isGolden
+    && !projectedExperience.media
+    && projectedExperience.connections.length === 0
+    && projectedExperience.timeline.length === 0
+    && projectedExperience.trail.length === 0
+      ? buildPost2029ArchitectureWireframe()
+      : projectedExperience;
+
   return {
     version: "post-2029-reading-v1",
     post,
@@ -163,7 +172,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     caveat: isGolden
       ? "המקור נשמר כלשונו. החיבורים בשוליים הם שכבת SOD1820 נפרדת."
       : "שכבת ההקשר אינה חלק מדברי המקור.",
-    experience: projectPost2029Experience(post),
+    experience,
   };
 }
 
