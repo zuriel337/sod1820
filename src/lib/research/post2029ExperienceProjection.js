@@ -113,6 +113,7 @@ export function buildPost2029ArchitectureWireframe() {
     version: "post-2029-wireframe-v1",
     wireframe: true,
     media: {
+      wireframe: true,
       highlight: {
         src: "",
         poster: null,
