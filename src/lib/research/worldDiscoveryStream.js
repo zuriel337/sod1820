@@ -1,4 +1,5 @@
 import { fetchTopicCardList } from "./topicConvergence.js";
+import { fetchBookEntities } from "./bookResearchProjection.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
