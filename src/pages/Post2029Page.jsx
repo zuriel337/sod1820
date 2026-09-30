@@ -4,7 +4,6 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import ReadingContextRail2029 from "../components/experience2029/ReadingContextRail2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import PostContextTrail2029 from "../components/experience2029/PostContextTrail2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -115,6 +114,7 @@ function PostReadingBody() {
       lens: "reading",
       dimensions: {
         ...(research.context?.dimensions || {}),
+        bottomTrail: state.projection?.experience?.trail || [],
         readingFocus: {
           id: activeFocus.id,
           label: activeFocus.label,
@@ -296,7 +296,6 @@ function PostReadingBody() {
     </div>
 
     <PostTimeline2029 items={experience.timeline || []} />
-    <PostContextTrail2029 items={experience.trail || []} />
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
