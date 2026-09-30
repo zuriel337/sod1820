@@ -563,6 +563,29 @@ export default function HomeNewPage() {
           <div className="hn-updates-col">
             {/* 🔕 «העת עכשיו» (הצצה מהמערכת החדשה) — הוסתר מהבית (בקשת צוריאל 30.9.2026). להחזרה: הסר את false. */}
             {false && <LegacyNowSystemPreview />}
+            <div role="note" aria-label="רמזי תשפ״ז והמטוס" style={{
+              marginBottom: 18,
+              background: "linear-gradient(135deg, rgba(212,175,55,0.12), rgba(122,19,32,0.10))",
+              border: `1px solid ${P.borderStrong}`,
+              borderRadius: 16,
+              padding: "16px 17px",
+              textAlign: "center"
+            }}>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(17px,2.5vw,21px)", fontWeight: 900, lineHeight: 1.45 }}>
+                ✈️ רמזים מדהימים סביב המטוס שכמעט התרסק
+              </div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 3 }}>
+                הפוסט המלא עם כל החיבורים — בהכנה.
+              </div>
+              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.9, marginTop: 10 }}>
+                <b style={{ color: P.accentText }}>שנת תשפ״ז = 787</b><br />
+                ״מי שגמלך כל טוב הוא יגמלך כל טוב סלה״ = <b>787</b><br />
+                ״ושמחת בחגך״ = <b>787</b>
+              </div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 6 }}>
+                רמזים מופלאים של הצלה, הודיה ושמחה בפתחה של שנת תשפ״ז.
+              </div>
+            </div>
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
