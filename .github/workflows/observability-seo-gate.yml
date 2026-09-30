@@ -43,6 +43,12 @@ jobs:
       - name: Email OTP length compatibility
         run: node --test src/lib/emailOtp.test.js
 
+      - name: G3 retention enforcement guards
+        run: |
+          node --test \
+            test/g3-retention-enforcement-contract.test.mjs \
+            test/g3-retention-enforcement-guard.test.mjs
+
       - name: W2 Research contract tests
         run: |
           node --test \
