@@ -1,10 +1,16 @@
 // gallery-ocr v5 — סריקה מלאה: טקסט + תיאור + ישויות + מספרים + סוג תמונה + גימטריה מובנית (ביטוי + כל השיטות)
+import { createMaterialGate } from "../_shared/materialGate.js";
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const RUN_KEY = Deno.env.get("OCR_RUN_KEY") || "";
 const MODEL = Deno.env.get("OCR_MODEL") || "claude-sonnet-4-6";
 const MAX_BYTES = 4_500_000;
+// G3 D2: canonical server capability gate + Operational Trace before provider (Vision) spend.
+const mg = createMaterialGate({ supabaseUrl: SUPABASE_URL, serviceKey: SERVICE_KEY, anonKey: Deno.env.get("SUPABASE_ANON_KEY") || "" });
+const CAPABILITY = "gallery-ocr:scan";
+const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -38,7 +44,7 @@ function parseJsonLoose(raw: string): any {
   if (a >= 0 && b > a) { try { return JSON.parse(clean.slice(a, b + 1)); } catch { /* ignore */ } }
   return { text: clean, scene: "", entities: [], numbers: [], image_type: "", gematria: null };
 }
-async function scanImage(imageUrl: string): Promise<{ text: string; numbers: number[]; meta: Record<string, unknown> }> {
+async function scanImage(imageUrl: string, trace: any, caller: any): Promise<{ text: string; numbers: number[]; meta: Record<string, unknown> }> {
   const imgResp = await fetch(imageUrl);
   if (!imgResp.ok) throw new Error(`fetch image ${imgResp.status}`);
   const buf = await imgResp.arrayBuffer();
@@ -53,19 +59,27 @@ async function scanImage(imageUrl: string): Promise<{ text: string; numbers: num
     "numbers = כל מספר שלם שמופיע בתמונה כספרות (אל תחשב גימטריה — רק תעתוק). " +
     'image_type = אחד מ: "gematria" (צילום מסך של תוכנת/מחשבון גימטריה), "news" (כתבה/צילום מסך חדשותי), "photo" (תצלום מהמציאות), "document" (מסמך/טקסט), "other". ' +
     "gematria = אם ורק אם זו תוכנת/מחשבון גימטריה: phrase = הביטוי/המילה שמחושב/ת, values = אובייקט של כל השיטות שמופיעות עם ערכן המספרי (לדוגמה {\"רגיל\":1139,\"גדול\":1139,\"משולש\":4531,\"ריבוע\":4865,\"מילוי\":2729,\"אתבש\":1537}). שמור על שמות השיטות בדיוק כפי שמופיעים בתמונה. אם זו אינה תוכנת גימטריה — gematria=null.";
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: MODEL, max_tokens: 4000,
-      messages: [{ role: "user", content: [
-        { type: "image", source: { type: "base64", media_type: mediaType(imageUrl), data: b64 } },
-        { type: "text", text: prompt },
-      ] }],
-    }),
+  const data = await mg.providerSpan(trace, {
+    capability: CAPABILITY, name: "gallery-ocr:model", ownerRef: OWNER_REF, model: MODEL,
+    source: "gallery-ocr", kind: "scan", caller,
+    run: async () => {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: MODEL, max_tokens: 4000,
+          messages: [{ role: "user", content: [
+            { type: "image", source: { type: "base64", media_type: mediaType(imageUrl), data: b64 } },
+            { type: "text", text: prompt },
+          ] }],
+        }),
+      });
+      if (!resp.ok) return { error: `anthropic_${resp.status}`, detail: (await resp.text()).slice(0, 200) };
+      const d = await resp.json();
+      return { ...d, usage: d?.usage };
+    },
   });
-  if (!resp.ok) throw new Error(`anthropic ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
-  const data = await resp.json();
+  if (data.error) throw new Error(`anthropic ${String(data.error).replace("anthropic_", "")}: ${data.detail || ""}`);
   const raw = (data.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n");
   const p = parseJsonLoose(raw);
   const text = typeof p.text === "string" ? p.text : "";
@@ -101,7 +115,15 @@ async function scanImage(imageUrl: string): Promise<{ text: string; numbers: num
 
 Deno.serve(async (req: Request) => {
   try {
-    if (RUN_KEY && req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
+    // Auth: run-key semantics unchanged when OCR_RUN_KEY is configured. When it is NOT configured (live G0
+    // state), the former fail-open path let any holder of the public anon JWT spend Vision credits; that path
+    // now requires a verified admin session (the admin OCR UI already calls this with its session JWT).
+    const caller = await mg.resolveCaller(req, {});
+    if (RUN_KEY) {
+      if (req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
+    } else if (!(caller.verified && caller.tier === "admin")) {
+      return json({ error: "unauthorized" }, 401);
+    }
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY secret" }, 500);
 
     let limit = 5, retry = false, rescanOld = false, ids: string[] = [];
@@ -125,11 +147,20 @@ Deno.serve(async (req: Request) => {
     try { rows = JSON.parse(selBody); } catch { return json({ stage: "select_parse", status: sel.status, body: selBody.slice(0, 300) }, 500); }
     if (!Array.isArray(rows)) return json({ stage: "select", status: sel.status, body: rows }, 500);
 
+    // Gate BEFORE any provider spend; fails closed. One root per invocation, one model span per image.
+    const trace = await mg.beginTrace({
+      capability: CAPABILITY, surface: "admin-ocr", ownerRef: OWNER_REF,
+      identityClass: RUN_KEY && !caller.verified ? "run_key" : caller.tier, rootName: "gallery-ocr",
+    });
+    const g = await mg.runGate(trace, { capability: CAPABILITY, caller, requiredEntitlement: "public", budgetKind: "none" });
+    if (g.state === "unavailable") return json({ error: "gate_unavailable", trace_id: trace?.traceId || null }, 503);
+    if (g.state === "denied") return json({ error: g.denial, trace_id: trace?.traceId || null }, 403);
+
     let done = 0, errors = 0;
     const sample: any[] = [];
     for (const row of rows) {
       try {
-        const { text, numbers, meta } = await scanImage(row.image_url);
+        const { text, numbers, meta } = await scanImage(row.image_url, trace, caller);
         await patchRow(row.id, { ocr_text: text, ocr_numbers: numbers, ocr_meta: meta, image_type: (meta as any).image_type || null, ocr_status: "done", ocr_at: new Date().toISOString() });
         done++;
         if (sample.length < 2) sample.push({ url: row.image_url, numbers, image_type: (meta as any).image_type, gematria: (meta as any).gematria, preview: text.slice(0, 160) });
@@ -139,6 +170,7 @@ Deno.serve(async (req: Request) => {
         if (sample.length < 2) sample.push({ url: row.image_url, error: String(e).slice(0, 200) });
       }
     }
+    await mg.finishTrace(trace, errors && !done ? "provider_error" : errors ? "partial" : "success", errors ? "scan_errors" : null);
     return json({ picked: rows.length, done, errors, sample });
   } catch (e) {
     return json({ stage: "handler", error: String(e), stack: (e as any)?.stack?.slice(0, 400) }, 500);
