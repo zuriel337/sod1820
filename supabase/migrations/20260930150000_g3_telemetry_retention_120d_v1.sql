@@ -129,21 +129,21 @@ begin
     if v_payload is not null then return v_payload::json; end if;
   end if;
 
-  with rng as (select now()-(v_effective_days||' days')::interval since),
+  with rng as (select now()-(v_effective_days||' days')::interval as since),
   d as (
-    select (ts at time zone 'Asia/Jerusalem')::date day, count(*) views, count(distinct visitor) uniques
+    select (ts at time zone 'Asia/Jerusalem')::date as day, count(*) as views, count(distinct visitor) as uniques
     from public.site_visits,rng where ts>=rng.since and not is_bot group by 1
   ),
   paths as (
-    select path,count(*) views from public.site_visits,rng
+    select path,count(*) as views from public.site_visits,rng
     where ts>=rng.since and not is_bot group by 1 order by 2 desc limit 25
   ),
   refs as (
-    select coalesce(nullif(referrer,''),'ישיר / לא ידוע') referrer,count(*) views
+    select coalesce(nullif(referrer,''),'ישיר / לא ידוע') as referrer,count(*) as views
     from public.site_visits,rng where ts>=rng.since and not is_bot group by 1 order by 2 desc limit 15
   ),
   dev as (
-    select coalesce(nullif(device,''),'לא ידוע') device,count(*) views
+    select coalesce(nullif(device,''),'לא ידוע') as device,count(*) as views
     from public.site_visits,rng where ts>=rng.since and not is_bot group by 1 order by 2 desc
   )
   select jsonb_build_object(
@@ -188,11 +188,11 @@ begin
     if v_payload is not null then return v_payload::json; end if;
   end if;
 
-  with rng as (select now()-(v_effective_days||' days')::interval since),
+  with rng as (select now()-(v_effective_days||' days')::interval as since),
   base as (
-    select coalesce(nullif(meta->>'tag',''),meta->>'source','ישיר') tag,
-           coalesce(nullif(meta->>'source',''),'ישיר') platform,
-           (meta->>'tagged')::boolean tagged,visitor_id,created_at
+    select coalesce(nullif(meta->>'tag',''),meta->>'source','ישיר') as tag,
+           coalesce(nullif(meta->>'source',''),'ישיר') as platform,
+           (meta->>'tagged')::boolean as tagged,visitor_id,created_at
     from public.visitor_events,rng
     where section='arrival' and event_type='source' and created_at>=rng.since
   ),
@@ -202,11 +202,11 @@ begin
   )
   select jsonb_build_object(
     'by_tag',(select coalesce(jsonb_agg(jsonb_build_object('tag',t.tag,'platform',t.platform,'tagged',t.tagged,'visitors',t.visitors,'hits',t.hits,'today',coalesce(td.today,0)) order by t.visitors desc),'[]'::jsonb)
-      from (select tag,max(platform) platform,bool_or(tagged) tagged,count(distinct visitor_id) visitors,count(*) hits from base group by tag)t
-      left join (select tag,count(distinct visitor_id) today from today group by tag)td on td.tag=t.tag),
+      from (select tag,max(platform) as platform,bool_or(tagged) as tagged,count(distinct visitor_id) as visitors,count(*) as hits from base group by tag)t
+      left join (select tag,count(distinct visitor_id) as today from today group by tag)td on td.tag=t.tag),
     'by_platform',(select coalesce(jsonb_agg(jsonb_build_object('platform',p.platform,'visitors',p.visitors,'today',coalesce(pt.today,0)) order by p.visitors desc),'[]'::jsonb)
-      from (select platform,count(distinct visitor_id) visitors from base group by platform)p
-      left join (select platform,count(distinct visitor_id) today from today group by platform)pt on pt.platform=p.platform),
+      from (select platform,count(distinct visitor_id) as visitors from base group by platform)p
+      left join (select platform,count(distinct visitor_id) as today from today group by platform)pt on pt.platform=p.platform),
     'total_today',(select count(distinct visitor_id) from today),
     'total_visitors',(select count(distinct visitor_id) from base),
     'requested_days',p_days,
