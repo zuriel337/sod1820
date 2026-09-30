@@ -67,7 +67,7 @@ begin
   insert into public.analytics_cache(
     cache_key,payload,computed_at,cache_kind,producer,producer_version,billable_state
   ) values(
-    v_key,v_payload,now(),'capacity_snapshot','fn_capacity_snapshot_v1','v1','NON_BILLABLE'
+    v_key,v_payload,now(),'capacity_snapshot','fn_capacity_snapshot_v1','v1','NOT_BILLABLE'
   )
   on conflict(cache_key) do update set
     payload=excluded.payload,
@@ -178,7 +178,7 @@ begin
   insert into public.analytics_cache(
     cache_key,payload,computed_at,cache_kind,producer,producer_version,billable_state
   ) values(
-    'capacity_guard:latest',v_payload,now(),'capacity_guard','fn_capacity_growth_guard_v1','v1','NON_BILLABLE'
+    'capacity_guard:latest',v_payload,now(),'capacity_guard','fn_capacity_growth_guard_v1','v1','NOT_BILLABLE'
   )
   on conflict(cache_key) do update set
     payload=excluded.payload,
