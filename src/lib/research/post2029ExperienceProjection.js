@@ -48,7 +48,8 @@ function normalizeTimelineItem(item, index) {
   if (!label || !date) return null;
   const temporalRole = ["occurred", "published", "discovered", "admitted"].includes(item.temporalRole)
     ? item.temporalRole
-    : "occurred";
+    : null;
+  if (!temporalRole) return null;
   return {
     id: clean(item.id) || `timeline-${index + 1}`,
     label,
