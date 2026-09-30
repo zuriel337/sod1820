@@ -1343,7 +1343,7 @@
   // HYBRID_COVERAGE_V1 primary collector: continues the SAME band/direction lanes (probe state reused, no restart, never calls
   // findAll/findAllAdaptive) in round-robin chunks until `cap` candidates are gathered (capped, band-balanced) or every lane is
   // exhausted (complete enumeration == anchor result set). Candidates only — governed truth stays the server batch verifier.
-  const AD_COLLECT_CHUNK=20000;
+  const AD_COLLECT_CHUNK=2000;
   function laneDone(ln){return ln.a==null&&ln.k>=ln.N;}
   function stratCollect(ps,cap){
     let capped=0;
@@ -1359,7 +1359,13 @@
     }
     if(ps.sig>=cap)capped=1;
     let all=[...ps.hits.values()];
-    if(capped){let g=0;all=all.filter(h=>Math.abs(h.skip)<2||++g<=cap);}   // cap counts governed-eligible (skip>=2) candidates only
+    if(capped){   // cap counts governed-eligible (skip>=2) candidates only; pick round-robin across (direction x band) buckets so the capped set stays spread
+      const SN=scopeN(),bk=new Map(),keep=[];
+      for(const h of all){if(Math.abs(h.skip)<2){keep.push(h);continue;}
+        const k=(h.dir===1?0:1)*AD_BANDS+Math.min(AD_BANDS-1,Math.floor(h.start*AD_BANDS/SN));let a=bk.get(k);if(!a)bk.set(k,a=[]);a.push(h);}
+      const lists=[...bk.values()];let g=0;
+      for(let r=0;g<cap;r++){let any=false;for(const a of lists){if(r<a.length){any=true;keep.push(a[r]);if(++g>=cap)break;}}if(!any)break;}
+      all=keep;}
     const hits=all.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
     return {hits,capped};
   }
