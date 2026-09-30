@@ -49,3 +49,16 @@ test("Post 2029 page exposes stable semantic capability seams", () => {
   assert.match(timeline, /data-experience-capability="post-factual-timeline"/);
   assert.match(trail, /data-experience-capability="post-context-trail"/);
 });
+
+
+test("System Frame locks one shared Contextual Inspector and keeps bottom trail separate from Global Navigation", () => {
+  const contract = readFileSync(new URL("../docs/sod1820-system-frame-contract-v2-addendum.md", import.meta.url), "utf8");
+  const inspector = readFileSync(new URL("../src/components/experience2029/ContextualInspector2029.jsx", import.meta.url), "utf8");
+  const rail = readFileSync(new URL("../src/components/experience2029/ReadingContextRail2029.jsx", import.meta.url), "utf8");
+
+  assert.match(contract, /Contextual Inspector is one shared semantic capability across desktop surfaces/);
+  assert.match(contract, /Bottom context trail != Global Navigation/);
+  assert.match(contract, /The Inspector \*\*is not a mini-World\*\*/);
+  assert.match(inspector, /data-experience-capability="contextual-inspector"/);
+  assert.match(rail, /ContextualInspector2029/);
+});
