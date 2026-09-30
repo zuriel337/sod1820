@@ -54,6 +54,125 @@ const GOLDEN_REGIONS = Object.freeze([
   },
 ]);
 
+
+const FZ1073_REGIONS = Object.freeze([
+  {
+    id: "visual-363",
+    heading: "מהשמיים — עד הנחיתה בטבוק",
+    label: "363 · הרמז החזותי",
+    primary: "363 · חמישה = המשיח",
+    signals: ["רמז חזותי מן המקור", "Topic 363"],
+    number: 363,
+    worldLabel: "פתח את 363 בעולם",
+  },
+  {
+    id: "trust-axis",
+    heading: "75 → 750 → 7500",
+    label: "ציר 75 → 750 → 7500",
+    primary: "בטחון · 75",
+    signals: ["אברהם · 75", "ישעיהו כ״ו, ד׳"],
+    number: 75,
+    worldLabel: "פתח את ציר 75",
+  },
+  {
+    id: "saudi",
+    heading: "סעודיה",
+    label: "סעודיה · טבוק",
+    primary: "סעודיה · סוד ע׳",
+    signals: ["נחיתה בטבוק", "קריאה פרשנית"],
+    worldLabel: "פתח את סעודיה בעולם",
+  },
+  {
+    id: "assaf-rajuan",
+    heading: "אסף רג׳ואן",
+    label: "אסף רג׳ואן",
+    primary: "אסף רג׳ואן · 401",
+    signals: ["מקור וידאו", "תא · ישעיהו"],
+    number: 401,
+    worldLabel: "פתח את 401",
+  },
+  {
+    id: "smit-machchhar",
+    heading: "קפטן סמיט מאצ׳הר",
+    label: "קפטן סמיט מאצ׳הר",
+    primary: "סמיט מאצ׳הר · 455",
+    signals: ["מקור תמונה", "מחקר רב־שיטתי"],
+    number: 455,
+    worldLabel: "פתח את 455",
+  },
+]);
+
+function dateOnly(value) {
+  const text = clean(value);
+  return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : "";
+}
+
+function markFz1073RegionHeadings(content = "") {
+  let html = String(content || "");
+  for (const region of FZ1073_REGIONS) {
+    const heading = String(region.heading || "").replace(/[.*+?^$()|[\]\\]/g, "\\
+function stripTags(html = "") {");
+    const pattern = new RegExp("<h([1-6])([^>]*)>(\\s*" + heading + "\\s*)<\\/h\\1>", "i");
+    html = html.replace(pattern, (match, level, attrs, inner) => {
+      if (/data-source-heading\s*=/.test(attrs)) return match;
+      return "<h" + level + attrs + " data-source-heading=\"true\">" + inner + "</h" + level + ">";
+    });
+  }
+  return html;
+}
+
+function buildFz1073Experience(post, topic363 = null) {
+  const href = "/post/" + FZ1073_SLUG;
+  const connections = [
+    topic363 ? {
+      id: "topic-363",
+      label: clean(topic363.title) || "363 — חמישה = המשיח",
+      kind: "TOPIC",
+      value: "363",
+      href: "/topic/" + (clean(topic363.slug) || FZ1073_TOPIC_363_SLUG),
+      reason: "ה־Topic החי שאליו מתחבר הרמז החזותי 363.",
+      provenanceLabel: "topic_cards_public",
+    } : {
+      id: "number-363",
+      label: "363",
+      kind: "NUMBER",
+      value: "363",
+      href: "/2029/number/363",
+      reason: "הרמז החזותי הראשי בפוסט.",
+    },
+    { id: "number-1073", label: "מספר הטיסה", kind: "NUMBER", value: "1073", href: "/2029/number/1073", reason: "מספר הטיסה FZ1073." },
+    { id: "number-787", label: "תשפ״ז · שמחה והודיה", kind: "NUMBER", value: "787", href: "/2029/number/787", reason: "ציר נוסף בתוך הפוסט." },
+    { id: "number-599", label: "אלופו של עולם · אסתר", kind: "NUMBER", value: "599", href: "/2029/number/599", reason: "רמז Tier 2 בפוסט." },
+    { id: "number-455", label: "סמיט מאצ׳הר", kind: "NUMBER", value: "455", href: "/2029/number/455", reason: "חיבור מחקרי מתוך קפטן סמיט מאצ׳הר." },
+    { id: "number-401", label: "אסף רג׳ואן", kind: "NUMBER", value: "401", href: "/2029/number/401", reason: "חיבור מחקרי מתוך אסף רג׳ואן." },
+  ];
+  const publishedDate = dateOnly(post?.date);
+  return {
+    connections,
+    timeline: publishedDate ? [{
+      id: "fz1073-published",
+      label: "פוסט FZ1073 פורסם",
+      date: publishedDate,
+      temporalRole: "published",
+      href,
+      sourceLabel: "POST",
+      note: "תאריך פרסום הפוסט; אינו מוצג כתאריך האירוע עצמו.",
+    }] : [],
+    trail: [{ id: "fz1073-post", label: "FZ1073", href, kind: "post", active: true }],
+  };
+}
+
+async function fetchFz1073Topic363() {
+  const { data, error } = await supabase
+    .from("topic_cards_public")
+    .select("slug,title")
+    .eq("slug", FZ1073_TOPIC_363_SLUG)
+    .limit(1)
+    .maybeSingle();
+  if (error) return null;
+  return data || null;
+}
+
 function stripTags(html = "") {
   return String(html)
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
