@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 // (ai-analyze) was already wired; this asserts the DB side actually resolves a price.
 
 const sql = readFileSync(
-  new URL("../supabase/migrations/20260929190000_g3_a1_trace_cost_exact_v1.sql", import.meta.url),
+  new URL("../supabase/migrations/20260930005533_g3_a1_trace_cost_exact_v1.sql", import.meta.url),
   "utf8",
 );
 
