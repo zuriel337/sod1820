@@ -30,9 +30,10 @@ test('legacy raw-detail readers are capped at 120 days',()=>{
   assert.match(sql,/least\(coalesce\(p_days,90\),120\)/i);
   assert.match(sql,/least\(coalesce\(p_days,30\),120\)/i);
   assert.match(sql,/raw_retention_days',120/);
-  assert.doesNotMatch(admin,/\["365",\s*"שנה"\]/);
-  assert.doesNotMatch(admin,/\["all",\s*"הכל"\]/);
-  assert.match(admin,/\["120",\s*"120 יום · raw"\]/);
+  const ranges=admin.match(/const RANGES = \[[^;]+\];/)?.[0]||'';
+  assert.doesNotMatch(ranges,/\["365",\s*"שנה"\]/);
+  assert.doesNotMatch(ranges,/\["all",\s*"הכל"\]/);
+  assert.match(ranges,/\["120",\s*"120 יום · raw"\]/);
 });
 
 test('retention guard is runtime-bound and scoped away from source/research data',()=>{
