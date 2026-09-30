@@ -179,7 +179,7 @@ const LIVE_V3_MD5 = {
   els_search_page_core_v1: '69c33e052316a427d638d77efa3502d9',
   els_verify_occurrence_v1: 'c0e03e852dd35e64433e0f9718c82694',
 };
-const MIGRATION = 'supabase/migrations/20260929180000_g3_els_provenance_v3_to_v9_reconciliation_v1.sql';
+const MIGRATION = 'supabase/migrations/20260929200732_g3_els_provenance_v3_to_v9_reconciliation_v1.sql';
 
 test('provenance migration: reverting v9→v3 reproduces the live v3 definitions byte-for-byte (md5)', () => {
   const sql = read(MIGRATION);
