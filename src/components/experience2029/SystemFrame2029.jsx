@@ -66,7 +66,6 @@ const HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/post/remzei-geula-ai-sod-hashir", label: "פוסטים", icon: "↟" },
-  { to: "/heichal", label: "היכל", icon: "◇" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
   { label: "קהילה", icon: "◎", status: "בקרוב" },
 ];
