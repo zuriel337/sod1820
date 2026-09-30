@@ -42,12 +42,13 @@ test("Post 2029 page exposes stable semantic capability seams", () => {
   const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
   const media = readFileSync(new URL("../src/components/experience2029/PostEvidenceMedia2029.jsx", import.meta.url), "utf8");
   const timeline = readFileSync(new URL("../src/components/experience2029/PostTimeline2029.jsx", import.meta.url), "utf8");
-  const trail = readFileSync(new URL("../src/components/experience2029/PostContextTrail2029.jsx", import.meta.url), "utf8");
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
 
   assert.match(page, /data-experience-surface="post-reading"/);
   assert.match(media, /data-experience-capability="post-source-media"/);
   assert.match(timeline, /data-experience-capability="post-factual-timeline"/);
-  assert.match(trail, /data-experience-capability="post-context-trail"/);
+  assert.match(frame, /sod29-command-trail/);
+  assert.doesNotMatch(page, /PostContextTrail2029/);
 });
 
 
@@ -78,4 +79,31 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   assert.match(frame, /label: "מסעות"/);
   assert.match(frame, /label: "קהילה"/);
   assert.match(frame, /data-raziel-anchor="center"/);
+});
+
+
+test("Post timeline drops unknown temporal roles instead of asserting that an event occurred", () => {
+  const out = projectPost2029Experience({
+    _experience: {
+      timeline: [
+        { id: "bad", date: "2026-09-30", temporalRole: "unknown", label: "לא ידוע" },
+        { id: "good", date: "2026-09-30", temporalRole: "discovered", label: "נמצא" },
+      ],
+    },
+  });
+  assert.equal(out.timeline.length, 1);
+  assert.equal(out.timeline[0].id, "good");
+  assert.equal(out.timeline[0].temporalRole, "discovered");
+});
+
+test("Research Path and commands share one physical System Frame bottom surface", () => {
+  const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
+
+  assert.match(page, /bottomTrail: state\.projection\?\.experience\?\.trail \|\| \[\]/);
+  assert.match(frame, /has-context-trail/);
+  assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
+  assert.match(css, /Unified bottom Context \+ Command Surface/);
+  assert.doesNotMatch(page, /<PostContextTrail2029/);
 });
