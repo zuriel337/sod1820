@@ -275,6 +275,10 @@ Detailed acceptance:
 
 It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, reconcile the live Legacy writer-shutdown matrix against verified 2029 replacements/consumers, preserve provenance and rerun fresh-agent/release-state acceptance.
 
+**One-Tree optimization / retention / cutover gate (end-of-G3):** after enough real 2029 usage exists, final compaction must run one evidence-based pass over writers/readers, data placement, retention, query/RPC cost, RLS/index cost, monitoring, media/storage and Raziel/channel adapters. Required outcome: canonical 2029 owners carry forward authority; Legacy writers/readers retire only after replacement/replay/live-consumer proof; retention expands beyond source/WhatsApp to telemetry/logs/staging/backups/media/legacy semantic stores without granting purge authority; measured hot DB/RPC/RLS/index paths are right-sized; latency-critical external provider waits leave DB-held execution when an existing async/worker path can preserve the same governed action; channel adapters consume canonical Raziel/Method/Research/Convergence boundaries; health remains one monitoring tree with fast bounded snapshot plus deeper cached/on-demand inspection; media uses bounded derivatives/cache plus reference-safe dedupe/archive decisions; backup/staging/legacy stores receive explicit KEEP/ARCHIVE/RETIRE decisions with live-consumer proof. **One Tree does not mean one SQL table.**
+
+**Pre-G4 live rebaseline / rescan:** the 28–29.9 scans are calibration, not closure truth. Immediately before G4 entry, rerun the full live census against then-current main + canonical DB + production: table/storage growth, writers/readers, cron/workers, Legacy islands, `pg_stat_statements`, RLS/index advisors, dead tuples/vacuum state, media/egress, Raziel/provider paths, monitoring latency, retry amplification and retention coverage. The later scan supersedes old counts and may add/remove optimization work; historical documents never decide future live state.
+
 **Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
@@ -299,6 +303,8 @@ Run representative real journeys and surfaces against live/replayable fixtures. 
 **Transition semantics:** entering G4 means the G3 foundation/runtime is sufficiently closed to test complete experiences. It does **not** auto-enable G5+ capabilities. G4 consumes what already exists, finds real cross-layer failures, and promotes only journeys that pass Golden acceptance. Failed journeys route back to the owning G3 layer for repair without reopening Legacy UX as the target.
 
 Golden order should include ELS + Raziel/context before broad localization/media rollout.
+
+Golden acceptance also includes measured end-to-end performance on representative core journeys against live/replayable production-like data: route/input responsiveness, p50/p95 server/RPC latency where measurable, Raziel tool/response latency, query count/DB time, cache behavior, Storage/CDN egress, error/fallback rate and trace completeness. A latency/query/storage regression routes back to its owning G3 layer for repair. Raw/historical telemetry may be archived only after the Golden window proves canonical rollups preserve the required history.
 
 ### G5 — Product / Entitlement Matrix
 
