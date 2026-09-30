@@ -70,11 +70,12 @@ test('skip=1 (plain text) is never a router signal and never a governed-eligible
 });
 
 test('HYBRID primary path: complete enumeration == exact anchor set (no loss), every hit exact', async () => {
-  for (const term of ['ירושלימ', 'שמעונ', 'אברהמ']) {
-    const ps = probe(term, A.AD_PROBE_PAIRS);
-    const r = A.stratCollect(ps, 1e9);   // uncapped: lanes run to exhaustion
+  const TA = loadRouter(undefined, { scopeLen: 304805, scope: 'torah' });   // Torah-sized corpus keeps exhaustive enumeration fast
+  for (const term of ['שמעונ', 'אברהמ', 'ירושלימ']) {
+    const ps = TA.stratProbeInit(term); TA.stratProbeRun(ps, TA.AD_PROBE_PAIRS);
+    const r = TA.stratCollect(ps, 1e9);   // uncapped: lanes run to exhaustion
     assert.equal(r.capped, 0);
-    const anchor = A.findAll(term, 1e9);
+    const anchor = TA.findAll(term, 1e9);
     assert.ok(sameSet(r.hits, anchor.hits), `${term}: hybrid ${r.hits.length} vs anchor ${anchor.hits.length}`);
     for (const h of r.hits) assert.ok(exact(term, h));
   }
