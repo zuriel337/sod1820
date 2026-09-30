@@ -898,9 +898,14 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
-  const bottomTrail = Array.isArray(context?.dimensions?.bottomTrail)
-    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
-    : [];
+  const subjectHref = context?.subject?.href || "";
+  const bottomTrail = surface === "post"
+    && context?.subject?.type === "post"
+    && subjectHref
+    && subjectHref.split("#")[0] === location.pathname
+    && Array.isArray(context?.dimensions?.bottomTrail)
+      ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+      : [];
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
