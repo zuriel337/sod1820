@@ -8,7 +8,7 @@ import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
 const read = (p) => readFileSync(join(root, p), 'utf8');
-const MIG_NAME = '20260930090000_g3_els_tanakh_canonical_stream_build_v1.sql';
+const MIG_NAME = '20260930083354_g3_els_tanakh_canonical_stream_build_v1.sql';
 const mig = read(`supabase/migrations/${MIG_NAME}`);
 const letters = read('tools/els/data/tk-letters.txt');
 const md5 = (s) => createHash('md5').update(s).digest('hex');
