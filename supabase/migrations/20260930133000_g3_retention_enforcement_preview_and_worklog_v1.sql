@@ -266,7 +266,7 @@ begin
       and w.superseded_by_id is null
       and w.created_at < now() - interval '14 days'
       and coalesce(w.status,'') ~* '(AFTER|DONE|COMPLETE|COMPLETED|CLOSED|DEPLOYED|APPLIED|RESOLVED|FIXED|LIVE_VERIFIED|SUPERSEDED|ARCHIVED|PASS)'
-      and coalesce(w.status,'') !~* '(CLAIMED_WRITE|WRITE_SCOPE_OPEN|BLOCKED|WAITING|AWAITING|QUEUED|ASSIGNED|ACK_REQUIRED|READY_TO_DEPLOY|RELEASE_AUTHORIZED|ממתין)'
+      and coalesce(w.status,'') !~* '(NOT_(MERGED|DEPLOYED|LIVE|CANONICAL)|PENDING|BLOCKER|BLOCKED|OPEN|IN_PROGRESS|BRANCH_ONLY|CLAIMED_WRITE|WRITE_SCOPE_OPEN|WAITING|AWAITING|QUEUED|ASSIGNED|ACK_REQUIRED|READY_TO_DEPLOY|RELEASE_AUTHORIZED|ממתין)'
       and coalesce(w.dispatch_state,'') not in ('QUEUED','FIRE_REQUESTED','SESSION_STARTED','CLAIMED','RETRY_WAIT','DEFERRED')
       and not exists (
         select 1
@@ -275,7 +275,7 @@ begin
           and coalesce(child.archived,false)=false
           and child.superseded_by_id is null
           and (
-            coalesce(child.status,'') ~* '(CLAIMED_WRITE|WRITE_SCOPE_OPEN|BLOCKED|WAITING|AWAITING|QUEUED|ASSIGNED|ACK_REQUIRED|READY_TO_DEPLOY|RELEASE_AUTHORIZED|ממתין)'
+            coalesce(child.status,'') ~* '(NOT_(MERGED|DEPLOYED|LIVE|CANONICAL)|PENDING|BLOCKER|BLOCKED|OPEN|IN_PROGRESS|BRANCH_ONLY|CLAIMED_WRITE|WRITE_SCOPE_OPEN|WAITING|AWAITING|QUEUED|ASSIGNED|ACK_REQUIRED|READY_TO_DEPLOY|RELEASE_AUTHORIZED|ממתין)'
             or coalesce(child.dispatch_state,'') in ('QUEUED','FIRE_REQUESTED','SESSION_STARTED','CLAIMED','RETRY_WAIT','DEFERRED')
           )
       )
