@@ -74,7 +74,7 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   assert.match(experienceSource, /post-2029-wireframe-v1/);
   assert.match(experienceSource, /אין טענת סיבתיות/);
   assert.match(page, /WIREFRAME · מבנה בלבד/);
-  assert.match(frame, /label: "היכל"/);
+  assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false);
   assert.match(frame, /label: "מסעות"/);
   assert.match(frame, /label: "קהילה"/);
   assert.match(frame, /data-raziel-anchor="center"/);
