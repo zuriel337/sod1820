@@ -189,19 +189,22 @@
   backdrop-filter:blur(22px) saturate(120%);
   box-shadow:0 24px 90px color-mix(in srgb,var(--s29-page) 36%,transparent);
 }
-.sod29-reading-rail-kicker{
+.sod29-reading-rail-kicker,
+.sod29-reading-rail .sod29-context-inspector-kicker{
   color:var(--s29-accent-text);
   font-size:10px;
   font-weight:850;
   letter-spacing:.04em;
 }
-.sod29-reading-rail-primary{
+.sod29-reading-rail-primary,
+.sod29-reading-rail .sod29-context-inspector-title{
   display:block;
   font-size:clamp(21px,2vw,28px);
   line-height:1.18;
   letter-spacing:-.02em;
 }
-.sod29-reading-rail-label{
+.sod29-reading-rail-label,
+.sod29-reading-rail .sod29-context-inspector-subtitle{
   color:var(--s29-muted);
   font-size:12px;
   line-height:1.55;
@@ -344,4 +347,267 @@
   .sod29-reading-rail-deepen{transition:none!important}
   .sod29-reading-rail-actions button:hover,
   .sod29-reading-rail-deepen:hover{transform:none}
+}
+
+/* Living Post infrastructure — presentation only; truth stays upstream. */
+.sod29-post-evidence-media{
+  width:min(790px,100%);
+  margin:0 0 28px auto;
+  display:grid;
+  gap:12px;
+}
+.sod29-post-evidence-highlight{
+  border:1px solid var(--s29-line-strong);
+  border-radius:22px;
+  padding:14px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+  box-shadow:0 18px 70px color-mix(in srgb,var(--s29-page) 28%,transparent);
+}
+.sod29-post-evidence-kicker{
+  margin-bottom:9px;
+  color:var(--s29-accent-text);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.05em;
+}
+.sod29-post-evidence-highlight video{
+  display:block;
+  width:100%;
+  max-height:440px;
+  border-radius:16px;
+  background:#000;
+}
+.sod29-post-evidence-highlight small{
+  display:block;
+  margin-top:8px;
+  color:var(--s29-muted);
+  font-size:11px;
+}
+.sod29-post-full-source{
+  min-height:52px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border:1px solid var(--s29-line);
+  border-radius:15px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);
+  color:var(--s29-ink);
+  text-decoration:none;
+}
+.sod29-post-full-source span{color:var(--s29-muted);font-size:10px}
+.sod29-post-full-source strong{font-size:12px}
+.sod29-post-full-source b{color:var(--s29-accent-text)}
+
+.sod29-reading-rail-connections{
+  display:grid;
+  gap:7px;
+}
+.sod29-reading-rail-connections>a,
+.sod29-reading-rail-connections>div{
+  min-height:46px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:2px 8px;
+  align-items:center;
+  padding:8px 10px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 78%,transparent);
+  color:var(--s29-ink);
+  text-decoration:none;
+}
+.sod29-reading-rail-connections span{
+  grid-column:1/-1;
+  color:var(--s29-muted);
+  font-size:9px;
+}
+.sod29-reading-rail-connections strong{font-size:11px;line-height:1.3}
+.sod29-reading-rail-connections b{color:var(--s29-accent-text);font-size:11px}
+
+.sod29-post-timeline{
+  width:min(790px,100%);
+  margin:42px 0 0 auto;
+  padding:22px 0 0;
+  border-top:1px solid var(--s29-line);
+}
+.sod29-post-timeline header{
+  display:grid;
+  gap:3px;
+  margin-bottom:18px;
+}
+.sod29-post-timeline header span{color:var(--s29-accent-text);font-size:10px;font-weight:850}
+.sod29-post-timeline header strong{font-size:18px}
+.sod29-post-timeline ol{
+  list-style:none;
+  margin:0;
+  padding:0 16px 0 0;
+  border-inline-start:1px solid var(--s29-line-strong);
+}
+.sod29-post-timeline li{
+  position:relative;
+  padding:0 18px 24px 0;
+}
+.sod29-post-timeline-dot{
+  position:absolute;
+  inset-inline-start:-20px;
+  top:7px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--s29-accent);
+  box-shadow:0 0 0 6px color-mix(in srgb,var(--s29-accent) 8%,transparent);
+}
+.sod29-post-timeline time{display:inline-block;margin-inline-end:8px;color:var(--s29-accent-text);font-weight:800;font-size:11px}
+.sod29-post-timeline-role{color:var(--s29-muted);font-size:10px}
+.sod29-post-timeline a,
+.sod29-post-timeline li strong{display:block;margin-top:5px;color:var(--s29-ink);font-size:14px;text-decoration:none}
+.sod29-post-timeline small{display:block;margin-top:4px;color:var(--s29-muted);font-size:10px}
+.sod29-post-timeline p{margin:5px 0 0;color:var(--s29-muted);font-size:11px;line-height:1.55}
+
+.sod29-post-context-trail{
+  position:sticky;
+  z-index:54;
+  inset-block-end:14px;
+  width:min(790px,calc(100% - 16px));
+  margin:28px 0 0 auto;
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border:1px solid var(--s29-line-strong);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+  backdrop-filter:blur(18px) saturate(120%);
+  box-shadow:0 14px 48px color-mix(in srgb,var(--s29-page) 34%,transparent);
+}
+.sod29-post-context-trail-mark{color:var(--s29-accent-text)}
+.sod29-post-context-trail>div{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  overflow:auto;
+  scrollbar-width:none;
+}
+.sod29-post-context-trail a,
+.sod29-post-context-trail>div>span:not(.sod29-post-context-separator){
+  flex:0 0 auto;
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 9px;
+  border-radius:10px;
+  color:var(--s29-muted);
+  text-decoration:none;
+  font-size:10px;
+  font-weight:760;
+}
+.sod29-post-context-trail [aria-current="page"]{
+  background:color-mix(in srgb,var(--s29-accent) 9%,transparent);
+  color:var(--s29-accent-text)!important;
+}
+.sod29-post-context-separator{color:var(--s29-line-strong)}
+
+@media(max-width:980px){
+  .sod29-post-evidence-media,
+  .sod29-post-timeline{margin-inline:auto}
+  .sod29-post-context-trail{
+    position:fixed;
+    z-index:61;
+    inset-inline:10px;
+    inset-block-end:calc(10px + env(safe-area-inset-bottom,0px));
+    width:auto;
+    margin:0;
+    border-radius:999px;
+  }
+  .sod29-reading-mobile-cue{
+    inset-block-end:calc(72px + env(safe-area-inset-bottom,0px));
+  }
+}
+
+
+/* Architecture wireframe mode — intentionally neutral and structural.
+   This is not the visual-design target. */
+.sod29-architecture-wireframe-note{
+  width:min(1180px,100%);
+  margin:0 auto 20px;
+  padding:12px 14px;
+  display:grid;
+  gap:4px;
+  border:1px dashed var(--s29-line-strong);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 65%,transparent);
+  color:var(--s29-muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.sod29-architecture-wireframe-note b{color:var(--s29-ink);font-size:11px;letter-spacing:.06em}
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-source,
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-rail,
+.sod29-reading-post.is-architecture-wireframe .sod29-post-timeline,
+.sod29-reading-post.is-architecture-wireframe .sod29-post-context-trail,
+.sod29-reading-post.is-architecture-wireframe .sod29-post-evidence-media{
+  box-shadow:none;
+}
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-source{
+  position:relative;
+  border-style:dashed;
+  background:color-mix(in srgb,var(--s29-panel) 88%,transparent);
+}
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-source:before{
+  content:"CONTENT · המרכז";
+  display:block;
+  margin-bottom:18px;
+  color:var(--s29-muted);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.08em;
+}
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-rail{
+  border-style:dashed;
+  background:color-mix(in srgb,var(--s29-panel) 88%,transparent);
+}
+.sod29-reading-post.is-architecture-wireframe .sod29-reading-rail:before{
+  content:"CONTEXT INSPECTOR · צד שמאל";
+  display:block;
+  color:var(--s29-muted);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.07em;
+}
+.sod29-post-evidence-media.is-wireframe{
+  grid-template-columns:2fr 1fr;
+  gap:10px;
+}
+.sod29-wireframe-block{
+  min-height:110px;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:16px;
+  border:1px dashed var(--s29-line-strong);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 60%,transparent);
+}
+.sod29-wireframe-block b{font-size:10px;letter-spacing:.08em;color:var(--s29-ink)}
+.sod29-wireframe-block span{font-size:11px;line-height:1.5;color:var(--s29-muted)}
+.sod29-reading-post.is-architecture-wireframe .sod29-post-timeline{border-top-style:dashed}
+.sod29-reading-post.is-architecture-wireframe .sod29-post-context-trail{
+  border-style:dashed;
+  background:color-mix(in srgb,var(--s29-panel) 92%,transparent);
+}
+.sod29-reading-post.is-architecture-wireframe .sod29-post-context-trail:before{
+  content:"RESEARCH PATH";
+  flex:0 0 auto;
+  color:var(--s29-muted);
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.08em;
+}
+@media(max-width:980px){
+  .sod29-post-evidence-media.is-wireframe{grid-template-columns:1fr}
+  .sod29-reading-post.is-architecture-wireframe .sod29-reading-source:before{content:"CONTENT · המרכז"}
 }
