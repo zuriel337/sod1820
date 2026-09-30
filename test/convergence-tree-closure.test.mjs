@@ -3,23 +3,29 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const numbersPage = fs.readFileSync(new URL('../src/pages/NumbersPage.jsx', import.meta.url), 'utf8');
+const galaxy = fs.readFileSync(new URL('../src/components/ConvergenceGalaxy.jsx', import.meta.url), 'utf8');
 const surfaceSync = fs.readFileSync(new URL('../src/components/FeatureSurfaceSync.jsx', import.meta.url), 'utf8');
+const sitemap = fs.readFileSync(new URL('../api/sitemap-public.js', import.meta.url), 'utf8');
 
-test('convergence tree route is gated by canonical site flag before galaxy mount', () => {
-  assert.match(numbersPage, /useFeatureState\("lock_convergence_tree"\)/);
-  assert.match(numbersPage, /if \(tree\.blocked\) return <MaintenanceLock/);
-  const gateIndex = numbersPage.indexOf('if (tree.blocked)');
-  const galaxyIndex = numbersPage.indexOf('<ConvergenceGalaxy');
-  assert.ok(gateIndex >= 0 && galaxyIndex > gateIndex, 'gate must precede ConvergenceGalaxy render');
+test('retired /numbers route redirects to canonical number entry and cannot mount the legacy galaxy', () => {
+  assert.match(numbersPage, /Navigate/);
+  assert.match(numbersPage, /to="\/number"/);
+  assert.match(numbersPage, /replace/);
+  assert.doesNotMatch(numbersPage, /ConvergenceGalaxy|useFeatureState\(/);
+  assert.match(galaxy, /RETIRED BY HUMAN GATE \(2026-09-15\)/);
+  assert.match(galaxy, /return null/);
 });
 
-test('closed convergence tree is projected to public /numbers links', () => {
+test('closed convergence-tree availability is still projected onto legacy /numbers links', () => {
   assert.match(surfaceSync, /useFeatureState\("lock_convergence_tree"\)/);
   assert.match(surfaceSync, /p === "\/numbers" \|\| p\.startsWith\("\/numbers\/"\)/);
   assert.match(surfaceSync, /data-sod-convergence-tree-availability/);
 });
 
-test('closed convergence tree projects noindex metadata', () => {
-  assert.match(numbersPage, /meta\.name = "robots"/);
-  assert.match(numbersPage, /meta\.content = "noindex,nofollow"/);
+test('public sitemap remains fail-closed for the retired /numbers entry', () => {
+  assert.match(sitemap, /key=eq\.lock_convergence_tree/);
+  assert.match(sitemap, /function removeNumbersHub/);
+  assert.ok(sitemap.includes('sod1820\\.co\\.il\\/numbers'), 'sitemap projection must target the retired /numbers URL');
+  assert.match(sitemap, /if \(!publiclyOpen\) xml = removeNumbersHub\(xml\)/);
+  assert.match(sitemap, /if \(!r\.ok\) return false/);
 });

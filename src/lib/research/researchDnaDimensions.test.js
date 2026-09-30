@@ -76,11 +76,19 @@ test("Research-object finding: dimensions.researchObjectKind -> ADAPTER_NATIVE_D
   });
   assert.equal(finding.kind, "research-object");
   const rows = canonicalDimensionsOf(finding);
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].nativeKey, "researchObjectKind");
-  assert.equal(rows[0].nativeValue, "hypothesis");
-  assert.equal(rows[0].canonicalDimension, null);
-  assert.equal(rows[0].mappingType, MAPPING_TYPES.ADAPTER_NATIVE_DETAIL);
+  assert.equal(rows.length, 2, "research-object carries kind plus presentation as two explicit native dimensions");
+
+  const kindRow = rows.find(row => row.nativeKey === "researchObjectKind");
+  assert.ok(kindRow);
+  assert.equal(kindRow.nativeValue, "hypothesis");
+  assert.equal(kindRow.canonicalDimension, null);
+  assert.equal(kindRow.mappingType, MAPPING_TYPES.ADAPTER_NATIVE_DETAIL);
+
+  const presentationRow = rows.find(row => row.nativeKey === "presentation");
+  assert.ok(presentationRow, "new native presentation detail must stay explicit, never silently dropped");
+  assert.equal(presentationRow.canonicalDimension, null);
+  assert.equal(presentationRow.mappingType, MAPPING_TYPES.UNMAPPED);
+  assert.equal(presentationRow.nativeValue?.rawStatementRef?.researchObjectId, "ro-1");
 });
 
 // ── Entity/Graph node adapter (kind="graph-entity", native key "graphNodeType") ─────────────────

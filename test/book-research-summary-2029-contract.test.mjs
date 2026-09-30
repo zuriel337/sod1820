@@ -21,7 +21,8 @@ test("Book research families group existing representation shapes without a new 
   assert.match(projection, /id: "structures".*\["matrix", "composition", "grammar", "spatial"\]/s);
   assert.match(projection, /id: "findings".*\["terms", "narrative"\]/s);
   assert.match(projection, /researchRowToBookRepresentation/);
-  assert.doesNotMatch(projection, /create table|new store|new engine/i);
+  const executableProjection = projection.replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(executableProjection, /\bcreate\s+table\b|\bnew\s+(?:store|engine)\b/i);
 });
 
 test("Follow-up panel derives from explicit stored signals, not a synthetic truth score", () => {
