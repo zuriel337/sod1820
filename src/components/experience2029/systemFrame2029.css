@@ -151,3 +151,111 @@
 .sod29-issue-report-field small{justify-self:end;color:var(--s29-muted)}
 .sod29-header-actions .sod29-header-issue{min-width:44px;min-height:44px}
 @media(max-width:620px){.sod29-header-actions .issue-label{display:none}}
+
+
+/* Unified bottom Context + Command Surface.
+   Research Path and commands share one physical surface; Global Navigation stays separate. */
+.sod29-command-island.has-context-trail{
+  width:min(1040px,calc(100vw - 28px));
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  gap:10px;
+  padding-inline:10px;
+}
+.sod29-command-trail{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  overflow:auto;
+  white-space:nowrap;
+  scrollbar-width:none;
+  direction:rtl;
+}
+.sod29-command-trail::-webkit-scrollbar{display:none}
+.sod29-command-trail-item{
+  flex:0 0 auto;
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 9px;
+  border:1px solid var(--s29-line);
+  border-radius:10px;
+  color:var(--s29-muted);
+  background:color-mix(in srgb,var(--s29-panel-soft) 78%,transparent);
+  font-size:10px;
+  font-weight:760;
+}
+.sod29-command-trail-item[aria-current="page"]{
+  color:var(--s29-accent-text);
+  border-color:var(--s29-line-strong);
+  background:color-mix(in srgb,var(--s29-accent) 9%,transparent);
+}
+.sod29-command-trail-separator{color:var(--s29-line-strong);font-size:11px}
+.sod29-command-actions{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:3px;
+  direction:ltr;
+}
+.sod29-command-actions>button{
+  min-width:52px;
+  height:48px;
+  border:0;
+  border-radius:16px;
+  background:transparent;
+  color:var(--s29-muted);
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:1px;
+  cursor:pointer;
+}
+.sod29-command-actions>button>span{font-size:13px;font-weight:900;line-height:1}
+.sod29-command-actions>button>small{font-size:8px;font-weight:800;line-height:1.1}
+.sod29-command-actions>button:hover,
+.sod29-command-actions>button[aria-pressed="true"]{
+  color:var(--s29-ink);
+  background:color-mix(in srgb,var(--s29-accent) 9%,transparent);
+}
+
+@media(max-width:980px){
+  .sod29-command-island.has-context-trail{
+    width:calc(100vw - 16px);
+    grid-template-columns:minmax(90px,1fr) auto auto;
+    gap:5px;
+  }
+  .sod29-command-trail{max-width:34vw}
+  .sod29-command-actions>button{min-width:44px;width:44px;height:44px}
+  .sod29-command-actions>button>small{font-size:7px}
+}
+@media(max-width:620px){
+  .sod29-command-island.has-context-trail{
+    grid-template-columns:minmax(72px,1fr) auto auto;
+    padding-inline:6px;
+  }
+  .sod29-command-trail{max-width:27vw}
+  .sod29-command-trail-item{min-height:30px;padding-inline:7px;font-size:9px}
+  .sod29-command-actions{gap:1px}
+  .sod29-command-actions>button{min-width:39px;width:39px;height:42px}
+  .sod29-command-actions>button>small{display:none}
+}
+@media(max-width:390px){
+  .sod29-command-island.has-context-trail{
+    width:calc(100vw - 10px);
+    grid-template-columns:minmax(64px,1fr) auto auto;
+    gap:3px;
+    padding-inline:4px;
+  }
+  .sod29-command-trail{max-width:24vw}
+  .sod29-command-actions>button{min-width:36px;width:36px}
+}
+@media(max-width:320px){
+  .sod29-command-island.has-context-trail{
+    grid-template-columns:minmax(54px,1fr) auto auto;
+  }
+  .sod29-command-trail{max-width:20vw}
+  .sod29-command-actions>button{min-width:33px;width:33px}
+}
