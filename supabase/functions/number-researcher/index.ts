@@ -8,11 +8,17 @@
 // התיקון: (1) callClaude עם ניסיונות-חוזרים + timeout לכל ניסיון; (2) fallback עברי חינני —
 // לעולם לא מחזירים null לצ׳אט; (3) dossier קומפקטי (במקום JSON-גולמי ענק) → פחות טוקנים,
 // מהיר יותר, וסיכון נמוך יותר לטקסט-ריק.
+import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";
+
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || SB_SVC;
+// G3 D2: canonical server capability gate + Operational Trace before provider spend (service role only).
+const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
+const CAPABILITY = "number-researcher:chat";
+const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const H = { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" };
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -165,8 +171,10 @@ function fmtDossier(value: number, d: any): string {
 }
 
 // 🔁 קריאת-Claude עם ניסיונות-חוזרים + timeout לכל ניסיון. מחזיר טקסט לא-ריק, או "" אם כל הניסיונות נכשלו.
-async function callClaude(system: string, userMsg: string, tries = 3): Promise<{ text: string; error: string | null }> {
+async function callClaude(system: string, userMsg: string, tries = 3): Promise<{ text: string; error: string | null; usage?: { input_tokens: number; output_tokens: number }; api_calls?: number }> {
   let lastErr: string | null = null;
+  const usage = { input_tokens: 0, output_tokens: 0 };
+  let apiCalls = 0;
   for (let attempt = 0; attempt < tries; attempt++) {
     if (attempt > 0) await new Promise(r => setTimeout(r, attempt === 1 ? 700 : 1600));
     const ctrl = new AbortController();
@@ -185,8 +193,9 @@ async function callClaude(system: string, userMsg: string, tries = 3): Promise<{
         return { text: "", error: lastErr + ": " + (await resp.text().catch(() => "")).slice(0, 200) };
       }
       const data = await resp.json();
+      apiCalls++; usage.input_tokens += data?.usage?.input_tokens || 0; usage.output_tokens += data?.usage?.output_tokens || 0;
       const rawText = (data?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
-      if (rawText) return { text: rawText, error: null };
+      if (rawText) return { text: rawText, error: null, usage, api_calls: apiCalls };
       lastErr = "empty_text"; // טקסט-ריק (הבאג שצוריאל ראה) → נסה שוב
     } catch (e) {
       lastErr = ctrl.signal.aborted ? "timeout" : String(e).slice(0, 120);
@@ -194,7 +203,7 @@ async function callClaude(system: string, userMsg: string, tries = 3): Promise<{
       clearTimeout(to);
     }
   }
-  return { text: "", error: lastErr };
+  return { text: "", error: lastErr, usage: apiCalls ? usage : undefined, api_calls: apiCalls || 1 };
 }
 
 Deno.serve(async (req: Request) => {
@@ -210,6 +219,23 @@ Deno.serve(async (req: Request) => {
       .map((x: unknown) => parseInt(String(x), 10)).filter((x: number) => Number.isFinite(x)).slice(0, 3);
     const message = String(body?.message || "").slice(0, 2000);
     if (!values.length && !message) return json({ answer: null, error: "no_value" });
+
+    // G3 D2 — canonical gate BEFORE any context load / provider spend; fails closed. Public contract preserved:
+    // guests may still chat (entitlement "public"); metering reuses ai_quota (ai-analyze guide anti-loop numbers).
+    const caller = await mg.resolveCaller(req, body);
+    const trace = await mg.beginTrace({
+      capability: CAPABILITY, surface: "raziel-room", ownerRef: OWNER_REF,
+      identityClass: caller.tier, rootName: "number-researcher",
+      subjectRef: values.length === 1 ? `number:${values[0]}` : null,
+    });
+    const g = await mg.runGate(trace, {
+      capability: CAPABILITY, caller, requiredEntitlement: "public",
+      budgetKind: "ai_quota", budgetTier: caller.tier,
+      budgetLimitOverride: conversationalLimit(caller.tier),
+      budgetIdentity: caller.identity ? `${caller.identity}:nr` : "",
+    });
+    if (g.state === "unavailable") return json({ answer: null, error: "gate_unavailable", trace_id: trace?.traceId || null });
+    if (g.state === "denied") return json({ answer: null, error: g.denial, trace_id: trace?.traceId || null });
 
     const [personaRaw, rctx, knowledge, brainRows] = await Promise.all([
       rpc("fn_raziel_persona", { p_channel: "site" }),
@@ -250,7 +276,12 @@ Deno.serve(async (req: Request) => {
       `— צוריאל עכשיו —\n${message || (values.length > 1 ? `השווה בין ${values.join(" ל-")}` : `ספר לי הכל על ${values[0]}`)}\n\n` +
       `ענה בעברית רצופה בלבד (לא JSON) לפי המדורים. context version: ${typeof ctxVer === "string" ? ctxVer : JSON.stringify(ctxVer)}.`;
 
-    const { text: rawText, error: aiError } = await callClaude(SYSTEM, userMsg);
+    const { text: rawText, error: aiError } = await mg.providerSpan(trace, {
+      capability: CAPABILITY, name: "number-researcher:model", ownerRef: OWNER_REF, model: MODEL,
+      source: "number-researcher", kind: "research", caller,
+      run: () => callClaude(SYSTEM, userMsg),
+    });
+    await mg.finishTrace(trace, aiError ? "provider_error" : "success", aiError ? String(aiError).slice(0, 60) : null);
     const text = humanize(rawText) || rawText;
 
     const snapshot = {
