@@ -40,4 +40,11 @@ for (const token of ['PAUSED', 'STOPPED_AT_GATE', 'DECISION_READY', 'HUMAN_GATE'
 assert.match(sql, /NOT\[ _-\]\*\(MERGED\|DEPLOYED\|LIVE\|CANONICAL/i);
 assert.match(sql, /HUMAN_GATE_REJECTED\|REJECTED_BY_HUMAN_GATE/i);
 
+
+assert.doesNotMatch(sql, /RESOLVED\|FIXED\|LIVE_VERIFIED/i, 'FIXED must not be a standalone terminal token');
+assert.doesNotMatch(sql, /ARCHIVED\|PASS\)/i, 'PASS must not be a standalone terminal token');
+assert.match(sql, /BRANCH\[ _-\]\*ONLY/i);
+assert.match(sql, /IN\[ _-\]\*PROGRESS/i);
+assert.match(sql, /UNRESOLVED\|ACK_/i);
+
 console.log('g3-retention-enforcement-contract: PASS');
