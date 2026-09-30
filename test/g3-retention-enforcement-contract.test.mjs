@@ -26,4 +26,11 @@ assert.match(sql, /grant execute on function public\.fn_work_log_archive_mainten
 const destructiveTelemetry = /delete\s+from\s+public\.(visitor_events|site_visits|events)|drop\s+table\s+(if\s+exists\s+)?public\.events_/i;
 assert.doesNotMatch(sql, destructiveTelemetry, 'B1/B2 preview phase must stay non-destructive before Human Gate');
 
+
+for (const token of ['NOT_', 'PENDING', 'BLOCKER', 'OPEN', 'IN_PROGRESS', 'BRANCH_ONLY']) {
+  assert.match(sql, new RegExp(token, 'i'), `archive predicate must fail closed on unresolved status token: ${token}`);
+}
+assert.match(sql, /revoke all on function public\.admin_worklog_archive_done\(\) from public, anon/i);
+assert.match(sql, /grant execute on function public\.admin_worklog_archive_done\(\) to authenticated, service_role/i);
+
 console.log('g3-retention-enforcement-contract: PASS');
