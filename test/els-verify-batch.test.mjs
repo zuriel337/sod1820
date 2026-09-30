@@ -237,7 +237,7 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     // (f) post-approval mutation: owner cannot edit approved evidence in place; admin can edit only while primary replay still MATCHes.
     const pub1 = '22222221-2222-2222-2222-222222222222';
     fails(as(USER, `select public.update_els_matrix('${pub1}','{"forged":true}'::jsonb,null,null,null)`), /published_requires_remoderation/);
-    assert.equal(J(`select positions is null from public.els_records where id='${pub1}'`), true, 'rejected owner edit leaves published row unchanged');
+    assert.equal(J(`select to_json(positions is null)::text from public.els_records where id='${pub1}'`), true, 'rejected owner edit leaves published row unchanged');
     r = as(ADMIN, `select public.update_els_matrix('${pub1}','{"admin_note":"verified-primary"}'::jsonb,null,null,null)`); assert.equal(r.status, 0, r.stderr);
     assert.deepEqual(J(`select positions::text from public.els_records where id='${pub1}'`), { admin_note: 'verified-primary' }, 'admin edit allowed only after stored primary MATCH gate');
     // The save/upsert path also cannot mutate an owner-published row: same identity becomes a NEW pending variant.
