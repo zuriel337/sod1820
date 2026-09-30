@@ -49,7 +49,8 @@ jobs:
             test/g3-retention-enforcement-contract.test.mjs \
             test/g3-retention-enforcement-guard.test.mjs \
             test/g3-telemetry-retention-120d-v2.test.mjs \
-            test/g3-telemetry-retention-120d-v2-snapshot-fix.test.mjs
+            test/g3-telemetry-retention-120d-v2-snapshot-fix.test.mjs \
+            test/g3-capacity-growth-runtime.test.mjs
 
       - name: W2 Research contract tests
         run: |
