@@ -10,7 +10,7 @@ assert.match(viewer, /workspace\.saveFinding/);
 assert.match(viewer, /workspace\.pinFinding/);
 assert.match(viewer, /Workspace membership בלבד/);
 assert.doesNotMatch(viewer, /research_objects.*(?:insert|update|upsert)/is);
-assert.doesNotMatch(viewer, /canonical\\s*[:=]\\s*(?:true|approved)\\b/i);
+assert.doesNotMatch(viewer, /canonical\s*[:=]\s*(?:true|approved)\b/i);
 
 assert.match(workspace, /research\.saveItem/);
 assert.match(workspace, /research\.togglePin/);
