@@ -89,7 +89,7 @@ const KIND_ICON = { post: "📝", reality: "🌊", news: "📢" };
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
 // קבוע בכל האתר דרך ה-Layout. תמה-מודע: כהה תמיד כדי להתאים ל-chrome החום-כהה.
-export default function LiveActivityBar() {
+export default function LiveActivityBar({ prominent = false }) {
   const isLight = useThemeMode() === "light";
   // 📡 השורה העליונה מוצגת בכל האתר. תמה-מודע (city_background_dual_theme_law §3):
   //    בבהיר — רצועת קרם/זהב-עדין + טקסט כהה קריא; בכהה — הגרסה החום-כהה הקיימת.
@@ -108,6 +108,7 @@ export default function LiveActivityBar() {
   // אינדקס בטוח גם לערכים שליליים (דפדוף אחורה) — modulo מתמטי חיובי.
   const idx = msgs.length ? ((i % msgs.length) + msgs.length) % msgs.length : 0;
   const cur = (msgs[idx] && typeof msgs[idx] === "object") ? msgs[idx] : null;
+  const manualMsgs = msgs.filter(m => m?.manual).slice(0, 3);
   const go = d => setI(x => x + d);   // ‹ › דפדוף ידני
   // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף. עוצר בריחוף (paused) ובטאב מוסתר.
   useEffect(() => {
@@ -119,6 +120,58 @@ export default function LiveActivityBar() {
   // 🚫 CLS: לא מחזירים null לפני שהנתונים נטענים — זה גורם לרצועה «לקפוץ» פנימה בראש הדף
   //    ולדחוף את כל התוכן מטה (Cumulative Layout Shift). במקום — הרצועה נוכחת תמיד בגובה
   //    קבוע, וההודעה מופיעה בתוכה כשנטענת. הרצועה כמעט תמיד מתמלאת (מדד חיפושים יומי).
+
+  // 🏠 בדף הבית אותו מקור מוקרן ככרטיס בולט — בלי ליצור מערכת/טקסט מקבילים.
+  if (prominent) {
+    return (
+      <section className="lt-home-wrap" aria-label="בקרוב ב־SOD1820" style={{ direction: "rtl" }}>
+        <style>{`
+          .lt-home-wrap { max-width:1120px; margin:14px auto 18px; padding:0 16px; box-sizing:border-box; }
+          .lt-home-card { position:relative; overflow:hidden; border:1px solid ${barBorder}; border-radius:20px;
+            background:${isLight ? "linear-gradient(145deg,#fffaf0,#f2e4bd)" : "linear-gradient(145deg,rgba(35,18,48,.96),rgba(20,11,32,.97))"};
+            box-shadow:${isLight ? "0 12px 34px rgba(87,61,10,.10)" : "0 16px 46px rgba(0,0,0,.28), inset 0 0 34px rgba(212,175,55,.04)"};
+            padding:22px 22px 20px; }
+          .lt-home-card::before { content:""; position:absolute; inset:0; pointer-events:none;
+            background:radial-gradient(circle at 50% 0%, rgba(212,175,55,.14), transparent 54%); }
+          .lt-home-kicker { position:relative; color:${barAccent}; font-family:${F.heading}; font-size:12px; font-weight:900;
+            letter-spacing:1.4px; text-align:center; margin-bottom:8px; }
+          .lt-home-title { position:relative; color:${barInk}; font-family:${F.heading}; font-size:clamp(20px,3vw,30px);
+            font-weight:900; text-align:center; line-height:1.25; margin-bottom:16px; }
+          .lt-home-grid { position:relative; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+          .lt-home-item { display:flex; align-items:flex-start; gap:9px; min-width:0; border:1px solid ${barBorder};
+            border-radius:14px; padding:13px 14px; color:${barInk};
+            background:${isLight ? "rgba(255,255,255,.44)" : "rgba(255,255,255,.035)"};
+            font-family:${F.body}; font-size:14px; font-weight:650; line-height:1.6; }
+          .lt-home-star { color:${barAccent}; flex:none; font-size:15px; line-height:1.6; }
+          .lt-home-loading { min-height:74px; display:flex; align-items:center; justify-content:center; color:${barAccent};
+            font-family:${F.heading}; font-size:13px; opacity:.75; }
+          @media (max-width:720px) {
+            .lt-home-wrap { margin:10px auto 14px; padding:0 10px; }
+            .lt-home-card { border-radius:16px; padding:17px 12px 14px; }
+            .lt-home-title { font-size:20px; margin-bottom:12px; }
+            .lt-home-grid { grid-template-columns:1fr; gap:7px; }
+            .lt-home-item { padding:10px 11px; font-size:13px; line-height:1.5; }
+          }
+        `}</style>
+        <div className="lt-home-card">
+          <div className="lt-home-kicker">✦ בקרוב ב־SOD1820 ✦</div>
+          <div className="lt-home-title">רמזים חדשים מתחילים להתחבר לתמונה אחת</div>
+          {manualMsgs.length ? (
+            <div className="lt-home-grid">
+              {manualMsgs.map((m, n) => (
+                <div className="lt-home-item" key={`${n}-${m.text}`}>
+                  <span className="lt-home-star" aria-hidden>✦</span>
+                  <span>{m.text.replace(/^✦\\s*/, "")}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="lt-home-loading">הפוסטים החדשים בדרך…</div>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div style={{ direction: "rtl", position: "relative", overflowX: "hidden", maxWidth: "100%" }}>
