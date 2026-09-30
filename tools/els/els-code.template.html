@@ -1915,8 +1915,8 @@
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
   function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{const h=occ();return isGov(h)?Math.abs(h.skip):0;}catch(e){return 0;}})(),scope:st.scope});}   // 🧬 G3: skip יוצא רק ממופע שאומת
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
-  window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host")return;
-    if(d.type==="engine-result"){if(e.source!==window.parent)return;const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
+  window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host"||e.source!==window.parent)return;   // G3: every host command must come from the exact parent window
+    if(d.type==="engine-result"){const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
     if(d.type==="tier"&&typeof d.tier==="string"){st.tierKnown=true;st.tier=d.tier;
       if(d.tier==="admin"&&!st.admin&&typeof setAdmin==="function")setAdmin(true);
       try{updateLockUI();}catch(_){}
