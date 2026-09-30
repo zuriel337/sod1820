@@ -7,7 +7,7 @@ import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
 const read = (p) => readFileSync(join(root, p), 'utf8');
-const MIG = '20260930120000_g3_els_verify_batch_v1.sql';
+const MIG = '20260930123615_g3_els_verify_batch_v1.sql';
 const mig = read(`supabase/migrations/${MIG}`);
 const letters = read('tools/els/data/tk-letters.txt');
 const TORAH_LEN = 304805;
@@ -175,7 +175,7 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     assert.notEqual(b.status, 'EXECUTED_EMPTY');
 
     // ── publish truth gate (forward-only): executable against stubbed legacy save/moderate surface ──
-    const GATE = '20260930130000_g3_els_publish_truth_gate_v1.sql';
+    const GATE = '20260930123633_g3_els_publish_truth_gate_v1.sql';
     const gmig = read(`supabase/migrations/${GATE}`);
     assert.doesNotMatch(gmig, /\bupdate\s+public\.els_records\s+set[^;]*where\s+status/i, 'no historical backfill');
     r = db(`
