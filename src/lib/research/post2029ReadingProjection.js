@@ -6,6 +6,7 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
 const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
 const FZ1073_TOPIC_363_SLUG = "gapfill-363";
+const BENNETT_SALT_SLUG = "bennett-melach-631-78";
 
 // Golden calibration only. This is contextual presentation over the existing Post identity,
 // not a second source/knowledge store. Future intake may project equivalent reading-focus
@@ -170,6 +171,47 @@ async function fetchFz1073Topic363() {
   return data || null;
 }
 
+
+const BENNETT_SALT_REGIONS = Object.freeze([
+  { id: "salt-78", heading: "הרמז המרכזי — מלח", label: "מלח · 78", primary: "מלח · 78", signals: ["חישוב מאומת", "עוגן מתוך האירוע"], number: 78, worldLabel: "פתח את 78" },
+  { id: "bennett-631", heading: "בנט בתוך עץ הבחירות", label: "נפתלי בנט · 631", primary: "בנט · 631", signals: ["פוסט הבחירות", "יחידה קיימת בעץ"], number: 631, worldLabel: "פתח את 631" },
+  { id: "salt-bread", heading: "מלח ולחם", label: "מלח = לחם", primary: "מלח = לחם = 78", signals: ["שוויון מספרי", "קריאה פרשנית"], number: 78, worldLabel: "פתח את 78" },
+  { id: "dead-sea", heading: "ים המלח", label: "ים המלח · 133", primary: "ים המלח · 133", signals: ["פוסט קיים", "עומק נפרד"], number: 133, worldLabel: "פתח את 133" },
+  { id: "salt-covenant", heading: "ברית מלח", label: "ברית מלח", primary: "ברית מלח · 690", signals: ["690", "756", "836"], number: 690, worldLabel: "פתח את 690" },
+]);
+
+function buildBennettSaltExperience(post) {
+  const href = "/post/" + BENNETT_SALT_SLUG;
+  return {
+    media: {
+      fullSource: {
+        href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm",
+        label: "N12 · תיעוד האירוע והמקור המצולם",
+        sourceUrl: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm",
+        platformId: null,
+      },
+    },
+    connections: [
+      { id: "bennett-631", label: "נפתלי בנט", kind: "PERSON / POST", value: "631", href: "/sharshar-elections-redemption-hints-draft", reason: "631 כבר חי בפוסט הבחירות; כאן הוא נצרך כחיבור ולא נוצר מחדש.", provenanceLabel: "post:5107" },
+      { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע." },
+      { id: "bread-78", label: "לחם", kind: "NUMBER", value: "78", href: "/2029/number/78", reason: "אותו ערך רגיל כמו מלח; המשמעות פרשנית." },
+      { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
+      { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
+      { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
+    ],
+    timeline: [
+      { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/yam-hamelach-tiferet-geula", sourceLabel: "POST", note: "פוסט קיים ונפרד בעץ." },
+      { id: "bennett-salt-event", label: "אירוע המלחיות בבני ברק", date: "2026-09-24", temporalRole: "occurred", href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm", sourceLabel: "N12 / TOI", note: "הציר מציג סדר כרונולוגי בלבד, ללא טענת סיבתיות." },
+      { id: "bennett-salt-golden", label: "Golden 2029 פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, sourceLabel: "POST", note: "תאריך פרסום ה־Golden החדש." },
+    ],
+    trail: [
+      { id: "bennett-post", label: "בנט", href, kind: "post", active: false },
+      { id: "bennett-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
+      { id: "salt-78", label: "מלח", href: "/2029/number/78", kind: "concept", active: true },
+    ],
+  };
+}
+
 function stripTags(html = "") {
   return String(html)
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -253,6 +295,7 @@ export async function fetchPost2029ReadingProjection(slug) {
 
   const isGolden = post.slug === GOLDEN_SLUG;
   const isFz1073Pilot = post.slug === FZ1073_SLUG;
+  const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
   const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
   const presentationPost = isFz1073Pilot
@@ -261,12 +304,19 @@ export async function fetchPost2029ReadingProjection(slug) {
         content: markFz1073RegionHeadings(post.content),
         _experience: buildFz1073Experience(post, topic363),
       }
-    : post;
+    : isBennettSaltPilot
+      ? {
+          ...post,
+          _experience: buildBennettSaltExperience(post),
+        }
+      : post;
   const regions = (isGolden
     ? GOLDEN_REGIONS
     : isFz1073Pilot
       ? FZ1073_REGIONS
-      : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
+      : isBennettSaltPilot
+        ? BENNETT_SALT_REGIONS
+        : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
         ...region,
         verification: region.number === 787 && isGolden ? yearVerification : null,
       }));
@@ -293,12 +343,14 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? "סוד החשמל · גליון חג הסוכות · „תשית לראשו עטרת פז”"
       : isFz1073Pilot
         ? "תיעוד אירוע · Flydubai FZ1073"
-        : clean(post.author) || "מקור הפוסט",
-    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : clean(post.author) || "מקור הפוסט",
+        : isBennettSaltPilot
+          ? "תיעוד אירוע · בני ברק · 24.09.2026"
+          : clean(post.author) || "מקור הפוסט",
+    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : isBennettSaltPilot ? "בנט × מלח · Golden 2029" : clean(post.author) || "מקור הפוסט",
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
     regions,
     defaultRegionId: regions[0]?.id || null,
-    golden: isGolden || isFz1073Pilot,
+    golden: isGolden || isFz1073Pilot || isBennettSaltPilot,
     draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
     privateStage: post._privateStage === true,
     previewSnapshot: post._previewSnapshot === true,
@@ -306,7 +358,9 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? "המקור נשמר כלשונו. החיבורים בשוליים הם שכבת SOD1820 נפרדת."
       : isFz1073Pilot
         ? "הפוסט הוא מקור הסיפור. החיבורים בשוליים הם שכבת הקשר נפרדת; רמת רמז אינה ציון אמת."
-        : "שכבת ההקשר אינה חלק מדברי המקור.",
+        : isBennettSaltPilot
+          ? "האירוע המתועד, החישובים והפרשנות נשמרים כשכבות נפרדות. אין כאן טענת סיבתיות או עמדה פוליטית."
+          : "שכבת ההקשר אינה חלק מדברי המקור.",
     experience,
   };
 }
@@ -319,4 +373,7 @@ export const post2029ReadingInternals = {
   FZ1073_REGIONS,
   buildFz1073Experience,
   markFz1073RegionHeadings,
+  BENNETT_SALT_SLUG,
+  BENNETT_SALT_REGIONS,
+  buildBennettSaltExperience,
 };
