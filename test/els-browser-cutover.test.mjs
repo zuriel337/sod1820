@@ -68,6 +68,7 @@ async function withHarness(fn) {
         res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(out));
       }); return;
     }
+    if (req.url.startsWith('/attacker.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<!doctype html><meta charset=utf-8><body>attacker</body>'); return; }
     if (req.url.startsWith('/tzofen.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(tool); return; }
     res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(HARNESS);
   });
@@ -232,3 +233,37 @@ test('browser render: verifier failure -> candidate/unverified UI (no «נמצא
     assert.equal(await frame.locator('#out .occbtn').count(), 0);
   });
 });
+
+test('browser trust: same-origin non-parent cannot spoof sod-host tier or load commands', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame }) => {
+    await search(frame, 'משיח');
+    await waitState(page, (m) => m.term === 'משיח' && m.status === 'ok' && m.verification.state === 'MATCH');
+    const before = await frame.locator('#q').inputValue();
+    await page.evaluate(() => {
+      const a = document.createElement('iframe');
+      a.id = 'attacker';
+      a.src = '/attacker.html';
+      document.body.appendChild(a);
+    });
+    await page.waitForFunction(() => {
+      const a = document.getElementById('attacker');
+      return !!a && !!a.contentWindow && a.contentDocument?.readyState === 'complete';
+    });
+    const attacker = page.frames().find((x) => x.url().endsWith('/attacker.html'));
+    assert.ok(attacker, 'same-origin attacker frame exists');
+    await attacker.evaluate(() => {
+      const target = parent.document.getElementById('t').contentWindow;
+      target.postMessage({ source: 'sod-host', type: 'tier', tier: 'anon' }, parent.location.origin);
+      target.postMessage({
+        source: 'sod-host',
+        type: 'load-matrix',
+        item: { term: 'זזזזז', skip: 2, dir: 1, start: 0, scope: 'torah' },
+      }, parent.location.origin);
+    });
+    await page.waitForTimeout(500);
+    assert.equal(await frame.locator('#q').inputValue(), before, 'non-parent load command ignored');
+    const st = (await states(page)).filter((m) => m.term === 'משיח' && m.status === 'ok').pop();
+    assert.equal(st.verification.state, 'MATCH', 'governed state unchanged by spoof');
+  });
+});
+
