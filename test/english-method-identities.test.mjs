@@ -21,7 +21,8 @@ test('registers exactly the four source-attested English method identities with 
 test('identity registration remains fail-closed', () => {
   assert.equal((sql.match(/registered_unimplemented/g) || []).length, 4);
   assert.equal((sql.match(/capability_evidence_not_engine_verified/g) || []).length, 4);
-  assert.equal((sql.match(/'unimplemented'/g) || []).length, 4);
+  const dataSql = sql.split("\n").filter(line => !line.trim().startsWith("--")).join("\n");
+  assert.equal((dataSql.match(/'unimplemented'/g) || []).length, 4);
   assert.match(sql, /in_engine, function, active, deterministic/);
   assert.match(sql, /false, null, false, true/);
 });
