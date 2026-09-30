@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getPostsFromSupabase, getRealityHints, getChannelUpdates } from "../../lib/supabase.js";
+import { getPostsFromSupabase, getRealityHints, getChannelUpdates, getTickerMessages } from "../../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
@@ -18,6 +18,16 @@ function useLiveTicker() {
     let live = true;
     async function load() {
       const items = [];
+      // 📌 הודעות ידניות — צוריאל שולט דרך ticker_messages. הן תמיד קודמות לפיד האוטומטי.
+      try {
+        const manual = await getTickerMessages();
+        for (let m = 0; m < (manual || []).length; m++) {
+          const text = stripHtml(manual[m] || "").replace(/\s+/g, " ").trim();
+          if (!text) continue;
+          items.push({ kind: "news", text: text.slice(0, 180), to: "/", ts: null, manual: true, manualOrder: m });
+        }
+      } catch { /* ignore */ }
+
       // 📝 עדכוני-האתר האחרונים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
       //    ts = זמן-העלייה («modified» = מתי עודכן/פורסם), לתצוגת «לפני X» ולמיזוג לפי טריות.
       try {
@@ -56,7 +66,11 @@ function useLiveTicker() {
       } catch { /* ignore */ }
 
       // מיזוג לפי טריות (הכי-חדש שעלה ראשון) — פוסטים ורמזי-מציאות מעורבבים לפי זמן-עלייה
-      items.sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
+      items.sort((a, b) => {
+        if (!!a.manual !== !!b.manual) return a.manual ? -1 : 1;
+        if (a.manual && b.manual) return (a.manualOrder ?? 0) - (b.manualOrder ?? 0);
+        return new Date(b.ts || 0) - new Date(a.ts || 0);
+      });
       // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
       const seen = new Set(); const uniq = [];
       for (const it of items) { if (seen.has(it.text)) continue; seen.add(it.text); uniq.push(it); }
@@ -160,17 +174,25 @@ export default function LiveActivityBar() {
           .lt-txt { white-space:normal; }
           .lt-t { white-space:normal; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; line-height:1.35; }
           .lt-wn { inset-inline-end:6px; }
+          /* הודעה ידנית חשובה: כמעט כל רוחב המכשיר, בלי אביזרים שמכווצים אותה. */
+          .lt-inner.lt-manual { padding:0 4px; }
+          .lt-inner.lt-manual .lt-wn { display:none; }
+          .lt-center.lt-manual { width:100%; gap:0; }
+          .lt-center.lt-manual .lt-nav { display:none; }
+          .lt-center.lt-manual .lt-msg { width:100%; }
+          .lt-center.lt-manual .lt-txt { width:100%; justify-content:center; padding:2px 4px; }
+          .lt-center.lt-manual .lt-t { -webkit-line-clamp:3; line-height:1.4; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
 
       <div className="lt-bar" aria-label="חדשות טריות באתר">
-        <div className="lt-inner">
+        <div className={`lt-inner${cur?.manual ? " lt-manual" : ""}`}>
           <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
           <span className="lt-wn"><WhatsNewBadge /></span>
           {/* המרכז: ‹ פריט › — דפדוף ידני + עצירה בריחוף. פריט טרי אחד, לחיץ → מוביל למקומו.
               עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
-          <div className="lt-center" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+          <div className={`lt-center${cur?.manual ? " lt-manual" : ""}`} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
             {msgs.length > 1 && (
               <button className="lt-nav" onClick={() => go(-1)} aria-label="העדכון הקודם" style={{ color: barAccent }}>‹</button>
             )}
