@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ReadingContextRail2029 from "../components/experience2029/ReadingContextRail2029.jsx";
+import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
+import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
+import PostContextTrail2029 from "../components/experience2029/PostContextTrail2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -136,6 +139,13 @@ function PostReadingBody() {
 
   const { projection } = state;
   const { post } = projection;
+  const experience = projection.experience || {};
+  const contextualConnections = (experience.connections || []).filter((connection) => {
+    if (!activeFocus) return true;
+    const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
+    const haystack = normalize([connection.label, connection.reason, connection.value].filter(Boolean).join(" "));
+    return !focusNeedle || haystack.includes(focusNeedle) || (experience.connections || []).length <= 6;
+  });
   const exactReturn = {
     href: `/post/${post.slug}#source-region-${activeFocus?.id || projection.defaultRegionId}`,
     label: post.title,
@@ -228,7 +238,11 @@ function PostReadingBody() {
     });
   };
 
-  return <article className="sod29-reading-post" data-golden={projection.golden ? "true" : "false"}>
+  return <article
+    className="sod29-reading-post"
+    data-golden={projection.golden ? "true" : "false"}
+    data-experience-surface="post-reading"
+  >
     <header className="sod29-reading-hero">
       <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
       <h1>{post.title}</h1>
@@ -239,6 +253,8 @@ function PostReadingBody() {
         {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
       </div>
     </header>
+
+    <PostEvidenceMedia2029 media={experience.media} />
 
     <div className="sod29-reading-layout">
       <section
@@ -269,8 +285,12 @@ function PostReadingBody() {
         onOpenNumber={openNumber}
         onAskRaziel={askRaziel}
         onOpenContext={openContext}
+        connections={contextualConnections}
       />
     </div>
+
+    <PostTimeline2029 items={experience.timeline || []} />
+    <PostContextTrail2029 items={experience.trail || []} />
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
