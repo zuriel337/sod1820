@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/flydubai-fz1073-363-14000-remzei-geula",
+      "destination": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "permanent": true
+    },
+    {
       "source": "/פוסטים-אחרונים-2",
       "destination": "/post",
       "permanent": true
