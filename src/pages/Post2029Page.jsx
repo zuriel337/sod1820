@@ -239,10 +239,16 @@ function PostReadingBody() {
   };
 
   return <article
-    className="sod29-reading-post"
+    className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
+    data-architecture-wireframe={experience.wireframe ? "true" : undefined}
   >
+    {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
+      <b>WIREFRAME · מבנה בלבד</b>
+      <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
+    </section> : null}
+
     <header className="sod29-reading-hero">
       <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
       <h1>{post.title}</h1>
