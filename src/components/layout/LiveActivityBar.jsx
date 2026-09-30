@@ -22,9 +22,9 @@ function useLiveTicker() {
       try {
         const manual = await getTickerMessages();
         for (let m = 0; m < (manual || []).length; m++) {
-          const text = stripHtml(manual[m] || "").replace(/\s+/g, " ").trim();
+          const text = stripHtml(manual[m]?.text || "").replace(/\s+/g, " ").trim();
           if (!text) continue;
-          items.push({ kind: "news", text: text.slice(0, 180), to: "/", ts: null, manual: true, manualOrder: m });
+          items.push({ kind: "news", text: text.slice(0, 180), to: manual[m].to || "/", ts: null, manual: true, manualOrder: m });
         }
       } catch { /* ignore */ }
 

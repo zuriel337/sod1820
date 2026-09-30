@@ -2099,7 +2099,7 @@ export async function getVerifiedCrossTitles(limit = 3) {
   } catch { return []; }
 }
 // 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
-// להוסיף: insert into ticker_messages(text,priority) · להסיר: update ... set is_active=false.
+// להוסיף: insert into ticker_messages(text,priority[,link_url]) · להסיר: update ... set is_active=false.
 // 🫧 דופק-פעילות ציבורי (activity_pulse) — סוגי פעילות בשעה האחרונה, בלי תוכן (פרטיות).
 export async function getActivityPulse() {
   if (!supabase) return null;
@@ -2136,9 +2136,13 @@ export async function getTickerMessages() {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("ticker_messages")
-      .select("text").eq("is_active", true)
+      .select("text,link_url").eq("is_active", true)
       .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(10);
-    return (data || []).map(r => r.text).filter(Boolean);
+    // link_url (אופציונלי) — נתיב פנימי בלבד (מתחיל ב-«/»); אחרת הלחיצה מובילה לדף הבית.
+    return (data || []).filter(r => r.text).map(r => ({
+      text: r.text,
+      to: typeof r.link_url === "string" && /^\/(?!\/)/.test(r.link_url) ? r.link_url : "/",
+    }));
   } catch { return []; }
 }
 
