@@ -8,6 +8,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/admin",
   "/archive",
   "/beit-midrash",
+  "/bennett-melach-631-78",
   "/book",
   "/books",
   "/broadcasts",
