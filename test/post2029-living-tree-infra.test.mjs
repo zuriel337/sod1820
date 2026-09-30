@@ -62,3 +62,20 @@ test("System Frame locks one shared Contextual Inspector and keeps bottom trail 
   assert.match(inspector, /data-experience-capability="contextual-inspector"/);
   assert.match(rail, /ContextualInspector2029/);
 });
+
+
+test("Golden Post architecture wireframe exposes the full structural preview without inventing product truth", async () => {
+  const projectionSource = readFileSync(new URL("../src/lib/research/post2029ReadingProjection.js", import.meta.url), "utf8");
+  const experienceSource = readFileSync(new URL("../src/lib/research/post2029ExperienceProjection.js", import.meta.url), "utf8");
+  const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+
+  assert.match(projectionSource, /buildPost2029ArchitectureWireframe/);
+  assert.match(experienceSource, /post-2029-wireframe-v1/);
+  assert.match(experienceSource, /אין טענת סיבתיות/);
+  assert.match(page, /WIREFRAME · מבנה בלבד/);
+  assert.match(frame, /label: "היכל"/);
+  assert.match(frame, /label: "מסעות"/);
+  assert.match(frame, /label: "קהילה"/);
+  assert.match(frame, /data-raziel-anchor="center"/);
+});
