@@ -1349,17 +1349,23 @@
     let capped=0;
     while(ps.sig<cap){
       let live=0;
-      for(const ln of ps.lanes){
+      for(const ln of ps.lanes){   // full round-robin round: every band/direction lane advances before the cap is tested (band-balanced)
         if(laneDone(ln))continue;live++;
         const hs=[],n=fwdLaneScan(ln,AD_COLLECT_CHUNK,hs);ln.spent+=n;ps.pairs+=n;
         probeAdd(ps,hs);
-        if(ps.sig>=cap)break;
       }
       if(!live)break;
     }
     if(ps.sig>=cap)capped=1;
     let all=[...ps.hits.values()];
-    if(capped){let g=0;all=all.filter(h=>Math.abs(h.skip)<2||++g<=cap);}   // cap counts governed-eligible (skip>=2) candidates only
+    if(capped&&ps.sig>cap){   // cap counts governed-eligible (skip>=2) candidates only; trim round-robin across band x direction groups
+      const grp=new Map();
+      for(const h of all){if(Math.abs(h.skip)<2)continue;const k=h.dir+"_"+Math.min(AD_BANDS-1,Math.floor(h.start*AD_BANDS/Math.max(1,scopeN())));
+        if(!grp.has(k))grp.set(k,[]);grp.get(k).push(h);}
+      const gs=[...grp.values()];for(const g of gs)g.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+      const keep=new Set();for(let r=0;keep.size<cap;r++){let any=0;for(const g of gs){if(r<g.length){any=1;keep.add(g[r]);if(keep.size>=cap)break;}}if(!any)break;}
+      all=all.filter(h=>Math.abs(h.skip)<2||keep.has(h));
+    }
     const hits=all.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
     return {hits,capped};
   }
@@ -4465,7 +4471,7 @@
       list.innerHTML="";
       card.querySelector(".card h3 .n")&&(card.querySelector("h3 .n").textContent=st.words.length);
       // ◆ הציר המרכזי — קו-הצופן הראשי עצמו כפריט ברשימה: קו-מלא · רשימת מופעים · הסתרה מהמטריצה
-      ifhasGov(st.res){
+      if(hasGov(st.res)){
         const mh=occ(),mS=Math.abs(mh.skip),n=st.res.hits.length;
         const it=document.createElement("div");it.className="witem mainrow"+(st.hideMain?" off":"");
         it.innerHTML='<span class="dot main-dot" title="הציר המרכזי"></span>'+
