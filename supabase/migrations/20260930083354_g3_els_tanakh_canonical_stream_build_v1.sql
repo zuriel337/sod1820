@@ -1,5 +1,6 @@
 -- SOD1820 — G3 ELS Tanakh canonical stream build (G3_ELS_TANAKH_CANONICAL_STREAM_BUILD_V1).
--- BRANCH-ONLY: not applied to live DB. Human Gate required before any apply/merge/deploy.
+-- RELEASE STATE (2026-09-30): merged in PR #858; this filename matches the migration version already recorded in canonical Supabase.
+-- Do not re-apply from repository history without an explicit Human Gate; this documentation reconciliation performs no live DB apply.
 -- EXTEND_EXISTING under els_research_layer_law v9 + els_single_engine_law v2.
 --
 -- 1. public.tanakh_stream: ONE derived relation, torah_stream shape (idx 1-based, ch, book_idx),
