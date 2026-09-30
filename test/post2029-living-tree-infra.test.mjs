@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { projectPost2029Experience } from "../src/lib/research/post2029ExperienceProjection.js";
+import { post2029ReadingInternals } from "../src/lib/research/post2029ReadingProjection.js";
 import { mergeResearchContext } from "../src/lib/research/researchContext.js";
 
 test("Post 2029 living-tree projection is a no-op without upstream experience data", () => {
@@ -114,4 +115,34 @@ test("Research Context preserves bottom trail at runtime", () => {
   const merged = mergeResearchContext(null, { subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" }, dimensions: { bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }] } });
   assert.equal(merged.dimensions.bottomTrail.length, 2);
   assert.equal(merged.dimensions.bottomTrail[1].label, "631");
+});
+
+
+test("FZ1073 pilot builds bounded context without changing other posts", () => {
+  const { FZ1073_SLUG, FZ1073_REGIONS, buildFz1073Experience, markFz1073RegionHeadings } = post2029ReadingInternals;
+  assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
+  assert.equal(FZ1073_REGIONS.length, 5);
+
+  const marked = markFz1073RegionHeadings("<h1>מהשמיים — עד הנחיתה בטבוק</h1><h2>סעודיה</h2>");
+  assert.match(marked, /data-source-heading="true"/);
+
+  const experience = buildFz1073Experience(
+    { date: "2026-09-30T20:15:36.000Z" },
+    { slug: "gapfill-363", title: "363 — חמישה = המשיח" },
+  );
+  assert.equal(experience.connections[0].href, "/topic/gapfill-363");
+  assert.equal(experience.connections.length, 6);
+  assert.equal(experience.timeline[0].temporalRole, "published");
+  assert.equal(experience.trail[0].label, "FZ1073");
+});
+
+test("Only the FZ1073 legacy URL is redirected into Post 2029", () => {
+  const config = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const redirects = config.redirects || [];
+  const source = "/flydubai-fz1073-363-14000-remzei-geula";
+  const match = redirects.find((row) => row.source === source);
+  assert.ok(match);
+  assert.equal(match.destination, "/post/flydubai-fz1073-363-14000-remzei-geula");
+  assert.equal(match.permanent, true);
+  assert.equal(redirects.some((row) => row.source === "/(.*)" && String(row.destination || "").startsWith("/post/")), false);
 });
