@@ -1,5 +1,5 @@
 import { fetchTopicCardList } from "./topicConvergence.js";
-import { fetchBookEntities } from "./bookResearchProjection.js";
+import { fetchWorldRecentMovement } from "./worldRecentMovement.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -95,10 +95,12 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const safeCreator = clean(creator);
   const topicRows = Array.isArray(input) ? input : (Array.isArray(input?.topics) ? input.topics : []);
   const researchRows = Array.isArray(input) ? [] : (Array.isArray(input?.research) ? input.research : []);
+  const movementRows = Array.isArray(input?.movement) ? input.movement : [];
 
   const candidates = [
     ...topicRows.map((row) => topicRowToWorldUpdate(row, { publicPeople })),
     ...researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople })),
+    ...movementRows,
   ].filter(Boolean);
 
   const items = candidates
@@ -119,6 +121,8 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     sourceCounts: {
       findings: candidates.filter((item) => item.kind === "finding").length,
       convergences: candidates.filter((item) => item.kind === "convergence").length,
+      posts: candidates.filter((item) => item.kind === "post").length,
+      books: candidates.filter((item) => item.kind === "book").length,
     },
     note: "Latest authorized Research Findings + approved public Convergences. Visibility follows the current session/RLS; order is time, never truth rank.",
   };
@@ -144,10 +148,12 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       })
     : Promise.resolve([]);
 
-  const [topicResult, researchResult] = await Promise.all([topicPromise, researchPromise]);
+  const movementPromise = fetchWorldRecentMovement({ postLimit: requested, bookLimit: requested });
+  const [topicResult, researchResult, movementResult] = await Promise.all([topicPromise, researchPromise, movementPromise]);
   const topics = Array.isArray(topicResult?.rows) ? topicResult.rows : [];
+  const movement = [...(movementResult?.posts || []), ...(movementResult?.books || [])];
   return buildWorldDiscoveryStream(
-    { topics, research: researchResult },
+    { topics, research: researchResult, movement },
     { limit: requested, publicPeople }
   );
 }
