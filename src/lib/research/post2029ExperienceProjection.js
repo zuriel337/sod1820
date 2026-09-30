@@ -106,3 +106,43 @@ export const post2029ExperienceInternals = {
   normalizeTimelineItem,
   normalizeTrailItem,
 };
+
+
+export function buildPost2029ArchitectureWireframe() {
+  return {
+    version: "post-2029-wireframe-v1",
+    wireframe: true,
+    media: {
+      highlight: {
+        src: "",
+        poster: null,
+        label: "HIGHLIGHT · רגע הראיה",
+        startSeconds: null,
+        endSeconds: null,
+        sourceIdentity: "wireframe-source",
+      },
+      fullSource: {
+        href: "",
+        label: "SOURCE · הסרטון המלא",
+        sourceUrl: null,
+        platformId: null,
+      },
+    },
+    connections: [
+      { id: "wf-person", label: "אדם / נושא", kind: "PERSON", value: null, href: null, reason: "למה זה קשור לכאן" },
+      { id: "wf-number", label: "מספר / ביטוי", kind: "NUMBER", value: "###", href: null, reason: "חיבור מספרי" },
+      { id: "wf-source", label: "מקור / פסוק", kind: "SOURCE", value: null, href: null, reason: "מקור שמעמיק את הקשר" },
+      { id: "wf-event", label: "אירוע קשור", kind: "EVENT", value: null, href: null, reason: "קשר בזמן/מציאות" },
+    ],
+    timeline: [
+      { id: "wf-published", label: "הפוסט פורסם", date: "YYYY-MM-DD", temporalRole: "published", href: null, sourceLabel: "POST", note: "תאריך פרסום אמיתי יגיע מבעל הזמן הקנוני." },
+      { id: "wf-occurred", label: "אירוע במציאות", date: "YYYY-MM-DD", temporalRole: "occurred", href: null, sourceLabel: "EVENT", note: "אין טענת סיבתיות — רק סדר כרונולוגי." },
+    ],
+    trail: [
+      { id: "wf-root", label: "פוסט", href: null, kind: "post", active: false },
+      { id: "wf-person", label: "אדם", href: null, kind: "person", active: false },
+      { id: "wf-number", label: "מספר", href: null, kind: "number", active: false },
+      { id: "wf-focus", label: "הקשר נוכחי", href: null, kind: "context", active: true },
+    ],
+  };
+}
