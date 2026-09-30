@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const source = readFileSync(new URL('../middleware.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../middleware-core.js', import.meta.url), 'utf8');
 
 // One existing country-policy table remains the owner.
 assert.match(source, /edge_blocked_countries\?select=code,mode,strict_level&enabled=eq\.true/);

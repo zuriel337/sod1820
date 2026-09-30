@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const src = fs.readFileSync(new URL("../src/components/admin/ResearchViewerV0Page.jsx", import.meta.url), "utf8");
+const src = fs.readFileSync(new URL("../src/components/admin/ResearchViewerLegacyV0Page.jsx", import.meta.url), "utf8");
 
 assert.match(src, /fetchResearchViewerFindings/);
 assert.doesNotMatch(src, /CALIBRATION_REFS/);

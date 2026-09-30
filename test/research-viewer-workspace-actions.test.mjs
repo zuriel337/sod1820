@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const viewer = fs.readFileSync(new URL("../src/components/admin/ResearchViewerV0Page.jsx", import.meta.url), "utf8");
+const viewer = fs.readFileSync(new URL("../src/components/admin/ResearchViewerLegacyV0Page.jsx", import.meta.url), "utf8");
 const workspace = fs.readFileSync(new URL("../src/lib/research/useUniversalWorkspace.js", import.meta.url), "utf8");
 
 assert.match(viewer, /useUniversalWorkspace/);
