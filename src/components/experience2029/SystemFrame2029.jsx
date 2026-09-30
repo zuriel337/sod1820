@@ -65,8 +65,10 @@ export const use2029Shell = () => useContext(ShellContext);
 const HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
-  { to: "/post/remzei-geula-ai-sod-hashir", label: "פוסט Golden", icon: "↟" },
-  { label: "ארכיון", icon: "⌁", status: "2029 renderer בהמשך" },
+  { to: "/post/remzei-geula-ai-sod-hashir", label: "פוסטים", icon: "↟" },
+  { to: "/heichal", label: "היכל", icon: "◇" },
+  { label: "מסעות", icon: "↝", status: "בקרוב" },
+  { label: "קהילה", icon: "◎", status: "בקרוב" },
 ];
 
 const DIRECT_NAV = [
