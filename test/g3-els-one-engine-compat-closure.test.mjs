@@ -27,5 +27,9 @@ for (const key of requiredKeys) {
 assert.match(sql, /revoke execute on function public\.els_search_geometry_v1[\s\S]*from anon, authenticated;/);
 assert.match(sql, /grant execute on function public\.els_search_geometry_v1[\s\S]*to service_role;/);
 assert.ok(sql.includes("TEMPORARY_COMPATIBILITY legacy projection over canonical els_search_core_v1"));
+assert.match(sql, /v_maxskip := least\(v_full_max, greatest\(0, least\(coalesce\(p_maxskip,40\), 20000\)\)\)/);
+assert.match(sql, /v_maxhits := greatest\(0, least\(coalesce\(p_maxhits,16\), 1000\)\)/);
+assert.match(sql, /if v_maxskip <= 1 then/);
+assert.match(sql, /'coverage','no_els_skip_admitted'/);
 
 console.log("G3 ELS One-Engine compatibility closure: PASS");
