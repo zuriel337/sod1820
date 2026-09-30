@@ -561,7 +561,8 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
         <div className="hn-home-top">
           <div className="hn-updates-col">
-            <LegacyNowSystemPreview />
+            {/* 🔕 «העת עכשיו» (הצצה מהמערכת החדשה) — הוסתר מהבית (בקשת צוריאל 30.9.2026). להחזרה: הסר את false. */}
+            {false && <LegacyNowSystemPreview />}
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
