@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { projectPost2029Experience } from "../src/lib/research/post2029ExperienceProjection.js";
+import { mergeResearchContext } from "../src/lib/research/researchContext.js";
 
 test("Post 2029 living-tree projection is a no-op without upstream experience data", () => {
   assert.deepEqual(projectPost2029Experience({ id: 1 }), {
@@ -106,4 +107,11 @@ test("Research Path and commands share one physical System Frame bottom surface"
   assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
   assert.match(css, /Unified bottom Context \+ Command Surface/);
   assert.doesNotMatch(page, /<PostContextTrail2029/);
+});
+
+
+test("Research Context preserves bottom trail at runtime", () => {
+  const merged = mergeResearchContext(null, { subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" }, dimensions: { bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }] } });
+  assert.equal(merged.dimensions.bottomTrail.length, 2);
+  assert.equal(merged.dimensions.bottomTrail[1].label, "631");
 });
