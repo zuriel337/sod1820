@@ -5422,7 +5422,7 @@ function SpaceBackground() {
       {/* city night photo — LA skyline */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "url(https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=1920&q=80)",
+        backgroundImage: "url(/legacy-dark-bg-2026-09-30.png)",
         backgroundSize: "cover",
         backgroundPosition: "center center",
         opacity: 0.28,
