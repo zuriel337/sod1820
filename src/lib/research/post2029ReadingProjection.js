@@ -255,13 +255,26 @@ export async function fetchPost2029ReadingProjection(slug) {
   if (!post) return null;
 
   const isGolden = post.slug === GOLDEN_SLUG;
+  const isFz1073Pilot = post.slug === FZ1073_SLUG;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
-  const regions = (isGolden ? GOLDEN_REGIONS : defaultRegionsFromSource(post.content)).map((region) => ({
-    ...region,
-    verification: region.number === 787 ? yearVerification : null,
-  }));
+  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
+  const presentationPost = isFz1073Pilot
+    ? {
+        ...post,
+        content: markFz1073RegionHeadings(post.content),
+        _experience: buildFz1073Experience(post, topic363),
+      }
+    : post;
+  const regions = (isGolden
+    ? GOLDEN_REGIONS
+    : isFz1073Pilot
+      ? FZ1073_REGIONS
+      : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
+        ...region,
+        verification: region.number === 787 && isGolden ? yearVerification : null,
+      }));
 
-  const projectedExperience = projectPost2029Experience(post);
+  const projectedExperience = projectPost2029Experience(presentationPost);
   const experience = isGolden
     && !projectedExperience.media
     && projectedExperience.connections.length === 0
@@ -272,7 +285,7 @@ export async function fetchPost2029ReadingProjection(slug) {
 
   return {
     version: "post-2029-reading-v1",
-    post,
+    post: presentationPost,
     identity: {
       type: "post",
       id: String(post.id),
@@ -281,18 +294,22 @@ export async function fetchPost2029ReadingProjection(slug) {
     },
     sourceLine: isGolden
       ? "סוד החשמל · גליון חג הסוכות · „תשית לראשו עטרת פז”"
-      : clean(post.author) || "מקור הפוסט",
-    sourceLabel: clean(post.author) || "מקור הפוסט",
+      : isFz1073Pilot
+        ? "תיעוד אירוע · Flydubai FZ1073"
+        : clean(post.author) || "מקור הפוסט",
+    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : clean(post.author) || "מקור הפוסט",
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
     regions,
     defaultRegionId: regions[0]?.id || null,
-    golden: isGolden,
+    golden: isGolden || isFz1073Pilot,
     draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
     privateStage: post._privateStage === true,
     previewSnapshot: post._previewSnapshot === true,
     caveat: isGolden
       ? "המקור נשמר כלשונו. החיבורים בשוליים הם שכבת SOD1820 נפרדת."
-      : "שכבת ההקשר אינה חלק מדברי המקור.",
+      : isFz1073Pilot
+        ? "הפוסט הוא מקור הסיפור. החיבורים בשוליים הם שכבת הקשר נפרדת; רמת רמז אינה ציון אמת."
+        : "שכבת ההקשר אינה חלק מדברי המקור.",
     experience,
   };
 }
@@ -301,4 +318,8 @@ export const post2029ReadingInternals = {
   stripTags,
   defaultRegionsFromSource,
   GOLDEN_REGIONS,
+  FZ1073_SLUG,
+  FZ1073_REGIONS,
+  buildFz1073Experience,
+  markFz1073RegionHeadings,
 };
