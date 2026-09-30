@@ -1,0 +1,114 @@
+{
+ "note": "strategy A canonical SQL generator (exact migration text) on throwaway local PG16; count(*) of full occurrence set (cap does not reduce cost: order-by after full join)",
+ "pg": "/usr/lib/postgresql/16/bin",
+ "cases": [
+  {
+   "scope": "torah",
+   "term": "יונה",
+   "skip_min": 1,
+   "skip_max": 40,
+   "status": "OK",
+   "count": 1042,
+   "runs": 3,
+   "median_ms": 1534,
+   "p95_ms": 4989,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "torah",
+   "term": "תורה",
+   "skip_min": 1,
+   "skip_max": 40,
+   "status": "OK",
+   "count": 839,
+   "runs": 3,
+   "median_ms": 1238,
+   "p95_ms": 1384,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "torah",
+   "term": "אליהו",
+   "skip_min": 1,
+   "skip_max": 500,
+   "status": "OK",
+   "count": 1785,
+   "runs": 3,
+   "median_ms": 5091,
+   "p95_ms": 5117,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "torah",
+   "term": "אל",
+   "skip_min": 1,
+   "skip_max": 40,
+   "status": "OK",
+   "count": 156754,
+   "runs": 3,
+   "median_ms": 1465,
+   "p95_ms": 1666,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "torah",
+   "term": "שדי",
+   "skip_min": 1,
+   "skip_max": null,
+   "status": "TIMEOUT",
+   "count": null,
+   "runs": 1,
+   "median_ms": 60069,
+   "p95_ms": 60069,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "torah",
+   "term": "תורהקדשה",
+   "skip_min": 1,
+   "skip_max": null,
+   "status": "TIMEOUT",
+   "count": null,
+   "runs": 1,
+   "median_ms": 60052,
+   "p95_ms": 60052,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "tanakh",
+   "term": "יונה",
+   "skip_min": 1,
+   "skip_max": 40,
+   "status": "OK",
+   "count": 4477,
+   "runs": 3,
+   "median_ms": 3739,
+   "p95_ms": 4408,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "tanakh",
+   "term": "תורה",
+   "skip_min": 1,
+   "skip_max": 500,
+   "status": "OK",
+   "count": 32930,
+   "runs": 3,
+   "median_ms": 14033,
+   "p95_ms": 14086,
+   "timeout_ms": 60000
+  },
+  {
+   "scope": "tanakh",
+   "term": "אליהו",
+   "skip_min": 1,
+   "skip_max": null,
+   "status": "TIMEOUT",
+   "count": null,
+   "runs": 1,
+   "median_ms": 60054,
+   "p95_ms": 60054,
+   "timeout_ms": 60000
+  }
+ ]
+}
