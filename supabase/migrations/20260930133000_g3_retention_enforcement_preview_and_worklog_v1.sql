@@ -332,6 +332,9 @@ begin
 end;
 $function$;
 
+revoke all on function public.admin_worklog_archive_done() from public, anon;
+grant execute on function public.admin_worklog_archive_done() to authenticated, service_role;
+
 comment on function public.fn_work_log_archive_maintenance() is
   'B3 owner-native archival enforcement. Reversible archived=true transition only; no work_log deletion. Archives terminal inactive rows older than the same 14-day current-routing horizon, preserves active assignments/dispatch and active-child chains.';
 
