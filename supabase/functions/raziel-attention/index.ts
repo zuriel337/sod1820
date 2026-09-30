@@ -14,11 +14,18 @@
 // (אחרי פילטרים-פעילים) / "selected" (רק מה שצוריאל סימן-ידנית עכשיו) — שלושה היטלים על אותו
 // תור-חי, לא 3 stores. fmtDigest למטה מנסח את ה-scope בפירוש כדי שרזיאל לא יטעה "כל התור" כש-
 // המדובר בבחירה-ידנית מצומצמת (או להפך).
+import { createMaterialGate } from "../_shared/materialGate.js";
+
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 let MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || SB_SVC;
+// G3 D2 classification: verified-admin-only (403 admin_only before any spend) → bespoke control satisfies the
+// capability owner → TRACE ONLY here (no second gate).
+const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
+const CAPABILITY = "raziel-attention:attention";
+const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const H = { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" };
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -155,8 +162,10 @@ function fmtRole(profile: string): string {
   return "PROFILE_NOT_SUPPORTED";
 }
 
-async function callClaude(system: string, userMsg: string, tries = 3): Promise<{ text: string; error: string | null }> {
+async function callClaude(system: string, userMsg: string, tries = 3): Promise<{ text: string; error: string | null; usage?: { input_tokens: number; output_tokens: number }; api_calls?: number }> {
   let lastErr: string | null = null;
+  const usage = { input_tokens: 0, output_tokens: 0 };
+  let apiCalls = 0;
   for (let attempt = 0; attempt < tries; attempt++) {
     if (attempt > 0) await new Promise(r => setTimeout(r, attempt === 1 ? 700 : 1600));
     const ctrl = new AbortController();
@@ -174,8 +183,9 @@ async function callClaude(system: string, userMsg: string, tries = 3): Promise<{
         return { text: "", error: lastErr + ": " + (await resp.text().catch(() => "")).slice(0, 200) };
       }
       const data = await resp.json();
+      apiCalls++; usage.input_tokens += data?.usage?.input_tokens || 0; usage.output_tokens += data?.usage?.output_tokens || 0;
       const rawText = (data?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
-      if (rawText) return { text: rawText, error: null };
+      if (rawText) return { text: rawText, error: null, usage, api_calls: apiCalls };
       lastErr = "empty_text";
     } catch (e) {
       lastErr = ctrl.signal.aborted ? "timeout" : String(e).slice(0, 120);
@@ -183,7 +193,7 @@ async function callClaude(system: string, userMsg: string, tries = 3): Promise<{
       clearTimeout(to);
     }
   }
-  return { text: "", error: lastErr };
+  return { text: "", error: lastErr, usage: apiCalls ? usage : undefined, api_calls: apiCalls || 1 };
 }
 
 Deno.serve(async (req: Request) => {
@@ -232,7 +242,16 @@ Deno.serve(async (req: Request) => {
       (convo ? `— שיחה עד כה —\n${convo}\n\n` : "") +
       `— צוריאל עכשיו —\n${message || "תעשה לי סדר בתור."}`;
 
-    const { text: rawText, error: aiError } = await callClaude(SYSTEM, userMsg);
+    const trace = await mg.beginTrace({
+      capability: CAPABILITY, surface: "command-center-attention", ownerRef: OWNER_REF,
+      identityClass: "admin", rootName: "raziel-attention",
+    });
+    const { text: rawText, error: aiError } = await mg.providerSpan(trace, {
+      capability: CAPABILITY, name: "raziel-attention:model", ownerRef: OWNER_REF, model: MODEL,
+      source: "raziel-attention", kind: "attention", caller: { userRef: uid || null, visitor: null },
+      run: () => callClaude(SYSTEM, userMsg),
+    });
+    await mg.finishTrace(trace, aiError ? "provider_error" : "success", aiError ? String(aiError).slice(0, 60) : null);
 
     const snapshot = {
       persona_source: "raziel_brain#1",

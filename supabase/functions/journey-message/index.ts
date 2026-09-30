@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createMaterialGate } from "../_shared/materialGate.js";
 
 // journey-message — intentionally public Journey UX under ai_quota_law v3 / journey_ai_guard_law.
 // G0 ports the live source for reproducibility. Server-side anti-regression/rate containment remains a P1 owner gap;
@@ -8,20 +9,17 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Content-Type": "application/json",
 };
+// G3 D2: canonical server capability gate + Operational Trace before provider spend (service role only).
+// Journey stays a FREE public experience: budget_kind "none" — availability/entitlement only, no ai_quota.
+const mg = createMaterialGate({
+  supabaseUrl: Deno.env.get("SUPABASE_URL") || "",
+  serviceKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+  anonKey: Deno.env.get("SUPABASE_ANON_KEY") || "",
+});
+const CAPABILITY = "journey-message:msg";
+const OWNER_REF = "ai_quota_law v3 + journey_ai_guard_law + platform_tiers_law v5";
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: CORS });
 
-async function logTokens(kind: string, model: string, usage: { input_tokens?: number; output_tokens?: number } | undefined) {
-  try {
-    const url = Deno.env.get("SUPABASE_URL");
-    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!url || !key || !usage) return;
-    await fetch(`${url}/rest/v1/ai_token_log`, {
-      method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ source: "journey", kind, model, input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0 }),
-    });
-  } catch { /* telemetry must not block UX */ }
-}
 function cleanName(raw: unknown): string {
   if (typeof raw !== "string") return "";
   return raw.replace(/[<>{}\[\]\\|`$]/g, "").replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 24);
@@ -67,17 +65,37 @@ Deno.serve(async (req: Request) => {
     ].filter(Boolean).join("\n");
 
     const MODEL = "claude-haiku-4-5";
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: deep ? 520 : 320, system, messages: [{ role: "user", content: user }] }),
+
+    // Gate BEFORE the provider call; fails closed. Public contract preserved (guests allowed).
+    const caller = await mg.resolveCaller(req, body);
+    const trace = await mg.beginTrace({
+      capability: CAPABILITY, surface: "journey", ownerRef: OWNER_REF,
+      identityClass: caller.tier, rootName: "journey-message", subjectRef: Number.isSafeInteger(value) && value > 0 ? `number:${value}` : null,
     });
-    if (!r.ok) return json({ message: null, error: "ai_error", status: r.status }, 502);
-    const data = await r.json();
-    await logTokens(deep ? "deep" : "msg", MODEL, data?.usage);
-    if (data?.stop_reason === "refusal") return json({ message: null, error: "refusal" });
-    const text = Array.isArray(data?.content) ? data.content.filter((b: any) => b?.type === "text").map((b: any) => b.text || "").join("").trim() : "";
-    return json({ message: text || null });
+    const g = await mg.runGate(trace, { capability: CAPABILITY, caller, requiredEntitlement: "public", budgetKind: "none" });
+    if (g.state === "unavailable") return json({ message: null, error: "gate_unavailable", trace_id: trace?.traceId || null });
+    if (g.state === "denied") return json({ message: null, error: g.denial, trace_id: trace?.traceId || null });
+
+    const out = await mg.providerSpan(trace, {
+      capability: CAPABILITY, name: "journey-message:model", ownerRef: OWNER_REF, model: MODEL,
+      source: "journey", kind: deep ? "deep" : "msg", caller,
+      run: async () => {
+        const r = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+          body: JSON.stringify({ model: MODEL, max_tokens: deep ? 520 : 320, system, messages: [{ role: "user", content: user }] }),
+        });
+        if (!r.ok) return { error: "ai_error", status: r.status };
+        const data = await r.json();
+        if (data?.stop_reason === "refusal") return { error: "refusal", usage: data?.usage };
+        const text = Array.isArray(data?.content) ? data.content.filter((b: any) => b?.type === "text").map((b: any) => b.text || "").join("").trim() : "";
+        return { text, usage: data?.usage };
+      },
+    });
+    await mg.finishTrace(trace, out.error ? "provider_error" : "success", out.error || null);
+    if (out.error === "ai_error") return json({ message: null, error: "ai_error", status: (out as any).status }, 502);
+    if (out.error === "refusal") return json({ message: null, error: "refusal" });
+    return json({ message: out.text || null });
   } catch (e) {
     return json({ message: null, error: "exception", detail: String((e as Error).message).slice(0, 180) }, 500);
   }

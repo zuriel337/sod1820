@@ -1,7 +1,16 @@
 // lab-teacher — סוכן הוראה אדפטיבי ל«מעבדה להבנת משמעות» (SOD1820).
 // מנותק מהליבה — פונקציה עצמאית. מקבל שיחה (messages) ומחזיר תשובת-מורה.
 // fast=true → Haiku (מהיר); אחרת Sonnet (עומק). ⛔ אין temperature ל-Sonnet 5.
+import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";
+
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
+const SB_URL = Deno.env.get("SUPABASE_URL") || "";
+const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || "";
+// G3 D2: public material path → canonical server capability gate + Operational Trace (service role only).
+const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
+const CAPABILITY = "lab-teacher:chat";
+const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim();
 
@@ -39,7 +48,7 @@ async function runClaude(model: string, messages: any[], maxTokens: number) {
   const data = await resp.json();
   if (data?.stop_reason === "refusal") return { error: "refusal" };
   const text = (data?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
-  return { text: text || null };
+  return { text: text || null, usage: data?.usage };
 }
 
 Deno.serve(async (req: Request) => {
@@ -57,7 +66,29 @@ Deno.serve(async (req: Request) => {
     if (messages[0].role !== "user") messages.unshift({ role: "user", content: "(תחילת שיחה)" });
     const fast = !!body?.fast;
     const model = fast ? FAST_MODEL : MODEL;
-    const out = await runClaude(model, messages, fast ? 900 : 1600);
+
+    // G3 D2 — gate BEFORE provider spend; fails closed. Public contract preserved: guests still allowed
+    // (entitlement "public"); metering reuses ai_quota (anti-loop numbers of the ai-analyze guide surface).
+    const caller = await mg.resolveCaller(req, body);
+    const trace = await mg.beginTrace({
+      capability: CAPABILITY, surface: "meaning-lab", ownerRef: OWNER_REF,
+      identityClass: caller.tier, rootName: "lab-teacher",
+    });
+    const g = await mg.runGate(trace, {
+      capability: CAPABILITY, caller, requiredEntitlement: "public",
+      budgetKind: "ai_quota", budgetTier: caller.tier,
+      budgetLimitOverride: conversationalLimit(caller.tier),
+      budgetIdentity: caller.identity ? `${caller.identity}:lt` : "",
+    });
+    if (g.state === "unavailable") return json({ reply: null, error: "gate_unavailable", trace_id: trace?.traceId || null });
+    if (g.state === "denied") return json({ reply: null, error: g.denial, trace_id: trace?.traceId || null });
+
+    const out = await mg.providerSpan(trace, {
+      capability: CAPABILITY, name: "lab-teacher:model", ownerRef: OWNER_REF, model,
+      source: "lab-teacher", kind: fast ? "fast" : "deep", caller,
+      run: () => runClaude(model, messages, fast ? 900 : 1600),
+    });
+    await mg.finishTrace(trace, out.error ? "provider_error" : "success", out.error || null);
     if (out.error) return json({ reply: null, model, error: out.error, detail: out.detail });
     return json({ reply: out.text, model });
   } catch (e) {
