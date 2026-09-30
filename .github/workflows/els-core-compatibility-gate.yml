@@ -8,7 +8,7 @@ on:
       - 'test/els-core-compatibility.test.mjs'
       - 'test/els-core-compatibility-fixture.sql'
       - 'test/els-core-compatibility.sql'
-      - 'supabase/migrations/20260930090000_g3_els_tanakh_canonical_stream_build_v1.sql'
+      - 'supabase/migrations/20260930083354_g3_els_tanakh_canonical_stream_build_v1.sql'
       - 'test/els-tanakh-canonical-stream.test.mjs'
       - 'test/els-tanakh-canonical-stream-fixture.sql'
       - '.github/workflows/els-core-compatibility-gate.yml'
