@@ -1277,6 +1277,162 @@
     const hits=hitsF.concat(hitsB);
     hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
     return{hits,capped,t};}
+  // ═══ G3 ONE-ENGINE CUTOVER — candidate discovery (browser) → canonical batch verification (server) ═══
+  // Browser discovery (findAll / findAllAdaptive / window scans) is an INTERNAL EXECUTION STRATEGY that only
+  // produces CANDIDATES. Truth authority = els_verify_batch_v1 behind the existing els-search-bridge (host
+  // engine-request seam). A hit becomes governed state (st.res / state msg / save / cross / FORMS evidence)
+  // only with h.v==="MATCH". A local/sampled no-hit is LOCAL_NO_HIT and never a canonical NOT_FOUND/EXECUTED_EMPTY;
+  // the exact exhaustive server page/core (op:"page") stays the proof path.
+  const CORPUS_ID={torah:"0b022e8eef6f9c16",tanakh:"0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b"};
+  const VB_MAX_CANDIDATES=4000,VB_MAX_LETTER_CHECKS=64000;
+  const AD_POLICY="ADAPTIVE_CAPPED_V1",AD_BANDS=8,AD_PROBE_PAIRS=500000,AD_PROBE_PAIRS_EXT=2000000;
+  const _engPending=new Map();let _engSeq=0;
+  function engineCall(op,payload,timeoutMs){
+    return new Promise(res=>{
+      if(!EMBED||!window.parent||window.parent===window){res({ok:false,error:"no_host"});return;}
+      const requestId="e"+(++_engSeq)+"_"+Math.random().toString(36).slice(2,8);
+      const to=setTimeout(()=>{_engPending.delete(requestId);res({ok:false,error:"timeout"});},timeoutMs||15000);
+      _engPending.set(requestId,r=>{clearTimeout(to);res(r);});
+      postHost({type:"engine-request",requestId,op,payload});
+    });
+  }
+  // ── ADAPTIVE_CAPPED_V1 router (pure; exported for the Node acceptance test) ──
+  // exact stratified probe: AD_BANDS corpus-position bands x both directions, candidate-pair budget split evenly.
+  // Each lane visits its band's anchors in van-der-Corput order (uniformly spread at ANY prefix, deterministic,
+  // resumable), and stops exactly at the pair budget (mid-anchor cursor kept) — so a 500k probe extends to 2M
+  // without repeating work.
+  function vdc(k){let r=0,f=.5;while(k>0){if(k&1)r+=f;k>>=1;f/=2;}return r;}
+  function fwdLaneScan(ln,budget,hits){
+    const su=ln.su,SN=su.SN,L=su.L,i=su.i,g=su.g,Pi=su.Pi,Pj=su.Pj,mx=su.mx,tt=ln.tt,len=ln.to-ln.from;let pairs=0;
+    while(pairs<budget){
+      if(ln.a==null){   // bit-reversal permutation of [0,N) restricted to <len: every anchor exactly once, uniformly spread at any prefix
+        let ix=-1;while(ln.k<ln.N&&ix<0){const c=Math.floor(vdc(ln.k++)*ln.N);if(c<len)ix=c;}
+        if(ix<0)break;ln.a=ln.from+ix;ln.b=lb(Pj,Pi[ln.a]+g);}
+      const pi=Pi[ln.a],hi=pi+g*mx;let b=ln.b,done=true;
+      for(;b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;
+        if(pairs>=budget){done=false;break;}
+        pairs++;const d=pj-pi;if(d%g)continue;
+        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
+        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
+        if(ln.orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);hits.push({skip:s,dir:-1,start:s0,positions:p});}
+        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}}
+      if(done||b>=Pj.length){ln.a=null;}else ln.b=b;
+    }
+    return pairs;
+  }
+  function stratProbeInit(t){
+    const tb=t.split("").reverse().join(""),lanes=[];
+    for(const [tt,orient] of [[t,"fwd"],[tb,"back"]]){
+      const su=fwdSetup(tt);if(!su)continue;
+      const P=su.Pi.length;
+      for(let k=0;k<AD_BANDS;k++){const from=Math.floor(k*P/AD_BANDS),to=Math.floor((k+1)*P/AD_BANDS);if(to>from){let N=1;while(N<to-from)N<<=1;lanes.push({tt,orient,su,from,to,N,k:0,a:null,b:0,spent:0});}}
+    }
+    return {lanes,hits:new Map(),pairs:0,sig:0};   // sig = distinct skip>=2 candidates (skip 1 is plain text: never a router signal / never governed ELS)
+  }
+  function stratProbeRun(ps,totalPairs){
+    // per-lane budget = total/(2*AD_BANDS) (full grid) so bands/directions stay balanced; cumulative across calls
+    const per=Math.ceil(totalPairs/(2*AD_BANDS));
+    for(const ln of ps.lanes){
+      const left=per-ln.spent;if(left<=0)continue;
+      const hs=[],n=fwdLaneScan(ln,left,hs);ln.spent+=n;ps.pairs+=n;
+      probeAdd(ps,hs);
+    }
+    return ps;
+  }
+  function probeAdd(ps,hs){for(const h of hs){const k=hitKey(h);if(ps.hits.has(k))continue;ps.hits.set(k,h);if(Math.abs(h.skip)>=2)ps.sig++;}}
+  // HYBRID_COVERAGE_V1 primary collector: continues the SAME band/direction lanes (probe state reused, no restart, never calls
+  // findAll/findAllAdaptive) in round-robin chunks until `cap` candidates are gathered (capped, band-balanced) or every lane is
+  // exhausted (complete enumeration == anchor result set). Candidates only — governed truth stays the server batch verifier.
+  const AD_COLLECT_CHUNK=20000;
+  function laneDone(ln){return ln.a==null&&ln.k>=ln.N;}
+  function stratCollect(ps,cap){
+    let capped=0;
+    while(ps.sig<cap){
+      let live=0;
+      for(const ln of ps.lanes){   // full round-robin round: every band/direction lane advances before the cap is tested (band-balanced)
+        if(laneDone(ln))continue;live++;
+        const hs=[],n=fwdLaneScan(ln,AD_COLLECT_CHUNK,hs);ln.spent+=n;ps.pairs+=n;
+        probeAdd(ps,hs);
+      }
+      if(!live)break;
+    }
+    if(ps.sig>=cap)capped=1;
+    let all=[...ps.hits.values()];
+    if(capped&&ps.sig>cap){   // cap counts governed-eligible (skip>=2) candidates only; trim round-robin across band x direction groups
+      const grp=new Map();
+      for(const h of all){if(Math.abs(h.skip)<2)continue;const k=h.dir+"_"+Math.min(AD_BANDS-1,Math.floor(h.start*AD_BANDS/Math.max(1,scopeN())));
+        if(!grp.has(k))grp.set(k,[]);grp.get(k).push(h);}
+      const gs=[...grp.values()];for(const g of gs)g.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+      const keep=new Set();for(let r=0;keep.size<cap;r++){let any=0;for(const g of gs){if(r<g.length){any=1;keep.add(g[r]);if(keep.size>=cap)break;}}if(!any)break;}
+      all=all.filter(h=>Math.abs(h.skip)<2||keep.has(h));
+    }
+    const hits=all.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+    return {hits,capped};
+  }
+  // 0 hits -> ANCHOR_FAST_V1 · >=2 -> HYBRID_COVERAGE_V1 · exactly 1 -> extend to 2M then Hybrid only if signal strengthens
+  function adChoose(hits500k,hitsExt){
+    if(hits500k===0)return {strategy:"ANCHOR_FAST_V1",extended:false};
+    if(hits500k>=2)return {strategy:"HYBRID_COVERAGE_V1",extended:false};
+    return {strategy:(hitsExt!=null&&hitsExt>=2)?"HYBRID_COVERAGE_V1":"ANCHOR_FAST_V1",extended:true};
+  }
+  async function routedDiscover(raw,cap){
+    const t=norm(raw);if(t.length<2)return {hits:[],capped:0,t,strategy:null};
+    const ps=stratProbeInit(t);stratProbeRun(ps,AD_PROBE_PAIRS);
+    const h1=ps.sig;let hx=null;
+    if(h1===1){stratProbeRun(ps,AD_PROBE_PAIRS_EXT);hx=ps.sig;}
+    const ch=adChoose(h1,hx);
+    let hits,capped;
+    if(ch.strategy==="HYBRID_COVERAGE_V1"){   // primary path: band/direction scan state collects up to cap — no full anchor collector first
+      const r=stratCollect(ps,cap);hits=r.hits;capped=r.capped;
+    }else{                                   // ANCHOR_FAST_V1: sparse / no-signal — exact anchor scan (legacy discovery kernel)
+      const base=st.scope==="tanakh"?await findAllAdaptive(raw,cap):findAll(raw,cap);hits=base.hits;capped=base.capped;
+    }
+    return {hits,capped,t,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
+  }
+  // ── canonical batch verification (server) ──
+  async function verifyBatch(t,hits,strategy){
+    const scope=st.scope,cid=CORPUS_ID[scope],L=t.length;
+    const per=Math.max(1,Math.min(VB_MAX_CANDIDATES,Math.floor(VB_MAX_LETTER_CHECKS/Math.max(2,L))));
+    const uniq=[],seen=new Set();
+    for(const h of hits){const k=hitKey(h);if(seen.has(k))continue;seen.add(k);uniq.push(h);}
+    const verified=new Set(),traces=[];
+    for(let i=0;i<uniq.length;i+=per){
+      const chunk=uniq.slice(i,i+per);
+      const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
+        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))});
+      if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
+      for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
+      if(r.trace_id)traces.push(r.trace_id);
+    }
+    return {ok:true,verified,traces,corpus_id:cid};
+  }
+  // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
+  async function promoteVerified(cand,scope){
+    const t=cand.t,sc=scope||st.scope;
+    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,vstate:"CANDIDATE",vtrace:[]};
+    if(!cand.hits.length){out.vstate="LOCAL_NO_HIT";return out;}   // local/sampled no-hit: NOT a canonical negative
+    const elig=cand.hits.filter(h=>Math.abs(h.skip)>=2);
+    cand.hits.forEach(h=>{if(Math.abs(h.skip)<2)h.v="PLAIN_TEXT";else if(h.v!=="MATCH")h.v="CANDIDATE";});
+    const vr=elig.length?await verifyBatch(t,elig,cand.strategy):{ok:true,verified:new Set(),traces:[]};
+    if(!vr.ok){out.verr=vr.error;return out;}
+    let mismatch=0;
+    for(const h of elig){if(vr.verified.has(hitKey(h)))h.v="MATCH";else{h.v="MISMATCH";mismatch++;}}
+    out.hits=cand.hits.filter(h=>h.v==="MATCH"||h.v==="PLAIN_TEXT");   // a MISMATCH is never promoted
+    out.vmismatch=mismatch;out.vtrace=vr.traces;out.vstate="VERIFIED";out.corpus_id=vr.corpus_id||CORPUS_ID[sc];
+    return out;
+  }
+  async function discoverVerified(raw,cap){return promoteVerified(await routedDiscover(raw,cap));}
+  const isGov=h=>!!h&&h.v==="MATCH";
+  // 🧬 render-truth: a result gets the normal «נמצא» UI ONLY if at least one occurrence is a canonical MATCH.
+  const hasGov=r=>!!r&&!!r.hits&&r.hits.some(isGov);
+  // Non-governed copy (never a negative claim, never «נמצא»): LOCAL_NO_HIT = partial local scan; verifier failure/mismatch/plain-text = unverified candidate.
+  function nonGovernedHtml(r){
+    const n=r&&r.hits?r.hits.length:0,t=r&&r.t?r.t:"";
+    if(r&&r.verr)return '<div class="empty cand">⚠️ <b>מועמדים בלבד — לא אומתו</b><br>נמצאו '+heb(n)+' מועמדים מקומיים ל«'+t+'», אך האימות מול מנוע-השרת נכשל ('+String(r.verr).replace(/[<>&]/g,"")+'). מועמד אינו ממצא — נסו שוב בעוד רגע.</div>';
+    if(r&&r.vmismatch>0&&!n)return '<div class="empty cand">⚠️ <b>מועמדים שלא עברו אימות</b><br>'+heb(r.vmismatch)+' מועמדים מקומיים ל«'+t+'» נפסלו באימות השרת — לא מוצגת תוצאה.</div>';
+    if(n)return '<div class="empty cand">ℹ️ <b>«'+t+'» מופיע כטקסט רגיל בלבד (דילוג 1)</b><br>אין מופע צופן (דילוג 2 ומעלה) שאומת בשרת.</div>';
+    return '<div class="empty local">🔎 <b>סריקה מקומית חלקית — לא נמצא מופע</b> ל«'+t+'» בסריקה המקומית.<br>זו אינה הוכחת-היעדר: סריקה מקומית/דגומה אינה ממצה. ההוכחה הממצה (כל המופעים) נעשית בשרת.</div>';
+  }
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1361,7 +1517,7 @@
   // 📝 חובה (בקשת צוריאל 20.7.2026): כל שומר-צופן כותב תחילה «מה רואים בצופן» — אין שמירה בלי הסבר.
   function addCurrentToGallery(){
     const h=(()=>{try{return occ();}catch(e){return null;}})();
-    if(!st.res||!st.res.hits.length||!h){toast("חפש מטריצה קודם");return;}
+    if(!hasGov(st.res)||!h){toast("חפש מטריצה קודם");return;}
     askCipherDescription(()=>performSaveToGallery(h));
   }
   // 📝 חלון חובת-הסבר — נפתח לפני כל שמירה, חוסם עד שנכתב הסבר קצר. גם שדה-שם (רשות) לזיהוי המחבר.
@@ -1392,7 +1548,7 @@
     const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים (אותו מונח)?
     sbs.forEach(sb=>{sb.textContent=editing?"⏳ מעדכן…":"⏳ שומר…";sb.disabled=true;});
     toast(editing?"✏️ מעדכן ממצא…":"💾 שומר לתיק המחקר…");
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
       //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions.
       try{
@@ -1401,7 +1557,15 @@
         }
         if(st._refreshQuality)st._refreshQuality();
       }catch(e){}
+      // 🧬 G3: שמירה (מטריצה/ממצא governed) רק אחרי אימות canonical בשרת של הציר ושל הממצאים המוצגים.
+      await healGoverned();
+      if(!isGov(h)){
+        sbs.forEach(sb=>{sb.textContent=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";sb.disabled=false;});
+        toast("⛔ לא נשמר — המופע טרם אומת מול מנוע-השרת (מועמד בלבד). נסו שוב בעוד רגע.");
+        return;
+      }
       const it=galleryCurrentItem();
+      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:shownHitsOf(st.words[i]).filter(isGov).map(hitKey)}));   // רק ממצאים שאומתו יוצאים לשמירה
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
@@ -1607,6 +1771,13 @@
   // v/lenses: מעטפת-גרסה של המטריצה עצמה (עצמאית מ-state.v החיצוני) — מכריזה אילו עדשות-אופציונליות
   //    *נוכחות בפועל* בהודעה הזו. עדשות עתידיות (heat/verse/zones — טרם-מוחלט, טרם-מומש) יתווספו
   //    כאובייקטים-אחים נפרדים (matrixHeat/matrixVerse/matrixZones), לא כאן — כדי שלא לנפח כל state-tick.
+  // 🧬 G3: תאים שמותר להם לצאת מה-iframe כ-governed: ציר מאומת + ממצאים מוצגים שאומתו בשרת (h.v==="MATCH").
+  function governedCells(){
+    const s=new Set();
+    try{const h=occ();if(isGov(h))h.positions.forEach(p=>s.add(p));}catch(e){}
+    st.words.forEach(w=>shownHitsOf(w).forEach(h=>{if(isGov(h))h.positions.forEach(p=>s.add(p));}));
+    return s;
+  }
   function matrixSnapshot(b){
     const rows=[];
     for(let r=b.r0;r<=b.r1;r++){
@@ -1617,10 +1788,11 @@
       }
       rows.push(row);
     }
-    const {colorMap,startSet}=colorSets(),marks=[];
+    const {colorMap,startSet}=colorSets(),marks=[],gov=governedCells();
     colorMap.forEach((kind,idx)=>{
       const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
+      if(!gov.has(idx))return;   // 🧬 G3: רק תאי-ממצא שאומתו canonical יוצאים כ-governed state
       const m={i:idx,type:kind==="main"?"main":"finding"};
       if(kind!=="main")m.color=kind;
       if(startSet.has(idx))m.start=true;
@@ -1632,16 +1804,24 @@
     const r=st.res;
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
       scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
-    if(!r||!r.hits.length)return Object.assign(base,{status:"empty"});
+    // 🧬 G3: "empty" = חיפוש מקומי/דגום ללא מופע — לעולם לא NOT_FOUND / EXECUTED_EMPTY קנוני (negative_authority:false)
+    if(!r||!r.hits.length)return Object.assign(base,{status:"empty",verification:{state:(r&&r.vstate)||"NONE",negative_authority:false}});
     const h=occ(),b=blockOf(),L=(r.t||"").length;
+    // 🧬 G3: מופע שלא אומת בשרת (candidate / mismatch / plain-text) לא יוצא כ-ok: אין axis/hitId/matrix/findings.
+    if(!isGov(h))return Object.assign(base,{status:"candidate",length:L,
+      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
+      verification:{state:h.v||"CANDIDATE",policy:AD_POLICY,negative_authority:false}});
     return Object.assign(base,{
       status:"ok",length:L,
+      verification:{state:"MATCH",policy:AD_POLICY,strategy:(r.strategy&&r.strategy.strategy)||null,corpus_id:CORPUS_ID[st.scope]||null,
+        verified_hits:r.hits.filter(isGov).length,trace_ids:(r.vtrace||[]).slice(0,4)},
       axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
       findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
-        inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
+        inWindow:w.inwin||0,shown:shownHitsOf(w).filter(isGov).map(hitKey),
+        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
         showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
@@ -1657,7 +1837,30 @@
   // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
   // (משתנה-עזר לסריאליזציה — אינו state של המנוע ואינו משפיע על שום חישוב.)
   let _stateSig="";
-  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}}
+  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}
+    try{healGoverned();}catch(e){}}
+  // 🧬 G3: כל מופע שהגיע ל-st.res/st.words בלי אימות-שרת (מסלול פנימי שלא עבר promoteVerified) מאומת כאן, ואז
+  //    מוצא-שוב את ה-state. h.v נקבע *רק* לפי תשובת ה-verifier הקנוני (MATCH/MISMATCH); כשל-גשר → CANDIDATE (fail closed).
+  let _healBusy=false,_healP=null;
+  function healGoverned(){if(_healBusy)return _healP;_healP=healRun();return _healP;}
+  async function healRun(){
+    const jobs=[];
+    const r=st.res;
+    if(r&&r.hits&&r.t){const need=r.hits.filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);if(need.length)jobs.push({t:r.t,hits:need,strategy:r.strategy||null});
+      r.hits.forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="PLAIN_TEXT";});}
+    st.words.forEach(w=>{const need=shownHitsOf(w).filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);
+      shownHitsOf(w).forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="LOCAL_ONLY";});
+      if(need.length&&norm(w.t).length>=2)jobs.push({t:norm(w.t),hits:need,strategy:{policy:"WINDOW_CANDIDATE_V1"}});});
+    if(!jobs.length)return;
+    _healBusy=true;
+    try{
+      for(const j of jobs){
+        const vr=await verifyBatch(j.t,j.hits,j.strategy);
+        j.hits.forEach(h=>{h.v=vr.ok?(vr.verified.has(hitKey(h))?"MATCH":"MISMATCH"):"CANDIDATE";});
+      }
+    }finally{_healBusy=false;}
+    emitState();
+  }
 
   // ── 📜 Verse/Context Lens — on-demand בלבד (`request-lens`/`lens`), אינו חלק מ-emitState() ────────
   // ⚠️ **אפס חישוב-ELS חדש.** רק primitives קיימים בזיכרון: occ() · st.words · shownHitsOf() · hitKey()
@@ -1690,7 +1893,7 @@
     const t=target||{};
     try{
       const hit=findLensHit(t);
-      if(!hit){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
+      if(!hit||!isGov(hit)){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}   // 🧬 G3: עדשה רק על מופע שאומת
       const vs=verseSpan(hit.positions);
       if(!vs){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
       await ensureVerseText();
@@ -1710,9 +1913,10 @@
   const canRegular=()=>!isAnon()||freeCount()<FREE_DEMO;
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
-  function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{return Math.abs(occ().skip);}catch(e){return 0;}})(),scope:st.scope});}
+  function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{const h=occ();return isGov(h)?Math.abs(h.skip):0;}catch(e){return 0;}})(),scope:st.scope});}   // 🧬 G3: skip יוצא רק ממופע שאומת
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
-  window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host")return;
+  window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host"||e.source!==window.parent)return;   // G3: every host command must come from the exact parent window
+    if(d.type==="engine-result"){const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
     if(d.type==="tier"&&typeof d.tier==="string"){st.tierKnown=true;st.tier=d.tier;
       if(d.tier==="admin"&&!st.admin&&typeof setAdmin==="function")setAdmin(true);
       try{updateLockUI();}catch(_){}
@@ -1816,20 +2020,20 @@
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      st.res=_slow?await findAllAdaptive(w,4000):findAll(w,4000);   // תנ״ך=מותאם (probe→ואם צריך parallel) · תורה=סינכרוני כרגיל
+      st.res=await discoverVerified(w,4000);   // 🧬 G3: גילוי-מועמדים אדפטיבי (ADAPTIVE_CAPPED_V1) → אימות canonical בשרת; רק MATCH הופך ל-st.res
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
       st.postUrl="";st.postTitle="";st.desc="";   // 📖 חיפוש חדש = צופן חדש → אין קישור/הסבר של הצופן הקודם
       if(!preserveWords)st.words=savedWordsInit();
       go.disabled=false;go.textContent=goLabel();updGem();render();
-      if(_slow)doneSearchLoad(st.res?st.res.hits.length:0);   // ⏳ סיום — מציג את הזמן שחלף + מספר המופעים
+      if(_slow)doneSearchLoad(st.res?st.res.hits.filter(isGov).length:0);   // ⏳ סיום — מציג את הזמן שחלף + מספר המופעים
       logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
       // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
-      if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
+      if(st.nameMode){st.nameMode=false;if(hasGov(st.res)){st.suggest=suggestCluster();render();
         toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
       // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
-      if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
+      if(hasGov(st.res)){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
       else hideSearchStat();
     },10);
   }
@@ -1843,10 +2047,15 @@
   //    כל אזור נשמר עם פירוט-מלא: לכל מונח דילוג/כיוון/מרחק/גימטריה + צירופי-גימטריה שווים.
   // מטמון findAll (דטרמיניסטי) — מאיץ מאוד את ההתכנסות-החופשית שסורקת כל מונח בתור ציר
   const FA=new Map();
-  function faMemo(w){const k=norm(w)+"@"+st.scope;let r=FA.get(k);if(!r){r=findAll(w,3000);FA.set(k,r);}return r;}
+  function faMemo(w){const k=norm(w)+"@"+st.scope;let r=FA.get(k);if(!r){r=findAll(w,3000);r.vstate="CANDIDATE";FA.set(k,r);}return r;}   // 🧬 מועמדים-מקומיים בלבד — כל יציאה governed עוברת h.v==="MATCH"
   // מטמון-קל לגשר (עד 400 מופעים) — findAll עוצר מוקדם למילים נפוצות → מהיר בהרבה מסריקה מלאה
   const FAB=new Map();
   function faBridge(w){const k=norm(w)+"@"+st.scope;if(FA.has(k))return FA.get(k);let r=FAB.get(k);if(!r){r=findAll(w,400);FAB.set(k,r);}return r;}
+  // 🧬 G3: prefetch מאומת — faMemo (סינכרוני, קוד-דירוג/גאומטריה) קורא מהמטמון אחרי שהמונחים אומתו בשרת.
+  async function faVerified(w){const k=norm(w)+"@"+st.scope,c=FA.get(k);
+    if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT"))return c;
+    const r=await discoverVerified(w,3000);FA.set(k,r);return r;}
+  async function prefetchVerified(ws){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(faVerified));}
   function rarityOf(w){const r=faMemo(w);return r.capped?9999:r.hits.length;}
   // 🎯 מודל-איכות אחיד (לפי צוריאל) — משמש גם באזורי-ההתכנסות וגם ב«איכות הצופן», כדי שהכוכבים יהיו זהים.
   //   אות-ליד-אות (בלי פערים) + קרוב-לציר + נדיר = חזק. פערים ארוכים / רחוק / נפוץ = חלש. אלכסון/מאונך/מאוזן — לא משנה.
@@ -1944,6 +2153,7 @@
     const terms=parts.filter(w=>norm(w)!==axisN);
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק…";}
     setTimeout(async ()=>{
+      await prefetchVerified([axis,...terms]);   // 🧬 G3: גם מסלול ה-sync fallback קורא מהמטמון המאומת
       const {resA,meetings,total}=await crossFindMultiParallel(axis,terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
       if(!meetings.length){toast("לא נמצאה התכנסות טהורה של המונחים סביב «"+axis+"». הרפה את הטוהר או נסה מונחים אחרים.");return;}
@@ -1958,7 +2168,8 @@
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
   function runCrossSimple(A,B){
     goBusy("מצליב…");
-    setTimeout(()=>{
+    setTimeout(async ()=>{
+      await prefetchVerified([A,B]);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       const r1=crossFindMulti(A,[B],18),r2=crossFindMulti(B,[A],18);   // שני הכיוונים
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
@@ -2171,7 +2382,7 @@
       //    צריך-בפועל) כדי שגם מונח בודד פתולוגי (כמו "ירושלים") לא יבלע לבד Worker שלם.
       const nA=norm(A),words=[...new Set([nA,...T2])];
       const hitsByWord={};
-      await Promise.all(words.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByWord[w]=r;})));
+      await Promise.all(words.map(w=>faVerified(w).then(r=>{hitsByWord[w]=r;})));
       const resA=hitsByWord[nA];
       if(!resA.hits.length||!T2.length)return {resA,meetings:[],total:0};
       const rar=new Map();T2.forEach(t=>{const r=hitsByWord[t];rar.set(t,r.capped?9999:r.hits.length);});
@@ -2197,7 +2408,7 @@
       // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — דרך findAllAdaptive (probe→
       //    parallel-רק-אם-צריך-בפועל), כדי שמונח פתולוגי בודד לא יבלע Worker שלם לבד.
       const hitsByTerm={};
-      await Promise.all(Tn.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByTerm[w]=r;})));
+      await Promise.all(Tn.map(w=>faVerified(w).then(r=>{hitsByTerm[w]=r;})));
       // שלב 2: crossFindMulti לכל ציר, מפוזר על הבריכה, מוזרע עם תוצאות שלב-1 (בלי findAll כפול).
       // ⚠️ Promise.all שומר את סדר-הקלט בתוצאה (לא סדר-סיום) — חובה כדי שסדר ה-push ל-all יהיה
       //    זהה לסדר Tn המקורי בגרסה הסינכרונית: sort() יציב, ותיקו בין ממצאים שווי-ניקוד נשבר
@@ -2366,7 +2577,7 @@
       showStage("🧬 סורק צורה "+heb(i+1)+" מתוך "+heb(pairs.length)+"…",
                 "«"+p.probe.w+"»"+(p.mate?" ו«"+p.mate.w+"»":"")+" ב"+scopeName);
       await new Promise(res=>paintThen(res));
-      const r=deep?await findAllAdaptive(p.probe.w,FORMS_CAP):findAll(p.probe.w,FORMS_CAP);
+      const r=await discoverVerified(p.probe.w,FORMS_CAP);   // 🧬 G3: FORMS = הקרנה של תוצאות מאומתות (אותו scope שהוגדר למעלה)
       hitsOf.set(p.probe.w,r.hits.filter(h=>h.dir===1));
       if(p.mate)hitsOf.set(p.mate.w,r.hits.filter(h=>h.dir===-1));
     }
@@ -2469,7 +2680,7 @@
   ];
   // חיפוש מילה בתוך החלון-הנראה הנוכחי (blockOf) — מחזיר את המופע הקרוב-ביותר לציר, או null
   function findInBlock(t){
-    t=norm(t);if(!st.res||!st.res.hits.length||t.length<2)return null;
+    t=norm(t);if(!hasGov(st.res)||t.length<2)return null;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
@@ -2489,7 +2700,7 @@
   // 🔬 מערכת עדשות-מחקר — רישום מודולרי. כל עדשה = תוסף שמצייר על התוצאה הנוכחית. לא כפתור קבוע במסך.
   //    להוסיף עדשה בעתיד = רק להוסיף לרשומה כאן (id/icon/name/render). המסך הראשי לא משתנה.
   function lensMirror(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     const axisN=norm(st.raw);
     box.innerHTML='<div class="lens-title">🪞 מראות — חילופי-אותיות של «'+st.raw+'» <span class="lens-note">תמורת-אותיות · עדות, לא ניבוי</span></div><div class="mirror-out"></div>';
     const out=box.querySelector(".mirror-out");let any=false;
@@ -2503,7 +2714,7 @@
   }
   // 🌌 עדשת חיפוש-סביבתי — סורקת את המאגר ומחזירה כל מילה שצפה כדילוג ברדיוס R מהציר (לא רק על הקו)
   function scanNeighborhood(R){
-    if(!st.res||!st.res.hits.length)return [];
+    if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),byChar=new Map();
@@ -2521,7 +2732,7 @@
     out.sort((a,b)=>a.cost-b.cost);return out;
   }
   function lensRadius(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     const R=st.lensRadius||12;
     box.innerHTML='<div class="lens-title">🌌 חיפוש סביבתי — מילים ברדיוס סביב «'+st.raw+'» <span class="lens-note">כל מילה מהמאגר שצפה קרוב · עדות, לא ניבוי</span></div>'+
       '<div class="rad-ctl"><span>רדיוס: <b class="rad-v">'+R+'</b> תאים</span><input type="range" class="rad-s" min="3" max="30" value="'+R+'"></div>'+
@@ -2541,7 +2752,7 @@
   // 🧩 עדשת תבניות (Wildcards) — סורקת את החלון למילים התואמות תבנית עם ? (אות כלשהי). «שורש עם אות חסרה».
   const patNorm=s=>s.split("").map(ch=>ch==="?"?"?":norm(ch)).join("");
   function scanPattern(pat){
-    if(!st.res||!st.res.hits.length)return [];
+    if(!hasGov(st.res))return [];
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
@@ -2558,7 +2769,7 @@
     return [...out.values()].sort((a,b)=>(b.known-a.known)||a.cost-b.cost);
   }
   function lensPattern(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     box.innerHTML='<div class="lens-title">🧩 תבניות (Wildcards) — <b>?</b> = אות כלשהי <span class="lens-note">למשל: א?מת · ?שיח · ??יה · עדות, לא ניבוי</span></div>'+
       '<div class="pat-ctl"><input class="pat-in" maxlength="22" placeholder="הקלד תבנית עם ? …" value="'+(st.lensPat||"")+'"><button class="mini pat-go">🧩 חפש תבנית</button></div>'+
       '<div class="pat-out"></div>';
@@ -2580,7 +2791,7 @@
     182:"יעקב",232:"ד׳ שמות",248:"אברהם · רמ״ח",314:"שדי",345:"משה · השם",358:"משיח · נחש",541:"ישראל",
     611:"תורה",620:"כתר",1820:"שם הוי״ה בתורה · סוד 1820"};
   function lensAnchor(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     const anchOf=v=>ANCHORS[v]||(SIGNIFICANT.has(v)?"מספר מוכר":null);
     const line=(label,g,s)=>{const ga=ANCHORS[g],sa=anchOf(s);
       return '<div class="anc-row"><b class="anc-src">'+label+'</b>'+
@@ -2632,7 +2843,7 @@
     let s=gapF(step)*proxF(f.cost)*rarF(rarityOf(f.term))*lenF(f.term)*25;
     if(f.anchor)s+=25;if(f.mirror)s+=15;return Math.min(99,Math.round(s));}
   function lensSignature(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — העדשה פועלת על התוצאה.</div>';return;}
     const {total,level,comp}=computeSignature();
     let html='<div class="lens-title">🏅 חתימת-אזור — מדד-תהודה של «'+st.raw+'» <span class="lens-note">מדידה בלבד, לא משמעות</span></div>';
     html+='<div class="sig-top"><div class="sig-score">'+total+'<span>/100</span></div><div class="sig-level">'+level+'</div></div>';
@@ -2644,7 +2855,7 @@
   // 🔬 החוקר האוטונומי («חקור בשבילי») — לחיצה אחת מריצה את כל העדשות, סורקת בזמן-אמת, ומדרגת ממצאים.
   //    המשתמש לא בוחר עדשות — מקבל מסלול-מחקר במקום אוסף תוצאות. עדות, לא ניבוי.
   function lensDirector(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — החוקר פועל על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — החוקר פועל על התוצאה.</div>';return;}
     box.innerHTML='<div class="lens-title">🔬 חקור בשבילי — סריקת מחקר אוטומטית של «'+st.raw+'» <span class="lens-note">בודק את התוצאה בכל הכלים ומדרג את החזק · עדות, לא ניבוי</span></div>'+
       '<button class="dir-go">▶ התחל סריקת מחקר</button><div class="dir-out"></div>';
     const out=box.querySelector(".dir-out");
@@ -2673,7 +2884,7 @@
   }
   // 🔭 המשך-הציר — קורא את קו-הצופן המורחב של הציר (לפני/אחרי, אותו דילוג) ומחזיר מילים שיושבות עליו.
   function scanAxisLineNow(){
-    if(!st.res||!st.res.hits.length)return [];
+    if(!hasGov(st.res))return [];
     const hit=occ(),S=Math.abs(hit.skip),step=S*hit.dir,EXT=130;
     const first=hit.positions[0],last=hit.positions[hit.positions.length-1],pos=[];
     for(let i=EXT;i>=1;i--){const p=first-i*step;if(p>=0&&p<N)pos.push(p);}
@@ -2684,7 +2895,7 @@
   }
   // 🧠 החוקר — סריקה מעמיקה: המשך-הציר + כל השיטות על הרצף + עוגנים/שכונה, מדרג, וממליץ כיוון.
   function lensResearcher(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — החוקר פועל על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — החוקר פועל על התוצאה.</div>';return;}
     box.innerHTML='<div class="lens-title">🧠 החוקר — סריקה מעמיקה של «'+st.raw+'» <span class="lens-note">כולל קריאת המשך-הציר בכל השיטות · עדות, לא ניבוי</span></div><button class="dir-go res-go" style="background:linear-gradient(180deg,#c026d3,#9d1bb0)">▶ הפעל את החוקר</button><div class="dir-out"></div>';
     const out=box.querySelector(".dir-out");
     box.querySelector(".res-go").onclick=()=>{
@@ -2721,7 +2932,7 @@
   }
   // 🧭 עדשת מסלול-גילוי — מסע מממצא לממצא בתוך החלון, עם **סיבה על כל חץ** (מראה/גימטריה/עוגן/קרבה).
   function scanCandidates(){
-    if(!st.res||!st.res.hits.length)return [];
+    if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const mainSet=new Set(occ().positions),byChar=new Map();
@@ -2736,7 +2947,7 @@
     return [...out.values()];
   }
   function lensPath(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש מילה קודם — המסלול נבנה על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — המסלול נבנה על התוצאה.</div>';return;}
     box.innerHTML='<div class="lens-title">🧭 מסלול-גילוי — מסע מממצא לממצא <span class="lens-note">כל חץ מסביר למה עברנו · עדות, לא ניבוי</span></div><button class="dir-go path-go">🧭 בנה מסלול</button><div class="path-out"></div>';
     const out=box.querySelector(".path-out");
     box.querySelector(".path-go").onclick=()=>{
@@ -2802,7 +3013,7 @@
   // 🔄 עדשת «מכל-הצדדים» (אזור-הניסוי) — סורקת את הציר הנוכחי לאורך ולרוחב ובכל חילופי-האותיות הפנימיים שלו.
   //    מריצה את runCrossSides על המטריצה הנוכחית; התוצאות נפתחות כאזורי-התכנסות עשירים (עם הסינונים וה-AI).
   function lensSides(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש שם/מילה קודם — העדשה סורקת אותו מכל הצדדים.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש שם/מילה קודם — העדשה סורקת אותו מכל הצדדים.</div>';return;}
     const axis=st.raw,forms=sidesForms(axis);
     box.innerHTML='<div class="lens-title">🔄 מכל הצדדים — «'+axis+'» <span class="lens-note">לאורך ולרוחב + חילופי-אותיות פנימיים · עדות, לא ניבוי</span></div>'+
       '<div class="sides-forms">'+forms.map(f=>'<span class="sides-form"><span class="sf-n">'+f.name+'</span><b>'+f.w+'</b></span>').join("")+'</div>'+
@@ -2873,7 +3084,7 @@
     return {axis,H,sig};
   }
   function lensHypo(box){
-    if(!st.res||!st.res.hits.length){box.innerHTML='<div class="lens-empty">חפש שם/מילה קודם — מנוע-ההשערות פועל על התוצאה.</div>';return;}
+    if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש שם/מילה קודם — מנוע-ההשערות פועל על התוצאה.</div>';return;}
     box.innerHTML='<div class="lens-title">🧩 מנוע-השערות — «'+st.raw+'» <span class="lens-note">3 קריאות מתחרות · ראיות מדידות · עדות, לא ניבוי</span></div>'+
       '<button class="lens-go hypo-go" style="background:linear-gradient(180deg,#8b5cf6,#7c3aed)">▶ בנה 3 השערות</button><div class="hypo-out"></div>';
     const out=box.querySelector(".hypo-out");
@@ -2922,7 +3133,7 @@
   }
   function renderLensPanels(){
     const box=document.getElementById("lens-panels");if(!box)return;box.innerHTML="";
-    const ax=document.getElementById("lab-axis");if(ax)ax.textContent=(st.res&&st.res.hits.length)?("• עדשה על: «"+st.raw+"»"):"";
+    const ax=document.getElementById("lab-axis");if(ax)ax.textContent=hasGov(st.res)?("• עדשה על: «"+st.raw+"»"):"";
     const active=LENSES.filter(L=>st.lensActive.has(L.id));
     if(!active.length){box.innerHTML='<div class="lens-empty">בחר עדשה למעלה כדי להפעיל אותה על התוצאה.</div>';return;}
     active.forEach(L=>{const d=document.createElement("div");d.className="lens-panel";L.render(d);box.appendChild(d);});
@@ -2953,8 +3164,8 @@
     // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
-    st.res=st.scope==="tanakh"?await findAllAdaptive(item.term,4000):findAll(item.term,4000);
-    if(!st.res.hits.length){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
+    st.res=await discoverVerified(item.term,4000);   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
+    if(!hasGov(st.res)){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
     // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
     //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט
     //    הקנוני הקיים (כבר בשימוש ב-Verse-Lens). נופל לגיבוי הישן (skip בלבד) לצפנים-שמורים ותיקים
@@ -3007,7 +3218,7 @@
   //    Web Share (וואטסאפ/רשתות מקבלים את הבאנר עצמו) — עובד גם לצופן שעדיין לא נשמר. הקישור: העמוד
   //    הקנוני /codes/:slug אם הצופן שמור (יש לו OG), אחרת קישור-hash עצמאי. גיבוי: תיבה עם קישור+הורדת-תמונה.
   async function shareLink(){
-    if(!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
+    if(!hasGov(st.res)){toast("חפש מטריצה קודם");return;}
     const canonical=st.cipherSlug?("https://sod1820.co.il/codes/"+encodeURIComponent(st.cipherSlug)):null;
     const url=canonical||(location.origin+location.pathname+"#"+encodeMatrix());
     const title="🔠 צופן דילוג: «"+st.raw+"» · דילוג "+Math.abs(occ().skip)+" — סוד 1820";
@@ -3048,7 +3259,7 @@
   function roundRectP(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
   // 🎴 מנוע-כרטיס-הצופן — בונה את הכרטיס המעוצב ל-canvas ומחזיר אותו (מקור אחד לתמונה: הורדה · שמירה · OG).
   function buildCipherCanvas(){
-    if(!lastBlock||!st.res||!st.res.hits.length)return null;
+    if(!lastBlock||!hasGov(st.res))return null;
     const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
     const CELL=34,GAP=3,PAD=26,HEAD=64,cols=b.cw,rows=(b.r1-b.r0+1);
     const gridW=cols*CELL+(cols-1)*GAP,gridH=rows*CELL+(rows-1)*GAP;
@@ -3092,7 +3303,7 @@
   // 🎴 כרטיס-שיתוף רחב 1200×630 (יחס WhatsApp/פייסבוק) — המטריצה כ«באנר» עם מיתוג. מקור-אמת לתמונת-השיתוף:
   //    נשמר כ-image_url (→ OG פר-צופן) וגם נשלח ישירות כקובץ-תמונה בשיתוף-מהכלי. עדות — לא ניבוי.
   function buildShareCard(){
-    if(!lastBlock||!st.res||!st.res.hits.length)return null;
+    if(!lastBlock||!hasGov(st.res))return null;
     const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
     const cols=b.cw,rows=(b.r1-b.r0+1),W=1200,H=630;
     const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
@@ -3141,7 +3352,7 @@
   function cipherCardDataURL(){try{const c=buildShareCard();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
   // 🔲 צורת-הצופן הגולמית — רק רשת-האותיות הצבועה, בלי כותרת/מקור/מקרא/חתימה. לתצוגת «צורה בלבד» בספרייה.
   function buildCipherGrid(){
-    if(!lastBlock||!st.res||!st.res.hits.length)return null;
+    if(!lastBlock||!hasGov(st.res))return null;
     const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
     const CELL=34,GAP=3,PAD=16,cols=b.cw,rows=(b.r1-b.r0+1);
     const gridW=cols*CELL+(cols-1)*GAP,gridH=rows*CELL+(rows-1)*GAP,W=PAD*2+gridW,H=PAD*2+gridH;
@@ -3167,7 +3378,7 @@
   function stopReveal(){cancelRevealArm();_revealTimers.forEach(clearTimeout);_revealTimers=[];if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));}
   // תכנון-הסרט: אילו תאים (ציר + ממצאים) נדלקים, ובאיזה סדר — משותף לפתיחה-מוקדמת ולנגינה.
   function _revealPlan(){
-    if(!lastGrid||!st.res||!st.res.hits.length)return null;
+    if(!lastGrid||!hasGov(st.res))return null;
     const grid=lastGrid,order=[];
     if(!st.hideMain)occ().positions.forEach(p=>order.push(p));
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>order.push(p))));
@@ -3196,7 +3407,7 @@
   //    ידני = «הבא»/רווח/→ חושף חלק (סנכרון לקריינות חיה) · אוטומטי = שניות-לחלק שאתה קובע.
   let _present=null,_presentKey=null;
   function _presentPlan(){
-    if(!lastGrid||!st.res||!st.res.hits.length)return null;
+    if(!lastGrid||!hasGov(st.res))return null;
     const grid=lastGrid,steps=[];
     const uniqArr=a=>{const s=new Set(),o=[];a.forEach(p=>{if(!s.has(p)){s.add(p);o.push(p);}});return o;};
     if(!st.hideMain){const ax=(occ()&&occ().positions)||[];if(ax.length)steps.push({label:(st.raw||"הציר"),color:null,cells:uniqArr(ax)});}
@@ -3371,7 +3582,7 @@
   // חיפוש ממצאים בתוך הבלוק הנראה — סורק כל תא בחלון ובודק כל כיוון:
   // שורה (דילוג 1..8) · עמודה (דילוג S) · אלכסונים (דילוג S±1, S±2) — בשני הכיוונים.
   function recomputeWords(){
-    if(!st.res||!st.res.hits.length)return;
+    if(!hasGov(st.res))return;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
     const mh=occ();
     // דילוגי-אלכסון: סביב כל כפולה של רוחב-המטריצה (kS±2, k=1..4) → תופס אלכסונים מקבילים בכל שיפוע
@@ -3429,7 +3640,7 @@
 
   // 🤖 «הצע אשכול»: סורק את מאגר-המונחים בחלון, ומחזיר את מי שהכי קרוב לאשכול הקיים
   function suggestCluster(){
-    if(!st.res||!st.res.hits.length)return [];
+    if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const anchors=occ().positions.map(rc);
@@ -3501,15 +3712,16 @@
   function render(){
     cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
-    document.body.classList.toggle("searched",!!(r&&r.hits.length));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
-    if(!r||!r.hits.length){
+    document.body.classList.toggle("searched",hasGov(r));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
+    if(!hasGov(r)){
       let _extra='נסה איות אחר או מילה קצרה יותר.';
       if(st.scope==="torah"&&r&&r.t){   // 📜 «לא נמצא בתורה» מטעה — אולי המונח קיים בכל התנ״ך (נ״ך). בודקים ומזמינים פנימה במקום מבוי-סתום.
         let _inTk=false;const _sv=st.scope;st.scope="tanakh";
         try{_inTk=findAll(r.t,1).hits.length>0;}catch(_e){}st.scope=_sv;
         if(_inTk)_extra='המונח <b>כן קיים בכל התנ״ך</b> (מחוץ לחמשת החומשים) — פשוט לא בתורה.<br><button id="emptyTk" style="margin-top:12px;cursor:pointer;background:linear-gradient(180deg,#e8c84a,#caa62f);color:#1a0e00;border:none;border-radius:9px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:13px">🔎 חפש בכל התנ״ך</button>';
       }
-      out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>'+_extra+'</div>';
+      const _lnh=!!r&&!r.verr&&!(r.vmismatch>0)&&!r.hits.length;   // local/sampled no-hit only
+      out.innerHTML=nonGovernedHtml(r)+(_lnh&&r&&r.t?'<div class="empty-x">'+_extra+'</div>':'');
       const _b=document.getElementById("emptyTk");if(_b)_b.onclick=()=>{const _tb=document.querySelector('.scopebtn[data-scope="tanakh"]');if(_tb)_tb.click();};   // רשום → מחליף היקף ומחפש · אנונימי → שער-הרשמה (המודל נשמר)
       try{hideSearchStat();}catch(e){}
       emitState();   // 🛰️ גם «לא נמצא» הוא מצב — ה-host צריך לדעת (status:"empty")
@@ -3880,7 +4092,7 @@
     });
   }
   function setZoom(z){st.zoom=Math.max(.5,Math.min(2.8,z));render();}
-  let _rzT=null;window.addEventListener("resize",()=>{if(!st.res||!st.res.hits.length)return;clearTimeout(_rzT);_rzT=setTimeout(fitMatrixToScreen,150);});
+  let _rzT=null;window.addEventListener("resize",()=>{if(!hasGov(st.res))return;clearTimeout(_rzT);_rzT=setTimeout(fitMatrixToScreen,150);});
 
   // 🔀 פאנל אזורי-התכנסות — כרטיס מפורט לכל אזור: כוכבים · ציר · ספר · כל מונח (דילוג/כיוון/מרחק/גימטריה/נדירות)
   //    · צירופי-גימטריה שווים · 🤖 ניתוח עובדתי (באתר: AI חי).
@@ -4259,7 +4471,7 @@
       list.innerHTML="";
       card.querySelector(".card h3 .n")&&(card.querySelector("h3 .n").textContent=st.words.length);
       // ◆ הציר המרכזי — קו-הצופן הראשי עצמו כפריט ברשימה: קו-מלא · רשימת מופעים · הסתרה מהמטריצה
-      if(st.res&&st.res.hits.length){
+      if(hasGov(st.res)){
         const mh=occ(),mS=Math.abs(mh.skip),n=st.res.hits.length;
         const it=document.createElement("div");it.className="witem mainrow"+(st.hideMain?" off":"");
         it.innerHTML='<span class="dot main-dot" title="הציר המרכזי"></span>'+
@@ -4344,7 +4556,7 @@
       const sv={res:st.res,occ:st.occ,words:st.words};let out={stars:0,total:0};
       try{
         st.res=findAll(item.term,4000);
-        if(st.res.hits.length){
+        if(hasGov(st.res)){
           let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
           if(idx<0){const g=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g>=0?g:0;}
           st.occ=idx;

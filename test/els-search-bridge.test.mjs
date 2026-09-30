@@ -63,4 +63,38 @@ test('Tanakh remains delegated to canonical MISSING_ADAPTER behavior', () => {
   assert.doesNotMatch(src, /tanach_verses|tk-letters|TORAH_N/);
 });
 
+test('G3 verify_batch: delegates to the canonical batch verifier only, gate/rate/trace precede the RPC', () => {
+  assert.match(src, /serviceRpc\("els_verify_batch_v1"/);
+  const gate = src.indexOf('serviceRpc("fn_capability_execution_gate_v1"');
+  assert.ok(gate > 0 && gate < src.indexOf('serviceRpc("els_verify_batch_v1"'));
+  assert.ok(src.indexOf('await rateLimit(req, userId, op)') < gate);
+  assert.ok(src.indexOf('await traceBegin(') < gate);
+  assert.match(src, /op === "verify_batch" \? "verify_batch"/);
+  assert.match(src, /BATCH_MAX_CANDIDATES = 4000/);
+  assert.match(src, /BATCH_MAX_LETTER_CHECKS = 64000/);
+  assert.match(src, /BATCH_MAX_REQUEST_BYTES = 256 \* 1024/);
+  assert.match(src, /payload_too_large/);
+  assert.match(src, /p_corpus_id: batchCorpusId/);
+  assert.doesNotMatch(src, /verified\.push|function\s+verifyCandidate/i, 'bridge never verifies locally');
+});
+
+test('G3 verify_batch: trace input hash binds term/scope/corpus_id/full candidate list/strategy', () => {
+  const block = src.slice(src.indexOf('const inputHash = await sha256'), src.indexOf('const trace = await traceBegin'));
+  for (const f of ['normalizeTerm(term)', 'scope', 'corpus_id: batchCorpusId', 'batchCandidates.map(c => [c.skip, c.dir, c.start])', 'strategy: batchStrategy']) {
+    assert.ok(block.includes(f), `hash binds ${f}`);
+  }
+});
+
+test('G3 verify_batch: separate rate bucket, strategy is allowlisted provenance only', () => {
+  assert.match(src, /els-search-bridge\$\{batch \? "\|verify_batch" : ""\}/);
+  assert.match(src, /function safeStrategy/);
+});
+
 console.log('els-search-bridge contract: PASS');
+
+test('edge payload cap uses UTF-8 byte length', () => {
+  assert.match(src, /new TextEncoder\(\)\.encode\(raw\)\.byteLength > BATCH_MAX_REQUEST_BYTES/);
+  assert.doesNotMatch(src, /raw\.length > BATCH_MAX_REQUEST_BYTES/);
+  const s = 'א'.repeat(140000);   // 140k UTF-16 units but 280k UTF-8 bytes
+  assert.ok(s.length < 256 * 1024 && new TextEncoder().encode(s).byteLength > 256 * 1024);
+});
