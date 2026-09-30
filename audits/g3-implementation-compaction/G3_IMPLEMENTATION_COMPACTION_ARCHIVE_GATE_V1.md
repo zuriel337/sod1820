@@ -76,6 +76,21 @@ G3 cannot close until all are true:
 8. Branch-only / merged / deployed / live / verified implementation states are reconciled exactly.
 9. Full provenance remains available in Git, inactive rules, work_log and migration history.
 10. Fresh-agent replay after G3 resolves only current owners/runtime for normal tasks and opens legacy history on demand.
+11. **Writer cutover proof:** every 2029 user-facing path has canonical writers/readers; superseded Legacy writers are frozen only after replacement + replay + live-consumer proof.
+12. **Telemetry one tree:** `events`/Traffic is the forward semantic event family; Legacy `site_visits`/`visitor_events`/`page_views`/`search_log` dependencies are inventoried and removed from 2029 one by one while required historical evidence/rollups remain available.
+13. **Full retention census:** final dry-run covers source/WhatsApp plus telemetry/logs, cron/security/AI/trace history, import/staging/backups, media/storage and legacy semantic/candidate stores. Destructive action remains separately Human-Gated.
+14. **Query/RLS/index right-sizing:** use live workload/advisor/query-plan evidence to fix measured hot RPCs, add needed indexes, remove true duplicates/redundancy and avoid speculative index churn.
+15. **No DB-held remote wait on hot paths:** latency-critical external provider calls must not retain a DB connection while waiting on remote HTTP when the same governed action can use existing async Edge/background transport.
+16. **Raziel one brain:** channel adapters may vary transport/presentation only; no channel-local fixed method list, convergence authority or research brain remains as future architecture authority.
+17. **Monitoring one tree + cost split:** routine health is a bounded fast snapshot; expensive retention/dedupe/storage dependency scans are cached/background/on-demand under the same owners.
+18. **Media/storage compaction:** originals/source fidelity stay protected; bounded derivatives/cache are verified; duplicate/archive candidates require content/reference/provenance proof before destructive action.
+19. **Staging/backups/legacy stores:** import-stage, backup, cleanup-manifest and dormant legacy tables receive explicit KEEP/ARCHIVE/RETIRE decisions with reader/writer proof.
+20. **Physical maintenance after logical changes:** only after cutover/index/schema decisions, refresh statistics and run evidence-based VACUUM/ANALYZE/REPACK where needed; physical rewrites never substitute for semantic cleanup.
+21. **Performance baseline:** record representative pre-G4 route/RPC/Raziel/query/cache/egress/error metrics; “fast” without measured evidence is not closure.
+22. **Retry amplification guard:** semantic/application conflicts must not surface through retryable transport/database error codes that can create backend retry storms.
+23. **Crawler-cost reproof:** server-document/crawler metadata changes are accepted only after live DB-read and Storage-egress measurement confirms intended reduction without breaking indexability/provenance.
+24. **Temporary Legacy hotfix retirement:** fixes made only to keep current Legacy production usable remain TEMPORARY_COMPATIBILITY and are revalidated for retirement once native 2029 replacement passes.
+25. **Branch/PR hygiene:** run a repository-wide census before G4; classify each open PR/branch against current main as RELEASE/REBASE/ABSORB/ARCHIVE/SUPERSEDED and remove stale implementation authority from normal routing.
 
 ## Known G2 carry-forward candidates
 
@@ -103,6 +118,10 @@ This list is routing calibration, not permission to retire blindly. Live impleme
 ## Ordering
 
 Run this gate after G3 runtime/Golden implementation has enough verified replacements to make retirement decisions evidence-based, and before G4.
+
+### Mandatory pre-G4 live rescan
+
+Immediately before G4 entry, repeat the live census against then-current main + production + canonical Supabase and supersede earlier counts. Cover DB/table/index/storage growth, current writers/readers, cron/Edge workers, Legacy islands, `pg_stat_statements`, RLS/index advisors, vacuum/dead-tuple state, telemetry parity, retry amplification, Raziel/provider paths, monitoring latency, media/egress/crawler behavior, direct source-ingest paths, every open PR/branch and retention coverage. Provider/edge/storage evidence is required where semantic `events` cannot observe crawler/media traffic. New islands found by the rescan extend this same gate; no parallel cleanup system is created.
 
 The G3 opening event-driven inter-agent dispatcher does not replace this gate; it should help execute it with direct GPT↔CLAUDE challenge/verification once implemented.
 
