@@ -28,4 +28,19 @@ test('host bridge does not replace local ELS execution in this slice', () => {
   assert.doesNotMatch(src, /findAll\s*=|function\s+findAll/);
 });
 
+test('host bridge rejects same-origin spoof: e.source must be the exact iframe contentWindow', () => {
+  const i = src.indexOf('async function onMsg(e)');
+  const body = src.slice(i, src.indexOf('if (d.type === "engine-request")', i));
+  assert.match(body, /e\.origin !== window\.location\.origin\) return/);
+  assert.match(body, /e\.source !== toolWin\) return/);
+  assert.ok(body.indexOf('e.source !== toolWin') < body.indexOf('e.data'), 'source check precedes data use');
+  // executable adversarial check: replicate the guard verbatim against a spoofing window
+  const guard = (e, origin, iframeWin) => { if (e.origin !== origin) return false; const w = iframeWin; if (!w || e.source !== w) return false; return true; };
+  const real = {}, spoof = {};
+  assert.equal(guard({ origin: 'https://x', source: real }, 'https://x', real), true);
+  assert.equal(guard({ origin: 'https://x', source: spoof }, 'https://x', real), false);
+  assert.equal(guard({ origin: 'https://x', source: real }, 'https://x', null), false);
+  assert.equal(guard({ origin: 'https://evil', source: real }, 'https://x', real), false);
+});
+
 console.log('els-host-bridge contract: PASS');

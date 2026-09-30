@@ -173,6 +173,79 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     b = batch('זזזזז', 'tanakh', TANAKH_ID, [{ skip: 2, dir: 1, start: 0 }]);
     assert.equal(b.verified.length, 0); assert.equal(b.completion.negative_authority, false);
     assert.notEqual(b.status, 'EXECUTED_EMPTY');
+
+    // ── publish truth gate (forward-only): executable against stubbed legacy save/moderate surface ──
+    const GATE = '20260930130000_g3_els_publish_truth_gate_v1.sql';
+    const gmig = read(`supabase/migrations/${GATE}`);
+    assert.doesNotMatch(gmig, /\bupdate\s+public\.els_records\s+set[^;]*where\s+status/i, 'no historical backfill');
+    r = db(`
+      create or replace function public.fn_els_term_norm(p text) returns text language sql immutable as $$ select translate(regexp_replace(coalesce(p,''),'[^א-ת]','','g'),'ךםןףץ','כמנפצ') $$;
+      create or replace function public.els_slugify(p text, s integer) returns text language sql immutable as $$ select regexp_replace(coalesce(p,''),'[^א-תa-z0-9]+','-','g')||'-'||coalesce(s,0) $$;
+      create schema if not exists auth;
+      create or replace function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid',true),'')::uuid $$;
+      create table public.users(id uuid primary key, role text, display_name text, username text, email text);
+      create table public.els_records(id uuid primary key default gen_random_uuid(), owner_user_id uuid, author_name text, search_term text, scope text, skip_distance integer, direction text, positions jsonb, image_url text, title text, description text, source text, status text, visibility text, slug text unique, self_published boolean, corpus_id text, term_norm text, start_index integer, engine_detail jsonb, created_at timestamptz default now());
+      create table public.user_notifications(user_id uuid, email text, kind text, title text, body text, link text);
+      create table public.topic_cards(slug text, node_id uuid);
+      create table public.research_contributions(author_user_id uuid, author_name text, intent text, origin text, research_state text, status text, target_type text, target_id text, title text, body text, gematria_claim text, graph_node_id uuid);
+      insert into public.users values ('00000000-0000-0000-0000-00000000000a','admin','A','a','a@x'),('00000000-0000-0000-0000-00000000000b','user','B','b','b@x');
+      -- legacy surface as it exists live (ACL: save = default PUBLIC execute; moderate = authenticated only)
+      create or replace function public.save_els_matrix(p_term text, p_scope text default 'torah', p_skip integer default null, p_direction text default null, p_positions jsonb default null, p_image_url text default null, p_title text default null, p_note text default null, p_public boolean default true, p_from_topic text default null, p_corpus_id text default null, p_term_norm text default null, p_start_index integer default null, p_engine_detail jsonb default null) returns uuid language sql as $$ select null::uuid $$;
+      create or replace function public.moderate_els_matrix(p_id uuid, p_status text) returns void language sql as $$ select 1 $$;
+      do $$ begin if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated; end if; end $$;
+    `);
+    assert.equal(r.status, 0, r.stderr);
+    // pre-existing (legacy) rows: a published legacy row with incomplete identity, and 3 pending identity-complete MATCH rows
+    const tk = oracle('שדי', 2, 2, 0, TORAH_LEN - 1).slice(0, 3);
+    const dname = (d) => (d === 1 ? 'fwd' : 'back');
+    db(`insert into public.els_records(id,search_term,scope,skip_distance,direction,status,visibility,slug,source) values ('11111111-1111-1111-1111-111111111111','שדי','torah',2,null,'published','public','legacy-incomplete','admin')`);
+    tk.forEach((h, i) => db(`insert into public.els_records(id,search_term,scope,skip_distance,direction,start_index,corpus_id,status,visibility,slug,source) values ('2222222${i}-2222-2222-2222-222222222222','שדי','torah',2,'${dname(h.dir)}',${h.start},'0b022e8eef6f9c16','pending','private','pend-${i}','community')`));
+    const beforeLegacy = J(`select row_to_json(e)::text from public.els_records e where slug='legacy-incomplete'`);
+    r = file(`supabase/migrations/${GATE}`); assert.equal(r.status, 0, r.stderr);
+    const ADMIN = '00000000-0000-0000-0000-00000000000a', USER = '00000000-0000-0000-0000-00000000000b';
+    const as = (uid, sql) => db(`set test.uid='${uid}'; ${sql}`);
+    const fails = (x, re) => { assert.notEqual(x.status, 0, 'must be rejected'); assert.match(x.stderr, re); };
+    const good0 = tk[0];
+    const save = (uid, term, skip, dir, start, pub = true) => as(uid, `select public.save_els_matrix('${term}','torah',${skip},${dir === null ? 'null' : `'${dir}'`},null,null,null,null,${pub},null,null,null,${start === null ? 'null' : start},null)`);
+    // (a) admin direct RPC: invalid / incomplete primary occurrence cannot create a published row
+    fails(save(ADMIN, 'שדי', 2, dname(good0.dir), good0.start + 1), /els_publish_gate: REPLAY_MISMATCH/);
+    fails(save(ADMIN, 'שדי', 2, dname(-good0.dir), good0.start), /els_publish_gate: REPLAY_MISMATCH/);
+    fails(save(ADMIN, 'שדי', 2, null, good0.start), /IDENTITY_INCOMPLETE:direction/);
+    fails(save(ADMIN, 'שדי', 2, dname(good0.dir), null), /IDENTITY_INCOMPLETE:start_index/);
+    fails(save(ADMIN, 'שדי', null, dname(good0.dir), good0.start), /IDENTITY_INCOMPLETE:skip/);
+    fails(save(ADMIN, 'ש', 2, dname(good0.dir), good0.start), /IDENTITY_INCOMPLETE:term/);
+    assert.equal(J(`select count(*) from public.els_records where slug like 'שדי-2%' or slug like '-2%'`), 0, 'nothing published by rejected saves');
+    // (b) admin valid MATCH publishes with server-derived identity
+    r = save(ADMIN, 'שדי', 2, dname(good0.dir), good0.start + 0); // existing pending row key matches?  (admin upsert edit branch keeps status)
+    assert.equal(r.status, 0, r.stderr);
+    const fresh = oracle('שדי', 2, 2, 0, TORAH_LEN - 1)[3];
+    r = save(ADMIN, 'שדי', 2, dname(fresh.dir), fresh.start); assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(J(`select json_build_array(status,source,corpus_id,start_index)::text from public.els_records where search_term='שדי' and start_index=${fresh.start} and owner_user_id='${ADMIN}'`), ['published', 'admin', '0b022e8eef6f9c16', fresh.start], 'new MATCH insert publishes');
+    // (c) non-admin community intake is preserved: invalid/incomplete still lands pending (never published)
+    r = save(USER, 'שדי', 2, dname(good0.dir), good0.start + 1); assert.equal(r.status, 0, r.stderr);
+    assert.equal(J(`select json_agg(status)::text from public.els_records where owner_user_id='${USER}'`)[0], 'pending');
+    // (d) moderation: incomplete legacy cannot be (re)published -> explicit re-anchor; wrong occurrence cannot publish
+    db(`update public.els_records set status='pending' where slug='legacy-incomplete'`);
+    fails(as(ADMIN, `select public.moderate_els_matrix('11111111-1111-1111-1111-111111111111','published')`), /IDENTITY_INCOMPLETE/);
+    db(`update public.els_records set start_index=start_index+1 where slug='pend-0'`);
+    fails(as(ADMIN, `select public.moderate_els_matrix('22222220-2222-2222-2222-222222222222','published')`), /els_publish_gate: REPLAY_MISMATCH/);
+    db(`update public.els_records set start_index=start_index-1 where slug='pend-0'`);
+    // (e) current-pending analogue: identity-complete MATCH pending rows remain publishable; pending/hidden transitions ungated
+    for (let i = 0; i < 3; i++) { r = as(ADMIN, `select public.moderate_els_matrix('2222222${i}-2222-2222-2222-222222222222','published')`); assert.equal(r.status, 0, r.stderr); }
+    assert.equal(J(`select json_agg(status order by slug)::text from public.els_records where slug like 'pend-%'`).join(','), 'published,published,published');
+    r = as(ADMIN, `select public.moderate_els_matrix('11111111-1111-1111-1111-111111111111','hidden')`); assert.equal(r.status, 0, r.stderr);
+    // (f) forward-only: no historical row rewritten by the migration or the gate
+    db(`update public.els_records set status='published' where slug='legacy-incomplete'`);
+    const afterLegacy = J(`select row_to_json(e)::text from public.els_records e where slug='legacy-incomplete'`);
+    assert.deepEqual({ ...afterLegacy, status: null }, { ...beforeLegacy, status: null }, 'legacy row untouched');
+    // already-published rows are not re-gated (no rewrite): re-publishing the legacy published row is a no-op success
+    r = as(ADMIN, `select public.moderate_els_matrix('11111111-1111-1111-1111-111111111111','published')`); assert.equal(r.status, 0, r.stderr);
+    // (g) ACL: gate helper not callable by public roles
+    r = db(`select concat(has_function_privilege('anon','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'),has_function_privilege('authenticated','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'),has_function_privilege('service_role','public.els_publish_truth_gate_v1(text,text,integer,text,integer,text,boolean)','execute'))`);
+    assert.equal(r.stdout.trim(), 'fft');
+    // batch verifier ACL still service-role-only after the gate migration
+    r = db(`select concat(has_function_privilege('anon','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'),has_function_privilege('authenticated','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'))`);
+    assert.equal(r.stdout.trim(), 'ff');
   } finally {
     run(join(PG, 'pg_ctl'), ['-D', data, '-m', 'immediate', 'stop']);
     rmSync(dir, { recursive: true, force: true });

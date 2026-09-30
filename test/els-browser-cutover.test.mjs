@@ -195,3 +195,40 @@ test('browser: FORMS occurrence prefetch goes through the canonical verifier (pr
     assert.ok(vb.every((c) => c.payload.corpus_id === '0b022e8eef6f9c16' && c.payload.scope === 'torah'));
   });
 });
+
+// ── render truth semantics (G3 amend): only a canonical MATCH gets the normal «נמצא» result UI ──
+const outText = (frame) => frame.locator('#out').innerText();
+const foundHead = (frame) => frame.locator('#out .rhead .found').count();
+
+test('browser render: MATCH -> normal «נמצא» result UI', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame }) => {
+    await search(frame, 'משיח');
+    await waitState(page, (m) => m.term === 'משיח' && m.status === 'ok' && m.verification.state === 'MATCH');
+    assert.equal(await foundHead(frame), 1, 'normal result header shown for a governed MATCH');
+    assert.match(await outText(frame), /נמצא/);
+  });
+});
+
+test('browser render: LOCAL_NO_HIT is explicitly partial/local and never a definitive negative or «נמצא»', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame }) => {
+    await search(frame, 'זזזזז');
+    await waitState(page, (m) => m.status === 'empty' && m.termRaw === 'זזזזז');
+    const txt = await outText(frame);
+    assert.match(txt, /סריקה מקומית חלקית/);
+    assert.match(txt, /אינה הוכחת-היעדר/);
+    assert.doesNotMatch(txt, /לא נמצא «זזזזז» כדילוג/, 'no definitive-negative copy');
+    assert.equal(await foundHead(frame), 0);
+  });
+});
+
+test('browser render: verifier failure -> candidate/unverified UI (no «נמצא», no governed header)', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame }) => {
+    await page.evaluate(() => { window.__mode = 'down'; window.__log.length = 0; });
+    await search(frame, 'משיח');
+    await waitState(page, (m) => m.term === 'משיח' && m.status === 'candidate');
+    const txt = await outText(frame);
+    assert.match(txt, /מועמדים בלבד — לא אומתו/);
+    assert.equal(await foundHead(frame), 0, 'normal נמצא header must not render for unverified candidates');
+    assert.equal(await frame.locator('#out .occbtn').count(), 0);
+  });
+});

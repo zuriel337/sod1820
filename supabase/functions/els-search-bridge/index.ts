@@ -200,7 +200,8 @@ Deno.serve(async (req: Request) => {
   try {
     const raw = await req.text();
     // Hard request cap (known cap-4000 candidate payload is ~155KB); applies to every op.
-    if (raw.length > BATCH_MAX_REQUEST_BYTES) return json({ error: "payload_too_large", limit: BATCH_MAX_REQUEST_BYTES }, 413);
+    // UTF-8 byte length (not UTF-16 code units): multi-byte terms must not slip past the cap.
+    if (new TextEncoder().encode(raw).byteLength > BATCH_MAX_REQUEST_BYTES) return json({ error: "payload_too_large", limit: BATCH_MAX_REQUEST_BYTES }, 413);
     body = JSON.parse(raw);
   } catch { return json({ error: "invalid_json" }, 400); }
 

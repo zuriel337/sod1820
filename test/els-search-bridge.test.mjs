@@ -91,3 +91,10 @@ test('G3 verify_batch: separate rate bucket, strategy is allowlisted provenance 
 });
 
 console.log('els-search-bridge contract: PASS');
+
+test('edge payload cap uses UTF-8 byte length', () => {
+  assert.match(src, /new TextEncoder\(\)\.encode\(raw\)\.byteLength > BATCH_MAX_REQUEST_BYTES/);
+  assert.doesNotMatch(src, /raw\.length > BATCH_MAX_REQUEST_BYTES/);
+  const s = 'א'.repeat(140000);   // 140k UTF-16 units but 280k UTF-8 bytes
+  assert.ok(s.length < 256 * 1024 && new TextEncoder().encode(s).byteLength > 256 * 1024);
+});

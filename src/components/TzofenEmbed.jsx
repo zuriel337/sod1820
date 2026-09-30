@@ -257,6 +257,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   useEffect(() => {
     async function onMsg(e) {
       if (e.origin !== window.location.origin) return;
+      // G3: origin alone is not enough — any same-origin window (other tab/iframe/script) could spoof the tool.
+      // Accept only messages whose source is this component's own iframe window.
+      const toolWin = iframeRef.current?.contentWindow;
+      if (!toolWin || e.source !== toolWin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
       if (d.type === "engine-request") {
