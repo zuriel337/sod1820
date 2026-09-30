@@ -130,6 +130,29 @@ Raziel may render as compact presence, side companion, full-height mobile sheet 
 
 Provenance, truth axes, method trace, relation detail, layers, unresolved/contradiction state, access/publication state and Human-Gate actions appear **when useful**, not as mandatory permanent chrome.
 
+#### 3.5.1 Global desktop semantic region · Human-Gate ZURIEL · 2026-09-30
+
+The **Contextual Inspector is one shared semantic capability across desktop surfaces**, not a Post rail, World rail, Community rail, Book rail or Heichal-only panel.
+
+- Desktop surfaces should reserve a recoverable Inspector region when contextual depth materially helps. The region may be open, compact, collapsed or temporarily hidden according to task/focus mode.
+- Home may use a light/compact projection; Post, Book, Topic, Community, Number and Cipher may use a stronger contextual projection; World uses it as the zoom/selection Inspector over the wider panorama; Heichal uses the same semantic region for deep research, trace, provenance, method state and Raziel deep context.
+- Focused/immersive modes may collapse the Inspector, but must preserve a clear restore path and the underlying Research Context.
+- The Inspector **is not a mini-World**. It shows bounded context around the current subject/selection. A clear `open_world` action deepens to the full World surface; a clear `open_heichal` action deepens to the full Heichal workbench while preserving exact return.
+- Visual accent/iconography may distinguish destination/action (World, Heichal, Raziel, source, time, relation), but color never changes truth rank and the Inspector retains one product identity.
+- The same reusable Inspector shell consumes domain-owned projections. It owns no graph, ranking, source, timeline, truth, community or Raziel memory state.
+- Raziel remains one identity: compact Orb/presence may invoke the same companion inside the Inspector; opening the side companion does not create a second Raziel.
+
+#### 3.5.2 Bottom context trail != Global Navigation
+
+The bottom surface is **context/path/action**, not the permanent product menu.
+
+- Global product destinations such as World, Number, Books, Cipher, Posts, Community, Journeys and Heichal remain owned by Global Navigation / Search / Command.
+- The bottom trail may show the active research path, e.g. `Post → Person → Number → Concept → Source`, plus a small stable command/presence core when useful.
+- A small persistent command set may preserve muscle memory (for example Search/Inspect/Now/Raziel) while the contextual path/actions change around it.
+- The bottom trail may collapse on desktop or become the preferred Command Island/path projection on mobile.
+- It must never silently become a second global navigation system.
+
+
 ### 3.6 My Workspace
 
 My Workspace is one personal projection. Avatar, Sidebar, commands or Raziel may all invoke the same semantic capability `open_my_workspace`; multiple launchers do not create multiple personal areas.
