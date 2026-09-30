@@ -51,15 +51,18 @@ async function resolveUser(req: Request): Promise<string | null> {
   }
 }
 
-async function rateLimit(req: Request, userId: string | null) {
+async function rateLimit(req: Request, userId: string | null, op = "page") {
   const forwarded = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
   const ip = forwarded || req.headers.get("cf-connecting-ip") || "unknown";
   const ua = (req.headers.get("user-agent") || "").slice(0, 120);
-  const key = await sha256(`els-search-bridge|${userId ? `user:${userId}` : `anon:${ip}:${ua}`}`);
+  // verify_batch has its own bucket/limits: one governed search fans out to a few batches (regular 1,
+  // cross 1/term, FORMS up to 8) and must not starve the page/verify budget.
+  const batch = op === "verify_batch";
+  const key = await sha256(`els-search-bridge${batch ? "|verify_batch" : ""}|${userId ? `user:${userId}` : `anon:${ip}:${ua}`}`);
   return await serviceRpc("edge_rate_limit_check", {
     p_key_hash: key,
     p_window_seconds: 3600,
-    p_limit: userId ? 120 : 60,
+    p_limit: batch ? (userId ? 600 : 240) : (userId ? 120 : 60),
   });
 }
 
@@ -157,6 +160,32 @@ const PAGE_SKIP_MAX_CEILING = 500;
 const ELS_LOCK_FLAG = "lock_els";
 const GATE_OWNER_REFS = ["site_flags_lock_law v3", "platform_tiers_law v5", "ai_quota_law v3"];
 
+// verify_batch: candidate discovery is a browser-side execution strategy; every candidate is re-verified
+// by the canonical set-wise verifier (els_verify_batch_v1). The caps here mirror the DB caps.
+const BATCH_MAX_CANDIDATES = 4000;
+const BATCH_MAX_LETTER_CHECKS = 64000;
+const BATCH_MAX_REQUEST_BYTES = 256 * 1024;
+const CORPUS_ID_RE = /^[0-9a-f]{16}([0-9a-f]{48})?$/;
+
+function normalizeTerm(term: string) {
+  return term.replace(/[^א-ת]/g, "").replace(/ך/g, "כ").replace(/ם/g, "מ").replace(/ן/g, "נ").replace(/ף/g, "פ").replace(/ץ/g, "צ");
+}
+
+// Strategy is provenance only: a small allowlisted object, never an authority input.
+function safeStrategy(value: any) {
+  if (!value || typeof value !== "object") return null;
+  const str = (v: unknown, n = 48) => (typeof v === "string" ? v.replace(/[^A-Za-z0-9_.:-]/g, "").slice(0, n) : null);
+  const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : null);
+  return {
+    policy: str(value.policy),
+    strategy: str(value.strategy),
+    version: str(value.version),
+    probe_pairs: num(value.probe_pairs),
+    probe_hits: num(value.probe_hits),
+    extended: value.extended === true,
+  };
+}
+
 function intOrNull(value: unknown) {
   if (value == null || value === "") return null;
   const n = Number(value);
@@ -168,21 +197,48 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   let body: any;
-  try { body = await req.json(); }
-  catch { return json({ error: "invalid_json" }, 400); }
+  try {
+    const raw = await req.text();
+    // Hard request cap (known cap-4000 candidate payload is ~155KB); applies to every op.
+    if (raw.length > BATCH_MAX_REQUEST_BYTES) return json({ error: "payload_too_large", limit: BATCH_MAX_REQUEST_BYTES }, 413);
+    body = JSON.parse(raw);
+  } catch { return json({ error: "invalid_json" }, 400); }
 
-  const op = body?.op === "verify" ? "verify" : body?.op === "page" ? "page" : null;
+  const op = body?.op === "verify" ? "verify" : body?.op === "page" ? "page" : body?.op === "verify_batch" ? "verify_batch" : null;
   const term = typeof body?.term === "string" ? body.term.trim().slice(0, 200) : "";
   const scope = body?.scope === "tanakh" ? "tanakh" : "torah";
   if (!op || term.length < 2) return json({ error: "invalid_request" }, 400);
 
   const userId = await resolveUser(req);
   let rate;
-  try { rate = await rateLimit(req, userId); }
+  try { rate = await rateLimit(req, userId, op); }
   catch { return json({ error: "rate_limit_backend" }, 503); }
   if (rate?.allowed !== true) return json({ error: "rate_limited", rate }, 429);
 
-  const inputHash = await sha256(JSON.stringify({
+  // verify_batch: validate shape/caps before spending a trace; the trace input hash binds the FULL
+  // normalized term/scope/corpus_id/candidate list/strategy (not just a count).
+  let batchCandidates: Array<{ skip: number; dir: number; start: number }> = [];
+  let batchCorpusId = "";
+  const batchStrategy = op === "verify_batch" ? safeStrategy(body?.strategy) : null;
+  if (op === "verify_batch") {
+    batchCorpusId = typeof body?.corpus_id === "string" ? body.corpus_id : "";
+    const list = body?.candidates;
+    if (!CORPUS_ID_RE.test(batchCorpusId) || !Array.isArray(list) || list.length === 0) return json({ error: "invalid_request" }, 400);
+    if (list.length > BATCH_MAX_CANDIDATES) return json({ error: "budget_exceeded", limit: BATCH_MAX_CANDIDATES }, 400);
+    const termLen = normalizeTerm(term).length;
+    if (termLen < 2 || list.length * termLen > BATCH_MAX_LETTER_CHECKS) return json({ error: "budget_exceeded", limit: BATCH_MAX_LETTER_CHECKS }, 400);
+    for (const c of list) {
+      const skip = intOrNull(c?.skip), dir = intOrNull(c?.dir), start = intOrNull(c?.start);
+      if (skip == null || skip < 2 || (dir !== 1 && dir !== -1) || start == null || start < 0) return json({ error: "invalid_candidates" }, 400);
+      batchCandidates.push({ skip, dir, start });
+    }
+  }
+
+  const inputHash = await sha256(JSON.stringify(op === "verify_batch" ? {
+    op, term: normalizeTerm(term), scope, corpus_id: batchCorpusId,
+    candidates: batchCandidates.map(c => [c.skip, c.dir, c.start]),
+    strategy: batchStrategy,
+  } : {
     op, term, scope,
     skip_min: body?.skip_min ?? null,
     skip_max: body?.skip_max ?? null,
@@ -235,6 +291,26 @@ Deno.serve(async (req: Request) => {
         { error: !gate ? "gate_unavailable" : !gateAllowed ? "access_filtered" : "trace_incomplete", trace_id: trace.traceId },
         !gate || !gateTraced ? 503 : 403,
       );
+    }
+
+    if (op === "verify_batch") {
+      const startedAt = new Date().toISOString();
+      const result = await serviceRpc("els_verify_batch_v1", {
+        p_term: term, p_scope: scope, p_corpus_id: batchCorpusId,
+        p_candidates: batchCandidates, p_strategy: batchStrategy,
+      });
+      const endedAt = new Date().toISOString();
+      await traceSpan(trace, "els_verify_batch_v1", startedAt, endedAt, "success", {
+        capability: "els:verify_batch",
+        owner_ref: "els_research_layer_law v9",
+        output_use: "used",
+        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)), candidates: batchCandidates.length },
+        cost: { certainty: "not_billable" },
+        replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      });
+      await traceFinish(trace, "success");
+      return json({ result, trace_id: trace?.traceId || null, rate });
     }
 
     if (op === "verify") {

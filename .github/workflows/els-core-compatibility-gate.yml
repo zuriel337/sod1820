@@ -24,6 +24,17 @@ on:
       - 'test/els-raziel-context.test.mjs'
       - 'test/els-host-bridge.test.mjs'
       - 'test/els-search-bridge.test.mjs'
+      - 'supabase/migrations/20260930120000_g3_els_verify_batch_v1.sql'
+      - 'supabase/migrations/20260930004844_g3_els_one_engine_compat_wrapper_closure_v1.sql'
+      - 'supabase/migrations/20260929200732_g3_els_provenance_v3_to_v9_reconciliation_v1.sql'
+      - 'supabase/functions/els-search-bridge/**'
+      - 'src/components/TzofenEmbed.jsx'
+      - 'tools/els/**'
+      - 'public/tzofen.html'
+      - 'test/els-verify-batch.test.mjs'
+      - 'test/els-adaptive-router.test.mjs'
+      - 'test/els-browser-truth-census.test.mjs'
+      - 'test/els-browser-cutover.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -56,6 +67,14 @@ jobs:
       - name: Tanakh canonical stream oracle + admission contract
         run: node --test test/els-tanakh-canonical-stream.test.mjs
 
+      - name: Deterministic template -> public/tzofen.html build sync
+        run: |
+          python3 tools/els/build.py
+          git diff --exit-code -- public/tzofen.html
+
+      - name: Adaptive router + browser truth-authority census
+        run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs
+
       - name: Exact replay and 2029 projection acceptance
         run: |
           node --test \
@@ -75,8 +94,23 @@ jobs:
             test/els-2029-explain-guidance.test.mjs \
             test/els-raziel-context.test.mjs
 
-      - name: Install PostgreSQL client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Install PostgreSQL server + client
+        run: sudo apt-get update && sudo apt-get install -y postgresql postgresql-client
+
+      - name: Install Playwright Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
+          echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures
+        env:
+          ELS_REQUIRE_EXECUTABLE: '1'
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: |
+          node --test test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs
 
       - name: Compile migrations and run executable SQL acceptance
         env:

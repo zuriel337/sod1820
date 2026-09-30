@@ -1277,6 +1277,123 @@
     const hits=hitsF.concat(hitsB);
     hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
     return{hits,capped,t};}
+  // ═══ G3 ONE-ENGINE CUTOVER — candidate discovery (browser) → canonical batch verification (server) ═══
+  // Browser discovery (findAll / findAllAdaptive / window scans) is an INTERNAL EXECUTION STRATEGY that only
+  // produces CANDIDATES. Truth authority = els_verify_batch_v1 behind the existing els-search-bridge (host
+  // engine-request seam). A hit becomes governed state (st.res / state msg / save / cross / FORMS evidence)
+  // only with h.v==="MATCH". A local/sampled no-hit is LOCAL_NO_HIT and never a canonical NOT_FOUND/EXECUTED_EMPTY;
+  // the exact exhaustive server page/core (op:"page") stays the proof path.
+  const CORPUS_ID={torah:"__CORPUS_ID_TORAH__",tanakh:"__CORPUS_ID_TANAKH__"};
+  const VB_MAX_CANDIDATES=4000,VB_MAX_LETTER_CHECKS=64000;
+  const AD_POLICY="ADAPTIVE_CAPPED_V1",AD_BANDS=8,AD_PROBE_PAIRS=500000,AD_PROBE_PAIRS_EXT=2000000;
+  const _engPending=new Map();let _engSeq=0;
+  function engineCall(op,payload,timeoutMs){
+    return new Promise(res=>{
+      if(!EMBED||!window.parent||window.parent===window){res({ok:false,error:"no_host"});return;}
+      const requestId="e"+(++_engSeq)+"_"+Math.random().toString(36).slice(2,8);
+      const to=setTimeout(()=>{_engPending.delete(requestId);res({ok:false,error:"timeout"});},timeoutMs||15000);
+      _engPending.set(requestId,r=>{clearTimeout(to);res(r);});
+      postHost({type:"engine-request",requestId,op,payload});
+    });
+  }
+  // ── ADAPTIVE_CAPPED_V1 router (pure; exported for the Node acceptance test) ──
+  // exact stratified probe: AD_BANDS corpus-position bands x both directions, candidate-pair budget split evenly.
+  // Each lane visits its band's anchors in van-der-Corput order (uniformly spread at ANY prefix, deterministic,
+  // resumable), and stops exactly at the pair budget (mid-anchor cursor kept) — so a 500k probe extends to 2M
+  // without repeating work.
+  function vdc(k){let r=0,f=.5;while(k>0){if(k&1)r+=f;k>>=1;f/=2;}return r;}
+  function fwdLaneScan(ln,budget,hits){
+    const su=ln.su,SN=su.SN,L=su.L,i=su.i,g=su.g,Pi=su.Pi,Pj=su.Pj,mx=su.mx,tt=ln.tt,len=ln.to-ln.from;let pairs=0;
+    while(pairs<budget){
+      if(ln.a==null){if(ln.k>=len)break;ln.a=ln.from+Math.min(len-1,Math.floor(vdc(ln.k++)*len));ln.b=lb(Pj,Pi[ln.a]+g);}
+      const pi=Pi[ln.a],hi=pi+g*mx;let b=ln.b,done=true;
+      for(;b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;
+        if(pairs>=budget){done=false;break;}
+        pairs++;const d=pj-pi;if(d%g)continue;
+        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
+        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
+        if(ln.orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);hits.push({skip:s,dir:-1,start:s0,positions:p});}
+        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}}
+      if(done||b>=Pj.length){ln.a=null;}else ln.b=b;
+    }
+    return pairs;
+  }
+  function stratProbeInit(t){
+    const tb=t.split("").reverse().join(""),lanes=[];
+    for(const [tt,orient] of [[t,"fwd"],[tb,"back"]]){
+      const su=fwdSetup(tt);if(!su)continue;
+      const P=su.Pi.length;
+      for(let k=0;k<AD_BANDS;k++){const from=Math.floor(k*P/AD_BANDS),to=Math.floor((k+1)*P/AD_BANDS);if(to>from)lanes.push({tt,orient,su,from,to,k:0,a:null,b:0,spent:0});}
+    }
+    return {lanes,hits:new Map(),pairs:0};
+  }
+  function stratProbeRun(ps,totalPairs){
+    // per-lane budget = total/(2*AD_BANDS) (full grid) so bands/directions stay balanced; cumulative across calls
+    const per=Math.ceil(totalPairs/(2*AD_BANDS));
+    for(const ln of ps.lanes){
+      const left=per-ln.spent;if(left<=0)continue;
+      const hs=[],n=fwdLaneScan(ln,left,hs);ln.spent+=n;ps.pairs+=n;
+      for(const h of hs)ps.hits.set(hitKey(h),h);
+    }
+    return ps;
+  }
+  // 0 hits -> ANCHOR_FAST_V1 · >=2 -> HYBRID_COVERAGE_V1 · exactly 1 -> extend to 2M then Hybrid only if signal strengthens
+  function adChoose(hits500k,hitsExt){
+    if(hits500k===0)return {strategy:"ANCHOR_FAST_V1",extended:false};
+    if(hits500k>=2)return {strategy:"HYBRID_COVERAGE_V1",extended:false};
+    return {strategy:(hitsExt!=null&&hitsExt>=2)?"HYBRID_COVERAGE_V1":"ANCHOR_FAST_V1",extended:true};
+  }
+  async function routedDiscover(raw,cap){
+    const t=norm(raw);if(t.length<2)return {hits:[],capped:0,t,strategy:null};
+    const ps=stratProbeInit(t);stratProbeRun(ps,AD_PROBE_PAIRS);
+    const h1=ps.hits.size;let hx=null;
+    if(h1===1){stratProbeRun(ps,AD_PROBE_PAIRS_EXT);hx=ps.hits.size;}
+    const ch=adChoose(h1,hx);
+    const base=st.scope==="tanakh"?await findAllAdaptive(raw,cap):findAll(raw,cap);   // exact anchor scan (legacy discovery kernel)
+    let hits=base.hits;
+    if(ch.strategy==="HYBRID_COVERAGE_V1"&&base.capped&&ps.hits.size){   // capped result: reserve up to 10% for band-spread probe seeds (probe work reused)
+      const seen=new Set(hits.map(hitKey)),pool=[];
+      for(const h of ps.hits.values())if(!seen.has(hitKey(h)))pool.push(h);
+      const want=Math.min(pool.length,Math.max(1,Math.floor(cap/10)));
+      if(want>0){const stride=pool.length/want,seeds=[];for(let k=0;k<want;k++)seeds.push(pool[Math.floor(k*stride)]);
+        hits=hits.slice(0,cap-seeds.length).concat(seeds).sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));}
+    }
+    return {hits,capped:base.capped,t,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.hits.size,extended:ch.extended}};
+  }
+  // ── canonical batch verification (server) ──
+  async function verifyBatch(t,hits,strategy){
+    const scope=st.scope,cid=CORPUS_ID[scope],L=t.length;
+    const per=Math.max(1,Math.min(VB_MAX_CANDIDATES,Math.floor(VB_MAX_LETTER_CHECKS/Math.max(2,L))));
+    const uniq=[],seen=new Set();
+    for(const h of hits){const k=hitKey(h);if(seen.has(k))continue;seen.add(k);uniq.push(h);}
+    const verified=new Set(),traces=[];
+    for(let i=0;i<uniq.length;i+=per){
+      const chunk=uniq.slice(i,i+per);
+      const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
+        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))});
+      if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
+      for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
+      if(r.trace_id)traces.push(r.trace_id);
+    }
+    return {ok:true,verified,traces,corpus_id:cid};
+  }
+  // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
+  async function promoteVerified(cand,scope){
+    const t=cand.t,sc=scope||st.scope;
+    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,vstate:"CANDIDATE",vtrace:[]};
+    if(!cand.hits.length){out.vstate="LOCAL_NO_HIT";return out;}   // local/sampled no-hit: NOT a canonical negative
+    const elig=cand.hits.filter(h=>Math.abs(h.skip)>=2);
+    cand.hits.forEach(h=>{if(Math.abs(h.skip)<2)h.v="PLAIN_TEXT";else if(h.v!=="MATCH")h.v="CANDIDATE";});
+    const vr=elig.length?await verifyBatch(t,elig,cand.strategy):{ok:true,verified:new Set(),traces:[]};
+    if(!vr.ok){out.verr=vr.error;return out;}
+    let mismatch=0;
+    for(const h of elig){if(vr.verified.has(hitKey(h)))h.v="MATCH";else{h.v="MISMATCH";mismatch++;}}
+    out.hits=cand.hits.filter(h=>h.v==="MATCH"||h.v==="PLAIN_TEXT");   // a MISMATCH is never promoted
+    out.vmismatch=mismatch;out.vtrace=vr.traces;out.vstate="VERIFIED";out.corpus_id=vr.corpus_id||CORPUS_ID[sc];
+    return out;
+  }
+  async function discoverVerified(raw,cap){return promoteVerified(await routedDiscover(raw,cap));}
+  const isGov=h=>!!h&&h.v==="MATCH";
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1392,7 +1509,7 @@
     const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים (אותו מונח)?
     sbs.forEach(sb=>{sb.textContent=editing?"⏳ מעדכן…":"⏳ שומר…";sb.disabled=true;});
     toast(editing?"✏️ מעדכן ממצא…":"💾 שומר לתיק המחקר…");
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
       //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions.
       try{
@@ -1401,7 +1518,15 @@
         }
         if(st._refreshQuality)st._refreshQuality();
       }catch(e){}
+      // 🧬 G3: שמירה (מטריצה/ממצא governed) רק אחרי אימות canonical בשרת של הציר ושל הממצאים המוצגים.
+      await healGoverned();
+      if(!isGov(h)){
+        sbs.forEach(sb=>{sb.textContent=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";sb.disabled=false;});
+        toast("⛔ לא נשמר — המופע טרם אומת מול מנוע-השרת (מועמד בלבד). נסו שוב בעוד רגע.");
+        return;
+      }
       const it=galleryCurrentItem();
+      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:shownHitsOf(st.words[i]).filter(isGov).map(hitKey)}));   // רק ממצאים שאומתו יוצאים לשמירה
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
@@ -1607,6 +1732,13 @@
   // v/lenses: מעטפת-גרסה של המטריצה עצמה (עצמאית מ-state.v החיצוני) — מכריזה אילו עדשות-אופציונליות
   //    *נוכחות בפועל* בהודעה הזו. עדשות עתידיות (heat/verse/zones — טרם-מוחלט, טרם-מומש) יתווספו
   //    כאובייקטים-אחים נפרדים (matrixHeat/matrixVerse/matrixZones), לא כאן — כדי שלא לנפח כל state-tick.
+  // 🧬 G3: תאים שמותר להם לצאת מה-iframe כ-governed: ציר מאומת + ממצאים מוצגים שאומתו בשרת (h.v==="MATCH").
+  function governedCells(){
+    const s=new Set();
+    try{const h=occ();if(isGov(h))h.positions.forEach(p=>s.add(p));}catch(e){}
+    st.words.forEach(w=>shownHitsOf(w).forEach(h=>{if(isGov(h))h.positions.forEach(p=>s.add(p));}));
+    return s;
+  }
   function matrixSnapshot(b){
     const rows=[];
     for(let r=b.r0;r<=b.r1;r++){
@@ -1617,10 +1749,11 @@
       }
       rows.push(row);
     }
-    const {colorMap,startSet}=colorSets(),marks=[];
+    const {colorMap,startSet}=colorSets(),marks=[],gov=governedCells();
     colorMap.forEach((kind,idx)=>{
       const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
+      if(!gov.has(idx))return;   // 🧬 G3: רק תאי-ממצא שאומתו canonical יוצאים כ-governed state
       const m={i:idx,type:kind==="main"?"main":"finding"};
       if(kind!=="main")m.color=kind;
       if(startSet.has(idx))m.start=true;
@@ -1632,16 +1765,24 @@
     const r=st.res;
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
       scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
-    if(!r||!r.hits.length)return Object.assign(base,{status:"empty"});
+    // 🧬 G3: "empty" = חיפוש מקומי/דגום ללא מופע — לעולם לא NOT_FOUND / EXECUTED_EMPTY קנוני (negative_authority:false)
+    if(!r||!r.hits.length)return Object.assign(base,{status:"empty",verification:{state:(r&&r.vstate)||"NONE",negative_authority:false}});
     const h=occ(),b=blockOf(),L=(r.t||"").length;
+    // 🧬 G3: מופע שלא אומת בשרת (candidate / mismatch / plain-text) לא יוצא כ-ok: אין axis/hitId/matrix/findings.
+    if(!isGov(h))return Object.assign(base,{status:"candidate",length:L,
+      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
+      verification:{state:h.v||"CANDIDATE",policy:AD_POLICY,negative_authority:false}});
     return Object.assign(base,{
       status:"ok",length:L,
+      verification:{state:"MATCH",policy:AD_POLICY,strategy:(r.strategy&&r.strategy.strategy)||null,corpus_id:CORPUS_ID[st.scope]||null,
+        verified_hits:r.hits.filter(isGov).length,trace_ids:(r.vtrace||[]).slice(0,4)},
       axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
       findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
-        inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
+        inWindow:w.inwin||0,shown:shownHitsOf(w).filter(isGov).map(hitKey),
+        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
         showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
@@ -1657,7 +1798,30 @@
   // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
   // (משתנה-עזר לסריאליזציה — אינו state של המנוע ואינו משפיע על שום חישוב.)
   let _stateSig="";
-  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}}
+  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}
+    try{healGoverned();}catch(e){}}
+  // 🧬 G3: כל מופע שהגיע ל-st.res/st.words בלי אימות-שרת (מסלול פנימי שלא עבר promoteVerified) מאומת כאן, ואז
+  //    מוצא-שוב את ה-state. h.v נקבע *רק* לפי תשובת ה-verifier הקנוני (MATCH/MISMATCH); כשל-גשר → CANDIDATE (fail closed).
+  let _healBusy=false,_healP=null;
+  function healGoverned(){if(_healBusy)return _healP;_healP=healRun();return _healP;}
+  async function healRun(){
+    const jobs=[];
+    const r=st.res;
+    if(r&&r.hits&&r.t){const need=r.hits.filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);if(need.length)jobs.push({t:r.t,hits:need,strategy:r.strategy||null});
+      r.hits.forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="PLAIN_TEXT";});}
+    st.words.forEach(w=>{const need=shownHitsOf(w).filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);
+      shownHitsOf(w).forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="LOCAL_ONLY";});
+      if(need.length&&norm(w.t).length>=2)jobs.push({t:norm(w.t),hits:need,strategy:{policy:"WINDOW_CANDIDATE_V1"}});});
+    if(!jobs.length)return;
+    _healBusy=true;
+    try{
+      for(const j of jobs){
+        const vr=await verifyBatch(j.t,j.hits,j.strategy);
+        j.hits.forEach(h=>{h.v=vr.ok?(vr.verified.has(hitKey(h))?"MATCH":"MISMATCH"):"CANDIDATE";});
+      }
+    }finally{_healBusy=false;}
+    emitState();
+  }
 
   // ── 📜 Verse/Context Lens — on-demand בלבד (`request-lens`/`lens`), אינו חלק מ-emitState() ────────
   // ⚠️ **אפס חישוב-ELS חדש.** רק primitives קיימים בזיכרון: occ() · st.words · shownHitsOf() · hitKey()
@@ -1690,7 +1854,7 @@
     const t=target||{};
     try{
       const hit=findLensHit(t);
-      if(!hit){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
+      if(!hit||!isGov(hit)){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}   // 🧬 G3: עדשה רק על מופע שאומת
       const vs=verseSpan(hit.positions);
       if(!vs){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
       await ensureVerseText();
@@ -1710,9 +1874,10 @@
   const canRegular=()=>!isAnon()||freeCount()<FREE_DEMO;
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
-  function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{return Math.abs(occ().skip);}catch(e){return 0;}})(),scope:st.scope});}
+  function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{const h=occ();return isGov(h)?Math.abs(h.skip):0;}catch(e){return 0;}})(),scope:st.scope});}   // 🧬 G3: skip יוצא רק ממופע שאומת
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
   window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host")return;
+    if(d.type==="engine-result"){if(e.source!==window.parent)return;const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
     if(d.type==="tier"&&typeof d.tier==="string"){st.tierKnown=true;st.tier=d.tier;
       if(d.tier==="admin"&&!st.admin&&typeof setAdmin==="function")setAdmin(true);
       try{updateLockUI();}catch(_){}
@@ -1816,7 +1981,7 @@
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      st.res=_slow?await findAllAdaptive(w,4000):findAll(w,4000);   // תנ״ך=מותאם (probe→ואם צריך parallel) · תורה=סינכרוני כרגיל
+      st.res=await discoverVerified(w,4000);   // 🧬 G3: גילוי-מועמדים אדפטיבי (ADAPTIVE_CAPPED_V1) → אימות canonical בשרת; רק MATCH הופך ל-st.res
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
@@ -1843,10 +2008,15 @@
   //    כל אזור נשמר עם פירוט-מלא: לכל מונח דילוג/כיוון/מרחק/גימטריה + צירופי-גימטריה שווים.
   // מטמון findAll (דטרמיניסטי) — מאיץ מאוד את ההתכנסות-החופשית שסורקת כל מונח בתור ציר
   const FA=new Map();
-  function faMemo(w){const k=norm(w)+"@"+st.scope;let r=FA.get(k);if(!r){r=findAll(w,3000);FA.set(k,r);}return r;}
+  function faMemo(w){const k=norm(w)+"@"+st.scope;let r=FA.get(k);if(!r){r=findAll(w,3000);r.vstate="CANDIDATE";FA.set(k,r);}return r;}   // 🧬 מועמדים-מקומיים בלבד — כל יציאה governed עוברת h.v==="MATCH"
   // מטמון-קל לגשר (עד 400 מופעים) — findAll עוצר מוקדם למילים נפוצות → מהיר בהרבה מסריקה מלאה
   const FAB=new Map();
   function faBridge(w){const k=norm(w)+"@"+st.scope;if(FA.has(k))return FA.get(k);let r=FAB.get(k);if(!r){r=findAll(w,400);FAB.set(k,r);}return r;}
+  // 🧬 G3: prefetch מאומת — faMemo (סינכרוני, קוד-דירוג/גאומטריה) קורא מהמטמון אחרי שהמונחים אומתו בשרת.
+  async function faVerified(w){const k=norm(w)+"@"+st.scope,c=FA.get(k);
+    if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT"))return c;
+    const r=await discoverVerified(w,3000);FA.set(k,r);return r;}
+  async function prefetchVerified(ws){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(faVerified));}
   function rarityOf(w){const r=faMemo(w);return r.capped?9999:r.hits.length;}
   // 🎯 מודל-איכות אחיד (לפי צוריאל) — משמש גם באזורי-ההתכנסות וגם ב«איכות הצופן», כדי שהכוכבים יהיו זהים.
   //   אות-ליד-אות (בלי פערים) + קרוב-לציר + נדיר = חזק. פערים ארוכים / רחוק / נפוץ = חלש. אלכסון/מאונך/מאוזן — לא משנה.
@@ -1944,6 +2114,7 @@
     const terms=parts.filter(w=>norm(w)!==axisN);
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק…";}
     setTimeout(async ()=>{
+      await prefetchVerified([axis,...terms]);   // 🧬 G3: גם מסלול ה-sync fallback קורא מהמטמון המאומת
       const {resA,meetings,total}=await crossFindMultiParallel(axis,terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
       if(!meetings.length){toast("לא נמצאה התכנסות טהורה של המונחים סביב «"+axis+"». הרפה את הטוהר או נסה מונחים אחרים.");return;}
@@ -1958,7 +2129,8 @@
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
   function runCrossSimple(A,B){
     goBusy("מצליב…");
-    setTimeout(()=>{
+    setTimeout(async ()=>{
+      await prefetchVerified([A,B]);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       const r1=crossFindMulti(A,[B],18),r2=crossFindMulti(B,[A],18);   // שני הכיוונים
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
@@ -2171,7 +2343,7 @@
       //    צריך-בפועל) כדי שגם מונח בודד פתולוגי (כמו "ירושלים") לא יבלע לבד Worker שלם.
       const nA=norm(A),words=[...new Set([nA,...T2])];
       const hitsByWord={};
-      await Promise.all(words.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByWord[w]=r;})));
+      await Promise.all(words.map(w=>faVerified(w).then(r=>{hitsByWord[w]=r;})));
       const resA=hitsByWord[nA];
       if(!resA.hits.length||!T2.length)return {resA,meetings:[],total:0};
       const rar=new Map();T2.forEach(t=>{const r=hitsByWord[t];rar.set(t,r.capped?9999:r.hits.length);});
@@ -2197,7 +2369,7 @@
       // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — דרך findAllAdaptive (probe→
       //    parallel-רק-אם-צריך-בפועל), כדי שמונח פתולוגי בודד לא יבלע Worker שלם לבד.
       const hitsByTerm={};
-      await Promise.all(Tn.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByTerm[w]=r;})));
+      await Promise.all(Tn.map(w=>faVerified(w).then(r=>{hitsByTerm[w]=r;})));
       // שלב 2: crossFindMulti לכל ציר, מפוזר על הבריכה, מוזרע עם תוצאות שלב-1 (בלי findAll כפול).
       // ⚠️ Promise.all שומר את סדר-הקלט בתוצאה (לא סדר-סיום) — חובה כדי שסדר ה-push ל-all יהיה
       //    זהה לסדר Tn המקורי בגרסה הסינכרונית: sort() יציב, ותיקו בין ממצאים שווי-ניקוד נשבר
@@ -2366,7 +2538,7 @@
       showStage("🧬 סורק צורה "+heb(i+1)+" מתוך "+heb(pairs.length)+"…",
                 "«"+p.probe.w+"»"+(p.mate?" ו«"+p.mate.w+"»":"")+" ב"+scopeName);
       await new Promise(res=>paintThen(res));
-      const r=deep?await findAllAdaptive(p.probe.w,FORMS_CAP):findAll(p.probe.w,FORMS_CAP);
+      const r=await discoverVerified(p.probe.w,FORMS_CAP);   // 🧬 G3: FORMS = הקרנה של תוצאות מאומתות (אותו scope שהוגדר למעלה)
       hitsOf.set(p.probe.w,r.hits.filter(h=>h.dir===1));
       if(p.mate)hitsOf.set(p.mate.w,r.hits.filter(h=>h.dir===-1));
     }
@@ -2953,7 +3125,7 @@
     // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
-    st.res=st.scope==="tanakh"?await findAllAdaptive(item.term,4000):findAll(item.term,4000);
+    st.res=await discoverVerified(item.term,4000);   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
     if(!st.res.hits.length){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
     // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
     //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט

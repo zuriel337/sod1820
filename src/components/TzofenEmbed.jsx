@@ -181,6 +181,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // 🔔 טוסט-השמירה נעלם לבד אחרי 7ש' (המשתמש עדיין יכול ללחוץ «לדף המחקר»)
   useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
   const saveToCloud = useCallback(async (d) => {
+    // G3 one-engine: a governed save needs the tool's last state to carry a canonical MATCH (defense in depth;
+    // the tool already refuses to post `save` for an unverified occurrence).
+    if (lastStateRef.current?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); return; }
     try {
       const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
       // 🎴 כרטיס-הצופן → Storage. אם אין כרטיס מרונדר — נופלים לצורת-המטריצה, כך שצופן לעולם
@@ -258,7 +261,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (!d || d.source !== "tzofen") return;
       if (d.type === "engine-request") {
         const requestId = typeof d.requestId === "string" ? d.requestId.slice(0, 120) : "";
-        const op = d.op === "page" || d.op === "verify" ? d.op : null;
+        const op = d.op === "page" || d.op === "verify" || d.op === "verify_batch" ? d.op : null;
         if (!requestId || !op) {
           if (requestId) postToTool({ type: "engine-result", requestId, ok: false, error: "invalid_request" });
           return;
@@ -306,7 +309,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         onState?.(d);
         // 🔗 Research Bus: שומרים את ה-tick האחרון לשימוש בכפתור «הוסף למחקר» (ref בלבד — בלי re-render).
         lastStateRef.current = d;
-        setHasAxisFinding(d?.status === "ok" && !!d?.axis?.hitId);
+        setHasAxisFinding(d?.status === "ok" && d?.verification?.state === "MATCH" && !!d?.axis?.hitId);
         return;
       }
       if (d.type === "lens") {

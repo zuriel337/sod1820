@@ -6,7 +6,7 @@ const src = readFileSync(new URL('../src/components/TzofenEmbed.jsx', import.met
 
 test('Tzofen host bridge allowlists only canonical ELS page and verify operations', () => {
   assert.match(src, /d\.type === "engine-request"/);
-  assert.match(src, /d\.op === "page" \|\| d\.op === "verify"/);
+  assert.match(src, /d\.op === "page" \|\| d\.op === "verify" \|\| d\.op === "verify_batch"/);
   assert.match(src, /supabase\.functions\.invoke\("els-search-bridge"/);
   assert.match(src, /type: "engine-result"/);
   assert.match(src, /requestId/);
@@ -16,6 +16,11 @@ test('Tzofen host bridge preserves browser trust boundary', () => {
   assert.match(src, /if \(e\.origin !== window\.location\.origin\) return/);
   assert.doesNotMatch(src, /SUPABASE_SERVICE_ROLE_KEY|service_role/i);
   assert.doesNotMatch(src, /els_search_page_core_v1|els_verify_occurrence_v1/);
+});
+
+test('host save/state only accept a canonical MATCH from the tool (defense in depth)', () => {
+  assert.match(src, /lastStateRef\.current\?\.verification\?\.state !== "MATCH"/);
+  assert.match(src, /d\?\.verification\?\.state === "MATCH"/);
 });
 
 test('host bridge does not replace local ELS execution in this slice', () => {
