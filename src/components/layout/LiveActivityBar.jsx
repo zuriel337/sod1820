@@ -4,7 +4,7 @@ import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { getPostsFromSupabase, getRealityHints, getChannelUpdates, getTickerMessages } from "../../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../../lib/format.js";
-import WhatsNewBadge from "../WhatsNewBadge.jsx";
+// import WhatsNewBadge from "../WhatsNewBadge.jsx"; // 🌳 הוסר מהטיקר 30.9.2026
 
 // 📡 טיקר עדכוני-האתר. כל פריט לחיץ + נושא «לפני כמה זמן עלה» (timeAgoHe).
 // 🔓 עדכון צוריאל (25.7.2026): הטיקר העליון מציג *גם רמזים מזרם המציאות* (gallery_images
@@ -189,7 +189,7 @@ export default function LiveActivityBar() {
       <div className="lt-bar" aria-label="חדשות טריות באתר">
         <div className={`lt-inner${cur?.manual ? " lt-manual" : ""}`}>
           <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
-          <span className="lt-wn"><WhatsNewBadge /></span>
+          {/* 🌳 «מה חדש» (העץ הקטן) הוסר מהטיקר — בקשת צוריאל 30.9.2026. להחזרה: <span className="lt-wn"><WhatsNewBadge /></span> */}
           {/* המרכז: ‹ פריט › — דפדוף ידני + עצירה בריחוף. פריט טרי אחד, לחיץ → מוביל למקומו.
               עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
           <div className={`lt-center${cur?.manual ? " lt-manual" : ""}`} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
