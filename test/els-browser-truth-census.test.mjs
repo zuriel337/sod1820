@@ -71,6 +71,16 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 
+test('iframe accepts every sod-host command only from the exact parent window', () => {
+  const i = code.indexOf('window.addEventListener("message"');
+  const j = code.indexOf('if(EMBED){st.tier="anon"', i);
+  const listener = code.slice(i, j);
+  assert.ok(i > 0 && j > i, 'host message listener located');
+  assert.match(listener, /d\.source!=="sod-host"\|\|e\.source!==window\.parent/);
+  assert.doesNotMatch(listener, /d\.type==="engine-result"\)\{if\(e\.source!==window\.parent\)/,
+    'source binding must guard every host command, not only engine-result');
+});
+
 test('sampled/local no-hit is never emitted as a canonical negative', () => {
   assert.doesNotMatch(code, /EXECUTED_EMPTY|NOT_FOUND/, 'browser source never mints canonical negative states');
   assert.match(code, /if\(!cand\.hits\.length\)\{out\.vstate="LOCAL_NO_HIT";return out;\}/);
