@@ -4,6 +4,8 @@ import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from ".
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
+const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
+const FZ1073_TOPIC_363_SLUG = "gapfill-363";
 
 // Golden calibration only. This is contextual presentation over the existing Post identity,
 // not a second source/knowledge store. Future intake may project equivalent reading-focus
