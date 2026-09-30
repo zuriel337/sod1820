@@ -3925,7 +3925,7 @@ function LegacyStatsView() {
 }
 
 // ===== 🟢 חי — מד-הכניסות הפנימי של האתר החדש (SOD1820) =====
-const RANGES = [["30", "30 יום"], ["90", "90 יום"], ["365", "שנה"], ["all", "הכל"]];
+const RANGES = [["30", "30 יום"], ["90", "90 יום"], ["120", "120 יום · raw"]];
 // ── 🕷️ Crawl Intelligence — מגמות בוטים (מי סורק · מוגש/חסום · לפי בוט · Top תוכן) ──
 const BOT_COLOR = { Googlebot: "#4caf50", Bingbot: "#0a84ff", "GPTBot (OpenAI)": "#10a37f", GPTBot: "#10a37f", ClaudeBot: "#d97757", PerplexityBot: "#a78bfa", Meta: "#3b7bff", Amazonbot: "#ff9900", Applebot: "#a1a1a6", Yandex: "#ff3b30", Baidu: "#4b56e0", DuckDuckBot: "#de5833", AhrefsBot: "#ff6b35", SemrushBot: "#ff642d", MJ12bot: "#c0392b", ubermetrics: "#b08d57", UptimeMonitor: "#7f8c8d", other: "#8696a0" };
 function CrawlSpark({ series, color }) {
