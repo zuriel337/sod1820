@@ -498,6 +498,18 @@ begin
     where x->>'table_name'='site_visits'
       and x->>'retention_class'='BOUNDED_RUNTIME_120D'
       and coalesce((x->>'auto_purge_allowed')::boolean,false)
+  ) or not exists (
+    select 1
+    from jsonb_array_elements(coalesce(v_preview->'authorized_delete_scopes','[]'::jsonb)) x
+    where x->>'scope'='events_monthly_partitions' and (x->>'raw_days')::int=120
+  ) or not exists (
+    select 1
+    from jsonb_array_elements(coalesce(v_preview->'authorized_delete_scopes','[]'::jsonb)) x
+    where x->>'scope'='visitor_events' and (x->>'raw_days')::int=120
+  ) or not exists (
+    select 1
+    from jsonb_array_elements(coalesce(v_preview->'authorized_delete_scopes','[]'::jsonb)) x
+    where x->>'scope'='site_visits' and (x->>'raw_days')::int=120
   ) then
     raise exception 'telemetry retention preview is not authorized';
   end if;
@@ -541,15 +553,28 @@ begin
   limit 1;
 
   if v_part is not null then
+    if not exists (
+      select 1
+      from jsonb_array_elements(coalesce(v_preview->'tables','[]'::jsonb)) x
+      where x->>'table_name'=v_part
+        and x->>'retention_class'='BOUNDED_RUNTIME_120D'
+        and coalesce((x->>'auto_purge_allowed')::boolean,false)
+    ) then
+      raise exception 'partition % is not retention-authorized by preview',v_part;
+    end if;
+
     perform public.refresh_traffic_daily_range_v1(v_from::date,(v_to-interval '1 day')::date);
 
-    execute format(
-      'select count(*) from (select distinct ts::date d from public.%I) e left join public.traffic_daily t on t.day=e.d where t.day is null',
-      v_part
-    ) into v_missing;
+    select count(*) into v_missing
+    from (
+      select distinct h.day
+      from public.fn_human_entrances(v_from::date,(v_to-interval '1 day')::date) h
+    ) e
+    left join public.traffic_daily t on t.day=e.day
+    where t.day is null;
 
     if v_missing<>0 then
-      raise exception 'traffic_daily coverage missing for partition %: % days',v_part,v_missing;
+      raise exception 'traffic_daily coverage missing for partition %: % human-entrance days',v_part,v_missing;
     end if;
 
     execute format('drop table public.%I',v_part);
