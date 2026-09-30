@@ -84,7 +84,7 @@ AS $function$
 declare v_uid uuid := auth.uid(); v_admin boolean; v_name text; new_id uuid;
         v_status text; v_vis text; v_base text; v_slug text; v_i int := 1;
         v_topic_slug text; v_node uuid;
-        v_corpus_id text; v_term_norm text; v_gate text;
+        v_corpus_id text; v_term_norm text; v_gate text; v_existing_status text;
 begin
   if v_uid is null then raise exception 'must be logged in'; end if;
   if coalesce(nullif(p_term,''),'') = '' then raise exception 'missing term'; end if;
@@ -98,8 +98,8 @@ begin
   v_term_norm := public.fn_els_term_norm(p_term);
   v_corpus_id := public.fn_els_corpus_id(p_scope);
 
-  select id into new_id from public.els_records
-    where (v_admin or owner_user_id = v_uid)
+  select id,status into new_id,v_existing_status from public.els_records
+    where (v_admin or (owner_user_id = v_uid and status is distinct from 'published'))
       and search_term = p_term
       and coalesce(skip_distance,-1) = coalesce(p_skip,-1)
       and coalesce(nullif(scope,''),'torah') = coalesce(nullif(p_scope,''),'torah')
@@ -108,6 +108,17 @@ begin
     order by (status='published') desc, created_at desc limit 1;
 
   if new_id is not null then
+    -- A published row is immutable to its non-admin owner: owner re-saves create a new pending row instead.
+    -- Admin may edit an already-published row only while its persisted primary identity still replays MATCH.
+    if v_admin and v_existing_status = 'published' then
+      select public.els_publish_truth_gate_v1(
+        search_term, scope, skip_distance, direction, start_index, corpus_id, true
+      ) into v_gate
+      from public.els_records where id = new_id;
+      if v_gate <> 'MATCH' then
+        raise exception 'els_publish_gate: % (published row must be re-anchored before edit)', v_gate using errcode = 'check_violation';
+      end if;
+    end if;
     update public.els_records set
         direction  = p_direction,
         positions  = coalesce(p_positions, positions),
@@ -164,3 +175,57 @@ begin
   return new_id;
 end;
 $function$;
+
+-- Published evidence mutation gate: owners cannot mutate an approved row in place and silently retain publication.
+-- Non-published owner/admin edits preserve existing behavior. Admin edits of published rows are allowed only when
+-- the stored primary ELS identity still replays MATCH. No historical row is rewritten proactively.
+CREATE OR REPLACE FUNCTION public.update_els_matrix(
+  p_id uuid,
+  p_positions jsonb DEFAULT NULL::jsonb,
+  p_image_url text DEFAULT NULL::text,
+  p_description text DEFAULT NULL::text,
+  p_engine_detail jsonb DEFAULT NULL::jsonb
+)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_admin boolean;
+  r public.els_records;
+  v_gate text;
+begin
+  if v_uid is null then raise exception 'must be logged in'; end if;
+  select * into r from public.els_records where id = p_id;
+  if not found then raise exception 'not found'; end if;
+
+  v_admin := exists(select 1 from public.users u where u.id = v_uid and u.role = 'admin');
+  if not (v_admin or (r.owner_user_id is not null and r.owner_user_id = v_uid)) then
+    raise exception 'not authorized';
+  end if;
+
+  if r.status = 'published' then
+    if not v_admin then
+      raise exception 'published_requires_remoderation: create/update a pending variant instead of mutating approved evidence'
+        using errcode = 'check_violation';
+    end if;
+    v_gate := public.els_publish_truth_gate_v1(
+      r.search_term, r.scope, r.skip_distance, r.direction, r.start_index, r.corpus_id, true
+    );
+    if v_gate <> 'MATCH' then
+      raise exception 'els_publish_gate: % (published row must be re-anchored before edit)', v_gate
+        using errcode = 'check_violation';
+    end if;
+  end if;
+
+  update public.els_records set
+    positions   = coalesce(p_positions, positions),
+    image_url   = case when p_image_url is not null then nullif(p_image_url,'') else image_url end,
+    description = case when p_description is not null then nullif(p_description,'') else description end,
+    engine_detail = coalesce(p_engine_detail, engine_detail)
+  where id = p_id;
+end;
+$function$;
+
