@@ -161,11 +161,60 @@ function WorldCard({ world, q }) {
   );
 }
 
+// 🔠 «הצופן נפתח בקרוב» — פתיח בראש מפת המערכת. הטיקר העליון מקשר לכאן (ticker_messages.link_url=/map).
+//    התוכן נגזר מ-els_research_layer_law v9 (Classic/Research · וקטורים · עומק · ביקורת · AI אחרי מנוע)
+//    ומ-testimony_not_prophecy. זו תצוגה/טיזר בלבד — לא מקור-אמת לסטטוס המימוש.
+const CIPHER_POINTS = [
+  { icon: "▦", title: "שני מצבים — מנוע אחד", body: "מטריצה קלאסית מוכרת ומהירה, ומטריצת מחקר שנפתחת באותה פשטות וחושפת כלים מתקדמים רק כשהם באמת רלוונטיים. עוברים ביניהן בלי לאבד את מה שמצאתם." },
+  { icon: "↔", title: "המשך באותו קו", body: "בדיקה אם הדילוג ממשיך למילים נוספות קדימה ואחורה — כמו «משיח טבת עשירי» שהתארך לשרשרת של 18 אותיות: «משיח טבת עשירי בהתחול»." },
+  { icon: "∥", title: "קווים מקבילים והצטלבויות", body: "זיהוי מילים שרצות באותו כיוון גאומטרי גם כשהדילוג שלהן שונה, ומילים שחוצות זו את זו באות משותפת — כמו «תורה קדשה» עם «התורה» ו«אמיתית» המקבילות ו«ברית אור» שחוצה אותן." },
+  { icon: "3D", title: "שכבות עומק", body: "המטריצה כולה זזה קדימה בתורה בשכבות, כדי לראות מה עומד «מאחורי» הממצא. בהמשך — גם תצוגה תלת־ממדית." },
+  { icon: "⬚", title: "קופסה חכמה", body: "החיפוש מתחיל מאזור קטן סביב הממצא ומתרחב רק לכיוון שבו יש עוד מה לגלות." },
+  { icon: "⚖", title: "ביקורת מול אקראיות", body: "כל ממצא נבדק מול עמודות ואזורי ביקורת — כדי להבדיל בין מה שבאמת בולט לבין צפיפות מקרית." },
+  { icon: "✦", title: "רזיאל — הסבר AI", body: "ה-AI מסביר, משווה וממליץ מה לבדוק הלאה — אבל לא «ממציא» דילוגים. כל דילוג מגיע מהמנוע ונבדק בשחזור מדויק. והצופן עובד במלואו גם בלי AI." },
+];
+
+function CipherComingSoon() {
+  const P = usePalette();
+  return (
+    <section id="tzofen" aria-labelledby="tzofen-title" style={{border:`1px solid ${P.borderStrong}`,borderRadius:22,padding:"26px 20px",background:P.cardSoft,marginBottom:34}}>
+      <div style={{textAlign:"center",marginBottom:18}}>
+        <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:11,fontWeight:900,letterSpacing:2.4}}>בקרוב · הצופן התנ״כי</div>
+        <h2 id="tzofen-title" style={{margin:"8px 0 10px",color:P.ink,fontFamily:F.regal,fontSize:"clamp(24px,4.4vw,38px)",fontWeight:900}}>🔠 הצופן מתעורר</h2>
+        <p style={{maxWidth:760,margin:"0 auto",color:P.inkSoft,fontFamily:F.body,fontSize:15.5,lineHeight:1.9}}>
+          מדילוג בודד לתמונה שלמה: הצטלבויות, שרשראות ורמזים שמתחברים סביב מילה אחת בתורה.
+          הצופן נבנה מחדש כסביבת מחקר — מדויקת, שקופה, ומלווה בבינה מלאכותית.
+        </p>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,250px),1fr))",gap:12}}>
+        {CIPHER_POINTS.map(pt => (
+          <article key={pt.title} style={{background:P.card,border:`1px solid ${P.border}`,borderRadius:16,padding:"16px 15px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:7}}>
+              <span aria-hidden style={{width:32,height:32,flex:"none",borderRadius:10,display:"grid",placeItems:"center",border:`1px solid ${P.borderStrong}`,color:P.accentText,fontFamily:F.heading,fontSize:pt.icon==="3D"?10:16,fontWeight:900}}>{pt.icon}</span>
+              <h3 style={{margin:0,color:P.accentText,fontFamily:F.heading,fontSize:15.5,fontWeight:900}}>{pt.title}</h3>
+            </div>
+            <p style={{margin:0,color:P.inkSoft,fontFamily:F.body,fontSize:13.5,lineHeight:1.8}}>{pt.body}</p>
+          </article>
+        ))}
+      </div>
+      <div style={{maxWidth:760,margin:"18px auto 0",textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:13.5,lineHeight:1.9}}>
+        <b style={{color:P.ink}}>עדות, לא ניבוי.</b> כל ממצא נשמר עם הפרטים המלאים שלו — ספר, דילוג, כיוון ומיקום מדויק — כך שכל אחד יכול לשחזר אותו.
+        גם «לא נמצא» היא תשובה: המערכת לא מכריחה צופן איפה שאין.
+      </div>
+      <div style={{textAlign:"center",marginTop:16}}>
+        <Link to="/code" style={{color:P.accentText,textDecoration:"none",fontFamily:F.heading,fontSize:14,fontWeight:900}}>לדף הצופן ולעדכון כשייפתח ←</Link>
+      </div>
+    </section>
+  );
+}
+
 export default function NavigationCenterPage() {
   const P = usePalette();
   const [q,setQ]=useState("");
   return (
     <div dir="rtl" style={{maxWidth:1280,margin:"0 auto",padding:"46px 18px 110px",position:"relative",zIndex:1}}>
+      <CipherComingSoon />
+
       <section style={{textAlign:"center",marginBottom:26}}>
         <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:11,fontWeight:900,letterSpacing:2.4}}>SOD1820 · SYSTEM MAP</div>
         <h1 style={{margin:"8px 0 10px",color:P.ink,fontFamily:F.regal,fontSize:"clamp(30px,5vw,52px)",fontWeight:900}}>🗺️ מפת המערכת</h1>
