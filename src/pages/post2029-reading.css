@@ -189,19 +189,22 @@
   backdrop-filter:blur(22px) saturate(120%);
   box-shadow:0 24px 90px color-mix(in srgb,var(--s29-page) 36%,transparent);
 }
-.sod29-reading-rail-kicker{
+.sod29-reading-rail-kicker,
+.sod29-reading-rail .sod29-context-inspector-kicker{
   color:var(--s29-accent-text);
   font-size:10px;
   font-weight:850;
   letter-spacing:.04em;
 }
-.sod29-reading-rail-primary{
+.sod29-reading-rail-primary,
+.sod29-reading-rail .sod29-context-inspector-title{
   display:block;
   font-size:clamp(21px,2vw,28px);
   line-height:1.18;
   letter-spacing:-.02em;
 }
-.sod29-reading-rail-label{
+.sod29-reading-rail-label,
+.sod29-reading-rail .sod29-context-inspector-subtitle{
   color:var(--s29-muted);
   font-size:12px;
   line-height:1.55;
