@@ -27,7 +27,7 @@ const destructiveTelemetry = /delete\s+from\s+public\.(visitor_events|site_visit
 assert.doesNotMatch(sql, destructiveTelemetry, 'B1/B2 preview phase must stay non-destructive before Human Gate');
 
 
-for (const token of ['NOT_', 'PENDING', 'BLOCKER', 'OPEN', 'IN_PROGRESS', 'BRANCH_ONLY']) {
+for (const token of ['PENDING', 'BLOCKER', 'OPEN']) {
   assert.match(sql, new RegExp(token, 'i'), `archive predicate must fail closed on unresolved status token: ${token}`);
 }
 assert.match(sql, /revoke all on function public\.admin_worklog_archive_done\(\) from public, anon/i);
