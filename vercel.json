@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/bennett-melach-631-78",
+      "destination": "/post/bennett-melach-631-78",
+      "permanent": true
+    },
+    {
       "source": "/flydubai-fz1073-363-14000-remzei-geula",
       "destination": "/post/flydubai-fz1073-363-14000-remzei-geula",
       "permanent": true
