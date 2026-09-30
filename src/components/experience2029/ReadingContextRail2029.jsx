@@ -6,6 +6,7 @@ export default function ReadingContextRail2029({
   onOpenNumber,
   onAskRaziel,
   onOpenContext,
+  connections = [],
 }) {
   if (!focus) return null;
   const verified = focus?.verification?.verified === true;
@@ -25,6 +26,12 @@ export default function ReadingContextRail2029({
         {verified ? <span><b>✓</b> גימטריה מאומתת · {focus.verification.value}</span> : null}
         {(focus.signals || []).slice(0, 3).map((signal) => <span key={signal}>{signal}</span>)}
       </div>
+
+      {connections.length ? <div className="sod29-reading-rail-connections" data-experience-capability="post-context-connections">
+        {connections.slice(0, 6).map((connection) => connection.href
+          ? <a key={connection.id} href={connection.href}><span>{connection.kind}</span><strong>{connection.label}</strong>{connection.value ? <b>{connection.value}</b> : null}</a>
+          : <div key={connection.id}><span>{connection.kind}</span><strong>{connection.label}</strong>{connection.value ? <b>{connection.value}</b> : null}</div>)}
+      </div> : null}
 
       <div className="sod29-reading-rail-actions">
         {focus.number ? <button type="button" onClick={onOpenNumber}>פתח את {focus.number}</button> : null}
