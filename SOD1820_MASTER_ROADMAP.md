@@ -315,6 +315,27 @@ No-Black-Box acceptance is mandatory before G3 closes: every material new G3 run
 
 Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; no new incident-monitoring cron faster than 15 minutes without evidence + Human Gate. **Current 2026-09-27:** contracts LIVE; `health-watch` is 15m and DB-size-alone false alerts are fixed LIVE; runtime remains DEFERRED pending builder availability.
 
+## G3→G4 transition lane — 2029 Public Shell + Posts-first Design Readiness
+
+**ACTIVE NOW after G3 CLOSED. Informal shorthand: “G3.5”. This is NOT a new gate.**
+
+Purpose: make 2029 the coherent visible product shell quickly, without pretending unfinished capabilities are live, without polishing Legacy UI, and without freezing replaceable presentation before G4 can teach us from real use.
+
+- Freeze a **semantic shell contract**, not an irreversible IA or final visual composition. Stable through the transition: canonical surface/entity identities, route families, truth/access semantics, availability states, Research Context/Exact Return behavior, and capability slots. Replaceable by G4 evidence: navigation grouping/order, page composition, hierarchy emphasis, card geometry, imagery, motion, spatial treatment and other presentation details.
+- High-fidelity design is an **early Human-Gate thinking instrument**, not a late cosmetic phase and not an acceptance shortcut. Once the semantic shell/availability contract is frozen, build at real visual quality so ZURIEL can inspect the system, compare directions and change composition before broad rollout.
+- Freeze one coherent 2029 shell vocabulary across Home, World, Posts, Topics, Books/Sources, Number, ELS/Cipher, Journey, Community, Personal Area/Workspace, Raziel and future capability slots. Existing owners keep semantic authority; no surface becomes a new truth or capability owner.
+- Every visible destination must project an honest availability state through existing capability/site-flag owners: **OPEN / BUILDING / LATER / GATED**. A visible button, image, icon or card may preview the future product, but an unavailable capability must not resolve into a fake working route or imply Golden acceptance.
+- Define the **minimum public 2029 slice** before broad cutover: Home, World, Posts Index, Post, Topic and Book/Source navigation must form a coherent route chain with truthful return/navigation. Other surfaces may remain BUILDING.
+- The public-shell transition is presentation/cutover readiness, not Legacy destruction. Legacy engines, sources, data, media, SEO compatibility and adapters remain behind 2029 until replacement/consumer proof permits retirement under their existing owners.
+- **Posts-first priority:** because new public posts are the immediate Human-Gate need, the first high-fidelity Golden is **Posts Index + Post**. Current FZ1073 and Bennett×salt are fixtures; do not create a third Post Golden merely to test another local composition.
+- Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
+- Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
+- G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
+- After Posts passes, run one bounded **Cross-Surface Skeleton Golden** over the minimum public slice before cutover — representative path such as Home → World → Topic → Post → Book/Number → exact return. Its purpose is to prove shared navigation/context/availability semantics across surfaces, not to require final World/Home artwork.
+- A **2029 Public Cutover** may occur only after both the Posts Golden and the Cross-Surface Skeleton Golden pass, the minimum public slice passes release/crawler/redirect/SEO checks, and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
+- After cutover, continue G4 with **World high-fidelity Golden second** and **Home high-fidelity Golden third**, reusing the same visual system while allowing G4 evidence to change composition/navigation presentation without changing semantic identity.
+- G4 remains the formal Golden-experience gate. This transition lane prepares the shell and high-fidelity design; it does not mark a capability Golden or satisfy G4 acceptance by itself.
+
 ## Later program sequence
 
 ### G4 — Golden Experiences
