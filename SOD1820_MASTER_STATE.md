@@ -1,7 +1,7 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-09-30  
-**Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 PRE-CLOSE** · HUMAN-GATE CONTROLLED  
+**Date:** 2026-10-01  
+**Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 CLOSED** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
 
@@ -142,21 +142,35 @@ Historical release immediately before closure:
 
 - legacy spatial / 3D UI retirement: **MERGED · DEPLOYED · LIVE · VERIFIED** at `f1972c9944e6f0e7a094cc500dba5963221ea21d`.
 
-## 8. Current program position — G3 PRE-CLOSE
+## 8. Current program position — G3 CLOSED / G3→G4 transition
 
-G3 is in **final Foundation acceptance against the current live owners**.
+**G3 is CLOSED by Human Gate ZURIEL on 1.10.2026.**
 
-**Current live pre-close checkpoint · 30.9.2026:** `origin/main` = Production = `fe0f87d57a723e5c6f40e57596b3578ca4722077`, Vercel READY, exact-SHA post-deploy canary SUCCESS. Closed/live-verified Foundation lanes now include Security preclosure; Reliability; ELS runtime; A1/A2/A3 effective cost/material trace/client correlation; C-8; D1 governed Research Path save→revision→resume→fork/replay; D2 service-role-only server capability gate enforced before material AI/research/ELS execution; A4 three-engine Operational Trace fan-out/fan-in with independent latency/cost/output-use and exact rollup; H2 export/erasure with Human-Gated financial `retain_detach`; and H1 real physical-backup restore drill. H1 restored schema/data/roles/RLS/Goldens successfully with observed RTO ≤ 3m55.7s; restore-point evidence showed the selected daily backup's actual last-known source state at 17:03:58 UTC. Temporary restore projects remain cleanup-only and are not production authorities.
+Final closure release evidence:
 
-**Pre-close barrier:** G3 remains OPEN until current documented pointers are reconciled, the final `OWNER → SIGNAL → ENFORCEMENT → PROJECTION → STATUS` Maintenance Acceptance Matrix has no load-bearing GAP, an independent Foundation challenge passes, the two temporary Supabase restore-test projects are deleted, and ZURIEL + Main Controller explicitly declare closure.
+- G3 runtime closure release = `74d15f88095deee8a629c9f65daf3b17173e033a`; `origin/main` and Production matched that exact SHA during live acceptance before this docs-only closure seal;
+- PR #876 is **MERGED**; Vercel production deployment `dpl_GigsRUJ5r3kE1i1KBx5xGrawJVBe` is **READY** on the exact merge SHA;
+- `sod1820/post-deploy-canary` final same-SHA result is **SUCCESS** (run `36832574949`; the first sitemap timeout was transient and the unchanged-SHA rerun passed);
+- canonical Supabase `linswmnnkjxvweumprav` is the only active project; temporary restore-test projects are gone;
+- the six G3 endgame migrations are LIVE and repo-aligned at `20261001073445 / 073507 / 073816 / 073825 / 073835 / 073844`;
+- WA invariant #15 is LIVE: **0 active cron/background direct DB-held Green paths**, existing `bot_outbox` remains the single delivery queue, Green credentials stay out of pg_net persistence, and ambiguous provider outcomes fail closed rather than auto-resend;
+- Authority / Person / Engine closure is LIVE: 67 identified WA-DM rows linked to canonical Person owners; 21 unresolved rows remain deliberately unresolved; `fn_all_methods` dispatches through the canonical verified method registry;
+- Canonical Data Inventory is a read-only projection over the existing catalog: **317 objects, 0 material unmapped**;
+- governed Media ingress/read-back semantics and ZERO_UNHOMED provenance are present on main;
+- post-release Maintenance Acceptance Matrix refresh is recorded in `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
+- final independent Foundation LIVE challenge returned **PASS_G3_LIVE_CLOSURE_READY** in `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`.
 
-The dated checkpoints below are preserved as historical current-state snapshots; this 30.9 checkpoint supersedes them for present routing.
+Non-blocking operational debt remains owned by the existing maintenance/domain owners and does **not** reopen G3: recurring transient sitemap-canary latency, existing `contributors_feed`/PostgREST permission-denied signals, DB capacity baseline establishment, inventory-reported client-RLS review items, and stale PR disposition.
+
+**Program transition:** G3 closure opens the existing G3→G4 transition lane (informal “G3.5” shorthand) and preparation for real/replayable G4 Golden Experiences. The later docs-only seal does not change runtime acceptance; live `main` / Production are reverified after its merge. The phase change itself does not activate deferred capabilities, publish governed truth, or authorize a broad Legacy→2029 cutover.
+
+The dated checkpoints below are preserved as historical current-state snapshots; this 1.10.2026 closure seal supersedes them for present routing.
 
 **Current live checkpoint · 23.9.2026:** the immediate 2029 Foundation hardening chain is **MERGED · DEPLOYED · LIVE · VERIFIED** at main `5376523be8c4a81b42b428eab30b970e4506e797`. Live canonical Supabase now includes Operational Trace persistence, the server capability/entitlement/budget gate, authenticated private Research Path save/resume/fork, and the bounded legacy Journey telemetry hardening; `ai-analyze` v36 emits the unified execution gate inside Operational Trace. Production Vercel for the same main SHA is READY. The next dependency is replayable Golden fixtures, not Legacy UX restoration.
 
 **Current live checkpoint · 27.9.2026:** origin/main is `96b3d5dc7dab3c91fd72972b77095a10a440342c`. Active current owners include `system_suggestions_law v5`, `canonical_ui_components_law v6`, `els_research_layer_law v8`, `raziel_companion_layer_law v3`, `research_workspace_law v4`, `research_intake_foundation_contract_law v13`, `reality_graph_law v8`, `platform_tiers_law v5`, and `inter_agent_coordination_law v13`. Email OTP compatibility and the corrected 15-minute health watcher are LIVE/VERIFIED. Reliability contracts are LIVE but `G3_RELIABILITY_RUNTIME_V1` remains DEFERRED and is a mandatory pre-close blocker. ELS v8 semantics are LIVE in the owner, while PR #748 runtime primitives remain BRANCH-ONLY and must not be described as deployed capability.
 
-Opening priorities:
+Historical G3 opening priorities (satisfied or superseded by the closure seal above):
 
 1. **Inter-agent event-driven dispatch runtime** under `inter_agent_coordination_law v13` so work_log assignments can wake/claim GPT/CLAUDE without ZURIEL acting as messenger. This must preserve idempotency, lease/claim, duplicate suppression, timeout/retry/failure/deferred/cancelled, one-writer safety and provenance; it never auto-authorizes WRITE/merge/deploy/publish/canonicalization.
 2. **Agent media/file tool adapter** over the already-proven agent upload bridge so GPT/CLAUDE can receive/generated files, upload through least-privilege single-use tickets, verify hash/size/mime/reference, and return the canonical artifact reference. Domain placement remains owned by Post/Reality/Brand/Research owners. Private books/documents remain a separate private-storage/RLS lane.
@@ -164,11 +178,11 @@ Opening priorities:
 4. Replayable Goldens, beginning with existing locked 878 and Year/Verse carry-forwards.
 5. Broader greenfield product implementation consuming the frozen Foundation.
 
-Mandatory before leaving G3:
+Historical pre-close implementation-compaction gate (satisfied before G3 closure):
 
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`
 
-Additional pre-close blocker: `G3_RELIABILITY_PRECLOSE_V1` must be **IMPLEMENTED · RELEASED · LIVE · VERIFIED** before G3 closure. Required evidence covers canonical IssueReport/incident flow, browser runtime-error capture, sparse deterministic synthetic journeys, sensor/notification dead-man, exact-SHA post-deploy canary, and at least one isolated restore drill. Normal monitoring remains zero-AI/event-driven-first by default.
+Historical reliability pre-close blocker: `G3_RELIABILITY_PRECLOSE_V1` was required to be **IMPLEMENTED · RELEASED · LIVE · VERIFIED** before G3 closure and is satisfied by the closure seal above. Required evidence covers canonical IssueReport/incident flow, browser runtime-error capture, sparse deterministic synthetic journeys, sensor/notification dead-man, exact-SHA post-deploy canary, and at least one isolated restore drill. Normal monitoring remains zero-AI/event-driven-first by default.
 
 ELS current-state pointer: active semantic owner is `els_research_layer_law v8`; PR #748 remains branch-only runtime work and is not release evidence.
 

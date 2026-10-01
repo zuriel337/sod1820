@@ -1,7 +1,7 @@
-# SOD1820 — MASTER ROADMAP v6.6 COMPACT
+# SOD1820 — MASTER ROADMAP v6.7 COMPACT
 
 **Date:** 2026-10-01  
-**Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 PRE-CLOSE** · HUMAN-GATE CONTROLLED
+**Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
 
@@ -22,9 +22,13 @@ Closure evidence:
 - production deployment READY and public site HTTP-verified;
 - detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
 
-**Current phase: G3 — PRE-CLOSE / final Foundation acceptance.**
+**Current phase: G3 — CLOSED. Next navigation: G3→G4 transition / Golden preparation.**
 
-**LIVE PRE-CLOSE CHECKPOINT · 2026-09-30:** current `origin/main` = Production = `fe0f87d57a723e5c6f40e57596b3578ca4722077`; Vercel READY and `sod1820/post-deploy-canary` SUCCESS on the exact SHA. Bottom-up runtime closure has live evidence for Security preclosure, Reliability, ELS runtime, A1/A2/A3, C-8, D1 governed Research Path save→revision→resume→fork/replay, D2 server-authoritative Capability/Access enforcement, A4 three-engine trace fan-out/fan-in with exact no-double-count rollup, H1 physical-backup restore drill, and H2 export/erasure including the Human-Gated `retain_detach` financial-retention policy. H1 technical acceptance is PASS; two temporary restore-test projects remain cleanup-only. G3 is **not CLOSED yet**: remaining gates are documented-state reconciliation, the final Maintenance Acceptance Matrix, independent Foundation challenge, temporary-project cleanup, and the final ZURIEL + Main Controller closure decision. Dated checkpoints below remain history and do not override this block.
+**G3 CLOSURE SEAL · 2026-10-01 · Human Gate ZURIEL:** G3 runtime closure release = `74d15f88095deee8a629c9f65daf3b17173e033a`; `origin/main` and Production matched that exact SHA during live acceptance before the docs-only seal; PR #876 MERGED; Vercel READY on the exact SHA; final `sod1820/post-deploy-canary` SUCCESS on the same SHA. The six endgame migrations are LIVE/repo-aligned, 17 required Edge functions are ACTIVE, Canonical Data Inventory reports 317 objects / 0 material unmapped, WA has 0 active cron/background direct DB-held Green paths, the live Maintenance Acceptance Matrix was refreshed, and the independent Foundation LIVE challenge returned **PASS_G3_LIVE_CLOSURE_READY** (`work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`). Temporary restore-test projects are gone; only canonical Supabase `linswmnnkjxvweumprav` is active.
+
+Non-blocking maintenance debt remains routed to existing owners rather than reopening G3: transient sitemap-canary latency, existing `contributors_feed`/42501 read errors, DB capacity-baseline establishment, inventory client-RLS review items, and stale PR disposition.
+
+**NEXT:** use the already-defined G3→G4 transition lane (informal “G3.5” shorthand) to prepare/validate the next real Golden Experiences. Closing G3 does **not** by itself open English, entitlement/pricing, Voice/Multimodal, Spatial/3D/XR, governed publication, or a broad Legacy→2029 cutover; those remain under their existing Human-Gate/owner rules.
 
 **BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
 
