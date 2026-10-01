@@ -1,7 +1,7 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-**Date:** 2026-09-30  
-**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 PRE-CLOSE**
+**Date:** 2026-10-01  
+**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 CLOSED · G3→G4 TRANSITION**
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
 
