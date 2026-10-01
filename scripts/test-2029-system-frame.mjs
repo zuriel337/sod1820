@@ -14,6 +14,8 @@ const css = read("src/components/experience2029/systemFrame2029.css");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
+const brandAssets = read("src/lib/brandAssets.js");
+const brandManifest = JSON.parse(read("public/brand/2029/manifest.json"));
 
 // One implementation owner: old import path is a compatibility export, not a second frame.
 assert.match(compat, /single active 2029 frame implementation/i);
@@ -39,6 +41,27 @@ const forbiddenImportPatterns = [
 ];
 for (const forbidden of forbiddenImportPatterns) {
   assert.equal(forbidden.test(frame), false, `native System Frame must not inherit legacy presentation: ${forbidden}`);
+}
+
+// Brand Core 2029: Latin identity is exact and native 2029 never inherits Heritage /logo.png.
+assert.equal(frame.includes("<b>SOD1820</b>"), true, "System Frame must render exact Latin brand identity");
+assert.equal(frame.includes("SOD 1820"), false, "Latin brand identity must be SOD1820 without a space");
+assert.match(brandAssets, /HERITAGE_COMPATIBILITY/);
+assert.match(brandAssets, /No fallback to HERITAGE_LOGO/);
+assert.equal(brandManifest.heritage.primary2029, false);
+assert.equal(brandManifest.primary2029.assetPackState, "MATERIALIZATION_INCOMPLETE");
+assert.equal(
+  brandManifest.primary2029.approvedReference.sha256,
+  "c3aedacaf5f544320bd9d242ad07e4468ea5097648927d2a04b0f1916f00ab9e",
+);
+for (const key of [
+  "master_crown_transparent",
+  "hebrew_heritage_wordmark_transparent",
+  "hebrew_master_lockup",
+  "icon_crown_crop",
+  "asset_metadata_dimensions_checksum_clearspace",
+]) {
+  assert.equal(brandManifest.primary2029.required[key], null, `Primary Brand asset must fail closed until verified: ${key}`);
 }
 
 // Frame semantics: one transient coordinator, one Research Context, multiple projections.

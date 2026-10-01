@@ -1,0 +1,42 @@
+{
+  "schema": "sod1820-brand-assets-v1",
+  "owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "identity": {
+    "he": "סוד 1820",
+    "latin": "SOD1820"
+  },
+  "state": "MATERIALIZATION_INCOMPLETE",
+  "heritage": {
+    "path": "/logo.png",
+    "role": "HERITAGE_COMPATIBILITY",
+    "primary2029": false,
+    "preserve": true
+  },
+  "primary2029": {
+    "masterMark": "blue_gold_crown",
+    "protectedWordmark": "כי לה׳ המלוכה",
+    "assetPackState": "MATERIALIZATION_INCOMPLETE",
+    "approvedReference": {
+      "path": "/brand/2029/reference/primary-lockup-approved-2026-09-17.jpg",
+      "role": "APPROVED_ARTWORK_REFERENCE_NOT_TRANSPARENT_MASTER",
+      "mime": "image/jpeg",
+      "width": 1536,
+      "height": 1536,
+      "sizeBytes": 406511,
+      "sha256": "c3aedacaf5f544320bd9d242ad07e4468ea5097648927d2a04b0f1916f00ab9e",
+      "source": {
+        "provider": "google_drive",
+        "fileId": "1Y3lDxlwRCJroaiUwBB8XTbtrMrJy-uvc",
+        "sourceTitle": "sod1820-upload-test-middle-logo.png",
+        "createdAt": "2026-09-17T09:25:45.159Z"
+      }
+    },
+    "required": {
+      "master_crown_transparent": null,
+      "hebrew_heritage_wordmark_transparent": null,
+      "hebrew_master_lockup": null,
+      "icon_crown_crop": null,
+      "asset_metadata_dimensions_checksum_clearspace": null
+    }
+  }
+}
