@@ -191,8 +191,8 @@ export async function getMyLinkedPhones() {
   } catch { return []; }
 }
 
-// 🔐 בקשת קוד-אימות בוואטסאפ למספר שהמשתמש הזין (השרת שולח דרך wa_send).
-// מחזיר {ok, sent?, already_linked?, masked?, error?}.
+// 🔐 בקשת קוד-אימות בוואטסאפ למספר שהמשתמש הזין (השרת מכניס לתור pg_net; אין אישור מסירה).
+// מחזיר {ok, queued?, sent:false, delivery_receipt_confirmed:false, already_linked?, masked?, error?}.
 export async function requestWaLinkCode(phone) {
   if (!supabase) return { ok: false, error: "no_client" };
   try {
