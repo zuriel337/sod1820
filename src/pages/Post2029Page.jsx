@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ReadingContextRail2029 from "../components/experience2029/ReadingContextRail2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
@@ -140,6 +140,11 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const experience = projection.experience || {};
+  const heroNumbers = [...new Set(
+    regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
+  )].slice(0, 5);
+  const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
+  const heroDate = String(post.modified || post.date || "").slice(0, 10);
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -241,7 +246,7 @@ function PostReadingBody() {
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
-    data-experience-surface="post-reading"
+    data-experience-surface="post-reading"\n    data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
@@ -249,14 +254,39 @@ function PostReadingBody() {
       <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
     </section> : null}
 
-    <header className="sod29-reading-hero">
-      <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
-      <h1>{post.title}</h1>
-      <p className="sod29-reading-source-line">{projection.sourceLine}</p>
-      <p className="sod29-reading-deck">{projection.excerpt}</p>
-      <div className="sod29-reading-integrity">
-        <span>המקור נשמר כלשונו</span>
-        {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
+    <header className="sod29-reading-hero" data-experience-capability="post-master-hero">
+      <div className="sod29-reading-hero-grid">
+        <div className="sod29-reading-hero-copy">
+          <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
+          <h1>{post.title}</h1>
+          <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+          <p className="sod29-reading-deck">{projection.excerpt}</p>
+          <div className="sod29-reading-meta-line">
+            {heroDate ? <span>{heroDate}</span> : null}
+            {heroCategories.map((category) => <span key={category}>{category}</span>)}
+          </div>
+          <div className="sod29-reading-integrity">
+            <span>המקור נשמר כלשונו</span>
+            <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
+            {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
+          </div>
+        </div>
+
+        {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+          <span className="sod29-reading-number-stage-kicker">צירי הקריאה</span>
+          <div className="sod29-reading-number-constellation">
+            {heroNumbers.map((number, index) => <Link
+              key={number}
+              to={"/2029/number/" + number}
+              className={"sod29-reading-number-signal signal-" + (index + 1)}
+              aria-label={"פתח את מספר " + number}
+            >
+              <strong>{number}</strong>
+              <small>פתח במספר</small>
+            </Link>)}
+          </div>
+          <p>המספרים מודגשים כנקודות כניסה למחקר — לא כציון אמת או חשיבות.</p>
+        </div> : null}
       </div>
     </header>
 
