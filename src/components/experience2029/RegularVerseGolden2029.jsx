@@ -19,7 +19,8 @@ export default function RegularVerseGolden2029({ scene, verseSource }) {
   const result=nodes.find((node)=>node.kind==="engine_result");
   const letters=nodes.filter((node)=>node.kind==="visible_letter");
   const verified=result?.ref?.engine_verified===true;
-  const sourceVerified=verseSource?.book==="שמות" && Number(verseSource?.chapter)===33 && Number(verseSource?.verse)===23;
+  const sourceText=String(verseSource?.text||"");
+  const sourceVerified=verseSource?.book==="שמות" && Number(verseSource?.chapter)===33 && Number(verseSource?.verse)===23 && sourceText.includes("והסרתי") && sourceText.includes("וראית אתאחרי") && sourceText.includes("ופני לא יראו");
 
   if(!expression||!verified||!letters.length||!sourceVerified){
     return <section className="sod29-regular-verse" dir="rtl" data-state="unverified" aria-live="polite">
