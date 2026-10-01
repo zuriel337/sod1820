@@ -24,11 +24,17 @@ export function buildCall(row: Row): { method: string; payload: Record<string, u
   return { method: "sendMessage", payload: { chatId: row.chat_id, message: row.reply } };
 }
 
+// Outcome classification — FAIL CLOSED on any post-dispatch ambiguity (no duplicate sends).
+// sent   = 2xx + idMessage only.
+// retry  = ONLY 429 (explicit provider rate-limit refusal: request not accepted for delivery).
+// failed = everything else, including timeout/AbortError/transport error/no status (provider may have accepted
+//          before the response was lost), every 5xx (acceptance unknown), 4xx, and 2xx without idMessage.
+// No other status is treated as proven non-acceptance: Green API semantics are not guessed.
 export function classify(r: { http_status?: number; result?: any; ok?: boolean }): "sent" | "retry" | "failed" {
   const s = r.http_status;
   if (typeof s === "number" && s >= 200 && s < 300 && r.result && typeof r.result === "object" && r.result.idMessage) return "sent";
-  if (typeof s !== "number" || s === 0 || s === 429 || s >= 500) return "retry"; // timeout / transport / provider busy
-  return "failed"; // 4xx or 2xx without idMessage: do not hammer
+  if (s === 429) return "retry";
+  return "failed";
 }
 
 export async function drain(sb: any, ref: string | null, opts: { fetchImpl?: typeof fetch } = {}) {
@@ -36,14 +42,14 @@ export async function drain(sb: any, ref: string | null, opts: { fetchImpl?: typ
   if (error) return { ok: false, processed: 0, sent: 0 };
   let sent = 0;
   for (const row of (rows || []) as Row[]) {
-    let outcome: "sent" | "retry" | "failed" = "retry";
+    let outcome: "sent" | "retry" | "failed" = "failed"; // unknown until proven: never default to resend
     let msgId: string | null = null;
     try {
       const { method, payload } = buildCall(row);
       const res = await waAdmin(sb, method, payload, "POST", { fetchImpl: opts.fetchImpl, noTranscript: row.bot === "link-code" });
       outcome = classify(res as any);
       if (outcome === "sent") msgId = String((res as any).result.idMessage);
-    } catch { outcome = "retry"; }
+    } catch { outcome = "failed"; } // thrown after dispatch may mean provider accepted: do not resend
     await sb.rpc("outbox_mark_system", { p_key: row.done_key, p_outcome: outcome, p_sent_msg_id: msgId });
     if (outcome === "sent") sent++;
   }

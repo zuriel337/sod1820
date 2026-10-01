@@ -11,7 +11,8 @@
 -- adapter with an empty body and NO secret: it can only advance already-authorized rows, never create or alter content.
 --
 -- Status machine (text, no constraint change): pending -> sending -> sent | pending(retry, backoff) | failed | expired.
--- Ambiguous outcome (row stuck in 'sending' > 10 min) -> failed, never auto-resent (no duplicate sends).
+-- Retry (pending + backoff) is used ONLY for an explicit provider 429. Any ambiguous outcome (timeout, transport error,
+-- no status, 5xx, or a row stuck in 'sending' > 10 min) -> failed, never auto-resent (no duplicate sends).
 
 -- (B) minimal payload on the EXISTING table (image_url for sendFileByUrl). Default '{}' keeps old writers valid.
 alter table public.bot_outbox add column if not exists payload jsonb not null default '{}'::jsonb;
