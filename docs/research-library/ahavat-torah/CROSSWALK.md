@@ -171,3 +171,17 @@ Truth-state column preserves each artifact's **own native vocabulary**, per the 
 | `AHAVAT_TORAH_RESEARCH_CHECKPOINT_8.md` @ `f59e4715` | `docs/research-notes/AHAVAT_TORAH_RESEARCH_CHECKPOINT_8.md` | EXTENDS row 14 (stub) | Row 14 unedited; 18,200 audit open |
 
 Ledger and Checkpoints 2-5: already represented (rows 1-5, §A) as branch pointers; not duplicated. 0 dropped; no existing row edited.
+
+## L. Immutable commit pins for DOSSIER_INDEX rows 1-5 (task G3_ZERO_UNHOMED_POINTER_PIN_FIX_V4)
+
+*Additive; no earlier line edited. Pins the mutable branch pointers of rows 1-5 (§A) to commits verified via `git log`/`git rev-parse <ref>:<path>` on `origin/gpt/ahavat-torah-research-ledger-v7`.*
+
+| Row | Artifact | Last-content commit | Note |
+|---|---|---|---|
+| 1 | `AHAVAT_TORAH_RESEARCH_LEDGER.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `aeb5311c` identical on v2-v7 |
+| 2 | `..._CHECKPOINT_2.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `d10b4e30` identical on v3-v7 |
+| 3 | `..._CHECKPOINT_3.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `51074d64` identical on v4-v7 |
+| 4 | `..._CHECKPOINT_4.md` | `280555cb4b44fb2f3676c5775b7de04b5bdd5a82` | Blob `7aef2163` identical on v4-v7 |
+| 5 | `..._CHECKPOINT_5.md` | `bbaf42779dad148d0aec86c92592fcfb13ab7580` | v5-only nuance preserved: v5 head is this commit; v5b/v3/v4 do not carry this blob; v7 (descendant of v5) contains it byte-identical |
+
+Fallback immutable snapshot containing all five: v7 head `f59e4715320d3ebf4a2a24b4805f56ee0217f9a8`. No content copied; no truth upgrade.
