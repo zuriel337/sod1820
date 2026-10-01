@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const mig = fs.readFileSync("supabase/migrations/20261001020000_g3_endgame_authority_person_engine_enforcement_v2.sql", "utf8");
+const mig = fs.readFileSync("supabase/migrations/20261001073445_g3_endgame_authority_person_engine_enforcement_v2.sql", "utf8");
 const edge = fs.readFileSync("supabase/functions/research-extract/index.ts", "utf8");
 const fnAll = mig.slice(mig.indexOf("create or replace function public.fn_all_methods"), mig.indexOf("-- C -"));
 

@@ -4,7 +4,7 @@ import { drain, handle, buildCall, classify } from "../supabase/functions/wa-sys
 
 const mdir = "supabase/migrations/";
 const files = fs.readdirSync(mdir).filter((f) => /g3_wa_db_held_http_cutover/.test(f)).sort();
-const raw = fs.readFileSync(mdir + "20261001070000_g3_wa_db_held_http_cutover_v5_outbox.sql", "utf8");
+const raw = fs.readFileSync(mdir + "20261001073835_g3_wa_db_held_http_cutover_v5_outbox.sql", "utf8");
 const sql = raw.replace(/^--.*$/gm, "");
 
 // ---- SQL contract ----

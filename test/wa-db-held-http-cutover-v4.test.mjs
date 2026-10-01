@@ -4,7 +4,7 @@ import fs from "node:fs";
 const dir = "supabase/migrations/";
 assert.ok(!fs.existsSync(dir + "20261001060000_g3_wa_db_held_http_cutover_v4_net_acl.sql"), "impossible net ACL migration removed");
 assert.ok(!fs.existsSync(dir + "20261001050000_g3_wa_db_held_http_cutover_v3.sql"), "pg_net job55 migration removed");
-const raw = fs.readFileSync(dir + "20261001061000_g3_wa_db_held_http_cutover_v4_internal_acl.sql", "utf8");
+const raw = fs.readFileSync(dir + "20261001073825_g3_wa_db_held_http_cutover_v4_internal_acl.sql", "utf8");
 const lc = raw.replace(/^--.*$/gm, "");
 for (const sig of ["wa_vip_backfill_sql\\(text, integer\\)", "fn_michael_execute\\(uuid\\)"]) {
   assert.match(lc, new RegExp(`revoke all on function public\\.${sig} from public, anon, authenticated`));

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const m = fs.readFileSync("supabase/migrations/20261001040000_g3_wa_db_held_http_cutover_v2.sql", "utf8");
+const m = fs.readFileSync("supabase/migrations/20261001073816_g3_wa_db_held_http_cutover_v2.sql", "utf8");
 const code = m.replace(/--.*$/gm, "");
 const edge = fs.readFileSync("supabase/functions/wa-vip-backfill/index.ts", "utf8");
 

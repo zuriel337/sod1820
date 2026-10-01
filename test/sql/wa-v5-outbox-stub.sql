@@ -1,4 +1,4 @@
--- Scratch-DB stub for V5 replay: psql -f this, then -f supabase/migrations/20261001070000_g3_wa_db_held_http_cutover_v5_outbox.sql (verified on PG16 2026-10-01).
+-- Scratch-DB stub for V5 replay: psql -f this, then -f supabase/migrations/20261001073835_g3_wa_db_held_http_cutover_v5_outbox.sql (verified on PG16 2026-10-01).
 create role anon nologin; create role authenticated nologin; create role service_role nologin;
 create schema auth; create function auth.uid() returns uuid language sql as $$ select nullif(current_setting('t.uid',true),'')::uuid $$;
 create schema cron; create table cron.job(jobid serial primary key, jobname text unique, schedule text, command text);

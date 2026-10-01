@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const fnDir = "supabase/functions";
-const migration = fs.readFileSync("supabase/migrations/20261001030000_g3_wa_db_held_http_cutover_v1.sql", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20261001073507_g3_wa_db_held_http_cutover_v1.sql", "utf8");
 const helperSrc = fs.readFileSync(`${fnDir}/_shared/waGreen.ts`, "utf8");
 
 // 1. static: no active Edge caller uses sb.rpc(wa_admin)
