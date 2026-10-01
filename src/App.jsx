@@ -17,7 +17,7 @@ import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
-import SitePromoPopup from "./components/SitePromoPopup.jsx";
+import SitePromoPopup from "./components/SitePromoPopup.jsx";\nimport PlaneHintSpotlight from "./components/PlaneHintSpotlight.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -267,7 +267,7 @@ export default function App() {
         <UserCenterProvider>
         <RouteEffects />
         <LegacyRedirect />
-        <OnboardingGate />
+        <OnboardingGate />\n        <PlaneHintSpotlight />
         <GlobalChrome>
           <UpdateBanner />
           <SitePromoPopup />
