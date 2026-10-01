@@ -20,7 +20,8 @@ test("negative gate: person-owned save without canonical owner linkage cannot re
   assert.match(mig, /person_owner_linkage_required/);
   assert.match(mig, /btrim\(p_source_ref\) ~\* ''\^person:''/);
   assert.match(mig, /owner_person_id\)\s+VALUES|privacy_scope, meta, owner_person_id/);
-  assert.ok(mig.indexOf("person_owner_linkage_required") < mig.indexOf("INSERT INTO public.research_objects") || mig.includes("v_owner,"));
+  assert.ok(mig.includes("v_meta,\\n    v_owner\\n  )"), "INSERT patch persists v_owner after v_meta");
+  assert.ok(!/\bE'[^\n]*'\s*\n\s*E'/.test(mig), "no adjacent E-string literals (invalid PG syntax; must be || concatenated)");
 });
 
 test("resolver never invents identity: unique verified link only; service_role only", () => {
