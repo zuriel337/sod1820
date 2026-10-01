@@ -60,3 +60,11 @@ test('growth reads existing capacity snapshots only (no snapshot writer call)', 
   assert.doesNotMatch(code, /fn_capacity_snapshot_v1\s*\(/);
   assert.match(code, /cache_kind = 'capacity_snapshot'/);
 });
+
+test('V2 owner-map extension: blocking GAPs stay unmapped, no invented owners', () => {
+  for (const s of ['xlang_calibration', 'shiurim_audio', 'post_qa', 'discoveries']) {
+    assert.ok(!code.includes(`('${s}',`), `${s} must stay UNKNOWN until evidence exists`);
+    assert.ok(doc.includes(`\`${s}\``), `${s} must be listed as a blocking GAP in the crosswalk doc`);
+  }
+  assert.match(doc, /research_intake_foundation_contract_law v13/);
+});
