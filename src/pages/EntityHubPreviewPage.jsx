@@ -3,11 +3,13 @@ import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyG
 import "../components/experience2029/letterAnatomyGolden2029.css";
 import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
 import "../components/experience2029/mistaterTensionGolden2029.css";
+import RegularVerseGolden2029 from "../components/experience2029/RegularVerseGolden2029.jsx";
+import "../components/experience2029/regularVerseGolden2029.css";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
 import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileMistaterTensionScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileMistaterTensionScene, compileRegularLedgerScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -41,6 +43,9 @@ export default function EntityHubPreviewPage() {
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
   const [mistaterScene,setMistaterScene]=useState(null);
   const [mistaterStatus,setMistaterStatus]=useState("idle");
+  const [regularScene,setRegularScene]=useState(null);
+  const [regularSource,setRegularSource]=useState(null);
+  const [regularStatus,setRegularStatus]=useState("idle");
   const [convergenceScene,setConvergenceScene]=useState(null);
   const [convergenceMotion,setConvergenceMotion]=useState(null);
   const [convergenceStatus,setConvergenceStatus]=useState("idle");
@@ -108,6 +113,58 @@ export default function EntityHubPreviewPage() {
         setMistaterStatus("unverified");
       }
     });
+    return () => { active=false; };
+  }, [label]);
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setRegularScene(null);
+      setRegularSource(null);
+      setRegularStatus("idle");
+      return () => { active=false; };
+    }
+
+    setRegularScene(null);
+    setRegularSource(null);
+    setRegularStatus("loading");
+
+    Promise.all([
+      supabase.rpc("gematria_method_trace", { p_method_key: "רגיל", p_phrase: "וראית את אחרי" }),
+      supabase.from("tanach_verses").select("book,chapter,verse,text").eq("book","שמות").eq("chapter",33).eq("verse",23).maybeSingle(),
+    ]).then(([traceResponse,sourceResponse])=>{
+      if(!active) return;
+      const trace=traceResponse.data;
+      const source=sourceResponse.data;
+      const value=Number(trace?.result);
+      if(
+        traceResponse.error ||
+        sourceResponse.error ||
+        trace?.verification?.parity!==true ||
+        !Number.isSafeInteger(value) ||
+        value!==Number(label) ||
+        source?.book!=="שמות" ||
+        Number(source?.chapter)!==33 ||
+        Number(source?.verse)!==23
+      ){
+        setRegularStatus("unverified");
+        return;
+      }
+
+      try{
+        const scene=compileRegularLedgerScene({
+          expression:"וראית את אחרי",
+          methodTrace:trace,
+          sourceRef:{book:source.book,chapter:source.chapter,verse:source.verse},
+        });
+        setRegularScene(scene);
+        setRegularSource(source);
+        setRegularStatus("ready");
+      }catch{
+        setRegularStatus("unverified");
+      }
+    });
+
     return () => { active=false; };
   }, [label]);
 
@@ -235,6 +292,13 @@ export default function EntityHubPreviewPage() {
       <MistaterTensionGolden2029 scene={mistaterScene}/>
       {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
       {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
+    </section> : null}
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="regular-verse-title" data-experience-surface="golden-1237-regular">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · REGULAR</span><h2 id="regular-verse-title">וראית את אחרי — רגיל</h2></div><p>כאן אין פתיחה פנימה ואין מתח בין אותיות: הערך נבנה מן האותיות הגלויות של הביטוי, בתוך הקשר הפסוק בשמות לג:כג.</p></div>
+      <RegularVerseGolden2029 scene={regularScene} verseSource={regularSource}/>
+      {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
+      {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי trace ומקור פסוק מאומתים.</p> : null}
     </section> : null}
 
     {label === "1237" ? <section className="sp29-tools" aria-labelledby="convergence-1237-title" data-experience-surface="golden-1237-convergence">
