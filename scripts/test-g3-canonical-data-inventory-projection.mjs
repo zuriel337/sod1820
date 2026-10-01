@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const sql = readFileSync('supabase/migrations/20261001071000_g3_canonical_data_inventory_projection_v1.sql', 'utf8');
+const sql = readFileSync('supabase/migrations/20261001072530_g3_canonical_data_inventory_projection_v1.sql', 'utf8');
 const doc = readFileSync('docs/2029-data-placement-retention-crosswalk.md', 'utf8');
 const code = sql.replace(/--.*$/gm, '');
 
