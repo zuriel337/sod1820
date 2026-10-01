@@ -327,7 +327,7 @@ export default function App() {
           {/* 🔬 Research Viewer v0 — Projection בלבד, פנימי לא-מקושר. אדמין-גייט ברכיב עצמו. מחוץ ל-/admin/ (honeypot Vercel תופס /admin/(.*)). */}
           <Route path="/research-viewer" element={<ResearchViewerV0Page />} />
           {/* 🌳 Universal Entity Hub — internal golden-case projection, no public-nav replacement yet. */}
-          <Route path="/spatial-letter-anatomy-preview" element={<SpatialLetterAnatomyPreviewPage />} />\n          <Route path="/entity-hub-preview" element={<Navigate to="/entity-hub-preview/number/1237" replace />} />
+          <Route path="/entity-hub-preview" element={<Navigate to="/entity-hub-preview/number/1237" replace />} />
           <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
           {/* 🧪 Universal Explorer — Slice 2 shell/facet composition preview, internal/unlinked, no public-nav replacement. Naming provisional until Human-Gate (checkpoint 0fa2f0e8). */}
           <Route path="/explorer-preview" element={<ExplorerPreviewPage />} />
