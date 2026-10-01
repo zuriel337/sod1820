@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { buildUploadIntent, mayVerifyPath, validateDeclaredFile, SIX_MIB } from "../supabase/functions/media-upload-intent/contract.mjs";
-import { encodeTusMetadata, TUS_CHUNK_SIZE, TUS_VERSION, uploadResumableMedia } from "../src/lib/mediaResumableUpload.js";
+import { buildUploadIntent, evaluateReadBack, mayVerifyPath, validateDeclaredFile, SIX_MIB } from "../supabase/functions/media-upload-intent/contract.mjs";
+import { encodeTusMetadata, TUS_CHUNK_SIZE, TUS_VERSION, uploadResumableMedia, verifyUploadedMedia } from "../src/lib/mediaResumableUpload.js";
 
 const USER = "11111111-1111-4111-8111-111111111111";
 const CONTRIBUTOR = "22222222-2222-4222-8222-222222222222";
@@ -52,8 +52,38 @@ globalThis.fetch = async (url, options = {}) => {
 };
 try {
   const uploaded = await uploadResumableMedia(file, intent, { retryDelays: [0, 0] });
-  assert.equal(uploaded.ok, true);
+  assert.equal(uploaded.transport_complete, true);
+  assert.equal(uploaded.verified, false, "transport completion must not be governed DONE");
+  assert.equal(uploaded.ok, undefined);
+  assert.equal(uploaded.receipt, undefined);
   assert.equal(secondPatchOffset, TUS_CHUNK_SIZE);
 } finally { globalThis.fetch = originalFetch; }
+
+// verify action: the receipt exists only when the read-back matches the intent.
+const exp = { size: total, mime: "video/mp4" };
+const good = evaluateReadBack({ scope: "public", bucket: "media", path: publicVideo.path, expected: exp, actual: { size: total, mime: "video/mp4" } });
+assert.equal(good.ok, true);
+assert.equal(good.artifact_pointer, `media/${publicVideo.path}`);
+assert.deepEqual([good.receipt.kind, good.receipt.path, good.receipt.size, good.receipt.sha256_verified], ["media_upload_verified_receipt", publicVideo.path, total, false]);
+for (const actual of [{ size: total - 1, mime: "video/mp4" }, { size: total, mime: "text/plain" }, { size: 0, mime: "" }, undefined]) {
+  const bad = evaluateReadBack({ scope: "public", bucket: "media", path: publicVideo.path, expected: exp, actual });
+  assert.equal(bad.ok, false); assert.equal(bad.receipt, undefined); assert.equal(bad.artifact_pointer, undefined);
+}
+const sha = "a".repeat(64);
+const hashed = evaluateReadBack({ scope: "public", bucket: "media", path: publicVideo.path, expected: { ...exp, sha256: sha }, actual: { size: total, mime: "video/mp4", sha256: sha } });
+assert.equal(hashed.receipt.sha256_verified, true);
+assert.equal(evaluateReadBack({ scope: "public", bucket: "media", path: publicVideo.path, expected: { ...exp, sha256: sha }, actual: { size: total, mime: "video/mp4", sha256: "b".repeat(64) } }).ok, false);
+// path ownership: another user's submission path can never be verified.
+assert.equal(mayVerifyPath({ scope: "submission", path: `sod1820/2029/accounts/${CONTRIBUTOR}/2026/09/${ID}/image/original.png`, userId: USER }), false);
+
+// Browser client: TUS success alone cannot yield a receipt; only a verified verify response can.
+const mkFetch = (status, body) => async () => new Response(JSON.stringify(body), { status });
+const opts = (f) => ({ endpoint: "https://fn.test/media-upload-intent", accessToken: "jwt", fetchImpl: f });
+await assert.rejects(verifyUploadedMedia(intent, opts(mkFetch(422, { ok: false, verified: false, checks: { size_match: false } }))), /media_not_verified/);
+await assert.rejects(verifyUploadedMedia(intent, opts(mkFetch(200, { ok: true }))), /media_not_verified/); // ok without receipt
+await assert.rejects(verifyUploadedMedia(intent, opts(mkFetch(200, { ok: true, verified: true, receipt: { path: "other/path" } }))), /media_not_verified/);
+await assert.rejects(verifyUploadedMedia(intent, {}), /verify_endpoint_required/);
+const receipt = await verifyUploadedMedia(intent, opts(mkFetch(200, good)));
+assert.equal(receipt.receipt.path, publicVideo.path);
 
 console.log("G3 media upload runtime acceptance: PASS");

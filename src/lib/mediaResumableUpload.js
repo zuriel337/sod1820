@@ -109,5 +109,23 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
     if (!patched) throw lastError || new Error("tus_patch_failed");
   }
 
-  return { ok: true, uploadUrl, bucket: intent.bucket, path: intent.path, size: file.size, mime: intent.mime };
+  // TUS completion is transport only. It is never governed DONE: only verifyUploadedMedia() (the
+  // media-upload-intent `verify` read-back) can return a verified receipt.
+  return { transport_complete: true, verified: false, uploadUrl, bucket: intent.bucket, path: intent.path, size: file.size, mime: intent.mime };
+}
+
+// Completion boundary: ask media-upload-intent to read the stored object back and compare it with the
+// declared intent. Resolves with the verified receipt, or throws — transport success alone never does.
+export async function verifyUploadedMedia(intent, { endpoint, accessToken, sha256, signal, fetchImpl = fetch } = {}) {
+  if (!endpoint || !accessToken) throw new Error("verify_endpoint_required");
+  const scope = intent?.scope || (intent?.bucket === "media" ? "public" : "submission");
+  const r = await fetchImpl(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ action: "verify", scope, path: intent.path, size: intent.size, mime: intent.mime, ...(sha256 ? { sha256 } : {}) }),
+    signal,
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.ok !== true || d.verified !== true || !d.receipt || d.receipt.path !== intent.path) throw new Error(`media_not_verified:${d.error || (d.checks ? JSON.stringify(d.checks) : r.status)}`);
+  return d;
 }

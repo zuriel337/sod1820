@@ -1,5 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { buildUploadIntent, mayVerifyPath, normalizeMime } from "./contract.mjs";
+import { buildUploadIntent, evaluateReadBack, mayVerifyPath, normalizeMime, normalizeSha256, VERIFY_HASH_MAX_BYTES } from "./contract.mjs";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -57,14 +57,25 @@ async function verifyIntent(actor: any, body: any) {
   if (!Number.isSafeInteger(expectedSize) || expectedSize <= 0) throw new Error("invalid_size");
   const expectedMime = normalizeMime(body.mime);
   if (!expectedMime) throw new Error("invalid_mime");
+  const expectedSha256 = body.sha256 ? normalizeSha256(body.sha256) : "";
+  if (body.sha256 && !expectedSha256) throw new Error("invalid_sha256");
   const { data, error } = await actor.admin.storage.from(bucket).createSignedUrl(path, 60);
   if (error || !data?.signedUrl) throw new Error("object_not_found");
+  // Owner-readable read-back is the completion boundary. HEAD for size/mime; the body is only
+  // fetched (and hashed) when the caller declared a sha256 and the object is within the bounded cap.
   const head = await fetch(data.signedUrl, { method: "HEAD", redirect: "follow" });
   if (!head.ok) throw new Error(`verify_head_failed:${head.status}`);
-  const actualSize = Number(head.headers.get("content-length") || "0");
-  const actualMime = normalizeMime(head.headers.get("content-type") || "");
-  const checks = { size_match: actualSize === expectedSize, mime_match: actualMime === expectedMime };
-  return { ok: checks.size_match && checks.mime_match, action: "verify", scope, bucket, path, expected: { size: expectedSize, mime: expectedMime }, actual: { size: actualSize, mime: actualMime }, checks };
+  const actual: { size: number; mime: string; sha256?: string } = {
+    size: Number(head.headers.get("content-length") || "0"),
+    mime: normalizeMime(head.headers.get("content-type") || ""),
+  };
+  if (expectedSha256 && actual.size === expectedSize && actual.size <= VERIFY_HASH_MAX_BYTES) {
+    const get = await fetch(data.signedUrl, { redirect: "follow" });
+    if (!get.ok) throw new Error(`verify_get_failed:${get.status}`);
+    const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", await get.arrayBuffer()));
+    actual.sha256 = Array.from(digest).map((x) => x.toString(16).padStart(2, "0")).join("");
+  }
+  return evaluateReadBack({ scope, bucket, path, expected: { size: expectedSize, mime: expectedMime, ...(expectedSha256 ? { sha256: expectedSha256 } : {}) }, actual });
 }
 
 async function readContributionMedia(actor: any, body: any) {
@@ -96,7 +107,7 @@ Deno.serve(async (req) => {
   try {
     const action = String(body.action || "issue");
     if (action === "issue") return json(await issueIntent(actor, body));
-    if (action === "verify") return json(await verifyIntent(actor, body));
+    if (action === "verify") { const v = await verifyIntent(actor, body); return json(v, v.ok ? 200 : 422); }
     if (action === "read_contribution_media") return json(await readContributionMedia(actor, body));
     return json({ ok: false, error: "unsupported_action" }, 400);
   } catch (error) {

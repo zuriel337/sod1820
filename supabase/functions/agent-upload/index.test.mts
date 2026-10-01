@@ -23,6 +23,7 @@ let handler: any;
   serve: (h: any) => { handler = h; },
 };
 
+let readBackMode = "ok";
 let stored: Uint8Array | null = null;
 let ticket: any;
 (globalThis as any).fetch = async (url: string, init: any = {}) => {
@@ -30,6 +31,11 @@ let ticket: any;
   if (u.includes("agent_upload_ticket_consume")) return new Response(JSON.stringify(ticket), { status: 200 });
   if (u.includes("/object/info/")) return new Response("{}", { status: 404 });   // target does not exist yet
   if (u.includes("/object/upload/sign/")) return new Response(JSON.stringify({ url: "object/upload/sign/x?token=y" }), { status: 200 });
+  if (u.includes("/object/authenticated/")) {   // governed read-back (service-role Storage read)
+    if (readBackMode === "missing" || !stored) return new Response("{}", { status: 404 });
+    const out = readBackMode === "corrupt" ? new Uint8Array(stored.length).fill(7) : readBackMode === "short" ? stored.slice(0, stored.length - 1) : stored;
+    return new Response(init.method === "HEAD" ? null : out, { status: 200, headers: { "content-type": readBackMode === "wrong-mime" ? "text/plain" : MIME, "content-length": String(out.length) } });
+  }
   if (u.includes("/storage/v1/object/")) {
     stored = new Uint8Array(await new Response(init.body).arrayBuffer());
     return new Response(JSON.stringify({ Key: "ok" }), { status: 200 });
@@ -121,6 +127,29 @@ check("sign mode still works", (await post("sign", null, T())).body.mode === "si
 {
   const r = await post("bogus", bytes, T(), { "Content-Type": MIME });
   check("unknown mode still rejected", r.status === 400 && /unknown mode/.test(r.body.error));
+}
+
+console.log("G3 receipt invariant — Storage success alone is not governed DONE");
+{
+  const r = await post("form", form(), T());
+  check("success carries verified receipt + artifact pointer", r.body.verified === true && r.body.receipt?.kind === "agent_upload_verified_receipt" && r.body.artifact_pointer === "gallery/sod1820/agent/t.png");
+  check("receipt binds bucket/path/size/sha256 from read-back", r.body.receipt.path === "sod1820/agent/t.png" && r.body.receipt.size === bytes.length && r.body.receipt.sha256 === SHA && r.body.receipt.sha256_verified === true);
+}
+for (const mode of ["corrupt", "short", "wrong-mime", "missing"]) {
+  readBackMode = mode;
+  const r = await post("form", form(), T());
+  check(`read-back ${mode} => no success, no receipt`, r.status === 502 && r.body.ok === false && r.body.verified === false && !r.body.receipt && !r.body.artifact_pointer, JSON.stringify(r.body));
+  const p = await post("put", bytes, T(), { "Content-Type": MIME });
+  check(`put read-back ${mode} => no success, no receipt`, p.status === 502 && !p.body.receipt, JSON.stringify(p.body));
+}
+readBackMode = "ok";
+{
+  const r = await post("put", bytes, T({ sha256: null }), { "Content-Type": MIME });
+  check("put without ticket sha still verifies size+mime", r.body.verified === true && r.body.receipt.sha256_verified === false && r.body.receipt.verification === "readback_size_mime", JSON.stringify(r.body));
+}
+{
+  const r = await post("sign", null, T());
+  check("sign (transport only) is never verified/DONE", r.body.verified === false && r.body.governed_done === false && !r.body.receipt);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
