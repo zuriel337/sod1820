@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { buildWordLetterAnatomySpecs } from "../src/lib/spatial/hebrewLetterAnatomy.js";
 import { compileLetterAnatomyScene, compileConvergenceScene, compileMotionProjection } from "../src/lib/spatial/semanticSceneCompiler.js";
 
@@ -54,4 +55,14 @@ test("motion projection consumes Golden convergence without minting truth",()=>{
   assert.equal(motion.cues.filter(c=>c.action==="reveal_route").length,3);
   assert.equal(motion.cues.filter(c=>c.action==="converge").length,1);
   assert.ok(motion.reduced_motion.every(c=>c.tier==="T0"));
+});
+
+
+test("Experience renderer consumes a verified scene and does not hardcode Golden numeric truth",()=>{
+  const component=readFileSync(new URL("../src/components/experience2029/LetterAnatomyGolden2029.jsx",import.meta.url),"utf8");
+  const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
+  assert.equal(component.includes("1237"),false);
+  assert.match(component,/engine_verified===true/);
+  assert.match(hub,/fn_method_value/);
+  assert.match(hub,/value!==Number\(label\)/);
 });
