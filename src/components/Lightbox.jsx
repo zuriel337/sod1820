@@ -19,13 +19,14 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   const touchStart = useRef(null);
 
   async function handleShare(image) {
-    const url = image?.image_url || window.location.href;
+    const mediaUrl = image?.ocr_meta?.video_url || (/\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(image?.image_url || "") ? image.image_url : null);
+    const url = mediaUrl || image?.image_url || window.location.href;
     const title = cleanName(image?.name) || 'SOD1820';
     // מזהה-שיתוף יציב: מזהה-מספרי אם יש; אחרת נגזר משם-קובץ התמונה; אחרת מהדף — לעולם לא ריק
     // (תיקון «gallery-»). meta מתעד את ה-image_url המדויק ואת הדף שממנו שותף.
     const page = (() => { try { return window.location.pathname.replace(/^\//, "") || "home"; } catch { return "home"; } })();
     const fileKey = (() => {
-      const m = String(image?.image_url || "").match(/\/([^/?#]+)\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i);
+      const m = String(url || "").match(/\/([^/?#]+)\.(?:jpe?g|png|webp|gif|avif|mp4|mov|m4v)(?:[?#]|$)/i);
       return m ? m[1].slice(0, 80) : null;
     })();
     const slug = image?.id != null ? `gallery-${image.id}`
@@ -61,6 +62,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 
   if (!images.length) return null;
   const h = images[idx];
+  const videoUrl = h?.ocr_meta?.video_url || (/\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(h?.image_url || "") ? h.image_url : null);
   const v = domNum(h);
   const title = cleanName(h?.name);
   const date = shortDate(h);
@@ -98,10 +100,10 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         )}
         <span style={{ flex: 1 }} />
 
-        {h?.image_url && (
-          <a href={h.image_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+        {(videoUrl || h?.image_url) && (
+          <a href={videoUrl || h.image_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
             style={{ ...closeBtn, fontSize: 17, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffffbb" }}
-            title="פתח בגודל מלא" aria-label="פתח בגודל מלא">⤢</a>
+            title="פתח מקור" aria-label="פתח מקור">⤢</a>
         )}
         <button onClick={e => { e.stopPropagation(); handleShare(h); }}
           style={{ ...closeBtn, fontSize: 15, color: shared ? "#5ef0a0" : "#ffffffbb", transition: "color .3s" }}
@@ -134,10 +136,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
           {images.length > 1 && (
             <button onClick={prev} style={navBtnStyle("right")} aria-label="הקודם">&#8250;</button>
           )}
-          {h?.image_url
-            ? <img key={fadeKey} src={h.image_url} alt={title || ""} className={`lb-img${tall ? " tall" : ""}`} style={{ animation: "lb-fade .25s ease" }}
-                onLoad={e => { const t = e.currentTarget; if (t.naturalWidth) setTall(t.naturalHeight > t.naturalWidth * 1.5); }} />
-            : <div style={{ width: 360, height: 240, background: "#1a1a1a", borderRadius: 10 }} />
+          {videoUrl
+            ? <video key={fadeKey} src={videoUrl} poster={h?.image_url || h?.thumb_url || undefined}
+                className="lb-video" controls playsInline preload="metadata" style={{ animation: "lb-fade .25s ease" }} />
+            : h?.image_url
+              ? <img key={fadeKey} src={h.image_url} alt={title || ""} className={`lb-img${tall ? " tall" : ""}`} style={{ animation: "lb-fade .25s ease" }}
+                  onLoad={e => { const t = e.currentTarget; if (t.naturalWidth) setTall(t.naturalHeight > t.naturalWidth * 1.5); }} />
+              : <div style={{ width: 360, height: 240, background: "#1a1a1a", borderRadius: 10 }} />
           }
           {images.length > 1 && (
             <button onClick={next} style={navBtnStyle("left")} aria-label="הבא">&#8249;</button>
@@ -161,7 +166,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 
             {nums.length > 0 && (
               <div className="lb-sec">
-                <div className="lb-sec-t">המספרים בתמונה</div>
+                <div className="lb-sec-t">{videoUrl ? "המספרים בסרטון" : "המספרים בתמונה"}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                   {nums.map(n => {
                     const dom = n === v;
@@ -237,6 +242,7 @@ const LB_CSS = `
   .lb-main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
   .lb-imgpane { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; padding: 0 6px; }
   .lb-img { max-width: min(92vw, 1000px); max-height: calc(100vh - 200px); object-fit: contain; border-radius: 10px; display: block; }
+  .lb-video { max-width: min(92vw, 1000px); width: min(92vw, 760px); max-height: calc(100vh - 200px); border-radius: 10px; display: block; background: #000; }
   /* 🖼️ תמונה גבוהה (צילום ערך/מאמר): במקום לדחוס לגובה-המסך ולהקטין את הטקסט — מציגים ברוחב קריא,
      גוללים אנכית דרך כל המודאל, והטקסט/פאנל זורם ברור מתחת (תיקון «רואים את התמונה אבל הטקסט מתחתיה»). */
   .lb-main.lb-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -268,6 +274,7 @@ const LB_CSS = `
     .lb-panel, .lb-main.lb-scroll .lb-panel { width: 340px; max-height: none; overflow-y: auto; border-inline-start: 1px solid rgba(212,175,55,0.18);
       background: linear-gradient(200deg, rgba(20,15,8,0.5), rgba(6,4,2,0.4)); }
     .lb-img { max-height: calc(100vh - 150px); max-width: 100%; }
+    .lb-video { max-height: calc(100vh - 150px); max-width: 100%; }
     .lb-img.tall { width: auto; max-width: 100%; max-height: none; }
   }
 `;

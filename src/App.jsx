@@ -18,6 +18,7 @@ import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
+import PlaneHintSpotlight from "./components/PlaneHintSpotlight.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -268,6 +269,7 @@ export default function App() {
         <RouteEffects />
         <LegacyRedirect />
         <OnboardingGate />
+        <PlaneHintSpotlight />
         <GlobalChrome>
           <UpdateBanner />
           <SitePromoPopup />
