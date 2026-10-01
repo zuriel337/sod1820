@@ -18,6 +18,7 @@ import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
+import GuestSignupPopup from "./components/GuestSignupPopup.jsx";
 import PlaneHintSpotlight from "./components/PlaneHintSpotlight.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
@@ -273,6 +274,7 @@ export default function App() {
         <GlobalChrome>
           <UpdateBanner />
           <SitePromoPopup />
+          <GuestSignupPopup />
           <RoyalShareWidget />
           {/* 🧭 RoyalContextBar (הסרגל השחור, admin-only) הוסר — כל היכולות שלו (הקשר/עדשה/הוסף-למחקר/
               שורש/חזרה/מחקר-חדש-מכאן) עברו ל-Bottom Bar (components/layout/BottomBar.jsx, slot «⌖ כאן»),
