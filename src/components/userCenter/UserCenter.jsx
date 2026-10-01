@@ -585,7 +585,9 @@ function WhatsAppPanel({ T, goto, setActive }) {
     if (!r.ok) { setMsg({ kind: "err", text: waErr(r.error) }); return; }
     setMasked(r.masked || "");
     setStep("code_sent");
-    setMsg({ kind: "ok", text: "הקוד נשלח לתור השליחה בוואטסאפ — ההגעה עשויה להתעכב מעט. הזן אותו כאן כשיגיע." });
+    setMsg({ kind: "ok", text: r.sent
+      ? "הקוד נשלח לוואטסאפ שלך. הזן אותו כאן."
+      : "הקוד נשלח לתור השליחה בוואטסאפ — ההגעה עשויה להתעכב מעט. הזן אותו כאן כשיגיע." });
   }
   async function verify() {
     if (busy) return;
