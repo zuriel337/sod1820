@@ -89,11 +89,32 @@ function normalizeAccess(value) {
   return Object.values(out).some(Boolean) ? out : null;
 }
 
+function normalizeBottomTrail(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .slice(-8)
+    .map((item, index) => {
+      if (!isObject(item)) return null;
+      const label = cleanString(item.label);
+      if (!label) return null;
+      return {
+        id: cleanString(item.id) || `trail-${index + 1}`,
+        label,
+        kind: cleanString(item.kind) || "context",
+        active: item.active === true,
+        href: cleanString(item.href),
+      };
+    })
+    .filter(Boolean);
+}
+
 function normalizeDimensions(value) {
   if (!isObject(value)) return {};
   const out = {};
   for (const [key, item] of Object.entries(value)) {
-    if (item == null || typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+    if (key === "bottomTrail") {
+      out[key] = normalizeBottomTrail(item);
+    } else if (item == null || typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
       out[key] = item;
     } else if (Array.isArray(item)) {
       out[key] = item.filter((v) => v == null || ["string", "number", "boolean"].includes(typeof v));

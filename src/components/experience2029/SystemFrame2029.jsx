@@ -65,8 +65,9 @@ export const use2029Shell = () => useContext(ShellContext);
 const HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
-  { to: "/post/remzei-geula-ai-sod-hashir", label: "פוסט Golden", icon: "↟" },
-  { label: "ארכיון", icon: "⌁", status: "2029 renderer בהמשך" },
+  { to: "/post/remzei-geula-ai-sod-hashir", label: "פוסטים", icon: "↟" },
+  { label: "מסעות", icon: "↝", status: "בקרוב" },
+  { label: "קהילה", icon: "◎", status: "בקרוב" },
 ];
 
 const DIRECT_NAV = [
@@ -897,6 +898,14 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
+  const subjectHref = context?.subject?.href || "";
+  const bottomTrail = surface === "post"
+    && context?.subject?.type === "post"
+    && subjectHref
+    && subjectHref.split("#")[0] === location.pathname
+    && Array.isArray(context?.dimensions?.bottomTrail)
+      ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+      : [];
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -1011,12 +1020,26 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className="sod29-command-island" role="toolbar" aria-label="פעולות זמינות עכשיו" data-raziel-anchor="center">
-          <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-          <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
+        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
+          {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
+            {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
+              {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
+              <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>
+            </React.Fragment>)}
+          </nav> : <>
+            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
+            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
+          </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-          <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+          {bottomTrail.length ? <div className="sod29-command-actions">
+            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
+            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
+            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
+            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+          </div> : <>
+            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
+            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+          </>}
         </div>
 
         {renderTransient()}
