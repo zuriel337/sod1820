@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { mergeResearchContext, normalizeResearchContext } from "../src/lib/research/researchContext.js";
 import { resolveContextActions, resolveContextTools } from "../src/lib/research/contextualCapabilities.js";
 import { isRazielNextAction } from "../src/lib/research/razielActionContract.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
+const sha256 = (p) => crypto.createHash("sha256").update(fs.readFileSync(path.join(root, p))).digest("hex");
 
 const compat = read("src/components/experience2029/Sod2029Shell.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
@@ -53,6 +55,11 @@ assert.equal(brandManifest.primary2029.assetPackState, "MATERIALIZATION_INCOMPLE
 assert.equal(
   brandManifest.primary2029.approvedReference.sha256,
   "c3aedacaf5f544320bd9d242ad07e4468ea5097648927d2a04b0f1916f00ab9e",
+);
+assert.equal(
+  sha256("public/brand/2029/reference/primary-lockup-approved-2026-09-17.jpg"),
+  brandManifest.primary2029.approvedReference.sha256,
+  "approved Primary Brand reference bytes must match the locked checksum",
 );
 for (const key of [
   "master_crown_transparent",
