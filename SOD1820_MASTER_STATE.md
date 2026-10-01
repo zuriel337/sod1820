@@ -148,7 +148,7 @@ Historical release immediately before closure:
 
 Final closure release evidence:
 
-- `origin/main` = Production = `74d15f88095deee8a629c9f65daf3b17173e033a`;
+- G3 runtime closure release = `74d15f88095deee8a629c9f65daf3b17173e033a`; `origin/main` and Production matched that exact SHA during live acceptance before this docs-only closure seal;
 - PR #876 is **MERGED**; Vercel production deployment `dpl_GigsRUJ5r3kE1i1KBx5xGrawJVBe` is **READY** on the exact merge SHA;
 - `sod1820/post-deploy-canary` final same-SHA result is **SUCCESS** (run `36832574949`; the first sitemap timeout was transient and the unchanged-SHA rerun passed);
 - canonical Supabase `linswmnnkjxvweumprav` is the only active project; temporary restore-test projects are gone;
@@ -162,7 +162,7 @@ Final closure release evidence:
 
 Non-blocking operational debt remains owned by the existing maintenance/domain owners and does **not** reopen G3: recurring transient sitemap-canary latency, existing `contributors_feed`/PostgREST permission-denied signals, DB capacity baseline establishment, inventory-reported client-RLS review items, and stale PR disposition.
 
-**Program transition:** G3 closure opens the existing G3→G4 transition lane (informal “G3.5” shorthand) and preparation for real/replayable G4 Golden Experiences. The phase change itself does not activate deferred capabilities, publish governed truth, or authorize a broad Legacy→2029 cutover.
+**Program transition:** G3 closure opens the existing G3→G4 transition lane (informal “G3.5” shorthand) and preparation for real/replayable G4 Golden Experiences. The later docs-only seal does not change runtime acceptance; live `main` / Production are reverified after its merge. The phase change itself does not activate deferred capabilities, publish governed truth, or authorize a broad Legacy→2029 cutover.
 
 The dated checkpoints below are preserved as historical current-state snapshots; this 1.10.2026 closure seal supersedes them for present routing.
 
