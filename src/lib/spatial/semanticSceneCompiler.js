@@ -239,3 +239,258 @@ export function compileMotionProjection(scene,{projectionId="motion-v1"}={}) {
     cues
   };
 }
+
+
+// ===== METHOD PHYSICS: MISTATER TENSION + TRIANGLE FAMILY =====
+// These adapters consume canonical gematria_method_trace output. They do not calculate
+// method truth. Any geometric metaphor ("tension", "potential", "triangle") is projection-only.
+
+function assertCanonicalMethodTrace(trace, methodKey, traceKind) {
+  const ok = trace &&
+    trace.method_key === methodKey &&
+    trace.trace_kind === traceKind &&
+    trace.verification?.parity === true &&
+    trace.verification?.trace_value === trace.result &&
+    trace.verification?.canonical_value === trace.result;
+  if (!ok) throw new Error("SPATIAL_METHOD_REQUIRES_VERIFIED_CANONICAL_TRACE");
+}
+
+export function compileMistaterTensionScene({ expression, methodTrace }, { focusId = null } = {}) {
+  assertCanonicalMethodTrace(methodTrace, "מסתתר", "ADJACENT_DIFFERENCE");
+  if (!expression || methodTrace.input !== expression || !Array.isArray(methodTrace.steps)) {
+    throw new Error("MISTATER_TENSION_TRACE_INPUT_MISMATCH");
+  }
+
+  const subjectId = `mistater-tension:${expression}`;
+  const sceneNodes = [{
+    id: subjectId,
+    kind: "expression",
+    label: expression,
+    subtitle: "מסתתר · מתח בין אותיות",
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 0, z: 0 },
+    ref: {
+      type: "gematria_method_trace",
+      methodKey: "מסתתר",
+      traceKind: methodTrace.trace_kind,
+      projection_semantics: "tension_between_adjacent_letters",
+      projection_only: true,
+      trace: methodTrace,
+    },
+  }];
+  const sceneRelations = [];
+  let letterOffset = 0;
+  let totalFromTrace = 0;
+
+  methodTrace.steps.forEach((step, wordIndex) => {
+    const letters = [...String(step.word || "")];
+    const values = Array.isArray(step.letter_values) ? step.letter_values : [];
+    const pairs = Array.isArray(step.pairs) ? step.pairs : [];
+    if (letters.length !== values.length || pairs.length !== Math.max(letters.length - 1, 0)) {
+      throw new Error("MISTATER_TENSION_TRACE_SHAPE_MISMATCH");
+    }
+
+    letters.forEach((letter, i) => {
+      const id = `mistater-letter:${wordIndex}:${i}:${letter}`;
+      sceneNodes.push({
+        id,
+        kind: "letter_anchor",
+        label: letter,
+        subtitle: String(values[i]),
+        truthTier: TRUTH_TIERS.FACT,
+        position: { x: letterOffset + i * 1.4, y: 0.7, z: 0 },
+        ref: {
+          type: "method_trace_letter",
+          methodKey: "מסתתר",
+          wordIndex,
+          letterIndex: i,
+          letter,
+          value: values[i],
+          source: "canonical_method_trace",
+        },
+      });
+    });
+
+    let subtotal = 0;
+    pairs.forEach((pair, i) => {
+      const leftId = `mistater-letter:${wordIndex}:${i}:${letters[i]}`;
+      const rightId = `mistater-letter:${wordIndex}:${i + 1}:${letters[i + 1]}`;
+      if (
+        pair.left_value !== values[i] ||
+        pair.right_value !== values[i + 1] ||
+        pair.difference !== Math.abs(pair.left_value - pair.right_value)
+      ) {
+        throw new Error("MISTATER_TENSION_TRACE_PAIR_MISMATCH");
+      }
+      subtotal += pair.difference;
+      sceneRelations.push({
+        id: `tension:${wordIndex}:${i}`,
+        from: leftId,
+        to: rightId,
+        kind: "tension_between",
+        explanation: `|${letters[i]}(${pair.left_value})−${letters[i + 1]}(${pair.right_value})| = ${pair.difference}`,
+        ref: {
+          type: "adjacent_difference",
+          difference: pair.difference,
+          left_value: pair.left_value,
+          right_value: pair.right_value,
+          source: "canonical_method_trace",
+          projection_only: true,
+        },
+      });
+    });
+
+    if (subtotal !== step.word_subtotal) throw new Error("MISTATER_TENSION_TRACE_SUBTOTAL_MISMATCH");
+    totalFromTrace += step.word_subtotal;
+    letterOffset += letters.length * 1.4 + 1.8;
+  });
+
+  if (totalFromTrace !== methodTrace.result) throw new Error("MISTATER_TENSION_TRACE_TOTAL_MISMATCH");
+
+  const resultId = `mistater-result:${methodTrace.result}`;
+  sceneNodes.push({
+    id: resultId,
+    kind: "engine_result",
+    label: String(methodTrace.result),
+    subtitle: "מסתתר",
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 2.2, z: 0 },
+    ref: {
+      type: "engine_result",
+      methodKey: "מסתתר",
+      value: methodTrace.result,
+      engine_verified: true,
+      trace: methodTrace,
+    },
+  });
+  sceneRelations.push({
+    id: `rel:${subjectId}->${resultId}`,
+    from: subjectId,
+    to: resultId,
+    kind: "engine_result",
+    explanation: "סכום קשרי המתח מתוך trace קנוני מאומת",
+  });
+
+  const focused = focusId && sceneNodes.some((n) => n.id === focusId) ? focusId : subjectId;
+  return {
+    subjectId,
+    sceneNodes,
+    sceneRelations,
+    availableActions: buildAvailableActions({
+      subjectId,
+      sceneNodes,
+      sceneRelations,
+      focused,
+      lensKeys: ["tension", "explain", "result"],
+    }),
+    lens: "tension",
+    focusId: focused,
+    projection_kind: "adjacent_letter_tension",
+  };
+}
+
+export function compileTriangleMethodScene({ expression, methodKey, methodTrace }, { focusId = null } = {}) {
+  const contracts = {
+    "קדמי": {
+      traceKind: "LETTER_LEDGER",
+      projectionKind: "letter_potential_triangle",
+      label: "קדמי · משולש / פוטנציאל",
+      prefixRows: false,
+    },
+    "משולש מילה": {
+      traceKind: "CUMULATIVE_PREFIX",
+      projectionKind: "word_prefix_triangle",
+      label: "משולש מילה · התהוות",
+      prefixRows: true,
+    },
+  };
+  const contract = contracts[methodKey];
+  if (!contract) throw new Error("TRIANGLE_METHOD_UNSUPPORTED");
+  assertCanonicalMethodTrace(methodTrace, methodKey, contract.traceKind);
+  if (!expression || methodTrace.input !== expression || !Array.isArray(methodTrace.steps)) {
+    throw new Error("TRIANGLE_METHOD_TRACE_INPUT_MISMATCH");
+  }
+
+  const subjectId = `triangle:${methodKey}:${expression}`;
+  const sceneNodes = [{
+    id: subjectId,
+    kind: "expression",
+    label: expression,
+    subtitle: contract.label,
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 0, z: 0 },
+    ref: {
+      type: "triangle_method_projection",
+      methodKey,
+      projection_kind: contract.projectionKind,
+      prefix_rows: contract.prefixRows,
+      projection_only: true,
+      interpretive_alias: methodKey === "קדמי" ? "פוטנציאל" : null,
+      trace: methodTrace,
+    },
+  }];
+
+  const sceneRelations = [];
+  let prefix = "";
+  methodTrace.steps.forEach((step, i) => {
+    prefix += String(step.token || "");
+    const isWordTriangle = methodKey === "משולש מילה";
+    const label = isWordTriangle ? prefix : String(step.token || "");
+    const value = isWordTriangle ? step.prefix_subtotal : step.contribution;
+    const id = `triangle-step:${methodKey}:${i}`;
+    sceneNodes.push({
+      id,
+      kind: isWordTriangle ? "triangle_prefix_row" : "letter_potential",
+      label,
+      subtitle: String(value),
+      truthTier: TRUTH_TIERS.FACT,
+      position: { x: 0, y: 0.8 + i * 0.7, z: 0 },
+      ref: {
+        type: isWordTriangle ? "cumulative_prefix_step" : "kadmi_letter_step",
+        methodKey,
+        step,
+        display_label: label,
+        source: "canonical_method_trace",
+        projection_only: true,
+      },
+    });
+    sceneRelations.push({
+      id: `rel:${subjectId}->${id}`,
+      from: subjectId,
+      to: id,
+      kind: isWordTriangle ? "builds_prefix" : "carries_potential",
+      explanation: isWordTriangle
+        ? `שורת התהוות ${i + 1}: ${label}`
+        : `פוטנציאל אות ${step.token}: ${step.contribution}`,
+    });
+  });
+
+  const resultId = `triangle-result:${methodKey}:${methodTrace.result}`;
+  sceneNodes.push({
+    id: resultId,
+    kind: "engine_result",
+    label: String(methodTrace.result),
+    subtitle: methodKey,
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 1.2 + methodTrace.steps.length * 0.7, z: 0 },
+    ref: { type: "engine_result", methodKey, value: methodTrace.result, engine_verified: true, trace: methodTrace },
+  });
+  sceneRelations.push({ id: `rel:${subjectId}->${resultId}`, from: subjectId, to: resultId, kind: "engine_result", explanation: "canonical engine result" });
+
+  const focused = focusId && sceneNodes.some((n) => n.id === focusId) ? focusId : subjectId;
+  return {
+    subjectId,
+    sceneNodes,
+    sceneRelations,
+    availableActions: buildAvailableActions({
+      subjectId,
+      sceneNodes,
+      sceneRelations,
+      focused,
+      lensKeys: contract.prefixRows ? ["rows", "result"] : ["potential", "result"],
+    }),
+    lens: contract.prefixRows ? "rows" : "potential",
+    focusId: focused,
+    projection_kind: contract.projectionKind,
+  };
+}
