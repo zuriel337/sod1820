@@ -1,0 +1,16 @@
+.sod29-regular-verse{direction:rtl;max-width:940px;margin:auto;padding:38px 20px;text-align:center}
+.sod29-regular-verse header small{color:var(--cyan);font-weight:900;letter-spacing:.08em}
+.sod29-regular-verse h2{font-size:clamp(2.1rem,7vw,4.8rem);margin:.22em 0 .15em}
+.sod29-regular-verse__source{margin:0;color:var(--muted);font-size:.9rem}
+.sod29-regular-verse__verse{margin:30px auto 26px;max-width:820px;padding:24px 22px;border-inline-start:2px solid color-mix(in srgb,var(--gold) 52%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 6%,transparent),transparent);border-radius:18px;font-size:clamp(1.2rem,3.2vw,1.8rem);line-height:1.9}
+.sod29-regular-verse__verse mark{padding:.08em .18em;border-radius:.35em;background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--ice);box-shadow:0 0 28px color-mix(in srgb,var(--gold) 14%,transparent)}
+.sod29-regular-verse__ledger{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px auto 10px;max-width:860px}
+.sod29-regular-verse__letter{display:grid;place-items:center;min-width:48px;padding:10px 9px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--cyan) 5%,transparent)}
+.sod29-regular-verse__letter b{font-size:clamp(1.45rem,4vw,2.15rem);line-height:1}
+.sod29-regular-verse__letter small{margin-top:6px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sod29-regular-verse__result{margin-top:28px;display:flex;gap:14px;justify-content:center;align-items:baseline}
+.sod29-regular-verse__result span{color:var(--muted)}
+.sod29-regular-verse__result strong{font-size:clamp(2.8rem,10vw,6.4rem);color:var(--ice)}
+.sod29-regular-verse__note{max-width:700px;margin:12px auto 0;color:var(--muted);font-size:.82rem;line-height:1.6}
+@media(max-width:720px){.sod29-regular-verse{padding-inline:8px}.sod29-regular-verse__verse{padding:18px 14px}.sod29-regular-verse__ledger{gap:6px}.sod29-regular-verse__letter{min-width:42px;padding:8px 7px}}
+@media(prefers-reduced-motion:reduce){.sod29-regular-verse__verse mark{box-shadow:none}}
