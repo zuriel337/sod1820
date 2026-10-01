@@ -148,3 +148,13 @@ test("Kadmi potential triangle and Triangle Word prefix triangle remain distinct
   assert.deepEqual(word.sceneNodes.filter(n=>n.kind==="triangle_prefix_row").map(n=>n.label),["א","אב","אבג"]);
   assert.notEqual(kadmi.sceneNodes[0].ref.projection_kind,word.sceneNodes[0].ref.projection_kind);
 });
+
+
+test("Triangle renderer exposes distinct semantic capabilities without inventing a 14 fixture",()=>{
+  const component=readFileSync(new URL("../src/components/experience2029/TriangleMethodGolden2029.jsx",import.meta.url),"utf8");
+  assert.equal(component.includes(">14<"),false);
+  assert.match(component,/kadmi-potential/);
+  assert.match(component,/triangle-word/);
+  assert.match(component,/letter_potential_triangle/);
+  assert.match(component,/word_prefix_triangle/);
+});
