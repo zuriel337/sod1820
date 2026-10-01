@@ -3,9 +3,11 @@ import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyG
 import "../components/experience2029/letterAnatomyGolden2029.css";
 import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
 import "../components/experience2029/mistaterTensionGolden2029.css";
+import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
+import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
 import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileMistaterTensionScene } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileMistaterTensionScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -39,6 +41,9 @@ export default function EntityHubPreviewPage() {
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
   const [mistaterScene,setMistaterScene]=useState(null);
   const [mistaterStatus,setMistaterStatus]=useState("idle");
+  const [convergenceScene,setConvergenceScene]=useState(null);
+  const [convergenceMotion,setConvergenceMotion]=useState(null);
+  const [convergenceStatus,setConvergenceStatus]=useState("idle");
 
   useEffect(() => {
     let active=true;
@@ -103,6 +108,63 @@ export default function EntityHubPreviewPage() {
         setMistaterStatus("unverified");
       }
     });
+    return () => { active=false; };
+  }, [label]);
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setConvergenceScene(null);
+      setConvergenceMotion(null);
+      setConvergenceStatus("idle");
+      return () => { active=false; };
+    }
+
+    setConvergenceScene(null);
+    setConvergenceMotion(null);
+    setConvergenceStatus("loading");
+
+    Promise.all([
+      supabase.rpc("gematria_method_trace", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }),
+      supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }),
+      supabase.rpc("gematria_method_trace", { p_method_key: "רגיל", p_phrase: "וראית את אחרי" }),
+    ]).then((responses)=>{
+      if(!active) return;
+      const [ofek,hitgalut,achorai]=responses;
+      if(ofek.error||hitgalut.error||achorai.error){
+        setConvergenceStatus("unverified");
+        return;
+      }
+      const traces=[ofek.data,hitgalut.data,achorai.data];
+      const valid=traces.every((trace)=>
+        trace?.verification?.parity===true &&
+        Number(trace?.result)===Number(label)
+      );
+      if(!valid){
+        setConvergenceStatus("unverified");
+        return;
+      }
+
+      try{
+        const routes=[
+          {expression:"אופק אדנק",methodKey:"מילוי",variantSource:"engine_default",engineTrace:{...traces[0],engine_verified:true,value:Number(traces[0].result)}},
+          {expression:"התגלות",methodKey:"מסתתר",engineTrace:{...traces[1],engine_verified:true,value:Number(traces[1].result)}},
+          {expression:"וראית את אחרי",methodKey:"רגיל",engineTrace:{...traces[2],engine_verified:true,value:Number(traces[2].result)}},
+        ];
+        const scene=compileConvergenceScene({
+          convergenceId:"golden-1237-ofek-hitgalut-achorai",
+          value:Number(label),
+          routes,
+        });
+        const motion=compileMotionProjection(scene,{projectionId:"tzofen-batarbut-001-1237"});
+        setConvergenceScene(scene);
+        setConvergenceMotion(motion);
+        setConvergenceStatus("ready");
+      }catch{
+        setConvergenceStatus("unverified");
+      }
+    });
+
     return () => { active=false; };
   }, [label]);
 
@@ -173,6 +235,13 @@ export default function EntityHubPreviewPage() {
       <MistaterTensionGolden2029 scene={mistaterScene}/>
       {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
       {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
+    </section> : null}
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="convergence-1237-title" data-experience-surface="golden-1237-convergence">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · CONVERGENCE</span><h2 id="convergence-1237-title">שלושה נתיבים — 1237 אחד</h2></div><p>אופק אדנק במילוי, התגלות במסתתר, וראית את אחרי ברגיל. שלושתם מאומתים בנפרד ורק אחר כך נפגשים.</p></div>
+      <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
+      {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
+      {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
     </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
