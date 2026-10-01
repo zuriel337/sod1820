@@ -1,6 +1,7 @@
 // wa-avatars — admin maintenance utility for contributor WhatsApp avatars.
 // G0 hardening: removes the embedded static guard. A real user JWT is verified server-side and the actor must be admin.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -41,8 +42,8 @@ Deno.serve(async (req) => {
   const force = body.force === true;
 
   const waAdmin = async (method: string, payload: unknown, http: string) => {
-    const { data, error } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: http });
-    if (error) throw error;
+    const data = await waGreen(sb, method, payload, http);
+    if ((data as any)?.ok === false) throw new Error(String((data as any).error));
     return data;
   };
 

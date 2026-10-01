@@ -9,6 +9,7 @@
 // v1: חוקר-תלמיד של יסכה — פרטי בלבד. תמיד עברית.
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get('FB_ADMIN_KEY') || '').trim();
 const YISKA = '972508861881@c.us';
@@ -25,7 +26,7 @@ const NEGATIVE = ['👎','❌','😤','🚫'];
 const sb = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
 let trace: any[] = [];
 
-async function waAdmin(m: string, p: unknown) { const { data } = await sb.rpc('wa_admin',{p_method:m,p_payload:p,p_http:'POST'}); return data; }
+async function waAdmin(m: string, p: unknown) { const data = await waGreen(sb, m, p, 'POST'); return data; }
 function pick(v: any): any[] { return Array.isArray(v)?v:(v?.result??[]); }
 async function logBot(row: Record<string,unknown>) { const {error}=await sb.from('wa_bot_log').insert(row); if(error) trace.push({step:'log',e:error.message}); }
 async function alreadyDone(id: string): Promise<boolean> { const {data}=await sb.from('wa_bot_log').select('id').eq('msg_id',id).maybeSingle(); return !!data; }

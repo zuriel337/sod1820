@@ -4,6 +4,7 @@
 // קלט: group=<chatId>&count=<N>. תמונות נשמרות בתיבה (בלי OCR כאן — לחסוך עלות).
 // G0: internal/manual invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -32,7 +33,7 @@ Deno.serve(async (req) => {
   const isVip = (sender: string, name: string) => (vips || []).some((v: { sender?: string; name_match?: string }) =>
     (v.sender && (sender || "").startsWith(v.sender)) || (v.name_match && (name || "").includes(v.name_match)));
 
-  const { data: hist } = await sb.rpc("wa_admin", { p_method: "getChatHistory", p_payload: { chatId: group, count }, p_http: "POST" });
+  const hist = await waGreen(sb, "getChatHistory", { chatId: group, count }, "POST");
   const msgs = ((hist as { result?: unknown[] })?.result || []) as Array<Record<string, any>>;
 
   let seen = 0, inbox = 0, added = 0, existed = 0;

@@ -4,10 +4,11 @@
 //   להודעה האחרונה שראויה למענה עם כל ההקשר; קודמות שטרם טופלו מסומנות superseded (נקלטות לזיכרון,
 //   לא נדלגות ולא מקבלות מענה כפול). קריאת-AI אחת לריצה = פחות משאבים, בלי ספאם ובלי החמצה.
 // מאזין → מבין → עונה, ולומד: טוען זיכרון-לומד (lab_learner+lab_progress) לפני כל תשובה.
-// מבודד לגמרי: action=lab_mora, קבוצה מ-lab_wa_config, שולח דרך wa_admin (רזיאל לא נגוע).
+// מבודד לגמרי: action=lab_mora, קבוצה מ-lab_wa_config, שולח דרך _shared/waGreen (Edge) (רזיאל לא נגוע).
 // polling מ-pg_cron. G0: invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 // לולאת-הלמידה (עדכון הזיכרון) = lab-reflect.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
@@ -19,7 +20,7 @@ const MAX_PER_RUN = 20;
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
 async function waAdmin(method: string, payload: unknown) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "POST" });
+  const data = await waGreen(sb, method, payload, "POST");
   return data;
 }
 function pick(v: any): any[] { return Array.isArray(v) ? v : (v?.result ?? []); }

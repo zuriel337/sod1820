@@ -8,6 +8,7 @@
 //    אבל *עונה רק כשפונים אליו* — «רזיאל» בהודעה, או תגובה (reply) להודעת הבוט / פקודת «עומק».
 //    בלי פנייה = שקט מוחלט (שומר, לא כותב).
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const OCR_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-ocr";
@@ -47,7 +48,7 @@ async function addWord(phrase: string, group: string, who: string) {
   return String(data || "");
 }
 async function reply(chatId: string, message: string, quotedId: string) {
-  await sb.rpc("wa_admin", { p_method: "sendMessage", p_payload: { chatId, message, quotedMessageId: quotedId }, p_http: "POST" });
+  await waGreen(sb, "sendMessage", { chatId, message, quotedMessageId: quotedId }, "POST");
 }
 async function log(row: Record<string, unknown>) { try { await sb.from("wa_bot_log").insert(row); } catch { /* noop */ } }
 
