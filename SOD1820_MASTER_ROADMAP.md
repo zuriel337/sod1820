@@ -61,259 +61,44 @@ Detailed domain semantics live in owners, not here:
 - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
+- 2029 Search / Video Discovery Foundation → current Video/Search projection remains on the 2029 product tree; canonical direction: `source/asset → 2029 projection → 2029 route`. Detailed implementation evidence stays in `docs/2029-implementation-dependency-plan-v1.md` + `docs/2029-search-indexing-closure-map-v1.md`, not duplicated here.
 
 Historical Roadmap v5.6 remains provenance only. Normal routing starts from the current owner tree, not from the historical Roadmap body.
 
-## G3 dependency spine — bottom-up, one tree
-
-This is the implementation dependency order. Later capability may be preserved/visible as BUILDING before implementation, but it must not fork or bypass the lower layer it depends on.
-
-### A. Runtime foundation first
-
-- Experience Context / capability projection seam;
-- server-authoritative availability + entitlement + budget/usage resolution before expensive I/O;
-- privacy / lifecycle / RLS / authorization boundaries;
-- event-driven background/agent execution, idempotency, cancellation, retry and provenance;
-- media/file intake/upload adapter + canonical artifact references;
-- **No Black Box full execution trace:** one root trace per material interaction; span tree across every engine/model/tool/DB/cache/network/media/background hop; multi-engine fan-out/fan-in visible; provider/model/version/resource/cost/outcome/replay provenance; 100% material-event coverage with privacy-safe payload references;
-- locale-ready semantic actions, identities and status states from the start.
-
-**G3 blocker:** Foundation Runtime is not considered closed if an admin cost/usage aggregate cannot drill down to the underlying root trace and individual span(s), including a three-engine workflow, without double-counting cost.
-
-**Important:** localization architecture is foundational now; public English rollout is not first. We design every identity/action/context so locale can project later without changing capability identity.
-
-### B. Canonical engines and semantic outputs
-
-- Gematria / method registry and deterministic calculation owners;
-- Corpus / Books / Sources / exact-expression provenance;
-- callable ELS engine boundary + canonical corpus/coordinates/result provenance;
-- Research OS / Universal Finding / Result Bundle adapters;
-- Universal Resolve/Search/Command and Research Context transport.
-
-### C. 2029 semantic product skeleton
-
-Build the stable surfaces over the same lower contracts:
-
-- System Frame / Home;
-- World;
-- Heichal;
-- Number / Expression;
-- Books / Sources;
-- ELS;
-- Journey;
-- Posts / Updates;
-- Video / Media asset projection;
-- Workspace / Personal Area;
-- canonical adaptive action slots for Listen / Raziel / Spatial / Deep Research / Brief / Media / Private Corpus / Pulse.
-
-### D. ELS 2029 is an early Golden dependency
-
-ELS is intentionally before broad language/media expansion because later experiences consume it.
-
-Dependency chain:
-
-`ELS engine/result contract → ELS 2029 surface → layered/spatial representation → Raziel-in-ELS text/context → guided/spoken ELS → high-end spatial/3D → research-to-media`
-
-**Current ELS state pointer · 2026-09-27:** active owner is `els_research_layer_law` **v9**. PR #748 (Vector Geometry / Slice Shift / Dynamic Matrix Volume foundation) is **MERGED · DEPLOYED · PRODUCTION LIVE · VERIFIED** at main `a43eb5ac`. Classic Matrix / Research Matrix are now defined as two projection profiles over one canonical engine/state: Classic = direct low-cost 2D/manual profile; Research = default 2029 capability envelope with minimal initial disclosure and optional bounded adaptive/AI depth. The pure profile model/acceptance is branch-only in the current v9 implementation slice; UI cutover is deferred while overlapping #744 ELS-page writer remains active. Runtime scanner, seeded nulls/FDR and SQL provenance reconciliation remain open before full ELS runtime closure. No GPU/3D renderer is required for this step.
-
-**ELS Dynamic Matrix Volume pointer (Human-Gate ZURIEL · 27.9.2026):** ELS spatial research uses one bounded Matrix Volume / one scanner, not separate “depth”, “diagonal” or “3D” engines. Preserve two distinct concepts: (1) **Slice Shift** — the v7 whole-window transform `baseCorpusIndex + k×S`, useful for layered/2.5D comparison but not an independent Z because `+S` is also one row in an `S`-wide matrix; and (2) **True Volume** — a frozen independent 3D basis. Default rectangular basis for plane height `H`: `eX=+1`, `eY=+S`, `eZ=+(S×H)`, so `corpusIndex = origin + x + y×S + z×(S×H)`. All straight/diagonal/depth paths are bounded primitive vectors `(dx,dy,dz)` over the same result lineage.
-
-The box starts at the smallest sufficient Anchor volume and expands only when existing Research Strength / Information Gain justifies it. Expansion may be asymmetric along the unresolved vector/face/depth. Three- and four-letter tokens are allowed only inside a bounded **hot** subvolume after stronger non-short/structural evidence already made the area worth deeper inspection, or when explicitly pre-registered/requested; a short token cannot by itself make a cold box hot. Same-line extension, intersections, parallel/volume continuation, rarity, repeated motifs, controls/contradictions and Human research intent can justify expansion. Stop when added space produces only dependent/duplicate noise or low information. Canonical semantics live in active `els_research_layer_law`; Experience/GPU/3D only renders them.
-
-The 3D renderer may evolve independently, but it never becomes an ELS truth/engine owner.
-
-### E. Raziel text/tool runtime before live voice
-
-- one Raziel identity + Research Context;
-- context-aware presence on ELS/World/Heichal/Journey/Post;
-- canonical tool/action execution with Explain-Why / Trace;
-- text continuity and graceful fallback proven before live microphone sessions.
-
-### F. English Golden Locale, then language expansion
-
-Actual English rollout belongs **after A–E are stable enough that the same identities/actions/results can be projected without forks**, and **before mass production of multilingual voice/media assets**.
-
-Order:
-
-`Hebrew canonical source → English Golden Locale → prove same capability/access/truth semantics → ar/es/fr/ru/pt/de rollout`
-
-English must not create English-specific ELS, Raziel, premium state, graph, research OS or feature flags. Translation remains representation; exact language-specific Expressions/calculations retain their own provenance.
-
-### G. Multimodal / premium richness
-
-Once the semantic core and English Golden Locale are stable:
-
-- Post Listen / cached authored narration;
-- Research Audio Brief;
-- Raziel Push-to-Talk;
-- Raziel full live voice + transcript/captions;
-- Private Research Corpus / uploads;
-- Explain What I Am Looking At;
-- Research Room / long-running bounded research;
-- Research Dossier export;
-- guided spatial research and high-end 3D;
-- Research-to-Media;
-- proactive Research Pulse;
-- cross-channel companion continuity;
-- XR/VR projection.
-
-These remain preserved capabilities under `platform_tiers_law v5`; defer != delete and only explicit Human Gate cancels/retires.
-
-## G3 opening order
-
-### 1. INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY
-
-Owner: active `inter_agent_coordination_law` v13.
-
-Target flow:
-
-`assignment → dispatch event → agent claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required`
-
-Mandatory properties:
-
-- event-driven target, not ZURIEL-as-messenger and not manual polling as the operating model;
-- idempotency and duplicate suppression;
-- timeout / retry / failure / deferred / cancelled;
-- stale-lease recovery;
-- one-scope / one-active-writer protection;
-- provenance and exact AFTER/result linkage;
-- READ_ONLY specialist challenge may auto-dispatch when runtime exists;
-- WRITE remains governed;
-- routine gate-clean/dependency-clean merge/deploy may auto-release under active release owners; explicit Human Gate remains for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement;
-- EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store.
-
-Current state: **EVENT-DRIVEN GPT↔CLAUDE DISPATCH LIVE · STANDING DEPENDENCY-AWARE AUTO-RELEASE ACTIVE · CONTINUE COVERAGE/HARDENING IN G3**.
-
-### 2. AGENT MEDIA / FILE TOOL ADAPTER — EARLY FOUNDATION/RUNTIME PRIORITY
-
-Reuse the already-proven `AGENT_MEDIA_UPLOAD_BRIDGE_V1` / `agent-upload` ticket mechanism and current Media/Research Intake owners.
-
-Target:
-
-`receive/generated artifact → bounded destination intent → least-privilege single-use ticket → upload → hash/size/mime/reference verification → return canonical artifact reference`
-
-Rules:
-
-- same canonical action usable by GPT and CLAUDE;
-- artifact upload is separate from domain placement/binding;
-- Post / Reality Stream / Gallery / Brand / Research owners decide governed placement after reference return;
-- images are first Golden capability;
-- private Books/Documents remain a separate private-storage/RLS/retention lane;
-- wrong hash/mime/path/replay fails closed;
-- no reusable admin secret;
-- no second Upload System, Storage owner, media store or agent-specific upload path.
-
-Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · ONE-TREE MEDIA/PRIVATE INTAKE RELEASED VIA PR #499 · WORLD 2029 MEDIA PROJECTION RELEASED VIA PR #511 · PERFORMANCE/DELIVERY STANDARDIZATION STILL IN G3**.
-
-Media performance/delivery navigation: `docs/2029-media-performance-delivery-map-v1.md` — preserve `resize=contain`, static derivatives first, poster-only-before-video-intent, bounded representation classes, observable egress and no page-view derivative generation.
-
-### 3. Core runtime seams / safety before broad Goldens
-
-**Immediate 2029-only hardening sequence — LIVE / VERIFIED (23.9.2026):**
-
-`Operational Trace runtime → server capability/entitlement/budget gate → Experience Context as the real cross-surface seam → server/document SEO+AI metadata parity → Research Plan/Path resumability → cheap route/test/least-privilege cleanup`
-
-This dependency chain is now **MERGED · DEPLOYED · LIVE · VERIFIED** through main `5376523be8c4a81b42b428eab30b970e4506e797`, canonical Supabase and production. The next program dependency is **§4 Replayable capability / Golden fixtures**. Do not spend a sprint restoring Legacy UX to unblock it.
-
-- server-authoritative entitlement seam;
-- privacy/data-lifecycle enforcement;
-- Experience Context / capability projection seam;
-- usage/cost resource metering boundary;
-- root trace + parent/child span propagation through browser/server/edge/planner/engine/tool/storage/media;
-- per-span provider-native cost + ILS provenance + exact/estimated/unknown state;
-- three-engine parallel/sequential/synthesis acceptance with output-use attribution and no double-counting;
-- callable ELS boundary;
-- replay/idempotency/failure recovery;
-- canonical domain adapters where required;
-- implementation against frozen owners, not legacy UI authority.
-
-### 4. Replayable capability / Golden fixtures
-
-- replayable Research Context / Journey path for 878;
-- Year/Verse Journey source/witness/counting provenance;
-- canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
-- ELS result/coordinate/replay Golden fixture;
-- No-Black-Box fixtures: parallel three-engine synthesis, sequential escalation, cache hit, retry/continuation, timeout/cancel, unpriced model, partial failure, private-input redaction and cross-layer trace propagation;
-- exact return, Why-transition, provenance and failure/negative outcomes.
-
-### 5. Broader G3 product/runtime implementation
-
-- 2029 System Frame / Global Now/Home adapters;
-- World / Heichal / Number / Books / ELS / Journey / Post / Video-Media / Workspace semantic surfaces;
-- **2029 Search / Video Discovery Foundation — RELEASED · DEPLOYED · LIVE (PR #779 + #782):** Search/Video is a 2029 rail, not a Legacy UX repair. Canonical public flow is `source/asset → 2029 projection → 2029 route → indexability → server metadata → sitemap → crawler access → GSC verification`. Primary product URLs are `/post/:slug`, `/video/:assetId`, `/topic/:slug`, `/2029/number/:value`, `/book/:slug` and `/els`; Legacy root-slug/video routes are source/compatibility only and are not new product homes. Unified Video Projection + Search indexability landed in #779; native 2029 route/crawler cutover landed in #782. Preserve one asset / many placements / one Google primary-page semantics. Search Console validation is external verification, not a second truth owner. Residual route-legitimacy closure remains owner-specific for false dynamic entities beyond the already-covered post/video cases. Detailed closure map: `docs/2029-search-indexing-closure-map-v1.md`;
-- **World / Convergence SEO + AI Discovery:** World Discovery is LIVE as an independent discovery hub. **Human Gate correction:** Beit Midrash remains independently addressable and must not auto-route into World; the earlier Beit-Midrash→World cutover is superseded. `/topic/:slug` remains the canonical public Convergence identity. LIVE = World full Convergence catalog + native Topic 2029 renderer + hydrated canonical/meta/OG/structured-data projection. **DRIFT / NOW:** the initial 2029 HTML document still serves generic metadata to ordinary crawlers before hydration; server/document canonical/title/description/OG/JSON-LD parity must be closed before calling SEO/AI discovery foundation complete. Preserve existing indexability until Human Gate approves any bulk change. Detailed execution map: `docs/2029-world-convergence-seo-ai-discovery-plan-v1.md`;
-- **Number Mathematical / Prime Lens:** extend the released `number_math_profile` with bounded prime context/relations and one-tree numeric re-entry; Golden fixture `787 → prime index 138 → Number 138 → verified צמח=138`; Heichal consumes the same Context as a bounded Prime/Pattern deep-research lane, while Beit Midrash owns the learning explanation. `138` remains a curated strong-number / anchor candidate until a separate Human-Gate anchor decision. Detailed plan: `docs/2029-number-prime-lens-beit-midrash-plan-v1.md`;
-- internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
-- **Community Core 2029 / historical conversation absorption — LIVE VERIFIED:** one shared social/research substrate; Community Core runtime/security foundation is merged and canonical OpenWeb archive absorption is complete in canonical Supabase (41,080/41,080 source messages imported with source-native provenance, reply lineage and replay idempotency verified; 0 pending). WordPress remains compatible historical conversation projection where applicable. Public Community UI cutover, avatar recovery, rich presence/notifications and visual polish remain later Experience work and are **not** G3 Foundation blockers;
-- Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; **Legacy UX parity is not a G3 goal** and obsolete Legacy UI/routes may be frozen or made explicitly unavailable instead of repaired. Retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
-- Follow/Attention delivery truth;
-- Raziel continuous research companion text/tool runtime;
-- ELS 2029 + spatial-ready projection, with explicit G3 acceptance:
-  - preserve canonical occurrence identity and replay inputs across renderers (corpus/version, start/positions/span, skip, direction and selected locus/path context as applicable);
-  - keep the minimal Glyph Identity separation explicit under the existing ELS/Experience owners: **Character Identity ≠ Textual Occurrence ≠ Glyph Representation ≠ font-specific outline ≠ Rendering Instance**;
-  - a future S3/S4 renderer may consume those identities/occurrences, but MUST NOT recompute ELS truth, mint canonical per-glyph entities, or treat visual proximity/depth as evidence;
-  - the renderer boundary must remain compatible with DOM/static accessibility fallback and later Canvas/SDF/atlas/instanced-GPU implementations without changing semantic identity;
-  - the isolated ~10k Hebrew-glyph performance proof is a **pre-S3/S4 implementation gate**, not a blocker for closing current G3 Foundation/runtime work;
-- canonical future-action slots that can show BUILDING without expensive I/O;
-- greenfield product surfaces consuming Foundation owners;
-- no inheritance obligation from legacy layout/IA.
-
-## Mandatory end-of-G3 gate
-
-Before formal G3 CLOSED, run a **Maintenance Acceptance Matrix reconciliation** across operational requirements gathered during G3. For every row record exactly:
-
-`OWNER → SIGNAL → ENFORCEMENT → PROJECTION → STATUS`
-
-Allowed status: `LIVE_VERIFIED` · `IMPLEMENTED_NOT_LIVE` · `PLANNED_G3` · `LATER_STAGE` · `GAP`.
-
-Minimum coverage: reliability/health · browser/runtime failures · dead-man · exact-SHA canary · operational trace/correlation · provider/AI cost · cache/billable state · egress · DB/query performance · capacity/growth/top-growers · retention/compaction · privacy/RLS failures · restore/recovery evidence · release health.
-
-A protective requirement is not CLOSED when only its signal/dashboard exists; required owner-native enforcement must also be verified. Telemetry remains privacy-safe operational evidence, not a Truth Store. Parallel-session duplicates must be reconciled to one canonical owner/runtime/projection. A load-bearing `GAP` blocks ascent; a genuinely later-stage item receives explicit carry-forward and does not keep G3 open.
-
-Then run:
-
-**G3 Implementation Compaction / Archive Pass**
-
-Detailed acceptance:
-`audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
-
-It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, reconcile the live Legacy writer-shutdown matrix against verified 2029 replacements/consumers, preserve provenance and rerun fresh-agent/release-state acceptance.
-
-**One-Tree optimization / retention / cutover gate (end-of-G3):** after enough real 2029 usage exists, final compaction must run one evidence-based pass over writers/readers, data placement, retention, query/RPC cost, RLS/index cost, monitoring, media/storage and Raziel/channel adapters. Required outcome: canonical 2029 owners carry forward authority; Legacy writers/readers retire only after replacement/replay/live-consumer proof; retention expands beyond source/WhatsApp to telemetry/logs/staging/backups/media/legacy semantic stores without granting purge authority; measured hot DB/RPC/RLS/index paths are right-sized; latency-critical external provider waits leave DB-held execution when an existing async/worker path can preserve the same governed action; channel adapters consume canonical Raziel/Method/Research/Convergence boundaries; health remains one monitoring tree with fast bounded snapshot plus deeper cached/on-demand inspection; media uses bounded derivatives/cache plus reference-safe dedupe/archive decisions; backup/staging/legacy stores receive explicit KEEP/ARCHIVE/RETIRE decisions with live-consumer proof. **One Tree does not mean one SQL table.**
-
-**Owner-first retrieval / Canonical Data Inventory acceptance (end-of-G3):** G3 is not closure-complete until representative Personal/Research retrieval resolves through one bounded owner-first path over the canonical owners, without normal-path serial hunting across `work_log`, `research_items`, `research_objects`, Gallery/Storage and agent-memory stores. Person-owned/private research that belongs to a canonical Person must carry canonical owner linkage; source media/evidence must carry canonical artifact/source references; missing owner/artifact linkage is a `GAP`. `work_log` remains coordination/release provenance only: archived/superseded history must stay out of default routing/retrieval and must not become a research lookup dependency.
-
-**Canonical Data Inventory / “table of tables”:** the final G3 compaction must expose one Foundation-owned **read-only inventory projection** — not a new Truth Store, semantic owner or copy of domain content — generated from live database/catalog + current owner metadata. It must list, for each material canonical/derived/cache/log/staging/legacy table or store: schema/object, semantic owner, role/classification, live readers/writers, key indexes and RLS/security posture, row/storage size and growth, retention rule, replacement/cutover gate, disposition (`KEEP` / `ARCHIVE` / `RETIRE`) and last live verification. The goal is one control-plane table-of-tables over the original indexed stores, **not one physical SQL table for all product data**. Normal startup and research retrieval should traverse canonical source/index paths; logs and superseded/legacy derived stores remain provenance/archive unless explicitly requested. No destructive purge is authorized merely to simplify the inventory; retirement still requires replacement + live-consumer proof and Human Gate where the owner requires it.
-
-**Retrieval performance acceptance:** end-of-G3 acceptance records replayable representative Personal Dossier / Number / Source lookups, their query/RPC plans and p50/p95. The normal local canonical DB/RPC path targets **p95 ≤ 250 ms** unless the owning capability records a justified exception; unbounded `%text%` scans of `work_log` or serial multi-store fallback on the normal path are failures, even when each individual table is small. A fresh-agent replay must be able to answer “open my material on X” from the owner-first path without reconstructing truth from coordination history.
-
-
-**Authority → enforcement closure (end-of-G3):** a written owner/rule is not acceptance-complete by itself. For every material G3 domain used by agents or product runtime, final compaction must prove the chain `OWNER → ENTRYPOINT → ALLOWED WRITER/READER → GUARD/ENFORCEMENT → RECEIPT/PROVENANCE → NEGATIVE TEST`. Direct DB/Edge/client writers and legacy engine/RPC wrappers are inventoried as explicit bounded paths, proven invariant-equivalent, or absorbed/retired; an unmapped bypass is a `GAP`. “DONE/SAVED” requires a durable canonical object/artifact/result pointer **plus owner-readable read-back verification** through the existing domain home; that pointer + verified read-back is the receipt. No new receipt store is created, and a work_log sentence alone is never a receipt.
-
-**Rule-routing compaction:** normal agent entry remains owner-first and bounded. Canonical owners are default routing roots; child/scoped rules load only when the resolved owner/task dependency requires them. End-of-G3 fresh-agent acceptance must prove that stale `normal_startup`/legacy metadata cannot cause broad rule dumps or make a child rule compete with its owner. Historical/inactive/compatibility rules remain queryable on demand but outside normal startup.
-
-**Engine/writer one-tree enforcement:** each canonical engine/domain must expose one governed execution contract, with compatibility wrappers allowed only when they consume that contract or have exact parity + a removal condition. The final census must test representative Gematria/Research/Media paths for legacy-wrapper or direct-write bypass, including registry/method eligibility, Person ownership, provenance and truth-state preservation. For Person-owned/private research, every allowed DB/RPC/Edge writer must derive or require the canonical `owner_person_id`; a negative test must prove that an identified Person-owned save without that linkage cannot close as `DONE/SAVED` and is surfaced as a `GAP`. Historical unowned `research_objects` are classified as Person-owned vs non-Person before backfill; only the former are linked. No local agent calculation/writer may become an alternate authority merely because it returns the right value.
-
-**Archive knowledge reconciliation before purge:** archived coordination/history may be compacted only after a bounded migration/reconciliation pass proves `ZERO_UNHOMED_KNOWLEDGE`: every material research/content/product decision that must survive has a current canonical home and pointer, or is explicitly classified as provenance-only. Archive/log retention never deletes first and asks what was lost later.
-
-**Agent media-ingress enforcement:** source fidelity/original preservation must be enforced at the existing media capability entrypoints — `AGENT_MEDIA_UPLOAD_BRIDGE_V1` / `agent-upload` for agent runtimes and `media-upload-intent` for authenticated product uploads — not by an agent remembering a Dropbox/storage convention. For the current ChatGPT/generated-image transport, Dropbox remains a transport fallback only when exact byte-preserving transfer cannot otherwise be proven; completion still requires the canonical `agent-upload` path + storage read-back verification. Negative tests must prove that direct Storage/Dropbox bypass cannot close as `DONE` without the governed ingress receipt/artifact reference.
-
-**Pre-G4 live rebaseline / rescan:** the 28–29.9 scans are calibration, not closure truth. Immediately before G4 entry, rerun the full live census against then-current main + canonical DB + production: table/storage growth, writers/readers, cron/workers, Legacy islands, `pg_stat_statements`, RLS/index advisors, dead tuples/vacuum state, media/egress, Raziel/provider paths, monitoring latency, retry amplification and retention coverage. The later scan supersedes old counts and may add/remove optimization work; historical documents never decide future live state.
-
-**Community closure check:** G3 archive/history ownership is no longer an open Chat-vs-Forum decision. Community Core is the shared substrate and OpenWeb absorption is LIVE VERIFIED. G3 may close with public Community UI still BUILDING, but it must preserve the imported archive/provenance and must not reintroduce a parallel Chat/Forum truth system. Temporary import-stage artifacts are handled by the final G3 compaction/archive decision, not by silent deletion.
-
-No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
-
-**Reliability / Incident Intelligence closure check:** G3 cannot close while `G3_RELIABILITY_PRECLOSE_V1` is incomplete. Before closure, all of the following must be implemented, released and live-verified under active `system_suggestions_law` v5 + existing owners; contract-only state is insufficient:
-
-- canonical `IssueReport → events → incident detection/system_suggestions → Control Plane/Watchman`;
-- event-driven client runtime-error capture (no polling);
-- sparse deterministic Synthetic Critical Journeys — post-deploy + at most 4 scheduled passes/day by default, zero-AI;
-- sensor/notification dead-man so “no data” cannot masquerade as “all healthy”;
-- exact-SHA post-deploy production canary, fail-closed for the next release but no automatic rollback;
-- at least one isolated restore drill proving recovery, not merely existence of backups.
-
-Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; no new incident-monitoring cron faster than 15 minutes without evidence + Human Gate. **Current 2026-09-27:** contracts LIVE; `health-watch` is 15m and DB-size-alone false alerts are fixed LIVE; runtime remains DEFERRED pending builder availability.
+## G3 closure archive — pointer only
+
+G3 is **CLOSED**. Its dependency spine, opening order, maintenance/compaction requirements and implementation detail are no longer part of active navigation.
+
+Current closure pointers:
+- documented current state and exact release evidence → `SOD1820_MASTER_STATE.md`;
+- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v7`;
+- implementation compaction / archive acceptance → `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`;
+- post-release Maintenance Acceptance Matrix refresh → `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
+- final independent LIVE Foundation verdict → `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`;
+- final closure seal → `work_log.id=325cca05-3d5d-4ec5-bc21-683d3a51094d`.
+
+Open operational debt from G3 is maintenance work under its existing owners; it does not restore the closed G3 execution plan to this Roadmap.
+
+## G3→G4 transition lane — 2029 Public Shell + Posts-first Design Readiness
+
+**ACTIVE NOW after G3 CLOSED. Informal shorthand: “G3.5”. This is NOT a new gate.**
+
+Purpose: make 2029 the coherent visible product shell quickly, without pretending unfinished capabilities are live, without polishing Legacy UI, and without freezing replaceable presentation before G4 can teach us from real use.
+
+- Freeze a **semantic shell contract**, not an irreversible IA or final visual composition. Stable through the transition: canonical surface/entity identities, route families, truth/access semantics, availability states, Research Context/Exact Return behavior, and capability slots. Replaceable by G4 evidence: navigation grouping/order, page composition, hierarchy emphasis, card geometry, imagery, motion, spatial treatment and other presentation details.
+- High-fidelity design is an **early Human-Gate thinking instrument**, not a late cosmetic phase and not an acceptance shortcut. Once the semantic shell/availability contract is frozen, build at real visual quality so ZURIEL can inspect the system, compare directions and change composition before broad rollout.
+- Freeze one coherent 2029 shell vocabulary across Home, World, Posts, Topics, Books/Sources, Number, ELS/Cipher, Journey, Community, Personal Area/Workspace, Raziel and future capability slots. Existing owners keep semantic authority; no surface becomes a new truth or capability owner.
+- Every visible destination must project an honest availability state through existing capability/site-flag owners: **OPEN / BUILDING / LATER / GATED**. A visible button, image, icon or card may preview the future product, but an unavailable capability must not resolve into a fake working route or imply Golden acceptance.
+- Define the **minimum public 2029 slice** before broad cutover: Home, World, Posts Index, Post, Topic and Book/Source navigation must form a coherent route chain with truthful return/navigation. Other surfaces may remain BUILDING.
+- The public-shell transition is presentation/cutover readiness, not Legacy destruction. Legacy engines, sources, data, media, SEO compatibility and adapters remain behind 2029 until replacement/consumer proof permits retirement under their existing owners.
+- **Posts-first priority:** because new public posts are the immediate Human-Gate need, the first high-fidelity Golden is **Posts Index + Post**. Current FZ1073 and Bennett×salt are fixtures; do not create a third Post Golden merely to test another local composition.
+- Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
+- Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
+- G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
+- After Posts passes, run one bounded **Cross-Surface Skeleton Golden** over the minimum public slice before cutover — representative path such as Home → World → Topic → Post → Book/Number → exact return. Its purpose is to prove shared navigation/context/availability semantics across surfaces, not to require final World/Home artwork.
+- A **2029 Public Cutover** may occur only after both the Posts Golden and the Cross-Surface Skeleton Golden pass, the minimum public slice passes release/crawler/redirect/SEO checks, and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
+- After cutover, continue G4 with **World high-fidelity Golden second** and **Home high-fidelity Golden third**, reusing the same visual system while allowing G4 evidence to change composition/navigation presentation without changing semantic identity.
+- G4 remains the formal Golden-experience gate. This transition lane prepares the shell and high-fidelity design; it does not mark a capability Golden or satisfy G4 acceptance by itself.
 
 ## Later program sequence
 
