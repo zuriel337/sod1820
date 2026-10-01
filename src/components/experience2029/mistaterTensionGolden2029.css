@@ -1,0 +1,17 @@
+.sod29-mistater-tension{direction:rtl;max-width:900px;margin:auto;padding:34px 20px;text-align:center}
+.sod29-mistater-tension header small{color:var(--cyan);font-weight:900;letter-spacing:.08em}
+.sod29-mistater-tension h2{font-size:clamp(2.2rem,8vw,5rem);margin:.22em 0 .65em}
+.sod29-mistater-tension__chain{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:nowrap;overflow-x:auto;padding:18px 8px 24px;scrollbar-width:thin}
+.sod29-mistater-tension__word{display:inline-flex;align-items:center;flex:0 0 auto}
+.sod29-mistater-tension__letter{display:inline-grid;place-items:center;min-width:58px;position:relative}
+.sod29-mistater-tension__letter b{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1}
+.sod29-mistater-tension__letter small{margin-top:7px;color:var(--muted);font-size:.78rem}
+.sod29-mistater-tension__edge{display:inline-grid;place-items:center;min-width:72px;position:relative;padding-inline:7px;color:var(--gold)}
+.sod29-mistater-tension__edge i{display:block;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 18px color-mix(in srgb,var(--gold) 55%,transparent);opacity:.82;transform-origin:center;animation:sod29-tension-pulse 2.8s ease-in-out infinite}
+.sod29-mistater-tension__edge strong{margin-top:8px;font-size:clamp(1rem,3vw,1.45rem);font-variant-numeric:tabular-nums}
+.sod29-mistater-tension__result{margin-top:28px;display:flex;gap:14px;justify-content:center;align-items:baseline}
+.sod29-mistater-tension__result span{color:var(--muted)}
+.sod29-mistater-tension__result strong{font-size:clamp(2.8rem,10vw,6.4rem);color:var(--ice)}
+@keyframes sod29-tension-pulse{0%,100%{opacity:.45;transform:scaleX(.92)}50%{opacity:1;transform:scaleX(1)}}
+@media(max-width:720px){.sod29-mistater-tension{padding-inline:0}.sod29-mistater-tension__chain{justify-content:flex-start;padding-inline:12px}.sod29-mistater-tension__letter{min-width:50px}.sod29-mistater-tension__edge{min-width:64px}}
+@media(prefers-reduced-motion:reduce){.sod29-mistater-tension__edge i{animation:none;transform:none}}

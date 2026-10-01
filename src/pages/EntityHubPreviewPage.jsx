@@ -1,4 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";
+import "../components/experience2029/letterAnatomyGolden2029.css";
+import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
+import "../components/experience2029/mistaterTensionGolden2029.css";
+import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
+import "../components/experience2029/convergenceGolden2029.css";
+import { supabase } from "../lib/supabase.js";
+import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
+import { compileLetterAnatomyScene, compileMistaterTensionScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -27,6 +36,137 @@ export default function EntityHubPreviewPage() {
   const label = decodeURIComponent(String(key || "1237"));
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
   const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
+  const [anatomyMode,setAnatomyMode]=useState("visible");
+  const [anatomyScene,setAnatomyScene]=useState(null);
+  const [anatomyStatus,setAnatomyStatus]=useState("idle");
+  const [mistaterScene,setMistaterScene]=useState(null);
+  const [mistaterStatus,setMistaterStatus]=useState("idle");
+  const [convergenceScene,setConvergenceScene]=useState(null);
+  const [convergenceMotion,setConvergenceMotion]=useState(null);
+  const [convergenceStatus,setConvergenceStatus]=useState("idle");
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setAnatomyScene(null);
+      setAnatomyStatus("idle");
+      return () => { active=false; };
+    }
+    setAnatomyScene(null);
+    setAnatomyStatus("loading");
+    supabase.rpc("fn_method_value", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }).then(({data,error})=>{
+      if(!active) return;
+      const value=Number(data);
+      if(error||!Number.isSafeInteger(value)||value!==Number(label)){
+        setAnatomyStatus("unverified");
+        return;
+      }
+      try{
+        const scene=compileLetterAnatomyScene({
+          expression:"אופק אדנק",
+          methodKey:"מילוי",
+          variantSource:"engine_default",
+          letterSpecs:buildWordLetterAnatomySpecs("אופק אדנק"),
+          engineTrace:{
+            engine_verified:true,
+            value,
+            source:"fn_method_value",
+            method_key:"מילוי",
+            expression:"אופק אדנק",
+          },
+        });
+        setAnatomyScene(scene);
+        setAnatomyStatus("ready");
+      }catch{
+        setAnatomyStatus("unverified");
+      }
+    });
+    return () => { active=false; };
+  }, [label]);
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setMistaterScene(null);
+      setMistaterStatus("idle");
+      return () => { active=false; };
+    }
+    setMistaterScene(null);
+    setMistaterStatus("loading");
+    supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }).then(({data,error})=>{
+      if(!active) return;
+      const value=Number(data?.result);
+      if(error||data?.verification?.parity!==true||!Number.isSafeInteger(value)||value!==Number(label)){
+        setMistaterStatus("unverified");
+        return;
+      }
+      try{
+        const scene=compileMistaterTensionScene({expression:"התגלות",methodTrace:data});
+        setMistaterScene(scene);
+        setMistaterStatus("ready");
+      }catch{
+        setMistaterStatus("unverified");
+      }
+    });
+    return () => { active=false; };
+  }, [label]);
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setConvergenceScene(null);
+      setConvergenceMotion(null);
+      setConvergenceStatus("idle");
+      return () => { active=false; };
+    }
+
+    setConvergenceScene(null);
+    setConvergenceMotion(null);
+    setConvergenceStatus("loading");
+
+    Promise.all([
+      supabase.rpc("gematria_method_trace", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }),
+      supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }),
+      supabase.rpc("gematria_method_trace", { p_method_key: "רגיל", p_phrase: "וראית את אחרי" }),
+    ]).then((responses)=>{
+      if(!active) return;
+      const [ofek,hitgalut,achorai]=responses;
+      if(ofek.error||hitgalut.error||achorai.error){
+        setConvergenceStatus("unverified");
+        return;
+      }
+      const traces=[ofek.data,hitgalut.data,achorai.data];
+      const valid=traces.every((trace)=>
+        trace?.verification?.parity===true &&
+        Number(trace?.result)===Number(label)
+      );
+      if(!valid){
+        setConvergenceStatus("unverified");
+        return;
+      }
+
+      try{
+        const routes=[
+          {expression:"אופק אדנק",methodKey:"מילוי",variantSource:"engine_default",engineTrace:{...traces[0],engine_verified:true,value:Number(traces[0].result)}},
+          {expression:"התגלות",methodKey:"מסתתר",engineTrace:{...traces[1],engine_verified:true,value:Number(traces[1].result)}},
+          {expression:"וראית את אחרי",methodKey:"רגיל",engineTrace:{...traces[2],engine_verified:true,value:Number(traces[2].result)}},
+        ];
+        const scene=compileConvergenceScene({
+          convergenceId:"golden-1237-ofek-hitgalut-achorai",
+          value:Number(label),
+          routes,
+        });
+        const motion=compileMotionProjection(scene,{projectionId:"tzofen-batarbut-001-1237"});
+        setConvergenceScene(scene);
+        setConvergenceMotion(motion);
+        setConvergenceStatus("ready");
+      }catch{
+        setConvergenceStatus("unverified");
+      }
+    });
+
+    return () => { active=false; };
+  }, [label]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -81,6 +221,28 @@ export default function EntityHubPreviewPage() {
         <div className="sp29-node node-d"><ResearchIcon name="source" tone="heritage" size={20}/><span>מקורות</span></div>
       </div>
     </section>
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; גלוי/מלא/נסתר הם מצבי תצוגה בלבד — שיטת החישוב נשארת מילוי.</p></div>
+      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
+      <LetterAnatomyGolden2029 scene={anatomyScene} mode={anatomyMode}/>
+      {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
+      {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
+    </section> : null}
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="mistater-tension-title" data-experience-surface="golden-1237-mistater">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · MISTATER TENSION</span><h2 id="mistater-tension-title">התגלות — מתח בין האותיות</h2></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות. כל ערך מגיע ישירות מ־gematria_method_trace המאומת; האנימציה אינה מחשבת אמת.</p></div>
+      <MistaterTensionGolden2029 scene={mistaterScene}/>
+      {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
+      {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
+    </section> : null}
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="convergence-1237-title" data-experience-surface="golden-1237-convergence">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · CONVERGENCE</span><h2 id="convergence-1237-title">שלושה נתיבים — 1237 אחד</h2></div><p>אופק אדנק במילוי, התגלות במסתתר, וראית את אחרי ברגיל. שלושתם מאומתים בנפרד ורק אחר כך נפגשים.</p></div>
+      <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
+      {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
+      {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
+    </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
       <div className="sp29-section-head"><div><span>PRODUCT SIGNATURES · SPATIAL READY</span><h2 id="sp29-tools-title">כל כלי מקבל נוכחות משלו במרחב</h2></div><p>אותו glyph עובר מאייקון קטן → Signature → ייצוג מרחבי, בלי להחליף זהות.</p></div>
