@@ -325,8 +325,9 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - After Posts passes, reuse the same visual primitives/language for **World second** and **Home third**. Do not establish page-local visual systems.
 - High-fidelity design may begin immediately in this lane after the global shell/availability contract is frozen; replaceable presentation is allowed to move aggressively while semantic hooks, truth/access states, responsive behavior and canonical identities remain stable.
-- A **2029 Public Cutover** may occur only after the minimum public slice passes its release/crawler/redirect/SEO checks and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
-- G4 remains the formal Golden-experience gate. This transition lane prepares the shell and first visual Goldens; it does not mark a capability Golden or satisfy G4 acceptance by itself.
+- G4 must begin with the **Posts Index + Post Golden** over this frozen shell. The first public-cutover decision cannot precede that real Golden acceptance; this keeps the sequence bottom-up and prevents design readiness from masquerading as experience acceptance.
+- A **2029 Public Cutover** may occur only after that first Posts Golden passes, the minimum public slice passes its release/crawler/redirect/SEO checks, and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
+- G4 remains the formal Golden-experience gate. This transition lane prepares the shell and high-fidelity design, but it does not mark a capability Golden or satisfy G4 acceptance by itself. After Posts/cutover, continue G4 with World second and Home third over the same visual system.
 
 ## Later program sequence
 
