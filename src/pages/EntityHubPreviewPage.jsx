@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";\nimport LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";\nimport "../components/experience2029/letterAnatomyGolden2029.css";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -26,7 +26,7 @@ export default function EntityHubPreviewPage() {
   const { key = "1237" } = useParams();
   const label = decodeURIComponent(String(key || "1237"));
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
-  const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
+  const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";\n  const [anatomyMode,setAnatomyMode]=useState("visible");
 
   useEffect(() => {
     const root = document.documentElement;
@@ -81,6 +81,12 @@ export default function EntityHubPreviewPage() {
         <div className="sp29-node node-d"><ResearchIcon name="source" tone="heritage" size={20}/><span>מקורות</span></div>
       </div>
     </section>
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; רק עומק הייצוג משתנה.</p></div>
+      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
+      <LetterAnatomyGolden2029 mode={anatomyMode}/>
+    </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
       <div className="sp29-section-head"><div><span>PRODUCT SIGNATURES · SPATIAL READY</span><h2 id="sp29-tools-title">כל כלי מקבל נוכחות משלו במרחב</h2></div><p>אותו glyph עובר מאייקון קטן → Signature → ייצוג מרחבי, בלי להחליף זהות.</p></div>
