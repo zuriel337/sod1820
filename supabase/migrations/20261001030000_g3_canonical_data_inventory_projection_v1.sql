@@ -4,6 +4,7 @@
 -- + admin_retention_preview() classes + analytics_cache capacity snapshots (read only).
 -- No persistent inventory table, no second registry, no writes, no cron, no purge.
 -- Anything the crosswalk does not map stays explicit: owner_pointer/role/disposition = 'UNKNOWN'.
+-- V2 owner-map extension: evidence per row lives in the crosswalk doc section 'G3 owner-map extension'.
 -- The embedded crosswalk VALUES list is a pointer mirror of the doc; live owners/DB win if it drifts.
 
 create or replace function public.admin_canonical_data_inventory_v1()
@@ -49,6 +50,46 @@ begin
     ('site_visits','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','BOUNDED_RUNTIME_120D','BOUNDED_RUNTIME_120D','admin_retention_preview','ZURIEL Human Gate 2026-09-30'),
     ('events','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','BOUNDED_RUNTIME_120D','BOUNDED_RUNTIME_120D','admin_retention_preview','monthly partitions; ZURIEL Human Gate 2026-09-30'),
     ('work_log','Coordination Ledger (work_log law)','COORDINATION_PROVENANCE','KEEP_OWNER','PROVENANCE_PROTECTED','admin_retention_preview','KEEP_FOREVER; archived routing state only')
+    ,('_audit_pass4_promotable_20260829','media/source placement owner','STORAGE_CLEANUP_AUDIT_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('_cleanup_manifest_hugeit_20260828','media/source placement owner','STORAGE_CLEANUP_MANIFEST_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('_gw_backup','Gematria owners','GEMATRIA_WORDS_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('gematria_words_full_backup_20260616','Gematria owners','GEMATRIA_WORDS_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('_ragil_fix_backup_20260616','Gematria owners','GEMATRIA_WORDS_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('posts_img_backup','Post owner','POST_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('posts_seo_backup','Post owner','POST_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('torah_stream_bak_20260818','els_research_layer_law v9','ELS_STREAM_BACKUP_SNAPSHOT','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('torah_stream_stg','els_research_layer_law v9','ELS_STREAM_STAGING','REVIEW_FOR_RETIREMENT',null,null,'no readers; removal only after ZURIEL Human Gate')
+    ,('torah_stream','els_research_layer_law v9','ELS_CANONICAL_TORAH_STREAM','KEEP_OWNER',null,null,'ELS owner only')
+    ,('tanakh_stream','els_research_layer_law v9','ELS_CANONICAL_TANAKH_STREAM','KEEP_OWNER',null,null,'ELS owner only')
+    ,('tanach_verses','research_intake_foundation_contract_law v13 / corpus_admission_foundation_v1','TANAKH_CORPUS_SOURCE_TEXT','KEEP_SOURCE',null,null,'corpus/source placement only')
+    ,('words','Gematria owners','LEGACY_WORD_VALUE_LEXICON','COMPATIBILITY / HUMAN_REVIEW',null,null,'no new semantic authority; cutover to gematria_words via Gematria owners')
+    ,('bidim','Gematria owners','DERIVED_METHOD_CROSS_INDEX','OPERATIONAL_RUNTIME',null,null,'derived; rebuilt by bidim_sync, no semantic writes')
+    ,('maftech_lexicon','Gematria owners','DERIVED_METHOD_LEXICON','OPERATIONAL_RUNTIME',null,null,'read only by fn_maftech_decompose')
+    ,('convergences','cross_vs_convergence_criteria v4','CONVERGENCE_RECORDS','KEEP_OWNER',null,null,'through Convergence owner only')
+    ,('comments','Post owner','POST_CONVERSATION_SOURCE','KEEP_SOURCE',null,null,'through Post owner')
+    ,('post_share_counts','Post owner','POST_SHARE_COUNTER','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('legacy_traffic','traffic_intelligence_law v11','LEGACY_HISTORICAL_TRAFFIC','COMPATIBILITY / HUMAN_REVIEW',null,null,'historical read only; no new semantic writes')
+    ,('contributors','person_foundation_contract_law v6','CONTRIBUTOR_IDENTITY_SOURCE','KEEP_OWNER',null,null,'through Person owner')
+    ,('contribution_links','research_contribution_law v9','CONTRIBUTION_LINK_PIPELINE','KEEP_OWNER',null,null,'contribution input; never replacement Truth store')
+    ,('g3_openweb_import_stage','research_contribution_law v9','IMPORT_STAGING','COMPATIBILITY / HUMAN_REVIEW',null,null,'staging only; removal after import closure Human Gate')
+    ,('visitor_identity','person_foundation_contract_law v6','VISITOR_PERSON_IDENTITY_LINK','KEEP_OWNER',null,null,'through Person owner')
+    ,('sod_id_registry','person_foundation_contract_law v6','DEVICE_SOD_ID_REGISTRY','KEEP_OWNER',null,null,'through Person owner')
+    ,('user_activity','traffic_intelligence_law v11','USER_ENGAGEMENT_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('page_views','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('search_log','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('traffic_history','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('crawl_daily','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('edge_geo_log','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('edge_ua_seen','traffic_intelligence_law v11','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('gsc_metrics','traffic_intelligence_law v11','SEARCH_CONSOLE_MEASUREMENT','OPERATIONAL_RUNTIME',null,null,'service_role write by gsc-sync only')
+    ,('security_log','system_suggestions_law v5','SECURITY_INCIDENT_LOG','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('op_trace_spans','system_suggestions_law v5','OPERATIONAL_TRACE_SPANS','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('bot_health','WhatsApp source ingress owner','OPERATIONAL_RUNTIME','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('ai_analysis_log','ai_analyze_contract v2','AI_COMPLETION_LOG','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('ai_token_log','ai_analyze_contract v2','AI_COST_LOG','OPERATIONAL_RUNTIME',null,null,'operational only')
+    ,('inbound_emails','source ingress owner','SOURCE_INGRESS_PROVENANCE','KEEP_SOURCE',null,null,'source intake only')
+    ,('newsletter_campaigns','subscription_funnel_law v19','NEWSLETTER_SEND_LOG','OPERATIONAL_RUNTIME',null,null,'service_role write by send-newsletter only')
+    ,('media_migration_queue','media/source placement owner','MEDIA_MIGRATION_QUEUE','OPERATIONAL_RUNTIME',null,null,'operational only; no new semantic authority')
   ),
   rel as (
     select c.oid, c.relname::text as obj, c.relkind, c.relrowsecurity, c.relforcerowsecurity,
