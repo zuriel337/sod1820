@@ -494,3 +494,116 @@ export function compileTriangleMethodScene({ expression, methodKey, methodTrace 
     projection_kind: contract.projectionKind,
   };
 }
+
+
+// ===== REGULAR / VISIBLE LETTER LEDGER =====
+// Consumes the canonical LETTER_LEDGER trace for רגיל. The renderer may emphasize
+// visible letters and source context, but it never recomputes the numeric result.
+export function compileRegularLedgerScene({ expression, methodTrace, sourceRef = null }, { focusId = null } = {}) {
+  assertCanonicalMethodTrace(methodTrace, "רגיל", "LETTER_LEDGER");
+  if (!expression || methodTrace.input !== expression || !Array.isArray(methodTrace.steps)) {
+    throw new Error("REGULAR_LEDGER_TRACE_INPUT_MISMATCH");
+  }
+
+  const subjectId = `regular-ledger:${expression}`;
+  const sceneNodes = [{
+    id: subjectId,
+    kind: "expression",
+    label: expression,
+    subtitle: "רגיל · האותיות הגלויות",
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 0, z: 0 },
+    ref: {
+      type: "gematria_method_trace",
+      methodKey: "רגיל",
+      traceKind: methodTrace.trace_kind,
+      sourceRef,
+      projection_only: true,
+      trace: methodTrace,
+    },
+  }];
+  const sceneRelations = [];
+  let sum = 0;
+  let visibleIndex = 0;
+
+  methodTrace.steps.forEach((step, stepIndex) => {
+    const token = String(step.token || "");
+    const contribution = Number(step.contribution);
+    const baseValue = Number(step.base_value);
+    if (!Number.isFinite(contribution) || !Number.isFinite(baseValue) || contribution !== baseValue) {
+      throw new Error("REGULAR_LEDGER_TRACE_STEP_MISMATCH");
+    }
+    sum += contribution;
+    if (!token.trim()) return;
+
+    const id = `regular-letter:${stepIndex}:${token}`;
+    sceneNodes.push({
+      id,
+      kind: "visible_letter",
+      label: token,
+      subtitle: String(contribution),
+      truthTier: TRUTH_TIERS.FACT,
+      position: { x: visibleIndex * 1.1, y: 0.9, z: 0 },
+      ref: {
+        type: "regular_letter_step",
+        methodKey: "רגיל",
+        stepIndex,
+        token,
+        contribution,
+        source: "canonical_method_trace",
+        projection_only: true,
+      },
+    });
+    sceneRelations.push({
+      id: `rel:${subjectId}->${id}`,
+      from: subjectId,
+      to: id,
+      kind: "contains_visible_letter",
+      explanation: `${token} = ${contribution}`,
+    });
+    visibleIndex += 1;
+  });
+
+  if (sum !== methodTrace.result) throw new Error("REGULAR_LEDGER_TRACE_TOTAL_MISMATCH");
+
+  const resultId = `regular-result:${methodTrace.result}`;
+  sceneNodes.push({
+    id: resultId,
+    kind: "engine_result",
+    label: String(methodTrace.result),
+    subtitle: "רגיל",
+    truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 2.1, z: 0 },
+    ref: {
+      type: "engine_result",
+      methodKey: "רגיל",
+      value: methodTrace.result,
+      engine_verified: true,
+      trace: methodTrace,
+    },
+  });
+  sceneRelations.push({
+    id: `rel:${subjectId}->${resultId}`,
+    from: subjectId,
+    to: resultId,
+    kind: "engine_result",
+    explanation: "canonical engine result from visible-letter ledger",
+  });
+
+  const focused = focusId && sceneNodes.some((n) => n.id === focusId) ? focusId : subjectId;
+  return {
+    subjectId,
+    sceneNodes,
+    sceneRelations,
+    availableActions: buildAvailableActions({
+      subjectId,
+      sceneNodes,
+      sceneRelations,
+      focused,
+      lensKeys: ["visible", "source", "result"],
+    }),
+    lens: "visible",
+    focusId: focused,
+    projection_kind: "regular_visible_letter_ledger",
+  };
+}
