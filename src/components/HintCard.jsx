@@ -18,7 +18,7 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
   const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
   const desc = h.description ? stripHtml(h.description) : null;
   const added = streamLabel(h);   // 🌊 «נוסף לזרם» — מתי התמונה נכנסה לזרם (לא מתי האירוע קרה)
-  const postSlug = hintPostSlug(h);   // 📖 פוסט מקושר (ocr_meta.post_slug) — אם קיים, הרמז מפנה גם לפוסט המלא
+  const postSlug = hintPostSlug(h);   // 📖 פוסט מקושר (ocr_meta.post_slug) — אם קיים, הרמז מפנה גם לפוסט המלא\n  const videoUrl = h?.ocr_meta?.video_url || (/\\.(mp4|mov|webm|m4v)(\\?|#|$)/i.test(h?.image_url || "") ? h.image_url : null);
 
   return (
     <article className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
@@ -38,7 +38,7 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
         <span className="rs-shade" />
         {fresh && <span className="rs-new">🆕 חדש</span>}
         {v != null && <Link to={`/number/${v}`} className="rs-num" onClick={e => e.stopPropagation()} title="לדף המספר">{v}</Link>}
-        <span className="rs-zoom" aria-hidden>⤢</span>
+        <span className="rs-zoom" aria-hidden>{videoUrl ? "▶" : "⤢"}</span>
         {onAddToStream && (
           <button
             onClick={e => { e.stopPropagation(); onAddToStream(); }}
