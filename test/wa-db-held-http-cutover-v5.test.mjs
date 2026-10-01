@@ -114,10 +114,10 @@ const okFetch = (log) => async (url, init) => { log.push({ url, body: JSON.parse
 // retry / backoff / terminal failure
 {
   const rows = [mk({ done_key: "na:r" })]; const sb = makeSb(rows); const log = [];
-  const f503 = async () => { log.push(1); return new Response("x", { status: 503 }); };
-  await drain(sb, null, { fetchImpl: f503 }); assert.equal(rows[0].status, "pending"); assert.equal(rows[0].attempts, 1);
-  await drain(sb, null, { fetchImpl: f503 }); assert.equal(log.length, 1, "backoff blocks immediate resend");
-  rows[0].next_at = 0; rows[0].attempts = 4; await drain(sb, null, { fetchImpl: f503 }); assert.equal(rows[0].status, "failed");
+  const f429 = async () => { log.push(1); return new Response("x", { status: 429 }); };
+  await drain(sb, null, { fetchImpl: f429 }); assert.equal(rows[0].status, "pending"); assert.equal(rows[0].attempts, 1);
+  await drain(sb, null, { fetchImpl: f429 }); assert.equal(log.length, 1, "backoff blocks immediate resend");
+  rows[0].next_at = 0; rows[0].attempts = 4; await drain(sb, null, { fetchImpl: f429 }); assert.equal(rows[0].status, "failed");
   const r4 = [mk({ done_key: "na:4" })]; await drain(makeSb(r4), null, { fetchImpl: async () => new Response("{}", { status: 400 }) }); assert.equal(r4[0].status, "failed");
 }
 // link-code: no transcript, OTP redacted after send, exact-ref truth, no leakage in response
@@ -168,10 +168,10 @@ const okFetch = (log) => async (url, init) => { log.push({ url, body: JSON.parse
 // ---- V5A: link-code OTP scrubbed on EVERY terminal state, kept while pending/retry ----
 {
   const otp = "code 654321";
-  const f503 = async () => new Response("x", { status: 503 });
+  const f429 = async () => new Response("x", { status: 429 });
   const f400 = async () => new Response("{}", { status: 400 });
   const retry = [mk({ done_key: "lc:r", bot: "link-code", reply: otp })];
-  await drain(makeSb(retry), null, { fetchImpl: f503 });
+  await drain(makeSb(retry), null, { fetchImpl: f429 });
   assert.equal(retry[0].status, "pending"); assert.equal(retry[0].reply, otp, "pending/retry keeps OTP for delivery");
   const failed = [mk({ done_key: "lc:f", bot: "link-code", reply: otp, payload: { image_url: "https://x.test/a.png" } })];
   await drain(makeSb(failed), null, { fetchImpl: f400 });
@@ -197,7 +197,36 @@ const okFetch = (log) => async (url, init) => { log.push({ url, body: JSON.parse
 }
 assert.equal(classify({ http_status: 200, result: { idMessage: "x" } }), "sent");
 assert.equal(classify({ http_status: 200, result: {} }), "failed");
-assert.equal(classify({ ok: false, error: "timeout" }), "retry");
+assert.equal(classify({ ok: false, error: "timeout" }), "failed");
+assert.equal(classify({ http_status: 429 }), "retry");
+for (const st of [500, 502, 503, 504, 0, 400, 401, 403, 404]) assert.equal(classify({ http_status: st }), "failed", "status " + st);
+// ---- V6A: ambiguous post-dispatch outcomes fail closed, never a second claim/send ----
+for (const bot of ["system", "link-code"]) {
+  const cases = {
+    abort: async () => { const e = new Error("aborted"); e.name = "AbortError"; throw e; },
+    network: async () => { throw new TypeError("network down"); },
+    s500: async () => new Response("x", { status: 500 }),
+    s503: async () => new Response("x", { status: 503 }),
+  };
+  for (const [name, f] of Object.entries(cases)) {
+    const rows = [mk({ done_key: "amb:" + bot + name, bot })]; const sb = makeSb(rows); let calls = 0;
+    const fi = async (...a) => { calls++; return f(...a); };
+    await drain(sb, null, { fetchImpl: fi });
+    assert.equal(rows[0].status, "failed", bot + " " + name + " => failed");
+    rows[0].next_at = 0;
+    await drain(sb, null, { fetchImpl: fi });
+    assert.equal(calls, 1, bot + " " + name + ": no second claim/send");
+  }
+}
+{ // 429 retries with backoff, then 2xx+idMessage sends
+  const rows = [mk({ done_key: "amb:429" })]; const sb = makeSb(rows);
+  await drain(sb, null, { fetchImpl: async () => new Response("x", { status: 429 }) });
+  assert.equal(rows[0].status, "pending");
+  rows[0].next_at = 0; await drain(sb, null, { fetchImpl: async () => new Response(JSON.stringify({ idMessage: "M" }), { status: 200 }) });
+  assert.equal(rows[0].status, "sent");
+}
+// header/comments must not claim retry on ambiguous outcomes
+assert.doesNotMatch(fs.readFileSync("supabase/functions/wa-system-outbox/core.ts", "utf8"), /timeout \/ transport/);
 assert.equal(buildCall(mk({ payload: {} })).method, "sendMessage");
 
 // ---- client wrapper truth ----
