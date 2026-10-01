@@ -4,6 +4,12 @@
 // deno-lint-ignore-file no-explicit-any
 import { waAdmin } from "../_shared/waGreen.ts";
 
+export const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info, x-supabase-api-version",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Cache-Control": "no-store",
+};
 export const REF_RE = /^[A-Za-z0-9:_-]{1,80}$/;
 type Row = { done_key: string; bot: string; chat_id: string; reply: string; payload: any; attempts: number };
 
@@ -50,7 +56,8 @@ export async function drain(sb: any, ref: string | null, opts: { fetchImpl?: typ
 }
 
 export async function handle(req: Request, sb: any, opts: { fetchImpl?: typeof fetch } = {}): Promise<Response> {
-  const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+  const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS }); // before any RPC
   if (req.method !== "POST" && req.method !== "GET") return json({ ok: false }, 405);
   let ref: string | null = new URL(req.url).searchParams.get("ref");
   if (!ref && req.method === "POST") {
