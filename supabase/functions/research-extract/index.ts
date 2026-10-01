@@ -264,6 +264,12 @@ async function extractText(content: string, source: string, source_ref: string |
   const witnessLanguage = sourceWitnessLanguage(content, source_lang);
   const modelSpanId = crypto.randomUUID();
   const modelStartedAt = new Date().toISOString();
+  // Person-owner linkage only from canonical identity (verified WA link / person: ref). null = unresolved/anon; never invented.
+  let ownerPersonId: string | null = null;
+  if (source_ref) {
+    const { data: ownerId } = await sb.rpc("fn_research_resolve_owner_person", { p_source_ref: source_ref });
+    ownerPersonId = (typeof ownerId === "string" && ownerId) ? ownerId : null;
+  }
 
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -407,7 +413,7 @@ async function extractText(content: string, source: string, source_ref: string |
       };
 
       const { error: insErr } = await sb.from("research_objects").insert({
-        kind, statement, terms, value, relates, source, source_ref: ref, contributor,
+        kind, statement, terms, value, relates, source, source_ref: ref, contributor, owner_person_id: ownerPersonId,
         confidence: (o?.confidence != null && !isNaN(+o.confidence)) ? Math.trunc(+o.confidence) : null,
         engine_verified, engine_detail, evidence: String(o?.evidence || "").slice(0, 600), status: "candidate",
         meta: presentationMeta,
