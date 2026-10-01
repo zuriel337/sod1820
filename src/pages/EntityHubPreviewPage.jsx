@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";
 import "../components/experience2029/letterAnatomyGolden2029.css";
+import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
+import "../components/experience2029/mistaterTensionGolden2029.css";
 import { supabase } from "../lib/supabase.js";
 import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileMistaterTensionScene } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -35,6 +37,8 @@ export default function EntityHubPreviewPage() {
   const [anatomyMode,setAnatomyMode]=useState("visible");
   const [anatomyScene,setAnatomyScene]=useState(null);
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
+  const [mistaterScene,setMistaterScene]=useState(null);
+  const [mistaterStatus,setMistaterStatus]=useState("idle");
 
   useEffect(() => {
     let active=true;
@@ -70,6 +74,33 @@ export default function EntityHubPreviewPage() {
         setAnatomyStatus("ready");
       }catch{
         setAnatomyStatus("unverified");
+      }
+    });
+    return () => { active=false; };
+  }, [label]);
+
+  useEffect(() => {
+    let active=true;
+    if(label!=="1237"){
+      setMistaterScene(null);
+      setMistaterStatus("idle");
+      return () => { active=false; };
+    }
+    setMistaterScene(null);
+    setMistaterStatus("loading");
+    supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }).then(({data,error})=>{
+      if(!active) return;
+      const value=Number(data?.result);
+      if(error||data?.verification?.parity!==true||!Number.isSafeInteger(value)||value!==Number(label)){
+        setMistaterStatus("unverified");
+        return;
+      }
+      try{
+        const scene=compileMistaterTensionScene({expression:"התגלות",methodTrace:data});
+        setMistaterScene(scene);
+        setMistaterStatus("ready");
+      }catch{
+        setMistaterStatus("unverified");
       }
     });
     return () => { active=false; };
@@ -135,6 +166,13 @@ export default function EntityHubPreviewPage() {
       <LetterAnatomyGolden2029 scene={anatomyScene} mode={anatomyMode}/>
       {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
       {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
+    </section> : null}
+
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="mistater-tension-title" data-experience-surface="golden-1237-mistater">
+      <div className="sp29-section-head"><div><span>GOLDEN 1237 · MISTATER TENSION</span><h2 id="mistater-tension-title">התגלות — מתח בין האותיות</h2></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות. כל ערך מגיע ישירות מ־gematria_method_trace המאומת; האנימציה אינה מחשבת אמת.</p></div>
+      <MistaterTensionGolden2029 scene={mistaterScene}/>
+      {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
+      {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
     </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
