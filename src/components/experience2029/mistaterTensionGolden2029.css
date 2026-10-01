@@ -1,7 +1,8 @@
 .sod29-mistater-tension{direction:rtl;max-width:900px;margin:auto;padding:34px 20px;text-align:center}
 .sod29-mistater-tension header small{color:var(--cyan);font-weight:900;letter-spacing:.08em}
 .sod29-mistater-tension h2{font-size:clamp(2.2rem,8vw,5rem);margin:.22em 0 .65em}
-.sod29-mistater-tension__chain{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;overflow-x:auto;padding:18px 8px 24px;scrollbar-width:thin}
+.sod29-mistater-tension__chain{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:nowrap;overflow-x:auto;padding:18px 8px 24px;scrollbar-width:thin}
+.sod29-mistater-tension__word{display:inline-flex;align-items:center;flex:0 0 auto}
 .sod29-mistater-tension__letter{display:inline-grid;place-items:center;min-width:58px;position:relative}
 .sod29-mistater-tension__letter b{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1}
 .sod29-mistater-tension__letter small{margin-top:7px;color:var(--muted);font-size:.78rem}
