@@ -3,6 +3,7 @@
 // → שולח תשובה עמוקה מצוטטת → מוסיף למאגר → מסמן done. הכל מאומת במנוע.
 // G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
@@ -104,7 +105,7 @@ Deno.serve(async (req) => {
       const cross = crossLines.length ? "\n" + crossLines.join("\n") : "";
       const msg = `📿 העמקה על *${phrase}*${strongLine}${cross}\n\n*עובדה:* הכל חושב במנוע. *רמז:* פרשנות משלימה, לא עובדה.\n${SIGN}`;
 
-      await sb.rpc("wa_admin", { p_method: "sendMessage", p_payload: { chatId: row.chat_id, message: msg, quotedMessageId: row.msg_id }, p_http: "POST" });
+      await waGreen(sb, "sendMessage", { chatId: row.chat_id, message: msg, quotedMessageId: row.msg_id }, "POST");
 
       const vip = isVipSender(row.sender as string, row.sender_name as string);
       const who = row.sender_name ? String(row.sender_name) : null;

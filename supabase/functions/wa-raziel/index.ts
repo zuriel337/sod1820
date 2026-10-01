@@ -3,6 +3,7 @@
 // Deploy with verify_jwt=false because the handler enforces its own service-to-service boundary.
 // v47 behavior remains: Single-Mind Trunk Closure: metatron_context before each normal response.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -129,11 +130,11 @@ async function logRazielTokens(usage, t, spanId) {
 }
 
 async function waAdmin(method, payload) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "POST" });
+  const data = await waGreen(sb, method, payload, "POST");
   return data;
 }
 async function waAdminGet(method, payload) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "GET" });
+  const data = await waGreen(sb, method, payload, "GET");
   return data;
 }
 function pick(v) { return (Array.isArray(v) ? v : (v?.result ?? [])); }

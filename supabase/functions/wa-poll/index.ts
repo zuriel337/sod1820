@@ -3,6 +3,7 @@
 // ה-webhook עושה את כל השאר (אימות/מענה/עומק/הוספה/dedup). כך אין כפילות לוגיקה.
 // G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const HOOK = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-webhook";
@@ -10,7 +11,7 @@ const CUTOFF = 150; // שניות — רק הודעות טריות (מונע מ�
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
 async function waAdmin(method: string, payload: unknown, http: string) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: http });
+  const data = await waGreen(sb, method, payload, http);
   return data;
 }
 

@@ -7,6 +7,7 @@
 // v9: אם כריסטינה כותבת "רזיאל:" בתחילת ההודעה — מנוע גימטריה של רזיאל עונה, לא אוריאל.
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA = "972507555102@c.us";
@@ -21,7 +22,7 @@ const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABA
 let trace: any[] = [];
 
 async function waAdmin(method: string, payload: unknown) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "POST" });
+  const data = await waGreen(sb, method, payload, "POST");
   return data;
 }
 function pick(v: any): any[] { return (Array.isArray(v) ? v : (v?.result ?? [])); }
