@@ -246,7 +246,8 @@ function PostReadingBody() {
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
-    data-experience-surface="post-reading"\n    data-experience-capability="post-master-reading-stage"
+    data-experience-surface="post-reading"
+    data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
