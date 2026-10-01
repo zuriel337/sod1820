@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildWordLetterAnatomySpecs } from "../src/lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileConvergenceScene, compileMotionProjection, compileMistaterTensionScene, compileTriangleMethodScene } from "../src/lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileConvergenceScene, compileMotionProjection, compileMistaterTensionScene, compileTriangleMethodScene, compileRegularLedgerScene } from "../src/lib/spatial/semanticSceneCompiler.js";
 
 test("Letter Anatomy keeps numeric truth out of specs and compiles engine result",()=>{
   const specs=buildWordLetterAnatomySpecs("אופק אדנק");
@@ -172,4 +172,50 @@ test("1237 convergence Experience is trace-driven and preserves the three canoni
   assert.match(hub,/p_method_key: "רגיל", p_phrase: "וראית את אחרי"/);
   assert.match(hub,/compileConvergenceScene/);
   assert.match(hub,/compileMotionProjection/);
+});
+
+
+test("Regular ledger consumes canonical visible-letter trace without recomputing truth",()=>{
+  const trace={
+    input:"וראית את אחרי",
+    steps:[
+      {index:1,token:"ו",base_value:6,contribution:6,running_subtotal:6},
+      {index:2,token:"ר",base_value:200,contribution:200,running_subtotal:206},
+      {index:3,token:"א",base_value:1,contribution:1,running_subtotal:207},
+      {index:4,token:"י",base_value:10,contribution:10,running_subtotal:217},
+      {index:5,token:"ת",base_value:400,contribution:400,running_subtotal:617},
+      {index:6,token:" ",base_value:0,contribution:0,running_subtotal:617},
+      {index:7,token:"א",base_value:1,contribution:1,running_subtotal:618},
+      {index:8,token:"ת",base_value:400,contribution:400,running_subtotal:1018},
+      {index:9,token:" ",base_value:0,contribution:0,running_subtotal:1018},
+      {index:10,token:"א",base_value:1,contribution:1,running_subtotal:1019},
+      {index:11,token:"ח",base_value:8,contribution:8,running_subtotal:1027},
+      {index:12,token:"ר",base_value:200,contribution:200,running_subtotal:1227},
+      {index:13,token:"י",base_value:10,contribution:10,running_subtotal:1237},
+    ],
+    result:1237,
+    method_key:"רגיל",
+    trace_kind:"LETTER_LEDGER",
+    verification:{parity:true,trace_value:1237,canonical_value:1237},
+  };
+  const scene=compileRegularLedgerScene({
+    expression:"וראית את אחרי",
+    methodTrace:trace,
+    sourceRef:{book:"שמות",chapter:33,verse:23},
+  });
+  assert.equal(scene.projection_kind,"regular_visible_letter_ledger");
+  assert.equal(scene.sceneNodes.filter(n=>n.kind==="visible_letter").length,11);
+  assert.equal(scene.sceneNodes.find(n=>n.kind==="engine_result").label,"1237");
+  assert.deepEqual(scene.sceneNodes[0].ref.sourceRef,{book:"שמות",chapter:33,verse:23});
+});
+
+test("Regular verse Experience requires both canonical trace and canonical source lookup",()=>{
+  const component=readFileSync(new URL("../src/components/experience2029/RegularVerseGolden2029.jsx",import.meta.url),"utf8");
+  const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
+  assert.equal(component.includes("1237"),false);
+  assert.match(component,/שמות לג:כג/);
+  assert.match(component,/הפסוק הוא הקשר המקור/);
+  assert.match(hub,/from\("tanach_verses"\)/);
+  assert.match(hub,/compileRegularLedgerScene/);
+  assert.match(hub,/golden-1237-regular/);
 });
