@@ -3,6 +3,7 @@
 // יושר: תעתוק בלבד — לא מחשב גימטריה כאן (זה נעשה במנוע אחר כך).
 // G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
@@ -22,7 +23,7 @@ function toBase64(buf: ArrayBuffer): string {
   return btoa(bin);
 }
 async function downloadUrl(chatId: string, idMessage: string): Promise<string> {
-  const { data } = await sb.rpc("wa_admin", { p_method: "downloadFile", p_payload: { chatId, idMessage }, p_http: "POST" });
+  const data = await waGreen(sb, "downloadFile", { chatId, idMessage }, "POST");
   return (data as { result?: { downloadUrl?: string } })?.result?.downloadUrl || "";
 }
 async function ocr(imageUrl: string) {

@@ -29,11 +29,10 @@ async function objectExists(bucket:string,path:string) {
   return r.ok;
 }
 
-function cappedStream(body:ReadableStream<Uint8Array>, maxBytes:number) {
-  let seen = 0;
+function cappedStream(body:ReadableStream<Uint8Array>, maxBytes:number, counter:{ seen:number } = { seen:0 }) {
   return body.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({ transform(chunk,controller) {
-    seen += chunk.byteLength;
-    if (seen > maxBytes) { controller.error(new Error(`payload exceeds max_bytes (${maxBytes})`)); return; }
+    counter.seen += chunk.byteLength;
+    if (counter.seen > maxBytes) { controller.error(new Error(`payload exceeds max_bytes (${maxBytes})`)); return; }
     controller.enqueue(chunk);
   }}));
 }
@@ -56,7 +55,44 @@ async function sha256Hex(bytes:Uint8Array) {
   return Array.from(d).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
-async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:number }) {
+// Largest object the function re-reads and re-hashes. Bigger objects (multi-GB video) are never
+// hashed server-side: they are verified on size + mime only and the receipt says so.
+const READBACK_HASH_MAX = 32 * 1024 * 1024;
+
+type Receipt = { kind:string; bucket:string; path:string; mime:string; size:number; sha256:string|null; sha256_verified:boolean; verification:string; verified_at:string };
+
+// Owner-readable (service-role) Storage read-back. Storage accepting the write is transport only;
+// this is the completion boundary — the stored object must match what the ticket/source promised.
+async function readBack(t:Ticket, expected:{ size:number|null; sha256:string|null }):Promise<{ ok:true; receipt:Receipt }|{ ok:false; error:string }> {
+  const url = `${SB_URL}/storage/v1/object/authenticated/${t.bucket}/${t.path}`;
+  const headers = { Authorization:`Bearer ${SR}`, apikey:SR };
+  const hashable = !!expected.sha256 && expected.size !== null && expected.size <= READBACK_HASH_MAX;
+  let r:Response;
+  try { r = await fetch(url, { method:hashable ? "GET" : "HEAD", headers }); }
+  catch (e) { return { ok:false, error:`readback_failed:${e}` }; }
+  if (!r.ok) { try { await r.body?.cancel(); } catch { /* ignore */ } return { ok:false, error:`readback_failed:${r.status}` }; }
+  const mime = baseContentType(r.headers.get("content-type") || "");
+  let size = Number(r.headers.get("content-length") || "-1");
+  let sha256:string|null = null;
+  if (hashable) {
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    size = bytes.byteLength;
+    sha256 = await sha256Hex(bytes);
+  }
+  if (mime !== baseContentType(t.mime)) return { ok:false, error:`readback_mismatch:mime ${mime||"(none)"} != ${t.mime}` };
+  if (expected.size !== null && size !== expected.size) return { ok:false, error:`readback_mismatch:size ${size} != ${expected.size}` };
+  if (hashable && sha256 !== expected.sha256) return { ok:false, error:"readback_mismatch:sha256" };
+  return { ok:true, receipt:{
+    kind:"agent_upload_verified_receipt", bucket:t.bucket, path:t.path, mime:t.mime, size,
+    sha256: hashable ? sha256 : null, sha256_verified:hashable,
+    verification: hashable ? "readback_sha256_size_mime" : "readback_size_mime",
+    verified_at:new Date().toISOString(),
+  } };
+}
+
+// Storage write, then governed read-back. Success (verified:true + receipt + artifact_pointer) is
+// only returned when the read-back matches; a mismatch is a 502 with no receipt.
+async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:number|(() => number) }) {
   const r = await fetch(`${SB_URL}/storage/v1/object/${t.bucket}/${t.path}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${SR}`, apikey:SR, "Content-Type":t.mime, "x-upsert":t.allow_overwrite?"true":"false" },
@@ -66,7 +102,10 @@ async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:n
   });
   const d = await r.json().catch(()=>({}));
   if (!r.ok) return json({ ok:false, error:d?.message || d?.error || `storage ${r.status}` }, 502);
-  return json({ ok:true, bucket:t.bucket, path:t.path, mime:t.mime, size:meta?.size ?? null, sha256:meta?.sha256 ?? null, public_url:t.public_url });
+  const size = typeof meta?.size === "function" ? meta.size() : (meta?.size ?? null);
+  const rb = await readBack(t, { size, sha256:meta?.sha256 ?? t.sha256 ?? null });
+  if (!rb.ok) return json({ ok:false, verified:false, error:rb.error, bucket:t.bucket, path:t.path }, 502);
+  return json({ ok:true, verified:true, bucket:t.bucket, path:t.path, mime:t.mime, size:rb.receipt.size, sha256:rb.receipt.sha256, public_url:t.public_url, artifact_pointer:`${t.bucket}/${t.path}`, receipt:rb.receipt });
 }
 
 // Shared tail for the modes that hand us a fully buffered payload (base64, form, url): size and
@@ -168,7 +207,7 @@ Deno.serve(async req => {
     const r = await fetch(`${SB_URL}/storage/v1/object/upload/sign/${t.bucket}/${t.path}`, { method:"POST", headers:{ Authorization:`Bearer ${SR}`, apikey:SR } });
     const d = await r.json().catch(()=>({}));
     if (!r.ok) return json({ ok:false, error:d?.message || `sign ${r.status}` },502);
-    return json({ ok:true, mode:"sign", bucket:t.bucket, path:t.path, mime:t.mime, max_bytes:t.max_bytes, put_url:`${SB_URL}/storage/v1/${String(d.url||"").replace(/^\/+/,"")}`, public_url:t.public_url });
+    return json({ ok:true, mode:"sign", bucket:t.bucket, path:t.path, mime:t.mime, max_bytes:t.max_bytes, put_url:`${SB_URL}/storage/v1/${String(d.url||"").replace(/^\/+/,"")}`, public_url:t.public_url, verified:false, governed_done:false, note:"transport handle only; no verified receipt until the object is read back" });
   }
 
   if (mode === "base64") {
@@ -230,6 +269,7 @@ Deno.serve(async req => {
   const ct = (req.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
   if (ct !== t.mime) return json({ ok:false, error:`content-type ${ct||"(none)"} does not match ticket mime ${t.mime}` },415);
   if (!req.body) return json({ ok:false, error:"empty body" },400);
-  try { return await putBytes(t, cappedStream(req.body,t.max_bytes)); }
+  const counter = { seen:0 };
+  try { return await putBytes(t, cappedStream(req.body,t.max_bytes,counter), { size:() => counter.seen }); }
   catch (e) { return json({ ok:false, error:String(e) },413); }
 });

@@ -161,3 +161,27 @@ Truth-state column preserves each artifact's **own native vocabulary**, per the 
 | `AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P46_57.json` + report | Opens חלק ב' (p.46); 6 new non-1,820 constructions (GRF-P46-01..04); exact p.57->p.58 word-level continuation confirmed ("בהיותך"); one self-caught pp.55/56 mix-up disclosed and corrected before commit | DOSSIER_INDEX row 32 | YES, all content, byte-identical | No — brought into this branch's file tree unmodified by the Source Integrator; content authored by a separate parallel Claude session | Not merged; disjoint parallel writer per coordination partition `ac493139` | Claude (SOURCE_OWNER(P46_57), separate session), integrated by Claude (Source Integrator), Session 16 | Mixed; every raw numeral marked SOURCE CLAIM, none engine-verified | Zero new 1,820/1,830 — consistent with the pp.58-92 parshanut density pattern | Original branch `claude/ahavat-torah-source-46-57-4xuy3y`@`9b250095` retained as the authoritative history; this copy is provenance-identical |
 
 **Update, Session 16 (whole-book serial source integration)** *(new line, does not edit any line above)*: brings the two disjoint parallel batches (pp.36-45, pp.46-57) into this PR's file tree as byte-identical copies (verified via `diff` against their original branch commits before this update), preserving their original branch+commit as the authoritative provenance rather than rewriting history. Combined with this lineage's own pp.16-35 and pp.58-99 batches, **all 99 PDF pages of `book:hebrewbooks:5635` now have durable, committed source-artifact coverage on this branch** — see DOSSIER_INDEX's new "Sessions 10-16" open-items bullet for the exact, non-collapsed coverage-axis verdicts (structural accounting complete; research map sufficient for projection; exact-witness coverage partial; source exhaustion not established). §J accounts for all 11 new artifacts (rows 22-32) from this integration pass; 0 dropped. No DOSSIER_INDEX/CROSSWALK row from any prior session was edited or removed.
+
+## K. GPT Checkpoints 6-8 rehome (`gpt/ahavat-torah-research-ledger-v7`, task G3_ZERO_UNHOMED_AHAVAT_REHOME_V1) — DOSSIER_INDEX artifacts #33-35
+
+| Source artifact (branch@commit) | Home on this tree | Classification | Note |
+|---|---|---|---|
+| `AHAVAT_TORAH_RESEARCH_CHECKPOINT_6.md` @ `00edfe49` | `docs/research-notes/AHAVAT_TORAH_RESEARCH_CHECKPOINT_6.md` | NEW (provenance copy, byte-identical) | Retains D-03 correction; no overlap with an existing row |
+| `AHAVAT_TORAH_RESEARCH_CHECKPOINT_7.md` @ `7e8456aa` | `docs/research-notes/AHAVAT_TORAH_RESEARCH_CHECKPOINT_7.md` | EXTENDS row 13 (stub) | Row 13 unedited |
+| `AHAVAT_TORAH_RESEARCH_CHECKPOINT_8.md` @ `f59e4715` | `docs/research-notes/AHAVAT_TORAH_RESEARCH_CHECKPOINT_8.md` | EXTENDS row 14 (stub) | Row 14 unedited; 18,200 audit open |
+
+Ledger and Checkpoints 2-5: already represented (rows 1-5, §A) as branch pointers; not duplicated. 0 dropped; no existing row edited.
+
+## L. Immutable commit pins for DOSSIER_INDEX rows 1-5 (task G3_ZERO_UNHOMED_POINTER_PIN_FIX_V4)
+
+*Additive; no earlier line edited. Pins the mutable branch pointers of rows 1-5 (§A) to commits verified via `git log`/`git rev-parse <ref>:<path>` on `origin/gpt/ahavat-torah-research-ledger-v7`.*
+
+| Row | Artifact | Last-content commit | Note |
+|---|---|---|---|
+| 1 | `AHAVAT_TORAH_RESEARCH_LEDGER.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `aeb5311c` identical on v2-v7 |
+| 2 | `..._CHECKPOINT_2.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `d10b4e30` identical on v3-v7 |
+| 3 | `..._CHECKPOINT_3.md` | `ddf0202f89f10aac43b665fad2875abf7b5e5a49` | Blob `51074d64` identical on v4-v7 |
+| 4 | `..._CHECKPOINT_4.md` | `280555cb4b44fb2f3676c5775b7de04b5bdd5a82` | Blob `7aef2163` identical on v4-v7 |
+| 5 | `..._CHECKPOINT_5.md` | `bbaf42779dad148d0aec86c92592fcfb13ab7580` | v5-only nuance preserved: v5 head is this commit; v5b/v3/v4 do not carry this blob; v7 (descendant of v5) contains it byte-identical |
+
+Fallback immutable snapshot containing all five: v7 head `f59e4715320d3ebf4a2a24b4805f56ee0217f9a8`. No content copied; no truth upgrade.

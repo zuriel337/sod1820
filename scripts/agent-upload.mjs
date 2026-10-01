@@ -109,6 +109,8 @@ async function upload({ token, mode, bytes, mime, filename }) {
   const r = await fetch(url, { method: "POST", headers, body });
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.ok) throw new Error(`upload failed (${r.status}): ${d.error || "unknown error"}`);
+  // A 200 alone is not completion: the function must return its read-back receipt.
+  if (d.verified !== true || !d.receipt || d.receipt.path !== d.path) throw new Error("upload not verified: agent-upload returned no verified receipt");
   return d;
 }
 

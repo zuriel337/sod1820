@@ -8,6 +8,7 @@
 // 2029 media: new PUBLIC video only -> media/sod1820/2029/video/YYYY/MM/<asset-id>/original.*;
 // legacy URLs are never moved. Private media keeps submission-inbox semantics.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -53,7 +54,7 @@ function canonicalCredit(name: string | null, aliasMap: Map<string, string>): st
 }
 
 async function waAdmin(method: string, payload: unknown, http: string) {
-  const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: http });
+  const data = await waGreen(sb, method, payload, http);
   return data;
 }
 function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {

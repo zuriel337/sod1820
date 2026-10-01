@@ -191,14 +191,22 @@ export async function getMyLinkedPhones() {
   } catch { return []; }
 }
 
-// 🔐 בקשת קוד-אימות בוואטסאפ למספר שהמשתמש הזין (השרת שולח דרך wa_send).
-// מחזיר {ok, sent?, already_linked?, masked?, error?}.
+// 🔐 בקשת קוד-אימות בוואטסאפ למספר שהמשתמש הזין. השרת מכניס שורה ל-bot_outbox (בלי HTTP ובלי הקוד בתשובה);
+// מיד אחר כך מפעילים את wa-system-outbox עם delivery_ref בלבד. sent=true רק אם Edge אישר שאותה שורה נשלחה.
+// מחזיר {ok, queued, sent, delivery_receipt_confirmed:false, already_linked?, masked?, error?}.
 export async function requestWaLinkCode(phone) {
   if (!supabase) return { ok: false, error: "no_client" };
   try {
     const { data, error } = await supabase.rpc("request_wa_link_code", { p_phone: phone });
     if (error) return { ok: false, error: error.message };
-    return data || { ok: false, error: "empty" };
+    if (!data) return { ok: false, error: "empty" };
+    if (data.ok && data.queued && data.delivery_ref) {
+      try {
+        const { data: drain } = await supabase.functions.invoke("wa-system-outbox", { body: { ref: data.delivery_ref } });
+        if (drain && drain.ref_status === "sent") return { ...data, queued: false, sent: true };
+      } catch { /* stays queued; the 2-minute drain will retry */ }
+    }
+    return data;
   } catch (e) { return { ok: false, error: String(e?.message || e) }; }
 }
 

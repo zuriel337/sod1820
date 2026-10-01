@@ -8,6 +8,7 @@ let handler: any;
   env: { get: (k: string) => ({ SUPABASE_SERVICE_ROLE_KEY: "sr-test", SUPABASE_URL: "https://stub.local" } as any)[k] },
   serve: (h: any) => { handler = h; },
 };
+let readBackMode = "ok";
 let stored: Uint8Array | null = null;
 let ticket: any;
 let remoteMode = "ok";
@@ -15,6 +16,11 @@ let remoteMode = "ok";
   const u = String(url);
   if (u.includes("agent_upload_ticket_consume")) return new Response(JSON.stringify(ticket), { status: 200 });
   if (u.includes("/object/info/")) return new Response("{}", { status: 404 });
+  if (u.includes("/object/authenticated/")) {   // governed read-back (service-role Storage read)
+    if (readBackMode === "missing" || !stored) return new Response("{}", { status: 404 });
+    const out = readBackMode === "corrupt" ? new Uint8Array(stored.length).fill(7) : readBackMode === "short" ? stored.slice(0, stored.length - 1) : stored;
+    return new Response(init.method === "HEAD" ? null : out, { status: 200, headers: { "content-type": readBackMode === "wrong-mime" ? "text/plain" : MIME, "content-length": String(out.length) } });
+  }
   if (u.includes("/storage/v1/object/")) {
     stored = new Uint8Array(await new Response(init.body).arrayBuffer());
     return new Response(JSON.stringify({ Key: "ok" }), { status: 200 });

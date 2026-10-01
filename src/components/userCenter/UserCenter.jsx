@@ -585,7 +585,9 @@ function WhatsAppPanel({ T, goto, setActive }) {
     if (!r.ok) { setMsg({ kind: "err", text: waErr(r.error) }); return; }
     setMasked(r.masked || "");
     setStep("code_sent");
-    setMsg({ kind: "ok", text: "שלחנו קוד בן 6 ספרות בוואטסאפ. הזן אותו כאן." });
+    setMsg({ kind: "ok", text: r.sent
+      ? "הקוד נשלח לוואטסאפ שלך. הזן אותו כאן."
+      : "הקוד נשלח לתור השליחה בוואטסאפ — ההגעה עשויה להתעכב מעט. הזן אותו כאן כשיגיע." });
   }
   async function verify() {
     if (busy) return;
@@ -673,7 +675,7 @@ function WhatsAppPanel({ T, goto, setActive }) {
       ) : (
         <>
           <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 8, lineHeight: 1.6 }}>
-            שלחנו קוד למספר {masked ? <b dir="ltr" style={{ direction: "ltr" }}>+{masked}</b> : "שלך"}. לא הגיע? ייתכן שהמספר לא רשום בוואטסאפ — {" "}
+            ביקשנו לשלוח קוד למספר {masked ? <b dir="ltr" style={{ direction: "ltr" }}>+{masked}</b> : "שלך"}. לא הגיע? ייתכן שהמספר לא רשום בוואטסאפ — {" "}
             <button onClick={() => { setStep("idle"); setCode(""); setMsg(null); }} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>שנה מספר</button>.
           </div>
           <input dir="ltr" inputMode="numeric" type="text" maxLength={6} placeholder="––––––" value={code}

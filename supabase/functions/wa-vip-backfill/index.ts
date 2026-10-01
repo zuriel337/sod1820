@@ -4,6 +4,7 @@
 // קלט: group=<chatId>&count=<N>. תמונות נשמרות בתיבה (בלי OCR כאן — לחסוך עלות).
 // G0: internal/manual invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -25,6 +26,22 @@ Deno.serve(async (req) => {
   if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u = new URL(req.url);
   const group = u.searchParams.get("group") || "";
+  if (u.searchParams.get("mode") === "msg_ext") {
+    // Daily wa_msg_ext backfill (replaces DB-held fn_wa_backfill_from_green cron). Dedup stays in
+    // fn_wa_backfill_apply (on conflict do nothing); provider HTTP runs here, never in Postgres.
+    const mcount = Math.min(1000, parseInt(u.searchParams.get("count") || "1000", 10) || 1000);
+    const { data: groups } = await sb.rpc("fn_wa_backfill_groups");
+    const deadline = Date.now() + 50000;
+    let inserted = 0, scanned = 0, skipped = 0;
+    for (const g of (groups || []) as string[]) {
+      if (Date.now() > deadline) { skipped++; continue; }
+      const h = await waGreen(sb, "getChatHistory", { chatId: g, count: mcount }, "POST") as { result?: unknown };
+      if (!Array.isArray(h?.result)) { skipped++; continue; }
+      const { data: n } = await sb.rpc("fn_wa_backfill_apply", { p_group_id: g, p_history: h.result });
+      inserted += Number(n) || 0; scanned++;
+    }
+    return new Response(JSON.stringify({ mode: "msg_ext", scanned, skipped, inserted }), { headers: { "Content-Type": "application/json" } });
+  }
   const count = Math.min(500, parseInt(u.searchParams.get("count") || "300", 10) || 300);
   if (!group) return new Response(JSON.stringify({ error: "no_group" }), { status: 400 });
 
@@ -32,7 +49,7 @@ Deno.serve(async (req) => {
   const isVip = (sender: string, name: string) => (vips || []).some((v: { sender?: string; name_match?: string }) =>
     (v.sender && (sender || "").startsWith(v.sender)) || (v.name_match && (name || "").includes(v.name_match)));
 
-  const { data: hist } = await sb.rpc("wa_admin", { p_method: "getChatHistory", p_payload: { chatId: group, count }, p_http: "POST" });
+  const hist = await waGreen(sb, "getChatHistory", { chatId: group, count }, "POST");
   const msgs = ((hist as { result?: unknown[] })?.result || []) as Array<Record<string, any>>;
 
   let seen = 0, inbox = 0, added = 0, existed = 0;
