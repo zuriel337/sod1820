@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";\nimport LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";\nimport "../components/experience2029/letterAnatomyGolden2029.css";
+import React, { useEffect, useState } from "react";
+import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";
+import "../components/experience2029/letterAnatomyGolden2029.css";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -26,7 +28,8 @@ export default function EntityHubPreviewPage() {
   const { key = "1237" } = useParams();
   const label = decodeURIComponent(String(key || "1237"));
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
-  const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";\n  const [anatomyMode,setAnatomyMode]=useState("visible");
+  const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
+  const [anatomyMode,setAnatomyMode]=useState("visible");
 
   useEffect(() => {
     const root = document.documentElement;
