@@ -40,7 +40,7 @@ export async function waAdmin(
   method: string,
   payload: unknown = null,
   http: string = "POST",
-  opts: { fetchImpl?: typeof fetch; timeoutMs?: number } = {},
+  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; noTranscript?: boolean } = {},
 ): Promise<WaAdminResult> {
   const doFetch = opts.fetchImpl ?? fetch;
   const timeoutMs = opts.timeoutMs ?? WA_TIMEOUT_MS;
@@ -63,7 +63,7 @@ export async function waAdmin(
     }
 
     const p = payload as any;
-    if (method.toLowerCase().startsWith("sendmessage") && p && typeof p === "object" && "message" in p) {
+    if (!opts.noTranscript && method.toLowerCase().startsWith("sendmessage") && p && typeof p === "object" && "message" in p) {
       try {
         await sb.from("bot_transcripts").insert({
           chat_id: p.chatId, message: p.message, http_status: status,

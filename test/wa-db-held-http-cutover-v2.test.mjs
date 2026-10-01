@@ -5,12 +5,8 @@ const m = fs.readFileSync("supabase/migrations/20261001040000_g3_wa_db_held_http
 const code = m.replace(/--.*$/gm, "");
 const edge = fs.readFileSync("supabase/functions/wa-vip-backfill/index.ts", "utf8");
 
-// notify_admin: async pg_net only, no blocking callers
-const na = code.slice(code.indexOf("function public.notify_admin"), code.indexOf("-- Cron cutover") > 0 ? code.indexOf("select cron.alter_job") : undefined);
-assert.match(na, /net\.http_post\(/);
-assert.doesNotMatch(na, /wa_send\s*\(|wa_admin\s*\(|extensions\.http\s*\(/);
-assert.match(na, /wa_green_config\(\)/);
-assert.doesNotMatch(na, /return[^;]*token/i); // secret never returned
+// notify_admin withdrawn from V2 (pg_net Green URL leaks token); rewritten in V5
+assert.doesNotMatch(code, /notify_admin|net\.http_post|wa_green_config/);
 
 // cron: Edge, not DB-held
 const cron = code.slice(code.indexOf("select cron.alter_job"));
