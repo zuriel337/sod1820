@@ -83,13 +83,14 @@ Pointer-only mapping of material relations (>=1000 est. rows or >=1 MiB) found u
 | `inbound_emails` | source ingress owner | SOURCE_INGRESS_PROVENANCE | KEEP_SOURCE | email-inbound/email-reply edge functions; src/lib/supabase.js |
 | `newsletter_campaigns` | subscription_funnel_law v19 | NEWSLETTER_SEND_LOG | OPERATIONAL_RUNTIME | table comment; send-newsletter/send-reengage; admin_growth_center |
 | `media_migration_queue` | media/source placement owner | MEDIA_MIGRATION_QUEUE | OPERATIONAL_RUNTIME | path/dest_key/status cols; admin_system_health only |
+| `xlang_calibration` | content_translation_law v4 | LEGACY_CROSS_LANGUAGE_CALIBRATION_SOURCE | REVIEW_FOR_RETIREMENT | work_log 2b35a009/f5002919/2292ac93/74090e9b + 14.9 Language Hub owner check; method calculation remains canonical_methods_registry |
+| `shiurim_audio` | legacy_content_protocol v2 | LEGACY_PUBLIC_AUDIO_ARCHIVE | REVIEW_FOR_RETIREMENT | work_log 77ffb85f; 1085 Google Drive lesson refs; no repo/DB consumer except static Home link; REVIEW_FOR_REHOME before retirement |
+| `post_qa` | source_truth_vs_context_builder | LEGACY_POST_KNOWLEDGE_EXTRACTION_SNAPSHOT | COMPATIBILITY / HUMAN_REVIEW | active rule names post_qa stored post knowledge; work_log 400d7b98 (1278-row one-hour legacy batch snapshot); metatron_context reader |
+| `discoveries` | unified_discovery_architecture v1 / Research Intake | LEGACY_DISCOVERY_PROJECTION_SOURCE | COMPATIBILITY / HUMAN_REVIEW | G2_GATE2_PRESERVATION_MANIFEST + containment migration; live get_discoveries / ingest_bridges_to_discoveries |
 
-### Blocking GAPs (owner not supported by live evidence — intentionally left UNKNOWN)
+### Blocking GAPs
 
-- `xlang_calibration` — no function, view, FK, code or comment reference; cannot attribute an owner.
-- `shiurim_audio` — only `random_shiurim()` and a client read; no owning law found for audio lessons.
-- `post_qa` — only `metatron_context` reads it; `post_id` suggests Post owner but Q&A/verified semantics are unreconciled.
-- `discoveries` — Metatron/bridge readers, `evidence_level`/`human_verified`/`node_id` fields, FK `discovery_tags`; Research OS vs Truth vs Reality ownership unresolved.
+None. The four former GAPs (`xlang_calibration`, `shiurim_audio`, `post_qa`, `discoveries`) are mapped above in V3 from live work_log/rule evidence; no domain data or semantics changed.
 
 ## Retention safety
 

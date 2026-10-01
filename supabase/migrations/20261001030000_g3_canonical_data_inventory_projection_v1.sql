@@ -4,6 +4,7 @@
 -- + admin_retention_preview() classes + analytics_cache capacity snapshots (read only).
 -- No persistent inventory table, no second registry, no writes, no cron, no purge.
 -- Anything the crosswalk does not map stays explicit: owner_pointer/role/disposition = 'UNKNOWN'.
+-- V3 adds the last 4 material-unmapped rows (evidence in the same doc section).
 -- V2 owner-map extension: evidence per row lives in the crosswalk doc section 'G3 owner-map extension'.
 -- The embedded crosswalk VALUES list is a pointer mirror of the doc; live owners/DB win if it drifts.
 
@@ -90,6 +91,11 @@ begin
     ,('inbound_emails','source ingress owner','SOURCE_INGRESS_PROVENANCE','KEEP_SOURCE',null,null,'source intake only')
     ,('newsletter_campaigns','subscription_funnel_law v19','NEWSLETTER_SEND_LOG','OPERATIONAL_RUNTIME',null,null,'service_role write by send-newsletter only')
     ,('media_migration_queue','media/source placement owner','MEDIA_MIGRATION_QUEUE','OPERATIONAL_RUNTIME',null,null,'operational only; no new semantic authority')
+    -- V3 owner-map: last 4 material-unmapped rows; one primary owner each, secondary dependencies live in cutover_gate text only
+    ,('xlang_calibration','content_translation_law v4','LEGACY_CROSS_LANGUAGE_CALIBRATION_SOURCE','REVIEW_FOR_RETIREMENT',null,null,'preserve historical calibration/provenance; method calculation stays canonical_methods_registry; cutover/review under existing language research stack')
+    ,('shiurim_audio','legacy_content_protocol v2','LEGACY_PUBLIC_AUDIO_ARCHIVE','REVIEW_FOR_RETIREMENT',null,null,'REVIEW_FOR_REHOME under existing content/media/audio representation before any retirement; ZURIEL Human Gate')
+    ,('post_qa','source_truth_vs_context_builder','LEGACY_POST_KNOWLEDGE_EXTRACTION_SNAPSHOT','COMPATIBILITY / HUMAN_REVIEW',null,null,'preserve historical source payload; consumed by Research Intake/metatron context; not current canonical truth')
+    ,('discoveries','unified_discovery_architecture v1 / Research Intake','LEGACY_DISCOVERY_PROJECTION_SOURCE','COMPATIBILITY / HUMAN_REVIEW',null,null,'preserve historical payload; absorb/retire authority only after current readers/writers cut over')
   ),
   rel as (
     select c.oid, c.relname::text as obj, c.relkind, c.relrowsecurity, c.relforcerowsecurity,

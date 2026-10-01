@@ -61,10 +61,16 @@ test('growth reads existing capacity snapshots only (no snapshot writer call)', 
   assert.match(code, /cache_kind = 'capacity_snapshot'/);
 });
 
-test('V2 owner-map extension: blocking GAPs stay unmapped, no invented owners', () => {
-  for (const s of ['xlang_calibration', 'shiurim_audio', 'post_qa', 'discoveries']) {
-    assert.ok(!code.includes(`('${s}',`), `${s} must stay UNKNOWN until evidence exists`);
-    assert.ok(doc.includes(`\`${s}\``), `${s} must be listed as a blocking GAP in the crosswalk doc`);
+test('V3 owner-map: former blocking GAPs mapped with one primary owner each', () => {
+  const want = {
+    xlang_calibration: 'content_translation_law v4',
+    shiurim_audio: 'legacy_content_protocol v2',
+    post_qa: 'source_truth_vs_context_builder',
+    discoveries: 'unified_discovery_architecture v1',
+  };
+  for (const [s, owner] of Object.entries(want)) {
+    assert.ok(code.includes(`('${s}','${owner}`), `${s} must map to ${owner}`);
+    assert.ok(doc.includes(`\`${s}\``), `${s} must be in the crosswalk doc`);
   }
   assert.match(doc, /research_intake_foundation_contract_law v13/);
 });
