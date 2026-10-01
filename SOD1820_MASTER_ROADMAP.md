@@ -311,6 +311,23 @@ No-Black-Box acceptance is mandatory before G3 closes: every material new G3 run
 
 Resource policy: event-driven first; normal monitoring AI-token budget = ZERO; no new incident-monitoring cron faster than 15 minutes without evidence + Human Gate. **Current 2026-09-27:** contracts LIVE; `health-watch` is 15m and DB-size-alone false alerts are fixed LIVE; runtime remains DEFERRED pending builder availability.
 
+## G3→G4 transition lane — 2029 Public Shell + Posts-first Design Readiness
+
+**Informal shorthand: “G3.5”. This is NOT a new gate and may not begin until G3 is explicitly CLOSED.**
+
+Purpose: make 2029 the coherent visible product shell quickly, without pretending unfinished capabilities are live and without polishing Legacy UI.
+
+- Freeze one global 2029 information architecture and visual shell first: Home, World, Posts, Topics, Books/Sources, Number, ELS/Cipher, Journey, Community, Personal Area/Workspace, Raziel and future capability slots. Existing owners keep semantic authority.
+- Every visible destination must project an honest availability state through existing capability/site-flag owners: **OPEN / BUILDING / LATER / GATED**. A visible button, image, icon or card may preview the future product, but an unavailable capability must not resolve into a fake working route.
+- Define the **minimum public 2029 slice** before broad cutover: Home, World, Posts Index, Post, Topic and Book/Source navigation must form a coherent route chain with truthful return/navigation. Other surfaces may remain BUILDING.
+- The public-shell transition is presentation/cutover readiness, not Legacy destruction. Legacy engines, sources, data, media, SEO compatibility and adapters remain behind 2029 until replacement/consumer proof permits retirement under their existing owners.
+- **Posts-first priority:** because new public posts are the immediate Human-Gate need, the first high-fidelity Golden after shell/availability freeze is Posts Index + Post. Current FZ1073 and Bennett×salt are fixtures; do not create a third Post Golden merely to test another local composition.
+- Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
+- After Posts passes, reuse the same visual primitives/language for **World second** and **Home third**. Do not establish page-local visual systems.
+- High-fidelity design may begin immediately in this lane after the global shell/availability contract is frozen; replaceable presentation is allowed to move aggressively while semantic hooks, truth/access states, responsive behavior and canonical identities remain stable.
+- A **2029 Public Cutover** may occur only after the minimum public slice passes its release/crawler/redirect/SEO checks and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
+- G4 remains the formal Golden-experience gate. This transition lane prepares the shell and first visual Goldens; it does not mark a capability Golden or satisfy G4 acceptance by itself.
+
 ## Later program sequence
 
 ### G4 — Golden Experiences
