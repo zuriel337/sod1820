@@ -12,6 +12,7 @@ let handler:any;
 };
 
 let ticket:any;
+let readBackMode = "ok";
 let stored:Uint8Array|null = null;
 let storageContentType = "";
 let mediaMode = "ok";
@@ -37,6 +38,11 @@ const pageHtml = `<html><script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="ap
   const u = String(url);
   if (u.includes("agent_upload_ticket_consume")) return new Response(JSON.stringify(ticket), { status:200 });
   if (u.includes("/object/info/")) return new Response("{}", { status:404 });
+  if (u.includes("/object/authenticated/")) {   // governed read-back (service-role Storage read)
+    if (readBackMode === "missing" || !stored) return new Response("{}", { status: 404 });
+    const out = readBackMode === "corrupt" ? new Uint8Array(stored.length).fill(7) : readBackMode === "short" ? stored.slice(0, stored.length - 1) : stored;
+    return new Response(init.method === "HEAD" ? null : out, { status: 200, headers: { "content-type": readBackMode === "wrong-mime" ? "text/plain" : "video/mp4", "content-length": String(out.length) } });
+  }
   if (u.includes("/storage/v1/object/")) {
     storageContentType = String(init.headers?.["Content-Type"] || init.headers?.get?.("Content-Type") || "");
     stored = new Uint8Array(await new Response(init.body).arrayBuffer());

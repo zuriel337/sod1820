@@ -61,3 +61,36 @@ export function mayVerifyPath({ scope, path, userId, contributorId = null, isAdm
   if (contributorId && isUuid(contributorId) && p.startsWith(`sod1820/2029/contributors/${contributorId}/`)) return true;
   return p.startsWith(`sod1820/2029/accounts/${userId}/`);
 }
+
+// Objects larger than this are never re-hashed server-side (multi-GB video stays bounded);
+// they verify on size + mime and the receipt records sha256_verified:false.
+export const VERIFY_HASH_MAX_BYTES = 32 * 1024 * 1024;
+const SHA256_RE = /^[0-9a-f]{64}$/;
+
+export function normalizeSha256(value) {
+  const v = String(value || "").trim().toLowerCase();
+  return SHA256_RE.test(v) ? v : "";
+}
+
+// Pure completion decision. TUS/Storage transport success is never an input: only the owner-readable
+// read-back (actual) compared with the declared intent (expected) can produce a verified receipt.
+export function evaluateReadBack({ scope, bucket, path, expected, actual }) {
+  const checks = {
+    size_match: Number.isSafeInteger(actual?.size) && actual.size === expected.size,
+    mime_match: !!actual?.mime && actual.mime === expected.mime,
+  };
+  const hashRequested = !!expected.sha256;
+  const hashChecked = hashRequested && typeof actual?.sha256 === "string";
+  if (hashChecked) checks.sha256_match = actual.sha256 === expected.sha256;
+  const ok = Object.values(checks).every(Boolean);
+  const out = { ok, verified: ok, action: "verify", scope, bucket, path, expected, actual, checks };
+  if (ok) {
+    out.artifact_pointer = `${bucket}/${path}`;
+    out.receipt = {
+      kind: "media_upload_verified_receipt", scope, bucket, path, size: actual.size, mime: actual.mime,
+      sha256: hashChecked ? actual.sha256 : null, sha256_verified: hashChecked,
+      verification: hashChecked ? "readback_sha256_size_mime" : "readback_size_mime",
+    };
+  }
+  return out;
+}
