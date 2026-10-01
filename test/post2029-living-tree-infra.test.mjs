@@ -146,3 +146,41 @@ test("Only the FZ1073 legacy URL is redirected into Post 2029", () => {
   assert.equal(match.permanent, true);
   assert.equal(redirects.some((row) => row.source === "/(.*)" && String(row.destination || "").startsWith("/post/")), false);
 });
+
+
+test("Posts-first High-Fidelity Golden stays additive and token-driven", () => {
+  const app = readFileSync(new URL("../src/App2029.jsx", import.meta.url), "utf8");
+  const index = readFileSync(new URL("../src/pages/Posts2029Page.jsx", import.meta.url), "utf8");
+  const indexCss = readFileSync(new URL("../src/pages/posts2029.css", import.meta.url), "utf8");
+  const post = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  const postCss = readFileSync(new URL("../src/pages/post2029-reading.css", import.meta.url), "utf8");
+
+  assert.match(app, /path="\/2029\/posts" element={<Posts2029Page/);
+  assert.match(app, /path="\/post\/:slug" element={<Post2029Page/);
+  assert.doesNotMatch(app, /path="\/post" element={<Posts2029Page/);
+
+  assert.match(index, /data-experience-surface="posts-index"/);
+  assert.match(index, /data-experience-capability="posts-index-hero"/);
+  assert.match(index, /getPostsFromSupabase/);
+  assert.match(index, /to={"\/post\/" \+ encodeURIComponent\(post\.slug\)}/);
+  assert.match(index, /Golden Preview/);
+
+  assert.match(post, /data-experience-capability="post-master-hero"/);
+  assert.match(post, /data-experience-capability="post-master-reading-stage"/);
+  assert.match(post, /sod29-reading-number-stage/);
+  assert.match(post, /פתח במספר/);
+
+  assert.match(indexCss, /var\(--s29-accent\)/);
+  assert.match(indexCss, /var\(--s29-panel\)/);
+  assert.match(postCss, /Post Master high-fidelity hero/);
+  assert.match(postCss, /var\(--s29-accent\)/);
+  assert.doesNotMatch(indexCss, /#[0-9a-fA-F]{3,8}/);
+});
+
+test("Bennett salt remains the primary Post Master fixture while FZ1073 is the control fixture", () => {
+  const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, FZ1073_SLUG, FZ1073_REGIONS } = post2029ReadingInternals;
+  assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
+  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number), [78, 631, 78, 133, 690]);
+  assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
+  assert.equal(FZ1073_REGIONS.length, 5);
+});
