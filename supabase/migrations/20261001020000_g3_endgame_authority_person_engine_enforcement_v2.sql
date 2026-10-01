@@ -96,17 +96,17 @@ begin
   d2 := replace(d, E'  v_actor_type text;\nBEGIN', E'  v_actor_type text;\n  v_owner uuid;\nBEGIN');
   d2 := replace(d2,
     E'  v_statement := left(p_statement, 2000);\n',
-    E'  -- G3 gate: a Person-owned save (person:<uuid> ref, or WA DM ref with a unique canonical link)\n'
-    E'  -- must carry canonical owner linkage; an explicit person: ref that does not resolve is refused.\n'
-    E'  v_owner := public.fn_research_resolve_owner_person(p_source_ref);\n'
-    E'  IF v_owner IS NULL AND btrim(p_source_ref) ~* ''^person:'' THEN\n'
-    E'    RETURN jsonb_build_object(''ok'', false, ''error'', ''person_owner_linkage_required'');\n'
+    E'  -- G3 gate: a Person-owned save (person:<uuid> ref, or WA DM ref with a unique canonical link)\n' ||
+    E'  -- must carry canonical owner linkage; an explicit person: ref that does not resolve is refused.\n' ||
+    E'  v_owner := public.fn_research_resolve_owner_person(p_source_ref);\n' ||
+    E'  IF v_owner IS NULL AND btrim(p_source_ref) ~* ''^person:'' THEN\n' ||
+    E'    RETURN jsonb_build_object(''ok'', false, ''error'', ''person_owner_linkage_required'');\n' ||
     E'  END IF;\n\n  v_statement := left(p_statement, 2000);\n');
   d2 := replace(d2,
     E'engine_verified, engine_detail, status, privacy_scope, meta)\n  VALUES (',
     E'engine_verified, engine_detail, status, privacy_scope, meta, owner_person_id)\n  VALUES (');
   d2 := replace(d2, E'    ''private'',\n    v_meta\n  )', E'    ''private'',\n    v_meta,\n    v_owner\n  )');
-  if d2 = d or d2 not like '%v_owner,%' or d2 not like '%owner_person_id)%' or d2 not like '%person_owner_linkage_required%' then
+  if d2 = d or d2 not like E'%v_meta,\n    v_owner\n  )%' or d2 not like '%owner_person_id)%' or d2 not like '%person_owner_linkage_required%' then
     raise exception 'research_artifact_save patch did not apply cleanly';
   end if;
   execute d2;
