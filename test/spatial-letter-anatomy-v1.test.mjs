@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildWordLetterAnatomySpecs } from "../src/lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileConvergenceScene } from "../src/lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileConvergenceScene, compileMotionProjection } from "../src/lib/spatial/semanticSceneCompiler.js";
 
 test("Letter Anatomy keeps numeric truth out of specs and compiles engine result",()=>{
   const specs=buildWordLetterAnatomySpecs("אופק אדנק");
@@ -39,4 +39,19 @@ test("convergence fails closed when a route disagrees with the shared value",()=
     {expression:"א",methodKey:"רגיל",engineTrace:{engine_verified:true,value:1}},
     {expression:"ב",methodKey:"רגיל",engineTrace:{engine_verified:true,value:2}}
   ]}),/MATCHING_ENGINE_VERIFIED/);
+});
+
+
+test("motion projection consumes Golden convergence without minting truth",()=>{
+  const scene=compileConvergenceScene({convergenceId:"golden-1237",value:1237,routes:[
+    {expression:"אופק אדנק",methodKey:"מילוי",engineTrace:{engine_verified:true,value:1237}},
+    {expression:"התגלות",methodKey:"מסתתר",engineTrace:{engine_verified:true,value:1237}},
+    {expression:"וראית את אחרי",methodKey:"רגיל",engineTrace:{engine_verified:true,value:1237}}
+  ]});
+  const motion=compileMotionProjection(scene,{projectionId:"tzofen-batarbut-001"});
+  assert.equal(motion.may_add_truth,false);
+  assert.deepEqual(motion.aspect_profiles,["9:16","1:1","16:9"]);
+  assert.equal(motion.cues.filter(c=>c.action==="reveal_route").length,3);
+  assert.equal(motion.cues.filter(c=>c.action==="converge").length,1);
+  assert.ok(motion.reduced_motion.every(c=>c.tier==="T0"));
 });
