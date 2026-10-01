@@ -113,6 +113,23 @@ jobs:
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
 
+          test.beforeEach(async ({ page }, testInfo) => {
+            if (testInfo.title.includes('guest signup popup')) return;
+            await page.addInitScript(() => {
+              try { sessionStorage.setItem('sod_guest_signup_popup_dismissed', '1'); } catch {}
+            });
+          });
+
+          test('guest signup popup remains dismissible without replacing surface acceptance', async ({ page }) => {
+            await page.setViewportSize({ width: 390, height: 844 });
+            await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+            const dialog = page.getByRole('dialog', { name: 'האתר בבנייה — ואתם מוזמנים להיות חלק מהדרך' });
+            await expect(dialog).toBeVisible({ timeout: 6000 });
+            await dialog.getByRole('button', { name: 'סגירה' }).click();
+            await expect(dialog).toBeHidden();
+            await expect(page.locator('#sp29-title')).toBeVisible();
+          });
+
           async function installClsObserver(page) {
             await page.addInitScript(() => {
               window.__sodCls = { windowStart: null, lastShiftAt: null, windowValue: 0, maxValue: 0, sources: [] };
