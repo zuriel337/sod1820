@@ -9,8 +9,13 @@ export default function MistaterTensionGolden2029({ scene }) {
   const tensions=relations.filter((rel)=>rel.kind==="tension_between");
   const verified=resultNode?.ref?.engine_verified===true;
 
-  if(!expressionNode||!verified||!letters.length||tensions.length!==Math.max(letters.length-1,0)){
-    return <section className="sod29-mistater-tension" dir="rtl" data-state="unverified" aria-live="polite">
+  if(!expressionNode||!verified||!letters.length){
+    const words=[...new Set(letters.map((letter)=>letter.ref?.wordIndex??0))].map((wordIndex)=>
+    letters.filter((letter)=>(letter.ref?.wordIndex??0)===wordIndex).sort((a,b)=>(a.ref?.letterIndex??0)-(b.ref?.letterIndex??0))
+  );
+  const tensionByFrom=new Map(tensions.map((tension)=>[tension.from,tension]));
+
+  return <section className="sod29-mistater-tension" dir="rtl" data-state="unverified" aria-live="polite">
       <div className="sod29-mistater-tension__result"><span>ממתין ל־trace קנוני מאומת</span></div>
     </section>;
   }
@@ -27,24 +32,26 @@ export default function MistaterTensionGolden2029({ scene }) {
     </header>
 
     <div className="sod29-mistater-tension__chain" role="list" aria-label="שרשרת ההפרשים בין אותיות סמוכות">
-      {letters.map((letter,index)=>{
-        const tension=tensions[index]||null;
-        return <React.Fragment key={letter.id}>
-          <span className="sod29-mistater-tension__letter" role="listitem">
-            <b>{letter.label}</b>
-            <small>{letter.subtitle}</small>
-          </span>
-          {tension ? <span
-            className="sod29-mistater-tension__edge"
-            role="listitem"
-            aria-label={tension.explanation}
-            title={tension.explanation}
-          >
-            <i aria-hidden="true"/>
-            <strong>{tension.ref?.difference}</strong>
-          </span> : null}
-        </React.Fragment>;
-      })}
+      {words.map((wordLetters,wordIndex)=><span className="sod29-mistater-tension__word" key={wordIndex}>
+        {wordLetters.map((letter)=>{
+          const tension=tensionByFrom.get(letter.id)||null;
+          return <React.Fragment key={letter.id}>
+            <span className="sod29-mistater-tension__letter" role="listitem">
+              <b>{letter.label}</b>
+              <small>{letter.subtitle}</small>
+            </span>
+            {tension ? <span
+              className="sod29-mistater-tension__edge"
+              role="listitem"
+              aria-label={tension.explanation}
+              title={tension.explanation}
+            >
+              <i aria-hidden="true"/>
+              <strong>{tension.ref?.difference}</strong>
+            </span> : null}
+          </React.Fragment>;
+        })}
+      </span>)}
     </div>
 
     <div className="sod29-mistater-tension__result" aria-label={`תוצאת המנוע ${resultNode.label}`}>
