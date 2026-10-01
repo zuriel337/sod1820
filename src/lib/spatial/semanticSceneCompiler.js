@@ -179,3 +179,38 @@ export function compileLetterAnatomyScene({ expression, methodKey, variantSource
     lens: "visible", focusId: focused
   };
 }
+
+
+// ===== CONVERGENCE ADAPTER =====
+// Multiple independently engine-verified routes may meet at one value node.
+// Convergence is a relation/projection, never a truth score or canonicality signal.
+export function compileConvergenceScene({ convergenceId, value, routes = [] }, { focusId = null } = {}) {
+  if (!convergenceId || value == null || routes.length < 2) throw new Error("CONVERGENCE_REQUIRES_MULTIPLE_ROUTES");
+  if (routes.some(r => !r?.engineTrace?.engine_verified || r.engineTrace.value !== value)) {
+    throw new Error("CONVERGENCE_REQUIRES_MATCHING_ENGINE_VERIFIED_ROUTES");
+  }
+  const subjectId = `convergence:${convergenceId}`;
+  const valueId = `value:${value}`;
+  const sceneNodes = [{
+    id: subjectId, kind: "convergence", label: String(value),
+    subtitle: `${routes.length} מסלולים מאומתים במנוע`,
+    truthTier: TRUTH_TIERS.FINDING, position: { x: 0, y: 0, z: 0 },
+    ref: { type: "convergence_projection", convergenceId, value, truth_score: null }
+  },{
+    id: valueId, kind: "number", label: String(value), subtitle: "נקודת מפגש",
+    truthTier: TRUTH_TIERS.FACT, position: { x: 0, y: 1.4, z: 0 },
+    ref: { type: "engine_value", value }
+  }];
+  const sceneRelations = [];
+  routes.forEach((route,i)=>{
+    const id=`route:${i}:${route.methodKey}:${route.expression}`;
+    sceneNodes.push({
+      id, kind:"convergence_route", label:route.expression, subtitle:route.methodKey,
+      truthTier:TRUTH_TIERS.FACT, position:polar(i,routes.length,4.2,0.7),
+      ref:{type:"engine_route",expression:route.expression,methodKey:route.methodKey,variantSource:route.variantSource||null,engineTrace:route.engineTrace}
+    });
+    sceneRelations.push({id:`rel:${id}->${valueId}`,from:id,to:valueId,kind:"converges_to",explanation:`${route.methodKey} → ${value}`});
+  });
+  const focused=focusId&&sceneNodes.some(n=>n.id===focusId)?focusId:subjectId;
+  return {subjectId,sceneNodes,sceneRelations,availableActions:buildAvailableActions({subjectId,sceneNodes,sceneRelations,focused,lensKeys:["overview","routes","sources"]}),lens:"overview",focusId:focused};
+}
