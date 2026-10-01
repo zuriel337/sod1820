@@ -83,7 +83,9 @@ function makeSb(rows) {
         if (!r) return { data: "ignored" };
         r.status = a.p_outcome === "sent" ? "sent" : a.p_outcome === "retry" ? (r.attempts >= 5 ? "failed" : "pending") : "failed";
         r.next_at = Date.now() + 60000 * 2 ** r.attempts;
-        if (r.status === "sent") { r.sent_msg_id = a.p_sent_msg_id; if (r.bot === "link-code") r.reply = "[delivered]"; }
+        if (r.status === "sent") r.sent_msg_id = a.p_sent_msg_id;
+        if (r.bot === "link-code" && r.status === "sent") { r.reply = "[delivered]"; r.payload = {}; }
+        if (r.bot === "link-code" && r.status === "failed") { r.reply = "[failed]"; r.payload = {}; }
         return { data: r.status };
       }
       if (name === "outbox_ref_status") return { data: t.find((x) => x.done_key === a.p_ref)?.status ?? null };
@@ -142,6 +144,56 @@ const okFetch = (log) => async (url, init) => { log.push({ url, body: JSON.parse
   await handle(new Request("https://e/f", { method: "POST", body: JSON.stringify({ chatId: "1@c.us", message: "evil", token: "t" }) }), sb, { fetchImpl: okFetch(log) });
   assert.equal(log.length, 0, "body content is ignored; nothing to send");
   assert.equal((await handle(new Request("https://e/f", { method: "DELETE" }), sb)).status, 405);
+}
+// ---- V5A: CORS preflight (browser supabase.functions.invoke) ----
+{
+  let rpcs = 0; const sbp = { async rpc() { rpcs++; return { data: [] }; } };
+  for (const m of ["OPTIONS"]) {
+    const pre = await handle(new Request("https://e/f", { method: m, headers: { Origin: "https://sod1820.co.il", "Access-Control-Request-Method": "POST" } }), sbp);
+    assert.ok([200, 204].includes(pre.status));
+    assert.equal(rpcs, 0, "OPTIONS must not touch any RPC");
+    assert.equal(pre.headers.get("access-control-allow-origin"), "*");
+    assert.equal(pre.headers.get("access-control-allow-methods"), "GET, POST, OPTIONS");
+    assert.equal(pre.headers.get("access-control-allow-headers"), "authorization, content-type, apikey, x-client-info, x-supabase-api-version");
+    assert.equal(pre.headers.get("cache-control"), "no-store");
+  }
+  for (const m of ["GET", "POST"]) { // cron semantics unchanged, CORS on real responses too
+    const r = await handle(new Request("https://e/f", { method: m, ...(m === "POST" ? { body: "{}" } : {}) }), makeSb([]));
+    assert.equal(r.status, 200); assert.equal(r.headers.get("access-control-allow-origin"), "*");
+  }
+  const r405 = await handle(new Request("https://e/f", { method: "DELETE" }), makeSb([]));
+  assert.equal(r405.status, 405); assert.equal(r405.headers.get("access-control-allow-origin"), "*");
+  assert.equal((await handle(new Request("https://e/f?ref=" + encodeURIComponent("x'; drop")), makeSb([]))).headers.get("access-control-allow-origin"), "*");
+}
+// ---- V5A: link-code OTP scrubbed on EVERY terminal state, kept while pending/retry ----
+{
+  const otp = "code 654321";
+  const f503 = async () => new Response("x", { status: 503 });
+  const f400 = async () => new Response("{}", { status: 400 });
+  const retry = [mk({ done_key: "lc:r", bot: "link-code", reply: otp })];
+  await drain(makeSb(retry), null, { fetchImpl: f503 });
+  assert.equal(retry[0].status, "pending"); assert.equal(retry[0].reply, otp, "pending/retry keeps OTP for delivery");
+  const failed = [mk({ done_key: "lc:f", bot: "link-code", reply: otp, payload: { image_url: "https://x.test/a.png" } })];
+  await drain(makeSb(failed), null, { fetchImpl: f400 });
+  assert.equal(failed[0].status, "failed"); assert.equal(failed[0].reply, "[failed]"); assert.deepEqual(failed[0].payload, {});
+  const sysf = [mk({ done_key: "na:f", reply: "alert" })];
+  await drain(makeSb(sysf), null, { fetchImpl: f400 });
+  assert.equal(sysf[0].reply, "alert", "non link-code rows are not scrubbed");
+}
+// SQL contract: every terminal transition scrubs bot='link-code' only
+{
+  const clm = sql.slice(sql.indexOf("function public.outbox_claim_system"), sql.indexOf("return query"));
+  const stale = clm.slice(clm.indexOf("set status = 'failed'"), clm.indexOf("-- expired"));
+  assert.match(stale, /reply = case when o\.bot = 'link-code' then '\[failed\]' else o\.reply end/);
+  assert.match(stale, /payload = case when o\.bot = 'link-code' then '\{\}'::jsonb else o\.payload end/);
+  const exp = clm.slice(clm.indexOf("set status = 'expired'"));
+  assert.match(exp, /reply = case when o\.bot = 'link-code' then '\[expired\]' else o\.reply end/);
+  assert.match(exp, /payload = case when o\.bot = 'link-code' then '\{\}'::jsonb else o\.payload end/);
+  const mark = sql.slice(sql.indexOf("function public.outbox_mark_system"), sql.indexOf("function public.outbox_ref_status"));
+  assert.match(mark, /bot = 'link-code' and v_new = 'sent' then '\[delivered\]'/);
+  assert.match(mark, /bot = 'link-code' and v_new = 'failed' then '\[failed\]' else reply end/);
+  assert.match(mark, /payload = case when bot = 'link-code' and v_new in \('sent','failed'\) then '\{\}'::jsonb else payload end/);
+  assert.doesNotMatch(mark, /v_new = 'pending'/, "pending retry must keep OTP");
 }
 assert.equal(classify({ http_status: 200, result: { idMessage: "x" } }), "sent");
 assert.equal(classify({ http_status: 200, result: {} }), "failed");

@@ -27,10 +27,15 @@ declare
   v_limit integer := least(greatest(coalesce(p_limit, 5), 1), 10);
 begin
   -- ambiguous in-flight rows are failed, not resent
-  update public.bot_outbox o set status = 'failed', last_at = now()
+  -- terminal link-code rows never retain the OTP text (wa_link_codes is the only short-lived verification row)
+  update public.bot_outbox o set status = 'failed', last_at = now(),
+         reply = case when o.bot = 'link-code' then '[failed]' else o.reply end,
+         payload = case when o.bot = 'link-code' then '{}'::jsonb else o.payload end
    where o.bot in ('system','link-code') and o.status = 'sending' and o.last_at < now() - interval '10 minutes';
   -- expired content is never sent (OTP lives 10 minutes; system alerts 24 hours)
-  update public.bot_outbox o set status = 'expired', last_at = now()
+  update public.bot_outbox o set status = 'expired', last_at = now(),
+         reply = case when o.bot = 'link-code' then '[expired]' else o.reply end,
+         payload = case when o.bot = 'link-code' then '{}'::jsonb else o.payload end
    where o.status = 'pending'
      and ((o.bot = 'link-code' and o.first_at < now() - interval '10 minutes')
        or (o.bot = 'system'    and o.first_at < now() - interval '24 hours'));
@@ -75,9 +80,10 @@ begin
   end if;
   update public.bot_outbox set status = v_new, last_at = now(),
          sent_msg_id = case when v_new = 'sent' then left(p_sent_msg_id, 200) else sent_msg_id end,
-         -- OTP / alert text is not retained after delivery
-         reply = case when v_new = 'sent' and bot = 'link-code' then '[delivered]' else reply end,
-         payload = case when v_new = 'sent' and bot = 'link-code' then '{}'::jsonb else payload end
+         -- OTP text is scrubbed on EVERY terminal state (sent/failed); pending (retry) keeps it for delivery
+         reply = case when bot = 'link-code' and v_new = 'sent' then '[delivered]'
+                      when bot = 'link-code' and v_new = 'failed' then '[failed]' else reply end,
+         payload = case when bot = 'link-code' and v_new in ('sent','failed') then '{}'::jsonb else payload end
    where done_key = p_key;
   return v_new;
 end $$;
