@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildWordLetterAnatomySpecs } from "../src/lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene } from "../src/lib/spatial/semanticSceneCompiler.js";
+import { compileLetterAnatomyScene, compileConvergenceScene } from "../src/lib/spatial/semanticSceneCompiler.js";
 
 test("Letter Anatomy keeps numeric truth out of specs and compiles engine result",()=>{
   const specs=buildWordLetterAnatomySpecs("אופק אדנק");
@@ -19,4 +19,24 @@ test("final letters retain identity and explicit base linkage",()=>{
 });
 test("compiler fails closed without verified engine trace",()=>{
   assert.throws(()=>compileLetterAnatomyScene({expression:"התגלות",methodKey:"מסתתר",letterSpecs:[],engineTrace:{engine_verified:false,value:1237}}),/ENGINE_VERIFIED/);
+});
+
+
+test("Golden 1237 convergence has one value node and three independently verified routes",()=>{
+  const routes=[
+    {expression:"אופק אדנק",methodKey:"מילוי",variantSource:"engine_default",engineTrace:{engine_verified:true,value:1237}},
+    {expression:"התגלות",methodKey:"מסתתר",engineTrace:{engine_verified:true,value:1237}},
+    {expression:"וראית את אחרי",methodKey:"רגיל",engineTrace:{engine_verified:true,value:1237}}
+  ];
+  const scene=compileConvergenceScene({convergenceId:"golden-1237-ofek-hitgalut-achorai",value:1237,routes});
+  assert.equal(scene.sceneNodes.filter(n=>n.kind==="number").length,1);
+  assert.equal(scene.sceneNodes.filter(n=>n.kind==="convergence_route").length,3);
+  assert.equal(scene.sceneRelations.filter(r=>r.kind==="converges_to").length,3);
+  assert.equal(scene.sceneNodes[0].ref.truth_score,null);
+});
+test("convergence fails closed when a route disagrees with the shared value",()=>{
+  assert.throws(()=>compileConvergenceScene({convergenceId:"bad",value:1237,routes:[
+    {expression:"א",methodKey:"רגיל",engineTrace:{engine_verified:true,value:1}},
+    {expression:"ב",methodKey:"רגיל",engineTrace:{engine_verified:true,value:2}}
+  ]}),/MATCHING_ENGINE_VERIFIED/);
 });
