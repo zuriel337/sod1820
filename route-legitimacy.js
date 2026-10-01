@@ -59,7 +59,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/research",
   "/research-viewer",
   "/reveal",
-  "/spatial-gematria",
+  "/spatial-gematria",\n  "/spatial-letter-anatomy-preview",
   "/start",
   "/stream",
   "/sulamot",
