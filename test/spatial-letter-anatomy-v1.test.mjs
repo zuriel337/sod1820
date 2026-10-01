@@ -61,10 +61,15 @@ test("motion projection consumes Golden convergence without minting truth",()=>{
 test("Experience renderer consumes a verified scene and does not hardcode Golden numeric truth",()=>{
   const component=readFileSync(new URL("../src/components/experience2029/LetterAnatomyGolden2029.jsx",import.meta.url),"utf8");
   const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
+  const mistaterComponent=readFileSync(new URL("../src/components/experience2029/MistaterTensionGolden2029.jsx",import.meta.url),"utf8");
   assert.equal(component.includes("1237"),false);
   assert.match(component,/engine_verified===true/);
   assert.match(hub,/fn_method_value/);
   assert.match(hub,/value!==Number\(label\)/);
+  assert.match(hub,/gematria_method_trace/);
+  assert.match(hub,/compileMistaterTensionScene/);
+  assert.equal(mistaterComponent.includes("1237"),false);
+  assert.match(mistaterComponent,/data-experience-capability="mistater-tension"/);
 });
 
 
