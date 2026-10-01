@@ -214,3 +214,28 @@ export function compileConvergenceScene({ convergenceId, value, routes = [] }, {
   const focused=focusId&&sceneNodes.some(n=>n.id===focusId)?focusId:subjectId;
   return {subjectId,sceneNodes,sceneRelations,availableActions:buildAvailableActions({subjectId,sceneNodes,sceneRelations,focused,lensKeys:["overview","routes","sources"]}),lens:"overview",focusId:focused};
 }
+
+
+// ===== MOTION PROJECTION =====
+// Deterministic timeline derived from an already-compiled semantic scene.
+// It contains presentation cues only; it cannot add findings or numeric truth.
+export function compileMotionProjection(scene,{projectionId="motion-v1"}={}) {
+  if(!scene?.subjectId||!Array.isArray(scene.sceneNodes)||!Array.isArray(scene.sceneRelations)) throw new Error("MOTION_REQUIRES_COMPILED_SCENE");
+  const routes=scene.sceneNodes.filter(n=>n.kind==="convergence_route");
+  const valueNode=scene.sceneNodes.find(n=>n.kind==="number"||n.kind==="engine_result");
+  const cues=[
+    {at:0,action:"brand_open",target:scene.subjectId,tier:"T1"},
+    ...routes.map((r,i)=>({at:1200+i*2200,action:"reveal_route",target:r.id,tier:"T2",label:r.label,subtitle:r.subtitle})),
+    ...(valueNode?[{at:1200+routes.length*2200,action:"converge",target:valueNode.id,tier:"T2",label:valueNode.label}]:[]),
+    {at:1800+routes.length*2200,action:"hold",target:scene.subjectId,tier:"T0"}
+  ];
+  return {
+    projection_id:projectionId,
+    source_subject_id:scene.subjectId,
+    semantics:"projection_only",
+    may_add_truth:false,
+    aspect_profiles:["9:16","1:1","16:9"],
+    reduced_motion:cues.map(c=>({...c,action:c.action==="converge"?"show":c.action==="reveal_route"?"show":c.action,tier:"T0"})),
+    cues
+  };
+}
