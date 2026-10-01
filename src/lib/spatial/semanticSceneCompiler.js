@@ -136,3 +136,46 @@ export function compileTorahOccurrenceScene(input, { lens = "summary", focusId =
 
   return { subjectId, sceneNodes, sceneRelations, availableActions, lens: activeLens.key, focusId: focused };
 }
+
+
+// ===== HEBREW LETTER ANATOMY ADAPTER =====
+// Renderer-independent projection. Values must be supplied by a canonical engine trace;
+// this compiler never calculates or persists gematria truth.
+export function compileLetterAnatomyScene({ expression, methodKey, variantSource = "engine_default", letterSpecs = [], engineTrace }, { focusId = null } = {}) {
+  if (!expression || !methodKey || !engineTrace?.engine_verified) {
+    throw new Error("LETTER_ANATOMY_REQUIRES_ENGINE_VERIFIED_TRACE");
+  }
+  const subjectId = `letter-anatomy:${methodKey}:${expression}`;
+  const sceneNodes = [{
+    id: subjectId, kind: "expression", label: expression,
+    subtitle: `${methodKey} · ${variantSource}`, truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 0, z: 0 },
+    ref: { type: "gematria_expression", expression, methodKey, variantSource, engineTrace }
+  }];
+  const sceneRelations = [];
+  letterSpecs.forEach((spec, i) => {
+    const id = `letter:${i}:${spec.letter.codepoint}`;
+    sceneNodes.push({
+      id, kind: "letter_anatomy", label: spec.letter.codepoint,
+      subtitle: spec.expansions?.[0]?.spelling || "",
+      truthTier: TRUTH_TIERS.FACT,
+      position: polar(i, letterSpecs.length, 3.2, 1),
+      ref: { type: "letter_anatomy_spec", spec_id: spec.spec_id, spec }
+    });
+    sceneRelations.push({ id: `rel:${subjectId}->${id}`, from: subjectId, to: id, kind: "contains_letter", explanation: "projection-only letter membership" });
+  });
+  const resultId = `engine-result:${methodKey}:${engineTrace.value}`;
+  sceneNodes.push({
+    id: resultId, kind: "engine_result", label: String(engineTrace.value),
+    subtitle: methodKey, truthTier: TRUTH_TIERS.FACT,
+    position: { x: 0, y: 2, z: 0 },
+    ref: { type: "engine_result", methodKey, value: engineTrace.value, engine_verified: true, trace: engineTrace }
+  });
+  sceneRelations.push({ id: `rel:${subjectId}->${resultId}`, from: subjectId, to: resultId, kind: "engine_result", explanation: "canonical engine result; representation does not verify it" });
+  const focused = focusId && sceneNodes.some(n=>n.id===focusId) ? focusId : subjectId;
+  return {
+    subjectId, sceneNodes, sceneRelations,
+    availableActions: buildAvailableActions({ subjectId, sceneNodes, sceneRelations, focused, lensKeys: ["visible","full","hidden"] }),
+    lens: "visible", focusId: focused
+  };
+}
