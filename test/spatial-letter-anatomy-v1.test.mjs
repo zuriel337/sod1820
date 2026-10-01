@@ -158,3 +158,18 @@ test("Triangle renderer exposes distinct semantic capabilities without inventing
   assert.match(component,/letter_potential_triangle/);
   assert.match(component,/word_prefix_triangle/);
 });
+
+
+test("1237 convergence Experience is trace-driven and preserves the three canonical route identities",()=>{
+  const component=readFileSync(new URL("../src/components/experience2029/ConvergenceGolden2029.jsx",import.meta.url),"utf8");
+  const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
+  assert.match(component,/data-experience-capability="convergence-1237"/);
+  assert.match(component,/engineTrace\?\.engine_verified/);
+  assert.match(component,/הפעל גילוי/);
+  assert.match(component,/ציון אמת/);
+  assert.match(hub,/p_method_key: "מילוי", p_phrase: "אופק אדנק"/);
+  assert.match(hub,/p_method_key: "מסתתר", p_phrase: "התגלות"/);
+  assert.match(hub,/p_method_key: "רגיל", p_phrase: "וראית את אחרי"/);
+  assert.match(hub,/compileConvergenceScene/);
+  assert.match(hub,/compileMotionProjection/);
+});
