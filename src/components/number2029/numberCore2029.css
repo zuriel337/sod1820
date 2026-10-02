@@ -1936,6 +1936,19 @@
   font-size:20px;
   overflow-wrap:anywhere;
 }
+.sod29-number-v10-stage-result-open{
+  border:0;
+  border-bottom:1px dotted currentColor;
+  background:transparent;
+  color:var(--s29-hero);
+  padding:0 2px;
+  font:inherit;
+  font-weight:950;
+  cursor:pointer;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-number-v10-stage-result-open:hover{color:var(--s29-accent-text)}
+.sod29-number-v10-stage-result-open:focus-visible{outline:2px solid var(--s29-accent);outline-offset:3px;border-radius:4px}
 .sod29-number-v10-stage-head em{color:var(--s29-muted);font-style:normal;padding:0 4px}
 .sod29-number-v10-stage-head>div:first-child>small{color:var(--s29-muted);font-size:7.5px}
 .sod29-number-v10-stage-meta{

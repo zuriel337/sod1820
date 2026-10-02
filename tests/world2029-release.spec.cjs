@@ -400,6 +400,8 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
 
   const drawer = page.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+  await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(1);
   await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('1237');
   await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(drawer.locator('.sod29-number-v10-stage')).toBeVisible();
@@ -410,8 +412,30 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   ).toBe(6);
   const miluy = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible({ timeout: 20_000 });
+  const activeExpression = String(await drawer.locator('.sod29-number-v10-expression strong').textContent()).trim();
+  const miluyValue = Number(String(await miluy.locator('strong').textContent()).replace(/[^0-9-]/g, ''));
+  expect(Number.isSafeInteger(miluyValue)).toBe(true);
   await miluy.click();
   await expect(miluy).toHaveAttribute('aria-pressed', 'true');
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect.poll(async () => page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+    if (!key) return '';
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    const selection = stored?.selection || {};
+    return JSON.stringify([selection.expression || null, selection.method || null, Number(selection.resultValue)]);
+  }), { timeout: 5_000 }).toBe(JSON.stringify([activeExpression, 'מילוי', miluyValue]));
+
+  const resultPreview = drawer.locator('[data-experience-action="number-result-preview"]');
+  await expect(resultPreview).toBeVisible();
+  await resultPreview.click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+  await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(1);
+  const backToFocus = drawer.locator('[data-experience-action="contextual-number-back"]');
+  await expect(backToFocus).toBeVisible();
+  await backToFocus.click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
 
   await drawer.getByRole('button', { name: /איך חישבנו/ }).click();
   const inspector = drawer.locator('.sod29-number-method-inspector');
@@ -426,6 +450,36 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await expect(razielPanel).toContainText('1237');
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/number-2029-drawer-1237-390.png', fullPage: false });
+});
+
+test('Contextual Number Surface stays one desktop sidecar through focus → preview → back', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-experience-surface="number"]')).toBeVisible({ timeout: 30_000 });
+
+  await openNumberCapabilityFromIsland(page);
+  const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+  const drawer = sidecar.locator('.sod29-number-drawer2029');
+  await expect(sidecar).toBeVisible({ timeout: 30_000 });
+  await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
+  await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+
+  await expect.poll(
+    () => drawer.locator('[data-experience-capability="number-method-glance"] > button').count(),
+    { timeout: 20_000 },
+  ).toBe(6);
+  const method = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first();
+  await method.click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await drawer.locator('[data-experience-action="number-result-preview"]').click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await drawer.locator('[data-experience-action="contextual-number-back"]').click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await assertNoHorizontalOverflow(page);
 });
 
 test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {

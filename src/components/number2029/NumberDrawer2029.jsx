@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
@@ -16,6 +16,7 @@ const NUMBER_METHOD_RESULT_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 const normalizedMethodName = (value) => clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
 const isRegularMethodIdentity = (value) => normalizedMethodName(value) === "רגיל";
+const numberContextSignature = (root, expression, methodKey) => `${root ?? ""}|${clean(expression)}|${clean(methodKey)}`;
 
 function anchorExpression(fact, root) {
   const text = clean(fact);
@@ -54,27 +55,50 @@ export default function NumberDrawer2029({
   const targetNumber = target?.type === "number" && Number.isSafeInteger(Number(target?.id)) ? Number(target.id) : null;
   const contextRoot = context?.subject?.type === "number" && Number.isSafeInteger(Number(context.subject.id)) ? Number(context.subject.id) : null;
   const contextExpression = clean(context?.selection?.expression);
-  const initialExpression = target?.type === "phrase" ? clean(target.label || target.id) : contextExpression;
+  const initialExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : contextExpression);
+  const initialMethodKey = clean(context?.selection?.method);
+  const initialRoot = targetNumber ?? contextRoot;
 
-  const [root, setRoot] = useState(targetNumber ?? contextRoot);
+  const [root, setRoot] = useState(initialRoot);
   const [input, setInput] = useState(initialExpression || (targetNumber != null ? String(targetNumber) : ""));
   const [expression, setExpression] = useState(initialExpression);
+  const [surfaceMode, setSurfaceMode] = useState(initialExpression ? "focus" : "number");
+  const [originFocus, setOriginFocus] = useState(() => initialExpression ? {
+    expression: initialExpression,
+    methodKey: initialMethodKey || null,
+    root: Number.isSafeInteger(Number(initialRoot)) ? Number(initialRoot) : null,
+  } : null);
   const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
   const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
-  const [selectedMethodKey, setSelectedMethodKey] = useState(clean(context?.selection?.method));
+  const [selectedMethodKey, setSelectedMethodKey] = useState(initialMethodKey);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
+  const internalContextSignatureRef = useRef(null);
+  const modeRef = useRef(null);
+  const previousSurfaceModeRef = useRef(surfaceMode);
 
   useEffect(() => {
+    const incomingSignature = numberContextSignature(contextRoot, context?.selection?.expression, context?.selection?.method);
+    if (internalContextSignatureRef.current && internalContextSignatureRef.current === incomingSignature) {
+      internalContextSignatureRef.current = null;
+      return;
+    }
     const nextRoot = targetNumber ?? contextRoot;
     setRoot(nextRoot);
-    const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : clean(context?.selection?.expression);
+    const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : clean(context?.selection?.expression));
+    const nextMethodKey = clean(context?.selection?.method);
     setExpression(nextExpression);
     setInput(nextExpression || (nextRoot != null ? String(nextRoot) : ""));
-    setSelectedMethodKey(clean(context?.selection?.method));
+    setSelectedMethodKey(nextMethodKey);
+    setSurfaceMode(nextExpression ? "focus" : "number");
+    setOriginFocus(nextExpression ? {
+      expression: nextExpression,
+      methodKey: nextMethodKey || null,
+      root: Number.isSafeInteger(Number(nextRoot)) ? Number(nextRoot) : null,
+    } : null);
     setTraceOpen(false);
   }, [target?.type, target?.id, target?.label, targetNumber, contextRoot, context?.selection?.expression, context?.selection?.method]);
 
@@ -169,6 +193,27 @@ export default function NumberDrawer2029({
     () => methodProfileEntry(profileState.rows, selectedMethodKey),
     [profileState.rows, selectedMethodKey],
   );
+
+  useEffect(() => {
+    const expr = clean(expression);
+    if (surfaceMode !== "focus" || !expr) return;
+    const computed = Number(selectedProfile?.computedValue);
+    const focusRoot = Number.isSafeInteger(Number(root))
+      ? Number(root)
+      : (Number.isSafeInteger(computed) ? computed : null);
+    setOriginFocus({
+      expression: expr,
+      methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
+      root: focusRoot,
+      traceOpen,
+    });
+  }, [surfaceMode, expression, selectedProfile?.methodKey, selectedProfile?.computedValue, selectedMethodKey, root, traceOpen]);
+
+  useEffect(() => {
+    if (previousSurfaceModeRef.current === surfaceMode) return;
+    previousSurfaceModeRef.current = surfaceMode;
+    requestAnimationFrame(() => modeRef.current?.focus?.());
+  }, [surfaceMode]);
   const regularProfile = useMemo(
     () => profileState.rows.find((row) => (
       isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
@@ -353,16 +398,27 @@ export default function NumberDrawer2029({
     heroMedia: stageMedia[0] || null,
   }), [stageRoot, expression, selectedMethodKey, profileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
-  const updateContext = (patch = {}) => {
+  const updateContext = (patch = {}, selectionOverride = null) => {
     if (!Number.isSafeInteger(root)) return;
+    const hasOverride = selectionOverride && typeof selectionOverride === "object";
+    const activeExpression = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "expression")
+      ? clean(selectionOverride.expression) || null
+      : clean(expression) || null;
+    const activeMethodKey = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "methodKey")
+      ? clean(selectionOverride.methodKey) || null
+      : selectedProfile?.methodKey || clean(selectedMethodKey) || null;
+    const activeResultValue = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "resultValue")
+      ? selectionOverride.resultValue ?? null
+      : selectedProfile?.computedValue ?? null;
     const selection = {
       entityId: String(root),
       entityType: "number",
-      expression: clean(expression) || null,
-      method: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
-      resultValue: selectedProfile?.computedValue ?? null,
+      expression: activeExpression,
+      method: activeMethodKey,
+      resultValue: activeResultValue,
     };
     const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
+    internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
     if (context?.subject?.type === "number" && String(context.subject.id) === String(root)) {
       research?.updateResearchContext?.({ selection, lens: "number", ...patch });
     } else {
@@ -378,10 +434,12 @@ export default function NumberDrawer2029({
       setRoot(Number(raw));
       setExpression("");
       setSelectedMethodKey("");
+      setSurfaceMode("number");
       setTraceOpen(false);
       return;
     }
     setExpression(raw);
+    setSurfaceMode("focus");
     setTraceOpen(false);
     try {
       const rows = await fetchNumberMethodProfile(raw);
@@ -393,6 +451,11 @@ export default function NumberDrawer2029({
       if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
       const next = Number(regular?.computedValue);
       if (Number.isSafeInteger(next)) setRoot(next);
+      setOriginFocus({
+        expression: raw,
+        methodKey: regular?.methodKey || null,
+        root: Number.isSafeInteger(next) ? next : null,
+      });
     } catch {
       // expression remains usable; profile effect owns the visible error state.
     }
@@ -404,16 +467,47 @@ export default function NumberDrawer2029({
   };
 
   const selectMethod = (key) => {
+    const nextProfile = methodProfileEntry(profileState.rows, key);
     setSelectedMethodKey(key);
+    setSurfaceMode("focus");
     setTraceOpen(false);
-    requestAnimationFrame(() => updateContext());
+    updateContext({}, {
+      expression: clean(expression) || null,
+      methodKey: nextProfile?.methodKey || clean(key) || null,
+      resultValue: nextProfile?.computedValue ?? null,
+    });
   };
 
   const openExplicitRoot = (value) => {
     const next = Number(value);
     if (!Number.isSafeInteger(next)) return;
+    if (surfaceMode === "focus" && clean(expression)) {
+      setOriginFocus({
+        expression: clean(expression),
+        methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
+        root: Number.isSafeInteger(Number(root)) ? Number(root) : null,
+        traceOpen,
+      });
+    }
+    const sameRoot = Number.isSafeInteger(Number(root)) && Number(root) === next;
     setRoot(next);
+    setInput(String(next));
+    if (!sameRoot) {
+      setExpression("");
+      setSelectedMethodKey("");
+    }
+    setSurfaceMode("number");
     setTraceOpen(false);
+  };
+
+  const restoreOriginFocus = () => {
+    if (!originFocus?.expression) return;
+    setSurfaceMode("focus");
+    setExpression(originFocus.expression);
+    setInput(originFocus.expression);
+    setSelectedMethodKey(originFocus.methodKey || "");
+    if (Number.isSafeInteger(Number(originFocus.root))) setRoot(Number(originFocus.root));
+    setTraceOpen(originFocus.traceOpen === true);
   };
 
   const razielIntent = (intent, focus = {}) => {
@@ -477,7 +571,27 @@ export default function NumberDrawer2029({
     </div>;
   }
 
-  return <div className="sod29-number-drawer2029">
+  return <div
+    className="sod29-number-drawer2029"
+    data-contextual-number-surface="v1"
+    data-contextual-number-mode={surfaceMode}
+  >
+    <div className="sod29-number-drawer-mode" role="region" aria-label="מצב חלונית המספר" tabIndex={-1} ref={modeRef}>
+      <div>
+        <span>{surfaceMode === "focus" ? "FOCUS · איך זה מחושב" : "NUMBER PREVIEW · מה חי סביב המספר"}</span>
+        <strong>{surfaceMode === "focus" ? (clean(expression) || "ביטוי") : (Number.isSafeInteger(Number(root)) ? String(root) : "מספר")}</strong>
+        <small>{surfaceMode === "focus"
+          ? `${selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey) || "בחר שיטה"} · אותה חלונית, אותו הקשר`
+          : "תצוגת המספר באותה חלונית · בלי לפתוח Drawer נוסף"}</small>
+      </div>
+      {surfaceMode === "number" && originFocus?.expression ? <button
+        type="button"
+        className="sod29-number-drawer-back"
+        data-experience-action="contextual-number-back"
+        onClick={restoreOriginFocus}
+      >↩ חזרה ל־{originFocus.expression}</button> : null}
+    </div>
+
     <form className="sod29-number-drawer-search" onSubmit={commitInput}>
       <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="שם · ביטוי · מספר" aria-label="שם ביטוי או מספר" />
       <button type="submit">פתח</button>
@@ -502,6 +616,7 @@ export default function NumberDrawer2029({
       onExpressionSelect={(phrase) => {
         setExpression(phrase);
         setInput(phrase);
+        setSurfaceMode("focus");
         if (regularProfile?.methodKey) setSelectedMethodKey(regularProfile.methodKey);
         setTraceOpen(false);
       }}
