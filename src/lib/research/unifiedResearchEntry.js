@@ -34,7 +34,10 @@ const clean = (value) => value == null ? "" : String(value).trim();
 
 function numericLiteral(text) {
   const t = clean(text);
-  return /^\d+$/.test(t) ? String(Number(t)) : null;
+  if (!/^(?:0|[1-9]\d*)$/.test(t)) return null;
+  const n = Number(t);
+  if (!Number.isSafeInteger(n)) return null;
+  return String(n);
 }
 
 function isoDate(text) {
@@ -44,7 +47,15 @@ function isoDate(text) {
 
 function looksQuestion(text) {
   const t = clean(text);
-  return /[?？]$/.test(t) || /^(האם|למה|איך|מה |מי |מתי |איפה |יש קשר)/.test(t);
+  return /[?？]$/.test(t)
+    || /^(האם|למה|איך|מה(?:\s|$)|מי(?:\s|$)|מתי|איפה|לאן|כמה|יש קשר|תבדוק|בדוק|תראה|ספר לי)/.test(t);
+}
+
+function looksExpressionLiteral(text) {
+  const t = clean(text);
+  if (!t || t.length > 80 || looksQuestion(t)) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  return words.length >= 1 && words.length <= 4;
 }
 
 function structuredCandidates(input) {
@@ -189,7 +200,7 @@ export function buildUnifiedResearchEntry({
   const rawText = clean(input.text);
   const candidates = candidatesFromInput(input, kind);
   const explicitTextComputation = input.explicitTextComputation === true
-    || kind === INPUT_KIND.EXPRESSION;
+    || (kind === INPUT_KIND.EXPRESSION && looksExpressionLiteral(rawText));
 
   const resolution = resolveResearchIdentities({
     candidates,
@@ -205,7 +216,10 @@ export function buildUnifiedResearchEntry({
   if (kind === INPUT_KIND.EVENT_REF) kindCapabilities.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
   const effectiveRequestedCapabilities = [...new Set([...requestedCapabilities, ...kindCapabilities])];
 
-  const plan = kind === INPUT_KIND.MEDIA
+  const hasMediaInput = Boolean(input?.mediaRef || input?.file || input?.image || input?.assetRef);
+  const deferForIntake = hasMediaInput && [INPUT_KIND.MEDIA, INPUT_KIND.MIXED].includes(kind);
+
+  const plan = deferForIntake
     ? null
     : buildResearchPlanV2({
         question: kind === INPUT_KIND.QUESTION ? rawText : clean(input.question),
