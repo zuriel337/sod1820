@@ -459,10 +459,10 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(language).toContainText('мессия');
 
   await stage.getByRole('button', { name: /איך חישבנו/ }).click();
-  const explain = stage.locator('[data-miluy-spatial-explain="true"]');
+  const explain = stage.locator('[data-experience-capability="spatial-method-stage"][data-method-key="מילוי"]');
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
-  await expect(explain).toContainText('אות → שם האות המלא → ערך → סכום');
+  await expect(explain).toContainText('אות → שם האות → ערך → סכום');
   await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toHaveCount(0);
 
   await assertNoHorizontalOverflow(page);

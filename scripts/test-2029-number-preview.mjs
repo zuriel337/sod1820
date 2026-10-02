@@ -26,6 +26,8 @@ const methodLensModel = read("src/lib/research/methodLensProjection.js");
 const methodLensComponent = read("src/components/gematria2029/MethodLens2029.jsx");
 const calculator2029 = read("src/pages/Calculator2029Page.jsx");
 const calculatorCompare2029 = read("src/components/gematria2029/CalculatorCompare2029.jsx");
+const spatialMethodStage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
+const spatialMethodStageCss = read("src/components/gematria2029/spatialMethodStage2029.css");
 
 for (const required of [
   "Sod2029Shell",
@@ -75,8 +77,19 @@ assert.match(core, /METHOD INSPECTOR/);
 assert.match(core, /חישוב/);
 assert.match(core, /למד/);
 assert.match(core, /עולמות/);
-assert.match(core, /SPATIAL EXPLAIN · S2 LAYERED DEPTH/);
-assert.match(core, /data-miluy-spatial-explain/);
+assert.match(core, /SpatialMethodStage2029/);
+assert.equal(core.includes("function MiluySpatialExplain"), false, "Number must consume the shared Spatial Method Stage, not own a Milui renderer");
+assert.match(spatialMethodStage, /data-experience-capability="spatial-method-stage"/);
+assert.match(spatialMethodStage, /data-method-key="מילוי"/);
+assert.match(spatialMethodStage, /trace\.verification\?\.parity !== true/);
+assert.match(spatialMethodStage, /HEBREW_LETTER_NAMES_ENGINE_DEFAULT/);
+for (const methodKey of ["רגיל","מילוי","מסתתר","קדמי","משולש מילה"]) {
+  assert.equal(spatialMethodStage.includes(`"${methodKey}"`), true, `shared Spatial Method Stage missing method adapter: ${methodKey}`);
+}
+assert.match(spatialMethodStage, /METHOD_TRACE_KIND/);
+assert.match(spatialMethodStage, /ADJACENT_DIFFERENCE/);
+assert.match(spatialMethodStage, /CUMULATIVE_PREFIX/);
+assert.match(spatialMethodStage, /ui_transitional_unverified/);
 assert.match(core, /traceDetail/);
 assert.match(core, /onOpenHeichal/);
 assert.match(coreProjection, /sub,soul/);
@@ -87,8 +100,10 @@ assert.match(drawer, /traceDetail=\{trace\}/);
 assert.match(page, /traceDetail=\{trace\}/);
 assert.equal(page.includes('navigate("/heichal")'), false, "Number 2029 must not navigate to unopened Heichal");
 assert.equal(drawer.includes('go?.("/heichal"'), false, "Number Drawer must not navigate to unopened Heichal");
-assert.match(coreCss, /\.sod29-miluy-spatial/);
-assert.match(coreCss, /prefers-reduced-motion/);
+assert.match(spatialMethodStageCss, /\.sod29-spatial-method-stage/);
+assert.match(spatialMethodStageCss, /prefers-reduced-motion/);
+assert.match(spatialMethodStageCss, /var\(--s29-/);
+assert.equal(/#[0-9a-f]{3,8}/i.test(spatialMethodStageCss), false, "shared Spatial Method Stage must consume canonical semantic tokens, not own a hex palette");
 
 // Shared Method Lens 2029 — evidence-first, deterministic, same consumer in Calculator + Number.
 assert.match(methodLensModel, /getNumberLookup/);

@@ -58,16 +58,34 @@ test("motion projection consumes Golden convergence without minting truth",()=>{
 });
 
 
-test("Experience renderer consumes a verified scene and does not hardcode Golden numeric truth",()=>{
-  const component=readFileSync(new URL("../src/components/experience2029/LetterAnatomyGolden2029.jsx",import.meta.url),"utf8");
+test("Number and Golden Milui consume one shared canonical-trace Spatial Method Stage",()=>{
+  const stage=readFileSync(new URL("../src/components/gematria2029/SpatialMethodStage2029.jsx",import.meta.url),"utf8");
+  const core=readFileSync(new URL("../src/components/number2029/NumberCore2029.jsx",import.meta.url),"utf8");
   const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
+  const traceAdapter=readFileSync(new URL("../src/lib/research/gematriaTrace.js",import.meta.url),"utf8");
   const mistaterComponent=readFileSync(new URL("../src/components/experience2029/MistaterTensionGolden2029.jsx",import.meta.url),"utf8");
-  assert.equal(component.includes("1237"),false);
-  assert.match(component,/engine_verified===true/);
-  assert.match(hub,/fn_method_value/);
-  assert.match(hub,/value!==Number\(label\)/);
-  assert.match(hub,/gematria_method_trace/);
-  assert.match(hub,/compileMistaterTensionScene/);
+  assert.equal(stage.includes("1237"),false);
+  assert.match(stage,/data-experience-capability="spatial-method-stage"/);
+  assert.match(stage,/trace\.verification\?\.parity !== true/);
+  assert.match(stage,/HEBREW_LETTER_NAMES_ENGINE_DEFAULT/);
+  assert.match(stage,/METHOD_TRACE_KIND/);
+  assert.match(stage,/trace\.trace_kind !== requiredTraceKind/);
+  assert.match(stage,/Number\(step\.base_value\) > 0/);
+  assert.match(stage,/data-spelling-source="ui_transitional_unverified"/);
+  assert.match(stage,/data-density=\{density\}/);
+  assert.match(core,/SpatialMethodStage2029/);
+  assert.equal(core.includes("function MiluySpatialExplain"),false);
+  assert.match(hub,/SpatialMethodStage2029/);
+  assert.match(hub,/goldenFocus/);
+  assert.match(hub,/goldenFocus!==\"milui\"/);
+  assert.match(hub,/goldenFocus!==\"mistater\"/);
+  assert.match(hub,/goldenFocus!==\"regular\"/);
+  assert.match(hub,/goldenFocus!==\"convergence\"/);
+  assert.equal(hub.includes("fn_method_value"),false);
+  assert.match(hub,/p_method_key: "מילוי", p_phrase: "אופק אדנק"/);
+  assert.match(traceAdapter,/method_key: methodKey/);
+  assert.match(traceAdapter,/input: expression/);
+  assert.match(traceAdapter,/result: value/);
   assert.equal(mistaterComponent.includes("1237"),false);
   assert.match(mistaterComponent,/data-experience-capability="mistater-tension"/);
 });
@@ -216,6 +234,6 @@ test("Regular verse Experience requires both canonical trace and canonical sourc
   assert.match(component,/שמות לג:כג/);
   assert.match(component,/הפסוק הוא הקשר המקור/);
   assert.match(hub,/from\("tanach_verses"\)/);
-  assert.match(hub,/compileRegularLedgerScene/);
+  assert.match(hub,/SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל"/);
   assert.match(hub,/golden-1237-regular/);
 });
