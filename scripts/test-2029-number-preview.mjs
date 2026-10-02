@@ -83,6 +83,13 @@ assert.match(spatialMethodStage, /data-experience-capability="spatial-method-sta
 assert.match(spatialMethodStage, /data-method-key="מילוי"/);
 assert.match(spatialMethodStage, /trace\.verification\?\.parity !== true/);
 assert.match(spatialMethodStage, /HEBREW_LETTER_NAMES_ENGINE_DEFAULT/);
+for (const methodKey of ["רגיל","מילוי","מסתתר","קדמי","משולש מילה"]) {
+  assert.equal(spatialMethodStage.includes(`"${methodKey}"`), true, `shared Spatial Method Stage missing method adapter: ${methodKey}`);
+}
+assert.match(spatialMethodStage, /METHOD_TRACE_KIND/);
+assert.match(spatialMethodStage, /ADJACENT_DIFFERENCE/);
+assert.match(spatialMethodStage, /CUMULATIVE_PREFIX/);
+assert.match(spatialMethodStage, /ui_transitional_unverified/);
 assert.match(core, /traceDetail/);
 assert.match(core, /onOpenHeichal/);
 assert.match(coreProjection, /sub,soul/);
