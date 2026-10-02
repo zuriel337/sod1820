@@ -502,7 +502,13 @@ export default function NumberCore2029({
             <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={() => setFocusedCrossingPartner(null)}>חזור ל־{stageRoot}</button>
           </> : <>
             <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
-            <strong>{projection.expression || root} <em>→</em> {stageRoot}</strong>
+            <strong>{projection.expression || root} <em>→</em> {compact && onOpenResult ? <button
+              type="button"
+              className="sod29-number-v10-stage-result-open"
+              data-experience-action="number-result-preview"
+              onClick={() => onOpenResult(stageRoot)}
+              aria-label={`פתח תצוגת מספר ${stageRoot}`}
+            >{stageRoot}</button> : stageRoot}</strong>
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
           </>}
         </div>
