@@ -794,6 +794,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/entity-hub-preview/(.*)/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -801,6 +805,15 @@
   "headers": [
     {
       "source": "/2029/gematria",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/entity-hub-preview/(.*)/(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",
