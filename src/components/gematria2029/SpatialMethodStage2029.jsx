@@ -202,7 +202,7 @@ function MiluiStage({
   const density = rows.length > 24 ? "long" : "normal";
 
   return <section
-    className="sod29-spatial-method-stage sod29-miluy-spatial"
+    className="sod29-spatial-method-stage is-milui"
     dir="rtl"
     data-experience-capability="spatial-method-stage"
     data-method-key="מילוי"
