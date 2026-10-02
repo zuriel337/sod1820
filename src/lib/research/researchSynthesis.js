@@ -65,6 +65,17 @@ function claimOf(input = {}, allowed = new Set()) {
   });
 }
 
+function interpretiveFrameOf(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return Object.freeze({});
+  return Object.freeze({
+    essence: clean(input.essence),
+    power: clean(input.power),
+    shadow: clean(input.shadow),
+    balance: clean(input.balance),
+    action: clean(input.action),
+  });
+}
+
 function motifOf(input = {}, claimIds = new Set()) {
   const key = clean(input.key);
   if (!key) throw new TypeError("researchSynthesis: motif key is required");
@@ -77,6 +88,7 @@ function motifOf(input = {}, claimIds = new Set()) {
     label: clean(input.label) || key,
     summary: clean(input.summary),
     claim_ids: Object.freeze(refs),
+    frame: interpretiveFrameOf(input.frame || input.interpretive_frame || input.interpretiveFrame),
   });
 }
 
@@ -146,6 +158,7 @@ export function normalizeResearchSynthesis(input, {
       synthesis_is_not_truth: true,
       no_universal_truth_score: true,
       support_must_be_bundle_backed: true,
+      interpretive_frame_is_not_evidence: true,
       no_auto_canonicalization: true,
       no_auto_publication: true,
       no_calibration_or_learning_policy_in_this_contract: true,
@@ -180,6 +193,7 @@ export function failedResearchSynthesis(error, {
       synthesis_is_not_truth: true,
       no_universal_truth_score: true,
       support_must_be_bundle_backed: true,
+      interpretive_frame_is_not_evidence: true,
       no_auto_canonicalization: true,
       no_auto_publication: true,
       no_calibration_or_learning_policy_in_this_contract: true,
