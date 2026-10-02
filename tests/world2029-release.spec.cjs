@@ -412,9 +412,19 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   ).toBe(6);
   const miluy = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible({ timeout: 20_000 });
+  const activeExpression = String(await drawer.locator('.sod29-number-v10-expression strong').textContent()).trim();
+  const miluyValue = Number(String(await miluy.locator('strong').textContent()).replace(/[^0-9-]/g, ''));
+  expect(Number.isSafeInteger(miluyValue)).toBe(true);
   await miluy.click();
   await expect(miluy).toHaveAttribute('aria-pressed', 'true');
   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect.poll(async () => page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+    if (!key) return '';
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    const selection = stored?.selection || {};
+    return JSON.stringify([selection.expression || null, selection.method || null, Number(selection.resultValue)]);
+  }), { timeout: 5_000 }).toBe(JSON.stringify([activeExpression, 'מילוי', miluyValue]));
 
   const resultPreview = drawer.locator('[data-experience-action="number-result-preview"]');
   await expect(resultPreview).toBeVisible();
