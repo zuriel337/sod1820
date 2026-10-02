@@ -58,9 +58,10 @@ test("motion projection consumes Golden convergence without minting truth",()=>{
 });
 
 
-test("Number and Golden Milui consume one shared canonical-trace Spatial Method Stage",()=>{
+test("Number and Golden 1237 consume one shared Spatial Method Stage through the canonical Contextual Sidecar",()=>{
   const stage=readFileSync(new URL("../src/components/gematria2029/SpatialMethodStage2029.jsx",import.meta.url),"utf8");
   const core=readFileSync(new URL("../src/components/number2029/NumberCore2029.jsx",import.meta.url),"utf8");
+  const drawer=readFileSync(new URL("../src/components/number2029/NumberDrawer2029.jsx",import.meta.url),"utf8");
   const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
   const traceAdapter=readFileSync(new URL("../src/lib/research/gematriaTrace.js",import.meta.url),"utf8");
   const mistaterComponent=readFileSync(new URL("../src/components/experience2029/MistaterTensionGolden2029.jsx",import.meta.url),"utf8");
@@ -75,21 +76,25 @@ test("Number and Golden Milui consume one shared canonical-trace Spatial Method 
   assert.match(stage,/data-density=\{density\}/);
   assert.match(core,/SpatialMethodStage2029/);
   assert.equal(core.includes("function MiluySpatialExplain"),false);
-  assert.match(hub,/SpatialMethodStage2029/);
-  assert.match(hub,/goldenFocus/);
-  assert.match(hub,/goldenFocus!==\"milui\"/);
-  assert.match(hub,/goldenFocus!==\"mistater\"/);
-  assert.match(hub,/goldenFocus!==\"regular\"/);
-  assert.match(hub,/goldenFocus!==\"convergence\"/);
+  assert.match(drawer,/NumberCore2029/);
+  assert.match(drawer,/traceDetail=\{trace\}/);
+  assert.match(hub,/Sod2029Shell/);
+  assert.match(hub,/use2029Shell/);
+  assert.match(hub,/shell\.openCapability\?\.\("number"/);
+  assert.match(hub,/data-experience-action="golden-contextual-focus"/);
+  assert.match(hub,/data-contextual-entry="sidecar"/);
+  assert.match(hub,/shell\.closeTransient\?\.\(\)/);
+  assert.equal(hub.includes("SpatialMethodStage2029"),false);
+  assert.equal(hub.includes("anatomyTrace"),false);
+  assert.equal(hub.includes("mistaterTrace"),false);
+  assert.equal(hub.includes("regularTrace"),false);
   assert.equal(hub.includes("fn_method_value"),false);
-  assert.match(hub,/p_method_key: "מילוי", p_phrase: "אופק אדנק"/);
   assert.match(traceAdapter,/method_key: methodKey/);
   assert.match(traceAdapter,/input: expression/);
   assert.match(traceAdapter,/result: value/);
   assert.equal(mistaterComponent.includes("1237"),false);
   assert.match(mistaterComponent,/data-experience-capability="mistater-tension"/);
 });
-
 
 test("Mistater tension consumes canonical adjacent-difference trace and projects five live edges",()=>{
   const trace={
@@ -227,13 +232,14 @@ test("Regular ledger consumes canonical visible-letter trace without recomputing
   assert.deepEqual(scene.sceneNodes[0].ref.sourceRef,{book:"שמות",chapter:33,verse:23});
 });
 
-test("Regular verse Experience requires both canonical trace and canonical source lookup",()=>{
+test("Regular Golden route keeps canonical source context while delegating the rich method renderer to the Sidecar",()=>{
   const component=readFileSync(new URL("../src/components/experience2029/RegularVerseGolden2029.jsx",import.meta.url),"utf8");
   const hub=readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx",import.meta.url),"utf8");
   assert.equal(component.includes("1237"),false);
   assert.match(component,/שמות לג:כג/);
   assert.match(component,/הפסוק הוא הקשר המקור/);
   assert.match(hub,/from\("tanach_verses"\)/);
-  assert.match(hub,/SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל"/);
-  assert.match(hub,/golden-1237-regular/);
+  assert.match(hub,/regular: Object\.freeze\(\{ expression: "וראית את אחרי", methodKey: "רגיל"/);
+  assert.match(hub,/data-contextual-entry="sidecar"/);
+  assert.equal(hub.includes('SpatialMethodStage2029 expression="וראית את אחרי"'),false);
 });
