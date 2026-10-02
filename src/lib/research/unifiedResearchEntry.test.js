@@ -94,7 +94,7 @@ test("Custom profile is allowlist-only and cannot invent unknown capabilities", 
     capabilities: [RESEARCH_CAPABILITY.GEMATRIA, "fake_super_engine", RESEARCH_CAPABILITY.ELS],
     reflection: true,
   });
-  assert.deepEqual(custom.capabilities.sort(), [RESEARCH_CAPABILITY.ELS, RESEARCH_CAPABILITY.GEMATRIA].sort());
+  assert.deepEqual([...custom.capabilities].sort(), [RESEARCH_CAPABILITY.ELS, RESEARCH_CAPABILITY.GEMATRIA].sort());
   assert.equal(custom.reflection, true);
 });
 
@@ -105,4 +105,33 @@ test("projection boundaries preserve shell semantics: sidebar navigation, bottom
   assert.equal(out.projection.boundaries.raziel_is_optional_consumer_not_engine, true);
   assert.equal(out.projection.boundaries.heichal_is_deep_mode_not_tool_owner, true);
   assert.equal(out.projection.boundaries.journey_is_path_not_truth_store, true);
+});
+
+test("unpunctuated commands/questions do not become whole-text Gematria expressions", () => {
+  for (const text of ["לאן הולכים", "תבדוק את זה", "כמה זה שווה"]) {
+    const out = buildUnifiedResearchEntry({ input: { text } });
+    assert.equal(out.identity_resolution.explicit_text_computation, false, text);
+    assert.equal(out.plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA), false, text);
+  }
+  const expression = buildUnifiedResearchEntry({ input: { text: "חרבות ברזל" } });
+  assert.equal(expression.identity_resolution.explicit_text_computation, true);
+  assert.equal(expression.plan.requested_capabilities.includes(RESEARCH_CAPABILITY.GEMATRIA), true);
+});
+
+test("number literals are canonical safe integers only", () => {
+  assert.equal(classifyUnifiedResearchInput({ text: "007" }), INPUT_KIND.EXPRESSION);
+  assert.equal(classifyUnifiedResearchInput({ text: "-5" }), INPUT_KIND.EXPRESSION);
+  assert.equal(classifyUnifiedResearchInput({ text: "99999999999999999999999" }), INPUT_KIND.EXPRESSION);
+  const safe = buildUnifiedResearchEntry({ input: { text: "1820" } });
+  assert.equal(safe.projection.destinations.full_href, "/2029/number/1820");
+});
+
+test("mixed media+text is strictly Intake-first and does not build an evidence plan before extraction", () => {
+  const out = buildUnifiedResearchEntry({
+    input: { mediaRef: "asset:abc", text: "חרבות ברזל" },
+  });
+  assert.equal(out.input_kind, INPUT_KIND.MIXED);
+  assert.equal(out.intake.required, true);
+  assert.equal(out.plan, null);
+  assert.equal(out.projection.default_destination, "intake");
 });
