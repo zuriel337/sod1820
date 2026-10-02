@@ -1,4 +1,4 @@
-import { HDate } from "@hebcal/core";
+import { gregorianDateToHebrewRepresentation, GREGORIAN_HEBREW_REPRESENTATION_VERSION } from "../timeFlow.js";
 import { makeUniversalFinding } from "./universalFinding.js";
 import {
   ACCESS_CLASS,
@@ -17,47 +17,16 @@ const clean = (value) => {
 };
 
 export function gregorianToHebrewDateRepresentation(iso) {
-  const raw = clean(iso);
-  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
-  const [year, month, day] = raw.split("-").map(Number);
-  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
-  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return null;
-
-  try {
-    // Date-only input: noon UTC avoids DST/local-midnight ambiguity while preserving civil Y/M/D.
-    const gregorianDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-    if (gregorianDate.getUTCFullYear() !== year
-      || gregorianDate.getUTCMonth() + 1 !== month
-      || gregorianDate.getUTCDate() !== day) return null;
-
-    const hd = new HDate(gregorianDate);
-    const rendered = hd.renderGematriya();
-    const pretty = rendered.replace(/[֑-ׇ]/g, "").replace(/\s+/g, " ").trim();
-    const cleanHebrew = pretty.replace(/[^א-ת]/g, "");
-    if (!cleanHebrew) return null;
-
-    return Object.freeze({
-      version: PERSONAL_DATE_REPRESENTATION_VERSION,
-      source_calendar: "gregorian",
-      target_calendar: "hebrew",
-      input_iso: raw,
-      input: Object.freeze({ year, month, day }),
-      hebrew: Object.freeze({
-        year: hd.getFullYear(),
-        month: hd.getMonth(),
-        day: hd.getDate(),
-        pretty,
-        clean: cleanHebrew,
-      }),
-      transform: Object.freeze({
-        engine: "@hebcal/core",
-        operation: "gregorian_date_to_hebrew_date",
-        deterministic: true,
-      }),
-    });
-  } catch {
-    return null;
-  }
+  const base = gregorianDateToHebrewRepresentation(iso);
+  if (!base) return null;
+  return Object.freeze({
+    ...base,
+    version: PERSONAL_DATE_REPRESENTATION_VERSION,
+    transform: Object.freeze({
+      ...base.transform,
+      owner_version: GREGORIAN_HEBREW_REPRESENTATION_VERSION,
+    }),
+  });
 }
 
 export function personalDateRepresentationFinding(representation, { createdAt = null } = {}) {
