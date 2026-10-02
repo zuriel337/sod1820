@@ -1,0 +1,49 @@
+{
+  "bpy": "5.0.1",
+  "resolution": [
+    720,
+    1280
+  ],
+  "fps": 30,
+  "safe_zone": [
+    60,
+    173,
+    612,
+    832
+  ],
+  "prototypes": {
+    "A": {
+      "name": "NUMBER TUNNEL / PUSH",
+      "duration_s": 9.0,
+      "frames": 270,
+      "still_frame": 6,
+      "still": "proto-A-still.png",
+      "still_sha256": "e3e2235029e8ef4327d05a2d2f12087491eea070c0eea59d17b7d5ff7f18cc42",
+      "mp4": "proto-A.mp4",
+      "mp4_sha256": "37f6db4e40984bb43383782e7faef26358343cb55ee8d76c0d56507fa9426f8a",
+      "mp4_bytes": 1539137
+    },
+    "B": {
+      "name": "TWIN DATE PORTAL",
+      "duration_s": 9.0,
+      "frames": 270,
+      "still_frame": 6,
+      "still": "proto-B-still.png",
+      "still_sha256": "c85c98c66cbf273d9e5a57c68e005ae40815d1df2181b2145d5e5561ea1c620a",
+      "mp4": "proto-B.mp4",
+      "mp4_sha256": "14a2f00aa160582000798d39503c29709e5a30d2f64e2ce78f737df1b1567eaa",
+      "mp4_bytes": 717271
+    },
+    "C": {
+      "name": "FLIGHT PATH / MILESTONES",
+      "duration_s": 9.0,
+      "frames": 270,
+      "still_frame": 6,
+      "still": "proto-C-still.png",
+      "still_sha256": "e7be0cc3170a69b76d8d5507e8092c78e4f51280d43ceefe5b018b480820fe69",
+      "mp4": "proto-C.mp4",
+      "mp4_sha256": "2ebac28a49ec0bbd453fdf2043db95cd952031412653ef9948b80c05546168d2",
+      "mp4_bytes": 1058510
+    }
+  }
+}
