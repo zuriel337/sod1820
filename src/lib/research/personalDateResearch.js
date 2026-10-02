@@ -265,4 +265,44 @@ export function composePersonalDateResearchBundle({
   });
 }
 
+
+export function createSupabasePersonalDateCrossProvider(supabase) {
+  if (!supabase || typeof supabase.rpc !== "function") {
+    throw new TypeError("personalDateResearch: Supabase client with rpc() is required");
+  }
+  return async function personalDateCross({ name, surname = null, representation } = {}) {
+    const first = clean(name);
+    if (!first || !representation?.hebrew?.pretty) return null;
+    const items = [first, clean(surname), representation.hebrew.pretty].filter(Boolean);
+    if (items.length < 2) return null;
+    const { data, error } = await supabase.rpc("fn_cross_research", { p_items: items });
+    if (error) throw error;
+    return data || null;
+  };
+}
+
+export async function runPersonalDateResearch({
+  name,
+  surname = null,
+  birthdateIso,
+  crossProvider,
+  accessDescriptor = null,
+  createdAt = null,
+} = {}) {
+  if (typeof crossProvider !== "function") {
+    throw new TypeError("personalDateResearch: crossProvider function is required");
+  }
+  const representation = gregorianToHebrewDateRepresentation(birthdateIso);
+  if (!representation) {
+    return composePersonalDateResearchBundle({ birthdateIso, accessDescriptor, createdAt });
+  }
+  const crossResult = await crossProvider({ name, surname, representation });
+  return composePersonalDateResearchBundle({
+    birthdateIso,
+    crossResult,
+    accessDescriptor,
+    createdAt,
+  });
+}
+
 export default gregorianToHebrewDateRepresentation;
