@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.7 COMPACT
+# SOD1820 — MASTER ROADMAP v6.8 COMPACT
 
-**Date:** 2026-10-01  
+**Date:** 2026-10-02  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -52,7 +52,9 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 Detailed domain semantics live in owners, not here:
 
 - Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
-- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v7**;
+- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
+- Journey / Research Context / Exact Return → active `research_workspace_law` **v5**;
+- ELS / Torah text-cipher research projection → active `els_research_layer_law` **v9** + one-engine invariant `els_single_engine_law` **v2**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
@@ -100,6 +102,19 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - After cutover, continue G4 with **World high-fidelity Golden second** and **Home high-fidelity Golden third**, reusing the same visual system while allowing G4 evidence to change composition/navigation presentation without changing semantic identity.
 - G4 remains the formal Golden-experience gate. This transition lane prepares the shell and high-fidelity design; it does not mark a capability Golden or satisfy G4 acceptance by itself.
 
+## G3→G4 Journey / Spatial Foundation Extension — minimum substrate before real Journey Goldens
+
+**Human-Gate ZURIEL · 2026-10-02 · ACTIVE as transition-lane foundation work. G3 remains CLOSED.**
+
+- Distinguish **substrate now** from **broad Spatial/3D activation later**. The G3→G4 transition may build the minimum renderer-independent foundation required to test real Journeys; G7 remains the later broad/premium/multimodal/spatial activation stage.
+- Extend existing owners only: Journey/Context = `research_workspace_law v5`; ELS/Torah = `els_research_layer_law v9` + `els_single_engine_law v2`; projection = Experience v8 + Design Contract + Spatial Runtime Vision; Gematria truth remains with canonical engine/method owners.
+- Required transition substrate: one canonical Hebrew letter/vector lineage reused across site/ELS/video, one `scene.v1` semantic projection contract, true Web 3D as an explicit rich depth, Blender/cinematic consumer of the same scene, one semantic Journey contract with exact return, and one real Gematria↔Torah/ELS bridge Golden.
+- Current implementation evidence is **BRANCH-ONLY**, not live: M0 scene.v1 hardened PASS at `9e9eafab1ca87f7cd3f4a5e1c21ac64ad91d56cb`; M1 R3F true-Web-3D PASS at `726d01caa8f18d2edb5398c77027db72f4bd486f`.
+- Dependency order: **M2 Blender bridge → M3 canonical Hebrew glyph asset root → J1 Journey runtime contract → J2 Gematria Journey Golden → J3 Gematria↔Torah/ELS Golden → J4 cinematic Journey projection → G4 acceptance**.
+- Large Torah/ELS space must use batching/atlas/LOD; do not turn every corpus letter into a permanent heavy mesh/component or create a second Torah letter store.
+- Site and video are different renderers of the same semantic scene/Journey. No video-specific Mistater/Milui grammar and no GLB/.blend file as semantic SSOT.
+- Detailed implementation scope: `docs/g3-g4-journey-spatial-foundation-scope-v1.md`.
+
 ## Later program sequence
 
 ### G4 — Golden Experiences
@@ -124,7 +139,7 @@ Prove English over the same identities, capability/access state, Research Contex
 
 ### G7 — Multimodal / spatial / premium experience activation
 
-Activate selected Voice/Audio/Private Corpus/Spatial/Media/Pulse/Cross-channel capabilities according to G5 entitlement and per-capability Golden acceptance. Capability may remain BUILDING/PARKED without deletion.
+Activate selected Voice/Audio/Private Corpus/Spatial/Media/Pulse/Cross-channel capabilities according to G5 entitlement and per-capability Golden acceptance. This is **broad capability activation**, not the minimum renderer/Journey substrate already permitted in the G3→G4 transition lane. Capability may remain BUILDING/PARKED without deletion.
 
 ### G8 — Global shell, design acceptance, release batching
 
