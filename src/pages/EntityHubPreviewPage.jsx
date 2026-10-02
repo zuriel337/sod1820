@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";
-import "../components/experience2029/letterAnatomyGolden2029.css";
+import SpatialMethodStage2029 from "../components/gematria2029/SpatialMethodStage2029.jsx";
 import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
 import "../components/experience2029/mistaterTensionGolden2029.css";
 import RegularVerseGolden2029 from "../components/experience2029/RegularVerseGolden2029.jsx";
@@ -8,8 +7,7 @@ import "../components/experience2029/regularVerseGolden2029.css";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
-import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileMistaterTensionScene, compileRegularLedgerScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileMistaterTensionScene, compileRegularLedgerScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -39,7 +37,7 @@ export default function EntityHubPreviewPage() {
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
   const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
   const [anatomyMode,setAnatomyMode]=useState("visible");
-  const [anatomyScene,setAnatomyScene]=useState(null);
+  const [anatomyTrace,setAnatomyTrace]=useState(null);
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
   const [mistaterScene,setMistaterScene]=useState(null);
   const [mistaterStatus,setMistaterStatus]=useState("idle");
@@ -53,38 +51,26 @@ export default function EntityHubPreviewPage() {
   useEffect(() => {
     let active=true;
     if(label!=="1237"){
-      setAnatomyScene(null);
+      setAnatomyTrace(null);
       setAnatomyStatus("idle");
       return () => { active=false; };
     }
-    setAnatomyScene(null);
+    setAnatomyTrace(null);
     setAnatomyStatus("loading");
-    supabase.rpc("fn_method_value", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }).then(({data,error})=>{
+    supabase.rpc("gematria_method_trace", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }).then(({data,error})=>{
       if(!active) return;
-      const value=Number(data);
-      if(error||!Number.isSafeInteger(value)||value!==Number(label)){
+      const value=Number(data?.result);
+      if(
+        error ||
+        data?.verification?.parity!==true ||
+        !Number.isSafeInteger(value) ||
+        value!==Number(label)
+      ){
         setAnatomyStatus("unverified");
         return;
       }
-      try{
-        const scene=compileLetterAnatomyScene({
-          expression:"אופק אדנק",
-          methodKey:"מילוי",
-          variantSource:"engine_default",
-          letterSpecs:buildWordLetterAnatomySpecs("אופק אדנק"),
-          engineTrace:{
-            engine_verified:true,
-            value,
-            source:"fn_method_value",
-            method_key:"מילוי",
-            expression:"אופק אדנק",
-          },
-        });
-        setAnatomyScene(scene);
-        setAnatomyStatus("ready");
-      }catch{
-        setAnatomyStatus("unverified");
-      }
+      setAnatomyTrace(data);
+      setAnatomyStatus("ready");
     });
     return () => { active=false; };
   }, [label]);
@@ -282,7 +268,7 @@ export default function EntityHubPreviewPage() {
     {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
       <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; גלוי/מלא/נסתר הם מצבי תצוגה בלבד — שיטת החישוב נשארת מילוי.</p></div>
       <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
-      <LetterAnatomyGolden2029 scene={anatomyScene} mode={anatomyMode}/>
+      <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2"/>
       {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
       {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
     </section> : null}
