@@ -65,6 +65,7 @@ function MiluiStage({
   expectedValue,
   mode = "full",
   depth = "S2",
+  loading = false,
   onRazielAction,
   onOpenHeichal,
 }) {
@@ -188,10 +189,11 @@ export default function SpatialMethodStage2029({
       className="sod29-spatial-method-stage"
       dir="rtl"
       data-experience-capability="spatial-method-stage"
-      data-state="unverified"
+      data-state={loading ? "loading" : "unverified"}
       aria-live="polite"
+      aria-busy={loading ? "true" : undefined}
     >
-      <p>התצוגה המרחבית נפתחת רק אחרי Trace קנוני מאומת.</p>
+      <p>{loading ? "טוען את צעדי השיטה מהמנוע הקנוני…" : "התצוגה המרחבית נפתחת רק אחרי Trace קנוני מאומת."}</p>
     </section>;
   }
 
