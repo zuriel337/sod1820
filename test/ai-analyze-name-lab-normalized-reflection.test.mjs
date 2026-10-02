@@ -15,7 +15,7 @@ test("name_lab normalized_reflection has one bounded structured response lane", 
 });
 
 test("structured lane preserves the legacy analysis response for every other operation", () => {
-  assert.match(edge, /analysis:\s*reflectionInterpretation\?\.message \|\| finalOut\.text/);
+  assert.match(edge, /analysis:\s*structuredNameReflection\s*\?\s*\(reflectionInterpretation\?\.message \|\| null\)\s*:\s*finalOut\.text/);
   assert.match(client, /operation === 'normalized_reflection' && data\?\.reflection_interpretation\?\.message/);
   assert.match(client, /return structuredReflection \|\| analysisText/);
 });
