@@ -25,3 +25,14 @@ test("reflection prompt keeps Tarot outside AI synthesis and requires bundle Fin
   assert.match(edge, /קלף\/טארוט אינו חלק מהשלב הזה/);
   assert.match(edge, /אל תמציא מזהים/);
 });
+
+test("structured parse failure cannot fall back to raw model text as frozen analysis", () => {
+  assert.match(
+    edge,
+    /analysis:\s*structuredNameReflection\s*\?\s*\(reflectionInterpretation\?\.message \|\| null\)\s*:\s*finalOut\.text/
+  );
+  assert.doesNotMatch(
+    edge,
+    /analysis:\s*reflectionInterpretation\?\.message\s*\|\|\s*finalOut\.text/
+  );
+});
