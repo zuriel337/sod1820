@@ -398,15 +398,24 @@ export default function NumberDrawer2029({
     heroMedia: stageMedia[0] || null,
   }), [stageRoot, expression, selectedMethodKey, profileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
-  const updateContext = (patch = {}) => {
+  const updateContext = (patch = {}, selectionOverride = null) => {
     if (!Number.isSafeInteger(root)) return;
-    const activeMethodKey = selectedProfile?.methodKey || clean(selectedMethodKey) || null;
+    const hasOverride = selectionOverride && typeof selectionOverride === "object";
+    const activeExpression = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "expression")
+      ? clean(selectionOverride.expression) || null
+      : clean(expression) || null;
+    const activeMethodKey = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "methodKey")
+      ? clean(selectionOverride.methodKey) || null
+      : selectedProfile?.methodKey || clean(selectedMethodKey) || null;
+    const activeResultValue = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "resultValue")
+      ? selectionOverride.resultValue ?? null
+      : selectedProfile?.computedValue ?? null;
     const selection = {
       entityId: String(root),
       entityType: "number",
-      expression: clean(expression) || null,
+      expression: activeExpression,
       method: activeMethodKey,
-      resultValue: selectedProfile?.computedValue ?? null,
+      resultValue: activeResultValue,
     };
     const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
     internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
@@ -458,10 +467,15 @@ export default function NumberDrawer2029({
   };
 
   const selectMethod = (key) => {
+    const nextProfile = methodProfileEntry(profileState.rows, key);
     setSelectedMethodKey(key);
     setSurfaceMode("focus");
     setTraceOpen(false);
-    requestAnimationFrame(() => updateContext());
+    updateContext({}, {
+      expression: clean(expression) || null,
+      methodKey: nextProfile?.methodKey || clean(key) || null,
+      resultValue: nextProfile?.computedValue ?? null,
+    });
   };
 
   const openExplicitRoot = (value) => {
