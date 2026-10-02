@@ -85,7 +85,7 @@ test("runtime accepts surname/birthdate for canonical NameLab call but never sen
       return { graded: false, tracks: tracks() };
     },
     aiAnalysisProvider: async ({ subject, facts }) => {
-      assert.equal(subject, "אוראל כהן");
+      assert.equal(subject, "אוראל");
       aiFacts = facts;
       assert.match(facts, /value=238/);
       assert.match(facts, /method=combo_gem/);
@@ -107,7 +107,7 @@ test("runtime accepts surname/birthdate for canonical NameLab call but never sen
 
   assert.equal(receivedOpts.surname, "כהן");
   assert.equal(receivedOpts.birthdate, "28.8.2008");
-  assert.doesNotMatch(aiFacts, /28\.8\.2008|birthdate/);
+  assert.doesNotMatch(aiFacts, /כהן|28\.8\.2008|birthdate|surname/);
   assert.equal(result.status, "ok");
   assert.equal(result.payload.messageReflection.motifs[0].frame.power, "בהירות");
   assert.equal(result.payload.messageReflection.reflection_check.evidence_weight, 0);
