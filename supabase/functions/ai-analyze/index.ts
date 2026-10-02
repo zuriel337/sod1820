@@ -1311,8 +1311,10 @@ Deno.serve(async (req: Request) => {
     const reflectionInterpretation = structuredNameReflection
       ? parseNameLabReflectionOutput(finalOut.text, facts)
       : null;
+    // Structured reflection is fail-closed: malformed/truncated JSON must never become the frozen
+    // user-facing message. Legacy operations keep the exact historical finalOut.text behavior.
     const responseBody = {
-      analysis: reflectionInterpretation?.message || finalOut.text,
+      analysis: structuredNameReflection ? (reflectionInterpretation?.message || null) : finalOut.text,
       reflection_interpretation: reflectionInterpretation,
       engine,
       model,
