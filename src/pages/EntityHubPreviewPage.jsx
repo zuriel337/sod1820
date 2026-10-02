@@ -268,7 +268,7 @@ export default function EntityHubPreviewPage() {
     {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
       <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; גלוי/מלא/נסתר הם מצבי תצוגה בלבד — שיטת החישוב נשארת מילוי.</p></div>
       <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
-      <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2"/>
+      <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2" loading={anatomyStatus === "loading"}/>
       {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
       {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
     </section> : null}
