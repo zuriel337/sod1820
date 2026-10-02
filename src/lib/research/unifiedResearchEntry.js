@@ -3,7 +3,7 @@ import {
   RESEARCH_IDENTITY_SOURCE,
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
-import { buildResearchPlanV2 } from "./researchPlanV2.js";
+import { buildResearchPlanV2, RESEARCH_CAPABILITY } from "./researchPlanV2.js";
 import { resolveResearchProfile, RESEARCH_PROFILE } from "./researchProfiles.js";
 
 export const UNIFIED_RESEARCH_ENTRY_VERSION = "unified-research-entry-v1";
@@ -189,13 +189,21 @@ export function buildUnifiedResearchEntry({
   const rawText = clean(input.text);
   const candidates = candidatesFromInput(input, kind);
   const explicitTextComputation = input.explicitTextComputation === true
-    || [INPUT_KIND.EXPRESSION, INPUT_KIND.QUESTION].includes(kind);
+    || kind === INPUT_KIND.EXPRESSION;
 
   const resolution = resolveResearchIdentities({
     candidates,
     rawInput: rawText || null,
     explicitTextComputation,
   });
+
+  const kindCapabilities = [];
+  if (kind === INPUT_KIND.EXPRESSION) kindCapabilities.push(RESEARCH_CAPABILITY.NAME, RESEARCH_CAPABILITY.SOURCES);
+  if (kind === INPUT_KIND.DATE) kindCapabilities.push(RESEARCH_CAPABILITY.TIME);
+  if (kind === INPUT_KIND.PERSON_REF) kindCapabilities.push(RESEARCH_CAPABILITY.PERSON);
+  if (kind === INPUT_KIND.SOURCE_REF) kindCapabilities.push(RESEARCH_CAPABILITY.SOURCES);
+  if (kind === INPUT_KIND.EVENT_REF) kindCapabilities.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
+  const effectiveRequestedCapabilities = [...new Set([...requestedCapabilities, ...kindCapabilities])];
 
   const plan = kind === INPUT_KIND.MEDIA
     ? null
@@ -206,7 +214,7 @@ export function buildUnifiedResearchEntry({
         authorizationContext,
         contextType,
         surfaceContext,
-        requestedCapabilities,
+        requestedCapabilities: effectiveRequestedCapabilities,
         capabilityAllowlist: profileResolved.capabilities,
         requestedDepth: profileResolved.depth,
       });
