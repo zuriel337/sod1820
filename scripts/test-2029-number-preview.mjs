@@ -103,6 +103,7 @@ assert.match(drawer, /data-contextual-number-mode=\{surfaceMode\}/);
 assert.match(drawer, /FOCUS · איך זה מחושב/);
 assert.match(drawer, /NUMBER PREVIEW · מה חי סביב המספר/);
 assert.match(drawer, /restoreOriginFocus/);
+assert.match(drawer, /data-experience-action="contextual-number-back"/);
 assert.match(drawer, /setSurfaceMode\("number"\)/);
 assert.match(drawer, /setSurfaceMode\("focus"\)/);
 assert.match(drawer, /targetNumber != null \? "" : contextExpression/);
