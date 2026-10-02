@@ -230,8 +230,10 @@ export async function runNameLabReflectionRuntime({
 
   const first = clean(name);
   const last = clean(surname);
-  const label = [first, last].filter(Boolean).join(" ");
-  if (!label) return failedClosed(NAME_LAB_REFLECTION_FAILURE_REASON.INVALID_NAME);
+  if (!first) return failedClosed(NAME_LAB_REFLECTION_FAILURE_REASON.INVALID_NAME);
+  // Research/AI subject stays the researched word/expression only. Surname is private execution
+  // context for the canonical NameLab call and must not leak into Findings, prompts or reflection.
+  const researchLabel = first;
 
   // Personal fields may select/shape the canonical NameLab run, but are intentionally NOT copied
   // into bounded AI facts. The AI receives only bundle-backed Findings about the expression.
@@ -241,15 +243,15 @@ export async function runNameLabReflectionRuntime({
     question: clean(question),
   });
   const trackLists = extractNameLabTrackLists(nameMultiResult);
-  const bundle = composeNameLabNormalizedEvidenceBundle({ name: label, trackLists });
+  const bundle = composeNameLabNormalizedEvidenceBundle({ name: researchLabel, trackLists });
   const findings = Array.isArray(bundle?.findings) ? bundle.findings : [];
 
   if (findings.length === 0) return failedClosed(NAME_LAB_REFLECTION_FAILURE_REASON.ZERO_FINDINGS);
 
-  const facts = buildNameLabBoundedFacts(label, findings);
+  const facts = buildNameLabBoundedFacts(researchLabel, findings);
   const rawInterpretation = await aiAnalysisProvider({
     kind: "name_lab",
-    subject: label,
+    subject: researchLabel,
     facts,
     operation: "normalized_reflection",
   });
