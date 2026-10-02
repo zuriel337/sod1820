@@ -7,7 +7,7 @@ import { build } from "vite";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
-  compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue, SCENE_V1_SCHEMA,
+  compileMistaterSceneV1, serializeSceneProjectionV1, computeSceneProjectionSignatureV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue, SCENE_V1_SCHEMA,
 } from "../src/lib/spatial/semanticSceneCompiler.js";
 
 const trace = () => ({
@@ -150,5 +150,57 @@ test("Stage consumes scene.v1 (no parallel Mistater semantics) and draws connect
   assert.equal(closed.includes("data-connector-id"), false);
   // scene validation failure after gate (inconsistent pair) also fails closed to empty
   const inconsistent = trace(); inconsistent.steps[0].pairs[0].difference = 1;
-  assert.equal(renderToStaticMarkup(React.createElement(Stage, { expression: "התגלות", methodKey: "מסתתר", trace: inconsistent })), "");
+  const errHtml = renderToStaticMarkup(React.createElement(Stage, { expression: "התגלות", methodKey: "מסתתר", trace: inconsistent }));
+  assert.match(errHtml, /data-state="scene-error"/);
+  assert.match(errHtml, /data-experience-capability="spatial-method-stage"/);
+  assert.match(errHtml, /aria-live="polite"/);
+  assert.equal(errHtml.includes("data-connector-id"), false);
+  assert.equal(errHtml.includes("data-scene-schema"), false);
+  assert.match(html, /data-scene-id="sod1820\.scene\.v1:/);
+  assert.match(html, /data-projection-signature="projsig\.v1:/);
+});
+
+test("scene.v1: same trace => same scene_id and projection signature", () => {
+  const a = compile(), b = compile();
+  assert.ok(a.scene_id.startsWith("sod1820.scene.v1:"));
+  assert.equal(a.scene_id, b.scene_id);
+  assert.match(a.projection_signature, /^projsig\.v1:cyrb53:[0-9a-f]{14}$/);
+  assert.equal(a.projection_signature, b.projection_signature);
+  assert.equal(serializeSceneProjectionV1(a), serializeSceneProjectionV1(b));
+  assert.equal(computeSceneProjectionSignatureV1(a), a.projection_signature);
+});
+
+test("scene.v1: projection change => signature changes", () => {
+  const s = compile();
+  const moved = structuredClone(s);
+  moved.nodes.find((n) => n.kind === "letter_anchor").transform.position.x += 1;
+  assert.notEqual(computeSceneProjectionSignatureV1(moved), s.projection_signature);
+  const rewired = structuredClone(s);
+  rewired.connectors[0].to = { ...rewired.connectors[1].to };
+  assert.notEqual(computeSceneProjectionSignatureV1(rewired), s.projection_signature);
+  const styled = structuredClone(s);
+  styled.connectors[0].curve.lift += 1;
+  assert.notEqual(computeSceneProjectionSignatureV1(styled), s.projection_signature);
+  const fb = structuredClone(s);
+  fb.fallback.narrow.strategy = "other";
+  assert.notEqual(computeSceneProjectionSignatureV1(fb), s.projection_signature);
+  const expr = compileMistaterSceneV1({ expression: "התגלות", methodTrace: trace() });
+  expr.subjectId = "other";
+  assert.notEqual(computeSceneProjectionSignatureV1(expr), s.projection_signature);
+});
+
+test("scene.v1: signature excludes canonical arithmetic (not duplicated into projection identity)", () => {
+  const s = compile();
+  const ser = serializeSceneProjectionV1(s);
+  assert.equal(ser.includes('"trace"'), false);
+  assert.equal(ser.includes("1237"), false);
+  // same topology, different canonical arithmetic payload (values only) => identical projection identity
+  const mutated = structuredClone(s);
+  mutated.canonical.trace.result = 9999;
+  mutated.canonical.trace.steps[0].pairs[0].difference = 1;
+  mutated.canonical.trace.steps[0].letter_values[0] = 7;
+  const resultNode = mutated.nodes.find((n) => n.kind === "engine_result");
+  resultNode.label = "9999";
+  assert.equal(computeSceneProjectionSignatureV1(mutated), s.projection_signature);
+  assert.equal(serializeSceneProjectionV1(mutated), ser);
 });
