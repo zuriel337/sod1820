@@ -105,6 +105,7 @@ assert.match(drawer, /NUMBER PREVIEW · מה חי סביב המספר/);
 assert.match(drawer, /restoreOriginFocus/);
 assert.match(drawer, /setSurfaceMode\("number"\)/);
 assert.match(drawer, /setSurfaceMode\("focus"\)/);
+assert.match(drawer, /targetNumber != null \? "" : contextExpression/);
 assert.match(drawerCss, /sod29-number-drawer-mode/);
 assert.match(core, /data-experience-action="number-result-preview"/);
 assert.match(frame, /data-experience-capability="contextual-sidecar"/);
