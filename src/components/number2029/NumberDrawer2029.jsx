@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
@@ -16,6 +16,7 @@ const NUMBER_METHOD_RESULT_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 const normalizedMethodName = (value) => clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
 const isRegularMethodIdentity = (value) => normalizedMethodName(value) === "רגיל";
+const numberContextSignature = (root, expression, methodKey) => `${root ?? ""}|${clean(expression)}|${clean(methodKey)}`;
 
 function anchorExpression(fact, root) {
   const text = clean(fact);
@@ -75,8 +76,16 @@ export default function NumberDrawer2029({
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
+  const internalContextSignatureRef = useRef(null);
+  const modeRef = useRef(null);
+  const previousSurfaceModeRef = useRef(surfaceMode);
 
   useEffect(() => {
+    const incomingSignature = numberContextSignature(contextRoot, context?.selection?.expression, context?.selection?.method);
+    if (!target && internalContextSignatureRef.current && internalContextSignatureRef.current === incomingSignature) {
+      internalContextSignatureRef.current = null;
+      return;
+    }
     const nextRoot = targetNumber ?? contextRoot;
     setRoot(nextRoot);
     const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : clean(context?.selection?.expression));
@@ -109,7 +118,7 @@ export default function NumberDrawer2029({
     }).then((data) => {
       if (!alive) return;
       setDataState({ loading: false, data, error: null });
-      if (!expression && surfaceMode !== "number") {
+      if (!expression) {
         const nextExpression = defaultExpression(data, root, contextExpression);
         if (nextExpression) {
           setExpression(nextExpression);
@@ -196,8 +205,15 @@ export default function NumberDrawer2029({
       expression: expr,
       methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
       root: focusRoot,
+      traceOpen,
     });
-  }, [surfaceMode, expression, selectedProfile?.methodKey, selectedProfile?.computedValue, selectedMethodKey, root]);
+  }, [surfaceMode, expression, selectedProfile?.methodKey, selectedProfile?.computedValue, selectedMethodKey, root, traceOpen]);
+
+  useEffect(() => {
+    if (previousSurfaceModeRef.current === surfaceMode) return;
+    previousSurfaceModeRef.current = surfaceMode;
+    requestAnimationFrame(() => modeRef.current?.focus?.());
+  }, [surfaceMode]);
   const regularProfile = useMemo(
     () => profileState.rows.find((row) => (
       isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
@@ -384,14 +400,16 @@ export default function NumberDrawer2029({
 
   const updateContext = (patch = {}) => {
     if (!Number.isSafeInteger(root)) return;
+    const activeMethodKey = selectedProfile?.methodKey || clean(selectedMethodKey) || null;
     const selection = {
       entityId: String(root),
       entityType: "number",
       expression: clean(expression) || null,
-      method: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
+      method: activeMethodKey,
       resultValue: selectedProfile?.computedValue ?? null,
     };
     const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
+    internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
     if (context?.subject?.type === "number" && String(context.subject.id) === String(root)) {
       research?.updateResearchContext?.({ selection, lens: "number", ...patch });
     } else {
@@ -453,13 +471,17 @@ export default function NumberDrawer2029({
       setOriginFocus({
         expression: clean(expression),
         methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
-        root: Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : next,
+        root: Number.isSafeInteger(Number(root)) ? Number(root) : null,
+        traceOpen,
       });
     }
+    const sameRoot = Number.isSafeInteger(Number(root)) && Number(root) === next;
     setRoot(next);
-    setExpression("");
     setInput(String(next));
-    setSelectedMethodKey("");
+    if (!sameRoot) {
+      setExpression("");
+      setSelectedMethodKey("");
+    }
     setSurfaceMode("number");
     setTraceOpen(false);
   };
@@ -471,7 +493,7 @@ export default function NumberDrawer2029({
     setInput(originFocus.expression);
     setSelectedMethodKey(originFocus.methodKey || "");
     if (Number.isSafeInteger(Number(originFocus.root))) setRoot(Number(originFocus.root));
-    setTraceOpen(false);
+    setTraceOpen(originFocus.traceOpen === true);
   };
 
   const razielIntent = (intent, focus = {}) => {
@@ -540,7 +562,7 @@ export default function NumberDrawer2029({
     data-contextual-number-surface="v1"
     data-contextual-number-mode={surfaceMode}
   >
-    <div className="sod29-number-drawer-mode" role="status" aria-live="polite">
+    <div className="sod29-number-drawer-mode" role="region" aria-label="מצב חלונית המספר" tabIndex={-1} ref={modeRef}>
       <div>
         <span>{surfaceMode === "focus" ? "FOCUS · איך זה מחושב" : "NUMBER PREVIEW · מה חי סביב המספר"}</span>
         <strong>{surfaceMode === "focus" ? (clean(expression) || "ביטוי") : (Number.isSafeInteger(Number(root)) ? String(root) : "מספר")}</strong>
