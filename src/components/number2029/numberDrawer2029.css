@@ -31,7 +31,7 @@
 }
 .sod29-number-drawer-back:hover{background:color-mix(in srgb,var(--s29-accent) 8%,transparent)}
 @media(max-width:620px){
-  .sod29-number-drawer-mode{position:sticky;top:0;z-index:2;align-items:center;backdrop-filter:blur(12px)}
+  .sod29-number-drawer-mode{align-items:center;background:color-mix(in srgb,var(--s29-panel-soft) 94%,transparent)}
   .sod29-number-drawer-mode strong{font-size:16px}
   .sod29-number-drawer-back{max-width:46%;white-space:normal;line-height:1.25}
 }
