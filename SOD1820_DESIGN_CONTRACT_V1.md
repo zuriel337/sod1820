@@ -191,6 +191,62 @@ Reference surfaces are examples for **new work**, not commands to restyle every 
 | `/codes/:slug` | Next reference candidate | TBD in its redesign pass | forward roles | single research-object / cipher surface | do not redesign implicitly as part of the library page |
 | Legacy surfaces | Transitional | existing behavior until their workstream reaches redesign | existing | preserved capability | no blind migration |
 
+
+## Contextual Sidecar + Spatial Method Stage — responsive projection contract
+
+**Human Gate:** ZURIEL · 2.10.2026  
+**Owner routing:** `experience_governance_foundation_v1_law v8` + this Design Contract  
+**Owner verdict:** `EXTEND_EXISTING` — no Sidecar system, no mobile-only system, no second calculator family.
+
+### One contextual surface, three states
+- **REST:** the contextual surface is quiet and cheap (S0–S1). On Post/Topic it shows a bounded map of the current content; on other surfaces it shows the current contextual summary.
+- **FOCUS:** selecting a semantic object reuses the same surface for a bounded inspector. The map collapses to a compact return/orientation affordance; do not show full map + full inspector simultaneously.
+- **EXPLORE:** explicit depth action opens the owning destination (Number/World/Heichal/Journey/etc.) with identity, provenance, selection and exact-return continuity.
+
+### Desktop / mobile identity
+- **Desktop:** project as the left Context Rail / Sidecar.
+- **Mobile:** project the same state as a **Bottom Context Sheet**. Do not squeeze a desktop left rail into a narrow screen.
+- Mobile REST is a compact cue. Mobile FOCUS opens partial-height by default so the source context remains visible above. User may expand/deepen explicitly.
+- The Bottom Sheet is the mobile projection of the same contextual capability, not a popup family or a second mobile architecture.
+
+### Performance budget
+- Only one rich contextual renderer may be active at a time.
+- Inactive context cards stay static/cheap and may be unmounted.
+- Fetch canonical trace/detail only after semantic focus requires it.
+- S2 layered depth is the default rich focus level; S3 interactive 2.5D is deliberate explore depth.
+- S4 true GPU 3D is reserved for material geometry. It is never required just because the object is gematria.
+- Reduced-motion / low-power / unsupported devices receive a semantic static fallback with the same actions and truth state.
+
+### One Spatial Method Stage
+A redesigned gematria explanation uses one shared Spatial Method Stage across Number Method Inspector, Post focus, Context Sidecar, mobile Bottom Sheet and bounded Golden surfaces.
+
+Canonical input:
+`expression + canonical method identity + canonical trace/result/provenance`.
+
+The Stage selects a projection adapter; it never calculates numeric truth itself.
+
+Default method language:
+- **רגיל:** visible-letter value/body.
+- **מילוי:** internal letter-name expansion.
+- **מסתתר:** adjacent-letter relation / tension.
+- **קדמי / משולש:** letter-potential triangle.
+- **משולש מילה:** cumulative-prefix formation.
+
+Other methods extend the same Stage through their canonical method/engine contract. Do not create a new calculator/renderer family per surface.
+
+### Milui convergence rule
+Current implementations are intentionally treated as two proofs that must converge:
+- `NumberCore2029 / MethodInspector` is the stronger **interaction/home shell**: canonical trace, method tabs, Raziel, Worlds, Trace and deep actions already live there.
+- `LetterAnatomyGolden2029` is the stronger **visual/anatomy proof**: it demonstrates the intended opening of Hebrew letters in spatial depth.
+
+The final shared Milui renderer is **not a choice between them**. It combines the Number Method Inspector shell with the richer Letter Anatomy visual grammar.
+
+However, factual Milui letter-name spelling must ultimately come from the canonical engine/method registry/trace contract. A UI-local letter-name map may remain only as transitional representation metadata; it must not become a second source of method truth.
+
+### Cross-surface rule
+Inline public gematria remains simple and readable by default. A tap/click promotes the same semantic object into the contextual Stage; deepen promotes the same object into its owning full destination. Same object, same truth/provenance, different projection depth.
+
+
 ## Migration
 Existing components are migrated gradually. A repository-wide audit should classify legacy font usage before mass replacement; no blind search/replace.
 
