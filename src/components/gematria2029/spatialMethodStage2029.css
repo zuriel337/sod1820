@@ -187,6 +187,20 @@
   background:color-mix(in srgb,var(--sms-accent) 12%,var(--sms-panel-soft));
 }
 .sod29-spatial-method-stage__boundary{position:relative;z-index:1;margin:0;color:var(--sms-muted);font-size:8px;line-height:1.5}
+.sod29-spatial-method-stage[data-density="long"] .sod29-spatial-method-stage__letters{
+  grid-template-columns:repeat(var(--sms-count),68px);
+}
+.sod29-spatial-method-stage[data-density="long"] .sod29-spatial-method-stage__letter{
+  min-width:68px;
+  padding:8px 6px;
+  transform:none;
+}
+.sod29-spatial-method-stage[data-density="long"] .sod29-spatial-method-stage__letter.is-focus{
+  transform:none;
+  box-shadow:0 8px 20px color-mix(in srgb,var(--sms-glow) 12%,transparent);
+}
+.sod29-spatial-method-stage[data-density="long"] .sod29-spatial-method-stage__opening b{font-size:14px}
+.sod29-spatial-method-stage[data-density="long"] .sod29-spatial-method-stage__focus p{display:none}
 @media(max-width:620px){
   .sod29-spatial-method-stage{padding:11px;border-radius:17px}
   .sod29-spatial-method-stage__head{align-items:center}
