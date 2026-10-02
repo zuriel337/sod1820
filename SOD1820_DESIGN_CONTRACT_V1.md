@@ -256,12 +256,33 @@ Inline public gematria remains simple and readable by default. A tap/click promo
 ### Purpose
 Short vertical social video is a first-class projection of SOD1820, not an unrelated marketing skin. The default goal is immediate comprehension on a phone: one source/context, one focal discovery, one clear next action, then the canonical brand close.
 
-### Master format
+### One master for TikTok + Instagram Reels
+- Produce **one social master**, not a TikTok cut and an Instagram cut.
 - Default master: **9:16 · 1080×1920 · MP4/H.264 · 30fps** unless a source/export requirement justifies another compatible encoding.
-- Source footage/background may bleed edge-to-edge. **Key text, numbers, CTA and logo may not depend on the outer UI-covered edges.**
-- TikTok safe area is **dynamic**, not one permanent pixel rectangle: it varies with caption length, interactive add-ons and placement. At every final export, use the current TikTok safe-zone/preview for the target placement. Do not encode one stale right/bottom margin into the brand contract.
-- Current TikTok guidance checked 2.10.2026: vertical 9:16 is recommended; key text/logos must remain inside the safe zone; preview before launch is required/recommended. Platform guidance may change, so release-time verification beats this dated note.
-- Existing approved video geometry remains valid when a royal/header frame is used: top royal structure **≤20%** of frame height; only decorative side descenders may reach **≤30%**; full-height decorative columns are forbidden; central content stays open.
+- Source footage/background may bleed edge-to-edge. Critical information does not.
+- The social master uses the **intersection of TikTok + Instagram Reels safe areas**, so the same file can be posted to both without moving text/logo per platform.
+- The prior **20% / 30% video-frame geometry is superseded for TikTok/Reels social video**. It may remain historical provenance or be used in a different explicitly approved renderer, but it is not the governing social-safe-area rule.
+
+### Universal Social Safe Zone — 1080×1920
+For **must-read / must-see elements** (headline, verified number/date, CTA, brand symbol, canonical logo), use this conservative cross-platform rectangle:
+
+- **X: 90 → 918 px**
+- **Y: 260 → 1248 px**
+- usable critical-content box: **828×988 px**
+
+This box is intentionally the conservative intersection of current TikTok UI measurements and Meta Reels guidance, including Meta's stricter Reels-ad lower margin. It is a delivery-safe design envelope, not a claim that every pixel outside it is hidden.
+
+Rules:
+- Background, sky, source video, people, plane, particles and nonessential atmosphere may extend through the full **1080×1920** canvas.
+- No essential text or logo enters the right-side action rail beyond **x=918**.
+- No essential text/logo is placed above **y=260** or below **y=1248**.
+- Burned-in subtitle/caption lines should prefer the lower-middle of this box (roughly **y=970–1190**) rather than the platform-caption area at the bottom.
+- Final release still gets a TikTok preview + Instagram Reels preview because account/app UI, caption length, ads/add-ons and product controls can shift.
+
+Current source check (2.10.2026):
+- TikTok: recommends 9:16 and explicitly says safe-zone size changes with caption length/add-ons; official preview/overlay is the final authority.
+- Meta Reels: current published guidance is to keep key text/logos out of the top **14%**, bottom **35%**, and **6% on each side** for Reels ads.
+- The Universal Social Safe Zone above is deliberately no looser than those current constraints for one reusable master.
 
 ### Default short-form story grammar
 For discovery/research reels, prefer this sequence unless the story itself requires another order:
@@ -290,11 +311,17 @@ Default discovery reel duration is editorial rather than a truth rule. Keep it a
 - A source label supplied by ZURIEL may be preserved as provenance/context without silently upgrading it to an independently verified fact.
 - Video polish, cinematic scale, 3D depth or repetition never upgrades a hint/interpretation into evidence or fact.
 
-### Canonical logo close
+### Brand symbol + canonical logo placement
 - The current 2D outro consumes the **exact approved canonical Hebrew lockup asset** under the existing Brand/Logo owner; no redraw, AI recreation or substitute spelling.
-- Default outro is short and deliberate (normally about **1–2 seconds**) and occurs after the CTA/last content beat.
-- The logo must remain inside the current release-time platform safe zone.
-- A video may use the approved 20/30 royal-frame language earlier, but the final logo close remains the canonical identity seal.
+- **Do not keep the full logo permanently on screen by default.** The content owns the video; the full lockup is the closing identity moment.
+- If a small brand symbol is needed during the content, place it in the **upper-left portion of the Universal Social Safe Zone**, not against the physical frame edge or the platform UI.
+- **Final logo outro:** use a clean dedicated final screen after the CTA/last content beat, normally **1–2 seconds**.
+- Center the canonical lockup inside the Universal Social Safe Zone. Reference placement for 1080×1920:
+  - safe-box center: **x=504, y=754**
+  - visual lockup may be optically centered around **x≈540, y≈750–820**
+  - recommended maximum logo/lockup envelope: about **760 px wide × 360 px high**, while preserving the approved asset proportions.
+- The logo must not be pushed to the bottom just because there is empty space there; TikTok/Instagram UI owns that area.
+- If the final 3D brand treatment later replaces the flat outro, it inherits this same cross-platform safe envelope unless current platform verification requires an even tighter one.
 
 ### Planned 3D evolution — projection, not replacement of identity
 The current 2D TikTok/Social contract is intentionally designed to evolve into the 3D system now being built.
@@ -310,7 +337,7 @@ A social-video task is not complete merely because a file rendered.
 
 Verify at minimum:
 1. 9:16/mobile framing is intentional and source media is not stretched.
-2. Current TikTok safe-zone/preview passes for text, focal numbers, CTA and logo.
+2. The one-master Universal Social Safe Zone passes for text, focal numbers, CTA and logo, and both TikTok + Instagram Reels previews are checked.
 3. Hebrew/date/number text is readable on a phone and matches canonical calculation/source state.
 4. One focal idea is understandable without reading a long caption.
 5. CTA promises only a capability/asset that actually exists.
