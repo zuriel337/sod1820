@@ -573,6 +573,7 @@ export default function NumberDrawer2029({
       {surfaceMode === "number" && originFocus?.expression ? <button
         type="button"
         className="sod29-number-drawer-back"
+        data-experience-action="contextual-number-back"
         onClick={restoreOriginFocus}
       >↩ חזרה ל־{originFocus.expression}</button> : null}
     </div>
