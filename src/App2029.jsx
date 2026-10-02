@@ -21,6 +21,7 @@ const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
 const Video2029Page = lazy(() => import("./pages/Video2029Page.jsx"));
 const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx"));
+const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
@@ -90,6 +91,7 @@ export default function App2029() {
               <Route path="/היכל" element={<Heichal2029Page />} />
               <Route path="/researcher/:slug" element={<Researcher2029Page />} />
               <Route path="/2029/number/:value" element={<Number2029Page />} />
+              <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
