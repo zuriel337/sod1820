@@ -36,6 +36,7 @@ export default function EntityHubPreviewPage() {
   const label = decodeURIComponent(String(key || "1237"));
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
   const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
+  const [goldenFocus,setGoldenFocus]=useState("milui");
   const [anatomyMode,setAnatomyMode]=useState("visible");
   const [anatomyTrace,setAnatomyTrace]=useState(null);
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
@@ -50,7 +51,7 @@ export default function EntityHubPreviewPage() {
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
+    if(label!=="1237" || goldenFocus!=="milui"){
       setAnatomyTrace(null);
       setAnatomyStatus("idle");
       return () => { active=false; };
@@ -73,11 +74,11 @@ export default function EntityHubPreviewPage() {
       setAnatomyStatus("ready");
     });
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
+    if(label!=="1237" || goldenFocus!=="mistater"){
       setMistaterScene(null);
       setMistaterStatus("idle");
       return () => { active=false; };
@@ -100,11 +101,11 @@ export default function EntityHubPreviewPage() {
       }
     });
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
+    if(label!=="1237" || goldenFocus!=="regular"){
       setRegularScene(null);
       setRegularSource(null);
       setRegularStatus("idle");
@@ -152,11 +153,11 @@ export default function EntityHubPreviewPage() {
     });
 
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
+    if(label!=="1237" || goldenFocus!=="convergence"){
       setConvergenceScene(null);
       setConvergenceMotion(null);
       setConvergenceStatus("idle");
@@ -209,7 +210,7 @@ export default function EntityHubPreviewPage() {
     });
 
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -265,33 +266,53 @@ export default function EntityHubPreviewPage() {
       </div>
     </section>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; גלוי/מלא/נסתר הם מצבי תצוגה בלבד — שיטת החישוב נשארת מילוי.</p></div>
-      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
-      <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2" loading={anatomyStatus === "loading"}/>
-      {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
-      {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
-    </section> : null}
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="golden-1237-focus-title" data-experience-surface="golden-1237-focus">
+      <div className="sp29-section-head">
+        <div><span>GOLDEN 1237 · ONE ACTIVE VIEW</span><h2 id="golden-1237-focus-title">1237 — אותה אמת, נתיב אחד פעיל בכל רגע</h2></div>
+        <p>בוחרים נתיב אחד. רק התצוגה הפעילה נטענת; שאר הנתיבים נשארים שקטים עד שבוחרים אותם.</p>
+      </div>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="mistater-tension-title" data-experience-surface="golden-1237-mistater">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · MISTATER TENSION</span><h2 id="mistater-tension-title">התגלות — מתח בין האותיות</h2></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות. כל ערך מגיע ישירות מ־gematria_method_trace המאומת; האנימציה אינה מחשבת אמת.</p></div>
-      <MistaterTensionGolden2029 scene={mistaterScene}/>
-      {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
-      {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
-    </section> : null}
+      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap",marginBottom:18}}>
+        {[
+          ["milui","אופק אדנק · מילוי"],
+          ["mistater","התגלות · מסתתר"],
+          ["regular","וראית את אחרי · רגיל"],
+          ["convergence","שלושת הנתיבים"],
+        ].map(([key,text])=><button
+          key={key}
+          type="button"
+          aria-pressed={goldenFocus===key}
+          onClick={()=>setGoldenFocus(key)}
+        >{text}</button>)}
+      </div>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="regular-verse-title" data-experience-surface="golden-1237-regular">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · REGULAR</span><h2 id="regular-verse-title">וראית את אחרי — רגיל</h2></div><p>כאן אין פתיחה פנימה ואין מתח בין אותיות: הערך נבנה מן האותיות הגלויות של הביטוי, בתוך הקשר הפסוק בשמות לג:כג.</p></div>
-      <RegularVerseGolden2029 scene={regularScene} verseSource={regularSource}/>
-      {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
-      {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי trace ומקור פסוק מאומתים.</p> : null}
-    </section> : null}
+      {goldenFocus === "milui" ? <div data-experience-surface="golden-1237-milui">
+        <div className="sp29-section-head"><div><span>MILUI · SHARED SPATIAL METHOD STAGE</span><h3>אופק אדנק — גלוי · מלא · נסתר</h3></div><p>אותו Spatial Method Stage שמשמש את Method Inspector בדף המספר.</p></div>
+        <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
+        <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2" loading={anatomyStatus === "loading"}/>
+        {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא Trace קנוני מאומת.</p> : null}
+      </div> : null}
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="convergence-1237-title" data-experience-surface="golden-1237-convergence">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · CONVERGENCE</span><h2 id="convergence-1237-title">שלושה נתיבים — 1237 אחד</h2></div><p>אופק אדנק במילוי, התגלות במסתתר, וראית את אחרי ברגיל. שלושתם מאומתים בנפרד ורק אחר כך נפגשים.</p></div>
-      <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
-      {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
-      {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
+      {goldenFocus === "mistater" ? <div data-experience-surface="golden-1237-mistater">
+        <div className="sp29-section-head"><div><span>MISTATER TENSION</span><h3>התגלות — מתח בין האותיות</h3></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות מתוך Trace קנוני.</p></div>
+        <MistaterTensionGolden2029 scene={mistaterScene}/>
+        {mistaterStatus === "loading" ? <p aria-live="polite">טוען Trace קנוני של מסתתר…</p> : null}
+        {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא Trace קנוני מאומת.</p> : null}
+      </div> : null}
+
+      {goldenFocus === "regular" ? <div data-experience-surface="golden-1237-regular">
+        <div className="sp29-section-head"><div><span>REGULAR</span><h3>וראית את אחרי — רגיל</h3></div><p>הערך נבנה מן האותיות הגלויות של הביטוי בתוך הקשר הפסוק בשמות לג:כג.</p></div>
+        <RegularVerseGolden2029 scene={regularScene} verseSource={regularSource}/>
+        {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
+        {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי Trace ומקור פסוק מאומתים.</p> : null}
+      </div> : null}
+
+      {goldenFocus === "convergence" ? <div data-experience-surface="golden-1237-convergence">
+        <div className="sp29-section-head"><div><span>CONVERGENCE</span><h3>שלושה נתיבים — 1237 אחד</h3></div><p>רק כאן נטענים שלושת ה־Traces יחד, מאומתים בנפרד ואז נפגשים.</p></div>
+        <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
+        {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
+        {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
+      </div> : null}
     </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
