@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SpatialMethodStage2029 from "../components/gematria2029/SpatialMethodStage2029.jsx";
+import "../components/experience2029/regularVerseGolden2029.css";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
@@ -284,7 +285,10 @@ export default function EntityHubPreviewPage() {
 
       {goldenFocus === "regular" ? <div data-experience-surface="golden-1237-regular">
         <div className="sp29-section-head"><div><span>REGULAR</span><h3>וראית את אחרי — רגיל</h3></div><p>הערך נבנה מן האותיות הגלויות של הביטוי בתוך הקשר הפסוק בשמות לג:כג.</p></div>
-        {regularSource ? <p className="sod29-spatial-source-note">שמות לג:כג · מקור הפסוק אומת לפני פתיחת התצוגה.</p> : null}
+        {regularSource ? <>
+          <p className="sod29-spatial-source-note">שמות לג:כג · מקור הפסוק אומת לפני פתיחת התצוגה.</p>
+          <blockquote className="sod29-regular-verse__verse">והסרתי את כפי <mark>וראית את אחרי</mark> ופני לא יראו</blockquote>
+        </> : null}
         <SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל" trace={regularTrace} expectedValue={Number(label)} depth="S2" loading={regularStatus === "loading"}/>
         {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
         {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי Trace ומקור פסוק מאומתים.</p> : null}
