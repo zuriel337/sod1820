@@ -1,0 +1,204 @@
+.sod29-spatial-method-stage{
+  --sms-ink:var(--s29-ink,var(--ice,currentColor));
+  --sms-muted:var(--s29-muted,var(--muted,currentColor));
+  --sms-accent:var(--s29-accent,var(--gold,currentColor));
+  --sms-hero:var(--s29-hero,var(--ice,currentColor));
+  --sms-line:var(--s29-line,var(--line,currentColor));
+  --sms-line-strong:var(--s29-line-strong,var(--line,currentColor));
+  --sms-panel:var(--s29-panel,var(--panel,transparent));
+  --sms-panel-soft:var(--s29-panel-soft,var(--panel,transparent));
+  --sms-glow:var(--s29-glow,var(--gold,transparent));
+  position:relative;
+  display:grid;
+  gap:12px;
+  overflow:hidden;
+  margin-top:2px;
+  padding:14px;
+  border:1px solid color-mix(in srgb,var(--sms-accent) 46%,var(--sms-line));
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 12%,color-mix(in srgb,var(--sms-glow) 22%,transparent),transparent 36%),
+    linear-gradient(180deg,color-mix(in srgb,var(--sms-panel-soft) 94%,transparent),color-mix(in srgb,var(--sms-panel) 98%,transparent));
+  color:var(--sms-ink);
+  perspective:960px;
+}
+.sod29-spatial-method-stage[data-state="unverified"]{min-height:96px;place-items:center;text-align:center}
+.sod29-spatial-method-stage[data-state="unverified"] p{margin:0;color:var(--sms-muted);line-height:1.55}
+.sod29-spatial-method-stage::before{
+  content:"";
+  position:absolute;
+  inset:38% 7% auto;
+  height:1px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--sms-accent) 42%,transparent),transparent);
+  box-shadow:0 0 28px color-mix(in srgb,var(--sms-glow) 24%,transparent);
+  pointer-events:none;
+}
+.sod29-spatial-method-stage__head{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.sod29-spatial-method-stage__head>div:first-child{display:grid;gap:3px}
+.sod29-spatial-method-stage__head span{color:var(--sms-accent);font-size:9px;font-weight:900;letter-spacing:.06em}
+.sod29-spatial-method-stage__head strong{color:var(--sms-ink);font-size:14px}
+.sod29-spatial-method-stage__head small{color:var(--sms-muted);font-size:10px;line-height:1.5}
+.sod29-spatial-method-stage__result{
+  flex:0 0 auto;
+  min-width:78px;
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  padding:8px 11px;
+  border:1px solid color-mix(in srgb,var(--sms-accent) 42%,var(--sms-line));
+  border-radius:14px;
+  background:color-mix(in srgb,var(--sms-panel-soft) 88%,transparent);
+  box-shadow:0 0 24px color-mix(in srgb,var(--sms-glow) 14%,transparent);
+}
+.sod29-spatial-method-stage__result small{font-size:7px;color:var(--sms-muted)}
+.sod29-spatial-method-stage__result b{font-size:24px;color:var(--sms-hero);font-variant-numeric:tabular-nums}
+.sod29-spatial-method-stage__expression{
+  position:relative;
+  z-index:1;
+  display:grid;
+  justify-items:center;
+  gap:3px;
+  padding:8px;
+}
+.sod29-spatial-method-stage__expression span{color:var(--sms-muted);font-size:9px}
+.sod29-spatial-method-stage__expression strong{
+  color:var(--sms-hero);
+  font-size:clamp(22px,5vw,38px);
+  letter-spacing:.045em;
+  text-shadow:0 0 24px color-mix(in srgb,var(--sms-glow) 38%,transparent);
+}
+.sod29-spatial-method-stage__expression i{
+  width:min(280px,68%);
+  height:1px;
+  margin-top:4px;
+  background:linear-gradient(90deg,transparent,var(--sms-accent),transparent);
+  box-shadow:0 0 18px color-mix(in srgb,var(--sms-glow) 48%,transparent);
+}
+.sod29-spatial-method-stage__letters{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(var(--sms-count),minmax(86px,1fr));
+  gap:8px;
+  overflow-x:auto;
+  padding:11px 4px 15px;
+  scrollbar-width:none;
+  transform-style:preserve-3d;
+}
+.sod29-spatial-method-stage__letters::-webkit-scrollbar{display:none}
+.sod29-spatial-method-stage__letter{
+  min-width:86px;
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  gap:5px;
+  padding:11px 8px;
+  border:1px solid var(--sms-line);
+  border-radius:17px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--sms-panel-soft) 94%,transparent),color-mix(in srgb,var(--sms-panel) 96%,transparent));
+  color:var(--sms-ink);
+  font:inherit;
+  cursor:pointer;
+  transform:translateZ(0) scale(.96);
+  opacity:.72;
+  transition:transform .3s ease,opacity .3s ease,border-color .3s ease,box-shadow .3s ease;
+}
+.sod29-spatial-method-stage__letter:hover{opacity:.92;border-color:color-mix(in srgb,var(--sms-accent) 40%,var(--sms-line))}
+.sod29-spatial-method-stage__letter.is-focus{
+  opacity:1;
+  transform:translateY(-7px) translateZ(48px) scale(1.035);
+  border-color:color-mix(in srgb,var(--sms-accent) 72%,var(--sms-line));
+  box-shadow:0 18px 42px color-mix(in srgb,var(--sms-glow) 18%,transparent);
+}
+.sod29-spatial-method-stage__glyph{
+  font-size:clamp(30px,6vw,48px);
+  font-weight:800;
+  line-height:1;
+  color:var(--sms-hero);
+  text-shadow:0 0 18px color-mix(in srgb,var(--sms-glow) 34%,transparent);
+  transition:opacity .3s ease;
+}
+.sod29-spatial-method-stage__opening{
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  max-height:54px;
+  opacity:1;
+  transform:translateY(0);
+  transition:max-height .45s ease,opacity .3s ease,transform .45s ease;
+}
+.sod29-spatial-method-stage__opening b{font-size:17px;color:var(--sms-accent);font-weight:800}
+.sod29-spatial-method-stage__opening small{font-size:9px;color:var(--sms-muted)}
+.sod29-spatial-method-stage[data-mode="visible"] .sod29-spatial-method-stage__opening{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transform:translateY(-6px);
+}
+.sod29-spatial-method-stage[data-mode="hidden"] .sod29-spatial-method-stage__glyph{opacity:.18}
+.sod29-spatial-method-stage[data-mode="hidden"] .sod29-spatial-method-stage__opening b{font-size:20px}
+.sod29-spatial-method-stage__value{font-size:18px;font-weight:900;color:var(--sms-ink);font-variant-numeric:tabular-nums}
+.sod29-spatial-method-stage__subtotal{font-size:8px;color:var(--sms-muted);font-variant-numeric:tabular-nums}
+.sod29-spatial-method-stage__focus{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:11px;
+  border:1px solid color-mix(in srgb,var(--sms-accent) 26%,var(--sms-line));
+  border-radius:16px;
+  background:color-mix(in srgb,var(--sms-panel-soft) 90%,transparent);
+}
+.sod29-spatial-method-stage__orb{
+  width:40px;height:40px;display:grid;place-items:center;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--sms-accent) 58%,var(--sms-line));
+  box-shadow:0 0 22px color-mix(in srgb,var(--sms-glow) 22%,transparent);
+}
+.sod29-spatial-method-stage__orb i{width:9px;height:9px;border-radius:50%;background:var(--sms-hero);box-shadow:0 0 13px var(--sms-glow)}
+.sod29-spatial-method-stage__focus>div:nth-child(2){display:grid;gap:3px;min-width:0}
+.sod29-spatial-method-stage__focus span{color:var(--sms-muted);font-size:8px;font-weight:900}
+.sod29-spatial-method-stage__focus strong{color:var(--sms-ink);font-size:13px}
+.sod29-spatial-method-stage__focus strong em{color:var(--sms-accent);font-style:normal;margin:0 3px}
+.sod29-spatial-method-stage__focus p{margin:0;color:var(--sms-muted);font-size:9px;line-height:1.5}
+.sod29-spatial-method-stage__actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;max-width:240px}
+.sod29-spatial-method-stage__actions button{
+  min-height:34px;
+  border:1px solid var(--sms-line);
+  border-radius:999px;
+  background:transparent;
+  color:var(--sms-ink);
+  font:inherit;
+  font-size:9px;
+  font-weight:850;
+  padding:6px 9px;
+  cursor:pointer;
+}
+.sod29-spatial-method-stage__actions button.primary{
+  border-color:color-mix(in srgb,var(--sms-accent) 60%,var(--sms-line));
+  background:color-mix(in srgb,var(--sms-accent) 12%,var(--sms-panel-soft));
+}
+.sod29-spatial-method-stage__boundary{position:relative;z-index:1;margin:0;color:var(--sms-muted);font-size:8px;line-height:1.5}
+@media(max-width:620px){
+  .sod29-spatial-method-stage{padding:11px;border-radius:17px}
+  .sod29-spatial-method-stage__head{align-items:center}
+  .sod29-spatial-method-stage__head small{display:none}
+  .sod29-spatial-method-stage__letters{grid-template-columns:repeat(var(--sms-count),88px);padding-inline:7px}
+  .sod29-spatial-method-stage__focus{grid-template-columns:34px minmax(0,1fr)}
+  .sod29-spatial-method-stage__orb{width:33px;height:33px}
+  .sod29-spatial-method-stage__actions{grid-column:1/-1;max-width:none;justify-content:stretch}
+  .sod29-spatial-method-stage__actions button{flex:1;min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sod29-spatial-method-stage__letter,
+  .sod29-spatial-method-stage__opening,
+  .sod29-spatial-method-stage__glyph{transition:none;transform:none}
+}
