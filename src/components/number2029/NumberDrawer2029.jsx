@@ -54,7 +54,7 @@ export default function NumberDrawer2029({
   const targetNumber = target?.type === "number" && Number.isSafeInteger(Number(target?.id)) ? Number(target.id) : null;
   const contextRoot = context?.subject?.type === "number" && Number.isSafeInteger(Number(context.subject.id)) ? Number(context.subject.id) : null;
   const contextExpression = clean(context?.selection?.expression);
-  const initialExpression = target?.type === "phrase" ? clean(target.label || target.id) : contextExpression;
+  const initialExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : contextExpression);
   const initialMethodKey = clean(context?.selection?.method);
   const initialRoot = targetNumber ?? contextRoot;
 
@@ -79,7 +79,7 @@ export default function NumberDrawer2029({
   useEffect(() => {
     const nextRoot = targetNumber ?? contextRoot;
     setRoot(nextRoot);
-    const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : clean(context?.selection?.expression);
+    const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : clean(context?.selection?.expression));
     const nextMethodKey = clean(context?.selection?.method);
     setExpression(nextExpression);
     setInput(nextExpression || (nextRoot != null ? String(nextRoot) : ""));
