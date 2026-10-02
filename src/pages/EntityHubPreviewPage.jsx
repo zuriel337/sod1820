@@ -3,6 +3,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
+import "../components/experience2029/regularVerseGolden2029.css";
 import { supabase } from "../lib/supabase.js";
 import { compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
