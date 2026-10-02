@@ -482,6 +482,7 @@ test('Contextual Number Surface stays one desktop sidecar through focus → prev
   await assertNoHorizontalOverflow(page);
 });
 
+
 test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
