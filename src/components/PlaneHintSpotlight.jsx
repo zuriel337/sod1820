@@ -25,7 +25,8 @@ function tightRoute(pathname) {
     || /^\/galaxy(\/|$)/.test(pathname)
     || /^\/sulamot/.test(pathname)
     || pathname === "/experience"
-    || pathname === "/ניסיון";
+    || pathname === "/ניסיון"
+    || /^\/entity-hub-preview(\/|$)/.test(pathname);
 }
 
 export function PlaneHintNotice({ embedded = false }) {
