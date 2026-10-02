@@ -113,11 +113,89 @@ export function createSupabaseThreeCardProvider(supabase) {
   };
 }
 
-// Explicit-freeze guard (load-bearing): researchSynthesis.normalizeResearchSynthesis defaults
-// freeze.frozen to true whenever the synthesizer's draft omits `freeze` entirely. This seam must
-// never inherit that default — only a synthesizer draft that itself affirmatively sets
-// freeze.frozen === true may unlock a Tarot draw. Checked against the RAW draft, before
-// normalization, so a defaulted-true value can never be mistaken for an affirmative one.
+const TOKEN_STOP = new Set(["של", "את", "עם", "על", "אל", "או", "גם", "לא", "הוא", "היא", "זה", "זו"]);
+
+function textTokens(value) {
+  const text = clean(value);
+  if (!text) return [];
+  return [...new Set(
+    text
+      .toLocaleLowerCase("he")
+      .replace(/[^\u0590-\u05ff\p{L}\p{N}]+/gu, " ")
+      .split(/\s+/)
+      .map((x) => x.trim())
+      .filter((x) => x.length > 1 && !TOKEN_STOP.has(x))
+  )];
+}
+
+function motifVocabulary(motif) {
+  const frame = motif?.frame && typeof motif.frame === "object" ? motif.frame : {};
+  return textTokens([
+    motif?.label,
+    motif?.summary,
+    frame.essence,
+    frame.power,
+    frame.shadow,
+    frame.balance,
+    frame.action,
+  ].filter(Boolean).join(" "));
+}
+
+function overlap(a, b) {
+  const right = new Set(b);
+  return a.filter((token) => right.has(token));
+}
+
+/**
+ * Deterministic post-Tarot comparison. It never changes the frozen message or evidence.
+ * It can only report structural echoes already visible in the card fields and frozen motifs:
+ * exact Hebrew-letter recurrence and lexical token overlap with motif label/summary/frame.
+ */
+export function compareReflectionToFrozenSynthesis({ reflection, synthesis, subject = null } = {}) {
+  const cards = Array.isArray(reflection?.cards) ? reflection.cards : [];
+  const motifs = Array.isArray(synthesis?.motifs) ? synthesis.motifs : [];
+  const subjectLetters = new Set([...(clean(subject) || "").replace(/[^\u0590-\u05ff]/g, "")]);
+
+  const compared = cards.map((card) => {
+    const cardLetter = clean(card?.letter);
+    const letterMatch = Boolean(cardLetter && subjectLetters.has(cardLetter));
+    const cardTokens = textTokens([card?.arcana, card?.theme, card?.meaning].filter(Boolean).join(" "));
+
+    const motifMatches = motifs.map((motif) => {
+      const shared = overlap(cardTokens, motifVocabulary(motif));
+      return shared.length ? {
+        motif_key: clean(motif?.key),
+        shared_tokens: Object.freeze(shared),
+      } : null;
+    }).filter(Boolean);
+
+    const relation = letterMatch || motifMatches.length ? "echo" : "no_structural_echo";
+    return Object.freeze({
+      position: clean(card?.position),
+      card_n: Number.isInteger(Number(card?.n)) ? Number(card.n) : null,
+      card_letter: cardLetter,
+      letter_in_subject: letterMatch,
+      motif_matches: Object.freeze(motifMatches),
+      relation,
+    });
+  });
+
+  const echoCount = compared.filter((x) => x.relation === "echo").length;
+  return Object.freeze({
+    kind: "reflection_coherence",
+    status: "observed",
+    cards: Object.freeze(compared),
+    echo_count: echoCount,
+    card_count: compared.length,
+    evidence_weight: 0,
+    included_in_research_strength: false,
+    can_modify_frozen_message: false,
+    truth_boundary: "structural reflection only; echo is not confirmation, verification, probability or truth",
+  });
+}
+
+// Explicit-freeze guard (load-bearing): only an affirmative freeze.frozen===true
+// in the RAW synthesis draft may unlock a Tarot draw.
 function requireExplicitFreezeIntent(synthesisDraft) {
   const draftFreeze = synthesisDraft && typeof synthesisDraft === "object" && !Array.isArray(synthesisDraft)
     ? synthesisDraft.freeze
@@ -169,6 +247,11 @@ export async function composeNormalizedMessageReflection({
 
   const rawDraw = await tarotProvider({ cards: 3 });
   const reflection = normalizeThreeCardReflection(rawDraw);
+  const reflectionCheck = compareReflectionToFrozenSynthesis({
+    reflection,
+    synthesis,
+    subject: safeBundle?.query?.raw_input,
+  });
 
   return Object.freeze({
     version: NORMALIZED_MESSAGE_REFLECTION_VERSION,
@@ -176,6 +259,7 @@ export async function composeNormalizedMessageReflection({
     normalized,
     synthesis,
     reflection,
+    reflection_check: reflectionCheck,
     invariants: Object.freeze({
       one_message_authority: true,
       normalize_before_synthesis: true,
@@ -184,6 +268,8 @@ export async function composeNormalizedMessageReflection({
       tarot_exactly_three_cards: true,
       tarot_is_reflection_only: true,
       tarot_never_changes_claims: true,
+      reflection_check_is_post_freeze: true,
+      reflection_check_is_not_confirmation: true,
       legacy_number_message_is_not_authority: true,
       legacy_random_reading_is_not_authority: true,
       no_personal_message_engine: true,

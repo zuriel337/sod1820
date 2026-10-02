@@ -1322,10 +1322,16 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
       return null;
     }
     if (data?.error) { try { console.warn('[ai-analyze] server:', data.error, data.detail || ''); } catch { /* noop */ } }
+    // normalized_reflection is the one bounded structured lane. Existing callers still receive
+    // the legacy analysis string because they do not set this operation.
+    const structuredReflection = operation === 'normalized_reflection' && data?.reflection_interpretation?.message
+      ? data.reflection_interpretation
+      : null;
+    const analysisText = structuredReflection?.message || data?.analysis || null;
     // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
     // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
-    if (data?.analysis) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis });
-    return data?.analysis || null;
+    if (analysisText) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    return structuredReflection || analysisText;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 

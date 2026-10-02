@@ -55,7 +55,17 @@ function validateEnvelope(input) {
     throw new TypeError("normalizedMessageReflectionProjection: card order must be מצב/אתגר/עצה");
   }
 
-  return { reflection, cards };
+  const reflectionCheck = input.reflection_check;
+  if (!reflectionCheck || typeof reflectionCheck !== "object" || Array.isArray(reflectionCheck)) {
+    throw new TypeError("normalizedMessageReflectionProjection: reflection_check is required");
+  }
+  if (reflectionCheck.evidence_weight !== 0
+      || reflectionCheck.included_in_research_strength !== false
+      || reflectionCheck.can_modify_frozen_message !== false) {
+    throw new TypeError("normalizedMessageReflectionProjection: reflection_check crossed the evidence boundary");
+  }
+
+  return { reflection, cards, reflectionCheck };
 }
 
 function safeCard(card) {
@@ -70,8 +80,44 @@ function safeCard(card) {
   };
 }
 
+function safeFrame(frame) {
+  const f = frame && typeof frame === "object" ? frame : {};
+  return {
+    essence: clean(f.essence),
+    power: clean(f.power),
+    shadow: clean(f.shadow),
+    balance: clean(f.balance),
+    action: clean(f.action),
+  };
+}
+
+function safeReflectionCheck(check) {
+  const rows = Array.isArray(check?.cards) ? check.cards : [];
+  return Object.freeze({
+    kind: clean(check?.kind),
+    status: clean(check?.status),
+    cards: freezeList(rows.map((row) => ({
+      position: clean(row?.position),
+      card_n: Number.isInteger(Number(row?.card_n)) ? Number(row.card_n) : null,
+      card_letter: clean(row?.card_letter),
+      letter_in_subject: row?.letter_in_subject === true,
+      motif_matches: freezeList((Array.isArray(row?.motif_matches) ? row.motif_matches : []).map((m) => ({
+        motif_key: clean(m?.motif_key),
+        shared_tokens: Object.freeze((Array.isArray(m?.shared_tokens) ? m.shared_tokens : []).map(clean).filter(Boolean)),
+      }))),
+      relation: clean(row?.relation),
+    }))),
+    echo_count: Number.isInteger(Number(check?.echo_count)) ? Number(check.echo_count) : 0,
+    card_count: Number.isInteger(Number(check?.card_count)) ? Number(check.card_count) : rows.length,
+    evidence_weight: 0,
+    included_in_research_strength: false,
+    can_modify_frozen_message: false,
+    truth_boundary: clean(check?.truth_boundary),
+  });
+}
+
 export function projectNormalizedMessageReflection(input) {
-  const { reflection, cards } = validateEnvelope(input);
+  const { reflection, cards, reflectionCheck } = validateEnvelope(input);
   const synthesis = input.synthesis;
   const claims = Array.isArray(synthesis.claims) ? synthesis.claims : [];
   const motifs = Array.isArray(synthesis.motifs) ? synthesis.motifs : [];
@@ -93,8 +139,10 @@ export function projectNormalizedMessageReflection(input) {
       key: clean(motif?.key),
       label: clean(motif?.label),
       summary: clean(motif?.summary),
+      frame: Object.freeze(safeFrame(motif?.frame)),
     }))),
     cards: freezeList(cards.map(safeCard)),
+    reflection_check: safeReflectionCheck(reflectionCheck),
     reflection_framework: clean(reflection.framework),
     trace: Object.freeze({
       source_version: input.version,
@@ -108,7 +156,9 @@ export function projectNormalizedMessageReflection(input) {
       message_is_frozen_synthesis: true,
       reflection_only: true,
       tarot_evidence_weight: 0,
+      reflection_check_evidence_weight: 0,
       can_modify_frozen_message: false,
+      reflection_check_cannot_modify_frozen_message: true,
       no_local_synthesis: true,
       no_local_truth_promotion: true,
       no_personal_message_engine: true,

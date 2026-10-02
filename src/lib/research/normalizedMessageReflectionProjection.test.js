@@ -15,7 +15,13 @@ function fixture() {
       status: "composed",
       message: "מסר קפוא",
       claims: [{ id: "c1", text: "טענה אחת", role: "interpretation", motif_key: "m1", secret: "drop-me" }],
-      motifs: [{ key: "m1", label: "מוטיב", summary: "סיכום", extra: "drop-me" }],
+      motifs: [{
+        key: "m1",
+        label: "אור",
+        summary: "בהירות וגילוי",
+        frame: { essence: "גילוי", power: "בהירות", shadow: "פיזור", balance: "מיקוד", action: "בחר קו" },
+        extra: "drop-me",
+      }],
       freeze: {
         frozen: true,
         frozen_at: "2026-09-26T17:00:00Z",
@@ -36,6 +42,21 @@ function fixture() {
       included_in_empirical_fit: false,
       can_modify_frozen_message: false,
     },
+    reflection_check: {
+      kind: "reflection_coherence",
+      status: "observed",
+      cards: [
+        { position: "המצב", card_n: 12, card_letter: "מ", letter_in_subject: true, motif_matches: [{ motif_key: "m1", shared_tokens: ["מבט"] }], relation: "echo" },
+        { position: "האתגר", card_n: 9, card_letter: "י", letter_in_subject: false, motif_matches: [], relation: "no_structural_echo" },
+        { position: "העצה", card_n: 2, card_letter: "ג", letter_in_subject: false, motif_matches: [], relation: "no_structural_echo" },
+      ],
+      echo_count: 1,
+      card_count: 3,
+      evidence_weight: 0,
+      included_in_research_strength: false,
+      can_modify_frozen_message: false,
+      truth_boundary: "structural reflection only; echo is not confirmation, verification, probability or truth",
+    },
     unknown_private_blob: { must_not_project: true },
   };
 }
@@ -46,11 +67,15 @@ test("projection emits only the bounded frozen-message + three-card view model",
   assert.equal(out.claims.length, 1);
   assert.equal(Object.prototype.hasOwnProperty.call(out.claims[0], "secret"), false);
   assert.equal(out.motifs.length, 1);
+  assert.equal(out.motifs[0].frame.power, "בהירות");
   assert.equal(Object.prototype.hasOwnProperty.call(out.motifs[0], "extra"), false);
   assert.deepEqual(out.cards.map((card) => card.position), ["המצב", "האתגר", "העצה"]);
   assert.equal(Object.prototype.hasOwnProperty.call(out.cards[0], "extra"), false);
+  assert.equal(out.reflection_check.echo_count, 1);
+  assert.equal(out.reflection_check.evidence_weight, 0);
   assert.deepEqual(out.trace.source_finding_ids, ["uf:1"]);
   assert.equal(out.boundaries.tarot_evidence_weight, 0);
+  assert.equal(out.boundaries.reflection_check_evidence_weight, 0);
   assert.equal(out.boundaries.no_local_synthesis, true);
   assert.equal(Object.isFrozen(out), true);
   assert.equal(Object.isFrozen(out.cards), true);
@@ -70,6 +95,10 @@ test("projection fails closed on non-composed synthesis, unfrozen message or evi
   const weighted = fixture();
   weighted.reflection.evidence_weight = 1;
   assert.throws(() => projectNormalizedMessageReflection(weighted), /evidence boundary/);
+
+  const weightedCheck = fixture();
+  weightedCheck.reflection_check.evidence_weight = 1;
+  assert.throws(() => projectNormalizedMessageReflection(weightedCheck), /reflection_check crossed the evidence boundary/);
 });
 
 test("projection rejects message drift and any card order other than מצב/אתגר/עצה", () => {
@@ -91,6 +120,7 @@ test("Raziel handoff is bounded and carries no second message authority", () => 
   assert.equal(payload.razielMicroIntent, RAZIEL_REFLECTION_INTENT);
   assert.equal(payload.messageReflection.message, "מסר קפוא");
   assert.equal(payload.messageReflection.boundaries.no_personal_message_engine, true);
+  assert.equal(payload.messageReflection.reflection_check.can_modify_frozen_message, false);
   assert.deepEqual(Object.keys(payload).sort(), ["messageReflection", "razielMicroIntent"]);
   assert.equal(Object.isFrozen(payload), true);
 });
