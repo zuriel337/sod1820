@@ -209,19 +209,26 @@
 .sod29-spatial-method-stage__ledger-letter b{font-size:clamp(24px,5vw,38px);line-height:1;color:var(--sms-hero)}
 .sod29-spatial-method-stage__ledger-letter small{font-size:10px;color:var(--sms-muted);font-variant-numeric:tabular-nums}
 .sod29-spatial-method-stage__tension{
-  position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:22px;overflow-x:auto;padding:16px 4px 20px;scrollbar-width:none
+  position:relative;z-index:1;display:flex;overflow-x:auto;padding:16px 4px 20px;scrollbar-width:none
 }
 .sod29-spatial-method-stage__tension::-webkit-scrollbar{display:none}
-.sod29-spatial-method-stage__tension-word{display:inline-flex;align-items:center;flex:0 0 auto}
-.sod29-spatial-method-stage__tension-letter{display:grid;place-items:center;min-width:54px;gap:6px}
+.sod29-spatial-method-stage__tension-scene{position:relative;flex:0 0 auto;margin-inline:auto}
+.sod29-spatial-method-stage__tension-svg{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.sod29-spatial-method-stage__tension-letter{
+  position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;align-content:center;gap:6px
+}
 .sod29-spatial-method-stage__tension-letter b{font-size:clamp(28px,6vw,46px);line-height:1;color:var(--sms-hero)}
 .sod29-spatial-method-stage__tension-letter small{font-size:9px;color:var(--sms-muted)}
-.sod29-spatial-method-stage__tension-edge{display:grid;place-items:center;min-width:66px;padding-inline:6px;color:var(--sms-accent)}
-.sod29-spatial-method-stage__tension-edge i{
-  width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--sms-accent),transparent);
-  box-shadow:0 0 16px color-mix(in srgb,var(--sms-glow) 42%,transparent)
+.sod29-spatial-method-stage__tension-path{
+  fill:none;stroke:var(--sms-accent);stroke-width:2;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--sms-glow) 42%,transparent))
 }
-.sod29-spatial-method-stage__tension-edge strong{margin-top:6px;font-size:14px;font-variant-numeric:tabular-nums}
+.sod29-spatial-method-stage__tension-diff{fill:var(--sms-accent);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+/* Reduced motion is truthful: same topology, connectors simply render in their final state. */
+@media (prefers-reduced-motion:no-preference){
+  .sod29-spatial-method-stage__tension-path{stroke-dasharray:1;stroke-dashoffset:1;animation:sod29-sms-edge-draw .7s ease-out var(--sms-edge-delay,0ms) forwards}
+}
+@keyframes sod29-sms-edge-draw{to{stroke-dashoffset:0}}
 .sod29-spatial-method-stage__potential{
   position:relative;z-index:1;display:flex;justify-content:center;align-items:flex-end;gap:10px;overflow-x:auto;padding:18px 4px 22px;scrollbar-width:none
 }

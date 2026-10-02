@@ -389,6 +389,176 @@ export function compileMistaterTensionScene({ expression, methodTrace }, { focus
   };
 }
 
+// ===== SCENE.V1 — renderer-independent unified scene contract (M0: Mistater) =====
+// Implementation-level contract under experience_governance_foundation_v1_law v8 + SOD1820_DESIGN_CONTRACT_V1.md
+// (no new owner/store/engine). One scene.v1 is the single relationship model that the DOM/SVG stage consumes
+// today and that a lazy R3F renderer (M1) / Blender importer (M2) must consume tomorrow. GLB is a derived asset,
+// never the semantic SSOT.
+//
+// Rules: (1) topology + identity refs are semantic; transforms/curve/style/motion are PROJECTION STATE ONLY, never truth.
+// (2) Nodes and connectors carry canonical identity REFS (trace paths) — never arithmetic values. Values are resolved
+//     from the canonical trace via resolveSceneTraceValue(). (3) Connectors reference socket ids, never coordinates.
+// (4) Axes: x grows rightward, y up, z toward viewer; layout.direction "rtl" means reading order runs toward -x.
+//     Consumers flip y for screens. M0 uses translation only (rotation/scale are identity).
+
+export const SCENE_V1_SCHEMA = "sod1820.scene.v1";
+
+const MISTATER_LAYOUT = Object.freeze({
+  letterWidth: 56,
+  letterHeight: 72,
+  letterPitch: 120,
+  wordGap: 48,
+  resultLift: 120,
+  connectorLift: 30,
+});
+
+const IDENTITY_ROTATION = Object.freeze({ x: 0, y: 0, z: 0 });
+const IDENTITY_SCALE = Object.freeze({ x: 1, y: 1, z: 1 });
+
+function sceneTransform(x, y, z = 0) {
+  return { position: { x, y, z }, rotation: { ...IDENTITY_ROTATION }, scale: { ...IDENTITY_SCALE } };
+}
+
+export function resolveSceneWorldPosition(scene, nodeId) {
+  const byId = new Map(scene.nodes.map((n) => [n.id, n]));
+  let x = 0, y = 0, z = 0;
+  let cur = byId.get(nodeId);
+  if (!cur) throw new Error("SCENE_V1_UNKNOWN_NODE");
+  const seen = new Set();
+  while (cur) {
+    if (seen.has(cur.id)) throw new Error("SCENE_V1_PARENT_CYCLE");
+    seen.add(cur.id);
+    x += cur.transform.position.x; y += cur.transform.position.y; z += cur.transform.position.z;
+    cur = cur.parent ? byId.get(cur.parent) : null;
+  }
+  return { x, y, z };
+}
+
+export function resolveSceneSocketWorld(scene, socketRef) {
+  const node = scene.nodes.find((n) => n.id === socketRef.node);
+  const socket = node?.sockets?.find((s) => s.id === socketRef.socket);
+  if (!node || !socket) throw new Error("SCENE_V1_UNKNOWN_SOCKET");
+  const w = resolveSceneWorldPosition(scene, node.id);
+  return { x: w.x + socket.position.x, y: w.y + socket.position.y, z: w.z + socket.position.z };
+}
+
+// Resolves a canonical value through an identityRef trace path. Values live only in the canonical trace.
+export function resolveSceneTraceValue(scene, identityRef) {
+  const trace = scene.canonical.trace;
+  if (identityRef.type === "method_trace_pair") {
+    const pair = trace.steps?.[identityRef.wordIndex]?.pairs?.[identityRef.pairIndex];
+    if (!pair) throw new Error("SCENE_V1_IDENTITY_UNRESOLVED");
+    return { difference: pair.difference, leftValue: pair.left_value, rightValue: pair.right_value };
+  }
+  if (identityRef.type === "method_trace_letter") {
+    const value = trace.steps?.[identityRef.wordIndex]?.letter_values?.[identityRef.letterIndex];
+    if (value === undefined) throw new Error("SCENE_V1_IDENTITY_UNRESOLVED");
+    return { value };
+  }
+  if (identityRef.type === "engine_result") return { value: trace.result };
+  throw new Error("SCENE_V1_IDENTITY_UNRESOLVED");
+}
+
+// Delegates ALL canonical validation (verified parity, shape, pair/subtotal/total consistency) to the existing
+// compileMistaterTensionScene — scene.v1 adds topology/projection only and fails closed through the same errors.
+export function compileMistaterSceneV1({ expression, methodTrace }) {
+  const legacy = compileMistaterTensionScene({ expression, methodTrace });
+  const L = MISTATER_LAYOUT;
+  const half = L.letterWidth / 2;
+  const nodes = [];
+  const connectors = [];
+  const rootId = legacy.subjectId;
+  const resultLegacy = legacy.sceneNodes.find((n) => n.kind === "engine_result");
+
+  nodes.push({
+    id: rootId, kind: "expression", parent: null, label: expression,
+    transform: sceneTransform(0, 0), sockets: [],
+    identityRef: { type: "gematria_method_trace", methodKey: "מסתתר", traceKind: methodTrace.trace_kind },
+    truthTier: TRUTH_TIERS.FACT,
+  });
+
+  let offset = 0;
+  const letterIdsInOrder = [];
+  methodTrace.steps.forEach((step, wordIndex) => {
+    const letters = [...String(step.word || "")];
+    const wordId = `mistater-word:${wordIndex}`;
+    nodes.push({
+      id: wordId, kind: "word_group", parent: rootId, label: step.word,
+      transform: sceneTransform(-offset, 0), sockets: [],
+      identityRef: { type: "method_trace_word", methodKey: "מסתתר", wordIndex, tracePath: `steps[${wordIndex}]` },
+      truthTier: TRUTH_TIERS.FACT,
+    });
+    letters.forEach((letter, i) => {
+      const id = `mistater-letter:${wordIndex}:${i}:${letter}`;
+      letterIdsInOrder.push(id);
+      nodes.push({
+        id, kind: "letter_anchor", parent: wordId, label: letter,
+        transform: sceneTransform(-i * L.letterPitch, 0),
+        bounds: { width: L.letterWidth, height: L.letterHeight, depth: 0 },
+        // object-space sockets: "out" faces the next letter in reading order (-x for rtl), "in" faces the previous.
+        sockets: [
+          { id: `${id}#in`, role: "tension_in", position: { x: half, y: 0, z: 0 } },
+          { id: `${id}#out`, role: "tension_out", position: { x: -half, y: 0, z: 0 } },
+        ],
+        identityRef: { type: "method_trace_letter", methodKey: "מסתתר", wordIndex, letterIndex: i, letter, tracePath: `steps[${wordIndex}].letter_values[${i}]` },
+        truthTier: TRUTH_TIERS.FACT,
+      });
+    });
+    for (let i = 0; i < letters.length - 1; i += 1) {
+      const leftId = `mistater-letter:${wordIndex}:${i}:${letters[i]}`;
+      const rightId = `mistater-letter:${wordIndex}:${i + 1}:${letters[i + 1]}`;
+      connectors.push({
+        id: `tension:${wordIndex}:${i}`,
+        kind: "tension_between",
+        from: { node: leftId, socket: `${leftId}#out` },
+        to: { node: rightId, socket: `${rightId}#in` },
+        identityRef: { type: "method_trace_pair", methodKey: "מסתתר", wordIndex, pairIndex: i, tracePath: `steps[${wordIndex}].pairs[${i}]` },
+        curve: { kind: "arc", lift: L.connectorLift },
+        style: { role: "tension_edge", stroke: "accent", width: 2, glow: true },
+        occlusion: { mode: "under_nodes", depthBias: -0.01 },
+        label: { anchor: "curve_midpoint", source: "identityRef" },
+        motion: { entrance: "draw", durationMs: 700, delayMs: i * 120, reducedMotion: "static_final_state" },
+      });
+    }
+    offset += (Math.max(letters.length, 1) - 1) * L.letterPitch + L.letterWidth + L.wordGap;
+  });
+
+  const resultId = resultLegacy.id;
+  nodes.push({
+    id: resultId, kind: "engine_result", parent: rootId, label: resultLegacy.label,
+    transform: sceneTransform(-(offset - L.wordGap - L.letterWidth) / 2, L.resultLift),
+    sockets: [],
+    identityRef: { type: "engine_result", methodKey: "מסתתר", tracePath: "result" },
+    truthTier: TRUTH_TIERS.FACT,
+  });
+
+  const scene = {
+    schema: SCENE_V1_SCHEMA,
+    projection_kind: "adjacent_letter_tension",
+    subjectId: rootId,
+    resultId,
+    layout: { direction: "rtl", axes: { x: "right", y: "up", z: "toward_viewer" }, unit: "layout_unit", projectionOnly: true, constants: { ...L } },
+    canonical: { type: "gematria_method_trace", methodKey: "מסתתר", traceKind: methodTrace.trace_kind, input: expression, trace: methodTrace },
+    nodes,
+    connectors,
+    fallback: {
+      reducedMotion: { respects: "prefers-reduced-motion", motion: "none", topology: "identical", truthState: "identical", connectors: "static_final_state" },
+      static: { kind: "semantic_list", order: letterIdsInOrder, actions: "identical" },
+      narrow: { strategy: "horizontal_scroll_same_coordinate_space" },
+    },
+  };
+
+  const xs = [], ys = [];
+  nodes.forEach((n) => {
+    if (!n.bounds && n.kind !== "engine_result") return;
+    const w = resolveSceneWorldPosition(scene, n.id);
+    const bw = (n.bounds?.width ?? L.letterWidth) / 2, bh = (n.bounds?.height ?? L.letterHeight) / 2;
+    xs.push(w.x - bw, w.x + bw); ys.push(w.y - bh, w.y + bh);
+  });
+  scene.extent = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  return scene;
+}
+
 export function compileTriangleMethodScene({ expression, methodKey, methodTrace }, { focusId = null } = {}) {
   const contracts = {
     "קדמי": {
