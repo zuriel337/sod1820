@@ -198,9 +198,9 @@ export default function NumberDrawer2029({
     const expr = clean(expression);
     if (surfaceMode !== "focus" || !expr) return;
     const computed = Number(selectedProfile?.computedValue);
-    const focusRoot = Number.isSafeInteger(computed)
-      ? computed
-      : (Number.isSafeInteger(Number(root)) ? Number(root) : null);
+    const focusRoot = Number.isSafeInteger(Number(root))
+      ? Number(root)
+      : (Number.isSafeInteger(computed) ? computed : null);
     setOriginFocus({
       expression: expr,
       methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
