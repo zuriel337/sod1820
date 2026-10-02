@@ -135,3 +135,9 @@ test("mixed media+text is strictly Intake-first and does not build an evidence p
   assert.equal(out.plan, null);
   assert.equal(out.projection.default_destination, "intake");
 });
+
+test("invalid calendar-shaped dates do not enter the Time lane", () => {
+  assert.equal(classifyUnifiedResearchInput({ text: "2026-13-45" }), INPUT_KIND.EXPRESSION);
+  assert.equal(classifyUnifiedResearchInput({ text: "2026-02-29" }), INPUT_KIND.EXPRESSION);
+  assert.equal(classifyUnifiedResearchInput({ text: "2024-02-29" }), INPUT_KIND.DATE);
+});
