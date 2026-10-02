@@ -89,7 +89,7 @@ test("runtime accepts surname/birthdate for canonical NameLab call but never sen
       aiFacts = facts;
       assert.match(facts, /value=238/);
       assert.match(facts, /method=combo_gem/);
-      const bundle = composeNameLabNormalizedEvidenceBundle({ name: "אוראל כהן", trackLists: [tracks()] });
+      const bundle = composeNameLabNormalizedEvidenceBundle({ name: "אוראל", trackLists: [tracks()] });
       return {
         message: "האור מקבל כיוון.",
         motifs: [{
