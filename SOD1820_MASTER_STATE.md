@@ -1,6 +1,6 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-10-01  
+**Date:** 2026-10-02  
 **Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 CLOSED** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
@@ -164,6 +164,27 @@ Non-blocking operational debt remains owned by the existing maintenance/domain o
 
 **Program transition:** G3 closure opens the existing G3→G4 transition lane (informal “G3.5” shorthand) and preparation for real/replayable G4 Golden Experiences. The later docs-only seal does not change runtime acceptance; live `main` / Production are reverified after its merge. The phase change itself does not activate deferred capabilities, publish governed truth, or authorize a broad Legacy→2029 cutover.
 
+### 2026-10-02 — Journey / Spatial Foundation Extension decision
+
+Human Gate ZURIEL approved proceeding with the minimum Journey/Spatial substrate inside the existing **G3→G4 transition lane**. This does **not** reopen G3 and does not create a new Journey/Spatial/ELS/Glyph system.
+
+Owner routing is live-resolved as:
+- Journey / Research Context / exact return → `research_workspace_law v5`;
+- ELS/Torah → `els_research_layer_law v9` + `els_single_engine_law v2`;
+- Experience/Spatial projection → `experience_governance_foundation_v1_law v8` + Design Contract;
+- renderer-independent future spatial runtime → `project_codex.spatial_research_runtime_vision_v1`;
+- Gematria truth remains with canonical engine/method owners.
+
+Exact implementation state at this checkpoint:
+- live `main` observed before this docs branch: `23b2a223005a1db8d4e4d9c00749264fc6a02636`;
+- M0 `scene.v1` hardened: **BRANCH-ONLY · PASS** at `9e9eafab1ca87f7cd3f4a5e1c21ac64ad91d56cb`;
+- M1 true Web 3D / R3F Mistater projection: **BRANCH-ONLY · PASS** at `726d01caa8f18d2edb5398c77027db72f4bd486f`;
+- neither M0 nor M1 is MERGED / DEPLOYED / LIVE by this checkpoint.
+
+Approved direction: one Hebrew letter identity/vector lineage across Web, ELS/Torah, 3D and video; one renderer-independent scene; Journey as semantic traversal over existing Research Context; Gematria↔Torah/ELS traversal through canonical engine/occurrence identities; Blender/video as consumers of the same scene rather than parallel semantics.
+
+Detailed transition scope is pointed by `docs/g3-g4-journey-spatial-foundation-scope-v1.md` once that branch is merged. Broad Spatial/3D/Multimodal activation remains governed by later program gates; only the minimum substrate needed for real Journey Goldens is being advanced now.
+
 The dated checkpoints below are preserved as historical current-state snapshots; this 1.10.2026 closure seal supersedes them for present routing.
 
 **Current live checkpoint · 23.9.2026:** the immediate 2029 Foundation hardening chain is **MERGED · DEPLOYED · LIVE · VERIFIED** at main `5376523be8c4a81b42b428eab30b970e4506e797`. Live canonical Supabase now includes Operational Trace persistence, the server capability/entitlement/budget gate, authenticated private Research Path save/resume/fork, and the bounded legacy Journey telemetry hardening; `ai-analyze` v36 emits the unified execution gate inside Operational Trace. Production Vercel for the same main SHA is READY. The next dependency is replayable Golden fixtures, not Legacy UX restoration.
@@ -184,7 +205,7 @@ Historical pre-close implementation-compaction gate (satisfied before G3 closure
 
 Historical reliability pre-close blocker: `G3_RELIABILITY_PRECLOSE_V1` was required to be **IMPLEMENTED · RELEASED · LIVE · VERIFIED** before G3 closure and is satisfied by the closure seal above. Required evidence covers canonical IssueReport/incident flow, browser runtime-error capture, sparse deterministic synthetic journeys, sensor/notification dead-man, exact-SHA post-deploy canary, and at least one isolated restore drill. Normal monitoring remains zero-AI/event-driven-first by default.
 
-ELS current-state pointer: active semantic owner is `els_research_layer_law v8`; PR #748 remains branch-only runtime work and is not release evidence.
+ELS current-state pointer: active semantic owner is `els_research_layer_law v9`; historical PR #748 remains branch-only provenance and is not current release evidence.
 
 ## 9. Future-admission rule — anti-inflation
 
