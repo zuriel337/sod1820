@@ -247,6 +247,14 @@ However, factual Milui letter-name spelling must ultimately come from the canoni
 Inline public gematria remains simple and readable by default. A tap/click promotes the same semantic object into the contextual Stage; deepen promotes the same object into its owning full destination. Same object, same truth/provenance, different projection depth.
 
 
+### scene.v1 — unified scene contract (M0, implementation addendum)
+**Owner verdict:** `EXTEND_EXISTING` under `experience_governance_foundation_v1_law v8` + this Design Contract + `spatial_research_runtime_vision_v1`. Implementation-level addendum, not a new law/store/engine. Code owner: `src/lib/spatial/semanticSceneCompiler.js` (`compileMistaterSceneV1`).
+
+- One renderer-independent scene (`schema: "sod1820.scene.v1"`): nodes with stable ids + `parent` hierarchy + local transforms; object-space `sockets` on each letter node; `connectors` that reference `{node, socket}` pairs (never coordinates); curve/style/occlusion/motion metadata; a result node; `fallback` metadata (reduced-motion, static semantic list, narrow-viewport strategy).
+- Truth: nodes/connectors carry canonical **identity refs** (trace paths) only. Arithmetic values are resolved from the canonical `gematria_method_trace` (`resolveSceneTraceValue`) — never duplicated in the scene. x/y/z, camera, curve, style and motion are projection state, never truth. Unverified or inconsistent traces fail closed (all validation is delegated to `compileMistaterTensionScene`).
+- M0 consumer: `SpatialMethodStage2029` (Mistater) projects cards and connector endpoints from the same scene world coordinates (one coordinate space), so connectors cannot detach from cards. S0–S2 DOM/SVG and narrow-viewport horizontal scroll are preserved. No three/r3f/Blender dependency.
+- Future (not in M0): **M1** lazy R3F renderer and **M2** Blender importer must consume the SAME `scene.v1`; a GLB is a derived asset, never the semantic SSOT.
+
 ## Migration
 Existing components are migrated gradually. A repository-wide audit should classify legacy font usage before mass replacement; no blind search/replace.
 

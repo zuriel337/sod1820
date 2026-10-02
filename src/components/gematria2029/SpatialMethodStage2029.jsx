@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
+import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 import "./spatialMethodStage2029.css";
 
 const METHOD_TRACE_KIND = Object.freeze({
@@ -95,33 +96,14 @@ function buildLedgerRows(trace) {
   return rows.length ? rows : null;
 }
 
-function buildMistaterWords(trace) {
-  const words = [];
-  const steps = Array.isArray(trace?.steps) ? trace.steps : [];
-  for (let wordIndex = 0; wordIndex < steps.length; wordIndex += 1) {
-    const step = steps[wordIndex];
-    const word = String(step?.word || "");
-    const letters = [...word];
-    const values = Array.isArray(step?.letter_values) ? step.letter_values.map(Number) : [];
-    const pairs = Array.isArray(step?.pairs) ? step.pairs : [];
-    if (!word || letters.length !== values.length || pairs.length !== Math.max(letters.length - 1, 0)) return null;
-    if (values.some((value) => !Number.isFinite(value))) return null;
-    const edges = pairs.map((pair, index) => ({
-      id: `mistater-edge:${wordIndex}:${index}`,
-      difference: Number(pair?.difference),
-      leftValue: Number(pair?.left_value),
-      rightValue: Number(pair?.right_value),
-    }));
-    if (edges.some((edge) => !Number.isFinite(edge.difference) || !Number.isFinite(edge.leftValue) || !Number.isFinite(edge.rightValue))) return null;
-    words.push({
-      id: `mistater-word:${wordIndex}`,
-      word,
-      letters: letters.map((token, index) => ({ token, value: values[index], index })),
-      edges,
-      subtotal: Number(step?.word_subtotal),
-    });
+// Mistater relationships are NOT rebuilt here: the stage consumes the unified scene.v1 compiled from the
+// canonical trace (fail-closed — any validation error yields null and the stage renders nothing).
+function buildMistaterScene(expression, trace) {
+  try {
+    return compileMistaterSceneV1({ expression, methodTrace: trace });
+  } catch {
+    return null;
   }
-  return words.length ? words : null;
 }
 
 function buildTriangleWordRows(trace) {
@@ -305,18 +287,45 @@ function RegularStage({ expression, trace, depth, onRazielAction, onOpenHeichal 
   </section>;
 }
 
+const MISTATER_STAGE_PAD = 24;
+
 function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {
-  const words = useMemo(() => buildMistaterWords(trace), [trace]);
-  if (!words) return null;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-method-visual="adjacent-letter-tension">
-    <MethodStageHead methodKey="מסתתר" expression={expression} result={trace.result} subtitle="המתח בין אותיות סמוכות" />
+  const scene = useMemo(() => buildMistaterScene(expression, trace), [expression, trace]);
+  if (!scene) return null;
+  const { extent } = scene;
+  const width = extent.maxX - extent.minX + MISTATER_STAGE_PAD * 2;
+  const height = extent.maxY - extent.minY + MISTATER_STAGE_PAD * 2;
+  // ONE coordinate space: cards and connector endpoints are both projected from scene world coordinates.
+  const toScreen = (p) => ({ x: p.x - extent.minX + MISTATER_STAGE_PAD, y: extent.maxY - p.y + MISTATER_STAGE_PAD });
+  const letters = scene.nodes.filter((n) => n.kind === "letter_anchor");
+  const resultNode = scene.nodes.find((n) => n.id === scene.resultId);
+  const result = resolveSceneTraceValue(scene, resultNode.identityRef).value;
+  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema}>
+    <MethodStageHead methodKey="מסתתר" expression={expression} result={result} subtitle="המתח בין אותיות סמוכות" />
     <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
-      {words.map((word) => <span className="sod29-spatial-method-stage__tension-word" key={word.id}>
-        {word.letters.map((letter, index) => <React.Fragment key={`${word.id}:${letter.index}`}>
-          <span className="sod29-spatial-method-stage__tension-letter" role="listitem"><b>{letter.token}</b><small>{letter.value}</small></span>
-          {word.edges[index] ? <span className="sod29-spatial-method-stage__tension-edge" role="listitem" aria-label={`הפרש ${word.edges[index].difference}`}><i aria-hidden="true" /><strong>{word.edges[index].difference}</strong></span> : null}
-        </React.Fragment>)}
-      </span>)}
+      <div className="sod29-spatial-method-stage__tension-scene" dir="ltr" style={{ width, height }}>
+        <svg className="sod29-spatial-method-stage__tension-svg" viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true" focusable="false">
+          {scene.connectors.map((connector, index) => {
+            const a = toScreen(resolveSceneSocketWorld(scene, connector.from));
+            const b = toScreen(resolveSceneSocketWorld(scene, connector.to));
+            const mx = (a.x + b.x) / 2;
+            const my = (a.y + b.y) / 2;
+            const lift = connector.curve.lift;
+            const { difference } = resolveSceneTraceValue(scene, connector.identityRef);
+            return <g key={connector.id} data-connector-id={connector.id} data-from-socket={connector.from.socket} data-to-socket={connector.to.socket}>
+              <path className="sod29-spatial-method-stage__tension-path" d={`M ${a.x} ${a.y} Q ${mx} ${my - lift * 2} ${b.x} ${b.y}`} pathLength="1" style={{ "--sms-edge-delay": `${connector.motion.delayMs}ms` }} />
+              <text className="sod29-spatial-method-stage__tension-diff" x={mx} y={my - lift - 8} textAnchor="middle">{difference}</text>
+            </g>;
+          })}
+        </svg>
+        {letters.map((node) => {
+          const p = toScreen(resolveSceneWorldPosition(scene, node.id));
+          const { value } = resolveSceneTraceValue(scene, node.identityRef);
+          return <span key={node.id} className="sod29-spatial-method-stage__tension-letter" role="listitem" data-node-id={node.id} style={{ left: p.x, top: p.y, width: node.bounds.width, height: node.bounds.height }}>
+            <b>{node.label}</b><small>{value}</small>
+          </span>;
+        })}
+      </div>
     </div>
     <p className="sod29-spatial-method-stage__boundary">המסתתר מוקרן כיחסים בין אותיות סמוכות. ההפרשים המוצגים מגיעים מה־Trace; ה־UI אינו גוזר אותם מחדש.</p>
     <GenericActions methodKey="מסתתר" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
@@ -401,7 +410,7 @@ export const spatialMethodStageInternals = {
   verifiedTrace,
   buildMiluiRows,
   buildLedgerRows,
-  buildMistaterWords,
+  buildMistaterScene,
   buildTriangleWordRows,
   METHOD_TRACE_KIND,
 };
