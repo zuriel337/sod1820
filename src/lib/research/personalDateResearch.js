@@ -1,5 +1,6 @@
 import { gregorianDateToHebrewRepresentation, GREGORIAN_HEBREW_REPRESENTATION_VERSION } from "../timeFlow.js";
 import { makeUniversalFinding } from "./universalFinding.js";
+import { normalizeAccessDescriptor } from "./researchPlanV2.js";
 import {
   ACCESS_CLASS,
   EVIDENCE_RELATION,
@@ -170,10 +171,13 @@ export function composePersonalDateResearchBundle({
   accessDescriptor = null,
   createdAt = null,
 } = {}) {
+  const effectiveAccess = normalizeAccessDescriptor(accessDescriptor);
+  const personalAllowed = Array.isArray(effectiveAccess?.allowed_access_tiers)
+    && effectiveAccess.allowed_access_tiers.includes("personal");
   const representation = gregorianToHebrewDateRepresentation(birthdateIso);
   if (!representation) {
     return composeResearchResultBundle({
-      query: { raw_input: clean(birthdateIso) },
+      query: { raw_input: personalAllowed ? clean(birthdateIso) : null },
       capabilities: [capabilityResult({
         key: "personal_date_representation",
         owner: "person_foundation_contract_law",
@@ -184,7 +188,7 @@ export function composePersonalDateResearchBundle({
         semanticClass: SEMANTIC_CLASS.DERIVATION,
         versionRefs: [PERSONAL_DATE_REPRESENTATION_VERSION],
       })],
-      accessDescriptor,
+      accessDescriptor: effectiveAccess,
     });
   }
 
@@ -204,7 +208,7 @@ export function composePersonalDateResearchBundle({
   }));
 
   return composeResearchResultBundle({
-    query: { raw_input: representation.input_iso },
+    query: { raw_input: personalAllowed ? representation.input_iso : null },
     capabilities: [
       capabilityResult({
         key: "personal_date_representation",
@@ -213,7 +217,7 @@ export function composePersonalDateResearchBundle({
         findingOutcomes: dateOutcomes,
         accessClass: ACCESS_CLASS.PERSONAL,
         semanticClass: SEMANTIC_CLASS.DERIVATION,
-        sourceRefs: [representation.input_iso],
+        sourceRefs: personalAllowed ? [representation.input_iso] : [],
         versionRefs: [PERSONAL_DATE_REPRESENTATION_VERSION, "@hebcal/core"],
       }),
       capabilityResult({
@@ -227,10 +231,10 @@ export function composePersonalDateResearchBundle({
         versionRefs: [PERSONAL_DATE_REPRESENTATION_VERSION, "fn_cross_research"],
       }),
     ],
-    resolvedRunSnapshot: {
+    resolvedRunSnapshot: personalAllowed ? {
       date_representation: representation,
-    },
-    accessDescriptor,
+    } : null,
+    accessDescriptor: effectiveAccess,
   });
 }
 
