@@ -42,7 +42,11 @@ function numericLiteral(text) {
 
 function isoDate(text) {
   const t = clean(text);
-  return /^\d{4}-\d{2}-\d{2}$/.test(t) ? t : null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return null;
+  const [year, month, day] = t.split("-").map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() + 1 !== month || d.getUTCDate() !== day) return null;
+  return t;
 }
 
 function looksQuestion(text) {
