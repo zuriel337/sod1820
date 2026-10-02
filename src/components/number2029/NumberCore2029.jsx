@@ -118,6 +118,7 @@ function MethodInspector({
         trace={traceDetail}
         expectedValue={method.computedValue ?? null}
         depth="S2"
+        loading={traceState?.loading === true}
         onRazielAction={onRazielAction}
         onOpenHeichal={onOpenHeichal}
       />
