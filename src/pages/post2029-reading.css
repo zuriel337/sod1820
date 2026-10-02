@@ -701,7 +701,10 @@
   direction:ltr;
 }
 .sod29-reading-number-signal{
-  appearance:none;\n  font:inherit;\n  cursor:pointer;\n  min-width:82px;
+  appearance:none;
+  font:inherit;
+  cursor:pointer;
+  min-width:82px;
   min-height:82px;
   display:grid;
   place-content:center;
