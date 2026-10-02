@@ -1,7 +1,27 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
+import { evaluateS4Capability, prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import "./spatialMethodStage2029.css";
+
+// S4 (GPU) is route-scoped: three / @react-three/fiber live only in this lazily-loaded chunk, requested after the
+// explicit "תלת־ממד" action. Default S0–S2 never imports or mounts it.
+const MistaterScene3D = lazy(() => import("./MistaterScene3D2029.jsx"));
+
+class S4ErrorBoundary extends React.Component {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFallback?.("render_error"); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+const S4_FALLBACK_NOTE = Object.freeze({
+  low_power: "מצב חיסכון באנרגיה פעיל — התצוגה נשארת בתצוגה הדו־ממדית.",
+  no_webgl: "WebGL אינו זמין במכשיר — התצוגה נשארת בתצוגה הדו־ממדית.",
+  context_lost: "הקשר הגרפי אבד — חזרנו לתצוגה הדו־ממדית.",
+  render_error: "התצוגה התלת־ממדית נכשלה — חזרנו לתצוגה הדו־ממדית.",
+  ssr: "התצוגה התלת־ממדית זמינה רק בדפדפן.",
+});
 
 const METHOD_TRACE_KIND = Object.freeze({
   "רגיל": "LETTER_LEDGER",
@@ -291,6 +311,16 @@ const MISTATER_STAGE_PAD = 24;
 
 function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {
   const scene = useMemo(() => buildMistaterScene(expression, trace), [expression, trace]);
+  const [s4, setS4] = useState(false);
+  const [s4Note, setS4Note] = useState(null);
+  useEffect(() => { setS4(false); setS4Note(null); }, [expression, trace]);
+  const promoteS4 = () => {
+    const cap = evaluateS4Capability();
+    if (!cap.ok) { setS4Note(S4_FALLBACK_NOTE[cap.reason]); return; }
+    setS4Note(null);
+    setS4(true);
+  };
+  const fallbackToS2 = (reason) => { setS4(false); setS4Note(S4_FALLBACK_NOTE[reason] || S4_FALLBACK_NOTE.render_error); };
   if (!scene) {
     return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-state="scene-error" aria-live="polite">
       <p>לא ניתן להרכיב תצוגה מרחבית עקבית מה־Trace הקנוני. הערך הקנוני אינו מושפע, ואין מוצגים קשרים.</p>
@@ -304,9 +334,19 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
   const letters = scene.nodes.filter((n) => n.kind === "letter_anchor");
   const resultNode = scene.nodes.find((n) => n.id === scene.resultId);
   const result = resolveSceneTraceValue(scene, resultNode.identityRef).value;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}>
+  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={s4 ? "S4" : depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}>
     <MethodStageHead methodKey="מסתתר" expression={expression} result={result} subtitle="המתח בין אותיות סמוכות" />
-    <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
+    <div className="sod29-spatial-method-stage__depth-controls">
+      {s4
+        ? <button type="button" data-s4-action="return" onClick={() => { setS4(false); setS4Note(null); }}>חזרה לתצוגה דו־ממדית</button>
+        : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
+      {s4Note ? <small role="status">{s4Note}</small> : null}
+    </div>
+    {s4 ? <S4ErrorBoundary onFallback={fallbackToS2}>
+      <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
+        <MistaterScene3D scene={scene} reducedMotion={prefersReducedMotion()} onFallback={fallbackToS2} />
+      </Suspense>
+    </S4ErrorBoundary> : <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
       <div className="sod29-spatial-method-stage__tension-scene" dir="ltr" style={{ width, height }}>
         <svg className="sod29-spatial-method-stage__tension-svg" viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true" focusable="false">
           {scene.connectors.map((connector, index) => {
@@ -330,7 +370,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
           </span>;
         })}
       </div>
-    </div>
+    </div>}
     <p className="sod29-spatial-method-stage__boundary">המסתתר מוקרן כיחסים בין אותיות סמוכות. ההפרשים המוצגים מגיעים מה־Trace; ה־UI אינו גוזר אותם מחדש.</p>
     <GenericActions methodKey="מסתתר" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;

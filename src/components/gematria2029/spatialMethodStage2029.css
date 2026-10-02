@@ -287,3 +287,12 @@
   .sod29-spatial-method-stage__opening,
   .sod29-spatial-method-stage__glyph{transition:none;transform:none}
 }
+
+/* S4 (GPU) projection of scene.v1 — explicit deepen only; S2 DOM/SVG remains the default. */
+.sod29-spatial-method-stage__depth-controls{display:flex;align-items:center;gap:10px;margin:6px 0}
+.sod29-spatial-method-stage__depth-controls button{border:1px solid var(--sms-line-strong);background:var(--sms-panel-soft);color:var(--sms-ink);border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer}
+.sod29-spatial-method-stage__depth-controls small{color:var(--sms-muted)}
+.sod29-spatial-method-stage__s4{position:relative;width:100%;height:min(56vh,420px);min-height:260px;border:1px solid var(--sms-line);border-radius:14px;overflow:hidden;background:var(--sms-panel-soft);touch-action:none}
+.sod29-spatial-method-stage__s4 canvas{display:block;width:100%;height:100%}
+.sod29-spatial-method-stage__s4-loading{color:var(--sms-muted)}
+.sod29-spatial-method-stage__sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;list-style:none}

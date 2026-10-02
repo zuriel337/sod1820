@@ -106,7 +106,10 @@ test("scene.v1: M0 has no 3D/Blender dependency and no DB/schema touch", () => {
   const src = readFileSync(new URL("../src/lib/spatial/semanticSceneCompiler.js", import.meta.url), "utf8");
   assert.equal(/from\s+["'](three|@react-three)/.test(src), false);
   const stage = readFileSync(new URL("../src/components/gematria2029/SpatialMethodStage2029.jsx", import.meta.url), "utf8");
-  assert.equal(/three|r3f|blender/i.test(stage), false);
+  // M1: the stage may reference the S4 renderer ONLY through a lazy dynamic import — never a static three/R3F import.
+  assert.equal(/^\s*import[^;]*from\s+["'](three|@react-three)/m.test(stage), false);
+  assert.equal(/^\s*import[^;]*MistaterScene3D2029/m.test(stage), false);
+  assert.equal(/blender/i.test(stage), false);
 });
 
 test("Stage consumes scene.v1 (no parallel Mistater semantics) and draws connectors from scene sockets", async () => {

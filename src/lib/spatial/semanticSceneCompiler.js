@@ -399,13 +399,15 @@ export function compileMistaterTensionScene({ expression, methodTrace }, { focus
 // (2) Nodes and connectors carry canonical identity REFS (trace paths) — never arithmetic values. Values are resolved
 //     from the canonical trace via resolveSceneTraceValue(). (3) Connectors reference socket ids, never coordinates.
 // (4) Axes: x grows rightward, y up, z toward viewer; layout.direction "rtl" means reading order runs toward -x.
-//     Consumers flip y for screens. M0 uses translation only (rotation/scale are identity).
+//     Consumers flip y for screens. M0 layouts use translation only; the resolver supports full TRS
+//     (see SCENE_V1_TRANSFORM_CONVENTION) and sockets carry object-space outward normals.
 
 export const SCENE_V1_SCHEMA = "sod1820.scene.v1";
 
 const MISTATER_LAYOUT = Object.freeze({
   letterWidth: 56,
   letterHeight: 72,
+  letterDepth: 14,
   letterPitch: 120,
   wordGap: 48,
   resultLift: 120,
@@ -419,27 +421,128 @@ function sceneTransform(x, y, z = 0) {
   return { position: { x, y, z }, rotation: { ...IDENTITY_ROTATION }, scale: { ...IDENTITY_SCALE } };
 }
 
-export function resolveSceneWorldPosition(scene, nodeId) {
+// ----- Transform semantics (M1 hardening) — renderer-neutral, pure math, no Three dependency -----
+// Convention (explicit, so Web/Blender/any importer reproduce it): right-handed; transform.rotation is Euler
+// angles in RADIANS applied in order "XYZ" (intrinsic; rotation matrix R = Rx * Ry * Rz — identical to the
+// Three.js default Euler order and expressible in Blender as XYZ Euler); local matrix = T * R * S; world matrix =
+// parent.world * local. Matrices are 16-element column-major arrays. Sockets are object-space points with a
+// unit object-space outward normal.
+export const SCENE_V1_TRANSFORM_CONVENTION = Object.freeze({
+  handedness: "right",
+  rotation: Object.freeze({ unit: "radian", euler: "XYZ", matrix: "Rx*Ry*Rz" }),
+  local: "T*R*S",
+  world: "parent.world*local",
+  matrixLayout: "column_major_16",
+});
+
+function localMatrix(t) {
+  const { x: px, y: py, z: pz } = t.position;
+  const { x: a, y: b, z: c } = t.rotation;
+  const { x: sx, y: sy, z: sz } = t.scale;
+  const cx = Math.cos(a), sxn = Math.sin(a), cy = Math.cos(b), syn = Math.sin(b), cz = Math.cos(c), szn = Math.sin(c);
+  // R = Rx * Ry * Rz (row-major entries r{row}{col})
+  const r00 = cy * cz, r01 = -cy * szn, r02 = syn;
+  const r10 = cx * szn + sxn * syn * cz, r11 = cx * cz - sxn * syn * szn, r12 = -sxn * cy;
+  const r20 = sxn * szn - cx * syn * cz, r21 = sxn * cz + cx * syn * szn, r22 = cx * cy;
+  return [
+    r00 * sx, r10 * sx, r20 * sx, 0,
+    r01 * sy, r11 * sy, r21 * sy, 0,
+    r02 * sz, r12 * sz, r22 * sz, 0,
+    px, py, pz, 1,
+  ];
+}
+
+function mulMat(p, l) {
+  const o = new Array(16).fill(0);
+  for (let c = 0; c < 4; c += 1) for (let r = 0; r < 4; r += 1) {
+    let v = 0;
+    for (let k = 0; k < 4; k += 1) v += p[k * 4 + r] * l[c * 4 + k];
+    o[c * 4 + r] = v;
+  }
+  return o;
+}
+
+export function resolveSceneWorldMatrix(scene, nodeId) {
   const byId = new Map(scene.nodes.map((n) => [n.id, n]));
-  let x = 0, y = 0, z = 0;
   let cur = byId.get(nodeId);
   if (!cur) throw new Error("SCENE_V1_UNKNOWN_NODE");
   const seen = new Set();
+  const chain = [];
   while (cur) {
     if (seen.has(cur.id)) throw new Error("SCENE_V1_PARENT_CYCLE");
     seen.add(cur.id);
-    x += cur.transform.position.x; y += cur.transform.position.y; z += cur.transform.position.z;
+    chain.push(cur);
     cur = cur.parent ? byId.get(cur.parent) : null;
   }
-  return { x, y, z };
+  let m = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  for (let i = chain.length - 1; i >= 0; i -= 1) m = mulMat(m, localMatrix(chain[i].transform));
+  return m;
 }
 
-export function resolveSceneSocketWorld(scene, socketRef) {
+const applyPoint = (m, p) => ({
+  x: m[0] * p.x + m[4] * p.y + m[8] * p.z + m[12],
+  y: m[1] * p.x + m[5] * p.y + m[9] * p.z + m[13],
+  z: m[2] * p.x + m[6] * p.y + m[10] * p.z + m[14],
+});
+
+// Normals use the inverse-transpose of the upper 3x3 so they stay perpendicular under non-uniform scale.
+function applyNormal(m, n) {
+  const a = m[0], b = m[4], c = m[8], d = m[1], e = m[5], f = m[9], g = m[2], h = m[6], i = m[10];
+  const det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+  if (!det) throw new Error("SCENE_V1_DEGENERATE_TRANSFORM");
+  const inv = [
+    (e * i - f * h) / det, (c * h - b * i) / det, (b * f - c * e) / det,
+    (f * g - d * i) / det, (a * i - c * g) / det, (c * d - a * f) / det,
+    (d * h - e * g) / det, (b * g - a * h) / det, (a * e - b * d) / det,
+  ];
+  // inverse-transpose applied to n == transpose(inv) * n
+  const x = inv[0] * n.x + inv[3] * n.y + inv[6] * n.z;
+  const y = inv[1] * n.x + inv[4] * n.y + inv[7] * n.z;
+  const z = inv[2] * n.x + inv[5] * n.y + inv[8] * n.z;
+  const len = Math.hypot(x, y, z) || 1;
+  return { x: x / len, y: y / len, z: z / len };
+}
+
+export function resolveSceneWorldPosition(scene, nodeId) {
+  return applyPoint(resolveSceneWorldMatrix(scene, nodeId), { x: 0, y: 0, z: 0 });
+}
+
+function findSocket(scene, socketRef) {
   const node = scene.nodes.find((n) => n.id === socketRef.node);
   const socket = node?.sockets?.find((s) => s.id === socketRef.socket);
   if (!node || !socket) throw new Error("SCENE_V1_UNKNOWN_SOCKET");
-  const w = resolveSceneWorldPosition(scene, node.id);
-  return { x: w.x + socket.position.x, y: w.y + socket.position.y, z: w.z + socket.position.z };
+  return { node, socket };
+}
+
+export function resolveSceneSocketWorld(scene, socketRef) {
+  const { node, socket } = findSocket(scene, socketRef);
+  return applyPoint(resolveSceneWorldMatrix(scene, node.id), socket.position);
+}
+
+export function resolveSceneSocketNormalWorld(scene, socketRef) {
+  const { node, socket } = findSocket(scene, socketRef);
+  return applyNormal(resolveSceneWorldMatrix(scene, node.id), socket.normal);
+}
+
+// Renderer-neutral connector geometry: ONE cubic Bezier (4 world-space control points) derived only from the
+// connector's from/to sockets (position + outward normal) and its curve metadata. P0/P3 are the exact socket world
+// positions; P1/P2 leave/enter along the socket normals by handle*|P3-P0| and are lifted along curve.liftAxis by
+// curve.lift. Web (R3F tube) and Blender (bezier curve) must both reproduce these four points.
+export function resolveSceneConnectorCurve(scene, connector) {
+  const p0 = resolveSceneSocketWorld(scene, connector.from);
+  const p3 = resolveSceneSocketWorld(scene, connector.to);
+  const n0 = resolveSceneSocketNormalWorld(scene, connector.from);
+  const n3 = resolveSceneSocketNormalWorld(scene, connector.to);
+  const dist = Math.hypot(p3.x - p0.x, p3.y - p0.y, p3.z - p0.z);
+  const h = (connector.curve.handle ?? 0) * dist;
+  const axis = { x: 0, y: 0, z: 0, ...(connector.curve.liftAxis || { y: 1 }) };
+  const lift = connector.curve.lift || 0;
+  const off = (n) => ({ x: n.x * h + axis.x * lift, y: n.y * h + axis.y * lift, z: n.z * h + axis.z * lift });
+  const o0 = off(n0), o3 = off(n3);
+  return {
+    kind: "cubic_bezier",
+    points: [p0, { x: p0.x + o0.x, y: p0.y + o0.y, z: p0.z + o0.z }, { x: p3.x + o3.x, y: p3.y + o3.y, z: p3.z + o3.z }, p3],
+  };
 }
 
 // Resolves a canonical value through an identityRef trace path. Values live only in the canonical trace.
@@ -543,11 +646,11 @@ export function compileMistaterSceneV1({ expression, methodTrace }) {
       nodes.push({
         id, kind: "letter_anchor", parent: wordId, label: letter,
         transform: sceneTransform(-i * L.letterPitch, 0),
-        bounds: { width: L.letterWidth, height: L.letterHeight, depth: 0 },
+        bounds: { width: L.letterWidth, height: L.letterHeight, depth: L.letterDepth },
         // object-space sockets: "out" faces the next letter in reading order (-x for rtl), "in" faces the previous.
         sockets: [
-          { id: `${id}#in`, role: "tension_in", position: { x: half, y: 0, z: 0 } },
-          { id: `${id}#out`, role: "tension_out", position: { x: -half, y: 0, z: 0 } },
+          { id: `${id}#in`, role: "tension_in", position: { x: half, y: 0, z: 0 }, normal: { x: 1, y: 0, z: 0 } },
+          { id: `${id}#out`, role: "tension_out", position: { x: -half, y: 0, z: 0 }, normal: { x: -1, y: 0, z: 0 } },
         ],
         identityRef: { type: "method_trace_letter", methodKey: "מסתתר", wordIndex, letterIndex: i, letter, tracePath: `steps[${wordIndex}].letter_values[${i}]` },
         truthTier: TRUTH_TIERS.FACT,
@@ -562,7 +665,8 @@ export function compileMistaterSceneV1({ expression, methodTrace }) {
         from: { node: leftId, socket: `${leftId}#out` },
         to: { node: rightId, socket: `${rightId}#in` },
         identityRef: { type: "method_trace_pair", methodKey: "מסתתר", wordIndex, pairIndex: i, tracePath: `steps[${wordIndex}].pairs[${i}]` },
-        curve: { kind: "arc", lift: L.connectorLift },
+        // kind "arc" (S2 quadratic, unchanged) stays; additive 3D metadata: cubic handles along socket normals + lift axis.
+        curve: { kind: "arc", lift: L.connectorLift, handle: 0.3, liftAxis: { x: 0, y: 1, z: 0 } },
         style: { role: "tension_edge", stroke: "accent", width: 2, glow: true },
         occlusion: { mode: "under_nodes", depthBias: -0.01 },
         label: { anchor: "curve_midpoint", source: "identityRef" },
@@ -586,7 +690,7 @@ export function compileMistaterSceneV1({ expression, methodTrace }) {
     projection_kind: "adjacent_letter_tension",
     subjectId: rootId,
     resultId,
-    layout: { direction: "rtl", axes: { x: "right", y: "up", z: "toward_viewer" }, unit: "layout_unit", projectionOnly: true, constants: { ...L } },
+    layout: { direction: "rtl", axes: { x: "right", y: "up", z: "toward_viewer" }, unit: "layout_unit", projectionOnly: true, transformConvention: SCENE_V1_TRANSFORM_CONVENTION, constants: { ...L } },
     canonical: { type: "gematria_method_trace", methodKey: "מסתתר", traceKind: methodTrace.trace_kind, input: expression, trace: methodTrace },
     nodes,
     connectors,
