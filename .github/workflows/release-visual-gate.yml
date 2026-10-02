@@ -215,9 +215,19 @@ jobs:
 
           async function assertGolden1237ContextualFlow(page, width) {
             const height = width < 600 ? 844 : 1000;
+            await page.route('**/entity-hub-preview/**', async (route) => {
+              const response = await page.request.get(`${BASE}/2029.html`);
+              await route.fulfill({
+                status: response.status(),
+                headers: response.headers(),
+                body: await response.body(),
+              });
+            });
             await page.setViewportSize({ width, height });
             await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
 
+            expect(await page.title()).toBe('SOD1820 · 2029');
+            await expect(page.locator('script[src*="/assets/2029-"]')).toHaveCount(1);
             const golden = page.locator('[data-experience-surface="golden-1237-focus"]');
             await expect(golden).toBeVisible({ timeout: 20_000 });
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
