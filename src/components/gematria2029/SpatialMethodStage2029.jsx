@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import "./spatialMethodStage2029.css";
 
+const METHOD_TRACE_KIND = Object.freeze({ "מילוי": "LETTER_LEDGER" });
+
 function normalizedTrace(trace, expression, methodKey) {
   if (!trace || typeof trace !== "object") return null;
   const key = String(trace.method_key || trace.methodKey || methodKey || "").trim();
@@ -21,6 +23,8 @@ function normalizedTrace(trace, expression, methodKey) {
 function verifiedTrace(trace, expression, methodKey, expectedValue = null) {
   if (!trace) return false;
   if (trace.method_key !== methodKey || trace.input !== expression) return false;
+  const requiredTraceKind = METHOD_TRACE_KIND[methodKey];
+  if (!requiredTraceKind || trace.trace_kind !== requiredTraceKind) return false;
   if (!Number.isSafeInteger(Number(trace.result))) return false;
   if (trace.verification?.parity !== true) return false;
   if (Number(trace.verification?.trace_value) !== Number(trace.result)) return false;
@@ -32,7 +36,7 @@ function verifiedTrace(trace, expression, methodKey, expectedValue = null) {
 function buildMiluiRows(expression, trace) {
   const specs = buildWordLetterAnatomySpecs(expression);
   const steps = (Array.isArray(trace?.steps) ? trace.steps : [])
-    .filter((step) => step && step.scope === "letter" && HEBREW_LETTER_NAMES_ENGINE_DEFAULT[String(step.token || "")]);
+    .filter((step) => step && step.scope === "letter" && Number(step.base_value) > 0 && HEBREW_LETTER_NAMES_ENGINE_DEFAULT[String(step.token || "")]);
 
   if (specs.length !== steps.length) return null;
 
@@ -82,6 +86,7 @@ function MiluiStage({
 
   const focus = rows[Math.min(focusIndex, rows.length - 1)];
   const result = Number(trace.result);
+  const density = rows.length > 24 ? "long" : "normal";
 
   return <section
     className="sod29-spatial-method-stage sod29-miluy-spatial"
@@ -90,13 +95,15 @@ function MiluiStage({
     data-method-key="מילוי"
     data-depth={depth}
     data-mode={mode}
+    data-density={density}
+    data-spelling-source="ui_transitional_unverified"
     aria-label={`מילוי מרחבי עבור ${expression}`}
   >
     <div className="sod29-spatial-method-stage__head">
       <div>
         <span>מילוי · עומק שכבות</span>
         <strong>אות → שם האות → ערך → סכום</strong>
-        <small>המספרים מגיעים מה־Trace הקנוני; התצוגה אינה מחשבת אמת.</small>
+        <small>המספרים מגיעים מה־Trace הקנוני; איות שם האות מסומן כשכבת תצוגה מעברית.</small>
       </div>
       <div className="sod29-spatial-method-stage__result">
         <small>TRACE VERIFIED</small>
@@ -162,7 +169,7 @@ function MiluiStage({
     </div>
 
     <p className="sod29-spatial-method-stage__boundary">
-      איותי המילוי בתצוגה עברו parity מספרי מלא מול ערכי מנוע המילוי; סמכות האיות עצמה תישאר כפופה לחוזה המנוע/Registry.
+      איות תצוגה · לא שדה Trace: האיותים עברו parity מספרי מלא מול ערכי מנוע המילוי, אך סמכות האיות עצמה נשארת כפופה לחוזה המנוע/Registry.
     </p>
   </section>;
 }
@@ -216,4 +223,5 @@ export const spatialMethodStageInternals = {
   normalizedTrace,
   verifiedTrace,
   buildMiluiRows,
+  METHOD_TRACE_KIND,
 };
