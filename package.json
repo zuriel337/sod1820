@@ -9,7 +9,7 @@
     "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",
     "preview": "vite preview",
-    "test:spatial-scene-v1": "node --test test/spatial-scene-v1-m0.test.mjs test/spatial-scene-v1-m1.test.mjs test/spatial-scene-v1-m2.test.mjs",
+    "test:spatial-scene-v1": "node --test test/spatial-scene-v1-m0.test.mjs test/spatial-scene-v1-m1.test.mjs test/spatial-scene-v1-m2.test.mjs test/spatial-scene-v1-m3.test.mjs",
     "test:issue-report": "node scripts/test-issue-report-canonical-emitter.mjs",
     "test:experience-context": "node scripts/test-experience-context-2029.mjs",
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",

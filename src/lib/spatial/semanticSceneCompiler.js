@@ -15,6 +15,8 @@
 
 // ===== GENERIC CORE (domain-independent — identical to work_log 7f0d8ac8) =====
 
+import { buildGlyphAssetRef } from "./hebrewGlyphAssets.js";
+
 export const TRUTH_TIERS = {
   FACT: "FACT",
   FINDING: "FINDING",
@@ -653,6 +655,8 @@ export function compileMistaterSceneV1({ expression, methodTrace }) {
           { id: `${id}#out`, role: "tension_out", position: { x: -half, y: 0, z: 0 }, normal: { x: -1, y: 0, z: 0 } },
         ],
         identityRef: { type: "method_trace_letter", methodKey: "מסתתר", wordIndex, letterIndex: i, letter, tracePath: `steps[${wordIndex}].letter_values[${i}]` },
+        // M3: additive glyph lineage (identity+version only, never tessellation). Omitted when no asset exists => renderers fall back.
+        ...(buildGlyphAssetRef(letter) ? { asset_ref: buildGlyphAssetRef(letter) } : {}),
         truthTier: TRUTH_TIERS.FACT,
       });
     });

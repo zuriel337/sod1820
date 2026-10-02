@@ -6,11 +6,14 @@
 //  - connectors → tubes along resolveSceneConnectorCurve() (socket-derived, renderer-neutral control points);
 //  - every displayed number is resolved through resolveSceneTraceValue(scene, identityRef) — no arithmetic here;
 //  - glyph/value planes are a TRANSITIONAL deterministic canvas texture (projection-only). Canonical identity stays
-//    node.identityRef (letter codepoint). M3 will replace this with an explicit asset_ref (SVG/path/MSDF/GLB).
+//    node.identityRef (letter codepoint). M3: when node.asset_ref resolves against the Hebrew glyph manifest the letter is the
+//    manifest's path-only SVG vector (same lineage as Blender); otherwise the canvas text below remains the truthful fallback.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { CanvasTexture, Color, CubicBezierCurve3, DoubleSide, SRGBColorSpace, Vector3 } from "three";
+import { CanvasTexture, Color, CubicBezierCurve3, DoubleSide, ExtrudeGeometry, SRGBColorSpace, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+import { glyphPlacement, resolveGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { resolveSceneConnectorCurve, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 
 const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570" });
@@ -57,19 +60,53 @@ function useTextTexture(lines, { width = 128, height = 160, fonts = [] } = {}) {
   return texture;
 }
 
+// Lazy raw SVG assets (path-only, canonical lineage). A missing/failed/mismatched asset resolves to null => fallback.
+const GLYPH_SVG_LOADERS = import.meta.glob("../../lib/spatial/hebrewGlyph/v1/*.svg", { query: "?raw", import: "default" });
+
+async function buildGlyphGeometry(glyph, bounds) {
+  const load = GLYPH_SVG_LOADERS[`../../lib/spatial/hebrewGlyph/v1/${glyph.vector_asset_ref.split("/").pop()}`];
+  if (!load) return null;
+  const data = new SVGLoader().parse(await load());
+  const shapes = data.paths.flatMap((path) => SVGLoader.createShapes(path));
+  if (!shapes.length) return null;
+  const geo = new ExtrudeGeometry(shapes, { depth: bounds.depth, bevelEnabled: false, curveSegments: 8 });
+  const pl = glyphPlacement(bounds, glyph); // same placement formula as the Blender importer (hebrew_glyph_lineage.py)
+  geo.scale(pl.scale, -pl.scale, 1);
+  geo.translate(-(pl.advance / 2) * pl.scale, pl.baseline * pl.scale + pl.baselineLocalY, -bounds.depth / 2);
+  return geo;
+}
+
+function useGlyphGeometry(assetRef, bounds) {
+  const glyph = useMemo(() => resolveGlyphAssetRef(assetRef), [assetRef]);
+  const [geometry, setGeometry] = useState(null);
+  useEffect(() => {
+    let live = true, made = null;
+    setGeometry(null);
+    if (!glyph) return undefined;
+    buildGlyphGeometry(glyph, bounds).then((g) => { made = g; if (live) setGeometry(g); else g?.dispose(); }).catch(() => { if (live) setGeometry(null); });
+    return () => { live = false; made?.dispose(); };
+  }, [glyph, bounds.width, bounds.height, bounds.depth]); // eslint-disable-line react-hooks/exhaustive-deps
+  return geometry;
+}
+
 function LetterBody({ node, scene, colors }) {
   const { value } = resolveSceneTraceValue(scene, node.identityRef);
   const { width, height, depth } = node.bounds;
-  // exact codepoint comes from node identity, never from a font mesh
-  const tex = useTextTexture([
+  const glyphGeometry = useGlyphGeometry(node.asset_ref, node.bounds);
+  // exact codepoint comes from node identity, never from a font mesh; with an asset the plane carries the value only
+  const tex = useTextTexture(glyphGeometry ? [
+    { text: String(value), size: 26, y: 130, color: colors.accent, weight: 700 },
+  ] : [
     { text: node.identityRef.letter, size: 78, y: 62, color: colors.hero },
     { text: String(value), size: 26, y: 130, color: colors.accent, weight: 700 },
   ]);
-  return <group>
-    <mesh>
+  return <group userData={{ glyphId: glyphGeometry ? node.asset_ref.glyph_id : null, codepoint: node.identityRef.letter }}>
+    {glyphGeometry ? <mesh geometry={glyphGeometry}>
+      <meshStandardMaterial color={colors.hero} roughness={0.5} metalness={0.2} side={DoubleSide} />
+    </mesh> : <mesh>
       <boxGeometry args={[width, height, depth]} />
       <meshStandardMaterial color={colors.panel} roughness={0.55} metalness={0.15} />
-    </mesh>
+    </mesh>}
     <mesh position={[0, 0, depth / 2 + 0.4]}>
       <planeGeometry args={[width, height]} />
       <meshBasicMaterial map={tex} transparent side={DoubleSide} depthWrite={false} />
