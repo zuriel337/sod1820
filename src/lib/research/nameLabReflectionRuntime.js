@@ -53,6 +53,16 @@ function nameLabFindingWord(finding) {
   return clean(fact.phrase) || clean(fact.word) || clean(fact.form) || null;
 }
 
+function nameLabFindingEngineValue(finding) {
+  const fact = Array.isArray(finding?.evidence?.facts) ? finding.evidence.facts[0] : null;
+  if (!fact || typeof fact !== "object") return null;
+  for (const key of ["value", "milui", "ragil"]) {
+    const n = Number(fact[key]);
+    if (Number.isSafeInteger(n)) return n;
+  }
+  return null;
+}
+
 const DEFAULT_MAX_FACT_LINES = 40;
 
 export function buildNameLabBoundedFacts(name, findings, { maxLines = DEFAULT_MAX_FACT_LINES } = {}) {
@@ -63,7 +73,9 @@ export function buildNameLabBoundedFacts(name, findings, { maxLines = DEFAULT_MA
     const quality = clean(finding?.projection?.dimensions?.quality) || "unknown";
     const word = nameLabFindingWord(finding) || "?";
     const verificationState = clean(finding?.verification?.verification_state) || "unknown";
-    return `- [${clean(finding?.id) || "?"}] family=${family} word="${word}" quality=${quality} verification=${verificationState}`;
+    const method = clean(finding?.source?.method) || "unknown";
+    const engineValue = nameLabFindingEngineValue(finding);
+    return `- [${clean(finding?.id) || "?"}] family=${family} method=${method} word="${word}" value=${engineValue ?? "—"} quality=${quality} verification=${verificationState}`;
   });
   const truncatedNote = list.length > maxLines
     ? `\n(+${list.length - maxLines} additional engine Findings not shown)`
