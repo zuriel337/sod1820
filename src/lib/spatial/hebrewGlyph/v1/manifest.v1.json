@@ -1,0 +1,1205 @@
+{
+  "schema": "sod1820.hebrew-glyph-manifest/1",
+  "manifest_version": "v1",
+  "owner": "experience_governance_foundation_v1_law v8 + SOD1820_DESIGN_CONTRACT_V1.md + spatial_research_runtime_vision_v1 (EXTEND_EXISTING; no new owner)",
+  "identity_authority": "Unicode codepoint + LetterAnatomySpec identity; geometry is representation only",
+  "truth_tier": "REPRESENTATION",
+  "profile": {
+    "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800",
+    "vector_version": "v1",
+    "em": 1000,
+    "baseline_y": 800,
+    "view_height": 1000,
+    "y_axis": "down",
+    "precision": 2,
+    "path_commands": [
+      "M",
+      "L",
+      "Q",
+      "Z"
+    ],
+    "quadratic_native": true
+  },
+  "source": {
+    "family": "Heebo",
+    "font_file": "api/_assets/heebo-800.ttf",
+    "font_version": "Version 3.100",
+    "copyright": "Copyright 2014 The Heebo Project Authors (https://github.com/OdedEzer/heebo)",
+    "license": "SIL Open Font License 1.1",
+    "license_text_in_font": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL",
+    "license_url": "https://scripts.sil.org/OFL",
+    "upstream": "https://github.com/OdedEzer/heebo",
+    "source_sha256": "f6d220965f99c84b8f026ad295c14d49fc091150babb8e6a04f14b6eda2467ec",
+    "font_committed_by_m3": false,
+    "font_embedded_in_assets": false
+  },
+  "source_gate": {
+    "status": "SOURCE_GAP",
+    "visual_canonical": false,
+    "reason": "No Human-Gate-approved Hebrew visual glyph profile exists in the repo/design contract; heebo-800.ttf is a server-side asset and the design contract states the heavy Heebo treatment is not a canonical heading style. License/provenance are verifiable (OFL 1.1 in font name table) so this profile is a CANDIDATE only.",
+    "decision_owner": "ZURIEL (Human Gate)"
+  },
+  "glyphs": [
+    {
+      "glyph_id": "heglyph:05D0",
+      "codepoint": "א",
+      "unicode": "U+05D0",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D0.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 678.71,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 48.83,
+        "minY": 212.11,
+        "maxX": 644.53,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 678.71,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:d222f4cb42b82391c3b570ded4ca2ea47baae7552c20ca376db94b37fcf1b003",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 0,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D0",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D1",
+      "codepoint": "ב",
+      "unicode": "U+05D1",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D1.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 547.85,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 24.9,
+        "minY": 212.11,
+        "maxX": 534.67,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 547.85,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:2cf51604376e74fa0e33029e2f8f5d9b2933fa4a4fa03d7c13ff10397233d016",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 1,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D1",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D2",
+      "codepoint": "ג",
+      "unicode": "U+05D2",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D2.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 454.59,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 4.88,
+        "minY": 212.11,
+        "maxX": 407.23,
+        "maxY": 806.84
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 454.59,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:ad722d844fa223dd6b5549a597c989a6988000d2b8ecaddf629c6a63d7d4244f",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 2,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D2",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D3",
+      "codepoint": "ד",
+      "unicode": "U+05D3",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D3.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 575.68,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 29.3,
+        "minY": 212.11,
+        "maxX": 541.99,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 575.68,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:bbdbc8b99c9937ae7bad66503f07c7dc9b9f3fe275be4c78db28bb6959008b6c",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 3,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D3",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D4",
+      "codepoint": "ה",
+      "unicode": "U+05D4",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D4.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 631.35,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 67.87,
+        "minY": 212.11,
+        "maxX": 567.87,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 631.35,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:e2bdfe1386c24fd277d74ce76e0f459b95f645158a95658ede580c8cdfcc8fa5",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 4,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D4",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D5",
+      "codepoint": "ו",
+      "unicode": "U+05D5",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D5.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 327.15,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 34.67,
+        "minY": 212.11,
+        "maxX": 249.02,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 327.15,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:7957384548a5d181a7281e4db1cf4082a6d159875c67cdf82e46439f4c836b1e",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 5,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D5",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D6",
+      "codepoint": "ז",
+      "unicode": "U+05D6",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D6.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 395.51,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 32.23,
+        "minY": 212.11,
+        "maxX": 366.21,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 395.51,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:e0f1f57ea0a6768ae67e0239e5a83b1d45c1d8c1562799ea623d16e566642a6c",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 6,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D6",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D7",
+      "codepoint": "ח",
+      "unicode": "U+05D7",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D7.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 639.16,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 78.12,
+        "minY": 212.11,
+        "maxX": 575.68,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 639.16,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:c1084d2c7db99f1b9cb2ae5eecee3b2d066eb65966cdc1e20fb3ec133f005c30",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 7,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D7",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D8",
+      "codepoint": "ט",
+      "unicode": "U+05D8",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D8.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 643.55,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 78.12,
+        "minY": 205.27,
+        "maxX": 598.63,
+        "maxY": 811.72
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 643.55,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:e7edc9083d45ce71aed6ee4735c6ae6099cea7619e98b345520c83d38ba46017",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 8,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D8",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05D9",
+      "codepoint": "י",
+      "unicode": "U+05D9",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05D9.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 352.05,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 24.41,
+        "minY": 212.11,
+        "maxX": 279.3,
+        "maxY": 549.02
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 352.05,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:9f43f02918c447342a3add765797190111824705b97e9eb05cfc8439c541b712",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 9,
+        "batch_key": "hebrew-glyph-v1:heglyph:05D9",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DB",
+      "codepoint": "כ",
+      "unicode": "U+05DB",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DB.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 555.66,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 29.3,
+        "minY": 212.11,
+        "maxX": 477.54,
+        "maxY": 809.28
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 555.66,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:b092f5b05c22c35b8568faa7d9b45562bdc9481e488f8b530be27030bfc53070",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 10,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DB",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DA",
+      "codepoint": "ך",
+      "unicode": "U+05DA",
+      "is_final": true,
+      "base_codepoint": "כ",
+      "base_glyph_id": "heglyph:05DB",
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DA.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 527.34,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 34.67,
+        "minY": 212.11,
+        "maxX": 449.22,
+        "maxY": 1003.12
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 527.34,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:094cc62c5c69370aa00832ee0e80c6937be02096e07b26a8acc82d4777170c44",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 11,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DA",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DC",
+      "codepoint": "ל",
+      "unicode": "U+05DC",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DC.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 550.29,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 29.79,
+        "minY": 50.0,
+        "maxX": 517.09,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 550.29,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:76ffe35b56c38414afc10305089787ff489d2850585f6ec9c1497cc808c179b5",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 12,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DC",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DE",
+      "codepoint": "מ",
+      "unicode": "U+05DE",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DE.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 671.39,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 48.83,
+        "minY": 196.48,
+        "maxX": 607.91,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 671.39,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:0311c525c0914080414d6807aa8f49c1235bb96055f25373b3da8f7676f2e9a1",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 13,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DE",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DD",
+      "codepoint": "ם",
+      "unicode": "U+05DD",
+      "is_final": true,
+      "base_codepoint": "מ",
+      "base_glyph_id": "heglyph:05DE",
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DD.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 663.57,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 78.61,
+        "minY": 212.11,
+        "maxX": 585.45,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 663.57,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:a093fe4c589004e5551fb67d4b4e9b85162a1188e3611567ad6075fc5e917adc",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 14,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DD",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E0",
+      "codepoint": "נ",
+      "unicode": "U+05E0",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E0.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 408.2,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 29.3,
+        "minY": 212.11,
+        "maxX": 329.59,
+        "maxY": 809.77
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 408.2,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:a60fa57d2f7856f4ee82a5f35809300f0ad2bde4e00e33c0a634d5e8bcea3979",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 15,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E0",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05DF",
+      "codepoint": "ן",
+      "unicode": "U+05DF",
+      "is_final": true,
+      "base_codepoint": "נ",
+      "base_glyph_id": "heglyph:05E0",
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05DF.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 325.68,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 34.67,
+        "minY": 212.11,
+        "maxX": 247.56,
+        "maxY": 1003.12
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 325.68,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:2d1d30a8684e741afb1a2727516f38c1c9843d815c57cb865f33e92df7d9d1fa",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 16,
+        "batch_key": "hebrew-glyph-v1:heglyph:05DF",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E1",
+      "codepoint": "ס",
+      "unicode": "U+05E1",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E1.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 649.41,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 24.41,
+        "minY": 196.48,
+        "maxX": 600.1,
+        "maxY": 811.72
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 649.41,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:9262520bc9db14e465eecf0530d7e65c8879f6c4235b432a6079ce1267f50bbc",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 17,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E1",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E2",
+      "codepoint": "ע",
+      "unicode": "U+05E2",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E2.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 636.23,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 28.81,
+        "minY": 212.11,
+        "maxX": 558.11,
+        "maxY": 815.14
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 636.23,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:5bdb3633dea80c5617c160265c969f3558837c91c42e2348203ca2621e01153e",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 18,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E2",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E4",
+      "codepoint": "פ",
+      "unicode": "U+05E4",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E4.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 671.39,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 62.99,
+        "minY": 212.11,
+        "maxX": 593.26,
+        "maxY": 813.18
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 671.39,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:5c46cb4e34b60c6a532be1fbf0885ed140c2fd3163d6e7b5965a1b5d42e6f502",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 19,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E4",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E3",
+      "codepoint": "ף",
+      "unicode": "U+05E3",
+      "is_final": true,
+      "base_codepoint": "פ",
+      "base_glyph_id": "heglyph:05E4",
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E3.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 634.77,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 62.99,
+        "minY": 212.11,
+        "maxX": 556.64,
+        "maxY": 1003.12
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 634.77,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:39e7821d25bf77b41b4704c9f375da1bae25642d527d8be5093ed3b9bcfeb9ff",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 20,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E3",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E6",
+      "codepoint": "צ",
+      "unicode": "U+05E6",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E6.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 597.66,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 10.74,
+        "minY": 212.11,
+        "maxX": 575.2,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 597.66,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:37b9b9784c17cbaba694cda14299f963c8fe230e3190583be2fa28b17f29e2a1",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 21,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E6",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E5",
+      "codepoint": "ץ",
+      "unicode": "U+05E5",
+      "is_final": true,
+      "base_codepoint": "צ",
+      "base_glyph_id": "heglyph:05E6",
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E5.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 588.38,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 10.74,
+        "minY": 212.11,
+        "maxX": 575.2,
+        "maxY": 1003.12
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 588.38,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:4c2d86e6baa547d77085475ce10a4ad2878f6cfac7cfd024ae112267cd77d2b9",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 22,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E5",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E7",
+      "codepoint": "ק",
+      "unicode": "U+05E7",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E7.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 659.67,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 78.61,
+        "minY": 212.11,
+        "maxX": 582.03,
+        "maxY": 1003.12
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 659.67,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:595410c17c9ba1423b242555b8bbc32704a3c5a9dd61bc607cb1ff9f39330fa1",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 23,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E7",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E8",
+      "codepoint": "ר",
+      "unicode": "U+05E8",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E8.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 498.54,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 14.65,
+        "minY": 212.11,
+        "maxX": 435.55,
+        "maxY": 800.0
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 498.54,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:dfc974acb3c56d00a43892539b663eaff6615ba36647d57f1e6c50c7736abe2a",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 24,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E8",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05E9",
+      "codepoint": "ש",
+      "unicode": "U+05E9",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05E9.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 880.86,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 78.12,
+        "minY": 212.11,
+        "maxX": 802.73,
+        "maxY": 818.55
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 880.86,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:d1b085968e801c7ebab091b963ec33cfb11aca0e3c7275db219a0885eb54fe90",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 25,
+        "batch_key": "hebrew-glyph-v1:heglyph:05E9",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    },
+    {
+      "glyph_id": "heglyph:05EA",
+      "codepoint": "ת",
+      "unicode": "U+05EA",
+      "is_final": false,
+      "base_codepoint": null,
+      "base_glyph_id": null,
+      "vector_asset_ref": "hebrewGlyph/v1/heglyph-05EA.svg",
+      "vector_format": "svg-path",
+      "vector_version": "v1",
+      "viewBox": {
+        "x": 0,
+        "y": 0,
+        "width": 650.39,
+        "height": 1000
+      },
+      "bounds": {
+        "minX": 5.37,
+        "minY": 212.11,
+        "maxX": 587.4,
+        "maxY": 809.28
+      },
+      "anchor": {
+        "baseline_y": 800,
+        "origin": "left_baseline",
+        "advance_width": 650.39,
+        "direction": "rtl"
+      },
+      "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+      "derived": {
+        "msdf": null,
+        "sdf": null,
+        "glb_lod": []
+      },
+      "atlas": {
+        "group": "hebrew-glyph-v1",
+        "slot": 26,
+        "batch_key": "hebrew-glyph-v1:heglyph:05EA",
+        "corpus_instancing": "FUTURE_HOOK_ONLY"
+      },
+      "truth_tier": "REPRESENTATION",
+      "visual_status": "CANDIDATE_NOT_VISUAL_CANONICAL"
+    }
+  ]
+}

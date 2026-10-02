@@ -16,8 +16,13 @@ import json
 import math
 import sys
 
+import os
+
 import bpy
 from mathutils import Matrix, Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hebrew_glyph_lineage as lineage  # pure helpers shared with tests (M3 glyph lineage)
 
 PARITY_SCHEMA = "sod1820.scene.v1.blender-parity/1"
 PROP_PREFIX = "sod_"
@@ -48,6 +53,27 @@ def _material(name, rgba, emissive=0.0):
     return mat
 
 
+def build_glyph_curve(node, glyph, material, collection):
+    """M3: rebuild the canonical path-only SVG vector (same lineage as Web/R3F) as an extruded 2D curve.
+    Contours come only from the asset's path data (no Blender type object), placed with the shared formula."""
+    _, d = lineage.read_svg_path(glyph)
+    b = node.get("bounds") or {"width": 56, "height": 72, "depth": 14}
+    pl = lineage.placement(b, glyph)
+    cu = bpy.data.curves.new(node["id"] + ".glyph", "CURVE")
+    cu.dimensions = "2D"
+    cu.fill_mode = "BOTH"
+    cu.extrude = b["depth"] / 2.0  # symmetric about z=0 => total depth == bounds.depth (same as the placeholder box)
+    for contour in lineage.parse_path(d):
+        pts = [lineage.point_to_local(pl, x, y) for x, y in lineage.flatten(contour)]
+        sp = cu.splines.new("POLY")
+        sp.points.add(len(pts) - 1)
+        for pt, (x, y) in zip(sp.points, pts):
+            pt.co = (x, y, 0.0, 1.0)
+        sp.use_cyclic_u = True
+    cu.materials.append(material)
+    return bpy.data.objects.new(node["id"] + ".glyph_asset", cu)
+
+
 def _letter_mesh(node, collection, materials):
     b = node.get("bounds") or {"width": 56, "height": 72, "depth": 14}
     bpy.ops.mesh.primitive_cube_add(size=1.0)
@@ -71,6 +97,8 @@ def import_scene(doc, clear=True):
     }
     objs = {}
     sockets = {}
+    manifest = lineage.load_manifest()
+    glyph_nodes = {}  # node id -> resolved glyph lineage (asset parity evidence)
     # 1) node empties carry the EXACT scene.v1 transform as matrix_basis (parent inverse = identity).
     for n in scene_json["nodes"]:
         e = bpy.data.objects.new(n["id"], None)
@@ -92,11 +120,20 @@ def import_scene(doc, clear=True):
             e.parent = objs[n["parent"]]
             e.matrix_parent_inverse = Matrix.Identity(4)
         e.matrix_basis = local_matrix(n["transform"])
-    # 2) projection geometry: placeholder mesh for letter anchors; result gets a marker; optional asset_ref left to M3.
+    # 2) projection geometry: glyph asset curve when asset_ref resolves (M3), else placeholder box (fail-soft); result gets a marker.
     display = doc.get("display", {}).get("nodes", {})
     for n in scene_json["nodes"]:
         e = objs[n["id"]]
-        if n.get("kind") in ("letter_anchor", "engine_result"):
+        glyph = lineage.resolve_asset_ref(n.get("asset_ref"), manifest) if n.get("kind") == "letter_anchor" else None
+        if glyph:
+            g = build_glyph_curve(n, glyph, mats["node"], coll)
+            coll.objects.link(g)
+            g.parent = e
+            g.matrix_parent_inverse = Matrix.Identity(4)
+            _set_props(g, scene_id=scene_json["scene_id"], node_id=n["id"], role="glyph_asset", asset_ref=n["asset_ref"],
+                       glyph_id=glyph["glyph_id"], content_hash=glyph["content_hash"], codepoint=glyph["codepoint"])
+            glyph_nodes[n["id"]] = {"glyph_id": glyph["glyph_id"], "content_hash": glyph["content_hash"]}
+        elif n.get("kind") in ("letter_anchor", "engine_result"):
             b = n.get("bounds") or {"width": 56, "height": 72, "depth": 14}
             me = bpy.data.meshes.new(n["id"] + ".mesh")
             hx, hy, hz = b["width"] / 2, b["height"] / 2, b["depth"] / 2
@@ -165,7 +202,7 @@ def import_scene(doc, clear=True):
         bpy.context.scene.camera = cam_obj
         _set_props(cam_obj, scene_id=scene_json["scene_id"], role="projection_camera")
     bpy.context.view_layer.update()
-    return {"objs": objs, "sockets": sockets, "connectors": conn_objs, "camera": cam_obj, "scene": scene_json}
+    return {"objs": objs, "sockets": sockets, "connectors": conn_objs, "camera": cam_obj, "scene": scene_json, "glyph_nodes": glyph_nodes}
 
 
 def connector_points(c, sockets):
@@ -195,7 +232,7 @@ def export_parity(ctx):
     sj = ctx["scene"]
     out = {"schema": PARITY_SCHEMA, "scene_id": sj["scene_id"], "projection_signature": sj["projection_signature"],
            "blender_version": bpy.app.version_string, "blender_build_hash": bpy.app.build_hash.decode(),
-           "nodes": {}, "sockets": {}, "connectors": {}}
+           "nodes": {}, "sockets": {}, "connectors": {}, "assets": ctx.get("glyph_nodes", {})}
     for nid, e in ctx["objs"].items():
         out["nodes"][nid] = {"world_matrix": _flat(e.matrix_world)}
     for sid, (se, nl) in ctx["sockets"].items():

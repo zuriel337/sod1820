@@ -1,7 +1,7 @@
 {
   "export_schema": "sod1820.scene.v1.export/1",
   "scene_id": "sod1820.scene.v1:adjacent_letter_tension:mistater-tension:התגלות",
-  "projection_signature": "projsig.v1:cyrb53:184114b23c8790",
+  "projection_signature": "projsig.v1:cyrb53:011f36c7b3b6ce",
   "transform_convention": {
     "handedness": "right",
     "rotation": {
@@ -238,6 +238,14 @@
           "letter": "ה",
           "tracePath": "steps[0].letter_values[0]"
         },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D4",
+          "vector_version": "v1",
+          "content_hash": "sha256:e2bdfe1386c24fd277d74ce76e0f459b95f645158a95658ede580c8cdfcc8fa5",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
         "truthTier": "FACT"
       },
       {
@@ -304,6 +312,14 @@
           "letterIndex": 1,
           "letter": "ת",
           "tracePath": "steps[0].letter_values[1]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05EA",
+          "vector_version": "v1",
+          "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
         },
         "truthTier": "FACT"
       },
@@ -372,6 +388,14 @@
           "letter": "ג",
           "tracePath": "steps[0].letter_values[2]"
         },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D2",
+          "vector_version": "v1",
+          "content_hash": "sha256:ad722d844fa223dd6b5549a597c989a6988000d2b8ecaddf629c6a63d7d4244f",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
         "truthTier": "FACT"
       },
       {
@@ -438,6 +462,14 @@
           "letterIndex": 3,
           "letter": "ל",
           "tracePath": "steps[0].letter_values[3]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05DC",
+          "vector_version": "v1",
+          "content_hash": "sha256:76ffe35b56c38414afc10305089787ff489d2850585f6ec9c1497cc808c179b5",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
         },
         "truthTier": "FACT"
       },
@@ -506,6 +538,14 @@
           "letter": "ו",
           "tracePath": "steps[0].letter_values[4]"
         },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D5",
+          "vector_version": "v1",
+          "content_hash": "sha256:7957384548a5d181a7281e4db1cf4082a6d159875c67cdf82e46439f4c836b1e",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
         "truthTier": "FACT"
       },
       {
@@ -572,6 +612,14 @@
           "letterIndex": 5,
           "letter": "ת",
           "tracePath": "steps[0].letter_values[5]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05EA",
+          "vector_version": "v1",
+          "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
         },
         "truthTier": "FACT"
       },
@@ -884,7 +932,7 @@
       "maxY": 156
     },
     "scene_id": "sod1820.scene.v1:adjacent_letter_tension:mistater-tension:התגלות",
-    "projection_signature": "projsig.v1:cyrb53:184114b23c8790"
+    "projection_signature": "projsig.v1:cyrb53:011f36c7b3b6ce"
   },
   "display": {
     "derived": true,
