@@ -7,6 +7,45 @@ import { calcGem } from "../theme.js";
 import { getDayContext, ISRAEL_TIME_ZONE } from "./dayContext.js";
 
 export const TEMPORAL_CONTEXT_VERSION = "temporal-context-v1";
+export const GREGORIAN_HEBREW_REPRESENTATION_VERSION = "gregorian-hebrew-representation-v1";
+
+export function gregorianDateToHebrewRepresentation(isoDate) {
+  const raw = String(isoDate || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const [year, month, day] = raw.split("-").map(Number);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  try {
+    const greg = new Date(year, month - 1, day);
+    if (greg.getFullYear() !== year || greg.getMonth() + 1 !== month || greg.getDate() !== day) return null;
+    const hd = new HDate(greg);
+    const rendered = hd.renderGematriya();
+    const pretty = rendered.replace(/[֑-ׇ]/g, "").replace(/\s+/g, " ").trim();
+    const clean = pretty.replace(/[^א-ת]/g, "");
+    if (!clean) return null;
+    return Object.freeze({
+      version: GREGORIAN_HEBREW_REPRESENTATION_VERSION,
+      source_calendar: "gregorian",
+      target_calendar: "hebrew",
+      input_iso: raw,
+      input: Object.freeze({ year, month, day }),
+      hebrew: Object.freeze({
+        year: hd.getFullYear(),
+        month: hd.getMonth(),
+        day: hd.getDate(),
+        pretty,
+        clean,
+      }),
+      transform: Object.freeze({
+        engine: "@hebcal/core",
+        operation: "gregorian_date_to_hebrew_date",
+        deterministic: true,
+      }),
+    });
+  } catch {
+    return null;
+  }
+}
 
 function hebrewYearToken(hdate) {
   const rendered = hdate.renderGematriya().replace(/[֑-ׇ]/g, "").trim();

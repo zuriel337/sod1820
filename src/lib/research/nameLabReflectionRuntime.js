@@ -5,6 +5,7 @@ import {
 } from "./normalizedMessageReflection.js";
 import { toRazielMessageReflectionPayload } from "./normalizedMessageReflectionProjection.js";
 import { SYNTHESIS_STATUS } from "./researchSynthesis.js";
+import { dependencyGroupsForFindingIds } from "./nameLabDependency.js";
 
 // G3_NAMELAB_NORMALIZED_REFLECTION_RUNTIME_V1 — truth-safe runtime composition seam from live
 // NameLab evidence to normalized motifs + frozen message + exact 3-card reflection + post-freeze
@@ -170,9 +171,7 @@ export function composeNameLabEvidenceBackedSynthesisDraft({
       motif_key: key,
       support: {
         finding_ids: motif.finding_ids,
-        dependency_groups: [...new Set(supportedFindings
-          .map((finding) => clean(finding?.projection?.dimensions?.name_lab_family))
-          .filter(Boolean))],
+        dependency_groups: dependencyGroupsForFindingIds(list, motif.finding_ids),
       },
     });
 

@@ -1,6 +1,8 @@
 import { makeUniversalFinding } from "./universalFinding.js";
 import { normKey } from "../nameNormalize.js";
 import { ACCESS_CLASS, SEMANTIC_CLASS, capabilityResult, composeResearchResultBundle } from "./researchResultBundle.js";
+import { nameLabTrackCoverageCapabilities } from "./nameLabTrackClassification.js";
+import { normalizeNameLabDependencies } from "./nameLabDependency.js";
 
 // NameLab -> Universal Finding adapter (docs/research-universal-finding-contract.md §11).
 //
@@ -210,19 +212,32 @@ export function nameLabTrackListsToUniversalFindings(name, trackLists, options =
 export function composeNameLabNormalizedEvidenceBundle({ name, trackLists, accessDescriptor = null } = {}) {
   const label = clean(name);
   const findings = label ? nameLabTrackListsToUniversalFindings(label, trackLists) : [];
+  const dependency = normalizeNameLabDependencies(findings);
+  const coverageCapabilities = nameLabTrackCoverageCapabilities(trackLists);
 
-  return composeResearchResultBundle({
+  const bundle = composeResearchResultBundle({
     query: { raw_input: label },
-    capabilities: [capabilityResult({
-      key: "name_lab",
-      owner: "research_strategy_layer_law",
-      findings,
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
-      semanticClass: SEMANTIC_CLASS.EVIDENCE,
-      sourceRefs: ["name_lab"],
-      versionRefs: ["name-lab-universal-finding-v1"],
-    })],
+    capabilities: [
+      capabilityResult({
+        key: "name_lab",
+        owner: "research_strategy_layer_law",
+        findings,
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: SEMANTIC_CLASS.EVIDENCE,
+        sourceRefs: ["name_lab"],
+        versionRefs: ["name-lab-universal-finding-v1"],
+      }),
+      ...coverageCapabilities,
+    ],
+    resolvedRunSnapshot: {
+      name_lab_dependency_normalization: dependency,
+    },
     accessDescriptor,
+  });
+
+  return Object.freeze({
+    ...bundle,
+    dependency_normalization: dependency,
   });
 }
 
