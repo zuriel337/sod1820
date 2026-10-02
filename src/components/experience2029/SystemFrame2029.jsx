@@ -212,6 +212,9 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        data-experience-capability="contextual-sidecar"
+        data-desktop-projection="left-context-sidecar"
+        data-mobile-projection="bottom-context-sheet"
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
