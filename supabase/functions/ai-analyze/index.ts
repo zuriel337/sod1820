@@ -303,6 +303,62 @@ async function linkOperationalAiCost(
   });
 }
 
+
+function nameLabFindingIdsFromFacts(facts: unknown): Set<string> {
+  const out = new Set<string>();
+  const text = String(facts || "");
+  const re = /\[([^\]\n]{1,180})\]/g;
+  for (const m of text.matchAll(re)) {
+    const id = String(m[1] || "").trim();
+    if (id) out.add(id);
+  }
+  return out;
+}
+
+function cleanBoundedText(value: unknown, max = 800): string | null {
+  const text = String(value ?? "").trim();
+  return text ? text.slice(0, max) : null;
+}
+
+function parseNameLabReflectionOutput(text: unknown, facts: unknown) {
+  const raw = String(text || "").trim()
+    .replace(/^\`\`\`(?:json)?\s*/i, "")
+    .replace(/\s*\`\`\`$/, "");
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    const message = cleanBoundedText(parsed.message, 4000);
+    if (!message) return null;
+    const allowed = nameLabFindingIdsFromFacts(facts);
+    const motifs = (Array.isArray(parsed.motifs) ? parsed.motifs : []).slice(0, 6).map((motif: any, index: number) => {
+      const ids = [...new Set((Array.isArray(motif?.finding_ids) ? motif.finding_ids : [])
+        .map((id: unknown) => String(id || "").trim())
+        .filter((id: string) => id && allowed.has(id)))].slice(0, 12);
+      if (!ids.length) return null;
+      const frame = motif?.frame && typeof motif.frame === "object" && !Array.isArray(motif.frame)
+        ? {
+            essence: cleanBoundedText(motif.frame.essence, 240),
+            power: cleanBoundedText(motif.frame.power, 240),
+            shadow: cleanBoundedText(motif.frame.shadow, 240),
+            balance: cleanBoundedText(motif.frame.balance, 240),
+            action: cleanBoundedText(motif.frame.action, 240),
+          }
+        : {};
+      return {
+        key: cleanBoundedText(motif?.key, 80) || `motif-${index + 1}`,
+        label: cleanBoundedText(motif?.label, 120),
+        summary: cleanBoundedText(motif?.summary, 500),
+        finding_ids: ids,
+        frame,
+      };
+    }).filter(Boolean);
+    return { message, motifs };
+  } catch {
+    return null;
+  }
+}
+
 const KIND_HINT: Record<string, string> = {
   compare: "השוואת שני שמות/ביטויים. אם הם מתכנסים (ערך שווה באחת מהשיטות הזמינות) — הסבר מה המפגש מרמז. אם אין ביניהם מפגש כלל (ללא מפגש בשיטות הזמינות) — אל תציג זאת ככישלון אלא כהשלמה: שני צירים מקבילים שאינם מגבילים זה את זה בתבנית מוכרת. נהל דיאלוג בין המקבילות של כל שם (מה שהאחד שווה לו מול מה שהשני שווה לו), והתייחס לסכום שני השמות כאל נקודת-החיבור. הפרד עובדה (הערכים) מרמז (הפרשנות), הצג כהזמנה למחשבה על הדינמיקה המשותפת — לא כקביעה או נבואה.",
   notarikon: "ראשי/אמצעי/סופי תיבות: מה המילה/הצירוף שנוצר מהאותיות, והקשר האפשרי לביטוי המקור.",
@@ -1095,12 +1151,19 @@ Deno.serve(async (req: Request) => {
     const factsPrefix = kind === "name_lab"
       ? "ממצאי-מנוע (Findings) על השם כמילה — לכל ממצא מגבלת-אימות מפורשת משלו, לא עובדת-אמת אוניברסלית (השתמש רק באלה, ואל תסיק מהן על אדם):"
       : "עובדות מאומתות מהמנוע (השתמש רק באלה):";
+    const structuredNameReflection = kind === "name_lab" && body?.operation === "normalized_reflection";
+    const structuredReflectionInstruction = structuredNameReflection
+      ? "\nמצב normalized_reflection: החזר JSON תקין בלבד, בלי Markdown ובלי טקסט מסביב. מבנה: " +
+        "{\\"message\\":\\"מסר פרשני עמוק אך לא אישי/נבואי\\",\\"motifs\\":[{\\"key\\":\\"slug\\",\\"label\\":\\"מוטיב בעברית\\",\\"summary\\":\\"סיכום\\",\\"finding_ids\\":[\\"רק מזהים שמופיעים בסוגריים המרובעים בחומר\\"] ,\\"frame\\":{\\"essence\\":\\"מהות\\",\\"power\\":\\"כוח\\",\\"shadow\\":\\"צל/סיכון\\",\\"balance\\":\\"איזון\\",\\"action\\":\\"כיוון מעשי\\\"}}]}. " +
+        "מותר 1-6 motifs. כל motif חייב להישען על finding_ids שסופקו. אל תמציא מזהים. קלף/טארוט אינו חלק מהשלב הזה."
+      : "";
     const user =
       `סוג הניתוח: ${hint}\n\n` +
       (subject ? `הנושא: ${subject}\n` : "") +
       (facts ? `${factsPrefix}\n${facts}\n` : "") +
       mtxFacts +
       (again ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר." : "") +
+      structuredReflectionInstruction +
       `\nכתוב ניתוח בעברית לפי חוקי הברזל. ${lengthRule}`;
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
@@ -1245,7 +1308,18 @@ Deno.serve(async (req: Request) => {
     const synthesisSpanId = crypto.randomUUID();
     const synthesisStartedAt = new Date().toISOString();
     const responseRef = activeTrace ? `trace:${activeTrace.traceId}:response` : null;
-    const responseBody = { analysis: finalOut.text, engine, model, metatron: true, context_version: mtxVersion, trace_id: activeTrace?.traceId || null };
+    const reflectionInterpretation = structuredNameReflection
+      ? parseNameLabReflectionOutput(finalOut.text, facts)
+      : null;
+    const responseBody = {
+      analysis: reflectionInterpretation?.message || finalOut.text,
+      reflection_interpretation: reflectionInterpretation,
+      engine,
+      model,
+      metatron: true,
+      context_version: mtxVersion,
+      trace_id: activeTrace?.traceId || null,
+    };
     const synthesisEndedAt = new Date().toISOString();
     await recordOperationalSpan(activeTrace, {
       spanId: synthesisSpanId,
