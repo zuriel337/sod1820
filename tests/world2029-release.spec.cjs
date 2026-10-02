@@ -421,7 +421,7 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
   await resultPreview.click();
   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
   await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(1);
-  const backToFocus = drawer.locator('.sod29-number-drawer-back');
+  const backToFocus = drawer.locator('[data-experience-action="contextual-number-back"]');
   await expect(backToFocus).toBeVisible();
   await backToFocus.click();
   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
@@ -466,7 +466,7 @@ test('Contextual Number Surface stays one desktop sidecar through focus → prev
   await drawer.locator('[data-experience-action="number-result-preview"]').click();
   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
   await expect(page.getByRole('dialog')).toHaveCount(1);
-  await drawer.locator('.sod29-number-drawer-back').click();
+  await drawer.locator('[data-experience-action="contextual-number-back"]').click();
   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
