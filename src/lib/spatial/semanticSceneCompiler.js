@@ -459,6 +459,55 @@ export function resolveSceneTraceValue(scene, identityRef) {
   throw new Error("SCENE_V1_IDENTITY_UNRESOLVED");
 }
 
+// ----- Portable projection identity (M0 hardening) -----
+// Deterministic serializer + fingerprint over the PROJECTION only: schema, subject identity, topology, transforms,
+// sockets, connectors (by identityRef path, never value), layout and fallback metadata. The canonical trace payload
+// and any arithmetic-bearing field (engine_result label and its value-derived node id, normalized to "scene:result") are EXCLUDED, so the signature is a parity key for R3F/Blender
+// consumers and is NOT a truth store. The fingerprint is a non-cryptographic 53-bit hash (cyrb53) — no security claim.
+function stableStringify(value) {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().filter((k) => value[k] !== undefined).map((k) => `${JSON.stringify(k)}:${stableStringify(value[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function cyrb53Hex(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i += 1) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, "0");
+}
+
+export function serializeSceneProjectionV1(scene) {
+  const projection = {
+    schema: scene.schema,
+    projection_kind: scene.projection_kind,
+    subjectId: scene.subjectId,
+    resultId: "scene:result",
+    canonicalRef: { type: scene.canonical.type, methodKey: scene.canonical.methodKey, traceKind: scene.canonical.traceKind, input: scene.canonical.input },
+    layout: scene.layout,
+    nodes: scene.nodes.map((n) => (n.id === scene.resultId ? { ...n, id: "scene:result", label: undefined } : n)),
+    connectors: scene.connectors,
+    extent: scene.extent,
+    fallback: scene.fallback,
+  };
+  return stableStringify(projection);
+}
+
+export function computeSceneProjectionSignatureV1(scene) {
+  return `projsig.v1:cyrb53:${cyrb53Hex(serializeSceneProjectionV1(scene))}`;
+}
+
+export function computeSceneIdV1(scene) {
+  return `${scene.schema}:${scene.projection_kind}:${scene.subjectId}`;
+}
+
 // Delegates ALL canonical validation (verified parity, shape, pair/subtotal/total consistency) to the existing
 // compileMistaterTensionScene — scene.v1 adds topology/projection only and fails closed through the same errors.
 export function compileMistaterSceneV1({ expression, methodTrace }) {
@@ -556,6 +605,8 @@ export function compileMistaterSceneV1({ expression, methodTrace }) {
     xs.push(w.x - bw, w.x + bw); ys.push(w.y - bh, w.y + bh);
   });
   scene.extent = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  scene.scene_id = computeSceneIdV1(scene);
+  scene.projection_signature = computeSceneProjectionSignatureV1(scene);
   return scene;
 }
 

@@ -97,7 +97,7 @@ function buildLedgerRows(trace) {
 }
 
 // Mistater relationships are NOT rebuilt here: the stage consumes the unified scene.v1 compiled from the
-// canonical trace (fail-closed — any validation error yields null and the stage renders nothing).
+// canonical trace (fail-closed — any validation error yields null and the stage renders an explicit scene-error state).
 function buildMistaterScene(expression, trace) {
   try {
     return compileMistaterSceneV1({ expression, methodTrace: trace });
@@ -291,7 +291,11 @@ const MISTATER_STAGE_PAD = 24;
 
 function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {
   const scene = useMemo(() => buildMistaterScene(expression, trace), [expression, trace]);
-  if (!scene) return null;
+  if (!scene) {
+    return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-state="scene-error" aria-live="polite">
+      <p>לא ניתן להרכיב תצוגה מרחבית עקבית מה־Trace הקנוני. הערך הקנוני אינו מושפע, ואין מוצגים קשרים.</p>
+    </section>;
+  }
   const { extent } = scene;
   const width = extent.maxX - extent.minX + MISTATER_STAGE_PAD * 2;
   const height = extent.maxY - extent.minY + MISTATER_STAGE_PAD * 2;
@@ -300,7 +304,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
   const letters = scene.nodes.filter((n) => n.kind === "letter_anchor");
   const resultNode = scene.nodes.find((n) => n.id === scene.resultId);
   const result = resolveSceneTraceValue(scene, resultNode.identityRef).value;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema}>
+  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}>
     <MethodStageHead methodKey="מסתתר" expression={expression} result={result} subtitle="המתח בין אותיות סמוכות" />
     <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
       <div className="sod29-spatial-method-stage__tension-scene" dir="ltr" style={{ width, height }}>
