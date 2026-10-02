@@ -243,6 +243,49 @@ function PostReadingBody() {
     });
   };
 
+  const openHeroNumber = (number) => {
+    const targetRegion = regions.find((region) => Number(region.number) === Number(number)) || activeFocus;
+    if (targetRegion) {
+      setActiveRegionId(targetRegion.id);
+      research.updateResearchContext?.({
+        subject: {
+          id: String(post.id),
+          type: "post",
+          label: post.title,
+          href: `/post/${post.slug}`,
+        },
+        selection: {
+          entityId: targetRegion.id,
+          entityType: "post_region",
+          locator: `#source-region-${targetRegion.id}`,
+        },
+        lens: "reading",
+        dimensions: {
+          ...(research.context?.dimensions || {}),
+          bottomTrail: state.projection?.experience?.trail || [],
+          readingFocus: {
+            id: targetRegion.id,
+            label: targetRegion.label,
+            primary: targetRegion.primary,
+            signals: targetRegion.signals || [],
+            number: targetRegion.number || null,
+            sourceLabel: projection.sourceLabel,
+            postId: String(post.id),
+            postSlug: post.slug,
+            locator: `#source-region-${targetRegion.id}`,
+          },
+        },
+      });
+    }
+    shell.openNumber?.({
+      id: String(number),
+      type: "number",
+      label: String(number),
+      href: "/2029/number/" + number,
+      source: "post-master-hero",
+    });
+  };
+
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
@@ -280,13 +323,7 @@ function PostReadingBody() {
               key={number}
               type="button"
               className={"sod29-reading-number-signal signal-" + (index + 1)}
-              onClick={() => shell.openNumber?.({
-                id: String(number),
-                type: "number",
-                label: String(number),
-                href: "/2029/number/" + number,
-                source: "post-master-hero",
-              })}
+              onClick={() => openHeroNumber(number)}
               aria-label={"בדוק את מספר " + number}
             >
               <strong>{number}</strong>
