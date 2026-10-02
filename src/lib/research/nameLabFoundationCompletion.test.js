@@ -125,6 +125,11 @@ test("personal date findings fail closed for public access and pass only with at
   });
   assert.equal(publicBundle.findings.length, 0);
   assert.ok(publicBundle.coverage.access_filtered > 0);
+  const publicSerialized = JSON.stringify(publicBundle);
+  assert.doesNotMatch(publicSerialized, /2008-08-28/);
+  const privateRepresentation = gregorianToHebrewDateRepresentation("2008-08-28");
+  assert.ok(privateRepresentation?.hebrew?.pretty);
+  assert.equal(publicSerialized.includes(privateRepresentation.hebrew.pretty), false);
 
   const personalAccess = buildAccessDescriptor(PRIVATE_AUTH, "authenticated_user");
   const privateBundle = await runPersonalDateResearch({
