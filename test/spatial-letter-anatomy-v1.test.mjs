@@ -234,6 +234,6 @@ test("Regular verse Experience requires both canonical trace and canonical sourc
   assert.match(component,/שמות לג:כג/);
   assert.match(component,/הפסוק הוא הקשר המקור/);
   assert.match(hub,/from\("tanach_verses"\)/);
-  assert.match(hub,/compileRegularLedgerScene/);
+  assert.match(hub,/SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל"/);
   assert.match(hub,/golden-1237-regular/);
 });
