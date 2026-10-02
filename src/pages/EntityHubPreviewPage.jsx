@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import SpatialMethodStage2029 from "../components/gematria2029/SpatialMethodStage2029.jsx";
-import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
-import "../components/experience2029/mistaterTensionGolden2029.css";
-import RegularVerseGolden2029 from "../components/experience2029/RegularVerseGolden2029.jsx";
-import "../components/experience2029/regularVerseGolden2029.css";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
-import { compileMistaterTensionScene, compileRegularLedgerScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -40,9 +36,9 @@ export default function EntityHubPreviewPage() {
   const [anatomyMode,setAnatomyMode]=useState("visible");
   const [anatomyTrace,setAnatomyTrace]=useState(null);
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
-  const [mistaterScene,setMistaterScene]=useState(null);
+  const [mistaterTrace,setMistaterTrace]=useState(null);
   const [mistaterStatus,setMistaterStatus]=useState("idle");
-  const [regularScene,setRegularScene]=useState(null);
+  const [regularTrace,setRegularTrace]=useState(null);
   const [regularSource,setRegularSource]=useState(null);
   const [regularStatus,setRegularStatus]=useState("idle");
   const [convergenceScene,setConvergenceScene]=useState(null);
@@ -79,11 +75,11 @@ export default function EntityHubPreviewPage() {
   useEffect(() => {
     let active=true;
     if(label!=="1237" || goldenFocus!=="mistater"){
-      setMistaterScene(null);
+      setMistaterTrace(null);
       setMistaterStatus("idle");
       return () => { active=false; };
     }
-    setMistaterScene(null);
+    setMistaterTrace(null);
     setMistaterStatus("loading");
     supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }).then(({data,error})=>{
       if(!active) return;
@@ -92,13 +88,8 @@ export default function EntityHubPreviewPage() {
         setMistaterStatus("unverified");
         return;
       }
-      try{
-        const scene=compileMistaterTensionScene({expression:"התגלות",methodTrace:data});
-        setMistaterScene(scene);
-        setMistaterStatus("ready");
-      }catch{
-        setMistaterStatus("unverified");
-      }
+      setMistaterTrace(data);
+      setMistaterStatus("ready");
     });
     return () => { active=false; };
   }, [label,goldenFocus]);
@@ -106,13 +97,13 @@ export default function EntityHubPreviewPage() {
   useEffect(() => {
     let active=true;
     if(label!=="1237" || goldenFocus!=="regular"){
-      setRegularScene(null);
+      setRegularTrace(null);
       setRegularSource(null);
       setRegularStatus("idle");
       return () => { active=false; };
     }
 
-    setRegularScene(null);
+    setRegularTrace(null);
     setRegularSource(null);
     setRegularStatus("loading");
 
@@ -138,18 +129,9 @@ export default function EntityHubPreviewPage() {
         return;
       }
 
-      try{
-        const scene=compileRegularLedgerScene({
-          expression:"וראית את אחרי",
-          methodTrace:trace,
-          sourceRef:{book:source.book,chapter:source.chapter,verse:source.verse},
-        });
-        setRegularScene(scene);
-        setRegularSource(source);
-        setRegularStatus("ready");
-      }catch{
-        setRegularStatus("unverified");
-      }
+      setRegularTrace(trace);
+      setRegularSource(source);
+      setRegularStatus("ready");
     });
 
     return () => { active=false; };
@@ -295,14 +277,15 @@ export default function EntityHubPreviewPage() {
 
       {goldenFocus === "mistater" ? <div data-experience-surface="golden-1237-mistater">
         <div className="sp29-section-head"><div><span>MISTATER TENSION</span><h3>התגלות — מתח בין האותיות</h3></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות מתוך Trace קנוני.</p></div>
-        <MistaterTensionGolden2029 scene={mistaterScene}/>
+        <SpatialMethodStage2029 expression="התגלות" methodKey="מסתתר" trace={mistaterTrace} expectedValue={Number(label)} depth="S2" loading={mistaterStatus === "loading"}/>
         {mistaterStatus === "loading" ? <p aria-live="polite">טוען Trace קנוני של מסתתר…</p> : null}
         {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא Trace קנוני מאומת.</p> : null}
       </div> : null}
 
       {goldenFocus === "regular" ? <div data-experience-surface="golden-1237-regular">
         <div className="sp29-section-head"><div><span>REGULAR</span><h3>וראית את אחרי — רגיל</h3></div><p>הערך נבנה מן האותיות הגלויות של הביטוי בתוך הקשר הפסוק בשמות לג:כג.</p></div>
-        <RegularVerseGolden2029 scene={regularScene} verseSource={regularSource}/>
+        {regularSource ? <p className="sod29-spatial-source-note">שמות לג:כג · מקור הפסוק אומת לפני פתיחת התצוגה.</p> : null}
+        <SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל" trace={regularTrace} expectedValue={Number(label)} depth="S2" loading={regularStatus === "loading"}/>
         {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
         {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי Trace ומקור פסוק מאומתים.</p> : null}
       </div> : null}
