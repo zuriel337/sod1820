@@ -82,7 +82,7 @@ export default function NumberDrawer2029({
 
   useEffect(() => {
     const incomingSignature = numberContextSignature(contextRoot, context?.selection?.expression, context?.selection?.method);
-    if (!target && internalContextSignatureRef.current && internalContextSignatureRef.current === incomingSignature) {
+    if (internalContextSignatureRef.current && internalContextSignatureRef.current === incomingSignature) {
       internalContextSignatureRef.current = null;
       return;
     }
