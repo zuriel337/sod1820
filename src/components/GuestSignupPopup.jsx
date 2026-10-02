@@ -20,7 +20,7 @@ export default function GuestSignupPopup() {
     try {
       if (sessionStorage.getItem(DISMISS_KEY)) return;
     } catch { /* storage may be unavailable */ }
-    const timer = window.setTimeout(() => setOpen(true), 1400);
+    const timer = window.setTimeout(() => setOpen(true), 120000);
     return () => window.clearTimeout(timer);
   }, [loading, user]);
 
