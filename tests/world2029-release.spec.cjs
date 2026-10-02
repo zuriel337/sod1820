@@ -482,6 +482,87 @@ test('Contextual Number Surface stays one desktop sidecar through focus → prev
   await assertNoHorizontalOverflow(page);
 });
 
+
+async function assertGolden1237ContextualFlow(page, width) {
+  const height = width < 600 ? 844 : 960;
+  await page.setViewportSize({ width, height });
+  await page.goto(`${BASE}/entity-hub-preview/number/1237`, { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('.sod29-root')).toBeVisible({ timeout: 30_000 });
+  const golden = page.locator('[data-experience-surface="golden-1237-focus"]');
+  await expect(golden).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
+  await expect(page.locator('[data-experience-capability="spatial-method-stage"]')).toHaveCount(0);
+
+  const mistaterEntry = golden.getByRole('button', { name: 'התגלות · מסתתר', exact: true }).first();
+  await mistaterEntry.click();
+
+  const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+  const drawer = sidecar.locator('.sod29-number-drawer2029');
+  await expect(sidecar).toBeVisible({ timeout: 30_000 });
+  await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
+  await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות', { timeout: 20_000 });
+
+  const mistaterMethod = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מסתתר' }).first();
+  await expect(mistaterMethod).toBeVisible({ timeout: 20_000 });
+  await expect(mistaterMethod).toHaveAttribute('aria-pressed', 'true');
+
+  await expect.poll(async () => page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+    if (!key) return '';
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    const selection = stored?.selection || {};
+    return JSON.stringify([selection.expression || null, selection.method || null, Number(selection.resultValue)]);
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['התגלות', 'מסתתר', 1237]));
+
+  const panelBox = await sidecar.boundingBox();
+  expect(panelBox).not.toBeNull();
+  if (width < 600) {
+    expect(panelBox.width).toBeGreaterThanOrEqual(width - 2);
+    expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
+  } else {
+    expect(panelBox.x).toBeLessThanOrEqual(12);
+    expect(panelBox.width).toBeLessThanOrEqual(522);
+  }
+
+  const calculation = drawer.locator('.sod29-number-v10-calculation-card');
+  await expect(calculation).toBeVisible({ timeout: 20_000 });
+  await calculation.click();
+  const spatialStage = drawer.locator('[data-experience-capability="spatial-method-stage"][data-method-key="מסתתר"]');
+  await expect(spatialStage).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator('[data-experience-capability="spatial-method-stage"]')).toHaveCount(1);
+
+  const resultPreview = drawer.locator('[data-experience-action="number-result-preview"]');
+  await expect(resultPreview).toBeVisible();
+  await resultPreview.click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+  await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(1);
+
+  const back = drawer.locator('[data-experience-action="contextual-number-back"]');
+  await expect(back).toBeVisible();
+  await back.click();
+  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות');
+  await expect(drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'מסתתר' }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
+
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({
+    path: `test-results/release-visual/golden-1237-contextual-${width}.png`,
+    fullPage: false,
+  });
+}
+
+test('Golden 1237 uses the canonical mobile Bottom Sheet for focus → number preview → exact back at 390px', async ({ page }) => {
+  await assertGolden1237ContextualFlow(page, 390);
+});
+
+test('Golden 1237 uses the canonical desktop left Sidecar for focus → number preview → exact back at 1440px', async ({ page }) => {
+  await assertGolden1237ContextualFlow(page, 1440);
+});
+
 test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
