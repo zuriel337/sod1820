@@ -247,6 +247,79 @@ However, factual Milui letter-name spelling must ultimately come from the canoni
 Inline public gematria remains simple and readable by default. A tap/click promotes the same semantic object into the contextual Stage; deepen promotes the same object into its owning full destination. Same object, same truth/provenance, different projection depth.
 
 
+## TikTok / Social Vertical Video Projection — V1
+
+**Human Gate:** ZURIEL · 2.10.2026  
+**Owner routing:** `experience_governance_foundation_v1_law v8` + this Design Contract + existing Brand/Logo locks  
+**Owner verdict:** `EXTEND_EXISTING` — this is a social-video projection of the same Product Visual Language. It creates no separate Video Design Law, brand system, renderer truth source or media store.
+
+### Purpose
+Short vertical social video is a first-class projection of SOD1820, not an unrelated marketing skin. The default goal is immediate comprehension on a phone: one source/context, one focal discovery, one clear next action, then the canonical brand close.
+
+### Master format
+- Default master: **9:16 · 1080×1920 · MP4/H.264 · 30fps** unless a source/export requirement justifies another compatible encoding.
+- Source footage/background may bleed edge-to-edge. **Key text, numbers, CTA and logo may not depend on the outer UI-covered edges.**
+- TikTok safe area is **dynamic**, not one permanent pixel rectangle: it varies with caption length, interactive add-ons and placement. At every final export, use the current TikTok safe-zone/preview for the target placement. Do not encode one stale right/bottom margin into the brand contract.
+- Current TikTok guidance checked 2.10.2026: vertical 9:16 is recommended; key text/logos must remain inside the safe zone; preview before launch is required/recommended. Platform guidance may change, so release-time verification beats this dated note.
+- Existing approved video geometry remains valid when a royal/header frame is used: top royal structure **≤20%** of frame height; only decorative side descenders may reach **≤30%**; full-height decorative columns are forbidden; central content stays open.
+
+### Default short-form story grammar
+For discovery/research reels, prefer this sequence unless the story itself requires another order:
+
+`HOOK → SOURCE/CONTEXT → FOCAL NUMBER/PHRASE → ONE CONNECTION/REVEAL → CTA → LOGO OUTRO`
+
+- **HOOK:** first seconds must make the subject recognizable before explanation. Prefer actual source/context imagery when available.
+- **SOURCE/CONTEXT:** establish what the viewer is looking at; do not begin with an unexplained wall of calculations.
+- **FOCAL DISCOVERY:** one number, phrase, date or visual relation owns the frame. Supporting results appear serially, not as a simultaneous spreadsheet.
+- **CONNECTION/REVEAL:** show the shortest decision-changing chain. Deep secondary axes belong to follow-up videos or the linked Post/Number/Topic.
+- **CTA:** one action only. For the current pre-guide phase, the canonical CTA is a demand signal such as **“עקבו וכתבו בתגובות: אני רוצה”**. Do not promise “אשלח מדריך” or a download until that asset/landing flow actually exists.
+- **LOGO OUTRO:** finish with the canonical SOD1820 Hebrew logo/lockup, clean and readable, after the CTA. The logo is a closing identity moment, not a permanent watermark that competes with the research.
+
+Default discovery reel duration is editorial rather than a truth rule. Keep it as short as the idea permits; for the present SOD1820 teaser family, roughly **20–35 seconds** is the working target, not a platform hard limit.
+
+### Hebrew, numbers and motion
+- Hebrew overlays that carry evidence, dates, names or calculations use deterministic/native typography in the composition. Do not depend on generative-image Hebrew for factual on-screen text.
+- Numeric focal points may be centered and large using the numeric/display language; explanatory Hebrew stays scanable and bounded.
+- One frame should answer one visual question. Never force 363 + 75 + 718 + 1073 + 1718 + a verse + CTA into one simultaneous card merely because all belong to the same research session.
+- Motion explains state/relationship: reveal, transform, converge, travel, focus or deepen. Decorative motion must not imply stronger truth.
+- Real source video remains distinguishable from generated/derived backgrounds or spatial overlays. SOURCE ≠ DERIVATIVE REPRESENTATION.
+
+### Truth / provenance boundary
+- Deterministic Gematria/date calculations shown as verified must come from the canonical registered engine/Trace.
+- Event facts, source claims, engine results and SOD1820 interpretation remain visually and semantically separable.
+- A source label supplied by ZURIEL may be preserved as provenance/context without silently upgrading it to an independently verified fact.
+- Video polish, cinematic scale, 3D depth or repetition never upgrades a hint/interpretation into evidence or fact.
+
+### Canonical logo close
+- The current 2D outro consumes the **exact approved canonical Hebrew lockup asset** under the existing Brand/Logo owner; no redraw, AI recreation or substitute spelling.
+- Default outro is short and deliberate (normally about **1–2 seconds**) and occurs after the CTA/last content beat.
+- The logo must remain inside the current release-time platform safe zone.
+- A video may use the approved 20/30 royal-frame language earlier, but the final logo close remains the canonical identity seal.
+
+### Planned 3D evolution — projection, not replacement of identity
+The current 2D TikTok/Social contract is intentionally designed to evolve into the 3D system now being built.
+
+- Future **3D Brand / Spatial Outro** may supersede the flat logo animation/renderer while preserving the same canonical identity, wording, proportions/recognizability, truth semantics, CTA order and safe-zone acceptance.
+- 3D is a **renderer/projection layer**. It must not create a second logo identity, second brand owner, second Gematria engine or second content truth source.
+- Foundation → Projection → Experience remains the order: canonical logo/identity and research truth first; 3D motion/material/camera second; TikTok/social framing third.
+- The 2D outro remains a valid fallback/reference until the 3D renderer is visually accepted and release-ready. Current video production must not block on unfinished 3D.
+- When the 3D language is approved, update this section additively and migrate the outro adapter; do not rewrite every video rule around a renderer implementation.
+
+### Acceptance checklist before social release
+A social-video task is not complete merely because a file rendered.
+
+Verify at minimum:
+1. 9:16/mobile framing is intentional and source media is not stretched.
+2. Current TikTok safe-zone/preview passes for text, focal numbers, CTA and logo.
+3. Hebrew/date/number text is readable on a phone and matches canonical calculation/source state.
+4. One focal idea is understandable without reading a long caption.
+5. CTA promises only a capability/asset that actually exists.
+6. Canonical logo closes the piece cleanly.
+7. Source vs derivative/interpretation remains distinguishable.
+8. Final file is visually reviewed before publication.
+
+
+
 ## Migration
 Existing components are migrated gradually. A repository-wide audit should classify legacy font usage before mass replacement; no blind search/replace.
 
