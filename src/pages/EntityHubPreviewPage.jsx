@@ -225,7 +225,7 @@ export default function EntityHubPreviewPage() {
 
     <header className="sp29-top">
       <a href="/" className="sp29-brand"><img src="/crown.png" alt=""/><span>SOD1820<small>RESEARCH REALITY · 2029</small></span></a>
-      <div className="sp29-status"><b>SPATIAL v4</b><span>LIVING DOORWAY · ONE TREE</span></div>
+      <div className="sp29-status"><b>EXPERIENCE v8</b><span>ONE STAGE · ONE TREE</span></div>
       <nav><a href="#tools">כלים</a><a href="#doorways">דלתות חיות</a><a href="#journey">מסע</a><Link to={`/number/${encodeURIComponent(label)}`}>דף חי</Link></nav>
     </header>
 
@@ -308,7 +308,7 @@ export default function EntityHubPreviewPage() {
     </section>
 
     <section id="doorways" className="sp29-doorways" aria-labelledby="sp29-doorways-title">
-      <div className="sp29-section-head"><div><span>LIVING DOORWAY · SPATIAL v4</span><h2 id="sp29-doorways-title">הדלת מראה רק רמז אחד למה שמחכה מאחוריה</h2></div><p>One doorway = one dominant preview signal. בלי מיני־דף ובלי עומס.</p></div>
+      <div className="sp29-section-head"><div><span>LIVING DOORWAY · EXPERIENCE v8</span><h2 id="sp29-doorways-title">הדלת מראה רק רמז אחד למה שמחכה מאחוריה</h2></div><p>One doorway = one dominant preview signal. בלי מיני־דף ובלי עומס.</p></div>
       <div className="sp29-doorway-grid">
         <article className="living-door living-door--featured" tabIndex={0}>
           <span className="living-door__hint">FOCUS TO OPEN</span><div className="living-door__frame" aria-hidden="true"/>
@@ -337,6 +337,6 @@ export default function EntityHubPreviewPage() {
 
     <section className="sp29-mini" aria-labelledby="sp29-mini-title"><div className="sp29-section-head"><div><span>T1 · FUNCTIONAL MICRO-MOTION</span><h2 id="sp29-mini-title">אותה שפה גם באייקונים הקטנים</h2></div><p>קטן לא אומר שטוח. הוא פשוט משתמש בדרגת העומק הנמוכה שמספיקה.</p></div><div className="sp29-mini-grid">{mini.map(([name,text,tone]) => <button key={name} type="button"><ResearchIcon name={name} tone={tone} size={25}/><span>{text}</span></button>)}</div></section>
 
-    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>SPATIAL v4 · LIVING DOORWAY · ONE TREE</b><span>Preview only · not production</span></footer>
+    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>EXPERIENCE v8 · CONTEXTUAL DEPTH · ONE TREE</b><span>Preview only · not production</span></footer>
   </main>;
 }
