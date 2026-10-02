@@ -21,6 +21,8 @@ const BASE = Object.freeze({
       RESEARCH_CAPABILITY.SOURCES,
       RESEARCH_CAPABILITY.NAME,
       RESEARCH_CAPABILITY.TIME,
+      RESEARCH_CAPABILITY.PERSON,
+      RESEARCH_CAPABILITY.FAMILY,
     ]),
     secondary_hints: false,
     els: "context_only",
