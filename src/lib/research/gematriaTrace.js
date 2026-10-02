@@ -80,9 +80,16 @@ export function gematriaTraceToFinding(trace, { inputText = null, createdAt = nu
       // contract, so this is additive and non-breaking.
       dimensions: {
         trace: {
+          input: expression,
+          method_key: methodKey,
           methodKey,
+          result: value,
           value,
           trace_kind: trace.trace_kind ?? null,
+          mathematical_family: trace.mathematical_family ?? null,
+          execution_kind: trace.execution_kind ?? null,
+          method_version: trace.method_version ?? null,
+          provenance: trace.provenance ?? null,
           steps: trace.steps ?? null,
           semantics: trace.semantics ?? null,
           dependencies: trace.dependencies ?? null,

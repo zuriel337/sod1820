@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
-import LetterAnatomyGolden2029 from "../components/experience2029/LetterAnatomyGolden2029.jsx";
-import "../components/experience2029/letterAnatomyGolden2029.css";
-import MistaterTensionGolden2029 from "../components/experience2029/MistaterTensionGolden2029.jsx";
-import "../components/experience2029/mistaterTensionGolden2029.css";
-import RegularVerseGolden2029 from "../components/experience2029/RegularVerseGolden2029.jsx";
+import SpatialMethodStage2029 from "../components/gematria2029/SpatialMethodStage2029.jsx";
 import "../components/experience2029/regularVerseGolden2029.css";
 import ConvergenceGolden2029 from "../components/experience2029/ConvergenceGolden2029.jsx";
 import "../components/experience2029/convergenceGolden2029.css";
 import { supabase } from "../lib/supabase.js";
-import { buildWordLetterAnatomySpecs } from "../lib/spatial/hebrewLetterAnatomy.js";
-import { compileLetterAnatomyScene, compileMistaterTensionScene, compileRegularLedgerScene, compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
+import { compileConvergenceScene, compileMotionProjection } from "../lib/spatial/semanticSceneCompiler.js";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -38,12 +33,13 @@ export default function EntityHubPreviewPage() {
   const label = decodeURIComponent(String(key || "1237"));
   const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
   const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
+  const [goldenFocus,setGoldenFocus]=useState("milui");
   const [anatomyMode,setAnatomyMode]=useState("visible");
-  const [anatomyScene,setAnatomyScene]=useState(null);
+  const [anatomyTrace,setAnatomyTrace]=useState(null);
   const [anatomyStatus,setAnatomyStatus]=useState("idle");
-  const [mistaterScene,setMistaterScene]=useState(null);
+  const [mistaterTrace,setMistaterTrace]=useState(null);
   const [mistaterStatus,setMistaterStatus]=useState("idle");
-  const [regularScene,setRegularScene]=useState(null);
+  const [regularTrace,setRegularTrace]=useState(null);
   const [regularSource,setRegularSource]=useState(null);
   const [regularStatus,setRegularStatus]=useState("idle");
   const [convergenceScene,setConvergenceScene]=useState(null);
@@ -52,51 +48,39 @@ export default function EntityHubPreviewPage() {
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
-      setAnatomyScene(null);
+    if(label!=="1237" || goldenFocus!=="milui"){
+      setAnatomyTrace(null);
       setAnatomyStatus("idle");
       return () => { active=false; };
     }
-    setAnatomyScene(null);
+    setAnatomyTrace(null);
     setAnatomyStatus("loading");
-    supabase.rpc("fn_method_value", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }).then(({data,error})=>{
+    supabase.rpc("gematria_method_trace", { p_method_key: "מילוי", p_phrase: "אופק אדנק" }).then(({data,error})=>{
       if(!active) return;
-      const value=Number(data);
-      if(error||!Number.isSafeInteger(value)||value!==Number(label)){
+      const value=Number(data?.result);
+      if(
+        error ||
+        data?.verification?.parity!==true ||
+        !Number.isSafeInteger(value) ||
+        value!==Number(label)
+      ){
         setAnatomyStatus("unverified");
         return;
       }
-      try{
-        const scene=compileLetterAnatomyScene({
-          expression:"אופק אדנק",
-          methodKey:"מילוי",
-          variantSource:"engine_default",
-          letterSpecs:buildWordLetterAnatomySpecs("אופק אדנק"),
-          engineTrace:{
-            engine_verified:true,
-            value,
-            source:"fn_method_value",
-            method_key:"מילוי",
-            expression:"אופק אדנק",
-          },
-        });
-        setAnatomyScene(scene);
-        setAnatomyStatus("ready");
-      }catch{
-        setAnatomyStatus("unverified");
-      }
+      setAnatomyTrace(data);
+      setAnatomyStatus("ready");
     });
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
-      setMistaterScene(null);
+    if(label!=="1237" || goldenFocus!=="mistater"){
+      setMistaterTrace(null);
       setMistaterStatus("idle");
       return () => { active=false; };
     }
-    setMistaterScene(null);
+    setMistaterTrace(null);
     setMistaterStatus("loading");
     supabase.rpc("gematria_method_trace", { p_method_key: "מסתתר", p_phrase: "התגלות" }).then(({data,error})=>{
       if(!active) return;
@@ -105,27 +89,22 @@ export default function EntityHubPreviewPage() {
         setMistaterStatus("unverified");
         return;
       }
-      try{
-        const scene=compileMistaterTensionScene({expression:"התגלות",methodTrace:data});
-        setMistaterScene(scene);
-        setMistaterStatus("ready");
-      }catch{
-        setMistaterStatus("unverified");
-      }
+      setMistaterTrace(data);
+      setMistaterStatus("ready");
     });
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
-      setRegularScene(null);
+    if(label!=="1237" || goldenFocus!=="regular"){
+      setRegularTrace(null);
       setRegularSource(null);
       setRegularStatus("idle");
       return () => { active=false; };
     }
 
-    setRegularScene(null);
+    setRegularTrace(null);
     setRegularSource(null);
     setRegularStatus("loading");
 
@@ -151,26 +130,17 @@ export default function EntityHubPreviewPage() {
         return;
       }
 
-      try{
-        const scene=compileRegularLedgerScene({
-          expression:"וראית את אחרי",
-          methodTrace:trace,
-          sourceRef:{book:source.book,chapter:source.chapter,verse:source.verse},
-        });
-        setRegularScene(scene);
-        setRegularSource(source);
-        setRegularStatus("ready");
-      }catch{
-        setRegularStatus("unverified");
-      }
+      setRegularTrace(trace);
+      setRegularSource(source);
+      setRegularStatus("ready");
     });
 
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     let active=true;
-    if(label!=="1237"){
+    if(label!=="1237" || goldenFocus!=="convergence"){
       setConvergenceScene(null);
       setConvergenceMotion(null);
       setConvergenceStatus("idle");
@@ -223,7 +193,7 @@ export default function EntityHubPreviewPage() {
     });
 
     return () => { active=false; };
-  }, [label]);
+  }, [label,goldenFocus]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -255,7 +225,7 @@ export default function EntityHubPreviewPage() {
 
     <header className="sp29-top">
       <a href="/" className="sp29-brand"><img src="/crown.png" alt=""/><span>SOD1820<small>RESEARCH REALITY · 2029</small></span></a>
-      <div className="sp29-status"><b>SPATIAL v4</b><span>LIVING DOORWAY · ONE TREE</span></div>
+      <div className="sp29-status"><b>EXPERIENCE v8</b><span>ONE STAGE · ONE TREE</span></div>
       <nav><a href="#tools">כלים</a><a href="#doorways">דלתות חיות</a><a href="#journey">מסע</a><Link to={`/number/${encodeURIComponent(label)}`}>דף חי</Link></nav>
     </header>
 
@@ -279,33 +249,57 @@ export default function EntityHubPreviewPage() {
       </div>
     </section>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="letter-anatomy-title">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · LETTER ANATOMY V1</span><h2 id="letter-anatomy-title">אופק אדנק — גלוי · מלא · נסתר</h2></div><p>אותה ישות, אותה אמת חישובית; גלוי/מלא/נסתר הם מצבי תצוגה בלבד — שיטת החישוב נשארת מילוי.</p></div>
-      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
-      <LetterAnatomyGolden2029 scene={anatomyScene} mode={anatomyMode}/>
-      {anatomyStatus === "loading" ? <p aria-live="polite">מאמת מול המנוע הקנוני…</p> : null}
-      {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא אימות מנוע.</p> : null}
-    </section> : null}
+    {label === "1237" ? <section className="sp29-tools" aria-labelledby="golden-1237-focus-title" data-experience-surface="golden-1237-focus">
+      <div className="sp29-section-head">
+        <div><span>GOLDEN 1237 · ONE ACTIVE VIEW</span><h2 id="golden-1237-focus-title">1237 — אותה אמת, נתיב אחד פעיל בכל רגע</h2></div>
+        <p>בוחרים נתיב אחד. רק התצוגה הפעילה נטענת; שאר הנתיבים נשארים שקטים עד שבוחרים אותם.</p>
+      </div>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="mistater-tension-title" data-experience-surface="golden-1237-mistater">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · MISTATER TENSION</span><h2 id="mistater-tension-title">התגלות — מתח בין האותיות</h2></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות. כל ערך מגיע ישירות מ־gematria_method_trace המאומת; האנימציה אינה מחשבת אמת.</p></div>
-      <MistaterTensionGolden2029 scene={mistaterScene}/>
-      {mistaterStatus === "loading" ? <p aria-live="polite">טוען trace קנוני של מסתתר…</p> : null}
-      {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא trace קנוני מאומת.</p> : null}
-    </section> : null}
+      <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap",marginBottom:18}}>
+        {[
+          ["milui","אופק אדנק · מילוי"],
+          ["mistater","התגלות · מסתתר"],
+          ["regular","וראית את אחרי · רגיל"],
+          ["convergence","שלושת הנתיבים"],
+        ].map(([key,text])=><button
+          key={key}
+          type="button"
+          aria-pressed={goldenFocus===key}
+          onClick={()=>setGoldenFocus(key)}
+        >{text}</button>)}
+      </div>
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="regular-verse-title" data-experience-surface="golden-1237-regular">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · REGULAR</span><h2 id="regular-verse-title">וראית את אחרי — רגיל</h2></div><p>כאן אין פתיחה פנימה ואין מתח בין אותיות: הערך נבנה מן האותיות הגלויות של הביטוי, בתוך הקשר הפסוק בשמות לג:כג.</p></div>
-      <RegularVerseGolden2029 scene={regularScene} verseSource={regularSource}/>
-      {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
-      {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי trace ומקור פסוק מאומתים.</p> : null}
-    </section> : null}
+      {goldenFocus === "milui" ? <div data-experience-surface="golden-1237-milui">
+        <div className="sp29-section-head"><div><span>MILUI · SHARED SPATIAL METHOD STAGE</span><h3>אופק אדנק — גלוי · מלא · נסתר</h3></div><p>אותו Spatial Method Stage שמשמש את Method Inspector בדף המספר.</p></div>
+        <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>{[["visible","גלוי"],["full","מלא"],["hidden","נסתר"]].map(([key,text])=><button key={key} type="button" aria-pressed={anatomyMode===key} onClick={()=>setAnatomyMode(key)}>{text}</button>)}</div>
+        <SpatialMethodStage2029 expression="אופק אדנק" methodKey="מילוי" trace={anatomyTrace} expectedValue={Number(label)} mode={anatomyMode} depth="S2" loading={anatomyStatus === "loading"}/>
+        {anatomyStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאה ללא Trace קנוני מאומת.</p> : null}
+      </div> : null}
 
-    {label === "1237" ? <section className="sp29-tools" aria-labelledby="convergence-1237-title" data-experience-surface="golden-1237-convergence">
-      <div className="sp29-section-head"><div><span>GOLDEN 1237 · CONVERGENCE</span><h2 id="convergence-1237-title">שלושה נתיבים — 1237 אחד</h2></div><p>אופק אדנק במילוי, התגלות במסתתר, וראית את אחרי ברגיל. שלושתם מאומתים בנפרד ורק אחר כך נפגשים.</p></div>
-      <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
-      {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
-      {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
+      {goldenFocus === "mistater" ? <div data-experience-surface="golden-1237-mistater">
+        <div className="sp29-section-head"><div><span>MISTATER TENSION</span><h3>התגלות — מתח בין האותיות</h3></div><p>המסתתר מוקרן כקשרים בין אותיות סמוכות מתוך Trace קנוני.</p></div>
+        <SpatialMethodStage2029 expression="התגלות" methodKey="מסתתר" trace={mistaterTrace} expectedValue={Number(label)} depth="S2" loading={mistaterStatus === "loading"}/>
+        {mistaterStatus === "loading" ? <p aria-live="polite">טוען Trace קנוני של מסתתר…</p> : null}
+        {mistaterStatus === "unverified" ? <p aria-live="polite">לא מוצגת תצוגת מתח ללא Trace קנוני מאומת.</p> : null}
+      </div> : null}
+
+      {goldenFocus === "regular" ? <div data-experience-surface="golden-1237-regular">
+        <div className="sp29-section-head"><div><span>REGULAR</span><h3>וראית את אחרי — רגיל</h3></div><p>הערך נבנה מן האותיות הגלויות של הביטוי בתוך הקשר הפסוק בשמות לג:כג.</p></div>
+        {regularSource ? <>
+          <p className="sod29-spatial-source-note">שמות לג:כג · מקור הפסוק אומת לפני פתיחת התצוגה.</p>
+          <blockquote className="sod29-regular-verse__verse">והסרתי את כפי <mark>וראית את אחרי</mark> ופני לא יראו</blockquote>
+        </> : null}
+        <SpatialMethodStage2029 expression="וראית את אחרי" methodKey="רגיל" trace={regularTrace} expectedValue={Number(label)} depth="S2" loading={regularStatus === "loading"}/>
+        {regularStatus === "loading" ? <p aria-live="polite">מאמת את הביטוי ואת מקור הפסוק…</p> : null}
+        {regularStatus === "unverified" ? <p aria-live="polite">לא מוצגת תוצאת רגיל בלי Trace ומקור פסוק מאומתים.</p> : null}
+      </div> : null}
+
+      {goldenFocus === "convergence" ? <div data-experience-surface="golden-1237-convergence">
+        <div className="sp29-section-head"><div><span>CONVERGENCE</span><h3>שלושה נתיבים — 1237 אחד</h3></div><p>רק כאן נטענים שלושת ה־Traces יחד, מאומתים בנפרד ואז נפגשים.</p></div>
+        <ConvergenceGolden2029 scene={convergenceScene} motion={convergenceMotion}/>
+        {convergenceStatus === "loading" ? <p aria-live="polite">מאמת את שלושת הנתיבים מול המנוע הקנוני…</p> : null}
+        {convergenceStatus === "unverified" ? <p aria-live="polite">ההתכנסות לא מוצגת עד שכל שלושת הנתיבים מאומתים לאותו ערך.</p> : null}
+      </div> : null}
     </section> : null}
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
@@ -314,7 +308,7 @@ export default function EntityHubPreviewPage() {
     </section>
 
     <section id="doorways" className="sp29-doorways" aria-labelledby="sp29-doorways-title">
-      <div className="sp29-section-head"><div><span>LIVING DOORWAY · SPATIAL v4</span><h2 id="sp29-doorways-title">הדלת מראה רק רמז אחד למה שמחכה מאחוריה</h2></div><p>One doorway = one dominant preview signal. בלי מיני־דף ובלי עומס.</p></div>
+      <div className="sp29-section-head"><div><span>LIVING DOORWAY · EXPERIENCE v8</span><h2 id="sp29-doorways-title">הדלת מראה רק רמז אחד למה שמחכה מאחוריה</h2></div><p>One doorway = one dominant preview signal. בלי מיני־דף ובלי עומס.</p></div>
       <div className="sp29-doorway-grid">
         <article className="living-door living-door--featured" tabIndex={0}>
           <span className="living-door__hint">FOCUS TO OPEN</span><div className="living-door__frame" aria-hidden="true"/>
@@ -343,6 +337,6 @@ export default function EntityHubPreviewPage() {
 
     <section className="sp29-mini" aria-labelledby="sp29-mini-title"><div className="sp29-section-head"><div><span>T1 · FUNCTIONAL MICRO-MOTION</span><h2 id="sp29-mini-title">אותה שפה גם באייקונים הקטנים</h2></div><p>קטן לא אומר שטוח. הוא פשוט משתמש בדרגת העומק הנמוכה שמספיקה.</p></div><div className="sp29-mini-grid">{mini.map(([name,text,tone]) => <button key={name} type="button"><ResearchIcon name={name} tone={tone} size={25}/><span>{text}</span></button>)}</div></section>
 
-    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>SPATIAL v4 · LIVING DOORWAY · ONE TREE</b><span>Preview only · not production</span></footer>
+    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>EXPERIENCE v8 · CONTEXTUAL DEPTH · ONE TREE</b><span>Preview only · not production</span></footer>
   </main>;
 }
