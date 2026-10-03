@@ -89,7 +89,7 @@ export default function Posts2029Page() {
     [state.posts],
   );
 
-  return <Sod2029Shell surface="posts" symbol="✦" status="Posts 2029 · GOLDEN">
+  return <Sod2029Shell surface="post" symbol="✦" status="Posts 2029 · GOLDEN">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
       <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
         <div className="sod29-posts-index-eyebrow">עדכונים · סיפורים · מחקר חי</div>
