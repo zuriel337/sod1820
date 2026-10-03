@@ -4,6 +4,7 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
+import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import "./posts2029.css";
 
 const numericSignals = (tags = []) => [...new Set(
@@ -16,7 +17,7 @@ const isGoldenPost = (post) => Array.isArray(post?.tags)
   && post.tags.some((tag) => String(tag).includes("2029-golden"));
 
 function PostIndexCard({ post, index }) {
-  const title = stripHtml(post?.title || "");
+  const title = humanContentTitle(post?.title, { max: 92 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
   const image = post?.image_url || null;
