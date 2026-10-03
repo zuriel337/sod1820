@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toggleTheme, useThemeMode } from "../../lib/themeMode.js";
 import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
+import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -55,8 +56,10 @@ function sourceDetail(row) {
 }
 
 function worldLabel(row) {
-  if (typeof row === "string") return clean(row);
-  return clean(row?.label || row?.name || row?.title || row?.world || row?.topic || row?.slug);
+  const raw = typeof row === "string"
+    ? row
+    : row?.label || row?.name || row?.title || row?.world || row?.topic || row?.slug;
+  return humanContentTitle(raw, { max: 82 });
 }
 
 function worldSummary(row) {
@@ -110,7 +113,8 @@ function factorizationText(profile) {
 }
 
 function findingLabel(item) {
-  return clean(item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind) || "ממצא מחקר";
+  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind;
+  return humanContentTitle(raw, { max: 96 }) || "ממצא מחקר";
 }
 
 function findingReason(item) {
@@ -372,12 +376,16 @@ export default function NumberLivingWorld2029({
         </div>
       </div>
 
-      <div className="sod29-lw-summits" aria-label="פסגות סביב המספר">
+      <div className="sod29-lw-summits-head">
+        <span>קשרים בולטים</span>
+        <small>נקודות המשך מתוך המחקר הקיים</small>
+      </div>
+      <div className="sod29-lw-summits" aria-label="קשרים בולטים סביב המספר">
         {(summits.length ? summits : [topics[0], researchFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
           <article key={item?.id || item?.slug || item?.value || index}>
-            <span>פסגה {index + 1}</span>
+            <span>קשר {index + 1}</span>
             <strong>{item?.value != null ? item.value : findingLabel(item)}</strong>
-            <small>{shortText(item?.value != null ? item.reason : findingReason(item) || sourceLabel(item), 90)}</small>
+            <small>{shortText(item?.value != null ? item.reason : findingReason(item) || sourceLabel(item), 72)}</small>
           </article>
         ))}
       </div>

@@ -47,6 +47,7 @@ import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearc
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
+import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -233,7 +234,7 @@ function prominenceTypeLabel(item) {
 }
 
 function humanProminenceLabel(item, anchorLabel) {
-  const label = String(item?.label || "").trim();
+  const label = humanContentTitle(item?.label, { max: 96 });
   if (item?.kind === "research" && (looksTechnicalResearchTitle(label) || /[A-Za-z]{3}/.test(label))) {
     return `מחקר נוסף סביב ${anchorLabel || "הנקודה"}`;
   }
