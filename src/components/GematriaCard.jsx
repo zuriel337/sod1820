@@ -1,4 +1,5 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePalette } from "../lib/palette.js";
 import { F } from "../theme.js";
 import "./gematriaCard.css";
@@ -15,6 +16,7 @@ const EXCEPTION_LABELS = Object.freeze({
 });
 
 const FAMILY_ORDER = Object.freeze(["base", "depth", "composite", "contextual", "other"]);
+const COMPACT_METHOD_LIMIT = 4;
 
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
@@ -63,20 +65,23 @@ function paletteVars(P) {
   };
 }
 
-function MethodTile({ method, active, onSelect }) {
+function MethodTile({ method, active, onSelect, compact = false }) {
   const clickable = typeof onSelect === "function" && method?.methodKey;
   return (
     <button
       type="button"
-      className={cx("sod-gematria-card__method", active && "is-active")}
+      className={cx(
+        compact ? "sod-gematria-card__method-chip" : "sod-gematria-card__method",
+        active && "is-active",
+      )}
       onClick={clickable ? () => onSelect(method.methodKey) : undefined}
       disabled={!clickable}
       aria-pressed={active || undefined}
       data-method-key={method?.methodKey || ""}
     >
-      <span className="sod-gematria-card__method-label">{methodLabel(method)}</span>
+      <span>{methodLabel(method)}</span>
       <strong>{fmtNumber(method?.value)}</strong>
-      {method?.exceptionalState && (
+      {!compact && method?.exceptionalState && (
         <small>{EXCEPTION_LABELS[method.exceptionalState] || method.exceptionalState}</small>
       )}
     </button>
@@ -146,10 +151,20 @@ function ExpressionEvidenceSummary({ evidence }) {
   );
 }
 
-function PeerExpressions({ peers = [] }) {
-  if (!peers.length) return null;
+function PeerExpressions({ peers = [], compact = false }) {
   const verified = peers.filter((peer) => peer?.verified === true);
   if (!verified.length) return null;
+
+  if (compact) {
+    return (
+      <div className="sod-gematria-card__peer-strip" aria-label="ביטויים באותו ערך">
+        <span className="sod-gematria-card__peer-strip-label">≡ {verified.length} ביטויים · אותו ערך</span>
+        <div>
+          {verified.map((peer) => <b key={peer.expression}>{peer.expression}</b>)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="sod-gematria-card__peers" aria-label="ביטויים באותו ערך">
@@ -205,6 +220,128 @@ function FamilyMethods({ group, activeMethodKey, onMethodSelect }) {
   );
 }
 
+function ExplorerDialog({
+  open,
+  panelId,
+  titleId,
+  expression,
+  model,
+  active,
+  familyGroups,
+  methods,
+  onClose,
+  onMethodSelect,
+  onOpenJourney,
+  onOpenTrace,
+  onOpenFull,
+  styleVars,
+}) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
+  if (!open || typeof document === "undefined") return null;
+
+  const relationText = relationLabel(model?.relationsSummary);
+
+  return createPortal(
+    <div className="sod-gematria-card__explorer-backdrop" style={styleVars} onMouseDown={onClose}>
+      <section
+        id={panelId}
+        className="sod-gematria-card__explorer-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onMouseDown={(event) => event.stopPropagation()}
+        dir="rtl"
+      >
+        <header className="sod-gematria-card__explorer-head">
+          <div>
+            <span>METHOD EXPLORER</span>
+            <strong id={titleId}>{expression || "כל השיטות"}</strong>
+            <small>{methods.length} שיטות זמינות בתצוגה הנוכחית</small>
+          </div>
+          <button type="button" onClick={onClose} aria-label="סגור את כל השיטות">×</button>
+        </header>
+
+        <div className="sod-gematria-card__families">
+          {familyGroups.map((group) => (
+            <FamilyMethods
+              key={group.key}
+              group={group}
+              activeMethodKey={active.methodKey}
+              onMethodSelect={onMethodSelect}
+            />
+          ))}
+        </div>
+
+        <EvidenceSummary evidence={model.evidence} />
+        <ExpressionEvidenceSummary evidence={model.expressionEvidence} />
+        <PeerExpressions peers={model.peerExpressions} />
+        <SameValueNote model={model} />
+
+        {model?.normalization?.visibleNoticeNeeded && (
+          <div className="sod-gematria-card__notice">
+            <span>נרמול חישוב</span>
+            <strong>{model.normalization.raw} → {model.normalization.normalized}</strong>
+          </div>
+        )}
+
+        <div className="sod-gematria-card__deep-grid">
+          {relationText && (
+            <section>
+              <span>חיבורים ומסע</span>
+              <strong>{relationText}</strong>
+              {model?.relationsSummary?.journeyAvailable && (
+                <button
+                  type="button"
+                  onClick={onOpenJourney}
+                  disabled={typeof onOpenJourney !== "function"}
+                >
+                  המשך במסע
+                </button>
+              )}
+            </section>
+          )}
+
+          <section>
+            <span>איך מחשבים?</span>
+            <strong>{model?.trace?.available ? "Trace קנוני זמין" : "פירוט החישוב זמין בעומק"}</strong>
+            <button
+              type="button"
+              onClick={onOpenTrace}
+              disabled={!model?.trace?.available || typeof onOpenTrace !== "function"}
+            >
+              פתח Trace
+            </button>
+          </section>
+        </div>
+
+        <footer className="sod-gematria-card__explorer-footer">
+          <div>
+            <span>{methodLabel(active)}</span>
+            <strong>{fmtNumber(active.value)}</strong>
+          </div>
+          <button
+            type="button"
+            className="is-primary"
+            onClick={onOpenFull}
+            disabled={typeof onOpenFull !== "function"}
+          >
+            פתח בדף המלא
+          </button>
+        </footer>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
 export default function GematriaCard({
   model,
   defaultExpanded = false,
@@ -214,15 +351,19 @@ export default function GematriaCard({
   onOpenFull,
   onOpenJourney,
   onOpenTrace,
+  onLearn,
+  onRaziel,
   className = "",
   style = null,
   surface = "default",
 }) {
   const P = usePalette();
   const panelId = useId();
-  const [localExpanded, setLocalExpanded] = useState(defaultExpanded);
-  const [showAll, setShowAll] = useState(false);
-  const expanded = typeof controlledExpanded === "boolean" ? controlledExpanded : localExpanded;
+  const titleId = useId();
+  const [localExplorerOpen, setLocalExplorerOpen] = useState(defaultExpanded);
+  const explorerOpen = typeof controlledExpanded === "boolean"
+    ? controlledExpanded
+    : localExplorerOpen;
 
   const active = model?.activeMethod || null;
   const focal = model?.focal || {};
@@ -231,13 +372,12 @@ export default function GematriaCard({
   const primaryIsNumber = focal?.primaryType === "number";
   const primary = primaryIsNumber ? (focal?.primary ?? number) : (focal?.primary ?? expression);
   const secondary = primaryIsNumber ? (focal?.secondary ?? expression) : number;
-  const relationText = relationLabel(model?.relationsSummary);
-  const verifiedPeers = (model?.peerExpressions || []).filter((peer) => peer?.verified === true);
-  const peerSummaryText = verifiedPeers.length > 1 ? `${verifiedPeers.length} ביטויים · אותו ערך` : "";
   const methods = model?.methods || [];
   const previewMethods = model?.previewMethods || [];
-  const remaining = Math.max(0, methods.length - previewMethods.length);
-  const exceptional = active?.exceptionalState ? (EXCEPTION_LABELS[active.exceptionalState] || active.exceptionalState) : "";
+  const compactMethods = previewMethods.slice(0, COMPACT_METHOD_LIMIT);
+  const exceptional = active?.exceptionalState
+    ? (EXCEPTION_LABELS[active.exceptionalState] || active.exceptionalState)
+    : "";
   const familyGroups = useMemo(() => {
     const groups = [...(model?.familyGroups || [])];
     const rank = (key) => {
@@ -249,31 +389,35 @@ export default function GematriaCard({
 
   if (!model || !active) return null;
 
-  const setExpanded = (next) => {
-    if (typeof controlledExpanded !== "boolean") setLocalExpanded(next);
+  const setExplorerOpen = (next) => {
+    if (typeof controlledExpanded !== "boolean") setLocalExplorerOpen(next);
     onExpandedChange?.(next);
-    if (!next) setShowAll(false);
   };
 
   const rootStyle = { ...paletteVars(P), ...(style || {}) };
+  const hasMiniActions = Boolean(
+    (model?.trace?.available && typeof onOpenTrace === "function")
+      || typeof onLearn === "function"
+      || typeof onRaziel === "function",
+  );
+  const dependentExpressionCount = Number(model?.expressionEvidence?.dependentExpressionPhraseCount || 0);
+  const showMethodLens = Boolean(
+    active.derivedFrom?.length
+      || dependentExpressionCount > 0
+      || hasMiniActions,
+  );
 
   return (
-    <article
-      className={cx("sod-gematria-card", `is-${surface}`, expanded && "is-expanded", className)}
-      style={rootStyle}
-      data-gematria-card="golden-v1"
-      data-focus={model.focusKind || "expression"}
-      dir="rtl"
-    >
-      <div className="sod-gematria-card__summary">
-        <button
-          type="button"
-          className="sod-gematria-card__summary-main"
-          onClick={() => setExpanded(!expanded)}
-          aria-expanded={expanded}
-          aria-controls={panelId}
-        >
-          <span className="sod-gematria-card__focus">
+    <>
+      <article
+        className={cx("sod-gematria-card", `is-${surface}`, className)}
+        style={rootStyle}
+        data-gematria-card="golden-v1"
+        data-focus={model.focusKind || "expression"}
+        dir="rtl"
+      >
+        <header className="sod-gematria-card__summary">
+          <div className="sod-gematria-card__focus">
             <span className={cx("sod-gematria-card__primary", primaryIsNumber && "is-number")}>
               {primary ?? "—"}
             </span>
@@ -281,147 +425,103 @@ export default function GematriaCard({
             <strong className={cx("sod-gematria-card__secondary", !primaryIsNumber && "is-number")}>
               {primaryIsNumber ? (secondary || "—") : fmtNumber(secondary)}
             </strong>
-          </span>
+          </div>
 
           <span className="sod-gematria-card__method-active">
             {methodLabel(active)}
             {exceptional && <em>{exceptional}</em>}
           </span>
-        </button>
+        </header>
 
-        <div className="sod-gematria-card__summary-tail">
-          <ExpressionDependencySignal evidence={model?.expressionEvidence} />
-          {relationText ? (
-            <button
-              type="button"
-              className="sod-gematria-card__journey-signal"
-              onClick={model?.relationsSummary?.journeyAvailable ? onOpenJourney : undefined}
-              disabled={!model?.relationsSummary?.journeyAvailable || typeof onOpenJourney !== "function"}
-            >
-              <span aria-hidden="true">⌘</span>
-              {relationText}
-            </button>
-          ) : peerSummaryText ? (
-            <span className="sod-gematria-card__peer-signal">
-              <span aria-hidden="true">≡</span>
-              {peerSummaryText}
-            </span>
-          ) : null}
-          <button
-            type="button"
-            className="sod-gematria-card__toggle"
-            onClick={() => setExpanded(!expanded)}
-            aria-expanded={expanded}
-            aria-controls={panelId}
-            aria-label={expanded ? "סגור פרטי גימטריה" : "פתח פרטי גימטריה"}
-          >
-            <span aria-hidden="true">{expanded ? "−" : "+"}</span>
-          </button>
+        <div className="sod-gematria-card__compact-methods" aria-label="שיטות גימטריה מהירות">
+          {compactMethods.map((method) => (
+            <MethodTile
+              key={method.methodKey}
+              method={method}
+              compact
+              active={method.methodKey === active.methodKey}
+              onSelect={onMethodSelect}
+            />
+          ))}
         </div>
-      </div>
 
-      {expanded && (
-        <div id={panelId} className="sod-gematria-card__explorer">
-          <header className="sod-gematria-card__explorer-head">
+        <PeerExpressions peers={model.peerExpressions} compact />
+
+        {showMethodLens && (
+          <section className="sod-gematria-card__method-lens" aria-label="השיטה הפעילה">
             <div>
-              <span>שיטות נוספות</span>
-              <strong>{expression || primary || "גימטריה"}</strong>
-            </div>
-            {methods.length > previewMethods.length && (
-              <button type="button" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
-                {showAll ? "הצג פחות" : `כל ${methods.length} השיטות`}
-              </button>
-            )}
-          </header>
-
-          {!showAll ? (
-            <div className="sod-gematria-card__method-grid is-preview">
-              {previewMethods.map((method) => (
-                <MethodTile
-                  key={method.methodKey}
-                  method={method}
-                  active={method.methodKey === active.methodKey}
-                  onSelect={onMethodSelect}
-                />
-              ))}
-              {remaining > 0 && (
-                <button type="button" className="sod-gematria-card__more" onClick={() => setShowAll(true)}>
-                  <strong>+{remaining}</strong>
-                  <span>כל השיטות</span>
-                </button>
+              <span>השיטה הפעילה</span>
+              <strong>{methodLabel(active)} <em>·</em> {fmtNumber(active.value)}</strong>
+              {active.derivedFrom?.length > 0 && (
+                <small>נגזרת מ־{active.derivedFrom.join(" + ")}</small>
               )}
             </div>
-          ) : (
-            <div className="sod-gematria-card__families">
-              {familyGroups.map((group) => (
-                <FamilyMethods
-                  key={group.key}
-                  group={group}
-                  activeMethodKey={active.methodKey}
-                  onMethodSelect={onMethodSelect}
-                />
-              ))}
-            </div>
-          )}
 
-          <EvidenceSummary evidence={model.evidence} />
-          <ExpressionEvidenceSummary evidence={model.expressionEvidence} />
-          <PeerExpressions peers={model.peerExpressions} />
-          <SameValueNote model={model} />
+            <ExpressionDependencySignal evidence={model?.expressionEvidence} />
 
-          {model?.normalization?.visibleNoticeNeeded && (
-            <div className="sod-gematria-card__notice">
-              <span>נרמול חישוב</span>
-              <strong>{model.normalization.raw} → {model.normalization.normalized}</strong>
-            </div>
-          )}
-
-          <div className="sod-gematria-card__deep-grid">
-            {relationText && (
-              <section>
-                <span>חיבורים ומסע</span>
-                <strong>{relationText}</strong>
-                {model?.relationsSummary?.journeyAvailable && (
-                  <button
-                    type="button"
-                    onClick={onOpenJourney}
-                    disabled={typeof onOpenJourney !== "function"}
-                  >
-                    המשך במסע
-                  </button>
+            {hasMiniActions && (
+              <nav className="sod-gematria-card__mini-actions" aria-label="פעולות גימטריה">
+                {model?.trace?.available && typeof onOpenTrace === "function" && (
+                  <button type="button" onClick={onOpenTrace}>חשב</button>
                 )}
-              </section>
+                {typeof onLearn === "function" && <button type="button" onClick={onLearn}>למד</button>}
+                {typeof onRaziel === "function" && <button type="button" onClick={onRaziel}>רזיאל</button>}
+              </nav>
             )}
+          </section>
+        )}
 
-            <section>
-              <span>איך מחשבים?</span>
-              <strong>{model?.trace?.available ? "Trace קנוני זמין" : "פירוט החישוב ייפתח בעומק"}</strong>
+        <footer className="sod-gematria-card__compact-footer">
+          <button
+            type="button"
+            className="sod-gematria-card__explorer-trigger"
+            onClick={() => setExplorerOpen(true)}
+            aria-expanded={explorerOpen}
+            aria-controls={panelId}
+          >
+            כל השיטות <span>({methods.length})</span>
+          </button>
+
+          <div className="sod-gematria-card__footer-actions">
+            {typeof onOpenFull === "function" && (
               <button
                 type="button"
-                onClick={onOpenTrace}
-                disabled={!model?.trace?.available || typeof onOpenTrace !== "function"}
+                className="sod-gematria-card__open-full"
+                onClick={onOpenFull}
               >
-                פתח Trace
+                פתח מספר
               </button>
-            </section>
+            )}
+            {model?.relationsSummary?.journeyAvailable && (
+              <button
+                type="button"
+                className="sod-gematria-card__journey-compact"
+                onClick={onOpenJourney}
+                disabled={typeof onOpenJourney !== "function"}
+              >
+                המשך במסע
+              </button>
+            )}
           </div>
+        </footer>
+      </article>
 
-          <footer className="sod-gematria-card__footer">
-            <div>
-              <span>{methodLabel(active)}</span>
-              <strong>{fmtNumber(active.value)}</strong>
-            </div>
-            <button
-              type="button"
-              className="is-primary"
-              onClick={onOpenFull}
-              disabled={typeof onOpenFull !== "function"}
-            >
-              פתח בדף המלא
-            </button>
-          </footer>
-        </div>
-      )}
-    </article>
+      <ExplorerDialog
+        open={explorerOpen}
+        panelId={panelId}
+        titleId={titleId}
+        expression={expression}
+        model={model}
+        active={active}
+        familyGroups={familyGroups}
+        methods={methods}
+        onClose={() => setExplorerOpen(false)}
+        onMethodSelect={onMethodSelect}
+        onOpenJourney={onOpenJourney}
+        onOpenTrace={onOpenTrace}
+        onOpenFull={onOpenFull}
+        styleVars={rootStyle}
+      />
+    </>
   );
 }
