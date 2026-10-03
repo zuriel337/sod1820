@@ -376,12 +376,16 @@ export default function NumberLivingWorld2029({
         </div>
       </div>
 
-      <div className="sod29-lw-summits" aria-label="פסגות סביב המספר">
+      <div className="sod29-lw-summits-head">
+        <span>קשרים בולטים</span>
+        <small>נקודות המשך מתוך המחקר הקיים</small>
+      </div>
+      <div className="sod29-lw-summits" aria-label="קשרים בולטים סביב המספר">
         {(summits.length ? summits : [topics[0], researchFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
           <article key={item?.id || item?.slug || item?.value || index}>
-            <span>פסגה {index + 1}</span>
+            <span>קשר {index + 1}</span>
             <strong>{item?.value != null ? item.value : findingLabel(item)}</strong>
-            <small>{shortText(item?.value != null ? item.reason : findingReason(item) || sourceLabel(item), 90)}</small>
+            <small>{shortText(item?.value != null ? item.reason : findingReason(item) || sourceLabel(item), 72)}</small>
           </article>
         ))}
       </div>
