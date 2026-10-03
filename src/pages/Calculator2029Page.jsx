@@ -5,6 +5,7 @@ import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
+import GematriaReveal2029 from "../components/gematria2029/GematriaReveal2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
@@ -27,16 +28,6 @@ import "./calculator2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240;
-
-function traceSteps(finding) {
-  const raw = finding?.projection?.dimensions?.trace?.steps;
-  if (!Array.isArray(raw)) return [];
-  return raw.map((step) => {
-    if (typeof step === "string") return step;
-    if (!step || typeof step !== "object") return "";
-    return clean(step.label || step.description || step.expression || step.token || step.word || step.step);
-  }).filter(Boolean);
-}
 
 function eventProps(selection, extra = {}) {
   return {
@@ -486,8 +477,6 @@ function CalculatorExperience() {
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
-  const steps = traceSteps(trace.finding);
-
   return (
     <section className="sod29-calc2029" data-experience-surface="calculator-2029">
       {sharedRestored && selection ? (
@@ -519,13 +508,11 @@ function CalculatorExperience() {
               <strong>{selection.expression} · {selection.methodLabel}</strong>
               <small>{selection.resultValue != null ? "= " + selection.resultValue : calculationAvailabilityLabel(selectedMethod)}</small>
             </div>
-            <div className="sod29-calc2029-selection-value">{selection.resultValue ?? "—"}</div>
           </header>
 
+          <GematriaReveal2029 selection={selection} trace={trace} onToggleTrace={loadTrace} />
+
           <div className="sod29-calc2029-actions">
-            <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
-              {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
-            </button>
             <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
             <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח מספר</button>
             <button type="button" onClick={openHeichal}>חקור בהיכל</button>
@@ -539,21 +526,6 @@ function CalculatorExperience() {
               ✦ רזיאל · תסביר לי
             </button>
           </div>
-
-          {trace.error ? <div className="sod29-calc2029-trace is-error">הסבר החישוב לא זמין כרגע לשילוב הזה.</div> : null}
-          {trace.finding ? (
-            <div className="sod29-calc2029-trace">
-              <div>
-                <span>חישוב קנוני · {selection.methodLabel}</span>
-                <strong>{selection.expression} → {selection.resultValue}</strong>
-              </div>
-              {steps.length ? (
-                <div className="sod29-calc2029-trace-steps">
-                  {steps.map((step, index) => <span key={step + ":" + index}>{step}</span>)}
-                </div>
-              ) : <small>המנוע החזיר Trace מאומת ללא צעדים טקסטואליים להצגה.</small>}
-            </div>
-          ) : null}
 
           {showCompare ? <CalculatorCompare2029 selectionA={selection} onClose={() => setShowCompare(false)} /> : null}
 
