@@ -4,11 +4,11 @@ import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from ".
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
-const GOLDEN_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
-  expression: 'תשפ"ז',
+const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
+  expression: "מלח",
   methodKey: "רגיל",
-  resultValue: 787,
-  regionId: "tashpaz",
+  resultValue: 78,
+  regionId: "salt-78",
 });
 
 const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
@@ -111,19 +111,19 @@ const FZ1073_REGIONS = Object.freeze([
 ]);
 
 
-function markGoldenContextualNumberFocus(content = "", verification = null) {
-  if (verification?.verified !== true || Number(verification?.value) !== GOLDEN_CONTEXTUAL_NUMBER_FOCUS.resultValue) {
+function markBennettContextualNumberFocus(content = "", verification = null) {
+  if (verification?.verified !== true || Number(verification?.value) !== BENNETT_CONTEXTUAL_NUMBER_FOCUS.resultValue) {
     return String(content || "");
   }
   const html = String(content || "");
   if (html.includes('data-contextual-number-focus-group="true"')) return html;
 
-  const pattern = /(<h[1-6][^>]*data-source-heading=["']true["'][^>]*>\s*רמזים על גאולה בשנת ה['’]?תשפ(?:&quot;|"|״)ז\s*<\/h[1-6]>)/i;
+  const pattern = /(<h[1-6][^>]*data-source-heading=["']true["'][^>]*>\s*הרמז המרכזי\s*[—-]\s*מלח\s*<\/h[1-6]>)/i;
   const marker = `
     <div class="sod29-post-contextual-number-focus" data-contextual-number-focus-group="true" aria-label="פתיחת גימטריה בהקשר">
-      <button type="button" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="tashpaz" data-expression="תשפ&quot;ז" data-method="רגיל" data-result="787">תשפ״ז</button>
-      <button type="button" data-contextual-number-focus="true" data-focus-part="method" data-region-id="tashpaz" data-expression="תשפ&quot;ז" data-method="רגיל" data-result="787">רגיל</button>
-      <button type="button" data-contextual-number-focus="true" data-focus-part="result" data-region-id="tashpaz" data-expression="תשפ&quot;ז" data-method="רגיל" data-result="787">787</button>
+      <button type="button" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">מלח</button>
+      <button type="button" data-contextual-number-focus="true" data-focus-part="method" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">רגיל</button>
+      <button type="button" data-contextual-number-focus="true" data-focus-part="result" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">78</button>
     </div>`;
   return html.replace(pattern, `$1${marker}`);
 }
@@ -263,6 +263,19 @@ async function verifyTashpaz() {
   };
 }
 
+async function verifyBennettSaltFocus() {
+  const { data, error } = await supabase.rpc("fn_method_value", {
+    p_method_key: "רגיל",
+    p_phrase: "מלח",
+  });
+  const value = Number(data);
+  return {
+    verified: !error && value === 78,
+    value: Number.isSafeInteger(value) ? value : null,
+    method: "רגיל",
+  };
+}
+
 async function fetchPrivateGoldenStage(slug) {
   if (slug !== GOLDEN_SLUG) return null;
   // Existing Research Intake owner is the private pre-publication home. RLS exposes this
@@ -322,24 +335,21 @@ export async function fetchPost2029ReadingProjection(slug) {
   const isFz1073Pilot = post.slug === FZ1073_SLUG;
   const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
+  const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
   const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
-  const presentationPost = isGolden
+  const presentationPost = isFz1073Pilot
     ? {
         ...post,
-        content: markGoldenContextualNumberFocus(post.content, yearVerification),
+        content: markFz1073RegionHeadings(post.content),
+        _experience: buildFz1073Experience(post, topic363),
       }
-    : isFz1073Pilot
+    : isBennettSaltPilot
       ? {
           ...post,
-          content: markFz1073RegionHeadings(post.content),
-          _experience: buildFz1073Experience(post, topic363),
+          content: markBennettContextualNumberFocus(post.content, bennettSaltVerification),
+          _experience: buildBennettSaltExperience(post),
         }
-      : isBennettSaltPilot
-        ? {
-            ...post,
-            _experience: buildBennettSaltExperience(post),
-          }
-        : post;
+      : post;
   const regions = (isGolden
     ? GOLDEN_REGIONS
     : isFz1073Pilot
@@ -348,11 +358,15 @@ export async function fetchPost2029ReadingProjection(slug) {
         ? BENNETT_SALT_REGIONS
         : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
         ...region,
-        verification: region.number === 787 && isGolden ? yearVerification : null,
-        contextualNumberFocus: isGolden
-          && region.id === GOLDEN_CONTEXTUAL_NUMBER_FOCUS.regionId
-          && yearVerification?.verified === true
-          ? GOLDEN_CONTEXTUAL_NUMBER_FOCUS
+        verification: region.number === 787 && isGolden
+          ? yearVerification
+          : isBennettSaltPilot && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+            ? bennettSaltVerification
+            : null,
+        contextualNumberFocus: isBennettSaltPilot
+          && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+          && bennettSaltVerification?.verified === true
+          ? BENNETT_CONTEXTUAL_NUMBER_FOCUS
           : null,
       }));
 
@@ -403,8 +417,8 @@ export async function fetchPost2029ReadingProjection(slug) {
 export const post2029ReadingInternals = {
   stripTags,
   defaultRegionsFromSource,
-  GOLDEN_CONTEXTUAL_NUMBER_FOCUS,
-  markGoldenContextualNumberFocus,
+  BENNETT_CONTEXTUAL_NUMBER_FOCUS,
+  markBennettContextualNumberFocus,
   GOLDEN_REGIONS,
   FZ1073_SLUG,
   FZ1073_REGIONS,
