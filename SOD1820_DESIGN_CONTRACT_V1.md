@@ -300,6 +300,11 @@ Default discovery reel duration is editorial rather than a truth rule. Keep it a
 
 ### Hebrew, numbers and motion
 - Hebrew overlays that carry evidence, dates, names or calculations use deterministic/native typography in the composition. Do not depend on generative-image Hebrew for factual on-screen text.
+- **Bidi/RTL safety is release-blocking. Never reverse Hebrew strings character-by-character and never pre-reverse a mixed Hebrew/number/date line.** Source text stays in logical order.
+- When the renderer supports Unicode shaping/Bidi (for example Pillow with RAQM/HarfBuzz), pass the logical-order Hebrew text **raw** and let the shaping engine resolve visual order. Do not additionally apply `python-bidi/get_display`, manual `[::-1]`, or another reversal layer.
+- If a renderer lacks reliable Bidi shaping, compose directional runs explicitly: Hebrew runs are RTL; digit/date/code runs remain LTR and preserve digit and punctuation order. **Never solve missing Bidi support by reversing the whole string or each character sequence.**
+- Mixed strings such as `7.10.23 · כ״ב בתשרי תשפ״ד`, `שביעי באוקטובר = 718`, and `1718 → 718` require visual acceptance from the actual rendered frame before a video is accepted. Hebrew letters, digits, date separators, equality signs and arrows must all read in their intended order.
+- A render with reversed Hebrew, reversed digits/dates, mirrored punctuation or swapped numeric order is **REJECTED**, even if the animation/render otherwise succeeds.
 - Numeric focal points may be centered and large using the numeric/display language; explanatory Hebrew stays scanable and bounded.
 - One frame should answer one visual question. Never force 363 + 75 + 718 + 1073 + 1718 + a verse + CTA into one simultaneous card merely because all belong to the same research session.
 - Motion explains state/relationship: reveal, transform, converge, travel, focus or deepen. Decorative motion must not imply stronger truth.
