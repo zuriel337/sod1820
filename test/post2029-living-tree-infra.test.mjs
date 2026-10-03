@@ -193,3 +193,38 @@ test("Bennett salt remains the Post Master fixture while FZ1073 remains control"
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
   assert.equal(FZ1073_REGIONS.length, 5);
 });
+
+
+
+test("Post Master Bennett fixture opens canonical contextual number focus without a parallel renderer", () => {
+  const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+
+  const { BENNETT_CONTEXTUAL_NUMBER_FOCUS, markBennettContextualNumberFocus } = post2029ReadingInternals;
+  assert.deepEqual(BENNETT_CONTEXTUAL_NUMBER_FOCUS, {
+    expression: "מלח",
+    methodKey: "רגיל",
+    resultValue: 78,
+    regionId: "salt-78",
+  });
+
+  const source = '<h2 data-source-heading="true">הרמז המרכזי — מלח</h2><p>מקור</p>';
+  const untouched = markBennettContextualNumberFocus(source, { verified: false, value: 78 });
+  assert.equal(untouched, source);
+
+  const marked = markBennettContextualNumberFocus(source, { verified: true, value: 78 });
+  assert.match(marked, /data-contextual-number-focus-group="true"/);
+  assert.match(marked, /data-expression="מלח"/);
+  assert.match(marked, /data-method="רגיל"/);
+  assert.match(marked, /data-result="78"/);
+
+  assert.match(page, /entityType: "gematria_expression"/);
+  assert.match(page, /expression: cleanExpression/);
+  assert.match(page, /method: cleanMethodKey/);
+  assert.match(page, /resultValue: numericResult/);
+  assert.match(page, /locator,/);
+  assert.match(page, /type: "phrase"/);
+  assert.match(page, /source: "post-contextual-focus"/);
+  assert.match(page, /exactReturnForRegion\(targetRegion\)/);
+  assert.doesNotMatch(page, /SpatialMethodStage2029/);
+  assert.doesNotMatch(page, /fetchGematriaMethodTrace/);
+});

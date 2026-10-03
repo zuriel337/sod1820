@@ -4,6 +4,13 @@ import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from ".
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
+const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
+  expression: "מלח",
+  methodKey: "רגיל",
+  resultValue: 78,
+  regionId: "salt-78",
+});
+
 const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
 const FZ1073_TOPIC_363_SLUG = "gapfill-363";
 const BENNETT_SALT_SLUG = "bennett-melach-631-78";
@@ -102,6 +109,24 @@ const FZ1073_REGIONS = Object.freeze([
     worldLabel: "פתח את 455",
   },
 ]);
+
+
+function markBennettContextualNumberFocus(content = "", verification = null) {
+  if (verification?.verified !== true || Number(verification?.value) !== BENNETT_CONTEXTUAL_NUMBER_FOCUS.resultValue) {
+    return String(content || "");
+  }
+  const html = String(content || "");
+  if (html.includes('data-contextual-number-focus-group="true"')) return html;
+
+  const pattern = /(<h[1-6][^>]*data-source-heading=["']true["'][^>]*>\s*הרמז המרכזי\s*[—-]\s*מלח\s*<\/h[1-6]>)/i;
+  const marker = `
+    <div class="sod29-post-contextual-number-focus" data-contextual-number-focus-group="true" aria-label="פתיחת גימטריה בהקשר">
+      <button type="button" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">מלח</button>
+      <button type="button" data-contextual-number-focus="true" data-focus-part="method" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">רגיל</button>
+      <button type="button" data-contextual-number-focus="true" data-focus-part="result" data-region-id="salt-78" data-expression="מלח" data-method="רגיל" data-result="78">78</button>
+    </div>`;
+  return html.replace(pattern, `$1${marker}`);
+}
 
 function dateOnly(value) {
   const text = clean(value);
@@ -238,6 +263,19 @@ async function verifyTashpaz() {
   };
 }
 
+async function verifyBennettSaltFocus() {
+  const { data, error } = await supabase.rpc("fn_method_value", {
+    p_method_key: "רגיל",
+    p_phrase: "מלח",
+  });
+  const value = Number(data);
+  return {
+    verified: !error && value === 78,
+    value: Number.isSafeInteger(value) ? value : null,
+    method: "רגיל",
+  };
+}
+
 async function fetchPrivateGoldenStage(slug) {
   if (slug !== GOLDEN_SLUG) return null;
   // Existing Research Intake owner is the private pre-publication home. RLS exposes this
@@ -297,6 +335,7 @@ export async function fetchPost2029ReadingProjection(slug) {
   const isFz1073Pilot = post.slug === FZ1073_SLUG;
   const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
+  const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
   const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
   const presentationPost = isFz1073Pilot
     ? {
@@ -307,6 +346,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     : isBennettSaltPilot
       ? {
           ...post,
+          content: markBennettContextualNumberFocus(post.content, bennettSaltVerification),
           _experience: buildBennettSaltExperience(post),
         }
       : post;
@@ -318,7 +358,16 @@ export async function fetchPost2029ReadingProjection(slug) {
         ? BENNETT_SALT_REGIONS
         : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
         ...region,
-        verification: region.number === 787 && isGolden ? yearVerification : null,
+        verification: region.number === 787 && isGolden
+          ? yearVerification
+          : isBennettSaltPilot && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+            ? bennettSaltVerification
+            : null,
+        contextualNumberFocus: isBennettSaltPilot
+          && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+          && bennettSaltVerification?.verified === true
+          ? BENNETT_CONTEXTUAL_NUMBER_FOCUS
+          : null,
       }));
 
   const projectedExperience = projectPost2029Experience(presentationPost);
@@ -368,6 +417,8 @@ export async function fetchPost2029ReadingProjection(slug) {
 export const post2029ReadingInternals = {
   stripTags,
   defaultRegionsFromSource,
+  BENNETT_CONTEXTUAL_NUMBER_FOCUS,
+  markBennettContextualNumberFocus,
   GOLDEN_REGIONS,
   FZ1073_SLUG,
   FZ1073_REGIONS,
