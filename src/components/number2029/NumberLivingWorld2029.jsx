@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toggleTheme, useThemeMode } from "../../lib/themeMode.js";
 import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
+import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -55,8 +56,10 @@ function sourceDetail(row) {
 }
 
 function worldLabel(row) {
-  if (typeof row === "string") return clean(row);
-  return clean(row?.label || row?.name || row?.title || row?.world || row?.topic || row?.slug);
+  const raw = typeof row === "string"
+    ? row
+    : row?.label || row?.name || row?.title || row?.world || row?.topic || row?.slug;
+  return humanContentTitle(raw, { max: 82 });
 }
 
 function worldSummary(row) {
@@ -110,7 +113,8 @@ function factorizationText(profile) {
 }
 
 function findingLabel(item) {
-  return clean(item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind) || "ממצא מחקר";
+  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind;
+  return humanContentTitle(raw, { max: 96 }) || "ממצא מחקר";
 }
 
 function findingReason(item) {
