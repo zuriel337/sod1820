@@ -5,6 +5,7 @@ import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx"
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
+import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
 
 
@@ -315,14 +316,24 @@ function HomeBody() {
     e?.preventDefault?.();
     const raw = query.trim();
     if (!raw) return;
-    const numeric = /^\d+$/.test(raw);
-    const id = numeric ? String(Number(raw)) : raw;
-    const type = numeric ? "number" : "phrase";
+
+    const entry = buildUnifiedResearchEntry({ input: { text: raw } });
+    const primary = entry.identity_resolution?.primary || null;
+    const id = primary?.type === "number"
+      ? String(primary.value ?? primary.label ?? raw)
+      : String(primary?.label || raw);
+    const type = primary?.type === "number" ? "number" : "phrase";
+    const href = type === "number" ? `/2029/number/${encodeURIComponent(id)}` : "/world";
+
     research.setResearchContext?.({
-      subject: { id, type, label: id, href: `/number/${encodeURIComponent(id)}` },
+      subject: { id, type, label: id, href },
       selection: { entityId: id, entityType: type },
       lens: "world",
       locale: "he",
+      dimensions: {
+        unifiedEntryVersion: entry.version,
+        inputKind: entry.input_kind,
+      },
     });
     navigate("/world");
   };
@@ -406,6 +417,10 @@ function HomeBody() {
             <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="למשל 358 · משיח · 1820" aria-label="חיפוש או התחלת גילוי" />
             <button className="sod29-action primary" type="submit">פתח בעולם ←</button>
           </form>
+          <div className="sod29-actions">
+            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")}>מסע החיים שלי</button>
+            <span className="sod29-muted">מידע אישי נכנס רק מתוך המסע — החיפוש הכללי לא מנחש מי הוא אדם.</span>
+          </div>
         </div>
         <div className="sod29-orbit-map" aria-label="הקשר אחד שממשיך איתך">
           <div className="sod29-orbit-center">עולם<br />אחד</div>

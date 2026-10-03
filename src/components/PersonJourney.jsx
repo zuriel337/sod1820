@@ -1,53 +1,111 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { getOrCreateMyPersonId, upsertSelfProfile, upsertFamilyMember, upsertFamilyRelation, listFamily } from "../lib/supabase.js";
+import {
+  getNameMulti,
+  getOrCreateMyPersonId,
+  listFamily,
+  supabase,
+  upsertFamilyMember,
+  upsertFamilyRelation,
+  upsertSelfProfile,
+} from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
+import {
+  createSupabasePersonalDateCrossProvider,
+  gregorianToHebrewDateRepresentation,
+  runPersonalDateResearch,
+} from "../lib/research/personalDateResearch.js";
+import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
+import CanonicalProgress from "./CanonicalProgress.jsx";
+import "./person-journey.css";
 
-// 🧭 מסע החיים — יסוד (v1). person-ref-scoped, גיבוי ב-Ledger הפרטי (research_objects,
-// F-1a′/F-1b, docs/planning/sql/fn_family_private_slice.sql). זהו היסוד שעליו יבנה בעתיד
-// Journey אמיתי (ניווט-גרף בין ממצאי-מחקר שמתייחסים לאדם, לפי #187 §4) — v1 הזה עוד לא
-// מצליב עם ELS/גימטריה/שמות, רק מקים את זהות-האדם וקשרי-המשפחה שה-Journey יעבור עליהם.
-// ⛔ נבדל במפורש מ-FamilyCross.jsx (התכנסויות-גימטריה בין שמות, localStorage בלבד) ומ-
-// LifeProfile.jsx (מפת-שדה אישית, localStorage בלבד) — שני כלים קיימים ונפרדים, לא נגעתי בהם.
-// כל קשר-משפחה כרגע הוא בין בן-משפחה לבין "אני" בלבד (v1); קשרים בין שני בני-משפחה
-// (למשל אח-אח) הם הרחבה עתידית, לא כאן.
-
-const RELATIONS = [
+const RELATIONS = Object.freeze([
+  { id: "none", label: "קשר יוגדר אחר כך" },
   { id: "parent_of_me", label: "הורה שלי" },
   { id: "child_of_me", label: "ילד/ה שלי" },
-];
+]);
 
-export default function PersonJourney() {
+const clean = (value) => String(value || "").trim();
+const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
+const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
+
+function researchSummary(nameResult, dateBundle, dateRepresentation) {
+  const values = nameResult?.input?.components?.values || {};
+  const parts = values?.parts && typeof values.parts === "object" ? values.parts : {};
+  const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
+    .filter((finding) => finding?.kind === "date_cross")
+    .map((finding) => Number(finding?.subject?.value))
+    .filter(Number.isSafeInteger))];
+
+  return Object.freeze({
+    fullValue: Number.isSafeInteger(Number(values.full)) ? Number(values.full) : null,
+    partValues: Object.entries(parts)
+      .map(([label, value]) => ({ label, value: Number(value) }))
+      .filter((item) => Number.isSafeInteger(item.value)),
+    hebrewDate: dateRepresentation?.hebrew?.pretty || null,
+    crossValues,
+    tracksWithResults: Number(nameResult?.combo?.tracks_with_results ?? nameResult?.tracks_with_results ?? 0) || 0,
+  });
+}
+
+export default function PersonJourney({ variant = "legacy" }) {
   const { user, loading: authLoading } = useAuth();
   const research = useResearch();
   const [personId, setPersonId] = useState(null);
-  const [selfName, setSelfName] = useState("");
   const [members, setMembers] = useState([]);
   const [relations, setRelations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
-  const [newName, setNewName] = useState("");
-  const [relMember, setRelMember] = useState("");
-  const [relDirection, setRelDirection] = useState("parent_of_me");
   const [busy, setBusy] = useState(false);
+  const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
+
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberBirthdate, setNewMemberBirthdate] = useState("");
+  const [newMemberRelation, setNewMemberRelation] = useState("none");
 
   const selfRef = personId ? `person:${personId}:self` : null;
-  const persistedSelf = selfRef ? members.find(m => m.source_ref === selfRef) : null;
-  const persistedSelfName = String(persistedSelf?.name || "").trim();
+  const persistedSelf = useMemo(
+    () => selfRef ? members.find((member) => member.source_ref === selfRef) : null,
+    [members, selfRef],
+  );
+  const familyMembers = useMemo(
+    () => members.filter((member) => member.source_ref !== selfRef),
+    [members, selfRef],
+  );
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
-    const mem = data.members || [];
-    setMembers(mem);
-    setRelations(data.relations || []);
-    const selfRow = mem.find(m => m.source_ref === `person:${pid}:self`);
-    if (selfRow) setSelfName(selfRow.name || "");
+    const nextMembers = Array.isArray(data?.members) ? data.members : [];
+    setMembers(nextMembers);
+    setRelations(Array.isArray(data?.relations) ? data.relations : []);
+
+    const selfRow = nextMembers.find((member) => member.source_ref === `person:${pid}:self`);
+    if (!selfRow) return;
+    const meta = metaObject(selfRow.meta);
+    const savedFirst = clean(meta.first_name);
+    const savedSurname = clean(meta.surname);
+    if (savedFirst || savedSurname) {
+      setFirstName(savedFirst);
+      setSurname(savedSurname);
+    } else {
+      const pieces = clean(selfRow.name).split(/\s+/).filter(Boolean);
+      setFirstName(pieces.shift() || "");
+      setSurname(pieces.join(" "));
+    }
+    setBirthdate(clean(meta.birthdate_iso));
   }, []);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) { setLoading(false); return; }
+    if (authLoading) return undefined;
+    if (!user) {
+      setLoading(false);
+      return undefined;
+    }
     let alive = true;
     (async () => {
       try {
@@ -57,164 +115,295 @@ export default function PersonJourney() {
         if (!alive) return;
         setPersonId(pid);
         await refresh(pid);
-      } catch (e) {
-        if (alive) setErr(e?.message || String(e));
+      } catch (error) {
+        if (alive) setErr(error?.message || String(error));
       } finally {
         if (alive) setLoading(false);
       }
     })();
     return () => { alive = false; };
-  }, [user, authLoading, refresh]);
+  }, [authLoading, refresh, user]);
 
-  // 🧭 Universal Research Context — Person/Life Journey remains a traversal/context over person-ref,
-  // not a new Person store and not a Finding of its own. Existing research root is preserved if present.
-  // The display label comes only from the persisted Person ledger, never from unsaved input keystrokes.
+  const currentResearchSubjectId = research.context?.subject?.id || null;
+
   useEffect(() => {
     if (!selfRef || !user) return;
+    const persistedName = clean(persistedSelf?.name);
     const personSubject = {
       id: selfRef,
       type: "person",
-      label: persistedSelfName || "מסע החיים שלי",
-      href: "/research?tool=journey",
+      label: persistedName || "מסע החיים שלי",
+      href: variant === "2029" ? "/2029/journey" : "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
-    if (!research.context?.subject) {
+    if (!currentResearchSubjectId) {
       research.setResearchContext?.({ subject: personSubject, selection, lens: "person" });
-    } else {
+      return;
+    }
+    if (currentResearchSubjectId !== selfRef) {
       research.updateResearchContext?.({ selection, lens: "person" });
     }
-    // Context is navigation state only; privacy remains enforced by the existing Person foundation/RLS.
+    // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selfRef, persistedSelfName, user]);
+  }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id, variant]);
 
-  const saveSelf = async () => {
-    if (!personId || !selfName.trim()) return;
-    setBusy(true); setErr(null);
+  const runInitialResearch = useCallback(async ({ first, last, date }) => {
+    if (!user || !clean(first)) return null;
+    setAnalysis({ state: "loading", data: null, error: null });
     try {
-      await upsertSelfProfile(personId, selfName.trim());
+      const accessDescriptor = buildAccessDescriptor({
+        user_ref: user.id,
+        authenticated: true,
+        verified_authority: { source: "supabase_auth", subject_verified: true },
+      }, "authenticated_user");
+
+      const dateRepresentation = date ? gregorianToHebrewDateRepresentation(date) : null;
+      const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
+      const [nameResult, dateBundle] = await Promise.all([
+        getNameMulti(clean(first), {
+          surname: clean(last) || null,
+          birthdate: null,
+          question: null,
+        }),
+        date
+          ? runPersonalDateResearch({
+              name: clean(first),
+              surname: clean(last) || null,
+              birthdateIso: clean(date),
+              crossProvider,
+              accessDescriptor,
+            })
+          : Promise.resolve(null),
+      ]);
+
+      const data = researchSummary(nameResult, dateBundle, dateRepresentation);
+      setAnalysis({ state: "ready", data, error: null });
+      track("journey_person", null, "initial_research");
+      return data;
+    } catch (error) {
+      const message = error?.message || String(error);
+      setAnalysis({ state: "error", data: null, error: message });
+      return null;
+    }
+  }, [user]);
+
+  const beginJourney = async () => {
+    const first = clean(firstName);
+    const last = clean(surname);
+    const date = clean(birthdate);
+    const fullName = joinName(first, last);
+    if (!personId || !fullName) return;
+
+    setBusy(true);
+    setErr(null);
+    try {
+      const existingMeta = metaObject(persistedSelf?.meta);
+      await upsertSelfProfile(personId, fullName, {
+        ...existingMeta,
+        first_name: first,
+        surname: last || null,
+        birthdate_iso: date || null,
+        profile_version: "life_journey_2029_v1",
+      });
       await refresh(personId);
-      // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — surface נפרד
-      // מ"journey" (JourneyPage.jsx) כדי לא לערבב את יסוד מסע-החיים האישי עם מסע-הגילוי הקיים.
       track("journey_person", null, "save_self");
-    } catch (e) { setErr(e?.message || String(e)); }
-    setBusy(false);
+      await runInitialResearch({ first, last, date });
+    } catch (error) {
+      setErr(error?.message || String(error));
+    } finally {
+      setBusy(false);
+    }
   };
 
   const addMember = async () => {
-    if (!personId || !newName.trim()) return;
-    setBusy(true); setErr(null);
+    const name = clean(newMemberName);
+    if (!personId || !name) return;
+    setBusy(true);
+    setErr(null);
     try {
-      await upsertFamilyMember(personId, null, newName.trim());
-      setNewName("");
+      const member = await upsertFamilyMember(personId, null, name, {
+        birthdate_iso: clean(newMemberBirthdate) || null,
+        profile_version: "life_journey_2029_v1",
+      });
+      const memberRef = clean(member?.source_ref);
+      if (memberRef && selfRef && newMemberRelation !== "none") {
+        const parentRef = newMemberRelation === "parent_of_me" ? memberRef : selfRef;
+        const childRef = newMemberRelation === "parent_of_me" ? selfRef : memberRef;
+        await upsertFamilyRelation(personId, parentRef, childRef, "parent_of");
+      }
+      setNewMemberName("");
+      setNewMemberBirthdate("");
+      setNewMemberRelation("none");
       await refresh(personId);
       track("journey_person", null, "add_member");
-    } catch (e) { setErr(e?.message || String(e)); }
-    setBusy(false);
+    } catch (error) {
+      setErr(error?.message || String(error));
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const addRelation = async () => {
-    if (!personId || !relMember || !selfRef) return;
-    setBusy(true); setErr(null);
-    try {
-      const parentRef = relDirection === "parent_of_me" ? relMember : selfRef;
-      const childRef = relDirection === "parent_of_me" ? selfRef : relMember;
-      await upsertFamilyRelation(personId, parentRef, childRef, "parent_of");
-      setRelMember("");
-      await refresh(personId);
-      track("journey_person", null, "add_relation");
-    } catch (e) { setErr(e?.message || String(e)); }
-    setBusy(false);
-  };
-
-  const nameByRef = (ref) => {
-    const m = members.find(x => x.source_ref === ref);
-    if (ref === selfRef) return m?.name ? `${m.name} (אני)` : "אני";
-    return m?.name || ref;
-  };
-
-  const inputStyle = { flex: 1, minWidth: 0, padding: "9px 12px", borderRadius: 10, border: "1px solid var(--line)", background: "var(--bg)", color: "var(--ink)", fontFamily: "inherit", fontSize: 16 };
-  const selectStyle = { padding: "9px 12px", borderRadius: 10, border: "1px solid var(--line)", background: "var(--bg)", color: "var(--ink)", fontFamily: "inherit", fontSize: 15 };
+  const nameByRef = useCallback((ref) => {
+    const member = members.find((item) => item.source_ref === ref);
+    if (ref === selfRef) return member?.name ? `${member.name} (אני)` : "אני";
+    return member?.name || ref;
+  }, [members, selfRef]);
 
   if (authLoading || loading) {
-    return <div className="rw-card rw-muted">טוען…</div>;
+    return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
   }
 
   if (!user) {
-    return (
-      <div className="rw-card" style={{ textAlign: "center", padding: "40px 20px" }}>
-        <div style={{ fontSize: 42, marginBottom: 12 }}>🧭</div>
-        <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink)", marginBottom: 8 }}>מסע החיים דורש חשבון</div>
-        <div className="rw-muted" style={{ maxWidth: 380, margin: "0 auto 16px" }}>
-          המידע כאן פרטי לגמרי — רק אתם רואים אותו. יש להתחבר כדי להתחיל.
-        </div>
-        <a href="/login" className="rw-tchip on" style={{ textDecoration: "none", display: "inline-block" }}>🔐 התחברות</a>
-      </div>
-    );
+    return <section className="person-journey-login" data-experience-capability="life-journey-auth-gate">
+      <span className="person-journey-symbol" aria-hidden="true">✦</span>
+      <h2>מסע החיים הוא מרחב פרטי</h2>
+      <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
+      <a href="/login">התחברות</a>
+    </section>;
   }
 
-  const familyMembers = members.filter(m => m.source_ref !== selfRef);
+  const analysisData = analysis.data;
 
-  return (
-    <div>
-      <div className="rw-h1">🧭 מסע החיים — יסוד</div>
-      <div className="rw-sub">
-        השלב הראשון של מסע-חיים אמיתי: מי אתם ומי בני המשפחה שלכם, וקשרי-משפחה ביניכם.
-        <b> הכל פרטי</b> — רק אתם רואים את זה, נשמר בענן. הצלבה עם ממצאי-מחקר
-        (דילוגי-אותיות, גימטריה, שמות) תתווסף בהמשך — עדיין לא קיימת כאן.
+  return <div
+    className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}
+    data-experience-surface="life-journey"
+  >
+    <section className="person-journey-hero" data-experience-capability="life-journey-profile">
+      <div className="person-journey-orbit" aria-hidden="true">
+        <span>שם</span><span>תאריך</span><span>משפחה</span>
+        <strong>אני</strong>
+      </div>
+      <div className="person-journey-hero-copy">
+        <div className="person-journey-kicker">מסע חיים · פרטי</div>
+        <h1>מתחילים ממך.<br />ומשם מחברים את הסיפור.</h1>
+        <p>שם ותאריך פותחים את המסע הראשון. אחר כך אפשר להוסיף בני משפחה ואירועים — בלי לפתוח כלי חדש בכל פעם.</p>
+      </div>
+    </section>
+
+    {err ? <div className="person-journey-error" role="alert">{err}</div> : null}
+
+    <section className="person-journey-panel" data-experience-capability="life-journey-intake">
+      <div className="person-journey-section-head">
+        <div><small>01</small><h2>מי אני</h2></div>
+        <span>נשמר פרטי</span>
+      </div>
+      <div className="person-journey-fields">
+        <label>
+          <span>שם פרטי</span>
+          <input value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
+        </label>
+        <label>
+          <span>שם משפחה</span>
+          <input value={surname} onChange={(event) => setSurname(event.target.value)} placeholder="שם משפחה" dir="rtl" autoComplete="family-name" />
+        </label>
+        <label>
+          <span>תאריך לידה</span>
+          <input value={birthdate} onChange={(event) => setBirthdate(event.target.value)} type="date" dir="ltr" autoComplete="bday" />
+        </label>
+      </div>
+      <div className="person-journey-actions">
+        <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
+          {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
+        </button>
+        <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
+      </div>
+    </section>
+
+    <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
+      <div className="person-journey-section-head">
+        <div><small>02</small><h2>החיבורים הראשונים</h2></div>
+        <span>{analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
       </div>
 
-      {err && (
-        <div className="rw-card" style={{ borderColor: "#e0503f", color: "#e0503f", marginBottom: 12 }}>{err}</div>
-      )}
-
-      <div className="rw-card" style={{ marginBottom: 14 }}>
-        <div style={{ fontWeight: 800, marginBottom: 8, color: "var(--ink)" }}>👤 מי אני</div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={selfName} onChange={e => setSelfName(e.target.value)} placeholder="השם שלכם" dir="rtl" style={inputStyle} />
-          <button className="rw-tchip on" disabled={busy || !selfName.trim()} onClick={saveSelf}>שמור</button>
+      {analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
+      {analysis.state === "loading" ? <CanonicalProgress
+        title="מחבר את המסע הראשון"
+        detail="בודק את השם, ממיר את התאריך ומחפש נקודות מפגש דרך המנועים הקנוניים."
+        phase="מחקר אישי"
+        compact
+      /> : null}
+      {analysis.state === "error" ? <div className="person-journey-error" role="alert">{analysis.error}</div> : null}
+      {analysis.state === "ready" && analysisData ? <div className="person-journey-findings">
+        <div className="person-journey-focal">
+          <small>השם המלא</small>
+          <strong>{analysisData.fullValue ?? "—"}</strong>
+          <span>גימטריה רגילה · תוצאת מנוע</span>
         </div>
+        <div className="person-journey-fact-grid">
+          {analysisData.partValues.map((item) => <article key={item.label}>
+            <small>{item.label}</small>
+            <strong>{item.value}</strong>
+            <span>ערך רכיב</span>
+          </article>)}
+          {analysisData.hebrewDate ? <article>
+            <small>התאריך העברי</small>
+            <strong className="is-text">{analysisData.hebrewDate}</strong>
+            <span>המרה דטרמיניסטית</span>
+          </article> : null}
+          <article>
+            <small>מסלולים עם תוצאה</small>
+            <strong>{analysisData.tracksWithResults}</strong>
+            <span>כיסוי, לא ציון אמת</span>
+          </article>
+        </div>
+        {analysisData.crossValues.length ? <div className="person-journey-crosses">
+          <small>נקודות מפגש שם ↔ תאריך</small>
+          <div>{analysisData.crossValues.map((value) => <span key={value}>{value}</span>)}</div>
+          <p>נקודת מפגש היא עובדה מחושבת. המשמעות שלה נשארת שאלה למחקר.</p>
+        </div> : null}
+      </div> : null}
+    </section>
+
+    <section className="person-journey-panel" data-experience-capability="life-journey-family">
+      <div className="person-journey-section-head">
+        <div><small>03</small><h2>המשפחה שלי</h2></div>
+        <span>{familyMembers.length ? `${familyMembers.length} אנשים` : "אפשר להתחיל מאדם אחד"}</span>
       </div>
 
-      <div className="rw-card" style={{ marginBottom: 14 }}>
-        <div style={{ fontWeight: 800, marginBottom: 8, color: "var(--ink)" }}>👨‍👩‍👧 בני משפחה</div>
-        {familyMembers.length === 0 && <div className="rw-muted" style={{ marginBottom: 8 }}>עדיין לא הוספתם אף אחד.</div>}
-        {familyMembers.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-            {familyMembers.map(m => <span key={m.source_ref} className="rw-chip">{m.name}</span>)}
-          </div>
-        )}
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="שם בן/בת משפחה" dir="rtl" style={inputStyle} />
-          <button className="rw-tchip on" disabled={busy || !newName.trim()} onClick={addMember}>➕ הוסף</button>
-        </div>
+      {familyMembers.length ? <div className="person-journey-family-list">
+        {familyMembers.map((member) => {
+          const memberMeta = metaObject(member.meta);
+          return <article key={member.source_ref}>
+            <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
+            <span>פרטי</span>
+          </article>;
+        })}
+      </div> : <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div>}
+
+      <div className="person-journey-family-form">
+        <label>
+          <span>שם בן/בת משפחה</span>
+          <input value={newMemberName} onChange={(event) => setNewMemberName(event.target.value)} placeholder="שם מלא" dir="rtl" />
+        </label>
+        <label>
+          <span>תאריך לידה</span>
+          <input value={newMemberBirthdate} onChange={(event) => setNewMemberBirthdate(event.target.value)} type="date" dir="ltr" />
+        </label>
+        <label>
+          <span>הקשר אליי</span>
+          <select value={newMemberRelation} onChange={(event) => setNewMemberRelation(event.target.value)}>
+            {RELATIONS.map((relation) => <option key={relation.id} value={relation.id}>{relation.label}</option>)}
+          </select>
+        </label>
+        <button type="button" disabled={busy || !clean(newMemberName)} onClick={addMember}>הוסף למסע</button>
       </div>
 
-      {familyMembers.length > 0 && (
-        <div className="rw-card">
-          <div style={{ fontWeight: 800, marginBottom: 8, color: "var(--ink)" }}>🔗 קשר משפחתי</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-            <select value={relMember} onChange={e => setRelMember(e.target.value)} style={selectStyle}>
-              <option value="">בחרו בן משפחה…</option>
-              {familyMembers.map(m => <option key={m.source_ref} value={m.source_ref}>{m.name}</option>)}
-            </select>
-            <span>הוא/היא ה-</span>
-            <select value={relDirection} onChange={e => setRelDirection(e.target.value)} style={selectStyle}>
-              {RELATIONS.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
-            </select>
-            <span>שלי</span>
-            <button className="rw-tchip on" disabled={busy || !relMember} onClick={addRelation}>שמור קשר</button>
-          </div>
-          {relations.length > 0 && (
-            <div style={{ display: "grid", gap: 4 }}>
-              {relations.map(r => (
-                <div key={r.source_ref} className="rw-muted" style={{ fontSize: 13 }}>
-                  {nameByRef(r.parent_ref)} ← הורה של ← {nameByRef(r.child_ref)}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+      {relations.length ? <div className="person-journey-relations" aria-label="קשרים משפחתיים">
+        {relations.map((relation) => <div key={relation.source_ref}>
+          <span>{nameByRef(relation.parent_ref)}</span>
+          <b>הורה של</b>
+          <span>{nameByRef(relation.child_ref)}</span>
+        </div>)}
+      </div> : null}
+    </section>
+
+    <section className="person-journey-next" data-experience-capability="life-journey-next">
+      <div>
+        <small>השלב הבא</small>
+        <h2>המסע גדל איתך</h2>
+        <p>אירועי חיים, מקומות וממצאים שנוגעים לאנשים האלה יוכלו להצטרף בהמשך לאותו Person context — לא לעוד מערכת.</p>
+      </div>
+      <span aria-hidden="true">→</span>
+    </section>
+  </div>;
 }

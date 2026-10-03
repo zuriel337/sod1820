@@ -19,6 +19,7 @@ const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
 const Posts2029Page = lazy(() => import("./pages/Posts2029Page.jsx"));
+const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx"));
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
 const Video2029Page = lazy(() => import("./pages/Video2029Page.jsx"));
 const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx"));
@@ -84,6 +85,7 @@ export default function App2029() {
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
+              <Route path="/2029/journey" element={<LifeJourney2029Page />} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
               <Route path="/books" element={<Books2029Page />} />
