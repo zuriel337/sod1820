@@ -17,6 +17,7 @@ import {
   runPersonalDateResearch,
 } from "../lib/research/personalDateResearch.js";
 import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
+import CanonicalProgress from "./CanonicalProgress.jsx";
 import "./person-journey.css";
 
 const RELATIONS = Object.freeze([
@@ -132,7 +133,7 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
       id: selfRef,
       type: "person",
       label: persistedName || "מסע החיים שלי",
-      href: "/2029/journey",
+      href: variant === "2029" ? "/2029/journey" : "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
     if (!currentResearchSubjectId) {
@@ -144,7 +145,7 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
     }
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id]);
+  }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -161,7 +162,7 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
       const [nameResult, dateBundle] = await Promise.all([
         getNameMulti(clean(first), {
           surname: clean(last) || null,
-          birthdate: clean(date) || null,
+          birthdate: null,
           question: null,
         }),
         date
@@ -315,7 +316,12 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
       </div>
 
       {analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
-      {analysis.state === "loading" ? <div className="person-journey-state" aria-busy="true">בודק את השם, התאריך והמפגשים…</div> : null}
+      {analysis.state === "loading" ? <CanonicalProgress
+        title="מחבר את המסע הראשון"
+        detail="בודק את השם, ממיר את התאריך ומחפש נקודות מפגש דרך המנועים הקנוניים."
+        phase="מחקר אישי"
+        compact
+      /> : null}
       {analysis.state === "error" ? <div className="person-journey-error" role="alert">{analysis.error}</div> : null}
       {analysis.state === "ready" && analysisData ? <div className="person-journey-findings">
         <div className="person-journey-focal">
