@@ -123,6 +123,8 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
     return () => { alive = false; };
   }, [authLoading, refresh, user]);
 
+  const currentResearchSubjectId = research.context?.subject?.id || null;
+
   useEffect(() => {
     if (!selfRef || !user) return;
     const persistedName = clean(persistedSelf?.name);
@@ -133,12 +135,16 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
       href: "/2029/journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
-    if (!research.context?.subject) {
+    if (!currentResearchSubjectId) {
       research.setResearchContext?.({ subject: personSubject, selection, lens: "person" });
-    } else {
+      return;
+    }
+    if (currentResearchSubjectId !== selfRef) {
       research.updateResearchContext?.({ selection, lens: "person" });
     }
-  }, [persistedSelf?.name, research, selfRef, user]);
+    // Research Context is navigation state only; Person data remains in the private Ledger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
