@@ -141,14 +141,25 @@ function PostReadingBody() {
   const { post } = projection;
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
+  const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
   const heroNumbers = isBennettMaster
     ? [78, 631]
-    : [...new Set(
-        regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
-      )].slice(0, 5);
+    : isFz1073Master
+      ? [363, 1073, 718]
+      : [...new Set(
+          regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
+        )].slice(0, 5);
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
-  const heroDate = isBennettMaster ? "2026-10-01" : String(post.date || post.modified || "").slice(0, 10);
-  const visibleSourceLabel = isBennettMaster ? "בנט והמלח" : projection.sourceLabel;
+  const heroDate = isBennettMaster
+    ? "2026-10-01"
+    : isFz1073Master
+      ? "2026-09-30"
+      : String(post.date || post.modified || "").slice(0, 10);
+  const visibleSourceLabel = isBennettMaster
+    ? "בנט והמלח"
+    : isFz1073Master
+      ? "טיסה FZ1073"
+      : projection.sourceLabel;
   const visibleTimeline = isBennettMaster
     ? (experience.timeline || [])
         .filter((item) => item.id === "bennett-salt-event" || item.id === "bennett-salt-golden")
@@ -315,14 +326,27 @@ function PostReadingBody() {
 
   const handleSourceContextualFocus = (event) => {
     const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
-    if (!trigger || !sourceRef.current?.contains(trigger)) return;
-    event.preventDefault();
-    openContextualNumberFocus({
-      expression: trigger.dataset.expression,
-      methodKey: trigger.dataset.method,
-      resultValue: trigger.dataset.result,
-      regionId: trigger.dataset.regionId,
-    });
+    if (trigger && sourceRef.current?.contains(trigger)) {
+      event.preventDefault();
+      openContextualNumberFocus({
+        expression: trigger.dataset.expression,
+        methodKey: trigger.dataset.method,
+        resultValue: trigger.dataset.result,
+        regionId: trigger.dataset.regionId,
+      });
+      return;
+    }
+
+    if (isFz1073Master) {
+      const legacyNumber = event.target?.closest?.(".sod-numlink[data-gem]");
+      if (legacyNumber && sourceRef.current?.contains(legacyNumber)) {
+        const numericValue = Number(String(legacyNumber.dataset.gem || "").replace(/,/g, ""));
+        if (Number.isSafeInteger(numericValue)) {
+          event.preventDefault();
+          openHeroNumber(numericValue);
+        }
+      }
+    }
   };
 
   const openHeroNumber = (number) => {
@@ -392,14 +416,14 @@ function PostReadingBody() {
             {heroDate ? <span>{heroDate}</span> : null}
             {heroCategories.map((category) => <span key={category}>{category}</span>)}
           </div>
-          {!isBennettMaster ? <div className="sod29-reading-integrity">
+          {!isBennettMaster && !isFz1073Master ? <div className="sod29-reading-integrity">
             <span>המקור נשמר כלשונו</span>
             <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
           </div> : null}
         </div>
 
         {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">{isBennettMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
+          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
               key={number}
@@ -409,16 +433,16 @@ function PostReadingBody() {
               aria-label={"בדוק את מספר " + number}
             >
               <strong>{number}</strong>
-              <small>{isBennettMaster ? "פתח" : "בדיקה מהירה"}</small>
+              <small>{isBennettMaster || isFz1073Master ? "פתח" : "בדיקה מהירה"}</small>
             </button>)}
           </div>
-          <p>{isBennettMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
+          <p>{isBennettMaster || isFz1073Master ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
-    {isBennettMaster ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    {isBennettMaster || isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <div className="sod29-reading-layout">
       <section
@@ -454,7 +478,7 @@ function PostReadingBody() {
       />
     </div>
 
-    {!isBennettMaster ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
