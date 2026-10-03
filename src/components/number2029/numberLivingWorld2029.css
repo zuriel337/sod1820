@@ -132,7 +132,7 @@
   min-height:48px;
   padding:7px;
   border:1px solid var(--s29-line-strong);
-  border-radius:16px;
+  border-radius:14px;
   color:var(--s29-hero);
   background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft));
   font-weight:950;
@@ -167,12 +167,16 @@
 }
 .sod29-lw-crown-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:15px}
 .sod29-lw-crown-meta span{
-  padding:6px 9px;
+  min-height:30px;
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
   border:1px solid var(--s29-line);
   border-radius:999px;
   color:var(--s29-muted);
   background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
-  font-size:9.5px;
+  font-size:10.5px;
+  line-height:1.25;
 }
 .sod29-lw-crown-meta .is-sparse{
   border-color:color-mix(in srgb,var(--s29-accent) 44%,var(--s29-line));
@@ -212,10 +216,15 @@
   font-size:8px;
   letter-spacing:.14em;
 }
-.sod29-lw-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sod29-lw-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,.825fr));
+  gap:8px;
+  margin-top:18px;
+}
 .sod29-lw-btn{
-  min-height:44px;
-  padding:9px 13px;
+  min-height:46px;
+  padding:10px 13px;
   border:1px solid var(--s29-line);
   border-radius:13px;
   background:color-mix(in srgb,var(--s29-panel-soft) 89%,transparent);
@@ -231,11 +240,29 @@
   color:var(--s29-on-accent);
   box-shadow:0 10px 24px color-mix(in srgb,var(--s29-glow) 32%,transparent);
 }
+.sod29-lw-summits-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:24px;
+  padding-top:16px;
+  border-top:1px solid var(--s29-line);
+}
+.sod29-lw-summits-head span{
+  color:var(--s29-ink);
+  font-size:13px;
+  font-weight:900;
+}
+.sod29-lw-summits-head small{
+  color:var(--s29-muted);
+  font-size:9.5px;
+}
 .sod29-lw-summits{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:9px;
-  margin-top:18px;
+  margin-top:10px;
 }
 .sod29-lw-summits article{
   min-width:0;
@@ -250,8 +277,24 @@
   background:color-mix(in srgb,var(--s29-panel-soft) 89%,transparent);
 }
 .sod29-lw-summits span{font-size:8px;font-weight:900;color:var(--s29-accent-text)}
-.sod29-lw-summits strong{color:var(--s29-ink);font-size:13px;line-height:1.35}
-.sod29-lw-summits small{color:var(--s29-muted);font-size:9.5px;line-height:1.45}
+.sod29-lw-summits strong{
+  color:var(--s29-ink);
+  font-size:12.5px;
+  line-height:1.35;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+}
+.sod29-lw-summits small{
+  color:var(--s29-muted);
+  font-size:9px;
+  line-height:1.4;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+}
 .sod29-lw-search{position:relative;margin-top:14px}
 .sod29-lw-search input{
   width:100%;
@@ -590,10 +633,14 @@
   .sod29-lw-people{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:720px){
-  .sod29-lw{gap:14px}
+  .sod29-lw{gap:14px;scroll-padding-bottom:var(--s29-island-clearance,104px)}
   .sod29-lw-mapnav{top:64px;border-radius:14px}
   .sod29-lw-crown,.sod29-lw-math-hero,.sod29-lw-feature-media{grid-template-columns:1fr}
-  .sod29-lw-crown-orbit{width:210px;order:-1}
+  .sod29-lw-crown{gap:16px}
+  .sod29-lw-crown-orbit{width:185px;order:-1}
+  .sod29-lw-actions{grid-template-columns:1fr 1fr}
+  .sod29-lw-actions .sod29-lw-btn.is-primary{grid-column:1/-1}
+  .sod29-lw-btn{width:100%}
   .sod29-lw-summits{display:flex;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
   .sod29-lw-summits::-webkit-scrollbar{display:none}
   .sod29-lw-summits article{flex:0 0 210px}
@@ -612,7 +659,12 @@
 @media(max-width:460px){
   .sod29-lw-mapnav{grid-template-columns:minmax(0,1fr) auto}.sod29-lw-map-progress{display:none}
   .sod29-lw-map-current{min-width:0}.sod29-lw-map-current strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sod29-lw-crown-orbit{width:175px}
+  .sod29-lw-crown-orbit{width:155px}
+  .sod29-lw-crown-meta{gap:5px}
+  .sod29-lw-crown-meta span{font-size:10px}
+  .sod29-lw-summits-head{align-items:flex-start;flex-direction:column;gap:2px}
+  .sod29-lw-summits article{flex-basis:178px;min-height:104px;padding:12px}
+  .sod29-lw-summits strong{font-size:12px}
   .sod29-lw-people{display:flex;overflow-x:auto;scrollbar-width:none}.sod29-lw-people article{flex:0 0 205px}
   .sod29-lw-timeline:before{inset-inline-start:63px}.sod29-lw-timeline article{grid-template-columns:50px 12px minmax(0,1fr)}
 }
