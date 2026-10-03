@@ -140,11 +140,22 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const experience = projection.experience || {};
-  const heroNumbers = [...new Set(
-    regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
-  )].slice(0, 5);
+  const isBennettMaster = post.slug === "bennett-melach-631-78";
+  const heroNumbers = isBennettMaster
+    ? [78, 631]
+    : [...new Set(
+        regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
+      )].slice(0, 5);
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
-  const heroDate = String(post.modified || post.date || "").slice(0, 10);
+  const heroDate = String(post.date || post.modified || "").slice(0, 10);
+  const visibleSourceLabel = isBennettMaster ? "בנט והמלח" : projection.sourceLabel;
+  const visibleTimeline = isBennettMaster
+    ? (experience.timeline || [])
+        .filter((item) => item.id === "bennett-salt-event" || item.id === "bennett-salt-golden")
+        .map((item) => item.id === "bennett-salt-golden"
+          ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
+          : item)
+    : (experience.timeline || []);
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -363,6 +374,7 @@ function PostReadingBody() {
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
+    data-post-slug={post.slug}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>WIREFRAME · מבנה בלבד</b>
@@ -372,7 +384,7 @@ function PostReadingBody() {
     <header className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
-          <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
+          <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
           <h1>{post.title}</h1>
           <p className="sod29-reading-source-line">{projection.sourceLine}</p>
           <p className="sod29-reading-deck">{projection.excerpt}</p>
@@ -380,15 +392,14 @@ function PostReadingBody() {
             {heroDate ? <span>{heroDate}</span> : null}
             {heroCategories.map((category) => <span key={category}>{category}</span>)}
           </div>
-          <div className="sod29-reading-integrity">
+          {!isBennettMaster ? <div className="sod29-reading-integrity">
             <span>המקור נשמר כלשונו</span>
             <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
-            {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
-          </div>
+          </div> : null}
         </div>
 
         {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">צירי הקריאה</span>
+          <span className="sod29-reading-number-stage-kicker">{isBennettMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
               key={number}
@@ -398,15 +409,16 @@ function PostReadingBody() {
               aria-label={"בדוק את מספר " + number}
             >
               <strong>{number}</strong>
-              <small>בדיקה מהירה</small>
+              <small>{isBennettMaster ? "פתח" : "בדיקה מהירה"}</small>
             </button>)}
           </div>
-          <p>המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה.</p>
+          <p>{isBennettMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
+    {isBennettMaster ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <div className="sod29-reading-layout">
       <section
@@ -442,7 +454,7 @@ function PostReadingBody() {
       />
     </div>
 
-    <PostTimeline2029 items={experience.timeline || []} />
+    {!isBennettMaster ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
@@ -457,8 +469,8 @@ export default function Post2029Page() {
 
   useEffect(() => {
     applySeo({
-      title: "SOD1820 · Post 2029 Golden",
-      description: "Golden Preview למשטח הקריאה החדש של SOD1820.",
+      title: "SOD1820 · פוסט",
+      description: "פוסט ורמזים בתוך SOD1820.",
       path: `/post/${slug || ""}`,
       type: "article",
       noindex: true,
@@ -468,7 +480,7 @@ export default function Post2029Page() {
   return <Sod2029Shell
     surface="post"
     symbol="✦"
-    status="Post 2029 · GOLDEN"
+    status="פוסט"
   >
     <PostReadingBody />
   </Sod2029Shell>;
