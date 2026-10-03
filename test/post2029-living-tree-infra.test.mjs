@@ -162,6 +162,8 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   assert.doesNotMatch(app, /path="\/post" element={<Posts2029Page/);
   assert.match(frame, /to: "\/2029\/posts", label: "פוסטים"/);
 
+  assert.match(index, /<Sod2029Shell surface="post"/);
+  assert.doesNotMatch(index, /<Sod2029Shell surface="posts"/);
   assert.match(index, /data-experience-surface="posts-index"/);
   assert.match(index, /data-experience-capability="posts-index-hero"/);
   assert.match(index, /getPostsFromSupabase/);
