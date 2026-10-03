@@ -49,7 +49,7 @@ function researchSummary(nameResult, dateBundle, dateRepresentation) {
   });
 }
 
-export default function PersonJourney({ variant = "legacy", seed = null }) {
+export default function PersonJourney({ variant = "legacy" }) {
   const { user, loading: authLoading } = useAuth();
   const research = useResearch();
   const [personId, setPersonId] = useState(null);
@@ -60,9 +60,9 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
   const [busy, setBusy] = useState(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
 
-  const [firstName, setFirstName] = useState(() => clean(seed?.firstName));
-  const [surname, setSurname] = useState(() => clean(seed?.surname));
-  const [birthdate, setBirthdate] = useState(() => clean(seed?.birthdate));
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [birthdate, setBirthdate] = useState("");
 
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberBirthdate, setNewMemberBirthdate] = useState("");
@@ -250,7 +250,7 @@ export default function PersonJourney({ variant = "legacy", seed = null }) {
   }, [members, selfRef]);
 
   if (authLoading || loading) {
-    return <div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div>;
+    return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
   }
 
   if (!user) {
