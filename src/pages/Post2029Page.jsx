@@ -140,6 +140,11 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const experience = projection.experience || {};
+  const heroNumbers = [...new Set(
+    regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
+  )].slice(0, 5);
+  const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
+  const heroDate = String(post.modified || post.date || "").slice(0, 10);
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -238,10 +243,54 @@ function PostReadingBody() {
     });
   };
 
+  const openHeroNumber = (number) => {
+    const targetRegion = regions.find((region) => Number(region.number) === Number(number)) || activeFocus;
+    if (targetRegion) {
+      setActiveRegionId(targetRegion.id);
+      research.updateResearchContext?.({
+        subject: {
+          id: String(post.id),
+          type: "post",
+          label: post.title,
+          href: `/post/${post.slug}`,
+        },
+        selection: {
+          entityId: targetRegion.id,
+          entityType: "post_region",
+          locator: `#source-region-${targetRegion.id}`,
+        },
+        lens: "reading",
+        dimensions: {
+          ...(research.context?.dimensions || {}),
+          bottomTrail: state.projection?.experience?.trail || [],
+          readingFocus: {
+            id: targetRegion.id,
+            label: targetRegion.label,
+            primary: targetRegion.primary,
+            signals: targetRegion.signals || [],
+            number: targetRegion.number || null,
+            sourceLabel: projection.sourceLabel,
+            postId: String(post.id),
+            postSlug: post.slug,
+            locator: `#source-region-${targetRegion.id}`,
+          },
+        },
+      });
+    }
+    shell.openNumber?.({
+      id: String(number),
+      type: "number",
+      label: String(number),
+      href: "/2029/number/" + number,
+      source: "post-master-hero",
+    });
+  };
+
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
+    data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
@@ -249,14 +298,40 @@ function PostReadingBody() {
       <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
     </section> : null}
 
-    <header className="sod29-reading-hero">
-      <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
-      <h1>{post.title}</h1>
-      <p className="sod29-reading-source-line">{projection.sourceLine}</p>
-      <p className="sod29-reading-deck">{projection.excerpt}</p>
-      <div className="sod29-reading-integrity">
-        <span>המקור נשמר כלשונו</span>
-        {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
+    <header className="sod29-reading-hero" data-experience-capability="post-master-hero">
+      <div className="sod29-reading-hero-grid">
+        <div className="sod29-reading-hero-copy">
+          <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
+          <h1>{post.title}</h1>
+          <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+          <p className="sod29-reading-deck">{projection.excerpt}</p>
+          <div className="sod29-reading-meta-line">
+            {heroDate ? <span>{heroDate}</span> : null}
+            {heroCategories.map((category) => <span key={category}>{category}</span>)}
+          </div>
+          <div className="sod29-reading-integrity">
+            <span>המקור נשמר כלשונו</span>
+            <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
+            {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
+          </div>
+        </div>
+
+        {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+          <span className="sod29-reading-number-stage-kicker">צירי הקריאה</span>
+          <div className="sod29-reading-number-constellation">
+            {heroNumbers.map((number, index) => <button
+              key={number}
+              type="button"
+              className={"sod29-reading-number-signal signal-" + (index + 1)}
+              onClick={() => openHeroNumber(number)}
+              aria-label={"בדוק את מספר " + number}
+            >
+              <strong>{number}</strong>
+              <small>בדיקה מהירה</small>
+            </button>)}
+          </div>
+          <p>המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה.</p>
+        </div> : null}
       </div>
     </header>
 
