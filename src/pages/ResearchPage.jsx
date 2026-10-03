@@ -8,7 +8,6 @@ import { useMediaQuery } from "../lib/useMediaQuery.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import VerseSearch from "../components/VerseSearch.jsx";
-import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
@@ -49,17 +48,6 @@ const GUIDES = {
       "לחיצה על ערך משותף → דף-המספר עם כל ההצלבות.",
     ],
     tip: "«נחש» = «משיח» = 358 — הצלבה קלאסית באותה שיטה.",
-  },
-  name: {
-    title: "איך משתמשים במנוע השמות",
-    intro: "גוזרים מתוך שם את הערך, מבנה-האותיות, הפסוק וההתכנסויות שלו.",
-    steps: [
-      "הקלידו שם פרטי (או שם מלא, או «פלוני בן/בת פלונית»).",
-      "המנוע מציג את הגימטריה ב-17 השיטות + פירוט אות-אות.",
-      "מתחת — פסוק מתאים, ביטויים שווי-ערך והתכנסויות.",
-      "כל ערך לחיץ → דף-המספר; אפשר לשמור ולשתף את הכרטיס.",
-    ],
-    tip: "נסו את שמכם, ואז את שם בן-הזוג — והשוו ב«הקשרים במשפחה».",
   },
   family: {
     title: "איך משתמשים ב«הקשרים במשפחה»",
@@ -145,7 +133,7 @@ export default function ResearchPage() {
   const [soonOpen, setSoonOpen] = useState(false);
   // תפריט-המשנה: כלים פתוחים גלויים · כלים שיעבדו (בבנייה) תחת «בקרוב ▾»
   // דגלים ראשונים (דף המספר · מחשבון · מנוע השמות), אחר-כך השאר — סרגל נקי (המלצת ניקוי ההיכל).
-  const FLAG_ORDER = ["number", "midrash", "name"];
+  const FLAG_ORDER = ["number", "midrash"];
   const rank = t => { const i = FLAG_ORDER.indexOf(t.id); return i < 0 ? 99 : i; };
   // מיזוג הכפילות: «מחשבון גימטריה» ו«בית המדרש» פותחים אותו מסך (בית המדרש נפתח בטאב המחשבון
   // כברירת-מחדל) → מסתירים את צ'יפ gematria, ובית-המדרש מוצג כ«🧮 מחשבון · בית המדרש».
@@ -206,6 +194,11 @@ export default function ResearchPage() {
     ? setSp(q ? { tool: "midrash", tab: "calc", w: q } : { tool: "midrash", tab: "calc" })
     : setSp(q ? { tool: t, q } : { tool: t });
   // ניתוב כניסות-חוץ ישירות (/gematria · קישורי-ישנים · שדה-השער): tool=gematria → בית-המדרש calc.
+  useEffect(() => {
+    if (tool !== "name") return;
+    setSp({}, { replace: true });
+  }, [tool, setSp]);
+
   useEffect(() => {
     if (tool !== "gematria") return;
     setSp(seed ? { tool: "midrash", tab: "calc", w: seed } : { tool: "midrash", tab: "calc" }, { replace: true });
@@ -289,7 +282,6 @@ export default function ResearchPage() {
       ) : (
         <>
           {GUIDES[tool] && <ToolGuide {...GUIDES[tool]} />}
-          {tool === "name" && <NameLabPage embedded />}
           {tool === "family" && <FamilyCross />}
           {tool === "compare" && <CompareTwo onOpenTool={openTool} />}
           {tool === "els" && (wide ? (
