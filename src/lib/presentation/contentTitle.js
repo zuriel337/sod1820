@@ -1,6 +1,6 @@
 import { stripHtml } from "../format.js";
 
-const LEGACY_TRAILING_SEGMENT = /^(?:פוסט\s*(?:אין|in)?\s*#?\d*|פוסט\s*#?\d+|#\d+)$/i;
+const LEGACY_TRAILING_SEGMENT = /^(?:פוסט\\s*(?:אין|in)?\\s*#?\\d*|פוסט\\s*#?\\d+|פוסט(?:\\s+[^|]{1,24}){1,2}\\s+(?:#\\d+|\\d+#)|#\\d+)$/i;
 
 function unescapeStoredQuotes(value) {
   return String(value || "")
