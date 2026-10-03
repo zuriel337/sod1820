@@ -312,12 +312,12 @@ jobs:
 
           async function assertPost2029ContextualFlow(page, width) {
             const height = width < 600 ? 844 : 1000;
-            const postPath = '/post/remzei-geula-ai-sod-hashir';
+            const postPath = '/post/bennett-melach-631-78';
             let traceRequests = 0;
             page.on('request', (request) => {
               if (request.url().includes('/rpc/gematria_method_trace')) traceRequests += 1;
             });
-            await page.route('**/post/remzei-geula-ai-sod-hashir*', async (route) => {
+            await page.route('**/post/bennett-melach-631-78*', async (route) => {
               const response = await page.request.get(`${BASE}/2029.html`);
               await route.fulfill({
                 status: response.status(),
@@ -344,7 +344,7 @@ jobs:
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('תשפ"ז', { timeout: 20_000 });
+            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
 
             const regular = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first();
             await expect(regular).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
@@ -360,7 +360,7 @@ jobs:
                 Number(selection.resultValue),
                 selection.locator || null,
               ]);
-            }), { timeout: 5_000 }).toBe(JSON.stringify(['תשפ"ז', 'רגיל', 787, '#source-region-tashpaz']));
+            }), { timeout: 5_000 }).toBe(JSON.stringify(['מלח', 'רגיל', 78, '#source-region-salt-78']));
 
             const calculation = drawer.locator('.sod29-number-v10-calculation-card');
             await expect(calculation).toBeVisible({ timeout: 20_000 });
@@ -375,7 +375,7 @@ jobs:
 
             await drawer.locator('[data-experience-action="contextual-number-back"]').click();
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('תשפ"ז');
+            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח');
             await expect(drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
 
             const metrics = await page.evaluate(() => ({
@@ -400,11 +400,11 @@ jobs:
             });
           }
 
-          test('Post 2029 Golden uses canonical mobile Bottom Sheet with lazy trace and exact back at 390px', async ({ page }) => {
+          test('Post 2029 Bennett fixture uses canonical mobile Bottom Sheet with lazy trace and exact back at 390px', async ({ page }) => {
             await assertPost2029ContextualFlow(page, 390);
           });
 
-          test('Post 2029 Golden uses canonical desktop left Sidecar with lazy trace and exact back at 1440px', async ({ page }) => {
+          test('Post 2029 Bennett fixture uses canonical desktop left Sidecar with lazy trace and exact back at 1440px', async ({ page }) => {
             await assertPost2029ContextualFlow(page, 1440);
           });
 
