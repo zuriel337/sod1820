@@ -151,19 +151,20 @@ function PostReadingBody() {
     const haystack = normalize([connection.label, connection.reason, connection.value].filter(Boolean).join(" "));
     return !focusNeedle || haystack.includes(focusNeedle) || (experience.connections || []).length <= 6;
   });
-  const exactReturn = {
-    href: `/post/${post.slug}#source-region-${activeFocus?.id || projection.defaultRegionId}`,
+  const exactReturnForRegion = (region) => ({
+    href: `/post/${post.slug}#source-region-${region?.id || projection.defaultRegionId}`,
     label: post.title,
     subject: { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` },
-    selection: activeFocus ? {
-      entityId: activeFocus.id,
+    selection: region ? {
+      entityId: region.id,
       entityType: "post_region",
-      locator: `#source-region-${activeFocus.id}`,
+      locator: `#source-region-${region.id}`,
     } : null,
     lens: "reading",
     dimensions: research.context?.dimensions || {},
     journey: research.context?.journey || null,
-  };
+  });
+  const exactReturn = exactReturnForRegion(activeFocus);
 
   const updateFocusContext = () => {
     if (!activeFocus) return;
@@ -240,6 +241,76 @@ function PostReadingBody() {
       type: activeFocus.number ? "number" : "post_region",
       label: activeFocus.primary,
       href: `/post/${post.slug}#source-region-${activeFocus.id}`,
+    });
+  };
+
+  const openContextualNumberFocus = ({ expression, methodKey, resultValue, regionId } = {}) => {
+    const cleanExpression = String(expression || "").trim();
+    const cleanMethodKey = String(methodKey || "").trim();
+    const numericResult = Number(resultValue);
+    if (!cleanExpression || !cleanMethodKey || !Number.isSafeInteger(numericResult)) return;
+
+    const targetRegion = regions.find((region) => region.id === regionId)
+      || regions.find((region) => Number(region.number) === numericResult)
+      || activeFocus;
+    if (!targetRegion) return;
+
+    const locator = `#source-region-${targetRegion.id}`;
+    setActiveRegionId(targetRegion.id);
+    research.updateResearchContext?.({
+      subject: {
+        id: String(numericResult),
+        type: "number",
+        label: String(numericResult),
+        href: `/2029/number/${numericResult}`,
+      },
+      selection: {
+        entityId: targetRegion.id,
+        entityType: "gematria_expression",
+        locator,
+        expression: cleanExpression,
+        method: cleanMethodKey,
+        resultValue: numericResult,
+      },
+      lens: "gematria",
+      dimensions: {
+        ...(research.context?.dimensions || {}),
+        bottomTrail: state.projection?.experience?.trail || [],
+        readingFocus: {
+          id: targetRegion.id,
+          label: targetRegion.label,
+          primary: targetRegion.primary,
+          signals: targetRegion.signals || [],
+          number: numericResult,
+          expression: cleanExpression,
+          method: cleanMethodKey,
+          resultValue: numericResult,
+          sourceLabel: projection.sourceLabel,
+          postId: String(post.id),
+          postSlug: post.slug,
+          locator,
+        },
+      },
+      returnTo: exactReturnForRegion(targetRegion),
+    });
+    shell.openNumber?.({
+      id: `post:${post.id}:${targetRegion.id}`,
+      type: "phrase",
+      label: cleanExpression,
+      href: `/post/${post.slug}${locator}`,
+      source: "post-contextual-focus",
+    });
+  };
+
+  const handleSourceContextualFocus = (event) => {
+    const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
+    if (!trigger || !sourceRef.current?.contains(trigger)) return;
+    event.preventDefault();
+    openContextualNumberFocus({
+      expression: trigger.dataset.expression,
+      methodKey: trigger.dataset.method,
+      resultValue: trigger.dataset.result,
+      regionId: trigger.dataset.regionId,
     });
   };
 
@@ -342,6 +413,7 @@ function PostReadingBody() {
         ref={sourceRef}
         className="sod29-reading-source"
         aria-label="טקסט המקור"
+        onClick={handleSourceContextualFocus}
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
