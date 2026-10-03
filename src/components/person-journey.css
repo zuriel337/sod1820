@@ -262,7 +262,7 @@
   max-width:680px;
   margin:48px auto;
   padding:40px 24px;
-  border:1px solid var(--s29-line);
+  border:1px solid var(--s29-line,var(--line));
   border-radius:28px;
   text-align:center;
   color:var(--pj-ink);
