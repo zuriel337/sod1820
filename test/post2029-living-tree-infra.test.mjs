@@ -131,6 +131,8 @@ test("FZ1073 pilot builds bounded context without changing other posts", () => {
     { slug: "gapfill-363", title: "363 — חמישה = המשיח" },
   );
   assert.equal(experience.connections[0].href, "/topic/gapfill-363");
+  assert.equal(experience.connections.find((row) => row.id === "topic-718")?.href, "/topic/gapfill-718");
+  assert.equal(experience.connections.find((row) => row.id === "topic-386")?.href, "/topic/386-david-ben-yishai-tzipor");
   assert.equal(experience.connections.length, 6);
   assert.equal(experience.timeline[0].temporalRole, "occurred");
   assert.equal(experience.timeline.find((row) => row.id === "fz1073-published")?.temporalRole, "published");
