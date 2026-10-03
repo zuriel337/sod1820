@@ -11,6 +11,12 @@ test("humanContentTitle decodes legacy entities and removes display-only post su
   assert.match(out, /צה"ל/);
   assert.equal(out.includes("פוסט אין #3"), false);
   assert.match(out, /גלרית דוד המלך מספר 23/);
+
+  const liveLegacy = 'סיום המבצע באירן ובאר שבע | צופן התורה שמראה שכוח צה&quot;ל זה כוח המשיח | חדש! גלרית דוד המלך מספר 23 | פוסט אירן 3#';
+  const liveOut = humanContentTitle(liveLegacy, { max: 240 });
+  assert.equal(liveOut.includes("&quot;"), false);
+  assert.equal(liveOut.includes("פוסט אירן 3#"), false);
+  assert.match(liveOut, /צה"ל/);
 });
 
 test("humanContentTitle unwraps stored escaped quotes and bounds long card labels", () => {
