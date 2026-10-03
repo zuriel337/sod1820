@@ -121,7 +121,7 @@ test("Research Context preserves bottom trail at runtime", () => {
 test("FZ1073 pilot builds bounded context without changing other posts", () => {
   const { FZ1073_SLUG, FZ1073_REGIONS, buildFz1073Experience, markFz1073RegionHeadings } = post2029ReadingInternals;
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
-  assert.equal(FZ1073_REGIONS.length, 5);
+  assert.equal(FZ1073_REGIONS.length, 7);
 
   const marked = markFz1073RegionHeadings("<h1>מהשמיים — עד הנחיתה בטבוק</h1><h2>סעודיה</h2>");
   assert.match(marked, /data-source-heading="true"/);
@@ -131,8 +131,14 @@ test("FZ1073 pilot builds bounded context without changing other posts", () => {
     { slug: "gapfill-363", title: "363 — חמישה = המשיח" },
   );
   assert.equal(experience.connections[0].href, "/topic/gapfill-363");
+  assert.equal(experience.connections.find((row) => row.id === "topic-718")?.href, "/topic/gapfill-718");
+  assert.equal(experience.connections.find((row) => row.id === "topic-386")?.href, "/topic/386-david-ben-yishai-tzipor");
   assert.equal(experience.connections.length, 6);
-  assert.equal(experience.timeline[0].temporalRole, "published");
+  assert.equal(experience.timeline[0].temporalRole, "occurred");
+  assert.equal(experience.timeline.find((row) => row.id === "fz1073-published")?.temporalRole, "published");
+  assert.equal(experience.media.highlight.src.includes("final-20261001-v4.mp4"), true);
+  assert.equal(experience.connections.find((row) => row.id === "oct-710-post")?.href.includes("710-"), true);
+  assert.equal(experience.connections.find((row) => row.id === "tiran-saudi-post")?.href.includes("%d7%"), true);
   assert.equal(experience.trail[0].label, "FZ1073");
 });
 
@@ -186,12 +192,12 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   assert.ok(previewHeaders.headers.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)));
 });
 
-test("Bennett salt remains the Post Master fixture while FZ1073 remains control", () => {
+test("Bennett and FZ1073 remain the two Post Master fixtures", () => {
   const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, FZ1073_SLUG, FZ1073_REGIONS } = post2029ReadingInternals;
   assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
   assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number), [78, 631, 78, 133, 690]);
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
-  assert.equal(FZ1073_REGIONS.length, 5);
+  assert.equal(FZ1073_REGIONS.length, 7);
 });
 
 

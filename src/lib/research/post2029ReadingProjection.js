@@ -67,45 +67,70 @@ const FZ1073_REGIONS = Object.freeze([
   {
     id: "visual-363",
     heading: "מהשמיים — עד הנחיתה בטבוק",
-    label: "363 · הרמז החזותי",
-    primary: "363 · חמישה = המשיח",
-    signals: ["רמז חזותי מן המקור", "Topic 363"],
+    label: "363 · המשיח",
+    primary: "המשיח = 363",
+    signals: ["הרמז החזותי", "Topic 363"],
     number: 363,
-    worldLabel: "פתח את 363 בעולם",
+    hero: true,
+    worldLabel: "פתח את 363",
+  },
+  {
+    id: "flight-1073",
+    heading: "FZ 1073",
+    label: "מספר הטיסה · 1073",
+    primary: "אשר בשמים ממעל = 1073",
+    signals: ["מספר הטיסה", "10 | 7 | 3"],
+    number: 1073,
+    hero: true,
+    worldLabel: "פתח את 1073",
+  },
+  {
+    id: "october-718",
+    heading: "ציר 718",
+    label: "שביעי באוקטובר · 718",
+    primary: "שביעי באוקטובר = 718",
+    signals: ["חדשות = 718", "התשובה = 718"],
+    number: 718,
+    hero: true,
+    worldLabel: "פתח את 718",
   },
   {
     id: "trust-axis",
     heading: "75 → 750 → 7500",
     label: "ציר 75 → 750 → 7500",
-    primary: "בטחון · 75",
-    signals: ["אברהם · 75", "ישעיהו כ״ו, ד׳"],
+    primary: "בטחון = 75",
+    signals: ["אברהם · 75", "ציר הבטחון"],
     number: 75,
-    worldLabel: "פתח את ציר 75",
+    hero: false,
+    worldLabel: "פתח את 75",
   },
   {
     id: "saudi",
     heading: "סעודיה",
     label: "סעודיה · טבוק",
-    primary: "סעודיה · סוד ע׳",
-    signals: ["נחיתה בטבוק", "קריאה פרשנית"],
-    worldLabel: "פתח את סעודיה בעולם",
+    primary: "סעודיה · טבוק",
+    signals: ["הנחיתה בסעודיה", "פוסטים קודמים"],
+    hero: false,
+    worldLabel: "פתח את סעודיה",
   },
   {
     id: "assaf-rajuan",
     heading: "אסף רג׳ואן",
-    label: "אסף רג׳ואן",
-    primary: "אסף רג׳ואן · 401",
+    label: "אסף רג׳ואן · 401",
+    primary: "אסף רג׳ואן = 401",
     signals: ["מקור וידאו", "תא · ישעיהו"],
     number: 401,
+    hero: false,
     worldLabel: "פתח את 401",
   },
   {
     id: "smit-machchhar",
     heading: "קפטן סמיט מאצ׳הר",
-    label: "קפטן סמיט מאצ׳הר",
-    primary: "סמיט מאצ׳הר · 455",
-    signals: ["מקור תמונה", "מחקר רב־שיטתי"],
+    label: "סמיט מאצ׳הר · 455",
+    primary: "סמיט מאצ׳הר = 455",
+    signals: ["מקור תמונה", "שיטות נוספות בעומק"],
     number: 455,
+    hero: false,
     worldLabel: "פתח את 455",
   },
 ]);
@@ -135,6 +160,12 @@ function dateOnly(value) {
 
 function markFz1073RegionHeadings(content = "") {
   let html = String(content || "");
+  if (!/data-source-heading=["']true["'][^>]*>\s*ציר 718\s*</i.test(html)) {
+    html = html.replace(
+      /(<div[^>]*data-fz1073-718-axis=["']v1["'][^>]*>)/i,
+      '$1<h2 data-source-heading="true">ציר 718</h2>',
+    );
+  }
   for (const region of FZ1073_REGIONS) {
     const pattern = new RegExp("(<h[1-6][^>]*)(>\\s*)" + region.heading + "(\\s*<\\/h[1-6]>)", "i");
     html = html.replace(pattern, (match, open, separator, close) => {
@@ -145,7 +176,13 @@ function markFz1073RegionHeadings(content = "") {
   return html;
 }
 function buildFz1073Experience(post, topic363 = null) {
-  const href = "/post/" + FZ1073_SLUG;
+  const href = "/" + "post/" + FZ1073_SLUG;
+  const videoSrc = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4";
+  const poster = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg";
+  const oct710 = "/710-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94-%d7%93%d7%99%d7%a0%d7%99%d7%9d-%d7%9e%d7%aa%d7%95%d7%a7%d7%99%d7%9d-%d7%94%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-7-10-%d7%a9%d7%91%d7%a9%d7%95%d7%a8/";
+  const simchatWar = "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%a9%d7%94%d7%97%d7%9c%d7%94-%d7%91%d7%90%d7%96%d7%95%d7%a8-%d7%a2%d7%96%d7%94-%d7%91%d7%99%d7%95%d7%9d-%d7%a9%d7%9e%d7%97%d7%aa-%d7%aa%d7%95%d7%a8%d7%94-%d7%aa/";
+  const tiranSaudi = "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%90%d7%99%d7%99%d7%9d-%d7%94%d7%9e%d7%a6%d7%a8%d7%99%d7%9d-%d7%98%d7%99%d7%a8%d7%90%d7%9f-%d7%95%d7%a1%d7%a0%d7%a4%d7%99/";
+  const iranSaudi = "/סכסוך-בין-איראן-לערב-הסעודית-לפני-הגאו";
   const connections = [
     topic363 ? {
       id: "topic-363",
@@ -158,29 +195,59 @@ function buildFz1073Experience(post, topic363 = null) {
     } : {
       id: "number-363",
       label: "363",
-      kind: "NUMBER",
+      kind: "מספר",
       value: "363",
       href: "/2029/number/363",
       reason: "הרמז החזותי הראשי בפוסט.",
     },
-    { id: "number-1073", label: "מספר הטיסה", kind: "NUMBER", value: "1073", href: "/2029/number/1073", reason: "מספר הטיסה FZ1073." },
-    { id: "number-787", label: "תשפ״ז · שמחה והודיה", kind: "NUMBER", value: "787", href: "/2029/number/787", reason: "ציר נוסף בתוך הפוסט." },
-    { id: "number-599", label: "אלופו של עולם · אסתר", kind: "NUMBER", value: "599", href: "/2029/number/599", reason: "רמז Tier 2 בפוסט." },
-    { id: "number-455", label: "סמיט מאצ׳הר", kind: "NUMBER", value: "455", href: "/2029/number/455", reason: "חיבור מחקרי מתוך קפטן סמיט מאצ׳הר." },
-    { id: "number-401", label: "אסף רג׳ואן", kind: "NUMBER", value: "401", href: "/2029/number/401", reason: "חיבור מחקרי מתוך אסף רג׳ואן." },
+    { id: "number-1073", label: "מספר הטיסה", kind: "מספר", value: "1073", href: "/2029/number/1073", reason: "מספר הטיסה והחיבור ל׳אשר בשמים ממעל׳." },
+    { id: "topic-718", label: "718 — שביעי באוקטובר", kind: "טופיק", value: "718", href: "/topic/gapfill-718", reason: "הבית הקבוע של שביעי באוקטובר = חדשות = התשובה = 718.", provenanceLabel: "topic_cards_public" },
+    { id: "topic-386", label: "386 — סנכרון · דוד בן ישי", kind: "טופיק", value: "386", href: "/topic/386-david-ben-yishai-tzipor", reason: "הבית הקבוע של סנכרון = דוד בן ישי = 386; כולל החיבור הנפרד לנתניהו = 683.", provenanceLabel: "topic_cards_public" },
+    { id: "oct-710-post", label: "7.10 — דינים מתוקים", kind: "פוסט ישן", value: "710", href: oct710, reason: "פוסט קיים שמוקדש לרמז 7.10." },
+    { id: "oct-war-post", label: "המלחמה שהחלה בשמחת תורה", kind: "פוסט ישן", href: simchatWar, reason: "פוסט קיים עם התג השביעי באוקטובר." },
+    { id: "tiran-saudi-post", label: "טיראן וסנפיר → סעודיה", kind: "פוסט ישן", href: tiranSaudi, reason: "רמזים קודמים על סעודיה." },
+    { id: "iran-saudi-post", label: "איראן וערב הסעודית", kind: "פוסט ישן", href: iranSaudi, reason: "פוסט קודם על ציר סעודיה." },
   ];
-  const publishedDate = dateOnly(post?.date);
   return {
+    timelinePlacement: "after-media",
+    media: {
+      prominence: "primary",
+      highlight: {
+        src: videoSrc,
+        poster,
+        label: "סרטון הפוסט · נשמר 01.10.2026",
+      },
+    },
     connections,
-    timeline: publishedDate ? [{
-      id: "fz1073-published",
-      label: "פוסט FZ1073 פורסם",
-      date: publishedDate,
-      temporalRole: "published",
-      href,
-      sourceLabel: "POST",
-      note: "תאריך פרסום הפוסט; אינו מוצג כתאריך האירוע עצמו.",
-    }] : [],
+    timeline: [
+      {
+        id: "fz1073-event",
+        label: "אירוע טיסת FZ1073",
+        date: "2026-09-30",
+        temporalRole: "occurred",
+        href,
+        sourceLabel: "FZ1073",
+        note: "האירוע שממנו מתחיל הפוסט.",
+      },
+      {
+        id: "fz1073-published",
+        label: "הפוסט פורסם",
+        date: dateOnly(post?.date) || "2026-09-30",
+        temporalRole: "published",
+        href,
+        sourceLabel: "SOD1820",
+        note: "תאריך הפרסום של הפוסט.",
+      },
+      {
+        id: "fz1073-video-saved",
+        label: "סרטון הפוסט נשמר",
+        date: "2026-10-01",
+        temporalRole: "admitted",
+        href: videoSrc,
+        sourceLabel: "MEDIA",
+        note: "הסרטון הקנוני שנשמר באחסון.",
+      },
+    ],
     trail: [{ id: "fz1073-post", label: "FZ1073", href, kind: "post", active: true }],
   };
 }
