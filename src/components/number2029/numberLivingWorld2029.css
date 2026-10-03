@@ -132,7 +132,7 @@
   min-height:48px;
   padding:7px;
   border:1px solid var(--s29-line-strong);
-  border-radius:14px;
+  border-radius:16px;
   color:var(--s29-hero);
   background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft));
   font-weight:950;
@@ -273,7 +273,7 @@
   justify-content:center;
   padding:13px;
   border:1px solid var(--s29-line);
-  border-radius:16px;
+  border-radius:14px;
   background:color-mix(in srgb,var(--s29-panel-soft) 89%,transparent);
 }
 .sod29-lw-summits span{font-size:8px;font-weight:900;color:var(--s29-accent-text)}
