@@ -44,3 +44,20 @@ test("2029 post-title surfaces use the shared presentation sanitizer and bounded
   assert.match(numberCss, /font-size:28px/);
   assert.match(postsCss, /font-size:22px/);
 });
+
+
+test("Number Living World mobile hierarchy keeps one primary action, compact orbit, and bounded relation cards", () => {
+  const page = readFileSync(new URL("../src/components/number2029/NumberLivingWorld2029.jsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../src/components/number2029/numberLivingWorld2029.css", import.meta.url), "utf8");
+  const frameCss = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
+
+  assert.match(page, /קשרים בולטים/);
+  assert.match(page, /נקודות המשך מתוך המחקר הקיים/);
+  assert.match(page, /<DepthButton primary[^>]*>פתח את העולם סביב/);
+  assert.match(css, /grid-template-columns:1fr 1fr/);
+  assert.match(css, /\.sod29-lw-actions \.sod29-lw-btn\.is-primary\{grid-column:1\/-1\}/);
+  assert.match(css, /\.sod29-lw-crown-orbit\{width:155px\}/);
+  assert.match(css, /-webkit-line-clamp:2/);
+  assert.match(css, /scroll-padding-bottom:var\(--s29-island-clearance,104px\)/);
+  assert.match(frameCss, /padding-bottom:calc\(130px \+ env\(safe-area-inset-bottom,0px\)\)/);
+});
