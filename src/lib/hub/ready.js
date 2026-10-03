@@ -37,7 +37,7 @@ export const FLAGSHIP_TOOLS = ["number", "gematria"];
 // אינם כאן → גם למנהל מציגים «בשדרוג» (כדי לא להציג מסך ריק).
 export const IMPLEMENTED_TOOLS = new Set([
   "number", "gematria", "verse", "midrash", "notarikon",
-  "els", "name", "family", "compare", "life", "import", "dates",
+  "els", "family", "compare", "life", "import", "dates",
   "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
   "journey", // 🧬 מסע החיים — יסוד person-ref/F-1b, פרטי-לגמרי. אדמין-בלבד עד אישור צוריאל לפתיחה.
 ]);
