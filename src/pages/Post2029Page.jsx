@@ -147,7 +147,7 @@ function PostReadingBody() {
         regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
       )].slice(0, 5);
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
-  const heroDate = String(post.date || post.modified || "").slice(0, 10);
+  const heroDate = isBennettMaster ? "2026-10-01" : String(post.date || post.modified || "").slice(0, 10);
   const visibleSourceLabel = isBennettMaster ? "בנט והמלח" : projection.sourceLabel;
   const visibleTimeline = isBennettMaster
     ? (experience.timeline || [])
