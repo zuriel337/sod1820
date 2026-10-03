@@ -754,6 +754,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/journey",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/world",
       "destination": "/2029.html"
     },
@@ -807,6 +811,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/2029/journey",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
     {
       "source": "/2029/gematria",
       "headers": [
