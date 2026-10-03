@@ -150,9 +150,13 @@
   margin:7px 0 10px;
   max-width:760px;
   color:var(--s29-ink);
-  font-size:clamp(31px,5vw,58px);
-  line-height:1.02;
+  font-size:clamp(26px,4vw,46px);
+  line-height:1.1;
   text-wrap:balance;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
 }
 .sod29-lw-crown-copy>p{
   max-width:760px;
@@ -616,4 +620,12 @@
   .sod29-lw-crown-orbit i{animation:none}
   .sod29-lw-btn,.sod29-lw-world-grid button,.sod29-lw-journey-grid button{transition:none}
   .sod29-lw-map-progress i{transition:none}
+}
+
+@media(max-width:620px){
+  .sod29-lw-crown-copy h2{
+    font-size:28px;
+    line-height:1.12;
+    -webkit-line-clamp:3;
+  }
 }
