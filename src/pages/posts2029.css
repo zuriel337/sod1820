@@ -196,9 +196,13 @@
 .sod29-post-index-copy h2{
   margin:14px 0 0;
   color:var(--s29-ink);
-  font-size:clamp(23px,2.8vw,38px);
-  line-height:1.12;
-  letter-spacing:-.025em;
+  font-size:clamp(20px,2.2vw,31px);
+  line-height:1.2;
+  letter-spacing:-.02em;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
 }
 .sod29-post-index-copy p{
   margin:12px 0 0;
@@ -260,6 +264,7 @@
   .sod29-post-index-card:nth-child(1),
   .sod29-post-index-card:nth-child(2){grid-column:1/-1}
   .sod29-post-index-copy{padding:18px}
+  .sod29-post-index-copy h2{font-size:22px;line-height:1.22}
 }
 @media(prefers-reduced-motion:reduce){
   .sod29-post-index-card{transition:none}
