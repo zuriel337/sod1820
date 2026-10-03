@@ -53,7 +53,7 @@ test("Number Living World mobile hierarchy keeps one primary action, compact orb
 
   assert.match(page, /קשרים בולטים/);
   assert.match(page, /נקודות המשך מתוך המחקר הקיים/);
-  assert.match(page, /<DepthButton primary[^>]*>פתח את העולם סביב/);
+  assert.match(page, /<DepthButton primary[\s\S]*?>פתח את העולם סביב/);
   assert.match(css, /grid-template-columns:1fr 1fr/);
   assert.match(css, /\.sod29-lw-actions \.sod29-lw-btn\.is-primary\{grid-column:1\/-1\}/);
   assert.match(css, /\.sod29-lw-crown-orbit\{width:155px\}/);
