@@ -768,3 +768,46 @@
   .sod29-reading-number-signal:nth-child(3n),
   .sod29-reading-number-signal:hover{transform:none}
 }
+
+
+/* Post → canonical Contextual Number Sidecar entry. Presentation-only; calculation/trace remain owned by NumberDrawer2029. */
+.sod29-post-contextual-number-focus {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  flex-wrap: wrap;
+  margin: .55rem 0 1.15rem;
+  padding: .42rem;
+  border: 1px solid color-mix(in srgb, var(--s29-accent) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--s29-panel) 88%, transparent);
+}
+.sod29-post-contextual-number-focus button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  min-height: 44px;
+  padding: .55rem .82rem;
+  font: inherit;
+  font-weight: 800;
+  color: inherit;
+  background: color-mix(in srgb, var(--s29-accent) 10%, transparent);
+  cursor: pointer;
+}
+.sod29-post-contextual-number-focus button[data-focus-part="result"] {
+  font-size: 1.08em;
+}
+.sod29-post-contextual-number-focus button:hover,
+.sod29-post-contextual-number-focus button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--s29-accent) 58%, transparent);
+  outline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .sod29-post-contextual-number-focus {
+    width: 100%;
+    justify-content: center;
+  }
+  .sod29-post-contextual-number-focus button {
+    flex: 1 1 auto;
+  }
+}
