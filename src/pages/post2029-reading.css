@@ -952,3 +952,132 @@
   .sod29-gematria-support .sod29-gematria-line{justify-content:center}
   .sod29-post-part-card{grid-template-columns:1fr}
 }
+
+
+/* FZ1073 Post Master fat fixture — source/video first, three hero gates, supporting depth demoted. */
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"]{
+  padding-bottom:calc(var(--s29-island-clearance,96px) + 104px);
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source{
+  color:var(--s29-ink);
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source > section > p:first-child{
+  display:none;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source :where(h1,h2,h3,p,blockquote,figcaption,strong,b,a,span){
+  color:inherit;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source .sod-gemlink{
+  color:var(--s29-ink)!important;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source .sod-numlink{
+  color:var(--s29-accent-text)!important;
+  cursor:pointer;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source :where(p,div).sod-numlink{
+  font-size:clamp(1.05rem,3.8vw,1.45rem)!important;
+  line-height:1.15!important;
+  margin:8px 0!important;
+  font-weight:900!important;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source :where(p,div).sod-numlink[data-gem="363"],
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source :where(p,div).sod-numlink[data-gem="1073"],
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source :where(p,div).sod-numlink[data-gem="718"]{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:18px auto 12px!important;
+  font-size:clamp(4.1rem,16vw,8rem)!important;
+  line-height:.92!important;
+  letter-spacing:-.045em;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-full-verse-1073] span{
+  color:inherit!important;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-golden-video-link]{
+  display:none;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-golden-session-preservation]{
+  border:1px solid var(--s29-line)!important;
+  background:color-mix(in srgb,var(--s29-panel-soft) 70%,transparent)!important;
+  border-radius:20px!important;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-golden-session-preservation] > h2,
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-golden-session-preservation] > p:first-of-type{
+  display:none;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] [data-golden-session-preservation]:before{
+  content:"רמזים נוספים";
+  display:block;
+  margin-bottom:14px;
+  color:var(--s29-ink);
+  font-size:clamp(1.5rem,4.8vw,2.2rem);
+  font-weight:900;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-stage{
+  min-height:auto;
+  border-radius:24px;
+  padding:20px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 76%,transparent);
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-stage:before,
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-stage:after{
+  display:none;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-constellation{
+  min-height:0;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-signal,
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-signal:nth-child(n){
+  min-width:0;
+  min-height:102px;
+  border-radius:18px;
+  transform:none;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-signal strong{
+  color:var(--s29-accent-text);
+  font-size:clamp(34px,4.8vw,58px);
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-post-evidence-media{
+  margin-bottom:14px;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-post-evidence-highlight{
+  border-color:var(--s29-line-strong);
+  background:color-mix(in srgb,var(--s29-panel) 96%,transparent);
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-post-evidence-highlight video{
+  width:min(100%,720px);
+  max-height:72vh;
+  margin-inline:auto;
+  border-radius:20px;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-post-timeline{
+  margin-top:0;
+  margin-bottom:28px;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source details{
+  margin-top:22px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 68%,transparent);
+  padding:14px 16px;
+}
+.sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-source details summary{
+  cursor:pointer;
+  color:var(--s29-ink);
+  font-weight:850;
+}
+@media(max-width:620px){
+  .sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"]{
+    padding-bottom:calc(var(--s29-island-clearance,96px) + 126px);
+  }
+  .sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-constellation{
+    grid-template-columns:1fr 1fr;
+  }
+  .sod29-reading-post[data-post-slug="flydubai-fz1073-363-14000-remzei-geula"] .sod29-reading-number-signal:last-child{
+    grid-column:1 / -1;
+  }
+}
