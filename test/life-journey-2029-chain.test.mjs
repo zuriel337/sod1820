@@ -26,6 +26,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /birthdate_iso/);
   assert.match(journey, /getNameMulti/);
   assert.match(journey, /runPersonalDateResearch/);
+  assert.match(journey, /CanonicalProgress/);
+  assert.match(journey, /birthdate:\s*null/);
   assert.match(journey, /createSupabasePersonalDateCrossProvider/);
   assert.match(journey, /buildAccessDescriptor/);
   assert.match(journey, /verified_authority:\s*\{ source: "supabase_auth", subject_verified: true \}/);
