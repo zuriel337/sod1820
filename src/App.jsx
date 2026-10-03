@@ -70,7 +70,6 @@ const JoinPage = React.lazy(() => import("./pages/JoinPage.jsx"));
 const WelcomePage = React.lazy(() => import("./pages/WelcomePage.jsx"));
 const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
-const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const Gematria3DPage = React.lazy(() => import("./pages/Gematria3DPage.jsx"));
 const ThemePage = React.lazy(() => import("./pages/ThemePage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
@@ -345,8 +344,9 @@ export default function App() {
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/numbers" element={<NumbersPage />} />
-          <Route path="/name-lab" element={<NameLabPage />} />
-          <Route path="/מעבדת-השם" element={<NameLabPage />} />
+          {/* Legacy NameLab UI retired: old addresses fall through to the unified research entry surface. */}
+          <Route path="/name-lab" element={<Navigate to="/research" replace />} />
+          <Route path="/מעבדת-השם" element={<Navigate to="/research" replace />} />
           {/* 🧊 גימטריה מרחבית — «הגיאומטריה של העץ»: ענף מחקר (4 שכבות/מודל, מתכנס ל-1820).
               /gematria-3d + /גימטריה-תלת-ממדית נשמרים כ-alias (קישורים קיימים/פוסט 1020). */}
           <Route path="/spatial-gematria" element={<Gematria3DPage />} />
