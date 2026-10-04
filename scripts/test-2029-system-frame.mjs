@@ -55,6 +55,12 @@ assert.match(frame, /closeTransient/);
 assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
+assert.match(frame, /ThemePresetControl2029/);
+assert.match(frame, /setThemePreset/);
+assert.match(frame, /data-frame-theme-preset/);
+assert.match(frame, /יום/);
+assert.match(frame, /קלף/);
+assert.match(frame, /לילה/);
 assert.match(frame, /GematriaReveal2029/);
 assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| context\?\.subject\)/, "meaningful context should project the same left rail across public 2029 surfaces");
 
