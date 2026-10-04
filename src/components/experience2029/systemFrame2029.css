@@ -409,7 +409,28 @@
   box-shadow:0 0 0 6px color-mix(in srgb,var(--s29-accent) 10%,transparent),0 0 24px var(--s29-glow);
 }
 .sod29-root.number-page-route .sod29-surface-progress-point.is-active>small{opacity:1}
-.sod29-root.number-page-route .sod29-surface-context-mobile-cue{display:none}
+.sod29-root.number-page-route .sod29-surface-context-rail.is-rest .sod29-context-inspector-title{font-size:clamp(20px,2vw,28px)}
+.sod29-surface-context-journeys-idle{display:grid;gap:12px;padding-top:4px}
+.sod29-surface-context-journeys-idle p{margin:0;color:var(--s29-muted);font-size:12px;line-height:1.7}
+.sod29-surface-context-journeys-visual{
+  position:relative;min-height:126px;display:grid;place-items:center;overflow:hidden;
+  border:1px solid var(--s29-line);border-radius:18px;
+  background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--s29-glow) 22%,transparent),transparent 48%),var(--s29-panel-soft)
+}
+.sod29-surface-context-journeys-visual:before,
+.sod29-surface-context-journeys-visual:after{
+  content:"";position:absolute;width:68%;height:1px;background:linear-gradient(90deg,transparent,var(--s29-line-strong),transparent)
+}
+.sod29-surface-context-journeys-visual:before{transform:rotate(24deg)}
+.sod29-surface-context-journeys-visual:after{transform:rotate(-24deg)}
+.sod29-surface-context-journeys-visual i{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--s29-hero);box-shadow:0 0 18px var(--s29-glow)}
+.sod29-surface-context-journeys-visual i:nth-child(1){inset-inline-start:18%;top:28%}
+.sod29-surface-context-journeys-visual i:nth-child(2){inset-inline-end:18%;top:30%}
+.sod29-surface-context-journeys-visual i:nth-child(3){bottom:18%;left:50%;transform:translateX(-50%)}
+.sod29-surface-context-journeys-visual b{position:relative;z-index:2;color:var(--s29-hero);font-size:34px}
+.sod29-surface-context-building{justify-self:start;padding:5px 9px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:9px;font-weight:900}
+.sod29-surface-context-mobile-cue.is-idle{cursor:default}
+.sod29-surface-context-mobile-cue{display:none}
 
 .sod29-root.number-page-route .sod29-command-trail-item{
   appearance:none;
