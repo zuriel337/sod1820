@@ -40,7 +40,6 @@ import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import LegacyNowSystemPreview from "../components/LegacyNowSystemPreview.jsx";
-import { PlaneHintNotice } from "../components/PlaneHintSpotlight.jsx";
 import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
 import DimensionFiveCloud from "../components/DimensionFiveCloud.jsx";
 // YearTicker הוסר — שנת תשפ״ו קופלה לתוך טיקר-הפרומו היחיד ב-Layout (PromoTicker).
@@ -557,7 +556,6 @@ export default function HomeNewPage() {
           <div className="hn-updates-col">
             {/* 🔕 «העת עכשיו» (הצצה מהמערכת החדשה) — הוסתר מהבית (בקשת צוריאל 30.9.2026). להחזרה: הסר את false. */}
             {false && <LegacyNowSystemPreview />}
-            <PlaneHintNotice />
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
