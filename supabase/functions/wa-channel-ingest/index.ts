@@ -11,6 +11,7 @@
 // legacy URLs are never moved. Private media keeps submission-inbox semantics.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
+import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -36,10 +37,14 @@ function isBlockedText(text: string, patterns: string[]): boolean {
   return patterns.some((p) => p && hay.includes(p));
 }
 
+type WriterIndex = Map<string, Set<string>>;
+let writerIndex: WriterIndex = new Map();
+
 async function loadAliasMap(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   try {
-    const { data } = await sb.from("contributors").select("display_name, wa_names").not("wa_names", "is", null);
+    const { data } = await sb.from("contributors").select("id, display_name, wa_names").not("wa_names", "is", null);
+    writerIndex = buildWriterIndex(data || []);
     for (const c of (data || [])) {
       const dn = (c as any).display_name;
       for (const alias of (((c as any).wa_names) || [])) {
@@ -309,6 +314,8 @@ async function ingestSource(
         : (useSenderName ? (senderName || brandCredit) : brandCredit));
     const credit = isBotApi ? rawCredit : canonicalCredit(rawCredit, aliasMap);
     const source = isBotApi ? "ai" : "auto";
+    // Stable writer id only on an unambiguous human alias hit; bot/API, ambiguous and unmatched stay null.
+    const contributorId = resolveWriterContributorId(rawCredit, writerIndex, { isBotApi });
 
     const ins = await sb.from("channel_updates").insert({
       channel: src.channel,
@@ -316,6 +323,7 @@ async function ingestSource(
       image_url: imageUrl,
       source,
       credit,
+      contributor_id: contributorId,
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
       ext_msg_id: msgId,

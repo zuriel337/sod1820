@@ -4,6 +4,7 @@
 // No hard-coded channel ownership: intake_mode decides research_first / story_first_selective / off.
 // Every resulting Research Object stays candidate/private by default.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { isTrustedAuthor } from "../_shared/waWriterIdentity.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -31,17 +32,6 @@ function intakeRoute(policy: any) {
   return policy?.intake_mode === "story_first_selective"
     ? "story_first_selective"
     : "research_first";
-}
-
-function trustedContributor(credit: string | null, vips: any[], policy: any) {
-  if (policy?.admin_only === true && Array.isArray(policy?.admin_ids) && policy.admin_ids.length > 0) return true;
-  const value = String(credit || "").trim();
-  if (!value) return false;
-  if (policy?.outgoing_contributor && value === String(policy.outgoing_contributor).trim()) return true;
-  return (vips || []).some((vip: any) => {
-    const name = String(vip?.name_match || "").trim();
-    return !!name && (value === name || value.includes(name) || name.includes(value));
-  });
 }
 
 async function invokeInternal(slug: string, body: unknown) {
@@ -203,6 +193,7 @@ async function fallbackObservation(
     channel: row.channel,
     route: intakeRoute(row._sourcePolicy),
     trusted_author: row._trustedAuthor === true,
+    contributor_id: row.contributor_id || null,
     analysis_state: analysisState,
     attempt_count: failureAttempt,
     analyzed_at: new Date().toISOString(),
@@ -323,6 +314,7 @@ async function processRow(row: any) {
       channel: row.channel,
       route: intakeRoute(row._sourcePolicy),
       trusted_author: row._trustedAuthor === true,
+      contributor_id: row.contributor_id || null,
       analysis_state: analysisState,
       analyzed_at: new Date().toISOString(),
       source_created_at: row.created_at,
@@ -391,19 +383,32 @@ Deno.serve(async (req) => {
     .eq("active", true);
 
   const { data: rawRows, error } = await sb.from("channel_updates")
-    .select("id,text,image_url,credit,channel,created_at,status,priority")
+    .select("id,text,image_url,credit,contributor_id,channel,created_at,status,priority")
     .in("channel", channels)
     .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) return json({ error: "source_read_failed" }, 500);
 
+  const contributorIds = [...new Set((rawRows || []).map((r: any) => r.contributor_id).filter(Boolean))];
+  const trustedContributorIds = new Set<string>();
+  if (contributorIds.length) {
+    const { data: trustedRows } = await sb.from("contributors")
+      .select("id")
+      .in("id", contributorIds)
+      .eq("trusted", true);
+    for (const c of (trustedRows || [])) trustedContributorIds.add((c as any).id);
+  }
+
   const enriched = (rawRows || []).map((row: any) => {
     const policy = policies.get(row.channel);
     return {
       ...row,
       _sourcePolicy: policy,
-      _trustedAuthor: trustedContributor(row.credit || null, vipRows || [], policy),
+      _trustedAuthor: isTrustedAuthor(
+        { contributorId: row.contributor_id || null, credit: row.credit || null },
+        { trustedContributorIds, vips: vipRows || [], policy },
+      ),
     };
   });
   const eligible = enriched.filter((row: any) => researchEligible(row, row._sourcePolicy));
