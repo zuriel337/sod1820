@@ -31,6 +31,9 @@ const calculator2029 = read("src/pages/Calculator2029Page.jsx");
 const calculatorCompare2029 = read("src/components/gematria2029/CalculatorCompare2029.jsx");
 const spatialMethodStage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
 const spatialMethodStageCss = read("src/components/gematria2029/spatialMethodStage2029.css");
+const gematriaReveal = read("src/components/gematria2029/GematriaReveal2029.jsx");
+const gematriaRevealProjection = read("src/lib/research/gematriaRevealProjection.js");
+const gematriaRevealCss = read("src/components/gematria2029/gematriaReveal2029.css");
 
 for (const required of [
   "Sod2029Shell",
@@ -94,6 +97,19 @@ assert.match(core, /חישוב/);
 assert.match(core, /למד/);
 assert.match(core, /עולמות/);
 assert.match(core, /SpatialMethodStage2029/);
+assert.match(core, /GematriaReveal2029/);
+assert.match(core, /compact=\{compact\}/);
+assert.match(core, /\(!compact \|\| traceOpen\)/);
+assert.match(gematriaReveal, /data-experience-capability="gematria-reveal"/);
+assert.match(gematriaReveal, /requestAnimationFrame/);
+assert.match(gematriaReveal, /prefers-reduced-motion/);
+assert.match(gematriaReveal, /הצג מיד/);
+assert.match(gematriaReveal, /הצג חישוב/);
+assert.match(gematriaReveal, /expanded/);
+assert.doesNotMatch(gematriaReveal + gematriaRevealProjection, /gematria\.js|fn_method_value|fn_ragil|\.rpc\(|\.from\(/);
+assert.doesNotMatch(gematriaRevealProjection, /(reduce\(|sum|total\s*\+=)/);
+assert.match(gematriaRevealCss, /var\(--s29-/);
+assert.equal(/#[0-9a-f]{3,8}/i.test(gematriaRevealCss), false, "Gematria Reveal must use canonical semantic tokens only");
 assert.equal(core.includes("function MiluySpatialExplain"), false, "Number must consume the shared Spatial Method Stage, not own a Milui renderer");
 assert.match(spatialMethodStage, /data-experience-capability="spatial-method-stage"/);
 assert.match(spatialMethodStage, /data-method-key="מילוי"/);

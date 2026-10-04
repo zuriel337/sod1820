@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { useThemeMode } from "./themeMode.js";
+import { useThemeMode, useThemePreset } from "./themeMode.js";
 import { effectiveMode } from "./lightRoutes.js";
 
 // ===== פלטות סמנטיות לדפי התוכן (בהיר/כהה) =====
@@ -107,6 +107,113 @@ export const PALETTES = {
   },
 };
 
+
+export const DESIGN_V2_PALETTES = Object.freeze({
+  light: Object.freeze({
+    preset: "light", mode: "light",
+    pageBg: "#F5F8FF",
+    card: "#FFFFFF",
+    cardSoft: "#EEF3FC",
+    cardRaised: "#FFFFFF",
+    cardGrad: "linear-gradient(145deg, #FFFFFF, #EDF3FF)",
+    border: "rgba(57,73,200,0.14)",
+    borderStrong: "rgba(57,73,200,0.30)",
+    ink: "#18204A",
+    inkSoft: "#64709A",
+    accent: "#3949C8",
+    accentText: "#2F3EB6",
+    accentSecondary: "#7655E8",
+    accentDiscovery: "#168DA5",
+    accentDim: "#8290B6",
+    heroNum: "#4336B8",
+    accentBtn: "linear-gradient(135deg, #3949C8, #7655E8)",
+    onAccent: "#FFFFFF",
+    glow: "rgba(118,85,232,0.18)",
+    focusRing: "#168DA5",
+    warmAccent: "#B88A45",
+    brandSapphire: "#234FCB",
+    brandGold: "#C7952A",
+    brandGlow: "rgba(35,79,203,0.16)",
+  }),
+  parchment: Object.freeze({
+    preset: "parchment", mode: "light",
+    pageBg: "#F5EDDD",
+    card: "#FFF9EC",
+    cardSoft: "#EEE1C8",
+    cardRaised: "#FFFDF6",
+    cardGrad: "linear-gradient(145deg, #FFFDF6, #F0E2C8)",
+    border: "rgba(67,48,110,0.15)",
+    borderStrong: "rgba(67,48,110,0.30)",
+    ink: "#30251F",
+    inkSoft: "#74665A",
+    accent: "#43306E",
+    accentText: "#5A3E86",
+    accentSecondary: "#68418C",
+    accentDiscovery: "#B88A45",
+    accentDim: "#9A866F",
+    heroNum: "#4A2F73",
+    accentBtn: "linear-gradient(135deg, #43306E, #68418C)",
+    onAccent: "#FFF9EC",
+    glow: "rgba(104,65,140,0.18)",
+    focusRing: "#B88A45",
+    warmAccent: "#B88A45",
+    brandSapphire: "#21459B",
+    brandGold: "#B8862D",
+    brandGlow: "rgba(184,134,45,0.14)",
+  }),
+  dark: Object.freeze({
+    preset: "dark", mode: "dark",
+    pageBg: "#080D1D",
+    card: "rgba(16,24,45,0.94)",
+    cardSoft: "rgba(22,33,60,0.84)",
+    cardRaised: "#121B31",
+    cardGrad: "linear-gradient(145deg, rgba(20,30,56,0.98), rgba(10,16,34,0.96))",
+    border: "rgba(84,101,255,0.18)",
+    borderStrong: "rgba(155,108,255,0.38)",
+    ink: "#F4F5FF",
+    inkSoft: "#AAB3D0",
+    accent: "#5465FF",
+    accentText: "#A9B3FF",
+    accentSecondary: "#9B6CFF",
+    accentDiscovery: "#50D6E8",
+    accentDim: "#7885AF",
+    heroNum: "#D5C8FF",
+    accentBtn: "linear-gradient(135deg, #5465FF, #9B6CFF)",
+    onAccent: "#FFFFFF",
+    glow: "rgba(155,108,255,0.28)",
+    focusRing: "#50D6E8",
+    warmAccent: "#B88A45",
+    brandSapphire: "#2F6DF6",
+    brandGold: "#D7A52A",
+    brandGlow: "rgba(47,109,246,0.22)",
+  }),
+});
+
+const RESEARCH_LAB_V2 = Object.freeze({
+  light: Object.freeze({
+    pageBg: "#EEF5FF", cardSoft: "#E6F0FC", cardGrad: "linear-gradient(145deg,#F8FBFF,#E8F1FC)",
+    accent: "#2F6DF6", accentText: "#2458C4", accentSecondary: "#5B8CFF", accentDiscovery: "#168DA5",
+    heroNum: "#244C9A", glow: "rgba(47,109,246,0.18)", focusRing: "#168DA5",
+  }),
+  parchment: Object.freeze({
+    pageBg: "#F3EEE4", cardSoft: "#E9E7E6", cardGrad: "linear-gradient(145deg,#FFFAF0,#E8EDF5)",
+    accent: "#3E4E8C", accentText: "#3E4E8C", accentSecondary: "#6657A8", accentDiscovery: "#4C86A8",
+    heroNum: "#3E4E8C", glow: "rgba(76,134,168,0.16)", focusRing: "#4C86A8",
+  }),
+  dark: Object.freeze({
+    pageBg: "#08111E", cardSoft: "rgba(12,25,48,0.88)", cardGrad: "linear-gradient(145deg,#0E2039,#08111E)",
+    accent: "#5B8CFF", accentText: "#A8C2FF", accentSecondary: "#8174FF", accentDiscovery: "#50D6E8",
+    heroNum: "#C5D6FF", glow: "rgba(91,140,255,0.24)", focusRing: "#50D6E8",
+  }),
+});
+
+export function resolve2029Palette(preset = "dark", environmentRole = null) {
+  const key = DESIGN_V2_PALETTES[preset] ? preset : "dark";
+  const base = DESIGN_V2_PALETTES[key];
+  if (environmentRole !== "research_lab") return base;
+  return Object.freeze({ ...base, ...RESEARCH_LAB_V2[key], environmentRole: "research_lab" });
+}
+
 // 🎨 override-context: עוטף תת-עץ בפלטה ספציפית (למשל דף-המספר המוטמע בהיכל → «lab»),
 // כך שכל רכיבי-המשנה שקוראים usePalette() מקבלים את אותה פלטה — בלי להעביר props לכל אחד.
 const PaletteCtx = createContext(null);
@@ -122,4 +229,12 @@ export function usePalette() {
   const { pathname } = useLocation();
   if (override) return override;
   return PALETTES[effectiveMode(pathname, globalMode)] || PALETTES.light;
+}
+
+
+export function use2029Palette(environmentRole = null) {
+  const override = useContext(PaletteCtx);
+  const preset = useThemePreset();
+  const resolved = resolve2029Palette(preset, environmentRole);
+  return override ? { ...resolved, ...override, preset: resolved.preset } : resolved;
 }

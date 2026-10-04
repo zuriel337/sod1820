@@ -245,6 +245,43 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
 });
 
+test('Desktop Heichal Global Chrome keeps one full Brand lockup across expanded and collapsed rail', async ({ page }) => {
+  await page.route('**/heichal', async (route) => {
+    const response = await page.request.get(`${BASE}/2029.html`);
+    await route.fulfill({
+      status: response.status(),
+      headers: response.headers(),
+      body: await response.body(),
+    });
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${BASE}/heichal`, { waitUntil: 'domcontentloaded' });
+
+  const root = page.locator('.sod29-root.closed-shell');
+  const sidebar = page.locator('.sod29-sidebar');
+  const topbarBrand = page.locator('.sod29-header-brand .sod29-brand-lockup.is-header');
+  const railFullBrand = sidebar.locator('.sod29-brand-lockup');
+  const railIdentityCopy = sidebar.locator('.sod29-rail-identity-copy');
+
+  await expect(root).toBeVisible({ timeout: 30_000 });
+  await expect(topbarBrand).toBeVisible();
+  await expect(topbarBrand).toHaveCount(1);
+  await expect(railFullBrand).toHaveCount(0);
+  await expect(railIdentityCopy).toBeVisible();
+  await expect(sidebar.locator('a[href="/heichal"]')).toHaveCount(1);
+  await assertNoHorizontalOverflow(page);
+
+  await page.screenshot({ path: 'test-results/release-visual/heichal-global-chrome-expanded-1440.png', fullPage: true });
+
+  await sidebar.locator('.sod29-sidebar-toggle').click();
+  await expect(root).toHaveClass(/sidebar-collapsed/);
+  await expect(railIdentityCopy).toHaveCSS('opacity', '0');
+  await expect(railFullBrand).toHaveCount(0);
+  await expect(topbarBrand).toBeVisible();
+
+  await page.screenshot({ path: 'test-results/release-visual/heichal-global-chrome-collapsed-1440.png', fullPage: true });
+});
+
 test('Topic expression focus opens Number 2029 and survives World + Heichal transitions', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/topic/98-ikuv-geula`, { waitUntil: 'domcontentloaded' });
@@ -267,17 +304,19 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(worldButton).toBeVisible();
   await worldButton.click();
   await expect(page).toHaveURL(`${BASE}/world`, { timeout: 20_000 });
-  const worldFocus = page.locator('.sod29-world-focus-ribbon');
-  await expect(worldFocus).toBeVisible({ timeout: 30_000 });
-  await expect(worldFocus).toContainText('חנם');
-  await expect(worldFocus).toContainText('98');
+  const worldOrigin = page.locator('.sod29-world-origin-ribbon');
+  await expect(worldOrigin).toBeVisible({ timeout: 30_000 });
+  await expect(worldOrigin).toContainText('חנם');
+  await expect(worldOrigin).toContainText('98');
 
-  await worldFocus.getByRole('button', { name: 'חזור לחישוב' }).click();
+  await worldOrigin.getByRole('button', { name: 'חזרה לדף המספר' }).click();
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
+  // Number context must not invent a Heichal-specific action, while the canonical
+  // Global Chrome must keep Heichal available as a top-level home.
   await expect(page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ })).toHaveCount(0);
-  await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(0);
+  await expect(page.locator('.sod29-sidebar a[href="/heichal"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });

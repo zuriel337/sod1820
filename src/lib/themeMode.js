@@ -1,45 +1,72 @@
 import { useSyncExternalStore } from "react";
 
-// ===== מתג תמה גלובלי (בהיר/כהה) — נשמר ב-localStorage, ברירת מחדל: כהה =====
-// משמש את דפי התוכן המעוצבים. useSyncExternalStore → כל הרכיבים מתעדכנים יחד.
-// גולש חדש (אין שמירה) → כהה. רק בחירה מפורשת ל"בהיר" נשמרת ומחזירה בהיר.
-
+export const THEME_PRESETS = Object.freeze(["light", "parchment", "dark"]);
 const KEY = "sod-theme";
+
+const validPreset = (value) => THEME_PRESETS.includes(value) ? value : null;
 const read = () => {
-  try { return localStorage.getItem(KEY) === "light" ? "light" : "dark"; } catch { return "dark"; }
+  try { return validPreset(localStorage.getItem(KEY)) || "dark"; } catch { return "dark"; }
 };
-let mode = read();
-let forced = null;               // כפיית-מצב זמנית (המעבדה כופה «בהיר») — גובר על mode
+
+let preset = read();
+let forced = null;
 const subs = new Set();
-const effective = () => forced ?? mode;
+
+const effectivePreset = () => forced ?? preset;
+const legacyMode = (value = effectivePreset()) => value === "dark" ? "dark" : "light";
 
 function emit() {
-  try { document.documentElement.setAttribute("data-theme", effective()); } catch { /* ignore */ }
-  subs.forEach(f => f());
+  try {
+    document.documentElement.setAttribute("data-theme-preset", effectivePreset());
+    document.documentElement.setAttribute("data-theme", legacyMode());
+  } catch { /* ignore */ }
+  subs.forEach((fn) => fn());
 }
-// קביעת ה-attribute כבר בטעינה (לפני React) כדי למנוע הבהוב
-if (typeof document !== "undefined") { try { document.documentElement.setAttribute("data-theme", effective()); } catch { /* ignore */ } }
 
-export function setTheme(m) {
-  mode = m === "dark" ? "dark" : "light";
-  try { localStorage.setItem(KEY, mode); } catch { /* ignore */ }
+if (typeof document !== "undefined") emit();
+
+export function setThemePreset(value) {
+  preset = validPreset(value) || "dark";
+  try { localStorage.setItem(KEY, preset); } catch { /* ignore */ }
   emit();
 }
-// מתג התמה: אם עמוד כופה מצב (forced — כמו «בית תמיד כהה» / «פורום בהיר»), המתג משנה את
-// הכפייה («שינה בעמוד זה») ולא את ההעדפה הגלובלית; אחרת — משנה את ההעדפה הגלובלית הנשמרת.
+
+export function cycleThemePreset() {
+  const current = effectivePreset();
+  const index = Math.max(0, THEME_PRESETS.indexOf(current));
+  setThemePreset(THEME_PRESETS[(index + 1) % THEME_PRESETS.length]);
+}
+
+// Legacy binary API stays stable for non-2029 surfaces.
+export function setTheme(value) {
+  setThemePreset(value === "dark" ? "dark" : "light");
+}
+
 export function toggleTheme() {
-  if (forced) { setForcedMode(forced === "dark" ? "light" : "dark"); return; }
-  setTheme(mode === "light" ? "dark" : "light");
+  if (forced) {
+    setForcedMode(legacyMode(forced) === "dark" ? "light" : "dark");
+    return;
+  }
+  setTheme(legacyMode(preset) === "dark" ? "light" : "dark");
 }
 
-// כפיית-מצב (המעבדה: setForcedMode("light") בכניסה, setForcedMode(null) ביציאה).
-// לא נשמר ב-localStorage → לא משנה את העדפת המשתמש, רק את התצוגה הנוכחית.
-export function setForcedMode(m) {
-  forced = (m === "light" || m === "dark") ? m : null;
+export function setForcedThemePreset(value) {
+  forced = validPreset(value);
   emit();
 }
 
-function subscribe(f) { subs.add(f); return () => subs.delete(f); }
+// Backward-compatible route/page override: only light/dark semantics.
+export function setForcedMode(value) {
+  forced = value === "light" || value === "dark" ? value : null;
+  emit();
+}
+
+function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
+
+export function useThemePreset() {
+  return useSyncExternalStore(subscribe, effectivePreset, () => "dark");
+}
+
 export function useThemeMode() {
-  return useSyncExternalStore(subscribe, effective, () => "dark");
+  return useSyncExternalStore(subscribe, () => legacyMode(), () => "dark");
 }

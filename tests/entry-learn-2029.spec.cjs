@@ -134,6 +134,14 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(inspector).toBeVisible({ timeout: 10_000 });
   await expect(inspector).toHaveAttribute('data-method-inspector', 'רגיל');
 
+  const reveal = inspector.locator('[data-experience-capability="gematria-reveal"]');
+  await expect(reveal).toBeVisible({ timeout: 10_000 });
+  await expect(reveal.locator('.sod29-reveal-expression')).toContainText('מלח');
+  await expect(reveal.locator('.sod29-reveal-expression')).toContainText('רגיל');
+  const showCalculation = reveal.getByRole('button', { name: 'הצג חישוב' });
+  await expect(showCalculation).toBeVisible({ timeout: 10_000 });
+  await showCalculation.click();
+
   const anySpatialStage = inspector.locator('[data-experience-capability="spatial-method-stage"]');
   await expect(anySpatialStage).toBeVisible({ timeout: 10_000 });
   const spatialMethodKey = await anySpatialStage.getAttribute('data-method-key');
@@ -155,6 +163,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await page.keyboard.press('Escape');
   await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
 
+  await page.getByRole('button', { name: 'פתח ניווט' }).click();
   const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
-import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
   buildLearnHelpSeed,
@@ -25,14 +24,42 @@ export default function SurfaceContextRail2029({
   compact = false,
   suppressLearn = false,
 }) {
-  const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
+  const pageSubject = context?.subject || null;
+  const surfaceFocus = context?.dimensions?.surfaceFocus || null;
+  const contextSelection = context?.selection || null;
+  const candidate = focus || surfaceFocus || contextSelection || null;
+  const pageId = String(pageSubject?.id ?? "");
+  const candidateId = String(candidate?.entityId ?? candidate?.id ?? "");
+  const candidateType = String(candidate?.entityType || candidate?.type || "");
+  const pageType = String(pageSubject?.type || "");
+  // A surface may publish its own root/section as surfaceFocus for path/progress continuity.
+  // That is page state, not a user selection, and must not turn the Inspector into a mini-summary.
+  const rootSurfaceFocus = Boolean(
+    surfaceFocus
+    && candidateId
+    && pageId
+    && candidateId === pageId
+    && candidateType
+    && candidateType === pageType
+    && !candidate?.expression
+    && candidate?.resultValue == null
+  );
+  const explicitFocus = Boolean(
+    (!rootSurfaceFocus && surfaceFocus)
+    || candidate?.source === "selection"
+    || candidate?.focusKind
+    || (!rootSurfaceFocus && candidate?.locator)
+    || candidate?.expression
+    || candidate?.resultValue != null
+    || (candidateId && pageId && candidateId !== pageId)
+    || (!rootSurfaceFocus && ["phrase", "verse", "source", "media", "image", "person", "event", "finding", "relation"].includes(candidateType))
+  );
+  const subject = explicitFocus ? candidate : null;
   const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
   const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
   const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || subject?.type || ""));
   const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
-  const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
-  const activeSectionId = context?.dimensions?.activeSectionId || null;
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
@@ -42,7 +69,29 @@ export default function SurfaceContextRail2029({
     setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
   }, [conceptKey]);
 
-  if (!subject) return null;
+  if (!subject) return <>
+    <ContextualInspector2029
+      className={`sod29-surface-context-rail is-rest${compact ? " is-compact" : ""}`}
+      ariaLabel="מסעות גילוי"
+      contextId={`rest:${surface}`}
+      kicker="לאן אפשר להעמיק"
+      title="מסעות גילוי"
+      subtitle="בבנייה"
+    >
+      <section className="sod29-surface-context-journeys-idle" data-context-mode="rest">
+        <div className="sod29-surface-context-journeys-visual" aria-hidden="true">
+          <i /><i /><i /><b>↝</b>
+        </div>
+        <p>מספרים, אנשים, מקורות ורמזים יתחברו למסלולי גילוי מודרכים — באותו Research Context, בלי מערכת מקבילה.</p>
+        <span className="sod29-surface-context-building">בבנייה</span>
+      </section>
+    </ContextualInspector2029>
+    <div className="sod29-surface-context-mobile-cue is-idle" aria-label="מסעות גילוי בבנייה" aria-disabled="true">
+      <span className="sod29-surface-context-mobile-cue-icon">↝</span>
+      <span className="sod29-surface-context-mobile-cue-copy"><small>מסעות גילוי</small><b>בבנייה</b></span>
+      <span className="sod29-surface-context-mobile-cue-value">בקרוב</span>
+    </div>
+  </>;
 
   const openLearn = () => {
     if (!conceptKey || !fragment) return;
@@ -138,15 +187,6 @@ export default function SurfaceContextRail2029({
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
-      {sections.length ? <div className="sod29-surface-context-progress">
-        <div className="sod29-context-inspector-kicker">איפה אני בדף</div>
-        <SurfaceProgressSpine2029
-          items={sections}
-          activeId={activeSectionId}
-          interactive={false}
-          ariaLabel="התקדמות בדף"
-        />
-      </div> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
       {subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
       {fragment ? <LearnMark2029

@@ -1,5 +1,8 @@
 # SOD1820 DESIGN CONTRACT V1
 
+> **SUPERSEDED FOR 2029 WEB VISUAL FOUNDATION by `SOD1820_DESIGN_CONTRACT_V2.md` (Human Gate ZURIEL · 4.10.2026).**  
+> This file remains historical/Legacy provenance and retains older renderer/social notes until their owning workstreams explicitly migrate them. Do not use V1 gold/typography defaults for new 2029 web UI.
+
 ## Purpose
 One canonical visual language for the whole product. New UI must reuse tokens instead of inventing local typography, colors, radii or component language.
 

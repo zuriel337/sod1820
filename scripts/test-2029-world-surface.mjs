@@ -120,7 +120,7 @@ assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
 assert.match(world, /בחירת חוקר או כותב/);
-assert.match(world, /פתח את חומר המחקר שלו בעולם/);
+assert.match(world, /פתח את החיבורים שלו בעולם/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
@@ -129,6 +129,17 @@ assert.match(world, /מה חדש בעולם\?/);
 assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
+assert.match(worldCss, /sod29-world-discovery-stage/);
+assert.equal(world.includes('className="sod29-focus-stage'), false, "public World must not inherit the Heichal-style Focus stage");
+assert.match(world, /sod29-world-origin-ribbon/);
+assert.equal(world.includes("sod29-world-focus-ribbon"), false, "expression context in World is origin/context, not a Focus workbench");
+assert.equal(world.includes("◌ חזרה לעולם"), false, "World must not offer a page-local return-to-World reset while already inside World");
+assert.match(world, /בדוק לעומק בהיכל/);
+assert.match(world, /shell\.go\("\/heichal"\)/);
+assert.match(world, /\{ key: "research", label: "עוד חיבורים" \}/);
+assert.equal(world.includes("DISCOVERY WORLD"), false);
+assert.equal(world.includes("ממצאי מחקר חדשים"), false);
+assert.equal(world.includes("Research Findings"), false);
 assert.match(worldCss, /sod29-world-stream-list/);
 assert.match(world, /sod29-world-all-convergences/);
 assert.match(world, /כל ההתכנסויות/);
@@ -179,7 +190,7 @@ assert.match(world, /includeResearch: true/);
 assert.match(world, /item\.kind === "finding"/);
 assert.match(world, /world-discovery-finding/);
 
-// World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
+// Admin-only World Research Control remains explicit deep/admin language; public World is discovery-first.
 assert.match(world, /WORLD RESEARCH CONTROL/);
 assert.match(world, /RESEARCH INBOX/);
 assert.match(world, /מצב מחקר/);
@@ -455,14 +466,14 @@ assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: 
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
-assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
+assert.match(world, /בחר חוקר כדי לראות את החיבורים, המקורות וההתכנסויות/);
 assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
 assert.ok(
   world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",
 );
 assert.match(world, /controlMode \? <section id="world-admin-tools"/);
-assert.match(world, /CONVERGENCE INDEX · PUBLIC PROJECTION/);
+assert.match(world, /מפת ההתכנסויות/);
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
 assert.match(world, /topicFacet && selectedWriter/);
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
@@ -778,7 +789,7 @@ assert.equal(
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
 assert.match(world, /מה אתה רוצה לראות עכשיו\?/);
-assert.match(world, /פרופיל עוגן · אוצרות מחקרית מתפתחת/);
+assert.match(world, /פרופיל עוגן · אוצרות מתפתחת/);
 assert.match(world, /דף המספר נשאר הבית הייעודי לחישוב ולביטוי/);
 assert.match(world, /לדף המספר ←/);
 assert.equal(world.includes("getNumberAnchor"), false, "World must not revive the legacy Number-page anchor reader");
@@ -787,7 +798,7 @@ assert.equal(world.includes("מרכז העולם"), false, "anchored World must 
 assert.equal(world.includes("sod29-world-stage"), false, "legacy-looking duplicate anchor stage must stay removed from the 2029 hierarchy");
 assert.equal(world.includes("sod29-anchor-core"), false, "anchor identity must not be rendered twice before the profile");
 assert.equal(world.includes("sod29-orbit-metrics"), false, "availability counts belong to orientation lanes, not a competing metrics block");
-assert.match(world, /מתחילים במהות, ואז בוחרים את השכבה/);
+assert.match(world, /מתחילים במהות, ואז בוחרים זווית/);
 for (const lane of ["overview", "media", "calculations", "sources", "relations", "research", "timeline"]) {
   assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
 }
@@ -997,7 +1008,7 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /DISCOVERY WORLD/);
+assert.match(world, /עולם של חיבורים/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));
