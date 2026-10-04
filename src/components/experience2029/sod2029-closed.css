@@ -79,8 +79,7 @@
 .sod29-sidebar-toggle{width:100%;min-height:var(--s29-control-min);border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer}
 .sod29-side-foot{font-size:var(--s29-type-micro,14px)}
 .sod29-orientation{font-size:var(--s29-type-micro,14px)}
-.sod29-header-actions button,
-.sod29-action{font-size:var(--s29-type-micro,14px)}
+.sod29-header-actions button{font-size:var(--s29-type-micro,14px)}
 .sod29-sidebar-theme{
   display:grid;
   gap:7px;
