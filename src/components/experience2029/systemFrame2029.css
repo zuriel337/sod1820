@@ -736,3 +736,20 @@
 .sod29-contact-back{justify-self:start;border:0;background:transparent;color:var(--s29-accent);font:inherit;font-weight:800;cursor:pointer;padding:4px 0}
 .sod29-contact-error{color:var(--s29-danger,var(--s29-accent));font-size:12px;font-weight:800}
 @media(max-width:640px){.sod29-contact-choice-grid,.sod29-contact-row{grid-template-columns:1fr}}
+
+
+/* Contact Gateway status loop — truthful owner-backed lifecycle only */
+.sod29-contact-status-loop{display:grid;gap:8px;border-top:1px solid var(--s29-line);padding-top:10px}
+.sod29-contact-status-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;color:var(--s29-ink);padding:6px 0;cursor:pointer;font:inherit;text-align:start}
+.sod29-contact-status-trigger strong{color:var(--s29-accent);font-size:12px}
+.sod29-contact-status-list{display:grid;gap:8px}
+.sod29-contact-status-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:start;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft);padding:11px 12px}
+.sod29-contact-status-row>div:first-child{min-width:0}
+.sod29-contact-status-row strong,.sod29-contact-status-row small{display:block}
+.sod29-contact-status-row>div:first-child small{margin-top:3px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sod29-contact-status-state{text-align:end}
+.sod29-contact-status-state b{color:var(--s29-accent)}
+.sod29-contact-status-state small{margin-top:3px;color:var(--s29-muted);font-size:11px}
+.sod29-contact-status-row>p{grid-column:1/-1;margin:0;padding-top:7px;border-top:1px solid var(--s29-line);color:var(--s29-muted);font-size:12px;line-height:1.5}
+.sod29-contact-status-empty{color:var(--s29-muted);font-size:12px;padding:8px 0}
+@media(max-width:640px){.sod29-contact-status-row{grid-template-columns:1fr}.sod29-contact-status-state{text-align:start}}

@@ -368,7 +368,17 @@ const KIND_HINT: Record<string, string> = {
   discovery: "מגלה-המקבילות: קיבלת רשימת מקבילות (ביטויים באותו ערך, מדורגים מהמפתיע לנפוץ). בחר מתוכן אחת — הכי מפתיעה ובעלת עומק — לפי: (א) הימנע ממילים בנאליות/יומיומיות; (ב) העדף ניגודיות משלימה — מקבילה שמרחיבה את השם למרחב בלתי-צפוי; (ג) העדף עולמות רוחניים/היסטוריים/תרבותיים בעלי משקל; (ד) הסבר בקצרה מדוע דווקא היא מפתיעה. כלל-ברזל: בחר אך ורק מהרשימה שסופקה — אל תמציא מקבילה. הצג כהזמנה למחשבה, לא כנבואה, ותמיד הפרד את השוויון (עובדה) מהפרשנות (רמז).",
   research: "אוסף-המחקר של החוקר: כמה ישויות שאסף יחד. מצא את החוטים האמיתיים — ערכים משותפים, קשר תמטי, התכנסות — והצע כיוון-המשך. בכנות אם אין קשר אמיתי.",
   name_lab: "מעבדת-שם: קיבלת ממצאי-מנוע (Findings) על השם כמילה/צירוף-אותיות בלבד — מילויים, אנגרמים, וריאנטים, גימטריית-הרכיב. התייחס לשם הנחקר כאל מילה/ביטוי, לא כאל אדם: אל תסיק תכונות-אופי, גורל, נבואה או קביעה על מי שנושא את השם. כל ממצא הוא תוצר-מנוע עם מגבלת-אימות משלו (ראה ההנחיה על העובדות) — לא טענת-אמת סגורה. הצע רמז/פרשנות לשוני-תרבותי על המילה עצמה, בענווה, בלי נבואות ובלי טענות אישיות.",
+  contact_triage: "ניתוח דפוס UX/מוצר מצטבר. קיבלת רק נתונים אגרגטיביים ללא טקסטים אישיים. סכם מה כנראה קורה, מה לא ניתן להסיק, ומה הבדיקה/שיפור הקטן הבא שכדאי לבצע. אל תקבע שהבעיה אמיתית רק כי יש דיווחים, ואל תציע פרסום/מחקר/שינוי אוטומטי.",
 };
+
+const SYSTEM_CONTACT_TRIAGE =
+  "אתה מנתח מוצר/UX פנימי של SOD1820. אתה מקבל רק אותות מצטברים ומטא-דאטה בטוחים, לא תוכן אישי גולמי.\n" +
+  "חוקי ברזל:\n" +
+  "1. הפרד בין Observed לבין Interpretation. דיווחים חוזרים הם אות, לא הוכחה.\n" +
+  "2. אל תמציא משתמשים, טקסטים, סיבות, מספרים או מסקנות שלא הופיעו בקלט.\n" +
+  "3. הצע את הבדיקה/השיפור הקטן הבא שיכול לאמת או להפריך את ההשערה.\n" +
+  "4. אל תציע שינוי אוטומטי, פרסום, canonicalization או הפיכת פנייה למחקר.\n" +
+  "5. עברית בלבד. 3-5 משפטים קצרים, בלי Markdown.";
 
 const SYSTEM =
   "אתה פרשן עברי באתר גימטריה ותורה. תפקידך: לתת ניתוח מכובד ומדויק בעברית (האורך נקבע בהנחיה שבסוף בקשת-המשתמש).\n" +
@@ -965,6 +975,9 @@ Deno.serve(async (req: Request) => {
     // מסר-המסע (journey-message) לא עובר כאן כלל → נשאר חינם.
     const isDeep = !body?.fast;
     const { identity, tier } = await resolveIdentity(req, body);
+    if (kind === "contact_triage" && tier !== "admin") {
+      return json({ analysis: null, engine, error: "forbidden" }, 403);
+    }
     activeTrace = await beginOperationalTrace({
       body,
       identityClass: tier,
@@ -1110,10 +1123,10 @@ Deno.serve(async (req: Request) => {
     // בלי חריג ל-research. מקור-אמת יחיד: nodes(propagate=true) → fn_active_method_rules → metatron_context.
     // fail-open מלא: כשל/ריק ב-metatron_context → sys=SYSTEM, mtxFacts="" — בדיוק כמו לפני 1b (אף תשובה לא נחסמת).
     // Phase 2 (ביטול-כפילויות) וPhase 4 (A/B מוצר למשתמשים) נשארים שלבים נפרדים — לא בוצעו כאן.
-    let sys = SYSTEM;
+    let sys = kind === "contact_triage" ? SYSTEM_CONTACT_TRIAGE : SYSTEM;
     let mtxVersion: unknown = null;
     let mtxFacts = "";
-    {
+    if (kind !== "contact_triage") {
       const mtxSpanId = crypto.randomUUID();
       const mtxStartedAt = new Date().toISOString();
       const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
@@ -1150,7 +1163,9 @@ Deno.serve(async (req: Request) => {
     // verification_state — never described as universally-verified truth like every other kind.
     const factsPrefix = kind === "name_lab"
       ? "ממצאי-מנוע (Findings) על השם כמילה — לכל ממצא מגבלת-אימות מפורשת משלו, לא עובדת-אמת אוניברסלית (השתמש רק באלה, ואל תסיק מהן על אדם):"
-      : "עובדות מאומתות מהמנוע (השתמש רק באלה):";
+      : kind === "contact_triage"
+        ? "אותות מצטברים מהמערכת (ללא טקסט משתמש גולמי; השתמש רק באלה):"
+        : "עובדות מאומתות מהמנוע (השתמש רק באלה):";
     const structuredNameReflection = kind === "name_lab" && body?.operation === "normalized_reflection";
     const structuredReflectionInstruction = structuredNameReflection
       ? "\nמצב normalized_reflection: החזר JSON תקין בלבד, בלי Markdown ובלי טקסט מסביב. מבנה: " +

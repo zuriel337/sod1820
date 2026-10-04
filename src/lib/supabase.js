@@ -1483,6 +1483,16 @@ export async function adminSuggestionsList(status = 'pending', limit = 60) {
   try { const { data } = await supabase.rpc('admin_suggestions_list', { p_status: status, p_limit: limit }); return data || []; }
   catch { return []; }
 }
+
+// 🧠 Contact Gateway AI Triage V2 — detector זול/מצטבר בלבד.
+// יוצר/מעדכן system_suggestions; לא שולח טקסט משתמש ל-AI ולא משנה state בעצמו.
+export async function adminContactGatewayTriageRefresh() {
+  if (!supabase) return { ok: false };
+  try {
+    const { data, error } = await supabase.rpc('admin_contact_gateway_triage_refresh_v2');
+    return error ? { ok: false, error: error.message } : (data || { ok: true });
+  } catch (e) { return { ok: false, error: String(e?.message || e) }; }
+}
 export async function adminSuggestionDecide(id, status, note = null) {
   if (!supabase) return false;
   try { const { error } = await supabase.rpc('admin_suggestion_decide', { p_id: id, p_status: status, p_note: note }); return !error; }
