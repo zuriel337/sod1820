@@ -420,19 +420,14 @@ export default function HomeNewPage() {
         /* 🖼️ שער עם תמונת-הירו הגדולה (באנר 1820) פרוסה על כל הרוחב, מתחת לתוכן.
            שכבת-כיסוי כהה (scrim) שומרת על קריאוּת הפסוק/החיפוש שמעליה; הכתר+1820 נשארים גלויים במרכז. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
-          background:
-            radial-gradient(80% 130% at 50% 0%, rgba(123,76,176,.22), transparent 68%),
-            linear-gradient(180deg, rgba(9,8,15,.32) 0%, rgba(9,8,15,.62) 100%),
-            center/cover no-repeat url(${HOME_HERO_BG});
+          background:#09080f; border-bottom:0; }
+        /* FIT_WHOLE_IMAGE: תמונת-הירו היא מדיה עצמאית ביחס המקורי שלה — ללא cover/crop. */
+        .hn-livegate-img { display:block; width:100%; height:auto; object-fit:contain; object-position:center; background:#09080f; }
+        /* החיפוש ושערי-הכניסה חיים מתחת לתמונה, לא כשכבה שמכסה אותה. */
+        .hn-hero-actions-wrap { display:flex; justify-content:center; padding:18px 18px 22px;
+          background:linear-gradient(180deg,rgba(9,8,15,.98),rgba(12,8,24,.98));
           border-bottom:1px solid rgba(212,175,55,.30); }
-        /* וינייטה עדינה בקצוות בלבד — כדי שהפסוק/החיפוש (מימין) והקלפים (משמאל) יישבו על רקע מעט כהה, בלי להחשיך את מרכז התמונה */
-        .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
-          radial-gradient(120% 100% at 50% 50%, transparent 42%, rgba(9,8,15,.34) 100%); }
-        .hn-gate-inner { position:relative; z-index:2; max-width:760px; margin:0 auto;
-          min-height:310px; padding:46px 18px 38px;
-          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
-        /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
-        .hn-hero-actions { width:min(88%,440px); max-width:440px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+        .hn-hero-actions { width:min(92%,620px); max-width:620px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
           font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
@@ -490,9 +485,8 @@ export default function HomeNewPage() {
         /* 🖥️ שער דסקטופ — שתי עמודות שממלאות את הרוחב (במקום עמודה צרה בתוך ריק שחור).
            ימין (RTL) = זהות: קלף-הפסוק + חיפוש · שמאל = שני שערי-הכניסה כקלפים גדולים. */
         @media (min-width:900px){
-          .hn-livegate{ min-height:330px; display:flex; align-items:center; }
-          .hn-gate-inner{ width:100%; max-width:820px; min-height:330px; padding:48px 44px 42px; }
-          .hn-hero-actions{ max-width:620px; }
+          .hn-hero-actions-wrap{ padding:20px 24px 24px; }
+          .hn-hero-actions{ max-width:680px; }
         }
         .hn-home-top{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start;max-width:1120px;margin:22px auto 6px}
         .hn-updates-col{min-width:0}
@@ -523,24 +517,23 @@ export default function HomeNewPage() {
 
       {/* ===== 🔠 השער החי — רקע-צופן קולנועי · חיפוש במרכז · דופק חי ===== */}
       <section className="hn-livegate">
-        <div className="hn-mx-scrim" aria-hidden="true" />
-        <div className="hn-gate-inner">
-          {/* כותרת נסתרת ל-SEO/נגישות — בשער מוצג רק הפסוק (בקשת צוריאל) */}
-          <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
-          {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
-              מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
-          <div className="hn-hero-actions">
-            <form onSubmit={go} className="hn-search">
-              <span className="hn-mag" aria-hidden="true">🔍</span>
-              <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
-                placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
-              <button type="submit" className="hn-search-go">✦ גלו</button>
-            </form>
-            <div className="hn-hero-ctas">
-              {HERO_SLIDES.map((s, i) => (
-                <Link to={s.to} key={i} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
-              ))}
-            </div>
+        {/* כותרת נסתרת ל-SEO/נגישות. */}
+        <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
+        {/* FIT_WHOLE_IMAGE — כל הבאנר 2172×724 נראה, בלי חיתוך בצדדים. */}
+        <img className="hn-livegate-img" src={HOME_HERO_BG} alt="" fetchPriority="high" />
+      </section>
+      <section className="hn-hero-actions-wrap" aria-label="חיפוש ושערי כניסה">
+        <div className="hn-hero-actions">
+          <form onSubmit={go} className="hn-search">
+            <span className="hn-mag" aria-hidden="true">🔍</span>
+            <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
+              placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
+            <button type="submit" className="hn-search-go">✦ גלו</button>
+          </form>
+          <div className="hn-hero-ctas">
+            {HERO_SLIDES.map((s, i) => (
+              <Link to={s.to} key={i} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
+            ))}
           </div>
         </div>
       </section>
