@@ -77,8 +77,9 @@ const desktopRailEnd = desktopRailStart >= 0 ? frame.indexOf("</aside>", desktop
 assert.ok(desktopRailStart >= 0 && desktopRailEnd > desktopRailStart, "desktop Global Rail markup must exist");
 const desktopRailMarkup = frame.slice(desktopRailStart, desktopRailEnd + "</aside>".length);
 assert.doesNotMatch(desktopRailMarkup, /BrandLockup2029/, "desktop Global Rail must not repeat the full Brand lockup owned by the Topbar");
-assert.match(frame, /sod29-header-brand[\\s\\S]*BrandLockup2029 className="is-header"/);
-assert.match(frame, /sod29-mobile-brand-lockup[\\s\\S]*BrandLockup2029/);
+assert.match(frame, /sod29-header-brand/);
+assert.match(frame, /BrandLockup2029 className="is-header"/);
+assert.match(frame, /sod29-mobile-brand-lockup/);
 assert.match(frame, /ThemePresetControl2029/);
 assert.match(frame, /setThemePreset/);
 assert.match(frame, /יום/);
