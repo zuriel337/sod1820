@@ -140,7 +140,7 @@ const goldenFixture = buildTopicGoldenProjection({
       projection: { relations: [{ relationType: "related", from: { id: "topic-node", type: "convergence", label: "Topic" }, to: { id: "n-424", type: "number", label: "424" } }] },
     }] },
     sources: [{ ref: "human:1", label: "ספר מקור" }, { ref: "technical:1", label: "work_log:abc" }],
-    media: { items: [{ galleryImageId: "img-1", label: "מדיה", thumbUrl: "https://example.test/a.jpg" }] },
+    media: { items: [{ galleryImageId: "img-1", nodeId: "media-node", label: "gvg.jpg", imageUrl: "https://example.test/a.jpg", thumbUrl: "https://example.test/a-thumb.jpg", relationType: "mentions" }] },
     research: { findings: [{ id: "r1" }] },
   },
   prominence: {
@@ -162,6 +162,13 @@ assert.equal(goldenFixture.graphConnections[0].href, "/2029/number/424");
 assert.deepEqual(goldenFixture.people, ["צבי (OPOC)"]);
 assert.equal(goldenFixture.sources.length, 1);
 assert.equal(goldenFixture.media.length, 1);
+assert.equal(goldenFixture.media[0].label, "תמונה", "filename-only media labels must be normalized at shared projection time");
+assert.equal(goldenFixture.media[0].imageUrl, "https://example.test/a.jpg", "Topic must preserve full image URL rather than promoting the thumbnail");
+assert.match(topicPageGolden, /canonicalRelationPublicLabel/);
+assert.match(topicPageGolden, /canonicalFindingKindPublicLabel/);
+assert.match(topicPageGolden, /onFocusRelation/);
+assert.match(topicPageGolden, /onFocusMedia/);
+assert.equal(topicPageGolden.includes("const RELATION_LABELS"), false, "Topic must not own a parallel relation vocabulary");
 assert.equal(goldenFixture.rank.engineMatches, 1);
 assert.equal(goldenFixture.rank.gold, 1);
 assert.equal(goldenFixture.rank.attentionPolicy, "human_gate_only");
@@ -226,7 +233,7 @@ assert.match(topicPageGolden, /sod29-topic-equation-value/);
 assert.match(topicPageGolden, /sod29-topic-axis-grid/);
 
 
-assert.match(topicPageGolden, /SurfaceSectionNav2029/);
+assert.match(topicPageGolden, /SurfaceMapBar2029/);
 assert.match(topicPageGolden, /surfaceFocus:/);
 assert.match(topicPageGolden, /עוד גימטריות של/);
 assert.match(topicPageGolden, /sod29-topic-depth-equations/);
