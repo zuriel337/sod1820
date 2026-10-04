@@ -47,6 +47,7 @@ import {
   canonicalMediaPublicLabel,
   canonicalRelationPublicLabel,
   canonicalResearchPublicLabel,
+  looksLikeMediaFilename,
   formatTanakhRef,
   formatVerseGematriaSuffix,
 } from "../lib/presentation/canonicalPresentation.js";
@@ -234,7 +235,7 @@ function humanProminenceLabel(item, anchorLabel) {
   if (item?.kind === "source") {
     return humanSourceLabel({ label, ref: item?.sourceRef, type: item?.type });
   }
-  if (["image", "media"].includes(item?.type) && looksLikeFilename(label)) return "פריט מדיה";
+  if (["image", "media"].includes(item?.type)) return canonicalMediaPublicLabel(item, { fallback: "תמונה" });
   if (item?.type !== "foreign_word" && looksTechnicalResearchTitle(label)) return prominenceTypeLabel(item);
   return label || prominenceTypeLabel(item);
 }
@@ -326,7 +327,7 @@ function researchAddedDate(value) {
 
 function humanTimelineLabel(item) {
   const label = String(item?.label || "").trim();
-  if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה נוסף למחקר";
+  if (looksLikeMediaFilename(label)) return "תמונה נוספת";
   if (looksTechnicalSource(label)) return "מקור מחקר נוסף";
   if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
   const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
@@ -334,11 +335,7 @@ function humanTimelineLabel(item) {
 }
 
 function humanMediaLabel(item, anchorLabel) {
-  const label = String(item?.label || "").replace(/^#+\s*/, "").trim();
-  if (!label || looksLikeFilename(label) || /^עדכון\b/u.test(label) || looksTechnicalResearchTitle(label)) {
-    return `תמונה סביב ${anchorLabel || "הנקודה"}`;
-  }
-  return label;
+  return canonicalMediaPublicLabel(item, { fallback: `תמונה סביב ${anchorLabel || "הנקודה"}` });
 }
 
 function mediaDate(item) {
