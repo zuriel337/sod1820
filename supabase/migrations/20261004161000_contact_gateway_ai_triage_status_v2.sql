@@ -11,7 +11,6 @@ returns table(
   number integer,
   description text,
   created_at timestamptz,
-  reviewed_at timestamptz,
   reviewed_at timestamptz
 )
 language plpgsql
@@ -57,7 +56,7 @@ begin
     raise exception 'admin required' using errcode = '42501';
   end if;
 
-  -- Learning gaps: aggregate only bounded semantic keys already emitted by Entry Learn.
+  -- Learning gaps: bounded semantic keys already emitted by Entry Learn.
   for r in
     select
       coalesce(nullif(e.props->>'entry_surface',''), 'unknown') as entry_surface,
@@ -95,48 +94,13 @@ begin
   end loop;
 
   -- Product-demand signals from Contact Gateway idea submissions.
-  -- Raw message bodies are never copied into system_suggestions; only safe context path + counts.
+  -- Raw message bodies are never copied into system_suggestions.
+  -- The contextual path is accepted only when it is a simple bounded site pathname.
   for r in
     select
       case
-        when coalesce(substring(m.message from 'path=([^[:space:]·\\]]+)'),'') ~ '^/[A-Za-z0-9/_-]{1,180}
-      count(*)::integer as sample_count
-    from public.contact_messages m
-    where m.subject = '💡 רעיון / משהו חסר ב-SOD1820'
-      and m.created_at >= now() - interval '30 days'
-    group by 1
-    having count(*) >= 3
-  loop
-    v_id := public.suggest_add(
-      'ux',
-      'contact_gateway_demand',
-      format('בקשות חוזרות מהמשתמשים%s', case when r.path <> 'unknown' then format(' · %s', r.path) else '' end),
-      format('%s בקשות/רעיונות התקבלו באותו הקשר ב-30 הימים האחרונים.', r.sample_count),
-      jsonb_build_object(
-        'signal','contact_gateway_idea',
-        'window_days',30,
-        'path',r.path,
-        'sample_count',r.sample_count,
-        'raw_user_text_included',false
-      ),
-      least(90, 50 + r.sample_count * 5),
-      r.sample_count,
-      'שווה לבדוק האם חסרה יכולת/הבהרה חוזרת במסך הזה לפני שמפתחים משהו חדש.',
-      format('contact-demand:%s', r.path)
-    );
-    if v_id is not null then v_suggestions := v_suggestions + 1; end if;
-  end loop;
-
-  return jsonb_build_object('ok', true, 'suggestions_touched', v_suggestions, 'raw_user_text_included', false);
-end;
-$$;
-
-revoke all on function public.admin_contact_gateway_triage_refresh_v2() from public;
-revoke all on function public.admin_contact_gateway_triage_refresh_v2() from anon;
-revoke all on function public.admin_contact_gateway_triage_refresh_v2() from service_role;
-grant execute on function public.admin_contact_gateway_triage_refresh_v2() to authenticated;
-
-          then substring(m.message from 'path=([^[:space:]·\\]]+)')
+        when coalesce(substring(m.message from 'path=([^[:space:]·\]]+)'),'') ~ '^/[A-Za-z0-9/_-]{1,180}$'
+          then substring(m.message from 'path=([^[:space:]·\]]+)')
         else 'unknown'
       end as path,
       count(*)::integer as sample_count
