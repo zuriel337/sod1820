@@ -87,6 +87,18 @@ async function verifyIntent(actor: any, body: any) {
   };
 }
 
+async function deleteVerifiedUpload(actor: any, body: any) {
+  const scope = String(body.scope || "submission");
+  const bucket = scope === "public" ? "media" : scope === "submission" ? "submission-inbox" : "";
+  const path = String(body.path || "");
+  if (!bucket || !mayVerifyPath({ scope, path, userId: actor.userId, contributorId: actor.contributorId, isAdmin: actor.isAdmin })) {
+    throw new Error("delete_forbidden");
+  }
+  const { error } = await actor.admin.storage.from(bucket).remove([path]);
+  if (error) throw new Error(`verified_delete_failed:${error.message}`);
+  return { ok: true, action: "delete_verified_upload", bucket, path, deleted: true };
+}
+
 async function readPersonalMedia(actor: any, body: any) {
   const itemId = String(body.item_id || "");
   const storageObjectId = String(body.storage_object_id || "");
@@ -155,6 +167,7 @@ Deno.serve(async (req) => {
     if (action === "issue") return json(await issueIntent(actor, body));
     if (action === "verify") { const v = await verifyIntent(actor, body); return json(v, v.ok ? 200 : 422); }
     if (action === "read_contribution_media") return json(await readContributionMedia(actor, body));
+    if (action === "delete_verified_upload") return json(await deleteVerifiedUpload(actor, body));
     if (action === "read_personal_media") return json(await readPersonalMedia(actor, body));
     if (action === "delete_personal_media") return json(await deletePersonalMedia(actor, body));
     return json({ ok: false, error: "unsupported_action" }, 400);
