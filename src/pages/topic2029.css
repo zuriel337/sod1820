@@ -467,3 +467,79 @@ span.sod29-topic-equation-phrase{cursor:default}
   .sod29-topic-stage{display:block}
   .sod29-topic-stage>.sod29-surface-progress-spine{display:none}
 }
+
+
+/* Final convergence layout: progress moved into the shared pinned Context Rail. */
+.sod29-topic-stage{
+  display:block;
+  width:min(1080px,100%);
+  direction:rtl;
+}
+.sod29-topic-stage-content{
+  width:100%;
+}
+.sod29-topic-verse-source{
+  display:grid;
+  gap:12px;
+  margin:8px 0 18px;
+}
+.sod29-topic-source-subhead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.sod29-topic-source-subhead>strong{
+  color:var(--s29-ink);
+  font-size:clamp(18px,2.3vw,25px);
+}
+.sod29-topic-source-subhead>span{
+  min-width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  color:var(--s29-hero);
+  font-size:11px;
+  font-weight:900;
+}
+.sod29-topic-verse-list{
+  display:grid;
+  gap:9px;
+}
+.sod29-topic-verse-card{
+  width:100%;
+  display:grid;
+  gap:8px;
+  padding:16px 18px;
+  border:1px solid var(--s29-line);
+  border-radius:16px;
+  background:var(--s29-panel-soft);
+  color:var(--s29-ink);
+  text-align:start;
+  cursor:pointer;
+}
+.sod29-topic-verse-card:hover,
+.sod29-topic-verse-card:focus-visible{
+  border-color:var(--s29-line-strong);
+  background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft));
+}
+.sod29-topic-verse-card>span{
+  color:var(--s29-muted);
+  font-size:11px;
+  font-weight:850;
+}
+.sod29-topic-verse-card blockquote{
+  margin:0;
+  color:var(--s29-ink);
+  font-size:clamp(17px,2vw,22px);
+  line-height:1.7;
+}
+.sod29-topic-verse-card small{
+  color:var(--s29-muted);
+}
+.sod29-topic-verse-card small b{
+  color:var(--s29-hero);
+  font-size:15px;
+}
