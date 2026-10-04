@@ -41,6 +41,7 @@ export default function SurfaceContextRail2029({
         <SurfaceProgressSpine2029
           items={sections}
           activeId={activeSectionId}
+          interactive={false}
           ariaLabel="התקדמות בדף"
         />
       </div> : null}
