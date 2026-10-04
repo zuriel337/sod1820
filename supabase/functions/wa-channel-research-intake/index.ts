@@ -34,7 +34,7 @@ function intakeRoute(policy: any) {
 }
 
 function trustedContributor(credit: string | null, vips: any[], policy: any) {
-  if (policy?.admin_only === true) return true;
+  if (policy?.admin_only === true && Array.isArray(policy?.admin_ids) && policy.admin_ids.length > 0) return true;
   const value = String(credit || "").trim();
   if (!value) return false;
   if (policy?.outgoing_contributor && value === String(policy.outgoing_contributor).trim()) return true;
