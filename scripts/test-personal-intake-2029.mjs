@@ -20,10 +20,14 @@ assert.match(intake, /removeSaved/);
 assert.match(helper, /buildResearchIntakeTransport/);
 assert.match(helper, /uploadResumableMedia/);
 assert.match(helper, /verifyUploadedMedia/);
-assert.match(helper, /scope: "submission"/);
+assert.match(helper, /scope: "personal"/);
 assert.match(helper, /type: "personal_intake"/);
 assert.match(helper, /privacy: "personal"/);
 assert.match(helper, /storage_object_id/);
+const contract = read("supabase/functions/media-upload-intent/contract.mjs");
+assert.match(contract, /scope === "submission" \|\| scope === "personal"/);
+assert.match(contract, /scope === "personal"/);
+assert.match(contract, /accounts\/\\$\{userId\}/);
 assert.doesNotMatch(helper, /research_contributions|community_hints|contact_messages/);
 assert.doesNotMatch(helper, /\.from\(["']personal/i);
 
@@ -31,6 +35,8 @@ assert.match(edge, /storage_object_id/);
 assert.match(edge, /read_personal_media/);
 assert.match(edge, /delete_personal_media/);
 assert.match(edge, /delete_verified_upload/);
+assert.match(edge, /cleanup_personal_media/);
+assert.match(edge, /accounts\/\\$\{actor\.userId\}/);
 assert.match(edge, /private_personal_intake_media_access_v1/);
 assert.match(edge, /storage\.from\(resolved\.bucket\)\.remove/);
 
