@@ -6,6 +6,7 @@ export default function SurfaceProgressSpine2029({
   onSelect = null,
   onActiveChange = null,
   ariaLabel = "התקדמות בדף",
+  interactive = true,
 }) {
   const rows = useMemo(() => (items || []).filter((item) => item?.id && item?.label), [items]);
   const [observedId, setObservedId] = useState(activeId || rows[0]?.id || null);
@@ -41,7 +42,7 @@ export default function SurfaceProgressSpine2029({
 
   return <nav className="sod29-surface-progress-spine" aria-label={ariaLabel} data-experience-capability="surface-progress-spine">
     <span className="sod29-surface-progress-line" aria-hidden="true" />
-    {rows.map((item) => <button
+    {rows.map((item) => interactive ? <button
       key={item.id}
       type="button"
       className={item.id === currentId ? "is-active" : ""}
@@ -53,6 +54,10 @@ export default function SurfaceProgressSpine2029({
         onSelect?.(item);
         document.getElementById(item.targetId || item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
       }}
-    ><span /><small>{item.label}</small></button>)}
+    ><span /><small>{item.label}</small></button> : <div
+      key={item.id}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
+      aria-current={item.id === currentId ? "step" : undefined}
+    ><span /><small>{item.label}</small></div>)}
   </nav>;
 }
