@@ -58,7 +58,7 @@ import { BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
 // 🖼️ רקע-השער החי (5.9.2026, בקשת צוריאל) — שער-הזהב 888. רק תיבת-חיפוש + שני שערי-הכניסה מעליו, בלי טקסט נוסף.
-const HOME_HERO_BG = "/home-hero-gate-888.png";
+const HOME_HERO_BG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png";
 // 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js — ללא אחוז-על שרירותי.
 const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
