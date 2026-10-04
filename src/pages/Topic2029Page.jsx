@@ -493,6 +493,7 @@ export default function Topic2029Page() {
     title="טופיק"
     description="מספרים, ביטויים, פוסטים ומקורות שמתחברים סביב אותו ציר."
     status="Topic"
+    introVariant="compact"
   >
     <TopicBody />
   </Sod2029Shell>;
