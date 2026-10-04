@@ -15,9 +15,9 @@ const IDEA_RE = /(חסר|רעיון|הצעה|הלוואי|צריך שיהיה|fe
 export function classifyContactIntent(raw) {
   const text = normalize(raw);
   if (!text) return null;
-  if (HINT_RE.test(text)) return "hint";
   if (ISSUE_RE.test(text)) return "issue";
   if (IDEA_RE.test(text)) return "idea";
+  if (HINT_RE.test(text)) return "hint";
   return "contact";
 }
 
