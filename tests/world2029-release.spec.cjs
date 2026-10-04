@@ -233,10 +233,12 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
 
   const article = page.locator('article[data-entity-type="convergence"]');
   await expect(article).toBeVisible({ timeout: 30_000 });
-  await expect(article.locator('h1')).toContainText('888');
-  await expect(article).toContainText('מה ההתכנסות הזאת?');
-  await expect(article).toContainText('התכנסות ≠ עובדה קנונית');
-  await expect(article.locator('a[href="/2029/number/888"]').first()).toBeVisible();
+  const heroNumber = article.locator('a[href="/2029/number/888"]').first();
+  await expect(heroNumber).toBeVisible();
+  await expect(heroNumber).toHaveText('888');
+  await expect(article.locator('h1')).toContainText('אלהים משיח מקדש');
+  await expect(article).toContainText('מה מחבר את הציר הזה?');
+  await expect(article).toContainText('בין שוויון מספרי לבין הרמז');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/topic/888-yeshua');
   await expect(page.locator('script#sod-convergence-ld[type="application/ld+json"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
