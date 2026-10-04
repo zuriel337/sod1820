@@ -2,6 +2,8 @@
 // It does NOT create a truth score, ranking store, lifecycle, canonicality, publication state,
 // access policy, or Human-Curation state. It composes already-authorized governed reader outputs.
 
+import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
+
 const NEGATIVE_TOKENS = [
   "MISMATCH",
   "NEGATIVE",
@@ -188,7 +190,9 @@ function graphCandidates(data) {
     const tier = normalizeTier(counterpart?.curation?.tier);
     const relationType = clean(relation.relationType) || "related";
     const type = clean(counterpart.type) || "entity";
-    const label = clean(counterpart.label) || String(counterpart.id);
+    const label = ["image", "media"].includes(type)
+      ? canonicalMediaPublicLabel(counterpart, { fallback: "תמונה" })
+      : clean(counterpart.label) || String(counterpart.id);
     const verificationState = clean(finding?.verification?.verification_state)?.toLowerCase() || null;
     return {
       id: `graph:${finding.id || relation.id || counterpart.id}`,
