@@ -1,4 +1,4 @@
--- Focused SQL test for 20261004090000_zvi_stable_writer_binding_v1.sql.
+-- Focused SQL test for 20261004064040_zvi_stable_writer_binding_v1.sql + 20261004111500_zvi_stable_writer_fallback_retirement_v1.sql.
 -- Runs against a THROWAWAY local Postgres with minimal stubs (never the live project). Each check raises on failure.
 \set ON_ERROR_STOP on
 create table contributors (id uuid primary key, display_name text, wa_names text[]);
@@ -30,8 +30,9 @@ insert into research_objects(status,source_ref,meta,contributor)
 create temp table ro_before as select id,status,source_ref,meta,contributor,privacy_scope from research_objects;
 create temp table cu_credit_before as select id,credit,channel from channel_updates;
 
-\i supabase/migrations/20261004090000_zvi_stable_writer_binding_v1.sql
--- the migration only (re)defines the function; install the trigger as in 20260927195900
+\i supabase/migrations/20261004064040_zvi_stable_writer_binding_v1.sql
+\i supabase/migrations/20261004111500_zvi_stable_writer_fallback_retirement_v1.sql
+-- the migrations only (re)define the function; install the trigger as in 20260927195900
 create trigger trg_00 before insert or update of status, source_ref on research_objects
  for each row execute function public.fn_zvi_standing_approve_research_object();
 
@@ -60,9 +61,10 @@ end $$;
 insert into channel_updates(id,channel,credit,contributor_id) values
  ('b0000000-0000-0000-0000-000000000001','torat-haremez','צבי (OPOC)','11111111-1111-1111-1111-111111111111'), -- other id + matching credit
  ('b0000000-0000-0000-0000-000000000002','torat-haremez','Someone','c66f0464-0928-490e-be9b-66d8a87e7fc8'),   -- stable id, other text
- ('b0000000-0000-0000-0000-000000000003','gilui-yomi','צבי (OPOC)',null),                                      -- legacy null fallback preserved
+ ('b0000000-0000-0000-0000-000000000003','gilui-yomi','צבי (OPOC)',null),                                      -- legacy NULL-id + matching credit: fallback retired
  ('b0000000-0000-0000-0000-000000000004','torat-haremez','OPOC1 OPOC1',null),                                  -- alias unbound
- ('b0000000-0000-0000-0000-000000000005','torat-haremez','רזיאל · AI',null);                                   -- bot null
+ ('b0000000-0000-0000-0000-000000000005','torat-haremez','רזיאל · AI',null),
+ ('b0000000-0000-0000-0000-000000000006','torat-haremez','צבי (OPOC)',null);                                   -- NULL id + exact credit on canonical channel: rejected                                   -- bot null
 insert into research_objects(status,source_ref) select 'candidate','channel_updates:'||id from channel_updates where id::text like 'b0000000%';
 
 do $$ declare s text; begin
@@ -71,11 +73,13 @@ do $$ declare s text; begin
   select status into s from research_objects where source_ref='channel_updates:b0000000-0000-0000-0000-000000000002';
   if s <> 'approved' then raise exception 'stable id not approved: %', s; end if;
   select status into s from research_objects where source_ref='channel_updates:b0000000-0000-0000-0000-000000000003';
-  if s <> 'approved' then raise exception 'legacy null-id credit fallback lost: %', s; end if;
+  if s <> 'candidate' then raise exception 'legacy null-id credit fallback not retired: %', s; end if;
   select status into s from research_objects where source_ref='channel_updates:b0000000-0000-0000-0000-000000000004';
   if s <> 'candidate' then raise exception 'alias row approved: %', s; end if;
   select status into s from research_objects where source_ref='channel_updates:b0000000-0000-0000-0000-000000000005';
   if s <> 'candidate' then raise exception 'bot row approved: %', s; end if;
+  select status into s from research_objects where source_ref='channel_updates:b0000000-0000-0000-0000-000000000006';
+  if s <> 'candidate' then raise exception 'NULL-id matching credit approved after retirement: %', s; end if;
   -- governance-only: privacy untouched, not published/canonical
   if exists (select 1 from research_objects where status='approved' and (privacy_scope<>'private' or meta#>>'{governance,published}'<>'false' or meta#>>'{governance,canonicalized}'<>'false')) then
     raise exception 'approval widened scope'; end if;
