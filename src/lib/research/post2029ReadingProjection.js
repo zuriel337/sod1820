@@ -5,10 +5,10 @@ import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from ".
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
 const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
-  expression: "מלח",
+  expression: "נפתלי בנט",
   methodKey: "רגיל",
-  resultValue: 78,
-  regionId: "salt-78",
+  resultValue: 631,
+  regionId: "bennett-631",
 });
 
 const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
@@ -265,12 +265,77 @@ async function fetchFz1073Topic363() {
 
 
 const BENNETT_SALT_REGIONS = Object.freeze([
-  { id: "salt-78", heading: "הרמז המרכזי — מלח", label: "מלח · 78", primary: "מלח · 78", signals: ["חישוב מאומת", "עוגן מתוך האירוע"], number: 78, worldLabel: "פתח את 78" },
-  { id: "bennett-631", heading: "בנט בתוך עץ הבחירות", label: "נפתלי בנט · 631", primary: "בנט · 631", signals: ["פוסט הבחירות", "יחידה קיימת בעץ"], number: 631, worldLabel: "פתח את 631" },
-  { id: "salt-bread", heading: "מלח ולחם", label: "מלח = לחם", primary: "מלח = לחם = 78", signals: ["שוויון מספרי", "קריאה פרשנית"], number: 78, worldLabel: "פתח את 78" },
-  { id: "dead-sea", heading: "ים המלח", label: "ים המלח · 133", primary: "ים המלח · 133", signals: ["פוסט קיים", "עומק נפרד"], number: 133, worldLabel: "פתח את 133" },
-  { id: "salt-covenant", heading: "ברית מלח", label: "ברית מלח", primary: "ברית מלח · 690", signals: ["690", "756", "836"], number: 690, worldLabel: "פתח את 690" },
+  {
+    id: "elections-chain",
+    heading: "הסיפור הזה ממשיך מפוסט הבחירות",
+    label: "פוסט הבחירות · ציר 631",
+    primary: "פוסט הבחירות → 631 → בנט",
+    signals: ["מידע קודם", "אותו ציר"],
+    worldLabel: "פתח את פוסט הבחירות",
+  },
+  {
+    id: "bennett-631",
+    heading: "631 — הציר המרכזי",
+    label: "631 · בנט והבחירות",
+    primary: "נפתלי בנט = הבחירות = מלך ישראל = 631",
+    signals: ["3 שוויונות מאומתים", "ציר הבחירות"],
+    number: 631,
+    worldLabel: "פתח את 631",
+  },
+  {
+    id: "dead-sea-chronology",
+    heading: "כמה ימים קודם — ים המלח",
+    label: "22.9 → 24.9",
+    primary: "פוסט ים המלח → אירוע המלחיות",
+    signals: ["קשר כרונולוגי", "ללא טענת סיבתיות"],
+    worldLabel: "פתח את ים המלח",
+  },
 ]);
+
+function buildBennettGoldenBody(verification) {
+  const verified = verification?.verified === true;
+  const focusAttrs = (expression) => verified
+    ? ` data-contextual-number-focus="true" data-focus-part="result" data-region-id="bennett-631" data-expression="${expression}" data-method="רגיל" data-result="631"`
+    : "";
+
+  return `
+<section dir="rtl" class="sod29-bennett-golden-body">
+  <section class="sod29-bennett-golden-section is-chain">
+    <div class="sod29-post-story-kicker">הסיפור הזה ממשיך</div>
+    <h2 data-source-heading="true">הסיפור הזה ממשיך מפוסט הבחירות</h2>
+    <p>בפוסט הבחירות כבר נפתח <strong>ציר 631</strong>. הפוסט הזה אינו מתחיל מחקר חדש — הוא מוסיף אירוע חדש לאותו ציר.</p>
+    <a class="sod29-post-part-card" href="/sharshar-elections-redemption-hints-draft">
+      <span><small>המידע הקודם נשאר מחובר</small><br><strong>פוסט הבחירות — ציר 631</strong></span>
+      <b>פתח ←</b>
+    </a>
+  </section>
+
+  <section class="sod29-bennett-golden-section is-core">
+    <div class="sod29-post-story-kicker">החיבור המרכזי</div>
+    <h2 data-source-heading="true">631 — הציר המרכזי</h2>
+    ${verified ? `
+      <button type="button" class="sod29-gematria-value sod29-gematria-hero"${focusAttrs("נפתלי בנט")}>631</button>
+      <div class="sod29-bennett-equalities" data-contextual-number-focus-group="true">
+        <p>נפתלי בנט = <button type="button" class="sod29-gematria-value"${focusAttrs("נפתלי בנט")}>631</button></p>
+        <p>הבחירות = <button type="button" class="sod29-gematria-value"${focusAttrs("הבחירות")}>631</button></p>
+        <p>מלך ישראל = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
+      </div>
+    ` : `<p class="sod29-state warn">החישוב הקנוני אינו זמין כרגע; השוויונות אינם מוצגים עד לאימות.</p>`}
+    <p>זה לב הפוסט. שאר המחקר סביב המלח נשאר זמין בעומק, בלי לערבב את הסיפור המרכזי.</p>
+  </section>
+
+  <section class="sod29-bennett-golden-section is-chronology">
+    <div class="sod29-post-story-kicker">הקשר בזמן</div>
+    <h2 data-source-heading="true">כמה ימים קודם — ים המלח</h2>
+    <div class="sod29-bennett-time-bridge">
+      <article><time datetime="2026-09-22">22.9.2026</time><strong>פרסמנו את פוסט ים המלח</strong><a href="/yam-hamelach-tiferet-geula">פתח את הפוסט</a></article>
+      <span aria-hidden="true">→</span>
+      <article><time datetime="2026-09-24">24.9.2026</time><strong>אירוע המלחיות עם בנט בבני ברק</strong><small>יומיים אחר כך</small></article>
+    </div>
+    <p>זהו קשר כרונולוגי שאנחנו מציגים כחלק מהסיפור. ציר הזמן המלא נשאר במקומו הקבוע למטה.</p>
+  </section>
+</section>`;
+}
 
 function buildBennettSaltExperience(post) {
   const href = "/post/" + BENNETT_SALT_SLUG;
@@ -297,9 +362,9 @@ function buildBennettSaltExperience(post) {
       { id: "bennett-salt-golden", label: "Golden 2029 פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, sourceLabel: "POST", note: "תאריך פרסום ה־Golden החדש." },
     ],
     trail: [
-      { id: "bennett-post", label: "בנט", href, kind: "post", active: false },
+      { id: "elections-post", label: "פוסט הבחירות", href: "/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
       { id: "bennett-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
-      { id: "salt-78", label: "מלח", href: "/2029/number/78", kind: "concept", active: true },
+      { id: "bennett-post", label: "בנט", href, kind: "post", active: true },
     ],
   };
 }
@@ -331,15 +396,20 @@ async function verifyTashpaz() {
 }
 
 async function verifyBennettSaltFocus() {
-  const { data, error } = await supabase.rpc("fn_method_value", {
-    p_method_key: "רגיל",
-    p_phrase: "מלח",
-  });
-  const value = Number(data);
+  const phrases = ["נפתלי בנט", "הבחירות", "מלך ישראל"];
+  const rows = await Promise.all(phrases.map(async (phrase) => {
+    const { data, error } = await supabase.rpc("fn_method_value", {
+      p_method_key: "רגיל",
+      p_phrase: phrase,
+    });
+    const value = Number(data);
+    return { phrase, value, verified: !error && value === 631 };
+  }));
   return {
-    verified: !error && value === 78,
-    value: Number.isSafeInteger(value) ? value : null,
+    verified: rows.every((row) => row.verified),
+    value: rows.every((row) => row.verified) ? 631 : null,
     method: "רגיל",
+    rows,
   };
 }
 
@@ -413,7 +483,9 @@ export async function fetchPost2029ReadingProjection(slug) {
     : isBennettSaltPilot
       ? {
           ...post,
-          content: markBennettContextualNumberFocus(post.content, bennettSaltVerification),
+          title: "בנט בתוך ציר 631",
+          excerpt: "אירוע חדש מתחבר לציר 631 שכבר הופיע בפוסט הבחירות: נפתלי בנט = הבחירות = מלך ישראל = 631. יומיים קודם פורסם פוסט ים המלח.",
+          content: buildBennettGoldenBody(bennettSaltVerification),
           _experience: buildBennettSaltExperience(post),
         }
       : post;
