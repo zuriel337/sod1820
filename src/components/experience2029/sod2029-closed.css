@@ -210,7 +210,7 @@
   border-radius:9px;
   background:color-mix(in srgb,var(--s29-panel) 82%,transparent);
   color:var(--s29-muted);
-  font-size:12px;
+  font-size:var(--s29-type-micro,14px);
   font-family:var(--s29-font-numeric);
 }
 .sod29-search-pill-icon{font-size:18px;color:var(--s29-accent-text)}
