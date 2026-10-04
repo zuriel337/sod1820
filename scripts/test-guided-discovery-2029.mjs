@@ -59,6 +59,18 @@ const pathRef = normalizeGuidedDiscoveryRef({
 });
 assert.equal(pathRef.pathId, pathId);
 assert.equal(pathRef.revisionNo, 3);
+
+const unresolvedPublicPath = normalizeGuidedDiscoveryRef({
+  key: "future_path_no_href",
+  targetKind: GUIDED_DISCOVERY_TARGET_KIND.PUBLIC_PATH,
+  pathId,
+  journeyKind: "number_expression",
+  label: "צאו למסע",
+});
+assert.equal(unresolvedPublicPath.pathId, pathId);
+assert.equal(unresolvedPublicPath.href, null);
+assert.equal(buildGuidedDiscoveryLaunch({ ref: unresolvedPublicPath, currentContext: current }), null);
+
 const pathLaunch = buildGuidedDiscoveryLaunch({
   ref: pathRef,
   currentContext: current,
