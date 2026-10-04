@@ -20,11 +20,13 @@ function PostReadingBody() {
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
+  const explicitGematriaFocusRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
 
   useEffect(() => {
     let live = true;
+    explicitGematriaFocusRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
       .then((projection) => {
@@ -109,14 +111,20 @@ function PostReadingBody() {
     const currentContext = research.context || null;
     const currentSelection = currentContext?.selection || null;
     const currentDimensions = currentContext?.dimensions || {};
+    const explicitFocus = explicitGematriaFocusRef.current;
     const samePost = currentContext?.subject?.type === "post"
       && String(currentContext.subject.id) === String(post.id);
-    const preserveExplicitGematriaFocus = samePost
+    const contextHasExplicitFocus = samePost
       && currentContext?.lens === "gematria"
       && currentSelection?.entityType === "gematria_expression"
       && Boolean(currentSelection?.expression)
       && Boolean(currentSelection?.method)
       && currentSelection?.resultValue != null;
+    const preserveExplicitGematriaFocus = explicitFocus?.postId === String(post.id)
+      || contextHasExplicitFocus;
+    const protectedSelection = explicitFocus?.selection || currentSelection;
+    const protectedSurfaceFocus = explicitFocus?.surfaceFocus || currentDimensions.surfaceFocus;
+    const protectedBottomTrail = explicitFocus?.bottomTrail || currentDimensions.bottomTrail;
 
     const passiveSelection = {
       entityId: activeFocus.id,
@@ -147,12 +155,12 @@ function PostReadingBody() {
         label: post.title,
         href: `/post/${post.slug}`,
       },
-      selection: preserveExplicitGematriaFocus ? currentSelection : passiveSelection,
+      selection: preserveExplicitGematriaFocus ? protectedSelection : passiveSelection,
       lens: preserveExplicitGematriaFocus ? "gematria" : "reading",
       dimensions: {
         ...currentDimensions,
-        bottomTrail: preserveExplicitGematriaFocus && Array.isArray(currentDimensions.bottomTrail)
-          ? currentDimensions.bottomTrail
+        bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
+          ? protectedBottomTrail
           : passiveTrail,
         surfaceSections: regions.map((region) => ({
           id: region.id,
@@ -161,8 +169,8 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
-        surfaceFocus: preserveExplicitGematriaFocus && currentDimensions.surfaceFocus?.type === "gematria_expression"
-          ? currentDimensions.surfaceFocus
+        surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
+          ? protectedSurfaceFocus
           : passiveSurfaceFocus,
         readingFocus: {
           id: activeFocus.id,
@@ -259,6 +267,7 @@ function PostReadingBody() {
 
   const openWorld = () => {
     if (!activeFocus) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     const subject = activeFocus.number
       ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
@@ -278,6 +287,7 @@ function PostReadingBody() {
 
   const openNumber = () => {
     if (!activeFocus?.number) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     shell.openNumber?.({
       id: String(activeFocus.number),
@@ -306,6 +316,7 @@ function PostReadingBody() {
 
   const openContext = () => {
     if (!activeFocus) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     shell.openAction?.({
       id: activeFocus.number ? String(activeFocus.number) : activeFocus.id,
@@ -327,6 +338,39 @@ function PostReadingBody() {
     if (!targetRegion) return;
 
     const locator = `#source-region-${targetRegion.id}`;
+    const explicitSelection = {
+      entityId: targetRegion.id,
+      entityType: "gematria_expression",
+      locator,
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+    };
+    const explicitBottomTrail = [
+      { id: "post", label: "פוסט" },
+      { id: "gematria", label: "גימטריות" },
+      { id: "number", label: String(numericResult), active: true },
+    ];
+    const explicitSurfaceFocus = {
+      id: targetRegion.id,
+      type: "gematria_expression",
+      sectionLabel: "גימטריות",
+      label: cleanExpression,
+      primary: cleanExpression,
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+      number: numericResult,
+      signals: targetRegion.signals || [],
+      sourceLabel: projection.sourceLabel,
+      locator,
+    };
+    explicitGematriaFocusRef.current = {
+      postId: String(post.id),
+      selection: explicitSelection,
+      bottomTrail: explicitBottomTrail,
+      surfaceFocus: explicitSurfaceFocus,
+    };
     setActiveRegionId(targetRegion.id);
     research.updateResearchContext?.({
       subject: {
@@ -335,36 +379,12 @@ function PostReadingBody() {
         label: String(numericResult),
         href: `/2029/number/${numericResult}`,
       },
-      selection: {
-        entityId: targetRegion.id,
-        entityType: "gematria_expression",
-        locator,
-        expression: cleanExpression,
-        method: cleanMethodKey,
-        resultValue: numericResult,
-      },
+      selection: explicitSelection,
       lens: "gematria",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: "gematria", label: "גימטריות" },
-          { id: "number", label: String(numericResult), active: true },
-        ],
-        surfaceFocus: {
-          id: targetRegion.id,
-          type: "gematria_expression",
-          sectionLabel: "גימטריות",
-          label: cleanExpression,
-          primary: cleanExpression,
-          expression: cleanExpression,
-          method: cleanMethodKey,
-          resultValue: numericResult,
-          number: numericResult,
-          signals: targetRegion.signals || [],
-          sourceLabel: projection.sourceLabel,
-          locator,
-        },
+        bottomTrail: explicitBottomTrail,
+        surfaceFocus: explicitSurfaceFocus,
         readingFocus: {
           id: targetRegion.id,
           label: targetRegion.label,
@@ -423,6 +443,7 @@ function PostReadingBody() {
   };
 
   const openHeroNumber = (number) => {
+    explicitGematriaFocusRef.current = null;
     const targetRegion = regions.find((region) => Number(region.number) === Number(number)) || activeFocus;
     if (targetRegion) {
       setActiveRegionId(targetRegion.id);
