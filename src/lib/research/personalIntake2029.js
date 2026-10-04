@@ -101,7 +101,7 @@ export async function uploadPersonalIntakeFile(file, { onProgress, signal } = {}
   const kind = fileKind(file);
   const issued = await post({
     action: "issue",
-    scope: "submission",
+    scope: "personal",
     kind,
     mime: file.type,
     size: file.size,
@@ -143,7 +143,12 @@ export async function discardVerifiedPersonalUpload(verifiedUpload, { signal } =
   if (!path) return { ok: true, deleted: false };
   return (await post({
     action: "delete_verified_upload",
-    scope: "submission",
+    scope: "personal",
     path,
   }, signal)).data;
+}
+
+
+export async function cleanupAllPersonalIntakeMedia({ signal } = {}) {
+  return (await post({ action: "cleanup_personal_media" }, signal)).data;
 }
