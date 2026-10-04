@@ -236,3 +236,18 @@ assert.match(verseGematriaSource, /rpc\("fn_verses_by_gematria"/);
 assert.match(verseGematriaSource, /DEFAULT_VERSE_GEMATRIA_LIMIT = 6/);
 assert.equal(topicPageGolden.includes('.from("tanach_verses")'), false, "Topic must reuse canonical fn_verses_by_gematria instead of querying the verse table directly");
 assert.match(number2029Source, /fetchVersesByGematria/);
+
+
+const surfaceMap = read("src/components/experience2029/SurfaceMapBar2029.jsx");
+const surfaceMapCss = read("src/components/experience2029/surfaceMapBar2029.css");
+const sectionAlias = read("src/components/experience2029/SurfaceSectionNav2029.jsx");
+const postPageSource = read("src/pages/Post2029Page.jsx");
+const livingNumberSource = read("src/components/number2029/NumberLivingWorld2029.jsx");
+assert.match(surfaceMap, /data-experience-capability="surface-page-map"/);
+assert.match(surfaceMap, /אתה כאן/);
+assert.match(surfaceMapCss, /sod29-surface-map-progress/);
+assert.match(topicPageGolden, /SurfaceMapBar2029/);
+assert.match(postPageSource, /SurfaceMapBar2029/);
+assert.match(livingNumberSource, /SurfaceMapBar2029/);
+assert.equal(livingNumberSource.includes("toggleTheme"), false, "Theme control must not live in the canonical Page Map");
+assert.match(sectionAlias, /SurfaceMapBar2029/);
