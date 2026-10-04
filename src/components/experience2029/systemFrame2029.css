@@ -515,3 +515,27 @@
   .sod29-main-stage.has-context-rail{display:block;padding-inline-end:0}
   .sod29-surface-progress-spine{display:none}
 }
+
+
+/* Preview V3 — desktop contextual column stays pinned while the center scrolls.
+   Top section tabs are soft-sticky below the global header; bottom command/path remains fixed. */
+@media(min-width:981px){
+  .sod29-main-stage.has-context-rail{
+    align-items:start;
+    overflow:visible;
+  }
+  .sod29-main-stage.has-context-rail>.sod29-surface-context-rail{
+    position:sticky !important;
+    top:78px;
+    align-self:start;
+    height:fit-content;
+    max-height:calc(100vh - 98px);
+    overflow:auto;
+    z-index:18;
+  }
+  .sod29-surface-tabs{
+    position:sticky;
+    top:64px;
+    z-index:24;
+  }
+}
