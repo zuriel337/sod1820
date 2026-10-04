@@ -173,7 +173,8 @@ assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*GUIDED_DISCOVERY_REFS\.GOLDEN_87
 assert.match(page, /shell\.openGuidedDiscovery\?\.\(GUIDED_DISCOVERY_REFS\.GOLDEN_878/);
 assert.match(guidedDiscovery, /semanticId:\s*"golden:878:v1"/);
 assert.match(guidedDiscovery, /journeySemanticId/);
-assert.match(guidedDiscovery, /journey2029Mode/);
+assert.match(guidedDiscovery, /buildJourney2029ContextPatch/);
+assert.match(guidedDiscovery, /mode:\s*"guided"/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
 
