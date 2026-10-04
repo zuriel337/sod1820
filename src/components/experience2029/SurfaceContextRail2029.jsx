@@ -3,6 +3,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
+  buildLearnHelpSeed,
   emitEntryLearn,
   getConceptFamiliarity,
   getLearnFragment,
@@ -20,6 +21,7 @@ export default function SurfaceContextRail2029({
   onOpenWorld,
   onAskRaziel,
   onOpenContext,
+  onNeedHelp,
   compact = false,
   suppressLearn = false,
 }) {
@@ -57,6 +59,27 @@ export default function SurfaceContextRail2029({
       conceptKey,
       layer: LEARN_LAYER.EXPLAIN,
       manifestVersion: fragment.version,
+    });
+  };
+
+  const askForLearnHelp = () => {
+    if (!conceptKey || !fragment) return;
+    const tried = conceptFamiliarity?.stage === "tried";
+    const learnStage = tried ? LEARN_LAYER.TRY : LEARN_LAYER.EXPLAIN;
+    const actionTried = tried && hasNumber ? "open_number" : null;
+    emitEntryLearn("learn_help_requested", {
+      entrySurface: surface,
+      conceptKey,
+      layer: learnStage,
+      actionId: actionTried,
+      manifestVersion: fragment.version,
+    });
+    onNeedHelp?.({
+      initialText: buildLearnHelpSeed(conceptKey),
+      capability: hasNumber ? "number" : null,
+      concept: conceptKey,
+      learnStage,
+      actionTried,
     });
   };
 
@@ -132,6 +155,7 @@ export default function SurfaceContextRail2029({
         label={fragment.label}
         compact={Number(conceptFamiliarity?.v) === Number(fragment.version)}
         onOpen={openLearn}
+        onStillUnclear={askForLearnHelp}
         actions={hasNumber ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : `פתח את ${number}`}</button> : null}
       >
         <p>{fragment.explain}</p>
