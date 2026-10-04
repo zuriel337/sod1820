@@ -77,9 +77,16 @@ Modern Day + Lab, Parchment + Lab, Night + Lab.
 An environment must never force a fourth theme or silently override the user preference unless a Human-Gate accessibility/safety reason explicitly says so.
 
 ## 7. Brand boundary
-The approved canonical Crown + Hebrew wordmark remain protected artwork under Brand Core. Their asset colors may remain a heritage exception.
+The approved canonical Crown + Hebrew wordmark remain protected artwork under Brand Core. Their blue-sapphire + gold identity is preserved.
 
-The surrounding product UI does not need to inherit the logo palette. UI color and Brand artwork identity remain distinct semantic layers.
+The surrounding product UI does not inherit those colors as default control colors. Instead, the palette owner exposes three **Brand Atmosphere** roles:
+- `brandSapphire` — blue-sapphire environmental/identity light;
+- `brandGold` — restrained royal-gold environmental/identity accent;
+- `brandGlow` — non-semantic atmospheric glow.
+
+These roles may appear in backgrounds, ambient fields, protected logo moments, spatial transitions and rare identity ornament. They must not become the default button/label/status colors and must never imply truth, verification or epistemic importance.
+
+UI color and Brand artwork identity remain distinct semantic layers: Indigo/Violet/Cyan own ordinary 2029 interaction; Sapphire/Gold enter when the experience intentionally calls for a Brand moment.
 
 ## 8. Density and simplicity
 Because SOD1820 carries dense information:
