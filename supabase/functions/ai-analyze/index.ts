@@ -975,6 +975,9 @@ Deno.serve(async (req: Request) => {
     // מסר-המסע (journey-message) לא עובר כאן כלל → נשאר חינם.
     const isDeep = !body?.fast;
     const { identity, tier } = await resolveIdentity(req, body);
+    if (kind === "contact_triage" && tier !== "admin") {
+      return json({ analysis: null, engine, error: "forbidden" }, 403);
+    }
     activeTrace = await beginOperationalTrace({
       body,
       identityClass: tier,
