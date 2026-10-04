@@ -1,5 +1,7 @@
 // 📡 wa-channel-ingest — משקף ערוצי וואטסאפ → channel_updates.
-// use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API). בוט-API=רזיאל·AI (source=ai); ידני=קרדיט המותג (source=auto).
+// use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API).
+// outgoing_contributor → זהות המחבר הקנונית להודעה ידנית היוצאת מהחשבון המחובר.
+// בוט-API=רזיאל·AI (source=ai); ידני=outgoing_contributor או קרדיט המותג (source=auto).
 // admin_only+admin_ids = allowlist. block_ids/block_names = חסימת שולחים. block_text = חסימת-תוכן לפי כיתוב/טקסט. dedup לפי ext_msg_id.
 // poll_every_min = תדירות משיכה לכל קבוצה (last_run_at מתקדם רק במשיכה מוצלחת).
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
@@ -166,6 +168,7 @@ async function ingestSource(
   const blockText: string[] = (src.block_text || []).map((s: string) => String(s || "").trim()).filter(Boolean);
   const minTs: number = Number(src.min_ts || 0);
   const brandCredit: string = src.display_name || src.label || null;
+  const outgoingContributor: string | null = String(src.outgoing_contributor || "").trim() || null;
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
   const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
@@ -287,7 +290,9 @@ async function ingestSource(
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT
-      : (outgoing ? brandCredit : (useSenderName ? (senderName || brandCredit) : brandCredit));
+      : (outgoing
+        ? (outgoingContributor || brandCredit)
+        : (useSenderName ? (senderName || brandCredit) : brandCredit));
     const credit = isBotApi ? rawCredit : canonicalCredit(rawCredit, aliasMap);
     const source = isBotApi ? "ai" : "auto";
 
