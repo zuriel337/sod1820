@@ -1099,3 +1099,10 @@
 @media(max-width:720px){
   .sod29-reading-layout{display:block}
 }
+
+
+/* Shared progress spine owns the Post line; no second Post-only spine. */
+.sod29-reading-layout>.sod29-surface-progress-spine{grid-area:spine;direction:rtl}
+@media(max-width:720px){
+  .sod29-reading-layout>.sod29-surface-progress-spine{display:none}
+}
