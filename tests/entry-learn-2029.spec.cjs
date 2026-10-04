@@ -81,8 +81,30 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(learn).toContainText('78');
   expect(traceRequests).toBe(0);
 
+  // ASK: unresolved comprehension opens the already-live Contact Gateway, not a new help form.
+  await expect(learn.getByRole('button', { name: 'עדיין לא ברור?' })).toBeVisible();
+  await learn.getByRole('button', { name: 'עדיין לא ברור?' }).click();
+
+  const contact = page.locator('[data-contact-gateway="true"]');
+  await expect(contact).toBeVisible({ timeout: 10_000 });
+  await expect(contact).toHaveAttribute('data-contact-learn-context', 'true');
+  await expect(contact.locator('textarea')).toHaveValue(/פתחתי את ההסבר על שיטת הגימטריה ועדיין לא היה לי ברור/);
+  await expect(contact.locator('.sod29-contact-suggest strong')).toHaveText('משהו לא עובד');
+  await contact.locator('.sod29-contact-suggest').click();
+  await expect(page.locator('[data-issue-report="true"]')).toBeVisible();
+  await expect(page.locator('[data-issue-report="true"] textarea')).toHaveValue(/פתחתי את ההסבר על שיטת הגימטריה/);
+
+  await page.locator('.sod29-frame-panel-head button[aria-label="סגור"]').click();
+  await expect(page.locator('[data-contact-gateway="true"]')).toHaveCount(0);
+
+  // Re-enter the same focus and continue; asking for help never converts the object to feedback/research truth.
+  await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
+  const sidecarAfterAsk = page.locator('[data-experience-capability="contextual-sidecar"]');
+  const learnAfterAsk = sidecarAfterAsk.locator('[data-learn-scope="concept"]');
+  await learnAfterAsk.getByRole('button', { name: 'איך זה עובד?' }).click();
+
   // TRY uses the existing Number drawer / canonical trace path. Learn never calculates locally.
-  await learn.getByRole('button', { name: 'ראה את החישוב' }).click();
+  await learnAfterAsk.getByRole('button', { name: 'ראה את החישוב' }).click();
   const drawer = sidecar.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
