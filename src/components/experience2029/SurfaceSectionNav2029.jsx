@@ -1,4 +1,4 @@
-// Unified surface section navigation — presentation-only shared control.
+// Unified surface section navigation — presentation-only shared control. Preview release branch.
 import React from "react";
 
 export default function SurfaceSectionNav2029({ items = [], activeId = null, onSelect = null, ariaLabel = "ניווט בתוך הדף" }) {
