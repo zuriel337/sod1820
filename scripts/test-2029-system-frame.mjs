@@ -17,12 +17,52 @@ const home = read("src/pages/Home2029Page.jsx");
 const contextRail = read("src/components/experience2029/SurfaceContextRail2029.jsx");
 const sectionNav = read("src/components/experience2029/SurfaceSectionNav2029.jsx");
 const pageMap = read("src/components/experience2029/SurfaceMapBar2029.jsx");
+const palette = read("src/lib/palette.js");
+const themeMode = read("src/lib/themeMode.js");
+const html2029 = read("2029.html");
+const designV2 = read("SOD1820_DESIGN_CONTRACT_V2.md");
 
 // One implementation owner: old import path is a compatibility export, not a second frame.
 assert.match(compat, /single active 2029 frame implementation/i);
 assert.match(compat, /SystemFrame2029\.jsx/);
 assert.equal(compat.includes("useState("), false, "compatibility shell must not own frame state");
 assert.equal(compat.includes("<aside"), false, "compatibility shell must not render a competing frame");
+
+
+// Design Foundation V2: one store/one palette owner, three 2029 projections, Legacy compatibility preserved.
+assert.match(designV2, /SUPERSEDE_EXISTING/);
+assert.match(designV2, /Modern Day/);
+assert.match(designV2, /Parchment/);
+assert.match(designV2, /Night/);
+assert.match(themeMode, /THEME_PRESETS = Object\.freeze\(\["light", "parchment", "dark"\]\)/);
+assert.match(themeMode, /useThemePreset/);
+assert.match(themeMode, /data-theme-preset/);
+assert.match(themeMode, /export function useThemeMode/);
+assert.match(palette, /DESIGN_V2_PALETTES/);
+assert.match(palette, /resolve2029Palette/);
+assert.match(palette, /use2029Palette/);
+assert.match(palette, /#3949C8/);
+assert.match(palette, /#7655E8/);
+assert.match(palette, /#50D6E8/);
+assert.match(palette, /#F5EDDD/);
+assert.match(palette, /RESEARCH_LAB_V2/);
+assert.match(tokens, /TYPEFACE/);
+assert.match(tokens, /TYPE_SCALE_V2/);
+assert.match(tokens, /Rubik/);
+assert.match(tokens, /Noto Sans Hebrew/);
+assert.match(tokens, /IBM Plex Mono/);
+assert.match(html2029, /family=IBM\+Plex\+Mono/);
+assert.match(html2029, /family=Noto\+Sans\+Hebrew/);
+assert.match(html2029, /family=Rubik/);
+assert.doesNotMatch(html2029, /family=Assistant/);
+assert.doesNotMatch(frame, /\.\.\/\.\.\/theme\.js/);
+assert.match(frame, /use2029Palette/);
+assert.match(frame, /TYPEFACE/);
+assert.match(frame, /TYPE_SCALE_V2/);
+assert.match(frame, /data-frame-theme-preset/);
+assert.match(css, /--s29-font-body/);
+assert.match(css, /--s29-type-micro/);
+assert.equal(/font-size:\s*(?:7(?:\.5)?|8(?:\.5)?|9|10|11(?:\.5)?|12|13(?:\.5)?)px/.test(css), false, "shared 2029 frame must not reintroduce sub-14px user text");
 
 // G3-A isolation remains intact: prose may name retired prototypes, but the native
 // frame may not import or render those presentation owners/assets.
