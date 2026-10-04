@@ -1363,9 +1363,9 @@ export default function SystemFrame2029({
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
-            <BrandLockup2029 />
-            <span className="sod29-brand-neutral" aria-hidden="true">⌂</span>
+          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+            <span className="sod29-rail-home" aria-hidden="true">⌂</span>
+            <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
           <nav className="sod29-nav">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
