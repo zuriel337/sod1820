@@ -103,7 +103,8 @@ test("Research Path and commands share one physical System Frame bottom surface"
   const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
   const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
 
-  assert.match(page, /bottomTrail: state\.projection\?\.experience\?\.trail \|\| \[\]/);
+  assert.match(page, /bottomTrail: \[/);
+  assert.match(page, /surfaceFocus:/);
   assert.match(frame, /has-context-trail/);
   assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
   assert.match(css, /Unified bottom Context \+ Command Surface/);
@@ -233,4 +234,19 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
   assert.match(page, /exactReturnForRegion\(targetRegion\)/);
   assert.doesNotMatch(page, /SpatialMethodStage2029/);
   assert.doesNotMatch(page, /fetchGematriaMethodTrace/);
+});
+
+
+test("Unified Experience exposes one shared rail and section navigation without a duplicate Post rail", () => {
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+  const rail = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
+  const tabs = readFileSync(new URL("../src/components/experience2029/SurfaceSectionNav2029.jsx", import.meta.url), "utf8");
+  const post = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  assert.match(frame, /SurfaceContextRail2029/);
+  assert.match(frame, /surfaceFocus/);
+  assert.match(rail, /ContextualInspector2029/);
+  assert.match(rail, /sod29-surface-context-mobile-cue/);
+  assert.match(tabs, /data-experience-capability="surface-section-nav"/);
+  assert.match(post, /SurfaceSectionNav2029/);
+  assert.doesNotMatch(post, /<ReadingContextRail2029/);
 });
