@@ -1,0 +1,18 @@
+.sod29-reveal{display:grid;gap:10px;justify-items:center;text-align:center;padding:12px 0}
+.sod29-reveal-expression{color:var(--s29-muted,currentColor);font-size:13px;font-weight:780}
+.sod29-reveal-number{font-size:clamp(56px,16vw,112px);font-weight:900;line-height:1;color:var(--s29-hero,var(--s29-accent,currentColor));font-variant-numeric:tabular-nums}
+.sod29-reveal-live{margin:0;min-height:0;font-size:0;overflow:hidden;position:absolute;width:1px;height:1px;clip:rect(0 0 0 0)}
+.sod29-reveal-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.sod29-reveal-actions button{min-height:44px;min-width:44px;padding:0 16px;border:1px solid var(--s29-line-strong,currentColor);border-radius:999px;background:var(--s29-panel,transparent);color:var(--s29-ink,currentColor);cursor:pointer}
+.sod29-reveal-actions button:focus-visible{outline:2px solid var(--s29-accent,currentColor);outline-offset:2px}
+.sod29-reveal-trace{width:100%;border:1px solid var(--s29-line,currentColor);border-radius:18px;background:var(--s29-panel-soft,transparent);padding:12px}
+.sod29-reveal-trace.is-error{color:var(--s29-muted,currentColor)}
+.sod29-reveal-steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.sod29-reveal-steps li{display:grid;gap:2px;min-width:56px;padding:8px 10px;border:1px solid var(--s29-line,currentColor);border-radius:14px;background:var(--s29-panel,transparent);animation:sod29-reveal-in .3s ease both}
+.sod29-reveal-steps li.is-active{border-color:var(--s29-accent,currentColor);box-shadow:0 0 0 1px var(--s29-accent,currentColor)}
+.sod29-reveal-letter{font-size:24px;font-weight:800;color:var(--s29-ink,currentColor)}
+.sod29-reveal-contrib{font-size:13px;color:var(--s29-accent,currentColor)}
+.sod29-reveal-subtotal{font-size:12px;color:var(--s29-muted,currentColor)}
+.sod29-reveal-stale{color:var(--s29-muted,currentColor)}
+@keyframes sod29-reveal-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.sod29-reveal-steps li{animation:none}}
