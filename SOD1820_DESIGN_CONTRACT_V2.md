@@ -196,12 +196,12 @@ Chrome motion is choreography, not decoration:
 - reduced-motion disables nonessential transitions/animations.
 
 ### 11.5 Brand lockup placement
-The full approved Crown + Hebrew wordmark lockup may appear only in identity moments of Global Chrome:
-- at the top of the mobile Navigation Sheet;
-- at the top of the expanded desktop Global Rail;
-- Home / approved media-Hero identity moments when composition allows.
+The full approved Crown + Hebrew wordmark lockup may appear only in deliberate identity moments of Global Chrome:
+- the persistent desktop Topbar owns the single visible full Brand lockup for ordinary desktop product views;
+- the mobile Navigation Sheet may show the full lockup as its bounded identity moment;
+- Home / approved media-Hero identity moments may use the lockup when composition allows without competing with Global Chrome.
 
-When the desktop rail collapses, the full lockup disappears completely and a neutral Home affordance may replace it. Crown-only projection remains forbidden.
+The desktop Right Global Rail does **not** repeat a second full lockup. Its expanded top is a quiet functional navigation identity/header using live UI typography plus restrained Brand Atmosphere only. When the rail collapses, the header contracts to a neutral Home/navigation affordance. Crown-only projection remains forbidden.
 
 The lockup is consumed through one centralized Brand asset pointer. Page-local logo URLs, crops and redraws are forbidden.
 
@@ -234,7 +234,7 @@ Right Global Rail naming is canonical:
 `דף המספר` is the canonical global label. Generic `מספרים` is not a Global Navigation label.
 Because the live route is `/2029/number/:value`, selecting `דף המספר` without a value opens the canonical Search / Command projection rather than inventing a fake root route.
 
-The expanded rail may show the full approved Brand lockup. The collapsed rail must not create a crown-only logo; it uses a neutral Home/Brand affordance while the persistent desktop Topbar retains a small full-lockup identity moment.
+Desktop Brand hierarchy is singular: the Topbar owns the persistent full approved Brand lockup. The expanded Right Global Rail must not repeat it; its top is a quieter functional navigation header with restrained Brand Atmosphere. The collapsed rail uses a neutral Home/navigation affordance and must never create a crown-only logo.
 
 Global rail expansion preference may persist locally as a presentation preference. This does not create a new navigation store or product-truth state.
 ## 12. Acceptance
