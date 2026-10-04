@@ -21,6 +21,8 @@ jobs:
           node-version-file: .nvmrc
       - name: TikTok source resolver + direct-video compatibility
         run: node scripts/test-video-migrate-tiktok-resolver.mjs
+      - name: Agent remote video URL transport acceptance
+        run: node --experimental-strip-types supabase/functions/agent-upload/url-video-mode.test.mts
       - name: Agent TikTok link-only upload acceptance
         run: node --experimental-strip-types supabase/functions/agent-upload/tiktok-mode.test.mts
       - uses: denoland/setup-deno@v2

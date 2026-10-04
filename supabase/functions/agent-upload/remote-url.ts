@@ -11,6 +11,11 @@ const EXACT_HOSTS = new Set([
   "images.openai.com",
 ]);
 
+// Video-only transport host: honoured only when the ticket mime is video/mp4 (never for images).
+// Exact host, no suffix wildcard: Descript time-limited direct media URLs.
+const VIDEO_EXACT_HOSTS = new Set(["media.descriptusercontent.com"]);
+const VIDEO_MIMES = new Set(["video/mp4"]);
+
 const HOST_SUFFIXES = [
   ".githubusercontent.com",
   ".dropbox.com",
@@ -24,18 +29,24 @@ function normalizeHost(hostname: string) {
   return hostname.toLowerCase().replace(/\.$/, "");
 }
 
-export function remoteHostAllowed(hostname: string) {
+export function remoteHostAllowed(hostname: string, mime = "") {
   const host = normalizeHost(hostname);
+  if (VIDEO_MIMES.has(mime)) return VIDEO_EXACT_HOSTS.has(host) || EXACT_HOSTS.has(host) || HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
   return EXACT_HOSTS.has(host) || HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
 }
 
-function checkedUrl(raw: string, base?: URL): URL | null {
+function checkedUrl(raw: string, mime: string, base?: URL): URL | null {
   let u: URL;
   try { u = base ? new URL(raw, base) : new URL(raw); } catch { return null; }
   if (u.protocol !== "https:" || u.username || u.password) return null;
   if (u.port && u.port !== "443") return null;
-  if (!remoteHostAllowed(u.hostname)) return null;
+  if (!remoteHostAllowed(u.hostname, mime)) return null;
   return u;
+}
+
+// ISO-BMFF: bytes 4..8 must be "ftyp" (strict MP4/MOV container signature).
+function sniffMp4(bytes: Uint8Array): boolean {
+  return bytes.length >= 12 && bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70;
 }
 
 function sniffImageMime(bytes: Uint8Array): string | null {
@@ -76,7 +87,7 @@ async function readCapped(body: ReadableStream<Uint8Array> | null, maxBytes: num
 }
 
 export async function fetchRemoteImage(rawUrl: string, expectedMime: string, maxBytes: number): Promise<RemoteImageFetchResult> {
-  let current = checkedUrl(rawUrl);
+  let current = checkedUrl(rawUrl, expectedMime);
   if (!current) return { ok: false, status: 403, error: "remote url is not an allowed HTTPS media host" };
 
   for (let hop = 0; hop <= 4; hop++) {
@@ -93,7 +104,7 @@ export async function fetchRemoteImage(rawUrl: string, expectedMime: string, max
       if ([301, 302, 303, 307, 308].includes(r.status)) {
         const location = r.headers.get("location");
         if (!location) return { ok: false, status: 502, error: "remote redirect missing location" };
-        const next = checkedUrl(location, current);
+        const next = checkedUrl(location, expectedMime, current);
         if (!next) return { ok: false, status: 403, error: "remote redirect host is not allowed" };
         current = next;
         continue;
@@ -115,7 +126,7 @@ export async function fetchRemoteImage(rawUrl: string, expectedMime: string, max
       if (!bytes) return { ok: false, status: 413, error: "remote payload exceeds ticket size" };
       if (bytes.byteLength === 0) return { ok: false, status: 502, error: "remote payload is empty" };
 
-      const sniffed = sniffImageMime(bytes);
+      const sniffed = VIDEO_MIMES.has(expectedMime) ? (sniffMp4(bytes) ? expectedMime : null) : sniffImageMime(bytes);
       if (sniffed !== expectedMime) return { ok: false, status: 415, error: "remote bytes do not match ticket mime" };
 
       return { ok: true, bytes, source_host: normalizeHost(current.hostname) };
