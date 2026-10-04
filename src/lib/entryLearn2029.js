@@ -272,10 +272,11 @@ export function getLearnFragment(conceptKey) {
   return key ? LEARN_FRAGMENTS[key] || null : null;
 }
 
-export function classifyEntryArrival({ locationState = null, historyIndex = null } = {}) {
+export function classifyEntryArrival({ locationState = null, historyIndex = null, locationKey = null } = {}) {
   const explicit = cleanToken(locationState?.sodEntryArrival);
   if (explicit === ENTRY_ARRIVAL.EXACT_RETURN) return ENTRY_ARRIVAL.EXACT_RETURN;
   if (explicit === ENTRY_ARRIVAL.INTERNAL) return ENTRY_ARRIVAL.INTERNAL;
+  if (locationKey === "default") return ENTRY_ARRIVAL.DIRECT;
   if (Number.isInteger(historyIndex)) return historyIndex > 0 ? ENTRY_ARRIVAL.INTERNAL : ENTRY_ARRIVAL.DIRECT;
   return ENTRY_ARRIVAL.UNKNOWN;
 }
