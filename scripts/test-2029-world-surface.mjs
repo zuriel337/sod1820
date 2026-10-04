@@ -129,6 +129,17 @@ assert.match(world, /מה חדש בעולם\?/);
 assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
+assert.match(worldCss, /sod29-world-discovery-stage/);
+assert.equal(world.includes('className="sod29-focus-stage'), false, "public World must not inherit the Heichal-style Focus stage");
+assert.match(world, /sod29-world-origin-ribbon/);
+assert.equal(world.includes("sod29-world-focus-ribbon"), false, "expression context in World is origin/context, not a Focus workbench");
+assert.equal(world.includes("◌ חזרה לעולם"), false, "World must not offer a page-local return-to-World reset while already inside World");
+assert.match(world, /בדוק לעומק בהיכל/);
+assert.match(world, /shell\.go\("\/heichal"\)/);
+assert.match(world, /\{ key: "research", label: "עוד חיבורים" \}/);
+assert.equal(world.includes("DISCOVERY WORLD"), false);
+assert.equal(world.includes("ממצאי מחקר חדשים"), false);
+assert.equal(world.includes("Research Findings"), false);
 assert.match(worldCss, /sod29-world-stream-list/);
 assert.match(world, /sod29-world-all-convergences/);
 assert.match(world, /כל ההתכנסויות/);
@@ -179,7 +190,7 @@ assert.match(world, /includeResearch: true/);
 assert.match(world, /item\.kind === "finding"/);
 assert.match(world, /world-discovery-finding/);
 
-// World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
+// Admin-only World Research Control remains explicit deep/admin language; public World is discovery-first.
 assert.match(world, /WORLD RESEARCH CONTROL/);
 assert.match(world, /RESEARCH INBOX/);
 assert.match(world, /מצב מחקר/);

@@ -1063,6 +1063,7 @@
 
 
 /* ── World Discovery Entrance ── */
+.sod29-world-discovery-stage{margin-top:20px}
 .sod29-world-discovery-entrance{
   position:relative;
   overflow:hidden;
@@ -1642,13 +1643,13 @@
 }
 
 
-/* Shared Expression Focus — World projects the same Research Context, it does not recalculate it. */
-.sod29-world-focus-ribbon{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--s29-accent) 38%,var(--s29-line));border-radius:17px;background:color-mix(in srgb,var(--s29-panel) 94%,var(--s29-accent) 6%)}
-.sod29-world-focus-ribbon>div:first-child{display:grid;gap:3px}
-.sod29-world-focus-ribbon span{font-size:10px;font-weight:900;letter-spacing:.07em;color:var(--s29-muted)}
-.sod29-world-focus-ribbon strong{color:var(--s29-ink);font-size:17px}
-.sod29-world-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
-@media(max-width:680px){.sod29-world-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-world-focus-ribbon .sod29-actions{width:100%}}
+/* Shared expression origin — World preserves context without turning it into a Focus workbench. */
+.sod29-world-origin-ribbon{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px;padding:10px 12px;border:1px solid var(--s29-line);border-radius:15px;background:color-mix(in srgb,var(--s29-panel-soft) 78%,transparent)}
+.sod29-world-origin-ribbon>div:first-child{display:grid;gap:3px}
+.sod29-world-origin-ribbon span{font-size:10px;font-weight:900;letter-spacing:.05em;color:var(--s29-muted)}
+.sod29-world-origin-ribbon strong{color:var(--s29-ink);font-size:16px}
+.sod29-world-origin-ribbon small{color:var(--s29-muted);line-height:1.45}
+@media(max-width:680px){.sod29-world-origin-ribbon{align-items:flex-start;flex-direction:column}.sod29-world-origin-ribbon .sod29-actions{width:100%}}
 
 @media(max-width:620px){
   .sod29-world-primary-copy h3{font-size:17px}

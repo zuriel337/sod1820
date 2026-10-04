@@ -142,7 +142,7 @@ const WORLD_LANES = Object.freeze([
   { key: "calculations", label: "גימטריה" },
   { key: "sources", label: "מקורות" },
   { key: "relations", label: "קשרים" },
-  { key: "research", label: "מחקר" },
+  { key: "research", label: "עוד חיבורים" },
   { key: "timeline", label: "זמן" },
 ]);
 
@@ -201,7 +201,7 @@ function humanSourceLabel(source) {
   }
   if (/^book:/i.test(ref || label)) return "ספר / מקור";
   if (/^posts?:/i.test(ref || label)) return "פוסט / מקור";
-  return "מקור מחקר";
+  return "מקור";
 }
 
 function looksTechnicalResearchTitle(value) {
@@ -218,7 +218,7 @@ function humanFindingPresentation(finding, anchorLabel) {
   const hideRawTechnical = fallbackMode === "raw_statement"
     && (looksTechnicalResearchTitle(projectedTitle) || /[A-Za-z]{3}/.test(String(projectedTitle || "")));
   return {
-    title: hideRawTechnical ? `מחקר נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודת מחקר"),
+    title: hideRawTechnical ? `חיבור נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודה נוספת"),
     summary: hideRawTechnical ? null : (presentation.summary || null),
     sourceLabel: presentation.sourceLabel || null,
     fallbackMode,
@@ -228,7 +228,7 @@ function humanFindingPresentation(finding, anchorLabel) {
 function prominenceTypeLabel(item) {
   if (item?.explainWhy?.uncertainty) return "דורש בירור";
   if (item?.familyKey === "verse-source" || item?.type === "verse") return "פסוק";
-  if (item?.kind === "research") return "מחקר";
+  if (item?.kind === "research") return "חיבור";
   if (item?.kind === "topic" || item?.type === "convergence") return CONVERGENCE_LABEL;
   if (item?.kind === "source") return "מקור";
   return FACET_LABELS[item?.type] || "חיבור";
@@ -237,7 +237,7 @@ function prominenceTypeLabel(item) {
 function humanProminenceLabel(item, anchorLabel) {
   const label = humanContentTitle(item?.label, { max: 96 });
   if (item?.kind === "research" && (looksTechnicalResearchTitle(label) || /[A-Za-z]{3}/.test(label))) {
-    return `מחקר נוסף סביב ${anchorLabel || "הנקודה"}`;
+    return `חיבור נוסף סביב ${anchorLabel || "הנקודה"}`;
   }
   if (item?.kind === "source") {
     return humanSourceLabel({ label, ref: item?.sourceRef, type: item?.type });
@@ -253,8 +253,8 @@ function prominenceWhyLines(item) {
   if (why.uncertainty) lines.push("יש כאן אי־התאמה או שאלה שיכולה לשנות את ההבנה.");
   if (String(why.directness || "").includes("direct")) lines.push("הקשר ישיר לעוגן הנוכחי.");
   if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת מנוע תואמת.");
-  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור או provenance מתועד.");
-  if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים תלויים קובצו לפני בחירת העיקר.");
+  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור מתועד שאפשר לעקוב אחריו.");
+  if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים שחוזרים על אותו חיבור קובצו לפני בחירת העיקר.");
   if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי כ־Gold; זהו אות אוצרות, לא דירוג אמת.");
   else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי כ־Silver; זהו שובר שוויון בלבד.");
   if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
@@ -334,11 +334,11 @@ function researchAddedDate(value) {
 
 function humanTimelineLabel(item) {
   const label = String(item?.label || "").trim();
-  if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה נוסף למחקר";
-  if (looksTechnicalSource(label)) return "מקור מחקר נוסף";
-  if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
+  if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה שנוסף למערכת";
+  if (looksTechnicalSource(label)) return "מקור נוסף";
+  if (looksTechnicalResearchTitle(label)) return "חיבור נוסף";
   const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
-  return withoutTechnicalRelation || label || "נקודת מחקר";
+  return withoutTechnicalRelation || label || "נקודה נוספת";
 }
 
 function humanMediaLabel(item, anchorLabel) {
@@ -361,7 +361,7 @@ function WorldCard({ card, onOpen }) {
       <div className="sod29-kicker">{FACET_LABELS[card.facet] || card.facet}</div>
       <h3>{card.label}</h3>
       {card.sub ? <p>{card.sub}</p> : null}
-      <div className="sod29-actions"><span className="sod29-chip">פתח בעולם ←</span></div>
+      <div className="sod29-actions"><span className="sod29-chip">פתח ←</span></div>
     </button>
   );
 }
@@ -798,7 +798,7 @@ function LiveWorldLanding({ research, shell, context }) {
       selection: { entityId: String(numericValue), entityType: "number" },
       lens: "world",
       dimensions: { entrySource: "world-anchor-map" },
-      returnTo: { href: "/world", label: "עוגני המחקר" },
+      returnTo: { href: "/world", label: "עוגני העולם" },
     });
   };
 
@@ -819,7 +819,7 @@ function LiveWorldLanding({ research, shell, context }) {
       currentLabel="בעולם"
     />
     <section
-      className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
+      className="sod29-world-native-entry sod29-world-discovery-stage sod29-world-discovery-entrance"
       id="world-entry"
       data-experience-surface={WORLD_EXPERIENCE.surface}
       data-experience-question={WORLD_EXPERIENCE.experience.question}
@@ -828,9 +828,9 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-world-discovery-sky" aria-hidden="true" />
       <div className="sod29-world-discovery-head">
         <div>
-          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · DISCOVERY WORLD</div>
+          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · עולם של חיבורים</div>
           <h2>מה חדש בעולם?</h2>
-          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
+          <p>חיבורים חדשים והתכנסויות שאושרו מופיעים כאן יחד. מה שמותר לחשבון שלך לראות מסודר לפי זמן — לא לפי דירוג אמת.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -874,7 +874,7 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "finding" ? "חיבור חדש" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
@@ -884,14 +884,14 @@ function LiveWorldLanding({ research, shell, context }) {
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
             </button>)}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מאחד Research Findings מורשים והתכנסויות מאושרות. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מאחד חיבורים שנמצאו והתכנסויות שאושרו. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
           <div className="sod29-world-spatial-copy">
             <span className="sod29-kicker">לב העולם</span>
             <h3>לא רשימה — מרחב.</h3>
-            <p>כל שער הוא projection של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
+            <p>כל שער מציג זווית אחרת של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
           </div>
           <WorldCoreMap
             sections={landing.sections}
@@ -939,7 +939,7 @@ function LiveWorldLanding({ research, shell, context }) {
         >
           <strong>{person.displayName}</strong>
           <small>{person.role || "חוקר / כותב"}</small>
-          <span>פתח את חומר המחקר שלו בעולם</span>
+          <span>פתח את החיבורים שלו בעולם</span>
         </button>)}
       </div> : null}
     </section> : null}
@@ -982,7 +982,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">CONVERGENCE INDEX · PUBLIC PROJECTION</div>
+          <div className="sod29-kicker">מפת ההתכנסויות</div>
           <h2>כל ההתכנסויות</h2>
           <div className="sod29-muted">זהו קטלוג התצוגה הציבורי של התכנסויות מאושרות. הוא projection על חומר קיים — לא הכרזה שכל Topic היסטורי כבר הפך לזהות קנונית לפי חוק ההתכנסות החדש.</div>
         </div>
@@ -1309,11 +1309,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const updateResearchFilter = (key, value) => setResearchFilters((current) => ({ ...current, [key]: value }));
   const resetResearchFilters = () => setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
 
-  const backToWorld = () => {
-    research.clearResearchContext?.();
-    research.updateResearchContext?.({ lens: "world" });
-  };
-
   const openNumberPage = () => {
     if (data?.identity?.type !== "number") return;
     shell.go(focusedNumberHref || `/2029/number/${encodeURIComponent(data.identity.label)}`);
@@ -1494,18 +1489,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
       currentLabel="מבט"
       compact
     />
-    {focusedExpression ? <section className="sod29-world-focus-ribbon" data-expression-focus="true" aria-label="מיקוד הביטוי בעולם">
+    {focusedExpression ? <section className="sod29-world-origin-ribbon" data-expression-focus="true" aria-label="הקשר הכניסה לעולם">
       <div>
-        <span>המבט הנוכחי</span>
-        <strong>{subject.label || subject.id} · דרך {focusedCrossing ? `${focusedExpression} ↔ ${focusedCrossing}` : focusedExpression}</strong>
-        <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "מיקוד ביטוי"} · העולם מרחיב הקשר, Number נשאר בית החישוב</small>
+        <span>הגעת לכאן דרך</span>
+        <strong>{subject.label || subject.id} · {focusedCrossing ? `${focusedExpression} ↔ ${focusedCrossing}` : focusedExpression}</strong>
+        <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "ביטוי"} · כאן רואים מה מתחבר; דף המספר נשאר בית החישוב</small>
       </div>
       <div className="sod29-actions">
         {focusedNumberHref ? <button className="sod29-action primary" type="button" onClick={() => {
           if (context?.returnTo?.href?.startsWith("/2029/number/")) shell.returnExact();
           else shell.go(focusedNumberHref, { preserve: false });
-        }}>חזור לחישוב</button> : null}
-        <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את העולם בלי מיקוד</button>
+        }}>חזרה לדף המספר</button> : null}
+        <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את כל מה שמתחבר ל־{subject.label || subject.id}</button>
       </div>
     </section> : null}
 
@@ -1514,12 +1509,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.experience.question}</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן רואים מה מתחבר לנקודה הזאת. מתחילים במהות, ואז בוחרים את השכבה שרוצים לחקור — תמונות, גימטריה, מקורות, קשרים, מחקר או זמן.</div>
+          <div className="sod29-muted">כאן רואים מה מתחבר לנקודה הזאת. מתחילים במהות, ואז בוחרים זווית — תמונות, גימטריה, מקורות, קשרים, חיבורים נוספים או זמן.</div>
         </div>
         <div className="sod29-actions">
           {data?.identity ? <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span> : null}
           {isAdmin && data ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
-          <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
+          <button className="sod29-action" type="button" onClick={() => shell.go("/heichal")}>◇ בדוק לעומק בהיכל</button>
         </div>
       </div>
     </section>
@@ -1590,7 +1585,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {anchorProfile ? <section className="sod29-section sod29-world-anchor-profile" aria-label={`פרופיל עוגן ${data.identity.label}`}>
         <div className="sod29-section-head">
           <div>
-            <div className="sod29-kicker">פרופיל עוגן · אוצרות מחקרית מתפתחת</div>
+            <div className="sod29-kicker">פרופיל עוגן · אוצרות מתפתחת</div>
             <h2>מה חשוב לדעת על {data.identity.label}</h2>
           </div>
           <button className="sod29-action" type="button" onClick={openNumberPage}>לדף המספר ←</button>
@@ -1598,12 +1593,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-world-anchor-profile-grid">
           <div className="sod29-world-anchor-profile-main">
             {anchorProfile.category ? <span className="sod29-chip">{anchorProfile.category}</span> : null}
-            {anchorProfile.fact ? <strong>{anchorProfile.fact}</strong> : <strong>עוגן מחקרי ל־{data.identity.label}</strong>}
+            {anchorProfile.fact ? <strong>{anchorProfile.fact}</strong> : <strong>עוגן ל־{data.identity.label}</strong>}
             {anchorProfile.hint ? <p>{anchorProfile.hint}</p> : null}
           </div>
           <aside className="sod29-world-anchor-profile-note">
             <b>איך לקרוא את זה?</b>
-            <p>זהו תיאור אוצרות מחקרי שמתעדכן עם העבודה. חישובי המנוע, המקורות והאימותים מוצגים בנפרד. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; העולם מציג את ההקשר סביב המספר.</p>
+            <p>זהו תיאור אוצרות שמתעדכן עם החומר המחובר. חישובי המנוע, המקורות והאימותים מוצגים בנפרד. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; העולם מציג את ההקשר סביב המספר.</p>
           </aside>
         </div>
       </section> : null}
@@ -1690,7 +1685,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
               </button>;
             })}
           </div> : null}
-          {selectedContributor ? <div className="sod29-muted">מסנן כעת: <b>{selectedContributor.displayName}</b> · מחקר {selectedContributor.researchObjectIds.length} · תרומות רלוונטיות {selectedContributor.relevantContributions.length} · התכנסויות {selectedContributor.convergences.length + selectedContributor.topicSlugs.length}</div> : null}
+          {selectedContributor ? <div className="sod29-muted">מסנן כעת: <b>{selectedContributor.displayName}</b> · פריטים {selectedContributor.researchObjectIds.length} · תרומות רלוונטיות {selectedContributor.relevantContributions.length} · התכנסויות {selectedContributor.convergences.length + selectedContributor.topicSlugs.length}</div> : null}
         </div>
       </section> : null}
 
@@ -1704,7 +1699,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div>
             <div className="sod29-kicker">קודם מה שמשנה את התמונה</div>
             <h2>העיקר סביב {data.identity.label}</h2>
-            <p>עד שבע התכנסויות וקשרים בולטים שנבחרו בהקשר הזה אחרי סינון הרשאות וקיבוץ כפילויות ותלויות. הבולטות כאן היא רלוונטיות מחקרית — לא דירוג אמת.</p>
+            <p>עד שבע התכנסויות וקשרים בולטים שנבחרו בהקשר הזה אחרי סינון הרשאות וקיבוץ כפילויות ותלויות. הבולטות כאן היא רלוונטיות להקשר — לא דירוג אמת.</p>
           </div>
           <span className="sod29-world-primary-count">{prominenceItems.length}</span>
         </div>
@@ -1729,7 +1724,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
               </div>
               <div className="sod29-actions sod29-world-primary-actions">
                 <button className="sod29-action" type="button" aria-expanded={whyOpen === `primary:${item.id}`} onClick={() => setWhyOpen((value) => value === `primary:${item.id}` ? null : `primary:${item.id}`)}>למה כאן?</button>
-                <button className="sod29-action" type="button" onClick={() => inspectProminenceItem(item)}>בדוק</button>
+                <button className="sod29-action" type="button" onClick={() => inspectProminenceItem(item)}>פתח</button>
               </div>
             </article>;
           })}
@@ -1788,10 +1783,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
             return <div className="sod29-row sod29-world-source-row" key={`${source.ref || source.label}-${index}`}>
               <div>
                 <strong>{label}</strong>
-                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : "מקור מחקר"}</small>
+                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : "מקור"}</small>
                 {adminMode && rawRef && label !== rawRef ? <small>Trace · {rawRef}</small> : null}
               </div>
-              <button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button>
+              <button className="sod29-action" type="button" onClick={() => inspectSource(source)}>פרטים</button>
             </div>;
           })}
         </div>
@@ -1823,7 +1818,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                 <h3>{label}</h3>
                 <div className="sod29-muted">מוצג כאן בגלל קשר ישיר בגרף אל הנקודה הזאת; התמונה עצמה אינה הוכחה או דירוג אמת.</div>
                 <div className="sod29-actions">
-                  <button className="sod29-action" type="button" onClick={() => inspectMedia(item)}>בדוק</button>
+                  <button className="sod29-action" type="button" onClick={() => inspectMedia(item)}>פרטים</button>
                 </div>
               </div>
             </article>;
@@ -1866,7 +1861,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
             </div>
             <div className="sod29-actions">
               <button className="sod29-action" type="button" aria-expanded={whyOpen === rowId} onClick={() => setWhyOpen((value) => value === rowId ? null : rowId)}>למה כאן?</button>
-              <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "העמק"}</button>
+              <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "פתח חיבור"}</button>
             </div>
           </div>;
         })}</div>
@@ -1907,7 +1902,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
       {activeLane === "research" && visibleTopicFindings.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">{CONVERGENCES_LABEL}</div><h2>{selectedContributor ? `${CONVERGENCES_LABEL} של ${selectedContributor.displayName}` : `${CONVERGENCES_LABEL} סביב הנקודה`}</h2></div><span className="sod29-chip">{visibleTopicFindings.length}</span></div>
-        <div className="sod29-list">{visibleTopicFindings.map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || CONVERGENCE_LABEL}</strong><small>{CONVERGENCE_LABEL} שקשורה לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+        <div className="sod29-list">{visibleTopicFindings.map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || CONVERGENCE_LABEL}</strong><small>{CONVERGENCE_LABEL} שקשורה לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>פתח</button></div>)}</div>
       </section> : null}
 
       {activeLane === "research" && data.numberWorlds?.length ? <section className="sod29-section">
@@ -1916,7 +1911,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {activeLane === "research" && (adminMode ? filteredResearchFindings.length : visibleResearchFindings.length) ? <section className="sod29-section sod29-world-human-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>{adminMode ? "ממצאי המחקר לפי הסינון הנוכחי" : "דברים שנמצאו סביב הנקודה הזאת"}</h2></div>{adminMode ? <span className="sod29-chip">{filteredResearchFindings.length} / {visibleResearchFindings.length}</span> : null}</div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">{adminMode ? "עוד מחקר" : "עוד חיבורים"}</div><h2>{adminMode ? "ממצאי המחקר לפי הסינון הנוכחי" : "דברים שנמצאו סביב הנקודה הזאת"}</h2></div>{adminMode ? <span className="sod29-chip">{filteredResearchFindings.length} / {visibleResearchFindings.length}</span> : null}</div>
         <div className="sod29-list">{(adminMode ? filteredResearchFindings : visibleResearchFindings).map((finding, index) => {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
@@ -1939,12 +1934,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {activeLane === "timeline" && data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">זמן מחקר</div><h2>נוסף למחקר</h2></div></div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מתי נוסף</div><h2>נוסף למערכת</h2></div></div>
         <div className="sod29-muted sod29-world-time-note">התאריכים כאן מציינים מתי החומר או הייצוג נכנסו למערכת. הם אינם מוצגים כזמן היסטורי של האירוע אלא אם מקור זמן ייעודי מציין זאת במפורש.</div>
         <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => {
           const label = humanTimelineLabel(item);
           const rawLabel = String(item?.label || "").trim();
-          return <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{label}</strong><small>נוסף למחקר · {researchAddedDate(item.at)}</small>{adminMode && rawLabel && label !== rawLabel ? <small>Trace · {rawLabel}</small> : null}</div></div>;
+          return <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{label}</strong><small>נוסף למערכת · {researchAddedDate(item.at)}</small>{adminMode && rawLabel && label !== rawLabel ? <small>Trace · {rawLabel}</small> : null}</div></div>;
         })}</div>
       </section> : null}
     </div> : null}
@@ -1980,7 +1975,7 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
-      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
+      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות או מסע, ואם תרצה לבדוק לעומק — המשך להיכל."
       status="עולם · גילוי"
       introVariant="compact"
     >
