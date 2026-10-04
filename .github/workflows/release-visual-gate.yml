@@ -335,7 +335,7 @@ jobs:
             expect(traceRequests).toBe(0);
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
 
-            await focusGroup.locator('[data-focus-part="expression"]').click();
+            await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
 
             const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
             const drawer = sidecar.locator('.sod29-number-drawer2029');
