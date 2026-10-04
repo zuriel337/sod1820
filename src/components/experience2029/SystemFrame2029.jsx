@@ -902,6 +902,7 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
+  const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = context?.subject?.href || "";
   const postTrail = surface === "post"
     && context?.subject?.type === "post"
@@ -910,12 +911,12 @@ export default function SystemFrame2029({
     && Array.isArray(context?.dimensions?.bottomTrail)
       ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
-  const numberSurfaceFocus = surface === "number" ? context?.dimensions?.surfaceFocus || null : null;
+  const numberSurfaceFocus = numberPageRoute ? context?.dimensions?.surfaceFocus || null : null;
   // NUMBER_2029_RELEASE_V1 keeps the existing Command Island contract unchanged.
   // Number Context is exposed through the dedicated Context cue/rail, not by restructuring
   // the bottom command toolbar in this isolated release.
   const bottomTrail = postTrail;
-  const showNumberContextRail = surface === "number" && Boolean(activeTarget || context?.subject);
+  const showNumberContextRail = numberPageRoute && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -944,7 +945,7 @@ export default function SystemFrame2029({
   const frame = (
     <ShellContext.Provider value={shellApi}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -1039,11 +1040,11 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${surface === "number" && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
+        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
           {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
-              {surface === "number" ? <button
+              {numberPageRoute ? <button
                 type="button"
                 className="sod29-command-trail-item"
                 aria-current={item.active ? "page" : undefined}
@@ -1075,7 +1076,7 @@ export default function SystemFrame2029({
             ><span>◎</span><small>פעולה</small></button> : null}
             <div className="sod29-command-actions">
               <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-              {surface !== "number" ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
+              {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
               <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
               <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
             </div>
