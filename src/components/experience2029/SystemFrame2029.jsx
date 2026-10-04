@@ -883,7 +883,34 @@ export default function SystemFrame2029({
     openTransient(TRANSIENT.CAPABILITY, { ...payload, capability: key, subject: normalizeTarget(subject) });
   }, [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
-  const openNumber = useCallback((subject = null) => openCapability("number", subject), [openCapability]);
+  const openNumber = useCallback((subject = null) => {
+    const normalized = normalizeTarget(subject);
+    if (
+      normalized?.expression
+      && normalized?.method
+      && Number.isSafeInteger(Number(normalized?.resultValue))
+    ) {
+      const resultValue = Number(normalized.resultValue);
+      research.updateResearchContext?.({
+        subject: {
+          id: String(resultValue),
+          type: "number",
+          label: String(resultValue),
+          href: `/2029/number/${resultValue}`,
+        },
+        selection: {
+          entityId: normalized.id,
+          entityType: "gematria_expression",
+          locator: normalized.locator || null,
+          expression: normalized.expression,
+          method: normalized.method,
+          resultValue,
+        },
+        lens: "gematria",
+      });
+    }
+    openCapability("number", normalized || subject);
+  }, [openCapability, research]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
