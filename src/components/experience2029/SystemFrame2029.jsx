@@ -1328,7 +1328,7 @@ export default function SystemFrame2029({
                   <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
-                    {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
+                    {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
                     {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
                       {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
