@@ -18,7 +18,7 @@ export default function ReadingContextRail2029({
       className="sod29-reading-rail"
       ariaLabel="מה מתחבר למה שקוראים עכשיו"
       contextId={focus.id}
-      kicker="✦ כאן נפתח חיבור"
+      kicker="חיבורים סביב הקטע"
       title={focus.primary}
       subtitle={focus.label}
       actions={<div className="sod29-reading-rail-actions">
