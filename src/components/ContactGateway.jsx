@@ -24,7 +24,7 @@ export function buildContactGatewayContext({ surface = null, capability = null, 
 }
 
 const HINT_RE = /(רמז|מצאתי|מספר|שלט|צילום|תמונה|פסוק|גימטר|source|hint|number)/i;
-const ISSUE_RE = /(לא עובד|תקלה|שגיא|בעיה|נשבר|לא נפתח|לא מגיב|איטי|נתקע|באג|bug|error|broken|לא ברור|מבלבל|לא הבנתי)/i;
+const ISSUE_RE = /(לא עובד|תקלה|שגיא|בעיה|נשבר|לא נפתח|לא מגיב|איטי|נתקע|באג|bug|error|broken|לא\s+(?:היה\s+לי\s+)?ברור|מבלבל|לא הבנתי)/i;
 const IDEA_RE = /(חסר|רעיון|הצעה|הלוואי|צריך שיהיה|feature|idea|suggest|improve|שיפור)/i;
 
 export function classifyContactIntent(raw) {
