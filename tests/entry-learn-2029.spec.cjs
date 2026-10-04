@@ -78,6 +78,18 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(drawer).toBeVisible({ timeout: 30_000 });
   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
 
+  await expect.poll(async () => page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+    if (!key) return '';
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    const selection = stored?.selection || {};
+    return JSON.stringify([
+      selection.expression || null,
+      selection.method || null,
+      Number(selection.resultValue),
+    ]);
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['מלח', 'רגיל', 78]));
+
   const calculation = drawer.locator('.sod29-number-v10-calculation-card');
   await expect(calculation).toBeVisible({ timeout: 20_000 });
   await calculation.click();
