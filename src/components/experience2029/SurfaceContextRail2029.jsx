@@ -22,8 +22,7 @@ export default function SurfaceContextRail2029({
   compact = false,
 }) {
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
-  if (!subject) return null;
-  const number = Number(subject.number ?? subject.resultValue ?? (subject.type === "number" ? subject.id : null));
+  const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
   const title = String(subject.primary || subject.label || subject.expression || subject.id || "הקשר פעיל");
   const subtitle = String(subject.type === "verse" ? (subject.reference || subject.label || "פסוק") : (subject.sectionLabel || subject.subtitle || subject.type || ""));
@@ -38,6 +37,8 @@ export default function SurfaceContextRail2029({
   useEffect(() => {
     setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
   }, [conceptKey]);
+
+  if (!subject) return null;
 
   const openLearn = () => {
     if (!conceptKey || !fragment) return;
