@@ -53,3 +53,8 @@ assert.doesNotMatch(migration, /delete from storage\.objects/i);
 assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/);
 
 console.log("Personal Intake 2029 unified contract: PASS");
+
+const verifyFn = edge.slice(edge.indexOf("async function verifyIntent"), edge.indexOf("async function deleteVerifiedUpload"));
+const rollbackFn = edge.slice(edge.indexOf("async function deleteVerifiedUpload"), edge.indexOf("async function readPersonalMedia"));
+assert.match(verifyFn, /\["submission","personal"\]\.includes\(scope\)/);
+assert.match(rollbackFn, /\["submission","personal"\]\.includes\(scope\)/);
