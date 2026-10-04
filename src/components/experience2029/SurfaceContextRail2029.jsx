@@ -31,15 +31,28 @@ export default function SurfaceContextRail2029({
   const pageId = String(pageSubject?.id ?? "");
   const candidateId = String(candidate?.entityId ?? candidate?.id ?? "");
   const candidateType = String(candidate?.entityType || candidate?.type || "");
-  const explicitFocus = Boolean(
+  const pageType = String(pageSubject?.type || "");
+  // A surface may publish its own root/section as surfaceFocus for path/progress continuity.
+  // That is page state, not a user selection, and must not turn the Inspector into a mini-summary.
+  const rootSurfaceFocus = Boolean(
     surfaceFocus
+    && candidateId
+    && pageId
+    && candidateId === pageId
+    && candidateType
+    && candidateType === pageType
+    && !candidate?.expression
+    && candidate?.resultValue == null
+  );
+  const explicitFocus = Boolean(
+    (!rootSurfaceFocus && surfaceFocus)
     || candidate?.source === "selection"
     || candidate?.focusKind
-    || candidate?.locator
+    || (!rootSurfaceFocus && candidate?.locator)
     || candidate?.expression
     || candidate?.resultValue != null
     || (candidateId && pageId && candidateId !== pageId)
-    || ["phrase", "verse", "source", "media", "image", "person", "event", "finding", "relation"].includes(candidateType)
+    || (!rootSurfaceFocus && ["phrase", "verse", "source", "media", "image", "person", "event", "finding", "relation"].includes(candidateType))
   );
   const subject = explicitFocus ? candidate : null;
   const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
