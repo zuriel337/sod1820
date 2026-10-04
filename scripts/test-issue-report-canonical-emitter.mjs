@@ -143,17 +143,9 @@ const aiAnalyzeContact = read("supabase/functions/ai-analyze/index.ts");
 
 assert.doesNotMatch(gatewayPrivacy, /review_note/);
 assert.doesNotMatch(triageMigration, /review_note/);
-assert.ok(triageMigration.includes("'^/[A-Za-z0-9/_-]{1,180}
+assert.ok(triageMigration.includes("^/[A-Za-z0-9/_-]{1,180}$"));
 assert.match(aiAnalyzeContact, /kind === "contact_triage" && tier !== "admin"/);
 assert.match(aiAnalyzeContact, /error: "forbidden"/);
-
-assert.match(triageMigration, /revoke all on function public\.suggest_add\(text,text,text,text,jsonb,integer,integer,text,text\)/);
-assert.match(triageMigration, /from public, anon, authenticated/);
-assert.match(triageMigration, /grant execute on function public\.suggest_add[\s\S]*to service_role/);
-"));
-assert.match(aiAnalyzeContact, /kind === "contact_triage" && tier !== "admin"/);
-assert.match(aiAnalyzeContact, /error: "forbidden"/);
-
 assert.match(triageMigration, /revoke all on function public\.suggest_add\(text,text,text,text,jsonb,integer,integer,text,text\)/);
 assert.match(triageMigration, /from public, anon, authenticated/);
 assert.match(triageMigration, /grant execute on function public\.suggest_add[\s\S]*to service_role/);
