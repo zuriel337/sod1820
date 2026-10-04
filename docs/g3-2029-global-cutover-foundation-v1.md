@@ -185,6 +185,8 @@ A public legacy renderer may be retired only when all applicable rows are PASS:
 | Isolation | 2029 does not accidentally load legacy presentation/chrome |
 | Regression gates | build/visual/isolation/SEO pass on exact head |
 
+Operational extensions of this gate — Public Shell acceptance, rollback contract, staged cutover by route family, and the automated Legacy↔2029 parity scan — live in `docs/g3-2029-cutover-acceptance-checklist.md` (2026-10-04). They extend this gate; they add no new stage and do not change the Golden order.
+
 ## 13. Whole-site migration order
 
 This foundation changes the migration strategy:
