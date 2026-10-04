@@ -34,6 +34,7 @@ function intakeRoute(policy: any) {
 }
 
 function trustedContributor(credit: string | null, vips: any[], policy: any) {
+  if (policy?.admin_only === true) return true;
   const value = String(credit || "").trim();
   if (!value) return false;
   if (policy?.outgoing_contributor && value === String(policy.outgoing_contributor).trim()) return true;
@@ -271,7 +272,7 @@ Deno.serve(async (req) => {
   const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
 
   const { data: sourceRows, error: sourceError } = await sb.from("channel_ingest_sources")
-    .select("channel,intake_mode,outgoing_contributor,priority,enabled")
+    .select("channel,intake_mode,outgoing_contributor,priority,enabled,admin_only")
     .eq("enabled", true)
     .neq("intake_mode", "off");
   if (sourceError) return json({ error: "source_policy_read_failed" }, 500);
