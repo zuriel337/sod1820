@@ -319,7 +319,25 @@ function PostReadingBody() {
       lens: "gematria",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: state.projection?.experience?.trail || [],
+        bottomTrail: [
+          { id: "post", label: "פוסט" },
+          { id: "gematria", label: "גימטריות" },
+          { id: "number", label: String(numericResult), active: true },
+        ],
+        surfaceFocus: {
+          id: targetRegion.id,
+          type: "gematria_expression",
+          sectionLabel: "גימטריות",
+          label: cleanExpression,
+          primary: cleanExpression,
+          expression: cleanExpression,
+          method: cleanMethodKey,
+          resultValue: numericResult,
+          number: numericResult,
+          signals: targetRegion.signals || [],
+          sourceLabel: projection.sourceLabel,
+          locator,
+        },
         readingFocus: {
           id: targetRegion.id,
           label: targetRegion.label,
