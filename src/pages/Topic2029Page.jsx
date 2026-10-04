@@ -213,11 +213,11 @@ function TopicSourcesMedia({ golden, verses = [], onFocusVerse }) {
       </div>
       <div className="sod29-topic-verse-list">
         {verses.map((row) => {
-          const reference = formatTanakhRef(row);
+          const reference = formatTanakhRef(row.ref || row);
           return <button
             type="button"
             className="sod29-topic-verse-card"
-            key={`${row.book}:${row.chapter}:${row.verse}`}
+            key={row.ref}
             onClick={() => onFocusVerse?.(row)}
           >
             <span>{reference}</span>
@@ -288,7 +288,7 @@ function TopicBody() {
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
   const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
-  const [verseState, setVerseState] = useState({ loading: false, rows: [], error: null });
+  const [verseState, setVerseState] = useState({ loading: false, rows: [], count: 0, error: null });
   const [focusOverride, setFocusOverride] = useState(null);
 
   useEffect(() => {
@@ -345,23 +345,32 @@ function TopicBody() {
   useEffect(() => {
     const heroNumber = Number(projection?.heroNumber);
     if (!Number.isSafeInteger(heroNumber)) {
-      setVerseState({ loading: false, rows: [], error: null });
+      setVerseState({ loading: false, rows: [], count: 0, error: null });
       return undefined;
     }
     let alive = true;
-    setVerseState({ loading: true, rows: [], error: null });
+    setVerseState({ loading: true, rows: [], count: 0, error: null });
     supabase
-      .from("tanach_verses")
-      .select("book_idx,book,chapter,verse,text,ragil")
-      .eq("ragil", heroNumber)
-      .order("book_idx", { ascending: true })
-      .order("chapter", { ascending: true })
-      .order("verse", { ascending: true })
-      .limit(24)
+      .rpc("fn_verses_by_gematria", { p_value: heroNumber, p_limit: 6 })
       .then(({ data, error }) => {
         if (!alive) return;
-        if (error) setVerseState({ loading: false, rows: [], error });
-        else setVerseState({ loading: false, rows: Array.isArray(data) ? data : [], error: null });
+        if (error) {
+          setVerseState({ loading: false, rows: [], count: 0, error });
+          return;
+        }
+        const rows = Array.isArray(data?.verses)
+          ? data.verses.map((row) => ({
+              ref: clean(row?.ref),
+              text: clean(row?.text),
+              ragil: heroNumber,
+            })).filter((row) => row.ref && row.text)
+          : [];
+        setVerseState({
+          loading: false,
+          rows,
+          count: Number.isFinite(Number(data?.count)) ? Number(data.count) : rows.length,
+          error: null,
+        });
       });
     return () => { alive = false; };
   }, [projection?.heroNumber]);
@@ -419,8 +428,8 @@ function TopicBody() {
 
   const focusVerse = (row) => {
     if (!projection || !row) return;
-    const reference = formatTanakhRef(row);
-    const id = `verse:${row.book}:${row.chapter}:${row.verse}`;
+    const reference = formatTanakhRef(row.ref || row);
+    const id = `verse:${clean(row.ref) || reference}`;
     setActiveSectionId("topic-sources");
     setFocusOverride({
       id,
