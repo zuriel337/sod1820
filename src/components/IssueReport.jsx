@@ -36,6 +36,9 @@ export function buildIssueReportContext({
   pathname = null,
   surface = null,
   capability = null,
+  concept = null,
+  learnStage = null,
+  actionTried = null,
   locale = null,
   width = null,
   signedIn = false,
@@ -48,6 +51,9 @@ export function buildIssueReportContext({
     path,
     surface: boundKey(surface),
     capability: boundKey(capability),
+    concept: boundKey(concept),
+    learn_stage: boundKey(learnStage),
+    action_tried: boundKey(actionTried),
     at: now instanceof Date && !Number.isNaN(now.getTime()) ? now.toISOString() : null,
     locale: boundKey(locale),
     viewport: viewportClass(width),
@@ -67,7 +73,17 @@ export function emitIssueReport(context, text) {
   return payload;
 }
 
-export default function IssueReport({ pathname, surface = null, capability = null, locale = null, onDone, initialText = "" }) {
+export default function IssueReport({
+  pathname,
+  surface = null,
+  capability = null,
+  concept = null,
+  learnStage = null,
+  actionTried = null,
+  locale = null,
+  onDone,
+  initialText = "",
+}) {
   const { user, isAdmin } = useAuth() || {};
   const [text, setText] = useState(() => boundIssueText(initialText));
   const [sent, setSent] = useState(false);
@@ -77,12 +93,15 @@ export default function IssueReport({ pathname, surface = null, capability = nul
     pathname,
     surface,
     capability,
+    concept,
+    learnStage,
+    actionTried,
     locale: locale || (typeof navigator !== "undefined" ? navigator.language : null),
     width: typeof window !== "undefined" ? window.innerWidth : null,
     signedIn: Boolean(user),
     isAdmin: Boolean(isAdmin),
     interactionId: newInteractionId(),
-  }), [pathname, surface, capability, locale, user, isAdmin]);
+  }), [pathname, surface, capability, concept, learnStage, actionTried, locale, user, isAdmin]);
 
   const submit = useCallback((event) => {
     event.preventDefault();
