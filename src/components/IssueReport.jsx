@@ -67,9 +67,9 @@ export function emitIssueReport(context, text) {
   return payload;
 }
 
-export default function IssueReport({ pathname, surface = null, capability = null, locale = null, onDone }) {
+export default function IssueReport({ pathname, surface = null, capability = null, locale = null, onDone, initialText = "" }) {
   const { user, isAdmin } = useAuth() || {};
-  const [text, setText] = useState("");
+  const [text, setText] = useState(() => boundIssueText(initialText));
   const [sent, setSent] = useState(false);
   const sentRef = useRef(false);
 
