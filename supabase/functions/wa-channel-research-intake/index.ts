@@ -85,6 +85,103 @@ async function priorFailureAttempts(ref: string) {
   return max;
 }
 
+
+function compactTerms(rows: any[]) {
+  const out = new Set<string>();
+  for (const row of rows || []) {
+    for (const raw of [...(row?.terms || []), ...(row?.relates || [])]) {
+      const v = String(raw || "").trim();
+      if (v.length >= 2 && v.length <= 80) out.add(v);
+    }
+  }
+  return [...out].slice(0, 24);
+}
+
+function compactValues(rows: any[]) {
+  const out = new Set<number>();
+  for (const row of rows || []) {
+    const n = Number(row?.value);
+    if (Number.isSafeInteger(n) && n > 0) out.add(n);
+  }
+  return [...out].slice(0, 16);
+}
+
+async function findExistingTreeTargets(ref: string) {
+  const { data: objects } = await sb.from("research_objects")
+    .select("id,kind,statement,terms,relates,value,engine_verified")
+    .eq("source_ref", ref);
+
+  const terms = compactTerms(objects || []);
+  const values = compactValues(objects || []);
+  const targets: any[] = [];
+
+  if (values.length) {
+    const { data: topicByNumber } = await sb.from("topic_cards_public")
+      .select("slug,title,numbers,highlight_numbers")
+      .or(values.map((n) => `${n}=any(numbers),${n}=any(highlight_numbers)`).join(","))
+      .limit(16);
+    for (const row of topicByNumber || []) {
+      targets.push({ type: "topic", key: row.slug, label: row.title, match: "number" });
+    }
+
+    for (const n of values) {
+      targets.push({ type: "number", key: String(n), label: String(n), match: "value" });
+    }
+  }
+
+  if (terms.length) {
+    const { data: topicByTerm } = await sb.from("topic_cards_public")
+      .select("slug,title,search_terms")
+      .overlaps("search_terms", terms)
+      .limit(16);
+    for (const row of topicByTerm || []) {
+      targets.push({ type: "topic", key: row.slug, label: row.title, match: "term" });
+    }
+
+    const { data: nodes } = await sb.from("nodes")
+      .select("id,type,label,identity_key")
+      .in("label", terms)
+      .eq("is_active", true)
+      .limit(20);
+    for (const row of nodes || []) {
+      const mappedType = row.type === "post" ? "post" : row.type === "entity" ? "entity" : row.type;
+      targets.push({ type: mappedType, key: row.identity_key || row.id, label: row.label, match: "term" });
+    }
+
+    const { data: posts } = await sb.from("posts")
+      .select("id,slug,title,tags")
+      .overlaps("tags", terms)
+      .limit(20);
+    for (const row of posts || []) {
+      targets.push({ type: "post", key: row.slug || String(row.id), label: row.title, match: "tag" });
+    }
+  }
+
+  const seen = new Set<string>();
+  return targets.filter((row) => {
+    const key = `${row.type}:${row.key}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 20);
+}
+
+async function annotateTreeTargets(ref: string) {
+  const targets = await findExistingTreeTargets(ref);
+  const { data } = await sb.from("research_objects").select("id,meta").eq("source_ref", ref);
+  for (const row of data || []) {
+    const current = (row as any)?.meta?.ext?.wa_channel_intake || {};
+    await sb.from("research_objects").update({
+      meta: mergeIntakeMeta((row as any).meta, {
+        ...current,
+        tree_matches: targets,
+        tree_match_state: targets.length ? "matched_existing_tree" : "candidate_unmatched",
+      }),
+    }).eq("id", (row as any).id);
+  }
+  return targets;
+}
+
 async function fallbackObservation(
   row: any,
   content: string,
@@ -207,7 +304,8 @@ async function processRow(row: any) {
           ? "reviewed_caption_media_needs_ocr"
           : "reviewed_no_structured_findings";
       await fallbackObservation(row, content, reviewedState, ocrUsed, mediaKind);
-      return { id: row.id, channel: row.channel, state: reviewedState };
+      const treeMatches = await annotateTreeTargets(ref);
+      return { id: row.id, channel: row.channel, state: reviewedState, tree_matches: treeMatches.length };
     }
 
     const analysisState = mediaKind === "video"
@@ -218,7 +316,7 @@ async function processRow(row: any) {
     await annotateSourceObjects(ref, {
       channel: row.channel,
       route: intakeRoute(row._sourcePolicy),
-    trusted_author: row._trustedAuthor === true,
+      trusted_author: row._trustedAuthor === true,
       analysis_state: analysisState,
       analyzed_at: new Date().toISOString(),
       source_created_at: row.created_at,
@@ -228,7 +326,8 @@ async function processRow(row: any) {
       media_ocr_pending: mediaKind === "image" && !ocrUsed,
       ocr_used: ocrUsed,
     });
-    return { id: row.id, channel: row.channel, state: analysisState, produced };
+    const treeMatches = await annotateTreeTargets(ref);
+    return { id: row.id, channel: row.channel, state: analysisState, produced, tree_matches: treeMatches.length };
   } catch {
     await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed, mediaKind);
     return { id: row.id, channel: row.channel, state: "analysis_failed_preserved" };
