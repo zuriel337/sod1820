@@ -214,6 +214,29 @@ The three user presets are live product controls now:
 The selector consumes the existing theme store and existing Design V2 palette owner. Changing colors later edits semantic palette roles at the owner, never per-page theme CSS.
 
 The Bottom Command Island remains a separate Path/Action owner and is not redesigned by this contract section.
+### 11.7 Final Global Chrome V1
+Desktop Global Chrome is one persistent System Frame composition:
+- **Right Global Rail:** sticky for the full viewport; expanded and collapsed states animate through one owner.
+- **Topbar:** compact full Brand lockup, current surface identity, one Search / Command pill, contextual utility icons, and My Workspace projected as the authenticated user avatar.
+- **Mobile:** the same navigation tree projects into the Navigation Sheet; the persistent topbar stays minimal.
+
+Right Global Rail naming is canonical:
+- בית
+- העולם
+- היכל
+- פוסטים
+- מסעות
+- קהילה
+- דף המספר
+- ספרים ומקורות
+- ELS
+
+`דף המספר` is the canonical global label. Generic `מספרים` is not a Global Navigation label.
+Because the live route is `/2029/number/:value`, selecting `דף המספר` without a value opens the canonical Search / Command projection rather than inventing a fake root route.
+
+The expanded rail may show the full approved Brand lockup. The collapsed rail must not create a crown-only logo; it uses a neutral Home/Brand affordance while the persistent desktop Topbar retains a small full-lockup identity moment.
+
+Global rail expansion preference may persist locally as a presentation preference. This does not create a new navigation store or product-truth state.
 ## 12. Acceptance
 A 2029 visual-foundation change must prove:
 1. same semantics in all three presets;
