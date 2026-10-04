@@ -1041,7 +1041,23 @@ export default function SystemFrame2029({
           {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
-              <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>
+              <button
+                type="button"
+                className="sod29-command-trail-item"
+                aria-current={item.active ? "page" : undefined}
+                onClick={() => {
+                  if (item.number != null) {
+                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/2029/number/${item.number}` });
+                    return;
+                  }
+                  if (item.targetId) {
+                    document.getElementById(item.targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    return;
+                  }
+                  if (item.href) go(item.href);
+                }}
+                disabled={!item.number && !item.targetId && !item.href}
+              >{item.label}</button>
             </React.Fragment>)}
           </nav> : <>
             <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
