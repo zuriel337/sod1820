@@ -14,6 +14,7 @@ import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
@@ -83,13 +84,14 @@ export const use2029Shell = () => useContext(ShellContext);
 const HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
+  { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
   { label: "קהילה", icon: "◎", status: "בקרוב" },
 ];
 
 const DIRECT_NAV = [
-  { label: "דף המספר", icon: "123", status: "בבנייה" },
+  { label: "דף המספר", icon: "123", action: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS", icon: "✦" },
 ];
@@ -230,7 +232,18 @@ function ThemePresetControl2029({ compact = false }) {
   );
 }
 
-function NavGroup({ title, items, preserveReturnFor, onNavigate }) {
+function UserAvatar2029({ user, profile, size = "normal" }) {
+  const src = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
+  const name = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "אישי").trim();
+  const fallback = Array.from(name).find((ch) => /[\p{L}\p{N}]/u.test(ch)) || "•";
+  return (
+    <span className={`sod29-user-avatar is-${size}`} aria-hidden="true">
+      {src ? <img src={src} alt="" referrerPolicy="no-referrer" /> : <b>{fallback}</b>}
+    </span>
+  );
+}
+
+function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
   return (
     <div className="sod29-nav-group">
       <div className="sod29-nav-group-title">{title}</div>
@@ -246,6 +259,11 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate }) {
           <span className="sod29-nav-icon">{item.icon}</span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
+      ) : item.action ? (
+        <button className="sod29-nav-link" key={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
+          <span className="sod29-nav-icon">{item.icon}</span>
+          <span className="sod29-nav-copy">{item.label}</span>
+        </button>
       ) : (
         <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled title={item.status}>
           <span className="sod29-nav-icon">{item.icon}</span>
@@ -827,8 +845,11 @@ export default function SystemFrame2029({
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
+  const { user, profile } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem("sod-global-rail") === "collapsed"; } catch { return false; }
+  });
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
@@ -872,6 +893,10 @@ export default function SystemFrame2029({
   useEffect(() => {
     setSurfaceFamiliarity(getSurfaceFamiliarity(surface));
   }, [surface, location.pathname]);
+
+  useEffect(() => {
+    try { localStorage.setItem("sod-global-rail", sidebarCollapsed ? "collapsed" : "expanded"); } catch { /* ignore */ }
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     if (orientation.mode !== "prominent" || !orientation.manifest) return;
@@ -960,6 +985,13 @@ export default function SystemFrame2029({
     setTransient(null);
     navigate(to, { state: { sodEntryArrival: "internal" } });
   }, [navigate, preserveReturnFor, completeSurfaceEntry]);
+
+  const handleGlobalNavAction = useCallback((action) => {
+    if (action === "number") {
+      setCommandQuery("");
+      openCommand();
+    }
+  }, [openCommand]);
 
   const returnExact = useCallback(() => {
     setTransient(null);
@@ -1336,12 +1368,14 @@ export default function SystemFrame2029({
             <span className="sod29-brand-neutral" aria-hidden="true">⌂</span>
           </Link>
           <nav className="sod29-nav">
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
+            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
           <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
-          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
+          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed}>
+            <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "" : "כווץ"}</b>
+          </button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
@@ -1349,20 +1383,24 @@ export default function SystemFrame2029({
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
+              <Link className="sod29-header-brand" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+                <BrandLockup2029 className="is-header" />
+              </Link>
               <div className="sod29-orientation" aria-label="איפה אני">
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
             </div>
+            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש / פקודה">
+              <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
+              <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
+              <span className="label">חיפוש / פקודה</span>
+              <kbd>⌘K</kbd>
+            </button>
             <div className="sod29-header-actions">
-              <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש / פקודה">
-                <span className="sod29-search-command-icon" aria-hidden="true">⌘</span>
-                <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
-                <span className="label">חיפוש / פקודה</span>
-              </button>
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
-              <button type="button" className="sod29-header-workspace" onClick={openWorkspace} aria-label="האזור האישי שלי">◎ <span className="workspace-label">האזור האישי שלי</span></button>
+              <button type="button" className="sod29-header-workspace" onClick={openWorkspace} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
 
@@ -1431,15 +1469,15 @@ export default function SystemFrame2029({
             <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
               <BrandLockup2029 />
             </Link>
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
               <small>מראה</small>
               <ThemePresetControl2029 />
             </section>
             <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
               <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon">↩</span><span>חזרה מדויקת</span></button>
-              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><UserAvatar2029 user={user} profile={profile} size="rail" /><span>האזור האישי שלי</span></button>
               <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
             </div>
           </aside>
