@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
+import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -290,7 +291,7 @@ export default function NumberLivingWorld2029({
     ["מתמטיקה", "number-math"],
     ["ביטויים", "number-expressions"],
     ["מקורות", "number-content-live"],
-    ["זמן", "number-timeline-live"],
+    ["גילוי", "number-timeline-live"],
     ["מסע", "number-journey-gate"],
     ["מחקר", "number-deep-view"],
   ];
@@ -502,8 +503,8 @@ export default function NumberLivingWorld2029({
         aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
       />
       {mediaItems.length ? <div className="sod29-lw-feature-media">
-        <figure><img src={mediaItems[0]?.thumbUrl || mediaItems[0]?.imageUrl} alt={mediaItems[0]?.label || `ייצוג חזותי של ${root}`} loading="lazy" /><figcaption><span>ייצוג מוביל</span><strong>{mediaItems[0]?.label || `המספר ${root}`}</strong></figcaption></figure>
-        <div>{mediaItems.slice(1, 4).map((item, index) => <figure key={item?.galleryImageId || item?.nodeId || index}><img src={item?.thumbUrl || item?.imageUrl} alt={item?.label || "ייצוג"} loading="lazy" /><figcaption>{item?.label || "מדיה"}</figcaption></figure>)}</div>
+        <figure><CanonicalMediaImage2029 item={mediaItems[0]} primary alt={mediaItems[0]?.label || `ייצוג חזותי של ${root}`} /><figcaption><span>ייצוג מוביל</span><strong>{mediaItems[0]?.label || `המספר ${root}`}</strong></figcaption></figure>
+        <div>{mediaItems.slice(1, 4).map((item, index) => <figure key={item?.galleryImageId || item?.nodeId || index}><CanonicalMediaImage2029 item={item} thumbnail alt={item?.label || "ייצוג"} /><figcaption>{item?.label || "מדיה"}</figcaption></figure>)}</div>
       </div> : null}
       <div className="sod29-lw-source-list">
         {sourcesShown.map((row, index) => <article key={row?.id || row?.ref || index}><div><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}</div><span>מקור</span></article>)}
@@ -524,7 +525,7 @@ export default function NumberLivingWorld2029({
     </section> : null}
 
     {timeline.length ? <section className="sod29-lw-section" id="number-timeline-live" data-experience-capability="number-timeline">
-      <SectionHead kicker="מחקר חי" title="ציר ההתגלות" text="תחנות מחקר, גילוי והוספה למחקר. זמן הכנסת חומר אינו מוצג כאילו הוא זמן האירוע בעולם." />
+      <SectionHead kicker="זמן וגילוי" title="ציר הגילוי" text="כאן רואים מתי חיבורים ומקורות נכנסו למערכת. זה אינו ציר האירועים בעולם, ולכן זמן ההוספה נשאר נפרד מזמן האירוע עצמו." />
       <div className="sod29-lw-timeline">
         {timelineShown.map((item, index) => <article key={item?.id || index}><time>{item?.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><i /><div><strong>{clean(item?.label) || clean(item?.kind) || "פריט מחקר"}</strong><small>{clean(item?.kind) || "נוסף למחקר"}{item?.status ? ` · ${item.status}` : ""}</small></div></article>)}
       </div>
