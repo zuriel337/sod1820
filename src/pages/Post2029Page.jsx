@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
+import SurfaceProgressSpine2029 from "../components/experience2029/SurfaceProgressSpine2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
@@ -22,6 +23,7 @@ function PostReadingBody() {
   const sourceRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
+  const [activeSurfaceSectionId, setActiveSurfaceSectionId] = useState("post-story");
 
   useEffect(() => {
     let live = true;
@@ -122,14 +124,18 @@ function PostReadingBody() {
       dimensions: {
         ...(research.context?.dimensions || {}),
         bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
-          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
+          { id: "post", label: "פוסט", targetId: "post-story" },
+          {
+            id: "section",
+            label: sectionItems.find((item) => item.id === activeSurfaceSectionId)?.label || "הסיפור",
+            targetId: sectionItems.find((item) => item.id === activeSurfaceSectionId)?.targetId || activeSurfaceSectionId,
+          },
+          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), number: Number(activeFocus.number), active: true }] : []),
         ],
         surfaceFocus: {
           id: activeFocus.id,
           type: activeFocus.number ? "number" : "post_region",
-          sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+          sectionLabel: sectionItems.find((item) => item.id === activeSurfaceSectionId)?.label || "הסיפור",
           label: activeFocus.primary || activeFocus.label,
           primary: activeFocus.primary,
           signals: activeFocus.signals || [],
@@ -150,7 +156,7 @@ function PostReadingBody() {
         },
       },
     });
-  }, [activeFocus?.id, state.projection?.post?.id]);
+  }, [activeFocus?.id, activeSurfaceSectionId, state.projection?.post?.id]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
@@ -301,6 +307,7 @@ function PostReadingBody() {
 
     const locator = `#source-region-${targetRegion.id}`;
     setActiveRegionId(targetRegion.id);
+    setActiveSurfaceSectionId("post-gematria");
     research.updateResearchContext?.({
       subject: {
         id: String(numericResult),
@@ -320,9 +327,9 @@ function PostReadingBody() {
       dimensions: {
         ...(research.context?.dimensions || {}),
         bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: "gematria", label: "גימטריות" },
-          { id: "number", label: String(numericResult), active: true },
+          { id: "post", label: "פוסט", targetId: "post-story" },
+          { id: "gematria", label: "גימטריות", targetId: "post-gematria" },
+          { id: "number", label: String(numericResult), number: numericResult, active: true },
         ],
         surfaceFocus: {
           id: targetRegion.id,
@@ -481,10 +488,17 @@ function PostReadingBody() {
       </div>
     </header>
 
-    <PostEvidenceMedia2029 media={experience.media} />
+    <SurfaceSectionNav2029
+      items={sectionItems}
+      activeId={activeSurfaceSectionId}
+      onSelect={(item) => setActiveSurfaceSectionId(item.id)}
+      ariaLabel="ניווט בפוסט"
+    />
+
+    <div id="post-sources"><PostEvidenceMedia2029 media={experience.media} /></div>
     {isBennettMaster || isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
-    <div className="sod29-reading-layout">
+    <div id="post-connections" className="sod29-reading-layout">
       <section
         ref={sourceRef}
         className="sod29-reading-source"
@@ -493,24 +507,19 @@ function PostReadingBody() {
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
-      <nav className="sod29-reading-spine" aria-label="עומק זמין לאורך המקור">
-        <span className="sod29-reading-spine-line" aria-hidden="true" />
-        {regions.map((region) => <button
-          key={region.id}
-          type="button"
-          className={region.id === activeFocus?.id ? "is-active" : ""}
-          onClick={() => {
-            setActiveRegionId(region.id);
-            document.getElementById(`source-region-${region.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }}
-          aria-label={`עבור אל ${region.label}`}
-          aria-current={region.id === activeFocus?.id ? "true" : undefined}
-        ><span /></button>)}
-      </nav>
+      <SurfaceProgressSpine2029
+        items={sectionItems}
+        activeId={activeSurfaceSectionId}
+        onSelect={(item) => setActiveSurfaceSectionId(item.id)}
+        onActiveChange={(item) => setActiveSurfaceSectionId(item.id)}
+        ariaLabel="התקדמות בפוסט"
+      />
 
     </div>
 
-    {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    <div id="post-next">
+      {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    </div>
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
