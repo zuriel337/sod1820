@@ -224,3 +224,9 @@ assert.match(topicCss, /\.sod29-topic-claim-number/);
 assert.match(topicPageGolden, /sod29-topic-equation/);
 assert.match(topicPageGolden, /sod29-topic-equation-value/);
 assert.match(topicPageGolden, /sod29-topic-axis-grid/);
+
+
+assert.match(topicPageGolden, /SurfaceSectionNav2029/);
+assert.match(topicPageGolden, /surfaceFocus:/);
+assert.match(topicPageGolden, /עוד גימטריות של/);
+assert.match(topicPageGolden, /sod29-topic-depth-equations/);
