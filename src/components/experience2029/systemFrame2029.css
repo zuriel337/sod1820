@@ -891,3 +891,62 @@
   .sod29-root.native-frame .sod29-nav-link,
   .sod29-root.native-frame .sod29-surface-progress-point{transition:none!important}
 }
+
+
+/* PINNED_DUAL_RAIL_VIEWPORT_V1
+   Desktop center scrolls; both semantic rails stay pinned to the viewport. */
+@media(min-width:981px){
+  .sod29-root.closed-shell{
+    --s29-global-rail-width:264px;
+    --s29-context-rail-width:286px;
+    --s29-context-rail-inset:18px;
+    grid-template-columns:var(--s29-global-rail-width) minmax(0,1fr);
+  }
+  .sod29-root.closed-shell.sidebar-collapsed{
+    --s29-global-rail-width:78px;
+    grid-template-columns:var(--s29-global-rail-width) minmax(0,1fr);
+  }
+  .sod29-root.closed-shell .sod29-sidebar{
+    position:fixed;
+    inset-block:0;
+    inset-inline-start:0;
+    width:var(--s29-global-rail-width);
+    height:100vh;
+    height:100dvh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+  }
+  .sod29-root.closed-shell .sod29-main{
+    grid-column:2;
+    min-width:0;
+  }
+  .sod29-root.closed-shell .sod29-main-stage.has-context-rail{
+    grid-template-columns:minmax(0,1fr) var(--s29-context-rail-width);
+    gap:var(--s29-context-rail-inset);
+    padding-inline-end:var(--s29-context-rail-inset);
+  }
+  .sod29-root.closed-shell .sod29-surface-context-rail{
+    position:fixed;
+    inset-inline-end:var(--s29-context-rail-inset);
+    top:82px;
+    width:var(--s29-context-rail-width);
+    height:calc(100vh - 102px);
+    height:calc(100dvh - 102px);
+    max-height:none;
+    margin-top:0;
+    overflow:auto;
+    overscroll-behavior:contain;
+    z-index:17;
+  }
+}
+@media(min-width:981px) and (max-width:1180px){
+  .sod29-root.closed-shell{
+    --s29-global-rail-width:226px;
+    --s29-context-rail-width:248px;
+    --s29-context-rail-inset:10px;
+  }
+  .sod29-root.closed-shell.sidebar-collapsed{
+    --s29-global-rail-width:78px;
+  }
+}
