@@ -77,6 +77,7 @@ const systemFrame = fs.readFileSync("src/components/experience2029/SystemFrame20
 const postPage = fs.readFileSync("src/pages/Post2029Page.jsx", "utf8");
 const topicPage = fs.readFileSync("src/pages/Topic2029Page.jsx", "utf8");
 const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
+const numberDrawer = fs.readFileSync("src/components/number2029/NumberDrawer2029.jsx", "utf8");
 
 assert.match(systemFrame, /resolveEntryOrientation/);
 assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
@@ -86,5 +87,8 @@ assert.match(rail, /ההסבר רק מתאר את המוקד הפעיל; הוא 
 assert.match(postPage, /shell\.openInspect\?\./);
 assert.doesNotMatch(postPage, /source: "post-contextual-focus",[\s\S]{0,120}shell\.openNumber/);
 assert.match(topicPage, /surface="topic"/);
+assert.match(numberDrawer, /targetMethodKey\s*\|\|\s*clean\(context\?\.selection\?\.method\)/);
+assert.match(numberDrawer, /targetNumber\s*\?\?\s*targetResultRoot\s*\?\?\s*contextRoot/);
+assert.match(numberDrawer, /fetchGematriaMethodTrace\(key, expr\)/);
 
 console.log("Entry Orientation + Contextual Learn 2029 smoke gate: PASS");
