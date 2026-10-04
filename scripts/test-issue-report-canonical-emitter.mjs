@@ -6,6 +6,7 @@ import { build } from "vite";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const comp = read("src/components/IssueReport.jsx").replace(/\/\/.*$/gm, "");
+const gateway = read("src/components/ContactGateway.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
 
@@ -15,9 +16,13 @@ assert.deepEqual(owners, ["src/components/IssueReport.jsx"]);
 const rivals = execSync("git ls-files src | grep -i -E 'bug.?report|support.?(form|widget|ticket)|feedback.?widget' || true", { encoding: "utf8" }).trim();
 assert.equal(rivals, "", "no second bug/support component");
 
-// SystemFrame reachability
-assert.match(frame, /import IssueReport from "\.\.\/IssueReport\.jsx"/);
-assert.match(frame, /TRANSIENT\.ISSUE\) return <PanelShell[^\n]*<IssueReport /);
+// SystemFrame reachability: the visible ! entry opens one gateway, which delegates to the canonical owners.
+assert.match(frame, /import ContactGateway from "\.\.\/ContactGateway\.jsx"/);
+assert.match(frame, /TRANSIENT\.ISSUE\) return <PanelShell[^\n]*<ContactGateway /);
+assert.match(gateway, /import IssueReport from "\.\/IssueReport\.jsx"/);
+assert.match(gateway, /import ReportHint from "\.\/ReportHint\.jsx"/);
+assert.match(gateway, /sendContactMessage/);
+assert.match(gateway, /classifyContactIntent/);
 assert.match(frame, /sod29-header-issue/);
 assert.match(frame, /closeMobileNav\(false\); openIssueReport\(\)/);
 
@@ -31,7 +36,15 @@ assert.equal(execSync("git diff --name-only origin/main -- src/lib/tracking.js",
 // Semantic palette only
 const colorRe = /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
 assert.equal(colorRe.test(comp), false);
+assert.equal(colorRe.test(gateway), false);
 assert.equal(colorRe.test(css.slice(css.indexOf("IssueReport — semantic"))), false);
+
+// Gateway preserves semantic separation: Message/Hint/Issue/Contact are routed, never flattened into research.
+assert.match(gateway, /id: "issue"/);
+assert.match(gateway, /id: "hint"/);
+assert.match(gateway, /id: "idea"/);
+assert.match(gateway, /id: "contact"/);
+assert.equal(/research_contributions|Discourse|forum/i.test(gateway), false);
 
 // Runtime: bundle with stubs, exercise builders + emission + anonymous availability
 const dir = fs.mkdtempSync(path.join(process.cwd(), "node_modules", ".ir-test-"));
