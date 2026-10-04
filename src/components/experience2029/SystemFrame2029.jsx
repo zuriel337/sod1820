@@ -730,6 +730,7 @@ export default function SystemFrame2029({
   const arrival = useMemo(() => classifyEntryArrival({
     locationState: location.state,
     historyIndex,
+    locationKey: location.key,
   }), [location.key, location.state, historyIndex]);
   const orientation = useMemo(() => resolveEntryOrientation({
     surface,
