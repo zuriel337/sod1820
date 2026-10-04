@@ -104,6 +104,9 @@ test("Research Path and commands share one physical System Frame bottom surface"
   const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
 
   assert.match(page, /bottomTrail: \[/);
+  assert.match(page, /surfaceSections: regions\.map/);
+  assert.match(page, /surfaceMapLabel: "בתוך הפוסט"/);
+  assert.match(page, /activeSectionId: activeFocus\.id/);
   assert.match(page, /surfaceFocus:/);
   assert.match(frame, /has-context-trail/);
   assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
@@ -246,6 +249,9 @@ test("Unified Experience exposes one shared rail and section navigation without 
   assert.match(frame, /surfaceFocus/);
   assert.match(rail, /ContextualInspector2029/);
   assert.match(rail, /sod29-surface-context-mobile-cue/);
+  assert.match(rail, /interactive/);
+  assert.match(rail, /בתוך הפוסט/);
+  assert.match(rail, /בתוך הציר/);
   assert.match(tabs, /data-experience-capability="surface-section-nav"/);
   assert.match(post, /SurfaceSectionNav2029/);
   assert.doesNotMatch(post, /<ReadingContextRail2029/);
