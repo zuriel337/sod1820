@@ -49,6 +49,7 @@ for (const fn of ["sync_convergence", "wire_image_meaningful", "wire_number_to_i
   assert.match(b, /'source'/);
   assert.match(b, /'via'/);
   assert.doesNotMatch(b, /security definer/i, `${fn} keeps invoker mode`);
+  assert.match(b, /search_path to 'public'/, `${fn} pins search_path`);
 }
 
 // rollback

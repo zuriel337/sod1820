@@ -1,7 +1,7 @@
 # G4_GRAPH_RELATION_ENFORCEMENT_V1 — branch artifact (not applied)
 
 Status: BRANCH_ONLY. Live DB unchanged. Needs independent GPT review + ZURIEL Human Gate before apply.
-Base: main `07b06bc3` (reconciled; revised per GPT review 5405629380, assignment 9f1d00c5-8fb4-4f60-a916-746409318895). Assignment: work_log `380804e4-baae-4ea1-8b27-41d1d789df65`.
+Base: main `dfca1509` (reconciled 2026-10-04 after P0 #924; prior review lineage preserved). Active release/reconcile: work_log `4e1d32c6-8dd5-4c7c-a3fc-feef6123b0b8`.
 
 ## Files
 - `supabase/migrations/20261004080000_g4_graph_relation_enforcement_v1.sql`
@@ -20,8 +20,8 @@ Plus owner-backed: same_as, alias_of, variant_of. `authored_by_external` is cont
 | writer | change |
 |---|---|
 | upsert_edge | future empty/null p_meta -> `{provenance_state: UNKNOWN_WRITER, writer: upsert_edge}` (marker only; NOT provenance, NOT Research Strength); non-empty preserved |
-| sync_convergence | adds source/via/card_id/relation_role (card_number, highlight_number_match) |
-| wire_image_meaningful, wire_number_to_images | add source/via/gallery_image_id/relation_role |
+| sync_convergence | adds source/via/card_id/relation_role (card_number, highlight_number_match); pins search_path=public; remains SECURITY INVOKER |
+| wire_image_meaningful, wire_number_to_images | add source/via/gallery_image_id/relation_role; pin search_path=public; remain SECURITY INVOKER |
 | fn_ti_project_demand, graph_wire_number, project_language_bridges | already non-empty; no change |
 | project_contribution_to_graph | via upsert_edge with `via`/`space`; no change (its contribution_links types are all allowed) |
 Non-DB writers: src/ only reads edges; scripts/entities-import*, silver_878 are archived one-offs, not patched (constraints intentionally force reconciliation on reuse).
@@ -33,7 +33,7 @@ No edge deleted; no from/to/weight/relation_type change; no alias merge; no conf
 ## Advisor / review plan (at apply, after Human Gate)
 1. Run preconditions.sql; compare fingerprints before/after.
 2. Apply to a Supabase branch first; run behavior.sql.
-3. `get_advisors` security + performance before/after (CHECKs add no index; SECURITY DEFINER upsert_edge retains search_path=public and ACLs).
+3. `get_advisors` security + performance before/after. CHECK adds no index; SECURITY DEFINER upsert_edge retains search_path=public; the three touched invoker writers now also pin search_path=public. No ACL/RLS policy changes.
 4. Lock note: the single CHECK is NOT VALID then VALIDATE (SHARE UPDATE EXCLUSIVE scan); no row updates.
 Rollback: rollback.sql (drops the CHECK, restores 4 writers (live definitions at 2026-10-04 re-verified unchanged vs base)).
 

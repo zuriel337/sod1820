@@ -41,7 +41,8 @@ alter table public.edges validate constraint edges_relation_type_vocab_chk;
 -- 2. (removed per GPT review 5405629380) No rewrite of existing edge metadata and no universal nonempty-metadata CHECK:
 --    historical NULL/'{}' metadata is preserved byte-for-byte; provenance is enforced prospectively by active writers only.
 
--- 4. Active writers. Signatures, security mode and search_path unchanged (ACLs preserved by CREATE OR REPLACE).
+-- 4. Active writers. Signatures and security mode unchanged (ACLs preserved by CREATE OR REPLACE).
+--    Touched invoker writers pin search_path=public to close Supabase advisor warnings without changing authorization.
 --    Writers already emitting non-empty metadata (fn_ti_project_demand, graph_wire_number,
 --    project_language_bridges, project_contribution_to_graph) need no change.
 
@@ -67,6 +68,7 @@ end; $function$;
 create or replace function public.sync_convergence(p_card uuid)
  returns uuid
  language plpgsql
+ set search_path to 'public'
 as $function$
 declare c record; v_node uuid; n int; num_node uuid; ent record;
 begin
@@ -135,6 +137,7 @@ $function$;
 create or replace function public.wire_image_meaningful(p_img uuid)
  returns void
  language plpgsql
+ set search_path to 'public'
 as $function$
 declare v_img uuid; v_num uuid; pv int;
 begin
@@ -159,6 +162,7 @@ end $function$;
 create or replace function public.wire_number_to_images(p_n bigint)
  returns jsonb
  language plpgsql
+ set search_path to 'public'
 as $function$
 declare v_num uuid; v_imgs int; v_edges int;
 begin
