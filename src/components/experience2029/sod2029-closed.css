@@ -76,7 +76,11 @@
 .sod29-nav-link.is-pending:hover{transform:none}
 .sod29-nav-status{margin-inline-start:auto;font-size:var(--s29-type-micro,14px);color:var(--s29-accent-text);opacity:.82}
 .sod29-sidebar-workspace{width:100%;min-height:var(--s29-control-min);display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-ink);cursor:pointer;text-align:start}
-.sod29-sidebar-toggle{width:100%;min-height:38px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer}
+.sod29-sidebar-toggle{width:100%;min-height:var(--s29-control-min);border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer}
+.sod29-side-foot{font-size:var(--s29-type-micro,14px)}
+.sod29-orientation{font-size:var(--s29-type-micro,14px)}
+.sod29-header-actions button,
+.sod29-action{font-size:var(--s29-type-micro,14px)}
 .sod29-sidebar-theme{
   display:grid;
   gap:7px;
