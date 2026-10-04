@@ -55,6 +55,7 @@ assert.match(frame, /closeTransient/);
 assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
+assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| context\?\.subject\)/, "meaningful context should project the same left rail across public 2029 surfaces");
 
 // Experience Context is resolved once at the native System Frame seam and exposed
 // through the same shell context to all native 2029 surfaces.
@@ -169,6 +170,9 @@ assert.match(tokens, /presence\/brand meaning only/i);
 assert.match(frame, /RAZIEL_PRESENCE/);
 assert.match(css, /sod29-raziel-orb/);
 assert.match(css, /sod29-raziel-breathe/);
+assert.match(css, /GLOBAL_CONTEXT_RAIL_CONTENT_MAP_AND_DUAL_RAIL_DESIGN_V1/);
+assert.match(css, /backdrop-filter:blur\(26px\) saturate\(132%\)/);
+assert.match(css, /button\.sod29-surface-progress-point/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 
