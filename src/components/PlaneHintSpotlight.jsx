@@ -5,9 +5,12 @@ import { usePalette } from "../lib/palette.js";
 
 export const PLANE_HINT_VIDEO_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/original.mp4";
 export const PLANE_HINT_POSTER_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster.jpg";
+export const PLANE_HINT_363_IMAGE_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png";
+export const PLANE_HINT_POST_HREF = "/flydubai-fz1073-363-14000-remzei-geula";
 
 export const PLANE_HINT_GEMATRIA = Object.freeze({
   year: "שנת תשפ״ז = 787",
+  messiah: "המשיח = 363",
   lines: [
     "״מי שגמלך כל טוב הוא יגמלך כל טוב סלה״ = 787",
     "״ושמחת בחגך״ = 787",
@@ -58,6 +61,14 @@ export function PlaneHintNotice({ embedded = false }) {
         {PLANE_HINT_GEMATRIA.lines[0]}<br />
         {PLANE_HINT_GEMATRIA.lines[1]}
       </div>
+      <div style={{ marginTop: 8 }}>
+        <Link
+          to="/number/363"
+          style={{ color: P.accentText, fontFamily: F.numeric, fontSize: embedded ? 16 : 18, fontWeight: 900, textDecoration: "none" }}
+        >
+          {PLANE_HINT_GEMATRIA.messiah}
+        </Link>
+      </div>
       {!embedded && (
         <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 6 }}>
           רמזים מופלאים של הצלה, הודיה ושמחה בפתחה של שנת תשפ״ז.
@@ -66,6 +77,7 @@ export function PlaneHintNotice({ embedded = false }) {
       <div style={{ marginTop: 9, display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap" }}>
         <Link to="/number/14" style={chipStyle(P)}>14</Link>
         <Link to="/number/75" style={chipStyle(P)}>75</Link>
+        <Link to="/number/363" style={chipStyle(P)}>363</Link>
         {!embedded && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, alignSelf: "center" }}>הסרטון החדש בזרם המציאות</span>}
       </div>
     </div>
@@ -127,12 +139,27 @@ export default function PlaneHintSpotlight() {
               aria-label="סרטון הרמז על המטוס"
             />
 
+            <Link
+              to={PLANE_HINT_POST_HREF}
+              className="plane-spotlight-363-pop"
+              style={{ color: P.ink, borderColor: P.borderStrong, background: P.cardSoft }}
+              aria-label="פתח את אירוע המטוס — המשיח = 363"
+            >
+              <img src={PLANE_HINT_363_IMAGE_URL} alt="רמזים במציאות — המשיח = 363" />
+              <span>
+                <b style={{ color: P.accentText, fontFamily: F.numeric }}>{PLANE_HINT_GEMATRIA.messiah}</b>
+                <small style={{ color: P.inkSoft, fontFamily: F.body }}>לתמונה ולאירוע המטוס</small>
+              </span>
+            </Link>
+
             <PlaneHintNotice embedded />
 
             <div className="plane-spotlight-actions">
               <Link to="/archive" style={{ color: P.accentText, borderColor: P.borderStrong }}>🌊 לזרם המציאות</Link>
+              <Link to={PLANE_HINT_POST_HREF} style={{ color: P.accentText, borderColor: P.borderStrong }}>✈️ לאירוע המלא</Link>
               <Link to="/number/14" style={{ color: P.ink, borderColor: P.borderStrong }}>14</Link>
               <Link to="/number/75" style={{ color: P.ink, borderColor: P.borderStrong }}>75</Link>
+              <Link to="/number/363" style={{ color: P.ink, borderColor: P.borderStrong }}>363</Link>
             </div>
           </aside>
         ) : (
@@ -143,12 +170,12 @@ export default function PlaneHintSpotlight() {
             title="פתח את סרטון המטוס והרמזים"
             style={{ background: P.card, borderColor: P.borderStrong, color: P.ink }}
           >
-            <img src={PLANE_HINT_POSTER_URL} alt="" aria-hidden="true" />
+            <img src={PLANE_HINT_363_IMAGE_URL} alt="" aria-hidden="true" />
             <span>
               <b style={{ color: P.accentText, fontFamily: F.ui }}>✈️ המטוס</b>
-              <small style={{ color: P.inkSoft, fontFamily: F.body }}>צפו ברמז</small>
+              <small style={{ color: P.inkSoft, fontFamily: F.body }}>{PLANE_HINT_GEMATRIA.messiah}</small>
             </span>
-            <strong style={{ color: P.accentText, fontFamily: F.numeric }}>14 · 75</strong>
+            <strong style={{ color: P.accentText, fontFamily: F.numeric }}>14 · 75 · 363</strong>
           </button>
         )}
       </div>
@@ -205,6 +232,43 @@ const SPOTLIGHT_CSS = `
     background: #050505;
     border-radius: 13px;
     margin-bottom: 9px;
+  }
+  .plane-spotlight-363-pop {
+    width: min(205px, 100%);
+    min-height: 86px;
+    margin: -2px auto 9px 0;
+    border: 1px solid;
+    border-radius: 14px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    direction: rtl;
+    box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    animation: plane-spotlight-363-pop .46s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .plane-spotlight-363-pop img {
+    width: 54px;
+    height: 76px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
+    flex: 0 0 auto;
+    background: #050505;
+  }
+  .plane-spotlight-363-pop span {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1.25;
+  }
+  .plane-spotlight-363-pop b { font-size: 15px; }
+  .plane-spotlight-363-pop small { font-size: 10.5px; }
+  @keyframes plane-spotlight-363-pop {
+    from { opacity: 0; transform: translate(-12px, 8px) scale(.94); }
+    to { opacity: 1; transform: none; }
   }
   .plane-spotlight-actions {
     display: flex;
@@ -265,5 +329,6 @@ const SPOTLIGHT_CSS = `
   }
   @media (prefers-reduced-motion: reduce) {
     .plane-spotlight * { scroll-behavior: auto !important; }
+    .plane-spotlight-363-pop { animation: none !important; }
   }
 `;
