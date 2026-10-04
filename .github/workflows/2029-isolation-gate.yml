@@ -63,6 +63,7 @@ on:
       - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "tests/entry-learn-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -169,6 +170,8 @@ jobs:
         run: |
           mkdir -p test-results/release-visual
           npx playwright test tests/world2029-release.spec.cjs --reporter=line
+      - name: Entry Orientation + Contextual Learn browser acceptance
+        run: npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
       - name: Upload native World screenshots
         if: always()
         uses: actions/upload-artifact@v4
