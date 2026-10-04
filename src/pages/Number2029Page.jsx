@@ -948,6 +948,23 @@ function NumberPageBody() {
     navigate("/world");
   };
 
+  const focusSurfaceContext = (focus) => {
+    if (!focus || !Number.isSafeInteger(root)) return;
+    const current = research.context || {};
+    const targetId = clean(focus.locator).replace(/^#/, "") || null;
+    research.updateResearchContext?.({
+      lens: "number",
+      dimensions: {
+        ...(current.dimensions || {}),
+        surfaceFocus: focus,
+        bottomTrail: [
+          { id: "number", label: String(root), number: root },
+          { id: "focus", label: clean(focus.label || focus.primary) || "הקשר", ...(targetId ? { targetId } : {}), active: true },
+        ],
+      },
+    });
+  };
+
   const askRaziel = (intent = "number_context", focus = {}) => {
     const focusPatch = focus && typeof focus === "object" ? focus : {};
     const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
@@ -1187,6 +1204,7 @@ function NumberPageBody() {
       onOpenWorld={openWorld}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
+      onFocusContext={focusSurfaceContext}
       onJourney={() => root === 878 ? openWorld({ journey: true }) : openWorld()}
       onPersonalJourney={() => askRaziel("personal_journey_from_number", {
         kind: "personal_journey",
