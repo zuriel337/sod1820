@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
+import SurfaceMapBar2029 from "../components/experience2029/SurfaceMapBar2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
@@ -489,12 +489,12 @@ function PostReadingBody() {
       </div>
     </header>
 
-    <SurfaceSectionNav2029
+    <SurfaceMapBar2029
       items={sectionItems}
       activeId={activeSurfaceSectionId}
       onSelect={(item) => setActiveSurfaceSectionId(item.id)}
       onActiveChange={(item) => setActiveSurfaceSectionId(item.id)}
-      ariaLabel="ניווט בפוסט"
+      ariaLabel="מפת הפוסט"
     />
 
     <div id="post-sources"><PostEvidenceMedia2029 media={experience.media} /></div>
