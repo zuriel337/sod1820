@@ -70,6 +70,9 @@ assert.doesNotMatch(contextRail, /איפה אני בדף/);
 assert.match(contextRail, /מסעות גילוי/);
 assert.match(contextRail, /data-context-mode="rest"/);
 assert.match(contextRail, /candidate\?\.expression/);
+assert.match(contextRail, /rootSurfaceFocus/);
+assert.match(contextRail, /candidateId === pageId/);
+assert.match(contextRail, /candidateType === pageType/);
 
 // Experience Context is resolved once at the native System Frame seam and exposed
 // through the same shell context to all native 2029 surfaces.
