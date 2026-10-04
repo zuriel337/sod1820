@@ -16,7 +16,8 @@ end $$;
 create or replace function pg_temp.ok(p_cond boolean, p_msg text) returns void language plpgsql as $$
 begin if p_cond is not true then raise exception 'FAIL: %', p_msg; end if; end $$;
 
--- fixtures (inserted as superuser, bypass RLS) ------------------------------------------------
+-- fixtures emulate rows that could predate this migration. Disable user triggers ONLY while seeding.
+set session_replication_role = replica;
 insert into research_paths(id, created_by_user_id, identity_metadata) values
  ('00000000-0000-0000-0000-0000000000a1','11111111-1111-1111-1111-111111111111','{"secret":"identity"}'),   -- A: public r1 + newer private candidate r2
  ('00000000-0000-0000-0000-0000000000b1','11111111-1111-1111-1111-111111111111','{}'),                      -- B: candidate/private only
@@ -28,7 +29,7 @@ insert into research_paths(id, created_by_user_id, identity_metadata) values
 
 insert into research_path_revisions(id,path_id,revision_no,created_by_user_id,governance_status,published_at,access_scope,steps,provenance,representation) values
  ('10000000-0000-0000-0000-0000000000a1','00000000-0000-0000-0000-0000000000a1',1,'11111111-1111-1111-1111-111111111111','approved',now()-interval '1 day','public',
-   '[{"step_index":0,"entity_type":"x","entity_ref":"r","href":"/ok/path","surface":"s","evil":"drop","created_by":"leak"},{"step_index":1,"href":"javascript:alert(1)"},{"step_index":2,"href":"//evil.example/x"}]',
+   '[{"step_index":0,"entity_type":"x","entity_ref":"r","href":"/ok/path","surface":"s","reason":"public reason","finding_refs":["PRIVATE_FINDING"],"source_refs":["PRIVATE_SOURCE"],"version_refs":["PRIVATE_VERSION"],"negative_scope":{"secret":"PRIVATE_SCOPE"},"evil":"drop","created_by":"leak"},{"step_index":1,"href":"javascript:alert(1)"},{"step_index":2,"href":"//evil.example/x"},{"step_index":3,"href":"/\t/evil.example"},{"step_index":4,"href":"/\n/evil.example"}]',
    '{"save_key":"SECRET_SAVE","fork_key":"SECRET_FORK","writer":"w"}','{"surface":"s","href":"/rep","leak":"x"}'),
  ('10000000-0000-0000-0000-0000000000a2','00000000-0000-0000-0000-0000000000a1',2,'11111111-1111-1111-1111-111111111111','candidate',null,'private',
    '[{"step_index":0,"entity_ref":"NEWER_PRIVATE"}]','{}','{}'),
@@ -46,13 +47,16 @@ insert into research_paths(id,created_by_user_id,parent_path_id,branch_point_rev
 insert into research_path_revisions(id,path_id,revision_no,governance_status,published_at,access_scope,steps) values
  ('10000000-0000-0000-0000-0000000000a3','00000000-0000-0000-0000-0000000000a3',1,'approved',now()-interval '1 hour','public','[{"step_index":0}]'),
  ('10000000-0000-0000-0000-0000000000b3','00000000-0000-0000-0000-0000000000b3',1,'approved',now()-interval '1 hour','public','[{"step_index":0}]');
+set session_replication_role = origin;
 
 -- constraints --------------------------------------------------------------------------------
-select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]','team')$$,'23514');
+set session_replication_role = replica;
+select pg_temp.expect_err($insert into research_path_revisions(path_id,revision_no,steps,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]','team')$$,'23514');
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now())$$,'23514'); -- candidate+private
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'approved')$$,'23514'); -- private
-select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'rejected','public')$$,'23514');
-select pg_temp.expect_err($$update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$$,'42501'); -- direct publication has no Human Gate
+select pg_temp.expect_err($insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'rejected','public')$,'23514');
+set session_replication_role = origin;
+select pg_temp.expect_err($update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$$,'42501'); -- direct publication has no Human Gate
 
 -- immutability -------------------------------------------------------------------------------
 select pg_temp.expect_err($$update research_path_revisions set steps='[{"step_index":0,"entity_ref":"mutated"}]' where id='10000000-0000-0000-0000-0000000000a1'$$,'23001');
@@ -133,7 +137,8 @@ select pg_temp.ok((select array_agg(k order by k) from jsonb_object_keys(pg_temp
   array['branch_point_step_index','governance_status','ok','parent_path_id','path_id','published_at','reference_validation','representation','revision_id','revision_no','steps'], 'top-level key allowlist exact');
 select pg_temp.ok(pg_temp.r('A_default')->>'governance_status'='approved' and pg_temp.r('A2_canonical')->>'governance_status'='canonical', 'governance_status passed through as-is (no approved->published/canonical mapping)');
 select pg_temp.ok(pg_temp.r('A_default')->>'published_at' is not null, 'published_at separate axis present');
-select pg_temp.ok(pg_temp.r('A_default')->'steps' = '[{"step_index":0,"entity_type":"x","entity_ref":"r","href":"/ok/path","surface":"s"},{"step_index":1},{"step_index":2}]'::jsonb, 'steps sanitized: unknown keys dropped, non-relative href dropped');
+select pg_temp.ok(pg_temp.r('A_default')->'steps' = '[{"step_index":0,"entity_type":"x","entity_ref":"r","href":"/ok/path","surface":"s","reason":"public reason"},{"step_index":1},{"step_index":2},{"step_index":3},{"step_index":4}]'::jsonb, 'steps sanitized: only bounded scalars + safe relative href survive');
+select pg_temp.ok(pg_temp.r('A_default')::text !~* '(PRIVATE_FINDING|PRIVATE_SOURCE|PRIVATE_VERSION|PRIVATE_SCOPE|negative_scope|finding_refs|source_refs|version_refs)', 'nested/private reference envelopes are not public projection v1');
 select pg_temp.ok(pg_temp.r('A_default')->'representation' = '{"surface":"s","href":"/rep"}'::jsonb, 'representation allowlist');
 select pg_temp.ok(pg_temp.r('A_default')::text !~* '(provenance|save_key|fork_key|SECRET|created_by|identity_metadata|identity|parent_revision|11111111-1111|evil|leak)', 'no provenance/created_by/identity_metadata leakage');
 
@@ -158,27 +163,31 @@ select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-00
 select pg_temp.expect_err($$select count(*) from public.research_path_revisions$$,'42501');
 reset role;
 
--- promoted fixture (f9) becomes readable only after promotion and is then frozen
-select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000f9')->>'ok')::boolean, 'promoted revision readable');
+-- candidate fixture (f9) remains private until explicit V3 Human Gate below
+select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000f9')='{"ok":false,"error":"not_found"}'::jsonb, 'candidate fixture stays private before Human Gate');
 
 -- migration did not touch pre-existing rows: constraint validation only (checked by harness via row count / md5)
--- default revision = highest ELIGIBLE revision when several are eligible
+-- default revision = latest published revision; newer private draft does not hide it
+set session_replication_role = replica;
 insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000a9');
 insert into research_path_revisions(path_id,revision_no,governance_status,published_at,access_scope,steps) values
  ('00000000-0000-0000-0000-0000000000a9',1,'approved',now()-interval '2 days','public','[{"step_index":0}]'),
  ('00000000-0000-0000-0000-0000000000a9',2,'canonical',now()-interval '1 day','public','[{"step_index":0}]'),
  ('00000000-0000-0000-0000-0000000000a9',3,'candidate',null,'private','[{"step_index":0}]');
-select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000a9')->>'revision_no')::int = 2, 'default = highest eligible among several');
+set session_replication_role = origin;
+select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000a9')->>'revision_no')::int = 2, 'default = latest published while newer private draft stays hidden');
 select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000a9',1)->>'revision_no')::int = 1, 'older eligible revision addressable');
 
 -- defense in depth: reader's own filter holds even if the publication CHECK were absent (rolled back)
 begin;
 alter table research_path_revisions drop constraint research_path_revisions_published_requires_approved_public_ck;
+set local session_replication_role = replica;
 insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000aa');
 insert into research_path_revisions(path_id,revision_no,governance_status,published_at,access_scope,steps) values
  ('00000000-0000-0000-0000-0000000000aa',1,'approved',now()-interval '1 day','private','[{"step_index":0}]'),
  ('00000000-0000-0000-0000-0000000000aa',2,'rejected',now()-interval '1 day','public','[{"step_index":0}]'),
  ('00000000-0000-0000-0000-0000000000aa',3,'candidate',now()-interval '1 day','public','[{"step_index":0}]');
+set local session_replication_role = origin;
 select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000aa') = '{"ok":false,"error":"not_found"}'::jsonb, 'reader filter independent of CHECK');
 rollback;
 
@@ -190,8 +199,9 @@ rollback;
 insert into public.users(id, role) values
  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','admin'),
  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user');
-create or replace function pg_temp.as_uid(p_uid text) returns void language sql as $$ select set_config('request.jwt.claim.sub', coalesce(p_uid,''), false) $$;
+create or replace function pg_temp.as_uid(p_uid text) returns void language sql as $ select set_config('request.jwt.claim.sub', coalesce(p_uid,''), false) $;
 
+set session_replication_role = replica;
 insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000c9'),('00000000-0000-0000-0000-0000000000c8');
 insert into research_path_revisions(id,path_id,revision_no,governance_status,published_at,access_scope,steps) values
  ('10000000-0000-0000-0000-0000000000c9','00000000-0000-0000-0000-0000000000c9',1,'approved',now()-interval '2 days','public','[{"step_index":0,"entity_ref":"R1"}]'),
@@ -202,14 +212,17 @@ insert into research_paths(id,parent_path_id,branch_point_revision_id,branch_poi
  ('00000000-0000-0000-0000-0000000000c6','00000000-0000-0000-0000-0000000000c8','10000000-0000-0000-0000-0000000000d9',0);
 insert into research_path_revisions(path_id,revision_no,governance_status,published_at,access_scope,steps) values
  ('00000000-0000-0000-0000-0000000000c6',1,'approved',now()-interval '1 hour','public','[{"step_index":0}]');
+set session_replication_role = origin;
 
 -- columns + coherence CHECK
 select pg_temp.ok((select count(*)=3 from information_schema.columns where table_schema='public' and table_name='research_path_revisions' and column_name in ('retracted_at','retracted_by_user_id','retraction_reason')), 'retraction columns exist');
-select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at) values ('00000000-0000-0000-0000-0000000000b1',70,'[]',now())$$,'23514'); -- partial
+set session_replication_role = replica;
+select pg_temp.expect_err($insert into research_path_revisions(path_id,revision_no,steps,retracted_at) values ('00000000-0000-0000-0000-0000000000b1',70,'[]',now())$$,'23514'); -- partial
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',71,'[]','why')$$,'23514'); -- partial
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',72,'[]',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','x')$$,'23514'); -- unpublished
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',73,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','   ')$$,'23514'); -- blank reason
-select pg_temp.expect_err(format($$insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',74,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',%L)$$, repeat('x',1001)),'23514'); -- too long
+select pg_temp.expect_err(format($insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',74,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',%L)$, repeat('x',1001)),'23514'); -- too long
+set session_replication_role = origin;
 
 -- ACL
 select pg_temp.ok((select prosecdef and proconfig = array['search_path=pg_catalog, public'] from pg_proc where oid='public.fn_research_path_public_retract_v1(uuid,integer,text)'::regprocedure), 'retract definer/search_path');
@@ -312,14 +325,16 @@ select pg_temp.expect_err($$update research_path_revisions set retracted_at=null
 select pg_temp.expect_err($$update research_path_revisions set published_at=null where id='10000000-0000-0000-0000-0000000000c8'$$,'23001');
 select pg_temp.ok(not exists (select 1 from pg_proc where pronamespace='public'::regnamespace and (proname ilike '%unretract%' or proname ilike '%restore_public%')), 'no unretract RPC');
 
--- reader after retraction: generic not_found for the retracted revision, older eligible revision still served
+-- reader after retraction: default fails closed; older revision requires explicit address.
 set role anon;
 insert into res select 'anon','R_retracted_explicit', public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c9', 2);
 insert into res select 'anon','R_default_after', public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c9');
+insert into res select 'anon','R_older_explicit', public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c9', 1);
 reset role;
 select pg_temp.ok(pg_temp.r('R_retracted_explicit') = '{"ok":false,"error":"not_found"}'::jsonb, 'retracted revision -> generic not_found');
-select pg_temp.ok((pg_temp.r('R_default_after')->>'revision_no')::int = 1, 'default skips retracted, serves older eligible');
-select pg_temp.ok(pg_temp.r('R_default_after')::text not like '%R2%' and pg_temp.r('R_default_after')::text !~* 'retract|withdrawn', 'no retraction metadata or retracted content leaked');
+select pg_temp.ok(pg_temp.r('R_default_after') = '{"ok":false,"error":"not_found"}'::jsonb, 'default does not silently fall back after latest publication retraction');
+select pg_temp.ok((pg_temp.r('R_older_explicit')->>'revision_no')::int = 1, 'older public revision remains explicitly addressable');
+select pg_temp.ok(pg_temp.r('R_default_after')::text !~* 'retract|withdrawn', 'no retraction metadata leaked');
 select pg_temp.ok((select array_agg(k order by k) from jsonb_object_keys(pg_temp.r('A_default')) k) =
   array['branch_point_step_index','governance_status','ok','parent_path_id','path_id','published_at','reference_validation','representation','revision_id','revision_no','steps'], 'reader key allowlist unchanged by V2');
 
@@ -337,7 +352,12 @@ select pg_temp.as_uid(null);
 -- V3: Human-Gate governance + publication, separate Truth axes
 -- =================================================================================================
 
--- No direct/service-role bypass for unpublished governance/publication.
+-- No direct/service-role bypass for INSERT, unpublished governance or publication.
+select pg_temp.as_uid(null);
+set role service_role;
+select pg_temp.expect_err($insert into research_path_revisions(path_id,revision_no,governance_status,access_scope,published_at,steps) values ('00000000-0000-0000-0000-0000000000b1',88,'approved','public',now(),'[{"step_index":0}]')$,'42501');
+reset role;
+select pg_temp.ok(not exists (select 1 from research_path_revisions where path_id='00000000-0000-0000-0000-0000000000b1' and revision_no=88), 'service_role cannot mint approved+published revision');
 select pg_temp.as_uid(null);
 select pg_temp.expect_err($$update research_path_revisions set governance_status='approved' where id='10000000-0000-0000-0000-0000000000f9'$$,'42501');
 set role service_role;
@@ -373,6 +393,10 @@ reset role;
 select pg_temp.ok((select j->>'error'='governance_required' from gp where label='candidate_publish_blocked'), 'candidate cannot publish');
 select pg_temp.ok((select (j->>'ok')::boolean and j->>'governance_status'='approved' and j ? 'decision_ledger_id' from gp where label='approve_f9'), 'governance approve ok + ledger id');
 select pg_temp.ok((select governance_status='approved' and access_scope='private' and published_at is null from research_path_revisions where id='10000000-0000-0000-0000-0000000000f9'), 'approve does not publish');
+set role service_role;
+select pg_temp.expect_err($update research_path_revisions set steps='[{"step_index":0,"entity_ref":"tampered-after-approval"}]' where id='10000000-0000-0000-0000-0000000000f9'$,'23001');
+reset role;
+select pg_temp.ok((select steps='[{"step_index":0}]'::jsonb from research_path_revisions where id='10000000-0000-0000-0000-0000000000f9'), 'approved content frozen before publication');
 select pg_temp.ok((select count(*)=1 from decision_ledger where subject_ref='10000000-0000-0000-0000-0000000000f9' and decision_type='research_path_governance' and human_decision='approve' and status='confirmed' and decided_by='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' and provenance->>'truth_axis'='governance' and (provenance->>'human_gate')::boolean), 'governance ledger provenance');
 set role anon;
 select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000f9')='{"ok":false,"error":"not_found"}'::jsonb, 'approved-private still not public');
