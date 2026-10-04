@@ -1333,6 +1333,7 @@ export default function SystemFrame2029({
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
           <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
             <BrandLockup2029 />
+            <span className="sod29-brand-neutral" aria-hidden="true">⌂</span>
           </Link>
           <nav className="sod29-nav">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
