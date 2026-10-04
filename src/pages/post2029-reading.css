@@ -1106,3 +1106,17 @@
 @media(max-width:720px){
   .sod29-reading-layout>.sod29-surface-progress-spine{display:none}
 }
+
+
+/* Final Post layout: the page spine moved into the shared pinned Context Rail. */
+.sod29-reading-layout{
+  display:grid;
+  grid-template-columns:minmax(0,790px);
+  grid-template-areas:"source";
+  justify-content:center;
+}
+@media(max-width:980px){
+  .sod29-reading-layout{
+    display:block;
+  }
+}
