@@ -1,5 +1,6 @@
 import React from "react";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
+import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 
 export default function SurfaceContextRail2029({
   focus,
@@ -15,8 +16,10 @@ export default function SurfaceContextRail2029({
   const number = Number(subject.number ?? subject.resultValue ?? (subject.type === "number" ? subject.id : null));
   const hasNumber = Number.isSafeInteger(number);
   const title = String(subject.primary || subject.label || subject.expression || subject.id || "הקשר פעיל");
-  const subtitle = String(subject.sectionLabel || subject.subtitle || subject.type || "");
+  const subtitle = String(subject.type === "verse" ? (subject.reference || subject.label || "פסוק") : (subject.sectionLabel || subject.subtitle || subject.type || ""));
   const signals = Array.isArray(subject.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
+  const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
+  const activeSectionId = context?.dimensions?.activeSectionId || null;
 
   return <>
     <ContextualInspector2029
@@ -33,6 +36,15 @@ export default function SurfaceContextRail2029({
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
+      {sections.length ? <div className="sod29-surface-context-progress">
+        <div className="sod29-context-inspector-kicker">איפה אני בדף</div>
+        <SurfaceProgressSpine2029
+          items={sections}
+          activeId={activeSectionId}
+          ariaLabel="התקדמות בדף"
+        />
+      </div> : null}
+      {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
       {subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
