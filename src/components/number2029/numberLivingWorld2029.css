@@ -622,3 +622,87 @@
     -webkit-line-clamp:3;
   }
 }
+
+
+/* Shared in-place focus: media and discovery rows focus Context first, never navigate on first tap. */
+.sod29-lw-media-focus{
+  width:100%;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:var(--s29-panel-soft);
+  color:inherit;
+  text-align:start;
+  cursor:pointer;
+}
+.sod29-lw-media-focus:hover,
+.sod29-lw-media-focus:focus-visible{
+  border-color:var(--s29-line-strong);
+  outline:none;
+}
+.sod29-lw-media-focus.is-primary{
+  display:grid;
+}
+.sod29-lw-media-focus.is-primary img{
+  width:100%;
+  height:auto;
+  max-height:min(72vh,760px);
+  object-fit:contain;
+}
+.sod29-lw-media-caption{
+  display:grid;
+  gap:3px;
+  padding:11px;
+  color:var(--s29-ink);
+  font-size:9px;
+}
+.sod29-lw-media-caption small{
+  color:var(--s29-accent-text);
+  font-size:8px;
+}
+.sod29-lw-media-caption strong{
+  color:var(--s29-ink);
+  font-size:13px;
+}
+.sod29-lw-feature-media>div .sod29-lw-media-focus{
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr);
+  align-items:center;
+}
+.sod29-lw-feature-media>div .sod29-lw-media-focus img{
+  width:82px;
+  height:72px;
+  object-fit:contain;
+}
+
+.sod29-lw-timeline-focus{
+  position:relative;
+  width:100%;
+  display:grid;
+  grid-template-columns:65px 14px minmax(0,1fr);
+  gap:8px;
+  align-items:start;
+  padding:10px 0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  text-align:start;
+  cursor:pointer;
+}
+.sod29-lw-timeline-focus:hover,
+.sod29-lw-timeline-focus:focus-visible{
+  background:color-mix(in srgb,var(--s29-accent) 4%,transparent);
+  outline:none;
+}
+.sod29-lw-timeline-focus>span{min-width:0}
+.sod29-lw-timeline-focus strong{display:block;color:var(--s29-ink);font-size:11px}
+.sod29-lw-timeline-focus small{display:block;margin-top:2px;color:var(--s29-muted);font-size:8.5px}
+.sod29-lw-timeline-focus time{color:var(--s29-muted);font-size:8px}
+.sod29-lw-timeline-focus i{position:relative;z-index:1;width:9px;height:9px;margin-top:3px;border-radius:50%;background:var(--s29-accent);box-shadow:0 0 14px var(--s29-glow)}
+@media(max-width:720px){
+  .sod29-lw-feature-media>div .sod29-lw-media-focus{flex:0 0 190px;grid-template-columns:72px minmax(0,1fr)}
+  .sod29-lw-feature-media>div .sod29-lw-media-focus img{width:72px;height:72px}
+}
