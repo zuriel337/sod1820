@@ -789,7 +789,7 @@ export default function SystemFrame2029({
 
   const completeSurfaceEntry = useCallback((actionId, targetSurface = null) => {
     const manifest = orientation.manifest;
-    if (!manifest || actionId !== manifest.firstAction) return false;
+    if (!manifest || orientation.mode === "hidden" || !isEntryLearnSurfaceActive(surface) || actionId !== manifest.firstAction) return false;
     const familiarity = markSurfaceFamiliarity(surface, "complete", manifest.version);
     setSurfaceFamiliarity(familiarity);
     emitEntryLearn("first_action", {
