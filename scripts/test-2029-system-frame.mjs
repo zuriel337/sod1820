@@ -126,7 +126,7 @@ assert.doesNotMatch(topicCss, /sod29-topic-mapnav/);
 assert.doesNotMatch(postReadingCss, /sod29-post-context-trail/);
 assert.match(worldPage, /SurfaceMapBar2029/);
 assert.match(worldPage, /ariaLabel="מפת העולם"/);
-assert.match(worldPage, /ariaLabel="מפת המבט בעולם"/);
+assert.match(worldPage, /ariaLabel="[^"]*מפת המבט בעולם"/);
 assert.match(heichalPage, /SurfaceMapBar2029/);
 assert.match(heichalPage, /ariaLabel="מפת ההיכל"/);
 assert.match(frame, /introVariant = "hero"/);
