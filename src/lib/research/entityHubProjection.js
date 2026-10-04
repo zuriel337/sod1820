@@ -6,6 +6,7 @@ import { researchNumber } from "./numericResearch.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
+import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -526,7 +527,11 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
     return [{
       nodeId: String(node.id),
       galleryImageId: String(row.id),
-      label: clean(row.name) || clean(node.label) || "תמונה",
+      label: canonicalMediaPublicLabel({
+        name: row.name,
+        label: node.label,
+        description: row.description,
+      }),
       description: clean(row.description) || null,
       imageUrl: row.image_url,
       thumbUrl: row.thumb_url || row.image_url,
@@ -602,10 +607,15 @@ function timelineProjection(graphFindings, researchFindings) {
     .map(finding => ({
       id: finding?.id || null,
       kind: finding?.kind || null,
+      type: finding?.subject?.type || null,
       label: finding?.subject?.label || "",
       at: finding?.provenance?.createdAt || null,
       status: finding?.status ?? null,
       access: finding?.access?.tier ?? null,
+      relation: finding?.kind === "graph-relation"
+        ? (finding?.projection?.relations?.[0] || null)
+        : null,
+      sourceRef: finding?.source?.sourceRef || null,
     }))
     .filter(item => item.at)
     .sort((a, b) => String(a.at).localeCompare(String(b.at)));
