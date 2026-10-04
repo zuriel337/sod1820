@@ -1169,7 +1169,7 @@ Deno.serve(async (req: Request) => {
     const structuredNameReflection = kind === "name_lab" && body?.operation === "normalized_reflection";
     const structuredReflectionInstruction = structuredNameReflection
       ? "\nמצב normalized_reflection: החזר JSON תקין בלבד, בלי Markdown ובלי טקסט מסביב. מבנה: " +
-        "{\\"message\\":\\"מסר פרשני עמוק אך לא אישי/נבואי\\",\\"motifs\\":[{\\"key\\":\\"slug\\",\\"label\\":\\"מוטיב בעברית\\",\\"summary\\":\\"סיכום\\",\\"finding_ids\\":[\\"רק מזהים שמופיעים בסוגריים המרובעים בחומר\\"] ,\\"frame\\":{\\"essence\\":\\"מהות\\",\\"power\\":\\"כוח\\",\\"shadow\\":\\"צל/סיכון\\",\\"balance\\":\\"איזון\\",\\"action\\":\\"כיוון מעשי\\\"}}]}. " +
+        '{"message":"מסר פרשני עמוק אך לא אישי/נבואי","motifs":[{"key":"slug","label":"מוטיב בעברית","summary":"סיכום","finding_ids":["רק מזהים שמופיעים בסוגריים המרובעים בחומר"],"frame":{"essence":"מהות","power":"כוח","shadow":"צל/סיכון","balance":"איזון","action":"כיוון מעשי"}}]}. ' +
         "מותר 1-6 motifs. כל motif חייב להישען על finding_ids שסופקו. אל תמציא מזהים. קלף/טארוט אינו חלק מהשלב הזה."
       : "";
     const user =
