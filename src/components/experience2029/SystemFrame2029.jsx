@@ -8,9 +8,8 @@ import React, {
   useState,
 } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { F } from "../../theme.js";
-import { PALETTES, usePalette } from "../../lib/palette.js";
-import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
+import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
@@ -782,7 +781,6 @@ export default function SystemFrame2029({
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
-  const basePalette = usePalette();
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [transient, setTransient] = useState(null);
@@ -839,10 +837,7 @@ export default function SystemFrame2029({
     }, { dedupe: true });
   }, [surface, arrival, orientation.mode, orientation.manifest]);
 
-  const palette = useMemo(() => {
-    if (surface !== "heichal" || experience?.experience?.environmentRole !== "research_lab") return basePalette;
-    return basePalette.mode === "dark" ? PALETTES.labDark : PALETTES.labLight;
-  }, [basePalette, surface, experience?.experience?.environmentRole]);
+  const palette = use2029Palette(experience?.experience?.environmentRole || null);
 
   const contextTarget = useMemo(() => targetFromContext(context), [context]);
   const activeTarget = ephemeralSelection || contextTarget;
@@ -1169,6 +1164,10 @@ export default function SystemFrame2029({
     "--s29-line-strong": palette.borderStrong,
     "--s29-accent": palette.accent,
     "--s29-accent-text": palette.accentText,
+    "--s29-accent-secondary": palette.accentSecondary,
+    "--s29-discovery": palette.accentDiscovery,
+    "--s29-focus-ring": palette.focusRing,
+    "--s29-warm-accent": palette.warmAccent,
     "--s29-hero": palette.heroNum,
     "--s29-ink": palette.ink,
     "--s29-muted": palette.inkSoft,
@@ -1177,13 +1176,24 @@ export default function SystemFrame2029({
     "--s29-accent-btn": palette.accentBtn,
     "--s29-radius": `${RADIUS.xl}px`,
     "--s29-control-min": `${LAYOUT.controlMinHeight}px`,
+    "--s29-font-ui": TYPEFACE.ui,
+    "--s29-font-body": TYPEFACE.body,
+    "--s29-font-display": TYPEFACE.display,
+    "--s29-font-numeric": TYPEFACE.numeric,
+    "--s29-type-micro": `${TYPE_SCALE_V2.micro.fontSize}px`,
+    "--s29-type-ui": `${TYPE_SCALE_V2.ui.fontSize}px`,
+    "--s29-type-small": `${TYPE_SCALE_V2.small.fontSize}px`,
+    "--s29-type-body": `${TYPE_SCALE_V2.body.fontSize}px`,
+    "--s29-type-lead": `${TYPE_SCALE_V2.lead.fontSize}px`,
+    "--s29-type-title": `${TYPE_SCALE_V2.title.fontSize}px`,
+    "--s29-type-display": `${TYPE_SCALE_V2.display.fontSize}px`,
     "--s29-motion": `${typeof experience.motion.timing.duration === "number" ? experience.motion.timing.duration : experience.motion.timing.duration.normal}ms`,
     "--s29-raziel-blue": RAZIEL_PRESENCE.blue,
     "--s29-raziel-indigo": RAZIEL_PRESENCE.indigo,
     "--s29-raziel-violet": RAZIEL_PRESENCE.violet,
     "--s29-raziel-glow": RAZIEL_PRESENCE.glow,
     "--s29-raziel-cycle": `${RAZIEL_PRESENCE.cycleMs}ms`,
-    fontFamily: F.body,
+    fontFamily: TYPEFACE.body,
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
@@ -1263,6 +1273,7 @@ export default function SystemFrame2029({
         data-frame-experience-locale={experience.locale}
         data-frame-reduced-motion={String(experience.motion.reduced)}
         data-frame-theme-mode={palette.mode}
+        data-frame-theme-preset={palette.preset || palette.mode}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
