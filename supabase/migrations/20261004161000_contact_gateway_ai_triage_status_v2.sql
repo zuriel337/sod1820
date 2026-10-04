@@ -138,3 +138,13 @@ revoke all on function public.admin_contact_gateway_triage_refresh_v2() from pub
 revoke all on function public.admin_contact_gateway_triage_refresh_v2() from anon;
 revoke all on function public.admin_contact_gateway_triage_refresh_v2() from service_role;
 grant execute on function public.admin_contact_gateway_triage_refresh_v2() to authenticated;
+
+
+-- SECURITY CLOSURE: suggest_add is an internal System Suggestions primitive.
+-- It was historically left at PostgreSQL's default PUBLIC EXECUTE despite being SECURITY DEFINER.
+-- Internal SECURITY DEFINER detectors/admin wrappers continue to execute it as their owner;
+-- browser/authenticated callers must not invoke it directly.
+revoke all on function public.suggest_add(text,text,text,text,jsonb,integer,integer,text,text)
+  from public, anon, authenticated;
+grant execute on function public.suggest_add(text,text,text,text,jsonb,integer,integer,text,text)
+  to service_role;
