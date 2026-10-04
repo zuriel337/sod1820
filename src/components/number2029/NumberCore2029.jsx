@@ -5,6 +5,7 @@ import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
+import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -63,6 +64,7 @@ function MethodInspector({
   onOpenHeichal,
   onMethodLensExpression,
   onClose,
+  compact = false,
 }) {
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
@@ -96,23 +98,30 @@ function MethodInspector({
     </div>
 
     {tab === "calc" ? <div className="sod29-number-method-inspector-pane">
-      <div className="sod29-number-method-calc-line">
-        <span>{projection.expression}</span>
-        <b>{publicMethodLabel(method)}</b>
-        <strong>{method.computedValue ?? "—"}</strong>
-      </div>
+      {compact ? <GematriaReveal2029
+        selection={methodLensSelection}
+        trace={traceState}
+        expanded={traceOpen}
+        onToggleTrace={onToggleTrace}
+      /> : <>
+        <div className="sod29-number-method-calc-line">
+          <span>{projection.expression}</span>
+          <b>{publicMethodLabel(method)}</b>
+          <strong>{method.computedValue ?? "—"}</strong>
+        </div>
+        <div className="sod29-number-method-inspector-actions">
+          <button type="button" disabled={!traceState?.finding && !traceState?.error} onClick={onToggleTrace}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
+          {method.computedValue != null && Number(method.computedValue) !== Number(projection.root)
+            ? <span className="sod29-number-method-result-note">תוצאה פעילה ≠ Root</span>
+            : <span className="sod29-number-method-result-note">התוצאה יושבת על ה־Root</span>}
+        </div>
+        {traceState?.error ? <div className="sod29-number-core2029-note">Trace לא זמין כרגע לשילוב הזה.</div> : null}
+        {traceOpen && traceState?.finding ? <div className="sod29-number-core2029-trace-steps">
+          {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace ללא פירוט צעדים להצגה.</span>}
+        </div> : null}
+      </>}
       <p>הערך מגיע מהמנוע הקנוני. הביטוי נשאר {projection.expression}; פתיחת מספר אחר היא פעולה מפורשת.</p>
-      <div className="sod29-number-method-inspector-actions">
-        <button type="button" disabled={!traceState?.finding && !traceState?.error} onClick={onToggleTrace}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
-        {method.computedValue != null && Number(method.computedValue) !== Number(projection.root)
-          ? <span className="sod29-number-method-result-note">תוצאה פעילה ≠ Root</span>
-          : <span className="sod29-number-method-result-note">התוצאה יושבת על ה־Root</span>}
-      </div>
-      {traceState?.error ? <div className="sod29-number-core2029-note">Trace לא זמין כרגע לשילוב הזה.</div> : null}
-      {traceOpen && traceState?.finding ? <div className="sod29-number-core2029-trace-steps">
-        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace ללא פירוט צעדים להצגה.</span>}
-      </div> : null}
-      <SpatialMethodStage2029
+      {(!compact || traceOpen) ? <SpatialMethodStage2029
         expression={projection.expression}
         methodKey={method.methodKey}
         trace={traceDetail}
@@ -121,7 +130,7 @@ function MethodInspector({
         loading={traceState?.loading === true}
         onRazielAction={onRazielAction}
         onOpenHeichal={onOpenHeichal}
-      />
+      /> : null}
       <MethodLens2029 selection={methodLensSelection} compact onOpenExpression={onMethodLensExpression} />
     </div> : null}
 
@@ -670,6 +679,7 @@ export default function NumberCore2029({
           onOpenHeichal={onOpenHeichal}
           onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase)}
           onClose={() => setShowCalculation(false)}
+          compact={compact}
         /> : null}
 
         <footer className="sod29-number-v10-stage-actions">
