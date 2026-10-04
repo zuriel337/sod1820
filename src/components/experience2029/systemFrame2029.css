@@ -539,3 +539,29 @@
     z-index:24;
   }
 }
+
+
+/* Preview V4 — sticky containment repair.
+   The base frame uses horizontal overflow containment; hidden can become a sticky-breaking
+   scroll ancestor. Clip keeps horizontal containment without owning vertical scrolling. */
+.sod29-root.native-frame{
+  overflow-x:clip;
+  overflow-y:visible;
+}
+.sod29-main,
+.sod29-main-stage,
+.sod29-content{
+  overflow-y:visible;
+}
+@media(min-width:981px){
+  .sod29-main-stage.has-context-rail>.sod29-surface-context-rail{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:76px;
+  }
+  .sod29-surface-tabs{
+    position:-webkit-sticky;
+    position:sticky;
+    top:62px;
+  }
+}
