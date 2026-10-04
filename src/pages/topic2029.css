@@ -200,10 +200,6 @@
 }
 .sod29-topic-post-card p{margin:0;color:var(--s29-muted)}
 
-.sod29-topic-mapnav{
-  max-width:980px;
-  margin-inline:auto;
-}
 .sod29-topic-prominence,
 .sod29-topic-graph-grid{
   opacity:.94;
