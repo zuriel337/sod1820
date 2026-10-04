@@ -304,12 +304,12 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(worldButton).toBeVisible();
   await worldButton.click();
   await expect(page).toHaveURL(`${BASE}/world`, { timeout: 20_000 });
-  const worldFocus = page.locator('.sod29-world-focus-ribbon');
-  await expect(worldFocus).toBeVisible({ timeout: 30_000 });
-  await expect(worldFocus).toContainText('חנם');
-  await expect(worldFocus).toContainText('98');
+  const worldOrigin = page.locator('.sod29-world-origin-ribbon');
+  await expect(worldOrigin).toBeVisible({ timeout: 30_000 });
+  await expect(worldOrigin).toContainText('חנם');
+  await expect(worldOrigin).toContainText('98');
 
-  await worldFocus.getByRole('button', { name: 'חזור לחישוב' }).click();
+  await worldOrigin.getByRole('button', { name: 'חזרה לדף המספר' }).click();
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
