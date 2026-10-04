@@ -4460,8 +4460,8 @@ function SpotimChatPage() {
         }
       `}</style>
       {/* 🖼️ הירו — אותה תמונת שער-הזהב 888 שבדף הבית (בקשת צוריאל 5.9.2026) */}
-      <div style={{ height: "clamp(160px, 30vw, 280px)", position: "relative", overflow: "hidden", borderRadius: 16, marginBottom: 32 }}>
-        <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      <div style={{ aspectRatio: "2172 / 724", position: "relative", overflow: "hidden", borderRadius: 16, marginBottom: 32, background: "#09080f" }}>
+        <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(9,8,15,0.05) 45%, rgba(9,8,15,0.6) 100%)" }} />
       </div>
       <ChatScrollRail />
@@ -4991,8 +4991,8 @@ function PostPageBySlug({ onNav }) {
       })()}
       {/* 🖼️ פוסט בלי תמונה/fx משלו — הירו-ברירת-מחדל: אותה תמונת שער-הזהב 888 שבדף הבית (בקשת צוריאל 5.9.2026) */}
       {!image && !fx && !loading && post && (
-        <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
-          <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <div style={{ aspectRatio: "2172 / 724", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
+          <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />
         </div>
       )}
