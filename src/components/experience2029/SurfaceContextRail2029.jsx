@@ -33,6 +33,20 @@ export default function SurfaceContextRail2029({
   const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;
+  const mapLabel = String(context?.dimensions?.surfaceMapLabel || (
+    surface === "post" ? "בתוך הפוסט"
+      : surface === "topic" ? "בתוך הציר"
+        : surface === "heichal" ? "מה אנחנו בודקים"
+          : surface === "world" ? "מה מחובר עכשיו"
+            : "איפה אני כאן"
+  ));
+  const defaultKicker = sections.length
+    ? (surface === "post" || surface === "topic" ? "פתוח עכשיו" : mapLabel)
+    : surface === "heichal"
+      ? "מה אנחנו בודקים עכשיו"
+      : surface === "world"
+        ? "מה מחובר עכשיו"
+        : "הקשר פעיל";
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
@@ -128,7 +142,7 @@ export default function SurfaceContextRail2029({
       className={`sod29-surface-context-rail${compact ? " is-compact" : ""}`}
       ariaLabel="ההקשר הפעיל"
       contextId={subject.id || subject.entityId || subject.locator || title}
-      kicker={subject.kicker || "מה פעיל עכשיו"}
+      kicker={subject.kicker || defaultKicker}
       title={title}
       subtitle={subtitle}
       actions={<div className="sod29-surface-context-actions">
@@ -139,12 +153,12 @@ export default function SurfaceContextRail2029({
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
       {sections.length ? <div className="sod29-surface-context-progress">
-        <div className="sod29-context-inspector-kicker">איפה אני בדף</div>
+        <div className="sod29-context-inspector-kicker">{mapLabel}</div>
         <SurfaceProgressSpine2029
           items={sections}
           activeId={activeSectionId}
-          interactive={false}
-          ariaLabel="התקדמות בדף"
+          interactive
+          ariaLabel={mapLabel}
         />
       </div> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
@@ -167,7 +181,7 @@ export default function SurfaceContextRail2029({
     <button className="sod29-surface-context-mobile-cue" type="button" onClick={onOpenContext} aria-label="פתח הקשר">
       <span className="sod29-surface-context-mobile-cue-icon">✦</span>
       <span className="sod29-surface-context-mobile-cue-copy">
-        <small>הקשר</small>
+        <small>{sections.length ? mapLabel : "הקשר"}</small>
         <b>{title}</b>
       </span>
       <span className="sod29-surface-context-mobile-cue-value">{hasNumber ? number : "פתח"}</span>
