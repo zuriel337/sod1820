@@ -60,10 +60,17 @@ export function buildTopic2029Projection(finding) {
     ? source.highlight_numbers.map(Number).filter(Number.isFinite)
     : [];
 
+  const heroNumber = highlightNumbers[0] ?? anchors[0] ?? null;
+  const displayTitle = heroNumber != null
+    ? title.replace(new RegExp(`^\\s*${heroNumber}\\s*[—–-]\\s*`), "").trim() || title
+    : title;
+
   return {
     id: clean(finding.id) || null,
     slug,
     title,
+    displayTitle,
+    heroNumber,
     description,
     canonicalPath: slug ? `/topic/${encodeURIComponent(slug)}` : null,
     sourceRef: clean(finding?.source?.sourceRef) || null,
@@ -85,6 +92,9 @@ export function buildTopic2029Projection(finding) {
     relatedConvergences: Array.isArray(sections.convergenceRefs) ? sections.convergenceRefs : [],
     relatedPosts: Array.isArray(sections.posts) ? sections.posts : [],
     phrases: Array.isArray(sections.phrases) ? sections.phrases : [],
+    numericClaims: Array.isArray(sections.numericClaims) ? sections.numericClaims : [],
+    authoredRows: Array.isArray(sections.rows) ? sections.rows : [],
+    authoredConnections: Array.isArray(sections.connections) ? sections.connections : [],
     caveats: Array.isArray(sections.caveat) ? sections.caveat : [],
     hints: Array.isArray(sections.hint) ? sections.hint : [],
     authoredFactsCount: Number(content?.counts?.supported || 0),
