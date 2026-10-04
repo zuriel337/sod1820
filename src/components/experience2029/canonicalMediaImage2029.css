@@ -1,0 +1,18 @@
+/* Canonical 2029 content-media rule:
+   Preserve the complete source image. Cropping requires an explicit future opt-in. */
+.sod29-canonical-media-image{
+  display:block;
+  width:100%;
+  max-width:100%;
+  object-fit:contain!important;
+  object-position:center center;
+  background:color-mix(in srgb,var(--s29-panel-soft) 92%,var(--s29-page));
+}
+.sod29-canonical-media-image.is-primary{
+  height:auto!important;
+  aspect-ratio:auto!important;
+  max-height:min(72vh,760px);
+}
+.sod29-canonical-media-image.is-thumbnail{
+  object-fit:contain!important;
+}

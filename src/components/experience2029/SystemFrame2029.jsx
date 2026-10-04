@@ -24,6 +24,7 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import IssueReport from "../IssueReport.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -901,14 +902,21 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
+  const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = context?.subject?.href || "";
-  const bottomTrail = surface === "post"
+  const postTrail = surface === "post"
     && context?.subject?.type === "post"
     && subjectHref
     && subjectHref.split("#")[0] === location.pathname
     && Array.isArray(context?.dimensions?.bottomTrail)
       ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
+  const numberSurfaceFocus = numberPageRoute ? context?.dimensions?.surfaceFocus || null : null;
+  // NUMBER_2029_RELEASE_V1 keeps the existing Command Island contract unchanged.
+  // Number Context is exposed through the dedicated Context cue/rail, not by restructuring
+  // the bottom command toolbar in this isolated release.
+  const bottomTrail = postTrail;
+  const showNumberContextRail = numberPageRoute && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -937,7 +945,7 @@ export default function SystemFrame2029({
   const frame = (
     <ShellContext.Provider value={shellApi}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -981,25 +989,34 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          <main className={`sod29-content${wide ? " wide" : ""}`}>
-            {(eyebrow || title || description) ? (
-              <section className="sod29-page-intro">
-                <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
-                <div className="sod29-hero-copy">
-                  {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
-                  {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
-                  {description ? <p>{description}</p> : null}
-                  {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-                    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
-                    {context.lens ? <span>מבט · {context.lens}</span> : null}
-                    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
-                    {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
-                  </div> : null}
-                </div>
-              </section>
-            ) : null}
-            {children}
-          </main>
+          <div className={`sod29-main-stage${showNumberContextRail ? " has-context-rail number-context-only" : ""}`}>
+            <main className={`sod29-content${wide ? " wide" : ""}`}>
+              {(eyebrow || title || description) ? (
+                <section className="sod29-page-intro">
+                  <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
+                  <div className="sod29-hero-copy">
+                    {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
+                    {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
+                    {description ? <p>{description}</p> : null}
+                    {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+                      {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
+                      {context.lens ? <span>מבט · {context.lens}</span> : null}
+                      {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
+                      {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
+                    </div> : null}
+                  </div>
+                </section>
+              ) : null}
+              {children}
+            </main>
+            {showNumberContextRail ? <SurfaceContextRail2029
+              context={context}
+              focus={numberSurfaceFocus || activeTarget}
+              onOpenNumber={(target) => openNumber(target || activeTarget)}
+              onAskRaziel={() => openRaziel()}
+              onOpenContext={() => openInspect(numberSurfaceFocus || activeTarget)}
+            /> : null}
+          </div>
         </div>
 
         {navOpen ? <>
@@ -1023,23 +1040,47 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
+        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
           {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
-              <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>
+              {numberPageRoute ? <button
+                type="button"
+                className="sod29-command-trail-item"
+                aria-current={item.active ? "page" : undefined}
+                onClick={() => {
+                  if (item.number != null) {
+                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/2029/number/${item.number}` });
+                    return;
+                  }
+                  if (item.targetId) {
+                    document.getElementById(item.targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    return;
+                  }
+                  if (item.href) go(item.href);
+                }}
+                disabled={!item.number && !item.targetId && !item.href}
+              >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : <>
             <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
             <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
           </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          {bottomTrail.length ? <div className="sod29-command-actions">
-            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
-            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
-            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
-          </div> : <>
+          {bottomTrail.length ? <>
+            {surface === "number" ? <button
+              className="sod29-number-island-action"
+              type="button"
+              onClick={() => openAction(activeTarget)}
+              aria-pressed={transientKind === TRANSIENT.ACTION}
+            ><span>◎</span><small>פעולה</small></button> : null}
+            <div className="sod29-command-actions">
+              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
+              {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
+              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
+              <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+            </div>
+          </> : <>
             <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
           </>}

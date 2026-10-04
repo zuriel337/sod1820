@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { toggleTheme, useThemeMode } from "../../lib/themeMode.js";
-import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
+import {
+  canonicalFindingKindPublicLabel,
+  canonicalGraphRelationTitle,
+  canonicalMediaPublicLabel,
+  canonicalRelationPublicLabel,
+  formatTanakhRef,
+  formatVerseGematriaSuffix,
+} from "../../lib/presentation/canonicalPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
+import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -87,7 +95,7 @@ function relatedNumbersOf(root, projectionRelatedNumbers, relations, topics, zer
   };
 
   for (const row of projectionRelatedNumbers || []) {
-    add(row?.value, clean(row?.relationType || row?.label) || "קשר מספרי", clean(row?.sourceKind) || "relation");
+    add(row?.value, row?.relationType ? canonicalRelationPublicLabel(row.relationType) : clean(row?.label) || "קשר מספרי", clean(row?.sourceKind) || "relation");
   }
   for (const relation of relations || []) {
     add(numberFromRelation(relation, root), clean(relation?.label || relation?.reason || relation?.relation_type) || "קשר בגרף", "relation");
@@ -113,12 +121,16 @@ function factorizationText(profile) {
 }
 
 function findingLabel(item) {
-  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind;
-  return humanContentTitle(raw, { max: 96 }) || "ממצא מחקר";
+  if (["image", "media"].includes(clean(item?.type))) {
+    return canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+  }
+  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || null;
+  return humanContentTitle(raw, { max: 96 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type) || "ממצא";
 }
 
 function findingReason(item) {
-  return clean(item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow || item?.kind);
+  return clean(item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow)
+    || canonicalFindingKindPublicLabel(item?.kind, item?.type);
 }
 
 function personName(row) {
@@ -194,7 +206,9 @@ export default function NumberLivingWorld2029({
   projectionRelatedNumbers = [],
   sources = [],
   verseRows = [],
+  verseCount = 0,
   versesLoading = false,
+  onLoadMoreVerses,
   worlds = [],
   researchFindings = [],
   timeline = [],
@@ -207,10 +221,10 @@ export default function NumberLivingWorld2029({
   onOpenHeichal,
   onRazielAction,
   onOpenNumber,
+  onFocusContext,
   onJourney,
   onPersonalJourney,
 } = {}) {
-  const theme = useThemeMode();
   const [activeWorld, setActiveWorld] = useState(0);
   const [scrubMode, setScrubMode] = useState("numbers");
   const [scrubIndex, setScrubIndex] = useState(0);
@@ -289,7 +303,7 @@ export default function NumberLivingWorld2029({
     ["מתמטיקה", "number-math"],
     ["ביטויים", "number-expressions"],
     ["מקורות", "number-content-live"],
-    ["זמן", "number-timeline-live"],
+    ["גילוי", "number-timeline-live"],
     ["מסע", "number-journey-gate"],
     ["מחקר", "number-deep-view"],
   ];
@@ -313,28 +327,23 @@ export default function NumberLivingWorld2029({
   const timelineShown = showAllTimeline ? timeline.slice(-20).reverse() : timeline.slice(-5).reverse();
 
   return <div className="sod29-lw" data-experience-capability="number-living-world">
-    <nav className="sod29-lw-mapnav" aria-label="מפת דף המספר">
-      <button type="button" className="sod29-lw-map-current" onClick={() => jump(navItems.find(([label]) => label === currentSection)?.[1] || "number-essential")}>
-        <span>אתה כאן</span><strong>{currentSection}</strong>
-      </button>
-      <div className="sod29-lw-map-progress" aria-hidden="true"><i style={{ width: `${Math.max(7, ((navItems.findIndex(([label]) => label === currentSection) + 1) / navItems.length) * 100)}%` }} /></div>
-      <div className="sod29-lw-map-links">
-        {navItems.slice(0, -1).map(([label, id]) => <button key={id} type="button" onClick={() => jump(id)}>{label}</button>)}
-      </div>
-      <button type="button" className="sod29-lw-theme" onClick={toggleTheme} aria-label={theme === "dark" ? "עבור למצב יום" : "עבור למצב לילה"}>
-        {theme === "dark" ? "☀ יום" : "☾ לילה"}
-      </button>
-    </nav>
+    <SurfaceMapBar2029
+      items={navItems.map(([label, id]) => ({ id, label, targetId: id }))}
+      activeId={navItems.find(([, id]) => id === (navItems.find(([label]) => label === currentSection)?.[1]))?.[1] || "number-essential"}
+      onSelect={(item) => setCurrentSection(item.label)}
+      onActiveChange={(item) => setCurrentSection(item.label)}
+      ariaLabel="מפת דף המספר"
+    />
 
     {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses" data-source="fn_verses_by_gematria">
       <SectionHead
         kicker="תנ״ך · גימטריה"
         title={`פסוקים בגימטריה של ${root}`}
         text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
-        aside={<span className="sod29-lw-count">{versesLoading ? "…" : verseRows.length}</span>}
+        aside={<span className="sod29-lw-count">{versesLoading ? "…" : (verseCount || verseRows.length)}</span>}
       />
       {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <div className="sod29-lw-verse-grid">
-        {verseRows.slice(0, showAllVerses ? 8 : 3).map((row, index) => <article key={row.ref || index}>
+        {(showAllVerses ? verseRows : verseRows.slice(0, 3)).map((row, index) => <article key={row.ref || index}>
           <span>{formatTanakhRef(row.ref)}</span>
           <p className="sod29-lw-verse-equality">
             <span>{row.text}</span>
@@ -343,7 +352,9 @@ export default function NumberLivingWorld2029({
           <small>פסוק שלם · גימטריה רגילה</small>
         </article>)}
       </div>}
-      {!versesLoading && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses((value) => !value)}>{showAllVerses ? "צמצם פסוקים" : `פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
+      {!versesLoading && !showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(true)}>{`פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
+      {showAllVerses && verseCount > verseRows.length ? <DepthButton onClick={onLoadMoreVerses}>{`טען עוד פסוקים · ${verseRows.length} מתוך ${verseCount}`}</DepthButton> : null}
+      {showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(false)}>צמצם פסוקים</DepthButton> : null}
     </section> : null}
 
     <div className="sod29-lw-context" data-experience-capability="number-research-context">
@@ -504,8 +515,43 @@ export default function NumberLivingWorld2029({
         aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
       />
       {mediaItems.length ? <div className="sod29-lw-feature-media">
-        <figure><img src={mediaItems[0]?.thumbUrl || mediaItems[0]?.imageUrl} alt={mediaItems[0]?.label || `ייצוג חזותי של ${root}`} loading="lazy" /><figcaption><span>ייצוג מוביל</span><strong>{mediaItems[0]?.label || `המספר ${root}`}</strong></figcaption></figure>
-        <div>{mediaItems.slice(1, 4).map((item, index) => <figure key={item?.galleryImageId || item?.nodeId || index}><img src={item?.thumbUrl || item?.imageUrl} alt={item?.label || "ייצוג"} loading="lazy" /><figcaption>{item?.label || "מדיה"}</figcaption></figure>)}</div>
+        <button type="button" className="sod29-lw-media-focus is-primary" onClick={() => {
+          const item = mediaItems[0];
+          const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+          onFocusContext?.({
+            id: item?.nodeId || item?.galleryImageId || label,
+            type: "image",
+            kicker: "תמונה פעילה",
+            label,
+            primary: label,
+            sectionLabel: "מקורות",
+            sourceLabel: "מדיה",
+            signals: [canonicalRelationPublicLabel(item?.relationType || "related")],
+            locator: "#number-content-live",
+            imageUrl: item?.imageUrl || null,
+          });
+        }}>
+          <CanonicalMediaImage2029 item={mediaItems[0]} primary alt={canonicalMediaPublicLabel(mediaItems[0], { fallback: `תמונה של ${root}` })} />
+          <span className="sod29-lw-media-caption"><small>ייצוג מוביל</small><strong>{canonicalMediaPublicLabel(mediaItems[0], { fallback: `תמונה של ${root}` })}</strong></span>
+        </button>
+        <div>{mediaItems.slice(1, 4).map((item, index) => {
+          const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+          return <button type="button" className="sod29-lw-media-focus" key={item?.galleryImageId || item?.nodeId || index} onClick={() => onFocusContext?.({
+            id: item?.nodeId || item?.galleryImageId || label,
+            type: "image",
+            kicker: "תמונה פעילה",
+            label,
+            primary: label,
+            sectionLabel: "מקורות",
+            sourceLabel: "מדיה",
+            signals: [canonicalRelationPublicLabel(item?.relationType || "related")],
+            locator: "#number-content-live",
+            imageUrl: item?.imageUrl || null,
+          })}>
+            <CanonicalMediaImage2029 item={item} thumbnail alt={label} />
+            <span className="sod29-lw-media-caption">{label}</span>
+          </button>;
+        })}</div>
       </div> : null}
       <div className="sod29-lw-source-list">
         {sourcesShown.map((row, index) => <article key={row?.id || row?.ref || index}><div><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}</div><span>מקור</span></article>)}
@@ -526,9 +572,29 @@ export default function NumberLivingWorld2029({
     </section> : null}
 
     {timeline.length ? <section className="sod29-lw-section" id="number-timeline-live" data-experience-capability="number-timeline">
-      <SectionHead kicker="מחקר חי" title="ציר ההתגלות" text="תחנות מחקר, גילוי והוספה למחקר. זמן הכנסת חומר אינו מוצג כאילו הוא זמן האירוע בעולם." />
+      <SectionHead kicker="זמן וגילוי" title="ציר הגילוי" text="כאן רואים מתי חיבורים ומקורות נכנסו למערכת. זה אינו ציר האירועים בעולם, ולכן זמן ההוספה נשאר נפרד מזמן האירוע עצמו." />
       <div className="sod29-lw-timeline">
-        {timelineShown.map((item, index) => <article key={item?.id || index}><time>{item?.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><i /><div><strong>{clean(item?.label) || clean(item?.kind) || "פריט מחקר"}</strong><small>{clean(item?.kind) || "נוסף למחקר"}{item?.status ? ` · ${item.status}` : ""}</small></div></article>)}
+        {timelineShown.map((item, index) => {
+          const title = item?.relation
+            ? canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId })
+            : (["image","media"].includes(clean(item?.type))
+              ? canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" })
+              : humanContentTitle(clean(item?.label), { max: 88 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type));
+          const relationLabel = item?.relation ? canonicalRelationPublicLabel(item.relation.relationType) : null;
+          return <button type="button" className="sod29-lw-timeline-focus" key={item?.id || index} onClick={() => onFocusContext?.({
+            id: item?.id || `timeline-${index}`,
+            type: item?.relation ? "relation" : (item?.type || item?.kind || "entity"),
+            kicker: item?.relation ? "קשר פעיל" : "פריט פעיל",
+            label: title,
+            primary: title,
+            sectionLabel: "גילוי",
+            sourceLabel: "ציר הגילוי",
+            signals: [relationLabel, item?.at ? `נוסף · ${new Date(item.at).toLocaleDateString("he-IL")}` : null].filter(Boolean),
+            locator: "#number-timeline-live",
+          })}>
+            <time>{item?.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><i /><span><strong>{title}</strong><small>{canonicalFindingKindPublicLabel(item?.kind, item?.type)}{item?.status ? ` · ${item.status}` : ""}</small></span>
+          </button>;
+        })}
       </div>
       {timeline.length > 5 ? <DepthButton onClick={() => setShowAllTimeline((value) => !value)}>{showAllTimeline ? "צמצם" : "פתח את ציר המחקר המלא"}</DepthButton> : null}
     </section> : null}
