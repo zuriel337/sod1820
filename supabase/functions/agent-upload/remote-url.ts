@@ -12,8 +12,9 @@ const EXACT_HOSTS = new Set([
 ]);
 
 // Video-only transport host: honoured only when the ticket mime is video/mp4 (never for images).
-// Exact host, no suffix wildcard: Descript time-limited direct media URLs.
-const VIDEO_EXACT_HOSTS = new Set(["media.descriptusercontent.com"]);
+// Exact hosts, no suffix wildcard: Descript time-limited direct media URLs and the exact
+// storage.googleapis.com host Descript redirects to. No googleapis.com suffix/subdomains.
+const VIDEO_EXACT_HOSTS = new Set(["media.descriptusercontent.com", "storage.googleapis.com"]);
 const VIDEO_MIMES = new Set(["video/mp4"]);
 
 const HOST_SUFFIXES = [

@@ -29,11 +29,15 @@ const pngSig = Uint8Array.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a,0,0,0,0]
     if (remoteMode === "html-as-mp4") return new Response("<html>not a video at all</html>", { status: 200, headers: h(MIME) });
     if (remoteMode === "octet") return new Response(mp4, { status: 200, headers: h("application/octet-stream") });
     if (remoteMode === "redirect-bad") return new Response(null, { status: 302, headers: { location: "https://evil.example.com/a.mp4" } });
+    if (remoteMode === "redirect-gcs") return new Response(null, { status: 302, headers: { location: "https://storage.googleapis.com/bucket/final.mp4" } });
+    if (remoteMode === "redirect-gcs-sub") return new Response(null, { status: 302, headers: { location: "https://evil.storage.googleapis.com/bucket/final.mp4" } });
     if (remoteMode === "redirect-http") return new Response(null, { status: 302, headers: { location: "http://media.descriptusercontent.com/a.mp4" } });
     if (remoteMode === "redirect-ok") return new Response(null, { status: 302, headers: { location: "https://media.descriptusercontent.com/v/final.mp4" } });
     return new Response(mp4, { status: 200, headers: { ...h(MIME), "content-length": String(mp4.length) } });
   }
   if (u === "https://media.descriptusercontent.com/v/final.mp4") return new Response(mp4, { status: 200, headers: { "content-type": MIME } });
+  if (u === "https://storage.googleapis.com/bucket/final.mp4") return new Response(mp4, { status: 200, headers: { "content-type": MIME } });
+  if (u === "https://storage.googleapis.com/bucket/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
   if (u === "https://media.descriptusercontent.com/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
   if (u === "https://raw.githubusercontent.com/example/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
   if (u === "https://raw.githubusercontent.com/example/v.mp4") return new Response(mp4, { status: 200, headers: { "content-type": MIME } });
@@ -66,6 +70,11 @@ check("rejects http", (await postUrl("http://media.descriptusercontent.com/v/cli
 check("rejects credentials", (await postUrl("https://u:p@media.descriptusercontent.com/v/clip.mp4")).status === 403);
 check("rejects non-443 port", (await postUrl("https://media.descriptusercontent.com:8443/v/clip.mp4")).status === 403);
 remoteMode = "redirect-ok"; check("follows redirect to allowed host", (await postUrl(DESCRIPT)).status === 200);
+remoteMode = "redirect-gcs"; check("follows Descript video redirect to storage.googleapis.com", (await postUrl(DESCRIPT)).status === 200);
+check("storage.googleapis.com direct video url accepted", (await postUrl("https://storage.googleapis.com/bucket/final.mp4")).status === 200);
+check("storage.googleapis.com NOT allowed for image tickets", (await postUrl("https://storage.googleapis.com/bucket/img.png", T({ mime:"image/png", path:"x.png", sha256:null, max_bytes:100 }))).status === 403);
+check("rejects googleapis.com subdomain/lookalikes", (await postUrl("https://evil.storage.googleapis.com/bucket/final.mp4")).status === 403 && (await postUrl("https://www.googleapis.com/x.mp4")).status === 403 && (await postUrl("https://storage.googleapis.com.evil.com/x.mp4")).status === 403);
+remoteMode = "redirect-gcs-sub"; check("rejects redirect to googleapis subdomain", (await postUrl(DESCRIPT)).status === 403);
 remoteMode = "redirect-bad"; check("rejects redirect to unapproved host", (await postUrl(DESCRIPT)).status === 403);
 {
   remoteMode = "redirect-bad"; const b = await postUrl(DESCRIPT);
