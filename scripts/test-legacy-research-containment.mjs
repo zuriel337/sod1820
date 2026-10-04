@@ -23,8 +23,9 @@ assert.match(home, /דף המספר · פתוח/);
 assert.match(home, /הצופן התנ״כי · סגור/);
 assert.match(beit, /במערכת החדשה של סוד 1820 נבנה עבורו שדרוג גדול/, "legacy calculator must show the approved upgrade notice");
 
+// Human Gate Final Global Chrome V1: Heichal is now a top-level Global Navigation home.
+// Containment still forbids page/tool-local "deepen in Heichal" shortcuts.
 for (const [name, source] of [
-  ["SystemFrame2029", frame],
   ["Topic2029", topic],
   ["Books2029", books],
   ["Number2029", number],
@@ -36,7 +37,7 @@ for (const [name, source] of [
   assert.equal(source.includes('go?.("/heichal"'), false, `${name} must not navigate to unopened Heichal 2029`);
 }
 
-assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "2029 shell nav must not expose Heichal");
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "Final Global Chrome must expose Heichal only as a top-level System Frame home");
 assert.equal(contextual.includes('label: "◇ העמק בהיכל"'), false, "context actions must not expose Heichal");
 assert.equal(contextual.includes('deepenTool()'), false, "context tools must not generate Heichal deepen entries");
 
