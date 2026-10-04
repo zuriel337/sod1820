@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { toggleTheme, useThemeMode } from "../../lib/themeMode.js";
 import { formatTanakhRef, formatVerseGematriaSuffix } from "../../lib/presentation/canonicalPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -212,7 +212,6 @@ export default function NumberLivingWorld2029({
   onJourney,
   onPersonalJourney,
 } = {}) {
-  const theme = useThemeMode();
   const [activeWorld, setActiveWorld] = useState(0);
   const [scrubMode, setScrubMode] = useState("numbers");
   const [scrubIndex, setScrubIndex] = useState(0);
@@ -315,18 +314,13 @@ export default function NumberLivingWorld2029({
   const timelineShown = showAllTimeline ? timeline.slice(-20).reverse() : timeline.slice(-5).reverse();
 
   return <div className="sod29-lw" data-experience-capability="number-living-world">
-    <nav className="sod29-lw-mapnav" aria-label="מפת דף המספר">
-      <button type="button" className="sod29-lw-map-current" onClick={() => jump(navItems.find(([label]) => label === currentSection)?.[1] || "number-essential")}>
-        <span>אתה כאן</span><strong>{currentSection}</strong>
-      </button>
-      <div className="sod29-lw-map-progress" aria-hidden="true"><i style={{ width: `${Math.max(7, ((navItems.findIndex(([label]) => label === currentSection) + 1) / navItems.length) * 100)}%` }} /></div>
-      <div className="sod29-lw-map-links">
-        {navItems.slice(0, -1).map(([label, id]) => <button key={id} type="button" onClick={() => jump(id)}>{label}</button>)}
-      </div>
-      <button type="button" className="sod29-lw-theme" onClick={toggleTheme} aria-label={theme === "dark" ? "עבור למצב יום" : "עבור למצב לילה"}>
-        {theme === "dark" ? "☀ יום" : "☾ לילה"}
-      </button>
-    </nav>
+    <SurfaceMapBar2029
+      items={navItems.map(([label, id]) => ({ id, label, targetId: id }))}
+      activeId={navItems.find(([, id]) => id === (navItems.find(([label]) => label === currentSection)?.[1]))?.[1] || "number-essential"}
+      onSelect={(item) => setCurrentSection(item.label)}
+      onActiveChange={(item) => setCurrentSection(item.label)}
+      ariaLabel="מפת דף המספר"
+    />
 
     {(versesLoading || verseRows.length) ? <section className="sod29-lw-section sod29-lw-verses" id="number-verses" data-experience-capability="number-verses" data-source="fn_verses_by_gematria">
       <SectionHead
