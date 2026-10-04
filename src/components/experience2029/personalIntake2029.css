@@ -1,0 +1,36 @@
+/* Personal Intake 2029 — one private entry over Universal Intake + Research Sync */
+.sod29-personal-intake{display:grid;gap:10px;border:1px solid var(--s29-line);border-radius:18px;background:var(--s29-panel-soft);overflow:hidden}
+.sod29-personal-intake-head{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:0;background:transparent;color:var(--s29-ink);padding:13px;text-align:start;font:inherit;cursor:pointer}
+.sod29-personal-intake-head .mark{display:grid;place-items:center;width:38px;height:38px;border-radius:999px;border:1px solid var(--s29-line-strong);color:var(--s29-accent);font-size:20px}
+.sod29-personal-intake-head strong,.sod29-personal-intake-head small{display:block}
+.sod29-personal-intake-head small{margin-top:3px;color:var(--s29-muted);font-size:11.5px;line-height:1.4}
+.sod29-personal-intake-head>b{color:var(--s29-accent);font-size:11px}
+.sod29-personal-intake-body{display:grid;gap:12px;padding:0 13px 13px;border-top:1px solid var(--s29-line)}
+.sod29-personal-intake-kinds{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px}
+.sod29-personal-intake-kinds>button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--s29-line);border-radius:999px;background:var(--s29-panel);color:var(--s29-muted);padding:7px 10px;font:inherit;font-size:11.5px;cursor:pointer}
+.sod29-personal-intake-kinds>button.active{border-color:var(--s29-line-strong);color:var(--s29-ink);background:var(--s29-panel-soft)}
+.sod29-personal-intake-field,.sod29-personal-intake-file{display:grid;gap:6px;color:var(--s29-muted);font-size:12px}
+.sod29-personal-intake-field input,.sod29-personal-intake-field textarea,.sod29-personal-intake-file{border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel);color:var(--s29-ink);padding:11px 12px;font:inherit;font-size:15px}
+.sod29-personal-intake-field textarea{resize:vertical;min-height:96px}
+.sod29-personal-intake-file input{font:inherit;color:var(--s29-ink)}
+.sod29-personal-intake-file small{color:var(--s29-muted)}
+.sod29-personal-intake-progress{display:grid;gap:5px}
+.sod29-personal-intake-progress>span{height:5px;border-radius:999px;background:linear-gradient(90deg,var(--s29-accent) var(--progress),var(--s29-line) var(--progress))}
+.sod29-personal-intake-progress small{color:var(--s29-muted)}
+.sod29-personal-intake-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sod29-personal-intake-actions small{color:var(--s29-muted);font-size:11.5px;line-height:1.4}
+.sod29-personal-intake-message{border-radius:12px;padding:9px 11px;font-size:12px}
+.sod29-personal-intake-message.ok{border:1px solid var(--s29-line-strong);color:var(--s29-ink)}
+.sod29-personal-intake-message.error{border:1px solid var(--s29-danger,var(--s29-line-strong));color:var(--s29-danger,var(--s29-accent))}
+.sod29-personal-intake-list{display:grid;gap:8px;border-top:1px solid var(--s29-line);padding-top:10px}
+.sod29-personal-intake-list article{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);padding:9px 10px}
+.sod29-personal-intake-list .kind{color:var(--s29-accent);font-size:10.5px;font-weight:800}
+.sod29-personal-intake-list article strong,.sod29-personal-intake-list article small{display:block}
+.sod29-personal-intake-list article small{margin-top:2px;color:var(--s29-muted);font-size:10.5px}
+.sod29-personal-intake-list .actions{display:flex;gap:5px}
+.sod29-personal-intake-list .actions button{border:1px solid var(--s29-line);border-radius:999px;background:transparent;color:var(--s29-muted);padding:4px 8px;font:inherit;font-size:10.5px;cursor:pointer}
+.sod29-personal-intake-list .empty{margin:0;color:var(--s29-muted);font-size:11.5px;line-height:1.55}
+@media(max-width:640px){
+  .sod29-personal-intake-list article{grid-template-columns:1fr}
+  .sod29-personal-intake-list .actions{justify-self:start}
+}
