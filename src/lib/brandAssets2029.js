@@ -1,5 +1,5 @@
 // Centralized Brand Core asset pointers for 2029 projections.
-// Human-Gate-approved full lockup candidate; never crop to crown-only.
+// Human-Gate-approved full lockup candidate; partial-mark crops are forbidden.
 // Asset bytes remain owned by canonical Supabase media storage and Brand Core provenance.
 export const BRAND_LOCKUP_2029 = Object.freeze({
   state: "approved_candidate",
