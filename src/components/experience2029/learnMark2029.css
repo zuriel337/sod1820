@@ -113,3 +113,30 @@
   .sod29-learn-mark-trigger,
   .sod29-learn-mark-disclosure{transition:none!important}
 }
+
+.sod29-learn-mark-help{
+  min-height:40px;
+  margin-top:8px;
+  padding:6px 8px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  border:0;
+  background:transparent;
+  color:var(--learn-muted);
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.sod29-learn-mark-help>span:first-child{
+  width:24px;
+  height:24px;
+  display:inline-grid;
+  place-items:center;
+  border:1px solid var(--learn-line);
+  border-radius:50%;
+  color:var(--learn-ink);
+  font-weight:950;
+}
+.sod29-learn-mark-help:hover{color:var(--learn-ink)}
