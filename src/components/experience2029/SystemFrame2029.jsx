@@ -785,6 +785,43 @@ export default function SystemFrame2029({
     if (to && to !== currentHref) preserveReturn();
   }, [currentHref, preserveReturn]);
 
+  const completeSurfaceEntry = useCallback((actionId, targetSurface = null) => {
+    const manifest = orientation.manifest;
+    if (!manifest) return;
+    const familiarity = markSurfaceFamiliarity(surface, "complete", manifest.version);
+    setSurfaceFamiliarity(familiarity);
+    emitEntryLearn("first_action", {
+      entrySurface: surface,
+      arrival,
+      actionId,
+      targetSurface,
+      mode: orientation.mode,
+      manifestVersion: manifest.version,
+    }, { dedupe: true });
+  }, [surface, arrival, orientation]);
+
+  const expandOrientation = useCallback(() => {
+    if (!orientation.manifest) return;
+    emitEntryLearn("orientation_expanded", {
+      entrySurface: surface,
+      arrival,
+      mode: orientation.mode,
+      manifestVersion: orientation.manifest.version,
+    });
+  }, [surface, arrival, orientation]);
+
+  const dismissOrientation = useCallback(() => {
+    if (!orientation.manifest) return;
+    const familiarity = markSurfaceFamiliarity(surface, "dismissed", orientation.manifest.version);
+    setSurfaceFamiliarity(familiarity);
+    emitEntryLearn("orientation_dismissed", {
+      entrySurface: surface,
+      arrival,
+      mode: "compact",
+      manifestVersion: orientation.manifest.version,
+    });
+  }, [surface, arrival, orientation]);
+
   const go = useCallback((to, { preserve = true } = {}) => {
     if (!to) return;
     if (preserve) preserveReturnFor(to);
@@ -825,43 +862,6 @@ export default function SystemFrame2029({
     setNavOpen(false);
     if (restoreFocus) requestAnimationFrame(() => mobileMenuRef.current?.focus?.());
   }, []);
-
-  const completeSurfaceEntry = useCallback((actionId, targetSurface = null) => {
-    const manifest = orientation.manifest;
-    if (!manifest) return;
-    const familiarity = markSurfaceFamiliarity(surface, "complete", manifest.version);
-    setSurfaceFamiliarity(familiarity);
-    emitEntryLearn("first_action", {
-      entrySurface: surface,
-      arrival,
-      actionId,
-      targetSurface,
-      mode: orientation.mode,
-      manifestVersion: manifest.version,
-    }, { dedupe: true });
-  }, [surface, arrival, orientation]);
-
-  const expandOrientation = useCallback(() => {
-    if (!orientation.manifest) return;
-    emitEntryLearn("orientation_expanded", {
-      entrySurface: surface,
-      arrival,
-      mode: orientation.mode,
-      manifestVersion: orientation.manifest.version,
-    });
-  }, [surface, arrival, orientation]);
-
-  const dismissOrientation = useCallback(() => {
-    if (!orientation.manifest) return;
-    const familiarity = markSurfaceFamiliarity(surface, "dismissed", orientation.manifest.version);
-    setSurfaceFamiliarity(familiarity);
-    emitEntryLearn("orientation_dismissed", {
-      entrySurface: surface,
-      arrival,
-      mode: "compact",
-      manifestVersion: orientation.manifest.version,
-    });
-  }, [surface, arrival, orientation]);
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
