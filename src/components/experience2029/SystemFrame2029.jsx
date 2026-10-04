@@ -913,6 +913,7 @@ export default function SystemFrame2029({
     surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
   ].filter(Boolean);
   const bottomTrail = configuredTrail.length ? configuredTrail : fallbackTrail;
+  const showContextRail = ["post", "world", "number"].includes(surface) && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -985,7 +986,7 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          <div className={`sod29-main-stage${activeTarget || context?.subject ? " has-context-rail" : ""}`}>
+          <div className={`sod29-main-stage${showContextRail ? " has-context-rail" : ""}`}>
           <main className={`sod29-content${wide ? " wide" : ""}`}>
             {(eyebrow || title || description) ? (
               <section className="sod29-page-intro">
@@ -1005,7 +1006,7 @@ export default function SystemFrame2029({
             ) : null}
             {children}
           </main>
-          {(activeTarget || context?.subject) ? <SurfaceContextRail2029
+          {showContextRail ? <SurfaceContextRail2029
             context={context}
             focus={surfaceFocus || activeTarget}
             onOpenNumber={(target) => openNumber(target || activeTarget)}
