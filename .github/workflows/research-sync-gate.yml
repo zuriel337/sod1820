@@ -6,6 +6,9 @@ on:
       - 'src/lib/research/ResearchProvider.jsx'
       - 'src/lib/research/researchSync*'
       - 'supabase/migrations/20260916141000_g3_personal_research_sync_hardening_v1.sql'
+      - 'supabase/migrations/20261004110000_research_path_public_reader_v1.sql'
+      - 'tests/sql/research_path_public_reader_v1.sql'
+      - 'scripts/test-research-path-public-reader.sql'
       - 'scripts/test-research-sync*'
       - 'test/research-sync-hardening.test.mjs'
       - '.github/workflows/research-sync-gate.yml'
@@ -34,6 +37,12 @@ jobs:
         env:
           PGPASSWORD: fixture_only
         run: psql -h localhost -U postgres -d research_sync_fixture -v ON_ERROR_STOP=1 -f scripts/test-research-sync.sql
+      - name: Research Path public reader + Human-Gate publication SQL acceptance
+        env:
+          PGPASSWORD: fixture_only
+        run: |
+          createdb -h localhost -U postgres research_path_public_fixture
+          psql -h localhost -U postgres -d research_path_public_fixture -v ON_ERROR_STOP=1 -f scripts/test-research-path-public-reader.sql
       - run: npm ci
       - name: Install isolated mounted-provider test helper (no package/lockfile change)
         run: npm install --no-save --package-lock=false esbuild@0.28.2 react-test-renderer@19.3.0
