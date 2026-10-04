@@ -4,6 +4,7 @@ import {
   ENTRY_ARRIVAL,
   LEARN_FRAGMENTS,
   buildEntryLearnTelemetry,
+  buildLearnHelpSeed,
   classifyEntryArrival,
   getEntryOrientationManifest,
   isEntryLearnSurfaceActive,
@@ -65,6 +66,21 @@ assert.equal(payload.options.props.concept_key, "method");
 assert.equal(Object.hasOwn(payload.options.props, "expression"), false);
 assert.equal(Object.hasOwn(payload.options.props, "prompt"), false);
 
+const helpPayload = buildEntryLearnTelemetry("learn_help_requested", {
+  entrySurface: "post",
+  conceptKey: "method",
+  layer: "explain",
+  actionId: null,
+  expression: "מלח",
+  prompt: "still confused",
+});
+assert.equal(helpPayload.eventType, "learn_help_requested");
+assert.equal(helpPayload.options.props.concept_key, "method");
+assert.equal(Object.hasOwn(helpPayload.options.props, "expression"), false);
+assert.equal(Object.hasOwn(helpPayload.options.props, "prompt"), false);
+assert.match(buildLearnHelpSeed("method"), /שיטת הגימטריה/);
+assert.doesNotMatch(buildLearnHelpSeed("method"), /מלח|משיח|נחש/);
+
 assert.match(LEARN_FRAGMENTS.method.explain, /שיטה/);
 assert.match(LEARN_FRAGMENTS.relation.explain, /שוויון מספרי/);
 assert.match(LEARN_FRAGMENTS.interpretation.explain, /פרשנות/);
@@ -78,11 +94,21 @@ const postPage = fs.readFileSync("src/pages/Post2029Page.jsx", "utf8");
 const topicPage = fs.readFileSync("src/pages/Topic2029Page.jsx", "utf8");
 const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
 const numberDrawer = fs.readFileSync("src/components/number2029/NumberDrawer2029.jsx", "utf8");
+const learnMark = fs.readFileSync("src/components/experience2029/LearnMark2029.jsx", "utf8");
+const gateway = fs.readFileSync("src/components/ContactGateway.jsx", "utf8");
 
 assert.match(systemFrame, /resolveEntryOrientation/);
 assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
 assert.match(systemFrame, /<LearnMark2029/);
+assert.match(systemFrame, /import ContactGateway from "\.\.\/ContactGateway\.jsx"/);
+assert.match(systemFrame, /onNeedHelp=\{openIssueReport\}/);
+assert.match(learnMark, /עדיין לא ברור\?/);
+assert.match(gateway, /buildContactGatewayContext/);
+assert.match(gateway, /learnStage/);
+assert.match(gateway, /actionTried/);
 assert.match(rail, /continued_to_research/);
+assert.match(rail, /learn_help_requested/);
+assert.match(rail, /onStillUnclear=\{askForLearnHelp\}/);
 assert.match(rail, /ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו/);
 assert.match(postPage, /shell\.openInspect\?\./);
 assert.doesNotMatch(postPage, /source: "post-contextual-focus",[\s\S]{0,120}shell\.openNumber/);
