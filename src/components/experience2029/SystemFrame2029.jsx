@@ -911,12 +911,24 @@ export default function SystemFrame2029({
     && Array.isArray(context?.dimensions?.bottomTrail)
       ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
-  const numberSurfaceFocus = numberPageRoute ? context?.dimensions?.surfaceFocus || null : null;
-  // NUMBER_2029_RELEASE_V1 keeps the existing Command Island contract unchanged.
-  // Number Context is exposed through the dedicated Context cue/rail, not by restructuring
-  // the bottom command toolbar in this isolated release.
-  const bottomTrail = postTrail;
-  const showNumberContextRail = numberPageRoute && Boolean(activeTarget || context?.subject);
+  const configuredTrail = Array.isArray(context?.dimensions?.bottomTrail)
+    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+    : [];
+  const surfaceFocus = context?.dimensions?.surfaceFocus || null;
+  const fallbackTrail = [
+    context?.subject ? { id: "subject", label: context.subject.label || context.subject.id } : null,
+    surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
+    surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
+  ].filter(Boolean);
+  // Preserve the closed Number 2029 command-island behavior. Post keeps its stale-context
+  // guard; World/Topic may project the active Research Path when the surface supplies one.
+  const bottomTrail = surface === "post"
+    ? postTrail
+    : surface === "world"
+      ? (configuredTrail.length ? configuredTrail : fallbackTrail)
+      : [];
+  const showContextRail = (numberPageRoute || surface === "post" || surface === "world")
+    && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -989,7 +1001,7 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          <div className={`sod29-main-stage${showNumberContextRail ? " has-context-rail number-context-only" : ""}`}>
+          <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {(eyebrow || title || description) ? (
                 <section className="sod29-page-intro">
@@ -1009,12 +1021,12 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showNumberContextRail ? <SurfaceContextRail2029
+            {showContextRail ? <SurfaceContextRail2029
               context={context}
-              focus={numberSurfaceFocus || activeTarget}
+              focus={surfaceFocus || activeTarget}
               onOpenNumber={(target) => openNumber(target || activeTarget)}
-              onAskRaziel={() => openRaziel()}
-              onOpenContext={() => openInspect(numberSurfaceFocus || activeTarget)}
+              onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+              onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
             /> : null}
           </div>
         </div>
