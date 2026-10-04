@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import ReadingContextRail2029 from "../components/experience2029/ReadingContextRail2029.jsx";
+import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
@@ -69,6 +69,13 @@ function PostReadingBody() {
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
     [regions, activeRegionId],
   );
+  const sectionItems = useMemo(() => [
+    { id: "post-story", label: "הסיפור", targetId: "post-story" },
+    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
+    { id: "post-connections", label: "חיבורים", targetId: "post-connections" },
+    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
+    { id: "post-next", label: "המשך", targetId: "post-next" },
+  ], [regions]);
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
@@ -114,7 +121,22 @@ function PostReadingBody() {
       lens: "reading",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: state.projection?.experience?.trail || [],
+        bottomTrail: [
+          { id: "post", label: "פוסט" },
+          { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
+          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
+        ],
+        surfaceFocus: {
+          id: activeFocus.id,
+          type: activeFocus.number ? "number" : "post_region",
+          sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+          label: activeFocus.primary || activeFocus.label,
+          primary: activeFocus.primary,
+          signals: activeFocus.signals || [],
+          number: activeFocus.number || null,
+          sourceLabel: state.projection.sourceLabel,
+          locator: `#source-region-${activeFocus.id}`,
+        },
         readingFocus: {
           id: activeFocus.id,
           label: activeFocus.label,
@@ -405,7 +427,7 @@ function PostReadingBody() {
       <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
     </section> : null}
 
-    <header className="sod29-reading-hero" data-experience-capability="post-master-hero">
+    <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
@@ -422,7 +444,7 @@ function PostReadingBody() {
           </div> : null}
         </div>
 
-        {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+        {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
@@ -468,14 +490,6 @@ function PostReadingBody() {
         ><span /></button>)}
       </nav>
 
-      <ReadingContextRail2029
-        focus={activeFocus}
-        onOpenWorld={openWorld}
-        onOpenNumber={openNumber}
-        onAskRaziel={askRaziel}
-        onOpenContext={openContext}
-        connections={contextualConnections}
-      />
     </div>
 
     {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
