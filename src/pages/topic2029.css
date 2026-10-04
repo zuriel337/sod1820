@@ -245,3 +245,149 @@
   .sod29-topic-claim-number,
   .sod29-topic-claim>a{min-width:72px;font-size:38px}
 }
+
+
+/* Topic Master V1.1 — gematria moments share the Post/Number visual grammar. */
+.sod29-topic-claims{
+  display:grid;
+  gap:18px;
+  margin-top:24px;
+  border:0;
+}
+.sod29-topic-equation{
+  display:grid;
+  justify-items:center;
+  gap:8px;
+  padding:clamp(18px,3vw,28px) 12px;
+  border:0;
+  border-bottom:1px solid var(--s29-line);
+  background:transparent;
+  text-align:center;
+}
+.sod29-topic-equation-line{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:clamp(10px,2vw,18px);
+  width:100%;
+}
+.sod29-topic-equation-phrase{
+  border:0;
+  background:transparent;
+  padding:0;
+  color:var(--s29-ink);
+  font:inherit;
+  font-family:var(--s29-font-body,inherit);
+  font-size:clamp(24px,4vw,44px);
+  font-weight:820;
+  line-height:1.16;
+  cursor:pointer;
+  text-align:center;
+}
+span.sod29-topic-equation-phrase{cursor:default}
+.sod29-topic-equation-equals{
+  color:var(--s29-ink);
+  font-size:clamp(24px,3.5vw,40px);
+  font-weight:600;
+  opacity:.72;
+}
+.sod29-topic-equation-value{
+  color:var(--s29-hero);
+  font-size:clamp(44px,7vw,82px);
+  font-weight:950;
+  line-height:.92;
+  letter-spacing:-.04em;
+  text-decoration:none;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 0 26px color-mix(in srgb,var(--s29-glow) 20%,transparent);
+}
+.sod29-topic-equation.is-primary{
+  min-height:150px;
+  padding-block:clamp(28px,5vw,52px);
+}
+.sod29-topic-equation.is-primary .sod29-topic-equation-phrase{
+  font-size:clamp(30px,5vw,56px);
+}
+.sod29-topic-equation.is-primary .sod29-topic-equation-value{
+  font-size:clamp(62px,10vw,118px);
+}
+.sod29-topic-equation.is-supporting{
+  opacity:.96;
+}
+.sod29-topic-equation.is-supporting .sod29-topic-equation-value{
+  font-size:clamp(42px,6vw,68px);
+}
+.sod29-topic-equation-note{
+  color:var(--s29-muted);
+  font-size:11px;
+  line-height:1.6;
+}
+
+.sod29-topic-axis-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.sod29-topic-axis-card{
+  display:grid;
+  align-content:start;
+  gap:8px;
+  min-height:170px;
+  padding:18px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:var(--s29-panel-soft);
+}
+.sod29-topic-axis-number{
+  justify-self:start;
+  color:var(--s29-hero);
+  font-size:clamp(30px,4.5vw,52px);
+  font-weight:950;
+  line-height:1;
+  text-decoration:none;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-topic-axis-card>strong{
+  color:var(--s29-ink);
+  font-size:clamp(16px,2vw,21px);
+  line-height:1.35;
+}
+.sod29-topic-axis-card>p{
+  margin:0;
+  color:var(--s29-muted);
+  font-size:13px;
+  line-height:1.65;
+}
+
+@media(max-width:680px){
+  .sod29-topic-equation{
+    padding-inline:4px;
+  }
+  .sod29-topic-equation-line{
+    gap:8px 10px;
+  }
+  .sod29-topic-equation-phrase{
+    width:100%;
+    font-size:clamp(23px,7.5vw,34px);
+  }
+  .sod29-topic-equation-equals{
+    font-size:24px;
+  }
+  .sod29-topic-equation-value{
+    font-size:clamp(44px,15vw,70px);
+  }
+  .sod29-topic-equation.is-primary .sod29-topic-equation-phrase{
+    font-size:clamp(28px,8.5vw,40px);
+  }
+  .sod29-topic-equation.is-primary .sod29-topic-equation-value{
+    font-size:clamp(60px,20vw,92px);
+  }
+  .sod29-topic-axis-grid{
+    grid-template-columns:1fr;
+  }
+  .sod29-topic-axis-card{
+    min-height:0;
+  }
+}
