@@ -52,7 +52,7 @@ select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now())$$,'23514'); -- candidate+private
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'approved')$$,'23514'); -- private
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'rejected','public')$$,'23514');
-select pg_temp.expect_err($$update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$$,'23514'); -- approved+private cannot be published
+select pg_temp.expect_err($update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$,'42501'); -- direct publication has no Human Gate
 
 -- immutability -------------------------------------------------------------------------------
 select pg_temp.expect_err($$update research_path_revisions set steps='[{"step_index":0,"entity_ref":"mutated"}]' where id='10000000-0000-0000-0000-0000000000a1'$$,'23001');
@@ -68,9 +68,9 @@ update research_path_revisions set steps='[{"step_index":0,"entity_ref":"edited"
 update research_paths set identity_metadata='{"ok":1}' where id='00000000-0000-0000-0000-0000000000b1';
 insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000f9');
 insert into research_path_revisions(id,path_id,revision_no,steps) values ('10000000-0000-0000-0000-0000000000f9','00000000-0000-0000-0000-0000000000f9',1,'[{"step_index":0}]');
-update research_path_revisions set governance_status='approved', access_scope='public', published_at=now()-interval '1 minute' where id='10000000-0000-0000-0000-0000000000f9'; -- promotion still possible
-select pg_temp.expect_err($$update research_path_revisions set steps='[]' where id='10000000-0000-0000-0000-0000000000f9'$$,'23001'); -- ...then frozen
--- remove the promoted fixture from the reader matrix expectations by using its own id below
+select pg_temp.expect_err($update research_path_revisions set governance_status='approved', access_scope='public', published_at=now()-interval '1 minute' where id='10000000-0000-0000-0000-0000000000f9'$,'42501'); -- direct combined governance+publication is forbidden
+select pg_temp.ok((select governance_status='candidate' and published_at is null and access_scope='private' from research_path_revisions where id='10000000-0000-0000-0000-0000000000f9'), 'failed direct promotion changed nothing');
+-- f9 stays candidate/private for the Human-Gate governance+publication tests below
 
 -- ACL / definition ---------------------------------------------------------------------------
 select pg_temp.ok((select prosecdef and provolatile='s' and proconfig = array['search_path=pg_catalog, public'] from pg_proc where oid='public.fn_research_path_public_read_v1(uuid,integer)'::regprocedure), 'reader definer/stable/search_path');
@@ -218,6 +218,14 @@ select pg_temp.ok(not has_function_privilege('anon','public.fn_research_path_pub
 select pg_temp.ok(not has_function_privilege('service_role','public.fn_research_path_public_retract_v1(uuid,integer,text)','execute'), 'service_role no exec retract');
 select pg_temp.ok(not exists (select 1 from pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f',p.proowner))) a where p.oid='public.fn_research_path_public_retract_v1(uuid,integer,text)'::regprocedure and a.grantee=0), 'PUBLIC no exec retract');
 select pg_temp.ok(not has_function_privilege('authenticated','public.fn_research_path_published_immutable_v1()','execute') and not has_function_privilege('service_role','public.fn_research_path_published_immutable_v1()','execute'), 'trigger fn not client-callable');
+select pg_temp.ok((select prosecdef and proconfig = array['search_path=pg_catalog, public'] from pg_proc where oid='public.fn_research_path_governance_decide_v1(uuid,integer,text,text)'::regprocedure), 'governance definer/search_path');
+select pg_temp.ok((select prosecdef and proconfig = array['search_path=pg_catalog, public'] from pg_proc where oid='public.fn_research_path_public_publish_v1(uuid,integer,text)'::regprocedure), 'publish definer/search_path');
+select pg_temp.ok(has_function_privilege('authenticated','public.fn_research_path_governance_decide_v1(uuid,integer,text,text)','execute'), 'authenticated exec governance');
+select pg_temp.ok(has_function_privilege('authenticated','public.fn_research_path_public_publish_v1(uuid,integer,text)','execute'), 'authenticated exec publish');
+select pg_temp.ok(not has_function_privilege('anon','public.fn_research_path_governance_decide_v1(uuid,integer,text,text)','execute')
+  and not has_function_privilege('service_role','public.fn_research_path_governance_decide_v1(uuid,integer,text,text)','execute'), 'anon/service no governance exec');
+select pg_temp.ok(not has_function_privilege('anon','public.fn_research_path_public_publish_v1(uuid,integer,text)','execute')
+  and not has_function_privilege('service_role','public.fn_research_path_public_publish_v1(uuid,integer,text)','execute'), 'anon/service no publish exec');
 
 -- denied callers
 set role anon;
@@ -323,6 +331,79 @@ insert into rt select 'ok_d9', public.fn_research_path_public_retract_v1('000000
 select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c8') = '{"ok":false,"error":"not_found"}'::jsonb, 'fully retracted path -> not_found');
 select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c6')->'parent_path_id') = 'null'::jsonb, 'lineage to retracted branch point hidden');
 reset role;
+select pg_temp.as_uid(null);
+
+-- =================================================================================================
+-- V3: Human-Gate governance + publication, separate Truth axes
+-- =================================================================================================
+
+-- No direct/service-role bypass for unpublished governance/publication.
+select pg_temp.as_uid(null);
+select pg_temp.expect_err($update research_path_revisions set governance_status='approved' where id='10000000-0000-0000-0000-0000000000f9'$,'42501');
+set role service_role;
+select pg_temp.expect_err($update research_path_revisions set governance_status='approved' where id='10000000-0000-0000-0000-0000000000f9'$,'42501');
+select pg_temp.expect_err($update research_path_revisions set access_scope='public', published_at=now() where id='10000000-0000-0000-0000-0000000000d1'$,'42501');
+reset role;
+
+-- RPCs are authenticated-admin only.
+set role anon;
+select pg_temp.expect_err($select public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000f9',1,'approve','x')$,'42501');
+select pg_temp.expect_err($select public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000f9',1,'x')$,'42501');
+reset role;
+set role service_role;
+select pg_temp.expect_err($select public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000f9',1,'approve','x')$,'42501');
+select pg_temp.expect_err($select public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000f9',1,'x')$,'42501');
+reset role;
+set role authenticated;
+select pg_temp.as_uid(null);
+select pg_temp.expect_err($select public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000f9',1,'approve','x')$,'42501');
+select pg_temp.as_uid('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+select pg_temp.expect_err($select public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000f9',1,'approve','x')$,'42501');
+select pg_temp.expect_err($select public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000f9',1,'x')$,'42501');
+reset role;
+
+-- Admin cannot publish a candidate: governance first.
+create temp table gp(label text, j jsonb);
+grant all on gp to authenticated;
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+insert into gp select 'candidate_publish_blocked', public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000f9',1,'too early');
+insert into gp select 'approve_f9', public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000f9',1,'approve','guided path reviewed');
+reset role;
+select pg_temp.ok((select j->>'error'='governance_required' from gp where label='candidate_publish_blocked'), 'candidate cannot publish');
+select pg_temp.ok((select (j->>'ok')::boolean and j->>'governance_status'='approved' and j ? 'decision_ledger_id' from gp where label='approve_f9'), 'governance approve ok + ledger id');
+select pg_temp.ok((select governance_status='approved' and access_scope='private' and published_at is null from research_path_revisions where id='10000000-0000-0000-0000-0000000000f9'), 'approve does not publish');
+select pg_temp.ok((select count(*)=1 from decision_ledger where subject_ref='10000000-0000-0000-0000-0000000000f9' and decision_type='research_path_governance' and human_decision='approve' and status='confirmed' and decided_by='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' and provenance->>'truth_axis'='governance' and (provenance->>'human_gate')::boolean), 'governance ledger provenance');
+set role anon;
+select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000f9')='{"ok":false,"error":"not_found"}'::jsonb, 'approved-private still not public');
+reset role;
+
+-- Publication is a second explicit Human-Gate act and freezes content.
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+insert into gp select 'publish_f9', public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000f9',1,'publish guided path');
+reset role;
+select pg_temp.ok((select (j->>'ok')::boolean and j->>'access_scope'='public' and j ? 'published_at' and j ? 'decision_ledger_id' from gp where label='publish_f9'), 'publication ok + ledger id');
+select pg_temp.ok((select governance_status='approved' and access_scope='public' and published_at is not null from research_path_revisions where id='10000000-0000-0000-0000-0000000000f9'), 'publication axis stored');
+select pg_temp.ok((select count(*)=1 from decision_ledger where subject_ref='10000000-0000-0000-0000-0000000000f9' and decision_type='research_path_publication' and human_decision='approve' and status='confirmed' and decided_by='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' and provenance->>'truth_axis'='publication'), 'publication ledger provenance');
+set role anon;
+select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000f9')->>'ok')::boolean, 'published revision publicly readable');
+reset role;
+select pg_temp.expect_err($update research_path_revisions set steps='[]' where id='10000000-0000-0000-0000-0000000000f9'$,'23001');
+
+-- Reject is governance only and permanently blocks publication of that revision.
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+insert into gp select 'reject_b1', public.fn_research_path_governance_decide_v1('00000000-0000-0000-0000-0000000000b1',1,'reject','not suitable');
+insert into gp select 'publish_rejected', public.fn_research_path_public_publish_v1('00000000-0000-0000-0000-0000000000b1',1,'should not publish');
+reset role;
+select pg_temp.ok((select j->>'governance_status'='rejected' from gp where label='reject_b1'), 'candidate rejection works');
+select pg_temp.ok((select j->>'error'='governance_required' and j->>'governance_status'='rejected' from gp where label='publish_rejected'), 'rejected cannot publish');
+select pg_temp.ok((select count(*)=1 from decision_ledger where subject_ref='10000000-0000-0000-0000-0000000000b1' and decision_type='research_path_governance' and human_decision='reject' and status='rejected'), 'rejection ledger row');
+
+-- Retraction is also ledgered on the publication axis.
+select pg_temp.ok((select count(*)>=1 from decision_ledger where subject_ref='10000000-0000-0000-0000-0000000000c8' and decision_type='research_path_publication' and human_decision='modify' and status='executed' and provenance->>'truth_axis'='publication'), 'retraction decision ledger provenance');
+
 select pg_temp.as_uid(null);
 
 -- migration is purely additive for existing data: unpublished rows stay writable
