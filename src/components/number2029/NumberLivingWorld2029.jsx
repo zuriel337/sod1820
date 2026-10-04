@@ -121,12 +121,16 @@ function factorizationText(profile) {
 }
 
 function findingLabel(item) {
-  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || item?.kind;
-  return humanContentTitle(raw, { max: 96 }) || "ממצא מחקר";
+  if (["image", "media"].includes(clean(item?.type))) {
+    return canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+  }
+  const raw = item?.label || item?.title || item?.summary || item?.subject?.label || null;
+  return humanContentTitle(raw, { max: 96 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type) || "ממצא";
 }
 
 function findingReason(item) {
-  return clean(item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow || item?.kind);
+  return clean(item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow)
+    || canonicalFindingKindPublicLabel(item?.kind, item?.type);
 }
 
 function personName(row) {
