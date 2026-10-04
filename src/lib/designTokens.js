@@ -91,6 +91,9 @@ export const LAYOUT = Object.freeze({
   controlMinWidth: 44,
   focusRingWidth: 2,
   focusRingOffset: 2,
+  headerHeight: 68,
+  surfaceMapGap: 10,
+  surfaceMapEstimatedHeight: 64,
 });
 
 export const DIRECTION = Object.freeze({
