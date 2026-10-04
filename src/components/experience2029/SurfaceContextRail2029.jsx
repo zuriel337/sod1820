@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
+import LearnMark2029 from "./LearnMark2029.jsx";
+import {
+  emitEntryLearn,
+  getConceptFamiliarity,
+  getLearnFragment,
+  LEARN_LAYER,
+  LEARN_SCOPE,
+  markConceptFamiliarity,
+} from "../../lib/entryLearn2029.js";
 
 export default function SurfaceContextRail2029({
   focus,
   context,
+  surface = "world",
   onOpenNumber,
   onOpenWorld,
   onAskRaziel,
@@ -20,6 +30,72 @@ export default function SurfaceContextRail2029({
   const signals = Array.isArray(subject.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;
+  const hasMethodContext = Boolean(subject.expression && subject.method && Number.isSafeInteger(Number(subject.resultValue)));
+  const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
+  const fragment = conceptKey ? getLearnFragment(conceptKey) : null;
+  const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
+
+  useEffect(() => {
+    setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
+  }, [conceptKey]);
+
+  const openLearn = () => {
+    if (!conceptKey || !fragment) return;
+    const familiarity = markConceptFamiliarity(conceptKey, "seen", fragment.version);
+    setConceptFamiliarity(familiarity);
+    emitEntryLearn("learn_opened", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.SEE,
+      manifestVersion: fragment.version,
+    });
+    emitEntryLearn("learn_layer", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.EXPLAIN,
+      manifestVersion: fragment.version,
+    });
+  };
+
+  const tryLearn = () => {
+    if (!conceptKey || !fragment || !hasNumber) return;
+    const stage = hasMethodContext ? "tried" : "seen";
+    const familiarity = markConceptFamiliarity(conceptKey, stage, fragment.version);
+    setConceptFamiliarity(familiarity);
+    emitEntryLearn(hasMethodContext ? "method_tried" : "example_tried", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.TRY,
+      actionId: "open_number",
+      targetSurface: "number",
+      manifestVersion: fragment.version,
+    });
+    emitEntryLearn("continued_to_research", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.EXPLORE,
+      actionId: "open_number",
+      targetSurface: "number",
+      manifestVersion: fragment.version,
+    });
+    onOpenNumber?.(hasMethodContext ? {
+      id: String(subject.id || number),
+      type: "phrase",
+      label: String(subject.expression),
+      href: subject.href || null,
+      expression: String(subject.expression),
+      method: String(subject.method),
+      resultValue: Number(subject.resultValue),
+      locator: subject.locator || null,
+      source: "contextual-learn",
+    } : {
+      id: String(number),
+      type: "number",
+      label: String(number),
+      href: `/2029/number/${number}`,
+      source: "contextual-learn",
+    });
+  };
 
   return <>
     <ContextualInspector2029
@@ -47,6 +123,17 @@ export default function SurfaceContextRail2029({
       </div> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
       {subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
+      {fragment ? <LearnMark2029
+        className="sod29-surface-context-learn"
+        scope={LEARN_SCOPE.CONCEPT}
+        label={fragment.label}
+        compact={Boolean(conceptFamiliarity)}
+        onOpen={openLearn}
+        actions={hasNumber ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : `פתח את ${number}`}</button> : null}
+      >
+        <p>{fragment.explain}</p>
+        {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. Learn רק מסביר את ה-focus הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
+      </LearnMark2029> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
