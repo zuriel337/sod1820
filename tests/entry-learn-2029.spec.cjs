@@ -93,11 +93,12 @@ test('direct Post teaches in place before opening the canonical calculation at 3
     const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
     const selection = stored?.selection || {};
     return JSON.stringify([
+      selection.entityId || null,
       selection.expression || null,
       selection.method || null,
       Number(selection.resultValue),
     ]);
-  }), { timeout: 5_000 }).toBe(JSON.stringify(['מלח', 'רגיל', 78]));
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['salt-78', 'מלח', 'רגיל', 78]));
 
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
 
