@@ -136,3 +136,14 @@ export async function deletePersonalIntakeMedia(item, { signal } = {}) {
     storage_object_id: storageId,
   }, signal)).data;
 }
+
+
+export async function discardVerifiedPersonalUpload(verifiedUpload, { signal } = {}) {
+  const path = verifiedUpload?.receipt?.path || verifiedUpload?.path;
+  if (!path) return { ok: true, deleted: false };
+  return (await post({
+    action: "delete_verified_upload",
+    scope: "submission",
+    path,
+  }, signal)).data;
+}
