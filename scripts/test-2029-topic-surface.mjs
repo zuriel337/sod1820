@@ -45,6 +45,8 @@ const projection = buildTopic2029Projection(finding);
 assert.ok(projection);
 assert.equal(projection.slug, "888-test");
 assert.equal(projection.title, card.title);
+assert.equal(projection.displayTitle, "התכנסות בדיקה");
+assert.equal(projection.heroNumber, 888);
 assert.equal(projection.description, card.subtitle);
 assert.deepEqual(projection.numbers, [888]);
 assert.deepEqual(projection.highlightNumbers, [888]);
@@ -75,7 +77,11 @@ assert.match(page, /fetchCanonicalTopicConvergenceFinding/);
 assert.match(page, /buildTopic2029Projection/);
 assert.match(page, /data-entity-type="convergence"/);
 assert.match(page, /setConvergenceJsonLd/);
-assert.match(page, /התכנסות ≠ עובדה קנונית/);
+assert.equal(page.includes("התכנסות ≠ עובדה קנונית"), false);
+assert.match(page, /פוסטים בתוך הציר/);
+assert.match(page, /הרמזים המרכזיים/);
+assert.match(page, /sod29-topic-hero-number/);
+assert.match(page, /\/post\//);
 assert.match(page, /resolveExpressionFocus/);
 assert.match(page, /\/2029\/number\//);
 assert.equal(/to=\{"\/number\//.test(page), false, "Topic 2029 must not hand Number interactions to the legacy /number route");
@@ -166,7 +172,7 @@ assert.match(topicPageGolden, /fetchEntityHubProjection/);
 assert.match(topicPageGolden, /buildWorldContextualProminence/);
 assert.match(topicPageGolden, /buildTopicGoldenProjection/);
 assert.match(topicPageGolden, /research_gold_hints_law-v3/);
-assert.match(topicPageGolden, /לא ציון אמת/);
+assert.match(topicPageGolden, /אינה משנה את המקורות או את האימות/);
 assert.equal(topicPageGolden.includes("worldConvergenceLensProjection"), false, "public Topic must not import the admin Attention lens");
 assert.equal(/>EXPRESSIONS<|>FINDINGS<|>RELATIONS<|>PROVENANCE<|CANONICAL TOPIC/.test(topicPageGolden), false, "Topic Golden should be Hebrew-first");
 
@@ -207,3 +213,14 @@ assert.match(heichal2029Source, /ביטוי:/);
 assert.match(heichal2029Source, /resolveExpressionFocus/);
 assert.match(researchProviderSource, /expressionFocusExplicit/);
 assert.match(researchProviderSource, /crossingPartner/);
+
+
+const topicCss = read("src/pages/topic2029.css");
+assert.match(topicCss, /Topic Master V1/);
+assert.match(topicCss, /\.sod29-topic-hero-number/);
+assert.match(topicCss, /\.sod29-topic-claim-number/);
+
+
+assert.match(topicPageGolden, /sod29-topic-equation/);
+assert.match(topicPageGolden, /sod29-topic-equation-value/);
+assert.match(topicPageGolden, /sod29-topic-axis-grid/);
