@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import SurfaceMapBar2029 from "../components/experience2029/SurfaceMapBar2029.jsx";
+import CanonicalMediaImage2029 from "../components/experience2029/CanonicalMediaImage2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
@@ -11,7 +12,13 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
-import { formatTanakhRef } from "../lib/presentation/canonicalPresentation.js";
+import {
+  canonicalEntityPublicLabel,
+  canonicalFindingKindPublicLabel,
+  canonicalMediaPublicLabel,
+  canonicalRelationPublicLabel,
+  formatTanakhRef,
+} from "../lib/presentation/canonicalPresentation.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
@@ -116,26 +123,6 @@ function TopicAuthoredConnections({ projection }) {
   </section>;
 }
 
-const KIND_LABELS = Object.freeze({
-  research: "מחקר",
-  topic: "התכנסות",
-  convergence: "התכנסות",
-  "graph-relation": "קשר",
-  source: "מקור",
-  number: "מספר",
-  entity: "ישות",
-  post: "פוסט",
-  event: "אירוע",
-});
-
-const RELATION_LABELS = Object.freeze({
-  related: "קשור",
-  contains: "מכיל",
-  mentions: "מזכיר",
-  converges_on: "מתכנס אל",
-  evidence_for: "ראיה עבור",
-});
-
 const CURATION_LABELS = Object.freeze({
   gold: "זהב",
   silver: "כסף",
@@ -165,7 +152,7 @@ function TopicProminence({ golden, loading = false }) {
         const signals = Array.isArray(why.researchStrengthSignals) ? why.researchStrengthSignals : [];
         const tier = clean(why?.humanCuration?.tier);
         return <article key={item.id || index}>
-          <span>{KIND_LABELS[item.kind] || KIND_LABELS[item.type] || "מחקר"}</span>
+          <span>{canonicalFindingKindPublicLabel(item.kind, item.type)}</span>
           <strong>{item.label}</strong>
           {item.summary ? <p>{item.summary}</p> : null}
           <div className="sod29-topic-rank-signals">
@@ -179,20 +166,27 @@ function TopicProminence({ golden, loading = false }) {
   </section>;
 }
 
-function TopicGraphConnections({ golden }) {
+function TopicGraphConnections({ golden, onFocusRelation }) {
   const rows = golden?.graphConnections || [];
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-graph">
     <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים חיים</div><h2>מה עוד מתחבר לציר?</h2></div><span className="sod29-chip">{rows.length}</span></div>
     <div className="sod29-topic-graph-grid">
-      {rows.slice(0, 18).map((row) => row.href ? <Link key={row.id} to={row.href}>
-        <span>{KIND_LABELS[row.targetType] || "קשר"}</span><strong>{row.label}</strong><small>{RELATION_LABELS[row.relationType] || "קשור"}</small>
-      </Link> : <article key={row.id}><span>{KIND_LABELS[row.targetType] || "קשר"}</span><strong>{row.label}</strong><small>{RELATION_LABELS[row.relationType] || "קשור"}</small></article>)}
+      {rows.slice(0, 18).map((row) => <button
+        type="button"
+        className="sod29-topic-graph-focus"
+        key={row.id}
+        onClick={() => onFocusRelation?.(row)}
+      >
+        <span>{canonicalEntityPublicLabel(row.targetType || "relation")}</span>
+        <strong>{["image","media"].includes(row.targetType) ? canonicalMediaPublicLabel(row.label) : row.label}</strong>
+        <small>{canonicalRelationPublicLabel(row.relationType)}</small>
+      </button>)}
     </div>
   </section>;
 }
 
-function TopicSourcesMedia({ golden, verses = [], verseCount = 0, versesLoading = false, onFocusVerse, onLoadMoreVerses }) {
+function TopicSourcesMedia({ golden, verses = [], verseCount = 0, versesLoading = false, onFocusVerse, onFocusMedia, onLoadMoreVerses }) {
   const sources = golden?.sources || [];
   const media = golden?.media || [];
   const people = golden?.people || [];
@@ -227,7 +221,10 @@ function TopicSourcesMedia({ golden, verses = [], verseCount = 0, versesLoading 
       >{versesLoading ? "טוען…" : `הצג עוד פסוקים · ${verses.length} מתוך ${verseCount}`}</button> : null}
     </div> : null}
     {media.length ? <div className="sod29-topic-media-grid">
-      {media.slice(0, 4).map((item, index) => <figure key={item.id}><CanonicalMediaImage2029 item={item} primary={index === 0} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
+      {media.slice(0, 4).map((item, index) => <button type="button" className="sod29-topic-media-focus" key={item.id} onClick={() => onFocusMedia?.(item)}>
+        <CanonicalMediaImage2029 item={item} primary={index === 0} alt={canonicalMediaPublicLabel(item)} />
+        <span className="sod29-topic-media-caption"><strong>{canonicalMediaPublicLabel(item)}</strong>{item.description ? <small>{item.description}</small> : null}</span>
+      </button>)}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
     {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}
@@ -416,6 +413,46 @@ function TopicBody() {
     return undefined;
   }, [projection?.slug, activeSectionId, focusOverride?.id, navItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const focusMedia = (item) => {
+    if (!projection || !item) return;
+    const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+    setActiveSectionId("topic-sources");
+    setFocusOverride({
+      id: item.nodeId || item.id || item.galleryImageId || label,
+      type: "image",
+      kicker: "תמונה פעילה",
+      label,
+      primary: label,
+      sectionLabel: "מקורות",
+      signals: [canonicalRelationPublicLabel(item.relationType || "related")],
+      sourceLabel: "מדיה",
+      locator: "#topic-sources",
+      imageUrl: item.imageUrl || null,
+    });
+  };
+
+  const focusRelation = (row) => {
+    if (!projection || !row) return;
+    const label = ["image","media"].includes(row.targetType)
+      ? canonicalMediaPublicLabel(row.label, { fallback: "תמונה" })
+      : clean(row.label) || "קשר";
+    setActiveSectionId("topic-findings");
+    setFocusOverride({
+      id: row.id,
+      type: "relation",
+      kicker: "קשר פעיל",
+      label,
+      primary: label,
+      sectionLabel: "חיבורים",
+      signals: [canonicalRelationPublicLabel(row.relationType)],
+      sourceLabel: "מפת הקשרים",
+      locator: "#topic-graph",
+      targetType: row.targetType || null,
+      targetId: row.targetId || null,
+    });
+    document.getElementById("topic-graph")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const focusVerse = (row) => {
     if (!projection || !row) return;
     const reference = formatTanakhRef(row.ref || row);
@@ -576,13 +613,14 @@ function TopicBody() {
         verseCount={verseState.count}
         versesLoading={verseState.loading}
         onFocusVerse={focusVerse}
+        onFocusMedia={focusMedia}
         onLoadMoreVerses={() => setVerseState((current) => ({
           ...current,
           limit: Math.min(Math.max(current.limit + 18, current.rows.length + 1), current.count || current.limit + 18),
         }))}
       />
       <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
-      <TopicGraphConnections golden={golden} />
+      <TopicGraphConnections golden={golden} onFocusRelation={focusRelation} />
       <TopicCaveats projection={projection} />
     </>}
 
