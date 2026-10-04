@@ -43,6 +43,8 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-entry-contextual-learn-2029.mjs"
+      - "scripts/test-guided-discovery-2029.mjs"
+      - "src/lib/research/guidedDiscovery2029.js"
       - "scripts/test-my-workspace-2029.mjs"
       - "scripts/test-issue-report-canonical-emitter.mjs"
       - "src/lib/entryLearn2029.js"
@@ -88,6 +90,8 @@ jobs:
         run: npm run test:experience-context
       - name: Entry Orientation + Contextual Learn 2029 acceptance
         run: npm run test:entry-learn-2029
+      - name: Guided Discovery 2029 seam acceptance
+        run: npm run test:guided-discovery-2029
       - name: Contact Gateway canonical owner acceptance
         run: npm run test:issue-report
       - name: My Workspace 2029 native home acceptance
