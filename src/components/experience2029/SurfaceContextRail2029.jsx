@@ -129,7 +129,7 @@ export default function SurfaceContextRail2029({
         className="sod29-surface-context-learn"
         scope={LEARN_SCOPE.CONCEPT}
         label={fragment.label}
-        compact={Boolean(conceptFamiliarity)}
+        compact={Number(conceptFamiliarity?.v) === Number(fragment.version)}
         onOpen={openLearn}
         actions={hasNumber ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : `פתח את ${number}`}</button> : null}
       >
