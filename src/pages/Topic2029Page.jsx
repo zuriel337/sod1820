@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
-import SurfaceProgressSpine2029 from "../components/experience2029/SurfaceProgressSpine2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
@@ -12,11 +11,19 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { supabase } from "../lib/supabase.js";
+import { formatTanakhRef } from "../lib/presentation/canonicalPresentation.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
+const topicSectionLabel = (id) => id === "topic-findings" ? "חיבורים"
+  : id === "topic-posts" ? "פוסטים"
+  : id === "topic-sources" ? "מקורות"
+  : id === "topic-related" ? "המשך"
+  : id === "topic-phrases" ? "גימטריות"
+  : "עיקר";
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -192,14 +199,34 @@ function TopicGraphConnections({ golden }) {
   </section>;
 }
 
-function TopicSourcesMedia({ golden }) {
-  if (!golden) return null;
-  const sources = golden.sources || [];
-  const media = golden.media || [];
-  const people = golden.people || [];
-  if (!sources.length && !media.length && !people.length) return null;
+function TopicSourcesMedia({ golden, verses = [], onFocusVerse }) {
+  const sources = golden?.sources || [];
+  const media = golden?.media || [];
+  const people = golden?.people || [];
+  if (!sources.length && !media.length && !people.length && !verses.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-sources">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה מגיעים החיבורים?</h2></div></div>
+    {verses.length ? <div className="sod29-topic-verse-source">
+      <div className="sod29-topic-source-subhead">
+        <strong>פסוקים שלמים באותו מספר</strong>
+        <span>{verses.length}</span>
+      </div>
+      <div className="sod29-topic-verse-list">
+        {verses.map((row) => {
+          const reference = formatTanakhRef(row);
+          return <button
+            type="button"
+            className="sod29-topic-verse-card"
+            key={`${row.book}:${row.chapter}:${row.verse}`}
+            onClick={() => onFocusVerse?.(row)}
+          >
+            <span>{reference}</span>
+            <blockquote>{row.text}</blockquote>
+            <small>גימטריה רגילה = <b>{row.ragil}</b> · לחץ להקשר</small>
+          </button>;
+        })}
+      </div>
+    </div> : null}
     {media.length ? <div className="sod29-topic-media-grid">
       {media.slice(0, 4).map((item) => <figure key={item.id}><img loading="lazy" src={item.imageUrl} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
     </div> : null}
@@ -261,6 +288,8 @@ function TopicBody() {
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
   const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
+  const [verseState, setVerseState] = useState({ loading: false, rows: [], error: null });
+  const [focusOverride, setFocusOverride] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -314,37 +343,102 @@ function TopicBody() {
   );
 
   useEffect(() => {
+    const heroNumber = Number(projection?.heroNumber);
+    if (!Number.isSafeInteger(heroNumber)) {
+      setVerseState({ loading: false, rows: [], error: null });
+      return undefined;
+    }
+    let alive = true;
+    setVerseState({ loading: true, rows: [], error: null });
+    supabase
+      .from("tanach_verses")
+      .select("book_idx,book,chapter,verse,text,ragil")
+      .eq("ragil", heroNumber)
+      .order("book_idx", { ascending: true })
+      .order("chapter", { ascending: true })
+      .order("verse", { ascending: true })
+      .limit(24)
+      .then(({ data, error }) => {
+        if (!alive) return;
+        if (error) setVerseState({ loading: false, rows: [], error });
+        else setVerseState({ loading: false, rows: Array.isArray(data) ? data : [], error: null });
+      });
+    return () => { alive = false; };
+  }, [projection?.heroNumber]);
+
+  const hasFindings = useMemo(
+    () => Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length),
+    [projection?.sections],
+  );
+  const navItems = useMemo(() => projection ? [
+    { id: "topic-essential", label: "עיקר" },
+    ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
+    ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
+    ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
+    ...((verseState.rows.length || golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
+    ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
+  ] : [], [projection, hasFindings, verseState.rows.length, golden?.sources?.length, golden?.media?.length, golden?.people?.length]);
+
+  useEffect(() => {
     if (!projection) return undefined;
     const subject = { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath };
     const selection = { entityId: projection.slug, entityType: "topic" };
     const heroNumber = projection.heroNumber ?? projection.highlightNumbers?.[0] ?? projection.numbers?.[0] ?? null;
+    const sectionLabel = topicSectionLabel(activeSectionId);
+    const defaultFocus = {
+      id: projection.slug,
+      type: "topic",
+      sectionLabel,
+      label: projection.displayTitle || projection.title,
+      primary: heroNumber != null ? String(heroNumber) : projection.title,
+      number: heroNumber,
+      signals: projection.phrases?.slice(0, 3).map((row) => textOf(row)).filter(Boolean) || [],
+      sourceLabel: projection.createdBy || null,
+      locator: "#" + activeSectionId,
+    };
+    const activeFocus = focusOverride || defaultFocus;
     const dimensions = {
       ...(research.context?.dimensions || {}),
+      surfaceSections: navItems,
+      activeSectionId,
       bottomTrail: [
         { id: "convergence", label: "התכנסות", targetId: "topic-essential" },
-        {
-          id: "section",
-          label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
-          targetId: activeSectionId,
-        },
-        ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), number: Number(heroNumber), active: true }] : []),
+        { id: "section", label: sectionLabel, targetId: activeSectionId },
+        ...(focusOverride
+          ? [{ id: "focus", label: focusOverride.reference || focusOverride.label || "פסוק", targetId: "topic-sources", active: true }]
+          : heroNumber != null
+            ? [{ id: "number", label: String(heroNumber), number: Number(heroNumber), active: true }]
+            : []),
       ],
-      surfaceFocus: {
-        id: projection.slug,
-        type: "topic",
-        sectionLabel: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
-        label: projection.displayTitle || projection.title,
-        primary: heroNumber != null ? String(heroNumber) : projection.title,
-        number: heroNumber,
-        signals: projection.phrases?.slice(0, 3).map((row) => textOf(row)).filter(Boolean) || [],
-        sourceLabel: projection.createdBy || null,
-        locator: "#" + activeSectionId,
-      },
+      surfaceFocus: activeFocus,
     };
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, activeSectionId, focusOverride?.id, navItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const focusVerse = (row) => {
+    if (!projection || !row) return;
+    const reference = formatTanakhRef(row);
+    const id = `verse:${row.book}:${row.chapter}:${row.verse}`;
+    setActiveSectionId("topic-sources");
+    setFocusOverride({
+      id,
+      type: "verse",
+      kicker: "פסוק פעיל",
+      label: reference,
+      reference,
+      primary: reference,
+      text: clean(row.text),
+      sectionLabel: "מקורות",
+      number: Number(row.ragil),
+      resultValue: Number(row.ragil),
+      signals: [`פסוק שלם · רגיל = ${row.ragil}`, `מתוך התכנסות ${projection.heroNumber}`],
+      sourceLabel: "תנ״ך",
+      locator: "#topic-sources",
+    });
+    document.getElementById("topic-sources")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const openExpressionFocus = async (expression) => {
     const expr = clean(expression);
@@ -425,15 +519,6 @@ function TopicBody() {
   const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
   const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
   const sparse = golden?.density === "sparse";
-  const hasFindings = Object.values(projection.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
-  const navItems = [
-    { id: "topic-essential", label: "עיקר" },
-    ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
-    ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
-    ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
-    ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
-    ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
-  ];
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">
@@ -461,18 +546,15 @@ function TopicBody() {
     <SurfaceSectionNav2029
       items={navItems}
       activeId={activeSectionId}
-      onSelect={(item) => setActiveSectionId(item.id)}
+      onSelect={(item) => { setFocusOverride(null); setActiveSectionId(item.id); }}
+      onActiveChange={(item) => {
+        if (item.id !== "topic-sources") setFocusOverride(null);
+        setActiveSectionId(item.id);
+      }}
       ariaLabel="ניווט בהתכנסות"
     />
 
     <div className="sod29-topic-stage">
-      <SurfaceProgressSpine2029
-        items={navItems}
-        activeId={activeSectionId}
-        onSelect={(item) => setActiveSectionId(item.id)}
-        onActiveChange={(item) => setActiveSectionId(item.id)}
-        ariaLabel="התקדמות בהתכנסות"
-      />
       <div className="sod29-topic-stage-content">
 
     <section className="sod29-section sod29-topic-intro" id="topic-essential">
@@ -489,7 +571,7 @@ function TopicBody() {
       <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
-      <TopicSourcesMedia golden={golden} />
+      <TopicSourcesMedia golden={golden} verses={verseState.rows} onFocusVerse={focusVerse} />
       <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
       <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
