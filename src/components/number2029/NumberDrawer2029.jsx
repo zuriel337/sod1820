@@ -53,11 +53,17 @@ export default function NumberDrawer2029({
   openRaziel,
 } = {}) {
   const targetNumber = target?.type === "number" && Number.isSafeInteger(Number(target?.id)) ? Number(target.id) : null;
+  // A contextual Learn/Inspect handoff may carry an already-selected phrase + method + result.
+  // These values seed selection/navigation only; NumberDrawer still fetches the canonical
+  // method profile and trace before rendering calculation truth.
+  const targetResult = Number(target?.resultValue ?? target?.number);
+  const targetResultRoot = Number.isSafeInteger(targetResult) ? targetResult : null;
+  const targetMethodKey = clean(target?.method || target?.methodKey);
   const contextRoot = context?.subject?.type === "number" && Number.isSafeInteger(Number(context.subject.id)) ? Number(context.subject.id) : null;
   const contextExpression = clean(context?.selection?.expression);
-  const initialExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : contextExpression);
-  const initialMethodKey = clean(context?.selection?.method);
-  const initialRoot = targetNumber ?? contextRoot;
+  const initialExpression = target?.type === "phrase" ? clean(target.expression || target.label || target.id) : (targetNumber != null ? "" : contextExpression);
+  const initialMethodKey = targetMethodKey || clean(context?.selection?.method);
+  const initialRoot = targetNumber ?? targetResultRoot ?? contextRoot;
 
   const [root, setRoot] = useState(initialRoot);
   const [input, setInput] = useState(initialExpression || (targetNumber != null ? String(targetNumber) : ""));
@@ -86,10 +92,10 @@ export default function NumberDrawer2029({
       internalContextSignatureRef.current = null;
       return;
     }
-    const nextRoot = targetNumber ?? contextRoot;
+    const nextRoot = targetNumber ?? targetResultRoot ?? contextRoot;
     setRoot(nextRoot);
-    const nextExpression = target?.type === "phrase" ? clean(target.label || target.id) : (targetNumber != null ? "" : clean(context?.selection?.expression));
-    const nextMethodKey = clean(context?.selection?.method);
+    const nextExpression = target?.type === "phrase" ? clean(target.expression || target.label || target.id) : (targetNumber != null ? "" : clean(context?.selection?.expression));
+    const nextMethodKey = targetMethodKey || clean(context?.selection?.method);
     setExpression(nextExpression);
     setInput(nextExpression || (nextRoot != null ? String(nextRoot) : ""));
     setSelectedMethodKey(nextMethodKey);
@@ -100,7 +106,22 @@ export default function NumberDrawer2029({
       root: Number.isSafeInteger(Number(nextRoot)) ? Number(nextRoot) : null,
     } : null);
     setTraceOpen(false);
-  }, [target?.type, target?.id, target?.label, targetNumber, contextRoot, context?.selection?.expression, context?.selection?.method]);
+  }, [
+    target?.type,
+    target?.id,
+    target?.label,
+    target?.expression,
+    target?.method,
+    target?.methodKey,
+    target?.resultValue,
+    target?.number,
+    targetNumber,
+    targetResultRoot,
+    targetMethodKey,
+    contextRoot,
+    context?.selection?.expression,
+    context?.selection?.method,
+  ]);
 
   useEffect(() => {
     if (!Number.isSafeInteger(root)) {
