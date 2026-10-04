@@ -9,6 +9,8 @@ import React, {
 } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
+import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -182,6 +184,49 @@ export function FrameState({ kind = "empty", title, children, action = null, pro
       </div>
       {action}
     </section>
+  );
+}
+
+function BrandLockup2029({ className = "" }) {
+  return (
+    <img
+      className={`sod29-brand-lockup${className ? ` ${className}` : ""}`}
+      src={BRAND_LOCKUP_2029.src}
+      width={BRAND_LOCKUP_2029.width}
+      height={BRAND_LOCKUP_2029.height}
+      alt={BRAND_LOCKUP_2029.alt}
+      loading="eager"
+      decoding="async"
+      draggable="false"
+      data-brand-asset-state={BRAND_LOCKUP_2029.state}
+    />
+  );
+}
+
+const THEME_PRESET_OPTIONS = Object.freeze([
+  { id: "light", label: "יום", icon: "☀" },
+  { id: "parchment", label: "קלף", icon: "▤" },
+  { id: "dark", label: "לילה", icon: "☾" },
+]);
+
+function ThemePresetControl2029({ compact = false }) {
+  const preset = useThemePreset();
+  return (
+    <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
+      {THEME_PRESET_OPTIONS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          aria-pressed={preset === item.id}
+          className={preset === item.id ? "is-active" : ""}
+          onClick={() => setThemePreset(item.id)}
+          title={item.label}
+        >
+          <span aria-hidden="true">{item.icon}</span>
+          <b>{item.label}</b>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -1286,13 +1331,14 @@ export default function SystemFrame2029({
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
-            <span><b>SOD 1820</b><small>One Reality · גילוי חי</small></span>
+          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+            <BrandLockup2029 />
           </Link>
           <nav className="sod29-nav">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
           </nav>
+          <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
@@ -1381,8 +1427,15 @@ export default function SystemFrame2029({
               <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
               <button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button>
             </div>
+            <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
+              <BrandLockup2029 />
+            </Link>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
+              <small>מראה</small>
+              <ThemePresetControl2029 />
+            </section>
             <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
               <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon">↩</span><span>חזרה מדויקת</span></button>
               <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
