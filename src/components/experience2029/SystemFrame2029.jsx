@@ -1010,7 +1010,6 @@ export default function SystemFrame2029({
             context={context}
             focus={surfaceFocus || activeTarget}
             onOpenNumber={(target) => openNumber(target || activeTarget)}
-            onOpenWorld={() => go("/world")}
             onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
             onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
           /> : null}
