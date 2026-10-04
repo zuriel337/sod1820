@@ -15,6 +15,7 @@ import {
 for (const [surface, expectedQuestion] of [
   [EXPERIENCE_SURFACE.HOME, "מאיפה מתחילים?"],
   [EXPERIENCE_SURFACE.NUMBER, "מה המספר הזה מראה?"],
+  [EXPERIENCE_SURFACE.TOPIC, "מה מחבר את הציר הזה?"],
   [EXPERIENCE_SURFACE.BOOKS, "מה המקור אומר?"],
 ]) {
   const ctx = resolveExperienceContext({ surface, locale: "he-IL" });
