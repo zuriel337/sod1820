@@ -77,7 +77,7 @@ export function PlaneHintNotice({ embedded = false }) {
       <div style={{ marginTop: 9, display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap" }}>
         <Link to="/number/14" style={chipStyle(P)}>14</Link>
         <Link to="/number/75" style={chipStyle(P)}>75</Link>
-        <Link to="/number/363" style={chipStyle(P)}>363</Link>
+        <Link to="/number/363" style={chipStyle(P)}>{PLANE_HINT_GEMATRIA.messiah}</Link>
         {!embedded && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, alignSelf: "center" }}>הסרטון החדש בזרם המציאות</span>}
       </div>
     </div>
@@ -124,7 +124,7 @@ export default function PlaneHintSpotlight() {
             <div className="plane-spotlight-head">
               <div>
                 <div style={{ color: P.accentText, fontFamily: F.ui, fontSize: 14, fontWeight: 900 }}>✈️ הרמז החי עכשיו</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>המטוס · 14 · 75</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>המטוס · {PLANE_HINT_GEMATRIA.messiah}</div>
               </div>
               <button className="plane-spotlight-collapse" onClick={() => setOpen(false)} aria-label="מזער את סרטון המטוס" title="מזער">×</button>
             </div>
@@ -159,7 +159,7 @@ export default function PlaneHintSpotlight() {
               <Link to={PLANE_HINT_POST_HREF} style={{ color: P.accentText, borderColor: P.borderStrong }}>✈️ לאירוע המלא</Link>
               <Link to="/number/14" style={{ color: P.ink, borderColor: P.borderStrong }}>14</Link>
               <Link to="/number/75" style={{ color: P.ink, borderColor: P.borderStrong }}>75</Link>
-              <Link to="/number/363" style={{ color: P.ink, borderColor: P.borderStrong }}>363</Link>
+              <Link to="/number/363" style={{ color: P.ink, borderColor: P.borderStrong }}>{PLANE_HINT_GEMATRIA.messiah}</Link>
             </div>
           </aside>
         ) : (
@@ -175,7 +175,7 @@ export default function PlaneHintSpotlight() {
               <b style={{ color: P.accentText, fontFamily: F.ui }}>✈️ המטוס</b>
               <small style={{ color: P.inkSoft, fontFamily: F.body }}>{PLANE_HINT_GEMATRIA.messiah}</small>
             </span>
-            <strong style={{ color: P.accentText, fontFamily: F.numeric }}>14 · 75 · 363</strong>
+            <strong style={{ color: P.accentText, fontFamily: F.numeric }}>{PLANE_HINT_GEMATRIA.messiah}</strong>
           </button>
         )}
       </div>
