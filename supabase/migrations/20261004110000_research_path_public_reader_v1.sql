@@ -58,6 +58,19 @@ set search_path to 'pg_catalog','public'
 as $function$
 begin
   if tg_table_name = 'research_path_revisions' then
+    if tg_op = 'INSERT' then
+      if new.governance_status <> 'candidate'
+         or new.access_scope <> 'private'
+         or new.published_at is not null
+         or new.retracted_at is not null
+         or new.retracted_by_user_id is not null
+         or new.retraction_reason is not null
+      then
+        raise exception 'new research path revisions must start candidate/private/unpublished' using errcode='42501';
+      end if;
+      return new;
+    end if;
+
     if tg_op = 'TRUNCATE' then
       if exists (select 1 from public.research_path_revisions where published_at is not null) then
         raise exception 'published research path revisions are immutable' using errcode='23001';
@@ -82,6 +95,7 @@ begin
         if (to_jsonb(new) - 'governance_status') <> (to_jsonb(old) - 'governance_status') then
           raise exception 'governance decision may change governance_status only' using errcode='23001';
         end if;
+        return new;
       end if;
 
       -- Publication is a separate Human-Gate transition after approval/canonicalization.
@@ -101,6 +115,19 @@ begin
         if (to_jsonb(new) - 'published_at' - 'access_scope') <> (to_jsonb(old) - 'published_at' - 'access_scope') then
           raise exception 'publication may change published_at/access_scope only' using errcode='23001';
         end if;
+        return new;
+      end if;
+
+      if new.access_scope is distinct from old.access_scope
+         or new.retracted_at is distinct from old.retracted_at
+         or new.retracted_by_user_id is distinct from old.retracted_by_user_id
+         or new.retraction_reason is distinct from old.retraction_reason
+      then
+        raise exception 'unpublished access/retraction fields are not directly mutable' using errcode='23001';
+      end if;
+
+      if old.governance_status <> 'candidate' and to_jsonb(new) <> to_jsonb(old) then
+        raise exception 'reviewed research path revision content is immutable; create a new revision' using errcode='23001';
       end if;
     end if;
 
@@ -134,7 +161,7 @@ $function$;
 revoke all on function public.fn_research_path_published_immutable_v1() from public, anon, authenticated, service_role;
 
 create trigger research_path_revisions_published_immutable_trg
-  before update or delete on public.research_path_revisions
+  before insert or update or delete on public.research_path_revisions
   for each row execute function public.fn_research_path_published_immutable_v1();
 
 create trigger research_path_revisions_published_no_truncate_trg
@@ -159,10 +186,23 @@ as $function$
       select jsonb_agg(
         (select coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb)
            from jsonb_each(s.value) e
-          where e.key in ('step_index','entity_type','entity_ref','locator','label_key','surface',
-                          'capability_key','outcome_status','reason','negative_scope',
-                          'finding_refs','source_refs','version_refs')
-             or (e.key = 'href' and jsonb_typeof(e.value) = 'string' and (e.value #>> '{}') ~ '^/[^/\\]'))
+          where
+            (e.key = 'step_index' and jsonb_typeof(e.value) = 'number')
+            or (
+              e.key in ('entity_type','entity_ref','locator','label_key','surface','capability_key','outcome_status','reason')
+              and jsonb_typeof(e.value) = 'string'
+              and char_length(e.value #>> '{}') between 1 and 500
+              and (e.value #>> '{}') !~ '[[:cntrl:]]'
+            )
+            or (
+              e.key = 'href'
+              and jsonb_typeof(e.value) = 'string'
+              and char_length(e.value #>> '{}') between 1 and 500
+              and left(e.value #>> '{}',1) = '/'
+              and left(e.value #>> '{}',2) <> '//'
+              and position(chr(92) in (e.value #>> '{}')) = 0
+              and (e.value #>> '{}') !~ '[[:cntrl:][:space:]]'
+            ))
         order by s.ord)
       from jsonb_array_elements(p_steps) with ordinality as s(value, ord)
       where jsonb_typeof(s.value) = 'object'
@@ -170,12 +210,25 @@ as $function$
     'representation', coalesce((
       select jsonb_object_agg(e.key, e.value)
         from jsonb_each(p_representation) e
-       where e.key = 'surface'
-          or (e.key = 'href' and jsonb_typeof(e.value) = 'string' and (e.value #>> '{}') ~ '^/[^/\\]')
+       where
+         (
+           e.key = 'surface'
+           and jsonb_typeof(e.value) = 'string'
+           and char_length(e.value #>> '{}') between 1 and 500
+           and (e.value #>> '{}') !~ '[[:cntrl:]]'
+         )
+         or (
+           e.key = 'href'
+           and jsonb_typeof(e.value) = 'string'
+           and char_length(e.value #>> '{}') between 1 and 500
+           and left(e.value #>> '{}',1) = '/'
+           and left(e.value #>> '{}',2) <> '//'
+           and position(chr(92) in (e.value #>> '{}')) = 0
+           and (e.value #>> '{}') !~ '[[:cntrl:][:space:]]'
+         )
     ), '{}'::jsonb)
   )
 $function$;
-
 revoke all on function public.fn_research_path_public_project_v1(jsonb, jsonb) from public, anon, authenticated;
 
 -- 3. Public reader ---------------------------------------------------------------------------------
@@ -193,20 +246,31 @@ declare
   v_proj jsonb;
   v_parent_public boolean := false;
 begin
-  -- Eligibility is fixed here, never caller-supplied. Default revision = latest ELIGIBLE revision.
-  select r.* into v_rev
-    from public.research_path_revisions r
-   where r.path_id = p_path_id
-     and r.governance_status in ('approved','canonical')
-     and r.access_scope = 'public'
-     and r.published_at is not null
-     and r.published_at <= now()
-     and r.retracted_at is null
-     and (p_revision_no is null or r.revision_no = p_revision_no)
-   order by r.revision_no desc
-   limit 1;
+  -- Default = latest revision that actually reached publication time. If that publication is later
+  -- retracted/ineligible, fail closed rather than silently falling back to older public content.
+  if p_revision_no is null then
+    select r.* into v_rev
+      from public.research_path_revisions r
+     where r.path_id = p_path_id
+       and r.published_at is not null
+       and r.published_at <= now()
+     order by r.revision_no desc
+     limit 1;
+  else
+    select r.* into v_rev
+      from public.research_path_revisions r
+     where r.path_id = p_path_id
+       and r.revision_no = p_revision_no
+     limit 1;
+  end if;
 
-  if not found then
+  if not found
+     or v_rev.governance_status not in ('approved','canonical')
+     or v_rev.access_scope <> 'public'
+     or v_rev.published_at is null
+     or v_rev.published_at > now()
+     or v_rev.retracted_at is not null
+  then
     return jsonb_build_object('ok', false, 'error', 'not_found');
   end if;
 
@@ -249,7 +313,7 @@ revoke all on function public.fn_research_path_public_read_v1(uuid, integer) fro
 grant execute on function public.fn_research_path_public_read_v1(uuid, integer) to anon, authenticated, service_role;
 
 comment on function public.fn_research_path_public_read_v1(uuid, integer) is
-'Public Research Path reader. Only approved|canonical + access_scope=public + published_at<=now() + not retracted revisions; generic not_found otherwise; explicit allowlisted projection (no provenance, created_by, identity_metadata, parent revision ids). Does not grant canonicalization; governance_status and published_at are separate axes. References must be resolved by the destination surface.';
+'Public Research Path reader. Only approved|canonical + access_scope=public + published_at<=now() + not retracted revisions; generic not_found otherwise. Projection v1 exposes bounded scalar navigation/teaching fields only (no provenance, creator, private refs, nested outcome scope, identity metadata or parent revision ids). Default read never silently falls back after latest publication retraction. References remain destination-surface validated.';
 
 -- 4. Human-Gate governance ---------------------------------------------------------------------------
 
