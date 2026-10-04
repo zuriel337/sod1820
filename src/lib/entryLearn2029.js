@@ -40,6 +40,7 @@ export const ENTRY_LEARN_EVENTS = Object.freeze([
   "exact_return",
   "continued_to_research",
   "learn_step_completed",
+  "learn_help_requested",
 ]);
 
 const EVENT_SET = new Set(ENTRY_LEARN_EVENTS);
@@ -270,6 +271,22 @@ export function getEntryOrientationManifest(surface) {
 export function getLearnFragment(conceptKey) {
   const key = cleanConcept(conceptKey);
   return key ? LEARN_FRAGMENTS[key] || null : null;
+}
+
+const LEARN_HELP_SEEDS = Object.freeze({
+  method: "פתחתי את ההסבר על שיטת הגימטריה ועדיין לא היה לי ברור...",
+  anchor: "פתחתי את ההסבר על מה אני רואה כאן ועדיין לא היה לי ברור...",
+  finding: "פתחתי את ההסבר על הממצא ועדיין לא היה לי ברור...",
+  relation: "פתחתי את ההסבר על הקשר ועדיין לא היה לי ברור...",
+  verification: "פתחתי את ההסבר על האימות ועדיין לא היה לי ברור...",
+  evidence: "פתחתי את ההסבר על הראיה ועדיין לא היה לי ברור...",
+  convergence: "פתחתי את ההסבר על ההתכנסות ועדיין לא היה לי ברור...",
+  interpretation: "פתחתי את ההסבר על הפרשנות ועדיין לא היה לי ברור...",
+});
+
+export function buildLearnHelpSeed(conceptKey) {
+  const key = cleanConcept(conceptKey);
+  return (key && LEARN_HELP_SEEDS[key]) || "פתחתי את ההסבר ועדיין לא היה לי ברור...";
 }
 
 export function classifyEntryArrival({ locationState = null, historyIndex = null, locationKey = null } = {}) {
