@@ -15,6 +15,24 @@
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-link,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-workspace{justify-content:center;padding-inline:6px}
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-icon{width:34px;min-width:34px}
+.sod29-brand-neutral{display:none}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-brand{
+  min-height:48px;
+  padding:2px;
+  border-bottom:0;
+}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-brand-neutral{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border:1px solid var(--s29-line);
+  border-radius:13px;
+  color:var(--s29-accent-text);
+  background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
+  box-shadow:0 8px 22px color-mix(in srgb,var(--s29-glow) 20%,transparent);
+  font-size:18px;
+}
 
 .sod29-nav-group{display:grid;gap:5px}
 .sod29-nav-group+.sod29-nav-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--s29-line)}
@@ -65,7 +83,7 @@
     box-shadow 220ms ease;
 }
 .sod29-theme-presets button span{font-size:17px;line-height:1}
-.sod29-theme-presets button b{font-size:12px;line-height:1.1}
+.sod29-theme-presets button b{font-size:var(--s29-type-micro,14px);line-height:1.1}
 .sod29-theme-presets button:hover{transform:translateY(-1px);color:var(--s29-ink)}
 .sod29-theme-presets button.is-active{
   color:var(--s29-ink);
