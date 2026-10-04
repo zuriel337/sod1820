@@ -24,9 +24,10 @@ import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
+import { GUIDED_DISCOVERY_REFS } from "../lib/research/guidedDiscovery2029.js";
 import "./number2029.css";
 
-const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
+const GOLDEN_878_JOURNEY_ID = GUIDED_DISCOVERY_REFS.GOLDEN_878.semanticId;
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -911,27 +912,12 @@ function NumberPageBody() {
     };
 
     if (journey && root === 878) {
-      research.addJourney?.({
-        root: 878,
-        path: [{ type: "number", value: 878 }],
-        world: "world",
-        msg: GOLDEN_878_JOURNEY_ID,
-      });
-      research.setResearchContext?.({
+      shell.openGuidedDiscovery?.(GUIDED_DISCOVERY_REFS.GOLDEN_878, {
         subject,
         selection,
-        lens: "world",
-        journey: { id: GOLDEN_878_JOURNEY_ID, kind: "golden", position: 0 },
-        dimensions: {
-          ...(current.dimensions || {}),
-          journeySource: "number-2029-preview",
-          journeySemanticId: GOLDEN_878_JOURNEY_ID,
-          journeyRoot: 878,
-          journeyVisitedValues: [878],
-          journeyMeetingSlugs: [],
-        },
-        returnTo,
+        returnLabel: `דף ${root}`,
       });
+      return;
     } else {
       research.setResearchContext?.({
         subject,
