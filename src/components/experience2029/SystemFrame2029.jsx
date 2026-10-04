@@ -1212,7 +1212,7 @@ export default function SystemFrame2029({
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
-  const showContextRail = (numberPageRoute || surface === "post" || surface === "world" || surface === "topic")
+  const showContextRail = surface !== "control"
     && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
