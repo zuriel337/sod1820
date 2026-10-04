@@ -276,12 +276,20 @@ jobs:
             const reveal = drawer.locator('[data-experience-capability="gematria-reveal"]');
             await expect(reveal).toBeVisible({ timeout: 20_000 });
             await expect(reveal.locator('.sod29-reveal-expression')).toContainText('התגלות');
+            await page.screenshot({
+              path: `test-results/release-visual/gematria-reveal-1237-${width}.png`,
+              fullPage: false,
+            });
             const showCalculation = reveal.getByRole('button', { name: 'הצג חישוב' });
             await expect(showCalculation).toBeVisible({ timeout: 20_000 });
             await showCalculation.click();
             const spatialStage = drawer.locator('[data-experience-capability="spatial-method-stage"][data-method-key="מסתתר"]');
             await expect(spatialStage).toBeVisible({ timeout: 20_000 });
             await expect(page.locator('[data-experience-capability="spatial-method-stage"]')).toHaveCount(1);
+            await page.screenshot({
+              path: `test-results/release-visual/gematria-spatial-1237-${width}.png`,
+              fullPage: false,
+            });
 
             const resultPreview = drawer.locator('[data-experience-action="number-result-preview"]');
             await expect(resultPreview).toBeVisible();
@@ -385,11 +393,19 @@ jobs:
             const reveal = drawer.locator('[data-experience-capability="gematria-reveal"]');
             await expect(reveal).toBeVisible({ timeout: 20_000 });
             await expect(reveal.locator('.sod29-reveal-expression')).toContainText('מלח');
+            await page.screenshot({
+              path: `test-results/release-visual/gematria-reveal-post-${width}.png`,
+              fullPage: false,
+            });
             const showCalculation = reveal.getByRole('button', { name: 'הצג חישוב' });
             await expect(showCalculation).toBeVisible({ timeout: 20_000 });
             await showCalculation.click();
             await expect(drawer.locator('[data-experience-capability="spatial-method-stage"][data-method-key="רגיל"]')).toBeVisible({ timeout: 20_000 });
             await expect(page.locator('[data-experience-capability="spatial-method-stage"]')).toHaveCount(1);
+            await page.screenshot({
+              path: `test-results/release-visual/gematria-spatial-post-${width}.png`,
+              fullPage: false,
+            });
             expect(traceRequests).toBeGreaterThan(0);
 
             await drawer.locator('[data-experience-action="number-result-preview"]').click();
