@@ -187,22 +187,35 @@ function TopicSourcesMedia({ golden }) {
   </section>;
 }
 
-function TopicRelated({ projection }) {
-  const related = projection.relatedConvergences || [];
+function TopicPosts({ projection }) {
   const posts = projection.relatedPosts || [];
-  if (!related.length && !posts.length) return null;
-  return <section className="sod29-section sod29-topic-section" id="topic-related">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">המשך</div><h2>לאן ממשיכים מכאן?</h2></div></div>
+  if (!posts.length) return null;
+  return <section className="sod29-section sod29-topic-section" id="topic-posts">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">פוסטים בתוך הציר</div><h2>הסיפורים שבהם הרמז חוזר</h2></div><span className="sod29-chip">{posts.length}</span></div>
     <div className="sod29-topic-related-grid">
-      {related.map((row, index) => {
-        const slug = clean(row.slug);
-        const label = clean(row.title || row.note) || "התכנסות קשורה";
-        return slug ? <Link className="sod29-card sod29-card-button" to={"/topic/" + encodeURIComponent(slug)} key={row.sourcePath || (slug + "-" + index)}><div className="sod29-kicker">התכנסות</div><h3>{label}</h3><p>פתח את הזהות הקנונית של ההתכנסות.</p></Link> : null;
-      })}
       {posts.map((row, index) => {
         const slug = clean(row.slug);
         const label = clean(row.title || row.text) || "פוסט קשור";
-        return slug ? <Link className="sod29-card sod29-card-button" to={"/" + slug} key={row.sourcePath || (slug + "-" + index)}><div className="sod29-kicker">מקור / פוסט</div><h3>{label}</h3><p>פתח את המקור המקושר.</p></Link> : null;
+        return slug ? <Link className="sod29-card sod29-card-button sod29-topic-post-card" to={"/post/" + encodeURIComponent(slug)} key={row.sourcePath || (slug + "-" + index)}>
+          <div className="sod29-kicker">פוסט</div><h3>{label}</h3><p>פתח את הסיפור המלא בתוך הציר.</p>
+        </Link> : null;
+      })}
+    </div>
+  </section>;
+}
+
+function TopicRelatedAxes({ projection }) {
+  const related = projection.relatedConvergences || [];
+  if (!related.length) return null;
+  return <section className="sod29-section sod29-topic-section" id="topic-related">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">צירים קשורים</div><h2>לאן הציר ממשיך?</h2></div><span className="sod29-chip">{related.length}</span></div>
+    <div className="sod29-topic-related-grid">
+      {related.map((row, index) => {
+        const slug = clean(row.slug);
+        const label = clean(row.title || row.note) || "ציר קשור";
+        return slug ? <Link className="sod29-card sod29-card-button" to={"/topic/" + encodeURIComponent(slug)} key={row.sourcePath || (slug + "-" + index)}>
+          <div className="sod29-kicker">ציר</div><h3>{label}</h3><p>פתח את הציר המחובר.</p>
+        </Link> : null;
       })}
     </div>
   </section>;
@@ -363,74 +376,71 @@ function TopicBody() {
   if (state.loading) return <FrameState kind="loading" title="פותח את הציר">טוען את המספרים, הפוסטים והמקורות שמתחברים אליו.</FrameState>;
   if (state.error || !projection) return <FrameState kind="error" title="הציר לא נמצא">לא נציג תוכן משוער. אפשר לחזור לעולם ולבחור ציר קיים.</FrameState>;
 
-  const primaryNumbers = projection.highlightNumbers.length ? projection.highlightNumbers : projection.numbers.slice(0, 6);
+  const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
+  const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
   const sparse = golden?.density === "sparse";
   const hasFindings = Object.values(projection.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const navItems = [
     ["עיקר", "topic-essential"],
     ...(projection.phrases.length ? [["ביטויים", "topic-phrases"]] : []),
-    ...(hasFindings ? [["ממצאים", "topic-findings"]] : []),
+    ...(hasFindings ? [["חיבורים", "topic-findings"]] : []),
+    ...(projection.relatedPosts.length ? [["פוסטים", "topic-posts"]] : []),
     ...((goldenState.loading || golden?.prominenceItems?.length) ? [["בולט", "topic-prominence"]] : []),
     ...(golden?.graphConnections?.length ? [["קשרים", "topic-graph"]] : []),
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [["מקורות", "topic-sources"]] : []),
-    ...((projection.relatedConvergences.length || projection.relatedPosts.length) ? [["המשך", "topic-related"]] : []),
-    ...(projection.caveats.length ? [["גבולות", "topic-boundary"]] : []),
+    ...(projection.relatedConvergences.length ? [["צירים", "topic-related"]] : []),
+    ...(projection.caveats.length ? [["הערה", "topic-boundary"]] : []),
     ["מסע", "topic-journey"],
   ];
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">
       <div className="sod29-topic-hero-copy">
-        <div className="sod29-kicker">התכנסות</div>
-        <h1>{projection.title}</h1>
+        <div className="sod29-kicker">ציר</div>
+        {projection.heroNumber != null ? <Link className="sod29-topic-hero-number" to={"/2029/number/" + projection.heroNumber}>{projection.heroNumber}</Link> : null}
+        <h1>{projection.displayTitle || projection.title}</h1>
         <p className="sod29-topic-summary">{projection.description}</p>
         <div className="sod29-topic-meta">
+          {projection.authoredRows.length ? <span>{projection.authoredRows.length} שוויונות מרכזיים</span> : null}
+          {projection.relatedPosts.length ? <span>{projection.relatedPosts.length} פוסטים בציר</span> : null}
+          {projection.authoredConnections.length ? <span>{projection.authoredConnections.length} חיבורי המשך</span> : null}
           {golden?.people?.length ? <span>תרומה · {golden.people.join(" · ")}</span> : null}
-          <span>{projection.authoredFactsCount} פריטי תוכן</span>
-          {golden?.relationCount ? <span>{golden.relationCount} קשרי גרף</span> : null}
-          {golden?.mediaCount ? <span>{golden.mediaCount} פריטי מדיה</span> : null}
-          {sparse ? <span className="is-sparse">מצב ממוקד · חומר ישיר מצומצם</span> : null}
         </div>
         <div className="sod29-actions">
-          <Link className="sod29-action primary" to="/world">◌ חזרה לעולם</Link>
-          <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>✦ שאל את רזיאל</button>
+          <button className="sod29-action primary" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>✦ שאל את רזיאל על הציר</button>
           <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} />
         </div>
       </div>
-      <div className="sod29-topic-anchor-cluster" aria-label="המספרים המרכזיים בהתכנסות">
-        {primaryNumbers.map((value) => <Link to={"/2029/number/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>מספר</small></Link>)}
-      </div>
+      {secondaryNumbers.length ? <div className="sod29-topic-anchor-cluster" aria-label="מספרים נוספים בציר">
+        {secondaryNumbers.map((value) => <Link to={"/2029/number/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>חיבור נוסף</small></Link>)}
+      </div> : null}
     </header>
 
     <TopicMapNav items={navItems} />
 
     <section className="sod29-section sod29-topic-intro" id="topic-essential">
       <div className="sod29-kicker">העיקר</div>
-      <h2>מה ההתכנסות הזאת?</h2>
+      <h2>מה מחבר את הציר הזה?</h2>
       <p>{projection.description}</p>
-      {sparse ? <div className="sod29-topic-sparse-callout"><strong>יש כאן מעט חומר ישיר — וזה נשאר גלוי.</strong><span>אנחנו לא ממלאים את החסר בתוכן מומצא; הקשרים, המספרים והמחקר הקיים מרחיבים את התמונה בהדרגה.</span></div> : null}
-      <div className="sod29-topic-truth-strip">
-        <span>התכנסות ≠ עובדה קנונית</span>
-        <span>חישוב ≠ פרשנות</span>
-        <span>מקור ≠ מסקנה</span>
-      </div>
+      {sparse ? <div className="sod29-topic-sparse-callout"><strong>יש כאן כרגע מעט חומר ישיר.</strong><span>הציר נשאר ממוקד, והחיבורים יצטברו רק כשיש להם מקור ברור.</span></div> : null}
     </section>
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
       {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
-      <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
+      <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
-      <TopicGraphConnections golden={golden} />
+      <TopicRelatedAxes projection={projection} />
       <TopicSourcesMedia golden={golden} />
-      <TopicRelated projection={projection} />
+      <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
+      <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
     </>}
 
     <section className="sod29-section sod29-topic-journey" id="topic-journey">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">מסע</div><h2>לאן ממשיכים מכאן?</h2></div></div>
-      <p>אותה זהות ממשיכה בין World, Number ורזיאל. המעבר משנה את העדשה — לא את ההתכנסות.</p>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">המשך</div><h2>רוצה להעמיק?</h2></div></div>
+      <p>אפשר לפתוח את המספר המוביל, לראות את הציר בעולם או לשאול את רזיאל על חיבור מסוים.</p>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/world">פתח בעולם</Link>
         {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/2029/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
@@ -444,10 +454,10 @@ export default function Topic2029Page() {
   return <Sod2029Shell
     surface="world"
     symbol="✦"
-    eyebrow="SOD1820 · התכנסות"
-    title="התכנסות"
-    description="זהות מחקרית ציבורית אחת — מספרים, ביטויים, מקורות וממצאים סביב אותו מוקד."
-    status="World · Convergence"
+    eyebrow="SOD1820 · ציר"
+    title="טופיק"
+    description="מספרים, ביטויים, פוסטים ומקורות שמתחברים סביב אותו ציר."
+    status="Topic"
   >
     <TopicBody />
   </Sod2029Shell>;
