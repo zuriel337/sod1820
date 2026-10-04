@@ -41,6 +41,8 @@ import {
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
+import { buildGuidedDiscoveryLaunch } from "../../lib/research/guidedDiscovery2029.js";
+import { emitJourney2029 } from "../../lib/research/journey2029Telemetry.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
@@ -64,6 +66,7 @@ const ShellContext = createContext({
   openCapability: () => {},
   openInspect: () => {},
   openNumber: () => {},
+  openGuidedDiscovery: () => false,
   openAttention: () => {},
   openTools: () => {},
   openRaziel: () => {},
@@ -1006,6 +1009,50 @@ export default function SystemFrame2029({
     }
     openCapability("number", normalized || subject);
   }, [openCapability, research, context?.selection]);
+  const openGuidedDiscovery = useCallback((ref, options = {}) => {
+    const current = research.context || {};
+    const returnHref = `${location.pathname || "/2029"}${location.search || ""}${location.hash || ""}`;
+    const returnTo = {
+      href: returnHref,
+      label: options.returnLabel || current?.subject?.label || currentLabel || "חזרה",
+      subject: current?.subject || null,
+      selection: current?.selection || null,
+      lens: current?.lens || surface,
+      dimensions: current?.dimensions || {},
+      journey: current?.journey || null,
+    };
+    const launch = buildGuidedDiscoveryLaunch({
+      ref,
+      currentContext: current,
+      subject: options.subject || current?.subject || null,
+      selection: options.selection || current?.selection || null,
+      returnTo,
+      sourceSurface: surface,
+    });
+    if (!launch) return false;
+
+    if (launch.historyJourney) research.addJourney?.(launch.historyJourney);
+    research.setResearchContext?.(launch.context);
+    emitJourney2029("start", {
+      context: launch.context,
+      kind: launch.ref.journeyKind,
+      mode: "guided",
+      sourceSurface: surface,
+      pathId: launch.ref.pathId || null,
+    });
+    emitEntryLearn("continued_to_research", {
+      entrySurface: surface,
+      layer: LEARN_LAYER.EXPLORE,
+      actionId: "guided_discovery",
+      targetSurface: launch.ref.targetSurface || null,
+      mode: "guided",
+      guidedId: launch.ref.key,
+    });
+    setTransient(null);
+    navigate(launch.href, { state: { sodEntryArrival: "internal" } });
+    return true;
+  }, [research, location.pathname, location.search, location.hash, currentLabel, surface, navigate]);
+
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
@@ -1148,6 +1195,7 @@ export default function SystemFrame2029({
     openCapability,
     openInspect,
     openNumber,
+    openGuidedDiscovery,
     openAttention,
     openTools,
     openRaziel,
@@ -1158,7 +1206,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openGuidedDiscovery, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
