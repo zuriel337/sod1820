@@ -447,3 +447,23 @@ span.sod29-topic-equation-phrase{cursor:default}
   padding:0 14px 10px;
   border-top:1px solid var(--s29-line);
 }
+
+
+/* Convergence stage: content + same clickable progress spine used by Posts. */
+.sod29-topic-stage{
+  width:min(1120px,100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  grid-template-areas:"spine content";
+  gap:16px;
+  align-items:start;
+  direction:ltr;
+}
+.sod29-topic-stage>.sod29-surface-progress-spine{grid-area:spine;direction:rtl}
+.sod29-topic-stage-content{grid-area:content;direction:rtl;min-width:0}
+.sod29-topic-stage-content>.sod29-section:first-child{margin-top:0}
+@media(max-width:980px){
+  .sod29-topic-stage{display:block}
+  .sod29-topic-stage>.sod29-surface-progress-spine{display:none}
+}
