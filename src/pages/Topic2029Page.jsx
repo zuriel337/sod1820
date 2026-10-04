@@ -26,14 +26,14 @@ function TopicMapNav({ items = [] }) {
 function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-phrases">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">ביטויים</div><h2>מה מתכנס כאן?</h2></div><span className="sod29-chip">{rows.length}</span></div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">ביטויים בציר</div><h2>אותו מספר, מילים שונות</h2></div><span className="sod29-chip">{rows.length}</span></div>
     <div className="sod29-topic-phrase-grid">
       {rows.map((row, index) => {
         const text = textOf(row);
         if (!text) return null;
         const opening = openingExpression === text;
         return <button className="sod29-topic-phrase" type="button" disabled={opening} onClick={() => onOpenExpression?.(text)} key={row.sourcePath || (text + "-" + index)}>
-          <strong>{text}</strong><small>{opening ? "בודק במנוע…" : "פתח במספר עם מיקוד ←"}</small>
+          <strong>{text}</strong><small>{opening ? "פותח…" : "פתח את החיבור ←"}</small>
         </button>;
       })}
     </div>
@@ -51,7 +51,7 @@ function TopicFindings({ projection, onOpenExpression }) {
   if (!headline.length && !hints.length && !bullets.length && !concepts.length && !rows.length && !numericClaims.length) return null;
 
   return <section className="sod29-section sod29-topic-section" id="topic-findings">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">ממצאים</div><h2>למה הדברים האלה נמצאים יחד?</h2></div></div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">הרמזים המרכזיים</div><h2>החיבורים שמחזיקים את הציר</h2></div></div>
     {headline.map((text, i) => <h3 className="sod29-topic-headline" key={"h-" + i}>{text}</h3>)}
     {hints.map((text, i) => <div className="sod29-topic-hint" key={"hint-" + i}>{text}</div>)}
     {concepts.map((row, i) => <div className="sod29-topic-finding-card" key={row.sourcePath || i}>
@@ -81,13 +81,13 @@ function TopicAuthoredConnections({ projection }) {
   const connections = Array.isArray(projection.sections?.connections) ? projection.sections.connections : [];
   if (!connections.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-authored-connections">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים מתוך המקור</div><h2>קשרים שנכתבו בתוך ההתכנסות</h2></div></div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">עוד עומק</div><h2>הצירים שממשיכים מכאן</h2></div></div>
     <div className="sod29-list">
       {connections.map((row, index) => {
         const number = Number(row.number);
         const labels = Array.isArray(row.links) ? row.links.filter(Boolean) : [];
         return <div className="sod29-row" key={row.sourcePath || index}>
-          <div><strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong><small>קשר שמור בגוף ההתכנסות</small></div>
+          <div><strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong>{row.note ? <small>{row.note}</small> : null}</div>
           {Number.isFinite(number) ? <Link className="sod29-action" to={"/2029/number/" + number}>{number}</Link> : null}
         </div>;
       })}
@@ -134,11 +134,11 @@ function TopicProminence({ golden, loading = false }) {
   if (!loading && !items.length) return null;
   return <section className="sod29-section sod29-topic-section sod29-topic-prominence" id="topic-prominence" data-rank-owner="research_gold_hints_law-v3">
     <div className="sod29-section-head">
-      <div><div className="sod29-kicker">בולט עכשיו</div><h2>מה מוביל את המחקר סביב ההתכנסות?</h2></div>
+      <div><div className="sod29-kicker">בולט עכשיו</div><h2>מה בולט סביב הציר?</h2></div>
       <span className="sod29-chip">{loading ? "…" : items.length}</span>
     </div>
-    <p className="sod29-topic-section-note">סדר תצוגה הקשרי בלבד — לא ציון אמת, לא קנוניזציה ולא החלטת פרסום.</p>
-    {loading ? <div className="sod29-topic-loading">מחבר את שכבת המחקר וה־Explain-Why…</div> : <div className="sod29-topic-prominence-grid">
+    <p className="sod29-topic-section-note">הבולטות כאן עוזרת להתמצא בציר; היא אינה משנה את המקורות או את האימות.</p>
+    {loading ? <div className="sod29-topic-loading">מחבר את שכבות העומק סביב הציר…</div> : <div className="sod29-topic-prominence-grid">
       {items.map((item, index) => {
         const why = item.explainWhy || {};
         const signals = Array.isArray(why.researchStrengthSignals) ? why.researchStrengthSignals : [];
@@ -162,7 +162,7 @@ function TopicGraphConnections({ golden }) {
   const rows = golden?.graphConnections || [];
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-graph">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">גרף חי</div><h2>קשרים חיים סביב ההתכנסות</h2></div><span className="sod29-chip">{rows.length}</span></div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים חיים</div><h2>מה עוד מתחבר לציר?</h2></div><span className="sod29-chip">{rows.length}</span></div>
     <div className="sod29-topic-graph-grid">
       {rows.slice(0, 18).map((row) => row.href ? <Link key={row.id} to={row.href}>
         <span>{KIND_LABELS[row.targetType] || "קשר"}</span><strong>{row.label}</strong><small>{RELATION_LABELS[row.relationType] || "קשור"}</small>
@@ -178,12 +178,12 @@ function TopicSourcesMedia({ golden }) {
   const people = golden.people || [];
   if (!sources.length && !media.length && !people.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-sources">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות וזהות</div><h2>מאיפה החומר מגיע?</h2></div></div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה מגיעים החיבורים?</h2></div></div>
     {media.length ? <div className="sod29-topic-media-grid">
       {media.slice(0, 4).map((item) => <figure key={item.id}><img loading="lazy" src={item.imageUrl} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
-    {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור מחקר</small></div></div>)}</div> : null}
+    {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}
   </section>;
 }
 
@@ -212,8 +212,8 @@ function TopicCaveats({ projection }) {
   const caveats = (projection.caveats || []).map(textOf).filter(Boolean);
   if (!caveats.length) return null;
   return <section className="sod29-section sod29-topic-caveats" id="topic-boundary" aria-label="הסתייגויות וגבולות">
-    <div className="sod29-kicker">גבולות האמת</div>
-    <h2>מה חשוב לא להסיק מכאן</h2>
+    <div className="sod29-kicker">הערה חשובה</div>
+    <h2>בין שוויון מספרי לבין הרמז</h2>
     {caveats.map((text, i) => <p key={i}>{text}</p>)}
   </section>;
 }
@@ -360,8 +360,8 @@ function TopicBody() {
     return () => clearConvergenceJsonLd();
   }, [projection?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (state.loading) return <FrameState kind="loading" title="פותח את ההתכנסות">טוען את הזהות, הממצאים והמקורות מאותו Research Graph.</FrameState>;
-  if (state.error || !projection) return <FrameState kind="error" title="ההתכנסות לא נמצאה">לא נייצר דף חלופי או תוכן משוער. אפשר לחזור לעולם ולבחור התכנסות קיימת.</FrameState>;
+  if (state.loading) return <FrameState kind="loading" title="פותח את הציר">טוען את המספרים, הפוסטים והמקורות שמתחברים אליו.</FrameState>;
+  if (state.error || !projection) return <FrameState kind="error" title="הציר לא נמצא">לא נציג תוכן משוער. אפשר לחזור לעולם ולבחור ציר קיים.</FrameState>;
 
   const primaryNumbers = projection.highlightNumbers.length ? projection.highlightNumbers : projection.numbers.slice(0, 6);
   const sparse = golden?.density === "sparse";
