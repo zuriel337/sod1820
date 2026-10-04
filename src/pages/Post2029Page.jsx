@@ -205,7 +205,7 @@ function PostReadingBody() {
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
   const heroNumbers = isBennettMaster
-    ? [78, 631]
+    ? [631]
     : isFz1073Master
       ? [363, 1073, 718]
       : [...new Set(
@@ -218,17 +218,15 @@ function PostReadingBody() {
       ? "2026-09-30"
       : String(post.date || post.modified || "").slice(0, 10);
   const visibleSourceLabel = isBennettMaster
-    ? "בנט והמלח"
+    ? "פוסט הבחירות · ציר 631"
     : isFz1073Master
       ? "טיסה FZ1073"
       : projection.sourceLabel;
-  const visibleTimeline = isBennettMaster
-    ? (experience.timeline || [])
-        .filter((item) => item.id === "bennett-salt-event" || item.id === "bennett-salt-golden")
-        .map((item) => item.id === "bennett-salt-golden"
-          ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
-          : item)
-    : (experience.timeline || []);
+  const visibleTimeline = (experience.timeline || []).map((item) => (
+    isBennettMaster && item.id === "bennett-salt-golden"
+      ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
+      : item
+  ));
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -547,7 +545,6 @@ function PostReadingBody() {
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
-    {isBennettMaster || isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <div className="sod29-reading-layout">
       <section
@@ -575,7 +572,7 @@ function PostReadingBody() {
 
     </div>
 
-    {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    <PostTimeline2029 items={visibleTimeline} />
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
