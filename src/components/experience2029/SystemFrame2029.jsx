@@ -910,20 +910,11 @@ export default function SystemFrame2029({
     && Array.isArray(context?.dimensions?.bottomTrail)
       ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
-  const numberConfiguredTrail = surface === "number" && Array.isArray(context?.dimensions?.bottomTrail)
-    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
-    : [];
   const numberSurfaceFocus = surface === "number" ? context?.dimensions?.surfaceFocus || null : null;
-  const numberFallbackTrail = surface === "number"
-    ? [
-        context?.subject ? { id: "subject", label: context.subject.label || context.subject.id } : null,
-        numberSurfaceFocus?.sectionLabel ? { id: "section", label: numberSurfaceFocus.sectionLabel } : null,
-        numberSurfaceFocus?.number != null ? { id: "number", label: String(numberSurfaceFocus.number), number: Number(numberSurfaceFocus.number), active: true } : null,
-      ].filter(Boolean)
-    : [];
-  const bottomTrail = surface === "number"
-    ? (numberConfiguredTrail.length ? numberConfiguredTrail : numberFallbackTrail)
-    : postTrail;
+  // NUMBER_2029_RELEASE_V1 keeps the existing Command Island contract unchanged.
+  // Number Context is exposed through the dedicated Context cue/rail, not by restructuring
+  // the bottom command toolbar in this isolated release.
+  const bottomTrail = postTrail;
   const showNumberContextRail = surface === "number" && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
