@@ -391,3 +391,59 @@ span.sod29-topic-equation-phrase{cursor:default}
     min-height:0;
   }
 }
+
+
+/* Unified Experience V1: strong first, supporting next, depth on demand. */
+.sod29-topic-supporting-equations{
+  display:grid;
+  gap:8px;
+  padding-top:8px;
+}
+.sod29-topic-supporting-equations>.sod29-kicker{
+  justify-self:center;
+  margin-top:4px;
+}
+.sod29-topic-equation.is-depth{
+  min-height:86px;
+  padding-block:14px;
+}
+.sod29-topic-equation.is-depth .sod29-topic-equation-phrase{
+  font-size:clamp(18px,2.4vw,26px);
+}
+.sod29-topic-equation.is-depth .sod29-topic-equation-value{
+  font-size:clamp(32px,4.5vw,48px);
+}
+.sod29-topic-depth-equations{
+  margin-top:12px;
+  border:1px solid var(--s29-line);
+  border-radius:18px;
+  background:var(--s29-panel-soft);
+  overflow:hidden;
+}
+.sod29-topic-depth-equations summary{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 16px;
+  cursor:pointer;
+  color:var(--s29-ink);
+  font-weight:820;
+  list-style:none;
+}
+.sod29-topic-depth-equations summary::-webkit-details-marker{display:none}
+.sod29-topic-depth-equations summary span{
+  min-width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  color:var(--s29-hero);
+  font-size:11px;
+}
+.sod29-topic-depth-equations>div{
+  padding:0 14px 10px;
+  border-top:1px solid var(--s29-line);
+}
