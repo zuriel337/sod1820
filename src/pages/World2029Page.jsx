@@ -1490,7 +1490,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       items={WORLD_LANES.map((lane) => ({ id: lane.key, label: lane.label }))}
       activeId={activeLane}
       onSelect={(item) => setActiveLane(item.id)}
-      ariaLabel="מפת המבט בעולם"
+      ariaLabel="מה אתה רוצה לראות עכשיו? מפת המבט בעולם"
       currentLabel="מבט"
       compact
     />
