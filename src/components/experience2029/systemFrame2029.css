@@ -20,6 +20,23 @@
 .sod29-root :where([data-experience-capability="gematria-reveal"] .sod29-reveal-number){
   font-family:var(--s29-font-numeric);
 }
+.sod29-root[data-frame-theme-preset="dark"]{
+  background:
+    radial-gradient(circle at 18% -8%,color-mix(in srgb,var(--s29-brand-sapphire) 20%,transparent),transparent 34%),
+    radial-gradient(circle at 76% 108%,color-mix(in srgb,var(--s29-brand-gold) 7%,transparent),transparent 31%),
+    var(--s29-page);
+}
+.sod29-root[data-frame-theme-preset="light"]{
+  background:
+    radial-gradient(circle at 12% -10%,color-mix(in srgb,var(--s29-brand-sapphire) 7%,transparent),transparent 30%),
+    var(--s29-page);
+}
+.sod29-root[data-frame-theme-preset="parchment"]{
+  background:
+    radial-gradient(circle at 14% -8%,color-mix(in srgb,var(--s29-brand-sapphire) 5%,transparent),transparent 28%),
+    radial-gradient(circle at 86% 104%,color-mix(in srgb,var(--s29-brand-gold) 9%,transparent),transparent 30%),
+    var(--s29-page);
+}
 
 
 .sod29-root.native-frame{--s29-island-clearance:96px}
