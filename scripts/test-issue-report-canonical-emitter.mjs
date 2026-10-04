@@ -18,11 +18,15 @@ assert.equal(rivals, "", "no second bug/support component");
 
 // SystemFrame reachability: the visible ! entry opens one gateway, which delegates to the canonical owners.
 assert.match(frame, /import ContactGateway from "\.\.\/ContactGateway\.jsx"/);
-assert.match(frame, /TRANSIENT\.ISSUE\) return <PanelShell[^\n]*<ContactGateway /);
+assert.match(frame, /TRANSIENT\.ISSUE\)[\s\S]{0,900}<ContactGateway/);
 assert.match(gateway, /import IssueReport from "\.\/IssueReport\.jsx"/);
 assert.match(gateway, /import ReportHint from "\.\/ReportHint\.jsx"/);
 assert.match(gateway, /sendContactMessage/);
 assert.match(gateway, /classifyContactIntent/);
+assert.match(gateway, /buildContactGatewayContext/);
+assert.match(gateway, /initialText/);
+assert.match(gateway, /learnStage/);
+assert.match(gateway, /actionTried/);
 assert.match(frame, /sod29-header-issue/);
 assert.match(frame, /closeMobileNav\(false\); openIssueReport\(\)/);
 
@@ -77,12 +81,16 @@ const m = await import(outfile);
 assert.equal(m.ISSUE_REPORT_EVENT, "issue_report");
 const ctx = m.buildIssueReportContext({
   pathname: "/number/358?email=a@b.c&token=x#frag",
-  surface: "number<script>", capability: "number", locale: "he-IL", width: 390, signedIn: false,
+  surface: "number<script>", capability: "number", concept: "method<script>", learnStage: "explain", actionTried: "open_number",
+  locale: "he-IL", width: 390, signedIn: false,
   interactionId: "11111111-1111-4111-8111-111111111111", now: new Date("2026-09-29T00:00:00Z"),
 });
-assert.deepEqual(Object.keys(ctx).sort(), ["at", "auth", "capability", "interaction_id", "locale", "path", "surface", "viewport"]);
+assert.deepEqual(Object.keys(ctx).sort(), ["action_tried", "at", "auth", "capability", "concept", "interaction_id", "learn_stage", "locale", "path", "surface", "viewport"]);
 assert.equal(ctx.path, "/number/358");
 assert.equal(ctx.surface, "numberscript");
+assert.equal(ctx.concept, "methodscript");
+assert.equal(ctx.learn_stage, "explain");
+assert.equal(ctx.action_tried, "open_number");
 assert.equal(ctx.viewport, "phone");
 assert.equal(ctx.auth, "anonymous");
 assert.equal(m.buildIssueReportContext({ signedIn: true }).auth, "registered");
