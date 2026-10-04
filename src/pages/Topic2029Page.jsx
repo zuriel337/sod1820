@@ -494,7 +494,7 @@ function TopicBody() {
 
 export default function Topic2029Page() {
   return <Sod2029Shell
-    surface="world"
+    surface="topic"
     symbol="✦"
     eyebrow="SOD1820 · ציר"
     title="טופיק"
