@@ -87,7 +87,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { label: "דף המספר", icon: "123", status: "Redesign follows Frame" },
+  { label: "דף המספר", icon: "123", status: "בבנייה" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS", icon: "✦" },
 ];
@@ -1304,14 +1304,18 @@ export default function SystemFrame2029({
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
               <div className="sod29-orientation" aria-label="איפה אני">
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
-                {context?.subject ? <><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></> : null}
+                {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
             </div>
             <div className="sod29-header-actions">
-              <button className="sod29-header-search" type="button" onClick={openCommand}><span>⌘</span><span className="label">חיפוש / פקודה</span></button>
-              <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
+              <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש / פקודה">
+                <span className="sod29-search-command-icon" aria-hidden="true">⌘</span>
+                <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
+                <span className="label">חיפוש / פקודה</span>
+              </button>
+              <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
-              <button type="button" onClick={openWorkspace}>◎ <span className="workspace-label">האזור האישי שלי</span></button>
+              <button type="button" className="sod29-header-workspace" onClick={openWorkspace} aria-label="האזור האישי שלי">◎ <span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
 
@@ -1373,11 +1377,17 @@ export default function SystemFrame2029({
             aria-label="ניווט SOD1820 2029"
             tabIndex={-1}
           >
-            <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button></div>
+            <div className="sod29-mobile-drawer-head">
+              <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
+              <button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button>
+            </div>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
-            <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
-            <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
+            <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
+              <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon">↩</span><span>חזרה מדויקת</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
+            </div>
           </aside>
         </> : null}
 
