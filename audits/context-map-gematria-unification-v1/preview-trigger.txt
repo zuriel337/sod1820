@@ -1,0 +1,3 @@
+Preview trigger only for CONTEXT_MAP_GEMATRIA_UNIFICATION_V1 visual review.
+Source PR #935 head: 6b477ac00d7f4129e733c5b0ce3b8fdcd733cec1
+No production release authorization.
