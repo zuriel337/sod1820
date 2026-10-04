@@ -1,0 +1,75 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import {
+  ENTRY_ARRIVAL,
+  LEARN_FRAGMENTS,
+  buildEntryLearnTelemetry,
+  classifyEntryArrival,
+  getEntryOrientationManifest,
+  projectAvailability,
+  resolveEntryOrientation,
+} from "../src/lib/entryLearn2029.js";
+import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../src/lib/experienceContext.js";
+
+assert.equal(classifyEntryArrival({ locationState: { sodEntryArrival: "exact_return" }, historyIndex: 3 }), ENTRY_ARRIVAL.EXACT_RETURN);
+assert.equal(classifyEntryArrival({ locationState: { sodEntryArrival: "internal" }, historyIndex: 0 }), ENTRY_ARRIVAL.INTERNAL);
+assert.equal(classifyEntryArrival({ historyIndex: 0 }), ENTRY_ARRIVAL.DIRECT);
+assert.equal(classifyEntryArrival({ historyIndex: 2 }), ENTRY_ARRIVAL.INTERNAL);
+
+const postManifest = getEntryOrientationManifest("post");
+assert.ok(postManifest);
+assert.equal(resolveEntryOrientation({ surface: "post", arrival: "direct" }).mode, "prominent");
+assert.equal(resolveEntryOrientation({ surface: "post", arrival: "internal" }).mode, "compact");
+assert.equal(resolveEntryOrientation({ surface: "post", arrival: "exact_return" }).mode, "hidden");
+assert.equal(resolveEntryOrientation({
+  surface: "post",
+  arrival: "direct",
+  familiarity: { state: "complete", v: 1 },
+}).mode, "compact");
+
+assert.equal(projectAvailability({ status: "active" }), "OPEN");
+assert.equal(projectAvailability({ status: "registered_only" }), "GATED");
+assert.equal(projectAvailability({ status: "building" }), "BUILDING");
+assert.equal(projectAvailability({ status: "unknown" }), "LATER");
+
+const payload = buildEntryLearnTelemetry("learn_opened", {
+  entrySurface: "post",
+  conceptKey: "method",
+  layer: "explain",
+  actionId: "open_number",
+  targetSurface: "number",
+  manifestVersion: 1,
+  // Unrecognized/free-text keys are intentionally not part of the builder contract.
+  expression: "משיח",
+  prompt: "private text",
+});
+assert.equal(payload.surface, "entry_2029");
+assert.equal(payload.eventType, "learn_opened");
+assert.equal(payload.options.props.entry_surface, "post");
+assert.equal(payload.options.props.concept_key, "method");
+assert.equal(Object.hasOwn(payload.options.props, "expression"), false);
+assert.equal(Object.hasOwn(payload.options.props, "prompt"), false);
+
+assert.match(LEARN_FRAGMENTS.method.explain, /שיטה/);
+assert.match(LEARN_FRAGMENTS.relation.explain, /שוויון מספרי/);
+assert.match(LEARN_FRAGMENTS.interpretation.explain, /פרשנות/);
+
+const topic = resolveExperienceContext({ surface: EXPERIENCE_SURFACE.TOPIC, locale: "he-IL" });
+assert.equal(topic.surface, "topic");
+assert.equal(topic.experience.question, "מה מחבר את הציר הזה?");
+
+const systemFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
+const postPage = fs.readFileSync("src/pages/Post2029Page.jsx", "utf8");
+const topicPage = fs.readFileSync("src/pages/Topic2029Page.jsx", "utf8");
+const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
+
+assert.match(systemFrame, /resolveEntryOrientation/);
+assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
+assert.match(systemFrame, /<LearnMark2029/);
+assert.match(rail, /continued_to_research/);
+assert.match(rail, /Learn רק מסביר את ה-focus הפעיל; הוא אינו מחשב את הערך בעצמו/);
+assert.match(postPage, /shell\.openInspect\?\./);
+assert.doesNotMatch(postPage, /source: "post-contextual-focus",[\s\S]{0,120}shell\.openNumber/);
+assert.match(topicPage, /surface="topic"/);
+
+console.log("Entry Orientation + Contextual Learn 2029 smoke gate: PASS");
