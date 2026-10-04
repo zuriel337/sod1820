@@ -352,7 +352,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
       {fragment ? <LearnMark2029
         scope={LEARN_SCOPE.CONCEPT}
         label={fragment.label}
-        compact={Boolean(conceptFamiliarity)}
+        compact={Number(conceptFamiliarity?.v) === Number(fragment.version)}
         onOpen={openLearn}
         actions={numericFamily ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : "פתח בדף המספר"}</button> : null}
       >
