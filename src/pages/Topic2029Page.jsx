@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
+import SurfaceMapBar2029 from "../components/experience2029/SurfaceMapBar2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
@@ -24,13 +24,6 @@ const topicSectionLabel = (id) => id === "topic-findings" ? "חיבורים"
   : id === "topic-related" ? "המשך"
   : id === "topic-phrases" ? "גימטריות"
   : "עיקר";
-
-function TopicMapNav({ items = [] }) {
-  if (!items.length) return null;
-  return <nav className="sod29-topic-mapnav" aria-label="מפת ההתכנסות">
-    {items.map(([label, id]) => <a key={id} href={`#${id}`}>{label}</a>)}
-  </nav>;
-}
 
 function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
   if (!rows.length) return null;
@@ -549,7 +542,7 @@ function TopicBody() {
       </div> : null}
     </header>
 
-    <SurfaceSectionNav2029
+    <SurfaceMapBar2029
       items={navItems}
       activeId={activeSectionId}
       onSelect={(item) => { setFocusOverride(null); setActiveSectionId(item.id); }}
@@ -557,7 +550,7 @@ function TopicBody() {
         if (item.id !== "topic-sources") setFocusOverride(null);
         setActiveSectionId(item.id);
       }}
-      ariaLabel="ניווט בהתכנסות"
+      ariaLabel="מפת ההתכנסות"
     />
 
     <div className="sod29-topic-stage">
