@@ -107,7 +107,60 @@ Exact top-bar/sidebar placement is a separate architecture decision after this f
 - The existing theme store is extended, never forked.
 - Research truth/calculation owners are untouched by visual migration.
 
-## 10. Acceptance
+## 10. Hero / Intro Projection Contract
+
+Hero is a projection, not a new system, store or media owner.
+
+### 10.1 Where Hero is appropriate
+- **Home:** media-led Hero is allowed and preferred when there is a strong current story/image/video.
+- **Post:** story/media Hero is allowed when the post has canonical media; otherwise use typographic presentation rather than inventing imagery.
+- **Journey / major experience:** spatial Hero is allowed when spatial presentation materially serves the experience.
+- **Number:** no generic system Hero. The number/expression itself is the focal identity.
+- **World:** no large generic Hero. Use a compact Surface Intro only.
+- **Heichal:** no large generic Hero. Use a compact Entry/Research intro only.
+- **Topic / Books / tools:** default to compact or no Hero unless the surface has a specific approved reason.
+
+The system must not force a large decorative Hero onto every route.
+
+### 10.2 Canonical Hero projection types
+Only three visual projection types are recognized:
+- `media` — canonical image/video is the focal layer.
+- `spatial` — bounded motion/depth/orbit for Journey or exceptional immersive experience.
+- `typographic` — live title/lead/signals when no canonical media is appropriate.
+
+Compact Surface Intro is not a fourth Hero type; it is ordinary System Frame orientation.
+
+### 10.3 Canonical slots
+When Hero exists, it consumes bounded slots:
+- media asset reference;
+- focal point / safe crop;
+- eyebrow;
+- live title;
+- live lead;
+- signals / numbers;
+- one primary action;
+- optional secondary action;
+- optional canonical Brand lockup;
+- media provenance / source identity where applicable.
+
+Title, lead, numbers and actions remain live accessible UI. Required text is not baked into generated imagery.
+
+### 10.4 Media and Brand ownership
+Hero never invents a page-local media store or hard-coded image URL owner.
+It consumes existing canonical media/provenance owners and canonical Brand assets.
+If suitable media is unavailable, projection falls back to typographic/compact presentation rather than manufacturing unrelated imagery.
+
+The protected SOD1820 Crown + Hebrew wordmark is consumed only through Brand Core. No page may substitute an arbitrary logo asset or retype/redraw the protected wordmark.
+
+### 10.5 Motion / visual density
+Spatial/orbit/particle presentation is exceptional, not default decoration.
+Use at most one meaningful ambient motion focus per view.
+Prefer transform/opacity motion; preserve reduced-motion behavior.
+Large blur/backdrop/shadow stacks must not be multiplied merely for spectacle.
+
+The content remains the hero of information-dense surfaces.
+
+## 11. Acceptance
 A 2029 visual-foundation change must prove:
 1. same semantics in all three presets;
 2. no horizontal overflow at release mobile widths;
