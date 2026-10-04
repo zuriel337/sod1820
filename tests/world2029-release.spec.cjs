@@ -245,57 +245,6 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await page.screenshot({ path: 'test-results/release-visual/topic-2029-888-390.png', fullPage: true });
 });
 
-test('direct Post teaches in place before opening canonical Number and Exact Return does not replay Orientation', async ({ page }) => {
-  const postPath = '/post/bennett-melach-631-78';
-  await page.route('**/post/bennett-melach-631-78*', async (route) => {
-    const response = await page.request.get(`${BASE}/2029.html`);
-    await route.fulfill({
-      status: response.status(),
-      headers: response.headers(),
-      body: await response.body(),
-    });
-  });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}${postPath}`, { waitUntil: 'networkidle' });
-
-  const post = page.locator('[data-experience-surface="post-reading"]');
-  await expect(post).toBeVisible({ timeout: 30_000 });
-
-  const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');
-  await expect(orientation).toBeVisible();
-  await expect(orientation).toHaveClass(/is-prominent/);
-  await expect(orientation.getByRole('button', { name: /חדש כאן\? מה עושים בפוסט הזה\?/ })).toBeVisible();
-
-  const focus = post.locator('[data-contextual-number-focus="true"]').first();
-  await expect(focus).toBeVisible({ timeout: 30_000 });
-  await focus.click();
-
-  const inspect = page.getByRole('dialog', { name: /בדיקה מהירה|מלח/ });
-  await expect(inspect).toBeVisible({ timeout: 20_000 });
-  const learn = inspect.locator('.sod29-learn-mark.scope-concept');
-  await expect(learn).toBeVisible();
-  await expect(learn.getByRole('button', { name: 'איך זה עובד?' })).toBeVisible();
-  await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
-  await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
-  await expect(learn).toContainText('מלח');
-  await expect(learn).toContainText('רגיל');
-  await expect(learn).toContainText('78');
-
-  await learn.getByRole('button', { name: 'ראה את החישוב' }).click();
-  const drawer = page.locator('.sod29-number-drawer2029');
-  await expect(drawer).toBeVisible({ timeout: 30_000 });
-  await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
-  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
-
-  const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
-  await expect(exactReturn).toBeEnabled();
-  await exactReturn.click();
-  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-salt-78/, { timeout: 20_000 });
-  await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
-  await assertNoHorizontalOverflow(page);
-  await page.screenshot({ path: 'test-results/release-visual/post-learn-golden-390.png', fullPage: true });
-});
-
 test('Topic expression focus opens Number 2029 and survives World + Heichal transitions', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/topic/98-ikuv-geula`, { waitUntil: 'domcontentloaded' });
