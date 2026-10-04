@@ -44,6 +44,7 @@
     "test:calculator-2029-opening": "node scripts/test-calculator-2029-opening.mjs",
     "test:calculator-2029-semantic-surface": "node scripts/test-calculator-2029-semantic-surface.mjs",
     "package:research-run": "node scripts/package-research-run.mjs",
+    "test:g4-graph-relation-enforcement": "node test/g4-graph-relation-enforcement-contract.test.mjs",
     "test:research-run": "node scripts/test-research-run-contract.mjs",
     "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs"
   },
