@@ -7,6 +7,21 @@ import ReportHint from "./ReportHint.jsx";
 const MAX_INTAKE = 800;
 
 const normalize = (value) => String(value ?? "").trim().slice(0, MAX_INTAKE);
+const CONTEXT_KEY_RE = /[^a-zA-Z0-9_.:-]/g;
+const boundContextKey = (value) => {
+  const text = String(value ?? "").replace(CONTEXT_KEY_RE, "").slice(0, 64);
+  return text || null;
+};
+
+export function buildContactGatewayContext({ surface = null, capability = null, concept = null, learnStage = null, actionTried = null } = {}) {
+  return {
+    surface: boundContextKey(surface),
+    capability: boundContextKey(capability),
+    concept: boundContextKey(concept),
+    learn_stage: boundContextKey(learnStage),
+    action_tried: boundContextKey(actionTried),
+  };
+}
 
 const HINT_RE = /(רמז|מצאתי|מספר|שלט|צילום|תמונה|פסוק|גימטר|source|hint|number)/i;
 const ISSUE_RE = /(לא עובד|תקלה|שגיא|בעיה|נשבר|לא נפתח|לא מגיב|איטי|נתקע|באג|bug|error|broken|לא ברור|מבלבל|לא הבנתי)/i;
@@ -28,7 +43,7 @@ export const CONTACT_GATEWAY_CHOICES = Object.freeze([
   { id: "contact", icon: "✉", label: "רוצה לכתוב לנו", hint: "פנייה כללית לצוות" },
 ]);
 
-function ContactForm({ kind, initialText, pathname, surface, user, onDone }) {
+function ContactForm({ kind, initialText, pathname, contactContext, user, onDone }) {
   const idea = kind === "idea";
   const [name, setName] = useState(() => user?.user_metadata?.display_name || user?.user_metadata?.full_name || "");
   const [email, setEmail] = useState(() => user?.email || "");
@@ -46,7 +61,14 @@ function ContactForm({ kind, initialText, pathname, surface, user, onDone }) {
     setError("");
     try {
       const safePath = String(pathname || "").split(/[?#]/)[0].slice(0, 200);
-      const contextLine = [surface ? `surface=${surface}` : null, safePath ? `path=${safePath}` : null].filter(Boolean).join(" · ");
+      const contextLine = [
+        contactContext?.surface ? `surface=${contactContext.surface}` : null,
+        contactContext?.capability ? `capability=${contactContext.capability}` : null,
+        contactContext?.concept ? `concept=${contactContext.concept}` : null,
+        contactContext?.learn_stage ? `learn_stage=${contactContext.learn_stage}` : null,
+        contactContext?.action_tried ? `action_tried=${contactContext.action_tried}` : null,
+        safePath ? `path=${safePath}` : null,
+      ].filter(Boolean).join(" · ");
       await sendContactMessage({
         name: name.trim() || "גולש",
         email: email.trim() || "no-reply@sod1820.co.il",
@@ -89,12 +111,29 @@ function ContactForm({ kind, initialText, pathname, surface, user, onDone }) {
   </form>;
 }
 
-export default function ContactGateway({ pathname, surface = null, capability = null, locale = null, onDone }) {
+export default function ContactGateway({
+  pathname,
+  surface = null,
+  capability = null,
+  concept = null,
+  learnStage = null,
+  actionTried = null,
+  initialText = "",
+  locale = null,
+  onDone,
+}) {
   const { user } = useAuth() || {};
-  const [text, setText] = useState("");
+  const [text, setText] = useState(() => normalize(initialText));
   const [mode, setMode] = useState(null);
   const [hintMounted, setHintMounted] = useState(false);
 
+  const contactContext = useMemo(() => buildContactGatewayContext({
+    surface,
+    capability,
+    concept,
+    learnStage,
+    actionTried,
+  }), [surface, capability, concept, learnStage, actionTried]);
   const suggested = useMemo(() => classifyContactIntent(text), [text]);
 
   const choose = (id) => {
@@ -105,7 +144,17 @@ export default function ContactGateway({ pathname, surface = null, capability = 
   if (mode === "issue") {
     return <div className="sod29-contact-gateway-detail">
       <button className="sod29-contact-back" type="button" onClick={() => setMode(null)}>← חזרה</button>
-      <IssueReport pathname={pathname} surface={surface} capability={capability} locale={locale} initialText={text} onDone={onDone} />
+      <IssueReport
+        pathname={pathname}
+        surface={surface}
+        capability={capability}
+        concept={contactContext.concept}
+        learnStage={contactContext.learn_stage}
+        actionTried={contactContext.action_tried}
+        locale={locale}
+        initialText={text}
+        onDone={onDone}
+      />
     </div>;
   }
 
@@ -124,11 +173,11 @@ export default function ContactGateway({ pathname, surface = null, capability = 
   if (mode === "idea" || mode === "contact") {
     return <div className="sod29-contact-gateway-detail">
       <button className="sod29-contact-back" type="button" onClick={() => setMode(null)}>← חזרה</button>
-      <ContactForm kind={mode} initialText={text} pathname={pathname} surface={surface} user={user} onDone={onDone} />
+      <ContactForm kind={mode} initialText={text} pathname={pathname} contactContext={contactContext} user={user} onDone={onDone} />
     </div>;
   }
 
-  return <section className="sod29-contact-gateway" data-contact-gateway="true">
+  return <section className="sod29-contact-gateway" data-contact-gateway="true" data-contact-learn-context={contactContext.concept ? "true" : "false"}>
     <div className="sod29-panel-lead">
       <div className="sod29-kicker">דווחו על בעיה · דברו איתנו</div>
       <h3>מה קרה כאן?</h3>
