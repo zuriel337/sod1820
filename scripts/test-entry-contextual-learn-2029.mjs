@@ -14,6 +14,7 @@ import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../src/lib/experie
 
 assert.equal(classifyEntryArrival({ locationState: { sodEntryArrival: "exact_return" }, historyIndex: 3 }), ENTRY_ARRIVAL.EXACT_RETURN);
 assert.equal(classifyEntryArrival({ locationState: { sodEntryArrival: "internal" }, historyIndex: 0 }), ENTRY_ARRIVAL.INTERNAL);
+assert.equal(classifyEntryArrival({ locationKey: "default", historyIndex: null }), ENTRY_ARRIVAL.DIRECT);
 assert.equal(classifyEntryArrival({ historyIndex: 0 }), ENTRY_ARRIVAL.DIRECT);
 assert.equal(classifyEntryArrival({ historyIndex: 2 }), ENTRY_ARRIVAL.INTERNAL);
 
