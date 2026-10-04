@@ -6,6 +6,7 @@ import {
   buildEntryLearnTelemetry,
   classifyEntryArrival,
   getEntryOrientationManifest,
+  isEntryLearnSurfaceActive,
   projectAvailability,
   resolveEntryOrientation,
 } from "../src/lib/entryLearn2029.js";
@@ -21,6 +22,9 @@ assert.ok(postManifest);
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "direct" }).mode, "prominent");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "internal" }).mode, "compact");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "exact_return" }).mode, "hidden");
+assert.equal(isEntryLearnSurfaceActive("post"), true);
+assert.equal(isEntryLearnSurfaceActive("number"), false);
+assert.equal(resolveEntryOrientation({ surface: "number", arrival: "direct" }).mode, "hidden");
 assert.equal(resolveEntryOrientation({
   surface: "post",
   arrival: "direct",
@@ -67,7 +71,7 @@ assert.match(systemFrame, /resolveEntryOrientation/);
 assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
 assert.match(systemFrame, /<LearnMark2029/);
 assert.match(rail, /continued_to_research/);
-assert.match(rail, /Learn רק מסביר את ה-focus הפעיל; הוא אינו מחשב את הערך בעצמו/);
+assert.match(rail, /ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו/);
 assert.match(postPage, /shell\.openInspect\?\./);
 assert.doesNotMatch(postPage, /source: "post-contextual-focus",[\s\S]{0,120}shell\.openNumber/);
 assert.match(topicPage, /surface="topic"/);
