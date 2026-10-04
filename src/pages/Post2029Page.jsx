@@ -126,6 +126,13 @@ function PostReadingBody() {
           { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
           ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
         ],
+        surfaceSections: regions.map((region) => ({
+          id: region.id,
+          label: region.label,
+          targetId: `source-region-${region.id}`,
+        })),
+        activeSectionId: activeFocus.id,
+        surfaceMapLabel: "בתוך הפוסט",
         surfaceFocus: {
           id: activeFocus.id,
           type: activeFocus.number ? "number" : "post_region",
