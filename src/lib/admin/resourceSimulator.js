@@ -176,7 +176,7 @@ export function simulate(raw,loadFactor=1) {
  }
  return {v,base,rows,cumulative:rows.reduce((a,r)=>a+r.total,0),cumulativeDelta:rows.reduce((a,r)=>a+r.delta,0)};
 }
-export function freshState(){return {version:VERSION,values:{...DEFAULTS},provenance:Object.fromEntries(FIELDS.map(([k])=>[k,SOURCES[k]?'reference':'example'])),saved:[],currency:'USD',selectedMonth:6,scenarioName:'פיילוט קטן'};}
+export function freshState(){return {version:VERSION,values:{...DEFAULTS},provenance:Object.fromEntries(FIELDS.map(([k])=>[k,SOURCES[k]?'reference':'example'])),saved:[],currency:'USD',selectedMonth:6,scenarioName:'פיילוט קטן',budgetWarningPercent:80,budgetWarningProvenance:'example'};}
 export function parseState(input){
  if(!input||typeof input!=='object'||input.version!==VERSION||!input.values||typeof input.values!=='object')throw new Error('קובץ זה אינו קובץ סימולציה תקין בגרסה 1.');
  const clean=freshState();clean.values=normalize(input.values);
@@ -189,6 +189,9 @@ export function parseState(input){
  });
  clean.selectedMonth=Math.max(1,Math.min(clean.values.months,Number.isFinite(input.selectedMonth)?Math.round(input.selectedMonth):6));
  clean.currency=input.currency==='ILS'?'ILS':'USD';clean.scenarioName=typeof input.scenarioName==='string'?input.scenarioName.slice(0,48):'תרחיש מיובא';
+ const validWarning=Number.isInteger(input.budgetWarningPercent)&&input.budgetWarningPercent>=1&&input.budgetWarningPercent<=100;
+ clean.budgetWarningPercent=validWarning?input.budgetWarningPercent:80;
+ clean.budgetWarningProvenance=validWarning&&input.budgetWarningProvenance==='user'?'user':'example';
  return clean;
 }
 

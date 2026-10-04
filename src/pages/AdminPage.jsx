@@ -222,8 +222,8 @@ function PulseBar({ goto }) {
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState("warroom");
-  const [group, setGroup] = useState("command");
+  const [tab, setTab] = useState(() => { const requested = new URLSearchParams(window.location.search).get("tab"); return GROUP_OF[requested] ? requested : "warroom"; });
+  const [group, setGroup] = useState(() => { const requested = new URLSearchParams(window.location.search).get("tab"); return GROUP_OF[requested] || "command"; });
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
   const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };

@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { FIELDS, GROUPS, METERS, PRESETS, SOURCES, freshState, parseState, simulate, getHealthObservations, applyStorageSnapshot } from "../../lib/admin/resourceSimulator.js";
 import "./resourceSimulator2029.css";
+import AdminBudget2029 from "./AdminBudget2029.jsx";
 
 const KEY = "sod1820-resource-lab-v1"; // Same export schema as the private standalone lab.
 const LABELS = {user:"הזנה שלך",example:"דוגמת פתיחה",reference:"תעריף ממקור",scenario:"דוגמת תרחיש",snapshot_assumption:"הנחה מנתון שנקרא"};
@@ -60,7 +61,7 @@ function Forecast({rows,selected,onSelect,currency,money}){
  </svg>;
 }
 
-export default function ResourceSimulator2029({health,healthReadAt=null,onRefresh,refreshing=false}){
+export default function ResourceSimulator2029({health,healthReadAt=null,onRefresh,refreshing=false,viewMode="simulation",notificationSource,healthSource}){
  const [state,setState]=useState(initialState),[notice,setNotice]=useState(""),[name,setName]=useState("");
  const file=useRef(null),dialog=useRef(null);
  const observations=useMemo(()=>getHealthObservations(health,healthReadAt),[health,healthReadAt]);
@@ -91,6 +92,13 @@ export default function ResourceSimulator2029({health,healthReadAt=null,onRefres
  const importState=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>250000)throw new Error("יש לבחור קובץ קטן מ־250 KB.");setState(parseState(JSON.parse(await f.text())));setNotice("התרחישים וההנחות יובאו. נתוני המעקב עצמם לא הוחלפו.");}catch(error){setNotice(error instanceof SyntaxError?"הקובץ אינו JSON תקין.":error.message);}e.target.value="";};
  const applySnapshot=()=>{try{setState(s=>applyStorageSnapshot(s,observations));setNotice("הנפח הנוכחי נטען כהנחת ממוצע חודשי. זו אינה מדידה של ממוצע החיוב.");}catch(error){setNotice(error.message);}};
  const fmtValue=(key,value)=>typeof value==="boolean"?(value?"כן":"לא"):key==="mode"?(value==="embed"?"הטמעה":"שמירה באתר"):num(value,5);
+ if(viewMode==="budget")return <div className="sod29-resource">
+  <div className="sod29-resource-heading"><h2>תקציב והתראות</h2><div className="sod29-actions"><label>חודש לתכנון <select value={month} onChange={e=>selectMonth(Number(e.target.value))}>{result.rows.map(r=><option key={r.month} value={r.month}>חודש {r.month}</option>)}</select></label><label>מטבע <select value={state.currency} onChange={e=>setState(s=>({...s,currency:e.target.value}))}><option value="USD">דולר</option><option value="ILS">שקל לפי השער שהזנת</option></select></label></div></div>
+  <AdminBudget2029 state={state} result={result} selectedMonth={month} money={money} healthSource={healthSource} notificationSource={notificationSource} onRefresh={onRefresh}
+   budgetField={<Field field={FIELDS.find(f=>f[0]==="budget")} value={state.values.budget} provenance={state.provenance.budget} onChange={setValue}/>}
+   warningField={<Field field={["budgetWarningPercent","סף התקרבות לתקציב","%",1,100,1]} value={state.budgetWarningPercent} provenance={state.budgetWarningProvenance} onChange={(_,value)=>setState(s=>({...s,budgetWarningPercent:value,budgetWarningProvenance:"user"}))}/>}/>
+  <p role="status">{notice}</p>
+ </div>;
  return <div className="sod29-resource" data-experience-capability="admin-resource-simulator">
   <header className="sod29-resource-heading"><div><div className="sod29-kicker">תכנון לפני חיבור · TIKTOK</div><h2>לפני שמעלים, רואים את התמונה.</h2><p className="sod29-muted">אותו מרכז ניהול. הנחות ניתנות לעריכה, תרחישים ועלויות מחושבות.</p></div><div className="sod29-actions"><button className="sod29-action" onClick={()=>{setName("");dialog.current.showModal();}}>שמירת תרחיש</button><button className="sod29-action" onClick={exportState}>ייצוא</button><button className="sod29-action" onClick={()=>file.current.click()}>ייבוא</button><input ref={file} type="file" accept="application/json,.json" hidden onChange={importState}/></div></header>
   <div role="status" aria-live="polite" className="sod29-resource-notice">{notice||"התוצאות הן אומדן לתכנון. שימוש קיים, מכסות ותשלומים שלא הזנת נשארים דוגמאות — לא נתוני חיוב."}</div>

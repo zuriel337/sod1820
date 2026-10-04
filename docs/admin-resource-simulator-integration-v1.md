@@ -1,41 +1,40 @@
-# Admin resource simulator integration v1
+# Admin Control Center + resource simulator integration v1
 
-Status: BRANCH IMPLEMENTATION / DRAFT REVIEW. No live deployment, DB apply or main merge is performed by this change.
+Status: BRANCH IMPLEMENTATION / DRAFT REVIEW. No main merge, production deployment, DB apply, purge, notification send or configuration change is performed by this branch.
 
-## Behavior
+## Location and access
 
-An admin opens the existing `/2029/control` route and selects **סימולציה ומשאבים**. The private standalone TikTok lab's planning model now runs natively inside the existing 2029 frame, with editable workload assumptions, retention, cache/traffic, processing, quotas, rates, 12–24-month projections, sensitivity, named scenarios and JSON export/import. The standalone lab's version-1 JSON files import directly. The monitoring panel remains available beside it.
+The implementation is part of `zuriel337/sod1820`, on branch `codex/admin-resource-simulator-20261004`, PR #908. It runs in the existing `/2029/control` route and existing 2029 frame. Vercel creates a private branch preview; the project already has Vercel Authentication for `all_except_custom_domains`. The site still requires its existing administrator account and every operational RPC retains its existing server authorization. Anonymous users receive a login explanation; authenticated non-admins retain the existing redirect. No auth bypass or new role is introduced.
 
-The model is a planning calculator, not a new operational, billing or media owner. Auth is still owned by `useAuth`/`isAdmin` and the canonical admin RPC authorization. `ResourceSimulator2029` receives the parent screen's already-read `admin_system_health()` response; it makes no new API/RPC calls and introduces no DB schema, table, server worker or production credential. Refresh delegates to the existing parent loader. The component loads lazily only after an administrator selects the simulation view.
+Stable branch preview: https://sod1820-git-codex-admin-resource-simu-c3d509-sod1820-s-projects.vercel.app/2029/control
+
+The original standalone lab remains separately hosted by ChatGPT Sites. This branch integrates its model natively into SOD1820; it does not embed an iframe or move the production website. Original version-1 scenario JSON imports remain supported. Vercel and Sites have different origins, so browser-local state transfers through JSON export/import.
+
+## Five implemented additions
+
+1. **Decisions and attention.** One bounded projection of the existing `admin_attention_feed_v1(false,100)`, pending system suggestions (80), Command Center recommendations (20), owner counters and operational failures. Source identities remain distinct; handled feed entries are excluded. Search, category filters, age/priority ordering and source evidence are interactive. Counts are not added across overlapping queues. Existing owner screens remain the decision path through validated `/admin?tab=...` links. Legacy suggestion decisions now retain a row and show an error when the existing RPC fails rather than claiming success.
+2. **Source and freshness.** Every metric card exposes its RPC, basis, measurement time where supplied and retrieval time. Older-than-60-minute data is visually stale, not automatically refreshed. RPCs settle independently with separate errors and retry controls. A failed source does not erase unrelated sources or become an empty queue/zero. Per-source requests are deduplicated; data is read on demand for the active tab, and stale responses after auth changes/unmount are ignored.
+3. **Media pipeline.** Existing migration-queue status counts, asset mapping, enrichment pending/retry-STT, indexability, missing thumbnails, large files, duplicate candidates, media crons and matching operational traces are projected together. Stages are explicitly parallel aggregates, not a cohort funnel or per-asset timeline. Video enrichment costs retain `ESTIMATED_FROM_API_PRICING`; unavailable per-stage download/storage costs remain unknown. TikTok automation is not connected.
+4. **Cleanup before/after.** Existing `admin_retention_preview()` remains the policy owner. Only explicitly allowed candidates with known counts, protected-row boundaries and zero unknown dependencies can be selected for a planning projection. The UI shows per-table before/after rows and blockers. Bytes per row, monthly billing average, quota and rate must be supplied as planning assumptions; row counts never manufacture bytes. Logical freed bytes do not promise physical disk reclamation. Estimated data/log cost uses the same lab pricing function and shared quota. This is not a DB-compute invoice mapping. Planning JSON can be exported; no purge action exists here.
+5. **Budget and alerts.** The original browser-local scenario state owns the monthly incremental budget and a version-1-compatible warning threshold (80% example). The budget view derives warning/critical months and viral-load comparisons (1–100 times uploads) from the same simulation model and recomputes quotas. Planning alerts are on-screen only. Existing egress guard state and read-only notification channel enabled states are shown separately; recipient addresses are dropped before the new UI. No notification settings, schedule or dispatch are changed.
+
+The original simulator retains workload, retention, cache/traffic, processing, quotas/rates, 12–24-month forecasts, sensitivity, up to eight named scenarios and JSON export/import. Simulator, media, attention and cleanup views load lazily. All new UI uses existing shared semantic CSS variables, with responsive tables/cards and keyboard tab navigation. View URLs survive reload; the Control Plane stays excluded from product analytics and noindex.
 
 ## Measured stock is not monthly billing
 
-- `media.storage.total_bytes`: current object-storage stock, decimal GB; optional explicit action uses this value **as an assumption** for monthly average existing storage. Source, measurement timestamp and `snapshot_assumption` classification are retained in state, saved snapshots and JSON.
-- `db.database_bytes`: current total database stock, displayed separately; never imported into file-storage quota or the example data/log meter.
-- `storage_egress_observed_24h_bytes`: observed daily traffic only; never multiplied into a claimed provider invoice or allocated automatically between cached/uncached pools.
-- `supabase_cached_egress`: current provider meter retains its exact/estimated/unknown basis. Missing values remain unknown.
-- historical billing remains historical and is never substituted for the current cycle.
-- quotas, fixed fees, compute load and rates are editable planning assumptions until explicitly supplied. No account plan inference.
+- `media.storage.total_bytes` is current file stock, decimal GB. An explicit action may use it as a monthly-average planning assumption; source/time and `snapshot_assumption` classification survive saves and JSON.
+- `db.database_bytes` is separately displayed database stock. It never enters file storage quotas or automatically seeds cleanup billing assumptions.
+- Observed 24-hour storage traffic is not multiplied into a provider invoice or automatically divided between cached/uncached pools.
+- Current provider cached-egress retains its basis and stays unknown when missing. Historical billing never substitutes for the current cycle.
+- Partial trace lists, owner counters, parallel media stocks and candidate duplicate groups are not inferred to be complete or mutually exclusive.
+- Reference tariffs are static sources last checked 2026-10-04. Account plans, included quotas, provider usage and physical cleanup gains are not verified by local tests.
 
-The shared 2029 semantic CSS variables own the palette and light/dark behavior. This integration ports the lab's card/chart/input layout without a second palette or shell. Scenario persistence is browser-local planning state, not a second operational store. It is not synced across devices; JSON is the portable transfer path.
+## Verification
 
-## Recommended next additions (recommendations only)
+Required checks: 18 pure-model/integration tests; 13 Control Center projection/planning tests; native Control Plane, isolation, canonical contract wiring, system frame and built-graph checks; both legacy and 2029 production builds; diff whitespace check. New tests are included in the existing 2029 isolation workflow.
 
-1. **Attention / human decisions queue.** Compose existing System Suggestions, Command Center and owner-native pending/error states. Show owner, age, evidence, and the next existing authorized action. Keep research verification and publication gates explicit.
-2. **Freshness and provenance on every metric.** Expose last measurement time and EXACT / OBSERVED / ESTIMATED / UNKNOWN, with independent loading/error states. Source failures must not become zeros or erase unrelated panels.
-3. **Cleanup before/after projection.** Present existing `admin_retention_preview()` effects alongside the same planning model: what can be archived, dependency/provenance blockers, predicted freed storage and cost sensitivity. Purge remains separately authorized; no new cleanup ledger.
-4. **Media ingestion pipeline view.** Compose existing video-map health, cron, queue/outbox and trace evidence into received → downloaded → processed → ready/failed. Identify retries, missing thumbnails, large assets, duplicate candidates and per-stage costs using available owner facts.
-5. **Budget and viral-load planning.** Compare real measurements with saved workload assumptions and a manually supplied budget. Missing provider billing stays unknown; recommendations do not activate upload automation or change quotas.
-6. **Release readiness and drift.** Surface branch / merged / deployed / live / verified separately, using existing release/work-log evidence and decision gates. Avoid marking a deployment live from repository main alone.
+Browser visual/interaction verification of authenticated admin views remains unclaimed until actually exercised. Protected-preview HTTP and READY metadata verify delivery, not authenticated RPC completeness. No live provider/DB result is inferred from repository code or fixture tests.
 
-These recommendations extend the existing Internal Control Plane program in `docs/2029-implementation-dependency-plan-v1.md`; they are not implemented by this slice.
+## Remaining recommendation
 
-## Verification scope
-
-- pure-model tests cover shared quotas, average versus end stock, cohort expiry, growth, retries, separate cache pools, proxy hops, credits and sensitivity;
-- integration tests cover null preservation, units, source/time provenance, explicit snapshot assumption, old lab export compatibility and route/parent-data isolation;
-- native Control Plane and 2029 isolation checks remain required;
-- full build and reachable 2029 graph verification;
-- live provider/RPC completeness is not inferred from local tests.
-
-Local verification passed: 18 model/integration tests, the existing Control Plane, isolation, canonical wiring, system frame and built-graph checks, plus both production bundles. Browser interaction/visual verification could not be completed: the cloud browser could not reach the local fixture and blocked the error-page tab. This change does not claim browser or live-RPC verification.
+Release readiness and drift (branch / merged / deployed / live / verified) is still a recommendation, not implemented by this slice. It must reuse existing release and work-log evidence rather than treating main or a preview deployment as production verification.

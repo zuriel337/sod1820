@@ -62,6 +62,10 @@ on:
       - "src/lib/admin/resourceSimulator.js"
       - "scripts/test-admin-resource-simulator-model.mjs"
       - "scripts/test-admin-resource-simulator-integration.mjs"
+      - "src/lib/admin/controlPlaneProjection.js"
+      - "src/lib/admin/controlPlanePlanning.js"
+      - "src/lib/admin/controlPlaneReads.js"
+      - "scripts/test-admin-control-center.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
@@ -141,6 +145,8 @@ jobs:
         run: node scripts/test-2029-control-plane.mjs
       - name: Admin resource simulator model and integration acceptance
         run: npm run test:admin-resource-simulator
+      - name: Admin control center projections and planning acceptance
+        run: npm run test:admin-control-center
       - name: A3 live client-to-trace correlation acceptance
         run: node scripts/test-a3-client-correlation-live.mjs
       - name: Production build
