@@ -1,6 +1,8 @@
 -- Focused SQL test for 20261004110000_research_path_public_reader_v1.sql.
 -- Runs against a THROWAWAY local Postgres (never the live project). Every check raises on failure.
--- Harness: create roles, apply 20260907142000 + 20260913160507 + the migration under test, then \i this file.
+-- Harness: create roles (anon/authenticated/service_role), auth.uid() reading request.jwt.claim.sub, public.users and the REAL
+-- public.rd_is_admin() body (users.id = auth.uid() and role='admin'), apply 20260907142000 + 20260913160507 + 20260922205800
+-- + the migration under test, then \i this file. Tested V1 reader behaviour + V2 retraction (bottom section).
 \set ON_ERROR_STOP on
 
 create or replace function pg_temp.expect_err(p_sql text, p_state text) returns void language plpgsql as $$
@@ -179,5 +181,151 @@ insert into research_path_revisions(path_id,revision_no,governance_status,publis
  ('00000000-0000-0000-0000-0000000000aa',3,'candidate',now()-interval '1 day','public','[{"step_index":0}]');
 select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000aa') = '{"ok":false,"error":"not_found"}'::jsonb, 'reader filter independent of CHECK');
 rollback;
+
+
+-- =================================================================================================
+-- V2: Human-Gate retraction (work_log 605bc8ad-be64-4f19-8fac-dd664a476873)
+-- =================================================================================================
+-- real rd_is_admin() contract exercised unmodified: admin = public.users row with role='admin' matching auth.uid()
+insert into public.users(id, role) values
+ ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','admin'),
+ ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user');
+create or replace function pg_temp.as_uid(p_uid text) returns void language sql as $$ select set_config('request.jwt.claim.sub', coalesce(p_uid,''), false) $$;
+
+insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000c9'),('00000000-0000-0000-0000-0000000000c8');
+insert into research_path_revisions(id,path_id,revision_no,governance_status,published_at,access_scope,steps) values
+ ('10000000-0000-0000-0000-0000000000c9','00000000-0000-0000-0000-0000000000c9',1,'approved',now()-interval '2 days','public','[{"step_index":0,"entity_ref":"R1"}]'),
+ ('10000000-0000-0000-0000-0000000000c8','00000000-0000-0000-0000-0000000000c9',2,'canonical',now()-interval '1 day','public','[{"step_index":0,"entity_ref":"R2"}]'),
+ ('10000000-0000-0000-0000-0000000000c7','00000000-0000-0000-0000-0000000000c9',3,'candidate',null,'private','[{"step_index":0}]'),
+ ('10000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-0000000000c8',1,'approved',now()-interval '1 day','public','[{"step_index":0}]');
+insert into research_paths(id,parent_path_id,branch_point_revision_id,branch_point_step_index) values
+ ('00000000-0000-0000-0000-0000000000c6','00000000-0000-0000-0000-0000000000c8','10000000-0000-0000-0000-0000000000d9',0);
+insert into research_path_revisions(path_id,revision_no,governance_status,published_at,access_scope,steps) values
+ ('00000000-0000-0000-0000-0000000000c6',1,'approved',now()-interval '1 hour','public','[{"step_index":0}]');
+
+-- columns + coherence CHECK
+select pg_temp.ok((select count(*)=3 from information_schema.columns where table_schema='public' and table_name='research_path_revisions' and column_name in ('retracted_at','retracted_by_user_id','retraction_reason')), 'retraction columns exist');
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at) values ('00000000-0000-0000-0000-0000000000b1',70,'[]',now())$$,'23514'); -- partial
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',71,'[]','why')$$,'23514'); -- partial
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',72,'[]',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','x')$$,'23514'); -- unpublished
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',73,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','   ')$$,'23514'); -- blank reason
+select pg_temp.expect_err(format($$insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',74,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',%L)$$, repeat('x',1001)),'23514'); -- too long
+
+-- ACL
+select pg_temp.ok((select prosecdef and proconfig = array['search_path=pg_catalog, public'] from pg_proc where oid='public.fn_research_path_public_retract_v1(uuid,integer,text)'::regprocedure), 'retract definer/search_path');
+select pg_temp.ok(has_function_privilege('authenticated','public.fn_research_path_public_retract_v1(uuid,integer,text)','execute'), 'authenticated exec retract');
+select pg_temp.ok(not has_function_privilege('anon','public.fn_research_path_public_retract_v1(uuid,integer,text)','execute'), 'anon no exec retract');
+select pg_temp.ok(not has_function_privilege('service_role','public.fn_research_path_public_retract_v1(uuid,integer,text)','execute'), 'service_role no exec retract');
+select pg_temp.ok(not exists (select 1 from pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f',p.proowner))) a where p.oid='public.fn_research_path_public_retract_v1(uuid,integer,text)'::regprocedure and a.grantee=0), 'PUBLIC no exec retract');
+select pg_temp.ok(not has_function_privilege('authenticated','public.fn_research_path_published_immutable_v1()','execute') and not has_function_privilege('service_role','public.fn_research_path_published_immutable_v1()','execute'), 'trigger fn not client-callable');
+
+-- denied callers
+set role anon;
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'r')$$,'42501');
+reset role;
+set role service_role;
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'r')$$,'42501');
+reset role;
+set role authenticated;
+select pg_temp.as_uid(null);
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'r')$$,'42501'); -- no uid
+select pg_temp.as_uid('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'r')$$,'42501'); -- non-admin
+select pg_temp.as_uid('cccccccc-cccc-cccc-cccc-cccccccccccc');
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'r')$$,'42501'); -- unknown uid
+reset role;
+select pg_temp.ok((select retracted_at is null from research_path_revisions where id='10000000-0000-0000-0000-0000000000c9'), 'denied callers changed nothing');
+
+-- direct table mutation of retraction fields without admin actor
+select pg_temp.as_uid(null);
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='direct' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001'); -- superuser, no auth.uid
+set role service_role;
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='direct' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001'); -- service_role, no auth.uid
+reset role;
+select pg_temp.as_uid('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+set role service_role;
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', retraction_reason='direct' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001'); -- non-admin uid
+reset role;
+set role authenticated;
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now() where id='10000000-0000-0000-0000-0000000000c9'$$,'42501'); -- admin has no table grant
+reset role;
+-- admin uid but spoofed actor / extra column changes / not an exact retraction transition
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', retraction_reason='spoof' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='x', steps='[]' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='x', governance_status='canonical' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='x', published_at=now() where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now(), retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', retraction_reason='x', access_scope='private' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set steps='[]' where id='10000000-0000-0000-0000-0000000000c9'$$,'23001'); -- admin cannot edit content directly
+select pg_temp.expect_err($$delete from research_path_revisions where id='10000000-0000-0000-0000-0000000000c9'$$,'23001');
+select pg_temp.as_uid(null);
+
+-- RPC as admin: validation and eligibility
+create temp table rt(label text, j jsonb);
+grant all on rt to authenticated;
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,null)$$,'22023');
+select pg_temp.expect_err($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,'   ')$$,'22023');
+select pg_temp.expect_err(format($$select public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',1,%L)$$, repeat('x',1001)),'22023');
+insert into rt select 'unpublished', public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',3,'not published');
+insert into rt select 'missing_rev', public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',99,'nope');
+insert into rt select 'missing_path', public.fn_research_path_public_retract_v1('99999999-9999-9999-9999-999999999999',1,'nope');
+reset role;
+select pg_temp.ok((select j = '{"ok":false,"error":"not_found"}'::jsonb from rt where label='unpublished') and (select j = '{"ok":false,"error":"not_found"}'::jsonb from rt where label='missing_rev') and (select j = '{"ok":false,"error":"not_found"}'::jsonb from rt where label='missing_path'), 'retract ineligible -> not_found');
+
+-- RPC as admin: success; snapshot proves only the three retraction fields change
+create temp table snap as select to_jsonb(r) j from research_path_revisions r where id='10000000-0000-0000-0000-0000000000c8';
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+insert into rt select 'ok_r2', public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',2,'withdrawn: error found');
+reset role;
+select pg_temp.ok((select (j->>'ok')::boolean from rt where label='ok_r2'), 'admin retract ok');
+select pg_temp.ok((select retracted_at is not null and retracted_by_user_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' and retraction_reason='withdrawn: error found' and retracted_at <= now() and retracted_at > now()-interval '1 minute'
+  from research_path_revisions where id='10000000-0000-0000-0000-0000000000c8'), 'actor=auth.uid, reason, time stored');
+select pg_temp.ok((select (to_jsonb(r) - 'retracted_at' - 'retracted_by_user_id' - 'retraction_reason') = (j - 'retracted_at' - 'retracted_by_user_id' - 'retraction_reason')
+  from research_path_revisions r, snap where r.id='10000000-0000-0000-0000-0000000000c8'), 'content/governance/published_at/access_scope unchanged');
+select pg_temp.ok((select governance_status='canonical' and access_scope='public' and published_at is not null from research_path_revisions where id='10000000-0000-0000-0000-0000000000c8'), 'governance/access/published_at preserved');
+select pg_temp.ok((select retracted_at is null from research_path_revisions where id in ('10000000-0000-0000-0000-0000000000c9')), 'sibling revision untouched');
+
+-- second retract + unretract/mutation after retraction
+set role authenticated;
+insert into rt select 'again', public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c9',2,'again');
+reset role;
+select pg_temp.ok((select j = '{"ok":false,"error":"already_retracted"}'::jsonb from rt where label='again'), 'double retract rejected, original kept');
+select pg_temp.ok((select retraction_reason='withdrawn: error found' from research_path_revisions where id='10000000-0000-0000-0000-0000000000c8'), 'original retraction not overwritten');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=null, retracted_by_user_id=null, retraction_reason=null where id='10000000-0000-0000-0000-0000000000c8'$$,'23001'); -- unretract (admin uid)
+select pg_temp.expect_err($$update research_path_revisions set retraction_reason='edited' where id='10000000-0000-0000-0000-0000000000c8'$$,'23001');
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=now() where id='10000000-0000-0000-0000-0000000000c8'$$,'23001');
+select pg_temp.expect_err($$delete from research_path_revisions where id='10000000-0000-0000-0000-0000000000c8'$$,'23001');
+select pg_temp.as_uid(null);
+select pg_temp.expect_err($$update research_path_revisions set retracted_at=null, retracted_by_user_id=null, retraction_reason=null where id='10000000-0000-0000-0000-0000000000c8'$$,'23001'); -- unretract (no uid)
+select pg_temp.expect_err($$update research_path_revisions set published_at=null where id='10000000-0000-0000-0000-0000000000c8'$$,'23001');
+select pg_temp.ok(not exists (select 1 from pg_proc where pronamespace='public'::regnamespace and (proname ilike '%unretract%' or proname ilike '%restore_public%')), 'no unretract RPC');
+
+-- reader after retraction: generic not_found for the retracted revision, older eligible revision still served
+set role anon;
+insert into res select 'anon','R_retracted_explicit', public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c9', 2);
+insert into res select 'anon','R_default_after', public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c9');
+reset role;
+select pg_temp.ok(pg_temp.r('R_retracted_explicit') = '{"ok":false,"error":"not_found"}'::jsonb, 'retracted revision -> generic not_found');
+select pg_temp.ok((pg_temp.r('R_default_after')->>'revision_no')::int = 1, 'default skips retracted, serves older eligible');
+select pg_temp.ok(pg_temp.r('R_default_after')::text not like '%R2%' and pg_temp.r('R_default_after')::text !~* 'retract|withdrawn', 'no retraction metadata or retracted content leaked');
+select pg_temp.ok((select array_agg(k order by k) from jsonb_object_keys(pg_temp.r('A_default')) k) =
+  array['branch_point_step_index','governance_status','ok','parent_path_id','path_id','published_at','reference_validation','representation','revision_id','revision_no','steps'], 'reader key allowlist unchanged by V2');
+
+-- single-revision path: retraction makes the whole path generic not_found; fork lineage to retracted branch point hidden
+select pg_temp.as_uid('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+set role authenticated;
+select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c6')->>'parent_path_id') = '00000000-0000-0000-0000-0000000000c8', 'fork lineage disclosed before parent branch point retracted');
+insert into rt select 'ok_d9', public.fn_research_path_public_retract_v1('00000000-0000-0000-0000-0000000000c8',1,'retire path');
+select pg_temp.ok(public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c8') = '{"ok":false,"error":"not_found"}'::jsonb, 'fully retracted path -> not_found');
+select pg_temp.ok((public.fn_research_path_public_read_v1('00000000-0000-0000-0000-0000000000c6')->'parent_path_id') = 'null'::jsonb, 'lineage to retracted branch point hidden');
+reset role;
+select pg_temp.as_uid(null);
+
+-- migration is purely additive for existing data: unpublished rows stay writable
+update research_path_revisions set steps='[{"step_index":0,"entity_ref":"still-editable"}]' where id='10000000-0000-0000-0000-0000000000c7';
 
 select 'ALL RESEARCH PATH PUBLIC READER TESTS PASSED' as result;
