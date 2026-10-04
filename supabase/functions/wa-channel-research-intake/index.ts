@@ -377,7 +377,7 @@ Deno.serve(async (req) => {
   const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
 
   const { data: sourceRows, error: sourceError } = await sb.from("channel_ingest_sources")
-    .select("channel,intake_mode,outgoing_contributor,priority,enabled,admin_only")
+    .select("channel,intake_mode,outgoing_contributor,priority,enabled,admin_only,admin_ids")
     .eq("enabled", true)
     .neq("intake_mode", "off");
   if (sourceError) return json({ error: "source_policy_read_failed" }, 500);
