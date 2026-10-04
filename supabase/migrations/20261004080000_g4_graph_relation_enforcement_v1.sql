@@ -19,13 +19,13 @@ begin
     'extends_rule','has_language_bridge','interpreted_by','is_kadmi_of','kadmi_equals','kadmi_reverse_of',
     'mentions','opposite_of','related','relates_to','represents','reverse_of','scale','scale_x10',
     'seeded_by','source','zero_scale',
-    'same_as','alias_of','variant_of','authored_by_external']);
+    'same_as','alias_of','variant_of']);
   if v_bad is not null then
     raise exception 'G4 precondition failed: edges.relation_type outside allowed vocabulary: %', v_bad;
   end if;
 end $$;
 
--- 1. relation_type vocabulary: 31 live values preserved + reserved same_as/alias_of/variant_of + authored_by_external.
+-- 1. relation_type vocabulary: 31 live values preserved + owner-backed same_as/alias_of/variant_of (authored_by_external is contribution_links vocabulary, not edges).
 --    New vocabulary afterwards requires an owner-reviewed migration.
 alter table public.edges
   add constraint edges_relation_type_vocab_chk
@@ -35,28 +35,17 @@ alter table public.edges
     'extends_rule','has_language_bridge','interpreted_by','is_kadmi_of','kadmi_equals','kadmi_reverse_of',
     'mentions','opposite_of','related','relates_to','represents','reverse_of','scale','scale_x10',
     'seeded_by','source','zero_scale',
-    'same_as','alias_of','variant_of','authored_by_external')) not valid;
+    'same_as','alias_of','variant_of')) not valid;
 alter table public.edges validate constraint edges_relation_type_vocab_chk;
 
--- 2. Provenance: mark ONLY null/empty metadata as explicitly unknown (no fabricated source).
---    Non-empty metadata is untouched. UNKNOWN never increases Research Strength.
-update public.edges
-   set metadata = jsonb_build_object(
-         'provenance_state','UNKNOWN_PRE_ENFORCEMENT',
-         'provenance_note','edge-local provenance was not recorded before G4 enforcement')
- where metadata is null or metadata = '{}'::jsonb;
-
--- 3. Future edges must carry non-null, non-empty metadata.
-alter table public.edges
-  add constraint edges_metadata_nonempty_chk
-  check (metadata is not null and metadata <> '{}'::jsonb) not valid;
-alter table public.edges validate constraint edges_metadata_nonempty_chk;
+-- 2. (removed per GPT review 5405629380) No rewrite of existing edge metadata and no universal nonempty-metadata CHECK:
+--    historical NULL/'{}' metadata is preserved byte-for-byte; provenance is enforced prospectively by active writers only.
 
 -- 4. Active writers. Signatures, security mode and search_path unchanged (ACLs preserved by CREATE OR REPLACE).
 --    Writers already emitting non-empty metadata (fn_ti_project_demand, graph_wire_number,
 --    project_language_bridges, project_contribution_to_graph) need no change.
 
--- 4a. generic writer: empty p_meta becomes explicit UNKNOWN_WRITER, never fake provenance.
+-- 4a. generic writer: future empty p_meta is marked UNKNOWN_WRITER. This marker is NOT provenance and NOT Research Strength.
 create or replace function public.upsert_edge(p_from uuid, p_to uuid, p_rel text, p_meta jsonb default '{}'::jsonb)
  returns void
  language plpgsql

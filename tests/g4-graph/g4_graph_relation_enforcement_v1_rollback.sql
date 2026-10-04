@@ -1,23 +1,10 @@
 -- ROLLBACK for 20261004080000_g4_graph_relation_enforcement_v1.sql (BRANCH_ONLY artifact; not applied live)
--- Drops both constraints, restores the writer definitions as of main 10cbd029 (live 2026-10-04),
--- and reverts ONLY exact UNKNOWN_PRE_ENFORCEMENT marker rows to their prior empty state.
+-- Drops the relation_type CHECK, restores the writer definitions as of main 10cbd029 (live 2026-10-04),
+-- No metadata was rewritten by the migration, so none is reverted.
 -- No edge deleted; no endpoint/weight/relation_type changed.
 begin;
 
-alter table public.edges drop constraint if exists edges_metadata_nonempty_chk;
 alter table public.edges drop constraint if exists edges_relation_type_vocab_chk;
-
--- Marker rows -> '{}' (original state of 4297 rows). The 12 originally-NULL rows (ids below) -> NULL.
-update public.edges set metadata = '{}'::jsonb
- where metadata = jsonb_build_object('provenance_state','UNKNOWN_PRE_ENFORCEMENT',
-       'provenance_note','edge-local provenance was not recorded before G4 enforcement');
-update public.edges set metadata = null where id in (
- '13fbe890-5db0-498b-8618-adb3bbd0e30d','2b8adf03-bd4c-41b3-aad7-1d86966bedaa','3d9d03ee-fe64-4626-91ef-ff5330332c21',
- '50d8ff21-44e4-476c-92b0-8b5d25d1eb9b','54c80b3f-7976-46d3-917c-e966fcfe074b','58c76e2d-e957-4720-9e0a-d31a9da0389e',
- '77d0fcbd-b7c1-46ec-aaab-6556331396ba','9949585b-d3c7-4bc1-9b53-fcdb7f88174a','c35d341a-4e82-4690-bd32-535eefaecf80',
- 'ca5fe635-12ee-4498-84a4-62f67ab7f06b','cbb09aaa-a5ee-4e3b-a5eb-475324ab89d7','d970b604-34d9-4dd1-a3e7-8ba53a422f13')
- and metadata = '{}'::jsonb;
--- (Rows that carried the marker and were NULL before are only recoverable via the id list above.)
 
 create or replace function public.upsert_edge(p_from uuid, p_to uuid, p_rel text, p_meta jsonb default '{}'::jsonb)
  returns void language plpgsql security definer set search_path to 'public'
