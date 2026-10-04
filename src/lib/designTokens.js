@@ -1,5 +1,5 @@
 // SOD1820 — Visual Foundation 2027
-// Implementation extension of SOD1820_DESIGN_CONTRACT_V1.md.
+// Implementation extension of SOD1820_DESIGN_CONTRACT_V2.md for 2029, with legacy-compatible exports preserved.
 // This module does not create a second design system. It fills token families
 // that were previously implicit/local while color remains owned by palette.js,
 // chrome color by chromeTheme.js, and world semantics by worlds.js.
@@ -27,6 +27,23 @@ export const RADIUS = Object.freeze({
   lg: 16,
   xl: 24,
   pill: 999,
+});
+
+export const TYPEFACE = Object.freeze({
+  ui: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
+  body: "'Noto Sans Hebrew','Rubik',Arial,sans-serif",
+  display: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
+  numeric: "'IBM Plex Mono','Roboto Mono','Courier New',monospace",
+});
+
+export const TYPE_SCALE_V2 = Object.freeze({
+  micro: Object.freeze({ fontSize: 14, lineHeight: 1.45 }),
+  ui: Object.freeze({ fontSize: 16, lineHeight: 1.5 }),
+  small: Object.freeze({ fontSize: 16, lineHeight: 1.55 }),
+  body: Object.freeze({ fontSize: 18, lineHeight: 1.72 }),
+  lead: Object.freeze({ fontSize: 21, lineHeight: 1.62 }),
+  title: Object.freeze({ fontSize: 28, lineHeight: 1.28 }),
+  display: Object.freeze({ fontSize: 46, lineHeight: 1.12 }),
 });
 
 export const TYPE_SCALE = Object.freeze({
