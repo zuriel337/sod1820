@@ -32,6 +32,7 @@ import {
   getConceptFamiliarity,
   getLearnFragment,
   getSurfaceFamiliarity,
+  isEntryLearnSurfaceActive,
   LEARN_LAYER,
   LEARN_SCOPE,
   markConceptFamiliarity,
@@ -280,7 +281,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
   const numericFamily = target?.type === "number" || target?.type === "phrase";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
-  const fragment = conceptKey ? getLearnFragment(conceptKey) : null;
+  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
   useEffect(() => {
@@ -787,7 +788,7 @@ export default function SystemFrame2029({
 
   const completeSurfaceEntry = useCallback((actionId, targetSurface = null) => {
     const manifest = orientation.manifest;
-    if (!manifest) return;
+    if (!manifest || actionId !== manifest.firstAction) return false;
     const familiarity = markSurfaceFamiliarity(surface, "complete", manifest.version);
     setSurfaceFamiliarity(familiarity);
     emitEntryLearn("first_action", {
@@ -798,6 +799,7 @@ export default function SystemFrame2029({
       mode: orientation.mode,
       manifestVersion: manifest.version,
     }, { dedupe: true });
+    return true;
   }, [surface, arrival, orientation]);
 
   const expandOrientation = useCallback(() => {
