@@ -66,7 +66,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
   await expect(sidecar).toBeVisible({ timeout: 30_000 });
   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
-  await expect(sidecar).toContainText('מלח');
+  await expect(sidecar).toContainText('נפתלי בנט');
 
   // Inspect is the Post first meaningful action, so Orientation compacts instead of disappearing.
   await expect(page.locator('.sod29-entry-orientation-slot .sod29-learn-mark')).toHaveClass(/is-compact/);
@@ -76,9 +76,9 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(learn.getByRole('button', { name: 'איך זה עובד?' })).toBeVisible();
   await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
   await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
-  await expect(learn).toContainText('מלח');
+  await expect(learn).toContainText('נפתלי בנט');
   await expect(learn).toContainText('רגיל');
-  await expect(learn).toContainText('78');
+  await expect(learn).toContainText('631');
   expect(traceRequests).toBe(0);
 
   // ASK: unresolved comprehension opens the already-live Contact Gateway, not a new help form.
@@ -107,7 +107,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await learnAfterAsk.getByRole('button', { name: 'ראה את החישוב' }).click();
   const drawer = sidecar.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
-  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
+  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
 
   await expect.poll(async () => page.evaluate(() => {
     const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
@@ -127,7 +127,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   const calculation = drawer.locator('.sod29-number-v10-calculation-card');
   await expect(calculation).toBeVisible({ timeout: 20_000 });
   await expect(calculation).toContainText('רגיל');
-  await expect(calculation).toContainText('78');
+  await expect(calculation).toContainText('631');
   await calculation.click();
 
   const inspector = drawer.locator('.sod29-number-method-inspector');
