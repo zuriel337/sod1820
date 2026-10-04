@@ -352,7 +352,7 @@ assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
 assert.match(frame, /מה שבחרת נשאר איתך כשנפתח כלי או עולם/);
-assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "unopened Heichal must not be a System Frame navigation entry");
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "Final Global Chrome must expose Heichal as a top-level System Frame home");
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
 
