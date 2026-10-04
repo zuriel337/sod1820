@@ -10,6 +10,9 @@ on:
       - "src/pages/ResearchPage.jsx"
       - "src/components/ResearchHome.jsx"
       - "src/components/experience2029/**"
+      - "src/components/ContactGateway.jsx"
+      - "src/components/IssueReport.jsx"
+      - "src/components/ReportHint.jsx"
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
@@ -40,6 +43,7 @@ on:
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
       - "scripts/test-entry-contextual-learn-2029.mjs"
+      - "scripts/test-issue-report-canonical-emitter.mjs"
       - "src/lib/entryLearn2029.js"
       - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
@@ -83,6 +87,8 @@ jobs:
         run: npm run test:experience-context
       - name: Entry Orientation + Contextual Learn 2029 acceptance
         run: npm run test:entry-learn-2029
+      - name: Contact Gateway canonical owner acceptance
+        run: npm run test:issue-report
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
       - name: Web Vitals metric core acceptance
