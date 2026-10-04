@@ -36,6 +36,11 @@ assert.equal(resolveEntryOrientation({
   arrival: "direct",
   familiarity: { state: "complete", v: 0 },
 }).mode, "prominent");
+assert.equal(resolveEntryOrientation({
+  surface: "post",
+  arrival: "direct",
+  familiarity: { state: "complete", v: 0 },
+}).mode, "prominent");
 
 assert.equal(projectAvailability({ status: "active" }), "OPEN");
 assert.equal(projectAvailability({ status: "registered_only" }), "GATED");
