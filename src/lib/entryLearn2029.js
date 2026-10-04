@@ -195,7 +195,7 @@ export const ENTRY_ORIENTATION_MANIFESTS = Object.freeze({
   journey: Object.freeze({
     version: 1,
     label: "איך ממשיכים את המסלול?",
-    body: "מסע שומר את הרצף בין גילויים ואת הסיבה למעבר. Guided הוא מצב של אותו Journey, לא מערכת נפרדת.",
+    body: "מסע שומר את הרצף בין גילויים ואת הסיבה למעבר. מסלול מודרך משתמש באותו מסע ובאותו הקשר, לא במערכת נפרדת.",
     firstAction: "journey",
   }),
   els: Object.freeze({
@@ -255,6 +255,13 @@ export const LEARN_FRAGMENTS = Object.freeze({
   }),
 });
 
+const G4_ACTIVE_SURFACES = new Set(["post"]);
+
+export function isEntryLearnSurfaceActive(surface) {
+  const key = cleanSurface(surface);
+  return Boolean(key && G4_ACTIVE_SURFACES.has(key));
+}
+
 export function getEntryOrientationManifest(surface) {
   const key = cleanSurface(surface);
   return key ? ENTRY_ORIENTATION_MANIFESTS[key] || null : null;
@@ -276,6 +283,7 @@ export function classifyEntryArrival({ locationState = null, historyIndex = null
 export function resolveEntryOrientation({ surface, arrival, familiarity = null } = {}) {
   const manifest = getEntryOrientationManifest(surface);
   if (!manifest) return { mode: "hidden", manifest: null };
+  if (!isEntryLearnSurfaceActive(surface)) return { mode: "hidden", manifest };
   if (arrival === ENTRY_ARRIVAL.EXACT_RETURN) return { mode: "hidden", manifest };
   if (familiarity?.state === "complete" || familiarity?.state === "dismissed") {
     return { mode: "compact", manifest };
