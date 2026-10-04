@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
+import SurfaceProgressSpine2029 from "../components/experience2029/SurfaceProgressSpine2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
@@ -320,9 +321,13 @@ function TopicBody() {
     const dimensions = {
       ...(research.context?.dimensions || {}),
       bottomTrail: [
-        { id: "topic", label: "טופיק" },
-        { id: "section", label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר" },
-        ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), active: true }] : []),
+        { id: "convergence", label: "התכנסות", targetId: "topic-essential" },
+        {
+          id: "section",
+          label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
+          targetId: activeSectionId,
+        },
+        ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), number: Number(heroNumber), active: true }] : []),
       ],
       surfaceFocus: {
         id: projection.slug,
@@ -414,8 +419,8 @@ function TopicBody() {
     return () => clearConvergenceJsonLd();
   }, [projection?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (state.loading) return <FrameState kind="loading" title="פותח את הציר">טוען את המספרים, הפוסטים והמקורות שמתחברים אליו.</FrameState>;
-  if (state.error || !projection) return <FrameState kind="error" title="הציר לא נמצא">לא נציג תוכן משוער. אפשר לחזור לעולם ולבחור ציר קיים.</FrameState>;
+  if (state.loading) return <FrameState kind="loading" title="פותח את ההתכנסות">טוען את המספרים, הפוסטים והמקורות שמתחברים אליה.</FrameState>;
+  if (state.error || !projection) return <FrameState kind="error" title="ההתכנסות לא נמצאה">לא נציג תוכן משוער. אפשר לחזור לעולם ולבחור התכנסות קיימת.</FrameState>;
 
   const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
   const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
@@ -457,8 +462,18 @@ function TopicBody() {
       items={navItems}
       activeId={activeSectionId}
       onSelect={(item) => setActiveSectionId(item.id)}
-      ariaLabel="ניווט בטופיק"
+      ariaLabel="ניווט בהתכנסות"
     />
+
+    <div className="sod29-topic-stage">
+      <SurfaceProgressSpine2029
+        items={navItems}
+        activeId={activeSectionId}
+        onSelect={(item) => setActiveSectionId(item.id)}
+        onActiveChange={(item) => setActiveSectionId(item.id)}
+        ariaLabel="התקדמות בהתכנסות"
+      />
+      <div className="sod29-topic-stage-content">
 
     <section className="sod29-section sod29-topic-intro" id="topic-essential">
       <div className="sod29-kicker">העיקר</div>
@@ -489,6 +504,8 @@ function TopicBody() {
         <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>✦ מה כדאי לבדוק עכשיו?</button>
       </div>
     </section>
+      </div>
+    </div>
   </article>;
 }
 
@@ -496,10 +513,10 @@ export default function Topic2029Page() {
   return <Sod2029Shell
     surface="world"
     symbol="✦"
-    eyebrow="SOD1820 · ציר"
-    title="טופיק"
-    description="מספרים, ביטויים, פוסטים ומקורות שמתחברים סביב אותו ציר."
-    status="Topic"
+    eyebrow="SOD1820 · התכנסות"
+    title="התכנסות"
+    description="מקום שבו מספרים, ביטויים, פוסטים ומקורות נפגשים סביב חיבור משותף."
+    status="התכנסות"
   >
     <TopicBody />
   </Sod2029Shell>;
