@@ -42,7 +42,14 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
+import {
+  canonicalEntityPublicLabel,
+  canonicalMediaPublicLabel,
+  canonicalRelationPublicLabel,
+  canonicalResearchPublicLabel,
+  formatTanakhRef,
+  formatVerseGematriaSuffix,
+} from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
@@ -114,19 +121,6 @@ const VERIFICATION_LABELS = {
   not_tested: "טרם נבדק",
 };
 
-const RELATION_LABELS = Object.freeze({
-  equals: "שוויון",
-  cross: "הצטלבות",
-  related: "קשר",
-  contains: "מכיל",
-  mentions: "אזכור",
-  converges_on: "נפגש כאן",
-  cipher_link: "קשר לצופן",
-  demand_signal: "אות ביקוש",
-  scale_x10: "קשר של ×10",
-  zero_scale: "קשר של שינוי קנה־מידה",
-});
-
 const SORT_LABELS = Object.freeze({
   recommended: "מומלץ כאן",
   newest: "חדש קודם",
@@ -151,21 +145,20 @@ function subjectKey(subject) {
 }
 
 function relationLabel(relationType) {
-  return RELATION_LABELS[relationType] || "קשר נוסף";
-}
-
-function looksLikeFilename(value) {
-  return /\.(?:jpe?g|png|webp|gif|svg|avif)$/i.test(String(value || "").trim());
+  return canonicalRelationPublicLabel(relationType);
 }
 
 function publicCounterpartLabel(counterpart) {
   if (!counterpart) return "קשר";
+  const type = String(counterpart.type || "").trim();
   const label = String(counterpart.label || "").trim();
-  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(label)) return "פריט מדיה";
-  if (counterpart.type !== "foreign_word" && looksTechnicalResearchTitle(label)) {
-    return FACET_LABELS[counterpart.type] || "חיבור";
+  if (["image", "media"].includes(type)) {
+    return canonicalMediaPublicLabel(counterpart, { fallback: canonicalEntityPublicLabel(type) });
   }
-  return label || FACET_LABELS[counterpart.type] || "קשר";
+  if (type !== "foreign_word" && looksTechnicalResearchTitle(label)) {
+    return canonicalEntityPublicLabel(type || "entity");
+  }
+  return label || canonicalEntityPublicLabel(type || "entity");
 }
 
 function humanFacetLabel(type) {
