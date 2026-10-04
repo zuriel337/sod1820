@@ -61,12 +61,16 @@ function TopicFindings({ projection, onOpenExpression }) {
       {row.hint ? <small>{row.hint}</small> : null}
     </div>)}
     {bullets.length ? <ul className="sod29-topic-bullets">{bullets.map((text, i) => <li key={"b-" + i}>{text}</li>)}</ul> : null}
-    {rows.length || numericClaims.length ? <div className="sod29-topic-claims">
-      {[...numericClaims, ...rows].map((row, i) => {
+    {rows.length || numericClaims.length ? (() => {
+      const allRows = [...numericClaims, ...rows];
+      const primaryRows = allRows.filter((row) => Number(row.value) === projection.heroNumber).slice(0, 3);
+      const primaryKeys = new Set(primaryRows.map((row) => row.sourcePath || clean(row.phrase || row.text)));
+      const supportingRows = allRows.filter((row) => Number(row.value) !== projection.heroNumber);
+      const depthRows = allRows.filter((row) => Number(row.value) === projection.heroNumber && !primaryKeys.has(row.sourcePath || clean(row.phrase || row.text)));
+      const renderEquation = (row, i, kind) => {
         const phrase = clean(row.phrase || row.text);
         const value = Number(row.value);
-        const primary = Number.isFinite(value) && value === projection.heroNumber;
-        return <article className={`sod29-topic-equation ${primary ? "is-primary" : "is-supporting"}`} key={row.sourcePath || i}>
+        return <article className={`sod29-topic-equation is-${kind}`} key={row.sourcePath || phrase || i}>
           <div className="sod29-topic-equation-line">
             {phrase && onOpenExpression
               ? <button type="button" className="sod29-topic-equation-phrase" onClick={() => onOpenExpression(phrase)}>{phrase}</button>
@@ -76,8 +80,19 @@ function TopicFindings({ projection, onOpenExpression }) {
           </div>
           {(row.method || row.note) ? <small className="sod29-topic-equation-note">{row.method || row.note}</small> : null}
         </article>;
-      })}
-    </div> : null}
+      };
+      return <div className="sod29-topic-claims">
+        {primaryRows.map((row, i) => renderEquation(row, i, "primary"))}
+        {supportingRows.length ? <div className="sod29-topic-supporting-equations">
+          <div className="sod29-kicker">חיבורים תומכים</div>
+          {supportingRows.map((row, i) => renderEquation(row, i, "supporting"))}
+        </div> : null}
+        {depthRows.length ? <details className="sod29-topic-depth-equations">
+          <summary>עוד גימטריות של {projection.heroNumber} <span>{depthRows.length}</span></summary>
+          <div>{depthRows.map((row, i) => renderEquation(row, i, "depth"))}</div>
+        </details> : null}
+      </div>;
+    })() : null}
   </section>;
 }
 
