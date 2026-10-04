@@ -56,6 +56,7 @@ assert.match(html2029, /family=Noto\+Sans\+Hebrew/);
 assert.match(html2029, /family=Rubik/);
 assert.doesNotMatch(html2029, /family=Assistant/);
 assert.doesNotMatch(frame, /\.\.\/\.\.\/theme\.js/);
+assert.equal(/\bF\./.test(frame), false, "2029 System Frame must not retain legacy F.* typography references");
 assert.match(frame, /use2029Palette/);
 assert.match(frame, /TYPEFACE/);
 assert.match(frame, /TYPE_SCALE_V2/);
