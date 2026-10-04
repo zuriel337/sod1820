@@ -3,23 +3,28 @@ import { Navigate, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getCommandCenter, getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
-import { getAdminAttentionFeed, getAdminNotificationChannels, getAdminRetentionPreview, getPendingAdminSuggestions } from "../lib/admin/controlPlaneReads.js";
+import { getAdminAttentionFeed, getAdminNotificationChannels, getAdminRetentionPreview, getPendingAdminSuggestions, getAdminBuildIdentity, getAdminReleaseStatus, getCurrentAdminWorkLog } from "../lib/admin/controlPlaneReads.js";
 import { CONTROL_VIEWS, emptySource, numeric, readAdminSource, resolveControlView } from "../lib/admin/controlPlaneProjection.js";
+import { createVisibleRefresh, dueRefreshKeys } from "../lib/admin/controlPlaneRefresh.js";
+import { buildIdentity, sameVersion } from "../lib/admin/releaseProjection.js";
 import { AdminMetric as Metric, AdminSources2029, MetricSourceContext, SourceState, SourceStamp } from "../components/experience2029/AdminSource2029.jsx";
 
 const ResourceSimulator2029 = lazy(() => import("../components/experience2029/ResourceSimulator2029.jsx"));
 const AdminAttention2029 = lazy(() => import("../components/experience2029/AdminOperations2029.jsx").then(m => ({ default: m.AdminAttention2029 })));
 const AdminMedia2029 = lazy(() => import("../components/experience2029/AdminOperations2029.jsx").then(m => ({ default: m.AdminMedia2029 })));
 const AdminCleanup2029 = lazy(() => import("../components/experience2029/AdminCleanup2029.jsx"));
+const AdminRelease2029 = lazy(() => import("../components/experience2029/AdminRelease2029.jsx"));
+const CLIENT_BUILD = buildIdentity(typeof __SOD_ADMIN_BUILD__ === "undefined" ? {} : __SOD_ADMIN_BUILD__);
 
 const READERS = {
   health: () => getSystemHealth(), traces: () => getOperationalTraceList(7, 100), videoMap: () => getVideoMapHealth(),
   command: () => getCommandCenter(), suggestions: getPendingAdminSuggestions, retention: getAdminRetentionPreview,
   notify: getAdminNotificationChannels,
   attention: getAdminAttentionFeed,
+  release: getAdminReleaseStatus, build: getAdminBuildIdentity, worklog: getCurrentAdminWorkLog,
 };
 const initialSources = () => Object.fromEntries(Object.keys(READERS).map(k => [k, emptySource()]));
-const VIEW_SOURCES = { attention: ["health", "command", "suggestions", "attention"], monitor: ["health", "traces", "videoMap"], media: ["health", "videoMap", "traces"], cleanup: ["health", "retention"], simulation: ["health"], budget: ["health", "notify"] };
+const VIEW_SOURCES = { attention: ["health", "command", "suggestions", "attention"], monitor: ["health", "traces", "videoMap"], media: ["health", "videoMap", "traces"], cleanup: ["health", "retention"], simulation: ["health"], budget: ["health", "notify"], release: ["release", "worklog"] };
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => numeric(v) == null ? "לא ידוע" : n(v).toLocaleString("he-IL");
@@ -66,6 +71,11 @@ export default function ControlPlane2029Page() {
   const [sources, setSources] = useState(initialSources);
   const requestIds = useRef({});
   const pendingKeys = useRef(new Set());
+  const refreshAttempts = useRef({});
+  const latestSources = useRef(sources);
+  latestSources.current = sources;
+  const [refreshSeconds, setRefreshSeconds] = useState(120);
+  const [refreshState, setRefreshState] = useState("waiting");
   const [params, setParams] = useSearchParams();
   const view = resolveControlView(params.get("view"));
   const setView = useCallback(id => setParams(current => { const next = new URLSearchParams(current); next.set("view", id); return next; }, { replace: true }), [setParams]);
@@ -88,21 +98,23 @@ export default function ControlPlane2029Page() {
       const source = await readAdminSource(READERS[key]);
       if (requestIds.current[key] !== id) return;
       pendingKeys.current.delete(key);
+      refreshAttempts.current[key] = { at: Date.now(), failures: source.status === "error" ? (refreshAttempts.current[key]?.failures || 0) + 1 : 0 };
       setSources(s => ({ ...s, [key]: source }));
       if (key === "traces" && source.status === "ready") setSelectedId(current => current || source.data?.[0]?.trace_id || null);
     }));
   }, [isAdmin, authLoading, user?.id]);
-  const load = useCallback(() => loadSources(VIEW_SOURCES[view]), [loadSources, view]);
+  const load = useCallback(() => loadSources([...VIEW_SOURCES[view], "build"]), [loadSources, view]);
 
   useEffect(() => {
     setSources(initialSources());
     setSelectedId(null);
-    return () => { for (const key of Object.keys(READERS)) requestIds.current[key] = (requestIds.current[key] || 0) + 1; pendingKeys.current.clear(); };
+    refreshAttempts.current = {};
+    return () => { for (const key of Object.keys(READERS)) requestIds.current[key] = (requestIds.current[key] || 0) + 1; pendingKeys.current.clear(); refreshAttempts.current = {}; };
   }, [authLoading, isAdmin, user?.id]);
 
   useEffect(() => {
     if (!authLoading && isAdmin) {
-      const missing = VIEW_SOURCES[view].filter(k => sources[k].status === "idle");
+      const missing = [...VIEW_SOURCES[view], "build"].filter(k => sources[k].status === "idle");
       if (missing.length) loadSources(missing);
     }
   }, [authLoading, isAdmin, view, sources, loadSources]);
@@ -110,7 +122,13 @@ export default function ControlPlane2029Page() {
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 60000); return () => clearInterval(timer); }, []);
 
   useEffect(() => {
-    if (!isAdmin || !selectedId || view !== "monitor") {
+    if (!isAdmin || authLoading || !refreshSeconds) { setRefreshState("manual"); return; }
+    return createVisibleRefresh({ doc: document, win: window, intervalMs: refreshSeconds * 1000, onState: setRefreshState,
+      run: () => loadSources(dueRefreshKeys([...VIEW_SOURCES[view], "build"], latestSources.current, refreshAttempts.current, Date.now(), refreshSeconds * 1000)) });
+  }, [isAdmin, authLoading, user?.id, refreshSeconds, view, loadSources]);
+
+  useEffect(() => {
+    if (authLoading || !isAdmin || !selectedId || view !== "monitor") {
       setDetail({ loading: false, data: null, error: null });
       return;
     }
@@ -120,7 +138,7 @@ export default function ControlPlane2029Page() {
       .then(data => alive && setDetail({ loading: false, data, error: null, readAt: new Date().toISOString() }))
       .catch(error => alive && setDetail({ loading: false, data: null, error }));
     return () => { alive = false; };
-  }, [isAdmin, selectedId, view, user?.id]);
+  }, [authLoading, isAdmin, selectedId, view, user?.id, sources.traces.readAt]);
 
   const health = state.health || {};
   const usage = health.usage || {};
@@ -149,12 +167,25 @@ export default function ControlPlane2029Page() {
   return <Sod2029Shell
     title="מרכז הניהול"
     eyebrow="2029 · INTERNAL"
-    description="החלטות, מקורות, העלאות, ניקוי ותקציב — מעל המנגנונים הקיימים של SOD1820."
+    description="החלטות, מקורות, העלאות, ניקוי, תקציב וגרסאות — מעל המנגנונים הקיימים של SOD1820."
     status="ADMIN · READ ONLY"
     surface="admin"
     symbol="⌁"
     wide
   >
+    <div className="sod29-admin-toolbar">
+      <label htmlFor="admin-refresh-interval">רענון נתוני הלשונית הפתוחה
+        <select id="admin-refresh-interval" value={refreshSeconds} onChange={event => setRefreshSeconds(Number(event.target.value))}>
+          <option value={120}>אוטומטי — כל שתי דקות</option><option value={300}>אוטומטי — כל חמש דקות</option><option value={0}>ידני בלבד</option>
+        </select>
+      </label>
+      <span role="status">{{ waiting: "רענון אוטומטי פעיל", refreshing: "בודק מקורות…", paused: "מושהה כשהלשונית ברקע", offline: "מושהה ללא חיבור לרשת", manual: "רענון ידני" }[refreshState]}</span>
+      <button className="sod29-action" type="button" onClick={load}>רענן עכשיו</button>
+      <small className="sod29-muted">רק מקורות הלשונית הזו וזהות הגרסה נקראים. כשמקור נכשל, ניסיונות אוטומטיים שלו מתרווחים עד 15 דקות.</small>
+    </div>
+    {sources.build.status === "ready" && sameVersion(CLIENT_BUILD.sha, sources.build.data?.identity?.sha) === "different" ? <aside className="sod29-admin-alert warning" role="status">
+      גרסה אחרת זמינה בכתובת הזו. <button className="sod29-action" type="button" onClick={() => window.location.reload()}>טען את הגרסה החדשה</button>
+    </aside> : null}
     <div className="sod29-actions sod29-admin-tabs" role="tablist" aria-label="תצוגת מרכז הניהול">
       {CONTROL_VIEWS.map((tab, index) =>
         <button key={tab.id} id={`control-tab-${tab.id}`} className="sod29-action" role="tab" type="button"
@@ -176,6 +207,7 @@ export default function ControlPlane2029Page() {
         {view === "attention" ? <AdminAttention2029 sources={sources} onRefresh={loadSources} now={now} /> : null}
         {view === "media" ? <AdminMedia2029 sources={sources} onRefresh={loadSources} onTrace={id => { setSelectedId(id); setView("monitor"); }} /> : null}
         {view === "cleanup" ? <AdminCleanup2029 source={sources.retention} healthSource={sources.health} onRefresh={load} /> : null}
+        {view === "release" ? <AdminRelease2029 source={sources.release} worklogSource={sources.worklog} clientBuild={CLIENT_BUILD} onRefresh={load} /> : null}
         {view === "simulation" || view === "budget" ? <ResourceSimulator2029 health={state.health} healthReadAt={state.readAt} onRefresh={load} refreshing={state.loading} viewMode={view} notificationSource={sources.notify} healthSource={sources.health} /> : null}
       </Suspense>
     </section> : <div role="tabpanel" id="control-panel-monitor" aria-labelledby="control-tab-monitor">

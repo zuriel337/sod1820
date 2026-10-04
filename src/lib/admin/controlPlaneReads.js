@@ -1,4 +1,5 @@
 import { supabase } from "../supabase.js";
+import { RELEASE_CONTRACT } from "./releaseProjection.js";
 
 // Existing admin RPCs only. Unlike legacy convenience wrappers, failures propagate.
 async function read(name, args) {
@@ -29,3 +30,24 @@ export async function getAdminNotificationChannels() {
   // The new view does not need recipient addresses or secret/configuration values.
   return data.slice(0, 20).map(r => ({ channel: r.channel, enabled: typeof r.enabled === "boolean" ? r.enabled : null }));
 }
+
+export async function getCurrentAdminWorkLog() {
+  if (!supabase) throw new Error("חיבור המערכת אינו זמין");
+  const { data, error } = await supabase.rpc("get_work_log_current").select("id,topic,status,created_at").order("created_at", { ascending: false }).limit(8);
+  if (error) throw error;
+  if (!Array.isArray(data)) throw new Error("המקור לא החזיר יומן עבודה תקין");
+  return data;
+}
+async function readRelease(mode) {
+  const { data, error } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (error || !token) throw new Error("נדרשת כניסת מנהל תקפה");
+  const response = await fetch(`/api/admin-release-status?mode=${mode}`, { method: "GET", cache: "no-store",
+    signal: AbortSignal.timeout(15000), headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) throw new Error(`מקור הגרסאות אינו זמין (${response.status})`);
+  const result = await response.json();
+  if (result.contract !== RELEASE_CONTRACT || !result.identity) throw new Error("מקור הגרסאות לא החזיר מבנה מוכר");
+  return result;
+}
+export const getAdminReleaseStatus = () => readRelease("status");
+export const getAdminBuildIdentity = () => readRelease("identity");

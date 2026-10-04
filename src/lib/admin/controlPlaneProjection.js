@@ -5,6 +5,7 @@ export const CONTROL_VIEWS = [
   { id: "cleanup", label: "ניקוי — לפני ואחרי" },
   { id: "simulation", label: "סימולציה ומשאבים" },
   { id: "budget", label: "תקציב והתראות" },
+  { id: "release", label: "גרסאות ועדכונים" },
 ];
 export const SOURCE_NAMES = {
   health: "admin_system_health", traces: "admin_op_trace_list_v1",
@@ -12,6 +13,9 @@ export const SOURCE_NAMES = {
   suggestions: "admin_suggestions_list", retention: "admin_retention_preview",
   attention: "admin_attention_feed_v1",
   notify: "admin_notify_get", trace: "admin_op_trace_v1",
+  release: "מקורות גרסה מורשים · /api/admin-release-status",
+  build: "זהות הפריסה הנוכחית · /api/admin-release-status?mode=identity",
+  worklog: "get_work_log_current",
 };
 export const emptySource = () => ({ status: "idle", data: null, readAt: null, error: null });
 export const numeric = value => {

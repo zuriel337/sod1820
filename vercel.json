@@ -453,6 +453,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/admin-release-status",
+      "destination": "/api/admin-release-status"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/logo.png"
     },
