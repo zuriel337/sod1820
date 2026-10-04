@@ -466,7 +466,7 @@ assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: 
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
-assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
+assert.match(world, /בחר חוקר כדי לראות את החיבורים, המקורות וההתכנסויות/);
 assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
 assert.ok(
   world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
@@ -789,7 +789,7 @@ assert.equal(
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
 assert.match(world, /מה אתה רוצה לראות עכשיו\?/);
-assert.match(world, /פרופיל עוגן · אוצרות מחקרית מתפתחת/);
+assert.match(world, /פרופיל עוגן · אוצרות מתפתחת/);
 assert.match(world, /דף המספר נשאר הבית הייעודי לחישוב ולביטוי/);
 assert.match(world, /לדף המספר ←/);
 assert.equal(world.includes("getNumberAnchor"), false, "World must not revive the legacy Number-page anchor reader");
@@ -798,7 +798,7 @@ assert.equal(world.includes("מרכז העולם"), false, "anchored World must 
 assert.equal(world.includes("sod29-world-stage"), false, "legacy-looking duplicate anchor stage must stay removed from the 2029 hierarchy");
 assert.equal(world.includes("sod29-anchor-core"), false, "anchor identity must not be rendered twice before the profile");
 assert.equal(world.includes("sod29-orbit-metrics"), false, "availability counts belong to orientation lanes, not a competing metrics block");
-assert.match(world, /מתחילים במהות, ואז בוחרים את השכבה/);
+assert.match(world, /מתחילים במהות, ואז בוחרים זווית/);
 for (const lane of ["overview", "media", "calculations", "sources", "relations", "research", "timeline"]) {
   assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
 }
@@ -1008,7 +1008,7 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /DISCOVERY WORLD/);
+assert.match(world, /עולם של חיבורים/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));

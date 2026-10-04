@@ -921,7 +921,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">מי מביא את החומר</div>
           <h2>חוקרים וכתבים</h2>
-          <div className="sod29-muted">בחר חוקר כדי לראות קודם את חומר המחקר שמיוחס אליו. התכנסויות הן שכבה נוספת — לא תחליף לממצאים ולמקורות.</div>
+          <div className="sod29-muted">בחר חוקר כדי לראות את החיבורים, המקורות וההתכנסויות שמיוחסים אליו. כל שכבה מוסיפה זווית אחרת לתמונה.</div>
         </div>
 
       </div>
@@ -1038,7 +1038,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">מה נפגש כאן</div>
           <h2>{`${CONVERGENCES_LABEL} של ${selectedWriter.displayName}`}</h2>
-          <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר מתכנסים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות היא התמונה המחקרית הרחבה.</div>
+          <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מידע מתחברים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות מציגה את התמונה הרחבה.</div>
         </div>
       </div>
       {writerMeetings.length ? <div className="sod29-book-grid">
@@ -1928,7 +1928,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                 {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
               </div> : null}
             </div>
-            <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
+            <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>פתח</button>
           </div>;
         })}</div>
       </section> : null}
