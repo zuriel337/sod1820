@@ -227,7 +227,7 @@ function TopicSourcesMedia({ golden, verses = [], verseCount = 0, versesLoading 
       >{versesLoading ? "טוען…" : `הצג עוד פסוקים · ${verses.length} מתוך ${verseCount}`}</button> : null}
     </div> : null}
     {media.length ? <div className="sod29-topic-media-grid">
-      {media.slice(0, 4).map((item) => <figure key={item.id}><img loading="lazy" src={item.imageUrl} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
+      {media.slice(0, 4).map((item, index) => <figure key={item.id}><CanonicalMediaImage2029 item={item} primary={index === 0} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
     {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}
