@@ -199,7 +199,7 @@ rollback;
 insert into public.users(id, role) values
  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','admin'),
  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user');
-create or replace function pg_temp.as_uid(p_uid text) returns void language sql as $ select set_config('request.jwt.claim.sub', coalesce(p_uid,''), false) $;
+create or replace function pg_temp.as_uid(p_uid text) returns void language sql as $$ select set_config('request.jwt.claim.sub', coalesce(p_uid,''), false) $$;
 
 set session_replication_role = replica;
 insert into research_paths(id) values ('00000000-0000-0000-0000-0000000000c9'),('00000000-0000-0000-0000-0000000000c8');
