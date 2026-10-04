@@ -17,13 +17,6 @@ import "./topic2029.css";
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
 
-function TopicMapNav({ items = [] }) {
-  if (!items.length) return null;
-  return <nav className="sod29-topic-mapnav" aria-label="מפת ההתכנסות">
-    {items.map(([label, id]) => <a key={id} href={`#${id}`}>{label}</a>)}
-  </nav>;
-}
-
 function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-phrases">
