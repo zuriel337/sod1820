@@ -86,8 +86,9 @@ Any **one** of the following triggers rollback of the affected family:
 
 #### 2.2 Canonical rollback action
 
-- **Cutover unit:** one family = one dedicated commit/PR. It contains only that family's routing change: its `vercel.json` rewrite entries pointing to `2029.html`, plus any family-specific redirects. Unrelated runtime, DB or other-family changes are never bundled into it.
+- **Cutover unit (future family cutovers):** one family = one dedicated commit/PR. It contains only that family's routing change: its `vercel.json` rewrite entries pointing to `2029.html`, plus any family-specific redirects. Unrelated runtime, DB or other-family changes are never bundled into it.
 - **Canonical rollback:** revert that commit through the normal release path (PR → `main` → deploy, then canary). This returns the family to the Legacy document. Other families are untouched.
+- **Families already wired to 2029 before this contract** do not have this guarantee. Their rollback target is defined per family under §3.1, not assumed from history.
 - **Emergency only:** a Vercel instant rollback to the previous READY deployment may be used when harm is ongoing, for trigger 1 or a site-wide outage, and the revert path is too slow. It also reverts every later change. It must therefore be followed by the canonical revert commit and a reconciliation of `main` ↔ Production, recorded in work_log.
 - **Release authority** for a rollback resolves from `deploy_on_request` v3 like any release. This document grants none.
 - **Scope:** rollback is renderer-only. Legacy and 2029 share the same canonical engines, sources, writers and data, so no data rollback is implied.
@@ -126,7 +127,25 @@ This makes `docs/g3-2029-global-cutover-foundation-v1.md` §13 step 5, "cut over
 
 **Order.** Family order follows the Roadmap's minimum public slice and Golden sequence. This section does not reorder it.
 
-**Current wiring, as of base `3dc2ff04`.** `vercel.json` already routes `/post/*`, `/topic/*`, `/world`, `/books`, `/book/*`, `/els`, `/heichal`, `/video/*` and the `/2029/*` preview routes to `2029.html`. Home `/` and root post `/:slug` remain on Legacy. Families already wired should get their parity-scan evidence recorded once §4 exists. This note describes wiring only. It does not claim those families passed this checklist.
+#### 3.1 Wired ≠ Accepted ≠ Cutover-complete
+
+These are three distinct states. One never implies the next.
+
+- **Wired:** the family's routes are served by `2029.html` (a `vercel.json` rewrite exists).
+- **Accepted:** every applicable row of this checklist is PASS for the family, with evidence in its family cutover record.
+- **Cutover-complete:** Accepted, plus the Human Gate has authorized the family as the public face, the post-cutover checkpoint (§3) passed, and the rollback window is formally open or closed under §2.3.
+
+A route being served from 2029 is **not** evidence that it passed Cutover acceptance.
+
+**Future family cutovers** follow §2.2 and §3: one route family per isolated commit, and rollback = revert of that commit.
+
+**Families already wired today.** As of base `3dc2ff04`, `vercel.json` routes `/post/*`, `/topic/*`, `/world`, `/books`, `/book/*`, `/els`, `/heichal`, `/video/*` and the `/2029/*` preview routes to `2029.html`. Home `/` and root post `/:slug` remain on Legacy. These families are **Wired, not Accepted**. Before any of them is marked Accepted:
+- [ ] Run the parity scan (§4), the canary, and the other applicable gates of this checklist against the current deployed SHA.
+- [ ] Record a baseline for the family (§2.3) in its family cutover record.
+- [ ] Define a concrete rollback target for the family: the exact `vercel.json` entries to remove or restore, and the Legacy renderer and routes that must still build and serve. Verify that target on current `main`.
+- [ ] Do **not** assume a clean historical commit exists that can simply be reverted. These families were wired over several commits, often mixed with other changes. Their rollback is a new, dedicated forward commit that restores the recorded target.
+
+This section describes state and requirements only. It changes no routing.
 
 ### 4. Automated Legacy↔2029 parity scan (gate)
 

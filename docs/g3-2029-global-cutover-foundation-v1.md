@@ -1,6 +1,6 @@
 # SOD1820 — G3 2029 GLOBAL CUTOVER FOUNDATION V1
 
-**Status:** BRANCH-ONLY · NOT MERGED · NOT DEPLOYED  
+**Status:** MERGED to `main` (landed 2026-09-30 in `3acfbb83`, PR #840) · documentation contract only — performs no route cutover by itself (see §15)  
 **Human Gate:** ZURIEL · 2026-09-18  
 **Owner:** EXTEND_EXISTING `experience_governance_foundation_v1_law`  
 **Dependencies:** `research_workspace_law v4` · `canonical_ui_components_law v5` · existing route/SEO owners  
