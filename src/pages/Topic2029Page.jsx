@@ -11,8 +11,8 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
-import { supabase } from "../lib/supabase.js";
 import { formatTanakhRef } from "../lib/presentation/canonicalPresentation.js";
+import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 
@@ -199,7 +199,7 @@ function TopicGraphConnections({ golden }) {
   </section>;
 }
 
-function TopicSourcesMedia({ golden, verses = [], onFocusVerse }) {
+function TopicSourcesMedia({ golden, verses = [], verseCount = 0, versesLoading = false, onFocusVerse, onLoadMoreVerses }) {
   const sources = golden?.sources || [];
   const media = golden?.media || [];
   const people = golden?.people || [];
@@ -209,7 +209,7 @@ function TopicSourcesMedia({ golden, verses = [], onFocusVerse }) {
     {verses.length ? <div className="sod29-topic-verse-source">
       <div className="sod29-topic-source-subhead">
         <strong>פסוקים שלמים באותו מספר</strong>
-        <span>{verses.length}</span>
+        <span>{verseCount || verses.length}</span>
       </div>
       <div className="sod29-topic-verse-list">
         {verses.map((row) => {
@@ -226,6 +226,12 @@ function TopicSourcesMedia({ golden, verses = [], onFocusVerse }) {
           </button>;
         })}
       </div>
+      {verseCount > verses.length ? <button
+        type="button"
+        className="sod29-action sod29-topic-verse-more"
+        disabled={versesLoading}
+        onClick={onLoadMoreVerses}
+      >{versesLoading ? "טוען…" : `הצג עוד פסוקים · ${verses.length} מתוך ${verseCount}`}</button> : null}
     </div> : null}
     {media.length ? <div className="sod29-topic-media-grid">
       {media.slice(0, 4).map((item) => <figure key={item.id}><img loading="lazy" src={item.imageUrl} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
@@ -288,7 +294,7 @@ function TopicBody() {
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
   const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
-  const [verseState, setVerseState] = useState({ loading: false, rows: [], count: 0, error: null });
+  const [verseState, setVerseState] = useState({ loading: false, rows: [], count: 0, limit: DEFAULT_VERSE_GEMATRIA_LIMIT, error: null });
   const [focusOverride, setFocusOverride] = useState(null);
 
   useEffect(() => {
@@ -345,34 +351,25 @@ function TopicBody() {
   useEffect(() => {
     const heroNumber = Number(projection?.heroNumber);
     if (!Number.isSafeInteger(heroNumber)) {
-      setVerseState({ loading: false, rows: [], count: 0, error: null });
+      setVerseState({ loading: false, rows: [], count: 0, limit: DEFAULT_VERSE_GEMATRIA_LIMIT, error: null });
       return undefined;
     }
     let alive = true;
-    setVerseState({ loading: true, rows: [], count: 0, error: null });
-    supabase
-      .rpc("fn_verses_by_gematria", { p_value: heroNumber, p_limit: 6 })
-      .then(({ data, error }) => {
+    const limit = verseState.limit || DEFAULT_VERSE_GEMATRIA_LIMIT;
+    setVerseState((current) => ({ ...current, loading: true, error: null }));
+    fetchVersesByGematria(heroNumber, { limit })
+      .then((result) => {
         if (!alive) return;
-        if (error) {
-          setVerseState({ loading: false, rows: [], count: 0, error });
-          return;
-        }
-        const rows = Array.isArray(data?.verses)
-          ? data.verses.map((row) => ({
-              ref: clean(row?.ref),
-              text: clean(row?.text),
-              ragil: heroNumber,
-            })).filter((row) => row.ref && row.text)
-          : [];
-        setVerseState({
-          loading: false,
-          rows,
-          count: Number.isFinite(Number(data?.count)) ? Number(data.count) : rows.length,
-          error: null,
-        });
+        setVerseState({ loading: false, rows: result.verses, count: result.count, limit, error: null });
+      })
+      .catch((error) => {
+        if (alive) setVerseState((current) => ({ ...current, loading: false, error }));
       });
     return () => { alive = false; };
+  }, [projection?.heroNumber, verseState.limit]);
+
+  useEffect(() => {
+    setVerseState((current) => ({ ...current, limit: DEFAULT_VERSE_GEMATRIA_LIMIT }));
   }, [projection?.heroNumber]);
 
   const hasFindings = useMemo(
@@ -580,7 +577,17 @@ function TopicBody() {
       <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
-      <TopicSourcesMedia golden={golden} verses={verseState.rows} onFocusVerse={focusVerse} />
+      <TopicSourcesMedia
+        golden={golden}
+        verses={verseState.rows}
+        verseCount={verseState.count}
+        versesLoading={verseState.loading}
+        onFocusVerse={focusVerse}
+        onLoadMoreVerses={() => setVerseState((current) => ({
+          ...current,
+          limit: Math.min(Math.max(current.limit + 18, current.rows.length + 1), current.count || current.limit + 18),
+        }))}
+      />
       <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
       <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
