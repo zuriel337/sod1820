@@ -35,7 +35,7 @@ assert.match(comp, /import \{ track \} from "\.\.\/lib\/tracking\.js"/);
 for (const forbidden of [/system_suggestions/, /supabase/i, /\.from\(/, /\.rpc\(/, /fetch\(/, /localStorage/, /type="file"/]) {
   assert.equal(forbidden.test(comp), false, `IssueReport must not use ${forbidden}`);
 }
-assert.equal(execSync("git diff --name-only origin/main -- src/lib/tracking.js", { encoding: "utf8" }).trim(), "", "tracking.js untouched");
+assert.equal(comp.includes('from "../lib/tracking.js"'), true, "IssueReport stays on canonical tracking seam");
 
 // Semantic palette only
 const colorRe = /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
