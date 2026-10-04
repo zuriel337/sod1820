@@ -115,10 +115,30 @@ test("Research Path and commands share one physical System Frame bottom surface"
 });
 
 
-test("Research Context preserves bottom trail at runtime", () => {
-  const merged = mergeResearchContext(null, { subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" }, dimensions: { bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }] } });
+test("Research Context preserves bounded trail and semantic surface map at runtime", () => {
+  const merged = mergeResearchContext(null, {
+    subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" },
+    dimensions: {
+      bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }],
+      surfaceSections: [
+        { id: "salt-78", label: "מלח · 78", targetId: "source-region-salt-78", ignored: "drop" },
+        { id: "bennett-631", label: "נפתלי בנט · 631", targetId: "source-region-bennett-631" },
+      ],
+      activeSectionId: "salt-78",
+      surfaceMapLabel: "בתוך הפוסט",
+      surfaceFocus: { id: "salt-78", type: "number", label: "מלח · 78", number: 78, signals: ["חישוב מאומת", "עוגן מתוך האירוע", "3", "4", "drop"] },
+      readingFocus: { id: "salt-78", label: "מלח · 78", postId: "5113", postSlug: "bennett-melach-631-78", locator: "#source-region-salt-78" },
+    },
+  });
   assert.equal(merged.dimensions.bottomTrail.length, 2);
   assert.equal(merged.dimensions.bottomTrail[1].label, "631");
+  assert.equal(merged.dimensions.surfaceSections.length, 2);
+  assert.deepEqual(merged.dimensions.surfaceSections[0], { id: "salt-78", label: "מלח · 78", targetId: "source-region-salt-78" });
+  assert.equal(merged.dimensions.activeSectionId, "salt-78");
+  assert.equal(merged.dimensions.surfaceMapLabel, "בתוך הפוסט");
+  assert.equal(merged.dimensions.surfaceFocus.number, 78);
+  assert.deepEqual(merged.dimensions.surfaceFocus.signals, ["חישוב מאומת", "עוגן מתוך האירוע", "3", "4"]);
+  assert.equal(merged.dimensions.readingFocus.postSlug, "bennett-melach-631-78");
 });
 
 
