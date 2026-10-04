@@ -64,14 +64,17 @@ function TopicFindings({ projection, onOpenExpression }) {
       {[...numericClaims, ...rows].map((row, i) => {
         const phrase = clean(row.phrase || row.text);
         const value = Number(row.value);
-        return <div className="sod29-topic-claim" key={row.sourcePath || i}>
-          <div><strong>{phrase || "ממצא מספרי"}</strong>{row.method ? <small>{row.method}</small> : null}{row.note ? <small>{row.note}</small> : null}</div>
-          {Number.isFinite(value)
-            ? (phrase && onOpenExpression
-              ? <button type="button" className="sod29-topic-claim-number" onClick={() => onOpenExpression(phrase)}>{value}</button>
-              : <Link to={"/2029/number/" + value}>{value}</Link>)
-            : null}
-        </div>;
+        const primary = Number.isFinite(value) && value === projection.heroNumber;
+        return <article className={`sod29-topic-equation ${primary ? "is-primary" : "is-supporting"}`} key={row.sourcePath || i}>
+          <div className="sod29-topic-equation-line">
+            {phrase && onOpenExpression
+              ? <button type="button" className="sod29-topic-equation-phrase" onClick={() => onOpenExpression(phrase)}>{phrase}</button>
+              : <span className="sod29-topic-equation-phrase">{phrase || "חיבור מספרי"}</span>}
+            {Number.isFinite(value) ? <span className="sod29-topic-equation-equals">=</span> : null}
+            {Number.isFinite(value) ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value}>{value}</Link> : null}
+          </div>
+          {(row.method || row.note) ? <small className="sod29-topic-equation-note">{row.method || row.note}</small> : null}
+        </article>;
       })}
     </div> : null}
   </section>;
@@ -82,14 +85,15 @@ function TopicAuthoredConnections({ projection }) {
   if (!connections.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-authored-connections">
     <div className="sod29-section-head"><div><div className="sod29-kicker">עוד עומק</div><h2>הצירים שממשיכים מכאן</h2></div></div>
-    <div className="sod29-list">
+    <div className="sod29-topic-axis-grid">
       {connections.map((row, index) => {
         const number = Number(row.number);
         const labels = Array.isArray(row.links) ? row.links.filter(Boolean) : [];
-        return <div className="sod29-row" key={row.sourcePath || index}>
-          <div><strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong>{row.note ? <small>{row.note}</small> : null}</div>
-          {Number.isFinite(number) ? <Link className="sod29-action" to={"/2029/number/" + number}>{number}</Link> : null}
-        </div>;
+        return <article className="sod29-topic-axis-card" key={row.sourcePath || index}>
+          {Number.isFinite(number) ? <Link className="sod29-topic-axis-number" to={"/2029/number/" + number}>{number}</Link> : null}
+          <strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong>
+          {row.note ? <p>{row.note}</p> : null}
+        </article>;
       })}
     </div>
   </section>;
