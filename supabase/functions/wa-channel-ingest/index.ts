@@ -59,6 +59,22 @@ async function waAdmin(method: string, payload: unknown, http: string) {
   const data = await waGreen(sb, method, payload, http);
   return data;
 }
+
+async function loadHistory(chatId: string, count: number) {
+  let last: any = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      last = await waAdmin("getChatHistory", { chatId, count }, "POST");
+      const picked = pickHistory<Record<string, any>>(last);
+      if (picked.ok) return { ...picked, attempts: attempt, raw: last };
+    } catch (e) {
+      last = { ok: false, error: String(e) };
+    }
+    if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+  }
+  return { ok: false, rows: [] as Record<string, any>[], attempts: 3, raw: last };
+}
+
 function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   if (Array.isArray(v)) return { ok: true, rows: v as T[] };
   if (Array.isArray(v?.result)) return { ok: true, rows: v.result as T[] };
@@ -176,21 +192,19 @@ async function ingestSource(
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
   const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
-  let hist;
-  try {
-    hist = await waAdmin("getChatHistory", { chatId, count: historyCount }, "POST");
-  } catch (e) {
-    trace.push({ step: "hist-fail", channel: src.channel, error: String(e) });
+  const history = await loadHistory(chatId, historyCount);
+  if (!history.ok) {
+    const raw = history.raw as any;
+    trace.push({
+      step: "hist-invalid",
+      channel: src.channel,
+      attempts: history.attempts,
+      response: String(raw?.result?.stateInstance || raw?.result?.error || raw?.error || "non_array"),
+    });
     return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
   }
 
-  const picked = pickHistory<Record<string, any>>(hist);
-  if (!picked.ok) {
-    trace.push({ step: "hist-invalid", channel: src.channel, response: String(hist?.result?.stateInstance || hist?.result?.error || "non_array") });
-    return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
-  }
-
-  const msgs = picked.rows;
+  const msgs = history.rows;
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
     ? ordered.filter((m) => String(m?.idMessage || "") === targetMessageId)
