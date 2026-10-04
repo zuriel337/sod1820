@@ -65,7 +65,13 @@ assert.match(visits, /rpc\("admin_video_map_health"\)/);
 assert.match(control, /VIDEO MAP · 2029/);
 assert.match(control, /getVideoMapHealth\(\)/);
 assert.match(control, /Projection owner/);
-assert.match(control, />0 tokens</);
+// The policy still says zero, but an unavailable RPC must not display a fake
+// measured zero. The monitor renders the policy field through its null-aware
+// formatter and leaves missing values unknown.
+assert.match(mig, /'deterministic_mapping_tokens',0/);
+assert.match(control, /\{num\(videoMap\.ai_policy\?\.deterministic_mapping_tokens\)\} tokens/);
+assert.match(control, /const num = v => numeric\(v\) == null \? "לא ידוע"/);
+assert.doesNotMatch(control, />0 tokens</);
 assert.match(mig, /if v_role <> 'service_role' and not coalesce\(public\.rd_is_admin\(\), false\) then/);
 assert.match(mig, /revoke all on function public\.admin_video_map_health\(\) from public,anon/);
 assert.match(mig, /metadata_provider','Anthropic'/);

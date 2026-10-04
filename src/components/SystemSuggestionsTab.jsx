@@ -26,6 +26,8 @@ export default function SystemSuggestionsTab() {
   const [notify, setNotify] = useState([]);
   const [waTarget, setWaTarget] = useState("");
   const [msg, setMsg] = useState("");
+  const [decisionError, setDecisionError] = useState("");
+  const [decisionBusy, setDecisionBusy] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -38,8 +40,15 @@ export default function SystemSuggestionsTab() {
   useEffect(() => { load(); }, [load]);
 
   const decide = async (id, status) => {
-    await adminSuggestionDecide(id, status);
-    setItems(x => x.filter(i => i.id !== id));
+    if (decisionBusy != null) return;
+    setDecisionBusy(id); setDecisionError("");
+    try {
+      const saved = await adminSuggestionDecide(id, status);
+      if (!saved) throw new Error("השרת לא אישר את שמירת ההחלטה");
+      setItems(x => x.filter(i => i.id !== id));
+    } catch (error) {
+      setDecisionError(`ההחלטה לא נשמרה. הפריט נשאר בתור. ${error?.message || "נסה שוב"}`);
+    } finally { setDecisionBusy(null); }
   };
   const email = (notify || []).find(n => n.channel === "email");
   const wa = (notify || []).find(n => n.channel === "whatsapp");
@@ -109,6 +118,7 @@ export default function SystemSuggestionsTab() {
       </div>
 
       {/* טאבי-סטטוס */}
+      {decisionError ? <p role="alert">{decisionError}</p> : null}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
         {STATUS_TABS.map(([k, label]) => (
           <button key={k} onClick={() => setTab(k)} style={{ cursor: "pointer", background: tab === k ? "rgba(212,175,55,0.14)" : "transparent", border: `1px solid ${tab === k ? C.borderGold : C.border}`, color: tab === k ? C.goldBright : C.muted, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontWeight: 700, fontSize: 12.5 }}>{label}</button>
@@ -142,12 +152,12 @@ export default function SystemSuggestionsTab() {
                 )}
                 {tab === "pending" && (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => decide(s.id, "accepted")} style={{ cursor: "pointer", background: "rgba(76,175,125,0.14)", border: "1px solid rgba(76,175,125,0.55)", color: "#7fd49a", borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✅ קבל</button>
-                    <button onClick={() => decide(s.id, "rejected")} style={{ cursor: "pointer", background: "rgba(220,90,90,0.12)", border: "1px solid rgba(220,90,90,0.5)", color: "#e88", borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>❌ דחה</button>
-                    <button onClick={() => decide(s.id, "later")} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5 }}>🕒 המתן לעוד נתונים</button>
+                    <button disabled={decisionBusy != null} onClick={() => decide(s.id, "accepted")} style={{ cursor: "pointer", background: "rgba(76,175,125,0.14)", border: "1px solid rgba(76,175,125,0.55)", color: "#7fd49a", borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✅ קבל</button>
+                    <button disabled={decisionBusy != null} onClick={() => decide(s.id, "rejected")} style={{ cursor: "pointer", background: "rgba(220,90,90,0.12)", border: "1px solid rgba(220,90,90,0.5)", color: "#e88", borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>❌ דחה</button>
+                    <button disabled={decisionBusy != null} onClick={() => decide(s.id, "later")} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5 }}>🕒 המתן לעוד נתונים</button>
                   </div>
                 )}
-                {tab !== "pending" && s.decided_at && <div style={{ color: C.muted, fontSize: 11.5, fontFamily: F.body }}>הוחלט: {new Date(s.decided_at).toLocaleDateString("he-IL")}{s.decision_note ? ` · ${s.decision_note}` : ""}{tab !== "accepted" && <button onClick={() => decide(s.id, "pending")} style={{ marginInlineStart: 8, cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "2px 10px", fontSize: 11 }}>↺ החזר לממתינות</button>}</div>}
+                {tab !== "pending" && s.decided_at && <div style={{ color: C.muted, fontSize: 11.5, fontFamily: F.body }}>הוחלט: {new Date(s.decided_at).toLocaleDateString("he-IL")}{s.decision_note ? ` · ${s.decision_note}` : ""}{tab !== "accepted" && <button disabled={decisionBusy != null} onClick={() => decide(s.id, "pending")} style={{ marginInlineStart: 8, cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "2px 10px", fontSize: 11 }}>↺ החזר לממתינות</button>}</div>}
               </div>
             );
           })}

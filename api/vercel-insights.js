@@ -4,20 +4,20 @@
 // Requires server-only VERCEL_API_TOKEN. Never expose this token to the browser.
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
 const DEFAULT_TEAM = 'team_vtfWHZfKvdbob8gvynQb5N89';
 const DEFAULT_PROJECT = 'prj_43q7k7QFAcWnin1tcBjce5xOi7Cq';
 
-async function verifyAdmin(req) {
+export async function verifyAdmin(req, { fetchImpl = fetch } = {}) {
   try {
     const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     if (!token) return false;
-    const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
+    const uRes = await fetchImpl(`${SUPABASE_URL}/auth/v1/user`, { signal: AbortSignal.timeout(5000), headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
     if (!uRes.ok) return false;
     const u = await uRes.json();
     if (!u?.id) return false;
-    const pRes = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${u.id}&select=role`, { headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
+    const pRes = await fetchImpl(`${SUPABASE_URL}/rest/v1/users?id=eq.${u.id}&select=role`, { signal: AbortSignal.timeout(5000), headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
     if (!pRes.ok) return false;
     const rows = await pRes.json();
     return rows?.[0]?.role === 'admin';

@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { adminBuildMetadata } from './scripts/admin-build-metadata.mjs'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 const is2029 = process.env.SOD_BUILD_TARGET === '2029'
@@ -10,6 +11,7 @@ const is2029 = process.env.SOD_BUILD_TARGET === '2029'
 // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
+  define: is2029 ? { __SOD_ADMIN_BUILD__: JSON.stringify(adminBuildMetadata()) } : {},
   plugins: [react()],
   build: {
     emptyOutDir: !is2029,
