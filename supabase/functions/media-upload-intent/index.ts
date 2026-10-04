@@ -89,7 +89,7 @@ async function verifyIntent(actor: any, body: any) {
 
 async function deleteVerifiedUpload(actor: any, body: any) {
   const scope = String(body.scope || "submission");
-  const bucket = scope === "public" ? "media" : scope === "submission" ? "submission-inbox" : "";
+  const bucket = scope === "public" ? "media" : ["submission","personal"].includes(scope) ? "submission-inbox" : "";
   const path = String(body.path || "");
   if (!bucket || !mayVerifyPath({ scope, path, userId: actor.userId, contributorId: actor.contributorId, isAdmin: actor.isAdmin })) {
     throw new Error("delete_forbidden");
