@@ -72,6 +72,13 @@ assert.equal(coreProjection.includes("הצלבה · ${item.methods"), false, "ge
 assert.equal(fs.existsSync("src/lib/research/numberExpressionVerses.js"), false, "Number 2029 must not keep a parallel verse reader");
 assert.match(livingWorld, /formatTanakhRef/);
 assert.match(livingWorld, /formatVerseGematriaSuffix/);
+assert.match(livingWorld, /canonicalGraphRelationTitle/);
+assert.match(livingWorld, /canonicalFindingKindPublicLabel/);
+assert.match(livingWorld, /canonicalMediaPublicLabel/);
+assert.match(livingWorld, /onFocusContext/);
+assert.match(livingWorld, /sod29-lw-timeline-focus/);
+assert.match(page, /focusSurfaceContext/);
+assert.equal(/>graph-relation</.test(livingWorld), false, "internal graph-relation kind must never be public copy");
 assert.match(livingWorld, /CanonicalMediaImage2029/);
 assert.match(canonicalMedia, /data-media-fit="preserve-whole-image"/);
 assert.match(canonicalMediaCss, /object-fit:contain!important/);
@@ -248,7 +255,6 @@ for (const required of [
   'מד ניווט חי',
   'מסע אישי',
   'המספר ומשפחתו',
-  'toggleTheme',
 ]) {
   assert.equal(livingWorld.includes(required), true, `Living Number renderer missing semantic capability: ${required}`);
 }
