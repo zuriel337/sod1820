@@ -166,12 +166,12 @@ jobs:
           done
           cat /tmp/sod1820-2029-preview.log
           exit 1
-      - name: Real World browser acceptance
+      - name: Entry Orientation + Contextual Learn browser acceptance
         run: |
           mkdir -p test-results/release-visual
-          npx playwright test tests/world2029-release.spec.cjs --reporter=line
-      - name: Entry Orientation + Contextual Learn browser acceptance
-        run: npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
+          npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
+      - name: Real World browser acceptance
+        run: npx playwright test tests/world2029-release.spec.cjs --reporter=line
       - name: Upload native World screenshots
         if: always()
         uses: actions/upload-artifact@v4
