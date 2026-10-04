@@ -137,11 +137,11 @@ console.log("issue-report canonical emitter: ok");
 
 
 // contact triage privacy hardening
-const gateway = read("src/components/ContactGateway.jsx");
+const gatewayPrivacy = read("src/components/ContactGateway.jsx");
 const triageMigration = read("supabase/migrations/20261004161000_contact_gateway_ai_triage_status_v2.sql");
 const aiAnalyzeContact = read("supabase/functions/ai-analyze/index.ts");
 
-assert.doesNotMatch(gateway, /review_note/);
+assert.doesNotMatch(gatewayPrivacy, /review_note/);
 assert.doesNotMatch(triageMigration, /review_note/);
 assert.match(triageMigration, /\^\/[A-Za-z0-9\/_-]\{1,180\}\$/);
 assert.match(aiAnalyzeContact, /kind === "contact_triage" && tier !== "admin"/);
