@@ -106,6 +106,40 @@ function PostReadingBody() {
   useEffect(() => {
     if (!state.projection || !activeFocus) return;
     const post = state.projection.post;
+    const currentContext = research.context || null;
+    const currentSelection = currentContext?.selection || null;
+    const currentDimensions = currentContext?.dimensions || {};
+    const samePost = currentContext?.subject?.type === "post"
+      && String(currentContext.subject.id) === String(post.id);
+    const preserveExplicitGematriaFocus = samePost
+      && currentContext?.lens === "gematria"
+      && currentSelection?.entityType === "gematria_expression"
+      && Boolean(currentSelection?.expression)
+      && Boolean(currentSelection?.method)
+      && currentSelection?.resultValue != null;
+
+    const passiveSelection = {
+      entityId: activeFocus.id,
+      entityType: "post_region",
+      locator: `#source-region-${activeFocus.id}`,
+    };
+    const passiveTrail = [
+      { id: "post", label: "פוסט" },
+      { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
+      ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
+    ];
+    const passiveSurfaceFocus = {
+      id: activeFocus.id,
+      type: activeFocus.number ? "number" : "post_region",
+      sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+      label: activeFocus.primary || activeFocus.label,
+      primary: activeFocus.primary,
+      signals: activeFocus.signals || [],
+      number: activeFocus.number || null,
+      sourceLabel: state.projection.sourceLabel,
+      locator: `#source-region-${activeFocus.id}`,
+    };
+
     research.updateResearchContext?.({
       subject: {
         id: String(post.id),
@@ -113,19 +147,13 @@ function PostReadingBody() {
         label: post.title,
         href: `/post/${post.slug}`,
       },
-      selection: {
-        entityId: activeFocus.id,
-        entityType: "post_region",
-        locator: `#source-region-${activeFocus.id}`,
-      },
-      lens: "reading",
+      selection: preserveExplicitGematriaFocus ? currentSelection : passiveSelection,
+      lens: preserveExplicitGematriaFocus ? "gematria" : "reading",
       dimensions: {
-        ...(research.context?.dimensions || {}),
-        bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
-          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
-        ],
+        ...currentDimensions,
+        bottomTrail: preserveExplicitGematriaFocus && Array.isArray(currentDimensions.bottomTrail)
+          ? currentDimensions.bottomTrail
+          : passiveTrail,
         surfaceSections: regions.map((region) => ({
           id: region.id,
           label: region.label,
@@ -133,17 +161,9 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
-        surfaceFocus: {
-          id: activeFocus.id,
-          type: activeFocus.number ? "number" : "post_region",
-          sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
-          label: activeFocus.primary || activeFocus.label,
-          primary: activeFocus.primary,
-          signals: activeFocus.signals || [],
-          number: activeFocus.number || null,
-          sourceLabel: state.projection.sourceLabel,
-          locator: `#source-region-${activeFocus.id}`,
-        },
+        surfaceFocus: preserveExplicitGematriaFocus && currentDimensions.surfaceFocus?.type === "gematria_expression"
+          ? currentDimensions.surfaceFocus
+          : passiveSurfaceFocus,
         readingFocus: {
           id: activeFocus.id,
           label: activeFocus.label,
