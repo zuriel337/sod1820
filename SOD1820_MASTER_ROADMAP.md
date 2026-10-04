@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.7 COMPACT
+# SOD1820 — MASTER ROADMAP v6.8 COMPACT
 
-**Date:** 2026-10-01  
+**Date:** 2026-10-04  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -52,7 +52,7 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 Detailed domain semantics live in owners, not here:
 
 - Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
-- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v7**;
+- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
@@ -95,7 +95,7 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
-- After Posts passes, run one bounded **Cross-Surface Skeleton Golden** over the minimum public slice before cutover — representative path such as Home → World → Topic → Post → Book/Number → exact return. Its purpose is to prove shared navigation/context/availability semantics across surfaces, not to require final World/Home artwork.
+- After Posts passes, run one bounded **Cross-Surface Skeleton Golden** over the minimum public slice before cutover — representative path such as Home → World → Topic → Post → Book/Number → exact return. Acceptance must include an exact-return replay after a full page reload, an auth-expiry → sign-in → return transition, and the constrained-mobile / Contextual Inspector bottom-sheet path. Its purpose is to prove shared navigation/context/availability semantics across surfaces, not to require final World/Home artwork.
 - A **2029 Public Cutover** may occur only after both the Posts Golden and the Cross-Surface Skeleton Golden pass, the minimum public slice passes release/crawler/redirect/SEO checks, and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
 - After cutover, continue G4 with **World high-fidelity Golden second** and **Home high-fidelity Golden third**, reusing the same visual system while allowing G4 evidence to change composition/navigation presentation without changing semantic identity.
 - G4 remains the formal Golden-experience gate. This transition lane prepares the shell and high-fidelity design; it does not mark a capability Golden or satisfy G4 acceptance by itself.
@@ -113,6 +113,8 @@ Golden order should include ELS + Raziel/context before broad localization/media
 Golden acceptance also includes measured end-to-end performance on representative core journeys against live/replayable production-like data: route/input responsiveness, p50/p95 server/RPC latency where measurable, Raziel tool/response latency, query count/DB time, cache behavior, Storage/CDN egress, error/fallback rate and trace completeness. A latency/query/storage regression routes back to its owning G3 layer for repair. Raw/historical telemetry may be archived only after the Golden window proves canonical rollups preserve the required history.
 
 **Post-G4 retrieval/inventory regression check:** after representative G4 Goldens complete, rerun the end-of-G3 owner-first retrieval benchmark, diff the Canonical Data Inventory against its G3 closure baseline, **and replay the enforcement-chain negative tests** for save receipts, Person ownership, canonical engine/writer entrypoints and media ingress. Any reintroduced orphan Person/artifact linkage, archived-log dependency in default routing, serial cross-store fallback, duplicate source authority, unowned new table/store, bypass that can still claim `DONE/SAVED`, or material p95 regression routes back to the owning G3 seam for correction before broad G5+ scaling. This is a maintenance/reconciliation check under existing owners, not a new monitoring or search system.
+
+**External challenge + single-operator blind-spot review (standing G4/cutover matrix):** use the existing Redesign-Risk Challenge in `foundation_closure_protocol_law` plus read-only specialist dispatch under `inter_agent_coordination_law`; ZURIEL is never the messenger and no new agent system/registry is created. Review lenses are roles, not new bots: (1) beginner/product comprehension, (2) truth/Reality-Graph integrity, (3) release/SEO/cutover safety, (4) operability/simplification for one human operator, and (5) independent skeptic/unknown-unknown challenge. **Before G4 closure:** prove the Exact Return replay cases above and resolve the live Reality-Graph contract→DB enforcement gap for relation vocabulary/provenance/alias drift through the existing graph owner and Human Gate; stable writer/source binding must be resolved before any Golden materially relies on standing trusted-writer attribution. **Post-G4 before Public Cutover:** prove parity+rollback/Legacy-retirement evidence, audit the two authorized POST-A pilot redirects before any broader post-URL precedent, challenge Topic↔Number and Home↔World product boundaries, include a Raziel unavailable/unregistered-capability negative test, verify beginner/orientation learnability, and run a bounded operations simplification pass over active functions/jobs/flags. **Later major gates only:** re-check retention/egress proportionality and rerun this matrix; do not create continuous monitoring merely to satisfy the review. Full external CTO A–J reconciliation and explicit do-not-build decisions: `audits/g4-gemini-cto-review/GEMINI_CTO_REVIEW_RECONCILIATION_V1.md`. Detailed evidence stays in work_log/audits and domain owners, not in this Roadmap.
 
 ### G5 — Product / Entitlement Matrix
 
@@ -155,6 +157,7 @@ Only decision-changing open items belong here:
 - exact Home/Global Now composition;
 - final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof; Legacy UX maintenance/parity itself is no longer an objective;
+- exceptional POST-A pilot redirects for FZ1073/Bennett remain bounded Human-Gate pilots, not general URL precedent; before any broad post-URL migration, complete inbound/SEO/canonical parity evidence under the existing route owner;
 - exact server-boundary mechanics for HTTP 404/301/200 on invalid/retired/current **2029** public routes, without adding DB lookups to CN/SG bot-policy middleware;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
