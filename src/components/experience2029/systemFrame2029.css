@@ -476,3 +476,9 @@
     font-size:10px;
   }
 }
+
+
+/* Preserve exact pre-release layout tree for every non-Number surface. */
+.sod29-main-stage:not(.has-context-rail){
+  display:contents;
+}
