@@ -50,3 +50,15 @@ export async function rejectHint(id, note) {
   try { const { data } = await supabase.rpc("reject_community_hint", { p_id: id, p_note: note || null }); return data || { ok: false }; }
   catch (e) { return { ok: false, error: String(e?.message || e) }; }
 }
+
+
+// 🔄 Status Loop — lifecycle אמיתי של רמזי-הקהילה ששלח המשתמש המחובר.
+// קריאה דרך RPC מאובטח בלבד; אין SELECT ישיר על community_hints.
+export async function getMyCommunityHintStatuses(limit = 20) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("my_community_hint_status_v1", { p_limit: limit });
+    if (error) return [];
+    return data || [];
+  } catch { return []; }
+}

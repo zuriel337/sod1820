@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import ReadingContextRail2029 from "../components/experience2029/ReadingContextRail2029.jsx";
+import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
@@ -69,6 +69,13 @@ function PostReadingBody() {
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
     [regions, activeRegionId],
   );
+  const sectionItems = useMemo(() => [
+    { id: "post-story", label: "הסיפור", targetId: "post-story" },
+    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
+    { id: "post-connections", label: "חיבורים", targetId: "post-connections" },
+    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
+    { id: "post-next", label: "המשך", targetId: "post-next" },
+  ], [regions]);
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
@@ -114,7 +121,22 @@ function PostReadingBody() {
       lens: "reading",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: state.projection?.experience?.trail || [],
+        bottomTrail: [
+          { id: "post", label: "פוסט" },
+          { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
+          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
+        ],
+        surfaceFocus: {
+          id: activeFocus.id,
+          type: activeFocus.number ? "number" : "post_region",
+          sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+          label: activeFocus.primary || activeFocus.label,
+          primary: activeFocus.primary,
+          signals: activeFocus.signals || [],
+          number: activeFocus.number || null,
+          sourceLabel: state.projection.sourceLabel,
+          locator: `#source-region-${activeFocus.id}`,
+        },
         readingFocus: {
           id: activeFocus.id,
           label: activeFocus.label,
@@ -140,11 +162,33 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const experience = projection.experience || {};
-  const heroNumbers = [...new Set(
-    regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
-  )].slice(0, 5);
+  const isBennettMaster = post.slug === "bennett-melach-631-78";
+  const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
+  const heroNumbers = isBennettMaster
+    ? [78, 631]
+    : isFz1073Master
+      ? [363, 1073, 718]
+      : [...new Set(
+          regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
+        )].slice(0, 5);
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
-  const heroDate = String(post.modified || post.date || "").slice(0, 10);
+  const heroDate = isBennettMaster
+    ? "2026-10-01"
+    : isFz1073Master
+      ? "2026-09-30"
+      : String(post.date || post.modified || "").slice(0, 10);
+  const visibleSourceLabel = isBennettMaster
+    ? "בנט והמלח"
+    : isFz1073Master
+      ? "טיסה FZ1073"
+      : projection.sourceLabel;
+  const visibleTimeline = isBennettMaster
+    ? (experience.timeline || [])
+        .filter((item) => item.id === "bennett-salt-event" || item.id === "bennett-salt-golden")
+        .map((item) => item.id === "bennett-salt-golden"
+          ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
+          : item)
+    : (experience.timeline || []);
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -275,7 +319,25 @@ function PostReadingBody() {
       lens: "gematria",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: state.projection?.experience?.trail || [],
+        bottomTrail: [
+          { id: "post", label: "פוסט" },
+          { id: "gematria", label: "גימטריות" },
+          { id: "number", label: String(numericResult), active: true },
+        ],
+        surfaceFocus: {
+          id: targetRegion.id,
+          type: "gematria_expression",
+          sectionLabel: "גימטריות",
+          label: cleanExpression,
+          primary: cleanExpression,
+          expression: cleanExpression,
+          method: cleanMethodKey,
+          resultValue: numericResult,
+          number: numericResult,
+          signals: targetRegion.signals || [],
+          sourceLabel: projection.sourceLabel,
+          locator,
+        },
         readingFocus: {
           id: targetRegion.id,
           label: targetRegion.label,
@@ -293,25 +355,44 @@ function PostReadingBody() {
       },
       returnTo: exactReturnForRegion(targetRegion),
     });
-    shell.openNumber?.({
+    shell.openInspect?.({
       id: `post:${post.id}:${targetRegion.id}`,
       type: "phrase",
       label: cleanExpression,
       href: `/post/${post.slug}${locator}`,
       source: "post-contextual-focus",
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+      number: numericResult,
+      locator,
+      sourceLabel: projection.sourceLabel,
     });
   };
 
   const handleSourceContextualFocus = (event) => {
     const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
-    if (!trigger || !sourceRef.current?.contains(trigger)) return;
-    event.preventDefault();
-    openContextualNumberFocus({
-      expression: trigger.dataset.expression,
-      methodKey: trigger.dataset.method,
-      resultValue: trigger.dataset.result,
-      regionId: trigger.dataset.regionId,
-    });
+    if (trigger && sourceRef.current?.contains(trigger)) {
+      event.preventDefault();
+      openContextualNumberFocus({
+        expression: trigger.dataset.expression,
+        methodKey: trigger.dataset.method,
+        resultValue: trigger.dataset.result,
+        regionId: trigger.dataset.regionId,
+      });
+      return;
+    }
+
+    if (isFz1073Master) {
+      const legacyNumber = event.target?.closest?.(".sod-numlink[data-gem]");
+      if (legacyNumber && sourceRef.current?.contains(legacyNumber)) {
+        const numericValue = Number(String(legacyNumber.dataset.gem || "").replace(/,/g, ""));
+        if (Number.isSafeInteger(numericValue)) {
+          event.preventDefault();
+          openHeroNumber(numericValue);
+        }
+      }
+    }
   };
 
   const openHeroNumber = (number) => {
@@ -348,12 +429,15 @@ function PostReadingBody() {
         },
       });
     }
-    shell.openNumber?.({
+    shell.openInspect?.({
       id: String(number),
       type: "number",
       label: String(number),
       href: "/2029/number/" + number,
       source: "post-master-hero",
+      number: Number(number),
+      locator: targetRegion ? `#source-region-${targetRegion.id}` : null,
+      sourceLabel: projection.sourceLabel,
     });
   };
 
@@ -363,16 +447,17 @@ function PostReadingBody() {
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
+    data-post-slug={post.slug}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>WIREFRAME · מבנה בלבד</b>
       <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
     </section> : null}
 
-    <header className="sod29-reading-hero" data-experience-capability="post-master-hero">
+    <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
-          <div className="sod29-reading-source-badge">{projection.sourceLabel}</div>
+          <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
           <h1>{post.title}</h1>
           <p className="sod29-reading-source-line">{projection.sourceLine}</p>
           <p className="sod29-reading-deck">{projection.excerpt}</p>
@@ -380,33 +465,34 @@ function PostReadingBody() {
             {heroDate ? <span>{heroDate}</span> : null}
             {heroCategories.map((category) => <span key={category}>{category}</span>)}
           </div>
-          <div className="sod29-reading-integrity">
+          {!isBennettMaster && !isFz1073Master ? <div className="sod29-reading-integrity">
             <span>המקור נשמר כלשונו</span>
             <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
-            {projection.previewSnapshot ? <span>Golden · Preview</span> : projection.draft ? <span>Golden · טיוטה פרטית</span> : null}
-          </div>
+          </div> : null}
         </div>
 
-        {heroNumbers.length ? <div className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">צירי הקריאה</span>
+        {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
               key={number}
               type="button"
               className={"sod29-reading-number-signal signal-" + (index + 1)}
+              data-orientation-target="post-number"
               onClick={() => openHeroNumber(number)}
               aria-label={"בדוק את מספר " + number}
             >
               <strong>{number}</strong>
-              <small>בדיקה מהירה</small>
+              <small>{isBennettMaster || isFz1073Master ? "פתח" : "בדיקה מהירה"}</small>
             </button>)}
           </div>
-          <p>המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה.</p>
+          <p>{isBennettMaster || isFz1073Master ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
+    {isBennettMaster || isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <div className="sod29-reading-layout">
       <section
@@ -432,17 +518,9 @@ function PostReadingBody() {
         ><span /></button>)}
       </nav>
 
-      <ReadingContextRail2029
-        focus={activeFocus}
-        onOpenWorld={openWorld}
-        onOpenNumber={openNumber}
-        onAskRaziel={askRaziel}
-        onOpenContext={openContext}
-        connections={contextualConnections}
-      />
     </div>
 
-    <PostTimeline2029 items={experience.timeline || []} />
+    {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>
@@ -457,8 +535,8 @@ export default function Post2029Page() {
 
   useEffect(() => {
     applySeo({
-      title: "SOD1820 · Post 2029 Golden",
-      description: "Golden Preview למשטח הקריאה החדש של SOD1820.",
+      title: "SOD1820 · פוסט",
+      description: "פוסט ורמזים בתוך SOD1820.",
       path: `/post/${slug || ""}`,
       type: "article",
       noindex: true,
@@ -468,7 +546,7 @@ export default function Post2029Page() {
   return <Sod2029Shell
     surface="post"
     symbol="✦"
-    status="Post 2029 · GOLDEN"
+    status="פוסט"
   >
     <PostReadingBody />
   </Sod2029Shell>;
