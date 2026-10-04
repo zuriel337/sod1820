@@ -136,12 +136,9 @@ test('direct Post teaches in place before opening the canonical calculation at 3
 
   const anySpatialStage = inspector.locator('[data-experience-capability="spatial-method-stage"]');
   await expect(anySpatialStage).toBeVisible({ timeout: 10_000 });
-  const spatialMethodKey = await anySpatialStage.getAttribute('data-method-key');
-  if (spatialMethodKey !== 'רגיל') {
-    const state = await anySpatialStage.getAttribute('data-state');
-    const text = await anySpatialStage.innerText().catch(() => '');
-    throw new Error(`SpatialMethodStage verification failed: state=${state || 'verified-without-key'} inspector=רגיל calculation=78 trace=${JSON.stringify(traceResponse)} text=${text}`);
-  }
+  // The loading placeholder and verified Stage share the same semantic capability.
+  // Wait for the canonical method identity instead of sampling the placeholder mid-transition.
+  await expect(anySpatialStage).toHaveAttribute('data-method-key', 'רגיל', { timeout: 10_000 });
 
   const stored = await page.evaluate((key) => {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
