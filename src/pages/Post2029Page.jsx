@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
-import SurfaceProgressSpine2029 from "../components/experience2029/SurfaceProgressSpine2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
@@ -123,6 +122,8 @@ function PostReadingBody() {
       lens: "reading",
       dimensions: {
         ...(research.context?.dimensions || {}),
+        surfaceSections: sectionItems,
+        activeSectionId: activeSurfaceSectionId,
         bottomTrail: [
           { id: "post", label: "פוסט", targetId: "post-story" },
           {
@@ -492,6 +493,7 @@ function PostReadingBody() {
       items={sectionItems}
       activeId={activeSurfaceSectionId}
       onSelect={(item) => setActiveSurfaceSectionId(item.id)}
+      onActiveChange={(item) => setActiveSurfaceSectionId(item.id)}
       ariaLabel="ניווט בפוסט"
     />
 
@@ -505,14 +507,6 @@ function PostReadingBody() {
         aria-label="טקסט המקור"
         onClick={handleSourceContextualFocus}
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
-      />
-
-      <SurfaceProgressSpine2029
-        items={sectionItems}
-        activeId={activeSurfaceSectionId}
-        onSelect={(item) => setActiveSurfaceSectionId(item.id)}
-        onActiveChange={(item) => setActiveSurfaceSectionId(item.id)}
-        ariaLabel="התקדמות בפוסט"
       />
 
     </div>
