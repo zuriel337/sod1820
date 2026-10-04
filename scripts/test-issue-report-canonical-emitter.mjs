@@ -9,6 +9,10 @@ const comp = read("src/components/IssueReport.jsx").replace(/\/\/.*$/gm, "");
 const gateway = read("src/components/ContactGateway.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
+const community = read("src/lib/community.js");
+const suggestions = read("src/components/SystemSuggestionsTab.jsx");
+const aiAnalyze = read("supabase/functions/ai-analyze/index.ts");
+const contactTriageMigration = read("supabase/migrations/20261004161000_contact_gateway_ai_triage_status_v2.sql");
 
 // One component: exactly one IssueReport implementation in src, and no second bug/support store.
 const owners = execSync("grep -rl 'export default function IssueReport' src || true", { encoding: "utf8" }).trim().split("\n").filter(Boolean);
@@ -49,6 +53,25 @@ assert.match(gateway, /id: "hint"/);
 assert.match(gateway, /id: "idea"/);
 assert.match(gateway, /id: "contact"/);
 assert.equal(/research_contributions|Discourse|forum/i.test(gateway), false);
+
+// Status loop: owner-backed lifecycle only, via authenticated bounded RPC.
+assert.match(gateway, /MyCommunityHintStatusLoop/);
+assert.match(community, /my_community_hint_status_v1/);
+assert.match(contactTriageMigration, /where h\.reporter_user_id = v_uid/);
+assert.match(contactTriageMigration, /revoke all on function public\.my_community_hint_status_v1\(integer\) from public/);
+assert.match(contactTriageMigration, /grant execute on function public\.my_community_hint_status_v1\(integer\) to authenticated/);
+assert.equal(/grant\s+select[\s\S]*community_hints/i.test(contactTriageMigration), false, "status loop must not grant direct table SELECT");
+
+// AI triage: aggregate suggestion data only, admin/on-demand, never raw intake ownership.
+assert.match(contactTriageMigration, /admin_contact_gateway_triage_refresh_v2/);
+assert.match(contactTriageMigration, /raw_user_text_included',false/);
+assert.match(contactTriageMigration, /public\.rd_is_admin\(\)/);
+assert.match(suggestions, /adminContactGatewayTriageRefresh/);
+assert.match(suggestions, /kind: "contact_triage"/);
+assert.match(suggestions, /סכם עם AI/);
+assert.match(aiAnalyze, /SYSTEM_CONTACT_TRIAGE/);
+assert.match(aiAnalyze, /kind === "contact_triage"/);
+assert.match(aiAnalyze, /אותות מצטברים מהמערכת/);
 
 // Runtime: bundle with stubs, exercise builders + emission + anonymous availability
 const dir = fs.mkdtempSync(path.join(process.cwd(), "node_modules", ".ir-test-"));
@@ -111,3 +134,18 @@ assert.equal("message" in empty, false);
 
 fs.rmSync(dir, { recursive: true, force: true });
 console.log("issue-report canonical emitter: ok");
+
+
+// contact triage privacy hardening
+const gatewayPrivacy = read("src/components/ContactGateway.jsx");
+const triageMigration = read("supabase/migrations/20261004161000_contact_gateway_ai_triage_status_v2.sql");
+const aiAnalyzeContact = read("supabase/functions/ai-analyze/index.ts");
+
+assert.doesNotMatch(gatewayPrivacy, /review_note/);
+assert.doesNotMatch(triageMigration, /review_note/);
+assert.ok(triageMigration.includes("^/[A-Za-z0-9/_-]{1,180}$"));
+assert.match(aiAnalyzeContact, /kind === "contact_triage" && tier !== "admin"/);
+assert.match(aiAnalyzeContact, /error: "forbidden"/);
+assert.match(triageMigration, /revoke all on function public\.suggest_add\(text,text,text,text,jsonb,integer,integer,text,text\)/);
+assert.match(triageMigration, /from public, anon, authenticated/);
+assert.match(triageMigration, /grant execute on function public\.suggest_add[\s\S]*to service_role/);

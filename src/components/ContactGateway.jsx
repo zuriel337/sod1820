@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { sendContactMessage } from "../lib/supabase.js";
+import { getMyCommunityHintStatuses } from "../lib/community.js";
 import IssueReport from "./IssueReport.jsx";
 import ReportHint from "./ReportHint.jsx";
 
@@ -42,6 +43,45 @@ export const CONTACT_GATEWAY_CHOICES = Object.freeze([
   { id: "idea", icon: "+", label: "חסר לי משהו / יש לי רעיון", hint: "בקשה, שיפור או יכולת שהייתם רוצים" },
   { id: "contact", icon: "✉", label: "רוצה לכתוב לנו", hint: "פנייה כללית לצוות" },
 ]);
+
+const HINT_STATUS_COPY = Object.freeze({
+  pending: { label: "התקבל", detail: "ממתין לבדיקה" },
+  approved: { label: "אושר", detail: "עבר בדיקה" },
+  published: { label: "פורסם", detail: "נכנס למערכת הציבורית" },
+  rejected: { label: "לא אושר", detail: "נבדק ולא פורסם" },
+});
+
+function MyCommunityHintStatusLoop({ user }) {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    if (!open || !user) return undefined;
+    setItems(null);
+    getMyCommunityHintStatuses(20).then((rows) => { if (alive) setItems(rows); }).catch(() => { if (alive) setItems([]); });
+    return () => { alive = false; };
+  }, [open, user]);
+
+  if (!user) return null;
+  return <section className="sod29-contact-status-loop">
+    <button type="button" className="sod29-contact-status-trigger" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+      <span>הדיווחים שלי</span><strong>{open ? "סגור" : "הצג סטטוס"}</strong>
+    </button>
+    {open ? <div className="sod29-contact-status-list" role="status">
+      {items === null ? <div className="sod29-contact-status-empty">טוען…</div> : null}
+      {items?.map((item) => {
+        const meta = HINT_STATUS_COPY[item.status] || { label: item.status || "התקבל", detail: "סטטוס הדיווח" };
+        return <article key={item.id} className="sod29-contact-status-row" data-status={item.status || "unknown"}>
+          <div><strong>{item.number ? `רמז · ${item.number}` : "רמז ששלחתם"}</strong><small>{String(item.description || "").slice(0, 100) || "ללא תיאור"}</small></div>
+          <div className="sod29-contact-status-state"><b>{meta.label}</b><small>{meta.detail}</small></div>
+        </article>;
+      })}
+      {items?.length === 0 ? <div className="sod29-contact-status-empty">עדיין אין דיווחי רמז שמורים לחשבון הזה.</div> : null}
+    </div> : null}
+  </section>;
+}
+
 
 function ContactForm({ kind, initialText, pathname, contactContext, user, onDone }) {
   const idea = kind === "idea";
@@ -202,6 +242,8 @@ export default function ContactGateway({
         <span><strong>{choice.label}</strong><small>{choice.hint}</small></span>
       </button>)}
     </div>
+
+    <MyCommunityHintStatusLoop user={user} />
 
     <p className="sod29-contact-privacy">המיקום הנוכחי באתר יכול להצטרף לפנייה כדי שלא תצטרכו להסביר מאיפה הגעתם. הודעה, רמז, תקלה ומחקר נשארים סוגים נפרדים במערכת.</p>
   </section>;
