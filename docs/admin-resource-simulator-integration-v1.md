@@ -31,7 +31,7 @@ The original simulator retains workload, retention, cache/traffic, processing, q
 
 ## Verification
 
-Required checks: 18 pure-model/integration tests; 13 Control Center projection/planning tests; native Control Plane, isolation, canonical contract wiring, system frame and built-graph checks; both legacy and 2029 production builds; diff whitespace check. New tests are included in the existing 2029 isolation workflow.
+Required checks: 18 pure-model/integration tests; 13 Control Center projection/planning tests; native Control Plane, isolation, canonical contract wiring, system frame and built-graph checks; both legacy and 2029 production builds; diff whitespace check. New tests are included in the existing 2029 isolation workflow. Unified video acceptance also verifies the canonical zero-token policy and the null-aware rendering of the actual RPC field; a missing measurement must not display a hard-coded zero.
 
 Browser visual/interaction verification of authenticated admin views remains unclaimed until actually exercised. Protected-preview HTTP and READY metadata verify delivery, not authenticated RPC completeness. No live provider/DB result is inferred from repository code or fixture tests.
 
