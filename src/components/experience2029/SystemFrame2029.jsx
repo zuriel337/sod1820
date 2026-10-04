@@ -777,6 +777,7 @@ export default function SystemFrame2029({
   wide = false,
   surface = "home",
   symbol = "✦",
+  introVariant = "hero",
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -1330,8 +1331,8 @@ export default function SystemFrame2029({
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {(eyebrow || title || description) ? (
-                <section className="sod29-page-intro">
+              {introVariant !== "none" && (eyebrow || title || description) ? (
+                <section className={`sod29-page-intro${introVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={introVariant}>
                   <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
