@@ -105,7 +105,12 @@ export async function fetchRemoteImage(rawUrl: string, expectedMime: string, max
         const location = r.headers.get("location");
         if (!location) return { ok: false, status: 502, error: "remote redirect missing location" };
         const next = checkedUrl(location, expectedMime, current);
-        if (!next) return { ok: false, status: 403, error: "remote redirect host is not allowed" };
+        if (!next) {
+          // Diagnostic: normalized hostname only (never the full Location, path, query, or credentials).
+          let blocked = "";
+          try { blocked = normalizeHost(new URL(location, current).hostname); } catch { /* unparsable: omit */ }
+          return { ok: false, status: 403, error: blocked ? `remote redirect host is not allowed: ${blocked}` : "remote redirect host is not allowed" };
+        }
         current = next;
         continue;
       }
