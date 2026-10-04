@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
+
+const ResourceSimulator2029 = lazy(() => import("../components/experience2029/ResourceSimulator2029.jsx"));
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => n(v).toLocaleString("he-IL");
@@ -54,7 +56,8 @@ function SpanRow({ span }) {
 
 export default function ControlPlane2029Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null, readAt: null });
+  const [view, setView] = useState("monitor");
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
@@ -62,10 +65,10 @@ export default function ControlPlane2029Page() {
     setState(current => ({ ...current, loading: true, error: null }));
     try {
       const [health, traces, videoMap] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
-      setState({ loading: false, health, videoMap, traces, error: null });
+      setState({ loading: false, health, videoMap, traces, error: null, readAt: new Date().toISOString() });
       setSelectedId(current => current || traces?.[0]?.trace_id || null);
     } catch (error) {
-      setState({ loading: false, health: null, videoMap: null, traces: [], error });
+      setState({ loading: false, health: null, videoMap: null, traces: [], error, readAt: null });
     }
   }, []);
 
@@ -110,14 +113,33 @@ export default function ControlPlane2029Page() {
   if (!isAdmin) return <Navigate replace to="/2029" />;
 
   return <Sod2029Shell
-    title="Control Plane"
+    title="מרכז הניהול"
     eyebrow="2029 · INTERNAL"
-    description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
+    description="בריאות המערכת, תחקור עלויות וסימולציה לפני חיבור — מעל מקורות הנתונים הקיימים."
     status="ADMIN · READ ONLY"
     surface="admin"
     symbol="⌁"
     wide
   >
+    <div className="sod29-actions" role="tablist" aria-label="תצוגת מרכז הניהול">
+      {[{ id: "monitor", label: "ניטור המערכת" }, { id: "simulation", label: "סימולציה ומשאבים" }].map((tab, index) =>
+        <button key={tab.id} id={`control-tab-${tab.id}`} className="sod29-action" role="tab" type="button"
+          aria-selected={view === tab.id} aria-controls={`control-panel-${tab.id}`} tabIndex={view === tab.id ? 0 : -1}
+          onClick={() => setView(tab.id)} onKeyDown={event => {
+            let target;
+            if (["ArrowLeft", "ArrowRight"].includes(event.key)) target = index === 0 ? "simulation" : "monitor";
+            else if (event.key === "Home") target = "monitor";
+            else if (event.key === "End") target = "simulation";
+            if (target) { event.preventDefault(); setView(target); document.getElementById(`control-tab-${target}`)?.focus(); }
+          }}>{tab.label}</button>
+      )}
+    </div>
+    {view === "simulation" ? <section role="tabpanel" id="control-panel-simulation" aria-labelledby="control-tab-simulation">
+      {state.error ? <FrameState kind="error" title="נתוני המעקב אינם זמינים">הסימולציה עדיין זמינה עם הנחות ידניות. {String(state.error?.message || state.error)}</FrameState> : null}
+      <Suspense fallback={<FrameState kind="loading" title="טוען סימולטור" />}>
+        <ResourceSimulator2029 health={state.health} healthReadAt={state.readAt} onRefresh={load} refreshing={state.loading} />
+      </Suspense>
+    </section> : <div role="tabpanel" id="control-panel-monitor" aria-labelledby="control-tab-monitor">
     <section className="sod29-section">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SYSTEM HEALTH</div><h2>מה דורש תשומת לב עכשיו</h2>
@@ -260,5 +282,6 @@ export default function ControlPlane2029Page() {
         <div className="sod29-list">{spans.map(span => <SpanRow key={span.span_id} span={span} />)}</div>
       </> : null}
     </section>
+    </div>}
   </Sod2029Shell>;
 }
