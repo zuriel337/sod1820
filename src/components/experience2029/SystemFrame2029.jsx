@@ -9,7 +9,8 @@ import React, {
 } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { F } from "../../theme.js";
-import { PALETTES, usePalette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette.js";
+import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -93,6 +94,26 @@ const DIRECT_NAV = [
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS", icon: "✦" },
 ];
+
+const THEME_PRESET_OPTIONS = Object.freeze([
+  { id: "light", label: "יום", icon: "☀" },
+  { id: "parchment", label: "קלף", icon: "▤" },
+  { id: "dark", label: "לילה", icon: "◐" },
+]);
+
+function ThemePresetControl2029({ compact = false }) {
+  const preset = useThemePreset();
+  return <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
+    {THEME_PRESET_OPTIONS.map((item) => <button
+      key={item.id}
+      type="button"
+      className={preset === item.id ? "is-active" : ""}
+      aria-pressed={preset === item.id}
+      onClick={() => setThemePreset(item.id)}
+      title={item.label}
+    ><span aria-hidden="true">{item.icon}</span><b>{item.label}</b></button>)}
+  </div>;
+}
 
 const FOCUSABLE = [
   "a[href]",
@@ -800,7 +821,7 @@ export default function SystemFrame2029({
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
-  const basePalette = usePalette();
+  const palette = use2029Palette(surface === "heichal" ? "research_lab" : null);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [transient, setTransient] = useState(null);
@@ -856,11 +877,6 @@ export default function SystemFrame2029({
       manifestVersion: orientation.manifest.version,
     }, { dedupe: true });
   }, [surface, arrival, orientation.mode, orientation.manifest]);
-
-  const palette = useMemo(() => {
-    if (surface !== "heichal" || experience?.experience?.environmentRole !== "research_lab") return basePalette;
-    return basePalette.mode === "dark" ? PALETTES.labDark : PALETTES.labLight;
-  }, [basePalette, surface, experience?.experience?.environmentRole]);
 
   const contextTarget = useMemo(() => targetFromContext(context), [context]);
   const activeTarget = ephemeralSelection || contextTarget;
@@ -1281,6 +1297,7 @@ export default function SystemFrame2029({
         data-frame-experience-locale={experience.locale}
         data-frame-reduced-motion={String(experience.motion.reduced)}
         data-frame-theme-mode={palette.mode}
+        data-frame-theme-preset={palette.preset || palette.mode}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
@@ -1292,6 +1309,7 @@ export default function SystemFrame2029({
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
           </nav>
+          <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
@@ -1375,6 +1393,10 @@ export default function SystemFrame2029({
             <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button></div>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
+              <small>מראה</small>
+              <ThemePresetControl2029 />
+            </section>
             <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
             <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
           </aside>
