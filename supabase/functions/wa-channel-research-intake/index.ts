@@ -116,11 +116,17 @@ async function findExistingTreeTargets(ref: string) {
   const targets: any[] = [];
 
   if (values.length) {
-    const { data: topicByNumber } = await sb.from("topic_cards_public")
-      .select("slug,title,numbers,highlight_numbers")
-      .or(values.map((n) => `${n}=any(numbers),${n}=any(highlight_numbers)`).join(","))
-      .limit(16);
-    for (const row of topicByNumber || []) {
+    const [{ data: topicByNumber }, { data: topicByHighlight }] = await Promise.all([
+      sb.from("topic_cards_public")
+        .select("slug,title,numbers,highlight_numbers")
+        .overlaps("numbers", values)
+        .limit(16),
+      sb.from("topic_cards_public")
+        .select("slug,title,numbers,highlight_numbers")
+        .overlaps("highlight_numbers", values)
+        .limit(16),
+    ]);
+    for (const row of [...(topicByNumber || []), ...(topicByHighlight || [])]) {
       targets.push({ type: "topic", key: row.slug, label: row.title, match: "number" });
     }
 
