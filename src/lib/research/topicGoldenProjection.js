@@ -3,6 +3,8 @@
 // Pure presentation model over the existing Topic projection + EntityHub + World contextual
 // prominence. EXTEND_EXISTING only: no Topic store, rank engine, graph, truth or publication owner.
 
+import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -37,8 +39,10 @@ function graphRows(hub) {
       id: clean(finding?.id) || `graph-${index}`,
       relationType: clean(relation.relationType || relation.relation_type) || "related",
       label,
+      targetId: clean(target?.id) || null,
       targetType: clean(target?.type) || null,
       href: targetHref(target),
+      relation,
       sourceRef: clean(finding?.source?.sourceRef) || null,
     }];
   });
@@ -92,16 +96,21 @@ export function buildTopicGoldenProjection(projection, { hub = null, prominence 
 
   const media = asArray(hub?.media?.items).slice(0, 8).map((row, index) => ({
     id: clean(row?.galleryImageId || row?.nodeId) || `media-${index}`,
-    label: clean(row?.label) || "מדיה",
+    label: canonicalMediaPublicLabel(row, { fallback: "תמונה" }),
     description: clean(row?.description) || null,
-    imageUrl: clean(row?.thumbUrl || row?.imageUrl) || null,
+    imageUrl: clean(row?.imageUrl) || null,
+    thumbUrl: clean(row?.thumbUrl || row?.imageUrl) || null,
+    nodeId: clean(row?.nodeId) || null,
+    relationType: clean(row?.relationType) || "related",
   })).filter((row) => row.imageUrl);
 
   const prominenceItems = asArray(prominence?.items).map((item) => ({
     id: clean(item?.id),
     kind: clean(item?.kind),
     type: clean(item?.type),
-    label: clean(item?.label) || "ממצא",
+    label: ["image", "media"].includes(clean(item?.type))
+      ? canonicalMediaPublicLabel(item, { fallback: "תמונה" })
+      : clean(item?.label) || "ממצא",
     summary: clean(item?.summary) || null,
     sourceRef: clean(item?.sourceRef) || null,
     explainWhy: item?.explainWhy || null,
