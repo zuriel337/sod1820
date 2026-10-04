@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
@@ -243,6 +244,7 @@ function TopicBody() {
   const [state, setState] = useState({ loading: true, finding: null, error: null });
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
   const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
+  const [activeSectionId, setActiveSectionId] = useState("topic-essential");
 
   useEffect(() => {
     let alive = true;
@@ -299,10 +301,30 @@ function TopicBody() {
     if (!projection) return undefined;
     const subject = { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath };
     const selection = { entityId: projection.slug, entityType: "topic" };
-    if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic" });
-    else research.updateResearchContext?.({ subject, selection, lens: "topic" });
+    const heroNumber = projection.heroNumber ?? projection.highlightNumbers?.[0] ?? projection.numbers?.[0] ?? null;
+    const dimensions = {
+      ...(research.context?.dimensions || {}),
+      bottomTrail: [
+        { id: "topic", label: "טופיק" },
+        { id: "section", label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר" },
+        ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), active: true }] : []),
+      ],
+      surfaceFocus: {
+        id: projection.slug,
+        type: "topic",
+        sectionLabel: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
+        label: projection.displayTitle || projection.title,
+        primary: heroNumber != null ? String(heroNumber) : projection.title,
+        number: heroNumber,
+        signals: projection.phrases?.slice(0, 3).map((row) => textOf(row)).filter(Boolean) || [],
+        sourceLabel: projection.createdBy || null,
+        locator: "#" + activeSectionId,
+      },
+    };
+    if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
+    else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openExpressionFocus = async (expression) => {
     const expr = clean(expression);
@@ -385,16 +407,12 @@ function TopicBody() {
   const sparse = golden?.density === "sparse";
   const hasFindings = Object.values(projection.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const navItems = [
-    ["עיקר", "topic-essential"],
-    ...(projection.phrases.length ? [["ביטויים", "topic-phrases"]] : []),
-    ...(hasFindings ? [["חיבורים", "topic-findings"]] : []),
-    ...(projection.relatedPosts.length ? [["פוסטים", "topic-posts"]] : []),
-    ...((goldenState.loading || golden?.prominenceItems?.length) ? [["בולט", "topic-prominence"]] : []),
-    ...(golden?.graphConnections?.length ? [["קשרים", "topic-graph"]] : []),
-    ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [["מקורות", "topic-sources"]] : []),
-    ...(projection.relatedConvergences.length ? [["צירים", "topic-related"]] : []),
-    ...(projection.caveats.length ? [["הערה", "topic-boundary"]] : []),
-    ["מסע", "topic-journey"],
+    { id: "topic-essential", label: "עיקר" },
+    ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
+    ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
+    ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
+    ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
+    ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
   ];
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
@@ -420,7 +438,12 @@ function TopicBody() {
       </div> : null}
     </header>
 
-    <TopicMapNav items={navItems} />
+    <SurfaceSectionNav2029
+      items={navItems}
+      activeId={activeSectionId}
+      onSelect={(item) => setActiveSectionId(item.id)}
+      ariaLabel="ניווט בטופיק"
+    />
 
     <section className="sod29-section sod29-topic-intro" id="topic-essential">
       <div className="sod29-kicker">העיקר</div>
