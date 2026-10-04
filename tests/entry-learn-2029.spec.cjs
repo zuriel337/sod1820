@@ -163,6 +163,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await page.keyboard.press('Escape');
   await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
 
+  await page.getByRole('button', { name: 'פתח ניווט' }).click();
   const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
