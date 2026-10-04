@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
+import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import {
   buildLearnHelpSeed,
   emitEntryLearn,
@@ -162,7 +163,22 @@ export default function SurfaceContextRail2029({
         />
       </div> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
-      {subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
+      {hasMethodContext ? <GematriaReveal2029
+        compact
+        selection={{
+          expression: subject.expression,
+          method: subject.method,
+          methodLabel: subject.methodLabel || subject.method,
+          resultValue: Number(subject.resultValue),
+          entityId: subject.entityId || subject.id || null,
+          entityType: subject.entityType || subject.type || null,
+          findingId: subject.findingId || null,
+          sourceRef: subject.sourceRef || null,
+          locator: subject.locator || null,
+        }}
+        provenance={subject.provenance || null}
+        truthState={subject.truthState || null}
+      /> : subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
       {fragment ? <LearnMark2029
         className="sod29-surface-context-learn"
         scope={LEARN_SCOPE.CONCEPT}
