@@ -39,6 +39,8 @@ on:
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
+      - "scripts/test-entry-contextual-learn-2029.mjs"
+      - "src/lib/entryLearn2029.js"
       - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
       - "scripts/test-a3-client-correlation-live.mjs"
@@ -78,6 +80,8 @@ jobs:
       - run: npm ci
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
+      - name: Entry Orientation + Contextual Learn 2029 acceptance
+        run: npm run test:entry-learn-2029
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
       - name: Web Vitals metric core acceptance
