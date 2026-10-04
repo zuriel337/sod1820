@@ -357,7 +357,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         actions={numericFamily ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : "פתח בדף המספר"}</button> : null}
       >
         <p>{fragment.explain}</p>
-        {hasMethodContext ? <p><strong>{target.expression}</strong> מוצג ב-focus הפעיל בשיטה <strong>{target.method}</strong> עם תוצאה <strong>{target.resultValue}</strong>. ההסבר אינו מקור חישוב נוסף.</p> : null}
+        {hasMethodContext ? <p><strong>{target.expression}</strong> מוצג במוקד הפעיל בשיטה <strong>{target.method}</strong> עם תוצאה <strong>{target.resultValue}</strong>. ההסבר אינו מקור חישוב נוסף.</p> : null}
       </LearnMark2029> : null}
 
       <div className="sod29-panel-actions-grid">
