@@ -28,7 +28,7 @@ export default function SurfaceContextRail2029({
       subtitle={subtitle}
       actions={<div className="sod29-surface-context-actions">
         {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `/2029/number/${number}` })}>פתח את {number}</button> : null}
-        <button type="button" onClick={onOpenWorld}>פתח בעולם</button>
+        {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
         <button className="is-raziel" type="button" onClick={onAskRaziel}>✦ שאל את רזיאל</button>
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
