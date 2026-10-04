@@ -1,6 +1,6 @@
 # SOD1820 — G3 2029 GLOBAL CUTOVER FOUNDATION V1
 
-**Status:** BRANCH-ONLY · NOT MERGED · NOT DEPLOYED  
+**Status:** MERGED to `main` (landed 2026-09-30 in `3acfbb83`, PR #840) · documentation contract only — performs no route cutover by itself (see §15)  
 **Human Gate:** ZURIEL · 2026-09-18  
 **Owner:** EXTEND_EXISTING `experience_governance_foundation_v1_law`  
 **Dependencies:** `research_workspace_law v4` · `canonical_ui_components_law v5` · existing route/SEO owners  
@@ -184,6 +184,8 @@ A public legacy renderer may be retired only when all applicable rows are PASS:
 | Capability parity | unique legacy capability preserved/rehomed/explicitly retired |
 | Isolation | 2029 does not accidentally load legacy presentation/chrome |
 | Regression gates | build/visual/isolation/SEO pass on exact head |
+
+Operational extensions of this gate — Public Shell acceptance, rollback contract, staged cutover by route family, and the automated Legacy↔2029 parity scan — live in `docs/g3-2029-cutover-acceptance-checklist.md` (2026-10-04). They extend this gate; they add no new stage and do not change the Golden order.
 
 ## 13. Whole-site migration order
 

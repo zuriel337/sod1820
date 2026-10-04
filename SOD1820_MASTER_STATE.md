@@ -160,7 +160,7 @@ Final closure release evidence:
 - post-release Maintenance Acceptance Matrix refresh is recorded in `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
 - final independent Foundation LIVE challenge returned **PASS_G3_LIVE_CLOSURE_READY** in `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`.
 
-Non-blocking operational debt remains owned by the existing maintenance/domain owners and does **not** reopen G3: recurring transient sitemap-canary latency, existing `contributors_feed`/PostgREST permission-denied signals, DB capacity baseline establishment, inventory-reported client-RLS review items, and stale PR disposition.
+Non-blocking operational debt remains owned by the existing maintenance/domain owners and does **not** reopen G3: recurring transient sitemap-canary latency, existing `contributors_feed`/PostgREST permission-denied signals, DB capacity baseline establishment, inventory-reported client-RLS review items, stale PR disposition, and the Zvi standing-approval identity binding (`fn_zvi_standing_approve_research_object` matches WhatsApp credit text `'צבי (OPOC)'` instead of a stable writer/source ID; approved-only, never canonical/published; owner `writer_material_home_law` under Research Intake; implementation unchanged).
 
 **Program transition:** G3 closure opens the existing G3→G4 transition lane (informal “G3.5” shorthand) and preparation for real/replayable G4 Golden Experiences. The later docs-only seal does not change runtime acceptance; live `main` / Production are reverified after its merge. The phase change itself does not activate deferred capabilities, publish governed truth, or authorize a broad Legacy→2029 cutover.
 
