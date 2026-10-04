@@ -172,7 +172,7 @@ assert.match(topicPageGolden, /fetchEntityHubProjection/);
 assert.match(topicPageGolden, /buildWorldContextualProminence/);
 assert.match(topicPageGolden, /buildTopicGoldenProjection/);
 assert.match(topicPageGolden, /research_gold_hints_law-v3/);
-assert.match(topicPageGolden, /לא ציון אמת/);
+assert.match(topicPageGolden, /אינה משנה את המקורות או את האימות/);
 assert.equal(topicPageGolden.includes("worldConvergenceLensProjection"), false, "public Topic must not import the admin Attention lens");
 assert.equal(/>EXPRESSIONS<|>FINDINGS<|>RELATIONS<|>PROVENANCE<|CANONICAL TOPIC/.test(topicPageGolden), false, "Topic Golden should be Hebrew-first");
 
@@ -219,3 +219,8 @@ const topicCss = read("src/pages/topic2029.css");
 assert.match(topicCss, /Topic Master V1/);
 assert.match(topicCss, /\.sod29-topic-hero-number/);
 assert.match(topicCss, /\.sod29-topic-claim-number/);
+
+
+assert.match(topicPageGolden, /sod29-topic-equation/);
+assert.match(topicPageGolden, /sod29-topic-equation-value/);
+assert.match(topicPageGolden, /sod29-topic-axis-grid/);
