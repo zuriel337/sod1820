@@ -246,6 +246,14 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
 });
 
 test('Desktop Heichal Global Chrome keeps one full Brand lockup across expanded and collapsed rail', async ({ page }) => {
+  await page.route('**/heichal', async (route) => {
+    const response = await page.request.get(`${BASE}/2029.html`);
+    await route.fulfill({
+      status: response.status(),
+      headers: response.headers(),
+      body: await response.body(),
+    });
+  });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${BASE}/heichal`, { waitUntil: 'domcontentloaded' });
 
