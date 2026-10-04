@@ -230,3 +230,5 @@ assert.match(topicPageGolden, /SurfaceSectionNav2029/);
 assert.match(topicPageGolden, /surfaceFocus:/);
 assert.match(topicPageGolden, /עוד גימטריות של/);
 assert.match(topicPageGolden, /sod29-topic-depth-equations/);
+assert.match(topicPageGolden, /rpc\("fn_verses_by_gematria", \{ p_value: heroNumber, p_limit: 6 \}\)/);
+assert.equal(topicPageGolden.includes('.from("tanach_verses")'), false, "Topic must reuse canonical fn_verses_by_gematria instead of querying the verse table directly");
