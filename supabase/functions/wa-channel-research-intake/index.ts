@@ -1,15 +1,14 @@
 // 📥 wa-channel-research-intake — thin adapter: channel_updates → existing Research Intake.
 // No second research engine/store. Reuses research-extract + wa-ocr + research_objects.
-// Heavy channels are always eligible; Or-Geula remains story-first and is analyzed only when its text
-// carries a clear research signal. Every resulting Research Object stays candidate/private by default.
+// Source routing comes from the existing channel_ingest_sources registry.
+// No hard-coded channel ownership: intake_mode decides research_first / story_first_selective / off.
+// Every resulting Research Object stays candidate/private by default.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const sb = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-const HEAVY_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
-const CHANNELS = ["torat-haremez", "gilui-yomi", "sfot-vheker", "or-geula"];
 const RESEARCH_HINT = /(גימטר|רמז|צופן|מילוי|אתב["״']?ש|דילוג|ערך|מספר|\d{2,}\s*=|=\s*\d{2,})/i;
 const IMAGE_URL = /\.(?:png|jpe?g|webp)(?:\?|#|$)/i;
 const PRIVATE_MEDIA_REF = /^storage-object:([0-9a-f]{8}-[0-9a-f-]{27,})$/i;
@@ -21,9 +20,28 @@ function sourceRef(id: string) {
   return `channel_updates:${id}`;
 }
 
-function researchEligible(row: any) {
-  if (HEAVY_CHANNELS.has(row.channel)) return true;
-  return row.channel === "or-geula" && RESEARCH_HINT.test(String(row.text || ""));
+function researchEligible(row: any, policy: any) {
+  if (!policy || policy.intake_mode === "off") return false;
+  if (policy.intake_mode === "research_first") return true;
+  return policy.intake_mode === "story_first_selective"
+    && RESEARCH_HINT.test(String(row.text || ""));
+}
+
+function intakeRoute(policy: any) {
+  return policy?.intake_mode === "story_first_selective"
+    ? "story_first_selective"
+    : "research_first";
+}
+
+function trustedContributor(credit: string | null, vips: any[], policy: any) {
+  if (policy?.admin_only === true && Array.isArray(policy?.admin_ids) && policy.admin_ids.length > 0) return true;
+  const value = String(credit || "").trim();
+  if (!value) return false;
+  if (policy?.outgoing_contributor && value === String(policy.outgoing_contributor).trim()) return true;
+  return (vips || []).some((vip: any) => {
+    const name = String(vip?.name_match || "").trim();
+    return !!name && (value === name || value.includes(name) || name.includes(value));
+  });
 }
 
 async function invokeInternal(slug: string, body: unknown) {
@@ -67,6 +85,109 @@ async function priorFailureAttempts(ref: string) {
   return max;
 }
 
+
+function compactTerms(rows: any[]) {
+  const out = new Set<string>();
+  for (const row of rows || []) {
+    for (const raw of [...(row?.terms || []), ...(row?.relates || [])]) {
+      const v = String(raw || "").trim();
+      if (v.length >= 2 && v.length <= 80) out.add(v);
+    }
+  }
+  return [...out].slice(0, 24);
+}
+
+function compactValues(rows: any[]) {
+  const out = new Set<number>();
+  for (const row of rows || []) {
+    const n = Number(row?.value);
+    if (Number.isSafeInteger(n) && n > 0) out.add(n);
+  }
+  return [...out].slice(0, 16);
+}
+
+async function findExistingTreeTargets(ref: string) {
+  const { data: objects } = await sb.from("research_objects")
+    .select("id,kind,statement,terms,relates,value,engine_verified")
+    .eq("source_ref", ref);
+
+  const terms = compactTerms(objects || []);
+  const values = compactValues(objects || []);
+  const targets: any[] = [];
+
+  if (values.length) {
+    const [{ data: topicByNumber }, { data: topicByHighlight }] = await Promise.all([
+      sb.from("topic_cards_public")
+        .select("slug,title,numbers,highlight_numbers")
+        .overlaps("numbers", values)
+        .limit(16),
+      sb.from("topic_cards_public")
+        .select("slug,title,numbers,highlight_numbers")
+        .overlaps("highlight_numbers", values)
+        .limit(16),
+    ]);
+    for (const row of [...(topicByNumber || []), ...(topicByHighlight || [])]) {
+      targets.push({ type: "topic", key: row.slug, label: row.title, match: "number" });
+    }
+
+    for (const n of values) {
+      targets.push({ type: "number", key: String(n), label: String(n), match: "value" });
+    }
+  }
+
+  if (terms.length) {
+    const { data: topicByTerm } = await sb.from("topic_cards_public")
+      .select("slug,title,search_terms")
+      .overlaps("search_terms", terms)
+      .limit(16);
+    for (const row of topicByTerm || []) {
+      targets.push({ type: "topic", key: row.slug, label: row.title, match: "term" });
+    }
+
+    const { data: nodes } = await sb.from("nodes")
+      .select("id,type,label,identity_key")
+      .in("label", terms)
+      .eq("is_active", true)
+      .limit(20);
+    for (const row of nodes || []) {
+      const mappedType = row.type === "post" ? "post" : row.type === "entity" ? "entity" : row.type;
+      targets.push({ type: mappedType, key: row.identity_key || row.id, label: row.label, match: "term" });
+    }
+
+    const { data: posts } = await sb.from("posts")
+      .select("id,slug,title,tags")
+      .overlaps("tags", terms)
+      .limit(20);
+    for (const row of posts || []) {
+      targets.push({ type: "post", key: row.slug || String(row.id), label: row.title, match: "tag" });
+    }
+  }
+
+  const seen = new Set<string>();
+  return targets.filter((row) => {
+    const key = `${row.type}:${row.key}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 20);
+}
+
+async function annotateTreeTargets(ref: string) {
+  const targets = await findExistingTreeTargets(ref);
+  const { data } = await sb.from("research_objects").select("id,meta").eq("source_ref", ref);
+  for (const row of data || []) {
+    const current = (row as any)?.meta?.ext?.wa_channel_intake || {};
+    await sb.from("research_objects").update({
+      meta: mergeIntakeMeta((row as any).meta, {
+        ...current,
+        tree_matches: targets,
+        tree_match_state: targets.length ? "matched_existing_tree" : "candidate_unmatched",
+      }),
+    }).eq("id", (row as any).id);
+  }
+  return targets;
+}
+
 async function fallbackObservation(
   row: any,
   content: string,
@@ -80,7 +201,8 @@ async function fallbackObservation(
     : 1;
   const intake = {
     channel: row.channel,
-    route: HEAVY_CHANNELS.has(row.channel) ? "research_first" : "story_first_selective",
+    route: intakeRoute(row._sourcePolicy),
+    trusted_author: row._trustedAuthor === true,
     analysis_state: analysisState,
     attempt_count: failureAttempt,
     analyzed_at: new Date().toISOString(),
@@ -136,7 +258,7 @@ async function processRow(row: any) {
   const sourceText = String(row.text || "").trim();
   const rawText = /^(?:📷 עדכון|🎬 עדכון וידאו)$/.test(sourceText) ? "" : sourceText;
 
-  if (row.image_url && HEAVY_CHANNELS.has(row.channel)) {
+  if (row.image_url && row._sourcePolicy?.intake_mode === "research_first") {
     try {
       const media = await mediaForAnalysis(row);
       mediaKind = media?.kind || null;
@@ -188,7 +310,8 @@ async function processRow(row: any) {
           ? "reviewed_caption_media_needs_ocr"
           : "reviewed_no_structured_findings";
       await fallbackObservation(row, content, reviewedState, ocrUsed, mediaKind);
-      return { id: row.id, channel: row.channel, state: reviewedState };
+      const treeMatches = await annotateTreeTargets(ref);
+      return { id: row.id, channel: row.channel, state: reviewedState, tree_matches: treeMatches.length };
     }
 
     const analysisState = mediaKind === "video"
@@ -198,7 +321,8 @@ async function processRow(row: any) {
         : "extracted";
     await annotateSourceObjects(ref, {
       channel: row.channel,
-      route: HEAVY_CHANNELS.has(row.channel) ? "research_first" : "story_first_selective",
+      route: intakeRoute(row._sourcePolicy),
+      trusted_author: row._trustedAuthor === true,
       analysis_state: analysisState,
       analyzed_at: new Date().toISOString(),
       source_created_at: row.created_at,
@@ -208,7 +332,8 @@ async function processRow(row: any) {
       media_ocr_pending: mediaKind === "image" && !ocrUsed,
       ocr_used: ocrUsed,
     });
-    return { id: row.id, channel: row.channel, state: analysisState, produced };
+    const treeMatches = await annotateTreeTargets(ref);
+    return { id: row.id, channel: row.channel, state: analysisState, produced, tree_matches: treeMatches.length };
   } catch {
     await fallbackObservation(row, content, "analysis_failed_source_preserved", ocrUsed, mediaKind);
     return { id: row.id, channel: row.channel, state: "analysis_failed_preserved" };
@@ -216,13 +341,19 @@ async function processRow(row: any) {
 }
 
 function selectFair(rows: any[], limit: number) {
-  const queues = new Map(CHANNELS.map((ch) => [ch, rows.filter((r) => r.channel === ch)
-    .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at))]));
-  const order = ["torat-haremez", "gilui-yomi", "torat-haremez", "sfot-vheker", "gilui-yomi", "or-geula"];
+  const channels = [...new Set(rows.map((r: any) => String(r.channel || "")).filter(Boolean))];
+  const queues = new Map(channels.map((ch) => [ch, rows.filter((r: any) => r.channel === ch)
+    .sort((a: any, b: any) => {
+      const trustDelta = Number(b._trustedAuthor === true) - Number(a._trustedAuthor === true);
+      if (trustDelta) return trustDelta;
+      const priorityDelta = Number(b.priority || 0) - Number(a.priority || 0);
+      if (priorityDelta) return priorityDelta;
+      return +new Date(a.created_at) - +new Date(b.created_at);
+    })]));
   const selected: any[] = [];
   while (selected.length < limit) {
     let moved = false;
-    for (const ch of order) {
+    for (const ch of channels) {
       const q = queues.get(ch) || [];
       const row = q.shift();
       if (row) {
@@ -245,15 +376,37 @@ Deno.serve(async (req) => {
   const limit = Math.max(1, Math.min(Number(u.searchParams.get("limit") || 4), 8));
   const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
 
+  const { data: sourceRows, error: sourceError } = await sb.from("channel_ingest_sources")
+    .select("channel,intake_mode,outgoing_contributor,priority,enabled,admin_only,admin_ids")
+    .eq("enabled", true)
+    .neq("intake_mode", "off");
+  if (sourceError) return json({ error: "source_policy_read_failed" }, 500);
+
+  const policies = new Map((sourceRows || []).map((row: any) => [row.channel, row]));
+  const channels = [...policies.keys()];
+  if (!channels.length) return json({ ok: true, hours, scanned: 0, eligible: 0, pending: 0, processed: 0, results: [] });
+
+  const { data: vipRows } = await sb.from("wa_vip_senders")
+    .select("name_match")
+    .eq("active", true);
+
   const { data: rawRows, error } = await sb.from("channel_updates")
-    .select("id,text,image_url,credit,channel,created_at,status")
-    .in("channel", CHANNELS)
+    .select("id,text,image_url,credit,channel,created_at,status,priority")
+    .in("channel", channels)
     .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) return json({ error: "source_read_failed" }, 500);
 
-  const eligible = (rawRows || []).filter(researchEligible);
+  const enriched = (rawRows || []).map((row: any) => {
+    const policy = policies.get(row.channel);
+    return {
+      ...row,
+      _sourcePolicy: policy,
+      _trustedAuthor: trustedContributor(row.credit || null, vipRows || [], policy),
+    };
+  });
+  const eligible = enriched.filter((row: any) => researchEligible(row, row._sourcePolicy));
   const refs = eligible.map((r: any) => sourceRef(r.id));
   const existing = new Map<string, any[]>();
   for (let i = 0; i < refs.length; i += 100) {

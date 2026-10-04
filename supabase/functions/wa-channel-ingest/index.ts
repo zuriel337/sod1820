@@ -1,5 +1,7 @@
 // 📡 wa-channel-ingest — משקף ערוצי וואטסאפ → channel_updates.
-// use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API). בוט-API=רזיאל·AI (source=ai); ידני=קרדיט המותג (source=auto).
+// use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API).
+// outgoing_contributor → זהות המחבר הקנונית להודעה ידנית היוצאת מהחשבון המחובר.
+// בוט-API=רזיאל·AI (source=ai); ידני=outgoing_contributor או קרדיט המותג (source=auto).
 // admin_only+admin_ids = allowlist. block_ids/block_names = חסימת שולחים. block_text = חסימת-תוכן לפי כיתוב/טקסט. dedup לפי ext_msg_id.
 // poll_every_min = תדירות משיכה לכל קבוצה (last_run_at מתקדם רק במשיכה מוצלחת).
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
@@ -57,6 +59,22 @@ async function waAdmin(method: string, payload: unknown, http: string) {
   const data = await waGreen(sb, method, payload, http);
   return data;
 }
+
+async function loadHistory(chatId: string, count: number) {
+  let last: any = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      last = await waAdmin("getChatHistory", { chatId, count }, "POST");
+      const picked = pickHistory<Record<string, any>>(last);
+      if (picked.ok) return { ...picked, attempts: attempt, raw: last };
+    } catch (e) {
+      last = { ok: false, error: String(e) };
+    }
+    if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+  }
+  return { ok: false, rows: [] as Record<string, any>[], attempts: 3, raw: last };
+}
+
 function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   if (Array.isArray(v)) return { ok: true, rows: v as T[] };
   if (Array.isArray(v?.result)) return { ok: true, rows: v.result as T[] };
@@ -166,6 +184,7 @@ async function ingestSource(
   const blockText: string[] = (src.block_text || []).map((s: string) => String(s || "").trim()).filter(Boolean);
   const minTs: number = Number(src.min_ts || 0);
   const brandCredit: string = src.display_name || src.label || null;
+  const outgoingContributor: string | null = String(src.outgoing_contributor || "").trim() || null;
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
   const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
@@ -173,21 +192,19 @@ async function ingestSource(
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
   const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
-  let hist;
-  try {
-    hist = await waAdmin("getChatHistory", { chatId, count: historyCount }, "POST");
-  } catch (e) {
-    trace.push({ step: "hist-fail", channel: src.channel, error: String(e) });
+  const history = await loadHistory(chatId, historyCount);
+  if (!history.ok) {
+    const raw = history.raw as any;
+    trace.push({
+      step: "hist-invalid",
+      channel: src.channel,
+      attempts: history.attempts,
+      response: String(raw?.result?.stateInstance || raw?.result?.error || raw?.error || "non_array"),
+    });
     return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
   }
 
-  const picked = pickHistory<Record<string, any>>(hist);
-  if (!picked.ok) {
-    trace.push({ step: "hist-invalid", channel: src.channel, response: String(hist?.result?.stateInstance || hist?.result?.error || "non_array") });
-    return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
-  }
-
-  const msgs = picked.rows;
+  const msgs = history.rows;
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
     ? ordered.filter((m) => String(m?.idMessage || "") === targetMessageId)
@@ -287,7 +304,9 @@ async function ingestSource(
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT
-      : (outgoing ? brandCredit : (useSenderName ? (senderName || brandCredit) : brandCredit));
+      : (outgoing
+        ? (outgoingContributor || brandCredit)
+        : (useSenderName ? (senderName || brandCredit) : brandCredit));
     const credit = isBotApi ? rawCredit : canonicalCredit(rawCredit, aliasMap);
     const source = isBotApi ? "ai" : "auto";
 
