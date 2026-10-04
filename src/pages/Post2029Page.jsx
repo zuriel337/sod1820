@@ -114,7 +114,11 @@ function PostReadingBody() {
     const explicitFocus = explicitGematriaFocusRef.current;
     const samePost = currentContext?.subject?.type === "post"
       && String(currentContext.subject.id) === String(post.id);
-    const contextHasExplicitFocus = samePost
+    const contextBelongsToPost = samePost
+      || String(currentDimensions?.readingFocus?.postId || "") === String(post.id)
+      || (currentContext?.returnTo?.subject?.type === "post"
+        && String(currentContext.returnTo.subject.id) === String(post.id));
+    const contextHasExplicitFocus = contextBelongsToPost
       && currentContext?.lens === "gematria"
       && currentSelection?.entityType === "gematria_expression"
       && Boolean(currentSelection?.expression)
@@ -122,6 +126,7 @@ function PostReadingBody() {
       && currentSelection?.resultValue != null;
     const preserveExplicitGematriaFocus = explicitFocus?.postId === String(post.id)
       || contextHasExplicitFocus;
+    const protectedSubject = explicitFocus?.subject || currentContext?.subject || null;
     const protectedSelection = explicitFocus?.selection || currentSelection;
     const protectedSurfaceFocus = explicitFocus?.surfaceFocus || currentDimensions.surfaceFocus;
     const protectedBottomTrail = explicitFocus?.bottomTrail || currentDimensions.bottomTrail;
@@ -149,7 +154,7 @@ function PostReadingBody() {
     };
 
     research.updateResearchContext?.({
-      subject: {
+      subject: preserveExplicitGematriaFocus && protectedSubject ? protectedSubject : {
         id: String(post.id),
         type: "post",
         label: post.title,
@@ -338,6 +343,12 @@ function PostReadingBody() {
     if (!targetRegion) return;
 
     const locator = `#source-region-${targetRegion.id}`;
+    const explicitSubject = {
+      id: String(numericResult),
+      type: "number",
+      label: String(numericResult),
+      href: `/2029/number/${numericResult}`,
+    };
     const explicitSelection = {
       entityId: targetRegion.id,
       entityType: "gematria_expression",
@@ -367,18 +378,14 @@ function PostReadingBody() {
     };
     explicitGematriaFocusRef.current = {
       postId: String(post.id),
+      subject: explicitSubject,
       selection: explicitSelection,
       bottomTrail: explicitBottomTrail,
       surfaceFocus: explicitSurfaceFocus,
     };
     setActiveRegionId(targetRegion.id);
     research.updateResearchContext?.({
-      subject: {
-        id: String(numericResult),
-        type: "number",
-        label: String(numericResult),
-        href: `/2029/number/${numericResult}`,
-      },
+      subject: explicitSubject,
       selection: explicitSelection,
       lens: "gematria",
       dimensions: {
