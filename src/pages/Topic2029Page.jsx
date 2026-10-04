@@ -445,6 +445,7 @@ function TopicBody() {
       primary: label,
       sectionLabel: "חיבורים",
       signals: [canonicalRelationPublicLabel(row.relationType)],
+      number: row.targetType === "number" && /^\d+$/.test(clean(row.label)) ? Number(row.label) : null,
       sourceLabel: "מפת הקשרים",
       locator: "#topic-graph",
       targetType: row.targetType || null,
