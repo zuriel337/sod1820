@@ -565,3 +565,66 @@
     top:62px;
   }
 }
+
+
+/* FINAL PREVIEW PIN POLICY — one local pinned region only.
+   Global header + bottom command surface remain fixed owners.
+   Section tabs are a clickable index, not another sticky layer.
+   Page progress lives inside the pinned Context Rail. */
+.sod29-surface-tabs{
+  position:relative !important;
+  position:static !important;
+  top:auto !important;
+  z-index:auto !important;
+}
+@media(min-width:981px){
+  .sod29-main-stage.has-context-rail>.sod29-surface-context-rail{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:76px;
+    align-self:start;
+    max-height:calc(100vh - 96px);
+    overflow:auto;
+    z-index:18;
+  }
+}
+.sod29-surface-context-progress{
+  display:grid;
+  gap:7px;
+  padding:7px 0 10px;
+  border-bottom:1px solid var(--s29-line);
+}
+.sod29-surface-context-progress .sod29-surface-progress-spine{
+  position:relative;
+  top:auto;
+  width:100%;
+  min-width:0;
+  height:170px;
+  padding:10px 2px;
+  align-items:flex-start;
+}
+.sod29-surface-context-progress .sod29-surface-progress-line{
+  inset-inline-start:16px;
+}
+.sod29-surface-context-progress .sod29-surface-progress-spine button{
+  justify-items:start;
+}
+.sod29-surface-context-progress .sod29-surface-progress-spine button>small{
+  inset-inline-end:auto;
+  inset-inline-start:30px;
+  opacity:.68;
+  transform:none;
+}
+.sod29-surface-context-progress .sod29-surface-progress-spine button.is-active>small,
+.sod29-surface-context-progress .sod29-surface-progress-spine button:hover>small{
+  opacity:1;
+  color:var(--s29-ink);
+}
+.sod29-surface-context-verse{
+  margin:2px 0;
+  padding:10px 12px;
+  border-inline-start:2px solid var(--s29-line-strong);
+  color:var(--s29-ink);
+  font-size:13px;
+  line-height:1.75;
+}
