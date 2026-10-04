@@ -50,6 +50,50 @@
 .sod29-context-strip{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}
 .sod29-context-strip span,.sod29-chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-accent-text);font-size:11px}
 
+/* Design V2 compact Surface Intro: World/Heichal/Topic orientation, never a second Hero. */
+.sod29-page-intro.is-compact{
+  min-height:0;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  padding:clamp(18px,2.4vw,28px);
+  border-radius:24px;
+  box-shadow:0 18px 54px color-mix(in srgb,var(--s29-page) 26%,transparent);
+}
+.sod29-page-intro.is-compact:before{opacity:.38}
+.sod29-page-intro.is-compact .sod29-hero-visual{
+  width:clamp(92px,10vw,132px);
+  min-height:0;
+  aspect-ratio:1;
+  opacity:.78;
+}
+.sod29-page-intro.is-compact .sod29-hero-symbol{
+  width:58px;
+  height:58px;
+  font-size:22px;
+  box-shadow:0 0 34px var(--s29-glow);
+}
+.sod29-page-intro.is-compact h1{
+  margin:5px 0 7px;
+  font-size:clamp(28px,3.6vw,44px);
+  line-height:1.04;
+}
+.sod29-page-intro.is-compact p{
+  max-width:820px;
+  font-size:var(--s29-type-ui,16px);
+  line-height:1.62;
+}
+.sod29-page-intro.is-compact .sod29-context-strip{margin-top:12px}
+@media(max-width:720px){
+  .sod29-page-intro.is-compact{
+    grid-template-columns:minmax(0,1fr) 76px;
+    padding:16px;
+    border-radius:20px;
+  }
+  .sod29-page-intro.is-compact .sod29-hero-visual{width:76px}
+  .sod29-page-intro.is-compact .sod29-hero-symbol{width:48px;height:48px;font-size:18px}
+  .sod29-page-intro.is-compact h1{font-size:clamp(26px,8vw,34px)}
+}
+
 .sod29-section{margin-top:20px;border:1px solid var(--s29-line);border-radius:var(--s29-radius);background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 94%,transparent),color-mix(in srgb,var(--s29-panel-soft) 86%,transparent));padding:clamp(18px,2.5vw,26px);box-shadow:0 18px 54px color-mix(in srgb,var(--s29-panel) 24%,transparent);position:relative;overflow:hidden}
 .sod29-section:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:1px;background:linear-gradient(180deg,transparent,var(--s29-accent),transparent);opacity:.38}
 .sod29-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;position:relative;z-index:1}
