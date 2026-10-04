@@ -6,6 +6,7 @@ import {
   emitEntryLearn,
   getConceptFamiliarity,
   getLearnFragment,
+  isEntryLearnSurfaceActive,
   LEARN_LAYER,
   LEARN_SCOPE,
   markConceptFamiliarity,
@@ -31,7 +32,7 @@ export default function SurfaceContextRail2029({
   const activeSectionId = context?.dimensions?.activeSectionId || null;
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
-  const fragment = conceptKey ? getLearnFragment(conceptKey) : null;
+  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function SurfaceContextRail2029({
         actions={hasNumber ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : `פתח את ${number}`}</button> : null}
       >
         <p>{fragment.explain}</p>
-        {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. Learn רק מסביר את ה-focus הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
+        {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
