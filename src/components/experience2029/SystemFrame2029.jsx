@@ -986,13 +986,6 @@ export default function SystemFrame2029({
     navigate(to, { state: { sodEntryArrival: "internal" } });
   }, [navigate, preserveReturnFor, completeSurfaceEntry]);
 
-  const handleGlobalNavAction = useCallback((action) => {
-    if (action === "number") {
-      setCommandQuery("");
-      openCommand();
-    }
-  }, [openCommand]);
-
   const returnExact = useCallback(() => {
     setTransient(null);
     const target = context?.returnTo || null;
@@ -1036,6 +1029,13 @@ export default function SystemFrame2029({
   }, [navOpen, completeSurfaceEntry]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
+  const handleGlobalNavAction = useCallback((action) => {
+    if (action === "number") {
+      setCommandQuery("");
+      openCommand();
+    }
+  }, [openCommand]);
+
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
     const key = String(capability || "").trim();
