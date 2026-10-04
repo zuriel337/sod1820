@@ -81,6 +81,18 @@ function rpcError(error, fallback = "research_path_unavailable") {
   };
 }
 
+export async function getPublicResearchPath(pathId, revisionNo = null) {
+  if (!supabase) return { ok: false, error: "supabase_unavailable" };
+  if (!isResearchPathId(pathId)) return { ok: false, error: "invalid_path_id" };
+  const revision = Number(revisionNo);
+  const { data, error } = await supabase.rpc("fn_research_path_public_read_v1", {
+    p_path_id: pathId,
+    p_revision_no: Number.isSafeInteger(revision) && revision > 0 ? revision : null,
+  });
+  if (error) return rpcError(error);
+  return data || { ok: false, error: "not_found" };
+}
+
 export async function getLatestResearchPath(pathId = null) {
   if (!supabase) return { ok: false, error: "supabase_unavailable" };
   const { data, error } = await supabase.rpc("fn_research_path_resume_v1", {
