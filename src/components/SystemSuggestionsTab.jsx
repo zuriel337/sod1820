@@ -4,7 +4,7 @@
 // כולל הגדרות-התראה (השומר): ערוץ וואטסאפ/אימייל + «שלח לי דייג'סט עכשיו».
 import React, { useState, useEffect, useCallback } from "react";
 import { C, F } from "../theme.js";
-import { adminSuggestionsList, adminSuggestionDecide, adminNotifyGet, adminNotifySet, adminFireWatchman } from "../lib/supabase.js";
+import { adminSuggestionsList, adminSuggestionDecide, adminNotifyGet, adminNotifySet, adminFireWatchman, adminContactGatewayTriageRefresh, getAiAnalysis } from "../lib/supabase.js";
 
 const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 18px" };
 const pill = (c) => ({ display: "inline-block", background: c + "22", border: `1px solid ${c}`, color: c, borderRadius: 999, padding: "2px 10px", fontSize: 11.5, fontWeight: 800, fontFamily: F.heading });
@@ -26,6 +26,9 @@ export default function SystemSuggestionsTab() {
   const [notify, setNotify] = useState([]);
   const [waTarget, setWaTarget] = useState("");
   const [msg, setMsg] = useState("");
+  const [triageBusy, setTriageBusy] = useState(false);
+  const [aiBusyId, setAiBusyId] = useState(null);
+  const [aiSummary, setAiSummary] = useState({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,6 +62,35 @@ export default function SystemSuggestionsTab() {
     setMsg("נשלח דייג'סט-בדיקה ✓ (בדוק אימייל/וואטסאפ; אם לא הגיע — ראה סטטוס-ערוצים למטה)");
   };
 
+  const refreshContactTriage = async () => {
+    setTriageBusy(true);
+    const result = await adminContactGatewayTriageRefresh();
+    setMsg(result?.ok ? "אותות המשתמשים נסרקו ✓" : "לא הצלחנו לרענן את אותות המשתמשים");
+    setTriageBusy(false);
+    await load();
+  };
+
+  const summarizeWithAi = async (s) => {
+    setAiBusyId(s.id);
+    const facts = JSON.stringify({
+      category: s.category,
+      detector: s.detector,
+      reason: s.reason,
+      observed: s.observed,
+      estimated_impact: s.estimated_impact,
+      sample_size: s.sample_size,
+    });
+    const summary = await getAiAnalysis({
+      kind: "contact_triage",
+      subject: s.title,
+      facts,
+      fast: true,
+      surface: "admin:system-suggestions",
+    });
+    setAiSummary((prev) => ({ ...prev, [s.id]: summary || "לא התקבל סיכום AI כרגע." }));
+    setAiBusyId(null);
+  };
+
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={box}>
@@ -66,6 +98,9 @@ export default function SystemSuggestionsTab() {
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
           המערכת <b>צופה → מזהה דפוס → מציעה → מסבירה</b>. אתה <b>מחליט</b>: קבל / דחה / המתן. חוק-על: המערכת לעולם אינה משנה את עצמה.
         </div>
+        <button onClick={refreshContactTriage} disabled={triageBusy} style={{ marginTop: 10, cursor: triageBusy ? "wait" : "pointer", background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>
+          {triageBusy ? "סורק…" : "🧭 רענן אותות משתמשים"}
+        </button>
       </div>
 
       {/* 🔔 הגדרות השומר */}
@@ -140,6 +175,13 @@ export default function SystemSuggestionsTab() {
                     {openId === s.id && <pre dir="ltr" style={{ marginTop: 6, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, padding: "8px 11px", color: C.muted, fontSize: 11.5, overflowX: "auto", whiteSpace: "pre-wrap" }}>{JSON.stringify(s.observed, null, 2)}</pre>}
                   </div>
                 )}
+                {String(s.detector || "").startsWith("contact_gateway_") && <div style={{ marginBottom: 9 }}>
+                  <button onClick={() => summarizeWithAi(s)} disabled={aiBusyId === s.id} style={{ cursor: aiBusyId === s.id ? "wait" : "pointer", background: "rgba(62,166,255,0.08)", border: "1px solid rgba(62,166,255,0.35)", color: "#8ecbff", borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>
+                    {aiBusyId === s.id ? "מנתח…" : "🤖 סכם עם AI"}
+                  </button>
+                  {aiSummary[s.id] && <div style={{ marginTop: 7, padding: "9px 11px", background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 9, color: C.goldLight, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>{aiSummary[s.id]}</div>}
+                </div>}
+
                 {tab === "pending" && (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button onClick={() => decide(s.id, "accepted")} style={{ cursor: "pointer", background: "rgba(76,175,125,0.14)", border: "1px solid rgba(76,175,125,0.55)", color: "#7fd49a", borderRadius: 999, padding: "6px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>✅ קבל</button>
