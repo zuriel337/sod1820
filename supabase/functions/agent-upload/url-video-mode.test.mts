@@ -67,6 +67,10 @@ check("rejects credentials", (await postUrl("https://u:p@media.descriptuserconte
 check("rejects non-443 port", (await postUrl("https://media.descriptusercontent.com:8443/v/clip.mp4")).status === 403);
 remoteMode = "redirect-ok"; check("follows redirect to allowed host", (await postUrl(DESCRIPT)).status === 200);
 remoteMode = "redirect-bad"; check("rejects redirect to unapproved host", (await postUrl(DESCRIPT)).status === 403);
+{
+  remoteMode = "redirect-bad"; const b = await postUrl(DESCRIPT);
+  check("redirect rejection reports blocked hostname only", b.status === 403 && String(b.body.error).includes("evil.example.com") && !JSON.stringify(b.body).includes("a.mp4") && !JSON.stringify(b.body).includes("https://"), JSON.stringify(b.body));
+}
 remoteMode = "redirect-http"; check("rejects redirect downgrade to http", (await postUrl(DESCRIPT)).status === 403);
 remoteMode = "audio"; check("rejects audio content-type", (await postUrl(DESCRIPT)).status === 415);
 remoteMode = "html"; check("rejects html content-type", (await postUrl(DESCRIPT)).status === 415);
