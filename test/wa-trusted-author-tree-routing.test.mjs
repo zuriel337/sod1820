@@ -23,3 +23,13 @@ test("WhatsApp trusted-author routing extends canonical source registry", () => 
   assert.doesNotMatch(intake, /const CHANNELS =/);
   assert.doesNotMatch(intake, /const HEAVY_CHANNELS =/);
 });
+
+
+test("WhatsApp intake matches existing tree without creating a parallel tree", () => {
+  const intake = readFileSync(new URL("../supabase/functions/wa-channel-research-intake/index.ts", import.meta.url), "utf8");
+  assert.match(intake, /findExistingTreeTargets/);
+  assert.match(intake, /matched_existing_tree/);
+  assert.match(intake, /candidate_unmatched/);
+  assert.match(intake, /topic_cards_public/);
+  assert.match(intake, /tree_matches/);
+});
