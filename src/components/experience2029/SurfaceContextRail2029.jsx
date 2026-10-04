@@ -49,8 +49,13 @@ export default function SurfaceContextRail2029({
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
-    <button className="sod29-surface-context-mobile-cue" type="button" onClick={onOpenContext}>
-      <span>✦</span><b>{title}</b><small>{hasNumber ? number : subtitle}</small>
+    <button className="sod29-surface-context-mobile-cue" type="button" onClick={onOpenContext} aria-label="פתח הקשר">
+      <span className="sod29-surface-context-mobile-cue-icon">✦</span>
+      <span className="sod29-surface-context-mobile-cue-copy">
+        <small>הקשר</small>
+        <b>{title}</b>
+      </span>
+      <span className="sod29-surface-context-mobile-cue-value">{hasNumber ? number : "פתח"}</span>
     </button>
   </>;
 }
