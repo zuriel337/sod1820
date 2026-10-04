@@ -23,6 +23,7 @@ import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
+import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -224,6 +225,13 @@ function NumberPageBody() {
   const [deepRequested, setDeepRequested] = useState(false);
   const [focusExplicit, setFocusExplicit] = useState(false);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState("");
+  const [expandedVerseState, setExpandedVerseState] = useState({
+    loading: false,
+    rows: null,
+    count: null,
+    limit: DEFAULT_VERSE_GEMATRIA_LIMIT,
+    error: null,
+  });
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
@@ -244,6 +252,13 @@ function NumberPageBody() {
     setFocusedCrossingPartner(clean(urlFocus.crossingPartner) || contextCrossing);
     setTraceOpen(false);
     setDeepRequested(false);
+    setExpandedVerseState({
+      loading: false,
+      rows: null,
+      count: null,
+      limit: DEFAULT_VERSE_GEMATRIA_LIMIT,
+      error: null,
+    });
 
     const cacheKey = String(root);
     const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
@@ -345,9 +360,39 @@ function NumberPageBody() {
   const anchorRow = data?.anchorProfile?.row || null;
   const anchorPhrase = anchorExpression(anchorRow?.fact, root);
 
-  const verseGematriaRows = Array.isArray(data?.journeys?.numberKnowledgeJourney?.sources)
+  const initialVerseGematriaRows = Array.isArray(data?.journeys?.numberKnowledgeJourney?.sources)
     ? data.journeys.numberKnowledgeJourney.sources.filter((source) => source?.type === "verse")
     : [];
+  const initialVerseGematriaCount = Number.isFinite(Number(data?.journeys?.numberKnowledgeJourney?.sourceSummary?.count))
+    ? Number(data.journeys.numberKnowledgeJourney.sourceSummary.count)
+    : initialVerseGematriaRows.length;
+  const verseGematriaRows = Array.isArray(expandedVerseState.rows)
+    ? expandedVerseState.rows
+    : initialVerseGematriaRows;
+  const verseGematriaCount = Number.isFinite(Number(expandedVerseState.count))
+    ? Number(expandedVerseState.count)
+    : initialVerseGematriaCount;
+
+  const loadMoreVerseGematria = async () => {
+    if (!Number.isSafeInteger(root) || root < 0 || expandedVerseState.loading) return;
+    const loaded = verseGematriaRows.length;
+    const total = Math.max(verseGematriaCount, loaded);
+    const nextLimit = Math.min(total || loaded + 18, Math.max(expandedVerseState.limit + 18, loaded + 1));
+    if (nextLimit <= loaded) return;
+    setExpandedVerseState((current) => ({ ...current, loading: true, error: null }));
+    try {
+      const result = await fetchVersesByGematria(root, { limit: nextLimit });
+      setExpandedVerseState({
+        loading: false,
+        rows: result.verses,
+        count: result.count,
+        limit: nextLimit,
+        error: null,
+      });
+    } catch (error) {
+      setExpandedVerseState((current) => ({ ...current, loading: false, error }));
+    }
+  };
 
   const math = useMemo(() => {
     if (!Number.isSafeInteger(root) || root < 0) return null;
@@ -1128,7 +1173,9 @@ function NumberPageBody() {
       projectionRelatedNumbers={coreProjection?.relatedNumbers || []}
       sources={sources}
       verseRows={verseGematriaRows}
-      versesLoading={false}
+      verseCount={verseGematriaCount}
+      versesLoading={expandedVerseState.loading}
+      onLoadMoreVerses={loadMoreVerseGematria}
       worlds={worlds}
       researchFindings={researchFindings}
       timeline={timeline}
