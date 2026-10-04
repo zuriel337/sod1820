@@ -346,6 +346,24 @@ jobs:
               await expect(restRail).toContainText('בתוך הפוסט');
             }
 
+            if (width >= 600) {
+              const globalRail = page.locator('.sod29-sidebar');
+              const globalBefore = await globalRail.boundingBox();
+              const contextBefore = await restRail.boundingBox();
+              expect(globalBefore).not.toBeNull();
+              expect(contextBefore).not.toBeNull();
+              await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
+              await page.waitForTimeout(120);
+              const globalAfter = await globalRail.boundingBox();
+              const contextAfter = await restRail.boundingBox();
+              expect(globalAfter).not.toBeNull();
+              expect(contextAfter).not.toBeNull();
+              expect(Math.abs(globalAfter.y - globalBefore.y)).toBeLessThanOrEqual(1);
+              expect(Math.abs(contextAfter.y - contextBefore.y)).toBeLessThanOrEqual(1);
+              expect(Math.abs(globalAfter.x - globalBefore.x)).toBeLessThanOrEqual(1);
+              expect(Math.abs(contextAfter.x - contextBefore.x)).toBeLessThanOrEqual(1);
+            }
+
             const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
             await expect(focusGroup).toBeVisible({ timeout: 30_000 });
             expect(traceRequests).toBe(0);
@@ -358,6 +376,10 @@ jobs:
             await expect(sidecar).toHaveCount(1);
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+            const sidecarReveal = sidecar.locator('[data-experience-capability="gematria-reveal"]');
+            await expect(sidecarReveal).toBeVisible();
+            await expect(sidecarReveal).toContainText('מלח');
+            await expect(sidecarReveal).toContainText('78');
 
             const learn = sidecar.locator('.sod29-learn-mark.scope-concept');
             await expect(learn).toBeVisible();
@@ -370,6 +392,7 @@ jobs:
 
             const drawer = page.locator('.sod29-number-drawer2029');
             await expect(drawer).toBeVisible({ timeout: 30_000 });
+            await expect(drawer.locator('[data-experience-capability="gematria-reveal"]')).toBeVisible();
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
             await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
 
