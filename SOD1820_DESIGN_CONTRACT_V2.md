@@ -97,7 +97,7 @@ Because SOD1820 carries dense information:
 - decoration yields to reading;
 - empty/rest states remain useful but quiet.
 
-Exact top-bar/sidebar placement is a separate architecture decision after this foundation is visually accepted.
+Global Chrome placement and mobile projection are locked in §11. Desktop Adaptive Dual Rail depth/choreography continues in the same System Frame owner.
 
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
@@ -160,7 +160,43 @@ Large blur/backdrop/shadow stacks must not be multiplied merely for spectacle.
 
 The content remains the hero of information-dense surfaces.
 
-## 11. Acceptance
+## 11. Global Chrome / Mobile Projection
+
+Global Chrome is owned by the existing System Frame. No page creates its own topbar, global navigation drawer or mobile chrome owner.
+
+### 11.1 Mobile topbar
+The persistent mobile topbar is intentionally minimal:
+- inline-start / RTL right: one global navigation trigger;
+- center: current surface identity (`SOD1820 / surface`) without deep subject breadcrumb;
+- inline-end / RTL left: Search and My Workspace only.
+
+Exact Return and Issue Report remain available but do not occupy permanent mobile topbar space; they project into the mobile navigation sheet or contextual surfaces.
+
+Minimum control target remains 44×44px. The mobile topbar target height is approximately 56–60px.
+
+### 11.2 Mobile navigation sheet
+The sheet is the mobile projection of the same global navigation tree used by desktop.
+Rows use icon + live label. It is not a feed and does not add arbitrary thumbnails.
+Secondary utilities may include Exact Return, My Workspace and Issue Report.
+
+Theme / language controls appear here only after their canonical controls are actually wired. Fake or locally-owned controls are forbidden.
+
+### 11.3 Page Map relationship
+The floating Page Map stays separate from Global Navigation:
+- Global Chrome answers **where can I go in the product?**
+- Page Map answers **where am I inside this surface?**
+
+On mobile the Page Map should use a compact one-row projection and a thin progress indicator so Header + Page Map do not consume the first viewport.
+
+### 11.4 Motion
+Chrome motion is choreography, not decoration:
+- immediate control response;
+- bounded 180–420ms rail/sheet reveal;
+- slow ambient Brand motion may continue independently;
+- reduced-motion disables nonessential transitions/animations.
+
+The Bottom Command Island remains a separate Path/Action owner and is not redesigned by this contract section.
+## 12. Acceptance
 A 2029 visual-foundation change must prove:
 1. same semantics in all three presets;
 2. no horizontal overflow at release mobile widths;
