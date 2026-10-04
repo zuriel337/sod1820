@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+import SurfaceMapBar2029 from "../components/experience2029/SurfaceMapBar2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
@@ -25,6 +26,7 @@ function NoContextEntry() {
   const research = useResearch();
   const shell = use2029Shell();
   const [query, setQuery] = useState("");
+  const [activeMapId, setActiveMapId] = useState("heichal-entry");
 
   const start = async (e) => {
     e?.preventDefault?.();
@@ -72,7 +74,18 @@ function NoContextEntry() {
   };
 
   return <>
-    <section className="sod29-focus-stage">
+    <SurfaceMapBar2029
+      items={[
+        { id: "heichal-entry", label: "כוונה", targetId: "heichal-entry" },
+        { id: "heichal-actions", label: "פעולות", targetId: "heichal-actions" },
+      ]}
+      activeId={activeMapId}
+      onActiveChange={(item) => setActiveMapId(item.id)}
+      ariaLabel="מפת ההיכל"
+      currentLabel="בהיכל"
+      compact
+    />
+    <section className="sod29-focus-stage" id="heichal-entry">
       <div className="sod29-command-shell">
         <div className="sod29-command-copy">
           <div className="sod29-kicker">INTENTION FIRST</div>
@@ -93,7 +106,7 @@ function NoContextEntry() {
       </div>
     </section>
 
-    <section className="sod29-section">
+    <section className="sod29-section" id="heichal-actions">
       <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">אלה כוונות כניסה, לא אפליקציות נפרדות. ה־Research Context נשאר אותו Context.</div></div></div>
       <div className="sod29-constellation">
         {ACTIONS.map(a => a.live
@@ -111,6 +124,7 @@ function ActiveResearchEnvironment() {
   const context = research.context || null;
   const subject = context?.subject;
   const [state, setState] = useState({ loading: true, data: null, error: null });
+  const [activeMapId, setActiveMapId] = useState("heichal-context");
   const key = subject ? `${subject.type}:${subject.id}` : null;
 
   useEffect(() => {
@@ -199,7 +213,20 @@ function ActiveResearchEnvironment() {
   ].filter(Boolean).join(" · ");
 
   return <>
-    <section className="sod29-section sod29-resume-panel">
+    <SurfaceMapBar2029
+      items={[
+        { id: "heichal-context", label: "הקשר", targetId: "heichal-context" },
+        { id: "heichal-canvas", label: "משטח", targetId: "heichal-canvas" },
+        { id: "heichal-next", label: "פעולות", targetId: "heichal-next" },
+        { id: "heichal-future", label: "המשך", targetId: "heichal-future" },
+      ]}
+      activeId={activeMapId}
+      onActiveChange={(item) => setActiveMapId(item.id)}
+      ariaLabel="מפת ההיכל"
+      currentLabel="מחקר"
+      compact
+    />
+    <section className="sod29-section sod29-resume-panel" id="heichal-context">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
         <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
@@ -212,7 +239,7 @@ function ActiveResearchEnvironment() {
       <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
 
-    <section className="sod29-section">
+    <section className="sod29-section" id="heichal-canvas">
       <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
       <div className="sod29-two">
         <div className="sod29-canvas">
@@ -255,7 +282,7 @@ function ActiveResearchEnvironment() {
       />
     ) : null}
 
-    <section className="sod29-section">
+    <section className="sod29-section" id="heichal-next">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מההקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
@@ -266,7 +293,7 @@ function ActiveResearchEnvironment() {
       </div>
     </section>
 
-    <section className="sod29-section sod29-placeholder">
+    <section className="sod29-section sod29-placeholder" id="heichal-future">
       <div className="sod29-section-head"><div><div className="sod29-kicker">FUTURE RENDERERS</div><h2>Journey persistence / Spatial renderer</h2></div></div>
       <p className="sod29-muted">ה־Foundation נעול, אבל research_path persistence וה־2029 Spatial renderer עדיין אינם מחוברים למסך הזה. לכן לא מוצג מסע או 3D מזויף. כשיתחברו, הם יצרכו את אותו Context/Result lineage ולא ידרשו Heichal חדש.</p>
     </section>
