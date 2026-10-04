@@ -157,6 +157,7 @@
 .sod29-topic-section,
 .sod29-lw-essential,
 [id^="post-"],
+[id^="number-"],
 [id^="world-"],
 [id^="heichal-"]{
   scroll-margin-top:var(--s29-surface-map-clearance,154px);
