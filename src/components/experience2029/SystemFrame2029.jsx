@@ -41,7 +41,12 @@ import {
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
-import { buildGuidedDiscoveryLaunch } from "../../lib/research/guidedDiscovery2029.js";
+import {
+  buildGuidedDiscoveryLaunch,
+  GUIDED_DISCOVERY_TARGET_KIND,
+  normalizeGuidedDiscoveryRef,
+} from "../../lib/research/guidedDiscovery2029.js";
+import { getPublicResearchPath } from "../../lib/research/researchPathRuntime.js";
 import { emitJourney2029 } from "../../lib/research/journey2029Telemetry.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -1009,7 +1014,22 @@ export default function SystemFrame2029({
     }
     openCapability("number", normalized || subject);
   }, [openCapability, research, context?.selection]);
-  const openGuidedDiscovery = useCallback((ref, options = {}) => {
+  const openGuidedDiscovery = useCallback(async (ref, options = {}) => {
+    let normalizedRef = normalizeGuidedDiscoveryRef(ref);
+    if (!normalizedRef) return false;
+
+    if (normalizedRef.targetKind === GUIDED_DISCOVERY_TARGET_KIND.PUBLIC_PATH) {
+      const snapshot = await getPublicResearchPath(normalizedRef.pathId, normalizedRef.revisionNo);
+      if (!snapshot?.ok) return false;
+      normalizedRef = normalizeGuidedDiscoveryRef({
+        ...normalizedRef,
+        revisionNo: snapshot.revision_no,
+        href: snapshot?.representation?.href || normalizedRef.href,
+        targetSurface: snapshot?.representation?.surface || normalizedRef.targetSurface,
+      });
+      if (!normalizedRef) return false;
+    }
+
     const current = research.context || {};
     const returnHref = `${location.pathname || "/2029"}${location.search || ""}${location.hash || ""}`;
     const returnTo = {
@@ -1022,7 +1042,7 @@ export default function SystemFrame2029({
       journey: current?.journey || null,
     };
     const launch = buildGuidedDiscoveryLaunch({
-      ref,
+      ref: normalizedRef,
       currentContext: current,
       subject: options.subject || current?.subject || null,
       selection: options.selection || current?.selection || null,
