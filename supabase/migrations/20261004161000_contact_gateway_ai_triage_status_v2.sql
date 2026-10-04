@@ -100,7 +100,7 @@ begin
   for r in
     select
       coalesce(
-        nullif((regexp_match(m.message, 'path=([^ ·\\]\\r\\n]+)'))[1], ''),
+        nullif(substring(m.message from 'path=([^[:space:]·\\]]+)'), ''),
         'unknown'
       ) as path,
       count(*)::integer as sample_count
