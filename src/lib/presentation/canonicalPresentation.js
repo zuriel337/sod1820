@@ -19,6 +19,111 @@ const RESEARCH_PUBLIC_LABELS = Object.freeze({
   convergence: Object.freeze({ singular: "התכנסות", plural: "התכנסויות" }),
 });
 
+const ENTITY_PUBLIC_LABELS = Object.freeze({
+  topic: Object.freeze({ singular: "התכנסות", plural: "התכנסויות" }),
+  convergence: Object.freeze({ singular: "התכנסות", plural: "התכנסויות" }),
+  number: Object.freeze({ singular: "מספר", plural: "מספרים" }),
+  book: Object.freeze({ singular: "ספר / מקור", plural: "ספרים ומקורות" }),
+  source: Object.freeze({ singular: "מקור", plural: "מקורות" }),
+  event: Object.freeze({ singular: "אירוע", plural: "אירועים" }),
+  phrase: Object.freeze({ singular: "ביטוי", plural: "ביטויים" }),
+  word: Object.freeze({ singular: "מילה", plural: "מילים" }),
+  foreign_word: Object.freeze({ singular: "מילה לועזית", plural: "מילים לועזיות" }),
+  language_bridge: Object.freeze({ singular: "גשר שפה", plural: "גשרי שפה" }),
+  image: Object.freeze({ singular: "תמונה", plural: "תמונות" }),
+  media: Object.freeze({ singular: "מדיה", plural: "מדיה" }),
+  post: Object.freeze({ singular: "פוסט", plural: "פוסטים" }),
+  entity: Object.freeze({ singular: "ישות", plural: "ישויות" }),
+  relation: Object.freeze({ singular: "קשר", plural: "קשרים" }),
+});
+
+const RELATION_PUBLIC_LABELS = Object.freeze({
+  equals: "שוויון",
+  cross: "הצטלבות",
+  related: "קשור",
+  contains: "מכיל",
+  mentions: "מזכיר",
+  converges_on: "מתכנס אל",
+  evidence_for: "מקור ל־",
+  cipher_link: "קשר לצופן",
+  demand_signal: "אות ביקוש",
+  scale_x10: "קשר ×10",
+  zero_scale: "שינוי קנה־מידה",
+  source_provenance: "מקור",
+});
+
+const FINDING_KIND_PUBLIC_LABELS = Object.freeze({
+  "graph-relation": "קשר",
+  "graph-entity": "ישות",
+  research: "מחקר",
+  topic: "התכנסות",
+  convergence: "התכנסות",
+  source: "מקור",
+  number: "מספר",
+  entity: "ישות",
+  post: "פוסט",
+  event: "אירוע",
+  verse: "פסוק",
+});
+
+export function canonicalEntityPublicLabel(type, { plural = false } = {}) {
+  const key = clean(type).toLowerCase();
+  const labels = ENTITY_PUBLIC_LABELS[key];
+  if (!labels) return clean(type) || (plural ? "פריטים" : "פריט");
+  return plural ? labels.plural : labels.singular;
+}
+
+export function canonicalRelationPublicLabel(type) {
+  const key = clean(type).toLowerCase();
+  return RELATION_PUBLIC_LABELS[key] || "קשור";
+}
+
+export function canonicalFindingKindPublicLabel(kind, type = null) {
+  const key = clean(kind).toLowerCase();
+  return FINDING_KIND_PUBLIC_LABELS[key] || canonicalEntityPublicLabel(type || kind);
+}
+
+export function looksLikeMediaFilename(value) {
+  return /\.(?:jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(clean(value));
+}
+
+function looksTechnicalPublicLabel(value) {
+  const text = clean(value);
+  return !text
+    || looksLikeMediaFilename(text)
+    || /^(?:gallery(?:_images)?|nodes?|edges?|work_log|channel_updates|wa_bot_log|research-cue):/i.test(text)
+    || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(text);
+}
+
+export function canonicalMediaPublicLabel(input, { fallback = "תמונה" } = {}) {
+  const row = input && typeof input === "object" ? input : { label: input };
+  const candidates = [
+    row.publicLabel,
+    row.title,
+    row.name,
+    row.label,
+    row.description,
+  ].map(clean).filter(Boolean);
+  const human = candidates.find((value) => !looksTechnicalPublicLabel(value));
+  if (!human) return fallback;
+  return human.length > 82 ? human.slice(0, 81).trimEnd() + "…" : human;
+}
+
+export function canonicalGraphRelationTitle(relation, { anchorId = null } = {}) {
+  if (!relation || typeof relation !== "object") return "קשר";
+  const from = relation.from || null;
+  const to = relation.to || null;
+  const anchor = clean(anchorId);
+  const counterpart = anchor && clean(from?.id) === anchor ? to
+    : anchor && clean(to?.id) === anchor ? from
+      : to || from;
+  const type = clean(counterpart?.type);
+  const label = ["image", "media"].includes(type)
+    ? canonicalMediaPublicLabel(counterpart, { fallback: canonicalEntityPublicLabel(type) })
+    : clean(counterpart?.label) || canonicalEntityPublicLabel(type || "entity");
+  return [label, canonicalRelationPublicLabel(relation.relationType)].filter(Boolean).join(" · ");
+}
+
 /**
  * Human-facing Hebrew label for canonical research entity types.
  * Internal identity remains unchanged (e.g. type="convergence").
