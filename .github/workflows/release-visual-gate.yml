@@ -330,6 +330,22 @@ jobs:
 
             const post = page.locator('[data-experience-surface="post-reading"]');
             await expect(post).toBeVisible({ timeout: 30_000 });
+
+            const restRail = page.locator('.sod29-surface-context-rail');
+            const contentMap = restRail.locator('[data-context-map-item]');
+            await expect(contentMap).toHaveCount(5, { timeout: 30_000 });
+            await expect(contentMap.nth(0)).toContainText('מלח');
+            await expect(contentMap.nth(1)).toContainText('נפתלי בנט');
+            await expect(contentMap.nth(3)).toContainText('ים המלח');
+            await expect(contentMap.nth(4)).toContainText('ברית מלח');
+            if (width < 600) {
+              await expect(restRail).toBeHidden();
+              await expect(page.locator('.sod29-surface-context-mobile-cue')).toContainText('בתוך הפוסט');
+            } else {
+              await expect(restRail).toBeVisible();
+              await expect(restRail).toContainText('בתוך הפוסט');
+            }
+
             const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
             await expect(focusGroup).toBeVisible({ timeout: 30_000 });
             expect(traceRequests).toBe(0);
