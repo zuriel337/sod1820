@@ -120,7 +120,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
       selection.method || null,
       Number(selection.resultValue),
     ]);
-  }), { timeout: 5_000 }).toBe(JSON.stringify(['salt-78', 'מלח', 'רגיל', 78]));
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['bennett-631', 'נפתלי בנט', 'רגיל', 631]));
 
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
 
