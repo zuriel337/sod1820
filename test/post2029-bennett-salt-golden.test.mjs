@@ -22,3 +22,16 @@ test("Bennett salt exact slug redirects to Post 2029", () => {
   assert.equal(match.destination, "/post/bennett-melach-631-78");
   assert.equal(match.permanent, true);
 });
+
+
+test("Bennett Post Master v2 keeps story hierarchy and shared chrome", () => {
+  const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../src/pages/post2029-reading.css", import.meta.url), "utf8");
+  assert.match(page, /isBennettMaster\s*\?\s*\[78, 631\]/);
+  assert.match(page, /data-post-slug=\{post\.slug\}/);
+  assert.match(page, /<PostTimeline2029 items=\{visibleTimeline\}/);
+  assert.match(page, /status="פוסט"/);
+  assert.match(css, /\.sod29-gematria-value/);
+  assert.match(css, /\.sod29-gematria-line/);
+  assert.match(css, /--s29-island-clearance/);
+});
