@@ -24,12 +24,12 @@ export default function SurfaceContextRail2029({
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
   const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
-  const title = String(subject.primary || subject.label || subject.expression || subject.id || "הקשר פעיל");
-  const subtitle = String(subject.type === "verse" ? (subject.reference || subject.label || "פסוק") : (subject.sectionLabel || subject.subtitle || subject.type || ""));
-  const signals = Array.isArray(subject.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
+  const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
+  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || subject?.type || ""));
+  const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;
-  const hasMethodContext = Boolean(subject.expression && subject.method && Number.isSafeInteger(Number(subject.resultValue)));
+  const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey ? getLearnFragment(conceptKey) : null;
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
