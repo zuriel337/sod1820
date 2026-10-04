@@ -1982,6 +1982,7 @@ export default function World2029Page() {
       title="העולם"
       description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
       status="עולם · גילוי"
+      introVariant="compact"
     >
       <WorldBody />
     </Sod2029Shell>
