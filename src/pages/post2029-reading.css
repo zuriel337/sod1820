@@ -1081,3 +1081,21 @@
     grid-column:1 / -1;
   }
 }
+
+
+/* Unified Experience V1: persistent contextual rail is owned by SystemFrame, not duplicated inside Post. */
+.sod29-reading-layout{
+  grid-template-columns:34px minmax(0,790px);
+  grid-template-areas:"spine source";
+  justify-content:center;
+}
+@media(max-width:980px){
+  .sod29-reading-layout{
+    display:grid;
+    grid-template-columns:26px minmax(0,760px);
+    grid-template-areas:"spine source";
+  }
+}
+@media(max-width:720px){
+  .sod29-reading-layout{display:block}
+}
