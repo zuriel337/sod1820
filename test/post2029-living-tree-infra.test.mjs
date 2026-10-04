@@ -107,7 +107,8 @@ test("Research Path and commands share one physical System Frame bottom surface"
   assert.match(page, /surfaceSections: regions\.map/);
   assert.match(page, /surfaceMapLabel: "בתוך הפוסט"/);
   assert.match(page, /preserveExplicitGematriaFocus/);
-  assert.match(page, /selection: preserveExplicitGematriaFocus \? currentSelection : passiveSelection/);
+  assert.match(page, /explicitGematriaFocusRef/);
+  assert.match(page, /selection: preserveExplicitGematriaFocus \? protectedSelection : passiveSelection/);
   assert.match(page, /lens: preserveExplicitGematriaFocus \? "gematria" : "reading"/);
   assert.match(page, /activeSectionId: activeFocus\.id/);
   assert.match(page, /surfaceFocus:/);
