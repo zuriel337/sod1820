@@ -179,7 +179,7 @@ The sheet is the mobile projection of the same global navigation tree used by de
 Rows use icon + live label. It is not a feed and does not add arbitrary thumbnails.
 Secondary utilities may include Exact Return, My Workspace and Issue Report.
 
-Theme / language controls appear here only after their canonical controls are actually wired. Fake or locally-owned controls are forbidden.
+Theme control is now wired directly to the existing canonical `themeMode.js` store and may appear in Global Chrome as `יום | קלף | לילה`. Language control remains deferred until its canonical control is wired. Fake or locally-owned controls are forbidden.
 
 ### 11.3 Page Map relationship
 The floating Page Map stays separate from Global Navigation:
@@ -194,6 +194,24 @@ Chrome motion is choreography, not decoration:
 - bounded 180–420ms rail/sheet reveal;
 - slow ambient Brand motion may continue independently;
 - reduced-motion disables nonessential transitions/animations.
+
+### 11.5 Brand lockup placement
+The full approved Crown + Hebrew wordmark lockup may appear only in identity moments of Global Chrome:
+- at the top of the mobile Navigation Sheet;
+- at the top of the expanded desktop Global Rail;
+- Home / approved media-Hero identity moments when composition allows.
+
+When the desktop rail collapses, the full lockup disappears completely and a neutral Home affordance may replace it. Crown-only projection remains forbidden.
+
+The lockup is consumed through one centralized Brand asset pointer. Page-local logo URLs, crops and redraws are forbidden.
+
+### 11.6 Theme tuning
+The three user presets are live product controls now:
+- יום → `light`
+- קלף → `parchment`
+- לילה → `dark`
+
+The selector consumes the existing theme store and existing Design V2 palette owner. Changing colors later edits semantic palette roles at the owner, never per-page theme CSS.
 
 The Bottom Command Island remains a separate Path/Action owner and is not redesigned by this contract section.
 ## 12. Acceptance
