@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+import SurfaceMapBar2029 from "../components/experience2029/SurfaceMapBar2029.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
@@ -421,6 +422,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
+  const [activeMapId, setActiveMapId] = useState("world-entry");
   const controlMode = isAdmin && adminToolsOpen;
   const [landing, setLanding] = useState({
     loading: true,
@@ -800,7 +802,22 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
+  const worldMapItems = [
+    { id: "world-entry", label: "חדש", targetId: "world-entry" },
+    { id: "world-anchors", label: "עוגנים", targetId: "world-anchors" },
+    ...(!landing.loading ? [{ id: "world-researchers", label: "חוקרים", targetId: "world-researchers" }] : []),
+    { id: "world-all-convergences", label: "התכנסויות", targetId: "world-all-convergences" },
+    ...(controlMode ? [{ id: "world-admin-tools", label: "בקרה", targetId: "world-admin-tools" }] : []),
+  ];
+
   return <>
+    <SurfaceMapBar2029
+      items={worldMapItems}
+      activeId={activeMapId}
+      onActiveChange={(item) => setActiveMapId(item.id)}
+      ariaLabel="מפת העולם"
+      currentLabel="בעולם"
+    />
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
@@ -886,12 +903,14 @@ function LiveWorldLanding({ research, shell, context }) {
       </div>
     </section>
 
-    <WorldAnchorMap
-      projection={anchorState.projection}
-      loading={anchorState.loading}
-      error={anchorState.error}
-      onOpen={openAnchorValue}
-    />
+    <div id="world-anchors">
+      <WorldAnchorMap
+        projection={anchorState.projection}
+        loading={anchorState.loading}
+        error={anchorState.error}
+        onOpen={openAnchorValue}
+      />
+    </div>
 
     {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
@@ -1467,6 +1486,14 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   return <>
+    <SurfaceMapBar2029
+      items={WORLD_LANES.map((lane) => ({ id: lane.key, label: lane.label }))}
+      activeId={activeLane}
+      onSelect={(item) => setActiveLane(item.id)}
+      ariaLabel="מפת המבט בעולם"
+      currentLabel="מבט"
+      compact
+    />
     {focusedExpression ? <section className="sod29-world-focus-ribbon" data-expression-focus="true" aria-label="מיקוד הביטוי בעולם">
       <div>
         <span>המבט הנוכחי</span>
@@ -1580,28 +1607,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </aside>
         </div>
       </section> : null}
-
-      <section className="sod29-section sod29-world-orientation" aria-label="התמצאות בעולם">
-        <div className="sod29-section-head">
-          <div>
-            <div className="sod29-kicker">התמצאות</div>
-            <h2>מה אתה רוצה לראות עכשיו?</h2>
-          </div>
-        </div>
-        <div className="sod29-world-lanes" role="group" aria-label="בחירת שכבה בעולם">
-          {WORLD_LANES.map((lane) => <button
-            key={lane.key}
-            className={`sod29-action sod29-world-lane${activeLane === lane.key ? " primary" : ""}`}
-            type="button"
-            aria-pressed={activeLane === lane.key}
-            onClick={() => setActiveLane(lane.key)}
-          >
-            <span>{lane.label}</span>
-            <small>{laneCounts[lane.key] || 0}</small>
-          </button>)}
-        </div>
-        <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.</div>
-      </section>
 
       {adminMode ? <section className="sod29-section sod29-world-research-control" aria-label="מצב מחקר וממשל">
         <div className="sod29-section-head">
