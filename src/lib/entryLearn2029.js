@@ -285,7 +285,9 @@ export function resolveEntryOrientation({ surface, arrival, familiarity = null }
   if (!manifest) return { mode: "hidden", manifest: null };
   if (!isEntryLearnSurfaceActive(surface)) return { mode: "hidden", manifest };
   if (arrival === ENTRY_ARRIVAL.EXACT_RETURN) return { mode: "hidden", manifest };
-  if (familiarity?.state === "complete" || familiarity?.state === "dismissed") {
+  const familiarCurrentVersion = Number(familiarity?.v) === Number(manifest.version)
+    && (familiarity?.state === "complete" || familiarity?.state === "dismissed");
+  if (familiarCurrentVersion) {
     return { mode: "compact", manifest };
   }
   if (arrival === ENTRY_ARRIVAL.DIRECT) return { mode: "prominent", manifest };
@@ -371,13 +373,15 @@ export function emitEntryLearn(eventType, args = {}, { dedupe = false } = {}) {
   if (!payload) return false;
   if (dedupe) {
     const props = payload.options.props || {};
-    const key = [
-      payload.eventType,
-      props.entry_surface || "",
-      props.concept_key || "",
-      props.action_id || "",
-      props.manifest_version || "",
-    ].join(":");
+    const key = payload.eventType === "first_action"
+      ? [payload.eventType, props.entry_surface || "", props.manifest_version || ""].join(":")
+      : [
+          payload.eventType,
+          props.entry_surface || "",
+          props.concept_key || "",
+          props.action_id || "",
+          props.manifest_version || "",
+        ].join(":");
     if (!oncePerSession(key)) return false;
   }
   emit(payload.surface, payload.eventType, payload.options);
