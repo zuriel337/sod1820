@@ -338,11 +338,22 @@ jobs:
             await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
 
             const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
-            const drawer = sidecar.locator('.sod29-number-drawer2029');
             await expect(sidecar).toBeVisible({ timeout: 30_000 });
             await expect(sidecar).toHaveCount(1);
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+
+            const learn = sidecar.locator('.sod29-learn-mark.scope-concept');
+            await expect(learn).toBeVisible();
+            await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
+            await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
+            await expect(learn).toContainText('מלח');
+            await expect(learn).toContainText('רגיל');
+            await expect(learn).toContainText('78');
+            await learn.getByRole('button', { name: 'ראה את החישוב' }).click();
+
+            const drawer = page.locator('.sod29-number-drawer2029');
+            await expect(drawer).toBeVisible({ timeout: 30_000 });
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
             await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
 

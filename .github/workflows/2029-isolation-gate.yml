@@ -10,6 +10,9 @@ on:
       - "src/pages/ResearchPage.jsx"
       - "src/components/ResearchHome.jsx"
       - "src/components/experience2029/**"
+      - "src/components/ContactGateway.jsx"
+      - "src/components/IssueReport.jsx"
+      - "src/components/ReportHint.jsx"
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
@@ -39,6 +42,10 @@ on:
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
+      - "scripts/test-entry-contextual-learn-2029.mjs"
+      - "scripts/test-my-workspace-2029.mjs"
+      - "scripts/test-issue-report-canonical-emitter.mjs"
+      - "src/lib/entryLearn2029.js"
       - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-operational-trace-runtime.mjs"
       - "scripts/test-a3-client-correlation-live.mjs"
@@ -61,6 +68,7 @@ on:
       - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "tests/entry-learn-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -78,6 +86,12 @@ jobs:
       - run: npm ci
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
+      - name: Entry Orientation + Contextual Learn 2029 acceptance
+        run: npm run test:entry-learn-2029
+      - name: Contact Gateway canonical owner acceptance
+        run: npm run test:issue-report
+      - name: My Workspace 2029 native home acceptance
+        run: npm run test:my-workspace-2029
       - name: No Black Box operational trace acceptance
         run: npm run test:operational-trace
       - name: Web Vitals metric core acceptance
@@ -161,10 +175,12 @@ jobs:
           done
           cat /tmp/sod1820-2029-preview.log
           exit 1
-      - name: Real World browser acceptance
+      - name: Entry Orientation + Contextual Learn browser acceptance
         run: |
           mkdir -p test-results/release-visual
-          npx playwright test tests/world2029-release.spec.cjs --reporter=line
+          npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
+      - name: Real World browser acceptance
+        run: npx playwright test tests/world2029-release.spec.cjs --reporter=line
       - name: Upload native World screenshots
         if: always()
         uses: actions/upload-artifact@v4

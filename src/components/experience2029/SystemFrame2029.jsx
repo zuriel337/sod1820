@@ -22,13 +22,29 @@ import {
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import IssueReport from "../IssueReport.jsx";
+import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+import LearnMark2029 from "./LearnMark2029.jsx";
+import {
+  buildLearnHelpSeed,
+  classifyEntryArrival,
+  emitEntryLearn,
+  getConceptFamiliarity,
+  getLearnFragment,
+  getSurfaceFamiliarity,
+  isEntryLearnSurfaceActive,
+  LEARN_LAYER,
+  LEARN_SCOPE,
+  markConceptFamiliarity,
+  markSurfaceFamiliarity,
+  resolveEntryOrientation,
+} from "../../lib/entryLearn2029.js";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
+import "./myWorkspace2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -101,6 +117,7 @@ function normalizeTarget(input, source = "context") {
   if (rawId == null || !type) return null;
   const id = String(rawId).trim();
   if (!id) return null;
+  const resultValue = Number(input.resultValue ?? input.number);
   return {
     id,
     type: String(type),
@@ -108,6 +125,12 @@ function normalizeTarget(input, source = "context") {
     locator: input.locator || null,
     href: input.href || input.link || null,
     source: input.source || source,
+    expression: input.expression || null,
+    method: input.method || input.methodKey || null,
+    resultValue: Number.isSafeInteger(resultValue) ? resultValue : null,
+    number: Number.isSafeInteger(Number(input.number)) ? Number(input.number) : null,
+    sectionLabel: input.sectionLabel || null,
+    sourceLabel: input.sourceLabel || null,
   };
 }
 
@@ -173,6 +196,7 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate }) {
           to={item.to}
           end={item.exact}
           className={activeClass}
+          state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
           <span className="sod29-nav-icon">{item.icon}</span>
@@ -255,12 +279,83 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, onSetFocus, onAddResearch }) {
+function InspectProjection({ target, context, surface = "system", onSetFocus, onAddResearch, onOpenNumber, onNeedHelp }) {
+  const numericFamily = target?.type === "number" || target?.type === "phrase";
+  const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
+  const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
+  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
+  const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
+
+  useEffect(() => {
+    setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
+  }, [conceptKey]);
+
   if (!target) {
     return <FrameState kind="empty" title="אין כרגע משהו לבדוק">סמן ביטוי או מספר בטקסט, חפש משהו או בחר פריט. המערכת לא ממציאה חיבור שלא קיים.</FrameState>;
   }
 
-  const numericFamily = target.type === "number" || target.type === "phrase";
+  const openLearn = () => {
+    if (!conceptKey || !fragment) return;
+    const familiarity = markConceptFamiliarity(conceptKey, "seen", fragment.version);
+    setConceptFamiliarity(familiarity);
+    emitEntryLearn("learn_opened", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.SEE,
+      manifestVersion: fragment.version,
+    });
+    emitEntryLearn("learn_layer", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.EXPLAIN,
+      manifestVersion: fragment.version,
+    });
+  };
+
+  const askForLearnHelp = () => {
+    if (!conceptKey || !fragment) return;
+    const tried = conceptFamiliarity?.stage === "tried";
+    const learnStage = tried ? LEARN_LAYER.TRY : LEARN_LAYER.EXPLAIN;
+    const actionTried = tried && numericFamily ? "open_number" : null;
+    emitEntryLearn("learn_help_requested", {
+      entrySurface: surface,
+      conceptKey,
+      layer: learnStage,
+      actionId: actionTried,
+      manifestVersion: fragment.version,
+    });
+    onNeedHelp?.({
+      initialText: buildLearnHelpSeed(conceptKey),
+      capability: numericFamily ? "number" : null,
+      concept: conceptKey,
+      learnStage,
+      actionTried,
+    });
+  };
+
+  const tryLearn = () => {
+    if (!conceptKey || !fragment || !numericFamily) return;
+    const familiarity = markConceptFamiliarity(conceptKey, hasMethodContext ? "tried" : "seen", fragment.version);
+    setConceptFamiliarity(familiarity);
+    emitEntryLearn(hasMethodContext ? "method_tried" : "example_tried", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.TRY,
+      actionId: "open_number",
+      targetSurface: "number",
+      manifestVersion: fragment.version,
+    });
+    emitEntryLearn("continued_to_research", {
+      entrySurface: surface,
+      conceptKey,
+      layer: LEARN_LAYER.EXPLORE,
+      actionId: "open_number",
+      targetSurface: "number",
+      manifestVersion: fragment.version,
+    });
+    onOpenNumber?.(target);
+  };
+
   return (
     <>
       <section className="sod29-inspect-identity">
@@ -276,6 +371,18 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch }) {
       ) : (
         <FrameState title="בדיקה מהירה">אותה בדיקה יכולה להיפתח גם על ספר, מקור, אדם, אירוע או גילוי כשהחיבור קיים במערכת.</FrameState>
       )}
+
+      {fragment ? <LearnMark2029
+        scope={LEARN_SCOPE.CONCEPT}
+        label={fragment.label}
+        compact={Number(conceptFamiliarity?.v) === Number(fragment.version)}
+        onOpen={openLearn}
+        onStillUnclear={askForLearnHelp}
+        actions={numericFamily ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : "פתח בדף המספר"}</button> : null}
+      >
+        <p>{fragment.explain}</p>
+        {hasMethodContext ? <p><strong>{target.expression}</strong> מוצג במוקד הפעיל בשיטה <strong>{target.method}</strong> עם תוצאה <strong>{target.resultValue}</strong>. ההסבר אינו מקור חישוב נוסף.</p> : null}
+      </LearnMark2029> : null}
 
       <div className="sod29-panel-actions-grid">
         <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
@@ -302,7 +409,6 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch }) {
     </>
   );
 }
-
 function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, go }) {
   return <div className="sod29-panel-actions-grid">{actions.map((action) => {
     const className = `sod29-action${action.primary ? " primary" : ""}`;
@@ -550,46 +656,109 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
     if (result.href) go(result.href, { preserve: false });
   };
 
+  const openResearch = () => {
+    document.querySelector('[data-workspace-section="research"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  };
+
+  const core = [
+    { id: "account", icon: "👤", title: "החשבון שלי", sub: "מי אני והפרטים שלי", state: "building" },
+    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
+    { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: "דרגה, XP ופעילות", state: "building" },
+  ];
+
+  const personal = [
+    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: "יתרה והיסטוריה", state: "building" },
+    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
+    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
+  ];
+
   return (
     <>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">האזור שלי · המשכיות</div>
         <h3>המרחב האישי שלי</h3>
-        <p>כאן נשמרים המסלולים שלך, הדברים שבחרת לשמור ורזיאל. אפשר להמשיך בדיוק מהמקום שבו עצרת.</p>
+        <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
 
-      {subject ? (
-        <section className="sod29-workspace-resume-native">
-          <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
-          <div className="sod29-actions">
-            {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
-            <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
-            <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
-          </div>
-        </section>
-      ) : null}
+      <section className="sod29-workspace-home" aria-label="הדברים שלי">
+        <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
+        <div className="sod29-workspace-core-grid">
+          {core.map((item) => item.onClick ? (
+            <button key={item.id} type="button" className="sod29-workspace-home-card is-live" onClick={item.onClick}>
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+              <b>פתח</b>
+            </button>
+          ) : (
+            <div key={item.id} className="sod29-workspace-home-card is-building" aria-disabled="true">
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+              <b>בבנייה</b>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {savedSubject ? (
-        <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-          <span>מסלול שמור</span>
-          <strong>{savedSubject.label}</strong>
-          <small>
-            {savedSubject.type}
-            {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
-            {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
-          </small>
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
-          </div>
-        </section>
-      ) : null}
+      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים">
+        <div><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong><small>הודעות, תגובות והתראות שקשורות אליך — אזור קשב אחד.</small></div>
+        <b>בבנייה</b>
+      </section>
 
-      {!subject && !savedSubject && !pathResume?.loading ? (
-        <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
-      ) : null}
-      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
-      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
-      {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+      <section className="sod29-workspace-home" aria-label="המשכיות אישית">
+        <div className="sod29-workspace-section-head"><strong>המשכיות אישית</strong><small>לא עוד מערכות נפרדות</small></div>
+        <div className="sod29-workspace-secondary-grid">
+          {personal.map((item) => item.onClick ? (
+            <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" onClick={item.onClick}>
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
+            </button>
+          ) : (
+            <div key={item.id} className="sod29-workspace-mini-card is-building" aria-disabled="true">
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>בבנייה</b>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section data-workspace-section="research" className="sod29-workspace-research-section">
+        <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>Research Path · שמירה · חזרה מדויקת</small></div>
+
+        {subject ? (
+          <section className="sod29-workspace-resume-native">
+            <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+            <div className="sod29-actions">
+              {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
+              <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
+              <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
+            </div>
+          </section>
+        ) : null}
+
+        {savedSubject ? (
+          <section className="sod29-workspace-resume-native" data-research-path-resume="available">
+            <span>מסלול שמור</span>
+            <strong>{savedSubject.label}</strong>
+            <small>
+              {savedSubject.type}
+              {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
+              {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
+            </small>
+            <div className="sod29-actions">
+              <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
+            </div>
+          </section>
+        ) : null}
+
+        {!subject && !savedSubject && !pathResume?.loading ? (
+          <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
+        ) : null}
+        {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
+        {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
+        {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+      </section>
 
       <div className="sod29-attention-lanes native">
         <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
@@ -620,6 +789,7 @@ export default function SystemFrame2029({
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [surfaceFamiliarity, setSurfaceFamiliarity] = useState(() => getSurfaceFamiliarity(surface));
   const panelRef = useRef(null);
   const navRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -635,6 +805,39 @@ export default function SystemFrame2029({
     lens: context?.lens || "kingdom",
     reducedMotion,
   }), [surface, locale, context?.lens, reducedMotion]);
+
+  const historyIndex = (() => {
+    try {
+      const value = Number(window?.history?.state?.idx);
+      return Number.isInteger(value) ? value : null;
+    } catch {
+      return null;
+    }
+  })();
+  const arrival = useMemo(() => classifyEntryArrival({
+    locationState: location.state,
+    historyIndex,
+    locationKey: location.key,
+  }), [location.key, location.state, historyIndex]);
+  const orientation = useMemo(() => resolveEntryOrientation({
+    surface,
+    arrival,
+    familiarity: surfaceFamiliarity,
+  }), [surface, arrival, surfaceFamiliarity]);
+
+  useEffect(() => {
+    setSurfaceFamiliarity(getSurfaceFamiliarity(surface));
+  }, [surface, location.pathname]);
+
+  useEffect(() => {
+    if (orientation.mode !== "prominent" || !orientation.manifest) return;
+    emitEntryLearn("orientation_shown", {
+      entrySurface: surface,
+      arrival,
+      mode: orientation.mode,
+      manifestVersion: orientation.manifest.version,
+    }, { dedupe: true });
+  }, [surface, arrival, orientation.mode, orientation.manifest]);
 
   const palette = useMemo(() => {
     if (surface !== "heichal" || experience?.experience?.environmentRole !== "research_lab") return basePalette;
@@ -671,12 +874,51 @@ export default function SystemFrame2029({
     if (to && to !== currentHref) preserveReturn();
   }, [currentHref, preserveReturn]);
 
+  const completeSurfaceEntry = useCallback((actionId, targetSurface = null) => {
+    const manifest = orientation.manifest;
+    if (!manifest || orientation.mode === "hidden" || !isEntryLearnSurfaceActive(surface) || actionId !== manifest.firstAction) return false;
+    const familiarity = markSurfaceFamiliarity(surface, "complete", manifest.version);
+    setSurfaceFamiliarity(familiarity);
+    emitEntryLearn("first_action", {
+      entrySurface: surface,
+      arrival,
+      actionId,
+      targetSurface,
+      mode: orientation.mode,
+      manifestVersion: manifest.version,
+    }, { dedupe: true });
+    return true;
+  }, [surface, arrival, orientation]);
+
+  const expandOrientation = useCallback(() => {
+    if (!orientation.manifest) return;
+    emitEntryLearn("orientation_expanded", {
+      entrySurface: surface,
+      arrival,
+      mode: orientation.mode,
+      manifestVersion: orientation.manifest.version,
+    });
+  }, [surface, arrival, orientation]);
+
+  const dismissOrientation = useCallback(() => {
+    if (!orientation.manifest) return;
+    const familiarity = markSurfaceFamiliarity(surface, "dismissed", orientation.manifest.version);
+    setSurfaceFamiliarity(familiarity);
+    emitEntryLearn("orientation_dismissed", {
+      entrySurface: surface,
+      arrival,
+      mode: "compact",
+      manifestVersion: orientation.manifest.version,
+    });
+  }, [surface, arrival, orientation]);
+
   const go = useCallback((to, { preserve = true } = {}) => {
     if (!to) return;
     if (preserve) preserveReturnFor(to);
+    completeSurfaceEntry("route");
     setTransient(null);
-    navigate(to);
-  }, [navigate, preserveReturnFor]);
+    navigate(to, { state: { sodEntryArrival: "internal" } });
+  }, [navigate, preserveReturnFor, completeSurfaceEntry]);
 
   const returnExact = useCallback(() => {
     setTransient(null);
@@ -693,8 +935,13 @@ export default function SystemFrame2029({
       journey: target.journey || null,
       returnTo: null,
     });
-    navigate(target.href);
-  }, [context?.returnTo, navigate, research]);
+    emitEntryLearn("exact_return", {
+      entrySurface: surface,
+      arrival: "exact_return",
+      actionId: "return_exact",
+    });
+    navigate(target.href, { state: { sodEntryArrival: "exact_return" } });
+  }, [context?.returnTo, navigate, research, surface]);
 
   const closeTransient = useCallback(() => {
     setTransient(null);
@@ -708,9 +955,12 @@ export default function SystemFrame2029({
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
+    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL].includes(kind)) {
+      completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
+    }
     setTransient({ kind, payload });
     setNavOpen(false);
-  }, [navOpen]);
+  }, [navOpen, completeSurfaceEntry]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
@@ -720,7 +970,42 @@ export default function SystemFrame2029({
     openTransient(TRANSIENT.CAPABILITY, { ...payload, capability: key, subject: normalizeTarget(subject) });
   }, [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
-  const openNumber = useCallback((subject = null) => openCapability("number", subject), [openCapability]);
+  const openNumber = useCallback((subject = null) => {
+    const normalized = normalizeTarget(subject);
+    if (
+      normalized?.expression
+      && normalized?.method
+      && Number.isSafeInteger(Number(normalized?.resultValue))
+    ) {
+      const resultValue = Number(normalized.resultValue);
+      const currentSelection = context?.selection || null;
+      const sameSelection = Boolean(
+        currentSelection?.entityId
+        && String(currentSelection?.expression || "").trim() === normalized.expression
+        && String(currentSelection?.method || "").trim() === normalized.method
+        && Number(currentSelection?.resultValue) === resultValue
+        && (!normalized.locator || currentSelection?.locator === normalized.locator)
+      );
+      research.updateResearchContext?.({
+        subject: {
+          id: String(resultValue),
+          type: "number",
+          label: String(resultValue),
+          href: `/2029/number/${resultValue}`,
+        },
+        selection: {
+          entityId: sameSelection ? currentSelection.entityId : normalized.id,
+          entityType: sameSelection ? (currentSelection.entityType || "gematria_expression") : "gematria_expression",
+          locator: normalized.locator || currentSelection?.locator || null,
+          expression: normalized.expression,
+          method: normalized.method,
+          resultValue,
+        },
+        lens: "gematria",
+      });
+    }
+    openCapability("number", normalized || subject);
+  }, [openCapability, research, context?.selection]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
@@ -730,7 +1015,7 @@ export default function SystemFrame2029({
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
-  const openIssueReport = useCallback(() => openTransient(TRANSIENT.ISSUE), [openTransient]);
+  const openIssueReport = useCallback((payload = null) => openTransient(TRANSIENT.ISSUE, payload), [openTransient]);
   const closeRaziel = useCallback(() => { if (transient?.kind === TRANSIENT.RAZIEL) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
 
@@ -911,12 +1196,24 @@ export default function SystemFrame2029({
     && Array.isArray(context?.dimensions?.bottomTrail)
       ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
-  const numberSurfaceFocus = numberPageRoute ? context?.dimensions?.surfaceFocus || null : null;
-  // NUMBER_2029_RELEASE_V1 keeps the existing Command Island contract unchanged.
-  // Number Context is exposed through the dedicated Context cue/rail, not by restructuring
-  // the bottom command toolbar in this isolated release.
-  const bottomTrail = postTrail;
-  const showNumberContextRail = numberPageRoute && Boolean(activeTarget || context?.subject);
+  const configuredTrail = Array.isArray(context?.dimensions?.bottomTrail)
+    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+    : [];
+  const surfaceFocus = context?.dimensions?.surfaceFocus || null;
+  const fallbackTrail = [
+    context?.subject ? { id: "subject", label: context.subject.label || context.subject.id } : null,
+    surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
+    surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
+  ].filter(Boolean);
+  // Preserve the closed Number 2029 command-island behavior. Post keeps its stale-context
+  // guard; World/Topic may project the active Research Path when the surface supplies one.
+  const bottomTrail = surface === "post"
+    ? postTrail
+    : (surface === "world" || surface === "topic")
+      ? (configuredTrail.length ? configuredTrail : fallbackTrail)
+      : [];
+  const showContextRail = (numberPageRoute || surface === "post" || surface === "world" || surface === "topic")
+    && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -927,11 +1224,21 @@ export default function SystemFrame2029({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} /></PanelShell>;
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
-    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח" title="דווח על בעיה"><IssueReport pathname={location.pathname} surface={surface} capability={transient?.payload?.capability || null} locale={locale} onDone={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
+      pathname={location.pathname}
+      surface={surface}
+      capability={transient?.payload?.capability || null}
+      concept={transient?.payload?.concept || null}
+      learnStage={transient?.payload?.learnStage || null}
+      actionTried={transient?.payload?.actionTried || null}
+      initialText={transient?.payload?.initialText || ""}
+      locale={locale}
+      onDone={closeTransient}
+    /></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
@@ -960,7 +1267,7 @@ export default function SystemFrame2029({
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
-          <Link to="/2029" className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
+          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
             <span><b>SOD 1820</b><small>One Reality · גילוי חי</small></span>
           </Link>
           <nav className="sod29-nav">
@@ -983,13 +1290,27 @@ export default function SystemFrame2029({
             </div>
             <div className="sod29-header-actions">
               <button className="sod29-header-search" type="button" onClick={openCommand}><span>⌘</span><span className="label">חיפוש / פקודה</span></button>
-              <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span>↩</span><span className="return-label"> חזרה מדויקת</span></button>
+              <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
               <button type="button" onClick={openWorkspace}>◎ <span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
 
-          <div className={`sod29-main-stage${showNumberContextRail ? " has-context-rail number-context-only" : ""}`}>
+          {orientation.mode !== "hidden" && orientation.manifest ? <div className="sod29-entry-orientation-slot">
+            <LearnMark2029
+              scope={LEARN_SCOPE.SURFACE}
+              label={orientation.manifest.label}
+              compact={orientation.mode === "compact"}
+              prominent={orientation.mode === "prominent"}
+              onOpen={expandOrientation}
+              onDismiss={orientation.mode === "prominent" ? dismissOrientation : null}
+            >
+              <p>{orientation.manifest.body}</p>
+              <p><strong>{experience.experience.question}</strong></p>
+            </LearnMark2029>
+          </div> : null}
+
+          <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {(eyebrow || title || description) ? (
                 <section className="sod29-page-intro">
@@ -1009,12 +1330,15 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showNumberContextRail ? <SurfaceContextRail2029
+            {showContextRail ? <SurfaceContextRail2029
+              surface={surface}
               context={context}
-              focus={numberSurfaceFocus || activeTarget}
+              focus={surfaceFocus || activeTarget}
               onOpenNumber={(target) => openNumber(target || activeTarget)}
-              onAskRaziel={() => openRaziel()}
-              onOpenContext={() => openInspect(numberSurfaceFocus || activeTarget)}
+              onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+              onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+              onNeedHelp={openIssueReport}
+              suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
         </div>
