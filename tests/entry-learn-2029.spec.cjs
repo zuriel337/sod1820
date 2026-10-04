@@ -35,8 +35,17 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await routePostTo2029(page);
 
   let traceRequests = 0;
+  let traceResponse = null;
   page.on('request', (request) => {
     if (request.url().includes('/rpc/gematria_method_trace')) traceRequests += 1;
+  });
+  page.on('response', async (response) => {
+    if (!response.url().includes('/rpc/gematria_method_trace')) return;
+    try {
+      traceResponse = { status: response.status(), body: await response.json() };
+    } catch {
+      traceResponse = { status: response.status(), body: null };
+    }
   });
 
   await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });
@@ -90,11 +99,26 @@ test('direct Post teaches in place before opening the canonical calculation at 3
     ]);
   }), { timeout: 5_000 }).toBe(JSON.stringify(['מלח', 'רגיל', 78]));
 
+  await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
+
   const calculation = drawer.locator('.sod29-number-v10-calculation-card');
   await expect(calculation).toBeVisible({ timeout: 20_000 });
+  await expect(calculation).toContainText('רגיל');
+  await expect(calculation).toContainText('78');
   await calculation.click();
-  await expect(drawer.locator('[data-experience-capability="spatial-method-stage"][data-method-key="רגיל"]')).toBeVisible({ timeout: 20_000 });
-  expect(traceRequests).toBeGreaterThan(0);
+
+  const inspector = drawer.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible({ timeout: 10_000 });
+  await expect(inspector).toHaveAttribute('data-method-inspector', 'רגיל');
+
+  const anySpatialStage = inspector.locator('[data-experience-capability="spatial-method-stage"]');
+  await expect(anySpatialStage).toBeVisible({ timeout: 10_000 });
+  const spatialMethodKey = await anySpatialStage.getAttribute('data-method-key');
+  if (spatialMethodKey !== 'רגיל') {
+    const state = await anySpatialStage.getAttribute('data-state');
+    const text = await anySpatialStage.innerText().catch(() => '');
+    throw new Error(`SpatialMethodStage verification failed: state=${state || 'verified-without-key'} inspector=רגיל calculation=78 trace=${JSON.stringify(traceResponse)} text=${text}`);
+  }
 
   const stored = await page.evaluate((key) => {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
