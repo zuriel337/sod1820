@@ -13,9 +13,12 @@ test("WhatsApp trusted-author routing extends canonical source registry", () => 
 
   assert.match(ingest, /outgoingContributor/);
   assert.match(ingest, /outgoing_contributor/);
+  assert.match(ingest, /loadHistory/);
+  assert.match(ingest, /attempt <= 3/);
 
   assert.match(intake, /channel_ingest_sources/);
   assert.match(intake, /trustedContributor/);
+  assert.match(intake, /policy\?\.admin_only === true/);
   assert.match(intake, /intake_mode/);
   assert.doesNotMatch(intake, /const CHANNELS =/);
   assert.doesNotMatch(intake, /const HEAVY_CHANNELS =/);
