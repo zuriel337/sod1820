@@ -92,6 +92,13 @@ test('direct Post teaches in place before opening the canonical calculation at 3
 
   await noOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/entry-learn-post-390.png', fullPage: true });
+
+  const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
+  await expect(exactReturn).toBeEnabled();
+  await exactReturn.click();
+  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-salt-78/, { timeout: 20_000 });
+  await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
+  await noOverflow(page);
 });
 
 test('completed Post entry stays compact after reload', async ({ page }) => {
