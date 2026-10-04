@@ -44,6 +44,7 @@ import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
+import "./myWorkspace2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -655,46 +656,109 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
     if (result.href) go(result.href, { preserve: false });
   };
 
+  const openResearch = () => {
+    document.querySelector('[data-workspace-section="research"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  };
+
+  const core = [
+    { id: "account", icon: "👤", title: "החשבון שלי", sub: "מי אני והפרטים שלי", state: "building" },
+    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
+    { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: "דרגה, XP ופעילות", state: "building" },
+  ];
+
+  const personal = [
+    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: "יתרה והיסטוריה", state: "building" },
+    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
+    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
+  ];
+
   return (
     <>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">האזור שלי · המשכיות</div>
         <h3>המרחב האישי שלי</h3>
-        <p>כאן נשמרים המסלולים שלך, הדברים שבחרת לשמור ורזיאל. אפשר להמשיך בדיוק מהמקום שבו עצרת.</p>
+        <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
 
-      {subject ? (
-        <section className="sod29-workspace-resume-native">
-          <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
-          <div className="sod29-actions">
-            {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
-            <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
-            <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
-          </div>
-        </section>
-      ) : null}
+      <section className="sod29-workspace-home" aria-label="הדברים שלי">
+        <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
+        <div className="sod29-workspace-core-grid">
+          {core.map((item) => item.onClick ? (
+            <button key={item.id} type="button" className="sod29-workspace-home-card is-live" onClick={item.onClick}>
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+              <b>פתח</b>
+            </button>
+          ) : (
+            <div key={item.id} className="sod29-workspace-home-card is-building" aria-disabled="true">
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+              <b>בבנייה</b>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {savedSubject ? (
-        <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-          <span>מסלול שמור</span>
-          <strong>{savedSubject.label}</strong>
-          <small>
-            {savedSubject.type}
-            {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
-            {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
-          </small>
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
-          </div>
-        </section>
-      ) : null}
+      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים">
+        <div><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong><small>הודעות, תגובות והתראות שקשורות אליך — אזור קשב אחד.</small></div>
+        <b>בבנייה</b>
+      </section>
 
-      {!subject && !savedSubject && !pathResume?.loading ? (
-        <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
-      ) : null}
-      {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
-      {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
-      {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+      <section className="sod29-workspace-home" aria-label="המשכיות אישית">
+        <div className="sod29-workspace-section-head"><strong>המשכיות אישית</strong><small>לא עוד מערכות נפרדות</small></div>
+        <div className="sod29-workspace-secondary-grid">
+          {personal.map((item) => item.onClick ? (
+            <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" onClick={item.onClick}>
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
+            </button>
+          ) : (
+            <div key={item.id} className="sod29-workspace-mini-card is-building" aria-disabled="true">
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>בבנייה</b>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section data-workspace-section="research" className="sod29-workspace-research-section">
+        <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>Research Path · שמירה · חזרה מדויקת</small></div>
+
+        {subject ? (
+          <section className="sod29-workspace-resume-native">
+            <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+            <div className="sod29-actions">
+              {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
+              <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
+              <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
+            </div>
+          </section>
+        ) : null}
+
+        {savedSubject ? (
+          <section className="sod29-workspace-resume-native" data-research-path-resume="available">
+            <span>מסלול שמור</span>
+            <strong>{savedSubject.label}</strong>
+            <small>
+              {savedSubject.type}
+              {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
+              {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
+            </small>
+            <div className="sod29-actions">
+              <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
+            </div>
+          </section>
+        ) : null}
+
+        {!subject && !savedSubject && !pathResume?.loading ? (
+          <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
+        ) : null}
+        {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
+        {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
+        {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+      </section>
 
       <div className="sod29-attention-lanes native">
         <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
