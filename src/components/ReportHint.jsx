@@ -19,14 +19,14 @@ async function uploadToGallery(file) {
   return data?.publicUrl || null;
 }
 
-export default function ReportHint({ value = null, variant = "button", label }) {
+export default function ReportHint({ value = null, variant = "button", label, initialDescription = "", autoOpen = false }) {
   const P = usePalette();
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(Boolean(autoOpen));
   const [img, setImg] = useState(null);
   const [preview, setPreview] = useState(null);
   const [number, setNumber] = useState(value || "");
-  const [desc, setDesc] = useState("");
+  const [desc, setDesc] = useState(initialDescription);
   const [src, setSrc] = useState("");
   const [when, setWhen] = useState("");
   const [name, setName] = useState("");
@@ -34,7 +34,7 @@ export default function ReportHint({ value = null, variant = "button", label }) 
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
 
-  const reset = () => { setImg(null); setPreview(null); setNumber(value || ""); setDesc(""); setSrc(""); setWhen(""); setName(""); setErr(""); setDone(false); };
+  const reset = () => { setImg(null); setPreview(null); setNumber(value || ""); setDesc(initialDescription); setSrc(""); setWhen(""); setName(""); setErr(""); setDone(false); };
   const close = () => { setOpen(false); setTimeout(reset, 250); };
 
   const pick = (e) => {
