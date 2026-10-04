@@ -628,3 +628,45 @@
   font-size:13px;
   line-height:1.75;
 }
+
+
+/* Canonical Page Map follow-up: left rail progress is orientation-only. */
+.sod29-surface-progress-point{
+  position:relative;
+  z-index:1;
+  width:100%;
+  min-height:28px;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  color:var(--s29-muted);
+}
+.sod29-surface-progress-point>span{
+  width:7px;
+  height:7px;
+  justify-self:center;
+  border-radius:50%;
+  background:var(--s29-line-strong);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--s29-page) 94%,transparent);
+}
+.sod29-surface-progress-point>small{
+  font-size:9px;
+  font-weight:780;
+}
+.sod29-surface-progress-point.is-active{
+  color:var(--s29-ink);
+}
+.sod29-surface-progress-point.is-active>span{
+  transform:scale(1.35);
+  background:var(--s29-hero);
+  box-shadow:0 0 0 6px color-mix(in srgb,var(--s29-accent) 10%,transparent),0 0 24px var(--s29-glow);
+}
+.sod29-surface-context-progress .sod29-surface-progress-point{
+  grid-template-columns:34px minmax(0,1fr);
+}
+.sod29-surface-context-progress .sod29-surface-progress-point>small{
+  opacity:.72;
+}
+.sod29-surface-context-progress .sod29-surface-progress-point.is-active>small{
+  opacity:1;
+}
