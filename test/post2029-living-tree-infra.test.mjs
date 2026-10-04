@@ -224,7 +224,7 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
 test("Bennett and FZ1073 remain the two Post Master fixtures", () => {
   const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, FZ1073_SLUG, FZ1073_REGIONS } = post2029ReadingInternals;
   assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
-  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number), [78, 631, 78, 133, 690]);
+  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number ?? null), [null, 631, null]);
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
   assert.equal(FZ1073_REGIONS.length, 7);
 });
@@ -236,10 +236,10 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
 
   const { BENNETT_CONTEXTUAL_NUMBER_FOCUS, markBennettContextualNumberFocus } = post2029ReadingInternals;
   assert.deepEqual(BENNETT_CONTEXTUAL_NUMBER_FOCUS, {
-    expression: "מלח",
+    expression: "נפתלי בנט",
     methodKey: "רגיל",
-    resultValue: 78,
-    regionId: "salt-78",
+    resultValue: 631,
+    regionId: "bennett-631",
   });
 
   const source = '<h2 data-source-heading="true">הרמז המרכזי — מלח</h2><p>מקור</p>';
