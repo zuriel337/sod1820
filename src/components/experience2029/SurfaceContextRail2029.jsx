@@ -21,6 +21,7 @@ export default function SurfaceContextRail2029({
   onAskRaziel,
   onOpenContext,
   compact = false,
+  suppressLearn = false,
 }) {
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
   const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
@@ -32,7 +33,7 @@ export default function SurfaceContextRail2029({
   const activeSectionId = context?.dimensions?.activeSectionId || null;
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
-  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
+  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
   useEffect(() => {
