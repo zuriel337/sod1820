@@ -24,6 +24,7 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import IssueReport from "../IssueReport.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -902,13 +903,16 @@ export default function SystemFrame2029({
 
   const transientKind = transient?.kind || null;
   const subjectHref = context?.subject?.href || "";
-  const bottomTrail = surface === "post"
-    && context?.subject?.type === "post"
-    && subjectHref
-    && subjectHref.split("#")[0] === location.pathname
-    && Array.isArray(context?.dimensions?.bottomTrail)
-      ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
-      : [];
+  const configuredTrail = Array.isArray(context?.dimensions?.bottomTrail)
+    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+    : [];
+  const surfaceFocus = context?.dimensions?.surfaceFocus || null;
+  const fallbackTrail = [
+    context?.subject ? { id: "subject", label: context.subject.label || context.subject.id } : null,
+    surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
+    surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
+  ].filter(Boolean);
+  const bottomTrail = configuredTrail.length ? configuredTrail : fallbackTrail;
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -981,6 +985,7 @@ export default function SystemFrame2029({
             </div>
           </header>
 
+          <div className={`sod29-main-stage${activeTarget || context?.subject ? " has-context-rail" : ""}`}>
           <main className={`sod29-content${wide ? " wide" : ""}`}>
             {(eyebrow || title || description) ? (
               <section className="sod29-page-intro">
@@ -1000,6 +1005,15 @@ export default function SystemFrame2029({
             ) : null}
             {children}
           </main>
+          {(activeTarget || context?.subject) ? <SurfaceContextRail2029
+            context={context}
+            focus={surfaceFocus || activeTarget}
+            onOpenNumber={(target) => openNumber(target || activeTarget)}
+            onOpenWorld={() => go("/world")}
+            onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+            onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+          /> : null}
+          </div>
         </div>
 
         {navOpen ? <>
