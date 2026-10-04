@@ -566,4 +566,5 @@ export const post2029ReadingInternals = {
   BENNETT_SALT_SLUG,
   BENNETT_SALT_REGIONS,
   buildBennettSaltExperience,
+  buildBennettGoldenBody,
 };
