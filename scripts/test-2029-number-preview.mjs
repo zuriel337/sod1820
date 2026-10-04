@@ -31,6 +31,7 @@ const calculator2029 = read("src/pages/Calculator2029Page.jsx");
 const calculatorCompare2029 = read("src/components/gematria2029/CalculatorCompare2029.jsx");
 const spatialMethodStage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
 const spatialMethodStageCss = read("src/components/gematria2029/spatialMethodStage2029.css");
+const guidedDiscovery = read("src/lib/research/guidedDiscovery2029.js");
 
 for (const required of [
   "Sod2029Shell",
@@ -168,9 +169,12 @@ assert.match(frame, /openNumber/);
 assert.match(frame, /capability === "number"/);
 assert.match(frame, /NumberDrawer2029/);
 assert.match(provider, /\(2029\\\/\)\?number/);
-assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*"golden:878:v1"/);
-assert.match(page, /journeySemanticId:\s*GOLDEN_878_JOURNEY_ID/);
-assert.match(page, /navigate\("\/world"\)/);
+assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*GUIDED_DISCOVERY_REFS\.GOLDEN_878\.semanticId/);
+assert.match(page, /shell\.openGuidedDiscovery\?\.\(GUIDED_DISCOVERY_REFS\.GOLDEN_878/);
+assert.match(guidedDiscovery, /semanticId:\s*"golden:878:v1"/);
+assert.match(guidedDiscovery, /journeySemanticId/);
+assert.match(guidedDiscovery, /buildJourney2029ContextPatch/);
+assert.match(guidedDiscovery, /mode:\s*"guided"/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
 
