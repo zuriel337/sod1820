@@ -9,13 +9,49 @@
 .sod29-ambient-field i:nth-child(3){width:18vw;height:18vw;max-width:300px;max-height:300px;inset-block-end:-7vw;inset-inline-end:28vw;animation-duration:27s}
 
 .sod29-sidebar{position:sticky;top:0;height:100vh;padding:22px 15px;border-inline-end:1px solid var(--s29-line);background:linear-gradient(180deg,color-mix(in srgb,var(--s29-panel) 93%,transparent),color-mix(in srgb,var(--s29-panel-soft) 82%,transparent));backdrop-filter:blur(22px) saturate(120%);display:flex;flex-direction:column;gap:18px;z-index:20;box-shadow:20px 0 70px color-mix(in srgb,var(--s29-panel) 36%,transparent)}
-.sod29-brand{
-  display:grid;
-  place-items:center;
-  min-height:116px;
-  padding:4px 8px 14px;
+.sod29-rail-identity{
+  position:relative;
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:10px 8px 14px;
   border-bottom:1px solid color-mix(in srgb,var(--s29-line) 78%,transparent);
 }
+.sod29-rail-identity::after{
+  content:"";
+  position:absolute;
+  inset:auto 8px 0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--s29-brand-sapphire) 40%,transparent),color-mix(in srgb,var(--s29-brand-gold) 20%,transparent),transparent);
+  opacity:.72;
+}
+.sod29-rail-home{
+  display:grid;
+  place-items:center;
+  width:42px;
+  min-width:42px;
+  height:42px;
+  border:1px solid var(--s29-line);
+  border-radius:14px;
+  color:var(--s29-accent-text);
+  background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--s29-brand-glow) 18%,transparent);
+  font-size:18px;
+  transition:transform 340ms cubic-bezier(.2,.8,.2,1),box-shadow 340ms ease;
+}
+.sod29-rail-identity:hover .sod29-rail-home{
+  transform:translateY(-1px);
+  box-shadow:0 10px 28px color-mix(in srgb,var(--s29-brand-glow) 24%,transparent);
+}
+.sod29-rail-identity-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+  line-height:1.15;
+}
+.sod29-rail-identity-copy b{font-family:var(--s29-font-ui);font-size:16px;color:var(--s29-ink)}
+.sod29-rail-identity-copy small{font-family:var(--s29-font-ui);font-size:14px;color:var(--s29-muted);letter-spacing:.05em}
 .sod29-brand-lockup{
   display:block;
   width:min(172px,100%);
