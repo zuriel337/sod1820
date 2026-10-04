@@ -75,7 +75,6 @@ function MyCommunityHintStatusLoop({ user }) {
         return <article key={item.id} className="sod29-contact-status-row" data-status={item.status || "unknown"}>
           <div><strong>{item.number ? `רמז · ${item.number}` : "רמז ששלחתם"}</strong><small>{String(item.description || "").slice(0, 100) || "ללא תיאור"}</small></div>
           <div className="sod29-contact-status-state"><b>{meta.label}</b><small>{meta.detail}</small></div>
-          {item.review_note ? <p>{item.review_note}</p> : null}
         </article>;
       })}
       {items?.length === 0 ? <div className="sod29-contact-status-empty">עדיין אין דיווחי רמז שמורים לחשבון הזה.</div> : null}
