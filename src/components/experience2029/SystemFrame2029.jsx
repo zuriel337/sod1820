@@ -1205,6 +1205,7 @@ export default function SystemFrame2029({
               onOpenNumber={(target) => openNumber(target || activeTarget)}
               onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
               onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+              suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
         </div>
