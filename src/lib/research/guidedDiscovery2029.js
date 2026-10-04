@@ -51,9 +51,10 @@ export function normalizeGuidedDiscoveryRef(input) {
   const label = String(input.label || "").trim().slice(0, 120) || "צאו למסע";
   const journeyKind = token(input.journeyKind) || "general_research";
   const targetSurface = token(input.targetSurface) || null;
-  if (!key || !href) return null;
+  if (!key) return null;
 
   if (targetKind === GUIDED_DISCOVERY_TARGET_KIND.SEMANTIC_JOURNEY) {
+    if (!href) return null;
     const semanticId = token(input.semanticId);
     const rootValue = safeRoot(input.rootValue);
     if (!semanticId || rootValue == null) return null;
@@ -110,7 +111,7 @@ export function buildGuidedDiscoveryLaunch({
   sourceSurface = null,
 } = {}) {
   const guided = normalizeGuidedDiscoveryRef(ref);
-  if (!guided) return null;
+  if (!guided || !guided.href) return null;
 
   const current = currentContext && typeof currentContext === "object" ? currentContext : {};
   const journeyPatch = buildJourney2029ContextPatch({
