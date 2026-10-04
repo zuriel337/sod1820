@@ -891,6 +891,14 @@ export default function SystemFrame2029({
       && Number.isSafeInteger(Number(normalized?.resultValue))
     ) {
       const resultValue = Number(normalized.resultValue);
+      const currentSelection = context?.selection || null;
+      const sameSelection = Boolean(
+        currentSelection?.entityId
+        && String(currentSelection?.expression || "").trim() === normalized.expression
+        && String(currentSelection?.method || "").trim() === normalized.method
+        && Number(currentSelection?.resultValue) === resultValue
+        && (!normalized.locator || currentSelection?.locator === normalized.locator)
+      );
       research.updateResearchContext?.({
         subject: {
           id: String(resultValue),
@@ -899,9 +907,9 @@ export default function SystemFrame2029({
           href: `/2029/number/${resultValue}`,
         },
         selection: {
-          entityId: normalized.id,
-          entityType: "gematria_expression",
-          locator: normalized.locator || null,
+          entityId: sameSelection ? currentSelection.entityId : normalized.id,
+          entityType: sameSelection ? (currentSelection.entityType || "gematria_expression") : "gematria_expression",
+          locator: normalized.locator || currentSelection?.locator || null,
           expression: normalized.expression,
           method: normalized.method,
           resultValue,
@@ -910,7 +918,7 @@ export default function SystemFrame2029({
       });
     }
     openCapability("number", normalized || subject);
-  }, [openCapability, research]);
+  }, [openCapability, research, context?.selection]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
