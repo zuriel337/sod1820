@@ -355,12 +355,18 @@ function PostReadingBody() {
       },
       returnTo: exactReturnForRegion(targetRegion),
     });
-    shell.openNumber?.({
+    shell.openInspect?.({
       id: `post:${post.id}:${targetRegion.id}`,
       type: "phrase",
       label: cleanExpression,
       href: `/post/${post.slug}${locator}`,
       source: "post-contextual-focus",
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+      number: numericResult,
+      locator,
+      sourceLabel: projection.sourceLabel,
     });
   };
 
@@ -423,12 +429,15 @@ function PostReadingBody() {
         },
       });
     }
-    shell.openNumber?.({
+    shell.openInspect?.({
       id: String(number),
       type: "number",
       label: String(number),
       href: "/2029/number/" + number,
       source: "post-master-hero",
+      number: Number(number),
+      locator: targetRegion ? `#source-region-${targetRegion.id}` : null,
+      sourceLabel: projection.sourceLabel,
     });
   };
 
@@ -469,6 +478,7 @@ function PostReadingBody() {
               key={number}
               type="button"
               className={"sod29-reading-number-signal signal-" + (index + 1)}
+              data-orientation-target="post-number"
               onClick={() => openHeroNumber(number)}
               aria-label={"בדוק את מספר " + number}
             >
