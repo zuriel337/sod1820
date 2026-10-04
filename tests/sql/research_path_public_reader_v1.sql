@@ -51,12 +51,12 @@ set session_replication_role = origin;
 
 -- constraints --------------------------------------------------------------------------------
 set session_replication_role = replica;
-select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]','team')$$$,'23514');
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]','team')$$,'23514');
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now())$$,'23514'); -- candidate+private
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'approved')$$,'23514'); -- private
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,published_at,governance_status,access_scope) values ('00000000-0000-0000-0000-0000000000b1',9,'[]',now(),'rejected','public')$$,'23514');
 set session_replication_role = origin;
-select pg_temp.expect_err($$update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$$$,'42501'); -- direct publication has no Human Gate
+select pg_temp.expect_err($$update research_path_revisions set published_at=now() where id='10000000-0000-0000-0000-0000000000c1'$$,'42501'); -- direct publication has no Human Gate
 
 -- immutability -------------------------------------------------------------------------------
 select pg_temp.expect_err($$update research_path_revisions set steps='[{"step_index":0,"entity_ref":"mutated"}]' where id='10000000-0000-0000-0000-0000000000a1'$$,'23001');
@@ -217,7 +217,7 @@ set session_replication_role = origin;
 -- columns + coherence CHECK
 select pg_temp.ok((select count(*)=3 from information_schema.columns where table_schema='public' and table_name='research_path_revisions' and column_name in ('retracted_at','retracted_by_user_id','retraction_reason')), 'retraction columns exist');
 set session_replication_role = replica;
-select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at) values ('00000000-0000-0000-0000-0000000000b1',70,'[]',now())$$$,'23514'); -- partial
+select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at) values ('00000000-0000-0000-0000-0000000000b1',70,'[]',now())$$,'23514'); -- partial
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',71,'[]','why')$$,'23514'); -- partial
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',72,'[]',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','x')$$,'23514'); -- unpublished
 select pg_temp.expect_err($$insert into research_path_revisions(path_id,revision_no,steps,governance_status,access_scope,published_at,retracted_at,retracted_by_user_id,retraction_reason) values ('00000000-0000-0000-0000-0000000000b1',73,'[]','approved','public',now()-interval '1 day',now(),'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','   ')$$,'23514'); -- blank reason
