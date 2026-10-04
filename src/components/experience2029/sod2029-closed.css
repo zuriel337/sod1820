@@ -282,3 +282,16 @@
   .sod29-connected-golden-story{grid-template-columns:1fr;padding:16px}
   .sod29-connected-golden-story .sod29-actions{justify-content:flex-start}
 }
+
+
+/* DESIGN_V2_THEME_CONTROL_CURRENT_FRAME */
+.sod29-sidebar-theme{display:grid;gap:7px;padding:10px 0 2px}
+.sod29-sidebar-theme>small,.sod29-mobile-theme-section>small{color:var(--s29-muted);font-size:14px;font-weight:800;padding-inline:4px}
+.sod29-theme-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:5px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent)}
+.sod29-theme-presets button{min-width:0;min-height:44px;display:grid;place-items:center;align-content:center;gap:2px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer;transition:transform 180ms ease,color 220ms ease,background 220ms ease,border-color 220ms ease,box-shadow 220ms ease}
+.sod29-theme-presets button span{font-size:17px;line-height:1}.sod29-theme-presets button b{font-size:14px;line-height:1.1}
+.sod29-theme-presets button:hover{transform:translateY(-1px);color:var(--s29-ink)}
+.sod29-theme-presets button.is-active{color:var(--s29-ink);border-color:var(--s29-line-strong);background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel-soft));box-shadow:0 8px 22px color-mix(in srgb,var(--s29-glow) 28%,transparent)}
+.sod29-theme-presets.is-compact button{min-height:40px}
+.sod29-mobile-theme-section{display:grid;gap:7px;padding:4px 0 8px}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-theme{display:none}
