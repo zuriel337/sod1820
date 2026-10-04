@@ -14,6 +14,9 @@ const css = read("src/components/experience2029/systemFrame2029.css");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
+const contextRail = read("src/components/experience2029/SurfaceContextRail2029.jsx");
+const sectionNav = read("src/components/experience2029/SurfaceSectionNav2029.jsx");
+const pageMap = read("src/components/experience2029/SurfaceMapBar2029.jsx");
 
 // One implementation owner: old import path is a compatibility export, not a second frame.
 assert.match(compat, /single active 2029 frame implementation/i);
@@ -55,6 +58,18 @@ assert.match(frame, /closeTransient/);
 assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
+
+// One in-page navigation owner: Post/Topic compatibility wrapper consumes the canonical Page Map.
+assert.match(sectionNav, /SurfaceMapBar2029/);
+assert.doesNotMatch(sectionNav, /sod29-surface-tabs/);
+assert.match(pageMap, /data-experience-capability="surface-page-map"/);
+assert.match(pageMap, /מפת הדף/);
+// Context Rail owns bounded selection context only; it must not duplicate Page Map progress.
+assert.doesNotMatch(contextRail, /SurfaceProgressSpine2029/);
+assert.doesNotMatch(contextRail, /איפה אני בדף/);
+assert.match(contextRail, /מסעות גילוי/);
+assert.match(contextRail, /data-context-mode="rest"/);
+assert.match(contextRail, /candidate\?\.expression/);
 
 // Experience Context is resolved once at the native System Frame seam and exposed
 // through the same shell context to all native 2029 surfaces.
