@@ -336,7 +336,7 @@ export default function NumberLivingWorld2029({
       ...row,
       focusType: source.relation ? "relation" : (source.type || source.kind || "entity"),
       relationLabel: source.relation ? canonicalRelationPublicLabel(source.relation.relationType) : null,
-      note: [canonicalFindingKindPublicLabel(source.kind, source.type), source.status].filter(Boolean).join(" · ") || null,
+      note: null,
     };
   });
   const timelineShown = showAllTimeline ? timelineRows.slice(0, 20) : timelineRows.slice(0, 5);

@@ -16,8 +16,19 @@ export const TIMELINE_ROLE_LABEL = Object.freeze({
 const INTERNAL_SOURCE_LABELS = new Set(["POST", "SOD1820", "SYSTEM", "DB", "SUPABASE"]);
 
 const hebrewFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
-  day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+  day: "numeric", month: "long", timeZone: "UTC",
 });
+
+const HEBREW_ONES = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+const HEBREW_TENS = ["", "י", "כ", "ל"];
+
+/** Hebrew day-of-month numeral (1-30): 26 -> כ״ו, 15 -> ט״ו, 30 -> ל׳. */
+export function hebrewDayNumeral(day) {
+  const n = Number(day);
+  if (!Number.isInteger(n) || n < 1 || n > 30) return String(day);
+  const letters = n === 15 ? "טו" : n === 16 ? "טז" : `${HEBREW_TENS[Math.floor(n / 10)]}${HEBREW_ONES[n % 10]}`;
+  return letters.length === 1 ? `${letters}׳` : `${letters.slice(0, -1)}״${letters.slice(-1)}`;
+}
 
 function parseDate(value) {
   if (!value) return null;
@@ -44,7 +55,7 @@ export function formatHebrewDate(value) {
   const date = d.getUTCHours() === 12 && /^\d{4}-\d{2}-\d{2}/.test(String(value))
     ? d
     : new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 12));
-  return hebrewFormatter.format(date);
+  return hebrewFormatter.format(date).replace(/^\d+/, (day) => hebrewDayNumeral(day));
 }
 
 /** Hebrew + Gregorian together. Missing/invalid dates return null (never a half-date). */
@@ -85,6 +96,16 @@ export function buildPublicTimeline(items = [], { currentId = null, currentHref 
   });
 }
 
+// Raw research plumbing that must not surface as a public Number-timeline title.
+const TECHNICAL_TITLE_RE = /(?:research[-_ ]?object|candidate|FAMILY\s*\/\s*SYSTEM[-_ ]?METHOD|SYSTEM[-_ ]?METHOD|engine[-_ ]?facts?)/i;
+
+/** Public title for a Number timeline row: drops technical tokens, never returns raw plumbing. */
+export function normalizeNumberTimelineTitle(title, fallback = "פריט במחקר") {
+  const text = String(title ?? "").replace(/\s+/g, " ").trim();
+  if (!text || TECHNICAL_TITLE_RE.test(text) || /^[a-z0-9_.:\-/]+$/i.test(text) && /[_:/]/.test(text)) return fallback;
+  return text;
+}
+
 /** Number surface projection: discovery rows -> shared timeline rows (role: admitted). */
 export function numberTimelineToRows(rows = [], resolveTitle = (row) => row?.label, { currentHref = null } = {}) {
   return buildPublicTimeline(
@@ -92,7 +113,7 @@ export function numberTimelineToRows(rows = [], resolveTitle = (row) => row?.lab
       .filter((row) => row && row.at)
       .map((row, index) => ({
         id: row.id || `timeline-${index}`,
-        label: resolveTitle(row),
+        label: normalizeNumberTimelineTitle(resolveTitle(row)),
         date: row.at,
         temporalRole: "admitted",
         href: row.href || null,

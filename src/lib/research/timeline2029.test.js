@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   TIMELINE_PUBLIC_LABEL, TIMELINE_CURRENT_LABEL, formatBilingualDate, formatGregorianDate,
-  buildPublicTimeline, publicSourceLabel, numberTimelineToRows,
+  buildPublicTimeline, publicSourceLabel, numberTimelineToRows, hebrewDayNumeral, normalizeNumberTimelineTitle,
 } from "./timeline2029.js";
 import { projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
@@ -77,4 +77,28 @@ test("Number and Post share one component, format, and role semantics", () => {
   assert.equal(rows[0].dates.gregorian, "01.09.2026");
   assert.ok(read("../../components/number2029/NumberLivingWorld2029.jsx").includes("Timeline2029"));
   assert.ok(read("../../components/experience2029/PostTimeline2029.jsx").includes("Timeline2029"));
+});
+
+test("shared Hebrew day formatter: gematria day + month, DD.MM.YYYY alongside", () => {
+  assert.equal(hebrewDayNumeral(26), "כ״ו");
+  assert.equal(hebrewDayNumeral(15), "ט״ו");
+  assert.equal(hebrewDayNumeral(16), "ט״ז");
+  assert.equal(hebrewDayNumeral(30), "ל׳");
+  assert.equal(hebrewDayNumeral(1), "א׳");
+  const d = formatBilingualDate("2026-09-08");
+  assert.equal(d.hebrew, "כ״ו באלול");
+  assert.equal(d.gregorian, "08.09.2026");
+});
+
+test("Number rows: technical labels normalized at projection, no plumbing note", () => {
+  assert.equal(normalizeNumberTimelineTitle("research-object candidate"), "פריט במחקר");
+  assert.equal(normalizeNumberTimelineTitle("FAMILY / SYSTEM-METHOD"), "פריט במחקר");
+  assert.equal(normalizeNumberTimelineTitle("nodes:abc_123"), "פריט במחקר");
+  assert.equal(normalizeNumberTimelineTitle("  פרשת  כי תבוא "), "פרשת כי תבוא");
+  const rows = numberTimelineToRows([{ id: "1", at: "2026-09-08", label: "Engine facts" }]);
+  assert.equal(rows[0].label, "פריט במחקר");
+  assert.equal(rows[0].note, null);
+  const num = read("../../components/number2029/NumberLivingWorld2029.jsx");
+  assert.ok(!/note: \[canonicalFindingKindPublicLabel/.test(num));
+  assert.ok(read("../../components/experience2029/Timeline2029.jsx").includes("timeline2029.css"));
 });

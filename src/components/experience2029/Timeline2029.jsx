@@ -1,4 +1,5 @@
 import React from "react";
+import "./timeline2029.css";
 import { TIMELINE_PUBLIC_LABEL, TIMELINE_CURRENT_LABEL } from "../../lib/research/timeline2029.js";
 
 // Shared public Timeline (ציר הזמן) for Post and Number. `rows` come from buildPublicTimeline().
