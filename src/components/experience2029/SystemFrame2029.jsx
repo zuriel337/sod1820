@@ -1,3 +1,4 @@
+import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
 import React, {
   createContext,
   useCallback,
@@ -575,7 +576,7 @@ const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מה�
 // שיחה מקומית קומפקטית עם רזיאל — אותו transport קיים (askRaziel → ai-analyze persona=raziel).
 // אפס קריאה בפתיחה/רינדור; ברירת-מחדל = מהיר; "העמק" = פעולה מפורשת על אותה שאלה+הקשר (אין הסלמה אוטומטית).
 // מצב-השיחה = state מקומי של הקומפוננטה בלבד (אין store גלובלי).
-function RazielNativeChat({ context, label, numberFocus, readingFocus, primary = false }) {
+function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false }) {
   const [text, setText] = useState("");
   const [thread, setThread] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -597,6 +598,18 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
+  // מתאר-משטח סמנטי חסום מתוך הקשר סמנטי קיים בלבד: זהות+מוקד, בלי HTML ובלי טקסט-דף.
+  const buildSurfaceSemantic = () => {
+    const cap = (v, n) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim().slice(0, n));
+    const out = { surface: cap(context?.surface || context?.subject?.type || "frame", 40) };
+    if (context?.subject) out.subject = { type: cap(context.subject.type, 30), id: cap(context.subject.id, 80), label: cap(context.subject.label, 80) };
+    if (numberFocus) out.number = { expression: cap(numberFocus.expression || numberFocus.root, 60), method: cap(numberFocus.method, 40), result: cap(numberFocus.resultValue, 30) };
+    if (readingFocus) out.reading = { label: cap(readingFocus.label, 80), primary: cap(readingFocus.primary, 80) };
+    if (elsFocus?.occurrence) out.els = { occurrence: cap(elsFocus.occurrence.occurrenceRef, 80), term: cap(elsFocus.occurrence.term || elsFocus.term, 60) };
+    const surfaceContext = buildRazielSurfaceContext(context);
+    if (surfaceContext) out.context = surfaceContext;
+    return out;
+  };
   const send = async (question, level, again = false) => {
     const q = String(question || "").trim();
     if (!q || busy) return;
@@ -611,6 +624,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
       context: buildContext(transcript),
       again,
       intelligenceLevel: level,
+      surfaceSemantic: buildSurfaceSemantic(),
     });
     setBusy(false);
     if (!res) { setNote("רזיאל לא הצליח לענות כרגע (או שהמכסה להיום הסתיימה). אפשר לנסות שוב."); return; }
@@ -764,7 +778,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
           title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
         >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
       </div>
-      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} primary={!routeActionValid} />
+      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} />
     </>
   );
 }

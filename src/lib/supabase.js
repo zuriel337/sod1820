@@ -1349,7 +1349,7 @@ export async function searchPostFacts(query) {
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
 //    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
-export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null }) {
+export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null }) {
   if (!supabase) return null;
   try {
     // intelligenceLevel='fast'|'deep' — בחירה מפורשת של הקורא בלבד. נשלח (intelligence_level) רק כשהתבקש;
@@ -1357,7 +1357,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     const level = intelligenceLevel === 'fast' || intelligenceLevel === 'deep' ? intelligenceLevel : null;
     const { data, error } = await supabase.functions.invoke('ai-analyze', {
       // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}) },
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}) },
     });
     if (error) return null;
     if (data?.error === 'quota') {
@@ -1366,7 +1366,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     }
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
       return { v: 1, answer: data.analysis };
