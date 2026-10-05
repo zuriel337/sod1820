@@ -249,7 +249,12 @@ export default function NumberCore2029({
   const rootPulse = projection?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
   const projectedCrossing = stage?.crossing || null;
   const projectedCrossings = Array.isArray(stage?.crossings) ? stage.crossings : (projectedCrossing ? [projectedCrossing] : []);
-  const stageCrossings = compact ? projectedCrossings : (Array.isArray(hiddenCrossings) ? hiddenCrossings : []);
+  // Hidden crossing (same-method, >=2 independent methods) is a different capability from cross-method intersection.
+  // Both modes read the hidden slot only from the live hiddenCrossings feed; projected cross-method rows never enter it.
+  const stageCrossings = Array.isArray(hiddenCrossings) ? hiddenCrossings : [];
+  const crossMethodMeetings = projectedCrossings.filter((item) => item?.kind === "cross_method_intersection");
+  const activeExpressionText = String(projection.expression || "").trim();
+  const hasActivePhrase = Boolean(activeExpressionText) && !/^\d+$/.test(activeExpressionText);
   const defaultStageCrossing = stageCrossings[0] || null;
   const focusedCrossing = focusedCrossingPartner
     ? stageCrossings.find((item) => String(item?.partner || "") === String(focusedCrossingPartner)) || null
@@ -495,7 +500,7 @@ export default function NumberCore2029({
             <strong>{projection.expression || root} <em>↔</em> {stageCrossing.partner}</strong>
             <div className="sod29-number-v10-stage-cross-methods">
               {stageCrossing.methods.slice(0, 4).map((method) => <b key={method.methodKey}>
-                {projection.expression || root} · {publicMethodLabel(method)} = {method.value} ↔ {stageCrossing.partner} · {publicMethodLabel(method)} = {method.value}
+                {publicMethodLabel(method)} = {method.value}
               </b>)}
             </div>
             <small>Root {stageRoot} נשאר העוגן · הפוקוס בלבד השתנה</small>
@@ -549,50 +554,69 @@ export default function NumberCore2029({
             </div> : <div className="sod29-number-core2029-note">{stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
           </section>
 
-          <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
+          {hasActivePhrase ? <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
+              <div className="sod29-number-v10-panel-head">
+                <div>
+                  <span>הצלבה נסתרת</span>
+                  <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+                </div>
+              </div>
+              {stageCrossing ? <>
+                <button
+                  type="button"
+                  className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
+                  data-experience-action="crossing-focus"
+                  aria-pressed={crossingFocusActive}
+                  onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+                >
+                  <span>ההצלבה המובילה</span>
+                  <strong>{activeExpressionText || root} <b>=</b> {stageCrossing.partner}</strong>
+                  <div className="sod29-number-v10-crossing-methods">
+                    {stageCrossing.methods.slice(0, 6).map((method) => <span key={method.methodKey}>
+                      {publicMethodLabel(method)} = {method.value}
+                    </span>)}
+                    {stageCrossing.methods.length > 6 ? <span>+{stageCrossing.methods.length - 6}</span> : null}
+                  </div>
+                  <small>אותן שיטות, אותם ערכים · נמצאה עכשיו מהמאגר המאומת</small>
+                </button>
+                {secondaryCrossings.length ? <div className="sod29-number-v10-crossing-more">
+                  {secondaryCrossings.slice(0, showAllCrossings ? secondaryCrossings.length : 4).map((item, index) => <button
+                    type="button"
+                    key={`${item.partner}:${index}`}
+                    data-experience-action="crossing-focus-secondary"
+                    aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
+                    onClick={() => setFocusedCrossingPartner(item.partner)}
+                  >
+                    <strong>{item.partner}</strong>
+                    <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
+                  </button>)}
+                </div> : null}
+                <div className="sod29-number-v10-inline-actions">
+                  {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
+                  {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
+                  <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
+                </div>
+              </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
+            </section> : null}
+
+          {crossMethodMeetings.length ? <section className="sod29-number-v10-crossing sod29-number-v10-method-meeting" data-experience-capability="number-cross-method-intersection">
             <div className="sod29-number-v10-panel-head">
               <div>
-                <span>הצלבה נסתרת</span>
-                <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+                <span>מפגש בין שיטות</span>
+                <div className="sod29-number-v10-title-count"><strong>אותו ערך {stageRoot} משיטות שונות</strong><small>{crossMethodMeetings.length}</small></div>
               </div>
             </div>
-            {stageCrossing ? <>
-              <button
+            <div className="sod29-number-v10-crossing-more">
+              {crossMethodMeetings.slice(0, compact ? 4 : 8).map((item, index) => <button
                 type="button"
-                className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
-                data-experience-action="crossing-focus"
-                aria-pressed={crossingFocusActive}
-                onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+                key={`${item.partner}:${index}`}
+                data-experience-action="cross-method-intersection-explain"
+                onClick={() => onRazielAction?.("explain_crossing", { kind: "cross_method_intersection", partner: item.partner, methods: item.methods, resultValue: stageRoot })}
               >
-                <span>ההצלבה המובילה</span>
-                <strong>{projection.expression || root} <b>=</b> {stageCrossing.partner}</strong>
-                <div className="sod29-number-v10-crossing-methods">
-                  {stageCrossing.methods.slice(0, 4).map((method) => <span key={method.methodKey}>
-                    {projection.expression || root} · {publicMethodLabel(method)} = {method.value} ↔ {stageCrossing.partner} · {publicMethodLabel(method)} = {method.value}
-                  </span>)}
-                  {stageCrossing.methods.length > 4 ? <span>+{stageCrossing.methods.length - 4}</span> : null}
-                </div>
-                <small>נמצאה עכשיו מתוך הביטוי הפעיל והמאגר המאומת</small>
-              </button>
-              {secondaryCrossings.length ? <div className="sod29-number-v10-crossing-more">
-                {secondaryCrossings.slice(0, showAllCrossings ? secondaryCrossings.length : 4).map((item, index) => <button
-                  type="button"
-                  key={`${item.partner}:${index}`}
-                  data-experience-action="crossing-focus-secondary"
-                  aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
-                  onClick={() => setFocusedCrossingPartner(item.partner)}
-                >
-                  <strong>{item.partner}</strong>
-                  <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
-                </button>)}
-              </div> : null}
-              <div className="sod29-number-v10-inline-actions">
-                {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `פתח עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
-                {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
-                <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
-              </div>
-            </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
-          </section>
+                <strong>{item.methods.map((method) => `${method.owner} · ${publicMethodLabel(method)} = ${method.value}`).join(" ↔ ")}</strong>
+              </button>)}
+            </div>
+          </section> : null}
 
           {!compact && (systemMethodsLoading || systemMethods.length) ? <section className="sod29-number-v10-system-methods" data-experience-capability="number-system-methods">
             <div className="sod29-number-v10-panel-head sod29-number-v10-system-head">

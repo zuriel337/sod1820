@@ -37,4 +37,50 @@ assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/);
 assert.match(css, /\.sod29-workspace-core-grid/);
 assert.match(css, /@media\(max-width:640px\)/);
 
+
+
+// Follows / attention activation — existing owners only, no new store.
+assert.match(frame, /getNotificationPrefs/);
+assert.match(frame, /topicLabel\(topic\)/);
+assert.match(frame, /watchToggle\(topic, "workspace-2029", false/);
+assert.match(frame, /getMyNotifications\(4\)/);
+assert.match(frame, /getUnreadCount\(\)/);
+assert.match(frame, /markNotificationRead/);
+assert.match(frame, /getMyProfile/);
+assert.match(frame, /data-workspace-section="follow"/);
+assert.match(frame, /\/2029\/number\/\$\{m\[1\]\}/);
+assert.match(frame, /אחרי מה אני עוקב/);
+assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
+// follow list sits after research section; summary count near top
+assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
+assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
+// bottom personal affordance lives in the single existing command island and opens WORKSPACE
+assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
+assert.match(frame, /className="sod29-island-personal" onClick=\{openWorkspace\}/);
+assert.equal((frame.match(/sod29-island-personal/g) || []).length, 2); // one per island layout, mutually exclusive branches
+assert.match(frame, /small>אישי</);
+
+
+// Saved / research state — ResearchProvider snapshot only, explicit action semantics.
+assert.match(frame, /research\.saveItem\(entity\)/);
+assert.match(frame, /research\.addToResearch\(entity\)/);
+assert.match(frame, /const saveToLibrary = useCallback/);
+assert.match(frame, /data-inspect-action="save"[^>]*onClick=\{\(\) => setCommitState\(\{ kind: "save", ok: Boolean\(onSave\?\.\(target\)\) \}\)\}/);
+assert.match(frame, /data-inspect-action="research"[^>]*onClick=\{\(\) => setCommitState\(\{ kind: "research", ok: Boolean\(onAddResearch\?\.\(target\)\) \}\)\}/);
+assert.doesNotMatch(frame, /onClick=\{\(\) => onAddResearch\(target\)\}>＋ שמור/);
+for (const k of ["saved", "cart", "pinned", "history"]) assert.match(frame, new RegExp(`key: "${k}"`));
+assert.match(frame, /research\?\.collections/);
+for (const label of ["שמורים", "במחקר עכשיו", "מוצמדים", "אחרונים", "אוספים", "מסלול שמור \\(נפרד"]) assert.match(frame, new RegExp(label));
+for (const action of ["removeSaved", "removeFromResearch", "togglePin", "clearHistory"]) assert.match(frame, new RegExp(action));
+assert.match(frame, /onOpenNumber\?\.\(rowTarget\(e\)\)/);
+assert.match(frame, /onInspect\?\.\(rowTarget\(e\)\)/);
+assert.match(frame, /מקומי בדפדפן הזה — לא מסונכרן/);
+assert.match(frame, /data-research-state-source="ResearchProvider"/);
+assert.doesNotMatch(frame, /ResearchCenter|HintsPanel/);
+const rs = frame.slice(frame.indexOf("function ResearchStateSections"), frame.indexOf("function WorkspaceProjection"));
+assert.ok(rs.length > 500);
+assert.doesNotMatch(rs, /localStorage|sessionStorage|supabase|\.rpc\(|createClient/);
+assert.ok(frame.indexOf("<ResearchStateSections research") < frame.indexOf('data-workspace-section="follow"'));
+// previous PR #954 follows/notifications/island intact (asserted above); no new store in the CSS slice either.
+
 console.log("My Workspace 2029 native home contract: PASS");
