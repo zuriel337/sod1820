@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Timeline2029 from "../experience2029/Timeline2029.jsx";
-import { numberTimelineToRows } from "../../lib/research/timeline2029.js";
+import { numberTimelineToRows, timelineVisibleCount, TIMELINE_PAGE_SIZE } from "../../lib/research/timeline2029.js";
 import {
   canonicalFindingKindPublicLabel,
   canonicalGraphRelationTitle,
@@ -9,6 +9,8 @@ import {
   formatTanakhRef,
   formatVerseGematriaSuffix,
 } from "../../lib/presentation/canonicalPresentation.js";
+import { buildWorldCards } from "../../lib/presentation/numberWorldCards.js";
+import { fibonacciRailModel } from "../../lib/research/fibonacciSequence.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
@@ -51,7 +53,7 @@ function sourceLabel(row) {
     return [ref, text].filter(Boolean).join(" — ") || "מקור מקראי";
   }
   const label = clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label);
-  if (label && !technicalSourceText(label)) return label;
+  if (label && !technicalSourceText(label)) return humanContentTitle(label, { max: 120 }) || label;
   if (type.includes("book")) return "ספר / מקור";
   return "מקור מחקר";
 }
@@ -63,18 +65,6 @@ function sourceDetail(row) {
   }
   const detail = clean(row?.locator || row?.citation || row?.reference || row?.subtitle);
   return detail && !technicalSourceText(detail) ? detail : "";
-}
-
-function worldLabel(row) {
-  const raw = typeof row === "string"
-    ? row
-    : row?.label || row?.name || row?.title || row?.world || row?.topic || row?.slug;
-  return humanContentTitle(raw, { max: 82 });
-}
-
-function worldSummary(row) {
-  if (typeof row === "string") return "";
-  return clean(row?.summary || row?.subtitle || row?.description || row?.reason);
 }
 
 function numberFromRelation(row, root) {
@@ -155,26 +145,6 @@ function buildPeople(sources, findings) {
   return rows.slice(0, 6);
 }
 
-function buildWorldCards(worlds, topics) {
-  const seen = new Set();
-  const rows = [];
-  const add = (row, fallback) => {
-    const label = worldLabel(row) || fallback;
-    if (!label || seen.has(label)) return;
-    seen.add(label);
-    rows.push({
-      id: clean(row?.id || row?.slug) || label,
-      label,
-      summary: worldSummary(row),
-      count: Number(row?.count || row?.items_count || row?.connections_count || 0) || null,
-      raw: row,
-    });
-  };
-  for (const row of worlds || []) add(row, "");
-  for (const row of topics || []) add(row, "עולם מחקר");
-  return rows.slice(0, 12);
-}
-
 function shortText(value, max = 110) {
   const text = clean(value);
   return text.length > max ? text.slice(0, max - 1).trimEnd() + "…" : text;
@@ -232,7 +202,7 @@ export default function NumberLivingWorld2029({
   const [scrubIndex, setScrubIndex] = useState(0);
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [showAllSources, setShowAllSources] = useState(false);
-  const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [timelineSteps, setTimelineSteps] = useState(0);
   const [showAllVerses, setShowAllVerses] = useState(false);
   const [currentSection, setCurrentSection] = useState("עיקר");
 
@@ -277,10 +247,7 @@ export default function NumberLivingWorld2029({
       }));
     }
     if (scrubMode === "sequences") {
-      return [
-        { key: "pi", title: "π", subtitle: "חיפוש מיקום, לפני/אחרי ו־Derived Numeric Root", kind: "רצף" },
-        { key: "fibonacci", title: "Fibonacci", subtitle: "איבר, מיקום, שכנים ופירוק Zeckendorf", kind: "רצף" },
-      ];
+      return [{ key: "pi", title: "π", subtitle: "חיפוש מיקום, לפני/אחרי ו־Derived Numeric Root", kind: "רצף" }];
     }
     return relatedNumbers.map((row) => ({
       key: String(row.value),
@@ -296,11 +263,33 @@ export default function NumberLivingWorld2029({
     setScrubIndex(0);
   }, [scrubMode, root]);
 
+  const fibRail = useMemo(() => (scrubMode === "sequences" && Number.isSafeInteger(Number(root)) && Number(root) >= 0 ? fibonacciRailModel(String(root)) : null), [scrubMode, root]);
+  const [fibActive, setFibActive] = useState(null);
+  useEffect(() => { setFibActive(null); }, [root, scrubMode]);
+  const fibRailRef = useRef(null);
+  const fibActiveIndex = fibActive ?? fibRail?.anchorIndex ?? null;
+  useEffect(() => {
+    const node = fibRailRef.current?.querySelector?.('[data-fib-active="true"]');
+    if (node?.scrollIntoView) node.scrollIntoView({ inline: "center", block: "nearest", behavior: "auto" });
+  }, [fibRail, fibActiveIndex]);
+  const onFibScroll = () => {
+    const rail = fibRailRef.current;
+    if (!rail || !fibRail) return;
+    const mid = rail.getBoundingClientRect().left + rail.clientWidth / 2;
+    let best = null;
+    for (const el of rail.querySelectorAll("[data-fib-index]")) {
+      const r = el.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - mid);
+      if (!best || d < best.d) best = { d, index: Number(el.getAttribute("data-fib-index")) };
+    }
+    if (best && best.index !== fibActiveIndex) setFibActive(best.index);
+  };
+
   const selectedScrub = scrubRows[Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))] || null;
   const navItems = [
     ...(verseRows.length || versesLoading ? [["פסוקים", "number-verses"]] : []),
     ["עיקר", "number-essential"],
-    ["עולמות", "number-worlds-live"],
+    ...(worldCards.length ? [["עולמות", "number-worlds-live"]] : []),
     ["קשרים", "number-connections-live"],
     ["מתמטיקה", "number-math"],
     ["ביטויים", "number-expressions"],
@@ -339,7 +328,7 @@ export default function NumberLivingWorld2029({
       note: null,
     };
   });
-  const timelineShown = showAllTimeline ? timelineRows.slice(0, 20) : timelineRows.slice(0, 5);
+  const timelineShown = timelineRows.slice(0, timelineVisibleCount(timelineRows.length, timelineSteps));
 
   return <div className="sod29-lw" data-experience-capability="number-living-world">
     <SurfaceMapBar2029
@@ -419,31 +408,29 @@ export default function NumberLivingWorld2029({
 
     </section>
 
-    <section className="sod29-lw-section sod29-lw-worlds" id="number-worlds-live" data-experience-capability="number-living-worlds">
+    {worldCards.length ? <section className="sod29-lw-section sod29-lw-worlds" id="number-worlds-live" data-experience-capability="number-living-worlds">
       <SectionHead
         kicker="עולמות"
         title={`העולמות החיים של ${root}`}
-        text="3–4 העולמות הבולטים פתוחים כחוויה; השאר נשארים תגיות חיות. בחירה בעולם משנה את הפוקוס, לא את האמת."
+        text="רק עולמות עם חומר חי מצורף. בחירה בעולם משנה את הפוקוס, לא את האמת."
         aside={<span className="sod29-lw-count">{worldCards.length}</span>}
       />
-      {worldCards.length ? <>
         <div className="sod29-lw-world-grid">
           {worldCards.slice(0, 4).map((world, index) => <button type="button" key={world.id} className={index === activeWorld ? "is-active" : ""} onClick={() => setActiveWorld(index)}>
             <span>עולם {index + 1}</span>
             <strong>{world.label}</strong>
-            <p>{world.summary || "פתח את הקשרים, המקורות והמספרים ששייכים לעולם הזה."}</p>
-            <small>{world.count ? `${world.count} פריטים` : "עולם חי"}</small>
+            {world.summary ? <p>{world.summary}</p> : null}
+            {world.count ? <small>{`${world.count} פריטים`}</small> : null}
           </button>)}
         </div>
         <div className="sod29-lw-world-focus">
-          <div><span>העולם שנבחר</span><strong>{selectedWorld?.label}</strong><p>{selectedWorld?.summary || `הצג את ${root} דרך העולם הזה בלי לצאת מדף המספר.`}</p></div>
+          <div><span>העולם שנבחר</span><strong>{selectedWorld?.label}</strong>{selectedWorld?.summary ? <p>{selectedWorld.summary}</p> : null}</div>
           <DepthButton onClick={() => onOpenWorld?.({ meetingSlug: clean(selectedWorld?.raw?.slug) || null })}>פתח את העולם המלא</DepthButton>
         </div>
         {worldCards.length > 4 ? <div className="sod29-lw-tag-rail">
           {worldCards.slice(4).map((world, index) => <button type="button" key={world.id} onClick={() => setActiveWorld(index + 4)}>{world.label}</button>)}
         </div> : null}
-      </> : <div className="sod29-lw-empty">אין עדיין עולם מסווג מספיק חזק. החלק מתקפל ולא ממציא קטגוריות.</div>}
-    </section>
+    </section> : null}
       </div>
     </div>
 
@@ -491,16 +478,38 @@ export default function NumberLivingWorld2029({
           <button type="button" className={scrubMode === "findings" ? "is-active" : ""} onClick={() => setScrubMode("findings")}>ממצאים</button>
           <button type="button" className={scrubMode === "sequences" ? "is-active" : ""} onClick={() => setScrubMode("sequences")}>רצפים</button>
         </div>
-        {scrubRows.length ? <>
-          <input type="range" min="0" max={Math.max(0, scrubRows.length - 1)} value={Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))} onChange={(event) => setScrubIndex(Number(event.target.value))} aria-label="מד ניווט חי" />
-          <div className="sod29-lw-stations">
-            {scrubRows.map((row, index) => <button type="button" key={row.key} className={index === scrubIndex ? "is-active" : ""} onClick={() => setScrubIndex(index)}><i /><span>{row.title}</span></button>)}
+        {fibRail ? <div className="sod29-lw-fib" data-experience-capability="fibonacci-glass-rail">
+          <div className="sod29-lw-fib-state" data-fib-state={fibRail.state}>
+            <span>Fibonacci</span>
+            <strong>{fibRail.state === "exact"
+              ? `${root} = F${fibRail.exactIndex}`
+              : `${root} בין F${fibRail.lower?.index ?? 0} (${fibRail.lower?.value ?? 0}) ל־F${fibRail.upper?.index} (${fibRail.upper?.value})`}</strong>
+            <p dir="ltr">{fibRail.zeckendorf.complete && fibRail.zeckendorf.terms.length
+              ? `Zeckendorf: ${fibRail.zeckendorf.terms.map((t) => `${t.term} (F${t.index})`).join(" + ")}`
+              : "Zeckendorf: —"}</p>
           </div>
+          <div className="sod29-lw-fib-rail" ref={fibRailRef} onScroll={onFibScroll} role="listbox" aria-label="רצף פיבונאצ׳י" dir="ltr">
+            {fibRail.cards.map((card) => {
+              const active = card.index === fibActiveIndex;
+              return <button type="button" role="option" aria-selected={active} key={card.index} data-fib-index={card.index} data-fib-active={active ? "true" : undefined} data-fib-role={card.role} className={`sod29-lw-fib-card${active ? " is-active" : ""}`} onClick={() => setFibActive(card.index)}>
+                <small>F{card.index}</small>
+                <strong>{card.value}</strong>
+                {card.role === "exact" ? <em>המספר</em> : card.role === "lower" ? <em>קודם</em> : card.role === "upper" ? <em>הבא</em> : null}
+              </button>;
+            })}
+          </div>
+          {onOpenHeichal ? <div className="sod29-lw-actions"><DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_fibonacci", root })}>חקור Fibonacci בהיכל</DepthButton></div> : null}
+        </div> : null}
+        {scrubRows.length ? <>
+          {scrubRows.length > 1 ? <input type="range" min="0" max={Math.max(0, scrubRows.length - 1)} value={Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))} onChange={(event) => setScrubIndex(Number(event.target.value))} aria-label="מד ניווט חי" /> : null}
+          {scrubRows.length > 1 ? <div className="sod29-lw-stations">
+            {scrubRows.map((row, index) => <button type="button" key={row.key} className={index === scrubIndex ? "is-active" : ""} onClick={() => setScrubIndex(index)}><i /><span>{row.title}</span></button>)}
+          </div> : null}
           <article className="sod29-lw-scrub-card">
             <div><span>{selectedScrub?.kind}</span><strong>{selectedScrub?.title}</strong><p>{selectedScrub?.subtitle}</p></div>
             <div className="sod29-lw-actions">
               {selectedScrub?.value != null ? <DepthButton primary onClick={() => onOpenNumber?.(selectedScrub.value)}>פתח את דף המספר</DepthButton> : null}
-              {scrubMode === "sequences" && onOpenHeichal ? <DepthButton primary onClick={() => onOpenHeichal({ kind: selectedScrub?.key === "pi" ? "sequence_pi" : "sequence_fibonacci", root })}>חקור {selectedScrub?.title} בהיכל</DepthButton> : null}
+              {scrubMode === "sequences" && onOpenHeichal ? <DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_pi", root })}>חקור {selectedScrub?.title} בהיכל</DepthButton> : null}
               {scrubMode === "findings" ? <DepthButton onClick={() => onRazielAction?.("explain_finding", { root, finding: selectedScrub?.raw })}>למה זה קשור?</DepthButton> : null}
             </div>
           </article>
@@ -591,7 +600,7 @@ export default function NumberLivingWorld2029({
         rows={timelineShown}
         surface="number"
         subtitle="מה נוסף למחקר סביב המספר ומתי. זמן ההוספה נפרד מזמן האירוע בעולם."
-        onSelect={(row) => onFocusContext?.({
+        onInspect={onFocusContext ? (row) => onFocusContext({
           id: row.id,
           type: row.focusType,
           kicker: row.relationLabel ? "קשר פעיל" : "פריט פעיל",
@@ -601,9 +610,12 @@ export default function NumberLivingWorld2029({
           sourceLabel: "ציר הזמן",
           signals: [row.relationLabel, row.dates ? `נוסף · ${row.dates.hebrew} · ${row.dates.gregorian}` : null].filter(Boolean),
           locator: "#number-timeline-live",
-        })}
+        }) : null}
       >
-        {timelineRows.length > 5 ? <DepthButton onClick={() => setShowAllTimeline((value) => !value)}>{showAllTimeline ? "צמצם" : "הצג את כל ציר הזמן"}</DepthButton> : null}
+        {timelineRows.length > TIMELINE_PAGE_SIZE ? <div className="sod29-lw-actions">
+          {timelineShown.length < timelineRows.length ? <DepthButton onClick={() => setTimelineSteps((value) => value + 1)}>{`הצג עוד ${Math.min(TIMELINE_PAGE_SIZE, timelineRows.length - timelineShown.length)} (${timelineShown.length}/${timelineRows.length})`}</DepthButton> : null}
+          {timelineSteps > 0 ? <DepthButton onClick={() => setTimelineSteps(0)}>צמצם</DepthButton> : null}
+        </div> : null}
       </Timeline2029>
     </section> : null}
 

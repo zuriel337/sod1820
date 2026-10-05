@@ -706,3 +706,18 @@
   .sod29-lw-feature-media>div .sod29-lw-media-focus{flex:0 0 190px;grid-template-columns:72px minmax(0,1fr)}
   .sod29-lw-feature-media>div .sod29-lw-media-focus img{width:72px;height:72px}
 }
+
+/* Fibonacci glass scrub rail (reuses 2029 palette/glass tokens) */
+.sod29-lw-fib{display:grid;gap:10px}
+.sod29-lw-fib-state span{color:var(--s29-accent-text);font-size:8px}
+.sod29-lw-fib-state strong{display:block;margin-top:3px;color:var(--s29-hero);font-size:20px}
+.sod29-lw-fib-state p{margin:4px 0 0;color:var(--s29-muted);font-size:11px}
+.sod29-lw-fib-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:10px 38%;scrollbar-width:none;touch-action:pan-x}
+.sod29-lw-fib-rail::-webkit-scrollbar{display:none}
+.sod29-lw-fib-card{flex:0 0 auto;min-width:96px;scroll-snap-align:center;display:grid;gap:3px;justify-items:center;padding:12px 14px;border:1px solid var(--s29-line);border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 96%,transparent),color-mix(in srgb,var(--s29-panel-soft) 80%,transparent));backdrop-filter:blur(10px);opacity:.62;transform:scale(.92);transition:transform .18s,opacity .18s,border-color .18s;cursor:pointer}
+.sod29-lw-fib-card small{color:var(--s29-muted);font-size:10px}
+.sod29-lw-fib-card strong{color:var(--s29-ink);font-size:17px;overflow-wrap:anywhere}
+.sod29-lw-fib-card em{font-style:normal;color:var(--s29-accent-text);font-size:9px}
+.sod29-lw-fib-card.is-active{opacity:1;transform:scale(1.06);border-color:var(--s29-line-strong);box-shadow:0 0 22px var(--s29-glow)}
+.sod29-lw-fib-card.is-active strong{color:var(--s29-hero);font-size:21px}
+@media (prefers-reduced-motion:reduce){.sod29-lw-fib-card{transition:none}}
