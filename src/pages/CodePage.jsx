@@ -11,6 +11,7 @@ import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 
 const ELS_PREMIUM_PREVIEW = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/agent/els/fa6474a8-b4fb-4895-b033-75634b52596d/els-rebuild-premium.png";
+const ELS_LEGACY_COUNTDOWN_TARGET = Date.parse("2026-10-12T22:57:00+03:00");
 
 const REBUILD_LAYERS = [
   {
@@ -45,8 +46,23 @@ const REBUILD_LAYERS = [
   },
 ];
 
-function CodeClosed({ message, user }) {
+function CodeClosed({ message }) {
   const P = usePalette();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const remaining = Math.max(0, ELS_LEGACY_COUNTDOWN_TARGET - now);
+  const totalSeconds = Math.floor(remaining / 1000);
+  const countdown = [
+    ["ימים", Math.floor(totalSeconds / 86400)],
+    ["שעות", Math.floor((totalSeconds % 86400) / 3600)],
+    ["דקות", Math.floor((totalSeconds % 3600) / 60)],
+    ["שניות", totalSeconds % 60],
+  ];
   return (
     <div style={{ direction: "rtl", maxWidth: 1060, margin: "0 auto", padding: "54px 18px 110px", position: "relative", zIndex: 1 }}>
       <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto" }}>
@@ -64,54 +80,30 @@ function CodeClosed({ message, user }) {
         {message && <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "8px auto 0" }}>{message}</p>}
       </div>
 
-      <section aria-label="מסלול מחקר חיצוני זמני" style={{ maxWidth: 760, margin: "28px auto 8px", padding: "24px 22px", textAlign: "center", background: P.cardGrad || P.card, border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 22, boxShadow: `0 0 34px ${P.glow}` }}>
-        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2.4, marginBottom: 8 }}>בינתיים · מסלול נוסף למחקר</div>
-        <h2 style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(22px,4vw,30px)", margin: "0 0 11px", lineHeight: 1.35 }}>השער פתוח גם מעבר לכאן</h2>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, margin: "0 auto 8px", maxWidth: 650 }}>
-          הצופן החדש של SOD1820 עדיין נבנה — אבל המחקר לא נעצר. עד שהמערכת שלנו תיפתח, אפשר להמשיך לחקור מספרים, דפוסים ורמזים גם ב־The First Verse — מרחב מחקר עצמאי שנוגע באותם אזורי סוד מזווית אחרת.
+      <section aria-label="ספירה לאחור והשארת פרטים" style={{ maxWidth: 760, margin: "28px auto 8px", padding: "28px 22px", textAlign: "center", background: P.cardGrad || P.card, border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 22, boxShadow: `0 0 34px ${P.glow}` }}>
+        <div aria-hidden="true" style={{ fontSize: "clamp(58px,10vw,96px)", lineHeight: 1, marginBottom: 14 }}>⌛</div>
+        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2.4, marginBottom: 8 }}>הצופן החדש מתקרב</div>
+        <h2 style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(24px,4vw,32px)", margin: "0 0 10px", lineHeight: 1.35 }}>עוד שבוע פותחים את השער</h2>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, margin: "0 auto 18px", maxWidth: 650 }}>
+          אנחנו בונים את הצופן החדש בתוך 2029. הירשמו עכשיו — אתם תהיו הראשונים שתיהנו מהתוכנה החדשה כשהיא תיפתח.
         </p>
-        <p style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 16px" }}>
-          מי שמרגיש שהמסע כבר התחיל — יכול להמשיך מכאן.
-        </p>
-        {user ? (
-          <>
-            <a
-              href="https://www.thefirstverse.com/he/els?via=user-31&s=code-page"
-              target="_blank"
-              rel="noopener noreferrer sponsored"
-              style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
-                background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
-                boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
-                fontFamily: F.heading, fontSize: 14, fontWeight: 900,
-              }}
-            >
-              המשך אל The First Verse ↗
-            </a>
-            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
-              זהו קישור השותף של SOD1820. הצטרפות דרכו תומכת בהמשך הדרך ובבניית כלי המחקר הבאים.
+
+        <div aria-label="ספירה לאחור לפתיחת הצופן החדש" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(68px,1fr))", gap: 10, maxWidth: 560, margin: "0 auto 24px" }}>
+          {countdown.map(([label, value]) => (
+            <div key={label} style={{ background: P.cardSoft || P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: "14px 8px" }}>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(24px,5vw,40px)", fontWeight: 900, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{String(value).padStart(2, "0")}</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 7 }}>{label}</div>
             </div>
-          </>
-        ) : (
-          <>
-            <Link
-              to="/login"
-              style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
-                background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
-                boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
-                fontFamily: F.heading, fontSize: 14, fontWeight: 900,
-              }}
-            >
-              הרשמה חינם לצפייה בקישור ↗
-            </Link>
-            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
-              הקישור החיצוני פתוח למשתמשים רשומים. ההרשמה חינם ואינה דורשת חברות בתשלום.
-            </div>
-          </>
-        )}
+          ))}
+        </div>
+
+        <UpdatesBox
+          source="els-2029-early-access"
+          title="רוצים להיות הראשונים שנכנסים?"
+          body="השאירו אימייל ונעדכן אתכם ברגע שהצופן החדש של SOD1820 נפתח."
+          cta="רשמו אותי לעדכון הראשון →"
+          style={{ margin: "0 auto" }}
+        />
       </section>
 
       <div style={{ maxWidth: 760, margin: "34px auto 22px" }}>
@@ -157,7 +149,7 @@ function CodeClosed({ message, user }) {
 
 export default function CodePage() {
   const P = usePalette();
-  const { loading, user, isAdmin } = useAuth();
+  const { loading, isAdmin } = useAuth();
   const elsState = useFeatureState("lock_els");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [sp, setSp] = useSearchParams();
@@ -182,7 +174,7 @@ export default function CodePage() {
   if (loading || elsState.loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} user={user} />;
+  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} />;
 
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
