@@ -798,7 +798,7 @@ Deno.serve(async (req: Request) => {
       const rFacts = String(body?.facts || "").slice(0, 3500);
       const rSubject = subject;
       const rPath = String(body?.path || "").slice(0, 40);
-      const rCtxHint = String(body?.context || "").slice(0, 600);
+      const rCtxHint = String(body?.context || "").slice(0, 1800);
       const rAgain = !!body?.again;
       // 🧭 Advanced-mode gate — opt-in only (RAZIEL_ADVANCED_NUMBER_PAGE_v0). Absent/false → every line
       // below this block behaves exactly as before (rMode false ⇒ no plan, no surface block, kind="raziel").
@@ -807,9 +807,9 @@ Deno.serve(async (req: Request) => {
       const rSurfaceCtx = rMode && body?.surface_context && typeof body.surface_context === "object" ? body.surface_context : null;
       if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
 
-      // 🧠 5B — deterministic-first (מאחורי flag; test-visitor בלבד עד אישור rollout). fail-open מלא.
-      //    gematria/ELS מגיעים מהמנוע הדטרמיניסטי (fn_raziel_answer) — Claude *לא* נקרא ואין צריכת-מכסה.
-      //    mode!=deterministic (כולל flag OFF למשתמשים אמיתיים) → נופל בדיוק למסלול Claude הישן שלמטה.
+      // 🧠 5B — deterministic-first (תלוי הגדרה פעילה, לא קבוע בקוד). fail-open מלא.
+      //    כשההגדרה הפעילה מחזירה mode=deterministic ללא צורך בסינתזה — התשובה מהמנוע הדטרמיניסטי
+      //    (fn_raziel_answer), Claude לא נקרא ואין צריכת-מכסה; אחרת נופל למסלול Claude שלמטה.
       try {
         if (rSubject && SB_URL && SB_SVC) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {

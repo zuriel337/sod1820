@@ -581,7 +581,12 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
+  // תמלול מקומי חסום (6 תורות אחרונים, 220 תווים לתור) — רק state הקומפוננטה; בלי store חדש.
+  const buildTranscript = (turns) => turns.slice(-6)
+    .map((m) => `${m.role === "user" ? "משתמש" : "רזיאל"}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 220)}`)
+    .join("\n");
   const buildFacts = () => [
+    numberFocus?.root != null ? `שורש עמוד: ${numberFocus.root}` : "",
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
@@ -589,12 +594,14 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
     const q = String(question || "").trim();
     if (!q || busy) return;
     setBusy(true); setNote("");
+    // תמלול = התורות שלפני השאלה הנוכחית (שאלת העמקה: בלי התשובה המהירה של אותה שאלה עצמה).
+    const prior = again ? thread.slice(0, Math.max(0, thread.length - 1)) : thread;
     if (!again) setThread((t) => [...t, { role: "user", text: q }]);
-    const subject = numberFocus?.root != null ? `${numberFocus.root} · ${q}` : q;
+    const transcript = buildTranscript(prior);
     const res = await askRaziel({
-      subject: subject.slice(0, 300),
+      subject: q.slice(0, 300), // השאלה עצמה בלבד — שורש/שיטה רק ב-facts/context (קידומת מזהמת חילוץ נושא דטרמיניסטי)
       facts: buildFacts(),
-      context: [subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | ").slice(0, 500) || null,
+      context: [[subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | "), transcript && `שיחה אחרונה:\n${transcript}`].filter(Boolean).join("\n").slice(0, 1700) || null,
       again,
       intelligenceLevel: level,
     });

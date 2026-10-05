@@ -51,3 +51,27 @@ test("same persona/metatron/memory path for both tiers; reliability wired, never
   assert.match(rel, /usage\?: \{ input_tokens/);
   assert.match(razielBlock, /out\.usage/);
 });
+
+test("native chat: user question is the subject; root/method only in facts/context", () => {
+  const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
+  assert.match(chat, /subject: q\.slice\(0, 300\)/);
+  assert.doesNotMatch(chat, /\$\{numberFocus\.root\} · \$\{q\}/);
+  assert.match(chat, /שורש עמוד: \$\{numberFocus\.root\}/);
+});
+
+test("native chat: bounded local transcript in context, no new store", () => {
+  const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
+  assert.match(chat, /turns\.slice\(-6\)/);
+  assert.match(chat, /slice\(0, 220\)/);
+  assert.match(chat, /slice\(0, 1700\)/);
+  assert.doesNotMatch(chat, /localStorage|sessionStorage/);
+  assert.match(edge, /body\?\.context \|\| ""\)\.slice\(0, 1800\)/);
+});
+
+test("reliability: usage aggregated across HTTP-200 attempts, kept on degraded", () => {
+  assert.match(rel, /addUsage\(data\?\.usage\)/);
+  assert.match(rel, /usage: usageAcc/);
+  assert.equal((rel.match(/usage: usageAcc/g) || []).length, 2);
+  assert.match(razielBlock, /5B — deterministic-first \(תלוי הגדרה פעילה/);
+  assert.doesNotMatch(razielBlock, /5B — deterministic-first \(מאחורי flag/);
+});
