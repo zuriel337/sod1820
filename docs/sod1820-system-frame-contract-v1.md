@@ -280,3 +280,109 @@ The frame must leave a future place to explain why joining today creates value t
 
 ### Product experience goal
 Opening a mega menu should make the visitor understand the scale of SOD1820: existing knowledge plus visible future capability. "Coming soon" belongs beside the live material it extends, rather than in a disconnected roadmap page.
+## UPDATE 2026-10-06 — Canonical Glass Context Dock / Central Raziel Core
+
+**Human Gate: ZURIEL. Owner check: EXTEND_EXISTING.**  
+This update extends the existing Canonical Adaptive Bottom Dock and Context Rail. It does **not** create a second Dock, navigation system, Context store, AI surface, ELS engine, or new global owner.
+
+### Final frame hierarchy
+
+The 2029 product uses one hierarchy across surfaces:
+
+- **Global Left Navigation** = where the user is in SOD1820.
+- **Surface Context Rail** = expanded local working context and depth.
+- **Glass Context Dock** = compact live projection of the same current context + the few actions that matter now.
+- **Raziel Central Glass Core** = the same persistent Raziel capability, physically centered in the viewport.
+- **Surface content** = Post / Number / Books / ELS / World / Journey / Heichal content and tool-specific work.
+
+The Dock and Context Rail consume the same Research Context. They are different responsive projections of one capability, not independent state.
+
+### Central Raziel invariant
+
+Raziel remains **physically centered** in the viewport on desktop and mobile. The orb/core does not move left or right in response to relevance, confidence, findings, or activity.
+
+Allowed responsive motion is internal only:
+- subtle inner energy / ring / glow response;
+- bounded contextual pulse when a real event exists;
+- visual flow toward the core from active context;
+- reduced-motion users receive a static equivalent.
+
+Moving the control itself is forbidden because it would make a primary capability spatially unstable.
+
+### Glass Dock geometry
+
+Desktop default is a symmetrical three-part frame:
+
+`[ Context + Action ] — [ Raziel ] — [ Search/Command + More ]`
+
+The two wings have equal layout authority around the fixed center. They do not need identical text width, but neither wing is allowed to displace the Raziel center.
+
+`More` is a gateway to existing capabilities (Now, Tools, Personal Area, issue/contact, exact return where available). It is not a new system and must not duplicate those owners.
+
+### Context capsule / rolling context
+
+The Context capsule answers “where am I / what is active?” using the current canonical Research Context.
+
+Examples:
+- Post: `פוסט › גימטריות › 631`
+- Number: `דף המספר › 878 › מילוי`
+- Books: `ספרים › מקור › פרק/פסוק`
+- ELS: `ELS › משיח › דילוג 2 › תורה`
+
+Rules:
+- short context stays still;
+- long context may use a slow bounded ping-pong/rolling motion **inside the fixed glass capsule**;
+- hover/focus pauses the motion;
+- `prefers-reduced-motion` disables it;
+- the capsule itself never moves;
+- context prominence is navigation/orientation, never truth or evidence strength.
+
+### Desktop ↔ mobile projection
+
+Desktop:
+- full Context Rail may remain open/pinned;
+- Glass Dock stays visible as the compact HUD;
+- activating the Context capsule focuses/reveals the existing Context Rail when present.
+
+Mobile:
+- no permanent left rail is required;
+- the same Glass Dock remains;
+- activating the Context capsule opens the same Context capability in the canonical Bottom Sheet.
+
+This is one capability with responsive projection, not two products.
+
+### Tool Mode / ELS first consumer
+
+ELS is the first deep-tool projection of this decision.
+
+ELS Classic and Research use the same Dock and the same context identity. Classic/Research switching must not remount or lose the active finding.
+
+ELS Dock context may project:
+- ELS surface identity;
+- current term;
+- skip;
+- corpus/scope;
+- verified active locus when available.
+
+The Dock must **not** absorb the full ELS workbench. Matrix colors, verse context, crossings, saved findings and deep research tools remain in the ELS Context Rail/workspace. The Dock is orientation + immediate action, not a feature warehouse.
+
+### No-loss rule
+
+Migrating from the older button-heavy Dock to Glass Context Dock does not retire capability:
+- Search/Command remains directly available.
+- Action remains directly available.
+- Raziel remains directly available.
+- Now, Tools and Personal Area remain available through `More`.
+- Existing exact-return, saved/research, notification and tool owners remain unchanged.
+
+Any later removal of an entry point requires parity verification and Human Gate when governed by the active owner.
+
+### Visual principle
+
+The Glass Dock should read as a quiet live system layer, not a dashboard toolbar:
+- thin translucent depth;
+- restrained blue/violet energy around Raziel;
+- semantic accent tokens only;
+- minimal permanent controls;
+- motion communicates continuity, never urgency by default;
+- content remains visually dominant.
