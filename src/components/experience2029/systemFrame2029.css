@@ -813,7 +813,6 @@
 .sod29-contact-status-empty{color:var(--s29-muted);font-size:var(--s29-type-micro);padding:8px 0}
 @media(max-width:640px){.sod29-contact-status-row{grid-template-columns:1fr}.sod29-contact-status-state{text-align:start}}
 
-
 /* GLOBAL_CONTEXT_RAIL_CONTENT_MAP_AND_DUAL_RAIL_DESIGN_V1
    One material language, two jobs: right = global navigation, left = live context. */
 .sod29-root.native-frame .sod29-sidebar{
