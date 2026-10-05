@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
+const oldPolish = readFileSync(new URL("../src/components/experience2029/systemFrame2029-command-island-polish.css", import.meta.url), "utf8");
 const contract = readFileSync(new URL("../docs/sod1820-system-frame-contract-v1.md", import.meta.url), "utf8");
 
 test("System Frame exposes one canonical Glass Context Dock with Raziel fixed at center", () => {
@@ -35,6 +36,11 @@ test("ELS projects canonical Research Context into the same Dock without creatin
   assert.match(frame, /elsSelection\?\.corpus === "tanakh" \? "תנ״ך"/);
   assert.match(frame, /data-dock-mode=\{surface === "els" \? "tool"/);
   assert.equal((frame.match(/data-glass-context-dock="v1"/g) || []).length, 1);
+});
+
+test("old Command Island polish cannot override the canonical Glass Dock", () => {
+  assert.match(oldPolish, /:not\(\.glass-context-dock\)/);
+  assert.doesNotMatch(css, /is-context>\.sod29-glass-dock-action\{display:none\}/);
 });
 
 test("rolling context is bounded and reduced-motion safe", () => {
