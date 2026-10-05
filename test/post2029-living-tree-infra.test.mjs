@@ -104,6 +104,14 @@ test("Research Path and commands share one physical System Frame bottom surface"
   const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
 
   assert.match(page, /bottomTrail: \[/);
+  assert.match(page, /surfaceSections: regions\.map/);
+  assert.match(page, /surfaceMapLabel: "בתוך הפוסט"/);
+  assert.match(page, /preserveExplicitGematriaFocus/);
+  assert.match(page, /explicitGematriaFocusRef/);
+  assert.match(page, /subject: preserveExplicitGematriaFocus && protectedSubject \? protectedSubject/);
+  assert.match(page, /selection: preserveExplicitGematriaFocus \? protectedSelection : passiveSelection/);
+  assert.match(page, /lens: preserveExplicitGematriaFocus \? "gematria" : "reading"/);
+  assert.match(page, /activeSectionId: activeFocus\.id/);
   assert.match(page, /surfaceFocus:/);
   assert.match(frame, /has-context-trail/);
   assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
@@ -112,10 +120,30 @@ test("Research Path and commands share one physical System Frame bottom surface"
 });
 
 
-test("Research Context preserves bottom trail at runtime", () => {
-  const merged = mergeResearchContext(null, { subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" }, dimensions: { bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }] } });
+test("Research Context preserves bounded trail and semantic surface map at runtime", () => {
+  const merged = mergeResearchContext(null, {
+    subject: { id: "post-1", type: "post", label: "Golden", href: "/post/golden" },
+    dimensions: {
+      bottomTrail: [{ id: "root", label: "Post", kind: "post", active: false, href: "/post/golden" }, { id: "focus", label: "631", kind: "number", active: true, href: "/2029/number/631" }],
+      surfaceSections: [
+        { id: "salt-78", label: "מלח · 78", targetId: "source-region-salt-78", ignored: "drop" },
+        { id: "bennett-631", label: "נפתלי בנט · 631", targetId: "source-region-bennett-631" },
+      ],
+      activeSectionId: "salt-78",
+      surfaceMapLabel: "בתוך הפוסט",
+      surfaceFocus: { id: "salt-78", type: "number", label: "מלח · 78", number: 78, signals: ["חישוב מאומת", "עוגן מתוך האירוע", "3", "4", "drop"] },
+      readingFocus: { id: "salt-78", label: "מלח · 78", postId: "5113", postSlug: "bennett-melach-631-78", locator: "#source-region-salt-78" },
+    },
+  });
   assert.equal(merged.dimensions.bottomTrail.length, 2);
   assert.equal(merged.dimensions.bottomTrail[1].label, "631");
+  assert.equal(merged.dimensions.surfaceSections.length, 2);
+  assert.deepEqual(merged.dimensions.surfaceSections[0], { id: "salt-78", label: "מלח · 78", targetId: "source-region-salt-78" });
+  assert.equal(merged.dimensions.activeSectionId, "salt-78");
+  assert.equal(merged.dimensions.surfaceMapLabel, "בתוך הפוסט");
+  assert.equal(merged.dimensions.surfaceFocus.number, 78);
+  assert.deepEqual(merged.dimensions.surfaceFocus.signals, ["חישוב מאומת", "עוגן מתוך האירוע", "3", "4"]);
+  assert.equal(merged.dimensions.readingFocus.postSlug, "bennett-melach-631-78");
 });
 
 
@@ -196,7 +224,7 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
 test("Bennett and FZ1073 remain the two Post Master fixtures", () => {
   const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, FZ1073_SLUG, FZ1073_REGIONS } = post2029ReadingInternals;
   assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
-  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number), [78, 631, 78, 133, 690]);
+  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number ?? null), [null, 631, null]);
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
   assert.equal(FZ1073_REGIONS.length, 7);
 });
@@ -208,10 +236,10 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
 
   const { BENNETT_CONTEXTUAL_NUMBER_FOCUS, markBennettContextualNumberFocus } = post2029ReadingInternals;
   assert.deepEqual(BENNETT_CONTEXTUAL_NUMBER_FOCUS, {
-    expression: "מלח",
+    expression: "נפתלי בנט",
     methodKey: "רגיל",
-    resultValue: 78,
-    regionId: "salt-78",
+    resultValue: 631,
+    regionId: "bennett-631",
   });
 
   const source = '<h2 data-source-heading="true">הרמז המרכזי — מלח</h2><p>מקור</p>';
@@ -246,6 +274,9 @@ test("Unified Experience exposes one shared rail and section navigation without 
   assert.match(frame, /surfaceFocus/);
   assert.match(rail, /ContextualInspector2029/);
   assert.match(rail, /sod29-surface-context-mobile-cue/);
+  assert.match(rail, /interactive/);
+  assert.match(rail, /בתוך הפוסט/);
+  assert.match(rail, /בתוך הציר/);
   assert.match(tabs, /data-experience-capability="surface-section-nav"/);
   assert.match(post, /SurfaceSectionNav2029/);
   assert.doesNotMatch(post, /<ReadingContextRail2029/);

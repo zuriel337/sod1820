@@ -1,0 +1,55 @@
+.sod29-gematria-reveal{
+  display:grid;
+  gap:8px;
+  padding:12px 0;
+  border-block:1px solid var(--s29-line);
+}
+.sod29-gematria-reveal-expression{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  color:var(--s29-muted);
+  opacity:.42;
+  transform:translateY(3px);
+  transition:opacity var(--s29-motion),transform var(--s29-motion);
+}
+.sod29-gematria-reveal-expression.is-visible{opacity:1;transform:none}
+.sod29-gematria-reveal-expression span{color:var(--s29-ink);font-weight:850;font-size:16px}
+.sod29-gematria-reveal-expression small{font-size:11px}
+.sod29-gematria-reveal-result{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  color:var(--s29-hero);
+  font-size:clamp(38px,4vw,58px);
+  font-weight:900;
+  letter-spacing:-.04em;
+  opacity:.35;
+  transform:scale(.98);
+  transform-origin:center right;
+  transition:opacity var(--s29-motion),transform var(--s29-motion);
+}
+.sod29-gematria-reveal-result.is-visible{opacity:1;transform:scale(1)}
+.sod29-gematria-reveal-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sod29-gematria-reveal-steps{display:flex;gap:5px;overflow:auto;margin:0;padding:4px 0;list-style:none;scrollbar-width:none}
+.sod29-gematria-reveal-steps::-webkit-scrollbar{display:none}
+.sod29-gematria-reveal-steps li{
+  flex:0 0 auto;
+  min-width:54px;
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  padding:7px;
+  border:1px solid var(--s29-line);
+  border-radius:11px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
+}
+.sod29-gematria-reveal-steps li span{color:var(--s29-ink);font-size:18px;font-weight:850}
+.sod29-gematria-reveal-steps li b{color:var(--s29-hero);font-size:13px}
+.sod29-gematria-reveal-steps li small{color:var(--s29-muted);font-size:9px}
+.sod29-gematria-reveal.is-compact{gap:5px;padding:8px 0}
+.sod29-gematria-reveal.is-compact .sod29-gematria-reveal-result{min-height:40px;font-size:36px}
+.sod29-gematria-reveal.is-compact .sod29-gematria-reveal-steps{display:none}
+@media(prefers-reduced-motion:reduce){
+  .sod29-gematria-reveal-expression,.sod29-gematria-reveal-result{transition:none!important;transform:none!important}
+}

@@ -311,6 +311,15 @@ function TopicBody() {
     () => buildTopicGoldenProjection(projection, { hub: goldenState.hub, prominence: goldenState.prominence }),
     [projection, goldenState.hub, goldenState.prominence],
   );
+  const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
+  const navItems = projection ? [
+    { id: "topic-essential", label: "עיקר" },
+    ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
+    ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
+    ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
+    ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
+    ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
+  ] : [];
 
   useEffect(() => {
     if (!projection) return undefined;
@@ -324,6 +333,13 @@ function TopicBody() {
         { id: "section", label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר" },
         ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), active: true }] : []),
       ],
+      surfaceSections: navItems.map((item) => ({
+        id: item.id,
+        label: item.label,
+        targetId: item.targetId || item.id,
+      })),
+      activeSectionId,
+      surfaceMapLabel: "בתוך הציר",
       surfaceFocus: {
         id: projection.slug,
         type: "topic",
@@ -420,15 +436,6 @@ function TopicBody() {
   const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
   const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
   const sparse = golden?.density === "sparse";
-  const hasFindings = Object.values(projection.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
-  const navItems = [
-    { id: "topic-essential", label: "עיקר" },
-    ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
-    ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
-    ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
-    ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
-    ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
-  ];
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">

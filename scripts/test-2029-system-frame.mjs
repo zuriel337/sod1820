@@ -55,6 +55,14 @@ assert.match(frame, /closeTransient/);
 assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
+assert.match(frame, /ThemePresetControl2029/);
+assert.match(frame, /setThemePreset/);
+assert.match(frame, /data-frame-theme-preset/);
+assert.match(frame, /יום/);
+assert.match(frame, /קלף/);
+assert.match(frame, /לילה/);
+assert.match(frame, /GematriaReveal2029/);
+assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| context\?\.subject\)/, "meaningful context should project the same left rail across public 2029 surfaces");
 
 // Experience Context is resolved once at the native System Frame seam and exposed
 // through the same shell context to all native 2029 surfaces.
@@ -169,6 +177,13 @@ assert.match(tokens, /presence\/brand meaning only/i);
 assert.match(frame, /RAZIEL_PRESENCE/);
 assert.match(css, /sod29-raziel-orb/);
 assert.match(css, /sod29-raziel-breathe/);
+assert.match(css, /GLOBAL_CONTEXT_RAIL_CONTENT_MAP_AND_DUAL_RAIL_DESIGN_V1/);
+assert.match(css, /backdrop-filter:blur\(26px\) saturate\(132%\)/);
+assert.match(css, /button\.sod29-surface-progress-point/);
+assert.match(css, /PINNED_DUAL_RAIL_VIEWPORT_V1/);
+assert.match(css, /--s29-global-rail-width:264px/);
+assert.match(css, /--s29-context-rail-width:286px/);
+assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 
@@ -211,7 +226,7 @@ assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
 assert.match(frame, /capability === "number"/);
 assert.match(frame, /מה שבחרת נשאר איתך כשנפתח כלי או עולם/);
-assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "unopened Heichal must not be a System Frame navigation entry");
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "approved Design V2 Global Chrome must expose Heichal in primary navigation");
 assert.match(css, /position:fixed/);
 assert.equal(frame.includes("sod29-command-surface"), false, "superseded fixed command surface must not render");
 

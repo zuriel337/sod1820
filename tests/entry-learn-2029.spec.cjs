@@ -66,7 +66,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
   await expect(sidecar).toBeVisible({ timeout: 30_000 });
   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
-  await expect(sidecar).toContainText('מלח');
+  await expect(sidecar).toContainText('נפתלי בנט');
 
   // Inspect is the Post first meaningful action, so Orientation compacts instead of disappearing.
   await expect(page.locator('.sod29-entry-orientation-slot .sod29-learn-mark')).toHaveClass(/is-compact/);
@@ -76,9 +76,9 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(learn.getByRole('button', { name: 'איך זה עובד?' })).toBeVisible();
   await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
   await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
-  await expect(learn).toContainText('מלח');
+  await expect(learn).toContainText('נפתלי בנט');
   await expect(learn).toContainText('רגיל');
-  await expect(learn).toContainText('78');
+  await expect(learn).toContainText('631');
   expect(traceRequests).toBe(0);
 
   // ASK: unresolved comprehension opens the already-live Contact Gateway, not a new help form.
@@ -107,7 +107,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await learnAfterAsk.getByRole('button', { name: 'ראה את החישוב' }).click();
   const drawer = sidecar.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
-  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
+  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
 
   await expect.poll(async () => page.evaluate(() => {
     const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
@@ -120,14 +120,14 @@ test('direct Post teaches in place before opening the canonical calculation at 3
       selection.method || null,
       Number(selection.resultValue),
     ]);
-  }), { timeout: 5_000 }).toBe(JSON.stringify(['salt-78', 'מלח', 'רגיל', 78]));
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['bennett-631', 'נפתלי בנט', 'רגיל', 631]));
 
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
 
   const calculation = drawer.locator('.sod29-number-v10-calculation-card');
   await expect(calculation).toBeVisible({ timeout: 20_000 });
   await expect(calculation).toContainText('רגיל');
-  await expect(calculation).toContainText('78');
+  await expect(calculation).toContainText('631');
   await calculation.click();
 
   const inspector = drawer.locator('.sod29-number-method-inspector');
@@ -136,12 +136,9 @@ test('direct Post teaches in place before opening the canonical calculation at 3
 
   const anySpatialStage = inspector.locator('[data-experience-capability="spatial-method-stage"]');
   await expect(anySpatialStage).toBeVisible({ timeout: 10_000 });
-  const spatialMethodKey = await anySpatialStage.getAttribute('data-method-key');
-  if (spatialMethodKey !== 'רגיל') {
-    const state = await anySpatialStage.getAttribute('data-state');
-    const text = await anySpatialStage.innerText().catch(() => '');
-    throw new Error(`SpatialMethodStage verification failed: state=${state || 'verified-without-key'} inspector=רגיל calculation=78 trace=${JSON.stringify(traceResponse)} text=${text}`);
-  }
+  // The loading placeholder and verified Stage share the same semantic capability.
+  // Wait for the canonical method identity instead of sampling the placeholder mid-transition.
+  await expect(anySpatialStage).toHaveAttribute('data-method-key', 'רגיל', { timeout: 10_000 });
 
   const stored = await page.evaluate((key) => {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
@@ -155,10 +152,13 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await page.keyboard.press('Escape');
   await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
 
-  const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
+  await page.locator('.sod29-mobile-menu-trigger').click();
+  const mobileNav = page.locator('#sod29-mobile-navigation');
+  await expect(mobileNav).toBeVisible();
+  const exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
-  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-salt-78/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-bennett-631/, { timeout: 20_000 });
   await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
   await noOverflow(page);
 });

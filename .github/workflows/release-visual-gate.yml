@@ -330,6 +330,50 @@ jobs:
 
             const post = page.locator('[data-experience-surface="post-reading"]');
             await expect(post).toBeVisible({ timeout: 30_000 });
+
+            const restRail = page.locator('.sod29-surface-context-rail');
+            const contentMap = restRail.locator('[data-context-map-item]');
+            await expect(contentMap).toHaveCount(3, { timeout: 30_000 });
+            await expect(contentMap.nth(0)).toContainText('פוסט הבחירות');
+            await expect(contentMap.nth(1)).toContainText('631');
+            await expect(contentMap.nth(2)).toContainText('22.9');
+            if (width < 600) {
+              await expect(restRail).toBeHidden();
+              await expect(page.locator('.sod29-surface-context-mobile-cue')).toContainText('בתוך הפוסט');
+            } else {
+              await expect(restRail).toBeVisible();
+              await expect(restRail).toContainText('בתוך הפוסט');
+            }
+
+            if (width >= 600) {
+              const globalRail = page.locator('.sod29-sidebar');
+              const globalBefore = await globalRail.boundingBox();
+              const contextBefore = await restRail.boundingBox();
+              expect(globalBefore).not.toBeNull();
+              expect(contextBefore).not.toBeNull();
+              await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
+              await page.waitForTimeout(120);
+              const globalAfter = await globalRail.boundingBox();
+              const contextAfter = await restRail.boundingBox();
+              expect(globalAfter).not.toBeNull();
+              expect(contextAfter).not.toBeNull();
+              expect(Math.abs(globalAfter.y - globalBefore.y)).toBeLessThanOrEqual(1);
+              expect(Math.abs(contextAfter.y - contextBefore.y)).toBeLessThanOrEqual(1);
+              expect(Math.abs(globalAfter.x - globalBefore.x)).toBeLessThanOrEqual(1);
+              expect(Math.abs(contextAfter.x - contextBefore.x)).toBeLessThanOrEqual(1);
+            }
+
+            await expect(post.getByText('נפתלי בנט', { exact: false }).first()).toBeVisible();
+            await expect(post.getByText('הבחירות', { exact: false }).first()).toBeVisible();
+            await expect(post.getByText('מלך ישראל', { exact: false }).first()).toBeVisible();
+            const timeline = page.locator('[data-experience-capability="post-factual-timeline"]');
+            await expect(timeline).toBeVisible();
+            const sourceBox = await post.locator('.sod29-reading-source').boundingBox();
+            const timelineBox = await timeline.boundingBox();
+            expect(sourceBox).not.toBeNull();
+            expect(timelineBox).not.toBeNull();
+            expect(timelineBox.y).toBeGreaterThan(sourceBox.y);
+
             const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
             await expect(focusGroup).toBeVisible({ timeout: 30_000 });
             expect(traceRequests).toBe(0);
@@ -342,20 +386,25 @@ jobs:
             await expect(sidecar).toHaveCount(1);
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+            const sidecarReveal = sidecar.locator('[data-experience-capability="gematria-reveal"]');
+            await expect(sidecarReveal).toBeVisible();
+            await expect(sidecarReveal).toContainText('נפתלי בנט');
+            await expect(sidecarReveal).toContainText('631');
 
             const learn = sidecar.locator('.sod29-learn-mark.scope-concept');
             await expect(learn).toBeVisible();
             await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
             await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
-            await expect(learn).toContainText('מלח');
+            await expect(learn).toContainText('נפתלי בנט');
             await expect(learn).toContainText('רגיל');
-            await expect(learn).toContainText('78');
+            await expect(learn).toContainText('631');
             await learn.getByRole('button', { name: 'ראה את החישוב' }).click();
 
             const drawer = page.locator('.sod29-number-drawer2029');
             await expect(drawer).toBeVisible({ timeout: 30_000 });
+            await expect(drawer.locator('[data-experience-capability="gematria-reveal"]')).toBeVisible();
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח', { timeout: 20_000 });
+            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
 
             const regular = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first();
             await expect(regular).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
@@ -371,7 +420,7 @@ jobs:
                 Number(selection.resultValue),
                 selection.locator || null,
               ]);
-            }), { timeout: 5_000 }).toBe(JSON.stringify(['מלח', 'רגיל', 78, '#source-region-salt-78']));
+            }), { timeout: 5_000 }).toBe(JSON.stringify(['נפתלי בנט', 'רגיל', 631, '#source-region-bennett-631']));
 
             const calculation = drawer.locator('.sod29-number-v10-calculation-card');
             await expect(calculation).toBeVisible({ timeout: 20_000 });
@@ -386,7 +435,7 @@ jobs:
 
             await drawer.locator('[data-experience-action="contextual-number-back"]').click();
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('מלח');
+            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט');
             await expect(drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
 
             const metrics = await page.evaluate(() => ({

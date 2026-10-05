@@ -108,12 +108,52 @@ function normalizeBottomTrail(value) {
     .filter(Boolean);
 }
 
+function normalizeSurfaceSections(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .slice(0, 12)
+    .map((item, index) => {
+      if (!isObject(item)) return null;
+      const label = cleanString(item.label);
+      if (!label) return null;
+      return {
+        id: cleanString(item.id) || `section-${index + 1}`,
+        label,
+        targetId: cleanString(item.targetId) || cleanString(item.id),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normalizeSurfaceFocus(value) {
+  if (!isObject(value)) return null;
+  const strings = ["id", "entityId", "type", "entityType", "sectionLabel", "label", "primary", "expression", "method", "sourceLabel", "locator", "reference", "href", "postId", "postSlug"];
+  const out = {};
+  for (const key of strings) {
+    const cleaned = cleanString(value[key]);
+    if (cleaned) out[key] = cleaned;
+  }
+  for (const key of ["number", "resultValue"]) {
+    const numeric = Number(value[key]);
+    if (Number.isFinite(numeric)) out[key] = numeric;
+  }
+  if (Array.isArray(value.signals)) {
+    out.signals = value.signals.map(cleanString).filter(Boolean).slice(0, 4);
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 function normalizeDimensions(value) {
   if (!isObject(value)) return {};
   const out = {};
   for (const [key, item] of Object.entries(value)) {
     if (key === "bottomTrail") {
       out[key] = normalizeBottomTrail(item);
+    } else if (key === "surfaceSections") {
+      out[key] = normalizeSurfaceSections(item);
+    } else if (key === "surfaceFocus" || key === "readingFocus") {
+      const focus = normalizeSurfaceFocus(item);
+      if (focus) out[key] = focus;
     } else if (item == null || typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
       out[key] = item;
     } else if (Array.isArray(item)) {

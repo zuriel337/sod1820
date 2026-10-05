@@ -31,6 +31,8 @@ const calculator2029 = read("src/pages/Calculator2029Page.jsx");
 const calculatorCompare2029 = read("src/components/gematria2029/CalculatorCompare2029.jsx");
 const spatialMethodStage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
 const spatialMethodStageCss = read("src/components/gematria2029/spatialMethodStage2029.css");
+const gematriaReveal = read("src/components/gematria2029/GematriaReveal2029.jsx");
+const semanticAnimation = read("src/lib/research/semanticAnimationProjection.js");
 
 for (const required of [
   "Sod2029Shell",
@@ -356,3 +358,8 @@ for (const visual of [
 }
 
 console.log("2029 Number preview acceptance: PASS");
+
+assert.match(drawer, /GematriaReveal2029/);
+assert.match(gematriaReveal, /buildSemanticAnimationProjection/);
+assert.match(gematriaReveal, /data-semantic-animation-version="1"/);
+assert.match(semanticAnimation, /Projection only: no arithmetic, DB, UI, renderer, or truth mutation/);

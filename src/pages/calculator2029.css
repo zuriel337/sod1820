@@ -161,6 +161,14 @@
   font-size: 17px;
 }
 
+.sod29-calc2029-results > header strong {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .sod29-calc2029-results > header button {
   width: 112px;
   min-width: 112px;

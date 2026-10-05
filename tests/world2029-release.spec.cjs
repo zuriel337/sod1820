@@ -277,7 +277,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
   await expect(page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ })).toHaveCount(0);
-  await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
 });
@@ -782,14 +782,23 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await expect(copyShare).toBeEnabled();
   await page.keyboard.press('Escape');
 
-  const exactReturn = page.locator('.sod29-header-actions button[title]').first();
+  await page.locator('.sod29-mobile-menu-trigger').click();
+  let mobileNav = page.locator('#sod29-mobile-navigation');
+  await expect(mobileNav).toBeVisible();
+  let exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeDisabled();
+  await page.getByRole('button', { name: 'סגור' }).click();
 
   await selectWorldLane(page, 'קשרים');
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
   await expect(deepen).toBeVisible();
   await deepen.focus();
   await page.keyboard.press('Enter');
+
+  await page.locator('.sod29-mobile-menu-trigger').click();
+  mobileNav = page.locator('#sod29-mobile-navigation');
+  await expect(mobileNav).toBeVisible();
+  exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled({ timeout: 30_000 });
   await exactReturn.click();
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820', { timeout: 30_000 });

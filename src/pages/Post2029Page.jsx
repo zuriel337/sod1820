@@ -20,11 +20,13 @@ function PostReadingBody() {
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
+  const explicitGematriaFocusRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
 
   useEffect(() => {
     let live = true;
+    explicitGematriaFocusRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
       .then((projection) => {
@@ -106,37 +108,75 @@ function PostReadingBody() {
   useEffect(() => {
     if (!state.projection || !activeFocus) return;
     const post = state.projection.post;
+    const currentContext = research.context || null;
+    const currentSelection = currentContext?.selection || null;
+    const currentDimensions = currentContext?.dimensions || {};
+    const explicitFocus = explicitGematriaFocusRef.current;
+    const samePost = currentContext?.subject?.type === "post"
+      && String(currentContext.subject.id) === String(post.id);
+    const contextBelongsToPost = samePost
+      || String(currentDimensions?.readingFocus?.postId || "") === String(post.id)
+      || (currentContext?.returnTo?.subject?.type === "post"
+        && String(currentContext.returnTo.subject.id) === String(post.id));
+    const contextHasExplicitFocus = contextBelongsToPost
+      && currentContext?.lens === "gematria"
+      && currentSelection?.entityType === "gematria_expression"
+      && Boolean(currentSelection?.expression)
+      && Boolean(currentSelection?.method)
+      && currentSelection?.resultValue != null;
+    const preserveExplicitGematriaFocus = explicitFocus?.postId === String(post.id)
+      || contextHasExplicitFocus;
+    const protectedSubject = explicitFocus?.subject || currentContext?.subject || null;
+    const protectedSelection = explicitFocus?.selection || currentSelection;
+    const protectedSurfaceFocus = explicitFocus?.surfaceFocus || currentDimensions.surfaceFocus;
+    const protectedBottomTrail = explicitFocus?.bottomTrail || currentDimensions.bottomTrail;
+
+    const passiveSelection = {
+      entityId: activeFocus.id,
+      entityType: "post_region",
+      locator: `#source-region-${activeFocus.id}`,
+    };
+    const passiveTrail = [
+      { id: "post", label: "פוסט" },
+      { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
+      ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
+    ];
+    const passiveSurfaceFocus = {
+      id: activeFocus.id,
+      type: activeFocus.number ? "number" : "post_region",
+      sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+      label: activeFocus.primary || activeFocus.label,
+      primary: activeFocus.primary,
+      signals: activeFocus.signals || [],
+      number: activeFocus.number || null,
+      sourceLabel: state.projection.sourceLabel,
+      locator: `#source-region-${activeFocus.id}`,
+    };
+
     research.updateResearchContext?.({
-      subject: {
+      subject: preserveExplicitGematriaFocus && protectedSubject ? protectedSubject : {
         id: String(post.id),
         type: "post",
         label: post.title,
         href: `/post/${post.slug}`,
       },
-      selection: {
-        entityId: activeFocus.id,
-        entityType: "post_region",
-        locator: `#source-region-${activeFocus.id}`,
-      },
-      lens: "reading",
+      selection: preserveExplicitGematriaFocus ? protectedSelection : passiveSelection,
+      lens: preserveExplicitGematriaFocus ? "gematria" : "reading",
       dimensions: {
-        ...(research.context?.dimensions || {}),
-        bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: activeFocus.id, label: activeFocus.number ? "גימטריות" : (activeFocus.label || "הסיפור") },
-          ...(activeFocus.number ? [{ id: "number", label: String(activeFocus.number), active: true }] : []),
-        ],
-        surfaceFocus: {
-          id: activeFocus.id,
-          type: activeFocus.number ? "number" : "post_region",
-          sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
-          label: activeFocus.primary || activeFocus.label,
-          primary: activeFocus.primary,
-          signals: activeFocus.signals || [],
-          number: activeFocus.number || null,
-          sourceLabel: state.projection.sourceLabel,
-          locator: `#source-region-${activeFocus.id}`,
-        },
+        ...currentDimensions,
+        bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
+          ? protectedBottomTrail
+          : passiveTrail,
+        surfaceSections: regions.map((region) => ({
+          id: region.id,
+          label: region.label,
+          targetId: `source-region-${region.id}`,
+        })),
+        activeSectionId: activeFocus.id,
+        surfaceMapLabel: "בתוך הפוסט",
+        surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
+          ? protectedSurfaceFocus
+          : passiveSurfaceFocus,
         readingFocus: {
           id: activeFocus.id,
           label: activeFocus.label,
@@ -165,7 +205,7 @@ function PostReadingBody() {
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
   const heroNumbers = isBennettMaster
-    ? [78, 631]
+    ? [631]
     : isFz1073Master
       ? [363, 1073, 718]
       : [...new Set(
@@ -178,17 +218,15 @@ function PostReadingBody() {
       ? "2026-09-30"
       : String(post.date || post.modified || "").slice(0, 10);
   const visibleSourceLabel = isBennettMaster
-    ? "בנט והמלח"
+    ? "פוסט הבחירות · ציר 631"
     : isFz1073Master
       ? "טיסה FZ1073"
       : projection.sourceLabel;
-  const visibleTimeline = isBennettMaster
-    ? (experience.timeline || [])
-        .filter((item) => item.id === "bennett-salt-event" || item.id === "bennett-salt-golden")
-        .map((item) => item.id === "bennett-salt-golden"
-          ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
-          : item)
-    : (experience.timeline || []);
+  const visibleTimeline = (experience.timeline || []).map((item) => (
+    isBennettMaster && item.id === "bennett-salt-golden"
+      ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
+      : item
+  ));
   const contextualConnections = (experience.connections || []).filter((connection) => {
     if (!activeFocus) return true;
     const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
@@ -232,6 +270,7 @@ function PostReadingBody() {
 
   const openWorld = () => {
     if (!activeFocus) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     const subject = activeFocus.number
       ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
@@ -251,6 +290,7 @@ function PostReadingBody() {
 
   const openNumber = () => {
     if (!activeFocus?.number) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     shell.openNumber?.({
       id: String(activeFocus.number),
@@ -279,6 +319,7 @@ function PostReadingBody() {
 
   const openContext = () => {
     if (!activeFocus) return;
+    explicitGematriaFocusRef.current = null;
     updateFocusContext();
     shell.openAction?.({
       id: activeFocus.number ? String(activeFocus.number) : activeFocus.id,
@@ -300,44 +341,55 @@ function PostReadingBody() {
     if (!targetRegion) return;
 
     const locator = `#source-region-${targetRegion.id}`;
+    const explicitSubject = {
+      id: String(numericResult),
+      type: "number",
+      label: String(numericResult),
+      href: `/2029/number/${numericResult}`,
+    };
+    const explicitSelection = {
+      entityId: targetRegion.id,
+      entityType: "gematria_expression",
+      locator,
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+    };
+    const explicitBottomTrail = [
+      { id: "post", label: "פוסט" },
+      { id: "gematria", label: "גימטריות" },
+      { id: "number", label: String(numericResult), active: true },
+    ];
+    const explicitSurfaceFocus = {
+      id: targetRegion.id,
+      type: "gematria_expression",
+      sectionLabel: "גימטריות",
+      label: cleanExpression,
+      primary: cleanExpression,
+      expression: cleanExpression,
+      method: cleanMethodKey,
+      resultValue: numericResult,
+      number: numericResult,
+      signals: targetRegion.signals || [],
+      sourceLabel: projection.sourceLabel,
+      locator,
+    };
+    explicitGematriaFocusRef.current = {
+      postId: String(post.id),
+      subject: explicitSubject,
+      selection: explicitSelection,
+      bottomTrail: explicitBottomTrail,
+      surfaceFocus: explicitSurfaceFocus,
+    };
     setActiveRegionId(targetRegion.id);
     research.updateResearchContext?.({
-      subject: {
-        id: String(numericResult),
-        type: "number",
-        label: String(numericResult),
-        href: `/2029/number/${numericResult}`,
-      },
-      selection: {
-        entityId: targetRegion.id,
-        entityType: "gematria_expression",
-        locator,
-        expression: cleanExpression,
-        method: cleanMethodKey,
-        resultValue: numericResult,
-      },
+      subject: explicitSubject,
+      selection: explicitSelection,
       lens: "gematria",
       dimensions: {
         ...(research.context?.dimensions || {}),
-        bottomTrail: [
-          { id: "post", label: "פוסט" },
-          { id: "gematria", label: "גימטריות" },
-          { id: "number", label: String(numericResult), active: true },
-        ],
-        surfaceFocus: {
-          id: targetRegion.id,
-          type: "gematria_expression",
-          sectionLabel: "גימטריות",
-          label: cleanExpression,
-          primary: cleanExpression,
-          expression: cleanExpression,
-          method: cleanMethodKey,
-          resultValue: numericResult,
-          number: numericResult,
-          signals: targetRegion.signals || [],
-          sourceLabel: projection.sourceLabel,
-          locator,
-        },
+        bottomTrail: explicitBottomTrail,
+        surfaceFocus: explicitSurfaceFocus,
         readingFocus: {
           id: targetRegion.id,
           label: targetRegion.label,
@@ -396,6 +448,7 @@ function PostReadingBody() {
   };
 
   const openHeroNumber = (number) => {
+    explicitGematriaFocusRef.current = null;
     const targetRegion = regions.find((region) => Number(region.number) === Number(number)) || activeFocus;
     if (targetRegion) {
       setActiveRegionId(targetRegion.id);
@@ -492,7 +545,6 @@ function PostReadingBody() {
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
-    {isBennettMaster || isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
 
     <div className="sod29-reading-layout">
       <section
@@ -520,7 +572,7 @@ function PostReadingBody() {
 
     </div>
 
-    {!isBennettMaster && !isFz1073Master ? <PostTimeline2029 items={visibleTimeline} /> : null}
+    <PostTimeline2029 items={visibleTimeline} />
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>

@@ -8,11 +8,13 @@ import React, {
   useState,
 } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { F } from "../../theme.js";
-import { PALETTES, usePalette } from "../../lib/palette.js";
-import { LAYOUT, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
+import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
+import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
@@ -24,6 +26,7 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
@@ -82,13 +85,14 @@ export const use2029Shell = () => useContext(ShellContext);
 const HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
+  { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
   { label: "קהילה", icon: "◎", status: "בקרוב" },
 ];
 
 const DIRECT_NAV = [
-  { label: "דף המספר", icon: "123", status: "Redesign follows Frame" },
+  { label: "דף המספר", icon: "123", action: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS", icon: "✦" },
 ];
@@ -186,7 +190,61 @@ export function FrameState({ kind = "empty", title, children, action = null, pro
   );
 }
 
-function NavGroup({ title, items, preserveReturnFor, onNavigate }) {
+function BrandLockup2029({ className = "" }) {
+  return (
+    <img
+      className={`sod29-brand-lockup${className ? ` ${className}` : ""}`}
+      src={BRAND_LOCKUP_2029.src}
+      width={BRAND_LOCKUP_2029.width}
+      height={BRAND_LOCKUP_2029.height}
+      alt={BRAND_LOCKUP_2029.alt}
+      loading="eager"
+      decoding="async"
+      draggable="false"
+      data-brand-asset-state={BRAND_LOCKUP_2029.state}
+    />
+  );
+}
+
+const THEME_PRESET_OPTIONS = Object.freeze([
+  { id: "light", label: "יום", icon: "☀" },
+  { id: "parchment", label: "קלף", icon: "▤" },
+  { id: "dark", label: "לילה", icon: "☾" },
+]);
+
+function ThemePresetControl2029({ compact = false }) {
+  const preset = useThemePreset();
+  return (
+    <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
+      {THEME_PRESET_OPTIONS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          aria-pressed={preset === item.id}
+          className={preset === item.id ? "is-active" : ""}
+          onClick={() => setThemePreset(item.id)}
+          title={item.label}
+        >
+          <span aria-hidden="true">{item.icon}</span>
+          <b>{item.label}</b>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function UserAvatar2029({ user, profile, size = "normal" }) {
+  const src = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
+  const name = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "אישי").trim();
+  const fallback = Array.from(name).find((ch) => /[\p{L}\p{N}]/u.test(ch)) || "•";
+  return (
+    <span className={`sod29-user-avatar is-${size}`} aria-hidden="true">
+      {src ? <img src={src} alt="" referrerPolicy="no-referrer" /> : <b>{fallback}</b>}
+    </span>
+  );
+}
+
+function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
   return (
     <div className="sod29-nav-group">
       <div className="sod29-nav-group-title">{title}</div>
@@ -202,6 +260,11 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate }) {
           <span className="sod29-nav-icon">{item.icon}</span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
+      ) : item.action ? (
+        <button className="sod29-nav-link" key={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
+          <span className="sod29-nav-icon">{item.icon}</span>
+          <span className="sod29-nav-copy">{item.label}</span>
+        </button>
       ) : (
         <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled title={item.status}>
           <span className="sod29-nav-icon">{item.icon}</span>
@@ -363,6 +426,23 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         <strong>{target.label}</strong>
         <span>{target.type}</span>
       </section>
+
+      {hasMethodContext ? <GematriaReveal2029
+        compact
+        selection={{
+          expression: target.expression,
+          method: target.method,
+          methodLabel: target.methodLabel || target.method,
+          resultValue: Number(target.resultValue),
+          entityId: target.id || null,
+          entityType: target.type || "gematria_expression",
+          findingId: target.findingId || null,
+          sourceRef: target.sourceRef || null,
+          locator: target.locator || null,
+        }}
+        provenance={target.provenance || null}
+        truthState={target.truthState || null}
+      /> : null}
 
       {numericFamily ? (
         <FrameState title="מספר / ביטוי · בדיקה מהירה">
@@ -778,13 +858,16 @@ export default function SystemFrame2029({
   wide = false,
   surface = "home",
   symbol = "✦",
+  introVariant = "hero",
 }) {
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
-  const basePalette = usePalette();
+  const { user, profile } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem("sod-global-rail") === "collapsed"; } catch { return false; }
+  });
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
@@ -830,6 +913,10 @@ export default function SystemFrame2029({
   }, [surface, location.pathname]);
 
   useEffect(() => {
+    try { localStorage.setItem("sod-global-rail", sidebarCollapsed ? "collapsed" : "expanded"); } catch { /* ignore */ }
+  }, [sidebarCollapsed]);
+
+  useEffect(() => {
     if (orientation.mode !== "prominent" || !orientation.manifest) return;
     emitEntryLearn("orientation_shown", {
       entrySurface: surface,
@@ -839,10 +926,7 @@ export default function SystemFrame2029({
     }, { dedupe: true });
   }, [surface, arrival, orientation.mode, orientation.manifest]);
 
-  const palette = useMemo(() => {
-    if (surface !== "heichal" || experience?.experience?.environmentRole !== "research_lab") return basePalette;
-    return basePalette.mode === "dark" ? PALETTES.labDark : PALETTES.labLight;
-  }, [basePalette, surface, experience?.experience?.environmentRole]);
+  const palette = use2029Palette(experience?.experience?.environmentRole || null);
 
   const contextTarget = useMemo(() => targetFromContext(context), [context]);
   const activeTarget = ephemeralSelection || contextTarget;
@@ -963,6 +1047,13 @@ export default function SystemFrame2029({
   }, [navOpen, completeSurfaceEntry]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
+  const handleGlobalNavAction = useCallback((action) => {
+    if (action === "number") {
+      setCommandQuery("");
+      openCommand();
+    }
+  }, [openCommand]);
+
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
     const key = String(capability || "").trim();
@@ -1169,6 +1260,13 @@ export default function SystemFrame2029({
     "--s29-line-strong": palette.borderStrong,
     "--s29-accent": palette.accent,
     "--s29-accent-text": palette.accentText,
+    "--s29-accent-secondary": palette.accentSecondary,
+    "--s29-discovery": palette.accentDiscovery,
+    "--s29-focus-ring": palette.focusRing,
+    "--s29-warm-accent": palette.warmAccent,
+    "--s29-brand-sapphire": palette.brandSapphire,
+    "--s29-brand-gold": palette.brandGold,
+    "--s29-brand-glow": palette.brandGlow,
     "--s29-hero": palette.heroNum,
     "--s29-ink": palette.ink,
     "--s29-muted": palette.inkSoft,
@@ -1177,13 +1275,28 @@ export default function SystemFrame2029({
     "--s29-accent-btn": palette.accentBtn,
     "--s29-radius": `${RADIUS.xl}px`,
     "--s29-control-min": `${LAYOUT.controlMinHeight}px`,
+    "--s29-header-height": `${LAYOUT.headerHeight}px`,
+    "--s29-surface-map-gap": `${LAYOUT.surfaceMapGap}px`,
+    "--s29-surface-map-top": `${LAYOUT.headerHeight + LAYOUT.surfaceMapGap}px`,
+    "--s29-surface-map-clearance": `${LAYOUT.headerHeight + LAYOUT.surfaceMapGap + LAYOUT.surfaceMapEstimatedHeight + 12}px`,
+    "--s29-font-ui": TYPEFACE.ui,
+    "--s29-font-body": TYPEFACE.body,
+    "--s29-font-display": TYPEFACE.display,
+    "--s29-font-numeric": TYPEFACE.numeric,
+    "--s29-type-micro": `${TYPE_SCALE_V2.micro.fontSize}px`,
+    "--s29-type-ui": `${TYPE_SCALE_V2.ui.fontSize}px`,
+    "--s29-type-small": `${TYPE_SCALE_V2.small.fontSize}px`,
+    "--s29-type-body": `${TYPE_SCALE_V2.body.fontSize}px`,
+    "--s29-type-lead": `${TYPE_SCALE_V2.lead.fontSize}px`,
+    "--s29-type-title": `${TYPE_SCALE_V2.title.fontSize}px`,
+    "--s29-type-display": `${TYPE_SCALE_V2.display.fontSize}px`,
     "--s29-motion": `${typeof experience.motion.timing.duration === "number" ? experience.motion.timing.duration : experience.motion.timing.duration.normal}ms`,
     "--s29-raziel-blue": RAZIEL_PRESENCE.blue,
     "--s29-raziel-indigo": RAZIEL_PRESENCE.indigo,
     "--s29-raziel-violet": RAZIEL_PRESENCE.violet,
     "--s29-raziel-glow": RAZIEL_PRESENCE.glow,
     "--s29-raziel-cycle": `${RAZIEL_PRESENCE.cycleMs}ms`,
-    fontFamily: F.body,
+    fontFamily: TYPEFACE.body,
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
@@ -1212,7 +1325,7 @@ export default function SystemFrame2029({
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
-  const showContextRail = (numberPageRoute || surface === "post" || surface === "world" || surface === "topic")
+  const showContextRail = surface !== "control"
     && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
@@ -1263,19 +1376,24 @@ export default function SystemFrame2029({
         data-frame-experience-locale={experience.locale}
         data-frame-reduced-motion={String(experience.motion.reduced)}
         data-frame-theme-mode={palette.mode}
+        data-frame-theme-preset={palette.preset || palette.mode}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
-            <span><b>SOD 1820</b><small>One Reality · גילוי חי</small></span>
+          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+            <span className="sod29-rail-home" aria-hidden="true">⌂</span>
+            <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
           <nav className="sod29-nav">
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} />
+            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
-          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח סרגל" : "כווץ סרגל"}>{sidebarCollapsed ? "›" : "‹ כווץ"}</button>
+          <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
+          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed}>
+            <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "" : "כווץ"}</b>
+          </button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
@@ -1283,16 +1401,24 @@ export default function SystemFrame2029({
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
+              <Link className="sod29-header-brand" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+                <BrandLockup2029 className="is-header" />
+              </Link>
               <div className="sod29-orientation" aria-label="איפה אני">
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
-                {context?.subject ? <><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></> : null}
+                {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
             </div>
+            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש / פקודה">
+              <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
+              <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
+              <span className="label">חיפוש / פקודה</span>
+              <kbd>⌘K</kbd>
+            </button>
             <div className="sod29-header-actions">
-              <button className="sod29-header-search" type="button" onClick={openCommand}><span>⌘</span><span className="label">חיפוש / פקודה</span></button>
-              <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
+              <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
-              <button type="button" onClick={openWorkspace}>◎ <span className="workspace-label">האזור האישי שלי</span></button>
+              <button type="button" className="sod29-header-workspace" onClick={openWorkspace} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
 
@@ -1312,14 +1438,14 @@ export default function SystemFrame2029({
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {(eyebrow || title || description) ? (
-                <section className="sod29-page-intro">
+              {introVariant !== "none" && (eyebrow || title || description) ? (
+                <section className={`sod29-page-intro${introVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={introVariant}>
                   <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
-                    {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
+                    {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+                    {context && surface !== "number" ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
                       {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
                       {context.lens ? <span>מבט · {context.lens}</span> : null}
                       {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
@@ -1354,11 +1480,24 @@ export default function SystemFrame2029({
             aria-label="ניווט SOD1820 2029"
             tabIndex={-1}
           >
-            <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button></div>
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
-            <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
-            <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
+            <div className="sod29-mobile-drawer-head">
+              <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
+              <button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button>
+            </div>
+            <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
+              <BrandLockup2029 />
+            </Link>
+            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
+              <small>מראה</small>
+              <ThemePresetControl2029 />
+            </section>
+            <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
+              <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon">↩</span><span>חזרה מדויקת</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><UserAvatar2029 user={user} profile={profile} size="rail" /><span>האזור האישי שלי</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
+            </div>
           </aside>
         </> : null}
 

@@ -45,10 +45,11 @@ export default function SurfaceProgressSpine2029({
     {rows.map((item) => interactive ? <button
       key={item.id}
       type="button"
-      className={item.id === currentId ? "is-active" : ""}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
       aria-label={item.label}
       aria-current={item.id === currentId ? "step" : undefined}
       title={item.label}
+      data-context-map-item={item.id}
       onClick={() => {
         setObservedId(item.id);
         onSelect?.(item);
