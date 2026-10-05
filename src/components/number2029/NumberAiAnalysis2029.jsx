@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { analyze } from "../../lib/aiAnalysis.js";
 import { buildNumberAiFactPack } from "../../lib/research/numberAiFactPack2029.js";
 
-// AI analysis capability inside the Raziel Number context — NOT a second persona.
+// AI analysis capability on the Number stage (sibling of Raziel) — NOT a second persona.
 // Zero provider calls on render; every call is an explicit click through the one canonical entry point
 // (aiAnalysis.analyze → ai-analyze, kind=number). Quick = Claude fast=true (L2_FAST); Gemini = explicit compare
 // over the SAME fact pack. Session memo is module-local (no new store); "another angle" reuses the `again` contract.
@@ -30,9 +30,9 @@ export default function NumberAiAnalysis2029({ projection }) {
     if (alive.current) { setResults((r) => ({ ...r, [engine]: out || false })); setBusy(null); }
   };
 
-  return <div className="sod29-number-ai-analysis" aria-label="ניתוח AI בהקשר רזיאל">
-    <span>ניתוח AI · בהקשר רזיאל</span>
-    <p>פרשנות מבוססת העובדות שמוצגות כאן — לא פרסונת רזיאל, ולא חישוב. נשלח רק בלחיצה.</p>
+  return <div className="sod29-number-ai-analysis" aria-label="ניתוח AI של העובדות המאומתות">
+    <span>ניתוח AI · פרשנות חד־פעמית</span>
+    <p>פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו — לא חישוב. להמשך מחקר והקשר: ✦ שאל את רזיאל. נשלח רק בלחיצה.</p>
     <div className="sod29-number-core2029-raziel-actions">
       <button type="button" disabled={busy !== null} onClick={() => run("claude")}>{busy === "claude" ? "מנתח…" : "ניתוח מהיר"}</button>
       <button type="button" disabled={busy !== null} onClick={() => run("gemini")}>{busy === "gemini" ? "משווה…" : "השווה עם Gemini"}</button>

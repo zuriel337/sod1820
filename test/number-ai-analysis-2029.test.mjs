@@ -47,9 +47,14 @@ test("no duplicated prompt / no new provider router or store; single entry point
   assert.doesNotMatch(comp, /localStorage|sessionStorage/);
 });
 
-test("mounted inside the existing Raziel Number tab, separate from Raziel micro guidance", () => {
-  assert.match(core, /<NumberAiAnalysis2029 projection=\{projection\} \/>/);
-  assert.match(comp, /לא פרסונת רזיאל/);
+test("one instance, directly discoverable from the Number stage footer, not in MethodInspector", () => {
+  assert.equal([...core.matchAll(/<NumberAiAnalysis2029 /g)].length, 1);
+  assert.match(core, /\{showAiAnalysis \? <NumberAiAnalysis2029 projection=\{projection\} \/> : null\}/);
+  const footer = core.slice(core.indexOf('className="sod29-number-v10-stage-actions"'));
+  assert.ok(footer.indexOf("◈ ניתוח AI") > 0 && footer.indexOf("◈ ניתוח AI") < footer.indexOf("</footer>"));
+  assert.ok(core.indexOf("<NumberAiAnalysis2029 ") > core.indexOf("onClose={() => setShowCalculation(false)}"), "not inside MethodInspector");
+  assert.match(comp, /פרשנות חד־פעמית/);
+  assert.match(comp, /לא פרסונת רזיאל|שאל את רזיאל/);
   assert.match(read("docs/RAZIEL_NUMBER_AI_COST_POLICY_V1.md"), /L2_FAST/);
 });
 
