@@ -1268,7 +1268,7 @@
   min-width:0;
   flex:1;
   overflow:hidden;
-  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,var(--s29-ink) 8%,var(--s29-ink) 92%,transparent);
 }
 .sod29-glass-context-track.sod29-command-trail{
   width:max-content;
@@ -1350,7 +1350,7 @@
   height:46px;
   box-shadow:
     0 0 26px var(--s29-raziel-glow),
-    inset 0 0 18px rgba(255,255,255,.23);
+    inset 0 0 18px color-mix(in srgb,var(--s29-ink) 23%,transparent);
 }
 .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact:before{
   content:"";
