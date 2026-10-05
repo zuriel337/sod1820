@@ -63,7 +63,7 @@ assert.match(frame, /data-frame-theme-preset/);
 assert.match(frame, /יום/);
 assert.match(frame, /קלף/);
 assert.match(frame, /לילה/);
-assert.match(frame, /GematriaReveal2029/);
+assert.doesNotMatch(frame, /GematriaReveal2029/);
 assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| context\?\.subject\)/, "meaningful context should project the same left rail across public 2029 surfaces");
 
 // Experience Context is resolved once at the native System Frame seam and exposed

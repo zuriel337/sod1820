@@ -362,7 +362,13 @@ for (const visual of [
 
 console.log("2029 Number preview acceptance: PASS");
 
-assert.match(drawer, /GematriaReveal2029/);
+assert.doesNotMatch(drawer, /GematriaReveal2029/);
 assert.match(gematriaReveal, /buildSemanticAnimationProjection/);
 assert.match(gematriaReveal, /data-semantic-animation-version="1"/);
 assert.match(semanticAnimation, /Projection only: no arithmetic, DB, UI, renderer, or truth mutation/);
+
+{
+  const coreSrc = read("src/components/number2029/NumberCore2029.jsx");
+  assert.match(coreSrc, /stageCrossing\.partner\} · \{publicMethodLabel\(method\)\} = \{method\.value\}/, "crossing chips must label each operand explicitly");
+  console.log("Crossing operand ownership labels: PASS");
+}

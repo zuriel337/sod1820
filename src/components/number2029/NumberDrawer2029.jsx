@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
-import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
 import {
@@ -623,21 +622,7 @@ export default function NumberDrawer2029({
     {dataState.error ? <div className="sod29-number-drawer-status error">ה־Root לא נטען כרגע. לא נעשה fallback ל־Legacy.</div> : null}
     {profileState.error ? <div className="sod29-number-drawer-status error">השיטות לא נטענו כרגע מהמנוע הקנוני.</div> : null}
 
-    {surfaceMode === "focus" && clean(expression) && Number.isFinite(Number(activeResult)) ? <GematriaReveal2029
-      selection={{
-        expression: clean(expression),
-        method: selectedProfile?.methodKey || clean(selectedMethodKey),
-        methodLabel: selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey),
-        resultValue: Number(activeResult),
-        entityId: target?.id || null,
-        entityType: target?.type || "gematria_expression",
-        sourceRef: context?.selection?.sourceRef || null,
-        locator: context?.selection?.locator || target?.locator || null,
-      }}
-      trace={traceOpen ? trace : null}
-      provenance={traceState.finding?.provenance || null}
-      truthState={traceState.finding?.truthState || null}
-    /> : null}
+    {surfaceMode === "focus" && clean(expression) && Number.isFinite(Number(activeResult)) ? <div className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
 
     {projection ? <NumberCore2029
       projection={projection}
