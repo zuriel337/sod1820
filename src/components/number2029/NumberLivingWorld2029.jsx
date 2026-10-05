@@ -8,6 +8,8 @@ import {
   formatVerseGematriaSuffix,
 } from "../../lib/presentation/canonicalPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import SourceFirstFindingCard from "../research/SourceFirstFindingCard.jsx";
+import { buildLivingNumberFindings, normalizeSourceStatement } from "../../lib/presentation/sourceFirstFinding.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import "./numberLivingWorld2029.css";
@@ -124,6 +126,10 @@ function findingLabel(item) {
   if (["image", "media"].includes(clean(item?.type))) {
     return canonicalMediaPublicLabel(item, { fallback: "תמונה" });
   }
+  // Source-first: a finding that carries the contributor's own statement leads with those words,
+  // never with the AI title/summary wrapper.
+  const sourceStatement = normalizeSourceStatement(item?.view?.rendererHints?.presentation?.sourceStatement);
+  if (sourceStatement) return shortText(sourceStatement, 96);
   const raw = item?.label || item?.title || item?.summary || item?.subject?.label || null;
   return humanContentTitle(raw, { max: 96 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type) || "ממצא";
 }
@@ -240,6 +246,7 @@ export default function NumberLivingWorld2029({
     [root, projectionRelatedNumbers, relations, topics, zeroScale],
   );
   const people = useMemo(() => buildPeople(sources, researchFindings), [sources, researchFindings]);
+  const livingFindings = useMemo(() => buildLivingNumberFindings(researchFindings, root), [researchFindings, root]);
   const prominence = Array.isArray(researchState?.items) ? researchState.items : [];
   const expressionRows = useMemo(() => {
     const seen = new Set();
@@ -355,6 +362,18 @@ export default function NumberLivingWorld2029({
       {!versesLoading && !showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(true)}>{`פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
       {showAllVerses && verseCount > verseRows.length ? <DepthButton onClick={onLoadMoreVerses}>{`טען עוד פסוקים · ${verseRows.length} מתוך ${verseCount}`}</DepthButton> : null}
       {showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(false)}>צמצם פסוקים</DepthButton> : null}
+    </section> : null}
+
+    {livingFindings.length ? <section className="sod29-lw-section sod29-lw-living-findings" id="number-living-findings" data-experience-capability="number-living-findings">
+      <SectionHead
+        kicker="ממצאים חיים"
+        title={`מה נאמר סביב ${root}`}
+        text="דברי התורם מופיעים כפי שנאמרו; אחריהם החישובים, החיבורים וההסתייגויות שכבר קיימים במערכת."
+        aside={<span className="sod29-lw-count">{livingFindings.length}</span>}
+      />
+      <div className="sod29-lw-finding-list">
+        {livingFindings.slice(0, 6).map((model) => <SourceFirstFindingCard key={model.id} model={model} />)}
+      </div>
     </section> : null}
 
     <div className="sod29-lw-context" data-experience-capability="number-research-context">

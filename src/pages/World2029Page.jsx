@@ -6,6 +6,8 @@ import WorldAllResearchTable from "../components/research/WorldAllResearchTable.
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
+import SourceFirstFindingCard from "../components/research/SourceFirstFindingCard.jsx";
+import { buildSourceFirstFinding } from "../lib/presentation/sourceFirstFinding.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -1916,6 +1918,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           const presentation = humanFindingPresentation(finding, data.identity.label);
+          const sourceFirst = adminMode ? null : buildSourceFirstFinding(finding, { siblings: visibleResearchFindings });
+          if (sourceFirst) return <SourceFirstFindingCard key={finding.id || index} model={sourceFirst} onInspect={() => inspectFinding(finding)} />;
           return <div className="sod29-row sod29-world-research-row" key={finding.id || index}>
             <div>
               <strong>{presentation.title}</strong>

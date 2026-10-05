@@ -121,6 +121,13 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
           locale: presentation.resolvedLocale,
           fallbackMode: presentation.fallbackMode,
           rawStatementRef,
+          // Source-first carrier (presentation only): the contributor's own words and attribution
+          // travel with the envelope so surfaces can lead with them. Never replaces statement/source_ref.
+          sourceStatement: clean(row.statement),
+          contributor: clean(row.contributor),
+          terms,
+          relates: Array.isArray(row.relates) ? row.relates.filter(Boolean) : [],
+          researchObjectKind: row.kind ?? null,
         },
       },
     },

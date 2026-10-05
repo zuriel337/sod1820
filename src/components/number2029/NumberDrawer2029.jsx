@@ -11,6 +11,8 @@ import {
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
 import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
+import SourceFirstFindingCard from "../research/SourceFirstFindingCard.jsx";
+import { buildPostAnchorLivingContext } from "../../lib/presentation/sourceFirstFinding.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -338,6 +340,18 @@ export default function NumberDrawer2029({
     });
   }, [root, expression, selectedMethodKey, profileState.rows, families, topics, relations, sources, worlds, findings, timeline, media, surface, zeroScale, activityCount]);
 
+  // A post numeric anchor (FZ1073 -> 1073) is an ENTRY into the living Number context:
+  // direct post connections first, then eligible living findings of the number. The post body is
+  // never repeated here; findings come from the same tree projection the Number page uses.
+  const readingFocus = context?.dimensions?.readingFocus || null;
+  const livingContext = useMemo(() => {
+    if (!Number.isSafeInteger(root) || surfaceMode !== "number") return null;
+    const postConnections = readingFocus?.postSlug
+      ? [{ label: clean(readingFocus.sourceLabel) || "הפוסט", href: `/post/${readingFocus.postSlug}${clean(readingFocus.locator)}` }]
+      : [];
+    return buildPostAnchorLivingContext({ anchor: String(root), postConnections, findings });
+  }, [root, surfaceMode, readingFocus?.postSlug, readingFocus?.sourceLabel, readingFocus?.locator, findings]);
+
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
   const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedProfile?.computedValue ?? null;
@@ -638,6 +652,13 @@ export default function NumberDrawer2029({
       provenance={traceState.finding?.provenance || null}
       truthState={traceState.finding?.truthState || null}
     /> : null}
+
+    {livingContext && (livingContext.postDirect.length || livingContext.living.length) ? <div className="sod29-number-drawer-living" data-experience-capability="post-anchor-living-context">
+      {livingContext.postDirect.length ? <div className="sod29-number-drawer-post-direct" data-sff-section="post-direct">
+        {livingContext.postDirect.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
+      </div> : null}
+      {livingContext.living.slice(0, 4).map((model) => <SourceFirstFindingCard key={model.id} model={model} compact />)}
+    </div> : null}
 
     {projection ? <NumberCore2029
       projection={projection}
