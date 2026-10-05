@@ -21,7 +21,7 @@ for (const label of [
 
 assert.match(frame, /go\("\/2029\/journey"\)/);
 assert.match(frame, /data-workspace-section="research"/);
-assert.match(frame, /Research Path · שמירה · חזרה מדויקת/);
+assert.match(frame, /שמירה · חזרה מדויקת/);
 assert.match(frame, /בבנייה/);
 
 // Native 2029 workspace must not import or route into the legacy UserCenter as its target UI.
