@@ -1020,3 +1020,52 @@
     padding-inline-end:0;
   }
 }
+
+/* Post/Topic pinned Context Rail restore (POST_TOPIC_PINNED_CONTEXT_RAIL_RESTORE_V1).
+   One local pinned region: the Surface Context Rail, ~78px under the global header.
+   Page map / section tabs stay local and non-sticky. */
+.sod29-root.surface-post,
+.sod29-root.surface-topic{
+  overflow-x:clip;
+  overflow-y:visible;
+}
+.sod29-root.surface-post .sod29-main,
+.sod29-root.surface-post .sod29-main-stage,
+.sod29-root.surface-post .sod29-content,
+.sod29-root.surface-topic .sod29-main,
+.sod29-root.surface-topic .sod29-main-stage,
+.sod29-root.surface-topic .sod29-content{overflow-y:visible}
+@media(min-width:981px){
+  .sod29-root.surface-post .sod29-surface-context-rail,
+  .sod29-root.surface-topic .sod29-surface-context-rail{
+    position:-webkit-sticky;
+    position:sticky;
+    top:78px;
+    align-self:start;
+    max-height:calc(100vh - 98px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    z-index:18;
+  }
+}
+.sod29-root.surface-post .sod29-surface-tabs,
+.sod29-root.surface-topic .sod29-surface-tabs,
+.sod29-root.surface-topic .sod29-topic-mapnav,
+.sod29-root.surface-post .sod29-reading-spine{
+  position:static;
+}
+.sod29-surface-context-depth-pointer{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:2px 8px;
+  align-items:center;
+  padding:10px 12px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:var(--s29-panel-soft);
+  color:var(--s29-ink);
+  cursor:pointer;
+  text-align:start;
+}
+.sod29-surface-context-depth-pointer small{grid-column:1/-1;color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:850}
+.sod29-surface-context-depth-pointer b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

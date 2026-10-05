@@ -17,8 +17,10 @@ export default function ContextualInspector2029({
   children = null,
   actions = null,
   footer = null,
+  ...rest
 }) {
   return <aside
+    {...rest}
     className={className}
     aria-label={ariaLabel}
     data-experience-capability="contextual-inspector"

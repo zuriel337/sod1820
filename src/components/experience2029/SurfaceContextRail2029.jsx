@@ -49,7 +49,12 @@ export default function SurfaceContextRail2029({
         ? "מה מחובר עכשיו"
         : "הקשר פעיל";
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
-  const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
+  // Post/Topic: REST orients (where am I, outward connections, pointer to in-body depth).
+  // Only an explicit expression FOCUS replaces it; reading alone never traces or calculates here.
+  const documentSurface = surface === "post" || surface === "topic";
+  const restMode = documentSurface && !hasMethodContext && subject?.type !== "gematria_expression";
+  const activeSection = sections.find((item) => item?.id === activeSectionId) || null;
+  const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
@@ -98,6 +103,11 @@ export default function SurfaceContextRail2029({
     });
   };
 
+  const jumpToDepth = () => {
+    const node = activeSection ? document.getElementById(activeSection.targetId || activeSection.id) : null;
+    node?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  };
+
   const tryLearn = () => {
     if (!conceptKey || !fragment || !hasNumber) return;
     const stage = hasMethodContext ? "tried" : "seen";
@@ -140,7 +150,8 @@ export default function SurfaceContextRail2029({
 
   return <>
     <ContextualInspector2029
-      className={`sod29-surface-context-rail${compact ? " is-compact" : ""}`}
+      className={`sod29-surface-context-rail${compact ? " is-compact" : ""}${restMode ? " is-rest" : documentSurface ? " is-focus" : ""}`}
+      data-context-rail-mode={documentSurface ? (restMode ? "rest" : "focus") : undefined}
       ariaLabel="ההקשר הפעיל"
       contextId={subject.id || subject.entityId || subject.locator || title}
       kicker={subject.kicker || defaultKicker}
@@ -162,8 +173,13 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
+      {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={jumpToDepth}>
+        <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
+        <b>{activeSection.label}</b>
+        <span aria-hidden="true">↓</span>
+      </button> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
-      {hasMethodContext ? <GematriaReveal2029
+      {restMode ? null : hasMethodContext ? <GematriaReveal2029
         compact
         selection={{
           expression: subject.expression,
