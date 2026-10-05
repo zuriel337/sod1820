@@ -598,7 +598,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
-  // מתאר-משטח סמנטי חסום מתוך Experience/Research Context הקיים בלבד: זהות+מוקד, בלי HTML ובלי טקסט-דף.
+  // מתאר-משטח סמנטי חסום מתוך הקשר סמנטי קיים בלבד: זהות+מוקד, בלי HTML ובלי טקסט-דף.
   const buildSurfaceSemantic = () => {
     const cap = (v, n) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim().slice(0, n));
     const out = { surface: cap(context?.surface || context?.subject?.type || "frame", 40) };
