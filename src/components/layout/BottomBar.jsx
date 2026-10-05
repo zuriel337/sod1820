@@ -30,7 +30,7 @@ function contextFromLocation(pathname, search = "") {
   if (parts[0] === "book") return { kind: "ספר", label: qs.get("book") || parts[1] || "מרחב הספר" };
   if (parts[0] === "heichal" || parts[0] === "היכל") return { kind: "היכל", label: "היכל" };
   if (parts.length === 1 && !["admin", "login", "profile", "credits", "buy", "research"].includes(parts[0])) return { kind: "פוסט", label: decodeURIComponent(parts[0]) };
-  return { kind: "SOD1820", label: "מרחב המחקר" };
+  return { kind: "כאן", label: "הדף הנוכחי" };
 }
 function lensLabel(lens) {
   const labels = { number: "מספר", topic: "נושא", post: "פוסט", els: "ELS", book: "ספר", source: "מקור", person: "אדם", name: "שם", journey: "מסע", graph: "קשרים" };
@@ -162,7 +162,7 @@ export default function BottomBar() {
       {!userCenterOpen && panel === "raziel" && (
         <section className="sbb-sheet" dir="rtl">
           <div className="sbb-head"><span>✦</span><div><small>AI · רזיאל</small><strong>איתך ב־{ctx.label}</strong></div><button onClick={closePanels} aria-label="סגור">×</button></div>
-          <p className="sbb-note">רזיאל מחובר לאותו Research Context שלך — לא צ׳אט מנותק ולא שכבת-אמת מקבילה.</p>
+          <p className="sbb-note">רזיאל יודע איפה אתה נמצא ומתחיל משם — בלי להתחיל מחדש.</p>
           <button className="sbb-cta" onClick={openRaziel}>שוחח עם רזיאל ←</button>
         </section>
       )}

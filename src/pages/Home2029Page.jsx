@@ -156,7 +156,7 @@ function HomeSystemPulse({ pulse, loading }) {
     <div className="sod29-home-system-pulse-head">
       <div>
         <div className="sod29-kicker">דופק המערכת</div>
-        <strong>מה זז ב־SOD1820</strong>
+        <strong>מה זז עכשיו</strong>
       </div>
       {latestWord ? <small>
         האחרון שנוסף · <b>{latestWord.phrase} = {latestWord.value}</b>
@@ -185,7 +185,7 @@ function HomeMiniGematria({ onOpenCalculator }) {
     <div className="sod29-home-mini-gematria-copy">
       <div className="sod29-kicker">גימטריה · חישוב מיידי</div>
       <h2>כתוב משהו. תשע שיטות נדלקות מיד.</h2>
-      <p>התוצאות מופיעות מיד מתוך שכבת התצוגה המהירה של מחשבון 2029. האימות הסופי נשאר במנוע הקנוני.</p>
+      <p>התוצאות מופיעות מיד מיד תוך כדי הקלדה. האימות הסופי נעשה בדף המספר.</p>
       <div className="sod29-home-mini-gematria-input">
         <input
           value={expression}
@@ -204,7 +204,7 @@ function HomeMiniGematria({ onOpenCalculator }) {
           פתח במחשבון ←
         </button>
       </div>
-      <small>{hasExpression ? "מיידי · טרם אומת במנוע" : "הקלד כדי לראות ערכים מיידיים"}</small>
+      <small>{hasExpression ? "מיידי · טרם אומת" : "הקלד כדי לראות ערכים מיידיים"}</small>
     </div>
     <div className="sod29-home-mini-gematria-grid" aria-label="תשע שיטות Core">
       {methods.map((method) => <div
@@ -472,5 +472,5 @@ export default function Home2029Page() {
   useEffect(() => {
     applySeo({ title: "SOD1820 · 2029", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" symbol="✦" eyebrow="DISCOVER · NOW · CONTINUE" title="SOD1820 2029" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" symbol="✦" eyebrow="גלה · עכשיו · המשך" title="SOD1820 2029" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
 }

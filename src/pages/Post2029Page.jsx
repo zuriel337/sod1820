@@ -503,8 +503,8 @@ function PostReadingBody() {
     data-post-slug={post.slug}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
-      <b>WIREFRAME · מבנה בלבד</b>
-      <span>עכשיו בודקים רק איפה כל דבר חי: ניווט גלובלי · תוכן · Context Inspector · ציר זמן · Research Path · Raziel. עיצוב יגיע אחר כך.</span>
+      <b>מבנה בלבד</b>
+      <span>עכשיו בודקים רק איפה כל דבר חי: ניווט · תוכן · בדיקה מהירה · ציר זמן · חיבורים · רזיאל.</span>
     </section> : null}
 
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
@@ -539,7 +539,7 @@ function PostReadingBody() {
               <small>{isBennettMaster || isFz1073Master ? "פתח" : "בדיקה מהירה"}</small>
             </button>)}
           </div>
-          <p>{isBennettMaster || isFz1073Master ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
+          <p>{isBennettMaster || isFz1073Master ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת בחלון צד ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
     </header>

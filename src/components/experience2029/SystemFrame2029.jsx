@@ -332,7 +332,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="358 · משיח · ביטוי לבדיקה"
-          aria-label="חיפוש או פקודה"
+          aria-label="חיפוש"
         />
         <button className="sod29-action primary" type="submit">בדוק</button>
       </form>
@@ -614,7 +614,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       const methodLabel = numberFocus.methodLabel || numberFocus.method || "השיטה הפעילה";
       return {
         title: `תגובה מהירה · ${methodLabel}`,
-        text: `${methodLabel} מחושבת דרך המנוע הקנוני על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח את החישוב כדי לראות את השלבים; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את הביטוי שבחרת.`,
+        text: `${methodLabel} מחושבת באמצעות החישוב המאומת של האתר על ${numberFocus.expression || numberFocus.root}. התוצאה הפעילה היא ${numberFocus.resultValue ?? "—"}. פתח את החישוב כדי לראות את השלבים; השוואה לשיטה אחרת היא בדיקה נפרדת ולא משנה את הביטוי שבחרת.`,
         boundary: "החישוב מאומת בנפרד; המשמעות נשארת פרשנות.",
       };
     }
@@ -804,7 +804,7 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
       </section>
 
       <section data-workspace-section="research" className="sod29-workspace-research-section">
-        <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>Research Path · שמירה · חזרה מדויקת</small></div>
+        <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>שמירה · חזרה מדויקת</small></div>
 
         {subject ? (
           <section className="sod29-workspace-resume-native">
@@ -1330,7 +1330,7 @@ export default function SystemFrame2029({
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
-    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SOD1820" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
@@ -1409,10 +1409,10 @@ export default function SystemFrame2029({
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
             </div>
-            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש / פקודה">
+            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש">
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
-              <span className="label">חיפוש / פקודה</span>
+              <span className="label">חיפוש</span>
               <kbd>⌘K</kbd>
             </button>
             <div className="sod29-header-actions">
@@ -1526,7 +1526,7 @@ export default function SystemFrame2029({
               >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : <>
-            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
+            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
             <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
           </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
@@ -1538,7 +1538,7 @@ export default function SystemFrame2029({
               aria-pressed={transientKind === TRANSIENT.ACTION}
             ><span>◎</span><small>פעולה</small></button> : null}
             <div className="sod29-command-actions">
-              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>פקודה</small></button>
+              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
               {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
               <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
               <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
