@@ -4,9 +4,9 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 
-// 💳 רכישת קרדיטים — תשלום ידני (ביט/פייבוקס או העברה בנקאית).
-// הגולש בוחר חבילה → רואה פרטי-תשלום → מעביר → לוחץ «העברתי» → נוצרת בקשה ממתינה,
-// וצוריאל מאשר בטאב-האדמין «💳 אישורי תשלום» → הקרדיטים נזקפים אוטומטית.
+// 💳 רכישת קרדיטים — CardCom מאומת ואוטומטי, עם Bit/העברה כ-fallback ידני.
+// CardCom: חבילה קנונית → דף תשלום ספק → webhook מאומת server-to-server → credit_grant קנוני.
+// ידני: תשלום + אסמכתא → אישור מנהל → אותו credit_grant קנוני.
 export default function CreditsBuyPage() {
   const { user, profile } = useAuth();
   const [pkgs, setPkgs] = useState([]);
@@ -146,7 +146,7 @@ export default function CreditsBuyPage() {
       {cardState === "approved" && (
         <div style={{ ...box, textAlign: "center", marginBottom: 20, borderColor: "rgba(212,175,55,.7)" }}>
           <div style={{ fontSize: 42 }}>✅</div>
-          <h2 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: "8px 0" }}>התשלום אומת והקרדיטים נוספו</h2>
+          <h2 style={{ color: C.goldBright, fontFamily: F.ui, fontSize: 22, margin: "8px 0" }}>התשלום אומת והקרדיטים נוספו</h2>
           <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
             {cardResult?.credits ? <><b style={{ color: C.gold }}>{Number(cardResult.credits).toLocaleString("he-IL")} קרדיטים</b> נוספו לחשבון שלך.</> : "העסקה אושרה ונרשמה בחשבון."}
           </div>
@@ -195,7 +195,7 @@ export default function CreditsBuyPage() {
           {/* CardCom — המסלול הראשי והאוטומטי */}
           {sel && (
             <div style={{ ...box, marginBottom: 18, borderColor: "rgba(212,175,55,.55)" }}>
-              <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 16, fontWeight: 800, marginBottom: 8 }}>תשלום מאובטח ואוטומטי</div>
+              <div style={{ color: C.goldBright, fontFamily: F.ui, fontSize: 16, fontWeight: 800, marginBottom: 8 }}>תשלום מאובטח ואוטומטי</div>
               <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>
                 התשלום מתבצע בדף המאובטח של CardCom. לאחר אישור העסקה, השרת מאמת אותה מול CardCom והקרדיטים מתווספים אוטומטית.
               </div>
@@ -205,7 +205,7 @@ export default function CreditsBuyPage() {
                 style={{
                   width: "100%", cursor: user ? "pointer" : "not-allowed", border: "none", borderRadius: 14, padding: "15px",
                   background: user ? `linear-gradient(135deg,${C.gold},${C.goldLight})` : "#2a2233",
-                  color: user ? "#1a0e00" : C.muted, fontFamily: F.heading, fontSize: 16, fontWeight: 900,
+                  color: user ? "#1a0e00" : C.muted, fontFamily: F.ui, fontSize: 16, fontWeight: 900,
                   opacity: cardState === "starting" ? 0.65 : 1,
                 }}
               >
