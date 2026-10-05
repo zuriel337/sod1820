@@ -1422,19 +1422,30 @@ function razielPersonalSnapshot(data: any): Record<string, { count: number; item
   return out;
 }
 
-// resume → bounded identity + ≤6 most recent steps (navigation identity only). provenance / representation / metadata are never read.
-function razielPersonalPath(data: any): { found: boolean; subject: string; lens: string; journey: string; revision: number | null; total: number; steps: RazielPersonalItem[] } | null {
+// resume → bounded identity + ≤6 most recent steps (navigation identity only). Identity comes from the canonical writer shape
+// (identity_metadata.root_type/root_ref/root_label — buildResearchPathIdentityMetadata) plus ONLY these allowlisted fields of the owner-returned
+// representation.context: subject type/id/label/href, lens, journey id/kind/position. The rest of representation / provenance / dimensions /
+// selection / access / metadata is never forwarded.
+type RazielPersonalPathT = { found: boolean; subject: string; subjectType: string; subjectRef: string; subjectLink: string; lens: string; journey: string; journeyKind: string; journeyPosition: string; revision: number | null; total: number; steps: RazielPersonalItem[] };
+const persObj = (v: unknown): any => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
+function razielPersonalPath(data: any): RazielPersonalPathT | null {
   if (!data || typeof data !== "object" || Array.isArray(data)) return null;
-  if (data.ok === false) return data.error === "not_found" || data.error === "no_revision" ? { found: false, subject: "", lens: "", journey: "", revision: null, total: 0, steps: [] } : null;
+  const empty: RazielPersonalPathT = { found: false, subject: "", subjectType: "", subjectRef: "", subjectLink: "", lens: "", journey: "", journeyKind: "", journeyPosition: "", revision: null, total: 0, steps: [] };
+  if (data.ok === false) return data.error === "not_found" || data.error === "no_revision" ? empty : null;
   if (data.ok !== true) return null;
   const steps = Array.isArray(data.steps) ? data.steps : [];
-  const idm = data.identity_metadata && typeof data.identity_metadata === "object" && !Array.isArray(data.identity_metadata) ? data.identity_metadata : {};
-  return { found: true, subject: persTxt(idm.subject, 80), lens: persTxt(idm.lens, 60), journey: persTxt(idm.journey, 80), revision: num(data.revision_no), total: steps.length,
+  const idm = persObj(data.identity_metadata);
+  const ctx = persObj(persObj(data.representation).context);
+  const subj = persObj(ctx.subject), jr = persObj(ctx.journey);
+  return { found: true,
+    subject: persTxt(idm.root_label || idm.root_ref || subj.label || subj.id, 80), subjectType: persTxt(idm.root_type || subj.type, 30), subjectRef: persTxt(idm.root_ref || subj.id, 80),
+    subjectLink: persLink(subj.href), lens: persTxt(ctx.lens, 60), journey: persTxt(jr.id, 80), journeyKind: persTxt(jr.kind, 30), journeyPosition: persTxt(jr.position, 30),
+    revision: num(data.revision_no), total: steps.length,
     steps: steps.slice(-RAZIEL_PERSONAL_MAX_ITEMS).map(razielPersonalItem).filter((x): x is RazielPersonalItem => !!x) };
 }
 
-const persPathText = (p: NonNullable<ReturnType<typeof razielPersonalPath>>) => !p.found ? "לא נמצא מסלול-מחקר שמור."
-  : `המסלול האחרון שלך${p.subject ? ` · נושא: ${p.subject}` : ""}${p.lens ? ` · עדשה: ${p.lens}` : ""}${p.journey ? ` · מסע: ${p.journey}` : ""} · ${p.total} צעדים (מוצגים ${p.steps.length} אחרונים)` +
+const persPathText = (p: RazielPersonalPathT) => !p.found ? "לא נמצא מסלול-מחקר שמור."
+  : `המסלול האחרון שלך${p.subject ? ` · נושא: ${p.subject}${p.subjectType ? ` (${p.subjectType})` : ""}${p.subjectLink ? ` ${p.subjectLink}` : ""}` : ""}${p.lens ? ` · עדשה: ${p.lens}` : ""}${p.journey ? ` · מסע: ${p.journey}${p.journeyKind ? ` (${p.journeyKind})` : ""}${p.journeyPosition ? ` @${p.journeyPosition}` : ""}` : ""} · ${p.total} צעדים (מוצגים ${p.steps.length} אחרונים)` +
     `${p.steps.length ? "\n" + p.steps.map(persLine).join("\n") : ""}`;
 
 function razielPersonalProject(capability: string, datas: any[]): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
