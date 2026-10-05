@@ -1404,7 +1404,7 @@
 @media(max-width:620px){
   .sod29-command-island.glass-context-dock{
     width:calc(100vw - 10px);
-    grid-template-columns:minmax(0,1fr) 52px 102px;
+    grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr);
     gap:3px;
     padding-inline:5px;
   }
@@ -1417,7 +1417,7 @@
 @media(max-width:360px){
   .sod29-command-island.glass-context-dock{
     width:calc(100vw - 6px);
-    grid-template-columns:minmax(0,1fr) 48px 92px;
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);
   }
   .sod29-glass-dock-wing.is-system{grid-template-columns:repeat(2,44px)}
   .sod29-glass-dock-action{min-width:44px;width:44px}
