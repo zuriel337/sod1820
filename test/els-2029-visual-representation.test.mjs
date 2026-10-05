@@ -109,7 +109,7 @@ test("DOM renderer exposes semantic acceptance and accessible fallback without C
 });
 
 
-test("/els composes only canonical replay projection/layers before rendering", () => {
+test("/els Research profile composes canonical replay projection/layers while Classic hosts the canonical tool", () => {
   const src = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
   assert.match(src, /verifyEls2029Selection/);
   assert.match(src, /supabase\.functions\.invoke\("els-search-bridge"/);
@@ -117,7 +117,11 @@ test("/els composes only canonical replay projection/layers before rendering", (
   assert.match(src, /projectEls2029Layers\(replayProjection\)/);
   assert.equal(src.includes("<Els2029Representation layers={replayLayers} profile={matrixProfile} />"), true);
   assert.doesNotMatch(src, /layeredProjection|effectiveLayers/);
-  assert.doesNotMatch(src, /TzofenEmbed|tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
+  assert.match(src, /data-els-classic-tool="canonical-tzofen"/);
+  assert.match(src, /<TzofenEmbed seed=\{classicSeed \|\| undefined\} full \/>/);
+  assert.match(src, /\{researchProfile \? <div className="sod29-els-architecture">/);
+  assert.match(src, /display: researchProfile \? "none" : "block"/);
+  assert.doesNotMatch(src, /tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
 });
 
 console.log("ELS 2029 visual representation V1 contract: PASS");

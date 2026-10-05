@@ -758,12 +758,12 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
 test('World uses the shared Command, Inspect, Share and exact-return seams', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
-  const command = page.locator('.sod29-command-island button').filter({ hasText: 'פקודה' });
+  const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });
   await expect(command).toBeVisible();
   await command.click();
-  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toHaveCount(0);
+  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toHaveCount(0);
 
   // Inspect/share acceptance must use an entity projection that remains owned by
   // generic Inspect. Number/phrase targets now have their own native Number drawer.

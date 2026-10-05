@@ -149,7 +149,7 @@ function CodeClosed({ message }) {
 
 export default function CodePage() {
   const P = usePalette();
-  const { loading, isAdmin } = useAuth();
+  const { loading } = useAuth();
   const elsState = useFeatureState("lock_els");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [sp, setSp] = useSearchParams();
@@ -174,7 +174,7 @@ export default function CodePage() {
   if (loading || elsState.loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} />;
+  return <CodeClosed message={elsState.message} />;
 
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
