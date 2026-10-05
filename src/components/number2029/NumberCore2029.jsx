@@ -502,7 +502,7 @@ export default function NumberCore2029({
             <strong>{projection.expression || root} <em>↔</em> {stageCrossing.partner}</strong>
             <div className="sod29-number-v10-stage-cross-methods">
               {stageCrossing.methods.slice(0, 4).map((method) => <b key={method.methodKey}>
-                {publicMethodLabel(method)} = {method.value}
+                {projection.expression || root} · {publicMethodLabel(method)} = {method.value} ↔ {stageCrossing.partner} · {publicMethodLabel(method)} = {method.value}
               </b>)}
             </div>
             <small>Root {stageRoot} נשאר העוגן · הפוקוס בלבד השתנה</small>
@@ -575,7 +575,7 @@ export default function NumberCore2029({
                   <strong>{activeExpressionText || root} <b>=</b> {stageCrossing.partner}</strong>
                   <div className="sod29-number-v10-crossing-methods">
                     {stageCrossing.methods.slice(0, 6).map((method) => <span key={method.methodKey}>
-                      {publicMethodLabel(method)} = {method.value}
+                      {projection.expression || root} · {publicMethodLabel(method)} = {method.value} ↔ {stageCrossing.partner} · {publicMethodLabel(method)} = {method.value}
                     </span>)}
                     {stageCrossing.methods.length > 6 ? <span>+{stageCrossing.methods.length - 6}</span> : null}
                   </div>
