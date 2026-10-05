@@ -5,6 +5,7 @@ import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
 import {
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
+  fetchNumberHiddenCrossings,
   methodProfileEntry,
   methodKey as familyMethodKey,
   phraseOf,
@@ -82,6 +83,7 @@ export default function NumberDrawer2029({
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
+  const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [] });
   const internalContextSignatureRef = useRef(null);
   const modeRef = useRef(null);
   const previousSurfaceModeRef = useRef(surfaceMode);
@@ -187,6 +189,20 @@ export default function NumberDrawer2029({
       });
     return () => { alive = false; };
   }, [expression]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const expr = clean(expression);
+    if (!expr || /^\d+$/.test(expr) || !profileState.rows.length) {
+      setHiddenCrossState({ loading: false, rows: [] });
+      return undefined;
+    }
+    let alive = true;
+    setHiddenCrossState({ loading: true, rows: [] });
+    fetchNumberHiddenCrossings(expr, profileState.rows, { limit: 13 })
+      .then((rows) => { if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
+      .catch(() => { if (alive) setHiddenCrossState({ loading: false, rows: [] }); });
+    return () => { alive = false; };
+  }, [expression, profileState.rows]);
 
   useEffect(() => {
     const expr = clean(expression);
@@ -631,6 +647,8 @@ export default function NumberDrawer2029({
       methodsLoading={profileState.loading}
       languageBridges={languageBridgeState.rows}
       regularExpressions={regularExpressions}
+      hiddenCrossings={hiddenCrossState.rows}
+      hiddenCrossingsLoading={hiddenCrossState.loading}
       mode="drawer"
       traceState={traceState}
       traceOpen={traceOpen}
