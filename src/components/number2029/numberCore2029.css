@@ -2707,3 +2707,12 @@
 @media(prefers-reduced-motion:reduce){
   .sod29-number-v10-life-core{animation:none!important}
 }
+
+/* Number AI analysis (Raziel context) — existing glass tokens only */
+.sod29-number-ai-analysis{display:grid;gap:6px;margin-top:10px;padding:10px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft)}
+.sod29-number-ai-analysis>span{font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--s29-accent)}
+.sod29-number-ai-analysis p{margin:0;font-size:11px;line-height:1.6;color:var(--s29-muted)}
+.sod29-number-ai-analysis section{padding-top:6px;border-top:1px solid var(--s29-line)}
+.sod29-number-ai-analysis section small{font-size:9px;font-weight:800;color:var(--s29-accent)}
+.sod29-number-ai-analysis section p{color:var(--s29-ink);white-space:pre-wrap}
+.sod29-number-ai-analysis button:disabled{opacity:.55;cursor:default}

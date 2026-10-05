@@ -5,6 +5,7 @@ import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
+import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -164,6 +165,7 @@ function MethodInspector({
         <button type="button" onClick={() => onRazielAction?.("next_research_step", { kind: "method", methodKey: method.methodKey, methodLabel: publicMethodLabel(method), resultValue: method.computedValue ?? null })}>מה לבדוק עכשיו?</button>
         <button type="button" className="expand" onClick={() => onExpandRaziel?.()}>הרחב לרזיאל ←</button>
       </div>
+      <NumberAiAnalysis2029 projection={projection} />
     </div> : null}
 
     {tab === "worlds" ? <div className="sod29-number-method-inspector-pane">
