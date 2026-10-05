@@ -45,6 +45,8 @@ comment on column public.payment_requests.cardcom_verified_at is
   'Last server-to-server verification time against CardCom GetLpResult.';
 
 create or replace function public.cardcom_purchase_register(
+  p_bridge_secret text,
+  p_user_id uuid,
   p_package_id integer,
   p_provider_ref text,
   p_low_profile_id text
@@ -52,14 +54,17 @@ create or replace function public.cardcom_purchase_register(
 returns jsonb
 language plpgsql
 security definer
-set search_path to 'public'
-as $$
+set search_path to 'public','extensions'
+as $
 declare
-  v_uid uuid := auth.uid();
   v_pkg public.credit_packages%rowtype;
   v_id bigint;
+  v_hash constant text := 'b9b2b927e7c1337b8cc9ef33693eb1d9f58da14cd9ac21bc8ab8ad70dc1264ea';
 begin
-  if v_uid is null then raise exception 'not_authenticated'; end if;
+  if encode(extensions.digest(convert_to(coalesce(p_bridge_secret,''), 'UTF8'), 'sha256'), 'hex') <> v_hash then
+    raise exception 'forbidden';
+  end if;
+  if p_user_id is null then raise exception 'bad_user'; end if;
   if p_provider_ref is null
      or length(p_provider_ref) > 80
      or p_provider_ref !~ '^SODC-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
@@ -81,7 +86,7 @@ begin
     provider_ref, cardcom_low_profile_id
   )
   values (
-    v_uid, v_pkg.id, v_pkg.price_ils, v_pkg.credits, 'cardcom', p_provider_ref,
+    p_user_id, v_pkg.id, v_pkg.price_ils, v_pkg.credits, 'cardcom', p_provider_ref,
     p_provider_ref, btrim(p_low_profile_id)
   )
   returning id into v_id;
@@ -96,8 +101,8 @@ begin
 end
 $$;
 
-revoke all on function public.cardcom_purchase_register(integer,text,text) from public, anon;
-grant execute on function public.cardcom_purchase_register(integer,text,text) to authenticated;
+revoke all on function public.cardcom_purchase_register(text,uuid,integer,text,text) from public, authenticated;
+grant execute on function public.cardcom_purchase_register(text,uuid,integer,text,text) to anon, service_role;
 
 create or replace function public.cardcom_purchase_status(p_provider_ref text)
 returns jsonb
