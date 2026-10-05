@@ -191,9 +191,9 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(numberGate).toBeVisible({ timeout: 30_000 });
 
   await core.getByRole('button', { name: 'פתח חיפוש בעולם' }).click();
-  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'חיפוש / פקודה' })).toHaveCount(0);
+  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toHaveCount(0);
 
   await numberGate.click();
   await expect(page.locator('#world-facet-number')).toBeFocused();
