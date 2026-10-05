@@ -25,10 +25,22 @@ function MatrixSnapshot({ state }) {
   }, [matrix?.marks]);
 
   if (!matrix?.rows?.length || !geometry) {
-    return <div className="els29-native-empty">
+    const candidate = state?.status === "candidate";
+    const empty = state?.status === "empty";
+    const title = candidate
+      ? "נמצא מועמד שעדיין לא אומת"
+      : empty
+        ? "אין כרגע מופע מאומת להצגה"
+        : "חפשו מילה קצרה כדי לפתוח את המטריצה";
+    const body = candidate
+      ? "המטריצה תיפתח רק אחרי שהמופע יקבל MATCH מהמנוע הקנוני."
+      : empty
+        ? "זה אינו קובע שהמונח לא קיים. למצב הזה אין סמכות שלילית; אפשר לשנות את החיפוש או לפתוח את הכלים הקלאסיים."
+        : "החיפוש רץ באותו מנוע ELS קנוני. כאן מוצגת רק הקרנה חדשה של אותה תוצאה.";
+    return <div className="els29-native-empty" data-els-native-state={state?.status || "idle"}>
       <div className="els29-native-empty-orb">✦</div>
-      <strong>חפשו מילה קצרה כדי לפתוח את המטריצה</strong>
-      <span>החיפוש רץ באותו מנוע ELS קנוני. כאן מוצגת רק הקרנה חדשה של אותה תוצאה.</span>
+      <strong>{title}</strong>
+      <span>{body}</span>
     </div>;
   }
 
