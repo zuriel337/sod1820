@@ -313,11 +313,11 @@ Moving the control itself is forbidden because it would make a primary capabilit
 
 Desktop default is a symmetrical three-part frame:
 
-`[ Context + Action ] — [ Raziel ] — [ Search/Command + More ]`
+`[ Context + Action ] — [ Raziel ] — [ What’s New + More ]`
 
 The two wings have equal layout authority around the fixed center. They do not need identical text width, but neither wing is allowed to displace the Raziel center.
 
-`More` is a gateway to existing capabilities (Now, Tools, Personal Area, issue/contact, exact return where available). It is not a new system and must not duplicate those owners.
+`What’s New` is the direct projection of the existing Attention capability. It may later project one real current item inside the glass, but must never invent or hard-code news. `More` is a gateway to existing secondary capabilities (Search/Command, Tools, Personal Area, issue/contact, exact return where available). Neither creates a new owner.
 
 ### Context capsule / rolling context
 
@@ -369,11 +369,14 @@ The Dock must **not** absorb the full ELS workbench. Matrix colors, verse contex
 ### No-loss rule
 
 Migrating from the older button-heavy Dock to Glass Context Dock does not retire capability:
-- Search/Command remains directly available.
+- Search/Command remains available in the top frame and through `More`; it does not consume a permanent Dock slot.
 - Action remains directly available.
 - Raziel remains directly available.
-- Now, Tools and Personal Area remain available through `More`.
+- What’s New remains directly available and opens the existing Attention projection.
+- Tools and Personal Area remain available through `More`.
 - Existing exact-return, saved/research, notification and tool owners remain unchanged.
+
+The Glass Dock may later alternate its contextual capsule with a bounded live Pulse/What’s New item sourced from canonical notifications/attention. That motion must be calm, pause during focused work where appropriate, respect reduced motion, and fall back to context when there is no real update.
 
 Any later removal of an entry point requires parity verification and Human Gate when governed by the active owner.
 
