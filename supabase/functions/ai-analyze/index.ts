@@ -1375,7 +1375,7 @@ async function runRazielCoordination(desc: { capability: string; days: number | 
 // question text, never a search). Public/anon path only (existing anon SELECT on posts + topic_cards_public) — never the service role, no new store/router/agent.
 const RAZIEL_CC_BODY_MAX = 3500, RAZIEL_CC_EXCERPT_MAX = 500, RAZIEL_CC_ARR_MAX = 6;
 const RAZIEL_CC_QUESTION = [
-  /(?:^|\s)(?:מה|על\s+מה)\s+(?:אני\s+)?(?:קורא|קוראת)(?:\s|$|[?!.])/,
+  /(?:^|\s)(?:מה|על\s+מה)\s+(?:ש?אני\s+)?(?:קורא|קוראת)(?:\s|$|[?!.])/,
   /(?:הסבר|תסביר|תסבירי|סכם|תסכם|סכמי|סיכום|תן\s+סיכום)(?:\s+לי)?(?:\s+את)?\s+(?:ה)?(?:פוסט|מאמר|דף|נושא|טופיק|כתבה)\s+(?:הזה|הזאת|הנוכחי|הנוכחית)/,
   /(?:מה|על\s+מה)\s+(?:זה\s+)?(?:ה)?(?:פוסט|מאמר|דף|נושא|טופיק|כתבה)\s+(?:הזה|הזאת|הנוכחי|הנוכחית)/,
   /\b(?:summari[sz]e|explain)\s+(?:this|the\s+current)\s+(?:post|topic|page|article)\b|\bwhat\s+(?:am\s+i\s+reading|is\s+this\s+(?:post|topic|page))\b/i,

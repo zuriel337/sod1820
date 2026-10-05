@@ -20,7 +20,7 @@ const topicSem = (slug = "covid-1237") => ({ surface: "topic", subject: { type: 
 
 test("J: trigger only on explicit current-surface questions", () => {
   const { razielCurrentContentDescriptor: d } = load(ok([]));
-  for (const q of ["מה אני קורא?", "תסביר לי את הפוסט הזה", "סכם את הפוסט הזה", "על מה הנושא הזה", "מה זה הטופיק הזה", "summarize this post", "what am I reading"]) {
+  for (const q of ["מה אני קורא?", "תסביר לי את מה שאני קורא", "תסביר לי את הפוסט הזה", "סכם את הפוסט הזה", "על מה הנושא הזה", "מה זה הטופיק הזה", "summarize this post", "what am I reading"]) {
     assert.equal(d(q, postSem()).trigger, true, q);
   }
   for (const q of ["מה הגימטריה של 631", "מה הפוסט האחרון באתר", "ספר לי על דוד", "", null, undefined, "חפש פוסטים על קורונה"]) {
