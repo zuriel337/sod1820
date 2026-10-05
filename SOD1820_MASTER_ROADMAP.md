@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.8 COMPACT
+# SOD1820 — MASTER ROADMAP v6.9 COMPACT
 
-**Date:** 2026-10-04  
+**Date:** 2026-10-05  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -128,6 +128,8 @@ Prove English over the same identities, capability/access state, Research Contex
 
 Activate selected Voice/Audio/Private Corpus/Spatial/Media/Pulse/Cross-channel capabilities according to G5 entitlement and per-capability Golden acceptance. Capability may remain BUILDING/PARKED without deletion.
 
+- Research-to-Media stays one 2029 media projection: deterministic Remotion export + governed AI video providers, with provider plan/credit/per-action cost visibility and keep/upgrade/downgrade recommendations routed through the existing ACTION-COST / entitlement owners. No parallel billing or media-truth system.
+
 ### G8 — Global shell, design acceptance, release batching
 
 Complete cross-surface integration, measurable UX acceptance, parity/release proof and final deployment batches.
@@ -154,6 +156,7 @@ Only decision-changing open items belong here:
 - exact runtime integration mechanics for the existing agent media/file upload bridge beyond the live bounded image URL relay;
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
+- exact operator-side Research-to-Media renderer mechanics (Remotion + governed AI video services) and subscription/credit/cost observability; bounded operator tooling may be proven before broad G7 activation, but no public capability is promoted by tooling alone;
 - exact Home/Global Now composition;
 - final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof; Legacy UX maintenance/parity itself is no longer an objective;
