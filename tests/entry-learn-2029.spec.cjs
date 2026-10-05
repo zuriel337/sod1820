@@ -3,7 +3,7 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 
 const BASE = 'http://127.0.0.1:4173';
 
-test.beforeEach(async ({ page }) => installStorageEgressGuard(page));
+test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
 const POST_PATH = '/post/bennett-melach-631-78';
 const FAMILIARITY_KEY = 'sod_entry_learn_2029_v1';
 
