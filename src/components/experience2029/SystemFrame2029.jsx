@@ -572,7 +572,7 @@ function ToolsProjection({ surface, target, go, onCapability }) {
   );
 }
 
-function MoreProjection({ onAttention, onTools, onWorkspace, onIssue, onReturn, canReturn }) {
+function MoreProjection({ onCommand, onTools, onWorkspace, onIssue, onReturn, canReturn }) {
   return (
     <>
       <div className="sod29-panel-lead">
@@ -581,7 +581,7 @@ function MoreProjection({ onAttention, onTools, onWorkspace, onIssue, onReturn, 
         <p>הפעולות נשארות זמינות בלי להפוך את ה־Dock למחסן כפתורים.</p>
       </div>
       <div className="sod29-panel-actions-grid" data-glass-dock-more="true">
-        <button className="sod29-action" type="button" onClick={onAttention}>◉ עכשיו</button>
+        <button className="sod29-action" type="button" onClick={onCommand}>⌕ חיפוש / פקודה</button>
         <button className="sod29-action" type="button" onClick={onTools}>◇ כלים</button>
         <button className="sod29-action" type="button" onClick={onWorkspace}>◎ האזור האישי</button>
         <button className="sod29-action" type="button" onClick={onIssue}>! דיווח / קשר</button>
@@ -1683,7 +1683,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.MORE) return <PanelShell {...common} icon="•••" kicker="עוד" title="עוד"><MoreProjection
-      onAttention={openAttention}
+      onCommand={openCommand}
       onTools={openTools}
       onWorkspace={openWorkspace}
       onIssue={openIssueReport}
@@ -1895,11 +1895,11 @@ export default function SystemFrame2029({
 
           <div className="sod29-glass-dock-wing is-system" data-dock-wing="system">
             <button
-              className="sod29-glass-dock-action"
+              className="sod29-glass-dock-action sod29-glass-dock-pulse"
               type="button"
-              onClick={openCommand}
-              aria-pressed={transientKind === TRANSIENT.COMMAND}
-            ><span>⌕</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
+              onClick={openAttention}
+              aria-pressed={transientKind === TRANSIENT.ATTENTION}
+            ><span>◉</span><small>מה חדש</small></button>
             <button
               className="sod29-glass-dock-action"
               type="button"
