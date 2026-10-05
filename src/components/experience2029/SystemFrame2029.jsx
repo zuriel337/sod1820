@@ -26,7 +26,6 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
-import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
@@ -427,22 +426,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         <span>{target.type}</span>
       </section>
 
-      {hasMethodContext ? <GematriaReveal2029
-        compact
-        selection={{
-          expression: target.expression,
-          method: target.method,
-          methodLabel: target.methodLabel || target.method,
-          resultValue: Number(target.resultValue),
-          entityId: target.id || null,
-          entityType: target.type || "gematria_expression",
-          findingId: target.findingId || null,
-          sourceRef: target.sourceRef || null,
-          locator: target.locator || null,
-        }}
-        provenance={target.provenance || null}
-        truthState={target.truthState || null}
-      /> : null}
+      {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
 
       {numericFamily ? (
         <FrameState title="מספר / ביטוי · בדיקה מהירה">

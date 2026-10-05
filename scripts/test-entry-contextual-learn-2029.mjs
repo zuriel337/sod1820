@@ -111,7 +111,7 @@ assert.match(rail, /learn_help_requested/);
 assert.match(rail, /onStillUnclear=\{askForLearnHelp\}/);
 assert.match(rail, /ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו/);
 assert.match(rail, /surfaceMapLabel/);
-assert.match(rail, /GematriaReveal2029/);
+assert.doesNotMatch(rail, /GematriaReveal2029/);
 assert.match(rail, /interactive/);
 assert.match(postPage, /surfaceSections: regions\.map/);
 assert.match(postPage, /surfaceMapLabel: "בתוך הפוסט"/);
