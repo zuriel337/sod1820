@@ -162,7 +162,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         <TzofenEmbed
           seed={engineSeed || undefined}
           full={classicOpen}
-          hiddenBridge={!classicOpen}
+          hiddenBridge
           engineOnly={!classicOpen}
           onState={setEngineState}
           onGate={() => setClassicOpen(true)}
