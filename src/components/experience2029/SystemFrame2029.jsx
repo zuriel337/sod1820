@@ -581,7 +581,7 @@ function MoreProjection({ onCommand, onTools, onWorkspace, onIssue, onReturn, ca
         <p>הפעולות נשארות זמינות בלי להפוך את ה־Dock למחסן כפתורים.</p>
       </div>
       <div className="sod29-panel-actions-grid" data-glass-dock-more="true">
-        <button className="sod29-action" type="button" onClick={onCommand}>⌕ חיפוש / פקודה</button>
+        <button className="sod29-action" type="button" onClick={onCommand}>⌕ חיפוש</button>
         <button className="sod29-action" type="button" onClick={onTools}>◇ כלים</button>
         <button className="sod29-action" type="button" onClick={onWorkspace}>◎ האזור האישי</button>
         <button className="sod29-action" type="button" onClick={onIssue}>! דיווח / קשר</button>
