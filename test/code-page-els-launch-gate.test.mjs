@@ -22,7 +22,7 @@ test("ELS 2029 remains the active build surface and is not launch-gated by the l
   assert.match(els2029, /data-els-2029-surface="v1"/);
   assert.doesNotMatch(els2029, /ELS_LEGACY_COUNTDOWN_TARGET|els-2029-early-access|week-countdown/);
   assert.doesNotMatch(els2029, /href="\/lab\/els"/);
-  assert.match(els2029, /NO LEGACY HANDOFF/);
+  assert.match(els2029, /NO LEGACY ROUTE/);
 });
 
 test("legacy ELS work-area route hands off to the canonical 2029 surface", () => {
