@@ -691,15 +691,18 @@ function razielSemanticSurfaceText(sc: any): string {
 function razielPlanMeta(src: any): Record<string, unknown> | null {
   if (!src || typeof src !== "object" || !src.capability_class) return null;
   const c = (v: unknown, n = 60) => (typeof v === "string" ? v.slice(0, n) : null);
+  const sig = src.trace?.signals ?? src.signals ?? {};
   return {
     capability_class: c(src.capability_class), strategy: c(src.strategy), minimum_intelligence: c(src.minimum_intelligence, 30),
     availability: c(src.availability, 40), intent: c(src.intent ?? src.protocol?.intent, 40), reason: c(src.reason, 200),
-    // Phase D: semantic evidence for the L2/L3 selector only (route intent / cross-check / compare domains) — additive.
-    route_intent: c(src.intent_class ?? src.trace?.intent, 40),
-    cross_check_required: src.cross_checks?.required === true,
-    contradictory: src.cross_checks?.contradictory === true,
-    compare: src.compare === true,
-    domains: Array.isArray(src.domains) ? src.domains.slice(0, 4).map((d: unknown) => c(d, 40)).filter(Boolean) : null,
+    // Phase D/D2: semantic evidence for the L2/L3 selector only — additive. fn_raziel_plan emits signals at top level and in
+    //    trace.signals (the latter survives fn_raziel_answer's fallback shape). Absent signals ⇒ conservative defaults (no escalation).
+    route_intent: c(sig.route_intent ?? src.intent_class ?? src.trace?.intent, 40),
+    cross_check_required: sig.cross_check_required === true || src.cross_checks?.required === true,
+    contradictory: sig.contradictory === true || src.cross_checks?.contradictory === true,
+    compare: sig.compare_requested === true || src.compare === true,
+    domains: Array.isArray(sig.domains ?? src.domains) ? (sig.domains ?? src.domains).slice(0, 4).map((d: unknown) => c(d, 40)).filter(Boolean) : null,
+    capabilities: Array.isArray(sig.capabilities) ? sig.capabilities.slice(0, 4).map((d: unknown) => c(d, 40)).filter(Boolean) : null,
     executed: false,
   };
 }
@@ -712,6 +715,8 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
     ? "יכולת-מפעיל הורצה בקריאה-בלבד — הנתונים מצורפים למטה."
     : avail === "operator_read"
     ? "יכולת-מפעיל לא הורצה/נכשלה — אין נתוני-מפעיל; אל תמציא נתונים וציין שלא התקבלו."
+    : avail === "multi_domain_synthesis"
+    ? "שאלה רב-תחומית — שום מומחה/כלי לא הורץ; אל תציג ערך מחושב ואל תטען שהרצת כלי."
     : avail === "available"
     ? "היכולת רשומה אך לא הורצה בבקשה זו — אל תציג ערך מחושב ואל תטען שהרצת כלי."
     : "היכולת אינה זמינה/אינה מחוברת כרגע ולא הורצה — אפשר להסביר או להמליץ עליה, תוך ציון שלא בוצעה.";
