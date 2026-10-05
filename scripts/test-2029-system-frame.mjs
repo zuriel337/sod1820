@@ -226,16 +226,17 @@ for (const preferredPublicCopy of [
 }
 
 // Canonical Glass Context Dock is an action/context surface, not a fixed global-navigation bar.
-// Human Gate keeps Search/Action/Raziel direct; Now/Tools/Personal remain available through More.
+// Human Gate keeps Action/Raziel/What’s New direct; Search/Tools/Personal remain available through More/top frame.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /data-glass-context-dock="v1"/);
 assert.match(frame, /role="toolbar"/);
-assert.ok(frame.includes(`surface === "heichal" ? "פקודה" : "חיפוש"`));
 assert.match(frame, /<small>פעולה<\/small>/);
+assert.match(frame, /<small>מה חדש<\/small>/);
+assert.match(frame, /onClick=\{openAttention\}/);
 assert.match(frame, /<small>עוד<\/small>/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /function MoreProjection/);
-assert.match(frame, /onClick=\{onAttention\}>◉ עכשיו<\/button>/);
+assert.match(frame, /onClick=\{onCommand\}>⌕ חיפוש \/ פקודה<\/button>/);
 assert.match(frame, /onClick=\{onTools\}>◇ כלים<\/button>/);
 assert.match(frame, /onClick=\{onWorkspace\}>◎ האזור האישי<\/button>/);
 assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent Dock owner");
