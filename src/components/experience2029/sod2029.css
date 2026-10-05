@@ -273,3 +273,83 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
 }
 @media(max-width:390px){.sod29-book-grid{grid-template-columns:1fr}.sod29-hero-copy{max-width:88%}.sod29-page-intro{padding:23px 17px}.sod29-mobile-nav small{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.sod29-root *{scroll-behavior:auto!important;animation:none!important;transition:none!important}.sod29-ambient-field{display:none}}
+
+
+/* DESIGN_V2_TYPOGRAPHY_ROOT */
+.sod29-root{
+  font-family:var(--s29-font-body);
+  font-size:var(--s29-type-body);
+  line-height:1.72;
+}
+.sod29-root button,
+.sod29-root input,
+.sod29-root select,
+.sod29-root textarea,
+.sod29-nav-link,
+.sod29-nav-group-title,
+.sod29-nav-status,
+.sod29-rail-identity-copy,
+.sod29-sidebar-workspace,
+.sod29-sidebar-toggle,
+.sod29-side-foot,
+.sod29-header,
+.sod29-orientation,
+.sod29-header-search,
+.sod29-header-actions,
+.sod29-action,
+.sod29-kicker,
+.sod29-eyebrow,
+.sod29-chip,
+.sod29-context-strip,
+.sod29-panel-head,
+.sod29-command-surface,
+.sod29-theme-presets{
+  font-family:var(--s29-font-ui);
+}
+.sod29-root h1,
+.sod29-root h2,
+.sod29-root h3,
+.sod29-root h4,
+.sod29-root h5,
+.sod29-root h6{
+  font-family:var(--s29-font-display);
+}
+.sod29-root p,
+.sod29-root li,
+.sod29-root blockquote,
+.sod29-muted{
+  font-family:var(--s29-font-body);
+}
+.sod29-nav-link,
+.sod29-header-search,
+.sod29-header-actions button,
+.sod29-action,
+.sod29-sidebar-workspace,
+.sod29-sidebar-toggle{
+  font-size:var(--s29-type-ui);
+}
+.sod29-nav-group-title,
+.sod29-nav-status,
+.sod29-side-foot,
+.sod29-orientation,
+.sod29-kicker,
+.sod29-eyebrow,
+.sod29-context-strip span,
+.sod29-chip{
+  font-size:var(--s29-type-micro);
+}
+.sod29-page-intro p,
+.sod29-card p,
+.sod29-section>p,
+.sod29-section li{
+  font-size:var(--s29-type-body);
+  line-height:1.72;
+}
+.sod29-section h2{
+  font-size:var(--s29-type-title);
+  line-height:1.28;
+}
+.sod29-section h3{
+  font-size:var(--s29-type-lead);
+  line-height:1.4;
+}
