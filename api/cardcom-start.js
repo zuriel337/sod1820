@@ -43,6 +43,18 @@ export default async function handler(req, res) {
       return;
     }
 
+    // Bound sequential checkout-page creation per authenticated user before touching CardCom.
+    // This is abuse protection only; package economics remain owned by the canonical catalog.
+    const startGuard = await supabaseRpc("cardcom_purchase_start_guard", {
+      p_bridge_secret: bridgeSecret(),
+      p_user_id: user.id,
+    });
+    if (startGuard?.allowed === false) {
+      res.setHeader("Retry-After", "600");
+      res.status(429).json({ error: "payment_start_rate_limited" });
+      return;
+    }
+
     // Price and credit amount are always loaded from the canonical server-side package catalog.
     // The browser never gets to choose the amount charged.
     const catalog = await supabaseRpc("credit_packages_list", {}, token);
