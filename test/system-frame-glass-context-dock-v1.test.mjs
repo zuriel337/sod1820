@@ -38,6 +38,11 @@ test("ELS projects canonical Research Context into the same Dock without creatin
   assert.equal((frame.match(/data-glass-context-dock="v1"/g) || []).length, 1);
 });
 
+test("Glass Dock keeps symmetric wings around Raziel on mobile as well as desktop", () => {
+  assert.match(css, /@media\(max-width:620px\)[\s\S]*grid-template-columns:minmax\(0,1fr\) 52px minmax\(0,1fr\)/);
+  assert.match(css, /@media\(max-width:360px\)[\s\S]*grid-template-columns:minmax\(0,1fr\) 48px minmax\(0,1fr\)/);
+});
+
 test("old Command Island polish cannot override the canonical Glass Dock", () => {
   assert.match(oldPolish, /:not\(\.glass-context-dock\)/);
   assert.doesNotMatch(css, /is-context>\.sod29-glass-dock-action\{display:none\}/);
