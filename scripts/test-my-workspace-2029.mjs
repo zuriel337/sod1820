@@ -57,9 +57,12 @@ assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<sect
 // Glass Context Dock keeps one canonical bottom surface. Personal remains reachable through More
 // and still opens the same native WORKSPACE owner; it is no longer a permanent Dock slot.
 assert.equal((frame.match(/data-glass-context-dock="v1"/g) || []).length, 1);
-assert.match(frame, /function MoreProjection\(\{ onAttention, onTools, onWorkspace/);
+assert.match(frame, /function MoreProjection\(\{ onCommand, onTools, onWorkspace/);
 assert.match(frame, /onClick=\{onWorkspace\}>◎ האזור האישי<\/button>/);
 assert.match(frame, /onWorkspace=\{openWorkspace\}/);
+assert.match(frame, /onCommand=\{openCommand\}/);
+assert.match(frame, /<small>מה חדש<\/small>/);
+assert.match(frame, /onClick=\{openAttention\}/);
 assert.match(frame, /onClick=\{\(\) => openTransient\(TRANSIENT\.MORE\)\}/);
 
 
