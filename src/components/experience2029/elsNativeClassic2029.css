@@ -141,6 +141,21 @@
   direction:ltr;
   overscroll-behavior:contain;
   scrollbar-gutter:stable;
+  outline:none;
+}
+.els29-native-matrix-scroll:focus-visible{
+  box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--s29-focus-ring) 30%,transparent);
+}
+.els29-native-sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
 }
 .els29-native-matrix{
   --els29-cell:26px;
