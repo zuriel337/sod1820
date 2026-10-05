@@ -6,6 +6,7 @@ import { stripTypeScriptTypes } from "node:module";
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const mig = read("../../../supabase/migrations/20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql");
+const lBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase L"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase K"));
 const kBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase K"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
 const callSite = edge.slice(edge.indexOf("// Phase K — coordination / attention READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
 
@@ -15,7 +16,7 @@ function load(fetchImpl, spans = []) {
     `type OperationalTraceHandle = any; type RazielOperatorResult = any; type RazielOperatorCap = any; type RazielOperatorCall = any;\n` +
     `const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);\n` +
     `const razielOperatorProject = () => ({ pack: "SYS" });\n` +
-    `async function razielOperatorRpc(bearer, call) { return await fetch(call.rpc, bearer); }\n${kBlock}\n`) +
+    `async function razielOperatorRpc(bearer, call) { return await fetch(call.rpc, bearer); }\n${lBlock}\n${kBlock}\n`) +
     "\nreturn { RAZIEL_COORD_CAPS, razielCoordDescriptor, razielWorkLogRows, razielCoordProject, runRazielCoordination };";
   return new Function("fetch", "recordOperationalSpan", "crypto", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" });
 }
@@ -95,16 +96,6 @@ test("Phase K: attention pack = counts / top demand / discoveries only; no recom
   assert.match(r.pack, /COORDINATION_REPORTED/);
   assert.match(r.pack, /לא אומת/);
   assert.equal(m.razielCoordProject("attention", [null, [], {}]), null);
-});
-
-test("Phase K: live deploy/repo state → fixed 'not connected' answer, zero RPC, zero spans, no inference", async () => {
-  const spans = []; let calls = 0;
-  const m = load(async () => { calls++; return ok([]); }, spans);
-  const r = await m.runRazielCoordination({ capability: "live_external_state", days: null }, "jwt");
-  assert.equal(calls, 0); assert.equal(spans.length, 0);
-  assert.equal(r.ok, true); assert.equal(r.basis, "EXTERNAL_NOT_CONNECTED");
-  assert.match(r.answer, /טרם מחובר/);
-  assert.doesNotMatch(r.answer, /נפרס בהצלחה|מוזג בהצלחה|עלה לפרודקשן/);
 });
 
 test("Phase K: one db_rpc span per owner call with caller JWT, no payload in spans; failure → no data", async () => {

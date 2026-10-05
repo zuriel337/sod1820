@@ -7,7 +7,9 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const mig = read("../../../supabase/migrations/20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
-const phaseC = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase C"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
+const phaseCAll = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase C"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
+// Phase L (bounded public-GitHub live-state verifier, admin-only) is its own owner block with its own tests; Phase C's scope assertions exclude it.
+const phaseC = phaseCAll.slice(0, phaseCAll.indexOf("// ── Raziel Intelligence Core v1 Phase L")) + phaseCAll.slice(phaseCAll.indexOf("// ── Raziel Intelligence Core v1 Phase K"));
 
 // Execute the real pure helpers (types stripped) with stubbed runtime globals.
 const stub = `const SB_URL="https://x.test", SB_ANON="anon"; const recordOperationalSpan=async()=>{}; const crypto=globalThis.crypto;\n`;

@@ -1124,11 +1124,120 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
   return { ok, number: desc.number, anchor: desc.anchor, mode: desc.mode, outcome: ok ? (failed ? "partial" : "success") : (failed ? failed.outcome : "failed_with_reason"), ...(proj || {}) };
 }
 
+// ── Raziel Intelligence Core v1 Phase L — bounded READ-only external live-state verifier (verified admin only) ──────────────────────────────
+// Replaces the Phase K fixed "not connected" answer. Unauthenticated PUBLIC GitHub REST only for the public repo (no token, no Authorization header, no env
+// secret, never the caller JWT, no Vercel API). Evidence follows the post-deploy-canary workflow / deploy_on_request v3: a LIVE_VERIFIED claim needs the latest
+// Production deployment status = success AND commit-status context sod1820/post-deploy-canary = success on that EXACT production SHA. Any fetch failure,
+// rate-limit or shape mismatch ⇒ NOT_VERIFIED (UNKNOWN); nothing is inferred from work_log. Bounded: 1 + 1 + ≤10 + 1 = ≤13 calls, 4s timeout each.
+// The caller (runRazielCoordination) is reached only through razielCoordDescriptor, which returns null for any non-admin tier ⇒ non-admin = zero calls.
+const RAZIEL_GH_REPO = "zuriel337/sod1820";
+const RAZIEL_GH_TIMEOUT_MS = 4000;
+const RAZIEL_GH_MAX_DEPLOYMENTS = 10;
+const RAZIEL_GH_CANARY_CONTEXT = "sod1820/post-deploy-canary";
+const RAZIEL_GH_OWNER = "live_state_resolution_law v2 + deploy_on_request v3";
+const RAZIEL_GH_HEADERS = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "sod1820-raziel-live-state" };
+const RAZIEL_GH_SHA = /^[0-9a-f]{40}$/;
+
+type RazielGhRes = { ok: boolean; status: number | null; data: any; ms: number; outcome: string; error: string | null };
+
+async function razielGhGet(
+  path: string, endpointClass: string, trace: OperationalTraceHandle | null,
+): Promise<RazielGhRes> {
+  const spanId = crypto.randomUUID(), startedAt = new Date().toISOString(), t0 = Date.now();
+  let status: number | null = null, data: any = null, outcome = "success", error: string | null = null;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${RAZIEL_GH_REPO}/${path}`, {
+      method: "GET", headers: RAZIEL_GH_HEADERS, signal: AbortSignal.timeout(RAZIEL_GH_TIMEOUT_MS),
+    });
+    status = res.status;
+    if (!res.ok) { outcome = status === 403 || status === 429 ? "provider_error" : "failed_with_reason"; error = status === 403 || status === 429 ? "rate_limited_or_forbidden" : `http_${status}`; }
+    else { try { data = await res.json(); } catch { outcome = "failed_with_reason"; error = "bad_json"; } }
+  } catch (e) {
+    const timedOut = (e as any)?.name === "TimeoutError" || (e as any)?.name === "AbortError";
+    outcome = timedOut ? "timeout" : "failed_with_reason"; error = timedOut ? "timeout" : "fetch_failed";
+  }
+  const ms = Date.now() - t0;
+  await recordOperationalSpan(trace, {
+    spanId, kind: "network", name: `ai-analyze:raziel:external_http:${endpointClass}`, startedAt, endedAt: new Date().toISOString(), outcome,
+    detail: {
+      capability: "raziel_live_external_state", owner_ref: RAZIEL_GH_OWNER, routing_reason: "raziel_plan_operator_read",
+      output_use: outcome === "success" ? "used" : "not_applicable", stop_reason: error,
+      resources: { latency_ms: ms, api_calls: 1 },
+      replay: { ownerRuleRefs: [RAZIEL_GH_OWNER], parametersRef: `external_http:github_rest;endpoint_class:${endpointClass};status:${status ?? "none"};read_only:true;auth:none` },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  return { ok: outcome === "success", status, data, ms, outcome, error };
+}
+
+type RazielLiveState = {
+  verdict: "LIVE_VERIFIED" | "NOT_VERIFIED"; reason: string | null; main_sha: string | null; production_sha: string | null; parity: boolean | null;
+  deployment_state: string | null; deployment_time: string | null; canary_state: string | null; canary_time: string | null;
+};
+
+async function razielLiveExternalState(trace: OperationalTraceHandle | null): Promise<RazielLiveState> {
+  const st: RazielLiveState = { verdict: "NOT_VERIFIED", reason: null, main_sha: null, production_sha: null, parity: null,
+    deployment_state: null, deployment_time: null, canary_state: null, canary_time: null };
+  const fail = (reason: string) => { st.reason = reason; return st; };
+
+  const main = await razielGhGet("commits/main", "github_main_head", trace);
+  if (main.ok && RAZIEL_GH_SHA.test(String(main.data?.sha ?? ""))) st.main_sha = main.data.sha;
+  else if (main.ok) return fail("main_shape_mismatch"); else return fail(`main:${main.error}`);
+
+  const deps = await razielGhGet(`deployments?environment=Production&per_page=${RAZIEL_GH_MAX_DEPLOYMENTS}`, "github_deployments", trace);
+  if (!deps.ok) return fail(`deployments:${deps.error}`);
+  if (!Array.isArray(deps.data)) return fail("deployments_shape_mismatch");
+
+  let prodSha: string | null = null;
+  for (const d of deps.data.slice(0, RAZIEL_GH_MAX_DEPLOYMENTS)) {
+    if (!Number.isSafeInteger(d?.id) || !RAZIEL_GH_SHA.test(String(d?.sha ?? ""))) return fail("deployments_shape_mismatch");
+    const s = await razielGhGet(`deployments/${d.id}/statuses?per_page=1`, "github_deployment_status", trace);
+    if (!s.ok) return fail(`deployment_status:${s.error}`);
+    if (!Array.isArray(s.data)) return fail("deployment_status_shape_mismatch");
+    const latest = s.data[0];
+    if (latest && latest.state === "success") {
+      prodSha = d.sha; st.deployment_state = "success";
+      st.deployment_time = typeof latest.created_at === "string" ? latest.created_at.slice(0, 25) : null;
+      break;
+    }
+  }
+  if (!prodSha) return fail("no_successful_production_deployment");
+  st.production_sha = prodSha;
+  st.parity = st.main_sha === prodSha;
+
+  const comb = await razielGhGet(`commits/${prodSha}/status`, "github_combined_status", trace);
+  if (!comb.ok) return fail(`combined_status:${comb.error}`);
+  if (!comb.data || !Array.isArray(comb.data.statuses)) return fail("combined_status_shape_mismatch");
+  const canaries = comb.data.statuses.filter((x: any) => x && x.context === RAZIEL_GH_CANARY_CONTEXT);
+  if (!canaries.length) { st.canary_state = "missing"; return fail("canary_missing"); }
+  const ts = (x: any) => { const t = Date.parse(x?.updated_at || x?.created_at || ""); return Number.isNaN(t) ? 0 : t; };
+  const c = canaries.reduce((a: any, b: any) => (ts(b) >= ts(a) ? b : a));
+  st.canary_state = typeof c.state === "string" && /^(success|failure|error|pending)$/.test(c.state) ? c.state : "unknown";
+  st.canary_time = typeof (c.updated_at || c.created_at) === "string" ? String(c.updated_at || c.created_at).slice(0, 25) : null;
+  if (st.canary_state !== "success") return fail(`canary_${st.canary_state}`);
+  st.verdict = "LIVE_VERIFIED";
+  return st;
+}
+
+function razielLiveExternalAnswer(st: RazielLiveState): string {
+  const sh = (s: string | null) => (s ? s.slice(0, 8) : "—");
+  const lines = [
+    `אימות חי חיצוני (GitHub ציבורי בלבד, קריאה בעת השאלה · ${RAZIEL_GH_OWNER}):`,
+    `main: ${sh(st.main_sha)} · production: ${sh(st.production_sha)} · התאמה main==production: ${st.parity === null ? "לא ידוע" : st.parity ? "כן" : "לא (main מקדים/שונה מהפרודקשן)"}`,
+    `פריסת Production: ${st.deployment_state || "לא אומתה"}${st.deployment_time ? ` · ${st.deployment_time}` : ""}`,
+    `קנרי post-deploy-canary: ${st.canary_state || "לא אומת"}${st.canary_time ? ` · ${st.canary_time}` : ""}`,
+    st.verdict === "LIVE_VERIFIED"
+      ? `בסיס: LIVE_VERIFIED — פריסת Production הצליחה והקנרי הצליח על ה-SHA המדויק של הפרודקשן.`
+      : `בסיס: NOT_VERIFIED (לא ידוע) — ${st.reason || "ראיה חסרה"}. לא הוסק דבר מיומן-התיאום.`,
+  ];
+  return lines.join("\n");
+}
+
 // ── Raziel Intelligence Core v1 Phase K — operator coordination / attention READ (verified admin only) ──────────────
 // Extends the Phase C operator path (same descriptor discipline, same CALLER-JWT owner RPCs, never the service role). The plan only DESCRIBES the
 // capability; owner RPCs re-check admin themselves. work_log is Coordination/Provenance: every answer says what the coordination ledger REPORTS
 // (COORDINATION_REPORTED) and never claims merge/deploy/production. The owner rows are projected here to allowlisted, bounded fields
-// (max rows, truncated text, no links/ids/open-thread text/raw payloads). External live verification is not connected in this phase.
+// (max rows, truncated text, no links/ids/open-thread text/raw payloads). External live verification is Phase L (razielLiveExternalState).
 const RAZIEL_COORD_CAPS: Record<string, RazielOperatorCap> = {
   work_now: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
   work_active: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
@@ -1137,12 +1246,11 @@ const RAZIEL_COORD_CAPS: Record<string, RazielOperatorCap> = {
   agents_status: { calls: [{ rpc: "admin_agents_dashboard", args: {} }], owner: "system_suggestions_law v5" },
   attention: { calls: [{ rpc: "admin_command_center", args: {} }, { rpc: "get_work_log_current", args: {} }, { rpc: "admin_system_health", args: {} }],
     owner: "system_suggestions_law v5 + inter_agent_coordination_law v13" },
-  live_external_state: { calls: [], owner: "live_state_resolution_law v2" },   // no RPC: external verification is not connected
+  live_external_state: { calls: [], owner: "live_state_resolution_law v2" },   // no RPC: Phase L bounded external verifier (razielLiveExternalState)
 };
 const RAZIEL_COORD_MAX_ROWS = 12;
 const RAZIEL_AGENTS_MAX_ROWS = 10;
 const RAZIEL_COORD_TRUTH = "מקור: יומן-התיאום (work_log) — Coordination/Provenance בלבד (COORDINATION_REPORTED), לא LIVE_VERIFIED; מצב מיזוג/פריסה/פרודקשן לא אומת מהיומן.";
-const RAZIEL_LIVE_EXTERNAL_ANSWER = "אימות חי של מצב המאגר, הפריסה ו-main (גיטהאב/ורסל) טרם מחובר בשלב זה — אני לא מסיק מיזוג, פריסה או פרודקשן מיומן-התיאום. אפשר לשאול מה היומן מדווח על משימות, והוא יסומן כדיווח-תיאום בלבד.";
 
 function razielCoordDescriptor(det: any, tier: string): { capability: string; days: number | null } | null {
   if (tier !== "admin" || !det || det.enabled !== true || det.availability !== "operator_read") return null;
@@ -1223,7 +1331,12 @@ async function runRazielCoordination(desc: { capability: string; days: number | 
   const cap = RAZIEL_COORD_CAPS[desc.capability];
   const rpcLabel = cap.calls.map((c) => c.rpc).join("+") || "none";
   if (!cap.calls.length) {
-    return { ok: true, outcome: "success", capability: desc.capability, owner: cap.owner, rpc: rpcLabel, answer: RAZIEL_LIVE_EXTERNAL_ANSWER, facts: [], basis: "EXTERNAL_NOT_CONNECTED" };
+    // Phase L: bounded public external verifier; the caller JWT (bearer) is deliberately NOT passed — nothing credentialed leaves the function.
+    const st = await razielLiveExternalState(trace);
+    return { ok: true, outcome: st.verdict === "LIVE_VERIFIED" ? "success" : "degraded_fallback", capability: desc.capability, owner: cap.owner, rpc: "external_public_read",
+      answer: razielLiveExternalAnswer(st), basis: st.verdict === "LIVE_VERIFIED" ? "LIVE_VERIFIED" : "EXTERNAL_NOT_VERIFIED",
+      facts: [{ label: "main", value: st.main_sha ? st.main_sha.slice(0, 8) : "—" }, { label: "production", value: st.production_sha ? st.production_sha.slice(0, 8) : "—" },
+        { label: "main==production", value: st.parity === null ? "unknown" : String(st.parity) }, { label: "canary", value: st.canary_state || "unknown" }] };
   }
   const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
   const spans: { spanId: string; startedAt: string; endedAt: string }[] = [];
