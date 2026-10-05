@@ -16,7 +16,7 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
-import { getNotificationPrefs } from "../../lib/supabase.js";
+import { askRaziel, getNotificationPrefs } from "../../lib/supabase.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
 import { getMyProfile, watchToggle } from "../../lib/commandCenter.js";
 import { getVisitorId } from "../../lib/tracking.js";
@@ -570,6 +570,59 @@ function ToolsProjection({ surface, target, go, onCapability }) {
   );
 }
 
+const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מהיר", deep: "עמוק" };
+
+// שיחה מקומית קומפקטית עם רזיאל — אותו transport קיים (askRaziel → ai-analyze persona=raziel).
+// אפס קריאה בפתיחה/רינדור; ברירת-מחדל = מהיר; "העמק" = פעולה מפורשת על אותה שאלה+הקשר (אין הסלמה אוטומטית).
+// מצב-השיחה = state מקומי של הקומפוננטה בלבד (אין store גלובלי).
+function RazielNativeChat({ context, label, numberFocus, readingFocus, primary = false }) {
+  const [text, setText] = useState("");
+  const [thread, setThread] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+  const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
+  const buildFacts = () => [
+    numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
+    readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
+  ].filter(Boolean).join("\n").slice(0, 1200);
+  const send = async (question, level, again = false) => {
+    const q = String(question || "").trim();
+    if (!q || busy) return;
+    setBusy(true); setNote("");
+    if (!again) setThread((t) => [...t, { role: "user", text: q }]);
+    const subject = numberFocus?.root != null ? `${numberFocus.root} · ${q}` : q;
+    const res = await askRaziel({
+      subject: subject.slice(0, 300),
+      facts: buildFacts(),
+      context: [subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | ").slice(0, 500) || null,
+      again,
+      intelligenceLevel: level,
+    });
+    setBusy(false);
+    if (!res) { setNote("רזיאל לא הצליח לענות כרגע (או שהמכסה להיום הסתיימה). אפשר לנסות שוב."); return; }
+    setThread((t) => [...t, { role: "raziel", text: res.answer || "", level: res.deterministic ? "deterministic" : (res.intelligence_level || level), question: q }]);
+    if (!again) setText("");
+  };
+  const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
+  return (
+    <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true">
+      <b>✦ המשך עם רזיאל</b>
+      {thread.map((m, i) => (
+        <div key={i} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
+          <span>{m.text}</span>
+          {m.role === "raziel" ? <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small> : null}
+        </div>
+      ))}
+      {note ? <small role="status">{note}</small> : null}
+      <form onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" disabled={busy} />
+        <button className={primary ? "sod29-action primary" : "sod29-action"} type="submit" disabled={busy || !text.trim()}>{busy ? "חושב…" : "שלח"}</button>
+        {lastRaziel && lastRaziel.level === "fast" ? <button className="sod29-action" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(lastRaziel.question, "deep", true)}>העמק</button> : null}
+      </form>
+    </section>
+  );
+}
+
 function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
@@ -696,8 +749,8 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
           data-raziel-route-home={razielRouteAction.preferred_home}
           title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
         >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
-        <button className={routeActionValid ? "sod29-action" : "sod29-action primary"} type="button" disabled title="השיחה המלאה עם רזיאל תחובר בהמשך">✦ המשך עם רזיאל</button>
       </div>
+      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} primary={!routeActionValid} />
     </>
   );
 }

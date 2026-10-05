@@ -30,13 +30,16 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
   assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
-  assert.doesNotMatch(frame, /askRazielAdvanced|askRaziel\s*\(|functions\.invoke\(['"]ai-analyze/);
+  // RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1: the single native chat uses the existing askRaziel transport (one call site).
+  assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);
+  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 1);
 });
 
-test("ELS Raziel panel is context-only; full conversation remains explicitly inactive", () => {
-  assert.match(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
-  assert.match(frame, /className=\{routeActionValid \? "sod29-action" : "sod29-action primary"\} type="button" disabled/);
+test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {
+  assert.match(frame, /data-raziel-native-chat="true"/);
+  assert.doesNotMatch(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
   assert.doesNotMatch(frame, /onClick=\{[^}]*askRaziel/);
+  assert.doesNotMatch(frame, /elsFocus[^\n]*askRaziel/);
   assert.doesNotMatch(page, /synthesisPreview|razielRouteAction|local_message/);
 });
 

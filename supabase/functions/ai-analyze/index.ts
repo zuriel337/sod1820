@@ -1,3 +1,4 @@
+import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -822,18 +823,26 @@ Deno.serve(async (req: Request) => {
               return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
                 facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
                 deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null },
-                engine: "deterministic", model: "none" });
+                engine: "deterministic", model: "none", intelligence_level: "deterministic" });
             }
           }
         }
       } catch { /* fail-open → מסלול Claude הישן */ }
 
+      // בחירת רמה = אך ורק לפי בקשת-הקורא המפורשת (intelligence_level="fast"). אין ניתוב חכם, אין הסלמה לפי tier.
+      //    ברירת-מחדל (כל הקוראים הקיימים) = עמוק. נקבע *אחרי* המסלול הדטרמיניסטי (0 טוקנים) ולפני מכסה/מודל.
+      const rFast = String(body?.intelligence_level || "").toLowerCase() === "fast";
+      const rLevel = rFast ? "fast" : "deep";
+      const rModel = rFast ? FAST_MODEL : MODEL;
       const { identity, tier } = await resolveIdentity(req, body);
-      // מכסת-AI (ai_quota_law) — רזיאל-עומק: 2/יום לכולם (אדמין פטור · ai_quota_check).
-      const q = await checkQuota(identity, tier);
+      // מכסת-AI (ai_quota_law v3) — מהיר: אותו דפוס-מכסה מהיר הקיים (זהות :f · אנונימי 30 · מחובר 200 · אדמין ∞);
+      //    עמוק: מסלול המכסה הרגיל/עמוק הקיים (3/15/100/אדמין ∞ לפי ai_quota_check).
+      const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
+      const rLimitOverride = rFast ? (tier === "anon" ? 30 : tier === "user" ? 200 : null) : null;
+      const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride);
       if (!q.allowed) {
-        return json({ analysis: null, error: "quota", surface: "raziel", tier: q.tier, used: q.used, limit: q.limit,
-          message: "הגעת ל-2 שיחות-רזיאל המעמיקות שלך להיום. המכסה מתחדשת מחר." });
+        return json({ analysis: null, error: "quota", surface: "raziel", intelligence_level: rLevel, tier: q.tier, used: q.used, limit: q.limit,
+          message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
       }
 
       const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
@@ -892,9 +901,21 @@ Deno.serve(async (req: Request) => {
 
       const razielModelSpanId = crypto.randomUUID();
       const razielModelStartedAt = new Date().toISOString();
-      const out = await runClaude(MODEL, user, 1600, rzSys);
+      // מעטפת-reliability הקנונית (retry/timeout/backoff) — רק לקריאת-המודל של persona=raziel. never_silent:
+      //    ה-guardian מחזיר JSON חוקי לפי חוזה-התשובה של רזיאל (לעולם לא null/ריק).
+      const rel = await callClaudeReliable({
+        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: 1600,
+        buildFallback: (reason) => JSON.stringify({
+          v: 1, agent: "raziel", context: null, greeting: null,
+          answer: reason === "timeout" || reason === "overload"
+            ? "אני עמוס לרגע ולא הצלחתי לחשוב על זה עד הסוף — נסה שוב בעוד רגע. 🌳"
+            : "לא הצלחתי לענות על זה כרגע — נסה לנסח שוב או נסה שוב בעוד רגע. 🌳",
+          facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
+        }),
+      });
+      const out = { text: rel.text, usage: rel.usage };
       const razielModelEndedAt = new Date().toISOString();
-      const razielModelOutcome = out.error ? "provider_error" : "success";
+      const razielModelOutcome = rel.degraded ? "provider_error" : "success";
       await recordOperationalSpan(activeTrace, {
         spanId: razielModelSpanId,
         kind: "model_call",
@@ -905,31 +926,28 @@ Deno.serve(async (req: Request) => {
         detail: {
           capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
           owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2",
-          intelligence_level: "deep",
+          intelligence_level: rLevel,
           provider: "anthropic",
-          model: MODEL,
+          model: rModel,
           routing_reason: rMode ? "raziel_advanced" : "raziel_default",
-          output_use: out.error ? "not_applicable" : "used",
-          stop_reason: out.error || null,
+          output_use: rel.degraded ? "fallback_guardian" : "used",
+          stop_reason: rel.degraded ? rel.reason : null,
           resources: {
             input_tokens: out.usage?.input_tokens ?? null,
             output_tokens: out.usage?.output_tokens ?? null,
-            api_calls: 1,
+            api_calls: rel.attempts,
             latency_ms: Math.max(0, Date.parse(razielModelEndedAt) - Date.parse(razielModelStartedAt)),
           },
           cost: { certainty: "unknown" },
           replay: {
             ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
-            parametersRef: `raziel:max_tokens:1600;mode:${rMode ? "advanced" : "baseline"}`,
+            parametersRef: `raziel:max_tokens:1600;level:${rLevel};mode:${rMode ? "advanced" : "baseline"}`,
             continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
           },
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
         },
       });
-      if (out.error) {
-        await finishOperationalTrace(activeTrace, razielModelOutcome, out.error);
-        return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail, trace_id: activeTrace?.traceId || null });
-      }
+      if (rel.degraded) await finishOperationalTrace(activeTrace, razielModelOutcome, rel.reason || "degraded");
       // 📊 Telemetry — Advanced Raziel is distinguishable from the baseline "raziel" kind (and from
       // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
       // primitive only — no new analytics table. A path/again request on an advanced call is logged as
@@ -937,7 +955,7 @@ Deno.serve(async (req: Request) => {
       const rzKind = rMode ? (rPath || rAgain ? `raziel_advanced_followup:${rSurface || "number_page"}` : `raziel_advanced:${rSurface || "number_page"}`) : "raziel";
       const razielTokenLogId = await logTokens(
         rzKind,
-        MODEL,
+        rModel,
         out.usage,
         identity,
         { traceId: activeTrace?.traceId, spanId: razielModelSpanId },
@@ -957,12 +975,12 @@ Deno.serve(async (req: Request) => {
           contract.plan = rPlan;
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
-        await finishOperationalTrace(activeTrace, "success");
-        return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
+        return json({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      await finishOperationalTrace(activeTrace, "success");
-      return json({ analysis: out.text, engine: "claude", model: MODEL, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
+      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

@@ -5,9 +5,8 @@
 // (הערוץ היחיד שהחזיק את שלושת המנגנונים בתהליך). זהו ה«שומר» המשותף:
 // לעולם לא כשל שקט (never_silent) — תמיד מוחזר טקסט מהותי, לעולם לא null.
 //
-// ⚠️ שלב 3 = הקמת המעטפת בלבד. הקובץ הזה **לא מיובא ע״י אף פונקציית-קצה עדיין**
-//    (אפס import → אפס פריסה → אפס שינוי התנהגות). חיבור הערוצים = שלב עתידי,
-//    ורק אחרי הוכחת-שקילות ואישור צוריאל.
+// חיבור ראשון: ai-analyze persona="raziel" בלבד (RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1).
+//    שאר הערוצים טרם מחוברים — חיבורם = שלב עתידי, אחרי הוכחת-שקילות ואישור צוריאל.
 //
 // עקרון-הפרדה: המעטפת מספקת את ה*מנגנון* (ניסיונות/backoff/timeout/never_silent).
 //   ה*תוכן* של תשובת-הגיבוי (guardian) נשאר של הערוץ — הערוץ מעביר buildFallback
@@ -46,6 +45,7 @@ export interface CallClaudeResult {
   degraded: boolean;     // true אם נפלנו ל-guardian
   attempts: number;      // כמה ניסיונות בוצעו בפועל
   reason: string | null; // סיבת-הכשל האחרונה אם degraded
+  usage?: { input_tokens?: number; output_tokens?: number }; // usage של Anthropic (רק כשלא degraded) — ללוג-טוקנים/trace
 }
 
 const TRANSIENT_HTTP = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
@@ -105,7 +105,7 @@ export async function callClaudeReliable(args: CallClaudeArgs): Promise<CallClau
       if (!text) { lastReason = "empty"; args.onAttempt?.({ attempt: attempts, status: 200, error: "empty" }); continue; }
 
       args.onAttempt?.({ attempt: attempts, status: 200, error: null });
-      return { text, degraded: false, attempts, reason: null };
+      return { text, degraded: false, attempts, reason: null, usage: data?.usage };
     } catch (e) {
       clearTimeout(to);
       lastReason = ctrl.signal.aborted ? "timeout" : String(e).slice(0, 120);
