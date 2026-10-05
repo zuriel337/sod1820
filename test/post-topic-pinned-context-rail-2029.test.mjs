@@ -28,7 +28,9 @@ test("desktop pinned region: sticky ~78px, viewport-bounded internal scroll, Pos
 });
 
 test("single pinned region: one rail mounted by the shared frame, no second drawer/rail", () => {
-  assert.equal((frame.match(/<SurfaceContextRail2029/g) || []).length, 1);
+  // Same component: one pinned desktop mount + its own Bottom Context Sheet projection (sheet mode).
+  assert.equal((frame.match(/<SurfaceContextRail2029/g) || []).length, 2);
+  assert.equal((frame.match(/<SurfaceContextRail2029\s+sheet/g) || []).length, 1);
   assert.doesNotMatch(post + topic, /<SurfaceContextRail2029|<ContextualInspector2029/);
 });
 
@@ -59,4 +61,16 @@ test("rail points to in-body depth but does not duplicate it", () => {
   assert.match(rail, /scrollIntoView/);
   assert.doesNotMatch(rail, /tier[123]|Tier[123]|dangerouslySetInnerHTML/);
   assert.doesNotMatch(rail, /getElementById\([^)]*\)\??\.(innerHTML|textContent|cloneNode)/);
+});
+
+test("Glass Rolling Locator: single mobile affordance over the same rail, opens shared context sheet", () => {
+  assert.match(rail, /glass-rolling-locator/);
+  assert.match(rail, /useLocator \? <nav/);
+  assert.match(rail, /sheet \? null/);
+  assert.match(frame, /TRANSIENT\.CONTEXT/);
+  assert.match(frame, /onOpenSheet=\{\(\) => openTransient\(TRANSIENT\.CONTEXT\)\}/);
+  assert.match(css, /GLASS_ROLLING_LOCATOR_V1/);
+  assert.match(css, /prefers-reduced-motion:reduce\)\{\s*\.sod29-glass-locator/);
+  assert.match(css, /--s29-island-clearance/);
+  assert.equal((rail.match(/sod29-glass-locator"/g) || []).length, 1);
 });

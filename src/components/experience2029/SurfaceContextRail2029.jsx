@@ -22,6 +22,9 @@ export default function SurfaceContextRail2029({
   onOpenWorld,
   onAskRaziel,
   onOpenContext,
+  onOpenSheet,
+  onNavigate,
+  sheet = false,
   onNeedHelp,
   compact = false,
   suppressLearn = false,
@@ -173,9 +176,22 @@ export default function SurfaceContextRail2029({
     });
   };
 
+  const stations = sections.filter((item) => item?.id && item?.label);
+  const stationIndex = stations.findIndex((item) => item.id === activeSectionId);
+  const useLocator = !sheet && stations.length > 1 && stationIndex >= 0;
+  const goStation = (offset) => {
+    const next = stations[stationIndex + offset];
+    if (!next) return;
+    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    document.getElementById(next.targetId || next.id)?.scrollIntoView?.({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
+  const openSheet = onOpenSheet || onOpenContext;
+  const prevStation = stations[stationIndex - 1] || null;
+  const nextStation = stations[stationIndex + 1] || null;
+
   return <>
     <ContextualInspector2029
-      className={`sod29-surface-context-rail${compact ? " is-compact" : ""}${restMode ? " is-rest" : documentSurface ? " is-focus" : ""}`}
+      className={`sod29-surface-context-rail${sheet ? " is-sheet" : ""}${compact ? " is-compact" : ""}${restMode ? " is-rest" : documentSurface ? " is-focus" : ""}`}
       data-context-rail-mode={documentSurface ? (restMode ? "rest" : "focus") : undefined}
       ariaLabel="ההקשר הפעיל"
       contextId={subject.id || subject.entityId || subject.locator || title}
@@ -195,10 +211,11 @@ export default function SurfaceContextRail2029({
           items={sections}
           activeId={activeSectionId}
           interactive
+          onSelect={sheet ? onNavigate : undefined}
           ariaLabel={mapLabel}
         />
       </div> : null}
-      {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={jumpToDepth}>
+      {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={() => { jumpToDepth(); if (sheet) onNavigate?.(activeSection); }}>
         <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
         <b>{activeSection.label}</b>
         <span aria-hidden="true">↓</span>
@@ -230,13 +247,32 @@ export default function SurfaceContextRail2029({
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
-    <button className="sod29-surface-context-mobile-cue" type="button" onClick={onOpenContext} aria-label="פתח הקשר">
+    {sheet ? null : useLocator ? <nav
+      className="sod29-glass-locator"
+      aria-label={`${mapLabel} · תחנה ${stationIndex + 1} מתוך ${stations.length}`}
+      data-experience-capability="glass-rolling-locator"
+      data-station-index={stationIndex}
+      data-station-count={stations.length}
+    >
+      <button type="button" className="sod29-glass-locator-step is-prev" disabled={!prevStation} onClick={() => goStation(-1)} aria-label={prevStation ? `לתחנה הקודמת: ${prevStation.label}` : "זו התחנה הראשונה"}>
+        <span aria-hidden="true">⌃</span>
+        <small aria-hidden="true">{prevStation?.label || ""}</small>
+      </button>
+      <button type="button" className="sod29-glass-locator-core" onClick={openSheet} aria-haspopup="dialog" aria-label={`פתח הקשר: ${stations[stationIndex].label}`}>
+        <small>{stationIndex + 1}/{stations.length}</small>
+        <b>{stations[stationIndex].label}</b>
+      </button>
+      <button type="button" className="sod29-glass-locator-step is-next" disabled={!nextStation} onClick={() => goStation(1)} aria-label={nextStation ? `לתחנה הבאה: ${nextStation.label}` : "זו התחנה האחרונה"}>
+        <small aria-hidden="true">{nextStation?.label || ""}</small>
+        <span aria-hidden="true">⌄</span>
+      </button>
+    </nav> : <button className="sod29-surface-context-mobile-cue" type="button" onClick={openSheet} aria-label="פתח הקשר">
       <span className="sod29-surface-context-mobile-cue-icon">✦</span>
       <span className="sod29-surface-context-mobile-cue-copy">
         <small>{sections.length ? mapLabel : "הקשר"}</small>
         <b>{title}</b>
       </span>
       <span className="sod29-surface-context-mobile-cue-value">{hasNumber ? number : "פתח"}</span>
-    </button>
+    </button>}
   </>;
 }

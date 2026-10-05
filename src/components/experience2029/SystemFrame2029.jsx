@@ -58,6 +58,7 @@ const TRANSIENT = Object.freeze({
   RAZIEL: "raziel",
   WORKSPACE: "workspace",
   ISSUE: "issue",
+  CONTEXT: "context",
 });
 
 const ShellContext = createContext({
@@ -1023,7 +1024,7 @@ export default function SystemFrame2029({
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
-    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL].includes(kind)) {
+    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL].includes(kind)) {
       completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
     }
     setTransient({ kind, payload });
@@ -1322,6 +1323,17 @@ export default function SystemFrame2029({
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
+      sheet
+      surface={surface}
+      context={context}
+      focus={surfaceFocus || activeTarget}
+      onOpenNumber={(target) => openNumber(target || activeTarget)}
+      onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+      onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+      onNavigate={closeTransient}
+      onNeedHelp={openIssueReport}
+    /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
@@ -1447,6 +1459,7 @@ export default function SystemFrame2029({
               onOpenNumber={(target) => openNumber(target || activeTarget)}
               onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
               onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+              onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
               onNeedHelp={openIssueReport}
               suppressLearn={Boolean(transientKind)}
             /> : null}
