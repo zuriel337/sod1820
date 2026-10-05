@@ -7,6 +7,8 @@
 // States: READY | CONTINUATION (a bounded step under an existing owner is still pending) | BLOCKED.
 // A bundle is produced ONLY when READY.
 
+import { isCanonicalVideoOriginalPath, posterPathForOriginal } from "./mediaPosterLane.js";
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const RASTER_POSTER_MIMES = new Set(["image/jpeg", "image/png"]);
 const RASTER_EXT_RE = /\.(jpe?g|png)$/i;
@@ -84,17 +86,25 @@ export function preflightPost({ intent = {}, facts = {}, supabaseUrl = "" }) {
       if (!v.read_back?.ok || !VIDEO_MIMES.has(s(v.read_back.mime))) {
         continuations.push(cont("MEDIA_VERIFY_PENDING", "media-upload-intent", "verify", "owner-readable read-back (size/mime[/sha256]) not yet ok"));
       }
+      if (!isCanonicalVideoOriginalPath(s(v.storage_path))) {
+        blockers.push(block("MEDIA_PATH_NOT_2029_CANONICAL", "video original must be sod1820/2029/video/YYYY/MM/<asset-id>/original.<ext> (agent-specific paths are not canonical for new posts)"));
+      }
       if (s(v.public_url) && !content.includes(s(v.public_url))) blockers.push(block("VIDEO_NOT_EMBEDDED", "post body must embed the canonical self-hosted video URL"));
     }
     const p = facts.media?.poster;
     if (!p) {
-      continuations.push(cont("POSTER_PENDING", "media-derivatives", "poster_from_stored_video",
-        "poster is a background derivative of the stored video (no client capture, no new media identity)"));
+      const planned = posterPathForOriginal(s(v?.storage_path));
+      continuations.push(cont("POSTER_PENDING", "media-thumb-queue", "poster_from_stored_video",
+        `existing derivative lane: media-thumb-queue op=list_video_posters + scripts/media-thumbs.mjs (media-thumbs workflow) writes ${planned || "derivatives/poster.jpg"} server-side; no client capture, no new media identity`));
     } else {
       posterUrl = s(p.public_url);
       const ext = RASTER_EXT_RE.test(posterUrl.split(/[?#]/)[0]);
       if (!isCanonicalMediaUrl(posterUrl, supabaseUrl)) blockers.push(block("POSTER_NOT_SUPABASE_STORAGE", posterUrl));
       else if (!ext || (p.mime && !RASTER_POSTER_MIMES.has(s(p.mime)))) blockers.push(block("POSTER_NOT_RASTER", "post_og_image_law: JPG/PNG only"));
+      const expected = posterPathForOriginal(s(v?.storage_path));
+      if (expected && !blockers.some((b) => b.code === "POSTER_NOT_SUPABASE_STORAGE") && posterUrl.split(/[?#]/)[0] !== STORAGE_PUBLIC_PREFIX(supabaseUrl) + expected) {
+        blockers.push(block("POSTER_PATH_MISMATCH", `poster must be the derivative ${expected}`));
+      }
       if (imageUrl && posterUrl && imageUrl !== posterUrl) blockers.push(block("IMAGE_URL_POSTER_MISMATCH", "post image_url must be the verified poster"));
     }
   }

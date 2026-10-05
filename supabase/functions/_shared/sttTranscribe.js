@@ -10,6 +10,7 @@ export const STT_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
 export const MAX_STT_BYTES = 24 * 1024 * 1024;
 
 const LANG_RE = /^[a-z]{2,3}$/;
+/** @param {unknown} value @returns {string | null} */
 export function normalizeLanguage(value) {
   const v = String(value || "").trim().toLowerCase().split(/[-_]/)[0];
   return LANG_RE.test(v) ? v : null;
@@ -19,6 +20,9 @@ export function mediaExtension(url, fallback = "mp4") {
   return (String(url || "").match(/\.(mp4|webm|m4v|mov)(?:[?#]|$)/i)?.[1] || fallback).toLowerCase();
 }
 
+/**
+ * @param {{ key: string, blob: Blob, filename: string, type: string, language?: unknown, fetchImpl?: typeof fetch }} args
+ */
 // -> { ok, status, text, language, language_evidence: "declared"|"provider_reported"|"unknown", model, error?, raw }
 export async function transcribeBlob({ key, blob, filename, type, language = null, fetchImpl = fetch }) {
   if (!key) return { ok: false, status: 0, error: "stt_key_missing", model: STT_MODEL, language: null, language_evidence: "unknown" };

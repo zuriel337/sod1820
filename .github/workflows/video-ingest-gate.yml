@@ -12,6 +12,9 @@ on:
       - "supabase/functions/_shared/sttTranscribe.js"
       - "supabase/functions/_shared/videoTranscriptPolicy.js"
       - "supabase/functions/_shared/postPublishPreflight.js"
+      - "supabase/functions/_shared/mediaPosterLane.js"
+      - "supabase/functions/media-thumb-queue/**"
+      - "scripts/media-thumbs.mjs"
       - "supabase/migrations/20261005020000_sys_save_post_service_only_acl_v1.sql"
       - "test/post-publishing-2029-chain.test.mjs"
       - "test/fixtures/post-publishing/**"
@@ -40,7 +43,9 @@ jobs:
           deno-version: v2.x
       - name: Supabase Edge runtime typecheck
         run: |
-          deno check supabase/functions/video-migrate/index.ts
-          deno check supabase/functions/agent-upload/index.ts
-          deno check supabase/functions/video-transcribe/index.ts
-          deno check supabase/functions/wa-video-enrich/index.ts
+          # Deno 2.9 resolves @supabase/functions-js types through npm:openai; auto node_modules makes that deterministic.
+          deno check --node-modules-dir=auto supabase/functions/video-migrate/index.ts
+          deno check --node-modules-dir=auto supabase/functions/agent-upload/index.ts
+          deno check --node-modules-dir=auto supabase/functions/video-transcribe/index.ts
+          deno check --node-modules-dir=auto supabase/functions/wa-video-enrich/index.ts
+          deno check --node-modules-dir=auto supabase/functions/media-thumb-queue/index.ts

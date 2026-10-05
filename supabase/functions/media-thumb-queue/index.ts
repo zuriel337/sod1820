@@ -3,6 +3,7 @@
 const SR = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB = Deno.env.get("SUPABASE_URL") || "";
 const ADMIN = Deno.env.get("FB_ADMIN_KEY") || "";
+import { findPendingPosters } from "../_shared/mediaPosterLane.js";
 const VID = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -32,6 +33,23 @@ Deno.serve(async (req) => {
       if (!r.ok) return json({ ok: false, error: d?.message || `list ${r.status}` }, 502);
       const rows = (Array.isArray(d) ? d : []).filter((x: any) => VID.test(x.image_url || "")).map((x: any) => ({ id: x.id, url: x.image_url }));
       return json({ ok: true, rows });
+    }
+
+    // Canonical 2029 media-bucket video originals whose derivatives/poster.jpg is missing. Derived live from
+    // Storage objects (no queue/table); the worker uploads through sign-upload (bucket=media).
+    if (op === "list_video_posters") {
+      const limit = Math.min(25, Math.max(1, +body.limit || 10));
+      const listDir = async (prefix: string) => {
+        const r = await fetch(`${SB}/storage/v1/object/list/media`, {
+          method: "POST", headers: { ...H, "content-type": "application/json" },
+          body: JSON.stringify({ prefix, limit: 200, offset: 0, sortBy: { column: "name", order: "asc" } }),
+        });
+        if (!r.ok) throw new Error(`storage list ${r.status}`);
+        const d = await r.json().catch(() => []);
+        return (Array.isArray(d) ? d : []).map((x: any) => ({ name: String(x.name || ""), isFolder: !x.id }));
+      };
+      const { pending, truncated } = await findPendingPosters({ listDir, limit });
+      return json({ ok: true, bucket: "media", rows: pending.map((p) => ({ ...p, url: `${SB}/storage/v1/object/public/media/${p.original_path}` })), truncated });
     }
 
     if (op === "set") {

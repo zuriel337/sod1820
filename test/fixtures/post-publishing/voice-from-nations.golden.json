@@ -9,8 +9,8 @@
     "original_size": 4776846,
     "original_sha256": "06de08ea4f05110c729f715d5f848d3a5df3de0edba060bd67b5360c6c270b50",
     "planned_asset_id": "af03ebcb-89bc-4af0-99cc-bd17b62e83d4",
-    "planned_storage_path": "sod1820/agent/2029/video/2026/10/af03ebcb-89bc-4af0-99cc-bd17b62e83d4/original.mp4",
-    "planned_poster_path": "sod1820/agent/2029/video/2026/10/af03ebcb-89bc-4af0-99cc-bd17b62e83d4/derivatives/poster.jpg",
+    "planned_storage_path": "sod1820/2029/video/2026/10/af03ebcb-89bc-4af0-99cc-bd17b62e83d4/original.mp4",
+    "planned_poster_path": "sod1820/2029/video/2026/10/af03ebcb-89bc-4af0-99cc-bd17b62e83d4/derivatives/poster.jpg",
     "poster_time_s": 19,
     "poster_visible_subtitle": "it’s the God of Abraham, Isaac, and Jacob",
     "source_language": { "lang": "en", "evidence": "declared_from_visible_subtitle", "stt_detected": false }
@@ -21,14 +21,14 @@
     "title": "Voice from the Nations",
     "slug": "voice-from-nations",
     "excerpt": "Source video, original transcript and translation preserved under one video_key.",
-    "categories": ["תיעוד אירועים"],
-    "tags": [],
+    "categories": ["קולות מאומות העולם", "תיעוד אירועים", "וידאו"],
+    "tags": ["אברהם יצחק ויעקב", "ישראל", "עם ישראל", "מטוס", "Flydubai"],
     "author": null,
     "source": "ai",
     "ai_touched": false,
     "source_attribution": { "platform": "descript", "credit_text": "Source video: provided by ZURIEL (original file 1000702626.mp4)" },
     "language_policy": { "require_transcript": true, "want_translations": ["he"] }
   },
-  "facts_taxonomy": { "categories": ["תיעוד אירועים"], "tags": [] },
+  "facts_taxonomy": { "categories": ["קולות מאומות העולם", "תיעוד אירועים", "וידאו"], "tags": ["אברהם יצחק ויעקב", "ישראל", "עם ישראל", "מטוס", "Flydubai"] },
   "facts_existing_slugs": []
 }
