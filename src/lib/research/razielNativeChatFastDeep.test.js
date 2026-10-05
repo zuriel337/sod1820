@@ -61,11 +61,14 @@ test("native chat: user question is the subject; root/method only in facts/conte
 
 test("native chat: bounded local transcript in context, no new store", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.match(chat, /turns\.slice\(-6\)/);
-  assert.match(chat, /slice\(0, 220\)/);
-  assert.match(chat, /slice\(0, 1700\)/);
+  assert.match(chat, /turns\.slice\(-2\)/);
+  assert.match(chat, /slice\(0, 200\)/);
+  assert.match(chat, /slice\(0, 500\)/);
+  assert.match(chat, /slice\(0, 600\)/);
+  assert.doesNotMatch(chat, /slice\(0, 1700\)|turns\.slice\(-6\)/);
   assert.doesNotMatch(chat, /localStorage|sessionStorage/);
-  assert.match(edge, /body\?\.context \|\| ""\)\.slice\(0, 1800\)/);
+  assert.match(edge, /body\?\.context \|\| ""\)\.slice\(0, 600\)/);
+  assert.doesNotMatch(edge, /body\?\.context \|\| ""\)\.slice\(0, 1800\)/);
 });
 
 test("reliability: usage aggregated across HTTP-200 attempts, kept on degraded", () => {

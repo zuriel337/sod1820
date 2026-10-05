@@ -798,7 +798,7 @@ Deno.serve(async (req: Request) => {
       const rFacts = String(body?.facts || "").slice(0, 3500);
       const rSubject = subject;
       const rPath = String(body?.path || "").slice(0, 40);
-      const rCtxHint = String(body?.context || "").slice(0, 1800);
+      const rCtxHint = String(body?.context || "").slice(0, 600);
       const rAgain = !!body?.again;
       // 🧭 Advanced-mode gate — opt-in only (RAZIEL_ADVANCED_NUMBER_PAGE_v0). Absent/false → every line
       // below this block behaves exactly as before (rMode false ⇒ no plan, no surface block, kind="raziel").

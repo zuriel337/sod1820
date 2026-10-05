@@ -581,10 +581,17 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
-  // תמלול מקומי חסום (6 תורות אחרונים, 220 תווים לתור) — רק state הקומפוננטה; בלי store חדש.
-  const buildTranscript = (turns) => turns.slice(-6)
-    .map((m) => `${m.role === "user" ? "משתמש" : "רזיאל"}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 220)}`)
-    .join("\n");
+  // תמלול מקומי חסום — משקף את חסם RazielChat הישן: 2 תורות אחרונים, ~200 תווים לתור, ≤500 סה"כ.
+  // רק state הקומפוננטה; בלי store חדש. כל ההקשר ≤600 — חוזה rCtxHint הקיים בשרת (לא מורחב).
+  const buildTranscript = (turns) => turns.slice(-2)
+    .map((m) => `${m.role === "user" ? "משתמש" : "רזיאל"}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 200)}`)
+    .join("\n").slice(0, 500);
+  const buildContext = (transcript) => {
+    const block = transcript ? `שיחה אחרונה:\n${transcript}` : "";
+    const head = [subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | ");
+    const room = Math.max(0, 600 - block.length - (block && head ? 1 : 0));
+    return [head.slice(0, room), block].filter(Boolean).join("\n").slice(0, 600) || null;
+  };
   const buildFacts = () => [
     numberFocus?.root != null ? `שורש עמוד: ${numberFocus.root}` : "",
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
@@ -601,7 +608,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, primary =
     const res = await askRaziel({
       subject: q.slice(0, 300), // השאלה עצמה בלבד — שורש/שיטה רק ב-facts/context (קידומת מזהמת חילוץ נושא דטרמיניסטי)
       facts: buildFacts(),
-      context: [[subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | "), transcript && `שיחה אחרונה:\n${transcript}`].filter(Boolean).join("\n").slice(0, 1700) || null,
+      context: buildContext(transcript),
       again,
       intelligenceLevel: level,
     });
