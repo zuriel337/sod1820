@@ -11,6 +11,8 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const compat = read("src/components/experience2029/Sod2029Shell.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
+const baseCss = read("src/components/experience2029/sod2029.css");
+const shellHtml = read("2029.html");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
@@ -185,6 +187,17 @@ assert.match(css, /--s29-global-rail-width:264px/);
 assert.match(css, /--s29-context-rail-width:286px/);
 assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
+
+// Design V2 typography must be real at runtime, not token-only.
+assert.match(shellHtml, /family=Rubik/);
+assert.match(shellHtml, /Noto\+Sans\+Hebrew/);
+assert.match(shellHtml, /IBM\+Plex\+Mono/);
+assert.equal(shellHtml.includes("family=Assistant"), false, "2029 runtime must not load Legacy Assistant as its primary font family");
+assert.match(baseCss, /DESIGN_V2_TYPOGRAPHY_ROOT/);
+assert.match(baseCss, /font-family:var\(--s29-font-ui\)/);
+assert.match(baseCss, /font-family:var\(--s29-font-body\)/);
+assert.match(baseCss, /font-size:var\(--s29-type-ui\)/);
+assert.match(baseCss, /font-size:var\(--s29-type-micro\)/);
 
 
 // Public-language projection: global chrome must not expose laboratory/Research OS jargon.
