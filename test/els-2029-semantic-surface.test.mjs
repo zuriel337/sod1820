@@ -22,8 +22,11 @@ test("ELS 2029 exact replay is fail-closed through the canonical replay request 
   assert.match(src, /replayMatched \? "MATCH · occurrence אומת בשרת"/);
 });
 
-test("ELS 2029 is projection-only and does not embed or implement an ELS engine", () => {
-  assert.doesNotMatch(src, /TzofenEmbed|tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
+test("ELS 2029 Research stays projection-only while Classic hosts the one canonical tool", () => {
+  assert.match(src, /\{researchProfile \? <div className="sod29-els-architecture">/);
+  assert.match(src, /data-els-classic-tool="canonical-tzofen"/);
+  assert.match(src, /<TzofenEmbed seed=\{classicSeed \|\| undefined\} full \/>/);
+  assert.doesNotMatch(src, /tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
   assert.match(src, /לא לחשב אותו מחדש/);
   assert.match(src, /Matrix \/ layers \/ 3D הם representation בלבד/);
   assert.match(src, /קרבה חזותית אינה מעלה Truth או Independence/);
