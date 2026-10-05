@@ -716,7 +716,13 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
     return `\n\nתוכנית-מחקר (L4_TOOL_RESEARCH): הורצו כלים דטרמיניסטיים קיימים${caps} — התוצאות מצורפות למטה; סינתזה בלבד, ללא הוספת עובדות.` +
       `\nסוג-יכולת: ${p.capability_class ?? "—"} · זמינות: ${avail || "—"}`;
   }
-  const note = p.operator_executed === true
+  if (p.number_context_executed === true) {
+    return `\n\nתוכנית-מחקר (הקשר-מספר באתר): הורצו הקרנות-קריאה קיימות (number_map + number_dossier_json) — התוצאות מצורפות למטה; סינתזה בלבד, ללא הוספת עובדות או מספרים.` +
+      `\nסוג-יכולת: ${p.capability_class ?? "—"} · זמינות: ${avail || "—"}`;
+  }
+  const note = p.number_context_executed === false && avail === "number_context"
+    ? "הקשר-מספר באתר לא הורץ (אין עוגן מספרי מפורש/מאומת או שהקריאה נכשלה) — אל תמציא מספר, אל תחשב ואל תטען שיש קשרים; בקש מהמשתמש מספר מפורש."
+    : p.operator_executed === true
     ? "יכולת-מפעיל הורצה בקריאה-בלבד — הנתונים מצורפים למטה."
     : avail === "operator_read"
     ? "יכולת-מפעיל לא הורצה/נכשלה — אין נתוני-מפעיל; אל תמציא נתונים וציין שלא התקבלו."
@@ -949,6 +955,132 @@ async function runRazielOperator(desc: { capability: string; days: number | null
   return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: rpcLabel, ...(proj || {}) };
 }
 
+// ── Raziel Intelligence Core v1 Phase H — reality_number_context (READ projections of reality_graph_law v8) ─────────────
+// The plan (existing fn_raziel_plan/fn_raziel_answer, trace/number_context) only DESCRIBES the capability and its anchor. Execution happens here and ONLY
+// through the two canonical read adapters below (allowlist, never plan-supplied rpc names; no raw node/edge/post/topic tables). The numeric anchor is:
+// explicit decimal (decided by the plan grammar) · the verified gematria dependency value (decided inside fn_raziel_answer) · or, for pronoun forms, the
+// bounded surface_semantic subject{type:"number",id:<decimal>} — never a model-derived number. Graph edge presence = relation evidence, not truth.
+const RAZIEL_NUMBER_CONTEXT_CALLS = [
+  { rpc: "number_map", owner: "reality_graph_law v8" },
+  { rpc: "number_dossier_json", owner: "reality_graph_law v8 + project_codex.gematria_engine" },
+] as const;
+const RAZIEL_NC_TOP = 6;
+
+function razielSurfaceNumberRoot(sc: any): number | null {
+  if (!sc || typeof sc !== "object" || Array.isArray(sc)) return null;
+  const s = sc.subject;
+  if (!s || typeof s !== "object" || Array.isArray(s)) return null;
+  if (rzClean(s.type, 30).toLowerCase() !== "number") return null;
+  const id = typeof s.id === "string" ? s.id.trim() : "";
+  if (!/^[0-9]{1,6}$/.test(id)) return null;   // raw id must already be a pure decimal — never label/expression/result, no tag-stripped salvage
+  const n = Number(id);
+  return n >= 1 ? n : null;
+}
+
+function razielNumberContextDescriptor(det: any, surfaceSemantic: any): { number: number; anchor: string; mode: "deterministic" | "synthesis" } | null {
+  if (!det || det.enabled !== true || det.availability !== "number_context") return null;
+  const nc = det.number_context;
+  if (!nc || nc.contract !== "number_context_v1") return null;
+  const anchor = String(nc.anchor || "");
+  const mode = nc.mode === "deterministic" ? "deterministic" : "synthesis";
+  let n: number | null = null;
+  if (anchor === "explicit") n = num(nc.number);
+  else if (anchor === "gematria_dependency") n = det.mode === "tool_research" && nc.dependency?.verified === true ? num(nc.number) : null;
+  else if (anchor === "surface_root") n = razielSurfaceNumberRoot(surfaceSemantic);
+  if (n === null || !Number.isInteger(n) || n < 1 || n > 999999) return null;   // fail closed: no anchor → no tool
+  return { number: n, anchor, mode };
+}
+
+type RazielNcItem = { ref?: string; label: string; relation?: string; weight?: number };
+type RazielNumberContext = { ok: boolean; number: number; anchor: string; mode: string; outcome: string; answer?: string; pack?: string;
+  facts?: { label: string; value: string }[]; counts?: Record<string, number>; refs?: Record<string, number> };
+
+const ncText = (v: unknown, n: number): string => (typeof v === "string" ? v.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, n) : "");
+
+function razielNumberContextProject(n: number, map: any, dossier: any): Omit<RazielNumberContext, "ok" | "number" | "anchor" | "mode" | "outcome"> | null {
+  const mapOk = !!map && typeof map === "object" && !Array.isArray(map);
+  const dosOk = !!dossier && typeof dossier === "object" && !Array.isArray(dossier);
+  if (!mapOk && !dosOk) return null;
+  const neigh = mapOk && map.neighbors && typeof map.neighbors === "object" ? map.neighbors : {};
+  const cats = ["post", "topic", "entity", "event", "convergence", "number"];
+  const item = (x: any): RazielNcItem | null => {
+    const label = ncText(x?.label ?? x?.ref, 100);
+    if (!label) return null;
+    return { ...(typeof x?.ref === "string" ? { ref: ncText(x.ref, 200) } : {}), label,
+      ...(typeof x?.relation === "string" ? { relation: ncText(x.relation, 30) } : {}), ...(num(x?.weight) !== null ? { weight: num(x.weight) as number } : {}) };
+  };
+  const top: Record<string, RazielNcItem[]> = {};
+  const counts: Record<string, number> = {};
+  for (const c of cats) {
+    const arr = Array.isArray(neigh[c]) ? neigh[c] : [];
+    const cnt = num(map?.counts?.[c]);
+    counts[c] = cnt !== null ? cnt : arr.length;
+    top[c] = arr.slice(0, RAZIEL_NC_TOP).map(item).filter(Boolean) as RazielNcItem[];
+  }
+  const dPosts: string[] = dosOk && Array.isArray(dossier.posts) ? dossier.posts.filter((p: unknown) => typeof p === "string").map((p: string) => ncText(p, 100)).filter(Boolean) : [];
+  const dTopics: string[] = dosOk && Array.isArray(dossier.topics) ? dossier.topics.map((p: any) => ncText(typeof p === "string" ? p : (p?.label ?? p?.title), 100)).filter(Boolean) : [];
+  const dMethods = dosOk && Array.isArray(dossier.methods)
+    ? dossier.methods.slice(0, RAZIEL_NC_TOP).map((m: any) => ({ method: ncText(m?.method, 30),
+        n: Array.isArray(m?.phrases) ? m.phrases.length : 0,
+        phrases: Array.isArray(m?.phrases) ? m.phrases.slice(0, RAZIEL_NC_TOP).map((p: unknown) => ncText(p, 60)).filter(Boolean) : [] })).filter((m: any) => m.method)
+    : [];
+  const dDefs = dosOk && Array.isArray(dossier.definitions) ? dossier.definitions.length : 0;   // count only — definitions are never widened here
+  const dReality = dosOk ? num(dossier.reality) : null;
+  const counted = { posts_map: counts.post, topics_map: counts.topic, entities: counts.entity, events: counts.event, convergences: counts.convergence, numbers: counts.number,
+    posts_dossier: dPosts.length, topics_dossier: dTopics.length, methods: dosOk && Array.isArray(dossier.methods) ? dossier.methods.length : 0, definitions: dDefs };
+  const bundle = { number: n, source: { number_map: mapOk ? "ok" : "unavailable", number_dossier_json: dosOk ? "ok" : "unavailable" }, counts: counted,
+    map: Object.fromEntries(cats.map((c) => [c, top[c]])),
+    dossier: { posts: dPosts.slice(0, RAZIEL_NC_TOP), topics: dTopics.slice(0, RAZIEL_NC_TOP), methods: dMethods, reality: dReality, definitions: dDefs },
+    note: "נוכחות קשת בגרף = ראיית-קשר בלבד, לא פירוש ולא אמת קנונית; מוצגים עד 6 פריטים לקטגוריה (שמות/הפניות בלבד, בלי גוף-פוסט)" };
+  const parts: string[] = [];
+  const add = (label: string, c: number) => { if (c > 0) parts.push(`${label} ${c}`); };
+  add("פוסטים", Math.max(counted.posts_map, counted.posts_dossier)); add("טופיקים", Math.max(counted.topics_map, counted.topics_dossier));
+  add("ישויות", counted.entities); add("אירועים", counted.events); add("התכנסויות", counted.convergences); add("מספרים קשורים", counted.numbers);
+  const lab = (a: RazielNcItem[]) => a.map((x) => x.label).join(" · ");
+  const lines = [parts.length ? `המספר ${n} באתר (קשרי גרף ותיק-מספר קיימים): ${parts.join(" · ")}.` : `לא נמצאו קשרים ידועים למספר ${n} בהקרנות הקיימות של האתר (אין זו הוכחה שאינו מופיע במקומות אחרים).`];
+  if (top.post.length) lines.push(`פוסטים: ${lab(top.post)}`);
+  else if (dPosts.length) lines.push(`פוסטים (תיק-מספר): ${dPosts.slice(0, RAZIEL_NC_TOP).join(" · ")}`);
+  if (dTopics.length) lines.push(`טופיקים: ${dTopics.slice(0, RAZIEL_NC_TOP).join(" · ")}`);
+  if (top.entity.length) lines.push(`ישויות (יחס): ${top.entity.map((x) => `${x.label}${x.relation ? ` [${x.relation}]` : ""}`).join(" · ")}`);
+  if (top.event.length) lines.push(`אירועים (יחס): ${top.event.map((x) => `${x.label}${x.relation ? ` [${x.relation}]` : ""}`).join(" · ")}`);
+  const answer = lines.join("\n").slice(0, 1400);
+  const facts = parts.map((p) => { const i = p.lastIndexOf(" "); return { label: p.slice(0, i), value: p.slice(i + 1) }; });
+  return { answer, facts, counts: counted as unknown as Record<string, number>, refs: { post: top.post.length, topic: dTopics.length ? Math.min(dTopics.length, RAZIEL_NC_TOP) : top.topic.length,
+    entity: top.entity.length, event: top.event.length }, pack: JSON.stringify(bundle).slice(0, 2600) };
+}
+
+async function runRazielNumberContext(desc: { number: number; anchor: string; mode: string }, trace: OperationalTraceHandle | null): Promise<RazielNumberContext> {
+  const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
+  const spans: { spanId: string; startedAt: string }[] = [];
+  for (const c of RAZIEL_NUMBER_CONTEXT_CALLS) {
+    const sAt = new Date().toISOString();
+    // public read projections (anon-executable, publication filtering inside the owner function); anon key only — never the service role
+    results.push(await razielOperatorRpc(SB_ANON, { rpc: c.rpc, args: { n: desc.number } }));
+    spans.push({ spanId: crypto.randomUUID(), startedAt: sAt });
+  }
+  const anyOk = results.some((r) => r.ok);
+  const proj = anyOk ? razielNumberContextProject(desc.number, results[0].ok ? results[0].data : null, results[1].ok ? results[1].data : null) : null;
+  const ok = anyOk && !!proj;
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i], c = RAZIEL_NUMBER_CONTEXT_CALLS[i];
+    const used = r.ok && ok;
+    await recordOperationalSpan(trace, {
+      spanId: spans[i].spanId, kind: "db_rpc", name: `ai-analyze:raziel:number_context:${c.rpc}`, startedAt: spans[i].startedAt, endedAt: new Date().toISOString(),
+      outcome: r.ok && !proj ? "failed_with_reason" : r.outcome,
+      detail: {
+        capability: `raziel_number_context:${c.rpc}`, owner_ref: c.owner, routing_reason: "raziel_plan_number_context",
+        output_use: used ? "used" : "not_applicable", stop_reason: used ? null : (r.error || "unusable_payload"),
+        resources: { latency_ms: r.ms, api_calls: 1 },
+        result_refs: used && proj ? { counts: proj.counts, bounded_refs: proj.refs } : null,
+        replay: { ownerRuleRefs: [c.owner], parametersRef: `rpc:${c.rpc};anchor:${desc.anchor};read_only:true` },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+  }
+  const failed = results.find((x) => !x.ok);
+  return { ok, number: desc.number, anchor: desc.anchor, mode: desc.mode, outcome: ok ? (failed ? "partial" : "success") : (failed ? failed.outcome : "failed_with_reason"), ...(proj || {}) };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   let activeTrace: OperationalTraceHandle | null = null;
@@ -1115,6 +1247,7 @@ Deno.serve(async (req: Request) => {
       const rBearer = tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
       let rOpDesc: { capability: string; days: number | null } | null = null;
       let rToolRes: RazielToolResearch | null = null;
+      let rDet: any = null;   // Phase H: the fn_raziel_answer result (descriptor source for number_context)
       try {
         if (rSubject && SB_URL && SB_SVC) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
@@ -1126,6 +1259,7 @@ Deno.serve(async (req: Request) => {
             rPlanMeta = razielPlanMeta(det);
             rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
             rToolRes = razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
+            rDet = det;
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
               // flag/disabled answer carries no plan → reuse the existing read-only fn_raziel_plan
               try {
@@ -1238,6 +1372,24 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      // Phase H — reality_number_context. Anchor comes from the plan (explicit / verified gematria dependency) or the bounded surface root; no anchor ⇒ no tool.
+      //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.
+      let rNcPack = "";
+      const rNcDesc = razielNumberContextDescriptor(rDet, body?.surface_semantic);
+      if (rDet && rDet.availability === "number_context") rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: false };
+      if (rNcDesc) {
+        const nc = await runRazielNumberContext(rNcDesc, activeTrace);
+        rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, outcome: nc.outcome } };
+        if (nc.ok && rNcDesc.mode === "deterministic" && !rToolRes && nc.answer) {
+          await finishOperationalTrace(activeTrace, "success");
+          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
+            follow_up_question: null, continue_wa: true, deterministic: true,
+            source_of_truth: "reality_graph_law v8 · number_map + number_dossier_json", number_context: { number: nc.number, anchor: nc.anchor, counts: nc.counts } },
+            engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
+        }
+        if (nc.ok && nc.pack) rNcPack = nc.pack;
+      }
+
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona("site"),
         userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
@@ -1269,7 +1421,9 @@ Deno.serve(async (req: Request) => {
         ? "\n\nנתוני-מפעיל (קריאה-בלבד ממקור הבעלים, אומתו כאדמין; השתמש רק במספרים כאן, אל תמציא ואל תחשב מעבר; שמור על תוויות EXACT/ESTIMATED/UNKNOWN):\n" + rOpPack
         : "");
 
-      const toolText = rToolRes ? rToolRes.text : "";
+      const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
+        ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
+        : "");
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
