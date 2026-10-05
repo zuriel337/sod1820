@@ -1,6 +1,6 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');\nconst { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
-const BASE = 'http://127.0.0.1:4173';
+const BASE = 'http://127.0.0.1:4173';\n\ntest.beforeEach(async ({ page }) => installStorageEgressGuard(page));
 const POST_PATH = '/post/bennett-melach-631-78';
 const FAMILIARITY_KEY = 'sod_entry_learn_2029_v1';
 
