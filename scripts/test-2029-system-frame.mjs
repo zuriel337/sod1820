@@ -236,7 +236,7 @@ assert.match(frame, /onClick=\{openAttention\}/);
 assert.match(frame, /<small>עוד<\/small>/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /function MoreProjection/);
-assert.match(frame, /onClick=\{onCommand\}>⌕ חיפוש \/ פקודה<\/button>/);
+assert.match(frame, /onClick=\{onCommand\}>⌕ חיפוש<\/button>/);
 assert.match(frame, /onClick=\{onTools\}>◇ כלים<\/button>/);
 assert.match(frame, /onClick=\{onWorkspace\}>◎ האזור האישי<\/button>/);
 assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent Dock owner");
