@@ -49,3 +49,6 @@
 .sod29-workspace-follow-row .sod29-workspace-unfollow{width:auto;color:var(--s29-muted);font-size:11px}
 .sod29-workspace-home-card.is-readonly{cursor:default}
 .sod29-root .sod29-command-island>button.sod29-island-personal{min-width:52px}
+.sod29-workspace-research-state,.sod29-workspace-research-bucket{display:grid;gap:8px}
+.sod29-workspace-sync-note{color:var(--s29-muted);font-size:11px}
+.sod29-workspace-collection{display:flex;align-items:center;gap:8px;border:1px solid var(--s29-line);border-radius:12px;padding:9px 11px;color:var(--s29-ink)}

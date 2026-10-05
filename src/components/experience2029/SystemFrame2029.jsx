@@ -345,7 +345,8 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, surface = "system", onSetFocus, onAddResearch, onOpenNumber, onNeedHelp }) {
+function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp }) {
+  const [commitState, setCommitState] = useState(null);
   const numericFamily = target?.type === "number" || target?.type === "phrase";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
@@ -454,9 +455,12 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       <div className="sod29-panel-actions-grid">
         <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
-        <button className="sod29-action" type="button" onClick={() => onAddResearch(target)}>＋ שמור</button>
+        <button className="sod29-action" type="button" data-inspect-action="save" aria-pressed={isSaved} onClick={() => setCommitState({ kind: "save", ok: Boolean(onSave?.(target)) })}>{isSaved ? "✓ שמור" : "＋ שמור"}</button>
+        <button className="sod29-action" type="button" data-inspect-action="research" aria-pressed={inResearch} onClick={() => setCommitState({ kind: "research", ok: Boolean(onAddResearch?.(target)) })}>{inResearch ? "✓ במחקר" : "◎ למחקר"}</button>
         <button className="sod29-action" type="button" disabled title="המעקב המלא יחובר בהמשך">♢ עקוב</button>
       </div>
+
+      {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <ShareActions
@@ -697,7 +701,63 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, onResumePath }) {
+const RESEARCH_SECTIONS = [
+  { key: "saved", title: "שמורים", remove: "removeSaved" },
+  { key: "cart", title: "במחקר עכשיו", remove: "removeFromResearch" },
+  { key: "pinned", title: "מוצמדים", remove: "togglePin", removeWithEntity: true },
+  { key: "history", title: "אחרונים", limit: 8 },
+];
+
+function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
+  const syncStatus = research?.syncStatus || "local_only";
+  const syncLabel = syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
+  const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
+  const openRow = (e) => {
+    const m = /^\/number\/(\d+)\/?$/.exec(e.link || "");
+    if (m) return go(`/2029/number/${m[1]}`);
+    if (e.link) return go(e.link);
+    if (e.type === "number" || e.type === "phrase") return onOpenNumber?.(rowTarget(e));
+    return onInspect?.(rowTarget(e));
+  };
+  const collections = Array.isArray(research?.collections) ? research.collections : [];
+  const saved = Array.isArray(research?.saved) ? research.saved : [];
+  return (
+    <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
+      <div className="sod29-workspace-pulse-stats" aria-label="המחקר שלי במספרים">
+        {RESEARCH_SECTIONS.map((sec) => <span key={sec.key} data-count-for={sec.key}><b>{(research?.[sec.key] || []).length}</b><small>{sec.title}</small></span>)}
+        <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
+      </div>
+      <small className="sod29-workspace-sync-note">{syncLabel}</small>
+      {RESEARCH_SECTIONS.map((sec) => {
+        const all = Array.isArray(research?.[sec.key]) ? research[sec.key] : [];
+        const rows = sec.limit ? all.slice(0, sec.limit) : all;
+        return (
+          <section key={sec.key} className="sod29-workspace-research-bucket" data-research-bucket={sec.key}>
+            <div className="sod29-workspace-section-head"><strong>{sec.title}</strong><small>{all.length}</small>
+              {sec.key === "history" && all.length ? <button type="button" className="sod29-workspace-unfollow" onClick={() => research?.clearHistory?.()}>נקה</button> : null}
+            </div>
+            {rows.length ? <ul className="sod29-workspace-list">
+              {rows.map((e) => (
+                <li key={`${sec.key}:${e.id}`} className="sod29-workspace-follow-row">
+                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type}</small></button>
+                  {sec.remove ? <button type="button" className="sod29-workspace-unfollow" aria-label={`הסר: ${e.title || e.id}`} onClick={() => research?.[sec.remove]?.(sec.removeWithEntity ? e : e.id)}>הסר</button> : null}
+                </li>
+              ))}
+            </ul> : <FrameState kind="empty" title="ריק">{sec.key === "saved" ? "לחץ ＋ שמור בבדיקה מהירה כדי לשמור פריט לספרייה." : "אין כאן עדיין פריטים."}</FrameState>}
+          </section>
+        );
+      })}
+      <section className="sod29-workspace-research-bucket" data-research-bucket="collections">
+        <div className="sod29-workspace-section-head"><strong>אוספים</strong><small>{collections.length}</small></div>
+        {collections.length ? <ul className="sod29-workspace-list">
+          {collections.map((c) => <li key={c.id}><span className="sod29-workspace-collection"><strong>{c.name}</strong><small>{saved.filter((e) => e.coll === c.id).length} שמורים</small></span></li>)}
+        </ul> : <FrameState kind="empty" title="אין אוספים">אוספים מוצגים כאן כשהם קיימים.</FrameState>}
+      </section>
+    </div>
+  );
+}
+
+function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
@@ -893,7 +953,7 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
 
         {savedSubject ? (
           <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-            <span>מסלול שמור</span>
+            <span>מסלול שמור (נפרד מפריטים שמורים)</span>
             <strong>{savedSubject.label}</strong>
             <small>
               {savedSubject.type}
@@ -909,6 +969,7 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         {!subject && !savedSubject && !pathResume?.loading ? (
           <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
         ) : null}
+        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} />
         {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
         {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
         {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
@@ -1306,17 +1367,28 @@ export default function SystemFrame2029({
     closeTransient();
   }, [research, currentHref, context?.lens, context?.returnTo, locale, closeTransient]);
 
-  const addToResearch = useCallback((target) => {
+  const entityFromTarget = useCallback((target) => {
     const normalized = normalizeTarget(target);
-    if (!normalized || !research.addToResearch) return;
-    research.addToResearch(makeEntity({
+    if (!normalized) return null;
+    return makeEntity({
       type: normalized.type,
       title: normalized.label,
       ref: normalized.id,
       link: normalized.href || currentHref,
       metadata: { source: "system-frame-2029", temporary_selection: normalized.source === "selection" },
-    }));
-  }, [research, currentHref]);
+    });
+  }, [currentHref]);
+
+  // Explicit capabilities, honest result: the boolean is the provider's own commit result.
+  const addToResearch = useCallback((target) => {
+    const entity = entityFromTarget(target);
+    return entity && research.addToResearch ? Boolean(research.addToResearch(entity)) : false;
+  }, [research, entityFromTarget]);
+
+  const saveToLibrary = useCallback((target) => {
+    const entity = entityFromTarget(target);
+    return entity && research.saveItem ? Boolean(research.saveItem(entity)) : false;
+  }, [research, entityFromTarget]);
 
   const submitCommand = useCallback((event) => {
     event?.preventDefault?.();
@@ -1432,7 +1504,7 @@ export default function SystemFrame2029({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
@@ -1451,6 +1523,9 @@ export default function SystemFrame2029({
       context={context}
       go={go}
       onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
+      research={research}
+      onInspect={openInspect}
+      onOpenNumber={openNumber}
       pathResume={research.pathResume}
       onSavePath={() => research.saveCurrentResearchPath?.({ href: currentHref, label: currentLabel, surface })}
       onResumePath={(pathId) => research.resumeResearchPath?.(pathId)}
