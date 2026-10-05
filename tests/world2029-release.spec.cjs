@@ -1,4 +1,5 @@
-const { test, expect } = require('@playwright/test');\nconst { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+const { test, expect } = require('@playwright/test');
+const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
@@ -83,7 +84,8 @@ async function assertClsGood(page, route) {
 }
 
 test.setTimeout(60_000);
-test.describe.configure({ mode: 'serial' });\ntest.beforeEach(async ({ page }) => installStorageEgressGuard(page));
+test.describe.configure({ mode: 'serial' });
+test.beforeEach(async ({ page }) => installStorageEgressGuard(page));
 
 for (const route of CLS_ROUTES) {
   test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
