@@ -1124,6 +1124,139 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
   return { ok, number: desc.number, anchor: desc.anchor, mode: desc.mode, outcome: ok ? (failed ? "partial" : "success") : (failed ? failed.outcome : "failed_with_reason"), ...(proj || {}) };
 }
 
+// ── Raziel Intelligence Core v1 Phase K — operator coordination / attention READ (verified admin only) ──────────────
+// Extends the Phase C operator path (same descriptor discipline, same CALLER-JWT owner RPCs, never the service role). The plan only DESCRIBES the
+// capability; owner RPCs re-check admin themselves. work_log is Coordination/Provenance: every answer says what the coordination ledger REPORTS
+// (COORDINATION_REPORTED) and never claims merge/deploy/production. The owner rows are projected here to allowlisted, bounded fields
+// (max rows, truncated text, no links/ids/open-thread text/raw payloads). External live verification is not connected in this phase.
+const RAZIEL_COORD_CAPS: Record<string, RazielOperatorCap> = {
+  work_now: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+  work_active: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+  work_ready: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+  work_today: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+  agents_status: { calls: [{ rpc: "admin_agents_dashboard", args: {} }], owner: "system_suggestions_law v5" },
+  attention: { calls: [{ rpc: "admin_command_center", args: {} }, { rpc: "get_work_log_current", args: {} }, { rpc: "admin_system_health", args: {} }],
+    owner: "system_suggestions_law v5 + inter_agent_coordination_law v13" },
+  live_external_state: { calls: [], owner: "live_state_resolution_law v2" },   // no RPC: external verification is not connected
+};
+const RAZIEL_COORD_MAX_ROWS = 12;
+const RAZIEL_AGENTS_MAX_ROWS = 10;
+const RAZIEL_COORD_TRUTH = "מקור: יומן-התיאום (work_log) — Coordination/Provenance בלבד (COORDINATION_REPORTED), לא LIVE_VERIFIED; מצב מיזוג/פריסה/פרודקשן לא אומת מהיומן.";
+const RAZIEL_LIVE_EXTERNAL_ANSWER = "אימות חי של מצב המאגר, הפריסה ו-main (גיטהאב/ורסל) טרם מחובר בשלב זה — אני לא מסיק מיזוג, פריסה או פרודקשן מיומן-התיאום. אפשר לשאול מה היומן מדווח על משימות, והוא יסומן כדיווח-תיאום בלבד.";
+
+function razielCoordDescriptor(det: any, tier: string): { capability: string; days: number | null } | null {
+  if (tier !== "admin" || !det || det.enabled !== true || det.availability !== "operator_read") return null;
+  const cap = typeof det.trace?.operator?.capability === "string" ? det.trace.operator.capability : "";
+  if (!Object.prototype.hasOwnProperty.call(RAZIEL_COORD_CAPS, cap)) return null;   // allowlist, never plan-supplied rpc names
+  return { capability: cap, days: null };
+}
+
+const coordText = (v: unknown, max: number): string =>
+  typeof v === "string" ? v.replace(/https?:\/\/\S+/gi, "").replace(/[A-Za-z0-9_\-]{32,}/g, "").replace(/\s+/g, " ").trim().slice(0, max) : "";
+
+type RazielWorkRow = { task_key: string; topic: string; status: string; from_actor: string; to_actor: string; assignment_mode: string;
+  release_authorization_state: string; created_at: string; summary: string; _dispatch_state: string };
+
+// Allowlisted projection of work_log_current rows. Dropped here: ids, dispatch URLs/sessions/errors/context, open_threads, owners, raw payloads.
+function razielWorkLogRows(data: any): RazielWorkRow[] | null {
+  if (!Array.isArray(data)) return null;
+  return data.filter((r: any) => r && typeof r === "object").map((r: any) => ({
+    task_key: coordText(r.task_key, 120), topic: coordText(r.topic, 120), status: coordText(r.status, 60), from_actor: coordText(r.from_actor, 20),
+    to_actor: coordText(r.to_actor, 20), assignment_mode: coordText(r.assignment_mode, 20),
+    release_authorization_state: coordText(r.release_authorization_state, 80), created_at: coordText(r.created_at, 40),
+    summary: coordText(r.what_we_did, 240), _dispatch_state: coordText(r.dispatch_state, 30),
+  }));
+}
+const WORK_ACTIVE_STATES = ["QUEUED", "FIRE_REQUESTED", "SESSION_STARTED", "CLAIMED", "RETRY_WAIT"];
+const isWorkActive = (r: RazielWorkRow) => WORK_ACTIVE_STATES.includes(r._dispatch_state) || /CLAIMED_WRITE|WRITE_SCOPE_OPEN|ASSIGNED|ACK_REQUIRED|QUEUED/i.test(r.status);
+const isWorkReady = (r: RazielWorkRow) => /READY_TO_DEPLOY|RELEASE_AUTHORIZED/i.test(r.status);
+const isWorkDeferred = (r: RazielWorkRow) => r._dispatch_state === "DEFERRED" || /BLOCKED|WAITING|AWAITING|ממתין/i.test(r.status);
+const coordDay = (iso: string): string => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" }); };
+const workLine = (r: RazielWorkRow, withSummary: boolean) =>
+  `• ${r.task_key || r.topic || "—"} · ${r.status || "—"} · ${r.from_actor || "?"}→${r.to_actor || "?"} · ${r.assignment_mode || "—"} · ${r.release_authorization_state || "—"} · ${r.created_at.slice(0, 16)}` +
+  (withSummary && r.summary ? `\n  ${r.summary}` : "");
+
+function razielWorkProject(capability: string, rows: RazielWorkRow[], withSummary = false): { lines: string[]; total: number } {
+  const today = coordDay(new Date().toISOString());
+  const pick = capability === "work_today" ? rows.filter((r) => coordDay(r.created_at) === today)
+    : capability === "work_ready" ? rows.filter((r) => isWorkReady(r) || isWorkDeferred(r))
+    : rows.filter(isWorkActive);   // work_now / work_active
+  return { lines: pick.slice(0, RAZIEL_COORD_MAX_ROWS).map((r) => workLine(r, withSummary)), total: pick.length };
+}
+
+function razielCoordProject(capability: string, datas: any[]): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
+  if (capability === "agents_status") {
+    const d = datas[0];
+    if (!Array.isArray(d)) return null;
+    const rows = d.filter((r: any) => r && typeof r === "object").slice(0, RAZIEL_AGENTS_MAX_ROWS).map((r: any) => ({
+      agent: coordText(r.agent, 40), role: coordText(r.role, 80), reg: r.is_registered_bot === true, d1: num(r.calls_1d), d30: num(r.calls_30d), last: coordText(r.last_activity, 16) }));
+    const lines = rows.map((r) => `• ${r.agent} · ${r.role || "—"} · ${r.reg ? "בוט רשום" : "לא רשום"} · קריאות 24ש' ${r.d1 ?? "?"} · 30י' ${r.d30 ?? "?"} · פעילות אחרונה ${r.last || "—"}`);
+    return { basis: "LIVE_DB_READ", answer: `סוכנים (admin_agents_dashboard · קריאת DB חיה בעת השאלה; עד ${RAZIEL_AGENTS_MAX_ROWS}):\n${lines.join("\n") || "לא נמצאו סוכנים."}`,
+      facts: [{ label: "סוכנים מוצגים", value: String(rows.length) }] };
+  }
+  if (capability === "attention") {
+    const [cc, wl, health] = datas;
+    const rows = razielWorkLogRows(wl);
+    if (!cc || typeof cc !== "object" || !rows) return null;
+    const c = cc.counters || {};
+    const demand = (Array.isArray(cc.top_demand) ? cc.top_demand : []).slice(0, 5).map((t: any) => `${coordText(t?.label || t?.key, 40)}(${num(t?.visits) ?? "?"})`);
+    const disc = (Array.isArray(cc.recent_discoveries) ? cc.recent_discoveries : []).slice(0, 5).map((x: any) => `${coordText(String(x?.value ?? ""), 20)}·${num(x?.group_size) ?? "?"}·${coordText(x?.kind, 20)}`);
+    const sys = health && typeof health === "object" ? razielOperatorProject("system_faults", health, null)?.pack : null;
+    const ready = rows.filter(isWorkReady).length, blocked = rows.filter(isWorkDeferred).length;
+    return { basis: "MIXED_DB_READ_AND_COORDINATION_REPORTED", pack:
+      `מרכז-פיקוד (admin_command_center · ספירות בלבד): המלצות ממתינות ${num(c.recommendations_pending) ?? "?"} · פערי-ביקוש ${num(c.demand_gaps) ?? "?"} · הגדרות פתוחות ${num(c.zuriel_definitions) ?? "?"} · ` +
+      `רמזי-קהילה ${num(c.hints_pending) ?? "?"} · טיוטות-מסע ${num(c.journey_drafts) ?? "?"} · התכנסויות חדשות 7י' ${num(c.convergences_new_7d) ?? "?"}\n` +
+      `ביקוש מוביל: ${demand.join(" · ") || "—"}\nגילויים אחרונים: ${disc.join(" · ") || "—"}\n` +
+      `יומן-התיאום (דיווח בלבד, לא אומת): מוכנות-לפריסה לפי היומן ${ready} (מונה היומן: ${num(c.worklog_ready_deploy) ?? "?"}) · חסומות/ממתינות/נדחות ${blocked} · פעילות ${rows.filter(isWorkActive).length}\n` +
+      `${sys ? sys : "מצב-מערכת: לא התקבל."}\n${RAZIEL_COORD_TRUTH}`.slice(0, 1800) };
+  }
+  // work_now / work_active / work_ready / work_today
+  const rows = razielWorkLogRows(datas[0]);
+  if (!rows) return null;
+  const { lines, total } = razielWorkProject(capability, rows);
+  const title = capability === "work_ready" ? "מוכן/ממתין/נדחה" : capability === "work_today" ? "מה השתנה היום ביומן" : "משימות פעילות";
+  return { basis: "COORDINATION_REPORTED", answer: `${title} (לפי יומן-התיאום; מוצגות ${lines.length} מתוך ${total}):\n${lines.join("\n") || "אין פריטים תואמים ביומן."}\n${RAZIEL_COORD_TRUTH}`,
+    facts: [{ label: `${title} · לפי היומן`, value: String(total) }] };
+}
+
+async function runRazielCoordination(desc: { capability: string; days: number | null }, bearer: string, trace: OperationalTraceHandle | null): Promise<RazielOperatorResult> {
+  const cap = RAZIEL_COORD_CAPS[desc.capability];
+  const rpcLabel = cap.calls.map((c) => c.rpc).join("+") || "none";
+  if (!cap.calls.length) {
+    return { ok: true, outcome: "success", capability: desc.capability, owner: cap.owner, rpc: rpcLabel, answer: RAZIEL_LIVE_EXTERNAL_ANSWER, facts: [], basis: "EXTERNAL_NOT_CONNECTED" };
+  }
+  const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
+  const spans: { spanId: string; startedAt: string; endedAt: string }[] = [];
+  for (const call of cap.calls) {
+    const sId = crypto.randomUUID(), sAt = new Date().toISOString();
+    const res = await razielOperatorRpc(bearer, call);
+    results.push(res);
+    spans.push({ spanId: sId, startedAt: sAt, endedAt: new Date().toISOString() });
+    if (!res.ok) break;   // all owner calls are required; stop at the first failure
+  }
+  const allOk = results.length === cap.calls.length && results.every((x) => x.ok);
+  const proj = allOk ? razielCoordProject(desc.capability, results.map((x) => x.data)) : null;
+  const ok = allOk && !!proj;
+  const failed = results.find((x) => !x.ok);
+  const outcome = failed ? failed.outcome : (!proj ? "failed_with_reason" : "success");
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i], call = cap.calls[i], last = i === results.length - 1;
+    const spanOk = r.ok && (!last || ok);
+    await recordOperationalSpan(trace, {
+      spanId: spans[i].spanId, kind: "db_rpc", name: `ai-analyze:raziel:operator:${call.rpc}`, startedAt: spans[i].startedAt, endedAt: spans[i].endedAt,
+      outcome: r.ok && last && !proj && allOk ? "failed_with_reason" : r.outcome,
+      detail: {
+        capability: `raziel_operator:${desc.capability}`, owner_ref: cap.owner, routing_reason: "raziel_plan_operator_read",
+        output_use: spanOk ? "used" : "not_applicable", stop_reason: spanOk ? null : (r.error || "unusable_payload"),
+        resources: { latency_ms: r.ms, api_calls: 1 },
+        replay: { ownerRuleRefs: [cap.owner], parametersRef: `rpc:${call.rpc};caller_jwt:true;read_only:true` },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+  }
+  return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: rpcLabel, ...(proj || {}) };
+}
+
 // ── Raziel Intelligence Core v1 Phase J — on-demand READ of the CURRENT Post / Topic (Publication/Representation, NOT Fact/Canonical) ──────
 // Runs only for an explicit current-surface question AND an exact slug already present in the bounded surface_semantic identity (never inferred from the
 // question text, never a search). Public/anon path only (existing anon SELECT on posts + topic_cards_public) — never the service role, no new store/router/agent.
@@ -1405,6 +1538,7 @@ Deno.serve(async (req: Request) => {
       const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
       const rBearer = tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
       let rOpDesc: { capability: string; days: number | null } | null = null;
+      let rCoordDesc: { capability: string; days: number | null } | null = null;   // Phase K
       let rToolRes: RazielToolResearch | null = null;
       let rDet: any = null;   // Phase H: the fn_raziel_answer result (descriptor source for number_context)
       try {
@@ -1417,6 +1551,7 @@ Deno.serve(async (req: Request) => {
             const det = await detR.json();
             rPlanMeta = razielPlanMeta(det);
             rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
+            rCoordDesc = razielCoordDescriptor(det, tier);   // Phase K: admin-verified coordination/attention capability only
             rToolRes = razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
             rDet = det;
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
@@ -1495,6 +1630,21 @@ Deno.serve(async (req: Request) => {
       let rOpPack = "";
       if (rOpDesc) {
         const op = await runRazielOperator(rOpDesc, rBearer, activeTrace);
+        const opMeta = { capability: op.capability, owner: op.owner, outcome: op.outcome, basis: op.basis ?? null };
+        rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
+        if (op.ok && op.answer) {
+          await finishOperationalTrace(activeTrace, "success");
+          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+            facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+            deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
+            engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
+        }
+        if (op.ok && op.pack) rOpPack = op.pack;
+      }
+
+      // Phase K — coordination / attention READ (admin only): same discipline as Phase C, projections bounded + labeled COORDINATION_REPORTED.
+      if (!rOpDesc && rCoordDesc) {
+        const op = await runRazielCoordination(rCoordDesc, rBearer, activeTrace);
         const opMeta = { capability: op.capability, owner: op.owner, outcome: op.outcome, basis: op.basis ?? null };
         rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
         if (op.ok && op.answer) {
