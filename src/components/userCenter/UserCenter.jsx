@@ -532,7 +532,7 @@ function CreditsPanel({ T }) {
       {/* 💳 רכישת קרדיטים — מקור-אחד: דף הקרדיטים הקנוני (/credits), לא משטח-קנייה מקביל */}
       <div style={{ marginTop: 16, background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "13px 14px" }}>
         <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold, marginBottom: 4 }}>💳 רכישת קרדיטים</div>
-        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginBottom: 10 }}>חבילות ותשלום מאובטח (ביט / העברה) בדף הקרדיטים.</div>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginBottom: 10 }}>חבילות ותשלום מאובטח דרך CardCom, עם אפשרות לתשלום ידני.</div>
         <button onClick={() => { try { close?.(); } catch { /* noop */ } nav("/credits"); }}
           style={{ display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", background: T.gold, color: "#1a0e00", border: "none", borderRadius: 10, padding: "11px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit" }}>💎 לרכישת קרדיטים ←</button>
       </div>
