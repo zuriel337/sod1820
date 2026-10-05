@@ -341,7 +341,14 @@ jobs:
             await expect(contentMap.nth(2)).toContainText('22.9');
             if (width < 600) {
               await expect(restRail).toBeHidden();
-              await expect(page.locator('.sod29-surface-context-mobile-cue')).toContainText('בתוך הפוסט');
+              const glassLocator = page.locator('.sod29-glass-locator');
+              await expect(glassLocator).toBeVisible();
+              await glassLocator.locator('.sod29-glass-locator-core').click();
+              const contextSheet = page.locator('[data-experience-capability="contextual-sidecar"]');
+              await expect(contextSheet).toBeVisible({ timeout: 20_000 });
+              await expect(contextSheet).toContainText('בתוך הפוסט');
+              await contextSheet.getByRole('button', { name: 'סגור' }).click();
+              await expect(contextSheet).toHaveCount(0);
             } else {
               await expect(restRail).toBeVisible();
               await expect(restRail).toContainText('בתוך הפוסט');
@@ -395,10 +402,11 @@ jobs:
             await expect(sidecar).toHaveCount(1);
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
-            const sidecarReveal = sidecar.locator('[data-experience-capability="gematria-reveal"]');
-            await expect(sidecarReveal).toBeVisible();
-            await expect(sidecarReveal).toContainText('נפתלי בנט');
-            await expect(sidecarReveal).toContainText('631');
+            const sidecarExpression = sidecar.locator('.sod29-surface-context-expression');
+            await expect(sidecarExpression).toBeVisible();
+            await expect(sidecarExpression).toContainText('נפתלי בנט');
+            await expect(sidecarExpression).toContainText('רגיל');
+            await expect(sidecarExpression).toContainText('631');
 
             const learn = sidecar.locator('.sod29-learn-mark.scope-concept');
             await expect(learn).toBeVisible();
@@ -411,7 +419,11 @@ jobs:
 
             const drawer = page.locator('.sod29-number-drawer2029');
             await expect(drawer).toBeVisible({ timeout: 30_000 });
-            await expect(drawer.locator('[data-experience-capability="gematria-reveal"]')).toBeVisible();
+            const drawerIdentity = drawer.locator('.sod29-number-drawer-identity');
+            await expect(drawerIdentity).toBeVisible();
+            await expect(drawerIdentity).toContainText('נפתלי בנט');
+            await expect(drawerIdentity).toContainText('רגיל');
+            await expect(drawerIdentity).toContainText('631');
             await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
             await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
 
