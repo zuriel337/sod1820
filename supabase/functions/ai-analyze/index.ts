@@ -767,6 +767,10 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
     ? "הקשר-מספר באתר לא הורץ (אין עוגן מספרי מפורש/מאומת או שהקריאה נכשלה) — אל תמציא מספר, אל תחשב ואל תטען שיש קשרים; בקש מהמשתמש מספר מפורש."
     : p.operator_executed === true
     ? "יכולת-מפעיל הורצה בקריאה-בלבד — הנתונים מצורפים למטה."
+    : p.personal_executed === true
+    ? "מצב-המחקר האישי נקרא בקריאה-בלבד — הנתונים מצורפים למטה."
+    : avail === "personal_research_read"
+    ? "מצב-המחקר האישי לא התקבל — אל תמציא פריטים; ציין שלא התקבל."
     : avail === "operator_read"
     ? "יכולת-מפעיל לא הורצה/נכשלה — אין נתוני-מפעיל; אל תמציא נתונים וציין שלא התקבלו."
     : avail === "multi_domain_synthesis"
@@ -1370,6 +1374,132 @@ async function runRazielCoordination(desc: { capability: string; days: number | 
   return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: rpcLabel, ...(proj || {}) };
 }
 
+// ── Raziel Intelligence Core v1 Phase L — personal research continuity READ (authenticated user only) ───────────────
+// Reads ONLY the existing owner RPCs research_state_snapshot_v1 (auth.uid principal check) and fn_research_path_resume_v1 (owner-only latest path) with
+// the CALLER JWT — never the service role, never a client-supplied user id: the uid passed is the one validated from that same JWT in resolveIdentity.
+// Anonymous/public → descriptor null → zero personal RPC calls. Projection is allowlisted + bounded here (counts + max 6 items per bucket; type/ref/id/title/
+// link only; no arbitrary metadata, provenance, representation or private payload). Basis PERSONAL_RESEARCH_STATE — the user's own saved state, not Fact/Canonical.
+// No writes, no appends, no remembers.
+const RAZIEL_PERSONAL_OWNER = "research_workspace_law v5 + research_strategy_layer_law v17";
+const RAZIEL_PERSONAL_CAPS = ["personal_saved", "personal_now", "personal_recent", "personal_pinned", "personal_structure", "personal_resume", "personal_continue"];
+const RAZIEL_PERSONAL_MAX_ITEMS = 6;
+const RAZIEL_PERSONAL_TRUTH = "מקור: מצב-המחקר האישי שלך (PERSONAL_RESEARCH_STATE) — מה ששמרת/פתחת, לא עובדה ולא קנוני.";
+const RAZIEL_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function razielPersonalDescriptor(det: any, tier: string, uid: string | null): { capability: string } | null {
+  if ((tier !== "user" && tier !== "admin") || !uid || !RAZIEL_UUID_RE.test(uid)) return null;
+  if (!det || det.enabled !== true || det.availability !== "personal_research_read") return null;
+  const cap = typeof det.trace?.personal?.capability === "string" ? det.trace.personal.capability : "";
+  return RAZIEL_PERSONAL_CAPS.includes(cap) ? { capability: cap } : null;   // allowlist, never plan-supplied rpc names
+}
+
+type RazielPersonalItem = { type: string; ref: string; id: string; title: string; link: string };
+const persTxt = (v: unknown, n: number): string => coordText(typeof v === "number" ? String(v) : v, n);
+const persLink = (v: unknown): string => (typeof v === "string" && /^\/(?!\/)[^\s]{0,199}$/.test(v) ? v : "");   // internal navigation links only
+function razielPersonalItem(it: any): RazielPersonalItem | null {
+  if (!it || typeof it !== "object" || Array.isArray(it)) return null;
+  const out = { type: persTxt(it.type ?? it.entityType ?? it.kind, 30), ref: persTxt(it.ref ?? it.entity_ref, 80), id: persTxt(it.id, 80),
+    title: persTxt(it.title ?? it.label ?? it.name, 100), link: persLink(it.link ?? it.url) };
+  return out.title || out.ref || out.id ? out : null;
+}
+const razielPersonalBucket = (v: unknown): { count: number; items: RazielPersonalItem[] } | null => {
+  if (!Array.isArray(v)) return null;
+  return { count: v.length, items: v.map(razielPersonalItem).filter((x): x is RazielPersonalItem => !!x).slice(0, RAZIEL_PERSONAL_MAX_ITEMS) };
+};
+const persLine = (x: RazielPersonalItem) => `• ${x.title || x.ref || x.id}${x.type ? ` · ${x.type}` : ""}${x.link ? ` · ${x.link}` : ""}`;
+const persBucketText = (label: string, b: { count: number; items: RazielPersonalItem[] }) =>
+  `${label}: ${b.count}${b.items.length ? ` (מוצגים ${b.items.length})\n${b.items.map(persLine).join("\n")}` : ""}`;
+
+// snapshot → { saved,cart,pinned,history,collections,journeys: {count,items≤6} }; collections/journeys keep title/type/count labels only.
+function razielPersonalSnapshot(data: any): Record<string, { count: number; items: RazielPersonalItem[] }> | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const out: Record<string, { count: number; items: RazielPersonalItem[] }> = {};
+  for (const k of ["saved", "cart", "pinned", "history", "collections", "journeys"]) {
+    const b = razielPersonalBucket(data[k]);
+    if (!b) return null;
+    out[k] = b;
+  }
+  return out;
+}
+
+// resume → bounded identity + ≤6 most recent steps (navigation identity only). provenance / representation / metadata are never read.
+function razielPersonalPath(data: any): { found: boolean; subject: string; lens: string; journey: string; revision: number | null; total: number; steps: RazielPersonalItem[] } | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  if (data.ok === false) return data.error === "not_found" || data.error === "no_revision" ? { found: false, subject: "", lens: "", journey: "", revision: null, total: 0, steps: [] } : null;
+  if (data.ok !== true) return null;
+  const steps = Array.isArray(data.steps) ? data.steps : [];
+  const idm = data.identity_metadata && typeof data.identity_metadata === "object" && !Array.isArray(data.identity_metadata) ? data.identity_metadata : {};
+  return { found: true, subject: persTxt(idm.subject, 80), lens: persTxt(idm.lens, 60), journey: persTxt(idm.journey, 80), revision: num(data.revision_no), total: steps.length,
+    steps: steps.slice(-RAZIEL_PERSONAL_MAX_ITEMS).map(razielPersonalItem).filter((x): x is RazielPersonalItem => !!x) };
+}
+
+const persPathText = (p: NonNullable<ReturnType<typeof razielPersonalPath>>) => !p.found ? "לא נמצא מסלול-מחקר שמור."
+  : `המסלול האחרון שלך${p.subject ? ` · נושא: ${p.subject}` : ""}${p.lens ? ` · עדשה: ${p.lens}` : ""}${p.journey ? ` · מסע: ${p.journey}` : ""} · ${p.total} צעדים (מוצגים ${p.steps.length} אחרונים)` +
+    `${p.steps.length ? "\n" + p.steps.map(persLine).join("\n") : ""}`;
+
+function razielPersonalProject(capability: string, datas: any[]): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
+  const basis = "PERSONAL_RESEARCH_STATE";
+  if (capability === "personal_resume") {
+    const p = razielPersonalPath(datas[0]);
+    return p ? { basis, answer: `${persPathText(p)}\n${RAZIEL_PERSONAL_TRUTH}`, facts: [{ label: "צעדים במסלול האחרון", value: String(p.total) }] } : null;
+  }
+  const snap = razielPersonalSnapshot(datas[0]);
+  if (!snap) return null;
+  const c = (k: string) => snap[k].count;
+  if (capability === "personal_saved") return { basis, answer: `${persBucketText("שמרת", snap.saved)}\n${persBucketText("בסל", snap.cart)}\n${RAZIEL_PERSONAL_TRUTH}`,
+    facts: [{ label: "פריטים שמורים", value: String(c("saved")) }] };
+  if (capability === "personal_pinned") return { basis, answer: `${persBucketText("מוצמד", snap.pinned)}\n${RAZIEL_PERSONAL_TRUTH}`, facts: [{ label: "פריטים מוצמדים", value: String(c("pinned")) }] };
+  if (capability === "personal_recent" || capability === "personal_now") return { basis, answer: `${persBucketText(capability === "personal_now" ? "בחקירה עכשיו (לפי ההיסטוריה האחרונה)" : "נחקר לאחרונה", snap.history)}\n${RAZIEL_PERSONAL_TRUTH}`,
+    facts: [{ label: "פריטי היסטוריה", value: String(c("history")) }] };
+  if (capability === "personal_structure") return { basis, answer: `${persBucketText("אוספים", snap.collections)}\n${persBucketText("מסעות", snap.journeys)}\n${RAZIEL_PERSONAL_TRUTH}`,
+    facts: [{ label: "אוספים", value: String(c("collections")) }, { label: "מסעות", value: String(c("journeys")) }] };
+  if (capability === "personal_continue") {
+    const p = razielPersonalPath(datas[1]);   // a missing latest path is not fatal for the saved-state synthesis
+    return { basis, pack: (`מצב-מחקר אישי (PERSONAL_RESEARCH_STATE; ספירות + עד ${RAZIEL_PERSONAL_MAX_ITEMS} פריטים לקטגוריה):\n` +
+      ["saved:שמורים", "pinned:מוצמד", "history:היסטוריה", "collections:אוספים", "journeys:מסעות"].map((x) => { const [k, l] = x.split(":"); return persBucketText(l, snap[k]); }).join("\n") +
+      `\n${p ? persPathText(p) : "מסלול אחרון: לא התקבל."}\n${RAZIEL_PERSONAL_TRUTH}`).slice(0, 2400) };
+  }
+  return null;
+}
+
+async function runRazielPersonal(desc: { capability: string }, bearer: string, uid: string, trace: OperationalTraceHandle | null): Promise<RazielOperatorResult> {
+  const cap = desc.capability;
+  const calls: RazielOperatorCall[] = cap === "personal_resume" ? [{ rpc: "fn_research_path_resume_v1", args: {} }]
+    : cap === "personal_continue" ? [{ rpc: "research_state_snapshot_v1", args: { p_expected_user_id: uid } }, { rpc: "fn_research_path_resume_v1", args: {} }]
+    : [{ rpc: "research_state_snapshot_v1", args: { p_expected_user_id: uid } }];
+  const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
+  const spans: { spanId: string; startedAt: string; endedAt: string }[] = [];
+  for (const call of calls) {
+    const spanId = crypto.randomUUID(), startedAt = new Date().toISOString();
+    const res = await razielOperatorRpc(bearer, call);
+    results.push(res);
+    spans.push({ spanId, startedAt, endedAt: new Date().toISOString() });
+    if (!res.ok && call.rpc === "research_state_snapshot_v1") break;   // snapshot is required; the optional latest-path leg of personal_continue may fail
+  }
+  const required = results.slice(0, 1);
+  const allOk = required.every((x) => x.ok);
+  const proj = allOk ? razielPersonalProject(cap, results.map((x) => (x.ok ? x.data : null))) : null;
+  const ok = allOk && !!proj;
+  const failed = required.find((x) => !x.ok);
+  const outcome = failed ? failed.outcome : (!proj ? "failed_with_reason" : "success");
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i], call = calls[i];
+    const spanOk = r.ok && ok;
+    await recordOperationalSpan(trace, {
+      spanId: spans[i].spanId, kind: "db_rpc", name: `ai-analyze:raziel:personal:${call.rpc}`, startedAt: spans[i].startedAt, endedAt: spans[i].endedAt,
+      outcome: r.ok && !proj && allOk ? "failed_with_reason" : r.outcome,
+      detail: {
+        capability: `raziel_personal:${cap}`, owner_ref: RAZIEL_PERSONAL_OWNER, routing_reason: "raziel_plan_personal_research_read",
+        output_use: spanOk ? "used" : "not_applicable", stop_reason: spanOk ? null : (r.error || "unusable_payload"),
+        resources: { latency_ms: r.ms, api_calls: 1 },
+        replay: { ownerRuleRefs: [RAZIEL_PERSONAL_OWNER], parametersRef: `rpc:${call.rpc};caller_jwt:true;read_only:true` },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+  }
+  return { ok, outcome, capability: cap, owner: RAZIEL_PERSONAL_OWNER, rpc: calls.map((c) => c.rpc).join("+"), ...(proj || {}) };
+}
+
 // ── Raziel Intelligence Core v1 Phase J — on-demand READ of the CURRENT Post / Topic (Publication/Representation, NOT Fact/Canonical) ──────
 // Runs only for an explicit current-surface question AND an exact slug already present in the bounded surface_semantic identity (never inferred from the
 // question text, never a search). Public/anon path only (existing anon SELECT on posts + topic_cards_public) — never the service role, no new store/router/agent.
@@ -1650,6 +1780,9 @@ Deno.serve(async (req: Request) => {
       const rCtxType = razielContextFromTier(tier);
       const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
       const rBearer = tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
+      const rUserBearer = tier === "user" || tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";   // Phase L: same validated caller JWT
+      let rPersDesc: { capability: string } | null = null;   // Phase L
+      let rPersPack = "";
       let rOpDesc: { capability: string; days: number | null } | null = null;
       let rCoordDesc: { capability: string; days: number | null } | null = null;   // Phase K
       let rToolRes: RazielToolResearch | null = null;
@@ -1665,6 +1798,7 @@ Deno.serve(async (req: Request) => {
             rPlanMeta = razielPlanMeta(det);
             rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
             rCoordDesc = razielCoordDescriptor(det, tier);   // Phase K: admin-verified coordination/attention capability only
+            rPersDesc = razielPersonalDescriptor(det, tier, rVerifiedRef);   // Phase L: authenticated + verified uid + enabled + allowlisted capability only
             rToolRes = razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
             rDet = det;
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
@@ -1770,6 +1904,21 @@ Deno.serve(async (req: Request) => {
         if (op.ok && op.pack) rOpPack = op.pack;
       }
 
+      // Phase L — personal research continuity READ (authenticated only): caller JWT + the uid validated from it; L0 answers without a model; projection bounded + labeled PERSONAL_RESEARCH_STATE.
+      if (!rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef) {
+        const op = await runRazielPersonal(rPersDesc, rUserBearer, rVerifiedRef, activeTrace);
+        const opMeta = { capability: op.capability, owner: op.owner, outcome: op.outcome, basis: op.basis ?? null };
+        rPlanMeta = { ...(rPlanMeta || {}), personal: opMeta, personal_executed: op.ok };
+        if (op.ok && op.answer) {
+          await finishOperationalTrace(activeTrace, "success");
+          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+            facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+            deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, personal: opMeta },
+            engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
+        }
+        if (op.ok && op.pack) rPersPack = op.pack;
+      }
+
       // Phase E — one operational db_rpc/tool span per deterministic protocol (already executed in fn_raziel_answer; no re-run here).
       //    output_used + failures preserved per tool; a partial result is explicit, never filled in.
       if (rToolRes) {
@@ -1854,7 +2003,9 @@ Deno.serve(async (req: Request) => {
       const surfaceText = rMode ? razielSurfaceContextText(rSurfaceCtx) : "";
       // Phase B: bounded semantic surface (any persona=raziel request) + non-authoritative plan block.
       const semText = razielSemanticSurfaceText(body?.surface_semantic);
-      const planText = razielPlanBlockText(rPlanMeta) + (rOpPack
+      const planText = razielPlanBlockText(rPlanMeta) + (rPersPack
+        ? "\n\nמצב-מחקר אישי של המשתמש (קריאה-בלבד מהבעלים עם ה-JWT שלו; PERSONAL_RESEARCH_STATE — לא עובדה/קנוני; המלץ להמשך רק על בסיס הפריטים כאן, אל תמציא פריטים ואל תחשב):\n" + rPersPack
+        : "") + (rOpPack
         ? "\n\nנתוני-מפעיל (קריאה-בלבד ממקור הבעלים, אומתו כאדמין; השתמש רק במספרים כאן, אל תמציא ואל תחשב מעבר; שמור על תוויות EXACT/ESTIMATED/UNKNOWN):\n" + rOpPack
         : "");
 
