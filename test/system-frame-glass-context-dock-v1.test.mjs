@@ -19,10 +19,12 @@ test("System Frame exposes one canonical Glass Context Dock with Raziel fixed at
 
 test("Glass Dock preserves core capabilities while collapsing secondary actions under More", () => {
   assert.match(frame, /<small>פעולה<\/small>/);
-  assert.match(frame, /surface === "heichal" \? "פקודה" : "חיפוש"/);
+  assert.match(frame, /<small>מה חדש<\/small>/);
+  assert.match(frame, /onClick=\{openAttention\}/);
   assert.match(frame, /<small>עוד<\/small>/);
   assert.match(frame, /function MoreProjection/);
-  assert.match(frame, /onAttention=\{openAttention\}/);
+  assert.match(frame, /onCommand=\{openCommand\}/);
+  assert.match(frame, /⌕ חיפוש \/ פקודה/);
   assert.match(frame, /onTools=\{openTools\}/);
   assert.match(frame, /onWorkspace=\{openWorkspace\}/);
   assert.match(frame, /onIssue=\{openIssueReport\}/);
