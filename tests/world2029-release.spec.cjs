@@ -85,7 +85,7 @@ async function assertClsGood(page, route) {
 
 test.setTimeout(60_000);
 test.describe.configure({ mode: 'serial' });
-test.beforeEach(async ({ page }) => installStorageEgressGuard(page));
+test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
 
 for (const route of CLS_ROUTES) {
   test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
