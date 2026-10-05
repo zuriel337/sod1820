@@ -37,6 +37,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(embed, /width: "min\(1280px, calc\(100vw - 24px\)\)"/);
   assert.match(embed, /clipPath: "inset\(50%\)"/);
   assert.match(embed, /onGate\?\.\(d\)/);
+  assert.match(embed, /\(!hiddenBridge \|\| !engineOnly\) && hasAxisFinding && !gate/);
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
 });
 
@@ -50,6 +51,14 @@ test("Native matrix renders only the governed matrix snapshot emitted by the can
   assert.match(css, /\.els29-native-matrix-row\{[\s\S]*direction:rtl/);
   assert.match(css, /\.els29-native-cell\.is-axis/);
   assert.match(css, /\.els29-native-cell\.is-finding/);
+});
+
+test("Native empty and candidate states remain truth-safe", () => {
+  assert.match(nativeClassic, /data-els-native-state=\{state\?\.status \|\| "idle"\}/);
+  assert.match(nativeClassic, /נמצא מועמד שעדיין לא אומת/);
+  assert.match(nativeClassic, /אין כרגע מופע מאומת להצגה/);
+  assert.match(nativeClassic, /אין סמכות שלילית/);
+  assert.match(nativeClassic, /MATCH מהמנוע הקנוני/);
 });
 
 test("Native matrix is keyboard-scrollable and exposes a non-color-only text summary", () => {
