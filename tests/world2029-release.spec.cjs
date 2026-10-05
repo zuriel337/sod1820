@@ -151,7 +151,7 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const action = page.locator('.sod29-command-island > button').filter({ hasText: 'פעולה' }).first();
+  const action = page.locator('[data-glass-context-dock="v1"] button').filter({ hasText: 'פעולה' }).first();
   await expect(action).toBeVisible();
   await action.click();
   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
