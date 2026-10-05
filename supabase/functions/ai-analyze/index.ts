@@ -718,15 +718,17 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
 // Execution happens here, and only when tier==="admin" was derived from the validated caller JWT. Every owner RPC is
 // invoked with the CALLER's Authorization (never the service role), so its own auth.uid()/rd_is_admin() check stays
 // authoritative: a non-admin or forged caller gets "not authorized" from the owner and no data. Read-only; no raw tables.
-type RazielOperatorCap = { rpc: string; owner: string; args: Record<string, unknown> };
+type RazielOperatorCall = { rpc: string; args: Record<string, unknown> };
+type RazielOperatorCap = { calls: RazielOperatorCall[]; owner: string };
 const RAZIEL_OPERATOR_CAPS: Record<string, RazielOperatorCap> = {
-  traffic_count: { rpc: "admin_traffic", owner: "traffic_intelligence_law v11", args: { p_days: 7 } },
-  traffic_state: { rpc: "admin_traffic", owner: "traffic_intelligence_law v11", args: { p_days: 7 } },
-  system_overview: { rpc: "admin_system_health", owner: "system_suggestions_law v5", args: {} },
-  system_faults: { rpc: "admin_system_health", owner: "system_suggestions_law v5", args: {} },
-  ai_cost_week: { rpc: "admin_ai_tokens", owner: "system_suggestions_law v5", args: { p_days: 7 } },
-  research_demand: { rpc: "fn_raziel_research_intel_scoped", owner: "research_strategy_layer_law v17",
-    args: { p_context_type: "admin", p_user_ref: null, p_period: "7d", p_limit: 8 } },
+  // Traffic: canonical projections over traffic_daily only (traffic_intelligence_law v11) — never raw visit tables.
+  traffic_count: { calls: [{ rpc: "admin_entries_daily", args: { p_days: 7 } }], owner: "traffic_intelligence_law v11" },
+  traffic_state: { calls: [{ rpc: "admin_traffic_insights", args: { p_days: 7 } }, { rpc: "admin_entries_daily", args: { p_days: 7 } }], owner: "traffic_intelligence_law v11" },
+  system_overview: { calls: [{ rpc: "admin_system_health", args: {} }], owner: "system_suggestions_law v5" },
+  system_faults: { calls: [{ rpc: "admin_system_health", args: {} }], owner: "system_suggestions_law v5" },
+  ai_cost_week: { calls: [{ rpc: "admin_ai_tokens", args: { p_days: 7 } }], owner: "system_suggestions_law v5" },
+  research_demand: { calls: [{ rpc: "fn_raziel_research_intel_scoped", args: { p_context_type: "admin", p_user_ref: null, p_period: "7d", p_limit: 8 } }],
+    owner: "research_strategy_layer_law v17" },
 };
 
 type RazielOperatorResult = {
@@ -749,14 +751,14 @@ function razielOperatorDescriptor(det: any, tier: string): { capability: string;
   return { capability: cap, days: num(o?.days) };
 }
 
-async function razielOperatorRpc(bearer: string, cap: RazielOperatorCap): Promise<{ ok: boolean; data: any; outcome: string; ms: number; error: string | null }> {
+async function razielOperatorRpc(bearer: string, call: RazielOperatorCall): Promise<{ ok: boolean; data: any; outcome: string; ms: number; error: string | null }> {
   const t0 = Date.now();
   if (!SB_URL || !SB_ANON || !bearer) return { ok: false, data: null, outcome: "tool_error", ms: 0, error: "no_caller_credentials" };
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/rpc/${cap.rpc}`, {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${call.rpc}`, {
       method: "POST",
       headers: { apikey: SB_ANON, Authorization: `Bearer ${bearer}`, "Content-Type": "application/json" },
-      body: JSON.stringify(cap.args),
+      body: JSON.stringify(call.args),
       signal: AbortSignal.timeout(8000),
     });
     const ms = Date.now() - t0;
@@ -775,15 +777,33 @@ async function razielOperatorRpc(bearer: string, cap: RazielOperatorCap): Promis
 function razielOperatorProject(capability: string, data: any, days: number | null): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
   if (!data || typeof data !== "object") return null;
   if (capability === "traffic_count") {
-    const week = num(data.total_visitors), visits = num(data.total_visits), today = num(data.today);
-    const asked = days === 7;
-    const val = asked ? week : today;
-    if (val === null) return null;
+    // data = admin_entries_daily rows (traffic_daily). Canonical language: "כניסות אנושיות" (entrances); never "unique people".
+    const rows = (Array.isArray(data) ? data : []).filter((r: any) => r && typeof r.day === "string" && num(r.entrances) !== null);
+    if (!rows.length) return null;
+    if (days === 7) {
+      // entrances sum across days; visitors is a per-day metric and is deliberately NOT summed across days.
+      const sum = rows.reduce((a: number, r: any) => a + (num(r.entrances) as number), 0);
+      return {
+        answer: `בחלון 7 הימים האחרון (לפי יום הדיווח של Traffic Intelligence) נרשמו ${sum} כניסות אנושיות, ב-${rows.length} ימי דיווח.`,
+        facts: [{ label: "כניסות אנושיות · 7 ימים (לפי יום הדיווח של Traffic Intelligence)", value: String(sum) }],
+        basis: "EXACT",
+      };
+    }
+    const latest = rows.reduce((m: any, r: any) => (r.day > m.day ? r : m));
+    // The current reporting day is not resolvable here without inventing a timezone. A row whose last refresh already
+    // falls on a later calendar date than its own day is closed → the current-day row is absent/stale → unavailable, not 0.
+    const upd = typeof latest.updated_at === "string" ? latest.updated_at.slice(0, 10) : "";
+    if (!upd || upd > latest.day) {
+      return {
+        answer: "נתון הכניסות האנושיות להיום אינו זמין כרגע או אינו עדכני ב-Traffic Intelligence (לפי יום הדיווח שלו) — לא אציג מספר שלא התקבל.",
+        facts: [{ label: "כניסות אנושיות · היום (לפי יום הדיווח של Traffic Intelligence)", value: "UNKNOWN" }],
+        basis: "UNKNOWN",
+      };
+    }
+    const val = num(latest.entrances) as number;
     return {
-      answer: asked
-        ? `ב-7 הימים האחרונים נכנסו ${val} מבקרים ייחודיים (ללא בוטים${visits !== null ? `, ${visits} כניסות` : ""}).`
-        : `מתחילת היום (UTC) נכנסו ${val} מבקרים ייחודיים (ללא בוטים).`,
-      facts: [{ label: asked ? "מבקרים ייחודיים · 7 ימים" : "מבקרים ייחודיים · מתחילת היום (UTC)", value: String(val) }],
+      answer: `ביום הדיווח הנוכחי של Traffic Intelligence נרשמו עד כה ${val} כניסות אנושיות.`,
+      facts: [{ label: "כניסות אנושיות · יום הדיווח הנוכחי (Traffic Intelligence)", value: String(val) }],
       basis: "EXACT",
     };
   }
@@ -804,12 +824,16 @@ function razielOperatorProject(capability: string, data: any, days: number | nul
     };
   }
   if (capability === "traffic_state") {
-    const src = (Array.isArray(data.sources) ? data.sources : []).slice(0, 5).map((x: any) => `${String(x?.source || "").slice(0, 30)}:${num(x?.visitors) ?? "?"}`);
-    const daily = (Array.isArray(data.daily) ? data.daily : []).slice(-7).map((x: any) => `${String(x?.day || "").slice(5, 10)}:${num(x?.visitors) ?? "?"}`);
+    // data = [admin_traffic_insights (jsonb array of {icon,text,link}), admin_entries_daily rows]. Raw/suspected/net stay separate.
+    if (!Array.isArray(data) || !Array.isArray(data[0]) || !Array.isArray(data[1])) return null;
+    const insights = data[0].map((x: any) => String(x?.text || "").slice(0, 200)).filter(Boolean).slice(0, 6);
+    const rows = data[1].filter((r: any) => r && typeof r.day === "string").slice(-7);
+    if (!rows.length && !insights.length) return null;
+    const daily = rows.map((r: any) => `${r.day.slice(5, 10)}: כניסות אנושיות ${num(r.entrances) ?? "?"} · חשודות ${num(r.suspected) ?? "?"} · בוטים ${num(r.bots) ?? "?"} · מבקרים-ביום ${num(r.visitors) ?? "?"}`);
+    const sum = rows.reduce((a: number, r: any) => a + (num(r.entrances) ?? 0), 0);
     return { basis: "EXACT", pack:
-      `תנועה (admin_traffic · 7 ימים, ללא בוטים): מבקרים ייחודיים ${num(data.total_visitors) ?? "?"} · כניסות ${num(data.total_visits) ?? "?"} · היום(UTC) ${num(data.today) ?? "?"} · ` +
-      `ב-30ד' ${num(data.now30) ?? "?"} · ב-5ד' ${num(data.now5) ?? "?"} · חוזרים ${num(data.returning) ?? "?"} · בוטים שזוהו ${num(data.bot_visitors) ?? "?"} · ` +
-      `ממוצע אחרון ${num(data.recent_avg) ?? "?"} מול קודם ${num(data.prior_avg) ?? "?"}\nמקורות: ${src.join(" · ") || "—"}\nיומי: ${daily.join(" · ") || "—"}` };
+      `תנועה (Traffic Intelligence · traffic_daily · 7 ימים, לפי יום הדיווח של Traffic Intelligence): סה"כ כניסות אנושיות ${sum} (מבקרים הוא מדד יומי — לא מסכמים בין ימים כאנשים ייחודיים; חשודות/בוטים מוצגים בנפרד ולא מנוכים).\n` +
+      `תובנות: ${insights.join(" | ") || "—"}\nיומי: ${daily.join(" · ") || "—"}`.slice(0, 1800) };
   }
   if (capability === "system_overview" || capability === "system_faults") {
     const db = data.db || {}, sec = data.security || {}, bots = data.bots || {}, usage = data.usage || {};
@@ -834,26 +858,40 @@ function razielOperatorProject(capability: string, data: any, days: number | nul
 
 async function runRazielOperator(desc: { capability: string; days: number | null }, bearer: string, trace: OperationalTraceHandle | null): Promise<RazielOperatorResult> {
   const cap = RAZIEL_OPERATOR_CAPS[desc.capability];
-  const spanId = crypto.randomUUID();
-  const startedAt = new Date().toISOString();
-  const r = await razielOperatorRpc(bearer, cap);
-  let proj: ReturnType<typeof razielOperatorProject> = null;
-  if (r.ok) {
-    proj = razielOperatorProject(desc.capability, r.data, desc.days);
+  const rpcLabel = cap.calls.map((c) => c.rpc).join("+");
+  const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
+  const spans: { spanId: string; startedAt: string; endedAt: string }[] = [];
+  for (const call of cap.calls) {
+    const sId = crypto.randomUUID(), sAt = new Date().toISOString();
+    const res = await razielOperatorRpc(bearer, call);
+    results.push(res);
+    spans.push({ spanId: sId, startedAt: sAt, endedAt: new Date().toISOString() });
+    if (!res.ok) break;   // all owner calls are required; stop at the first failure
   }
-  const ok = r.ok && !!proj;
-  const outcome = r.ok && !proj ? "failed_with_reason" : r.outcome;
-  await recordOperationalSpan(trace, {
-    spanId, kind: "db_rpc", name: `ai-analyze:raziel:operator:${cap.rpc}`, startedAt, endedAt: new Date().toISOString(), outcome,
-    detail: {
-      capability: `raziel_operator:${desc.capability}`, owner_ref: cap.owner, routing_reason: "raziel_plan_operator_read",
-      output_use: ok ? "used" : "not_applicable", stop_reason: ok ? null : (r.error || "unusable_payload"),
-      resources: { latency_ms: r.ms, api_calls: 1 },
-      replay: { ownerRuleRefs: [cap.owner], parametersRef: `rpc:${cap.rpc};caller_jwt:true;read_only:true` },
-      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-    },
-  });
-  return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: cap.rpc, ...(proj || {}) };
+  const allOk = results.length === cap.calls.length && results.every((x) => x.ok);
+  let proj: ReturnType<typeof razielOperatorProject> = null;
+  if (allOk) {
+    proj = razielOperatorProject(desc.capability, cap.calls.length === 1 ? results[0].data : results.map((x) => x.data), desc.days);
+  }
+  const ok = allOk && !!proj;
+  const failed = results.find((x) => !x.ok);
+  const outcome = failed ? failed.outcome : (!proj ? "failed_with_reason" : "success");
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i], call = cap.calls[i], last = i === results.length - 1;
+    const spanOk = r.ok && (!last || ok);
+    await recordOperationalSpan(trace, {
+      spanId: spans[i].spanId, kind: "db_rpc", name: `ai-analyze:raziel:operator:${call.rpc}`, startedAt: spans[i].startedAt, endedAt: spans[i].endedAt,
+      outcome: r.ok && last && !proj && allOk ? "failed_with_reason" : r.outcome,
+      detail: {
+        capability: `raziel_operator:${desc.capability}`, owner_ref: cap.owner, routing_reason: "raziel_plan_operator_read",
+        output_use: spanOk ? "used" : "not_applicable", stop_reason: spanOk ? null : (r.error || "unusable_payload"),
+        resources: { latency_ms: r.ms, api_calls: 1 },
+        replay: { ownerRuleRefs: [cap.owner], parametersRef: `rpc:${call.rpc};caller_jwt:true;read_only:true` },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+  }
+  return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: rpcLabel, ...(proj || {}) };
 }
 
 Deno.serve(async (req: Request) => {

@@ -45,8 +45,13 @@ test("Phase C: owner RPCs use the CALLER JWT (never service role) with a fixed r
   assert.match(call, /apikey: SB_ANON, Authorization: `Bearer \$\{bearer\}`/);
   assert.doesNotMatch(call, /SB_SVC|svcHeaders|service_role/);
   assert.match(razielBlock, /rBearer = tier === "admin"/);
-  assert.deepEqual([...new Set(Object.values(mod.RAZIEL_OPERATOR_CAPS).map((c) => c.rpc))].sort(),
-    ["admin_ai_tokens", "admin_system_health", "admin_traffic", "fn_raziel_research_intel_scoped"]);
+  assert.deepEqual([...new Set(Object.values(mod.RAZIEL_OPERATOR_CAPS).flatMap((c) => c.calls.map((x) => x.rpc)))].sort(),
+    ["admin_ai_tokens", "admin_entries_daily", "admin_system_health", "admin_traffic_insights", "fn_raziel_research_intel_scoped"]);
+  // Canonical traffic owner only: legacy admin_traffic (raw site_visits + own bot heuristic) is absent from code and capability map.
+  assert.doesNotMatch(phaseC, /admin_traffic\b(?!_)/);
+  assert.deepEqual(mod.RAZIEL_OPERATOR_CAPS.traffic_count.calls.map((x) => x.rpc), ["admin_entries_daily"]);
+  assert.deepEqual(mod.RAZIEL_OPERATOR_CAPS.traffic_state.calls.map((x) => x.rpc), ["admin_traffic_insights", "admin_entries_daily"]);
+  assert.doesNotMatch(mig, /admin_traffic\b(?!_)/);
   assert.doesNotMatch(phaseC, /site_visits|\/rest\/v1\/(?!rpc)|\.from\(|insert|update public|delete/i);
 });
 
@@ -54,21 +59,47 @@ test("Phase C: every owner call is a db_rpc span with owner, outcome, latency, o
   const run = phaseC.slice(phaseC.indexOf("async function runRazielOperator"));
   assert.match(run, /kind: "db_rpc"/);
   assert.match(run, /owner_ref: cap\.owner/);
+  assert.match(run, /name: `ai-analyze:raziel:operator:\$\{call\.rpc\}`/);
   assert.match(run, /latency_ms: r\.ms/);
-  assert.match(run, /output_use: ok \? "used" : "not_applicable"/);
+  assert.match(run, /output_use: spanOk \? "used" : "not_applicable"/);
   assert.match(run, /rawPrivatePayloadLogged: false/);
   assert.match(phaseC, /access_filtered/);
 });
 
-test("Phase C: exact traffic count is a deterministic projection; no invented number", () => {
-  const d = { total_visitors: 120, total_visits: 340, today: 17 };
-  const today = mod.razielOperatorProject("traffic_count", d, 1);
-  assert.match(today.answer, /17 מבקרים ייחודיים/);
-  assert.match(today.answer, /UTC/);
-  const week = mod.razielOperatorProject("traffic_count", d, 7);
-  assert.match(week.answer, /120 מבקרים/);
-  assert.equal(mod.razielOperatorProject("traffic_count", { today: "17" }, 1), null);
+test("Phase C: traffic_count is a deterministic projection over traffic_daily rows; no invented number", () => {
+  const rows = [
+    { day: "2026-10-03", entrances: 40, visitors: 30, suspected: 2, bots: 5, updated_at: "2026-10-04T00:10:00Z" },
+    { day: "2026-10-04", entrances: 50, visitors: 35, suspected: 1, bots: 4, updated_at: "2026-10-04T12:00:00Z" },
+  ];
+  const today = mod.razielOperatorProject("traffic_count", rows, 1);
+  assert.match(today.answer, /50 כניסות אנושיות/);
+  assert.doesNotMatch(today.answer, /ייחודי|UTC/);
+  assert.match(today.answer, /Traffic Intelligence/);
+  const week = mod.razielOperatorProject("traffic_count", rows, 7);
+  assert.match(week.answer, /90 כניסות אנושיות/);   // entrances summed; visitors (65) never summed as people
+  assert.doesNotMatch(week.answer, /65|ייחודי|UTC/);
+  // stale / closed latest day → truthful unavailable, never 0
+  const stale = mod.razielOperatorProject("traffic_count", [{ day: "2026-10-03", entrances: 40, updated_at: "2026-10-04T00:10:00Z" }], 1);
+  assert.equal(stale.basis, "UNKNOWN");
+  assert.equal(stale.facts[0].value, "UNKNOWN");
+  assert.equal(mod.razielOperatorProject("traffic_count", [{ day: "2026-10-04", entrances: 5 }], 1).basis, "UNKNOWN");
+  assert.equal(mod.razielOperatorProject("traffic_count", [], 1), null);
+  assert.equal(mod.razielOperatorProject("traffic_count", [{ day: "2026-10-04", entrances: "5" }], 1), null);
   assert.equal(mod.razielOperatorProject("traffic_count", null, 1), null);
+  assert.equal(mod.razielOperatorProject("traffic_count", { today: 17 }, 1), null);
+});
+
+test("Phase C: traffic_state pairs admin_traffic_insights + admin_entries_daily; raw/suspected/net kept separate", () => {
+  const ins = [{ icon: "📈", text: "תנועה אנושית ב-7 הימים: 90 כניסות" }];
+  const rows = [{ day: "2026-10-04", entrances: 50, visitors: 35, suspected: 3, bots: 4, updated_at: "2026-10-04T12:00:00Z" }];
+  const r = mod.razielOperatorProject("traffic_state", [ins, rows], 7);
+  assert.match(r.pack, /כניסות אנושיות 50/);
+  assert.match(r.pack, /חשודות 3/);
+  assert.match(r.pack, /בוטים 4/);
+  assert.match(r.pack, /תנועה אנושית ב-7 הימים/);
+  assert.doesNotMatch(r.pack, /UTC|admin_traffic\b(?!_)|site_visits/);
+  assert.equal(mod.razielOperatorProject("traffic_state", [ins], 7), null);
+  assert.equal(mod.razielOperatorProject("traffic_state", { total_visitors: 1 }, 7), null);
 });
 
 test("Phase C: AI cost keeps EXACT/UNKNOWN labels and never invents ILS or cost", () => {

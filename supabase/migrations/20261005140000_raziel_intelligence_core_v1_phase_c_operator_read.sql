@@ -97,7 +97,7 @@ begin
   -- ▼ Phase C bounded operator READ grammar (admin only). Whole-sentence anchored forms: a public phrase that merely
   --   contains כמה / אתר / מערכת never matches. The plan only DESCRIBES the capability; execution happens in ai-analyze
   --   after tier=admin was verified from the caller JWT, and each owner RPC re-checks admin itself (auth.uid()/rd_is_admin).
-  --   capability → owner: analytics_traffic → traffic_intelligence_law v11 (admin_traffic) ·
+  --   capability → owner: analytics_traffic → traffic_intelligence_law v11 (admin_entries_daily / admin_traffic_insights over traffic_daily) ·
   --   system_live_state → system_suggestions_law v5 (admin_system_health; admin_ai_tokens for AI cost) ·
   --   research_intelligence → research_strategy_layer_law v17 (fn_raziel_research_intel_scoped).
   declare
