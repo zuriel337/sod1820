@@ -108,8 +108,10 @@ jobs:
           mkdir -p test-results/release-visual .release-gate
           cat > .release-gate/release-visual.spec.cjs <<'EOF'
           const { test, expect } = require('@playwright/test');
+          const { installStorageEgressGuard } = require('../tests/playwright-storage-egress-guard.cjs');
 
           const BASE = 'http://127.0.0.1:4173';
+          test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
 

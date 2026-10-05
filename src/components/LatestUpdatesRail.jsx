@@ -47,7 +47,20 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     // «עדכונים אחרונים» = זמן אמת: החדש ביותר קודם.
     // נעיצה נשארת הדגשה/תג בלבד ואינה רשאית לקבור פוסט או רמז חדש מתחת לתוכן ישן.
-    return out.sort((a, b) => b.when - a.when).slice(0, 20);
+    const sorted = out.sort((a, b) => b.when - a.when);
+    if (!homeCompact) return sorted.slice(0, 20);
+
+    // Home must never lose the Posts lane just because Reality/Cipher activity is
+    // unusually busy. Reserve up to four real posts, then fill the remaining slots
+    // with the newest other updates. Final display is still sorted by recency.
+    const guaranteedPosts = sorted.filter((it) => it.type === "post").slice(0, 4);
+    const guaranteedKeys = new Set(guaranteedPosts.map((it) => `post:${it.data.id ?? it.data.slug ?? ""}`));
+    const remainder = sorted
+      .filter((it) => it.type !== "post" || !guaranteedKeys.has(`post:${it.data.id ?? it.data.slug ?? ""}`))
+      .slice(0, Math.max(0, 20 - guaranteedPosts.length));
+    return [...guaranteedPosts, ...remainder]
+      .sort((a, b) => b.when - a.when)
+      .slice(0, 20);
   }, [posts, convergences, hints, researchers, ciphers, ownOnly]);
 
   // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
