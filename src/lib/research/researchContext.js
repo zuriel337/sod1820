@@ -127,7 +127,7 @@ function normalizeSurfaceSections(value) {
 
 function normalizeSurfaceFocus(value) {
   if (!isObject(value)) return null;
-  const strings = ["id", "entityId", "type", "entityType", "sectionLabel", "label", "primary", "expression", "method", "sourceLabel", "locator", "reference", "href", "postId", "postSlug"];
+  const strings = ["id", "entityId", "type", "entityType", "sectionLabel", "label", "primary", "expression", "method", "sourceLabel", "locator", "reference", "href", "postId", "postSlug", "reason"];
   const out = {};
   for (const key of strings) {
     const cleaned = cleanString(value[key]);
@@ -143,6 +143,22 @@ function normalizeSurfaceFocus(value) {
   return Object.keys(out).length ? out : null;
 }
 
+// Secondary findings listed in the Contextual Sidecar REST state. Bounded, strings only.
+function normalizeSurfaceFindings(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 8).map((item, index) => {
+    if (!isObject(item)) return null;
+    const label = cleanString(item.label);
+    if (!label) return null;
+    const row = { id: cleanString(item.id) || `finding-${index + 1}`, label };
+    for (const key of ["value", "kind", "reason", "href", "sourceLabel"]) {
+      const cleaned = cleanString(item[key]);
+      if (cleaned) row[key] = cleaned;
+    }
+    return row;
+  }).filter(Boolean);
+}
+
 function normalizeDimensions(value) {
   if (!isObject(value)) return {};
   const out = {};
@@ -151,6 +167,8 @@ function normalizeDimensions(value) {
       out[key] = normalizeBottomTrail(item);
     } else if (key === "surfaceSections") {
       out[key] = normalizeSurfaceSections(item);
+    } else if (key === "surfaceFindings") {
+      out[key] = normalizeSurfaceFindings(item);
     } else if (key === "surfaceFocus" || key === "readingFocus") {
       const focus = normalizeSurfaceFocus(item);
       if (focus) out[key] = focus;

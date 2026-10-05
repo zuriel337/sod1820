@@ -174,6 +174,19 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
+        surfaceFindings: post.slug === "bennett-melach-631-78"
+          ? (state.projection.experience?.connections || [])
+            .filter((connection) => connection.id !== "bennett-631")
+            .map((connection) => ({
+              id: connection.id,
+              label: connection.label,
+              value: connection.value,
+              kind: connection.kind,
+              reason: connection.reason,
+              href: connection.href,
+              sourceLabel: connection.provenanceLabel || connection.kind,
+            }))
+          : [],
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,
@@ -548,6 +561,15 @@ function PostReadingBody() {
     </header>
 
     <PostEvidenceMedia2029 media={experience.media} />
+
+    {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="מקומו של הפוסט בשרשרת" data-chain-trail="true">
+      {experience.trail.map((step, index) => <React.Fragment key={step.id}>
+        {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
+        {step.active
+          ? <span className="sod29-chain-trail-step is-here" aria-current="page">{step.label} <small>(אתה כאן)</small></span>
+          : <a className="sod29-chain-trail-step" href={step.href}>{step.label}</a>}
+      </React.Fragment>)}
+    </nav> : null}
 
     <div className="sod29-reading-layout">
       <section

@@ -306,18 +306,13 @@ function buildBennettGoldenBody(verification) {
 
   return `
 <section dir="rtl" class="sod29-bennett-golden-body">
-  <section class="sod29-bennett-golden-section is-chain">
-    <div class="sod29-post-story-kicker">הסיפור הזה ממשיך</div>
-    <h2 data-source-heading="true">הסיפור הזה ממשיך מפוסט הבחירות</h2>
-    <p>בפוסט הבחירות כבר נפתח <strong>ציר 631</strong>. הפוסט הזה אינו מתחיל מחקר חדש — הוא מוסיף אירוע חדש לאותו ציר.</p>
-    <a class="sod29-post-part-card" href="/sharshar-elections-redemption-hints-draft">
-      <span><small>המידע הקודם נשאר מחובר</small><br><strong>פוסט הבחירות — ציר 631</strong></span>
-      <b>פתח ←</b>
-    </a>
+  <section class="sod29-bennett-golden-section is-incident">
+    <h2 data-source-heading="true">האירוע שתועד</h2>
+    <p>ב־24.9.2026 תועד בבני ברק אירוע המלחיות שבו היה מעורב נפתלי בנט. התיעוד המצולם והדיווח המלא מופיעים באתר המקור, N12, בכרטיס שלמעלה.</p>
+    <p>כאן אנחנו לא מוסיפים פרשנות לאירוע עצמו. אנחנו שואלים דבר אחד: מה קורה כשבודקים את השם.</p>
   </section>
 
   <section class="sod29-bennett-golden-section is-core">
-    <div class="sod29-post-story-kicker">החיבור המרכזי</div>
     <h2 data-source-heading="true">631 — הציר המרכזי</h2>
     ${verified ? `
       <button type="button" class="sod29-gematria-value sod29-gematria-hero"${focusAttrs("נפתלי בנט")}>631</button>
@@ -327,18 +322,7 @@ function buildBennettGoldenBody(verification) {
         <p>מלך ישראל = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
       </div>
     ` : `<p class="sod29-state warn">החישוב הקנוני אינו זמין כרגע; השוויונות אינם מוצגים עד לאימות.</p>`}
-    <p>זה לב הפוסט. שאר המחקר סביב המלח נשאר זמין בעומק, בלי לערבב את הסיפור המרכזי.</p>
-  </section>
-
-  <section class="sod29-bennett-golden-section is-chronology">
-    <div class="sod29-post-story-kicker">הקשר בזמן</div>
-    <h2 data-source-heading="true">כמה ימים קודם — ים המלח</h2>
-    <div class="sod29-bennett-time-bridge">
-      <article><time datetime="2026-09-22" class="sod29-bilingual-date">${bilingualDateHtml("2026-09-22")}</time><strong>פרסמנו את פוסט ים המלח</strong><a href="/yam-hamelach-tiferet-geula">פתח את הפוסט</a></article>
-      <span aria-hidden="true">→</span>
-      <article><time datetime="2026-09-24" class="sod29-bilingual-date">${bilingualDateHtml("2026-09-24")}</time><strong>אירוע המלחיות עם בנט בבני ברק</strong><small>יומיים אחר כך</small></article>
-    </div>
-    <p>זהו קשר כרונולוגי שאנחנו מציגים כחלק מהסיפור. ציר הזמן המלא נשאר במקומו הקבוע למטה.</p>
+    <p>את ציר 631 פתחנו בפוסט הבחירות. האירוע הזה מצטרף אליו: אותו מספר, אדם אחד נוסף. חיבורים נוספים סביב האירוע זמינים בהקשר הצדדי.</p>
   </section>
 </section>`;
 }
@@ -347,6 +331,13 @@ function buildBennettSaltExperience(post) {
   const href = "/post/" + BENNETT_SALT_SLUG;
   return {
     media: {
+      // No embeddable canonical asset is resolvable from existing data: render a source card.
+      sourceCard: {
+        href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm",
+        outlet: "N12",
+        title: "תיעוד אירוע המלחיות בבני ברק",
+        date: "24.9.2026",
+      },
       fullSource: {
         href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm",
         label: "N12 · תיעוד האירוע והמקור המצולם",
@@ -356,7 +347,7 @@ function buildBennettSaltExperience(post) {
     },
     connections: [
       { id: "bennett-631", label: "נפתלי בנט", kind: "PERSON / POST", value: "631", href: "/sharshar-elections-redemption-hints-draft", reason: "631 כבר חי בפוסט הבחירות; כאן הוא נצרך כחיבור ולא נוצר מחדש.", provenanceLabel: "post:5107" },
-      { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע." },
+      { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
       { id: "bread-78", label: "לחם", kind: "NUMBER", value: "78", href: "/2029/number/78", reason: "אותו ערך רגיל כמו מלח; המשמעות פרשנית." },
       { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
       { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
@@ -367,6 +358,7 @@ function buildBennettSaltExperience(post) {
       { id: "bennett-salt-event", label: "אירוע המלחיות בבני ברק", date: "2026-09-24", temporalRole: "occurred", href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm", sourceLabel: "N12 · Times of Israel", note: "הציר מציג סדר כרונולוגי בלבד, ללא טענת סיבתיות." },
       { id: "bennett-salt-golden", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, current: true, sourceLabel: null, note: "תאריך הפרסום של הפוסט." },
     ],
+    // CHAIN_AUTOMATION = FIXTURE/HARDCODED: trail is declared here, not derived from relation data.
     trail: [
       { id: "elections-post", label: "פוסט הבחירות", href: "/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
       { id: "bennett-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
@@ -636,7 +628,7 @@ export async function fetchPost2029ReadingProjection(slug) {
         : isBennettSaltPilot
           ? "תיעוד אירוע · בני ברק · 24.09.2026"
           : clean(post.author) || "מקור הפוסט",
-    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : isElectionsChain ? "הבחירות · ציר 631" : isBennettSaltPilot ? "בנט × מלח · Golden 2029" : clean(post.author) || "מקור הפוסט",
+    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : isElectionsChain ? "הבחירות · ציר 631" : isBennettSaltPilot ? "בנט · ציר 631" : clean(post.author) || "מקור הפוסט",
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
     regions,
     defaultRegionId: regions[0]?.id || null,
