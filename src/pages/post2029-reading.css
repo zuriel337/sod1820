@@ -437,8 +437,8 @@
   gap:3px;
   margin-bottom:18px;
 }
-.sod29-post-timeline header span{color:var(--s29-accent-text);font-size:10px;font-weight:850}
-.sod29-post-timeline header strong{font-size:18px}
+.sod29-post-timeline header h2{margin:0;color:var(--s29-ink);font-size:22px;line-height:1.2}
+.sod29-post-timeline header p{margin:0;color:var(--s29-muted);font-size:12px}
 .sod29-post-timeline ol{
   list-style:none;
   margin:0;
@@ -459,10 +459,18 @@
   background:var(--s29-accent);
   box-shadow:0 0 0 6px color-mix(in srgb,var(--s29-accent) 8%,transparent);
 }
-.sod29-post-timeline time{display:inline-block;margin-inline-end:8px;color:var(--s29-accent-text);font-weight:800;font-size:11px}
-.sod29-post-timeline-role{color:var(--s29-muted);font-size:10px}
-.sod29-post-timeline a,
-.sod29-post-timeline li strong{display:block;margin-top:5px;color:var(--s29-ink);font-size:14px;text-decoration:none}
+.sod29-timeline-body{display:grid;gap:4px;justify-items:start}
+.sod29-timeline-dates{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.sod29-post-timeline time{color:var(--s29-accent-text);font-weight:800;font-size:13px}
+.sod29-timeline-gregorian{display:inline-block;unicode-bidi:isolate;direction:ltr}
+.sod29-post-timeline-role{color:var(--s29-muted);font-size:11px}
+.sod29-timeline-nodate{color:var(--s29-muted);font-size:12px}
+.sod29-post-timeline .sod29-timeline-title{display:block;margin:0;padding:0;border:0;background:none;color:var(--s29-ink);font:inherit;font-size:16px;font-weight:750;line-height:1.4;text-align:start;text-decoration:none;cursor:pointer}
+.sod29-post-timeline a.sod29-timeline-title:hover,.sod29-post-timeline button.sod29-timeline-title:hover{text-decoration:underline}
+.sod29-post-timeline li.is-current{margin-inline-start:-10px;padding-inline-start:10px;border-inline-start:3px solid var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 8%,transparent);border-radius:10px;padding-block:10px;margin-bottom:14px}
+.sod29-post-timeline li.is-current .sod29-post-timeline-dot{width:11px;height:11px;top:15px;box-shadow:0 0 0 7px color-mix(in srgb,var(--s29-accent) 18%,transparent)}
+.sod29-timeline-here{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--s29-accent);color:var(--s29-bg,#fff);font-size:11px;font-weight:850}
+.sod29-bilingual-date bdo{unicode-bidi:isolate;direction:ltr}
 .sod29-post-timeline small{display:block;margin-top:4px;color:var(--s29-muted);font-size:10px}
 .sod29-post-timeline p{margin:5px 0 0;color:var(--s29-muted);font-size:11px;line-height:1.55}
 

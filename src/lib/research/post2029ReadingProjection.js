@@ -1,5 +1,6 @@
 import { getPostBySlug, supabase } from "../supabase.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
+import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -153,6 +154,11 @@ function markBennettContextualNumberFocus(content = "", verification = null) {
   return html.replace(pattern, `$1${marker}`);
 }
 
+function bilingualDateHtml(iso) {
+  const d = formatBilingualDate(iso);
+  return d ? `<span>${d.hebrew}</span> · <bdo dir="ltr">${d.gregorian}</bdo>` : iso;
+}
+
 function dateOnly(value) {
   const text = clean(value);
   return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : "";
@@ -235,7 +241,7 @@ function buildFz1073Experience(post, topic363 = null) {
         date: dateOnly(post?.date) || "2026-09-30",
         temporalRole: "published",
         href,
-        sourceLabel: "SOD1820",
+        sourceLabel: null,
         note: "תאריך הפרסום של הפוסט.",
       },
       {
@@ -328,9 +334,9 @@ function buildBennettGoldenBody(verification) {
     <div class="sod29-post-story-kicker">הקשר בזמן</div>
     <h2 data-source-heading="true">כמה ימים קודם — ים המלח</h2>
     <div class="sod29-bennett-time-bridge">
-      <article><time datetime="2026-09-22">22.9.2026</time><strong>פרסמנו את פוסט ים המלח</strong><a href="/yam-hamelach-tiferet-geula">פתח את הפוסט</a></article>
+      <article><time datetime="2026-09-22" class="sod29-bilingual-date">${bilingualDateHtml("2026-09-22")}</time><strong>פרסמנו את פוסט ים המלח</strong><a href="/yam-hamelach-tiferet-geula">פתח את הפוסט</a></article>
       <span aria-hidden="true">→</span>
-      <article><time datetime="2026-09-24">24.9.2026</time><strong>אירוע המלחיות עם בנט בבני ברק</strong><small>יומיים אחר כך</small></article>
+      <article><time datetime="2026-09-24" class="sod29-bilingual-date">${bilingualDateHtml("2026-09-24")}</time><strong>אירוע המלחיות עם בנט בבני ברק</strong><small>יומיים אחר כך</small></article>
     </div>
     <p>זהו קשר כרונולוגי שאנחנו מציגים כחלק מהסיפור. ציר הזמן המלא נשאר במקומו הקבוע למטה.</p>
   </section>
@@ -357,9 +363,9 @@ function buildBennettSaltExperience(post) {
       { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
     ],
     timeline: [
-      { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/yam-hamelach-tiferet-geula", sourceLabel: "POST", note: "פוסט קיים ונפרד בעץ." },
-      { id: "bennett-salt-event", label: "אירוע המלחיות בבני ברק", date: "2026-09-24", temporalRole: "occurred", href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm", sourceLabel: "N12 / TOI", note: "הציר מציג סדר כרונולוגי בלבד, ללא טענת סיבתיות." },
-      { id: "bennett-salt-golden", label: "Golden 2029 פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, sourceLabel: "POST", note: "תאריך פרסום ה־Golden החדש." },
+      { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/yam-hamelach-tiferet-geula", sourceLabel: null, note: "פוסט קיים ונפרד באתר." },
+      { id: "bennett-salt-event", label: "אירוע המלחיות בבני ברק", date: "2026-09-24", temporalRole: "occurred", href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm", sourceLabel: "N12 · Times of Israel", note: "הציר מציג סדר כרונולוגי בלבד, ללא טענת סיבתיות." },
+      { id: "bennett-salt-golden", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, current: true, sourceLabel: null, note: "תאריך הפרסום של הפוסט." },
     ],
     trail: [
       { id: "elections-post", label: "פוסט הבחירות", href: "/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
@@ -434,8 +440,8 @@ function buildElectionsExperience(post) {
       { id: "number-66", label: "66", kind: "NUMBER", value: "66", href: "/2029/number/66", reason: "בן דוד = 66." },
     ],
     timeline: [
-      { id: "elections-published", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-09-30", temporalRole: "published", href, sourceLabel: "SOD1820", note: "תאריך הפרסום של פוסט הבחירות." },
-      { id: "elections-bennett-continuation", label: "פוסט ההמשך: בנט בתוך ציר 631", date: "2026-10-01", temporalRole: "published", href: bennettHref, sourceLabel: "POST", note: "המשך לאותו ציר; ללא טענת סיבתיות." },
+      { id: "elections-published", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-09-30", temporalRole: "published", href, current: true, sourceLabel: null, note: "תאריך הפרסום של פוסט הבחירות." },
+      { id: "elections-bennett-continuation", label: "פוסט ההמשך: בנט בתוך ציר 631", date: "2026-10-01", temporalRole: "published", href: bennettHref, sourceLabel: null, note: "המשך לאותו ציר; ללא טענת סיבתיות." },
     ],
     trail: [
       { id: "elections-post", label: "פוסט הבחירות", href, kind: "post", active: true },

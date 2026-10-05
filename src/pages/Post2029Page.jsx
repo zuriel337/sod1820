@@ -227,7 +227,7 @@ function PostReadingBody() {
       : projection.sourceLabel;
   const visibleTimeline = (experience.timeline || []).map((item) => (
     isBennettMaster && item.id === "bennett-salt-golden"
-      ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: "SOD1820", note: "תאריך הפרסום של הפוסט." }
+      ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: null, note: "תאריך הפרסום של הפוסט.", current: true }
       : item
   ));
   const contextualConnections = (experience.connections || []).filter((connection) => {
@@ -575,7 +575,7 @@ function PostReadingBody() {
 
     </div>
 
-    <PostTimeline2029 items={visibleTimeline} />
+    <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
 
     <footer className="sod29-reading-footnote">
       <span>מקור</span>

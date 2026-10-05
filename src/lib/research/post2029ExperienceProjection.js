@@ -58,6 +58,7 @@ function normalizeTimelineItem(item, index) {
     href: clean(item.href) || null,
     sourceLabel: clean(item.sourceLabel) || null,
     note: clean(item.note) || null,
+    current: item.current === true,
   };
 }
 
