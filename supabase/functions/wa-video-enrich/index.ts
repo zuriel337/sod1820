@@ -3,6 +3,7 @@
 // Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron.
 // Protected by FB_ADMIN_KEY. OPENAI_API_KEY is retrieved through a service-role-only RPC.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { MAX_STT_BYTES, mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
@@ -10,7 +11,6 @@ const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const MODEL = (Deno.env.get("FAST_MODEL") || "claude-haiku-4-5").trim();
 const SITE_URL = "https://sod1820.co.il";
-const MAX_STT_BYTES = 24 * 1024 * 1024;
 const VIDEO_RE = /\.(mp4|mov|webm|m4v)(?:[?#]|$)/i;
 const GENERIC = new Set(["", "🎬 עדכון וידאו", "📷 עדכון"]);
 const PUBLIC_VIDEO_CHANNELS = ["or-geula", "torat-haremez"];
@@ -320,22 +320,14 @@ async function transcribe(row: any, opTrace: VideoTrace | null = null, parentSpa
   if (blob.size > MAX_STT_BYTES) throw new Error(`media_too_large:${blob.size}`);
 
   const url = String(row.image_url || "");
-  const ext = (url.match(/\.(mp4|webm|m4v|mov)(?:[?#]|$)/i)?.[1] || "mp4").toLowerCase();
+  const ext = mediaExtension(url);
   const type = blob.type || (ext === "webm" ? "video/webm" : "video/mp4");
-  const form = new FormData();
-  form.append("file", new File([blob], `${row.channel || "video"}-${row.id}.${ext}`, { type }));
-  form.append("model", "gpt-transcribe");
-  form.append("language", "he");
-
   const spanId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
-  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}` },
-    body: form,
-  });
+  // Public WhatsApp video channels are Hebrew by channel contract: language is DECLARED, not detected.
+  const stt = await transcribeBlob({ key, blob, filename: `${row.channel || "video"}-${row.id}.${ext}`, type, language: "he" });
   const endedAt = new Date().toISOString();
-  const raw = await r.text();
+  const r = { ok: stt.ok, status: stt.status };
   await recordVideoSpan(opTrace, {
     spanId, parentSpanId, kind: "tool_call", name: "wa-video-enrich:openai-transcribe",
     startedAt, endedAt, outcome: r.ok ? "success" : "provider_error",
@@ -349,10 +341,8 @@ async function transcribe(row: any, opTrace: VideoTrace | null = null, parentSpa
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
   });
-  if (!r.ok) throw new Error(`stt_${r.status}:${raw.slice(0, 240)}`);
-  let parsed: any = null;
-  try { parsed = JSON.parse(raw); } catch { /* noop */ }
-  const transcript = cleanText(parsed?.text || raw);
+  if (!stt.ok) throw new Error(stt.error || `stt_${stt.status}`);
+  const transcript = cleanText(stt.text);
   if (!transcript) throw new Error("stt_empty");
   await saveTranscript(row, transcript, null);
   return transcript;

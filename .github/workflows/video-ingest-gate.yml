@@ -7,6 +7,19 @@ on:
       - "supabase/functions/agent-upload/**"
       - "supabase/functions/_shared/tiktokSourceResolver.js"
       - "scripts/test-video-migrate-tiktok-resolver.mjs"
+      - "supabase/functions/video-transcribe/**"
+      - "supabase/functions/wa-video-enrich/**"
+      - "supabase/functions/_shared/sttTranscribe.js"
+      - "supabase/functions/_shared/videoTranscriptPolicy.js"
+      - "supabase/functions/_shared/postPublishPreflight.js"
+      - "supabase/functions/_shared/mediaPosterLane.js"
+      - "supabase/functions/media-thumb-queue/**"
+      - "scripts/media-thumbs.mjs"
+      - "supabase/migrations/20261005020000_sys_save_post_service_only_acl_v1.sql"
+      - "supabase/migrations/20261005030000_post_writers_id_alloc_advisory_lock_v1.sql"
+      - "supabase/migrations/20261005040000_video_transcripts_single_original_invariant_v1.sql"
+      - "test/post-publishing-2029-chain.test.mjs"
+      - "test/fixtures/post-publishing/**"
       - ".github/workflows/video-ingest-gate.yml"
   workflow_dispatch:
 
@@ -25,10 +38,16 @@ jobs:
         run: node --experimental-strip-types supabase/functions/agent-upload/url-video-mode.test.mts
       - name: Agent TikTok link-only upload acceptance
         run: node --experimental-strip-types supabase/functions/agent-upload/tiktok-mode.test.mts
+      - name: Post publishing 2029 chain (preflight, shared STT, service-only writer ACL)
+        run: node test/post-publishing-2029-chain.test.mjs
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
       - name: Supabase Edge runtime typecheck
         run: |
-          deno check supabase/functions/video-migrate/index.ts
-          deno check supabase/functions/agent-upload/index.ts
+          # Deno 2.9 resolves @supabase/functions-js types through npm:openai; auto node_modules makes that deterministic.
+          deno check --node-modules-dir=auto supabase/functions/video-migrate/index.ts
+          deno check --node-modules-dir=auto supabase/functions/agent-upload/index.ts
+          deno check --node-modules-dir=auto supabase/functions/video-transcribe/index.ts
+          deno check --node-modules-dir=auto supabase/functions/wa-video-enrich/index.ts
+          deno check --node-modules-dir=auto supabase/functions/media-thumb-queue/index.ts

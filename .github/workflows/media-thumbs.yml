@@ -1,7 +1,7 @@
 name: media thumbnails (or-geula videos)
 
 # מייצר תמונת-תצוגה לכל עדכון-וידאו חדש (כולל אלה שנקלטו אוטומטית מוואטסאפ)
-# שאין לו thumb_url. רץ יומית + אפשר להריץ ידנית מלשונית Actions.
+# שאין לו thumb_url. כולל poster (derivatives/poster.jpg) לסרטוני media/sod1820/2029/video — אותו worker, בלי תור/טבלה חדשים. רץ יומית + אפשר להריץ ידנית מלשונית Actions.
 on:
   schedule:
     - cron: "17 */2 * * *" # כל שעתיים (בדקה 17) — סרטון חדש מקבל פוסטר תוך ~שעתיים
