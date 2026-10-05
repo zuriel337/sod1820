@@ -712,7 +712,8 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
   if (!p) return "";
   const avail = String(p.availability || "");
   if (p.tool_research_executed === true) {
-    return "\n\nתוכנית-מחקר (L4_TOOL_RESEARCH): הורצו שני כלים דטרמיניסטיים קיימים (גימטריה + דילוגים) — התוצאות מצורפות למטה; סינתזה בלבד, ללא הוספת עובדות." +
+    const caps = Array.isArray(p.tool_research_capabilities) && p.tool_research_capabilities.length ? ` (${(p.tool_research_capabilities as string[]).join(" + ")})` : "";
+    return `\n\nתוכנית-מחקר (L4_TOOL_RESEARCH): הורצו כלים דטרמיניסטיים קיימים${caps} — התוצאות מצורפות למטה; סינתזה בלבד, ללא הוספת עובדות.` +
       `\nסוג-יכולת: ${p.capability_class ?? "—"} · זמינות: ${avail || "—"}`;
   }
   const note = p.operator_executed === true
@@ -729,10 +730,17 @@ function razielPlanBlockText(p: Record<string, unknown> | null): string {
     (p.intent ? ` · יכולת מועמדת: ${p.intent}` : "") + `\n${note}`;
 }
 
-// Phase E — bounded view of the fn_raziel_answer mode="tool_research" contract (Gematria + ELS deterministic protocols already
+// Phase E/G — bounded view of the fn_raziel_answer mode="tool_research" contract (Gematria / ELS / Tanakh-source deterministic protocols already
 // executed inside the database). Per-tool status/provenance stay separate; nothing here is a new claim. Absent/other shapes → null.
 // Semantic level label only (execution is the existing deterministic protocols; synthesis stays on the existing deep mapping).
 const RAZIEL_TOOL_LEVEL = "L4_TOOL_RESEARCH";
+// Phase G: bounded per-tool source bundle — counts/books/first/last/≤3 sample refs only; a zero count is a truthful negative of THIS exact-token projection.
+function razielSourceBundle(f: any) {
+  return { count: f?.count ?? null, found: f?.found === true, match: "exact_whole_token",
+    books: Array.isArray(f?.books) ? f.books.slice(0, 8) : [], first: f?.first?.ref ?? null, last: f?.last?.ref ?? null,
+    samples: Array.isArray(f?.samples) ? f.samples.slice(0, 3).map((x: any) => ({ ref: x?.ref, text: String(x?.text ?? "").slice(0, 120) })) : [],
+    note: f?.found === true ? null : "לא נמצא כמילה שלמה מדויקת בהטלה זו — אין זו הוכחה שהמושג נעדר מכל המקורות" };
+}
 type RazielToolResearch = { status: string; subject: string; tools: { capability: string; status: string; ms: number | null; error: string | null }[];
   findings: Record<string, unknown>; evidence: Record<string, unknown>; text: string };
 function razielToolResearch(src: any): RazielToolResearch | null {
@@ -741,19 +749,21 @@ function razielToolResearch(src: any): RazielToolResearch | null {
   if (!tr || tr.contract !== "tool_research_v1" || !Array.isArray(tr.specialists)) return null;
   const subject = typeof tr.subject === "string" ? tr.subject.slice(0, 40) : "";
   const status = ["complete", "partial", "failed"].includes(tr.status) ? tr.status : "failed";
-  const tools = tr.specialists.slice(0, 2).map((sp: any) => ({
+  const tools = tr.specialists.slice(0, 3).map((sp: any) => ({
     capability: String(sp?.capability || "").slice(0, 20), status: String(sp?.status || "failed").slice(0, 20),
     ms: Number.isFinite(Number(sp?.ms)) ? Number(sp.ms) : null, error: typeof sp?.error === "string" ? sp.error.slice(0, 120) : null,
   }));
   const findings = (tr.findings_by_capability && typeof tr.findings_by_capability === "object") ? tr.findings_by_capability : {};
   const evidence = (tr.evidence_by_capability && typeof tr.evidence_by_capability === "object") ? tr.evidence_by_capability : {};
-  const label: Record<string, string> = { gematria: "גימטריה (fn_gematria_pack)", els: "דילוגי-אותיות (fn_els_search)" };
+  const label: Record<string, string> = { gematria: "גימטריה (fn_gematria_pack)", els: "דילוגי-אותיות (fn_els_search)",
+    tanakh_source: "מקורות בתנ״ך (fn_ev_sources · התאמת מילה שלמה מדויקת)" };
+
   const parts = tools.map((t: { capability: string; status: string }) => {
     const f = (findings as any)[t.capability];
-    if (t.status === "ok" && f) return `• ${label[t.capability] || t.capability} — מצב: ok\n  ממצא: ${JSON.stringify(f).slice(0, 1100)}\n  מקור: ${JSON.stringify((evidence as any)[t.capability] ?? null).slice(0, 300)}`;
+    if (t.status === "ok" && f) return `• ${label[t.capability] || t.capability} — מצב: ok\n  ממצא: ${JSON.stringify(t.capability === "tanakh_source" ? razielSourceBundle(f) : f).slice(0, 1100)}\n  מקור: ${JSON.stringify((evidence as any)[t.capability] ?? null).slice(0, 300)}`;
     return `• ${label[t.capability] || t.capability} — מצב: ${t.status} (אין ממצא; אל תמציא)`;
   });
-  const text = `\n\nתוצאות-כלים דטרמיניסטיים (הורצו בפועל על «${subject}»; סטטוס כולל: ${status}; כל כלי בנפרד — אל תמזג לטענה קנונית חדשה; אל תחשב גימטריה ואל תמציא דילוגים; ` +
+  const text = `\n\nתוצאות-כלים דטרמיניסטיים (הורצו בפועל על «${subject}»; סטטוס כולל: ${status}; כל כלי בנפרד — אל תמזג לטענה קנונית חדשה; אל תחשב גימטריה ואל תמציא דילוגים או פסוקים; הסכמה בין כלים אינה עובדה; ` +
     `כלי שלא הצליח/ריק — ציין זאת במפורש; הצלבה לא בוצעה):\n` + parts.join("\n");
   return { status, subject, tools, findings, evidence, text: text.slice(0, 3000) };
 }
@@ -1151,7 +1161,8 @@ Deno.serve(async (req: Request) => {
       //    authority: explicit deep may raise to ≥L3; explicit fast never lowers below the plan minimum. Selection uses semantic
       //    plan metadata only (never tier/admin/length). L2_FAST→FAST_MODEL, L3_DEEP→MODEL. Decided AFTER the deterministic path
       //    (0 tokens) and before quota/model. Smart routing stays OFF — this reads existing plan metadata only.
-      if (rToolRes) rPlanMeta = { ...(rPlanMeta || {}), tool_research_executed: true, tool_research_status: rToolRes.status };
+      if (rToolRes) rPlanMeta = { ...(rPlanMeta || {}), tool_research_executed: true, tool_research_status: rToolRes.status,
+        tool_research_capabilities: rToolRes.tools.map((t) => t.capability) };
       const rSel = selectRazielIntelligence({ plan: rPlanMeta, requested: body?.intelligence_level });
       // Tool research: synthesis over verified tool outputs always uses the existing deep mapping (never tier/request driven).
       const rFast = rSel.selected_level === RAZIEL_LEVELS.L2 && !rToolRes;
@@ -1215,7 +1226,8 @@ Deno.serve(async (req: Request) => {
             startedAt: new Date(nowMs - Math.max(0, Math.round(t.ms ?? 0))).toISOString(), endedAt,
             outcome: okT ? "success" : "failed_with_reason",
             detail: {
-              capability: `raziel_tool:${t.capability}`, owner_ref: "raziel_routing_law v2 + research_strategy_layer_law v17",
+              capability: `raziel_tool:${t.capability}`,
+              owner_ref: t.capability === "tanakh_source" ? "raziel_routing_law v2 + corpus_admission_foundation_v1" : "raziel_routing_law v2 + research_strategy_layer_law v17",
               routing_reason: "raziel_plan_multi_domain_tool_research", semantic_level: RAZIEL_TOOL_LEVEL,
               output_use: okT ? "used" : "not_applicable", stop_reason: okT ? null : (t.error || t.status),
               resources: { latency_ms: t.ms, api_calls: 1 },
