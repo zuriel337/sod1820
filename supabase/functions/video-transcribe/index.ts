@@ -11,14 +11,15 @@
 // פעולות (POST JSON):
 //   { action:'translate', video_key, original_text, original_lang?='he',
 //     langs?=[...], yt?, source_url?, video_id?, title? }  → שומר מקור + מתרגם לכל שפה
-//   { action:'set_original', video_key, original_text, ... }  → שומר מקור בלבד (בלי תרגום)
+//   { action:'set_original', video_key, original_text, original_lang, ... }  → שומר מקור ראשון בלבד (בלי תרגום); מקור קיים => 409 original_exists (אין דריסה)
+//   translate: מקור שמור גובר תמיד על original_text/original_lang של הקורא. >1 מקורות => 409 original_conflict. DB: אינדקס ייחודי חלקי — מקור אחד לכל video_key.
 //   { action:'transcribe', video_key, media_url, source_lang?, ... } → STT (gpt-transcribe, shared _shared/sttTranscribe.js)
 //        מהסרטון הקנוני ב-Supabase Storage → שורת-מקור (is_original). שפת-המקור: מוצהרת/מדווחת-ספק, לעולם לא מנוחשת.
 //   { action:'list', video_key }  → מחזיר את כל השורות (לניפוי; הלקוח קורא ישירות מהטבלה)
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 import { canonicalMediaPath, isCanonicalVideoOriginalPath } from "../_shared/mediaPosterLane.js";
-import { resolveSourceLanguage, sttOriginalRow, translationRow, translationTargets } from "../_shared/videoTranscriptPolicy.js";
+import { isUniqueViolation, planOriginal, sttOriginalRow, translationRow, translationTargets } from "../_shared/videoTranscriptPolicy.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL   = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
@@ -147,9 +148,9 @@ async function upsertRow(row: Record<string, unknown>, onDuplicate: "merge" | "i
 }
 
 // existing is_original rows for a video_key (read-only)
-async function listOriginals(video_key: string): Promise<{ lang: string }[]> {
+async function listOriginals(video_key: string): Promise<{ lang: string; transcript?: string }[]> {
   const r = await fetch(
-    `${SB_URL}/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(video_key)}&is_original=eq.true&select=lang`,
+    `${SB_URL}/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(video_key)}&is_original=eq.true&select=lang,transcript`,
     { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
   );
   if (!r.ok) throw new Error(`originals_lookup_${r.status}`);
@@ -241,33 +242,32 @@ Deno.serve(async (req) => {
       return json({ ok: true, original: built.row.lang, language_evidence: built.language_evidence, saved: [built.row.lang], translated: [] });
     }
 
-    let original_text = String(b.original_text || "").trim();
-    let original_lang = String(b.original_lang || "").trim();
+    // ORIGINAL INVARIANT: always inspect stored originals BEFORE trusting caller original_text/original_lang.
+    // >1 => original_conflict · 1 => stored source is authoritative (set_original refuses; translate uses it) · 0 => first source.
+    const plan = planOriginal({ originals: await listOriginals(video_key), action, requestedText: b.original_text, requestedLang: b.original_lang });
+    if (plan.kind === "conflict") return json({ error: plan.error, originals: plan.originals }, 409);
+    if (plan.kind === "original_exists") return json({ error: plan.error, original: plan.lang, saved: [], translated: [] }, 409);
+    if (plan.kind === "blocked") return json({ error: plan.error }, plan.error === "original_text_required" ? 400 : 422);
+    const original_text = plan.text;
+    const original_lang = plan.lang;
+    const callerOriginalIgnored = plan.kind === "use_stored" && plan.caller_original_ignored ? true : undefined;
 
-    let existingLang = "";
-    // אם לא נשלח טקסט-מקור — שולפים את המקור הקיים מהטבלה (מאפשר תרגום בקבוצות בלי לשלוח שוב)
-    if (!original_text) {
-      const r = await fetch(
-        `${SB_URL}/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(video_key)}&is_original=eq.true&select=lang,transcript&limit=1`,
-        { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
-      );
-      const ex = await r.json();
-      if (Array.isArray(ex) && ex[0]?.transcript) {
-        original_text = String(ex[0].transcript);
-        existingLang = String(ex[0].lang || "");
+    // 1) first human source only (non-overwriting insert). A concurrent writer that wins the (video_key, lang) key or the
+    //    one-original partial unique index is re-read and reported — never merged over.
+    if (plan.kind === "create") {
+      let saved: unknown = null;
+      try {
+        saved = await upsertRow({
+          ...base, lang: original_lang, transcript: original_text,
+          is_original: true, translated_by: "human", model: null, status: "published",
+        }, "ignore");
+      } catch (e) {
+        if (!isUniqueViolation(e)) throw e;
       }
-    }
-    if (!original_text) return json({ error: "original_text_required" }, 400);
-    const src = resolveSourceLanguage({ requested: original_lang, existingOriginalLang: existingLang });
-    if (!src.ok) return json({ error: src.error }, 422);
-    original_lang = src.lang;
-
-    // 1) שמירת המקור (is_original=true, מפורסם). מקור שכבר נשמר (למשל STT) לא נדרס כ-"human".
-    if (!existingLang) {
-      await upsertRow({
-        ...base, lang: original_lang, transcript: original_text,
-        is_original: true, translated_by: "human", model: null, status: "published",
-      });
+      const after = await listOriginals(video_key);
+      if (after.length > 1) return json({ error: "original_conflict", originals: after.map((o) => o.lang) }, 409);
+      if (!Array.isArray(saved) || !saved.length || after.length !== 1 || after[0].lang !== original_lang || after[0].transcript !== original_text)
+        return json({ error: "original_exists", original: after[0]?.lang ?? null, saved: [], translated: [] }, 409);
     }
 
     if (action === "set_original")
@@ -283,7 +283,7 @@ Deno.serve(async (req) => {
       await upsertRow(translationRow({ base, lang, text: t.text, model: t.model }));
       done.push(lang);
     }
-    return json({ ok: true, original: original_lang, translated: done, failed, last_err: failed.length ? LAST_ERR : undefined });
+    return json({ ok: true, original: original_lang, original_source: plan.kind === "use_stored" ? "stored" : "created", caller_original_ignored: callerOriginalIgnored, translated: done, failed, last_err: failed.length ? LAST_ERR : undefined });
   } catch (e) {
     return json({ error: "server_error", detail: String((e as Error)?.message || e) }, 500);
   }

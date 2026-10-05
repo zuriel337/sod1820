@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { preflightPost, preflightReceipt, STORAGE_PUBLIC_PREFIX } from "../supabase/functions/_shared/postPublishPreflight.js";
 import { findPendingPosters, posterPathForOriginal } from "../supabase/functions/_shared/mediaPosterLane.js";
 import { transcribeBlob, normalizeLanguage } from "../supabase/functions/_shared/sttTranscribe.js";
-import { resolveSourceLanguage, sttOriginalRow, translationTargets } from "../supabase/functions/_shared/videoTranscriptPolicy.js";
+import { isUniqueViolation, planOriginal, resolveSourceLanguage, sttOriginalRow, translationTargets } from "../supabase/functions/_shared/videoTranscriptPolicy.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(resolve(ROOT, p), "utf8");
@@ -366,7 +366,7 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
   assert.match(vt, /canonicalMediaPath\(mediaUrl, SB_URL\)/); assert.match(vt, /isCanonicalVideoOriginalPath\(mediaPath\)/);
   assert.doesNotMatch(vt, /mediaUrl\.startsWith/); assert.match(vt, /redirect: "error"/);
   // M2: transcribe checks existing originals BEFORE any STT/fetch and never overwrites.
-  const tr = vt.slice(vt.indexOf('if (action === "transcribe")'), vt.indexOf("let original_text"));
+  const tr = vt.slice(vt.indexOf('if (action === "transcribe")'), vt.indexOf("const plan = planOriginal"));
   assert.ok(tr.indexOf("listOriginals(video_key)") > 0 && tr.indexOf("listOriginals(video_key)") < tr.indexOf("fetch(mediaUrl") && tr.indexOf("listOriginals(video_key)") < tr.indexOf("transcribeBlob("), "originals queried first");
   assert.match(tr, /original_conflict/); assert.match(tr, /state: "original_exists"/);
   assert.match(tr, /upsertRow\(built\.row, "ignore"\)/, "STT never merge-overwrites");
@@ -395,6 +395,51 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
   assert.ok(adm.indexOf("auth.uid() and u.role='admin'") > 0 && adm.indexOf("raise exception 'not_admin'") > 0 && adm.indexOf("raise exception 'not_admin'") < adm.indexOf(LOCK), "admin gate precedes lock/allocation");
   assert.doesNotMatch(code, /\b(grant|revoke)\b/i, "ACLs untouched here (sys_save_post ACL from 20261005020000; admin_save_post unchanged)");
   assert.match(read("supabase/migrations/20261005020000_sys_save_post_service_only_acl_v1.sql"), /grant execute on function public\.sys_save_post\([^)]*\) to service_role;/);
+}
+
+// 7. ORIGINAL INVARIANT: one and only one original per video_key; stored original always wins; no silent dedupe.
+{
+  const he = { lang: "he", transcript: "מקור שמור" };
+  // same-lang overwrite impossible: set_original over a stored original is refused (no create/mutation plan)
+  assert.deepEqual(planOriginal({ originals: [he], action: "set_original", requestedText: "אחר", requestedLang: "he" }), { kind: "original_exists", error: "original_exists", lang: "he" });
+  // different-lang second original impossible
+  assert.equal(planOriginal({ originals: [he], action: "set_original", requestedText: "other", requestedLang: "en" }).kind, "original_exists");
+  assert.equal(planOriginal({ originals: [he], action: "translate", requestedText: "other", requestedLang: "en" }).kind, "use_stored");
+  // stored original wins for translation even when caller redundantly supplies text/lang
+  const t = planOriginal({ originals: [he], action: "translate", requestedText: "caller text", requestedLang: "en" });
+  assert.deepEqual([t.kind, t.lang, t.text, t.caller_original_ignored], ["use_stored", "he", "מקור שמור", true]);
+  assert.equal(planOriginal({ originals: [he], action: "translate" }).caller_original_ignored, false);
+  assert.equal(planOriginal({ originals: [he], action: "translate", requestedText: "מקור שמור", requestedLang: "he" }).caller_original_ignored, false);
+  // >1 stored originals => conflict, never picked/deduped
+  const c = planOriginal({ originals: [he, { lang: "en", transcript: "x" }], action: "translate", requestedText: "z", requestedLang: "he" });
+  assert.deepEqual(c, { kind: "conflict", error: "original_conflict", originals: ["he", "en"] });
+  assert.equal(planOriginal({ originals: [he, { lang: "en" }], action: "set_original", requestedText: "z", requestedLang: "he" }).kind, "conflict");
+  // none stored: first source only with text and a KNOWN language (never defaulted)
+  assert.deepEqual(planOriginal({ originals: [], action: "set_original", requestedText: " hi ", requestedLang: "en" }), { kind: "create", lang: "en", text: "hi" });
+  assert.equal(planOriginal({ originals: [], action: "translate", requestedText: "hi" }).error, "source_language_unknown");
+  assert.equal(planOriginal({ originals: [], action: "translate", requestedLang: "he" }).error, "original_text_required");
+  assert.equal(planOriginal({ originals: [{ lang: "he", transcript: "" }], action: "translate" }).error, "stored_original_unusable");
+  assert.equal(isUniqueViolation(new Error('upsert 409: {"code":"23505"}')), true);
+  assert.equal(isUniqueViolation(new Error("upsert 500: boom")), false);
+
+  // Edge wiring: originals inspected BEFORE caller text is trusted; insert never merges; race re-reads; no silent dedupe.
+  const vt = read("supabase/functions/video-transcribe/index.ts");
+  const tail = vt.slice(vt.indexOf("const plan = planOriginal"));
+  assert.ok(vt.indexOf("planOriginal({ originals: await listOriginals(video_key)") > 0);
+  assert.doesNotMatch(vt.slice(0, vt.indexOf("const plan = planOriginal")).slice(vt.indexOf('if (action === "transcribe")')), /b\.original_text/, "caller original_text untouched before the plan");
+  assert.match(tail, /upsertRow\(\{\s*\.\.\.base, lang: original_lang[\s\S]*?"ignore"\)/, "first source is a non-overwriting insert");
+  assert.doesNotMatch(tail, /upsertRow\(\{[^}]*is_original: true[^}]*\}\);/, "no merge-upsert of an original");
+  assert.match(tail, /isUniqueViolation\(e\)/); assert.match(tail, /error: "original_exists"/); assert.match(tail, /error: "original_conflict"/);
+  assert.doesNotMatch(vt, /method:\s*"DELETE"|is_original=eq\.false|is_original:\s*false\s*}\s*\)\s*,?\s*\n?\s*\{?\s*method:\s*"PATCH"/, "no delete/demote of originals");
+  assert.match(tail, /translationRow\(\{ base, lang, text: t\.text/); // translation target semantics unchanged
+
+  // DB invariant (static): partial unique index + fail-closed duplicate precondition; no table/store, no silent dedupe.
+  const mig = read("supabase/migrations/20261005040000_video_transcripts_single_original_invariant_v1.sql");
+  const code = mig.replace(/^--.*$/gm, "");
+  assert.match(code, /create unique index if not exists video_transcripts_one_original_per_key_uidx\s+on public\.video_transcripts \(video_key\) where is_original;/);
+  assert.match(code, /having count\(\*\) > 1[\s\S]*raise exception 'video_transcripts_duplicate_originals/);
+  assert.ok(code.indexOf("raise exception") < code.indexOf("create unique index"), "duplicate check precedes index");
+  assert.doesNotMatch(code, /create\s+(table|function|sequence)|\bdelete\b|\bupdate\b|\bdrop\b|\btruncate\b/i, "no new store, no silent dedupe");
 }
 
 console.log("post-publishing-2029-chain: all assertions passed");
