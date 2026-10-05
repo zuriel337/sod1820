@@ -1172,3 +1172,261 @@
 .sod29-raziel-chat-user { opacity: .8; }
 .sod29-raziel-chat-raziel { display: grid; gap: 2px; }
 .sod29-raziel-chat-raziel small { opacity: .65; }
+
+
+/* =====================================================================
+   GLASS CONTEXT DOCK V1 · Human Gate 2026-10-06
+   One canonical Bottom Dock. The left Context Rail is the expanded form;
+   this dock is its compact live projection. Raziel is physically centered.
+   ===================================================================== */
+.sod29-root.native-frame{--s29-island-clearance:112px}
+.sod29-command-island.glass-context-dock{
+  inset-inline-start:auto;
+  left:50%;
+  right:auto;
+  inset-block-end:16px;
+  transform:translateX(-50%);
+  width:min(1120px,calc(100vw - 32px));
+  min-height:70px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  padding:8px 10px;
+  direction:ltr;
+  overflow:visible;
+  border:1px solid color-mix(in srgb,var(--s29-line-strong) 78%,transparent);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 118%,color-mix(in srgb,var(--s29-raziel-violet) 11%,transparent),transparent 34%),
+    linear-gradient(112deg,
+      color-mix(in srgb,var(--s29-panel) 82%,transparent),
+      color-mix(in srgb,var(--s29-panel-soft) 68%,transparent) 48%,
+      color-mix(in srgb,var(--s29-panel) 84%,transparent));
+  backdrop-filter:blur(30px) saturate(145%);
+  box-shadow:
+    0 22px 76px color-mix(in srgb,var(--s29-page) 52%,transparent),
+    inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 9%,transparent),
+    inset 0 -1px 0 color-mix(in srgb,var(--s29-accent) 7%,transparent);
+}
+[dir="ltr"] .sod29-command-island.glass-context-dock{transform:translateX(-50%)}
+.sod29-root.surface-heichal .sod29-command-island.glass-context-dock{position:fixed;z-index:64}
+
+.sod29-glass-dock-wing{
+  min-width:0;
+  display:grid;
+  align-items:center;
+  gap:6px;
+  direction:rtl;
+}
+.sod29-glass-dock-wing.is-context{
+  grid-template-columns:minmax(0,1fr) 62px;
+}
+.sod29-glass-dock-wing.is-system{
+  grid-template-columns:repeat(2,62px);
+  justify-content:end;
+}
+
+.sod29-glass-context-capsule{
+  min-width:0;
+  height:52px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 12px;
+  border:1px solid color-mix(in srgb,var(--s29-line-strong) 72%,transparent);
+  border-radius:19px;
+  background:
+    linear-gradient(105deg,
+      color-mix(in srgb,var(--s29-panel-soft) 73%,transparent),
+      color-mix(in srgb,var(--s29-accent) 5%,transparent));
+  color:var(--s29-ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 7%,transparent),
+    0 8px 28px color-mix(in srgb,var(--s29-page) 22%,transparent);
+  cursor:pointer;
+  overflow:hidden;
+  text-align:start;
+}
+.sod29-glass-context-capsule:hover,
+.sod29-glass-context-capsule:focus-visible{
+  border-color:color-mix(in srgb,var(--s29-accent) 28%,var(--s29-line-strong));
+  background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft));
+}
+.sod29-glass-context-mark{
+  flex:0 0 auto;
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:var(--s29-accent-text);
+  background:color-mix(in srgb,var(--s29-accent) 9%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s29-accent) 12%,transparent);
+}
+.sod29-glass-context-viewport{
+  min-width:0;
+  flex:1;
+  overflow:hidden;
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+.sod29-glass-context-track.sod29-command-trail{
+  width:max-content;
+  max-width:none;
+  overflow:visible;
+  padding-inline:8px;
+  will-change:transform;
+}
+.sod29-glass-context-track .sod29-command-trail-item{
+  min-height:30px;
+  padding-inline:7px;
+  border-color:transparent;
+  background:transparent;
+  color:var(--s29-muted);
+}
+.sod29-glass-context-track .sod29-command-trail-item[aria-current="page"]{
+  color:var(--s29-accent-text);
+  background:color-mix(in srgb,var(--s29-accent) 7%,transparent);
+}
+.sod29-glass-context-capsule.is-rolling .sod29-glass-context-track{
+  animation:sod29-glass-context-roll 8.5s ease-in-out 1.2s infinite alternate;
+}
+.sod29-glass-context-capsule.is-rolling:hover .sod29-glass-context-track,
+.sod29-glass-context-capsule.is-rolling:focus-visible .sod29-glass-context-track{
+  animation-play-state:paused;
+}
+@keyframes sod29-glass-context-roll{
+  0%,12%{transform:translateX(0)}
+  88%,100%{transform:translateX(-18%)}
+}
+
+.sod29-glass-dock-action{
+  width:62px;
+  min-width:62px;
+  height:52px;
+  border:1px solid transparent;
+  border-radius:18px;
+  background:transparent;
+  color:var(--s29-muted);
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:2px;
+  cursor:pointer;
+  transition:background var(--s29-motion),color var(--s29-motion),border-color var(--s29-motion),transform var(--s29-motion);
+}
+.sod29-glass-dock-action>span{font-size:14px;font-weight:900;line-height:1}
+.sod29-glass-dock-action>small{font-size:var(--s29-type-micro);font-weight:800;line-height:1.05}
+.sod29-glass-dock-action:hover,
+.sod29-glass-dock-action[aria-pressed="true"]{
+  color:var(--s29-ink);
+  border-color:color-mix(in srgb,var(--s29-line-strong) 78%,transparent);
+  background:color-mix(in srgb,var(--s29-accent) 7%,transparent);
+  transform:translateY(-1px);
+}
+
+/* Central Glass Core: position never moves. Context may animate INSIDE the core only. */
+.sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact{
+  position:relative;
+  z-index:2;
+  min-width:72px;
+  width:72px;
+  height:72px;
+  margin-block:-16px -6px;
+  padding:0;
+  border:1px solid color-mix(in srgb,var(--s29-raziel-violet) 34%,var(--s29-line-strong));
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 26%,color-mix(in srgb,var(--s29-ink) 13%,transparent),transparent 34%),
+    color-mix(in srgb,var(--s29-panel) 82%,transparent);
+  backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:
+    0 0 34px color-mix(in srgb,var(--s29-raziel-indigo) 20%,transparent),
+    0 18px 48px color-mix(in srgb,var(--s29-page) 48%,transparent),
+    inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 14%,transparent);
+}
+.sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact .sod29-raziel-orb-core{
+  width:46px;
+  height:46px;
+  box-shadow:
+    0 0 26px var(--s29-raziel-glow),
+    inset 0 0 18px rgba(255,255,255,.23);
+}
+.sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact:before{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--s29-raziel-indigo) 17%,transparent);
+  pointer-events:none;
+  opacity:.72;
+}
+.sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact.active:before{
+  box-shadow:0 0 30px color-mix(in srgb,var(--s29-raziel-violet) 24%,transparent);
+}
+
+/* Tool mode: same Dock, stronger contextual presence — never a second toolbar. */
+.sod29-command-island.glass-context-dock[data-dock-mode="tool"] .sod29-glass-context-capsule{
+  border-color:color-mix(in srgb,var(--s29-raziel-indigo) 22%,var(--s29-line-strong));
+}
+.sod29-command-island.glass-context-dock[data-dock-mode="tool"] .sod29-glass-context-mark{
+  box-shadow:
+    0 0 18px color-mix(in srgb,var(--s29-raziel-indigo) 15%,transparent),
+    inset 0 0 0 1px color-mix(in srgb,var(--s29-raziel-indigo) 18%,transparent);
+}
+
+@media(max-width:980px){
+  .sod29-root.native-frame{--s29-island-clearance:106px}
+  .sod29-command-island.glass-context-dock{
+    width:calc(100vw - 16px);
+    min-height:62px;
+    inset-block-end:calc(8px + env(safe-area-inset-bottom,0px));
+    grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);
+    gap:5px;
+    padding:6px;
+    border-radius:24px;
+  }
+  .sod29-glass-dock-wing{gap:3px}
+  .sod29-glass-dock-wing.is-context{grid-template-columns:minmax(0,1fr)}
+  .sod29-glass-dock-wing.is-context>.sod29-glass-dock-action{display:none}
+  .sod29-glass-dock-wing.is-system{grid-template-columns:repeat(2,48px)}
+  .sod29-glass-context-capsule{height:48px;padding-inline:9px;border-radius:16px}
+  .sod29-glass-context-mark{width:25px;height:25px}
+  .sod29-glass-context-track .sod29-command-trail-item{font-size:var(--s29-type-micro);padding-inline:5px}
+  .sod29-glass-dock-action{min-width:48px;width:48px;height:48px;border-radius:15px}
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact{
+    min-width:56px;
+    width:56px;
+    height:56px;
+    margin-block:-10px -2px;
+  }
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact .sod29-raziel-orb-core{width:36px;height:36px}
+}
+@media(max-width:620px){
+  .sod29-command-island.glass-context-dock{
+    width:calc(100vw - 10px);
+    grid-template-columns:minmax(0,1fr) 52px 102px;
+    gap:3px;
+    padding-inline:5px;
+  }
+  .sod29-glass-context-capsule{padding-inline:7px;gap:5px}
+  .sod29-glass-context-mark{width:23px;height:23px}
+  .sod29-glass-dock-wing.is-system{grid-template-columns:repeat(2,48px)}
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact{min-width:52px;width:52px;height:52px}
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact .sod29-raziel-orb-core{width:34px;height:34px}
+}
+@media(max-width:360px){
+  .sod29-command-island.glass-context-dock{
+    width:calc(100vw - 6px);
+    grid-template-columns:minmax(0,1fr) 48px 92px;
+  }
+  .sod29-glass-dock-wing.is-system{grid-template-columns:repeat(2,44px)}
+  .sod29-glass-dock-action{min-width:44px;width:44px}
+  .sod29-glass-context-mark{display:none}
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact{min-width:48px;width:48px;height:48px}
+  .sod29-command-island.glass-context-dock>.sod29-raziel-orb.compact .sod29-raziel-orb-core{width:32px;height:32px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sod29-glass-context-capsule.is-rolling .sod29-glass-context-track{animation:none!important;transform:none!important}
+  .sod29-glass-dock-action{transition:none!important}
+}
