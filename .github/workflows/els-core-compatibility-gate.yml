@@ -18,6 +18,8 @@ on:
       - 'src/lib/research/ResearchProvider.jsx'
       - 'src/pages/Els2029Page.jsx'
       - 'src/components/experience2029/Els2029Representation.jsx'
+      - 'src/components/experience2029/ElsNativeClassic2029.jsx'
+      - 'src/components/experience2029/elsNativeClassic2029.css'
       - 'src/components/experience2029/SystemFrame2029.jsx'
       - 'src/components/experience2029/els2029-representation.css'
       - 'test/els-2029-*.test.mjs'
