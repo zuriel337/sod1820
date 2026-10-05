@@ -25,6 +25,7 @@ import {
 import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
+import PersonalIntake2029 from "./PersonalIntake2029.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import GematriaReveal2029 from "../gematria2029/GematriaReveal2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
@@ -805,6 +806,7 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
 
       <section data-workspace-section="research" className="sod29-workspace-research-section">
         <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>Research Path · שמירה · חזרה מדויקת</small></div>
+        <PersonalIntake2029 />
 
         {subject ? (
           <section className="sod29-workspace-resume-native">

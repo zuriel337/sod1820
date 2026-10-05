@@ -45,10 +45,14 @@ export function buildUploadIntent({ scope, kind, mime, size, filename, userId, c
     if (!isUuid(assetId)) throw new Error("invalid_asset_id");
     return { scope, bucket: "media", path: `sod1820/2029/${kind}/${yyyy}/${mm}/${assetId}/original.${file.ext}`, assetId, submissionId: null, transport: "tus", ...file };
   }
-  if (scope === "submission") {
+  if (scope === "submission" || scope === "personal") {
     const submissionId = idFactory();
     if (!isUuid(submissionId)) throw new Error("invalid_submission_id");
-    const ownerRoot = contributorId ? (() => { if (!isUuid(contributorId)) throw new Error("invalid_contributor_id"); return `contributors/${contributorId}`; })() : `accounts/${userId}`;
+    const ownerRoot = scope === "personal"
+      ? `accounts/${userId}`
+      : contributorId
+        ? (() => { if (!isUuid(contributorId)) throw new Error("invalid_contributor_id"); return `contributors/${contributorId}`; })()
+        : `accounts/${userId}`;
     return { scope, bucket: "submission-inbox", path: `sod1820/2029/${ownerRoot}/${yyyy}/${mm}/${submissionId}/${kind}/original.${file.ext}`, assetId: null, submissionId, transport: "tus", ...file };
   }
   throw new Error("unsupported_scope");
@@ -57,7 +61,8 @@ export function buildUploadIntent({ scope, kind, mime, size, filename, userId, c
 export function mayVerifyPath({ scope, path, userId, contributorId = null, isAdmin = false }) {
   const p = String(path || "");
   if (scope === "public") return isAdmin && p.startsWith("sod1820/2029/");
-  if (scope !== "submission" || !isUuid(userId)) return false;
+  if (!["submission","personal"].includes(scope) || !isUuid(userId)) return false;
+  if (scope === "personal") return p.startsWith(`sod1820/2029/accounts/${userId}/`);
   if (contributorId && isUuid(contributorId) && p.startsWith(`sod1820/2029/contributors/${contributorId}/`)) return true;
   return p.startsWith(`sod1820/2029/accounts/${userId}/`);
 }

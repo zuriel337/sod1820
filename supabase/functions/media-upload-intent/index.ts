@@ -50,7 +50,7 @@ async function issueIntent(actor: any, body: any) {
 
 async function verifyIntent(actor: any, body: any) {
   const scope = String(body.scope || "");
-  const bucket = scope === "public" ? "media" : scope === "submission" ? "submission-inbox" : "";
+  const bucket = scope === "public" ? "media" : ["submission","personal"].includes(scope) ? "submission-inbox" : "";
   const path = String(body.path || "");
   if (!bucket || !mayVerifyPath({ scope, path, userId: actor.userId, contributorId: actor.contributorId, isAdmin: actor.isAdmin })) throw new Error("verify_forbidden");
   const expectedSize = Number(body.size);
@@ -75,7 +75,87 @@ async function verifyIntent(actor: any, body: any) {
     const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", await get.arrayBuffer()));
     actual.sha256 = Array.from(digest).map((x) => x.toString(16).padStart(2, "0")).join("");
   }
-  return evaluateReadBack({ scope, bucket, path, expected: { size: expectedSize, mime: expectedMime, ...(expectedSha256 ? { sha256: expectedSha256 } : {}) }, actual });
+  const verified = evaluateReadBack({ scope, bucket, path, expected: { size: expectedSize, mime: expectedMime, ...(expectedSha256 ? { sha256: expectedSha256 } : {}) }, actual });
+  if (!verified.ok) return verified;
+  const { data: objectRow, error: objectError } = await actor.admin.schema("storage").from("objects")
+    .select("id").eq("bucket_id", bucket).eq("name", path).maybeSingle();
+  if (objectError || !objectRow?.id) throw new Error("verified_object_identity_missing");
+  return {
+    ...verified,
+    storage_object_id: objectRow.id,
+    receipt: { ...verified.receipt, storage_object_id: objectRow.id },
+  };
+}
+
+async function deleteVerifiedUpload(actor: any, body: any) {
+  const scope = String(body.scope || "submission");
+  const bucket = scope === "public" ? "media" : ["submission","personal"].includes(scope) ? "submission-inbox" : "";
+  const path = String(body.path || "");
+  if (!bucket || !mayVerifyPath({ scope, path, userId: actor.userId, contributorId: actor.contributorId, isAdmin: actor.isAdmin })) {
+    throw new Error("delete_forbidden");
+  }
+  const { error } = await actor.admin.storage.from(bucket).remove([path]);
+  if (error) throw new Error(`verified_delete_failed:${error.message}`);
+  return { ok: true, action: "delete_verified_upload", bucket, path, deleted: true };
+}
+
+async function readPersonalMedia(actor: any, body: any) {
+  const itemId = String(body.item_id || "");
+  const storageObjectId = String(body.storage_object_id || "");
+  if (!itemId || !storageObjectId) throw new Error("media_reference_required");
+  const { data: resolved, error } = await actor.admin.rpc("private_personal_intake_media_access_v1", {
+    p_item_id: itemId,
+    p_storage_object_id: storageObjectId,
+    p_actor_id: actor.userId,
+  });
+  if (error || !resolved?.ok) throw new Error(`media_access_denied:${error?.message || "not_resolved"}`);
+  const { data, error: signError } = await actor.admin.storage.from(resolved.bucket).createSignedUrl(resolved.path, 60);
+  if (signError || !data?.signedUrl) throw new Error("private_read_sign_failed");
+  return {
+    ok: true, action: "read_personal_media", item_id: itemId,
+    storage_object_id: storageObjectId, mime: resolved.mime || null,
+    size: Number(resolved.size || 0), signed_url: data.signedUrl, expires_in_seconds: 60,
+  };
+}
+
+async function cleanupAllPersonalMedia(actor: any) {
+  const { data: items, error: itemError } = await actor.admin.from("research_items")
+    .select("id,metadata")
+    .eq("user_id", actor.userId)
+    .eq("bucket", "library")
+    .eq("entity_type", "personal_intake");
+  if (itemError) throw new Error(`personal_items_read_failed:${itemError.message}`);
+  const ids = (items || []).map((row: any) => String(row?.metadata?.artifact?.storage_object_id || "")).filter(Boolean);
+  if (!ids.length) return { ok: true, action: "cleanup_personal_media", deleted: 0 };
+  const { data: objects, error: objectError } = await actor.admin.schema("storage").from("objects")
+    .select("id,name")
+    .eq("bucket_id", "submission-inbox")
+    .in("id", ids);
+  if (objectError) throw new Error(`personal_objects_read_failed:${objectError.message}`);
+  const prefix = `sod1820/2029/accounts/${actor.userId}/`;
+  const paths = (objects || []).map((row: any) => String(row.name || "")).filter((p: string) => p.startsWith(prefix));
+  if (!paths.length) return { ok: true, action: "cleanup_personal_media", deleted: 0 };
+  const { error: removeError } = await actor.admin.storage.from("submission-inbox").remove(paths);
+  if (removeError) throw new Error(`personal_cleanup_failed:${removeError.message}`);
+  return { ok: true, action: "cleanup_personal_media", deleted: paths.length };
+}
+
+async function deletePersonalMedia(actor: any, body: any) {
+  const itemId = String(body.item_id || "");
+  const storageObjectId = String(body.storage_object_id || "");
+  if (!itemId || !storageObjectId) throw new Error("media_reference_required");
+  const { data: resolved, error } = await actor.admin.rpc("private_personal_intake_media_access_v1", {
+    p_item_id: itemId,
+    p_storage_object_id: storageObjectId,
+    p_actor_id: actor.userId,
+  });
+  if (error || !resolved?.ok) throw new Error(`media_access_denied:${error?.message || "not_resolved"}`);
+  const { error: removeError } = await actor.admin.storage.from(resolved.bucket).remove([resolved.path]);
+  if (removeError) throw new Error(`private_delete_failed:${removeError.message}`);
+  return {
+    ok: true, action: "delete_personal_media", item_id: itemId,
+    storage_object_id: storageObjectId, deleted: true,
+  };
 }
 
 async function readContributionMedia(actor: any, body: any) {
@@ -109,6 +189,10 @@ Deno.serve(async (req) => {
     if (action === "issue") return json(await issueIntent(actor, body));
     if (action === "verify") { const v = await verifyIntent(actor, body); return json(v, v.ok ? 200 : 422); }
     if (action === "read_contribution_media") return json(await readContributionMedia(actor, body));
+    if (action === "delete_verified_upload") return json(await deleteVerifiedUpload(actor, body));
+    if (action === "read_personal_media") return json(await readPersonalMedia(actor, body));
+    if (action === "delete_personal_media") return json(await deletePersonalMedia(actor, body));
+    if (action === "cleanup_personal_media") return json(await cleanupAllPersonalMedia(actor));
     return json({ ok: false, error: "unsupported_action" }, 400);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown_error";
