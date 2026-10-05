@@ -1,0 +1,19 @@
+name: one-time canonical media poster
+on:
+  push:
+    branches:
+      - gpt/run-media-poster-once
+jobs:
+  poster:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Ensure ffmpeg
+        run: ffmpeg -version | head -1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Run existing canonical media thumbnail worker
+        env:
+          FB_ADMIN_KEY: ${{ secrets.FB_ADMIN_KEY }}
+        run: node scripts/media-thumbs.mjs
