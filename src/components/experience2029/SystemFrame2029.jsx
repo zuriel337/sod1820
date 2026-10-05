@@ -1587,7 +1587,7 @@ export default function SystemFrame2029({
     surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
     surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
   ].filter(Boolean);
-  // Preserve existing Post/World/Topic trail semantics, then project the same Research Context
+  // Preserve existing Post/World/Topic trail semantics, then project the same current context
   // into the canonical Glass Dock. Tool surfaces do not create a second bottom bar.
   const bottomTrail = surface === "post"
     ? postTrail
