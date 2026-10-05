@@ -36,7 +36,7 @@ for (const [name, source] of [
   assert.equal(source.includes('go?.("/heichal"'), false, `${name} must not navigate to unopened Heichal 2029`);
 }
 
-assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false, "2029 shell nav must not expose Heichal");
+assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "2029 Global Chrome must expose canonical Heichal navigation");
 assert.equal(contextual.includes('label: "◇ העמק בהיכל"'), false, "context actions must not expose Heichal");
 assert.equal(contextual.includes('deepenTool()'), false, "context tools must not generate Heichal deepen entries");
 
