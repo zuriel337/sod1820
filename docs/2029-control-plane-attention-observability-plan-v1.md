@@ -454,6 +454,7 @@ Each item should include:
 - infra/DB;
 - traffic/bots/AI;
 - product/UX;
+- **user-reported issue / reliability**;
 - analytics/instrumentation;
 - Google/SEO/discovery;
 - performance;
@@ -465,6 +466,35 @@ Each item should include:
 - communications;
 - payments/entitlements;
 - localization/global.
+
+### User-reported issue intake
+
+The canonical 2029 `IssueReport` is part of the same Attention system, not a support silo.
+
+Current runtime behavior is preserved:
+
+- the component emits `event_type=issue_report` through the existing telemetry pipeline;
+- context is bounded and includes route/surface/capability/concept/action/locale/viewport/auth class + an opaque interaction correlation id;
+- it does not create a second issue database or write directly to `system_suggestions`;
+- Reliability consumes the event;
+- recurring non-bot reports become an operational incident through the existing reliability owner;
+- current recurring threshold is **2 distinct non-bot sessions in 60 minutes for the same issue fingerprint**; the detector can then create work-log evidence, a system suggestion and `notify_admin` notification;
+- one isolated report remains evidence even when it does not cross the interruption threshold.
+
+Control Plane V1/V2 must therefore expose:
+
+- recent user-reported issues;
+- grouped/fingerprinted recurring issues;
+- affected surface/capability/route;
+- first seen / last seen / count / distinct sessions;
+- release SHA before/after where resolvable;
+- device/locale/access/traffic classification where available;
+- related runtime errors / Web Vitals / deployment / trace evidence;
+- status: new / watching / action / resolved;
+- owner + recommended next step;
+- a clear distinction between **one user report** and **reproducible/recurring incident**.
+
+A report is never auto-dismissed merely because it is isolated, but isolated low-confidence reports should not generate noisy external alerts by default.
 
 ### Delivery
 
@@ -929,7 +959,9 @@ This preserves “silence when nothing meaningful changed.”
 - search-with-no-result;
 - repeated unavailable capability;
 - save/share/follow/signup conversion shift;
-- return/retention shift.
+- return/retention shift;
+- recurring user-reported issue on the same surface/capability;
+- user-report cluster that correlates with a release, runtime error, performance regression or unavailable state.
 
 ### Google/discovery
 
