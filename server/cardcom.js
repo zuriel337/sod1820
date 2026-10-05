@@ -86,14 +86,14 @@ function exactJsonInteger(raw, key) {
 
 export async function getCardcomResult(lowProfileId) {
   const { terminal, apiName } = cardcomConfig();
-  const params = new URLSearchParams({
-    TerminalNumber: String(terminal),
-    ApiName: apiName,
-    LowProfileId: String(lowProfileId || ""),
-  });
-  const response = await fetch(`${CARDCOM_BASE}/LowProfile/GetLpResult?${params}`, {
-    method: "GET",
-    headers: { Accept: "application/json" },
+  const response = await fetch(`${CARDCOM_BASE}/LowProfile/GetLpResult`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      TerminalNumber: terminal,
+      ApiName: apiName,
+      LowProfileId: String(lowProfileId || ""),
+    }),
     signal: AbortSignal.timeout(15_000),
   });
   const { raw, data } = await readJsonResponse(response);
