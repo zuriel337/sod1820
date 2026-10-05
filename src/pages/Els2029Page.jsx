@@ -263,10 +263,10 @@ export default function Els2029Page() {
           <span className="sod29-chip">ONE ENGINE · SAME STATE</span>
         </div>
         <div className="sod29-actions">
-          <a className="sod29-action" href="/lab/els">פתח Work Area קלאסי מלא</a>
-          <span className="sod29-chip">/lab/els · COMPATIBILITY</span>
+          <span className="sod29-chip">CLASSIC · IN 2029</span>
+          <span className="sod29-chip">NO LEGACY HANDOFF</span>
         </div>
-        <p className="sod29-muted" style={{ marginTop: 12 }}>ה־Work Area הוותיק נשאר זמין בזמן שהיכולות שלו נספגות בהדרגה במשטח 2029. הוא אינו הופך למנוע או מקור אמת נפרד.</p>
+        <p className="sod29-muted" style={{ marginTop: 12 }}>התצוגה הקלאסית נשארת כחלק מאותו משטח 2029 ואותו occurrence מאומת. אין מעבר ל־Work Area הישן; יכולות שחסרות ייספגו כאן בהדרגה בלי ליצור מערכת ELS מקבילה.</p>
       </section>}
     </section>
   </Sod2029Shell>;
