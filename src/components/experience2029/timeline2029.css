@@ -16,3 +16,5 @@
 .sod29-timeline[data-timeline-surface="number"] a.sod29-timeline-title:hover,
 .sod29-timeline[data-timeline-surface="number"] button.sod29-timeline-title:hover{text-decoration:underline}
 .sod29-timeline[data-timeline-surface="number"] small{color:var(--s29-muted);font-size:11px}
+.sod29-timeline-inspect{margin-inline-start:8px;padding:2px 9px;border:1px solid var(--s29-line);border-radius:999px;background:transparent;color:var(--s29-muted);font:inherit;font-size:10px;cursor:pointer}
+.sod29-timeline-inspect:hover{color:var(--s29-ink);border-color:var(--s29-line-strong)}

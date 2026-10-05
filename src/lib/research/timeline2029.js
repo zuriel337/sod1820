@@ -2,6 +2,8 @@
 // Pure helpers only: ordering, bilingual dates, current-position, public source labels.
 // Reality time (occurred) and knowledge time (published/discovered/admitted) stay distinct roles.
 
+import { decodePublicEntities } from "../presentation/contentTitle.js";
+
 export const TIMELINE_PUBLIC_LABEL = "ציר הזמן";
 export const TIMELINE_CURRENT_LABEL = "אתה נמצא כאן";
 
@@ -68,7 +70,7 @@ export function formatBilingualDate(value) {
 export function publicSourceLabel(label) {
   const text = String(label ?? "").trim();
   if (!text || INTERNAL_SOURCE_LABELS.has(text.toUpperCase())) return null;
-  return text.replace(/\s*\/\s*/g, " · ");
+  return decodePublicEntities(text).replace(/\s*\/\s*/g, " · ");
 }
 
 /** Newest first; stable for equal dates. */
@@ -101,7 +103,7 @@ const TECHNICAL_TITLE_RE = /(?:research[-_ ]?object|candidate|FAMILY\s*\/\s*SYST
 
 /** Public title for a Number timeline row: drops technical tokens, never returns raw plumbing. */
 export function normalizeNumberTimelineTitle(title, fallback = "פריט במחקר") {
-  const text = String(title ?? "").replace(/\s+/g, " ").trim();
+  const text = decodePublicEntities(title).replace(/\s+/g, " ").trim();
   if (!text || TECHNICAL_TITLE_RE.test(text) || /^[a-z0-9_.:\-/]+$/i.test(text) && /[_:/]/.test(text)) return fallback;
   return text;
 }
@@ -122,4 +124,12 @@ export function numberTimelineToRows(rows = [], resolveTitle = (row) => row?.lab
       })),
     { currentHref },
   );
+}
+
+export const TIMELINE_PAGE_SIZE = 8;
+
+/** Initial 8 rows, then +8 per step, bounded by the available rows. */
+export function timelineVisibleCount(total, steps = 0, pageSize = TIMELINE_PAGE_SIZE) {
+  const size = Math.max(1, Number(pageSize) || TIMELINE_PAGE_SIZE);
+  return Math.min(Math.max(0, Number(total) || 0), size * (1 + Math.max(0, Number(steps) || 0)));
 }

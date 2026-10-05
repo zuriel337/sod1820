@@ -136,3 +136,43 @@ export const fibonacciSequenceAdapter = Object.freeze({
     };
   },
 });
+
+/**
+ * Presentation model for a Fibonacci scrub rail around `value`, built only from fibonacciTerms and
+ * zeckendorfDecomposition. Deterministic; no new sequence semantics. Indices follow F1=1, F2=1.
+ */
+export function fibonacciRailModel(value, { radius = 6 } = {}) {
+  const query = String(value ?? '').trim();
+  if (!/^\d+$/.test(query)) return null;
+  const target = BigInt(query);
+  const terms = fibonacciTerms(Math.max(2, Math.min(SOURCE.maxSearchDepth, 4000)));
+  let lowerIdx = -1; // zero-based index of the greatest term <= target
+  for (let i = 0; i < terms.length && terms[i] <= target; i += 1) lowerIdx = i;
+  if (lowerIdx === terms.length - 1 && terms[lowerIdx] < target) return null;
+  const exact = lowerIdx >= 0 && terms[lowerIdx] === target;
+  // F1 and F2 are both 1: report the first position, matching the adapter's first_position.
+  const exactIdx = exact ? terms.findIndex((t) => t === target) : -1;
+  const anchor = exact ? exactIdx : lowerIdx;
+  const upperIdx = exact ? null : lowerIdx + 1;
+  const start = Math.max(0, (anchor < 0 ? 0 : anchor) - radius);
+  const end = Math.min(terms.length - 1, (upperIdx ?? anchor) + radius);
+  const cards = [];
+  for (let i = start; i <= end; i += 1) {
+    cards.push({
+      index: i + 1,
+      value: terms[i].toString(),
+      role: exact && i === exactIdx ? 'exact' : i === lowerIdx && !exact ? 'lower' : i === upperIdx ? 'upper' : 'term',
+    });
+  }
+  const zeck = zeckendorfDecomposition(query);
+  return {
+    value: query,
+    state: exact ? 'exact' : 'between',
+    exactIndex: exact ? exactIdx + 1 : null,
+    lower: lowerIdx >= 0 ? { index: lowerIdx + 1, value: terms[lowerIdx].toString() } : null,
+    upper: upperIdx != null ? { index: upperIdx + 1, value: terms[upperIdx].toString() } : null,
+    anchorIndex: anchor >= 0 ? anchor + 1 : cards[0]?.index ?? 1,
+    cards,
+    zeckendorf: { terms: zeck.terms, complete: zeck.complete, sum: zeck.sum },
+  };
+}

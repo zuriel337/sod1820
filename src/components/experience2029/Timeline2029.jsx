@@ -3,7 +3,7 @@ import "./timeline2029.css";
 import { TIMELINE_PUBLIC_LABEL, TIMELINE_CURRENT_LABEL } from "../../lib/research/timeline2029.js";
 
 // Shared public Timeline (ציר הזמן) for Post and Number. `rows` come from buildPublicTimeline().
-export default function Timeline2029({ rows = [], surface = "post", subtitle = "מה פורסם · מה קרה · מתי", onSelect = null, id, className = "", children = null }) {
+export default function Timeline2029({ rows = [], surface = "post", subtitle = "מה פורסם · מה קרה · מתי", onSelect = null, onInspect = null, id, className = "", children = null }) {
   if (!rows.length) return null;
   return <section
     id={id}
@@ -34,6 +34,7 @@ export default function Timeline2029({ rows = [], surface = "post", subtitle = "
           {onSelect
             ? <button type="button" className="sod29-timeline-title" onClick={() => onSelect(row, index)}>{row.label}</button>
             : row.href ? <a className="sod29-timeline-title" href={row.href}>{row.label}</a> : <strong className="sod29-timeline-title">{row.label}</strong>}
+          {onInspect && !onSelect ? <button type="button" className="sod29-timeline-inspect" onClick={() => onInspect(row, index)} aria-label={`הקשר: ${row.label}`}>הקשר</button> : null}
           {row.sourceLabel ? <small>{row.sourceLabel}</small> : null}
           {row.note ? <p>{row.note}</p> : null}
         </div>

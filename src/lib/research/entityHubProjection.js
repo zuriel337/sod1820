@@ -615,6 +615,12 @@ function timelineProjection(graphFindings, researchFindings) {
       relation: finding?.kind === "graph-relation"
         ? (finding?.projection?.relations?.[0] || null)
         : null,
+      // Pass-through only: an href already projected on a related endpoint (post with stored slug).
+      href: finding?.kind === "graph-relation"
+        ? (finding?.projection?.relations?.[0]?.to?.href
+          || finding?.projection?.relations?.[0]?.from?.href
+          || null)
+        : null,
       sourceRef: finding?.source?.sourceRef || null,
     }))
     .filter(item => item.at)
