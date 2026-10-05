@@ -6,7 +6,7 @@ import { stripTypeScriptTypes } from "node:module";
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const mig = read("../../../supabase/migrations/20261005210000_raziel_intelligence_core_v1_phase_l_personal_research_continuity_read.sql");
-const lBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase L"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
+const lBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase L — personal research continuity"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
 const callSite = edge.slice(edge.indexOf("// Phase L — personal research continuity READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
 
 // Load the REAL Phase L block (types stripped by Node). razielOperatorRpc is stubbed: it receives (bearer, call) and returns the stub result.

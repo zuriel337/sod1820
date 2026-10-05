@@ -1,6 +1,6 @@
 -- Throwaway-Postgres Golden for RAZIEL_INTELLIGENCE_CORE_V1_PHASE_M (cross-surface plan/answer side). Applies the ENTIRE Raziel migration lineage in order
--- (route-boundary, A, C, D2, E, F, G, H, K) over the Phase H stubs, then asserts the natural-language matrix. Never run against a live project.
--- Phase I/J/L are Edge-only (no migration); their adapter side is asserted in src/lib/research/razielPhaseMCrossSurfaceGolden.test.js.
+-- (route-boundary, A, C, D2, E, F, G, H, K, L-personal) over the Phase H stubs, then asserts the natural-language matrix. Never run against a live project.
+-- Phase I/J/L-live-external are Edge-only (no migration); Phase L personal continuity has the migration applied below; their adapter side is asserted in src/lib/research/razielPhaseMCrossSurfaceGolden.test.js.
 -- stub so the test can prove the gematria resolver is NOT reached for non-gematria plans.
 create table agent_identity(agent_id text, name text, capabilities text, does_not text, permission_scope text,
   active boolean, layer text, match_keywords text[]);
@@ -120,6 +120,8 @@ create table g_plan_snapshot as select q, fn_raziel_plan(q,'public_user',null) p
 \i supabase/migrations/20261005190000_raziel_intelligence_core_v1_phase_h_reality_number_context.sql
 \i supabase/migrations/20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql
 \i supabase/migrations/20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql
+\i supabase/migrations/20261005210000_raziel_intelligence_core_v1_phase_l_personal_research_continuity_read.sql
+\i supabase/migrations/20261005210000_raziel_intelligence_core_v1_phase_l_personal_research_continuity_read.sql
 create table op_calls(n int);   -- the plan layer must never execute any operator RPC itself
 create function pg_temp.ans(q text, c text default 'public_user') returns jsonb language sql as $$ select fn_raziel_answer(q, c, null, null) $$;
 do $$ declare r jsonb; p jsonb; q text; begin
@@ -169,6 +171,21 @@ do $$ declare r jsonb; p jsonb; q text; begin
       assert p->>'availability' <> 'operator_read' and coalesce(p->'trace'->'operator','null'::jsonb) = 'null'::jsonb and p->>'capability_class' = 'general_synthesis' and p->>'minimum_intelligence' = 'L2_FAST', 'M11 non-admin '||q||' '||left(p::text,300);
     end loop;
   end loop;
+
+  -- 13. Phase L personal continuity (authenticated only): descriptors only; canonical personal grammar, L0 vs L2 target; anon => login_required, no descriptor
+  foreach q in array array['מה שמרתי','איפה עצרתי במסלול האחרון','מה כדאי לי להמשיך'] loop
+    p := fn_raziel_plan(q,'authenticated_user','11111111-2222-3333-4444-555555555555'); r := fn_raziel_answer(q,'authenticated_user','11111111-2222-3333-4444-555555555555',null);
+    assert p->>'availability' = 'personal_research_read' and p->>'capability_class' = 'personal_research_state'
+       and p->'trace'->'personal'->>'capability' = case q when 'מה שמרתי' then 'personal_saved' when 'איפה עצרתי במסלול האחרון' then 'personal_resume' else 'personal_continue' end
+       and p->>'minimum_intelligence' = case q when 'מה כדאי לי להמשיך' then 'L2_FAST' else 'L0_DETERMINISTIC' end, 'M13 auth plan '||q||' '||left(p::text,400);
+    assert (r->'trace'->'personal'->>'read_only')::boolean and r->'trace'->'personal'->>'basis' = 'PERSONAL_RESEARCH_STATE'
+       and r->'trace'->'personal'->>'owner' = 'research_workspace_law v5 + research_strategy_layer_law v17', 'M13 auth answer '||q||' '||left(r::text,400);
+    p := fn_raziel_plan(q,'public_user',null); r := fn_raziel_answer(q,'public_user',null,null);
+    assert p->>'availability' <> 'personal_research_read' and coalesce(p->'trace'->'personal','null'::jsonb) = 'null'::jsonb and p->>'capability_class' = 'general_synthesis', 'M13 anon plan '||q||' '||left(p::text,400);
+    assert coalesce(r->'trace'->'personal','null'::jsonb) = 'null'::jsonb and r->'trace'->>'personal_denied' = 'login_required', 'M13 anon login_required '||q||' '||left(r::text,400);
+  end loop;
+  -- personal grammar never shadows operator/number/gematria rows and executes nothing plan-side
+  assert (select count(*) from op_calls) = 0, 'plan layer executed no operator/personal RPC';
 
   -- 12. Global routing flag stays off: nothing in the lineage touched the flag
   assert not exists (select 1 from pg_proc where proname = 'fn_raziel_model'), 'no fn_raziel_model introduced by the lineage';

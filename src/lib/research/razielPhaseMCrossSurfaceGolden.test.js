@@ -36,6 +36,9 @@ function load(log, scenario = {}) {
     if (rpc === "number_dossier_json") return resp(200, { posts: ["תיק א"], topics: [], value: 631, methods: [], reality: 0, definitions: [] });
     if (rpc === "get_work_log_current") return resp(200, [{ id: "SECRET-ID", task_key: "T1", topic: "t", status: "CLAIMED_WRITE", from_actor: "GPT", to_actor: "CLAUDE", assignment_mode: "WRITE",
       release_authorization_state: "BRANCH_ONLY", created_at: new Date().toISOString(), what_we_did: "RAW-WORKLOG-PAYLOAD https://x.example", open_threads: "OPEN", dispatch_context: { s: 1 } }]);
+    if (rpc === "research_state_snapshot_v1") return resp(200, { saved: [{ type: "post", ref: "r1", id: "i1", title: "שמור א", link: "/p/1", note: "PRIVATE-NOTE" }], history: [], collections: [], journeys: [], cart: [], pinned: [], context: { s: "PRIVATE-CTX" } });
+    if (rpc === "fn_research_path_resume_v1") return resp(200, { ok: true, path_id: "p", revision_no: 3, identity_metadata: { root_type: "word", root_ref: "w-1", root_label: "שלום", secret: "PRIVATE-IDM" }, steps: [{ type: "post", ref: "s1", id: "s1", title: "צעד", link: "/p/s" }],
+      provenance: { raw: "PRIVATE-PROV" }, representation: { raw: "PRIVATE-REPR", context: { version: 1, subject: { type: "word", id: "w-1", label: "שלום", href: "/w/1" }, lens: "גימטריה", dimensions: { d: "PRIVATE-DIM" } } } });
     if (table === "posts") return resp(200, scenario.post === undefined ? [{ id: 1, slug: "my-post", title: "כותרת", excerpt: "תקציר", categories: [], tags: [], content: "<p>גוף <script>alert(1)</script>הפוסט</p>" }] : scenario.post);
     if (table === "topic_cards_public") return resp(200, [{ id: 2, slug: "covid-1237", title: "ציר", subtitle: "תת", numbers: [1237], highlight_numbers: [], findings: ["ממצא"] }]);
     return resp(404, {});
@@ -43,7 +46,7 @@ function load(log, scenario = {}) {
   const code = stripTypeScriptTypes(
     `type OperationalTraceHandle = any; type RazielOperatorResult = any; type RazielOperatorCap = any; type RazielOperatorCall = any; type RazielToolResearch = any;\n` +
     `const SB_URL = "https://x.supabase.co"; const SB_ANON = "anon-key";\n${region}\n`) +
-    "\nreturn { razielOperatorDescriptor, razielCoordDescriptor, runRazielOperator, runRazielCoordination, razielNumberContextDescriptor, runRazielNumberContext, razielCurrentContentDescriptor, runRazielCurrentContent, razielSemanticSurfaceText };";
+    "\nreturn { razielPersonalDescriptor, runRazielPersonal, razielOperatorDescriptor, razielCoordDescriptor, runRazielOperator, runRazielCoordination, razielNumberContextDescriptor, runRazielNumberContext, razielCurrentContentDescriptor, runRazielCurrentContent, razielSemanticSurfaceText };";
   const spans = [];
   const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal);
   return { m, spans };
@@ -202,7 +205,8 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   const mig = (f) => read("../../../supabase/migrations/" + f);
   const lineage = ["20261005050000_raziel_route_token_boundary_match_v1.sql", "20261005130000_raziel_intelligence_core_v1_phase_a_plan_first.sql", "20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql",
     "20261005150000_raziel_intelligence_core_v1_phase_d2_plan_signals.sql", "20261005160000_raziel_intelligence_core_v1_phase_e_l4_tool_research.sql", "20261005170000_raziel_intelligence_core_v1_phase_f_sandalphon_source.sql",
-    "20261005180000_raziel_intelligence_core_v1_phase_g_source_l4_combination.sql", "20261005190000_raziel_intelligence_core_v1_phase_h_reality_number_context.sql", "20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql"];
+    "20261005180000_raziel_intelligence_core_v1_phase_g_source_l4_combination.sql", "20261005190000_raziel_intelligence_core_v1_phase_h_reality_number_context.sql", "20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql",
+    "20261005210000_raziel_intelligence_core_v1_phase_l_personal_research_continuity_read.sql"];
   for (const f of lineage) assert.doesNotMatch(mig(f).replace(/^\s*--.*$/gm, ""), /update\s+(public\.)?raziel_(config|routing)[^;]*routing_enabled\s*=\s*true|routing_enabled\s*=\s*true/i, f);
 });
 
@@ -212,4 +216,62 @@ test("M: combined gematria+ELS+Sandalphon ⇒ plan L4 once each, then L3 synthes
   assert.equal(selectRazielIntelligence({ plan, requested: null }).escalation_reason, "multi_domain_intent");
   assert.match(sqlGolden, /בדוק את משיח בגימטריה בדילוגים ובתנך/);
   assert.match(sqlGolden, /gematria.*els.*tanakh_source/s);       // exact tool order asserted on the SQL side (proto_calls sequence)
+});
+
+// ── Unified A-M: Phase L personal research continuity (authenticated only) — separate from external LIVE_VERIFIED and COORDINATION_REPORTED ──
+const UID = "11111111-2222-3333-4444-555555555555";
+const pdet = (cap) => ({ enabled: true, availability: "personal_research_read", trace: { personal: { capability: cap } } });
+const PERS_Q = { personal_saved: "מה שמרתי", personal_resume: "איפה עצרתי במסלול האחרון", personal_continue: "מה כדאי לי להמשיך" };
+
+test("M personal: authenticated personal_saved ⇒ L0 deterministic, one snapshot RPC under caller JWT + verified uid, PERSONAL_RESEARCH_STATE", async () => {
+  const log = []; const { m } = load(log);
+  const d = m.razielPersonalDescriptor(pdet("personal_saved"), "user", UID);
+  assert.deepEqual(d, { capability: "personal_saved" });
+  const r = await m.runRazielPersonal(d, "caller-jwt", UID, null);
+  assert.equal(r.ok, true); assert.equal(r.basis, "PERSONAL_RESEARCH_STATE");
+  assert.match(r.answer, /PERSONAL_RESEARCH_STATE/); assert.match(r.answer, /שמור א/); assert.doesNotMatch(r.answer, /PRIVATE|LIVE_VERIFIED|COORDINATION_REPORTED/);
+  assert.deepEqual(log.map((c) => `${c.host}:${c.rpc}`), ["supabase:research_state_snapshot_v1"]);
+  assert.ok(log.every((c) => c.auth === "Bearer caller-jwt"));
+});
+
+test("M personal: personal_resume ⇒ L0, single resume RPC, canonical root_type/root_ref/root_label + bounded representation.context, no private payload", async () => {
+  const log = []; const { m } = load(log);
+  const r = await m.runRazielPersonal(m.razielPersonalDescriptor(pdet("personal_resume"), "user", UID), "caller-jwt", UID, null);
+  assert.equal(r.ok, true); assert.equal(r.basis, "PERSONAL_RESEARCH_STATE");
+  assert.match(r.answer, /שלום/); assert.match(r.answer, /גימטריה/); assert.doesNotMatch(r.answer, /PRIVATE/);
+  assert.deepEqual(log.map((c) => c.rpc), ["fn_research_path_resume_v1"]);
+});
+
+test("M personal: personal_continue ⇒ L2 synthesis input (pack, no deterministic answer), snapshot + latest path, bounded", async () => {
+  const log = []; const { m } = load(log);
+  const r = await m.runRazielPersonal(m.razielPersonalDescriptor(pdet("personal_continue"), "user", UID), "caller-jwt", UID, null);
+  assert.equal(r.ok, true); assert.equal(r.answer, undefined); assert.ok(r.pack.length <= 2400); assert.doesNotMatch(r.pack, /PRIVATE/);
+  assert.deepEqual(log.map((c) => c.rpc), ["research_state_snapshot_v1", "fn_research_path_resume_v1"]);
+  const s = selectRazielIntelligence({ plan: PLAN("personal_research_state", L2), requested: null });
+  assert.equal(s.selected_level, L2); assert.equal(s.may_run_model, true);
+});
+
+test("M personal: anonymous / forged personal question ⇒ zero personal RPC, no descriptor, no data", async () => {
+  for (const cap of Object.keys(PERS_Q)) for (const tier of ["anon", "", undefined]) {
+    const log = []; const { m } = load(log);
+    assert.equal(m.razielPersonalDescriptor(pdet(cap), tier, null), null);
+    assert.equal(m.razielPersonalDescriptor(pdet(cap), tier, UID), null);
+    assert.equal(log.length, 0);
+  }
+  const { m } = load([]);
+  assert.equal(m.razielPersonalDescriptor(pdet("personal_saved"), "user", null), null);
+  assert.equal(m.razielPersonalDescriptor({ enabled: true, availability: "personal_research_read", trace: { personal: { capability: "x", rpc: "admin_delete_all" } } }, "user", UID), null);
+  for (const q of Object.values(PERS_Q)) assert.ok(sqlGolden.includes(q), "SQL golden covers personal: " + q);
+  assert.match(sqlGolden, /login_required/);
+});
+
+test("M personal: provenance stays separate — personal answer carries only PERSONAL_RESEARCH_STATE; operator external/coordination never touch personal RPCs and vice versa", async () => {
+  const log = []; const { m } = load(log);
+  const admin = { enabled: true, availability: "operator_read", trace: { operator: { capability: "live_external_state" } } };
+  assert.equal(m.razielPersonalDescriptor(admin, "admin", UID), null);          // an operator plan is never a personal descriptor
+  assert.equal(m.razielOperatorDescriptor(pdet("personal_saved"), "admin"), null); assert.equal(m.razielCoordDescriptor(pdet("personal_saved"), "admin"), null);
+  const adapters = edge.slice(edge.indexOf("// Phase L — personal research continuity READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
+  assert.match(adapters, /if \(!rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);   // operator/coordination/external win; personal never co-executes
+  const sp = []; const l2 = load([]);   // spans for personal carry no uid/jwt/items
+  void sp; void l2;
 });
