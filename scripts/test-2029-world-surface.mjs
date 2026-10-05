@@ -462,7 +462,8 @@ assert.ok(
   "researcher/content discovery must appear before internal admin tooling",
 );
 assert.match(world, /controlMode \? <section id="world-admin-tools"/);
-assert.match(world, /CONVERGENCE INDEX · PUBLIC PROJECTION/);
+assert.match(world, /כל ההתכנסויות/, "public World catalog must keep the reader-facing convergence heading");
+assert.equal(world.includes("CONVERGENCE INDEX · PUBLIC PROJECTION"), false, "public World must not expose internal projection vocabulary");
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
 assert.match(world, /topicFacet && selectedWriter/);
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
