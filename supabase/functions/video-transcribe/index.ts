@@ -17,6 +17,7 @@
 //   { action:'list', video_key }  → מחזיר את כל השורות (לניפוי; הלקוח קורא ישירות מהטבלה)
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
+import { canonicalMediaPath, isCanonicalVideoOriginalPath } from "../_shared/mediaPosterLane.js";
 import { resolveSourceLanguage, sttOriginalRow, translationRow, translationTargets } from "../_shared/videoTranscriptPolicy.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
@@ -130,19 +131,30 @@ async function logTokens(row: Record<string, unknown>) {
 }
 
 // upsert שורת-תמלול (service role → REST) לפי (video_key, lang)
-async function upsertRow(row: Record<string, unknown>) {
+async function upsertRow(row: Record<string, unknown>, onDuplicate: "merge" | "ignore" = "merge") {
   const r = await fetch(`${SB_URL}/rest/v1/video_transcripts?on_conflict=video_key,lang`, {
     method: "POST",
     headers: {
       apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
       "Content-Type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=representation",
+      Prefer: `resolution=${onDuplicate === "ignore" ? "ignore" : "merge"}-duplicates,return=representation`,
     },
     body: JSON.stringify(row),
   });
   const txt = await r.text();
   if (!r.ok) throw new Error(`upsert ${r.status}: ${txt}`);
   try { return JSON.parse(txt); } catch { return txt; }
+}
+
+// existing is_original rows for a video_key (read-only)
+async function listOriginals(video_key: string): Promise<{ lang: string }[]> {
+  const r = await fetch(
+    `${SB_URL}/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(video_key)}&is_original=eq.true&select=lang`,
+    { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
+  );
+  if (!r.ok) throw new Error(`originals_lookup_${r.status}`);
+  const rows = await r.json();
+  return Array.isArray(rows) ? rows : [];
 }
 
 Deno.serve(async (req) => {
@@ -197,13 +209,21 @@ Deno.serve(async (req) => {
 
     if (action === "transcribe") {
       // Canonical media only: the stored source video in the media bucket (no raw external URL as identity).
+      // Strict WHATWG parse: exact Supabase origin, no credentials/query/hash/encoding/dot segments, and the storage path
+      // must be exactly sod1820/2029/video/YYYY/MM/<uuid>/original.<video-ext>.
       const mediaUrl = String(b.media_url || "").trim();
-      if (!mediaUrl.startsWith(`${SB_URL}/storage/v1/object/public/media/`)) return json({ error: "canonical_media_url_required" }, 400);
+      const mediaPath = canonicalMediaPath(mediaUrl, SB_URL);
+      if (!mediaPath || !isCanonicalVideoOriginalPath(mediaPath)) return json({ error: "canonical_media_url_required" }, 400);
+      // ORIGINAL INTEGRITY: STT never overwrites or duplicates an existing original (human/source or earlier STT).
+      const orig = await listOriginals(video_key);
+      if (orig.length > 1) return json({ error: "original_conflict", originals: orig.map((o) => o.lang) }, 409);
+      if (orig.length === 1) return json({ ok: true, state: "original_exists", original: orig[0].lang, saved: [], translated: [] });
       const kr = await fetch(`${SB_URL}/rest/v1/rpc/wa_video_enrich_openai_key`, {
         method: "POST", headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" }, body: "{}",
       });
       const key = kr.ok ? String(await kr.json() || "").trim() : "";
-      const media = await fetch(mediaUrl);
+      const media = await fetch(mediaUrl, { redirect: "error" }).catch(() => null);
+      if (!media) return json({ error: "media_fetch_failed", status: 0 }, 502);
       if (!media.ok) return json({ error: "media_fetch_failed", status: media.status }, 502);
       const blob = await media.blob();
       const ext = mediaExtension(mediaUrl);
@@ -213,7 +233,11 @@ Deno.serve(async (req) => {
       });
       const built = sttOriginalRow({ base: { ...base, source_url: base.source_url ?? mediaUrl }, stt });
       if (!built.ok) return json({ error: built.error, continuation: built.error === "source_language_unknown" ? "declare_source_lang_then_retry" : undefined }, built.error === "source_language_unknown" ? 422 : 502);
-      await upsertRow(built.row);
+      // ignore-duplicates: a (video_key, lang) row that appeared meanwhile is never merged over.
+      const saved = await upsertRow(built.row, "ignore");
+      const after = await listOriginals(video_key);
+      if (after.length > 1) return json({ error: "original_conflict", originals: after.map((o) => o.lang) }, 409);
+      if (!Array.isArray(saved) || !saved.length) return json({ ok: true, state: "original_exists", original: after[0]?.lang ?? null, saved: [], translated: [] });
       return json({ ok: true, original: built.row.lang, language_evidence: built.language_evidence, saved: [built.row.lang], translated: [] });
     }
 

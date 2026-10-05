@@ -16,6 +16,7 @@ on:
       - "supabase/functions/media-thumb-queue/**"
       - "scripts/media-thumbs.mjs"
       - "supabase/migrations/20261005020000_sys_save_post_service_only_acl_v1.sql"
+      - "supabase/migrations/20261005030000_post_writers_id_alloc_advisory_lock_v1.sql"
       - "test/post-publishing-2029-chain.test.mjs"
       - "test/fixtures/post-publishing/**"
       - ".github/workflows/video-ingest-gate.yml"

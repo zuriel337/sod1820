@@ -9,6 +9,33 @@ const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 export const ORIGINAL_PATH_RE = new RegExp(`^${VIDEO_ROOT}/(\\d{4})/(0[1-9]|1[0-2])/(${UUID})/original\\.(mp4|mov|webm|m4v)$`, "i");
 const ORIGINAL_NAME_RE = /^original\.(mp4|mov|webm|m4v)$/i;
 
+// Canonical 2029 image original: sod1820/2029/image/YYYY/MM/<asset-uuid>/<file> (docs/sod1820-media-ingress-storage-convention-v1.md).
+export const IMAGE_ROOT = "sod1820/2029/image";
+export const IMAGE_PATH_RE = new RegExp(`^${IMAGE_ROOT}/(\\d{4})/(0[1-9]|1[0-2])/(${UUID})/([A-Za-z0-9][A-Za-z0-9._-]*)$`, "i");
+export const isCanonicalImagePath = (p) => IMAGE_PATH_RE.test(String(p || ""));
+// Any canonical 2029 media object (video original/derivative or image) a post body may reference.
+export const MEDIA_2029_REF_RE = new RegExp(`^sod1820/2029/(video|image)/\\d{4}/(0[1-9]|1[0-2])/${UUID}/[A-Za-z0-9][A-Za-z0-9._/-]*$`, "i");
+export const isCanonical2029MediaPath = (p) => MEDIA_2029_REF_RE.test(String(p || ""));
+
+// Strict media-bucket URL -> storage path (WHATWG URL). Returns the storage path under `sod1820/` or null.
+// Requires: exact Supabase origin, no credentials/query/hash, pathname under /storage/v1/object/public/media/,
+// no percent-encoding, no backslash, no dot segments / empty segments (checked on the RAW string, because URL parsing
+// silently normalizes "/a/../b").
+export function canonicalMediaPath(url, supabaseUrl) {
+  const raw = String(url ?? "").trim();
+  let base, u;
+  try { base = new URL(String(supabaseUrl || "")); u = new URL(raw); } catch { return null; }
+  if (!supabaseUrl || u.origin !== base.origin) return null;
+  if (u.username || u.password || u.search || u.hash || /[?#\\%]/.test(raw)) return null;
+  const prefix = "/storage/v1/object/public/media/";
+  if (!u.pathname.startsWith(prefix)) return null;
+  const afterOrigin = raw.slice(raw.indexOf(u.host) + u.host.length);
+  if (!afterOrigin.startsWith(prefix)) return null;
+  const rel = afterOrigin.slice(prefix.length);
+  if (!rel.startsWith("sod1820/") || rel.split("/").some((seg) => seg === "" || seg === "." || seg === "..")) return null;
+  return rel;
+}
+
 export const isCanonicalVideoOriginalPath = (p) => ORIGINAL_PATH_RE.test(String(p || ""));
 
 // original.mp4 -> sibling derivatives/poster.jpg ; null when the path is not a canonical 2029 original.

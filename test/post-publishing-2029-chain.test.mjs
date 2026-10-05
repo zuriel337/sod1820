@@ -18,6 +18,7 @@ const videoUrl = PUB + sv.planned_storage_path;
 const posterUrl = PUB + sv.planned_poster_path;
 const intentOf = (over = {}) => ({
   ...fx.intent,
+  release_authorized: true, release_authorization_state: "ZURIEL_HUMAN_GATE_RELEASE", // governance guard input, NOT a security boundary
   content: `<video controls playsinline src="${videoUrl}"></video>\n<p>${fx.intent.source_attribution.credit_text}</p>`,
   ...over,
 });
@@ -245,6 +246,155 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
   const pre = read("supabase/functions/_shared/postPublishPreflight.js");
   assert.doesNotMatch(pre, /fetch\(|createClient|\.rpc\(|\.from\(/, "preflight is pure: no I/O");
   assert.doesNotMatch(pre, /sys_save_post\(/, "preflight does not call the writer");
+}
+
+// 7. M1 media-attribute bypass regressions (conservative pure scanner; ordinary <a href> links stay allowed).
+{
+  const credit = fx.intent.source_attribution.credit_text;
+  const vid = `<video src="${videoUrl}"></video>${credit}`;
+  const bad = (extra, label) => blocked(intentOf({ content: vid + extra }), factsOf(), label.code || label);
+  bad(`<img src=//evil.example/x.png>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="//evil.example/x.png">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src=https://evil.example/x.png>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<IMG SRC='http://evil.example/x.png'>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img\nsrc\n=\n"https://evil.example/x.png">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img/src=https://evil.example/x.png>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img srcset="${videoUrl.replace("original.mp4", "derivatives/poster.jpg")} 1x, https://evil.example/x.png 2x">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img srcset=https://evil.example/a.png>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<video poster=//evil.example/p.jpg></video>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<embed src="https://evil.example/x.swf">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<object data=https://evil.example/x.swf></object>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<iframe src=//evil.example/f></iframe>`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<source src="https://evil.example/v.mp4">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="data:image/png;base64,AAAA">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="blob:https://x/123">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="javascript:alert(1)">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="${videoUrl}?token=1">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="${PUB}sod1820/2029/video/2026/10/../../../x.png">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="${PUB}sod1820/agent/2029/video/2026/10/${sv.planned_asset_id}/original.mp4">`, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  bad(`<img src="https://evil.example/&#120;.png">`, "MEDIA_ATTR_AMBIGUOUS");
+  bad(`<img src="${videoUrl}&amp;x=1">`, "MEDIA_ATTR_AMBIGUOUS");
+  bad(`<img src="https://evil.example/x.png`, "MEDIA_ATTR_AMBIGUOUS");
+  // ordinary external anchor links (citations / related) are NOT blocked
+  const links = `<a href="https://he.wikipedia.org/wiki/x">ויקיפדיה</a> <a href=https://example.com/related>related</a> <A HREF='//cdn.example/s'>s</A>`;
+  assert.equal(run(intentOf({ content: vid + links }), factsOf()).state, "READY");
+  // canonical media-bearing attrs stay fine (video src/poster derivative)
+  assert.equal(run(intentOf({ content: `<video src="${videoUrl}" poster="${posterUrl}"></video>${credit}` }), factsOf()).state, "READY");
+  // kind downgrade: intent.kind=text cannot hide a video / image
+  blocked(intentOf({ kind: "text" }), factsOf(), "KIND_DOWNGRADE_DETECTED");
+  blocked(intentOf({ kind: "text", content: `<video src="https://evil.example/v.mp4"></video>` }), factsOf({ media: {} }), "SOURCE_VIDEO_REQUIRED");
+  blocked(intentOf({ kind: "text", content: `<img src="${PUB}sod1820/2029/image/2026/10/${sv.planned_asset_id}/a.png">` }), factsOf({ media: {} }), "SOURCE_IMAGE_REQUIRED");
+  blocked(intentOf({ kind: "text", content: "<p>x</p>", image_url: posterUrl }), factsOf({ media: {} }), "SOURCE_IMAGE_REQUIRED");
+  assert.equal(run(intentOf({ kind: "text" }), factsOf()).kind, "video");
+}
+
+// 8. Image posts (post_og_image_law: JPG/PNG on Supabase Storage; released convention sod1820/2029/image/YYYY/MM/<uuid>/...).
+{
+  const A = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
+  const imgPath = (n = "cover.jpg") => `sod1820/2029/image/2026/10/${A}/${n}`;
+  const imgFact = (n = "cover.jpg", mime = "image/jpeg", over = {}) => ({ public_url: PUB + imgPath(n), storage_path: imgPath(n), asset_id: A, read_back: { ok: true, mime, size: 10 }, ...over });
+  const iIntent = (over = {}) => ({
+    kind: "image", title: "תמונה", slug: "img-post", excerpt: "x", categories: [], tags: [], author: null, source: "ai", ai_touched: false,
+    release_authorized: true, release_authorization_state: "ZURIEL_HUMAN_GATE_RELEASE",
+    content: `<p>טקסט</p><img src="${PUB + imgPath()}" alt="">`, ...over,
+  });
+  const iFacts = (image, over = {}) => ({ taxonomy: { categories: new Set(), tags: new Set() }, existing_slugs: new Set(), media: { image }, transcripts: [], ...over });
+  const ok = run(iIntent(), iFacts(imgFact()));
+  assert.equal(ok.state, "READY", JSON.stringify(ok)); assert.equal(ok.kind, "image");
+  assert.equal(ok.bundle.args.p_image_url, PUB + imgPath(), "exact canonical media-bucket URL, no query/hash");
+  assert.equal(ok.bundle.writer, "public.sys_save_post"); assert.equal(ok.bundle.release, "NOT_PUBLISHED_BUNDLE_ONLY");
+  assert.equal(run(iIntent({ image_url: PUB + imgPath() }), iFacts(imgFact())).state, "READY");
+  assert.equal(run(iIntent({ content: "<p>x</p>" }), iFacts(imgFact("cover.png", "image/png"))).bundle.args.p_image_url, PUB + imgPath("cover.png"));
+  // text-only post may omit image entirely
+  const t = run({ ...iIntent({ kind: "text", content: "<p>טקסט</p>" }) }, iFacts(undefined, { media: {} }));
+  assert.equal(t.state, "READY"); assert.equal(t.kind, "text"); assert.equal(t.bundle.args.p_image_url, null);
+  const cb = (i, f, code) => blocked(i, f, code);
+  cb(iIntent(), iFacts(undefined, { media: {} }), "SOURCE_IMAGE_REQUIRED");
+  cb(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { asset_id: "nope" })), "MEDIA_NOT_CANONICAL");
+  cb(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { asset_id: "11111111-2222-4333-8444-555555555555" })), "MEDIA_NOT_CANONICAL");
+  cb(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { public_url: "https://example.com/c.jpg" })), "MEDIA_NOT_CANONICAL");
+  cb(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { public_url: PUB + imgPath() + "?v=2" })), "MEDIA_NOT_CANONICAL");
+  cb(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { storage_path: `sod1820/agent/2029/image/2026/10/${A}/cover.jpg`, public_url: PUB + `sod1820/agent/2029/image/2026/10/${A}/cover.jpg` })), "MEDIA_NOT_CANONICAL");
+  cb(iIntent({ image_url: "https://evil.example/c.jpg" }), iFacts(imgFact()), "RAW_EXTERNAL_MEDIA_IDENTITY");
+  cb(iIntent({ image_url: PUB + imgPath() + "?x=1" }), iFacts(imgFact()), "RAW_EXTERNAL_MEDIA_IDENTITY");
+  cb(iIntent({ image_url: PUB + imgPath("other.jpg") }), iFacts(imgFact()), "IMAGE_URL_MISMATCH");
+  // not yet verified -> continuation (no bundle); non-JPG/PNG canonical original -> explicit representation continuation, never published
+  const pend = run(iIntent(), iFacts(imgFact("cover.jpg", "image/jpeg", { read_back: null })));
+  assert.equal(pend.state, "CONTINUATION"); assert.equal(pend.bundle, null); assert.deepEqual(codes(pend), ["MEDIA_VERIFY_PENDING"]);
+  for (const [n, mime] of [["cover.webp", "image/webp"], ["cover.svg", "image/svg+xml"], ["cover.heic", "image/heic"], ["cover.gif", "image/gif"]]) {
+    const r = run(iIntent({ content: "<p>x</p>" }), iFacts(imgFact(n, mime)));
+    assert.equal(r.state, "CONTINUATION", n); assert.equal(r.bundle, null);
+    const c = r.continuations.find((x) => x.code === "IMAGE_RASTER_REPRESENTATION_PENDING");
+    assert.ok(c && c.owner === "post_og_image_law", n);
+  }
+  // jpg extension with a non-raster mime is also not publishable as image_url
+  assert.equal(run(iIntent({ content: "<p>x</p>" }), iFacts(imgFact("cover.jpg", "image/webp"))).state, "CONTINUATION");
+}
+
+// 9. M2/L1/L3: STT original integrity, canonical media fetch, identity URLs, human gate honesty, writer concurrency.
+{
+  // preflight blocks multiple originals (never rows.find arbitrarily)
+  blocked(intentOf(), factsOf({ transcripts: [{ lang: "en", is_original: true }, { lang: "he", is_original: true }] }), "TRANSCRIPT_MULTIPLE_ORIGINALS");
+  blocked(intentOf({ language_policy: {} }), factsOf({ transcripts: [{ lang: "en", is_original: true }, { lang: "en", is_original: true }] }), "TRANSCRIPT_MULTIPLE_ORIGINALS");
+  // L3 identity URLs: poster / image_url exact, no query/hash
+  blocked(intentOf(), factsOf({ media: { ...factsOf().media, poster: { public_url: posterUrl + "?v=1", mime: "image/jpeg" } } }), "POSTER_NOT_SUPABASE_STORAGE");
+  blocked(intentOf(), factsOf({ media: { ...factsOf().media, poster: { public_url: posterUrl + "#x", mime: "image/jpeg" } } }), "POSTER_NOT_SUPABASE_STORAGE");
+  blocked(intentOf({ image_url: posterUrl + "?v=1" }), factsOf(), "RAW_EXTERNAL_MEDIA_IDENTITY");
+  blocked(intentOf({ image_url: PUB + "sod1820/other.jpg" }), factsOf(), "IMAGE_URL_POSTER_MISMATCH");
+  assert.equal(run(intentOf({ image_url: posterUrl }), factsOf()).state, "READY");
+  // Human gate: governance guard only (the caller can assert it) — no bundle without it; sys_save_post stays the service-only writer.
+  for (const over of [{ release_authorized: false }, { release_authorized: undefined }, { release_authorized: "true" }, { release_authorization_state: "BRANCH_ONLY_NO_DB_APPLY_NO_MERGE_NO_DEPLOY_NO_REAL_POST" }]) {
+    const r = run(intentOf(over), factsOf()); assert.equal(r.state, "BLOCKED"); assert.equal(r.bundle, null); assert.ok(codes(r).includes("HUMAN_RELEASE_REQUIRED"), JSON.stringify(over));
+  }
+  const pre = read("supabase/functions/_shared/postPublishPreflight.js");
+  assert.match(pre, /governance guard, NOT a security authorization boundary/);
+  assert.match(pre, /Publication != Canonical\/Verified/);
+  assert.match(pre, /publish_post is already declared in the live\n\/\/ inter_agent_coordination_law/, "routing pointer only; no publish Edge/system");
+  // L1: strict canonical media URL for STT fetch
+  const { canonicalMediaPath, isCanonicalVideoOriginalPath } = await import("../supabase/functions/_shared/mediaPosterLane.js");
+  const ok = (u) => { const p = canonicalMediaPath(u, SB); return !!p && isCanonicalVideoOriginalPath(p); };
+  assert.equal(ok(videoUrl), true);
+  const A = sv.planned_asset_id, base = `${PUB}sod1820/2029/video/2026/10/${A}`;
+  for (const u of [
+    videoUrl + "?x=1", videoUrl + "#t=1", videoUrl.replace("https://", "https://u:p@"), videoUrl.replace(".supabase.co", ".supabase.co.evil.com"),
+    "http://" + videoUrl.slice(8), `${PUB}sod1820/2029/video/2026/10/../10/${A}/original.mp4`, `${PUB}sod1820/2029/video/2026/10/%2e%2e/10/${A}/original.mp4`,
+    `${base}/%2e%2e/${A}/original.mp4`, `${base}%2foriginal.mp4`, `${base}\\original.mp4`, `${base}/original.exe`, `${base}/derivatives/poster.jpg`,
+    `${PUB}sod1820/agent/2029/video/2026/10/${A}/original.mp4`, `${SB}/storage/v1/object/public/gallery/sod1820/2029/video/2026/10/${A}/original.mp4`,
+    `${SB}/storage/v1/object/sign/media/sod1820/2029/video/2026/10/${A}/original.mp4`, `${base}//original.mp4`, "https://evil.example/x.mp4", "",
+  ]) assert.equal(ok(u), false, u);
+  const vt = read("supabase/functions/video-transcribe/index.ts");
+  assert.match(vt, /canonicalMediaPath\(mediaUrl, SB_URL\)/); assert.match(vt, /isCanonicalVideoOriginalPath\(mediaPath\)/);
+  assert.doesNotMatch(vt, /mediaUrl\.startsWith/); assert.match(vt, /redirect: "error"/);
+  // M2: transcribe checks existing originals BEFORE any STT/fetch and never overwrites.
+  const tr = vt.slice(vt.indexOf('if (action === "transcribe")'), vt.indexOf("let original_text"));
+  assert.ok(tr.indexOf("listOriginals(video_key)") > 0 && tr.indexOf("listOriginals(video_key)") < tr.indexOf("fetch(mediaUrl") && tr.indexOf("listOriginals(video_key)") < tr.indexOf("transcribeBlob("), "originals queried first");
+  assert.match(tr, /original_conflict/); assert.match(tr, /state: "original_exists"/);
+  assert.match(tr, /upsertRow\(built\.row, "ignore"\)/, "STT never merge-overwrites");
+  assert.match(vt, /resolution=\$\{onDuplicate === "ignore" \? "ignore" : "merge"\}-duplicates/);
+  // G: both existing writers take the SAME advisory lock immediately before the max()+1 allocation; signatures/guards preserved.
+  const mig = read("supabase/migrations/20261005030000_post_writers_id_alloc_advisory_lock_v1.sql");
+  const code = mig.replace(/^--.*$/gm, "");
+  assert.doesNotMatch(code, /create\s+(table|sequence|index|extension)|\balter\s+table\b|\bdrop\b/i, "no new store/sequence/identity");
+  assert.equal((code.match(/create or replace function/gi) || []).length, 2, "exactly the two existing writers");
+  const fn = (name) => { const i = code.indexOf(`create or replace function public.${name}(`); const j = code.indexOf("$function$;", i); return code.slice(i, j); };
+  const sys = fn("sys_save_post"), adm = fn("admin_save_post");
+  const LOCK = "perform pg_advisory_xact_lock(hashtextextended('public.posts.id_wp_id_allocation', 0));";
+  for (const [n, f] of [["sys", sys], ["admin", adm]]) {
+    assert.equal(f.split(LOCK).length - 1, 1, `${n}: one lock`);
+    const l = f.indexOf(LOCK), m = f.indexOf("select coalesce(max(id),0)+1");
+    assert.ok(l > 0 && m > l, `${n}: lock before max(id)+1`);
+    assert.equal(f.slice(l + LOCK.length, m).trim(), "", `${n}: lock immediately before allocation`);
+    assert.ok(f.indexOf("if p_id is null then") < l, `${n}: lock only on INSERT path`);
+    assert.ok(f.indexOf("max(wp_id),0)+1") > m, `${n}: wp_id allocated under the same lock`);
+    assert.match(f, /security definer/); assert.match(f, /set search_path to 'public'/);
+    assert.match(f, /overriding system value/); assert.match(f, /raise exception 'not_found'/);
+  }
+  assert.match(sys, /create or replace function public\.sys_save_post\(p_id bigint default null::bigint, p_title text default ''::text, p_slug text default null::text, p_content text default ''::text, p_excerpt text default ''::text, p_categories text\[\] default '\{\}'::text\[\], p_tags text\[\] default '\{\}'::text\[\], p_author text default null::text, p_image_url text default null::text, p_source text default 'ai'::text, p_ai_touched boolean default false\)\s+returns jsonb/);
+  assert.doesNotMatch(sys, /auth\.uid|not_admin/, "sys_save_post stays a service-only technical writer");
+  assert.match(adm, /p_theme text default null::text, p_keep_modified boolean default false, p_axis_pin smallint default null::smallint, p_axis_pin_set boolean default false, p_tree_priority smallint default null::smallint, p_tree_priority_set boolean default false\)/);
+  assert.ok(adm.indexOf("auth.uid() and u.role='admin'") > 0 && adm.indexOf("raise exception 'not_admin'") > 0 && adm.indexOf("raise exception 'not_admin'") < adm.indexOf(LOCK), "admin gate precedes lock/allocation");
+  assert.doesNotMatch(code, /\b(grant|revoke)\b/i, "ACLs untouched here (sys_save_post ACL from 20261005020000; admin_save_post unchanged)");
+  assert.match(read("supabase/migrations/20261005020000_sys_save_post_service_only_acl_v1.sql"), /grant execute on function public\.sys_save_post\([^)]*\) to service_role;/);
 }
 
 console.log("post-publishing-2029-chain: all assertions passed");
