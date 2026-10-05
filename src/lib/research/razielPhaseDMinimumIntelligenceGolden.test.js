@@ -126,7 +126,7 @@ test("Golden: no model/tool call on chat open; bounded semantic surface context;
   assert.doesNotMatch(chat, /useEffect/);
   assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
   const fn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
-  assert.match(fn, /\.slice\(0, 700\)/);
+  assert.match(fn, /\.slice\(0, 1000\)/);
   assert.doesNotMatch(fn, /innerHTML|pageText/);
 });
 

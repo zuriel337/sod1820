@@ -38,7 +38,7 @@ test("Phase B: plan metadata is additive in trace + response and has no provider
 test("Phase B: semantic surface is whitelisted, tag-stripped and server-capped (no raw HTML / page text)", () => {
   const fn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
   assert.match(edge, /replace\(\/<\[\^>\]\*>\/g, " "\)/);
-  assert.match(fn, /\.slice\(0, 700\)/);
+  assert.match(fn, /\.slice\(0, 1000\)/);
   assert.doesNotMatch(fn, /innerHTML|outerHTML|pageText|html/i);
   assert.match(razielBlock, /razielSemanticSurfaceText\(body\?\.surface_semantic\)/);
 });

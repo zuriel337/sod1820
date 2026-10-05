@@ -1,3 +1,4 @@
+import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
 import React, {
   createContext,
   useCallback,
@@ -605,6 +606,8 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     if (numberFocus) out.number = { expression: cap(numberFocus.expression || numberFocus.root, 60), method: cap(numberFocus.method, 40), result: cap(numberFocus.resultValue, 30) };
     if (readingFocus) out.reading = { label: cap(readingFocus.label, 80), primary: cap(readingFocus.primary, 80) };
     if (elsFocus?.occurrence) out.els = { occurrence: cap(elsFocus.occurrence.occurrenceRef, 80), term: cap(elsFocus.occurrence.term || elsFocus.term, 60) };
+    const surfaceContext = buildRazielSurfaceContext(context);
+    if (surfaceContext) out.context = surfaceContext;
     return out;
   };
   const send = async (question, level, again = false) => {

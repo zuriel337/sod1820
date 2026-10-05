@@ -683,8 +683,29 @@ function razielSemanticSurfaceText(sc: any): string {
     const f = [rzClean(e.occurrence, 80), rzClean(e.term, 60)].filter(Boolean).join(" · ");
     if (f) parts.push(`מופע ELS: ${f}`);
   }
+  // Phase I: bounded cross-surface context (post/topic/world/journey/heichal) already present in Research Context.
+  const c = sc.context && typeof sc.context === "object" && !Array.isArray(sc.context) ? sc.context : null;
+  if (c) {
+    if (rzClean(c.lens, 40)) parts.push(`עדשה: ${rzClean(c.lens, 40)}`);
+    const j = c.journey && typeof c.journey === "object" ? c.journey : null;
+    if (j) {
+      const f = [rzClean(j.kind, 30), rzClean(j.id, 60), rzClean(j.position, 20) && `מיקום ${rzClean(j.position, 20)}`, Number.isInteger(j.revisionNo) && `גרסה ${j.revisionNo}`].filter(Boolean).join(" · ");
+      if (f) parts.push(`מסע: ${f}`);
+    }
+    const fo = c.focus && typeof c.focus === "object" ? c.focus : null;
+    if (fo) {
+      const f = [rzClean(fo.type, 30) || rzClean(fo.entityType, 30), rzClean(fo.label, 80) || rzClean(fo.id, 80) || rzClean(fo.entityId, 80), rzClean(fo.postSlug, 80) || rzClean(fo.postId, 60), rzClean(fo.sectionLabel, 60)].filter(Boolean).join(" · ");
+      if (f) parts.push(`מוקד משטח: ${f}`);
+    }
+    const lst = (v: unknown, label: string, k: number, n: number) => {
+      const a = Array.isArray(v) ? v.map((x) => rzClean(x, n)).filter(Boolean).slice(0, k) : [];
+      if (a.length) parts.push(`${label}: ${a.join(" · ")}`);
+    };
+    lst(c.sections, "חלקים בדף", 6, 40);
+    lst(c.findings, "ממצאים מוצגים", 4, 50);
+  }
   if (!parts.length) return "";
-  return ("\n\nהקשר-משטח סמנטי (מה שהמשתמש רואה עכשיו — זהות ומוקד בלבד, לא עובדה קנונית; אין כאן תוכן-דף):\n" + parts.join("\n")).slice(0, 700);
+  return ("\n\nהקשר-משטח סמנטי (מה שהמשתמש רואה עכשיו — זהות ומוקד בלבד, לא עובדה קנונית; אין כאן תוכן-דף):\n" + parts.join("\n")).slice(0, 1000);
 }
 
 // Compact plan metadata from the EXISTING fn_raziel_answer/fn_raziel_plan result. Semantic only — no provider names.
