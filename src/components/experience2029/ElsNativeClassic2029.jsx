@@ -14,6 +14,15 @@ function MatrixSnapshot({ state }) {
     for (const mark of matrix?.marks || []) map.set(Number(mark.i), mark);
     return map;
   }, [matrix?.marks]);
+  const markSummary = useMemo(() => {
+    let axis = 0;
+    let findings = 0;
+    for (const mark of matrix?.marks || []) {
+      if (mark?.type === "main") axis += 1;
+      else if (mark?.type === "finding") findings += 1;
+    }
+    return { axis, findings };
+  }, [matrix?.marks]);
 
   if (!matrix?.rows?.length || !geometry) {
     return <div className="els29-native-empty">
@@ -23,12 +32,18 @@ function MatrixSnapshot({ state }) {
     </div>;
   }
 
+  const summaryId = "els29-native-matrix-summary";
   return <div
     className="els29-native-matrix-scroll"
     role="region"
+    tabIndex={0}
     aria-label={`מטריצת ELS עבור ${state.termRaw || state.term || "המונח הפעיל"}`}
+    aria-describedby={summaryId}
   >
-    <div className="els29-native-matrix" style={{ "--els29-cols": matrix.cw || geometry.cw || 1 }}>
+    <span id={summaryId} className="els29-native-sr-only">
+      {state.termRaw || state.term || "מונח פעיל"} · דילוג {state?.axis?.skip ?? "לא ידוע"} · כיוון {directionLabel(state?.axis?.direction)} · {markSummary.axis} אותיות ציר מסומנות · {markSummary.findings} אותיות ממצאים מסומנות.
+    </span>
+    <div className="els29-native-matrix" aria-hidden="true" style={{ "--els29-cols": matrix.cw || geometry.cw || 1 }}>
       {matrix.rows.map((row, rowOffset) => {
         const chars = Array.from(row);
         return <div className="els29-native-matrix-row" key={`r-${rowOffset}`}>
@@ -158,7 +173,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         <FindingsRail state={engineState} onOpenClassic={() => setClassicOpen(true)} />
       </> : null}
 
-      {(engineSeed || classicOpen) ? <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
+      <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
         <TzofenEmbed
           seed={engineSeed || undefined}
           full={classicOpen}
@@ -167,7 +182,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onState={setEngineState}
           onGate={() => setClassicOpen(true)}
         />
-      </div> : null}
+      </div>
     </div>
   </section>;
 }
