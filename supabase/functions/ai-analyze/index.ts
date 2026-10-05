@@ -1130,7 +1130,17 @@ Deno.serve(async (req: Request) => {
               const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
               return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
                 facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
-                deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null },
+                deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null,
+                // Phase F: bounded tanakh_source contract (count/books/first/last/samples) passes through verbatim; no model call.
+                source_result: det.intent === "tanakh_source" && det.source_result ? det.source_result : null },
+                engine: "deterministic", model: "none", intelligence_level: "deterministic" });
+            }
+            // Phase F: unsupported source phrase / no clean subject → fail closed with the deterministic clarification (no model, no guess).
+            if (det && det.enabled === true && det.mode === "needs_clarification" && det.intent === "tanakh_source" && det.needs_synthesis === false) {
+              const msg = [det.reason, det.recommendation].filter((s: unknown) => typeof s === "string" && s).join(" ");
+              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
+                facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+                deterministic: true, source_of_truth: null, trace: det.trace || null, source_result: null },
                 engine: "deterministic", model: "none", intelligence_level: "deterministic" });
             }
           }
