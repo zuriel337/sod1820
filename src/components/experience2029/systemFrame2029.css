@@ -1008,3 +1008,15 @@
     --s29-global-rail-width:78px;
   }
 }
+
+
+/* NUMBER_SURFACE_MOBILE_CONTEXT_STABILITY_V1
+   Calculator/Number surfaces keep the same formatting context before and after
+   Research Context appears, so adding the fixed mobile cue never shifts content. */
+@media(max-width:980px){
+  .sod29-root.surface-number .sod29-main-stage,
+  .sod29-root.surface-number .sod29-main-stage.has-context-rail{
+    display:block;
+    padding-inline-end:0;
+  }
+}
