@@ -1124,6 +1124,122 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
   return { ok, number: desc.number, anchor: desc.anchor, mode: desc.mode, outcome: ok ? (failed ? "partial" : "success") : (failed ? failed.outcome : "failed_with_reason"), ...(proj || {}) };
 }
 
+// ── Raziel Intelligence Core v1 Phase J — on-demand READ of the CURRENT Post / Topic (Publication/Representation, NOT Fact/Canonical) ──────
+// Runs only for an explicit current-surface question AND an exact slug already present in the bounded surface_semantic identity (never inferred from the
+// question text, never a search). Public/anon path only (existing anon SELECT on posts + topic_cards_public) — never the service role, no new store/router/agent.
+const RAZIEL_CC_BODY_MAX = 3500, RAZIEL_CC_EXCERPT_MAX = 500, RAZIEL_CC_ARR_MAX = 6;
+const RAZIEL_CC_QUESTION = [
+  /(?:^|\s)(?:מה|על\s+מה)\s+(?:אני\s+)?(?:קורא|קוראת)(?:\s|$|[?!.])/,
+  /(?:הסבר|תסביר|תסבירי|סכם|תסכם|סכמי|סיכום|תן\s+סיכום)(?:\s+לי)?(?:\s+את)?\s+(?:ה)?(?:פוסט|מאמר|דף|נושא|טופיק|כתבה)\s+(?:הזה|הזאת|הנוכחי|הנוכחית)/,
+  /(?:מה|על\s+מה)\s+(?:זה\s+)?(?:ה)?(?:פוסט|מאמר|דף|נושא|טופיק|כתבה)\s+(?:הזה|הזאת|הנוכחי|הנוכחית)/,
+  /\b(?:summari[sz]e|explain)\s+(?:this|the\s+current)\s+(?:post|topic|page|article)\b|\bwhat\s+(?:am\s+i\s+reading|is\s+this\s+(?:post|topic|page))\b/i,
+];
+const razielCcSlug = (v: unknown): string | null => typeof v === "string" && /^[\p{L}\p{N}][\p{L}\p{N}_.%-]{0,79}$/u.test(v) ? v : null;
+const razielCcText = (v: unknown, n: number): string =>
+  (typeof v === "string" || typeof v === "number" ? String(v) : "").slice(0, 80000)
+    .replace(/<!--[\s\S]*?-->/g, " ").replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, " ").replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, '"').replace(/&#0*39;/g, "'")
+    .replace(/<[^>]*>/g, " ").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+const razielCcList = (v: unknown, n: number): string[] =>
+  (Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : []).map((x) => razielCcText(x, n)).filter(Boolean).slice(0, RAZIEL_CC_ARR_MAX);
+
+// {trigger:false} → no tool, no note. {trigger:true,kind:null} → fail closed (identity missing/mismatched). Identity comes ONLY from surface_semantic.
+function razielCurrentContentDescriptor(question: unknown, sc: any): { trigger: boolean; kind: "post" | "topic" | null; slug: string | null } {
+  const q = typeof question === "string" ? question.slice(0, 300) : "";
+  if (!q || !RAZIEL_CC_QUESTION.some((re) => re.test(q))) return { trigger: false, kind: null, slug: null };
+  const none = { trigger: true, kind: null, slug: null };
+  const obj = (v: unknown) => (v && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : null);
+  const s = obj(sc), subj = obj(s?.subject), ctx = obj(s?.context), focus = obj(ctx?.focus), reading = obj(ctx?.reading);
+  const types = new Set([subj?.type, focus?.type, focus?.entityType].filter((t) => typeof t === "string" && t).map((t) => String(t).toLowerCase()));
+  if (types.size !== 1) return none;
+  const kind = [...types][0];
+  if (kind !== "post" && kind !== "topic") return none;
+  const raw = kind === "post"
+    ? [focus?.postSlug, reading?.postSlug, subj?.type === "post" ? subj?.id : null]
+    : [subj?.type === "topic" ? subj?.id : null, focus?.type === "topic" ? focus?.id : null, focus?.entityType === "topic" ? focus?.entityId : null];
+  const present = raw.filter((x) => x != null && x !== "");
+  const slugs = new Set(present.map(razielCcSlug));
+  if (slugs.size !== 1 || slugs.has(null)) return none;   // missing, malformed or conflicting identity ⇒ fail closed
+  return { trigger: true, kind, slug: [...slugs][0] as string };
+}
+
+type RazielCurrentContent = { ok: boolean; kind: "post" | "topic"; outcome: string; pack?: string; bodyChars?: number; truncated?: boolean };
+
+function razielCurrentPostProject(row: any): { pack: string; bodyChars: number; truncated: boolean } | null {
+  if (!row || typeof row !== "object") return null;
+  const title = razielCcText(row.title, 200), body = razielCcText(row.content, 1e6);
+  if (!title && !body) return null;
+  const clipped = body.slice(0, RAZIEL_CC_BODY_MAX);
+  const lines = [`סוג: פוסט (פרסום/ייצוג — לא עובדה קנונית)`, `כותרת: ${title}`, `slug: ${razielCcText(row.slug, 80)}`];
+  const ex = razielCcText(row.excerpt, RAZIEL_CC_EXCERPT_MAX); if (ex) lines.push(`תקציר: ${ex}`);
+  const cats = razielCcList(row.categories, 40), tags = razielCcList(row.tags, 40);
+  if (cats.length) lines.push(`קטגוריות: ${cats.join(", ")}`);
+  if (tags.length) lines.push(`תגיות: ${tags.join(", ")}`);
+  const dt = razielCcText(row.date, 30), md = razielCcText(row.modified, 30), src = razielCcText(row.source, 80);
+  if (dt) lines.push(`תאריך: ${dt}`); if (md) lines.push(`עודכן: ${md}`); if (src) lines.push(`מקור: ${src}`);
+  if (clipped) lines.push(`גוף (קטוע ל-${RAZIEL_CC_BODY_MAX} תווים): ${clipped}`);
+  return { pack: lines.join("\n"), bodyChars: clipped.length, truncated: body.length > clipped.length };
+}
+
+function razielCurrentTopicProject(row: any): { pack: string; bodyChars: number; truncated: boolean } | null {
+  if (!row || typeof row !== "object") return null;
+  const title = razielCcText(row.title, 200);
+  if (!title) return null;
+  const nums = (v: unknown) => (Array.isArray(v) ? v : []).filter((x) => Number.isSafeInteger(x)).slice(0, RAZIEL_CC_ARR_MAX).join(", ");
+  const lines = [`סוג: נושא/טופיק (פרסום/ייצוג — לא עובדה קנונית)`, `כותרת: ${title}`];
+  const sub = razielCcText(row.subtitle, 200); if (sub) lines.push(`כותרת-משנה: ${sub}`);
+  const n = nums(row.numbers), h = nums(row.highlight_numbers);
+  if (n) lines.push(`מספרים: ${n}`); if (h) lines.push(`מספרי-הדגשה: ${h}`);
+  // Source-authored public findings only: allowlisted keys, underscore-prefixed (internal) keys never read.
+  const f = row.findings && typeof row.findings === "object" && !Array.isArray(row.findings) ? row.findings as Record<string, unknown> : null;
+  const fl: string[] = [];
+  if (f) {
+    const hd = razielCcText(f.headline, 200); if (hd) fl.push(`כותרת-ממצאים: ${hd}`);
+    const sm = razielCcText(f.summary, 600); if (sm) fl.push(`סיכום: ${sm}`);
+    const bl = razielCcList(f.bullets, 220); if (bl.length) fl.push(`נקודות: ${bl.join(" | ")}`);
+    const cv = razielCcText(f.caveat, 300); if (cv) fl.push(`הסתייגות: ${cv}`);
+  }
+  const body = fl.join("\n");
+  const clipped = body.slice(0, RAZIEL_CC_BODY_MAX);
+  if (clipped) lines.push(`ממצאים (קטוע ל-${RAZIEL_CC_BODY_MAX} תווים):\n${clipped}`);
+  return { pack: lines.join("\n"), bodyChars: clipped.length, truncated: body.length > clipped.length };
+}
+
+async function runRazielCurrentContent(desc: { kind: "post" | "topic"; slug: string }, trace: OperationalTraceHandle | null): Promise<RazielCurrentContent> {
+  const spanId = crypto.randomUUID(), startedAt = new Date().toISOString(), t0 = Date.now();
+  const table = desc.kind === "post" ? "posts" : "topic_cards_public";
+  const select = desc.kind === "post" ? "id,slug,title,excerpt,categories,tags,date,modified,source,content" : "id,slug,title,subtitle,numbers,highlight_numbers,findings";
+  let outcome = "success", err: string | null = null, proj: ReturnType<typeof razielCurrentPostProject> = null;
+  if (!SB_URL || !SB_ANON) { outcome = "tool_error"; err = "no_caller_credentials"; }
+  else {
+    try {
+      // anon key only (existing public SELECT); exact slug equality; one row; no listing/search.
+      const r = await fetch(`${SB_URL}/rest/v1/${table}?slug=eq.${encodeURIComponent(desc.slug)}&select=${select}&limit=1`, {
+        headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` }, signal: AbortSignal.timeout(8000) });
+      if (!r.ok) { outcome = r.status === 401 || r.status === 403 ? "access_filtered" : "tool_error"; err = `http_${r.status}`; }
+      else {
+        const rows = await r.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (!row || row.slug !== desc.slug) { outcome = "failed_with_reason"; err = "not_found"; }
+        else { proj = desc.kind === "post" ? razielCurrentPostProject(row) : razielCurrentTopicProject(row); if (!proj) { outcome = "failed_with_reason"; err = "unusable_payload"; } }
+      }
+    } catch (e) { outcome = (e as Error)?.name === "TimeoutError" ? "timeout" : "tool_error"; err = outcome === "timeout" ? "timeout" : "fetch_failed"; }
+  }
+  const ok = !!proj;
+  await recordOperationalSpan(trace, {
+    spanId, kind: "db_rpc", name: `ai-analyze:raziel:current_surface_content:${desc.kind}`, startedAt, endedAt: new Date().toISOString(), outcome,
+    detail: {
+      capability: `raziel_current_surface_content:${desc.kind}`, owner_ref: "raziel_companion_layer_law v3 + project_codex.publishing_conventions", routing_reason: "raziel_current_surface_question",
+      output_use: ok ? "used" : "not_applicable", stop_reason: ok ? null : err,
+      resources: { latency_ms: Date.now() - t0, api_calls: 1 },
+      result_refs: ok ? { kind: desc.kind, body_chars: proj!.bodyChars, truncated: proj!.truncated } : null,   // counts only — never the raw body
+      replay: { ownerRuleRefs: ["project_codex.publishing_conventions"], parametersRef: `table:${table};read_only:true;anon:true` },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  return { ok, kind: desc.kind, outcome, ...(proj ? { pack: proj.pack, bodyChars: proj.bodyChars, truncated: proj.truncated } : {}) };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   let activeTrace: OperationalTraceHandle | null = null;
@@ -1433,6 +1549,21 @@ Deno.serve(async (req: Request) => {
         if (nc.ok && nc.pack) rNcPack = nc.pack;
       }
 
+      // Phase J — current Post/Topic content READ. Explicit current-surface question + exact slug in surface_semantic only; identity missing/mismatched ⇒ fail closed (no tool).
+      let rCcPack = "";
+      const rCcDesc = razielCurrentContentDescriptor(rSubject, body?.surface_semantic);
+      if (rCcDesc.trigger) {
+        if (rCcDesc.kind && rCcDesc.slug) {
+          const cc = await runRazielCurrentContent({ kind: rCcDesc.kind, slug: rCcDesc.slug }, activeTrace);
+          rPlanMeta = { ...(rPlanMeta || {}), current_content_read: { kind: cc.kind, ok: cc.ok, outcome: cc.outcome } };
+          rCcPack = cc.ok && cc.pack ? cc.pack : "";
+          if (!cc.ok) rCcPack = "UNAVAILABLE";
+        } else {
+          rPlanMeta = { ...(rPlanMeta || {}), current_content_read: { kind: null, ok: false, outcome: "identity_unavailable" } };
+          rCcPack = "UNAVAILABLE";
+        }
+      }
+
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona("site"),
         userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
@@ -1466,6 +1597,10 @@ Deno.serve(async (req: Request) => {
 
       const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
         ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
+        : "") + (rCcPack === "UNAVAILABLE"
+        ? "\n\nתוכן הדף הנוכחי אינו זמין כרגע (אין זהות-משטח מדויקת או שהקריאה נכשלה) — אל תמציא ואל תנחש תוכן; אמור זאת בקצרה וענה כרגיל."
+        : rCcPack
+        ? "\n\nתוכן הדף הנוכחי (קריאה-בלבד, פרסום/ייצוג — לא עובדה קנונית ולא ראיה; סכם/הסבר רק מה שכתוב כאן, אל תחשב מספרים ואל תוסיף טענות; אל תצטט את הגוף במלואו):\n" + rCcPack
         : "");
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
