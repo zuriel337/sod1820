@@ -16,6 +16,10 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
+import { getNotificationPrefs } from "../../lib/supabase.js";
+import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
+import { getMyProfile, watchToggle } from "../../lib/commandCenter.js";
+import { getVisitorId } from "../../lib/tracking.js";
 import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
   CONTEXT_ACTION_KIND,
@@ -698,6 +702,61 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
+  const { user, profile } = useAuth();
+  const userId = user?.id || null;
+  const [follows, setFollows] = useState({ status: "loading", topics: [] });
+  const [inbox, setInbox] = useState({ status: "loading", items: [], unread: 0 });
+  const [stats, setStats] = useState(null);
+
+  // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
+  useEffect(() => {
+    let alive = true;
+    setFollows({ status: "loading", topics: [] });
+    const idObj = userId ? { userId } : { visitorId: getVisitorId() };
+    getNotificationPrefs(idObj)
+      .then((row) => { if (alive) setFollows({ status: "ready", topics: Array.isArray(row?.topics) ? row.topics : [] }); })
+      .catch(() => { if (alive) setFollows({ status: "error", topics: [] }); });
+    return () => { alive = false; };
+  }, [userId]);
+
+  // Notifications / profile are RLS-scoped to the signed-in user only.
+  useEffect(() => {
+    let alive = true;
+    if (!userId) { setInbox({ status: "signed-out", items: [], unread: 0 }); setStats(null); return () => { alive = false; }; }
+    setInbox({ status: "loading", items: [], unread: 0 });
+    Promise.all([getMyNotifications(4), getUnreadCount(), getMyProfile()])
+      .then(([items, unread, prof]) => {
+        if (!alive) return;
+        setInbox({ status: "ready", items: items || [], unread: unread || 0 });
+        setStats(prof || null);
+      })
+      .catch(() => { if (alive) setInbox({ status: "error", items: [], unread: 0 }); });
+    return () => { alive = false; };
+  }, [userId]);
+
+  const workspaceHref = (link) => {
+    if (!link) return null;
+    const m = /^\/number\/(\d+)\/?$/.exec(link);
+    return m ? `/2029/number/${m[1]}` : link;
+  };
+
+  const unfollow = async (topic) => {
+    const before = follows.topics;
+    setFollows((f) => ({ ...f, topics: f.topics.filter((t) => t !== topic) }));
+    const res = await watchToggle(topic, "workspace-2029", false, userId ? null : getVisitorId());
+    if (res == null) setFollows((f) => ({ ...f, topics: before }));
+  };
+
+  const openNotification = async (n) => {
+    if (!n.read_at) {
+      await markNotificationRead(n.id);
+      setInbox((i) => ({ ...i, unread: Math.max(0, i.unread - 1), items: i.items.map((x) => x.id === n.id ? { ...x, read_at: new Date().toISOString() } : x) }));
+    }
+    const href = workspaceHref(n.link);
+    if (href) go(href, { preserve: false });
+  };
+
+  const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
 
   const savePath = async () => {
     if (!onSavePath || pathResume?.loading) return;
@@ -725,17 +784,17 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
   };
 
   const core = [
-    { id: "account", icon: "👤", title: "החשבון שלי", sub: "מי אני והפרטים שלי", state: "building" },
+    { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "לא מחובר — מצב אורח", state: "live", readOnly: true },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
-    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: "דרגה, XP ופעילות", state: "building" },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
   ];
 
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: "יתרה והיסטוריה", state: "building" },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
   ];
@@ -748,10 +807,29 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
 
+      <section className="sod29-workspace-pulse" aria-label="תמונת מצב אישית" data-workspace-section="pulse">
+        <UserAvatar2029 user={user} profile={profile} size="header" />
+        <div className="sod29-workspace-pulse-id">
+          <strong>{userId ? (displayName || "אני") : "אורח"}</strong>
+          <small>{userId ? "מחובר" : "לא מחובר — ההודעות וההתקדמות זמינות אחרי התחברות"}</small>
+        </div>
+        <div className="sod29-workspace-pulse-stats">
+          <span><b>{follows.status === "ready" ? follows.topics.length : "–"}</b><small>עוקב</small></span>
+          <span><b>{inbox.status === "ready" ? inbox.unread : "–"}</b><small>חדשות</small></span>
+          {stats?.level != null ? <span><b>{stats.level}</b><small>דרגה</small></span> : null}
+          {stats?.credits != null ? <span><b>{stats.credits}</b><small>קרדיטים</small></span> : null}
+        </div>
+      </section>
+
       <section className="sod29-workspace-home" aria-label="הדברים שלי">
         <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
         <div className="sod29-workspace-core-grid">
-          {core.map((item) => item.onClick ? (
+          {core.map((item) => item.readOnly && item.state === "live" ? (
+            <div key={item.id} className="sod29-workspace-home-card is-live is-readonly" data-workspace-card={item.id}>
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+            </div>
+          ) : item.onClick ? (
             <button key={item.id} type="button" className="sod29-workspace-home-card is-live" onClick={item.onClick}>
               <span className="icon" aria-hidden="true">{item.icon}</span>
               <span><strong>{item.title}</strong><small>{item.sub}</small></span>
@@ -767,15 +845,27 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         </div>
       </section>
 
-      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים">
-        <div><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong><small>הודעות, תגובות והתראות שקשורות אליך — אזור קשב אחד.</small></div>
-        <b>בבנייה</b>
+      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים" data-workspace-section="notifications">
+        <div className="sod29-workspace-attention-head"><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong>{inbox.status === "ready" && inbox.unread ? <b className="sod29-workspace-badge">{inbox.unread} חדשות</b> : null}</div>
+        {inbox.status === "loading" ? <small>טוען הודעות…</small> : null}
+        {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות הודעות אישיות.</small> : null}
+        {inbox.status === "error" ? <small>לא הצלחתי לטעון הודעות כרגע.</small> : null}
+        {inbox.status === "ready" && !inbox.items.length ? <small>אין הודעות חדשות.</small> : null}
+        {inbox.items.length ? <ul className="sod29-workspace-list">
+          {inbox.items.map((n) => (
+            <li key={n.id}><button type="button" className={n.read_at ? "" : "is-unread"} onClick={() => openNotification(n)}><strong>{n.title || "הודעה"}</strong>{n.body ? <small>{n.body}</small> : null}</button></li>
+          ))}
+        </ul> : null}
       </section>
 
       <section className="sod29-workspace-home" aria-label="המשכיות אישית">
         <div className="sod29-workspace-section-head"><strong>המשכיות אישית</strong><small>לא עוד מערכות נפרדות</small></div>
         <div className="sod29-workspace-secondary-grid">
-          {personal.map((item) => item.onClick ? (
+          {personal.map((item) => item.readOnly && item.state === "live" ? (
+            <div key={item.id} className="sod29-workspace-mini-card is-live is-readonly" data-workspace-card={item.id}>
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small>
+            </div>
+          ) : item.onClick ? (
             <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" onClick={item.onClick}>
               <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
             </button>
@@ -824,11 +914,32 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
       </section>
 
-      <div className="sod29-attention-lanes native">
-        <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
-        <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow.</small></div>
-        <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת.</small></div>
-      </div>
+      <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
+        <div className="sod29-workspace-section-head"><strong>🔔 אחרי מה אני עוקב</strong><small>{follows.status === "ready" ? `${follows.topics.length} מעקבים · בחירה מפורשת בלבד` : "בחירה מפורשת בלבד"}</small></div>
+        {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
+        {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו">נסה שוב מאוחר יותר.</FrameState> : null}
+        {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}
+        {follows.topics.length ? <ul className="sod29-workspace-list">
+          {follows.topics.map((topic) => {
+            const t = topicLabel(topic);
+            if (!t) return null;
+            const href = workspaceHref(t.link);
+            return (
+              <li key={topic} className="sod29-workspace-follow-row">
+                <button type="button" className="sod29-workspace-follow-open" disabled={!href} onClick={() => href && go(href, { preserve: false })}>
+                  <span aria-hidden="true">{t.icon}</span><strong>{t.label}</strong>{t.kind ? <small>{t.kind}</small> : null}
+                </button>
+                <button type="button" className="sod29-workspace-unfollow" aria-label={`הפסק לעקוב: ${t.label}`} onClick={() => unfollow(topic)}>הפסק</button>
+              </li>
+            );
+          })}
+        </ul> : null}
+        <div className="sod29-attention-lanes native">
+          <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow — בקרוב.</small></div>
+          <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת — בקרוב.</small></div>
+        </div>
+      </section>
+
     </>
   );
 }
@@ -1526,10 +1637,12 @@ export default function SystemFrame2029({
               {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
               <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
               <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+              <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
             </div>
           </> : <>
             <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+            <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
           </>}
         </div>
 
