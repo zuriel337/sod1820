@@ -432,7 +432,18 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       aria-hidden={engineOnly ? true : undefined}
       data-tzofen-projection={engineOnly ? "engine-only" : "classic-visible"}
       style={engineOnly
-        ? { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }
+        ? {
+            position: "fixed",
+            insetInlineStart: 0,
+            top: 0,
+            width: "min(1280px, calc(100vw - 24px))",
+            height: 720,
+            overflow: "hidden",
+            opacity: 0,
+            pointerEvents: "none",
+            clipPath: "inset(50%)",
+            zIndex: -1,
+          }
         : { position: "relative", width: "100%" }}
     >
       <iframe
@@ -449,9 +460,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         allow="clipboard-write; clipboard-read; web-share; fullscreen"
         allowFullScreen
         style={{
-          width: engineOnly ? 1 : "100%",
-          height: engineOnly ? 1 : (full ? "calc(100dvh - 58px)" : "calc(100dvh - 130px)"),
-          minHeight: engineOnly ? 0 : 620,
+          width: "100%",
+          height: engineOnly ? 720 : (full ? "calc(100dvh - 58px)" : "calc(100dvh - 130px)"),
+          minHeight: engineOnly ? 720 : 620,
           border: "none",
           display: "block",
           borderRadius: full ? 0 : 14,
