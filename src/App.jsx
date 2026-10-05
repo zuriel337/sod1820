@@ -104,7 +104,6 @@ const ResearchViewerV0Page = React.lazy(() => import("./components/admin/Researc
 const EntityHubPreviewPage = React.lazy(() => import("./pages/EntityHubPreviewPage.jsx")); // 🌳 Universal Entity Hub golden-case preview // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
 const ExplorerPreviewPage = React.lazy(() => import("./pages/ExplorerPreviewPage.jsx")); // 🧪 Universal Explorer Slice 2 — פנימי, לא-מקושר, שם-זמני עד Human-Gate שם
 const CommunityShadowPreview2029Page = React.lazy(() => import("./pages/CommunityShadowPreview2029Page.jsx")); // 🧪 G3 Community Core 2029 Phase 2 Shadow Preview — פנימי, לא-מקושר, branch-only
-const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // 2029 greenfield core surfaces — shared shell, shared Research Context, one Raziel.
 const Home2029Page = React.lazy(() => import("./pages/Home2029Page.jsx"));
@@ -429,7 +428,7 @@ export default function App() {
           <Route path="/journey-beta" element={<JourneyPageV2 />} />
           <Route path="/lab" element={<LabIndex />} />
           {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
-          <Route path="/lab/els" element={<ElsWorkAreaPage />} />
+          <Route path="/lab/els" element={<Navigate to="/els" replace />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
           <Route path="/sulamot3" element={<ConvergenceGalaxy level={3} />} />
