@@ -335,6 +335,22 @@ Target business answer:
 
 `where user came from → what they opened → what research/AI ran → exact cost → whether output helped → whether they saved/followed/shared/signed up/paid/returned`.
 
+**Public Beta evidence-learning extension:** detailed execution map: `docs/2029-public-beta-evidence-learning-plan-v1.md`.
+
+The Analytics rail must preserve metric identity rather than collapse everything into one “users” number:
+
+- Edge request classes: `browser / goodbot / ai / bad-bot` remain request-level evidence;
+- first-party sessions: `human-like / suspected automation / unknown` remain session-level evidence;
+- JS/quarantine proof is never Human proof;
+- bot-filtered first-party product metrics and raw Edge/crawl demand are shown side-by-side, never added together;
+- every metric is queryable by exact time axis: 5m/1h for operations, calendar day/week/month/year, rolling 7/30/90d, cohort windows and exact release-SHA before/after windows;
+- shared dimensions should include surface, route/entity, capability/action, acquisition/referrer, country, device, locale, auth/access state, experiment and traffic class where available;
+- all primary 2029 surfaces (Home, World, Topic, Post, Book/Source, Number, ELS, Journey, Community/Workspace and Raziel/tool execution) project into the same correlation rail rather than creating page-local counters;
+- Legacy traffic/search behavior remains baseline evidence and may inform 2029 priorities, but Legacy metric identity is not silently reinterpreted as 2029 telemetry;
+- raw behavioral detail stays bounded by current retention; long-term rollups preserve trend comparability.
+
+The system may generate owner-routed product recommendations from evidence, but analytics is never self-authorizing. The allowed loop is `observe → aggregate → compare → recommend → Human Gate/owner decision → bounded change/experiment → measure → keep/revert`. No autonomous security, pricing, entitlement, canonical-truth or publication mutation is authorized by this rail.
+
 ### 7B Share / propagation rail
 
 Before broad 2029 share UI, define one typed Share Object / Intent over existing share owners:
