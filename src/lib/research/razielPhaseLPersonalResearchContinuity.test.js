@@ -24,8 +24,9 @@ const UID = "11111111-2222-3333-4444-555555555555";
 const item = (i, extra = {}) => ({ type: "post", ref: "r" + i, id: "id" + i, title: "T" + i, link: "/p/" + i, metadata_secret: "PRIVATE-META", note: "PRIVATE-NOTE", ...extra });
 const many = (n) => Array.from({ length: n }, (_, i) => item(i));
 const snapshot = (over = {}) => ({ revision: 3, history: many(20), collections: many(9), journeys: many(8), context: { secret: "PRIVATE-CTX" }, cart: many(2), saved: many(15), pinned: many(7), ...over });
-const path = (over = {}) => ({ ok: true, path_id: UID, revision_no: 4, identity_metadata: { subject: "שלום", lens: "גימטריה", journey: "J1", secret: "PRIVATE-IDM" },
-  steps: many(10), provenance: { raw: "PRIVATE-PROV" }, representation: { raw: "PRIVATE-REPR" }, ...over });
+const path = (over = {}) => ({ ok: true, path_id: UID, revision_no: 4, identity_metadata: { root_type: "word", root_ref: "w-1", root_label: "שלום", secret: "PRIVATE-IDM" },
+  steps: many(10), provenance: { raw: "PRIVATE-PROV" },
+  representation: { schema: "research-context-v1", raw: "PRIVATE-REPR", context: { version: 1, subject: { type: "word", id: "w-1", label: "שלום", href: "/w/1", secret: "PRIVATE-SUBJ" }, lens: "גימטריה", journey: { id: "J1", kind: "path", position: 2, findingId: "PRIVATE-FIND" }, dimensions: { d: "PRIVATE-DIM" }, selection: { locator: "PRIVATE-SEL" }, secret: "PRIVATE-CTXSEC" } }, ...over });
 const det = (cap, over = {}) => ({ enabled: true, availability: "personal_research_read", trace: { personal: { capability: cap } }, ...over });
 
 test("Phase L: descriptor only for authenticated (user/admin) + valid verified uid + enabled + allowlisted capability; anon/public → null", () => {
@@ -91,13 +92,20 @@ test("Phase L: latest path projection = max 6 recent steps + bounded subject/len
   const p = m.razielPersonalPath(path());
   assert.equal(p.total, 10); assert.equal(p.steps.length, 6);
   assert.deepEqual(p.steps.map((x) => x.ref), ["r4", "r5", "r6", "r7", "r8", "r9"]);   // the 6 MOST RECENT
-  assert.deepEqual([p.subject, p.lens, p.journey, p.revision], ["שלום", "גימטריה", "J1", 4]);
+  assert.deepEqual([p.subject, p.subjectType, p.subjectRef, p.subjectLink, p.lens, p.journey, p.journeyKind, p.journeyPosition, p.revision], ["שלום", "word", "w-1", "/w/1", "גימטריה", "J1", "path", "2", 4]);
   assert.doesNotMatch(JSON.stringify(p), /PRIVATE/);
   assert.equal(m.razielPersonalPath({ ok: false, error: "not_found" }).found, false);
   assert.equal(m.razielPersonalPath({ ok: false, error: "weird" }), null);
   assert.equal(m.razielPersonalPath({ nope: 1 }), null);
-  const long = m.razielPersonalPath(path({ identity_metadata: { subject: "x".repeat(500) } }));
+  const long = m.razielPersonalPath(path({ identity_metadata: { root_label: "x".repeat(500) }, representation: null }));
   assert.ok(long.subject.length <= 80);
+  // legacy/non-canonical keys are NOT read; unsafe href dropped; absent representation still yields root identity
+  const legacy = m.razielPersonalPath(path({ identity_metadata: { subject: "LEGACY", lens: "L", journey: "J" }, representation: null }));
+  assert.deepEqual([legacy.subject, legacy.lens, legacy.journey], ["", "", ""]);
+  const unsafe = m.razielPersonalPath(path({ representation: { context: { subject: { href: "//evil.com/x" } } } }));
+  assert.equal(unsafe.subjectLink, "");
+  const txt = m.razielPersonalProject("personal_resume", [path()]).answer;
+  assert.match(txt, /שלום/); assert.match(txt, /J1/); assert.doesNotMatch(txt, /PRIVATE/);
 });
 
 test("Phase L: L0 answers are labeled PERSONAL_RESEARCH_STATE (not Fact/Canonical), bounded, free of private payload", () => {
