@@ -653,6 +653,62 @@ function razielSurfaceContextText(sc: any): string {
   return ("\n\nהקשר-משטח (מה שהמשתמש רואה עכשיו בדף המספר — רקע-מסך בלבד, לא עובדה קנונית ולא תחליף למטטרון):\n" + parts.join("\n")).slice(0, 900);
 }
 
+// ── Raziel Intelligence Core v1 Phase B — Projection → Research Plan wiring ──────────────────────────
+// Semantic surface descriptor (additive body.surface_semantic): identity + focus ONLY, never rendered HTML
+// or page text. Whitelisted keys, tags stripped, per-field + total caps. Session/surface context, not fact.
+const rzClean = (v: unknown, n: number): string => typeof v === "string" ? v.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, n) : "";
+function razielSemanticSurfaceText(sc: any): string {
+  if (!sc || typeof sc !== "object" || Array.isArray(sc)) return "";
+  const parts: string[] = [];
+  const surface = rzClean(sc.surface, 40);
+  if (surface) parts.push(`משטח: ${surface}`);
+  const s = sc.subject && typeof sc.subject === "object" ? sc.subject : null;
+  if (s) {
+    const id = [rzClean(s.type, 30), rzClean(s.label, 80) || rzClean(s.id, 80)].filter(Boolean).join(":");
+    if (id) parts.push(`נושא פעיל: ${id}`);
+  }
+  const n = sc.number && typeof sc.number === "object" ? sc.number : null;
+  if (n) {
+    const f = [rzClean(n.expression, 60), rzClean(n.method, 40) && `שיטה ${rzClean(n.method, 40)}`, rzClean(n.result, 30) && `תוצאה ${rzClean(n.result, 30)}`].filter(Boolean).join(" · ");
+    if (f) parts.push(`מוקד מספר: ${f}`);
+  }
+  const r = sc.reading && typeof sc.reading === "object" ? sc.reading : null;
+  if (r) {
+    const f = [rzClean(r.label, 80), rzClean(r.primary, 80)].filter(Boolean).join(" ");
+    if (f) parts.push(`מוקד קריאה: ${f}`);
+  }
+  const e = sc.els && typeof sc.els === "object" ? sc.els : null;
+  if (e) {
+    const f = [rzClean(e.occurrence, 80), rzClean(e.term, 60)].filter(Boolean).join(" · ");
+    if (f) parts.push(`מופע ELS: ${f}`);
+  }
+  if (!parts.length) return "";
+  return ("\n\nהקשר-משטח סמנטי (מה שהמשתמש רואה עכשיו — זהות ומוקד בלבד, לא עובדה קנונית; אין כאן תוכן-דף):\n" + parts.join("\n")).slice(0, 700);
+}
+
+// Compact plan metadata from the EXISTING fn_raziel_answer/fn_raziel_plan result. Semantic only — no provider names.
+function razielPlanMeta(src: any): Record<string, unknown> | null {
+  if (!src || typeof src !== "object" || !src.capability_class) return null;
+  const c = (v: unknown, n = 60) => (typeof v === "string" ? v.slice(0, n) : null);
+  return {
+    capability_class: c(src.capability_class), strategy: c(src.strategy), minimum_intelligence: c(src.minimum_intelligence, 30),
+    availability: c(src.availability, 40), intent: c(src.intent ?? src.protocol?.intent, 40), reason: c(src.reason, 200),
+    executed: false,
+  };
+}
+
+// Non-authoritative guidance block. The plan steers the answer; it is never Truth and never proof a tool ran.
+function razielPlanBlockText(p: Record<string, unknown> | null): string {
+  if (!p) return "";
+  const avail = String(p.availability || "");
+  const note = avail === "available"
+    ? "היכולת רשומה אך לא הורצה בבקשה זו — אל תציג ערך מחושב ואל תטען שהרצת כלי."
+    : "היכולת אינה זמינה/אינה מחוברת כרגע ולא הורצה — אפשר להסביר או להמליץ עליה, תוך ציון שלא בוצעה.";
+  return "\n\nתוכנית-מחקר (הכוונה בלבד — לא אמת, לא תוצאת-כלי; שום כלי לא הורץ):\n" +
+    `סוג-יכולת: ${p.capability_class ?? "—"} · אסטרטגיה: ${p.strategy ?? "—"} · רמת-חשיבה מינימלית: ${p.minimum_intelligence ?? "—"} · זמינות: ${avail || "—"}` +
+    (p.intent ? ` · יכולת מועמדת: ${p.intent}` : "") + `\n${note}`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   let activeTrace: OperationalTraceHandle | null = null;
@@ -810,6 +866,7 @@ Deno.serve(async (req: Request) => {
       // 🧠 5B — deterministic-first (תלוי הגדרה פעילה, לא קבוע בקוד). fail-open מלא.
       //    כשההגדרה הפעילה מחזירה mode=deterministic ללא צורך בסינתזה — התשובה מהמנוע הדטרמיניסטי
       //    (fn_raziel_answer), Claude לא נקרא ואין צריכת-מכסה; אחרת נופל למסלול Claude שלמטה.
+      let rPlanMeta: Record<string, unknown> | null = null;   // Phase B — reused plan (non-authoritative)
       try {
         if (rSubject && SB_URL && SB_SVC) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
@@ -818,6 +875,17 @@ Deno.serve(async (req: Request) => {
           });
           if (detR.ok) {
             const det = await detR.json();
+            rPlanMeta = razielPlanMeta(det);
+            if (!rPlanMeta && !(det && det.mode === "deterministic")) {
+              // flag/disabled answer carries no plan → reuse the existing read-only fn_raziel_plan
+              try {
+                const pR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_plan`, {
+                  method: "POST", headers: svcHeaders(),
+                  body: JSON.stringify({ p_question: rSubject, p_context_type: "public_user", p_user_ref: null }),
+                });
+                if (pR.ok) rPlanMeta = razielPlanMeta(await pR.json());
+              } catch { /* fail-open: no plan block */ }
+            }
             if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
               const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
               return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
@@ -887,12 +955,17 @@ Deno.serve(async (req: Request) => {
         catch { rPlan = RAZIEL_PLAN_FALLBACK; }
       }
       const surfaceText = rMode ? razielSurfaceContextText(rSurfaceCtx) : "";
+      // Phase B: bounded semantic surface (any persona=raziel request) + non-authoritative plan block.
+      const semText = razielSemanticSurfaceText(body?.surface_semantic);
+      const planText = razielPlanBlockText(rPlanMeta);
 
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
         rzMtxFacts +
         surfaceText +
+        semText +
+        planText +
         (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
@@ -930,6 +1003,8 @@ Deno.serve(async (req: Request) => {
           provider: "anthropic",
           model: rModel,
           routing_reason: rMode ? "raziel_advanced" : "raziel_default",
+          plan: rPlanMeta,
+          semantic_surface: !!semText,
           output_use: rel.degraded ? "fallback_guardian" : "used",
           stop_reason: rel.degraded ? rel.reason : null,
           resources: {
@@ -967,6 +1042,7 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2
         if (contract.continue_wa == null) contract.continue_wa = true;
         // Advanced-only additive fields — never present on the baseline persona="raziel" response,
         // so existing consumers (which don't read them) are unaffected. Debug/telemetry only; the
@@ -980,7 +1056,7 @@ Deno.serve(async (req: Request) => {
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";
