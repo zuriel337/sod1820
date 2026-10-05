@@ -152,7 +152,10 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await page.keyboard.press('Escape');
   await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
 
-  const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
+  await page.locator('.sod29-mobile-menu-trigger').click();
+  const mobileNav = page.locator('#sod29-mobile-navigation');
+  await expect(mobileNav).toBeVisible();
+  const exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
   await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-bennett-631/, { timeout: 20_000 });
