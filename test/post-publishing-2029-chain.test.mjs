@@ -275,6 +275,33 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
   bad(`<img src="https://evil.example/&#120;.png">`, "MEDIA_ATTR_AMBIGUOUS");
   bad(`<img src="${videoUrl}&amp;x=1">`, "MEDIA_ATTR_AMBIGUOUS");
   bad(`<img src="https://evil.example/x.png`, "MEDIA_ATTR_AMBIGUOUS");
+  // Final-audit regressions: generic over every start-tag attribute (no tag allowlist).
+  const E = "https://evil.example/x.png";
+  for (const x of [
+    `<svg><image href="${E}"/></svg>`, `<svg><image xlink:href="${E}"/></svg>`, `<svg><use href="${E}#a"/></svg>`,
+    `<svg><use xlink:href='//evil.example/s.svg#a'/></svg>`,
+    `<div style="background:url(${E})"></div>`, `<div style="background-image: url('${E}')"></div>`, `<div style='background:URL( "${E}" )'></div>`,
+    `<div style="background-image:image-set('${E}' 1x)"></div>`, `<div style="@import '${E}'"></div>`,
+    `<style>.a{background:url(${E})}</style>`, `<style>@import "${E}";</style>`,
+    `<meta property="og:image" content="${E}">`, `<meta content=//evil.example/x.png>`, `<meta http-equiv="refresh" content="0;url=${E}">`,
+    `<input type="image" src="${E}">`, `<script src="${E}"></script>`, `<link rel="stylesheet" href="${E}">`, `<link rel="icon" href="x.png">`,
+    `<table background="${E}"></table>`, `<body background=${E}>`, `<div data-bg="${E}"></div>`, `<div data-src="${E}"></div>`,
+    `<a href="/ok" style="background:url(${E})">x</a>`, `<a href="/ok" ping="${E}">x</a>`,
+    `<form action="${E}"></form>`, `<button formaction="${E}"></button>`, `<div src="${E}"></div>`, `<video data-poster="${E}"></video>`,
+  ]) bad(x, "RAW_EXTERNAL_MEDIA_IDENTITY");
+  for (const x of [
+    `<div style="background:\\75rl(${E})"></div>`, `<div style="background:&#117;rl(${E})"></div>`, `<style>.a{background:\\75rl(${E})}</style>`,
+    `<meta content="&#104;ttps://evil.example/x.png">`, `<svg><image href="&#104;ttps://evil.example/x.png"/></svg>`,
+    `<style>.a{b:c}`, `<div style="background:url(${E}`,
+  ]) bad(x, "MEDIA_ATTR_AMBIGUOUS");
+  // canonical media in generic positions + same-document refs + ordinary text/non-URL attrs stay allowed
+  const okImg = posterUrl;
+  for (const x of [
+    `<svg><image href="${okImg}"/><use href="#a"/><rect fill="url(#g)"/></svg>`, `<div style="background:url(${okImg})"></div>`,
+    `<style>.a{background:url(${okImg})}</style>`, `<meta property="og:image" content="${okImg}">`,
+    `<p title="see https://example.com/x" class="a b" data-x="1" aria-label="&#1488;">text https://example.com/plain</p>`,
+    `<div style="color:red;margin:0"></div>`, `<img alt="&#1488;" src="${okImg}">`,
+  ]) assert.equal(run(intentOf({ content: vid + x }), factsOf()).state, "READY", x);
   // ordinary external anchor links (citations / related) are NOT blocked
   const links = `<a href="https://he.wikipedia.org/wiki/x">ויקיפדיה</a> <a href=https://example.com/related>related</a> <A HREF='//cdn.example/s'>s</A>`;
   assert.equal(run(intentOf({ content: vid + links }), factsOf()).state, "READY");
@@ -443,3 +470,9 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
 }
 
 console.log("post-publishing-2029-chain: all assertions passed");
+
+// 9. STT unique-race: transcribe insert catches unique-violation, re-reads originals, reports (never 500, never overwrites).
+{
+  const src = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "../supabase/functions/video-transcribe/index.ts"), "utf8");
+  assert.match(src, /try \{ saved = await upsertRow\(built\.row, "ignore"\); \} catch \(e\) \{ if \(!isUniqueViolation\(e\)\) throw e; \}/);
+}

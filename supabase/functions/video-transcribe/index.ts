@@ -235,7 +235,9 @@ Deno.serve(async (req) => {
       const built = sttOriginalRow({ base: { ...base, source_url: base.source_url ?? mediaUrl }, stt });
       if (!built.ok) return json({ error: built.error, continuation: built.error === "source_language_unknown" ? "declare_source_lang_then_retry" : undefined }, built.error === "source_language_unknown" ? 422 : 502);
       // ignore-duplicates: a (video_key, lang) row that appeared meanwhile is never merged over.
-      const saved = await upsertRow(built.row, "ignore");
+      // A concurrent unique-violation (video_key,lang or the one-original index) is re-read and reported, never a 500.
+      let saved: unknown = null;
+      try { saved = await upsertRow(built.row, "ignore"); } catch (e) { if (!isUniqueViolation(e)) throw e; }
       const after = await listOriginals(video_key);
       if (after.length > 1) return json({ error: "original_conflict", originals: after.map((o) => o.lang) }, 409);
       if (!Array.isArray(saved) || !saved.length) return json({ ok: true, state: "original_exists", original: after[0]?.lang ?? null, saved: [], translated: [] });

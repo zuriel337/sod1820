@@ -31,15 +31,53 @@ function isCanonicalMediaUrl(url, supabaseUrl, storagePath) {
   return !!rel && (!storagePath || rel === storagePath);
 }
 
-// Pure media-attribute scanner (no regex over the whole body, no DOM). Walks every start tag; for media-bearing tags it
-// extracts quoted + unquoted src/srcset/poster/data (and lazy-load data-src/data-srcset). Ordinary <a href> source/related
-// links are NOT media-bearing and are never inspected. Anything it cannot read unambiguously is reported, not guessed.
-const MEDIA_TAGS = new Set(["img", "video", "source", "iframe", "embed", "object", "audio", "track"]);
-const MEDIA_ATTRS = new Set(["src", "srcset", "poster", "data", "data-src", "data-srcset"]);
+// Pure conservative scanner (no regex over the whole body, no DOM, no parser dependency). It walks EVERY start tag and
+// EVERY attribute (no tag allowlist). The only explicit exemption is <a href> (external citations / source links), which is
+// never inspected. Every other URL-bearing value must resolve to a canonical 2029 media-bucket object or it fails closed:
+//  - known URL attributes (src, srcset, poster, data, href on non-<a>, xlink:href, background, formaction, data-*src*, ...)
+//    are always checked, whatever their shape (a relative path is not a canonical identity);
+//  - any other attribute is checked when its value is URL-like (http(s)/ftp/file/data/blob/javascript scheme or //host)
+//    or carries CSS url()/@import/image-set() (style, svg presentation attrs) or a meta refresh `url=`;
+//  - <style> element bodies are scanned for CSS url()/@import/image-set().
+// Same-document fragment refs ("#id", url(#id)) are not media. Entity / escape / control-char / unterminated forms are
+// reported as ambiguous, never guessed. Ordinary text (including URLs in text nodes) is never inspected.
+const URL_ATTRS = new Set(["src", "srcset", "poster", "data", "background", "href", "xlink:href", "formaction", "action", "manifest", "longdesc", "ping", "icon", "lowsrc", "dynsrc", "usemap", "cite", "codebase", "archive", "profile"]);
 const WS = /\s/;
+const SCHEME_RE = /^(?:https?|ftp|file|data|blob|javascript|vbscript|ws|wss):/i;
+const TEXT_ATTRS = new Set(["alt", "title", "class", "id", "lang", "dir", "name", "placeholder"]);
+const ENTITY_RE = /&(?:#|colon|tab|newline|sol|bsol|lpar|rpar|quot|apos|amp)/i;
+
+function cssUrls(css) {
+  const out = [];
+  const lc = css.toLowerCase();
+  const take = (from) => { // read one url token starting at index `from` (after '(' or after @import)
+    let k = from;
+    while (k < css.length && WS.test(css[k])) k++;
+    const q = css[k];
+    if (q === '"' || q === "'") { const e = css.indexOf(q, k + 1); return e === -1 ? null : css.slice(k + 1, e); }
+    let e = k;
+    while (e < css.length && css[e] !== ")" && !WS.test(css[e])) e++;
+    return css.slice(k, e);
+  };
+  for (let i = 0; (i = lc.indexOf("url(", i)) !== -1; i += 4) { const u = take(i + 4); out.push(u === null ? undefined : u); }
+  for (let i = 0; (i = lc.indexOf("@import", i)) !== -1; i += 7) {
+    let k = i + 7; while (k < css.length && WS.test(css[k])) k++;
+    if (lc.startsWith("url(", k)) continue; // already taken by the url( pass
+    const u = take(k); if (u !== null && u !== "") out.push(u);
+  }
+  for (let i = 0; (i = lc.indexOf("image-set(", i)) !== -1; i += 10) {
+    const end = css.indexOf(")", i);
+    const seg = css.slice(i + 10, end === -1 ? css.length : end);
+    for (const m of seg.split(",")) { const t = m.trim(); const q = t[0]; if (q === '"' || q === "'") { const e = t.indexOf(q, 1); if (e > 0) out.push(t.slice(1, e)); } }
+  }
+  return out;
+}
+
 export function scanMediaRefs(html) {
   const text = String(html ?? "");
   const refs = [], ambiguous = [];
+  const add = (tag, attr, url) => { if (url === undefined) ambiguous.push({ tag, attr, value: "(unterminated css url)" }); else if (url && !url.startsWith("#")) refs.push({ tag, attr, url }); };
+  const lower = text.toLowerCase();
   let i = 0;
   while ((i = text.indexOf("<", i)) !== -1) {
     let j = i + 1;
@@ -48,8 +86,6 @@ export function scanMediaRefs(html) {
     while (j < text.length && /[A-Za-z0-9:-]/.test(text[j])) name += text[j++];
     if (!name) { i = j; continue; }
     const tag = name.toLowerCase();
-    const media = MEDIA_TAGS.has(tag);
-    // attributes until the closing '>'
     let closed = false;
     while (j < text.length) {
       while (j < text.length && (WS.test(text[j]) || text[j] === "/")) j++;
@@ -73,14 +109,38 @@ export function scanMediaRefs(html) {
           val = v;
         }
       } else if (!an) { j++; continue; }
-      if (media && val !== null && MEDIA_ATTRS.has(an.toLowerCase())) {
-        const attr = an.toLowerCase();
-        if (/[&\\\x00-\x1f]/.test(val) || val !== val.trim()) { ambiguous.push({ tag, attr, value: val.slice(0, 120) }); continue; }
-        const urls = attr.endsWith("srcset") ? val.split(",").map((c) => c.trim().split(/\s+/)[0]).filter(Boolean) : [val];
-        for (const u of urls) if (u) refs.push({ tag, attr, url: u });
+      if (val === null || !an) continue;
+      const attr = an.toLowerCase();
+      if (tag === "a" && attr === "href") continue; // the only explicit exemption: external citations / source links
+      const compact = val.replace(/[\x00-\x20]/g, "");
+      const known = URL_ATTRS.has(attr) || attr.endsWith("src") || attr.endsWith("srcset") || /^data-.*(src|poster|url|href|image|img|bg|background)/.test(attr);
+      const hasCss = attr === "style" || /url\(|@import|image-set\(/i.test(val);
+      const metaRefresh = tag === "meta" && /url\s*=/i.test(val);
+      const urlish = SCHEME_RE.test(compact) || compact.startsWith("//");
+      const obscured = /[&\\\x00]/.test(val);
+      if (!known && !hasCss && !metaRefresh && !urlish) {
+        // Not URL-bearing as written. Entity/escape-obscured values on non-text attributes are unreadable, not guessed.
+        if (obscured && ENTITY_RE.test(val) && !TEXT_ATTRS.has(attr) && !attr.startsWith("aria-")) ambiguous.push({ tag, attr, value: val.slice(0, 120) });
+        continue;
+      }
+      // URL values must be plain; CSS text may span lines/tabs but not carry escapes/entities.
+      if (obscured || ((known || urlish || metaRefresh) && (/[\x00-\x1f]/.test(val) || val !== val.trim()))) { ambiguous.push({ tag, attr, value: val.slice(0, 120) }); continue; }
+      if (hasCss && !known) { for (const u of cssUrls(val)) add(tag, attr, u); }
+      if (metaRefresh) { const m = /url\s*=\s*['"]?([^'";]*)/i.exec(val); if (m) add(tag, attr, m[1].trim()); continue; }
+      if (known || urlish) {
+        if (attr.endsWith("srcset")) for (const c of val.split(",")) { const u = c.trim().split(/\s+/)[0]; if (u) add(tag, attr, u); }
+        else if (val) add(tag, attr, val);
       }
     }
-    if (!closed && media) ambiguous.push({ tag, attr: "(unterminated tag)", value: "" });
+    if (!closed) ambiguous.push({ tag, attr: "(unterminated tag)", value: "" });
+    // <style> bodies: CSS url()/@import/image-set() must be canonical media too (raw-text element; read to </style).
+    if (tag === "style" && closed) {
+      const end = lower.indexOf("</style", j);
+      const body = text.slice(j, end === -1 ? text.length : end);
+      if (/[&\\\x00]/.test(body)) ambiguous.push({ tag, attr: "(style element)", value: body.slice(0, 120) });
+      else for (const u of cssUrls(body)) add(tag, "(style element)", u);
+      if (end === -1) ambiguous.push({ tag, attr: "(unterminated style)", value: "" });
+    }
     i = j > i ? j : i + 1;
   }
   return { refs, ambiguous };
