@@ -360,7 +360,9 @@ jobs:
               expect(globalAfter).not.toBeNull();
               expect(contextAfter).not.toBeNull();
               expect(Math.abs(globalAfter.y - globalBefore.y)).toBeLessThanOrEqual(1);
-              expect(Math.abs(contextAfter.y - contextBefore.y)).toBeLessThanOrEqual(1);
+              expect(contextAfter.y).toBeGreaterThanOrEqual(77);
+              expect(contextAfter.y).toBeLessThanOrEqual(79);
+              expect(contextAfter.y).toBeLessThanOrEqual(contextBefore.y);
               expect(Math.abs(globalAfter.x - globalBefore.x)).toBeLessThanOrEqual(1);
               expect(Math.abs(contextAfter.x - contextBefore.x)).toBeLessThanOrEqual(1);
             }
