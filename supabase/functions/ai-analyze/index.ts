@@ -701,12 +701,159 @@ function razielPlanMeta(src: any): Record<string, unknown> | null {
 function razielPlanBlockText(p: Record<string, unknown> | null): string {
   if (!p) return "";
   const avail = String(p.availability || "");
-  const note = avail === "available"
+  const note = p.operator_executed === true
+    ? "יכולת-מפעיל הורצה בקריאה-בלבד — הנתונים מצורפים למטה."
+    : avail === "operator_read"
+    ? "יכולת-מפעיל לא הורצה/נכשלה — אין נתוני-מפעיל; אל תמציא נתונים וציין שלא התקבלו."
+    : avail === "available"
     ? "היכולת רשומה אך לא הורצה בבקשה זו — אל תציג ערך מחושב ואל תטען שהרצת כלי."
     : "היכולת אינה זמינה/אינה מחוברת כרגע ולא הורצה — אפשר להסביר או להמליץ עליה, תוך ציון שלא בוצעה.";
   return "\n\nתוכנית-מחקר (הכוונה בלבד — לא אמת, לא תוצאת-כלי; שום כלי לא הורץ):\n" +
     `סוג-יכולת: ${p.capability_class ?? "—"} · אסטרטגיה: ${p.strategy ?? "—"} · רמת-חשיבה מינימלית: ${p.minimum_intelligence ?? "—"} · זמינות: ${avail || "—"}` +
     (p.intent ? ` · יכולת מועמדת: ${p.intent}` : "") + `\n${note}`;
+}
+
+// ── Raziel Intelligence Core v1 Phase C — verified-identity operator READ capabilities (admin only) ──────
+// The plan (existing fn_raziel_plan, surfaced via fn_raziel_answer trace.operator) only DESCRIBES a capability.
+// Execution happens here, and only when tier==="admin" was derived from the validated caller JWT. Every owner RPC is
+// invoked with the CALLER's Authorization (never the service role), so its own auth.uid()/rd_is_admin() check stays
+// authoritative: a non-admin or forged caller gets "not authorized" from the owner and no data. Read-only; no raw tables.
+type RazielOperatorCap = { rpc: string; owner: string; args: Record<string, unknown> };
+const RAZIEL_OPERATOR_CAPS: Record<string, RazielOperatorCap> = {
+  traffic_count: { rpc: "admin_traffic", owner: "traffic_intelligence_law v11", args: { p_days: 7 } },
+  traffic_state: { rpc: "admin_traffic", owner: "traffic_intelligence_law v11", args: { p_days: 7 } },
+  system_overview: { rpc: "admin_system_health", owner: "system_suggestions_law v5", args: {} },
+  system_faults: { rpc: "admin_system_health", owner: "system_suggestions_law v5", args: {} },
+  ai_cost_week: { rpc: "admin_ai_tokens", owner: "system_suggestions_law v5", args: { p_days: 7 } },
+  research_demand: { rpc: "fn_raziel_research_intel_scoped", owner: "research_strategy_layer_law v17",
+    args: { p_context_type: "admin", p_user_ref: null, p_period: "7d", p_limit: 8 } },
+};
+
+type RazielOperatorResult = {
+  ok: boolean; outcome: string; capability: string; owner: string; rpc: string;
+  answer?: string; facts?: { label: string; value: string }[]; basis?: string; pack?: string;
+};
+
+const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+
+// Verified admin context only: maps the server-validated tier → fn_raziel_plan context_type. Never read from the client.
+function razielContextFromTier(tier: string): "admin" | "authenticated_user" | "public_user" {
+  return tier === "admin" ? "admin" : tier === "user" ? "authenticated_user" : "public_user";
+}
+
+function razielOperatorDescriptor(det: any, tier: string): { capability: string; days: number | null } | null {
+  if (tier !== "admin" || !det || det.enabled !== true || det.availability !== "operator_read") return null;
+  const o = det.trace?.operator;
+  const cap = typeof o?.capability === "string" ? o.capability : "";
+  if (!Object.prototype.hasOwnProperty.call(RAZIEL_OPERATOR_CAPS, cap)) return null;   // allowlist, never plan-supplied rpc names
+  return { capability: cap, days: num(o?.days) };
+}
+
+async function razielOperatorRpc(bearer: string, cap: RazielOperatorCap): Promise<{ ok: boolean; data: any; outcome: string; ms: number; error: string | null }> {
+  const t0 = Date.now();
+  if (!SB_URL || !SB_ANON || !bearer) return { ok: false, data: null, outcome: "tool_error", ms: 0, error: "no_caller_credentials" };
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${cap.rpc}`, {
+      method: "POST",
+      headers: { apikey: SB_ANON, Authorization: `Bearer ${bearer}`, "Content-Type": "application/json" },
+      body: JSON.stringify(cap.args),
+      signal: AbortSignal.timeout(8000),
+    });
+    const ms = Date.now() - t0;
+    if (!r.ok) {
+      const denied = r.status === 401 || r.status === 403 || /not authorized/i.test(await r.text().catch(() => ""));
+      return { ok: false, data: null, outcome: denied ? "access_filtered" : "tool_error", ms, error: `http_${r.status}` };
+    }
+    return { ok: true, data: await r.json(), outcome: "success", ms, error: null };
+  } catch (e) {
+    const timedOut = (e as Error)?.name === "TimeoutError";
+    return { ok: false, data: null, outcome: timedOut ? "timeout" : "tool_error", ms: Date.now() - t0, error: timedOut ? "timeout" : "fetch_failed" };
+  }
+}
+
+// Bounded, label-honest projections of the owner payloads. Counts/aggregates only — no raw events, no private payloads.
+function razielOperatorProject(capability: string, data: any, days: number | null): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
+  if (!data || typeof data !== "object") return null;
+  if (capability === "traffic_count") {
+    const week = num(data.total_visitors), visits = num(data.total_visits), today = num(data.today);
+    const asked = days === 7;
+    const val = asked ? week : today;
+    if (val === null) return null;
+    return {
+      answer: asked
+        ? `ב-7 הימים האחרונים נכנסו ${val} מבקרים ייחודיים (ללא בוטים${visits !== null ? `, ${visits} כניסות` : ""}).`
+        : `מתחילת היום (UTC) נכנסו ${val} מבקרים ייחודיים (ללא בוטים).`,
+      facts: [{ label: asked ? "מבקרים ייחודיים · 7 ימים" : "מבקרים ייחודיים · מתחילת היום (UTC)", value: String(val) }],
+      basis: "EXACT",
+    };
+  }
+  if (capability === "ai_cost_week") {
+    const t = data.total;
+    const calls = num(t?.calls), usd = num(t?.cost_usd), ils = num(t?.cost_ils), priced = num(t?.priced_calls), unpriced = num(t?.unpriced_calls);
+    if (calls === null || usd === null) return null;
+    const complete = t?.pricing_complete === true;
+    const ilsKnown = ils !== null && ils > 0;
+    const basis = priced === 0 && calls > 0 ? "UNKNOWN" : complete ? "EXACT" : "EXACT_PRICED_ONLY";
+    const parts = [`ב-7 הימים האחרונים: ${calls} קריאות AI, עלות $${usd}`];
+    parts.push(ilsKnown ? `(₪${ils})` : "(המרה לשקלים: לא ידוע — אין שער מתועד)");
+    if (!complete && unpriced) parts.push(`· ${unpriced} קריאות ללא תמחור (לא נכללות בסכום)`);
+    return {
+      answer: parts.join(" ") + ".",
+      facts: [{ label: "עלות AI · 7 ימים (USD)", value: String(usd) }, { label: "עלות AI · 7 ימים (ILS)", value: ilsKnown ? String(ils) : "UNKNOWN" }],
+      basis,
+    };
+  }
+  if (capability === "traffic_state") {
+    const src = (Array.isArray(data.sources) ? data.sources : []).slice(0, 5).map((x: any) => `${String(x?.source || "").slice(0, 30)}:${num(x?.visitors) ?? "?"}`);
+    const daily = (Array.isArray(data.daily) ? data.daily : []).slice(-7).map((x: any) => `${String(x?.day || "").slice(5, 10)}:${num(x?.visitors) ?? "?"}`);
+    return { basis: "EXACT", pack:
+      `תנועה (admin_traffic · 7 ימים, ללא בוטים): מבקרים ייחודיים ${num(data.total_visitors) ?? "?"} · כניסות ${num(data.total_visits) ?? "?"} · היום(UTC) ${num(data.today) ?? "?"} · ` +
+      `ב-30ד' ${num(data.now30) ?? "?"} · ב-5ד' ${num(data.now5) ?? "?"} · חוזרים ${num(data.returning) ?? "?"} · בוטים שזוהו ${num(data.bot_visitors) ?? "?"} · ` +
+      `ממוצע אחרון ${num(data.recent_avg) ?? "?"} מול קודם ${num(data.prior_avg) ?? "?"}\nמקורות: ${src.join(" · ") || "—"}\nיומי: ${daily.join(" · ") || "—"}` };
+  }
+  if (capability === "system_overview" || capability === "system_faults") {
+    const db = data.db || {}, sec = data.security || {}, bots = data.bots || {}, usage = data.usage || {};
+    const cron = Array.isArray(data.cron) ? data.cron : [];
+    const failing = cron.filter((c: any) => (num(c?.failures_24h) ?? 0) > 0).slice(0, 8).map((c: any) => `${String(c?.job_name || "").slice(0, 40)}×${num(c?.failures_24h)}`);
+    const inactive = cron.filter((c: any) => c?.active === false).length;
+    return { basis: "EXACT", pack:
+      `מצב-מערכת (admin_system_health · צילום חי): DB חיבורים ${num(db.connections) ?? "?"}/${num(db.max_connections) ?? "?"} · שאילתה ארוכה ${num(db.longest_active_query_seconds) ?? "?"}ש' · idle-in-tx ${num(db.idle_in_transaction) ?? "?"}\n` +
+      `cron: ${cron.length} משימות · לא-פעילות ${inactive} · כשלי 24ש': ${failing.join(" · ") || "אין"}\n` +
+      `בוטים: outbox ממתין ${num(bots.outbox_pending) ?? "?"} · נכשל ${num(bots.outbox_failed) ?? "?"} · התראות-אבטחה לא-מאושרות ${num(sec.unacked) ?? "?"} (24ש' ${num(sec.recent_24h) ?? "?"})\n` +
+      `שימוש: עלות AI 7י' $${num(usage.ai_cost_usd_7d) ?? "?"} [${String(usage.ai_cost_basis || "UNKNOWN").slice(0, 20)}] · Vercel bandwidth MB (הערכה) ${num(usage.vercel_bandwidth_mb_est_7d) ?? "?"} [${String(usage.vercel_bandwidth_basis || "UNKNOWN").slice(0, 20)}] · שמירת egress guard ${String(usage.storage_egress_guard?.state || "UNKNOWN").slice(0, 20)}`.slice(0, 1800) };
+  }
+  if (capability === "research_demand") {
+    if (data.authorized_admin !== true) return null;   // owner did not confirm admin → fail closed
+    const adm = data.admin || {};
+    return { basis: "ESTIMATED", pack:
+      `ביקוש-מחקר (fn_raziel_research_intel_scoped · 7 ימים · פופולריות ≠ חוזק-מחקר ≠ אמת קנונית): ${JSON.stringify(data.public ?? null).slice(0, 1400)}\n` +
+      `ניהולי: ממתינים להחלטה ${num(adm.pending_candidates) ?? "?"} · רמזי-קהילה ${num(adm.community_hints_pending) ?? "?"} · הגדרות פתוחות ${num(adm.open_definitions) ?? "?"}` };
+  }
+  return null;
+}
+
+async function runRazielOperator(desc: { capability: string; days: number | null }, bearer: string, trace: OperationalTraceHandle | null): Promise<RazielOperatorResult> {
+  const cap = RAZIEL_OPERATOR_CAPS[desc.capability];
+  const spanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  const r = await razielOperatorRpc(bearer, cap);
+  let proj: ReturnType<typeof razielOperatorProject> = null;
+  if (r.ok) {
+    proj = razielOperatorProject(desc.capability, r.data, desc.days);
+  }
+  const ok = r.ok && !!proj;
+  const outcome = r.ok && !proj ? "failed_with_reason" : r.outcome;
+  await recordOperationalSpan(trace, {
+    spanId, kind: "db_rpc", name: `ai-analyze:raziel:operator:${cap.rpc}`, startedAt, endedAt: new Date().toISOString(), outcome,
+    detail: {
+      capability: `raziel_operator:${desc.capability}`, owner_ref: cap.owner, routing_reason: "raziel_plan_operator_read",
+      output_use: ok ? "used" : "not_applicable", stop_reason: ok ? null : (r.error || "unusable_payload"),
+      resources: { latency_ms: r.ms, api_calls: 1 },
+      replay: { ownerRuleRefs: [cap.owner], parametersRef: `rpc:${cap.rpc};caller_jwt:true;read_only:true` },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  return { ok, outcome, capability: desc.capability, owner: cap.owner, rpc: cap.rpc, ...(proj || {}) };
 }
 
 Deno.serve(async (req: Request) => {
@@ -867,21 +1014,29 @@ Deno.serve(async (req: Request) => {
       //    כשההגדרה הפעילה מחזירה mode=deterministic ללא צורך בסינתזה — התשובה מהמנוע הדטרמיניסטי
       //    (fn_raziel_answer), Claude לא נקרא ואין צריכת-מכסה; אחרת נופל למסלול Claude שלמטה.
       let rPlanMeta: Record<string, unknown> | null = null;   // Phase B — reused plan (non-authoritative)
+      // Phase C: identity is resolved ONCE, BEFORE planning, from the validated JWT (never a client flag). The same result
+      // feeds the quota check below (no duplicate lookup). context_type/user_ref passed to the plan are derived from it.
+      const { identity, tier } = await resolveIdentity(req, body);
+      const rCtxType = razielContextFromTier(tier);
+      const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
+      const rBearer = tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
+      let rOpDesc: { capability: string; days: number | null } | null = null;
       try {
         if (rSubject && SB_URL && SB_SVC) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
             method: "POST", headers: svcHeaders(),
-            body: JSON.stringify({ p_question: rSubject, p_context_type: "public_user", p_user_ref: null, p_visitor: String(body?.visitor_id || "") }),
+            body: JSON.stringify({ p_question: rSubject, p_context_type: rCtxType, p_user_ref: rVerifiedRef, p_visitor: String(body?.visitor_id || "") }),
           });
           if (detR.ok) {
             const det = await detR.json();
             rPlanMeta = razielPlanMeta(det);
+            rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
               // flag/disabled answer carries no plan → reuse the existing read-only fn_raziel_plan
               try {
                 const pR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_plan`, {
                   method: "POST", headers: svcHeaders(),
-                  body: JSON.stringify({ p_question: rSubject, p_context_type: "public_user", p_user_ref: null }),
+                  body: JSON.stringify({ p_question: rSubject, p_context_type: rCtxType, p_user_ref: rVerifiedRef }),
                 });
                 if (pR.ok) rPlanMeta = razielPlanMeta(await pR.json());
               } catch { /* fail-open: no plan block */ }
@@ -902,7 +1057,6 @@ Deno.serve(async (req: Request) => {
       const rFast = String(body?.intelligence_level || "").toLowerCase() === "fast";
       const rLevel = rFast ? "fast" : "deep";
       const rModel = rFast ? FAST_MODEL : MODEL;
-      const { identity, tier } = await resolveIdentity(req, body);
       // מכסת-AI (ai_quota_law v3) — מהיר: אותו דפוס-מכסה מהיר הקיים (זהות :f · אנונימי 30 · מחובר 200 · אדמין ∞);
       //    עמוק: מסלול המכסה הרגיל/עמוק הקיים (3/15/100/אדמין ∞ לפי ai_quota_check).
       const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
@@ -913,7 +1067,7 @@ Deno.serve(async (req: Request) => {
           message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
       }
 
-      const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
+      const userRef = rVerifiedRef;  // זיכרון = למשתמש מזוהה בלבד
 
       // 🚧 סגור לבדיקות (closed beta) — רק mode="advanced", רק לשני החשבונות באלוולט. שאר הבקשות
       // (כולל אנונימי) מקבלות תשובת "בבנייה" נעימה בלי לצרוך Claude/מכסה. מסלול-רזיאל הרגיל לא מושפע.
@@ -929,6 +1083,23 @@ Deno.serve(async (req: Request) => {
         ownerRef: "raziel_companion_layer_law + ai_analyze_contract v2",
         subject: rSubject,
       });
+
+      // Phase C — operator READ (admin only). L0 questions answer straight from the owner projection (no model, no tokens);
+      // broad questions get a bounded owner pack for the existing L2_FAST synthesis. Any failure → no admin data, ordinary synthesis.
+      let rOpPack = "";
+      if (rOpDesc) {
+        const op = await runRazielOperator(rOpDesc, rBearer, activeTrace);
+        const opMeta = { capability: op.capability, owner: op.owner, outcome: op.outcome, basis: op.basis ?? null };
+        rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
+        if (op.ok && op.answer) {
+          await finishOperationalTrace(activeTrace, "success");
+          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+            facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+            deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
+            engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
+        }
+        if (op.ok && op.pack) rOpPack = op.pack;
+      }
 
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona("site"),
@@ -957,7 +1128,9 @@ Deno.serve(async (req: Request) => {
       const surfaceText = rMode ? razielSurfaceContextText(rSurfaceCtx) : "";
       // Phase B: bounded semantic surface (any persona=raziel request) + non-authoritative plan block.
       const semText = razielSemanticSurfaceText(body?.surface_semantic);
-      const planText = razielPlanBlockText(rPlanMeta);
+      const planText = razielPlanBlockText(rPlanMeta) + (rOpPack
+        ? "\n\nנתוני-מפעיל (קריאה-בלבד ממקור הבעלים, אומתו כאדמין; השתמש רק במספרים כאן, אל תמציא ואל תחשב מעבר; שמור על תוויות EXACT/ESTIMATED/UNKNOWN):\n" + rOpPack
+        : "");
 
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
