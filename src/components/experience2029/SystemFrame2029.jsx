@@ -16,6 +16,10 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
+import { getNotificationPrefs } from "../../lib/supabase.js";
+import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
+import { getMyProfile, watchToggle } from "../../lib/commandCenter.js";
+import { getVisitorId } from "../../lib/tracking.js";
 import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
   CONTEXT_ACTION_KIND,
@@ -342,7 +346,8 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, surface = "system", onSetFocus, onAddResearch, onOpenNumber, onNeedHelp }) {
+function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp }) {
+  const [commitState, setCommitState] = useState(null);
   const numericFamily = target?.type === "number" || target?.type === "phrase";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
@@ -451,9 +456,12 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       <div className="sod29-panel-actions-grid">
         <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
-        <button className="sod29-action" type="button" onClick={() => onAddResearch(target)}>＋ שמור</button>
+        <button className="sod29-action" type="button" data-inspect-action="save" aria-pressed={isSaved} onClick={() => setCommitState({ kind: "save", ok: Boolean(onSave?.(target)) })}>{isSaved ? "✓ שמור" : "＋ שמור"}</button>
+        <button className="sod29-action" type="button" data-inspect-action="research" aria-pressed={inResearch} onClick={() => setCommitState({ kind: "research", ok: Boolean(onAddResearch?.(target)) })}>{inResearch ? "✓ במחקר" : "◎ למחקר"}</button>
         <button className="sod29-action" type="button" disabled title="המעקב המלא יחובר בהמשך">♢ עקוב</button>
       </div>
+
+      {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <ShareActions
@@ -694,11 +702,122 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, onResumePath }) {
+const RESEARCH_SECTIONS = [
+  { key: "saved", title: "שמורים", remove: "removeSaved" },
+  { key: "cart", title: "במחקר עכשיו", remove: "removeFromResearch" },
+  { key: "pinned", title: "מוצמדים", remove: "togglePin", removeWithEntity: true },
+  { key: "history", title: "אחרונים", limit: 8 },
+];
+
+function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
+  const syncStatus = research?.syncStatus || "local_only";
+  const syncLabel = syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
+  const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
+  const openRow = (e) => {
+    const m = /^\/number\/(\d+)\/?$/.exec(e.link || "");
+    if (m) return go(`/2029/number/${m[1]}`);
+    if (e.link) return go(e.link);
+    if (e.type === "number" || e.type === "phrase") return onOpenNumber?.(rowTarget(e));
+    return onInspect?.(rowTarget(e));
+  };
+  const collections = Array.isArray(research?.collections) ? research.collections : [];
+  const saved = Array.isArray(research?.saved) ? research.saved : [];
+  return (
+    <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
+      <div className="sod29-workspace-pulse-stats" aria-label="המחקר שלי במספרים">
+        {RESEARCH_SECTIONS.map((sec) => <span key={sec.key} data-count-for={sec.key}><b>{(research?.[sec.key] || []).length}</b><small>{sec.title}</small></span>)}
+        <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
+      </div>
+      <small className="sod29-workspace-sync-note">{syncLabel}</small>
+      {RESEARCH_SECTIONS.map((sec) => {
+        const all = Array.isArray(research?.[sec.key]) ? research[sec.key] : [];
+        const rows = sec.limit ? all.slice(0, sec.limit) : all;
+        return (
+          <section key={sec.key} className="sod29-workspace-research-bucket" data-research-bucket={sec.key}>
+            <div className="sod29-workspace-section-head"><strong>{sec.title}</strong><small>{all.length}</small>
+              {sec.key === "history" && all.length ? <button type="button" className="sod29-workspace-unfollow" onClick={() => research?.clearHistory?.()}>נקה</button> : null}
+            </div>
+            {rows.length ? <ul className="sod29-workspace-list">
+              {rows.map((e) => (
+                <li key={`${sec.key}:${e.id}`} className="sod29-workspace-follow-row">
+                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type}</small></button>
+                  {sec.remove ? <button type="button" className="sod29-workspace-unfollow" aria-label={`הסר: ${e.title || e.id}`} onClick={() => research?.[sec.remove]?.(sec.removeWithEntity ? e : e.id)}>הסר</button> : null}
+                </li>
+              ))}
+            </ul> : <FrameState kind="empty" title="ריק">{sec.key === "saved" ? "לחץ ＋ שמור בבדיקה מהירה כדי לשמור פריט לספרייה." : "אין כאן עדיין פריטים."}</FrameState>}
+          </section>
+        );
+      })}
+      <section className="sod29-workspace-research-bucket" data-research-bucket="collections">
+        <div className="sod29-workspace-section-head"><strong>אוספים</strong><small>{collections.length}</small></div>
+        {collections.length ? <ul className="sod29-workspace-list">
+          {collections.map((c) => <li key={c.id}><span className="sod29-workspace-collection"><strong>{c.name}</strong><small>{saved.filter((e) => e.coll === c.id).length} שמורים</small></span></li>)}
+        </ul> : <FrameState kind="empty" title="אין אוספים">אוספים מוצגים כאן כשהם קיימים.</FrameState>}
+      </section>
+    </div>
+  );
+}
+
+function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
+  const { user, profile } = useAuth();
+  const userId = user?.id || null;
+  const [follows, setFollows] = useState({ status: "loading", topics: [] });
+  const [inbox, setInbox] = useState({ status: "loading", items: [], unread: 0 });
+  const [stats, setStats] = useState(null);
+
+  // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
+  useEffect(() => {
+    let alive = true;
+    setFollows({ status: "loading", topics: [] });
+    const idObj = userId ? { userId } : { visitorId: getVisitorId() };
+    getNotificationPrefs(idObj)
+      .then((row) => { if (alive) setFollows({ status: "ready", topics: Array.isArray(row?.topics) ? row.topics : [] }); })
+      .catch(() => { if (alive) setFollows({ status: "error", topics: [] }); });
+    return () => { alive = false; };
+  }, [userId]);
+
+  // Notifications / profile are RLS-scoped to the signed-in user only.
+  useEffect(() => {
+    let alive = true;
+    if (!userId) { setInbox({ status: "signed-out", items: [], unread: 0 }); setStats(null); return () => { alive = false; }; }
+    setInbox({ status: "loading", items: [], unread: 0 });
+    Promise.all([getMyNotifications(4), getUnreadCount(), getMyProfile()])
+      .then(([items, unread, prof]) => {
+        if (!alive) return;
+        setInbox({ status: "ready", items: items || [], unread: unread || 0 });
+        setStats(prof || null);
+      })
+      .catch(() => { if (alive) setInbox({ status: "error", items: [], unread: 0 }); });
+    return () => { alive = false; };
+  }, [userId]);
+
+  const workspaceHref = (link) => {
+    if (!link) return null;
+    const m = /^\/number\/(\d+)\/?$/.exec(link);
+    return m ? `/2029/number/${m[1]}` : link;
+  };
+
+  const unfollow = async (topic) => {
+    const before = follows.topics;
+    setFollows((f) => ({ ...f, topics: f.topics.filter((t) => t !== topic) }));
+    const res = await watchToggle(topic, "workspace-2029", false, userId ? null : getVisitorId());
+    if (res == null) setFollows((f) => ({ ...f, topics: before }));
+  };
+
+  const openNotification = async (n) => {
+    if (!n.read_at) {
+      await markNotificationRead(n.id);
+      setInbox((i) => ({ ...i, unread: Math.max(0, i.unread - 1), items: i.items.map((x) => x.id === n.id ? { ...x, read_at: new Date().toISOString() } : x) }));
+    }
+    const href = workspaceHref(n.link);
+    if (href) go(href, { preserve: false });
+  };
+
+  const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
 
   const savePath = async () => {
     if (!onSavePath || pathResume?.loading) return;
@@ -726,17 +845,17 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
   };
 
   const core = [
-    { id: "account", icon: "👤", title: "החשבון שלי", sub: "מי אני והפרטים שלי", state: "building" },
+    { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "לא מחובר — מצב אורח", state: "live", readOnly: true },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
-    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: "דרגה, XP ופעילות", state: "building" },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
   ];
 
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: "יתרה והיסטוריה", state: "building" },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
   ];
@@ -749,10 +868,29 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
 
+      <section className="sod29-workspace-pulse" aria-label="תמונת מצב אישית" data-workspace-section="pulse">
+        <UserAvatar2029 user={user} profile={profile} size="header" />
+        <div className="sod29-workspace-pulse-id">
+          <strong>{userId ? (displayName || "אני") : "אורח"}</strong>
+          <small>{userId ? "מחובר" : "לא מחובר — ההודעות וההתקדמות זמינות אחרי התחברות"}</small>
+        </div>
+        <div className="sod29-workspace-pulse-stats">
+          <span><b>{follows.status === "ready" ? follows.topics.length : "–"}</b><small>עוקב</small></span>
+          <span><b>{inbox.status === "ready" ? inbox.unread : "–"}</b><small>חדשות</small></span>
+          {stats?.level != null ? <span><b>{stats.level}</b><small>דרגה</small></span> : null}
+          {stats?.credits != null ? <span><b>{stats.credits}</b><small>קרדיטים</small></span> : null}
+        </div>
+      </section>
+
       <section className="sod29-workspace-home" aria-label="הדברים שלי">
         <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
         <div className="sod29-workspace-core-grid">
-          {core.map((item) => item.onClick ? (
+          {core.map((item) => item.readOnly && item.state === "live" ? (
+            <div key={item.id} className="sod29-workspace-home-card is-live is-readonly" data-workspace-card={item.id}>
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
+            </div>
+          ) : item.onClick ? (
             <button key={item.id} type="button" className="sod29-workspace-home-card is-live" onClick={item.onClick}>
               <span className="icon" aria-hidden="true">{item.icon}</span>
               <span><strong>{item.title}</strong><small>{item.sub}</small></span>
@@ -768,15 +906,27 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         </div>
       </section>
 
-      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים">
-        <div><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong><small>הודעות, תגובות והתראות שקשורות אליך — אזור קשב אחד.</small></div>
-        <b>בבנייה</b>
+      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים" data-workspace-section="notifications">
+        <div className="sod29-workspace-attention-head"><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong>{inbox.status === "ready" && inbox.unread ? <b className="sod29-workspace-badge">{inbox.unread} חדשות</b> : null}</div>
+        {inbox.status === "loading" ? <small>טוען הודעות…</small> : null}
+        {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות הודעות אישיות.</small> : null}
+        {inbox.status === "error" ? <small>לא הצלחתי לטעון הודעות כרגע.</small> : null}
+        {inbox.status === "ready" && !inbox.items.length ? <small>אין הודעות חדשות.</small> : null}
+        {inbox.items.length ? <ul className="sod29-workspace-list">
+          {inbox.items.map((n) => (
+            <li key={n.id}><button type="button" className={n.read_at ? "" : "is-unread"} onClick={() => openNotification(n)}><strong>{n.title || "הודעה"}</strong>{n.body ? <small>{n.body}</small> : null}</button></li>
+          ))}
+        </ul> : null}
       </section>
 
       <section className="sod29-workspace-home" aria-label="המשכיות אישית">
         <div className="sod29-workspace-section-head"><strong>המשכיות אישית</strong><small>לא עוד מערכות נפרדות</small></div>
         <div className="sod29-workspace-secondary-grid">
-          {personal.map((item) => item.onClick ? (
+          {personal.map((item) => item.readOnly && item.state === "live" ? (
+            <div key={item.id} className="sod29-workspace-mini-card is-live is-readonly" data-workspace-card={item.id}>
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small>
+            </div>
+          ) : item.onClick ? (
             <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" onClick={item.onClick}>
               <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
             </button>
@@ -804,7 +954,7 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
 
         {savedSubject ? (
           <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-            <span>מסלול שמור</span>
+            <span>מסלול שמור (נפרד מפריטים שמורים)</span>
             <strong>{savedSubject.label}</strong>
             <small>
               {savedSubject.type}
@@ -820,16 +970,38 @@ function WorkspaceProjection({ context, go, onRaziel, pathResume, onSavePath, on
         {!subject && !savedSubject && !pathResume?.loading ? (
           <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
         ) : null}
+        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} />
         {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
         {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
         {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
       </section>
 
-      <div className="sod29-attention-lanes native">
-        <div className="sod29-attention-lane"><strong>אני עוקב</strong><small>בחירה מפורשת בלבד.</small></div>
-        <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow.</small></div>
-        <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת.</small></div>
-      </div>
+      <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
+        <div className="sod29-workspace-section-head"><strong>🔔 אחרי מה אני עוקב</strong><small>{follows.status === "ready" ? `${follows.topics.length} מעקבים · בחירה מפורשת בלבד` : "בחירה מפורשת בלבד"}</small></div>
+        {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
+        {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו">נסה שוב מאוחר יותר.</FrameState> : null}
+        {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}
+        {follows.topics.length ? <ul className="sod29-workspace-list">
+          {follows.topics.map((topic) => {
+            const t = topicLabel(topic);
+            if (!t) return null;
+            const href = workspaceHref(t.link);
+            return (
+              <li key={topic} className="sod29-workspace-follow-row">
+                <button type="button" className="sod29-workspace-follow-open" disabled={!href} onClick={() => href && go(href, { preserve: false })}>
+                  <span aria-hidden="true">{t.icon}</span><strong>{t.label}</strong>{t.kind ? <small>{t.kind}</small> : null}
+                </button>
+                <button type="button" className="sod29-workspace-unfollow" aria-label={`הפסק לעקוב: ${t.label}`} onClick={() => unfollow(topic)}>הפסק</button>
+              </li>
+            );
+          })}
+        </ul> : null}
+        <div className="sod29-attention-lanes native">
+          <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow — בקרוב.</small></div>
+          <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת — בקרוב.</small></div>
+        </div>
+      </section>
+
     </>
   );
 }
@@ -1196,17 +1368,28 @@ export default function SystemFrame2029({
     closeTransient();
   }, [research, currentHref, context?.lens, context?.returnTo, locale, closeTransient]);
 
-  const addToResearch = useCallback((target) => {
+  const entityFromTarget = useCallback((target) => {
     const normalized = normalizeTarget(target);
-    if (!normalized || !research.addToResearch) return;
-    research.addToResearch(makeEntity({
+    if (!normalized) return null;
+    return makeEntity({
       type: normalized.type,
       title: normalized.label,
       ref: normalized.id,
       link: normalized.href || currentHref,
       metadata: { source: "system-frame-2029", temporary_selection: normalized.source === "selection" },
-    }));
-  }, [research, currentHref]);
+    });
+  }, [currentHref]);
+
+  // Explicit capabilities, honest result: the boolean is the provider's own commit result.
+  const addToResearch = useCallback((target) => {
+    const entity = entityFromTarget(target);
+    return entity && research.addToResearch ? Boolean(research.addToResearch(entity)) : false;
+  }, [research, entityFromTarget]);
+
+  const saveToLibrary = useCallback((target) => {
+    const entity = entityFromTarget(target);
+    return entity && research.saveItem ? Boolean(research.saveItem(entity)) : false;
+  }, [research, entityFromTarget]);
 
   const submitCommand = useCallback((event) => {
     event?.preventDefault?.();
@@ -1322,7 +1505,7 @@ export default function SystemFrame2029({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
     if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
       sheet
       surface={surface}
@@ -1352,6 +1535,9 @@ export default function SystemFrame2029({
       context={context}
       go={go}
       onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
+      research={research}
+      onInspect={openInspect}
+      onOpenNumber={openNumber}
       pathResume={research.pathResume}
       onSavePath={() => research.saveCurrentResearchPath?.({ href: currentHref, label: currentLabel, surface })}
       onResumePath={(pathId) => research.resumeResearchPath?.(pathId)}
@@ -1539,10 +1725,12 @@ export default function SystemFrame2029({
               {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
               <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
               <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+              <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
             </div>
           </> : <>
             <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+            <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
           </>}
         </div>
 

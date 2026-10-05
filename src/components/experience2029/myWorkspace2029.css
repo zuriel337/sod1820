@@ -28,3 +28,27 @@
   .sod29-workspace-section-head{align-items:start}
   .sod29-workspace-section-head small{text-align:start}
 }
+.sod29-workspace-pulse{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;border:1px solid var(--s29-line-strong);border-radius:18px;background:var(--s29-panel-soft);padding:12px 13px}
+.sod29-workspace-pulse-id strong,.sod29-workspace-pulse-id small{display:block}
+.sod29-workspace-pulse-id strong{color:var(--s29-ink)}
+.sod29-workspace-pulse-id small{color:var(--s29-muted);font-size:11.5px}
+.sod29-workspace-pulse-stats{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.sod29-workspace-pulse-stats span{display:grid;justify-items:center;min-width:64px;padding:6px 10px;border:1px solid var(--s29-line);border-radius:12px}
+.sod29-workspace-pulse-stats b{color:var(--s29-accent);font-size:16px}
+.sod29-workspace-pulse-stats small{color:var(--s29-muted);font-size:10.5px}
+.sod29-workspace-attention,.sod29-workspace-follow{display:grid;gap:8px}
+.sod29-workspace-attention-head{display:flex;align-items:center;gap:8px}
+.sod29-workspace-badge{color:var(--s29-accent);font-size:11px}
+.sod29-workspace-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sod29-workspace-list button{width:100%;display:flex;align-items:center;gap:8px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-ink);padding:9px 11px;text-align:start;font:inherit;cursor:pointer}
+.sod29-workspace-list button:disabled{cursor:default;opacity:.7}
+.sod29-workspace-list button.is-unread{border-color:var(--s29-accent)}
+.sod29-workspace-list small{color:var(--s29-muted);font-size:11px}
+.sod29-workspace-follow-row{display:flex;gap:6px}
+.sod29-workspace-follow-row .sod29-workspace-follow-open{flex:1}
+.sod29-workspace-follow-row .sod29-workspace-unfollow{width:auto;color:var(--s29-muted);font-size:11px}
+.sod29-workspace-home-card.is-readonly{cursor:default}
+.sod29-root .sod29-command-island>button.sod29-island-personal{min-width:52px}
+.sod29-workspace-research-state,.sod29-workspace-research-bucket{display:grid;gap:8px}
+.sod29-workspace-sync-note{color:var(--s29-muted);font-size:11px}
+.sod29-workspace-collection{display:flex;align-items:center;gap:8px;border:1px solid var(--s29-line);border-radius:12px;padding:9px 11px;color:var(--s29-ink)}
