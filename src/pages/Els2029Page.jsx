@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
-import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
@@ -240,30 +240,15 @@ export default function Els2029Page() {
 
       <section
         className="sod29-section"
-        aria-label="ELS Classic full workspace"
-        data-els-classic-2029="faithful-port-v1"
+        aria-label="ELS Classic 2029 workspace"
+        data-els-classic-2029="native-v1"
         aria-hidden={researchProfile}
-        style={{ marginTop: 18, display: researchProfile ? "none" : "block", padding: 0, overflow: "hidden" }}
+        style={{ marginTop: 18, display: researchProfile ? "none" : "block", padding: 14, overflow: "hidden" }}
       >
-        <div style={{ padding: "16px 18px 0" }}>
-          <div className="sod29-section-head">
-            <div>
-              <div className="sod29-kicker">CLASSIC · FAITHFUL PORT</div>
-              <h2>הממשק הקלאסי המלא</h2>
-              <div className="sod29-muted">המשך הפסוק · סימוני צבע בצד · חיפוש מוצלב · שמירות · שיתוף · אותה מטריצה. הכלי נשאר mounted גם במעבר למחקר, כדי לא לאבד את מצב העבודה.</div>
-            </div>
-            <div className="sod29-actions" style={{ flexWrap: "wrap" }}>
-              <span className="sod29-chip">ONE ENGINE</span>
-              <span className="sod29-chip">SAME STATE</span>
-              <span className="sod29-chip">NO LEGACY ROUTE</span>
-            </div>
-          </div>
-        </div>
-        {/* Faithful Classic presentation lives inside /els. The canonical tool emits governed state;
-            ResearchProvider converts that state to an exact-replay selection for the Research profile. */}
-        <div data-els-classic-tool="canonical-tzofen">
-          <TzofenEmbed seed={classicSeed || undefined} full />
-        </div>
+        {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
+            The same iframe instance remains mounted as an engine-only bridge and can be revealed
+            as the parity fallback for capabilities that have not yet been ported to 2029. */}
+        <ElsNativeClassic2029 initialSeed={classicSeed} />
       </section>
 
       {researchProfile ?       <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
