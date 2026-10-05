@@ -758,7 +758,12 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
 test('World uses the shared Command, Inspect, Share and exact-return seams', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
-  const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });
+  const more = page.locator('[data-glass-context-dock="v1"] button').filter({ hasText: 'עוד' }).first();
+  await expect(more).toBeVisible();
+  await more.click();
+  const moreDialog = page.getByRole('dialog', { name: 'עוד' });
+  await expect(moreDialog).toBeVisible();
+  const command = moreDialog.getByRole('button', { name: /חיפוש/ });
   await expect(command).toBeVisible();
   await command.click();
   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
