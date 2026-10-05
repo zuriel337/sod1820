@@ -5,9 +5,8 @@
 // (הערוץ היחיד שהחזיק את שלושת המנגנונים בתהליך). זהו ה«שומר» המשותף:
 // לעולם לא כשל שקט (never_silent) — תמיד מוחזר טקסט מהותי, לעולם לא null.
 //
-// ⚠️ שלב 3 = הקמת המעטפת בלבד. הקובץ הזה **לא מיובא ע״י אף פונקציית-קצה עדיין**
-//    (אפס import → אפס פריסה → אפס שינוי התנהגות). חיבור הערוצים = שלב עתידי,
-//    ורק אחרי הוכחת-שקילות ואישור צוריאל.
+// חיבור ראשון: ai-analyze persona="raziel" בלבד (RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1).
+//    שאר הערוצים טרם מחוברים — חיבורם = שלב עתידי, אחרי הוכחת-שקילות ואישור צוריאל.
 //
 // עקרון-הפרדה: המעטפת מספקת את ה*מנגנון* (ניסיונות/backoff/timeout/never_silent).
 //   ה*תוכן* של תשובת-הגיבוי (guardian) נשאר של הערוץ — הערוץ מעביר buildFallback
@@ -46,6 +45,7 @@ export interface CallClaudeResult {
   degraded: boolean;     // true אם נפלנו ל-guardian
   attempts: number;      // כמה ניסיונות בוצעו בפועל
   reason: string | null; // סיבת-הכשל האחרונה אם degraded
+  usage?: { input_tokens?: number; output_tokens?: number }; // usage מצטבר של Anthropic על כל ניסיונות HTTP-200 (גם כש-degraded אם היה חיוב) — ללוג-טוקנים/trace
 }
 
 const TRANSIENT_HTTP = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
@@ -63,6 +63,14 @@ export async function callClaudeReliable(args: CallClaudeArgs): Promise<CallClau
 
   let lastReason: string | null = null;
   let attempts = 0;
+  let usageAcc: { input_tokens: number; output_tokens: number } | undefined;
+  const addUsage = (u: any) => {
+    if (!u || typeof u !== "object") return;
+    usageAcc = {
+      input_tokens: (usageAcc?.input_tokens || 0) + (Number(u.input_tokens) || 0),
+      output_tokens: (usageAcc?.output_tokens || 0) + (Number(u.output_tokens) || 0),
+    };
+  };
 
   for (let attempt = 0; attempt < pol.retries; attempt++) {
     attempts = attempt + 1;
@@ -100,12 +108,13 @@ export async function callClaudeReliable(args: CallClaudeArgs): Promise<CallClau
       }
 
       const data = await resp.json();
+      addUsage(data?.usage); // כל תשובת HTTP-200 מחויבת — גם refusal/ריקה שמנוסה שוב
       if (data?.stop_reason === "refusal") { lastReason = "refusal"; args.onAttempt?.({ attempt: attempts, status: 200, error: "refusal" }); break; }
       const text = (data?.content?.[0]?.text || "").trim();
       if (!text) { lastReason = "empty"; args.onAttempt?.({ attempt: attempts, status: 200, error: "empty" }); continue; }
 
       args.onAttempt?.({ attempt: attempts, status: 200, error: null });
-      return { text, degraded: false, attempts, reason: null };
+      return { text, degraded: false, attempts, reason: null, usage: usageAcc };
     } catch (e) {
       clearTimeout(to);
       lastReason = ctrl.signal.aborted ? "timeout" : String(e).slice(0, 120);
@@ -117,5 +126,5 @@ export async function callClaudeReliable(args: CallClaudeArgs): Promise<CallClau
   // never_silent — לעולם לא null: guardian של הערוץ
   const reason = lastReason === "timeout" ? "timeout" : (lastReason?.startsWith("http_5") || lastReason === "http_429" ? "overload" : (lastReason === "empty" ? "empty" : "error"));
   const fb = (args.buildFallback(reason) || "").trim() || "אירעה תקלה רגעית — נסה שוב בעוד רגע. 🌳";
-  return { text: fb, degraded: true, attempts, reason: lastReason };
+  return { text: fb, degraded: true, attempts, reason: lastReason, usage: usageAcc };
 }

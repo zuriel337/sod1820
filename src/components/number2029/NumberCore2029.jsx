@@ -5,6 +5,7 @@ import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
+import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
 import "./numberCore2029.css";
 
 const LAB = PALETTES.lab;
@@ -219,6 +220,7 @@ export default function NumberCore2029({
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
   const [showCalculation, setShowCalculation] = useState(false);
+  const [showAiAnalysis, setShowAiAnalysis] = useState(false);
   const [showAllCrossings, setShowAllCrossings] = useState(false);
   const [showMoreMethods, setShowMoreMethods] = useState(false);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState(null);
@@ -696,6 +698,8 @@ export default function NumberCore2029({
           onClose={() => setShowCalculation(false)}
         /> : null}
 
+        {showAiAnalysis ? <NumberAiAnalysis2029 projection={projection} /> : null}
+
         <footer className="sod29-number-v10-stage-actions">
           <button type="button" onClick={() => onRazielAction?.("next_research_step", {
             kind: crossingFocusActive ? "crossing_focus" : "method_result",
@@ -705,6 +709,7 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>✦ שאל את רזיאל</button>
+          <button type="button" aria-expanded={showAiAnalysis} title="ניתוח AI: פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו. רזיאל: מלווה מחקרי להמשך." onClick={() => setShowAiAnalysis((v) => !v)}>◈ ניתוח AI</button>
           {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,

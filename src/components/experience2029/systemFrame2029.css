@@ -1165,3 +1165,10 @@
   .sod29-glass-locator,.sod29-glass-locator button{transition:none!important;animation:none!important}
   .sod29-glass-locator-step:not(:disabled):active{transform:none}
 }
+
+.sod29-raziel-chat { display: grid; gap: 8px; }
+.sod29-raziel-chat form { display: flex; flex-wrap: wrap; gap: 6px; }
+.sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; }
+.sod29-raziel-chat-user { opacity: .8; }
+.sod29-raziel-chat-raziel { display: grid; gap: 2px; }
+.sod29-raziel-chat-raziel small { opacity: .65; }
