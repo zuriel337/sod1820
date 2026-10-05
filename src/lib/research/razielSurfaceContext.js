@@ -25,6 +25,34 @@ export function buildRazielSurfaceContext(context) {
     for (const [k, n] of [["type", 30], ["entityType", 30], ["id", 80], ["entityId", 80], ["label", 80], ["sectionLabel", 60], ["postId", 60], ["postSlug", 80]]) { const c = cap(f[k], n); if (c) focus[k] = c; }
     if (Object.keys(focus).length) out.focus = focus;
   }
+  const rf = isObj(dims.readingFocus) ? dims.readingFocus : null;
+  if (rf) {
+    const reading = {};
+    for (const [k, n] of [["id", 80], ["label", 80], ["primary", 80], ["sourceLabel", 60], ["postId", 60], ["postSlug", 80], ["locator", 80]]) { const c = cap(rf[k], n); if (c) reading[k] = c; }
+    if (typeof rf.number === "number" && Number.isFinite(rf.number)) reading.number = rf.number;
+    const signals = Array.isArray(rf.signals) ? rf.signals.map((x) => cap(x, 40)).filter(Boolean).slice(0, 3) : [];
+    if (signals.length) reading.signals = signals;
+    if (Object.keys(reading).length) out.reading = reading;
+  }
+  const nav = {};
+  for (const [k, n] of [["entrySource", 40], ["sourceRef", 80], ["journeySemanticId", 60], ["journeyRoot", 60]]) { const c = cap(dims[k], n); if (c) nav[k] = c; }
+  const visited = Array.isArray(dims.journeyVisitedValues) ? dims.journeyVisitedValues.filter((x) => Number.isSafeInteger(x)).slice(0, 6) : [];
+  if (visited.length) nav.journeyVisitedValues = visited;
+  const sel = isObj(context.selection) ? context.selection : null;
+  if (sel) {
+    const s = {};
+    for (const [k, n] of [["entityType", 30], ["entityId", 80], ["findingId", 60], ["sourceRef", 80], ["locator", 80]]) { const c = cap(sel[k], n); if (c) s[k] = c; }
+    if (Object.keys(s).length) nav.selection = s;
+  }
+  const rt = isObj(context.returnTo) ? context.returnTo : null;
+  if (rt) {
+    const r = {};
+    const label = cap(rt.label, 60);
+    if (label) r.label = label;
+    if (isObj(rt.subject)) { for (const [k, n] of [["type", 30], ["id", 80], ["label", 80]]) { const c = cap(rt.subject[k], n); if (c) r[`subject${k[0].toUpperCase()}${k.slice(1)}`] = c; } }
+    if (Object.keys(r).length) nav.returnTo = r;
+  }
+  if (Object.keys(nav).length) out.navigation = nav;
   const sections = Array.isArray(dims.surfaceSections) ? dims.surfaceSections.map((s) => cap(s?.label, 40)).filter(Boolean).slice(0, 6) : [];
   if (sections.length) out.sections = sections;
   const findings = Array.isArray(dims.surfaceFindings) ? dims.surfaceFindings.map((s) => cap(s?.label, 50)).filter(Boolean).slice(0, 4) : [];

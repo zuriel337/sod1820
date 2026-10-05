@@ -701,6 +701,28 @@ function razielSemanticSurfaceText(sc: any): string {
       const a = Array.isArray(v) ? v.map((x) => rzClean(x, n)).filter(Boolean).slice(0, k) : [];
       if (a.length) parts.push(`${label}: ${a.join(" · ")}`);
     };
+    const rd = c.reading && typeof c.reading === "object" && !Array.isArray(c.reading) ? c.reading : null;
+    if (rd) {
+      const sig = Array.isArray(rd.signals) ? rd.signals.map((x: unknown) => rzClean(x, 40)).filter(Boolean).slice(0, 3).join(", ") : "";
+      const f = [rzClean(rd.label, 80) || rzClean(rd.id, 80), rzClean(rd.primary, 80), typeof rd.number === "number" && Number.isFinite(rd.number) && `מספר ${rd.number}`, sig, rzClean(rd.sourceLabel, 60), rzClean(rd.postSlug, 80) || rzClean(rd.postId, 60), rzClean(rd.locator, 80)].filter(Boolean).join(" · ");
+      if (f) parts.push(`מוקד קריאה: ${f}`);
+    }
+    const nv = c.navigation && typeof c.navigation === "object" && !Array.isArray(c.navigation) ? c.navigation : null;
+    if (nv) {
+      const vis = Array.isArray(nv.journeyVisitedValues) ? nv.journeyVisitedValues.filter((x: unknown) => Number.isSafeInteger(x)).slice(0, 6).join(",") : "";
+      const f = [rzClean(nv.entrySource, 40), rzClean(nv.sourceRef, 80), rzClean(nv.journeySemanticId, 60), rzClean(nv.journeyRoot, 60), vis && `ערכים שנבדקו ${vis}`].filter(Boolean).join(" · ");
+      if (f) parts.push(`ניווט: ${f}`);
+      const s = nv.selection && typeof nv.selection === "object" ? nv.selection : null;
+      if (s) {
+        const g = [rzClean(s.entityType, 30), rzClean(s.entityId, 80), rzClean(s.findingId, 60), rzClean(s.sourceRef, 80), rzClean(s.locator, 80)].filter(Boolean).join(" · ");
+        if (g) parts.push(`בחירה: ${g}`);
+      }
+      const r = nv.returnTo && typeof nv.returnTo === "object" ? nv.returnTo : null;
+      if (r) {
+        const g = [rzClean(r.label, 60), rzClean(r.subjectType, 30), rzClean(r.subjectLabel, 80) || rzClean(r.subjectId, 80)].filter(Boolean).join(" · ");
+        if (g) parts.push(`חזרה אל: ${g}`);
+      }
+    }
     lst(c.sections, "חלקים בדף", 6, 40);
     lst(c.findings, "ממצאים מוצגים", 4, 50);
   }

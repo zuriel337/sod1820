@@ -68,3 +68,39 @@ test("I: edge renders the context block inside the existing capped semantic text
   assert.doesNotMatch(semFn, /fetch\(|rpc\/|from\(/);
   assert.doesNotMatch(semFn, /innerHTML|outerHTML|pageText|html/i);
 });
+
+test("I-fix: Post readingFocus survives bounded (max3 signals, number, tags stripped)", () => {
+  const out = buildRazielSurfaceContext(ctx({ type: "post", id: "p" }, {
+    dimensions: { readingFocus: { id: "r1", label: "<i>תבנית</i>", primary: "אמת", signals: ["a", "b", "c", "d", "e"], number: 441, sourceLabel: "מקור", postId: "p9", postSlug: "slug", locator: "פרק א", href: "/x", body: "no" } },
+  }));
+  assert.deepEqual(out.reading, { id: "r1", label: "תבנית", primary: "אמת", sourceLabel: "מקור", postId: "p9", postSlug: "slug", locator: "פרק א", number: 441, signals: ["a", "b", "c"] });
+});
+
+test("I-fix: World/Journey navigation values survive; visited capped to 6 safe integers", () => {
+  const out = buildRazielSurfaceContext(ctx({ type: "world", id: "w" }, {
+    selection: { entityType: "finding", entityId: "e1", findingId: "f1", sourceRef: "s1", locator: "l1", expression: "ignored" },
+    returnTo: { href: "/back", label: "חזרה", subject: { type: "post", id: "p1", label: "פוסט" } },
+    dimensions: { entrySource: "world", sourceRef: "ref-1", journeySemanticId: "js1", journeyRoot: "root", journeyVisitedValues: [1, 2, 3, 4, 5, 6, 7, 8, 1.5, "x"] },
+  }));
+  assert.deepEqual(out.navigation.journeyVisitedValues, [1, 2, 3, 4, 5, 6]);
+  assert.equal(out.navigation.entrySource, "world");
+  assert.equal(out.navigation.sourceRef, "ref-1");
+  assert.equal(out.navigation.journeySemanticId, "js1");
+  assert.equal(out.navigation.journeyRoot, "root");
+  assert.deepEqual(out.navigation.selection, { entityType: "finding", entityId: "e1", findingId: "f1", sourceRef: "s1", locator: "l1" });
+  assert.deepEqual(out.navigation.returnTo, { label: "חזרה", subjectType: "post", subjectId: "p1", subjectLabel: "פוסט" });
+  assert.equal(JSON.stringify(out).includes("/back"), false);
+});
+
+test("I-fix: absent reading/navigation stays absent; unsafe integers dropped", () => {
+  const out = buildRazielSurfaceContext(ctx({ type: "post", id: "p" }, { lens: "x", dimensions: { journeyVisitedValues: [1e300, "a"] } }));
+  assert.deepEqual(Object.keys(out), ["lens"]);
+});
+
+test("I-fix: edge renders reading/navigation inside capped non-evidence text; no new reads", () => {
+  assert.match(semFn, /c\.reading/);
+  assert.match(semFn, /c\.navigation/);
+  assert.match(semFn, /לא עובדה קנונית/);
+  assert.match(semFn, /slice\(0, 1000\)/);
+  assert.doesNotMatch(semFn, /fetch\(|rpc\/|from\(/);
+});
