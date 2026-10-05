@@ -70,7 +70,25 @@ blocked(intentOf(), factsOf({ media: { ...factsOf().media, poster: { public_url:
 blocked(intentOf({ categories: ["קטגוריה-מומצאת"] }), factsOf(), "TAXONOMY_UNKNOWN_CATEGORY");
 blocked(intentOf({ tags: ["תג-מומצא"] }), factsOf(), "TAXONOMY_UNKNOWN_TAG");
 blocked(intentOf({ source_attribution: null }), factsOf(), "PROVENANCE_MISSING");
-blocked(intentOf({ source_attribution: { platform: "descript", credit_text: "credit not in body" } }), factsOf(), "ATTRIBUTION_NOT_VISIBLE");
+blocked(intentOf({ source_attribution: { source_kind: "uploaded_file", credit_text: "credit not in body" } }), factsOf(), "ATTRIBUTION_NOT_VISIBLE");
+// Source vs transport: ingest_transport alone is not provenance; it can't be the platform or appear in public credit.
+{
+  const credit = fx.intent.source_attribution.credit_text;
+  blocked(intentOf({ source_attribution: { ingest_transport: "descript", credit_text: credit } }), factsOf(), "PROVENANCE_MISSING");
+  blocked(intentOf({ source_attribution: { source_kind: "uploaded_file", credit_text: "" } }), factsOf(), "PROVENANCE_MISSING");
+  blocked(intentOf({ source_attribution: { platform: "descript", ingest_transport: "descript", credit_text: credit } }), factsOf(), "TRANSPORT_ASSERTED_AS_SOURCE");
+  const leak = "מקור: Descript";
+  blocked(intentOf({ content: `<video src="${videoUrl}"></video>${leak}`, source_attribution: { source_kind: "uploaded_file", credit_text: leak, ingest_transport: "descript" } }), factsOf(), "TRANSPORT_ASSERTED_AS_SOURCE");
+  // platform alone (a real external platform) still satisfies provenance
+  const plat = "Source: TikTok";
+  assert.equal(run(intentOf({ content: `<video src="${videoUrl}"></video>${plat}`, source_attribution: { platform: "tiktok", credit_text: plat } }), factsOf()).state, "READY");
+  // Golden: neutral public credit, no personal identity, no transport; exact file identity stays in fixture metadata.
+  const a = fx.intent.source_attribution;
+  assert.equal(a.source_kind, "uploaded_file"); assert.equal(a.platform, undefined);
+  assert.equal(a.credit_text, "מקור: סרטון שהתקבל במערכת");
+  assert.doesNotMatch(intentOf().content, /descript|zuriel|1000702626/i, "public body carries no transport, personal identity or filename");
+  assert.equal(sv.original_filename, "1000702626.mp4"); assert.equal(sv.original_sha256.length, 64);
+}
 blocked(intentOf(), factsOf({ existing_slugs: new Set(["voice-from-nations"]) }), "SLUG_TAKEN");
 blocked(intentOf({ slug: "" }), factsOf(), "SLUG_REQUIRED");
 blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }), "SOURCE_LANGUAGE_UNKNOWN");
@@ -108,10 +126,51 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
     [`sod1820/2029/video/2026/10/${C}`]: ["cover.png"], // image / non-original: unaffected
   };
   const listDir = async (p) => (tree[p] || []).map((n) => ({ name: n.replace(/\/$/, ""), isFolder: n.endsWith("/") }));
-  const { pending } = await findPendingPosters({ listDir });
+  const { pending } = await findPendingPosters({ listDir: async (p, o) => (await listDir(p, o)) });
   assert.deepEqual(pending, [{ original_path: sv.planned_storage_path, poster_path: sv.planned_poster_path }], "only original-without-poster is pending");
   assert.equal((await findPendingPosters({ listDir, limit: 1 })).pending.length, 1);
-  assert.equal((await findPendingPosters({ listDir, maxDirs: 1 })).truncated, true, "bounded");
+  const b1 = await findPendingPosters({ listDir, maxDirs: 1, limit: 99 });
+  assert.equal(b1.truncated, true, "bounded"); assert.equal(b1.next_cursor, `2026/10/${A}`);
+
+  // Starvation: >450 asset dirs, the ONLY missing poster is after dir 400 -> reachable via cursor continuation.
+  {
+    const N = 460, MISSING = 430;
+    const uid = (i) => `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`;
+    const big = { "sod1820/2029/video": ["2026/"], "sod1820/2029/video/2026": ["10/"], "sod1820/2029/video/2026/10": [] };
+    for (let i = 0; i < N; i++) {
+      const d = `sod1820/2029/video/2026/10/${uid(i)}`;
+      big["sod1820/2029/video/2026/10"].push(uid(i) + "/");
+      big[d] = ["original.mp4", "derivatives/"];
+      big[d + "/derivatives"] = i === MISSING ? [] : ["poster.jpg"];
+    }
+    const PAGE = 200; let calls = 0;
+    const bigList = async (p, { limit = PAGE, offset = 0 } = {}) => { calls++; return (big[p] || []).slice(offset, offset + limit).map((n) => ({ name: n.replace(/\/$/, ""), isFolder: n.endsWith("/") })); };
+    const want = { original_path: `sod1820/2029/video/2026/10/${uid(MISSING)}/original.mp4`, poster_path: `sod1820/2029/video/2026/10/${uid(MISSING)}/derivatives/poster.jpg` };
+    // (a) one page (maxDirs 400) is NOT enough and says so exactly
+    const p1 = await findPendingPosters({ listDir: bigList, maxDirs: 400 });
+    assert.deepEqual(p1.pending, []); assert.equal(p1.truncated, true); assert.equal(p1.visited, 400); assert.equal(p1.next_cursor, `2026/10/${uid(399)}`);
+    // (b) the continuation reaches it (asset dir listing is paged past 200 names)
+    const p2 = await findPendingPosters({ listDir: bigList, maxDirs: 400, limit: 1, cursor: p1.next_cursor });
+    assert.deepEqual(p2.pending, [want]); assert.equal(p2.truncated, true); assert.equal(p2.next_cursor, `2026/10/${uid(MISSING)}`);
+    // (c) resuming after it reaches the end, not truncated, no repeats
+    const p3 = await findPendingPosters({ listDir: bigList, maxDirs: 400, cursor: p2.next_cursor });
+    assert.deepEqual(p3.pending, []); assert.equal(p3.truncated, false); assert.equal(p3.next_cursor, null); assert.equal(p3.visited, N - MISSING - 1);
+    // (d) request budget is honoured with exact truncation
+    const p4 = await findPendingPosters({ listDir: bigList, maxDirs: 400, maxRequests: 50 });
+    assert.equal(p4.truncated, true); assert.ok(p4.requests <= 50 && p4.next_cursor);
+    // (e) the worker loop follows next_cursor inside one invocation, bounded by maxPages
+    process.env.FB_ADMIN_KEY = "test";
+    const { collectPosterBatch } = await import("../scripts/media-thumbs.mjs");
+    const queue = async (fn, body) => { const r = await findPendingPosters({ listDir: bigList, limit: body.limit, maxDirs: 400, cursor: body.cursor || null }); return { ok: true, rows: r.pending, truncated: r.truncated, next_cursor: r.next_cursor, visited: r.visited }; };
+    const w = await collectPosterBatch({ postFn: queue });
+    assert.deepEqual(w.rows, [want]); assert.equal(w.pages, 2, "reached after dir 400 within a single worker invocation");
+    const wb = await collectPosterBatch({ postFn: queue, maxPages: 1 });
+    assert.deepEqual(wb.rows, []); assert.equal(wb.truncated, true); assert.equal(wb.exhausted_budget, true); assert.equal(wb.next_cursor, p1.next_cursor);
+    // (f) the Edge handler echoes cursor/next_cursor and pages with offset; no storage.objects shortcut
+    const q = read("supabase/functions/media-thumb-queue/index.ts");
+    assert.match(q, /offset/); assert.match(q, /next_cursor/); assert.match(q, /body\.cursor/);
+    assert.doesNotMatch(q, /storage\.objects|rest\/v1\/objects/);
+  }
 
   process.env.FB_ADMIN_KEY = "test";
   const { processVideoPoster } = await import("../scripts/media-thumbs.mjs");

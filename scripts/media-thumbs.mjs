@@ -52,11 +52,28 @@ function defaultFrame(buf, original_path) {
   }
 }
 
+// Bounded continuation over the stateless scan: follow next_cursor page by page until a pending batch is found,
+// the end is reached (truncated=false) or the page budget is spent. Nothing is persisted between runs.
+export const POSTER_MAX_PAGES = 12;
+export async function collectPosterBatch({ postFn = post, maxPages = POSTER_MAX_PAGES, limit = 10 } = {}) {
+  let cursor = null, pages = 0, visited = 0;
+  for (;;) {
+    const list = await postFn("media-thumb-queue", { op: "list_video_posters", limit, ...(cursor ? { cursor } : {}) });
+    pages++;
+    if (!list.ok) return { ok: false, error: list, pages, visited };
+    visited += list.visited || 0;
+    const rows = list.rows || [];
+    const more = !!list.truncated && !!list.next_cursor;
+    if (rows.length || !more || pages >= maxPages) return { ok: true, rows, truncated: more, next_cursor: more ? list.next_cursor : null, pages, visited, exhausted_budget: !rows.length && more };
+    cursor = list.next_cursor;
+  }
+}
+
 async function posterLane() {
-  const list = await post("media-thumb-queue", { op: "list_video_posters", limit: 10 });
-  if (!list.ok) { console.error("poster list failed:", JSON.stringify(list)); return 1; }
+  const list = await collectPosterBatch();
+  if (!list.ok) { console.error("poster list failed:", JSON.stringify(list.error)); return 1; }
   const rows = list.rows || [];
-  console.log(`canonical 2029 videos without poster: ${rows.length}${list.truncated ? " (batch bounded; more next run)" : ""}`);
+  console.log(`canonical 2029 videos without poster: ${rows.length} (pages:${list.pages} dirs:${list.visited})${list.truncated ? ` (scan bounded; more exists after ${list.next_cursor})` : ""}`);
   let ok = 0, fail = 0;
   for (const row of rows) {
     try {

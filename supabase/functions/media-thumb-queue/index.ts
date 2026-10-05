@@ -39,17 +39,20 @@ Deno.serve(async (req) => {
     // Storage objects (no queue/table); the worker uploads through sign-upload (bucket=media).
     if (op === "list_video_posters") {
       const limit = Math.min(25, Math.max(1, +body.limit || 10));
-      const listDir = async (prefix: string) => {
+      const listDir = async (prefix: string, { limit: pageLimit = 200, offset = 0 }: { limit?: number; offset?: number } = {}) => {
         const r = await fetch(`${SB}/storage/v1/object/list/media`, {
           method: "POST", headers: { ...H, "content-type": "application/json" },
-          body: JSON.stringify({ prefix, limit: 200, offset: 0, sortBy: { column: "name", order: "asc" } }),
+          body: JSON.stringify({ prefix, limit: pageLimit, offset, sortBy: { column: "name", order: "asc" } }),
         });
         if (!r.ok) throw new Error(`storage list ${r.status}`);
         const d = await r.json().catch(() => []);
         return (Array.isArray(d) ? d : []).map((x: any) => ({ name: String(x.name || ""), isFolder: !x.id }));
       };
-      const { pending, truncated } = await findPendingPosters({ listDir, limit });
-      return json({ ok: true, bucket: "media", rows: pending.map((p) => ({ ...p, url: `${SB}/storage/v1/object/public/media/${p.original_path}` })), truncated });
+      // Stateless continuation: the caller echoes `next_cursor` back as `cursor` while `truncated` is true.
+      const cursor = /^\d{4}(\/\d{2}(\/[0-9a-f-]{36})?)?$/i.test(String(body.cursor || "")) ? String(body.cursor) : null;
+      const maxDirs = Math.min(400, Math.max(1, +body.max_dirs || 400));
+      const { pending, truncated, next_cursor, visited, requests } = await findPendingPosters({ listDir, limit, maxDirs, maxRequests: 1500, cursor });
+      return json({ ok: true, bucket: "media", rows: pending.map((p) => ({ ...p, url: `${SB}/storage/v1/object/public/media/${p.original_path}` })), truncated, next_cursor, visited, requests });
     }
 
     if (op === "set") {

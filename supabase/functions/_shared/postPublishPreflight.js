@@ -61,10 +61,20 @@ export function preflightPost({ intent = {}, facts = {}, supabaseUrl = "" }) {
   for (const t of intent.tags || []) if (!tags.has(t)) blockers.push(block("TAXONOMY_UNKNOWN_TAG", t));
 
   // Source / provenance / attribution (external media keeps a visible credit; provenance is not rewritten).
+  // SOURCE != TRANSPORT: a meaningful source identity is source_kind (e.g. "uploaded_file") and/or platform.
+  // attr.ingest_transport (e.g. the processing service the file passed through) is private provenance only:
+  // it never satisfies provenance, never becomes the platform, and never appears in the public credit.
   const attr = intent.source_attribution || null;
   if (kind === "video" || attr) {
-    if (!attr || !s(attr.platform) || !s(attr.credit_text)) blockers.push(block("PROVENANCE_MISSING", "platform+credit_text required"));
-    else if (!content.includes(s(attr.credit_text))) blockers.push(block("ATTRIBUTION_NOT_VISIBLE", "credit_text must appear in post body"));
+    const identity = attr ? (s(attr.source_kind) || s(attr.platform)) : "";
+    if (!attr || !identity || !s(attr.credit_text)) blockers.push(block("PROVENANCE_MISSING", "source identity (source_kind or platform) + credit_text required; ingest_transport alone is not a source"));
+    else {
+      const transport = s(attr.ingest_transport).toLowerCase();
+      if (transport && (s(attr.platform).toLowerCase() === transport || s(attr.credit_text).toLowerCase().includes(transport))) {
+        blockers.push(block("TRANSPORT_ASSERTED_AS_SOURCE", "ingest_transport is processing provenance, not source authority or public credit"));
+      }
+      if (!content.includes(s(attr.credit_text))) blockers.push(block("ATTRIBUTION_NOT_VISIBLE", "credit_text must appear in post body"));
+    }
   }
 
   // No raw external URL as content identity.

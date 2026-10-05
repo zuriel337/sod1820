@@ -1,8 +1,9 @@
 {
-  "_provenance": "Golden fixture for the Voice-from-Nations source-video case. Facts come from work_log VOICE_FROM_NATIONS_MEDIA_INGRESS_20261005 (84429ae9). The signed Descript transport URL is deliberately NOT stored. This real post is NOT published by this branch.",
+  "_provenance": "Golden fixture for the Voice-from-Nations source-video case. Facts come from work_log VOICE_FROM_NATIONS_MEDIA_INGRESS_20261005 (84429ae9). Descript is ingest transport only (private provenance), not the source platform; the signed transport URL is deliberately NOT stored. This real post is NOT published by this branch.",
   "supabase_url": "https://linswmnnkjxvweumprav.supabase.co",
   "source_video": {
     "original_filename": "1000702626.mp4",
+    "_provenance_private": "Private/test provenance only (never public credit): file received via Descript processing transport; the original platform/author of the video is not asserted.",
     "duration_s": 134.953991,
     "resolution": "576x1024",
     "codec": "H.264+AAC",
@@ -26,7 +27,7 @@
     "author": null,
     "source": "ai",
     "ai_touched": false,
-    "source_attribution": { "platform": "descript", "credit_text": "Source video: provided by ZURIEL (original file 1000702626.mp4)" },
+    "source_attribution": { "source_kind": "uploaded_file", "credit_text": "מקור: סרטון שהתקבל במערכת", "ingest_transport": "descript" },
     "language_policy": { "require_transcript": true, "want_translations": ["he"] }
   },
   "facts_taxonomy": { "categories": ["קולות מאומות העולם", "תיעוד אירועים", "וידאו"], "tags": ["אברהם יצחק ויעקב", "ישראל", "עם ישראל", "מטוס", "Flydubai"] },
