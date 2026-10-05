@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { fibonacciRailModel } from "./fibonacciSequence.js";
 import { humanContentTitle, decodePublicEntities } from "../presentation/contentTitle.js";
 import { numberTimelineToRows, timelineVisibleCount, publicSourceLabel } from "./timeline2029.js";
+import { graphEdgeToUniversalFinding } from "./entityGraphFinding.js";
 import { buildWorldCards } from "../presentation/numberWorldCards.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
@@ -55,12 +56,26 @@ test("timeline: real href is preserved, never fabricated; inspect affordance coe
 
 test("Number World shows only live material", () => {
   const cards = buildWorldCards(
-    [{ id: "w1", label: "עולם א" }, { id: "w1b", label: "עולם ב", count: 3 }],
+    [{ id: "w0", label: "עולם ריק" }, { id: "w1", label: "עולם א", items: [{}] }, { id: "w1b", label: "עולם ב", count: 3 }],
     [{ id: "t1", title: "ריק" }, { id: "t2", title: "עם ראיות", sources: [{}] }, { id: "t3", title: "עם ספירה", items_count: 2 }],
   );
   assert.deepEqual(cards.map((c) => c.label), ["עולם א", "עולם ב", "עם ראיות", "עם ספירה"]);
-  assert.deepEqual(buildWorldCards([], [{ title: "ריק" }]), []);
+  assert.deepEqual(buildWorldCards([{ label: "ריק" }], [{ title: "ריק" }]), []);
   const src = read("../../components/number2029/NumberLivingWorld2029.jsx");
   assert.ok(!src.includes("עולם חי\""));
   assert.ok(src.includes("worldCards.length ? <section"));
+});
+
+test("graph relation projects /post/:slug only for post nodes with stored slug", () => {
+  const nodes = new Map([
+    ["1", { id: "1", type: "number", label: "631" }],
+    ["2", { id: "2", type: "post", label: "P", metadata: { slug: "my-post" } }],
+    ["3", { id: "3", type: "post", label: "Q", metadata: {} }],
+    ["4", { id: "4", type: "entity", label: "E", metadata: { slug: "nope" } }],
+  ]);
+  const rel = (to) => graphEdgeToUniversalFinding({ id: "e" + to, from_node: "1", to_node: to, relation_type: "mentions" }, nodes).projection.relations[0];
+  assert.equal(rel("2").to.href, "/post/my-post");
+  assert.equal(rel("3").to.href, null);
+  assert.equal(rel("4").to.href, null);
+  assert.equal(rel("2").from.href, null);
 });

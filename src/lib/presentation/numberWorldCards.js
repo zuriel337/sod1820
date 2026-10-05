@@ -23,7 +23,7 @@ export function liveEvidenceCount(row) {
   return LIVE_EVIDENCE_KEYS.reduce((sum, key) => sum + (Array.isArray(row[key]) ? row[key].length : 0), 0);
 }
 
-// Live-only: numberWorlds are the current projection; topic rows count only with attached live evidence.
+// Live-only: both numberWorlds and topic rows count only with attached live evidence/count.
 export function buildWorldCards(worlds, topics) {
   const seen = new Set();
   const rows = [];
@@ -41,7 +41,7 @@ export function buildWorldCards(worlds, topics) {
       raw: row,
     });
   };
-  for (const row of worlds || []) add(row, false);
+  for (const row of worlds || []) add(row, true);
   for (const row of topics || []) add(row, true);
   return rows.slice(0, 12);
 }

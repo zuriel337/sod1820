@@ -18,6 +18,12 @@ function edgeRef(id) {
   return id ? `edge:${id}` : null;
 }
 
+// Bounded href for an already-existing endpoint: only a post node with a stored slug.
+function postHref(node, metadata) {
+  const slug = node?.type === "post" ? clean(metadata?.slug) : "";
+  return slug ? `/post/${slug}` : null;
+}
+
 function projectedNodeContext(node) {
   const metadata = node?.metadata && typeof node.metadata === "object" ? node.metadata : {};
   const meter = Number(metadata.meter);
@@ -27,6 +33,7 @@ function projectedNodeContext(node) {
     type: node?.type || "entity",
     label: clean(node?.label) || (node?.id ? String(node.id) : ""),
     space: clean(metadata.space) || "core",
+    href: postHref(node, metadata),
     curation: Object.freeze({
       tier: clean(metadata.tier),
       role: clean(metadata.role),
