@@ -1,4 +1,4 @@
-// BENNETT_FINAL_RECONCILE_BRANCH_V3 (Post-visible scope) — static acceptance: public 2029 surfaces must not carry
+// PUBLIC_2029_LANGUAGE_CUTOVER_V1 — static acceptance: public 2029 surfaces must not carry
 // internal/research/developer labels in reader-visible copy; Heichal stays untouched.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -7,7 +7,16 @@ import fs from "node:fs";
 const PUBLIC_FILES = [
   "src/components/experience2029/SystemFrame2029.jsx",
   "src/components/layout/BottomBar.jsx",
+  "src/pages/Home2029Page.jsx",
+  "src/pages/World2029Page.jsx",
+  "src/pages/Posts2029Page.jsx",
   "src/pages/Post2029Page.jsx",
+  "src/pages/Number2029Page.jsx",
+  "src/pages/Topic2029Page.jsx",
+  "src/components/experience2029/ConvergenceGolden2029.jsx",
+  "src/components/experience2029/MistaterTensionGolden2029.jsx",
+  "src/components/experience2029/RegularVerseGolden2029.jsx",
+  "src/components/experience2029/TriangleMethodGolden2029.jsx",
 ];
 const FORBIDDEN = [
   "Research Path · ", "Context Inspector", "Contextual Sidecar", "Golden Journey", "Golden Preview",

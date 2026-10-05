@@ -251,7 +251,7 @@ function prominenceWhyLines(item) {
   const lines = [];
   if (why.uncertainty) lines.push("יש כאן אי־התאמה או שאלה שיכולה לשנות את ההבנה.");
   if (String(why.directness || "").includes("direct")) lines.push("הקשר ישיר לעוגן הנוכחי.");
-  if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת מנוע תואמת.");
+  if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת חישוב תואמת.");
   if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור או provenance מתועד.");
   if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים תלויים קובצו לפני בחירת העיקר.");
   if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי כ־Gold; זהו אות אוצרות, לא דירוג אמת.");
@@ -774,7 +774,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const creatorLabel = (value) => {
     if (!value) return "מקור לא צוין";
     if (value === "ai") return "AI";
-    if (value === "agent:sod1820") return "SOD1820 · Agent";
+    if (value === "agent:sod1820") return "SOD1820 · סוכן אוטומטי";
     return value;
   };
 
@@ -811,7 +811,7 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-world-discovery-sky" aria-hidden="true" />
       <div className="sod29-world-discovery-head">
         <div>
-          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · DISCOVERY WORLD</div>
+          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
           <h2>מה חדש בעולם?</h2>
           <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
         </div>
@@ -963,9 +963,9 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">CONVERGENCE INDEX · PUBLIC PROJECTION</div>
+          <div className="sod29-kicker">אינדקס ההתכנסויות</div>
           <h2>כל ההתכנסויות</h2>
-          <div className="sod29-muted">זהו קטלוג התצוגה הציבורי של התכנסויות מאושרות. הוא projection על חומר קיים — לא הכרזה שכל Topic היסטורי כבר הפך לזהות קנונית לפי חוק ההתכנסות החדש.</div>
+          <div className="sod29-muted">זהו קטלוג ציבורי של התכנסויות מאושרות, מתוך חומר קיים.</div>
         </div>
         <span className="sod29-chip">
           {allConvergences.total != null ? `${allConvergences.cards.length} מתוך ${allConvergences.total}` : `${allConvergences.cards.length} נטענו`}
@@ -1040,7 +1040,7 @@ function LiveWorldLanding({ research, shell, context }) {
       {landing.journey ? <div className="sod29-world-journey-invitation">
         <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
         <div className="sod29-world-journey-copy">
-          <span className="sod29-kicker">Golden Journey · פתוח בבנייה</span>
+          <span className="sod29-kicker">מסע · פתוח בבנייה</span>
           <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
           <p>{landing.journey.subtitle}</p>
           <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
@@ -1507,7 +1507,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     {goldenJourney ? <section className="sod29-section sod29-world-journey-rail" aria-label="מסע 878">
       <div className="sod29-world-journey-rail-head">
         <div>
-          <div className="sod29-kicker">Golden Journey · 878</div>
+          <div className="sod29-kicker">מסע · 878</div>
           <h2>{journeyIsActive ? "אתה בתוך מסע 878" : "מסע 878"}</h2>
           <p>878 הוא העוגן. כל שביל למטה מגיע מהתכנסות ציבורית קיימת שמכילה את 878 ומצביעה גם למספר נוסף.</p>
         </div>

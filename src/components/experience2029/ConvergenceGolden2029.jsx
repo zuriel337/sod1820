@@ -26,7 +26,7 @@ export default function ConvergenceGolden2029({ scene, motion }) {
 
   if(!valueNode||routes.length<2||routes.some((route)=>route?.ref?.engineTrace?.engine_verified!==true)){
     return <section className="sod29-convergence" dir="rtl" data-state="unverified" aria-live="polite">
-      <p>ממתין למסלולים מאומתים מהמנוע.</p>
+      <p>ממתין למסלולים מאומתים.</p>
     </section>;
   }
 
@@ -73,7 +73,7 @@ export default function ConvergenceGolden2029({ scene, motion }) {
     <header>
       <small>CONVERGENCE · שלושה מסלולים, נקודת מפגש אחת</small>
       <h2>{valueNode.label}</h2>
-      <p>כל מסלול מחושב בנפרד במנוע הקנוני. ההמחשה מחברת את התוצאות — היא אינה יוצרת אותן.</p>
+      <p>כל מסלול מחושב בנפרד. ההמחשה מחברת את התוצאות — היא אינה יוצרת אותן.</p>
     </header>
 
     <div className="sod29-convergence__stage">

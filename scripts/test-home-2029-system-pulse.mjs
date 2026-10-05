@@ -12,7 +12,7 @@ const og = read("api/og.js");
 
 assert.match(home, /data-experience-capability="home-system-pulse"/);
 assert.match(home, /דופק המערכת/);
-assert.match(home, /מה זז ב־SOD1820/);
+assert.match(home, /מה זז עכשיו/);
 assert.match(home, /ביטויים במאגר/);
 assert.match(home, /תרומות השבוע/);
 assert.match(home, /כותבים פעילים/);
@@ -52,7 +52,7 @@ assert.match(css, /@media\(max-width:620px\)/);
 assert.match(home, /buildCalculator2029FastPreview/);
 assert.match(home, /data-experience-capability="home-gematria-fast-core"/);
 assert.match(home, /תשע שיטות נדלקות מיד/);
-assert.match(home, /טרם אומת במנוע/);
+assert.match(home, /טרם אומת/);
 assert.match(home, /\/2029\/gematria\?q=/);
 assert.equal(/from "\.\.\/lib\/gematria\.js"/.test(home), false, "Home must not own a duplicate Gematria engine");
 
@@ -77,7 +77,7 @@ for (const forbiddenPublicCopy of ["מפגש", "מפגשים", "Connected Golden
 }
 assert.match(home, /התכנסויות ציבוריות/);
 assert.match(home, /גימטריה · חישוב מיידי/);
-assert.match(home, /שכבת התצוגה המהירה/);
+assert.match(home, /מיד תוך כדי הקלדה/);
 assert.equal(projection.includes('["קדמי", "kadmi"]'), false, "Home treasure projection must not expose internal קדמי label");
 assert.match(projection, /\["משולש", "kadmi"\]/);
 assert.equal(og.includes("רגיל · מסתתר · קדמי"), false, "Public OG copy must not expose internal קדמי label");

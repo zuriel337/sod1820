@@ -9,7 +9,7 @@ export default function TriangleMethodGolden2029({ scene }) {
 
   if(!subject||!verified||!["letter_potential_triangle","word_prefix_triangle"].includes(kind)){
     return <section className="sod29-triangle-method" dir="rtl" data-state="unverified" aria-live="polite">
-      <div className="sod29-triangle-method__result"><span>ממתין ל־trace קנוני מאומת</span></div>
+      <div className="sod29-triangle-method__result"><span>ממתין לאימות החישוב</span></div>
     </section>;
   }
 

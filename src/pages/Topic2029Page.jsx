@@ -142,7 +142,7 @@ const CURATION_LABELS = Object.freeze({
 });
 
 const SIGNAL_LABELS = Object.freeze({
-  engine_match: "אימות מנוע",
+  engine_match: "אימות חישובי",
   provenance_present: "מקור מתועד",
   decision_changing_negative_or_control: "דורש תשומת לב מחקרית",
   dependency_grouped_before_rank: "נורמל תלות",
