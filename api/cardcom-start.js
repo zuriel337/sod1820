@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import {
   SITE_ORIGIN,
+  bridgeSecret,
   cardcomConfig,
   createCardcomPayment,
   safeCardcomDescription,
@@ -108,10 +109,12 @@ export default async function handler(req, res) {
     // Register only after CardCom created a real LowProfileId, but before exposing the payment URL.
     // Therefore a charge cannot be completed through a page the site has not bound to this user/package.
     await supabaseRpc("cardcom_purchase_register", {
+      p_bridge_secret: bridgeSecret(),
+      p_user_id: user.id,
       p_package_id: packageId,
       p_provider_ref: providerRef,
       p_low_profile_id: lowProfileId,
-    }, token);
+    });
 
     res.status(200).json({
       ok: true,
