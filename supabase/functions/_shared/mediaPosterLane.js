@@ -25,6 +25,7 @@ export function posterPathForOriginal(originalPath) {
 //  - truncated=true means "more may exist" and next_cursor is where the next call must resume; truncated=false is the end.
 export const POSTER_SCAN_DEFAULTS = { limit: 10, maxDirs: 400, maxRequests: 1500, pageSize: 200 };
 
+/** @param {{ listDir: Function, limit?: number, maxDirs?: number, maxRequests?: number, pageSize?: number, cursor?: string | null }} opts */
 export async function findPendingPosters({ listDir, limit = 10, maxDirs = 400, maxRequests = 1500, pageSize = 200, cursor = null }) {
   const pending = [];
   let visited = 0, requests = 0, last = null;
