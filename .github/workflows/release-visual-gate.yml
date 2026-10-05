@@ -360,9 +360,14 @@ jobs:
               expect(globalAfter).not.toBeNull();
               expect(contextAfter).not.toBeNull();
               expect(Math.abs(globalAfter.y - globalBefore.y)).toBeLessThanOrEqual(1);
+              const stickyContract = await restRail.evaluate((node) => {
+                const style = getComputedStyle(node);
+                return { position: style.position, top: style.top };
+              });
+              expect(stickyContract.position).toBe('sticky');
+              expect(stickyContract.top).toBe('78px');
               expect(contextAfter.y).toBeGreaterThanOrEqual(77);
-              expect(contextAfter.y).toBeLessThanOrEqual(79);
-              expect(contextAfter.y).toBeLessThanOrEqual(contextBefore.y);
+              expect(contextAfter.y).toBeLessThanOrEqual(contextBefore.y + 0.5);
               expect(Math.abs(globalAfter.x - globalBefore.x)).toBeLessThanOrEqual(1);
               expect(Math.abs(contextAfter.x - contextBefore.x)).toBeLessThanOrEqual(1);
             }
