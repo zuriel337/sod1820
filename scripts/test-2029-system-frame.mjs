@@ -11,6 +11,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const compat = read("src/components/experience2029/Sod2029Shell.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
+const baseCss = read("src/components/experience2029/sod2029.css");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
@@ -185,6 +186,16 @@ assert.match(css, /--s29-global-rail-width:264px/);
 assert.match(css, /--s29-context-rail-width:286px/);
 assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
+
+// Typography V2 must be canonical on desktop too, not only in mobile overrides.
+assert.match(baseCss, /DESIGN_V2_CANONICAL_TYPOGRAPHY_ROOT/);
+assert.match(baseCss, /\.sod29-root\{font-family:var\(--s29-font-body\);font-size:var\(--s29-type-body,18px\)/);
+assert.match(baseCss, /\.sod29-sidebar,.sod29-header,.sod29-nav,.sod29-action,.sod29-root button,.sod29-root input\{font-family:var\(--s29-font-ui\)/);
+assert.match(baseCss, /\.sod29-page-intro h1[^\n]*font-size:clamp\(38px,4vw,var\(--s29-type-display,46px\)\)/);
+assert.match(baseCss, /\.sod29-page-intro p[^\n]*font-size:var\(--s29-type-body,18px\)/);
+for (const forbiddenLegacySize of ["font-size:9px", "font-size:10px", "font-size:11px", "font-size:12px", "font-size:12.5px", "font-size:13px", "font-size:13.5px"]) {
+  assert.equal(baseCss.includes(forbiddenLegacySize), false, `shared 2029 desktop CSS must not reintroduce Legacy small-site type: ${forbiddenLegacySize}`);
+}
 
 
 // Public-language projection: global chrome must not expose laboratory/Research OS jargon.
