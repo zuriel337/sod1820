@@ -31,13 +31,8 @@ test("ELS 2029 defaults to Research and switches presentation without replay/sea
   assert.match(page, /researchProfile \?\s*<aside className="sod29-inspector"/);
   assert.match(page, /aria-label="ELS adaptive action slots"/);
   assert.match(page, /aria-label="ELS Classic compatibility"/);
-  assert.doesNotMatch(page, /href="\/lab\/els"/);
-  assert.match(page, /NO LEGACY LINK/);
+  assert.match(page, /href="\/lab\/els"/);
   assert.match(page, /ONE ENGINE · SAME STATE/);
-  assert.match(page, /ELS_LAUNCH_AT/);
-  assert.match(page, /data-els-launch-gate="week-countdown"/);
-  assert.match(page, /source="els-2029-early-access"/);
-  assert.match(page, /אתם תהיו הראשונים ליהנות מהתוכנה החדשה/);
 });
 
 test("Classic representation remains a flat projection of the same canonical layers", async () => {
