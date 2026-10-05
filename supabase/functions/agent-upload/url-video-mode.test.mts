@@ -39,6 +39,7 @@ const pngSig = Uint8Array.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a,0,0,0,0]
   if (u === "https://storage.googleapis.com/bucket/final.mp4") return new Response(mp4, { status: 200, headers: { "content-type": MIME } });
   if (u === "https://storage.googleapis.com/bucket/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
   if (u === "https://media.descriptusercontent.com/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
+  if (u === "https://d1d3n03t5zntha.cloudfront.net/thumb.jpg") return new Response(Uint8Array.from([0xff,0xd8,0xff,0,0,0,0,0]), { status: 200, headers: { "content-type": "image/jpeg" } });
   if (u === "https://raw.githubusercontent.com/example/img.png") return new Response(pngSig, { status: 200, headers: { "content-type": "image/png" } });
   if (u === "https://raw.githubusercontent.com/example/v.mp4") return new Response(mp4, { status: 200, headers: { "content-type": MIME } });
   throw new Error("unexpected fetch " + u);
@@ -64,6 +65,9 @@ remoteMode = "ok";
 check("github host still works for video", (await postUrl("https://raw.githubusercontent.com/example/v.mp4")).status === 200);
 check("descript host is NOT allowed for image tickets", (await postUrl("https://media.descriptusercontent.com/img.png", T({ mime:"image/png", path:"x.png", sha256:null, max_bytes:100 }))).status === 403);
 check("image regression: github png still works", (await postUrl("https://raw.githubusercontent.com/example/img.png", T({ mime:"image/png", path:"x.png", sha256:null, max_bytes:100 }))).status === 200);
+check("exact Descript CloudFront thumbnail host allowed for image", (await postUrl("https://d1d3n03t5zntha.cloudfront.net/thumb.jpg", T({ mime:"image/jpeg", path:"x.jpg", sha256:null, max_bytes:100 }))).status === 200);
+check("Descript CloudFront thumbnail host remains blocked for video", (await postUrl("https://d1d3n03t5zntha.cloudfront.net/thumb.jpg")).status === 403);
+check("other CloudFront hosts remain blocked for image", (await postUrl("https://evil.cloudfront.net/thumb.jpg", T({ mime:"image/jpeg", path:"x.jpg", sha256:null, max_bytes:100 }))).status === 403);
 check("rejects descript subdomain-suffix lookalike", (await postUrl("https://evil.media.descriptusercontent.com/v.mp4")).status === 403);
 check("rejects descriptusercontent.com apex / sibling hosts", (await postUrl("https://other.descriptusercontent.com/v.mp4")).status === 403 && (await postUrl("https://descriptusercontent.com.evil.com/v.mp4")).status === 403);
 check("rejects http", (await postUrl("http://media.descriptusercontent.com/v/clip.mp4")).status === 403);

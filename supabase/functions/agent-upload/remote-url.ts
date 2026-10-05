@@ -15,6 +15,9 @@ const EXACT_HOSTS = new Set([
 // Exact hosts, no suffix wildcard: Descript time-limited direct media URLs and the exact
 // storage.googleapis.com host Descript redirects to. No googleapis.com suffix/subdomains.
 const VIDEO_EXACT_HOSTS = new Set(["media.descriptusercontent.com", "storage.googleapis.com"]);
+// Exact source-derived thumbnail host used by Descript share pages. Image-only: do not widen
+// CloudFront generally and do not allow this host for video tickets.
+const IMAGE_EXACT_HOSTS = new Set(["d1d3n03t5zntha.cloudfront.net"]);
 const VIDEO_MIMES = new Set(["video/mp4"]);
 
 const HOST_SUFFIXES = [
@@ -33,7 +36,7 @@ function normalizeHost(hostname: string) {
 export function remoteHostAllowed(hostname: string, mime = "") {
   const host = normalizeHost(hostname);
   if (VIDEO_MIMES.has(mime)) return VIDEO_EXACT_HOSTS.has(host) || EXACT_HOSTS.has(host) || HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
-  return EXACT_HOSTS.has(host) || HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
+  return IMAGE_EXACT_HOSTS.has(host) || EXACT_HOSTS.has(host) || HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
 }
 
 function checkedUrl(raw: string, mime: string, base?: URL): URL | null {
