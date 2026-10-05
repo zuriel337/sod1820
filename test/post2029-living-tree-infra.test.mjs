@@ -43,12 +43,12 @@ test("Post 2029 living-tree projection preserves source/derivative separation an
 test("Post 2029 page exposes stable semantic capability seams", () => {
   const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
   const media = readFileSync(new URL("../src/components/experience2029/PostEvidenceMedia2029.jsx", import.meta.url), "utf8");
-  const timeline = readFileSync(new URL("../src/components/experience2029/PostTimeline2029.jsx", import.meta.url), "utf8");
+  const timeline = readFileSync(new URL("../src/components/experience2029/Timeline2029.jsx", import.meta.url), "utf8");
   const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
 
   assert.match(page, /data-experience-surface="post-reading"/);
   assert.match(media, /data-experience-capability="post-source-media"/);
-  assert.match(timeline, /data-experience-capability="post-factual-timeline"/);
+  assert.match(timeline, /data-experience-capability="public-timeline"/);
   assert.match(frame, /sod29-command-trail/);
   assert.doesNotMatch(page, /PostContextTrail2029/);
 });
@@ -202,7 +202,8 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   assert.match(index, /data-experience-surface="posts-index"/);
   assert.match(index, /data-experience-capability="posts-index-hero"/);
   assert.match(index, /getPostsFromSupabase/);
-  assert.match(index, /Golden Preview/);
+  assert.doesNotMatch(index, /Golden Preview/);
+  assert.match(index, /הפוסטים האחרונים/);
 
   assert.match(post, /data-experience-capability="post-master-hero"/);
   assert.match(post, /data-experience-capability="post-master-reading-stage"/);

@@ -462,7 +462,8 @@ assert.ok(
   "researcher/content discovery must appear before internal admin tooling",
 );
 assert.match(world, /controlMode \? <section id="world-admin-tools"/);
-assert.match(world, /CONVERGENCE INDEX · PUBLIC PROJECTION/);
+assert.match(world, /כל ההתכנסויות/, "public World catalog must keep the reader-facing convergence heading");
+assert.equal(world.includes("CONVERGENCE INDEX · PUBLIC PROJECTION"), false, "public World must not expose internal projection vocabulary");
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
 assert.match(world, /topicFacet && selectedWriter/);
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
@@ -997,7 +998,8 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /DISCOVERY WORLD/);
+assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
+assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));

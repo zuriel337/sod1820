@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import Timeline2029 from "../experience2029/Timeline2029.jsx";
+import { numberTimelineToRows } from "../../lib/research/timeline2029.js";
 import {
   canonicalFindingKindPublicLabel,
   canonicalGraphRelationTitle,
@@ -303,7 +305,7 @@ export default function NumberLivingWorld2029({
     ["מתמטיקה", "number-math"],
     ["ביטויים", "number-expressions"],
     ["מקורות", "number-content-live"],
-    ["גילוי", "number-timeline-live"],
+    ["ציר הזמן", "number-timeline-live"],
     ["מסע", "number-journey-gate"],
     ["מחקר", "number-deep-view"],
   ];
@@ -324,7 +326,20 @@ export default function NumberLivingWorld2029({
   const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const expressionsShown = showAllExpressions ? expressionRows.slice(0, 30) : expressionRows.slice(0, 5);
   const sourcesShown = showAllSources ? sources.slice(0, 24) : sources.slice(0, 5);
-  const timelineShown = showAllTimeline ? timeline.slice(-20).reverse() : timeline.slice(-5).reverse();
+  const timelineRows = numberTimelineToRows(timeline, (item) => {
+    if (item?.relation) return canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId });
+    if (["image", "media"].includes(clean(item?.type))) return canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" });
+    return humanContentTitle(clean(item?.label), { max: 88 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type);
+  }).map((row, index, all) => {
+    const source = row.source || {};
+    return {
+      ...row,
+      focusType: source.relation ? "relation" : (source.type || source.kind || "entity"),
+      relationLabel: source.relation ? canonicalRelationPublicLabel(source.relation.relationType) : null,
+      note: [canonicalFindingKindPublicLabel(source.kind, source.type), source.status].filter(Boolean).join(" · ") || null,
+    };
+  });
+  const timelineShown = showAllTimeline ? timelineRows.slice(0, 20) : timelineRows.slice(0, 5);
 
   return <div className="sod29-lw" data-experience-capability="number-living-world">
     <SurfaceMapBar2029
@@ -571,32 +586,25 @@ export default function NumberLivingWorld2029({
       <div className="sod29-lw-people">{people.map((person) => <article key={person.name}><span>אדם / חוקר</span><strong>{person.name}</strong><small>{person.reason}</small></article>)}</div>
     </section> : null}
 
-    {timeline.length ? <section className="sod29-lw-section" id="number-timeline-live" data-experience-capability="number-timeline">
-      <SectionHead kicker="זמן וגילוי" title="ציר הגילוי" text="כאן רואים מתי חיבורים ומקורות נכנסו למערכת. זה אינו ציר האירועים בעולם, ולכן זמן ההוספה נשאר נפרד מזמן האירוע עצמו." />
-      <div className="sod29-lw-timeline">
-        {timelineShown.map((item, index) => {
-          const title = item?.relation
-            ? canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId })
-            : (["image","media"].includes(clean(item?.type))
-              ? canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" })
-              : humanContentTitle(clean(item?.label), { max: 88 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type));
-          const relationLabel = item?.relation ? canonicalRelationPublicLabel(item.relation.relationType) : null;
-          return <button type="button" className="sod29-lw-timeline-focus" key={item?.id || index} onClick={() => onFocusContext?.({
-            id: item?.id || `timeline-${index}`,
-            type: item?.relation ? "relation" : (item?.type || item?.kind || "entity"),
-            kicker: item?.relation ? "קשר פעיל" : "פריט פעיל",
-            label: title,
-            primary: title,
-            sectionLabel: "גילוי",
-            sourceLabel: "ציר הגילוי",
-            signals: [relationLabel, item?.at ? `נוסף · ${new Date(item.at).toLocaleDateString("he-IL")}` : null].filter(Boolean),
-            locator: "#number-timeline-live",
-          })}>
-            <time>{item?.at ? new Date(item.at).toLocaleDateString("he-IL") : "—"}</time><i /><span><strong>{title}</strong><small>{canonicalFindingKindPublicLabel(item?.kind, item?.type)}{item?.status ? ` · ${item.status}` : ""}</small></span>
-          </button>;
+    {timelineRows.length ? <section className="sod29-lw-section" id="number-timeline-live" data-experience-capability="number-timeline">
+      <Timeline2029
+        rows={timelineShown}
+        surface="number"
+        subtitle="מה נוסף למחקר סביב המספר ומתי. זמן ההוספה נפרד מזמן האירוע בעולם."
+        onSelect={(row) => onFocusContext?.({
+          id: row.id,
+          type: row.focusType,
+          kicker: row.relationLabel ? "קשר פעיל" : "פריט פעיל",
+          label: row.label,
+          primary: row.label,
+          sectionLabel: "ציר הזמן",
+          sourceLabel: "ציר הזמן",
+          signals: [row.relationLabel, row.dates ? `נוסף · ${row.dates.hebrew} · ${row.dates.gregorian}` : null].filter(Boolean),
+          locator: "#number-timeline-live",
         })}
-      </div>
-      {timeline.length > 5 ? <DepthButton onClick={() => setShowAllTimeline((value) => !value)}>{showAllTimeline ? "צמצם" : "פתח את ציר המחקר המלא"}</DepthButton> : null}
+      >
+        {timelineRows.length > 5 ? <DepthButton onClick={() => setShowAllTimeline((value) => !value)}>{showAllTimeline ? "צמצם" : "הצג את כל ציר הזמן"}</DepthButton> : null}
+      </Timeline2029>
     </section> : null}
 
     <section className="sod29-lw-section sod29-lw-about" id="number-about" data-experience-capability="number-about">

@@ -368,7 +368,7 @@ jobs:
             await expect(post.getByText('נפתלי בנט', { exact: false }).first()).toBeVisible();
             await expect(post.getByText('הבחירות', { exact: false }).first()).toBeVisible();
             await expect(post.getByText('מלך ישראל', { exact: false }).first()).toBeVisible();
-            const timeline = page.locator('[data-experience-capability="post-factual-timeline"]');
+            const timeline = page.locator('[data-experience-capability="public-timeline"][data-timeline-surface="post"]');
             await expect(timeline).toBeVisible();
             const sourceBox = await post.locator('.sod29-reading-source').boundingBox();
             const timelineBox = await timeline.boundingBox();

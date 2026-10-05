@@ -11,7 +11,7 @@ export default function MistaterTensionGolden2029({ scene }) {
 
   if(!expressionNode||!verified||!letters.length){
     return <section className="sod29-mistater-tension" dir="rtl" data-state="unverified" aria-live="polite">
-      <div className="sod29-mistater-tension__result"><span>ממתין ל־trace קנוני מאומת</span></div>
+      <div className="sod29-mistater-tension__result"><span>ממתין לאימות החישוב</span></div>
     </section>;
   }
 

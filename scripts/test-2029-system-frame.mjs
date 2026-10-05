@@ -228,7 +228,7 @@ for (const preferredPublicCopy of [
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
-assert.match(frame, /<small>פקודה<\/small>/);
+assert.ok(frame.includes(`surface === "heichal" ? "פקודה" : "חיפוש"`));
 assert.match(frame, /<small>פעולה<\/small>/);
 assert.match(frame, /<small>כלים<\/small>/);
 assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
@@ -49,8 +50,38 @@ export default function SurfaceContextRail2029({
         ? "מה מחובר עכשיו"
         : "הקשר פעיל";
   const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
-  const conceptKey = hasMethodContext ? "method" : hasNumber ? "anchor" : null;
+  // Post/Topic: REST orients (where am I, outward connections, pointer to in-body depth).
+  // Only an explicit expression FOCUS replaces it; reading alone never traces or calculates here.
+  const documentSurface = surface === "post" || surface === "topic";
+  const restMode = documentSurface && !hasMethodContext && subject?.type !== "gematria_expression";
+  const activeSection = sections.find((item) => item?.id === activeSectionId) || null;
+  const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
+  const research = useResearch();
+  const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
+  const focusedFinding = subject?.type === "finding";
+  const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
+    dimensions: { ...(context?.dimensions || {}), surfaceFocus },
+  });
+  const focusFinding = (finding) => setSurfaceFocus({
+    id: finding.id,
+    type: "finding",
+    sectionLabel: "חיבור נוסף",
+    label: finding.label,
+    primary: finding.label,
+    number: finding.value != null && /^\d+$/.test(finding.value) ? Number(finding.value) : undefined,
+    reason: finding.reason,
+    href: finding.href,
+    sourceLabel: finding.sourceLabel || finding.kind,
+  });
+  const restFromFinding = () => {
+    const reading = context?.dimensions?.readingFocus || {};
+    setSurfaceFocus({
+      id: reading.id, type: "post_region", sectionLabel: "הסיפור", label: reading.label,
+      primary: reading.primary, signals: reading.signals, number: reading.number ?? undefined,
+      sourceLabel: reading.sourceLabel, locator: reading.locator,
+    });
+  };
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
   useEffect(() => {
@@ -98,6 +129,11 @@ export default function SurfaceContextRail2029({
     });
   };
 
+  const jumpToDepth = () => {
+    const node = activeSection ? document.getElementById(activeSection.targetId || activeSection.id) : null;
+    node?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  };
+
   const tryLearn = () => {
     if (!conceptKey || !fragment || !hasNumber) return;
     const stage = hasMethodContext ? "tried" : "seen";
@@ -140,7 +176,8 @@ export default function SurfaceContextRail2029({
 
   return <>
     <ContextualInspector2029
-      className={`sod29-surface-context-rail${compact ? " is-compact" : ""}`}
+      className={`sod29-surface-context-rail${compact ? " is-compact" : ""}${restMode ? " is-rest" : documentSurface ? " is-focus" : ""}`}
+      data-context-rail-mode={documentSurface ? (restMode ? "rest" : "focus") : undefined}
       ariaLabel="ההקשר הפעיל"
       contextId={subject.id || subject.entityId || subject.locator || title}
       kicker={subject.kicker || defaultKicker}
@@ -162,8 +199,13 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
+      {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={jumpToDepth}>
+        <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
+        <b>{activeSection.label}</b>
+        <span aria-hidden="true">↓</span>
+      </button> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
-      {hasMethodContext ? <GematriaReveal2029
+      {restMode ? null : hasMethodContext ? <GematriaReveal2029
         compact
         selection={{
           expression: subject.expression,
@@ -191,6 +233,16 @@ export default function SurfaceContextRail2029({
         <p>{fragment.explain}</p>
         {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
+      {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
+      {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
+      {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
+        {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
+          <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>
+          <ul>{findings.map((finding) => <li key={finding.id}><button type="button" onClick={() => focusFinding(finding)}>
+            <span>{finding.label}</span>{finding.value ? <b>{finding.value}</b> : null}
+          </button></li>)}</ul>
+        </>}
+      </div> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>

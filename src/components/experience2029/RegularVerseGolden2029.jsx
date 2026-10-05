@@ -24,7 +24,7 @@ export default function RegularVerseGolden2029({ scene, verseSource }) {
 
   if(!expression||!verified||!letters.length||!sourceVerified){
     return <section className="sod29-regular-verse" dir="rtl" data-state="unverified" aria-live="polite">
-      <p>ממתין ל־trace קנוני ולמקור הפסוק.</p>
+      <p>ממתין לאימות החישוב ולמקור הפסוק.</p>
     </section>;
   }
 

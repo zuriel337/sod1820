@@ -40,7 +40,7 @@ function PostIndexCard({ post, index }) {
           {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
         </div> : null}
         <div className="sod29-post-index-visual-wash" />
-        {golden ? <span className="sod29-post-index-golden-mark">GOLDEN 2029</span> : null}
+        {golden ? <span className="sod29-post-index-golden-mark">מומלץ</span> : null}
       </div>
 
       <div className="sod29-post-index-copy">
@@ -65,7 +65,7 @@ export default function Posts2029Page() {
   useEffect(() => {
     applySeo({
       title: "פוסטים · SOD1820 2029",
-      description: "Golden Preview לאינדקס הפוסטים החדש של SOD1820.",
+      description: "אינדקס הפוסטים של SOD1820.",
       path: "/2029/posts",
       noindex: true,
     });
@@ -101,10 +101,10 @@ export default function Posts2029Page() {
               והדרך לעומק נשארת פתוחה בלי לערבב מקור עם פרשנות.
             </p>
           </div>
-          <div className="sod29-posts-index-orbit" aria-label="מצב Golden">
+          <div className="sod29-posts-index-orbit" aria-label="פוסטים מובילים">
             <strong>{goldenCount || "—"}</strong>
-            <span>Golden פעילים במדגם</span>
-            <small>העיצוב כאן הוא projection; אמת ופרסום נשארים אצל בעלי התוכן.</small>
+            <span>פוסטים מובילים</span>
+            <small>התצוגה כאן היא מבט על הפוסטים; התוכן נשאר של כותביו.</small>
           </div>
         </div>
       </header>
@@ -118,7 +118,7 @@ export default function Posts2029Page() {
       {state.posts.length ? <section className="sod29-posts-index-stage" aria-label="פוסטים">
         <div className="sod29-posts-index-stage-head">
           <span>{state.total ? `${state.total} פוסטים במקור` : "הפוסטים האחרונים"}</span>
-          <small>Golden Preview · האינדקס הציבורי /post עדיין Legacy עד cutover מפורש</small>
+          <small>הפוסטים האחרונים</small>
         </div>
         <div className="sod29-posts-index-grid">
           {state.posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
