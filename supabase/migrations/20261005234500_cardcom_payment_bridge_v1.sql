@@ -55,7 +55,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path to 'public','extensions'
-as $
+as $$
 declare
   v_pkg public.credit_packages%rowtype;
   v_id bigint;
