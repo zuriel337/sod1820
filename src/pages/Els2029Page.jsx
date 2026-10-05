@@ -11,9 +11,76 @@ import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.j
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
 const clean = (value) => String(value ?? "").trim();
+
+const ELS_LAUNCH_AT = Date.parse("2026-10-12T22:57:00+03:00");
+
+function countdownParts(now) {
+  const total = Math.max(0, ELS_LAUNCH_AT - now);
+  const seconds = Math.floor(total / 1000);
+  return {
+    days: Math.floor(seconds / 86400),
+    hours: Math.floor((seconds % 86400) / 3600),
+    minutes: Math.floor((seconds % 3600) / 60),
+    seconds: seconds % 60,
+  };
+}
+
+function ElsLaunchGate({ now }) {
+  const left = countdownParts(now);
+  const units = [
+    ["ימים", left.days],
+    ["שעות", left.hours],
+    ["דקות", left.minutes],
+    ["שניות", left.seconds],
+  ];
+
+  return <Sod2029Shell
+    wide
+    surface="els"
+    symbol="⌛"
+    eyebrow="ELS · NEW RELEASE"
+    title="הצופן החדש כמעט כאן"
+    description="אנחנו מסיימים את סביבת ELS החדשה. עוד שבוע נפתח את הדלת."
+  >
+    <section className="sod29-focus-stage" data-els-launch-gate="week-countdown">
+      <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto" }}>
+        <div aria-hidden="true" style={{ fontSize: "clamp(58px,10vw,104px)", lineHeight: 1, marginBottom: 16 }}>⌛</div>
+        <div className="sod29-kicker">ההשקה מתקרבת</div>
+        <h2 style={{ margin: "8px 0 10px" }}>אתם תהיו הראשונים ליהנות מהתוכנה החדשה</h2>
+        <p className="sod29-muted" style={{ maxWidth: 620, margin: "0 auto 22px" }}>
+          סביבת ELS החדשה נבנית על אותו מנוע קנוני, עם חוויה חדשה למחקר, הצלבות ורזיאל. השאירו אימייל ונעדכן אתכם כשהיא נפתחת.
+        </p>
+
+        <div
+          aria-label="ספירה לאחור להשקת ELS"
+          style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(72px,1fr))", gap: 10, maxWidth: 560, margin: "0 auto 28px" }}
+        >
+          {units.map(([label, value]) => <div key={label} className="sod29-state" data-state="ready" style={{ textAlign: "center" }}>
+            <b style={{ fontSize: "clamp(24px,5vw,42px)", fontVariantNumeric: "tabular-nums" }}>{String(value).padStart(2, "0")}</b>
+            <small>{label}</small>
+          </div>)}
+        </div>
+
+        <UpdatesBox
+          variant="panel"
+          source="els-2029-early-access"
+          title="רוצים להיות הראשונים שנכנסים?"
+          body="הירשמו כאן. נשלח לכם את העדכון ברגע שסביבת ELS החדשה תיפתח."
+          cta="רשמו אותי לעדכון הראשון →"
+          style={{ maxWidth: 620, margin: "0 auto" }}
+        />
+        <p className="sod29-muted" style={{ marginTop: 14, fontSize: 13 }}>
+          הגישה לעמוד ELS הישן הוסרה מכאן בתקופת ההשקה.
+        </p>
+      </div>
+    </section>
+  </Sod2029Shell>;
+}
+
 
 function StateRow({ label, value, state = "ready" }) {
   return <div className="sod29-state" data-state={state}>
@@ -72,6 +139,15 @@ export default function Els2029Page() {
     error: null,
   });
   const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
+  const [launchNow, setLaunchNow] = useState(() => Date.now());
+  const launchGateActive = launchNow < ELS_LAUNCH_AT;
+
+  useEffect(() => {
+    if (!launchGateActive) return undefined;
+    const timer = window.setInterval(() => setLaunchNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [launchGateActive]);
+
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -135,6 +211,10 @@ export default function Els2029Page() {
     return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="טוען את מצב היכולת הקנוני…">
       <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
+  }
+
+  if (launchGateActive) {
+    return <ElsLaunchGate now={launchNow} />;
   }
 
   if (elsState.blocked) {
@@ -263,10 +343,9 @@ export default function Els2029Page() {
           <span className="sod29-chip">ONE ENGINE · SAME STATE</span>
         </div>
         <div className="sod29-actions">
-          <a className="sod29-action" href="/lab/els">פתח Work Area קלאסי מלא</a>
-          <span className="sod29-chip">/lab/els · COMPATIBILITY</span>
+          <span className="sod29-chip">CLASSIC · SAME ENGINE · NO LEGACY LINK</span>
         </div>
-        <p className="sod29-muted" style={{ marginTop: 12 }}>ה־Work Area הוותיק נשאר זמין בזמן שהיכולות שלו נספגות בהדרגה במשטח 2029. הוא אינו הופך למנוע או מקור אמת נפרד.</p>
+        <p className="sod29-muted" style={{ marginTop: 12 }}>מצב קלאסי נשאר projection של אותו occurrence ואותו Research Context, בלי להפנות עוד לעמוד ה־Work Area הישן.</p>
       </section>}
     </section>
   </Sod2029Shell>;
