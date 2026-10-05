@@ -998,7 +998,8 @@ for (const oldCopy of [
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /DISCOVERY WORLD/);
+assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
+assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));
