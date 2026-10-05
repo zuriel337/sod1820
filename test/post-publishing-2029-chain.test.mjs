@@ -29,7 +29,13 @@ const factsOf = (over = {}) => ({
     video: { public_url: videoUrl, storage_path: sv.planned_storage_path, asset_id: sv.planned_asset_id, read_back: { ok: true, mime: "video/mp4", size: sv.original_size } },
     poster: { public_url: posterUrl, mime: "image/jpeg" },
   },
-  transcripts: [{ lang: "en", is_original: true }, { lang: "he", is_original: false }],
+  transcripts: [
+    { lang: "en", is_original: true },
+    { lang: "he", is_original: false }, { lang: "ar", is_original: false },
+    { lang: "es", is_original: false }, { lang: "fr", is_original: false },
+    { lang: "ru", is_original: false }, { lang: "pt", is_original: false },
+    { lang: "de", is_original: false },
+  ],
   ...over,
 });
 const run = (i, f) => preflightPost({ intent: i, facts: f, supabaseUrl: SB });
@@ -198,11 +204,21 @@ blocked(intentOf(), factsOf({ transcripts: [{ lang: "", is_original: true }] }),
   assert.deepEqual(mig, [], "no new SQL helper for the poster lane; ACL surface unchanged");
 }
 
-// 4. Translation requested but missing -> bounded continuation under video-transcribe (not a silent publish).
+// 4. Universal video translation default promoted from Dimension Five:
+// source transcript + ALL canonical target languages are mandatory, even if caller asks for less or opts out.
 {
   const r = run(intentOf(), factsOf({ transcripts: [{ lang: "en", is_original: true }] }));
   assert.equal(r.state, "CONTINUATION");
-  assert.deepEqual(r.continuations.map((c) => [c.code, c.owner, c.detail]), [["TRANSLATION_PENDING", "video-transcribe", "he"]]);
+  assert.deepEqual(
+    r.continuations.map((c) => [c.code, c.owner, c.detail]),
+    ["he", "ar", "es", "fr", "ru", "pt", "de"].map((lang) => ["TRANSLATION_PENDING", "video-transcribe", lang])
+  );
+  const cannotOptOut = run(
+    intentOf({ language_policy: { require_transcript: false, want_translations: [] } }),
+    factsOf({ transcripts: [{ lang: "en", is_original: true }, { lang: "he", is_original: false }] })
+  );
+  assert.equal(cannotOptOut.state, "CONTINUATION");
+  assert.deepEqual(cannotOptOut.continuations.map((c) => c.detail), ["ar", "es", "fr", "ru", "pt", "de"]);
 }
 
 // 5. STT: reused implementation, language never hardcoded.
