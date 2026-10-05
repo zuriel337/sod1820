@@ -223,6 +223,40 @@ Analytics may **not** automatically:
 
 Those changes route to existing owners and Human Gates.
 
+## 7.5 Surface coverage law for present + future 2029
+
+The evidence rail is not complete if it covers only routes that happen to exist today.
+
+Every surface/capability that reaches OPEN/Golden/Public must inherit the shared Launch Contract from `docs/2029-control-plane-attention-observability-plan-v1.md`.
+
+Coverage inventory includes both current and planned surfaces:
+
+- Home / Global Now;
+- World;
+- Posts / Post;
+- Topic / Convergence;
+- Books / Sources;
+- Number / Expression;
+- Gematria / Calculator;
+- ELS / Cipher;
+- Cipher Library + Cipher detail;
+- Heichal;
+- Journey;
+- Search / Command / Resolve;
+- Archive;
+- Video / Media;
+- Community;
+- Workspace / Personal Area;
+- public Person/User/Contributor pages;
+- Auth / Onboarding;
+- Researcher / Research Room / Dossier;
+- Raziel + tool executions;
+- Follow / Attention / Notifications;
+- Credits / Premium / Entitlements;
+- future Voice / Audio / Spatial / XR.
+
+A not-yet-built surface may be registered as BUILDING with an expected owner/route family and no invented metrics. Once implementation starts, launch acceptance must prove the common evidence envelope before OPEN/Golden.
+
 ## 8. Control Plane projection
 
 Add one unified Evidence / Analytics projection to the internal Control Plane, reusing owner-native data.
@@ -247,12 +281,17 @@ Required views:
 - visitors/sessions/views;
 - engagement/bounce/dwell/scroll;
 - journey funnels;
-- internal search and number intent;
+- internal search, number and cipher intent;
 - retention/return;
 - saves/shares/follows/signups;
 - errors/fallback/unavailable;
 - performance/cost/egress;
-- recommendation queue with evidence links.
+- release-SHA before/after;
+- Google Web / Discover / Image / Video / News / Google News where the source exposes data;
+- GA4 + first-party + Vercel Web Analytics trend comparison without denominator merging;
+- Clarity qualitative drill-out for session/heatmap evidence;
+- per-surface instrumentation coverage / missing-signal state;
+- Attention inbox + recommendation queue with owner/evidence links.
 
 The Control Plane is a projection, not a new analytics owner/store.
 
@@ -271,7 +310,18 @@ Use Legacy/current evidence to shape 2029:
 
 ## 10. Data-source expansion
 
-The first-party DB already supports the core loop. For richer external acquisition/language/search evidence, connect direct GA4 + Search Console data into the analysis layer when available. External analytics remain evidence sources, not canonical product state.
+The first-party DB already supports the core loop. External evidence should extend, not replace, it.
+
+Current/target expansion:
+
+- GA4 remains the quantitative external usage/acquisition source;
+- Search Console daily sync must expose Search-type identity rather than only the default Web slice: Web plus Discover/Image/Video/News/Google News where Google returns data;
+- Microsoft Clarity should initialize on the isolated 2029 runtime as well as Legacy/current runtime, while remaining a qualitative external evidence source rather than a product store;
+- Vercel Web Analytics may be shown as an independent comparison source when its server credential is configured;
+- Web Vitals/RUM remains first-party 2029 performance evidence;
+- external source unavailability/configuration gaps are visible in Control Plane, never converted to zero.
+
+External analytics remain evidence sources, not canonical product state.
 
 ## 11. Acceptance before calling the system “learning”
 
