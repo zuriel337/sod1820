@@ -204,7 +204,10 @@ function PostReadingBody() {
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
-  const heroNumbers = isBennettMaster
+  const isElectionsMaster = post.slug === "sharshar-elections-redemption-hints-draft";
+  const heroNumbers = isElectionsMaster
+    ? [631, 271, 2701, 1820, 26, 66]
+    : isBennettMaster
     ? [631]
     : isFz1073Master
       ? [363, 1073, 718]
@@ -518,14 +521,14 @@ function PostReadingBody() {
             {heroDate ? <span>{heroDate}</span> : null}
             {heroCategories.map((category) => <span key={category}>{category}</span>)}
           </div>
-          {!isBennettMaster && !isFz1073Master ? <div className="sod29-reading-integrity">
+          {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <div className="sod29-reading-integrity">
             <span>המקור נשמר כלשונו</span>
             <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
           </div> : null}
         </div>
 
         {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
+          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
               key={number}
@@ -536,10 +539,10 @@ function PostReadingBody() {
               aria-label={"בדוק את מספר " + number}
             >
               <strong>{number}</strong>
-              <small>{isBennettMaster || isFz1073Master ? "פתח" : "בדיקה מהירה"}</small>
+              <small>{isBennettMaster || isFz1073Master || isElectionsMaster ? "פתח" : "בדיקה מהירה"}</small>
             </button>)}
           </div>
-          <p>{isBennettMaster || isFz1073Master ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
+          <p>{isBennettMaster || isFz1073Master || isElectionsMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת באותו Contextual Sidecar ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
     </header>
