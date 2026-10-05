@@ -12,6 +12,7 @@
 // A bundle is produced ONLY when READY.
 
 import { canonicalMediaPath, isCanonical2029MediaPath, isCanonicalImagePath, isCanonicalVideoOriginalPath, posterPathForOriginal } from "./mediaPosterLane.js";
+import { TRANSLATE_CANON_LANGS } from "./videoTranscriptPolicy.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const RASTER_POSTER_MIMES = new Set(["image/jpeg", "image/png"]);
@@ -279,20 +280,29 @@ export function preflightPost({ intent = {}, facts = {}, supabaseUrl = "" }) {
     }
   }
 
-  // Transcript / translation state, only where requested. SOURCE != TRANSCRIPT != TRANSLATION.
+  // Transcript / translation state. SOURCE != TRANSCRIPT != TRANSLATION.
+  // Universal 2029 media default promoted from the Dimension Five Golden:
+  // every VIDEO must have one source-language original transcript plus every canonical translation
+  // from content_translation_law/video_transcription_law before publication can become READY.
+  // Caller policy may add targets, but it may never narrow/disable the universal video default.
   const lp = intent.language_policy || {};
+  const requestedTranslations = [...new Set([
+    ...(kind === "video" ? TRANSLATE_CANON_LANGS : []),
+    ...(Array.isArray(lp.want_translations) ? lp.want_translations.map(s).filter(Boolean) : []),
+  ])];
+  const transcriptRequired = kind === "video" || lp.require_transcript === true || requestedTranslations.length > 0;
   const rows = Array.isArray(facts.transcripts) ? facts.transcripts : [];
   const originals = rows.filter((r) => r.is_original);
   if (originals.length > 1) blockers.push(block("TRANSCRIPT_MULTIPLE_ORIGINALS", `${originals.length} is_original rows for one video_key; resolve to exactly one before publishing`));
   const original = originals.length === 1 ? originals[0] : undefined;
-  if (originals.length <= 1 && (lp.require_transcript || (lp.want_translations || []).length)) {
+  if (originals.length <= 1 && transcriptRequired) {
     if (!original) {
       continuations.push(cont("TRANSCRIPT_PENDING", "video-transcribe", "transcribe", "no original transcript row for this video_key"));
     } else if (!LANG_RE.test(s(original.lang))) {
       blockers.push(block("SOURCE_LANGUAGE_UNKNOWN", "original transcript has no valid language; declare it, do not default"));
     }
     if (original) {
-      for (const lang of lp.want_translations || []) {
+      for (const lang of requestedTranslations) {
         if (lang === original.lang) continue;
         if (!rows.some((r) => r.lang === lang && !r.is_original)) continuations.push(cont("TRANSLATION_PENDING", "video-transcribe", "translate", lang));
       }
