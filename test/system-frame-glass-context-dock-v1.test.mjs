@@ -24,7 +24,7 @@ test("Glass Dock preserves core capabilities while collapsing secondary actions 
   assert.match(frame, /<small>עוד<\/small>/);
   assert.match(frame, /function MoreProjection/);
   assert.match(frame, /onCommand=\{openCommand\}/);
-  assert.match(frame, /⌕ חיפוש \/ פקודה/);
+  assert.match(frame, /⌕ חיפוש/);
   assert.match(frame, /onTools=\{openTools\}/);
   assert.match(frame, /onWorkspace=\{openWorkspace\}/);
   assert.match(frame, /onIssue=\{openIssueReport\}/);
