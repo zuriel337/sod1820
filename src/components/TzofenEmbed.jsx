@@ -472,7 +472,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
       {/* 🔗 Research Bus — מסלול-Finding יחיד: המופע המדויק המוצג עכשיו → adapter → תיק-המחקר (cart).
           לא state-tick פסיבי — פעולת-משתמש מפורשת בלבד (research_bus_reconciliation, Pass 1). */}
-      {!hiddenBridge && hasAxisFinding && !gate && (
+      {(!hiddenBridge || !engineOnly) && hasAxisFinding && !gate && (
         <button
           type="button"
           onClick={addAxisFinding}
