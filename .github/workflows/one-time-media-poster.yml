@@ -12,7 +12,12 @@ jobs:
         with:
           node-version: "24"
       - name: Ensure ffmpeg
-        run: ffmpeg -version | head -1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -1
       - name: Run existing canonical media thumbnail worker
         env:
           FB_ADMIN_KEY: ${{ secrets.FB_ADMIN_KEY }}
