@@ -106,6 +106,21 @@ export async function fetchNumberHiddenCrossings(expression, methodProfile = [],
     .limit(250);
   if (error) throw error;
 
+  return deriveHiddenCrossings({ expression: phrase, methodProfile: profile, candidates: data, limit });
+}
+
+/**
+ * Pure hidden-crossing derivation (same-method only): a candidate qualifies only when it produces the SAME value
+ * as the expression under each listed method, and at least two methods remain after dependency/equivalence
+ * collapse. Anagrams are excluded. Cross-method equalities (A.method_X = B.method_Y) are never produced here.
+ */
+export function deriveHiddenCrossings({ expression = "", methodProfile = [], candidates = [], limit = 13 } = {}) {
+  const phrase = clean(expression);
+  const profile = (Array.isArray(methodProfile) ? methodProfile : [])
+    .filter((row) => row?.dbColumn && Number.isFinite(Number(row?.computedValue)));
+  const regular = profile.find((row) => row.methodKey === "רגיל" || row.displayLabel === "רגיל");
+  if (!phrase || /^\d+$/.test(phrase) || !regular) return [];
+  const data = candidates;
   const selfKey = hiddenCrossAnagramKey(phrase);
   const representative = buildEquivalenceRepresentative(profile, phrase);
   const rows = [];
@@ -245,8 +260,8 @@ export function deriveCrossings({ families = [], expression = "", root = null, m
           partner,
           root: Number(root),
           methods: Object.freeze([
-            { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root) },
-            { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root) },
+            { methodKey: active.methodKey, methodLabel: active.methodLabel, value: Number(root), owner: target },
+            { methodKey: partnerMethodKey, methodLabel: methodLabel(group), value: Number(root), owner: partner },
           ]),
           methodCount: 2,
           explainWhy: `${target} דרך ${active.methodLabel} ו־${partner} דרך ${methodLabel(group)} נפגשים ב־${root}. זו הצלבה חישובית בין שיטות בלתי־תלויות בהקשר הזה; המשמעות המחקרית נשארת נפרדת.`,
