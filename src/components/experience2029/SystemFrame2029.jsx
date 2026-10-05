@@ -1445,7 +1445,7 @@ export default function SystemFrame2029({
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+                    {context && surface !== "number" ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
                       {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
                       {context.lens ? <span>מבט · {context.lens}</span> : null}
                       {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
