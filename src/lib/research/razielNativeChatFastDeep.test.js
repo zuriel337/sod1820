@@ -31,7 +31,8 @@ test("edge raziel: deterministic-first precedes quota and model; explicit tier o
   const iQuota = razielBlock.indexOf("checkQuota(");
   const iModel = razielBlock.indexOf("callClaudeReliable(");
   assert.ok(iDet > 0 && iDet < iQuota && iQuota < iModel);
-  assert.match(razielBlock, /body\?\.intelligence_level \|\| ""\)\.toLowerCase\(\) === "fast"/);
+  // Phase D: fast/deep is a user REQUEST fed to the semantic selector, not absolute authority.
+  assert.match(razielBlock, /selectRazielIntelligence\(\{ plan: rPlanMeta, requested: body\?\.intelligence_level \}\)/);
   assert.match(razielBlock, /rFast \? FAST_MODEL : MODEL/);
   assert.doesNotMatch(razielBlock, /fn_raziel_model|routing_enabled|classif/);
 });

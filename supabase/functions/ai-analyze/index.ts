@@ -1,4 +1,5 @@
 import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
+import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -693,6 +694,12 @@ function razielPlanMeta(src: any): Record<string, unknown> | null {
   return {
     capability_class: c(src.capability_class), strategy: c(src.strategy), minimum_intelligence: c(src.minimum_intelligence, 30),
     availability: c(src.availability, 40), intent: c(src.intent ?? src.protocol?.intent, 40), reason: c(src.reason, 200),
+    // Phase D: semantic evidence for the L2/L3 selector only (route intent / cross-check / compare domains) — additive.
+    route_intent: c(src.intent_class ?? src.trace?.intent, 40),
+    cross_check_required: src.cross_checks?.required === true,
+    contradictory: src.cross_checks?.contradictory === true,
+    compare: src.compare === true,
+    domains: Array.isArray(src.domains) ? src.domains.slice(0, 4).map((d: unknown) => c(d, 40)).filter(Boolean) : null,
     executed: false,
   };
 }
@@ -1090,11 +1097,15 @@ Deno.serve(async (req: Request) => {
         }
       } catch { /* fail-open → מסלול Claude הישן */ }
 
-      // בחירת רמה = אך ורק לפי בקשת-הקורא המפורשת (intelligence_level="fast"). אין ניתוב חכם, אין הסלמה לפי tier.
-      //    ברירת-מחדל (כל הקוראים הקיימים) = עמוק. נקבע *אחרי* המסלול הדטרמיניסטי (0 טוקנים) ולפני מכסה/מודל.
-      const rFast = String(body?.intelligence_level || "").toLowerCase() === "fast";
+      // Phase D — minimum-sufficient intelligence (raziel_routing_law v2). intelligence_level=fast/deep is a USER REQUEST, not
+      //    authority: explicit deep may raise to ≥L3; explicit fast never lowers below the plan minimum. Selection uses semantic
+      //    plan metadata only (never tier/admin/length). L2_FAST→FAST_MODEL, L3_DEEP→MODEL. Decided AFTER the deterministic path
+      //    (0 tokens) and before quota/model. Smart routing stays OFF — this reads existing plan metadata only.
+      const rSel = selectRazielIntelligence({ plan: rPlanMeta, requested: body?.intelligence_level });
+      const rFast = rSel.selected_level === RAZIEL_LEVELS.L2;
       const rLevel = rFast ? "fast" : "deep";
       const rModel = rFast ? FAST_MODEL : MODEL;
+      const rSelMeta = { requested_level: rSel.requested_level, selected_level: rSel.selected_level, escalation_reason: rSel.escalation_reason };
       // מכסת-AI (ai_quota_law v3) — מהיר: אותו דפוס-מכסה מהיר הקיים (זהות :f · אנונימי 30 · מחובר 200 · אדמין ∞);
       //    עמוק: מסלול המכסה הרגיל/עמוק הקיים (3/15/100/אדמין ∞ לפי ai_quota_check).
       const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
@@ -1211,6 +1222,7 @@ Deno.serve(async (req: Request) => {
           capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
           owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2",
           intelligence_level: rLevel,
+          ...rSelMeta,
           provider: "anthropic",
           model: rModel,
           routing_reason: rMode ? "raziel_advanced" : "raziel_default",
@@ -1253,6 +1265,7 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
         if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2
         if (contract.continue_wa == null) contract.continue_wa = true;
         // Advanced-only additive fields — never present on the baseline persona="raziel" response,
@@ -1263,11 +1276,11 @@ Deno.serve(async (req: Request) => {
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
         if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-        return json({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        return json({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

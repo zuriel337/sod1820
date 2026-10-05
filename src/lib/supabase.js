@@ -1366,7 +1366,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     }
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
       return { v: 1, answer: data.analysis };
