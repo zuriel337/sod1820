@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
+import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
@@ -72,6 +73,9 @@ export default function Els2029Page() {
     error: null,
   });
   const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
+  // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
+  // and becomes the replayable 2029 selection; do not remount the tool on every context update.
+  const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -154,12 +158,16 @@ export default function Els2029Page() {
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">CURRENT RESEARCH CONTEXT</div>
-          <h2>{subject?.label ? "מחקר ELS סביב " + subject.label : "ELS מחכה להקשר מחקר"}</h2>
+          <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "CLASSIC 2029 · FULL TOOL"}</div>
+          <h2>{researchProfile
+            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "ELS מחכה להקשר מחקר")
+            : "הצופן הקלאסי · בתוך 2029"}</h2>
           <div className="sod29-muted">
-            {subject
-              ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
-              : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר. אין כאן חיפוש חופשי מומצא כשאין Anchor."}
+            {researchProfile
+              ? (subject
+                ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
+                : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר.")
+              : "אותו ממשק עבודה מוכר: חיפוש, מטריצת אותיות, הצלבות, המשך פסוק, סימוני הצבע בצד, שמירות ושיתוף. המעבר למחקר שומר את אותו ממצא בתוך אותו Research Context."}
           </div>
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
@@ -168,7 +176,7 @@ export default function Els2029Page() {
         </div>
       </div>
 
-      <div className="sod29-els-architecture">
+      {researchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
           <div style={{ width: "100%" }}>
             <div className="sod29-kicker">SEMANTIC LOCUS</div>
@@ -228,7 +236,35 @@ export default function Els2029Page() {
           <div className="sod29-divider" />
           <div className="sod29-muted">Evidence</div><b>קרבה חזותית אינה מעלה Truth או Independence</b>
         </aside> : null}
-      </div>
+      </div> : null}
+
+      <section
+        className="sod29-section"
+        aria-label="ELS Classic full workspace"
+        data-els-classic-2029="faithful-port-v1"
+        aria-hidden={researchProfile}
+        style={{ marginTop: 18, display: researchProfile ? "none" : "block", padding: 0, overflow: "hidden" }}
+      >
+        <div style={{ padding: "16px 18px 0" }}>
+          <div className="sod29-section-head">
+            <div>
+              <div className="sod29-kicker">CLASSIC · FAITHFUL PORT</div>
+              <h2>הממשק הקלאסי המלא</h2>
+              <div className="sod29-muted">המשך הפסוק · סימוני צבע בצד · חיפוש מוצלב · שמירות · שיתוף · אותה מטריצה. הכלי נשאר mounted גם במעבר למחקר, כדי לא לאבד את מצב העבודה.</div>
+            </div>
+            <div className="sod29-actions" style={{ flexWrap: "wrap" }}>
+              <span className="sod29-chip">ONE ENGINE</span>
+              <span className="sod29-chip">SAME STATE</span>
+              <span className="sod29-chip">NO LEGACY ROUTE</span>
+            </div>
+          </div>
+        </div>
+        {/* Faithful Classic presentation lives inside /els. The canonical tool emits governed state;
+            ResearchProvider converts that state to an exact-replay selection for the Research profile. */}
+        <div data-els-classic-tool="canonical-tzofen">
+          <TzofenEmbed seed={classicSeed || undefined} full />
+        </div>
+      </section>
 
       {researchProfile ?       <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
         <div className="sod29-section-head">
@@ -253,21 +289,7 @@ export default function Els2029Page() {
         <p className="sod29-muted" style={{ marginTop: 12 }}>
           Neighborhood / Axis Continuation נשמרים כאן כנקודות הרחבה בלבד. חוקי האינטליגנציה שלהם ייקבעו מאוחר יותר מתוך דוגמאות מחקר אמיתיות, בלי לחסום את G3.
         </p>
-      </section> : <section className="sod29-section" aria-label="ELS Classic compatibility" style={{ marginTop: 18 }}>
-        <div className="sod29-section-head">
-          <div>
-            <div className="sod29-kicker">CLASSIC · DIRECT 2D</div>
-            <h2>המטריצה הקלאסית נשמרת</h2>
-            <div className="sod29-muted">אותו occurrence ואותו Research Context נשארים פעילים. מצב קלאסי אינו מפעיל Raziel, עומק אדפטיבי או חיפוש נוסף.</div>
-          </div>
-          <span className="sod29-chip">ONE ENGINE · SAME STATE</span>
-        </div>
-        <div className="sod29-actions">
-          <span className="sod29-chip">CLASSIC · IN 2029</span>
-          <span className="sod29-chip">NO LEGACY HANDOFF</span>
-        </div>
-        <p className="sod29-muted" style={{ marginTop: 12 }}>התצוגה הקלאסית נשארת כחלק מאותו משטח 2029 ואותו occurrence מאומת. אין מעבר ל־Work Area הישן; יכולות שחסרות ייספגו כאן בהדרגה בלי ליצור מערכת ELS מקבילה.</p>
-      </section>}
+      </section> : null}
     </section>
   </Sod2029Shell>;
 }
