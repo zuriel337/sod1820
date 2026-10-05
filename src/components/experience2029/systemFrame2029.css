@@ -1297,7 +1297,7 @@
 }
 @keyframes sod29-glass-context-roll{
   0%,12%{transform:translateX(0)}
-  88%,100%{transform:translateX(-18%)}
+  88%,100%{transform:translateX(-42%)}
 }
 
 .sod29-glass-dock-action{
@@ -1387,8 +1387,7 @@
     border-radius:24px;
   }
   .sod29-glass-dock-wing{gap:3px}
-  .sod29-glass-dock-wing.is-context{grid-template-columns:minmax(0,1fr)}
-  .sod29-glass-dock-wing.is-context>.sod29-glass-dock-action{display:none}
+  .sod29-glass-dock-wing.is-context{grid-template-columns:minmax(0,1fr) 48px}
   .sod29-glass-dock-wing.is-system{grid-template-columns:repeat(2,48px)}
   .sod29-glass-context-capsule{height:48px;padding-inline:9px;border-radius:16px}
   .sod29-glass-context-mark{width:25px;height:25px}
