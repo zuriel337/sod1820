@@ -1,34 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
+import Timeline2029 from "./Timeline2029.jsx";
+import { buildPublicTimeline } from "../../lib/research/timeline2029.js";
 
-const ROLE_LABEL = Object.freeze({
-  occurred: "קרה",
-  published: "פורסם",
-  discovered: "נמצא",
-  admitted: "נוסף למחקר",
-});
-
-export default function PostTimeline2029({ items = [] }) {
-  if (!items.length) return null;
-  return <section
-    className="sod29-post-timeline"
-    data-experience-capability="post-factual-timeline"
-    aria-label="ציר הזמן"
-  >
-    <header>
-      <span>ציר הזמן</span>
-      <strong>מה פורסם · מה קרה · מתי</strong>
-    </header>
-    <ol>
-      {items.map((item) => <li key={item.id}>
-        <div className="sod29-post-timeline-dot" aria-hidden="true" />
-        <div>
-          <time dateTime={item.date}>{item.date}</time>
-          <span className="sod29-post-timeline-role">{ROLE_LABEL[item.temporalRole] || item.temporalRole}</span>
-          {item.href ? <a href={item.href}>{item.label}</a> : <strong>{item.label}</strong>}
-          {item.sourceLabel ? <small>{item.sourceLabel}</small> : null}
-          {item.note ? <p>{item.note}</p> : null}
-        </div>
-      </li>)}
-    </ol>
-  </section>;
+export default function PostTimeline2029({ items = [], currentHref = null }) {
+  const rows = useMemo(() => buildPublicTimeline(items, { currentHref }), [items, currentHref]);
+  return <Timeline2029 rows={rows} surface="post" />;
 }

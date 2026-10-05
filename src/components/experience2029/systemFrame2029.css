@@ -1020,3 +1020,12 @@
     padding-inline-end:0;
   }
 }
+
+/* Contextual Sidecar REST findings list / FOCUS finding */
+.sod29-surface-context-findings ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}
+.sod29-surface-context-findings li button,.sod29-surface-context-findings-back{
+  width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;
+  border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:start;
+}
+.sod29-surface-context-reason{color:var(--s29-ink);line-height:1.6;margin:0}
+.sod29-surface-context-deeplink{color:var(--s29-accent-text,inherit);font-weight:800}

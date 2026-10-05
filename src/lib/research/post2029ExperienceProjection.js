@@ -6,8 +6,15 @@ function normalizeMedia(raw = {}) {
   const source = raw && typeof raw === "object" ? raw : {};
   const highlight = source.highlight && typeof source.highlight === "object" ? source.highlight : null;
   const fullSource = source.fullSource && typeof source.fullSource === "object" ? source.fullSource : null;
+  const card = source.sourceCard && typeof source.sourceCard === "object" ? source.sourceCard : null;
   if (!highlight && !fullSource) return null;
   return {
+    sourceCard: card && clean(card.href) ? {
+      href: clean(card.href),
+      outlet: clean(card.outlet) || null,
+      title: clean(card.title) || null,
+      date: clean(card.date) || null,
+    } : null,
     highlight: highlight ? {
       src: clean(highlight.src),
       poster: clean(highlight.poster) || null,
@@ -58,6 +65,7 @@ function normalizeTimelineItem(item, index) {
     href: clean(item.href) || null,
     sourceLabel: clean(item.sourceLabel) || null,
     note: clean(item.note) || null,
+    current: item.current === true,
   };
 }
 
