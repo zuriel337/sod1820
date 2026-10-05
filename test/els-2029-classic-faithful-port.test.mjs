@@ -42,7 +42,8 @@ test("Native matrix renders only the governed matrix snapshot emitted by the can
   assert.match(nativeClassic, /mark\?\.type === "main"/);
   assert.match(nativeClassic, /mark\?\.type === "finding"/);
   assert.match(nativeClassic, /state\?\.verification\?\.state === "MATCH"/);
-  assert.match(css, /\.els29-native-matrix-row/);
+  assert.match(css, /\.els29-native-matrix\{[\s\S]*direction:rtl/);
+  assert.match(css, /\.els29-native-matrix-row\{[\s\S]*direction:rtl/);
   assert.match(css, /\.els29-native-cell\.is-axis/);
   assert.match(css, /\.els29-native-cell\.is-finding/);
 });
