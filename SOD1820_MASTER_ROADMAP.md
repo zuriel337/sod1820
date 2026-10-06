@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.8 COMPACT
+# SOD1820 — MASTER ROADMAP v6.9 COMPACT
 
-**Date:** 2026-10-04  
+**Date:** 2026-10-07  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -95,6 +95,14 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
+### Source-world completion timing after the 2026-10-07 corpus census
+
+- **Now / before the Posts Golden is accepted:** close only the selective identity/linkage repairs and exact source/provenance seams actually used by the Golden fixtures. The completed Zvi + Sod Hashmal maps are sufficient to proceed; do **not** deep-map the whole remaining world first.
+- **During G4, before the Cross-Surface Skeleton Golden and before any 2029 Public Cutover:** complete the three P0 source-boundary maps discovered by the census: **P0-A Legacy Published Posts family**, **P0-B non-Zvi Channel/WhatsApp source-occurrence + identity**, and **P0-C OpenWeb/community admission boundary**. Required closure is boundary/identity/provenance sufficient to prevent duplicate source authority, false evidence independence and wrong attribution on active Post/Topic/Number/World/Book/Source projections; it is **not** a requirement to deep-extract every legacy item.
+- **Before G4 closure:** any P0 corpus materially consumed by a Golden or public cross-surface projection must have owner-first lookup/reconciliation against existing Number/Entity/Convergence/Event/Source identities. An unresolved P0 source-identity/false-independence gap is a G4 blocker and must not be relabeled as G5 entitlement debt.
+- **G5+ may carry deferred P1/P2/P3 deep maps and selective admissions** for source works, contributor packs and long-tail references that no closed Golden/public journey depends on. The moment such a corpus becomes an active public/premium capability input, its source/provenance/admission boundary must close **before activation**; entitlement never hides a Truth/Source gap.
+- This timing creates no Corpus #3, tree, store or registry. It routes the census result through the existing Research Intake / Truth / Reality Graph owners and preserves One Tree.
+
 - After Posts passes, run one bounded **Cross-Surface Skeleton Golden** over the minimum public slice before cutover — representative path such as Home → World → Topic → Post → Book/Number → exact return. Acceptance must include an exact-return replay after a full page reload, an auth-expiry → sign-in → return transition, and the constrained-mobile / Contextual Inspector bottom-sheet path. Its purpose is to prove shared navigation/context/availability semantics across surfaces, not to require final World/Home artwork.
 - A **2029 Public Cutover** may occur only after both the Posts Golden and the Cross-Surface Skeleton Golden pass, the minimum public slice passes release/crawler/redirect/SEO checks, and ZURIEL explicitly authorizes the major cutover. At that point 2029 becomes the public face; unfinished destinations stay visibly BUILDING rather than falling back to Legacy UI.
 - After cutover, continue G4 with **World high-fidelity Golden second** and **Home high-fidelity Golden third**, reusing the same visual system while allowing G4 evidence to change composition/navigation presentation without changing semantic identity.
@@ -119,6 +127,8 @@ Golden acceptance also includes measured end-to-end performance on representativ
 ### G5 — Product / Entitlement Matrix
 
 Exact Free / Registered / Premium / Credits allocation after Goldens. Entitlement never changes truth quality.
+
+Deferred P1/P2/P3 corpus deep-mapping may continue in or after G5 when those corpora were not dependencies of closed G4 Goldens/public cutover. P0 source-boundary debt from the G4 source-world timing above is **not** deferrable into G5.
 
 ### G6 — English Golden Locale / multilingual projection acceptance
 
