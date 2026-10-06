@@ -16,7 +16,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
-  assert.match(nativeClassic, /data-els-native-classic="v2"/);
+  assert.match(nativeClassic, /data-els-native-classic="v3"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
   assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} />"));
   assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
@@ -42,6 +42,26 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(embed, /\(!hiddenBridge \|\| \(showResearchBusWhenHiddenBridge && !engineOnly\)\) && hasAxisFinding && !gate/);
   assert.match(nativeClassic, /showResearchBusWhenHiddenBridge/);
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
+});
+
+test("Native scope and simple cross search delegate to the canonical search path", () => {
+  assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
+  assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope: activeScope \}\)/);
+  assert.match(nativeClassic, /switchScope\("torah"\)/);
+  assert.match(nativeClassic, /switchScope\("tanakh"\)/);
+  assert.match(nativeClassic, /data-els-native-cross="simple"/);
+  assert.doesNotMatch(nativeClassic, /runCrossSimple\(|crossFindMulti\(|discoverVerified\(|tanakhLocked\(|canCross\(/);
+
+  assert.match(embed, /searchRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "native-search", request: searchRequest \}\)/);
+
+  assert.match(template, /function selectSearchScope\(nextScope,rerunCurrent\)/);
+  assert.match(template, /next==="tanakh"&&tanakhLocked\(\)/);
+  assert.match(template, /d\.type==="native-search"/);
+  assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
+  assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
+  assert.match(template, /run\(\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
 });
 
 test("Native matrix controls reuse the canonical Tzofen presentation helpers", () => {
