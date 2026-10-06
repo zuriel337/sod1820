@@ -65,15 +65,23 @@ export const PLACEMENT = Object.freeze({
 });
 
 const TYPE_SET = new Set(Object.values(EVENT_MEMBER_TYPE));
+// Source-observed numbers (flight number, visual NUMBER) are source facts: number + source_ref, no
+// Gematria receipt. Only Expression-valued members (date expression / expression match) need one.
+const SOURCE_NUMBER_TYPES = new Set([EVENT_MEMBER_TYPE.FLIGHT_NUMBER, EVENT_MEMBER_TYPE.NUMBER]);
 const RECEIPT_TYPES = new Set([
-  EVENT_MEMBER_TYPE.FLIGHT_NUMBER,
-  EVENT_MEMBER_TYPE.NUMBER,
   EVENT_MEMBER_TYPE.DATE_EXPRESSION,
   EVENT_MEMBER_TYPE.EXPRESSION_MATCH,
 ]);
 const VALUE_TYPES = new Set([EVENT_MEMBER_TYPE.DATE_EXPRESSION, EVENT_MEMBER_TYPE.EXPRESSION_MATCH]);
-const MISRATAR_KEYS = new Set(["misratar", "mistater"]);
+// Canonical Registry / gematria_method_trace method identities (live-verified: רגיל, מסתתר).
+// API JSON property aliases (ragil / misratar / regular ...) are NOT method identity.
+export const CANONICAL_METHOD_KEY = Object.freeze({
+  REGULAR: "רגיל",
+  MISTATER: "מסתתר",
+});
+const CANONICAL_METHOD_KEYS = new Set(Object.values(CANONICAL_METHOD_KEY));
 const RESERVED_CROSS_TIME_VALUE = 1202;
+const RESERVED_CROSS_TIME_SUBJECT = "oct7";
 
 const clean = (v) => (v == null ? null : String(v).trim() || null);
 const isInt = (v) => Number.isInteger(Number(v)) && v !== null && v !== "" && v !== true && v !== false;
@@ -117,6 +125,7 @@ function receiptGate(member, receipt) {
   if (!receipt || receipt.status === "error") return { ok: false, reason: "engine_receipt_missing" };
   const methodKey = clean(receipt.method_key);
   if (!methodKey) return { ok: false, reason: "engine_receipt_without_method" };
+  if (!CANONICAL_METHOD_KEYS.has(methodKey)) return { ok: false, reason: "engine_receipt_method_not_canonical" };
   if (clean(member.method_key) && methodKey !== clean(member.method_key)) return { ok: false, reason: "engine_receipt_method_mismatch" };
   if (clean(member.expression) && clean(receipt.input) && clean(receipt.input) !== clean(member.expression)) {
     return { ok: false, reason: "engine_receipt_input_mismatch" };
@@ -128,13 +137,41 @@ function receiptGate(member, receipt) {
   return { ok: true, reason: null };
 }
 
-// 1202 belongs to the Oct7 cross-time member only, and only with its own source. A 2026-date member
-// can never carry it (the live receipt for that date under misratar is 1182, which the receipt gate
-// above already enforces; this is the explicit second lock).
-function reservedValueGuard(member, value) {
+// 1202 belongs to the stable Oct7 cross-time subject only, with its own source and a canonical
+// מסתתר receipt. A 2026-date member can never carry it (the live receipt for that date under מסתתר
+// is 1182, which the receipt gate above already enforces; this is the explicit second lock).
+// An arbitrary cross_time subject does not admit 1202.
+function reservedValueGuard(member, value, receipt) {
   if (Number(value) !== RESERVED_CROSS_TIME_VALUE) return null;
-  const crossTime = member.scope === "cross_time" && clean(member.cross_time_subject) && clean(member.source_ref);
-  return crossTime ? null : "1202_reserved_for_sourced_oct7_cross_time_member";
+  const ok = member.scope === "cross_time"
+    && clean(member.cross_time_subject) === RESERVED_CROSS_TIME_SUBJECT
+    && clean(member.source_ref)
+    && clean(receipt?.method_key) === CANONICAL_METHOD_KEY.MISTATER;
+  return ok ? null : "1202_reserved_for_sourced_oct7_cross_time_member";
+}
+
+// Projection-time re-verification of a LEGACY research_objects row against a canonical receipt.
+// engine_verified=true alone never admits a row. The row is not mutated or copied; the receipt is
+// only overlaid on the projection verification, so the finding keeps the same source identity/id.
+function reverifyLegacyRow(row, receipt) {
+  const detail = row?.engine_detail && typeof row.engine_detail === "object" ? row.engine_detail : {};
+  const claimedValue = detail.claimed_value ?? row.value ?? null;
+  const gate = receiptGate({
+    expression: detail.claimed_expression,
+    method_key: detail.claimed_method,
+    claimed_value: claimedValue,
+  }, receipt);
+  if (!gate.ok) return { ok: false, reason: gate.reason };
+  if (claimedValue == null) return { ok: false, reason: "legacy_row_without_claimed_value" };
+  return {
+    ok: true,
+    verification: {
+      claimed_value: claimedValue,
+      engine_method_tested: clean(receipt.method_key),
+      engine_result: Number(receipt.result),
+      verification_state: "match",
+    },
+  };
 }
 
 function memberFinding(member, candidate, receipt, index) {
@@ -178,7 +215,7 @@ function memberFinding(member, candidate, receipt, index) {
       entityRef: null,
       relationRef: crossTime ? `cross_time:${clean(member.cross_time_subject)}` : null,
     },
-    verification: receipt ? {
+    verification: receipt && !isNumberType ? {
       claimed_expression: clean(member.expression),
       claimed_method: clean(member.method_key),
       claimed_value: member.claimed_value ?? null,
@@ -206,7 +243,9 @@ function memberFinding(member, candidate, receipt, index) {
         eventMemberType: type,
         eventCandidate: candidate.ref,
         crossTime: crossTime ? { subject: clean(member.cross_time_subject), historical_child_event: false } : null,
-        calendar: type === EVENT_MEMBER_TYPE.CALENDAR_RELATION ? { relation: clean(member.relation), holiday: clean(member.holiday) } : null,
+        calendar: type === EVENT_MEMBER_TYPE.CALENDAR_RELATION
+          ? { relation: clean(member.relation), holiday: clean(member.holiday), span_days: isInt(member.span_days) ? Number(member.span_days) : null }
+          : null,
         symbolic: type === EVENT_MEMBER_TYPE.SYMBOLIC_TRANSFORMATION ? {
           from: member.from ?? null, to: member.to ?? null, registered_gematria_method: false,
         } : null,
@@ -229,6 +268,8 @@ function reject(member, reason) {
  * @param {Array}  p.members          typed members (see EVENT_MEMBER_TYPE)
  * @param {Array}  p.researchObjects  existing research_objects rows (the FZ1073 input set)
  * @param {Function} p.receiptResolver (member) -> canonical gematria_method_trace-shaped receipt | null
+ * @param {Function} p.researchObjectReceiptResolver optional (row) -> canonical receipt | null, for
+ *        projection-time re-verification of legacy rows (read adapter; never mutates/copies the row)
  */
 export function compileEventObservation({
   candidate: declaration,
@@ -236,6 +277,7 @@ export function compileEventObservation({
   members = [],
   researchObjects = [],
   receiptResolver = null,
+  researchObjectReceiptResolver = null,
   accessDescriptor = null,
   locale = "he",
 } = {}) {
@@ -255,17 +297,29 @@ export function compileEventObservation({
   for (const row of roById.values()) {
     const base = researchObjectToUniversalFinding(row, { locale });
     if (!base) continue;
+    let finding0 = base;
     if (base.verification?.verification_state !== "match") {
-      roGated.push({ research_object_id: String(row.id), reason: "engine_verification_not_match" });
-      continue;
+      // Legacy rows (engine_verified=true, no explicit engine_detail.verification_state) are never
+      // inferred to match. Only a public row with a valid canonical re-verification receipt is admitted,
+      // through a projection-time overlay on the SAME identity. Restricted rows never reach the resolver.
+      let reverified = null;
+      if (typeof researchObjectReceiptResolver === "function" && clean(row.privacy_scope) === "public") {
+        reverified = reverifyLegacyRow(row, researchObjectReceiptResolver(row));
+      }
+      if (!reverified?.ok) {
+        roGated.push({ research_object_id: String(row.id), reason: reverified?.reason ? `legacy_reverification_failed:${reverified.reason}` : "engine_verification_not_match" });
+        continue;
+      }
+      finding0 = { ...base, verification: { ...base.verification, ...reverified.verification } };
     }
+    const base2 = finding0;
     const value = isInt(row.value) ? Number(row.value) : null;
     roFindings.push({
-      ...base,
+      ...base2,
       projection: {
-        ...base.projection,
-        anchors: [...base.projection.anchors, ...anchorsFor(candidate, value != null ? [{ space: "number", id: String(value) }] : [])],
-        dimensions: { ...base.projection.dimensions, eventMemberType: "source_observation", eventCandidate: candidate.ref },
+        ...base2.projection,
+        anchors: [...base2.projection.anchors, ...anchorsFor(candidate, value != null ? [{ space: "number", id: String(value) }] : [])],
+        dimensions: { ...base2.projection.dimensions, eventMemberType: "source_observation", eventCandidate: candidate.ref, legacyReverified: finding0 !== base },
       },
     });
   }
@@ -283,21 +337,27 @@ export function compileEventObservation({
     if (member.type === EVENT_MEMBER_TYPE.SYMBOLIC_TRANSFORMATION && (clean(member.method_key) || member.registered === true)) {
       rejected.push(reject(member, "symbolic_transformation_is_not_registered_gematria_method")); return;
     }
+    if (clean(member.method_key) && !CANONICAL_METHOD_KEYS.has(clean(member.method_key))) {
+      rejected.push(reject(member, "method_key_not_canonical")); return;
+    }
     let receipt = null;
-    if (RECEIPT_TYPES.has(member.type)) {
-      if (member.type === EVENT_MEMBER_TYPE.FLIGHT_NUMBER && !clean(member.expression)) {
-        // A flight number is a source-declared identifier, not an engine result.
-        if (!isInt(member.number)) { rejected.push(reject(member, "flight_number_without_number")); return; }
-      } else {
-        receipt = typeof receiptResolver === "function" ? receiptResolver(member) : null;
-        const gate = receiptGate(member, receipt);
-        if (!gate.ok) { rejected.push(reject(member, gate.reason)); return; }
+    if (SOURCE_NUMBER_TYPES.has(member.type)) {
+      // A source-observed Number / Flight Number is a source fact (number + source_ref), never an
+      // engine calculation. Expression != Number result: an expression belongs to EXPRESSION_MATCH.
+      if (clean(member.expression) || clean(member.method_key) || member.claimed_value != null) {
+        rejected.push(reject(member, "source_number_is_not_expression_result")); return;
       }
+      if (!isInt(member.number)) { rejected.push(reject(member, `${member.type}_without_number`)); return; }
+      if (!clean(member.source_ref)) { rejected.push(reject(member, `${member.type}_without_source_ref`)); return; }
+    } else if (RECEIPT_TYPES.has(member.type)) {
+      receipt = typeof receiptResolver === "function" ? receiptResolver(member) : null;
+      const gate = receiptGate(member, receipt);
+      if (!gate.ok) { rejected.push(reject(member, gate.reason)); return; }
     }
     const value = receipt ? Number(receipt.result) : null;
-    const guard = reservedValueGuard(member, value ?? member.claimed_value);
+    const guard = reservedValueGuard(member, value ?? member.claimed_value, receipt);
     if (guard) { rejected.push(reject(member, guard)); return; }
-    if (MISRATAR_KEYS.has(clean(member.method_key)) && member.scope === "cross_time" && !clean(member.source_ref)) {
+    if (receipt && member.scope === "cross_time" && !clean(member.source_ref)) {
       rejected.push(reject(member, "cross_time_member_requires_source")); return;
     }
     memberFindings.push(memberFinding(member, candidate, receipt, index));
