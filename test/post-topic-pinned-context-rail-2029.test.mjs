@@ -48,8 +48,9 @@ test("mobile keeps capability as cue/sheet, rail hidden", () => {
 test("REST -> FOCUS -> exact return semantics", () => {
   assert.match(rail, /restMode = documentSurface && !hasMethodContext && subject\?\.type !== "gematria_expression"/);
   assert.match(rail, /data-context-rail-mode=\{documentSurface \? \(restMode \? "rest" : "focus"\) : undefined\}/);
-  // FOCUS is the only place calculation/learn render; REST never traces by reading.
-  assert.match(rail, /restMode \? null : hasMethodContext \? <GematriaReveal2029/);
+  // FOCUS is the only place the bounded expression block renders; REST never traces by reading.
+  assert.match(rail, /restMode \? null : subject\.expression \? <div className="sod29-surface-context-expression"/);
+  assert.doesNotMatch(rail, /GematriaReveal2029/);
   assert.match(rail, /const conceptKey = restMode \? null/);
   // Exact return stays the existing returnTo owner; rail reads (not stores) section/focus.
   assert.match(frame, /returnExact/);
