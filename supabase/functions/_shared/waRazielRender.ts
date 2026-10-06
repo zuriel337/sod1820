@@ -131,3 +131,40 @@ export function isExplicitConfirmation(text: string): boolean {
   return CONFIRM_CUE.test(String(text || ""));
 }
 export const ACTION_CONFIRMATION_TEXT = "לפני שאעדכן משהו אצלך אני צריך אישור מפורש — לבצע? (כן / לא)";
+
+// ── Canonical continuation href (RAZIEL_CANONICAL_CONTINUATION_HREF_V1) ──────────────────────────────────────────────
+// A link is transported ONLY from a deterministic, owner-supplied href (current Research Context subject.href). Never parsed
+// from model prose, never minted, no route table, no fallback. Accepts a same-site relative path only; everything else → null.
+export function safeCanonicalHref(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const h = v.trim();
+  if (!h || h.length > 300) return null;
+  if (h[0] !== "/" || h[1] === "/" || h[1] === "\\") return null;       // relative to site root only (no //host, no scheme)
+  if (/[\\\s\u0000-\u001f\u007f<>"'`]/.test(h)) return null;          // backslash, whitespace, control chars, markup/quote chars
+  try {
+    const u = new URL(h, "https://canonical.invalid");
+    if (u.origin !== "https://canonical.invalid") return null;
+    if (h.split(/[?#]/)[0].split("/").some((seg) => { try { return decodeURIComponent(seg) === ".."; } catch { return true; } })) return null;
+  } catch { return null; }
+  return h;
+}
+
+// Server-side selection: continuation = current subject link. returnTo.href is an exact-return target and is never
+// substituted for it (nor derived from it). Source is surface_semantic.context only (owner-supplied by the site).
+export function continuationHrefFromSurface(surfaceSemantic: any): string | null {
+  const c = surfaceSemantic && typeof surfaceSemantic === "object" ? surfaceSemantic.context : null;
+  if (!c || typeof c !== "object" || Array.isArray(c)) return null;
+  return safeCanonicalHref(c.subjectHref);
+}
+
+// WhatsApp presentation: read ONLY the top-level server-set continuation_href (never data.raziel / analysis prose).
+export function whatsappContinuationLink(data: any, origin: string): string {
+  if (!data || typeof data !== "object") return "";
+  const href = safeCanonicalHref(data.continuation_href);
+  if (!href) return "";
+  try {
+    const o = new URL(origin);
+    if (o.protocol !== "https:") return "";
+    return o.origin + href;
+  } catch { return ""; }
+}

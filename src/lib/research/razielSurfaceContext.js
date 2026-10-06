@@ -18,6 +18,9 @@ export function buildRazielSurfaceContext(context) {
     if (Number.isInteger(context.journey.revisionNo)) j.revisionNo = context.journey.revisionNo;
     if (Object.keys(j).length) out.journey = j;
   }
+  // Existing normalized Research Context hrefs, carried verbatim (bounded). Never inferred/minted here; consumers
+  // validate before use. subject.href = current-subject link; returnTo.href (below) = exact-return target — distinct.
+  if (isObj(context.subject)) { const h = cap(context.subject.href, 300); if (h) out.subjectHref = h; }
   const dims = isObj(context.dimensions) ? context.dimensions : {};
   const f = isObj(dims.surfaceFocus) ? dims.surfaceFocus : null;
   if (f) {
@@ -49,6 +52,8 @@ export function buildRazielSurfaceContext(context) {
     const r = {};
     const label = cap(rt.label, 60);
     if (label) r.label = label;
+    const rtHref = cap(rt.href, 300);
+    if (rtHref) r.href = rtHref;
     if (isObj(rt.subject)) { for (const [k, n] of [["type", 30], ["id", 80], ["label", 80]]) { const c = cap(rt.subject[k], n); if (c) r[`subject${k[0].toUpperCase()}${k.slice(1)}`] = c; } }
     if (Object.keys(r).length) nav.returnTo = r;
   }

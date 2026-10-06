@@ -4,7 +4,7 @@
 // v47 behavior remains: Single-Mind Trunk Closure: metatron_context before each normal response.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
-import { renderWhatsappReply, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
+import { renderWhatsappReply, whatsappContinuationLink, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -674,6 +674,8 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
     await sendStaticFallback(chatId, quotedId, hasSource ? "" : opts.welcome);
     return { status: "refused_with_fallback" };
   }
+  const contLink = whatsappContinuationLink(data, SITE);   // deterministic server-set continuation_href only; never from prose
+  if (contLink) reply += "\n\n" + contLink;
   if (hasSource) reply += SOURCE_NOTICE;
   else if (opts.welcome) reply = opts.welcome + reply;
   const payload = { chatId, message: reply };
