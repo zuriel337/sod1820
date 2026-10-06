@@ -110,7 +110,7 @@ import {
 const BASE = 'https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/';
 const URL_A = `${BASE}2019/03/vath-mvshl-bkl.jpg`;
 const URL_B = `${BASE}2019/06/alvl-htshat.jpg`;
-const pub = { published: true, curator_hidden: false, min_tier: 0, curation_status: 'ok' };
+const pub = { published: 1, curator_hidden: false, min_tier: 0, curation_status: 'ok' };
 const A = [
   { id: '139f5db7', image_url: URL_A, wp_gallery_id: 29, primary_value: 1472, image_type: 'gematria', ocr_status: 'done', ocr_numbers: [1472] },
   { id: 'e8dccc13', image_url: URL_A, wp_gallery_id: 74, primary_value: 1472, image_type: 'gematria' },
@@ -183,7 +183,10 @@ test('non-strong URLs never merge, even with same filename/OCR/value', () => {
   assert.equal(out.artifactGroups.length, 0);
   assert.equal(out.unresolvedPlacements.length, rows.length);
   assert.equal(out.evidenceLineageCount, 0);
-  assert.ok(out.unresolvedPlacements.every((u) => u.independentEvidenceContribution === 0));
+  assert.ok(out.unresolvedPlacements.every((u) => u.dependencyClass === 'UNKNOWN'));
+  assert.ok(out.unresolvedPlacements.every((u) => !('independentEvidenceContribution' in u)));
+  assert.equal(out.strongArtifactLineageCount, 0);
+  assert.equal(out.unresolvedLineageCount, rows.length);
 });
 
 test('OCR stays extraction, non-fact, placement-scoped', () => {
@@ -208,4 +211,27 @@ test('hidden placement metadata is not lifted when caller filters it out', () =>
   assert.ok(!s.includes('HIDDEN') && !s.includes('999') && !s.includes('secret') && !s.includes('36805818'));
   assert.deepEqual(g.placementVariance.primaryValues, [1472]);
   assert.equal(g.placements[0].access.minTier, 0);
+});
+
+test('encoded separator inside an object segment is not a path separator', () => {
+  const enc = resolveGalleryArtifactIdentity(`${BASE}a%2Fb.jpg`);
+  const real = resolveGalleryArtifactIdentity(`${BASE}a/b.jpg`);
+  assert.equal(enc.resolved, true);
+  assert.equal(enc.key, 'storage://media/uploads/a%2Fb.jpg');
+  assert.notEqual(enc.key, real.key);
+});
+
+test('grouped and unresolved placements retain full filtered context', () => {
+  const rows = [
+    { ...A[0], name: 'N', related_post_id: 'p1', source: 'wp', ocr_text: 't' },
+    { id: 'u1', image_url: 'http://[bad', primary_value: 5 },
+  ];
+  const out = composeGalleryArtifactGroups(adm(rows));
+  const p = out.artifactGroups[0].placements[0];
+  assert.equal(p.placementContext.name, 'N');
+  assert.equal(p.historicalContext.relatedPostId, 'p1');
+  assert.equal(p.source.provenance.source, 'wp');
+  assert.equal(p.extraction.text, 't');
+  assert.equal(out.unresolvedPlacements[0].placementContext.primaryValue, 5);
+  assert.equal(out.unresolvedPlacements[0].source.ref, 'gallery_images:u1');
 });

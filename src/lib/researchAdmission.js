@@ -150,18 +150,14 @@ export function resolveGalleryArtifactIdentity(imageUrl) {
   if (objectPath.split('/').some((seg) => seg === '' || seg === '.' || seg === '..')) {
     return unresolved('unknown_storage_path');
   }
-  let decoded;
-  try {
-    decoded = decodeURIComponent(rest);
-  } catch {
-    return unresolved('malformed_or_relative_url');
-  }
+  // Keep the parser's canonical encoded pathname: decoding reserved bytes
+  // (e.g. %2F) would collapse distinct object keys into one identity.
   return {
     resolved: true,
     strength: 'STRONG_STORAGE_OBJECT',
-    key: `storage://${decoded}`,
+    key: `storage://${rest}`,
     bucket,
-    objectPath: decoded.slice(decoded.indexOf('/') + 1),
+    objectPath,
     originalUrl: original,
   };
 }
@@ -254,6 +250,20 @@ export function galleryImageToResearchAdmission(row = {}, context = {}) {
 // Groups ONLY by strong artifact identity. Not an access resolver: the caller
 // passes access-filtered input or an `isVisible(admission)` predicate; excluded
 // placements contribute nothing (no fields, no counts) to the output.
+// Full already-filtered placement context; no field is promoted to artifact truth.
+function projectPlacement(adm) {
+  return {
+    placementRef: adm.placementContext.placementRef,
+    primaryValue: adm.placementContext.primaryValue,
+    imageType: adm.placementContext.imageType,
+    access: adm.placementContext.access,
+    placementContext: adm.placementContext,
+    historicalContext: adm.historicalContext ?? null,
+    source: adm.source ?? null,
+    extraction: adm.extraction ?? null,
+  };
+}
+
 export function composeGalleryArtifactGroups(admissions = [], { isVisible = null } = {}) {
   const seen = new Set();
   const groups = new Map();
@@ -287,13 +297,7 @@ export function composeGalleryArtifactGroups(admissions = [], { isVisible = null
       dependencyClass: SAME_ARTIFACT_DEPENDENCY_CLASS,
       independentEvidenceContribution: 1,
       placementRefs: g.placements.map((p) => p.placementContext.placementRef),
-      placements: g.placements.map((p) => ({
-        placementRef: p.placementContext.placementRef,
-        primaryValue: p.placementContext.primaryValue,
-        imageType: p.placementContext.imageType,
-        access: p.placementContext.access,
-        extraction: p.extraction,
-      })),
+      placements: g.placements.map(projectPlacement),
       // Honest variance across placements; never elected into artifact truth.
       placementVariance: {
         isTruthConflict: false,
@@ -307,12 +311,16 @@ export function composeGalleryArtifactGroups(admissions = [], { isVisible = null
 
   return {
     artifactGroups,
+    // Unresolved identity = dependency UNKNOWN (not zero contribution); each
+    // placement stays separate and is never counted in a proven lineage total.
     unresolvedPlacements: unresolved.map((a) => ({
-      placementRef: a.placementContext.placementRef,
+      ...projectPlacement(a),
       reason: a.artifactIdentity?.reason ?? 'unresolved',
-      independentEvidenceContribution: 0,
+      dependencyClass: 'UNKNOWN',
     })),
     placementCount: seen.size,
+    strongArtifactLineageCount: artifactGroups.length,
+    unresolvedLineageCount: unresolved.length,
     evidenceLineageCount: artifactGroups.length,
   };
 }
