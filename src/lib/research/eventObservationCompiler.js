@@ -314,6 +314,10 @@ export function compileEventObservation({
   researchObjectReceiptResolver = null,
   accessDescriptor = null,
   locale = "he",
+  // Additive seam: already-built capabilityResult records from OTHER owners (e.g. governed System
+  // Method rule applications, admitted supporting sources) join the SAME bundle. Nothing is computed
+  // or copied here; the composition socket still applies its own access/outcome gates.
+  extraCapabilities = [],
 } = {}) {
   const candidate = resolveCandidate(declaration, post);
   const rejected = [];
@@ -442,6 +446,7 @@ export function compileEventObservation({
       semanticClass: SEMANTIC_CLASS.EVIDENCE,
       reason: roGated.length ? `${roGated.length} row(s) not engine-verified, withheld from findings` : null,
     }),
+    ...(Array.isArray(extraCapabilities) ? extraCapabilities : []),
   ];
 
   const bundle = composeResearchResultBundle({
