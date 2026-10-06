@@ -39,7 +39,8 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(embed, /width: "min\(1280px, calc\(100vw - 24px\)\)"/);
   assert.match(embed, /clipPath: "inset\(50%\)"/);
   assert.match(embed, /onGate\?\.\(d\)/);
-  assert.match(embed, /\(!hiddenBridge \|\| !engineOnly\) && hasAxisFinding && !gate/);
+  assert.match(embed, /\(!hiddenBridge \|\| \(showResearchBusWhenHiddenBridge && !engineOnly\)\) && hasAxisFinding && !gate/);
+  assert.match(nativeClassic, /showResearchBusWhenHiddenBridge/);
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
 });
 
