@@ -59,6 +59,10 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(template, /function selectSearchScope\(nextScope,rerunCurrent\)/);
   assert.match(template, /next==="tanakh"&&tanakhLocked\(\)/);
   assert.match(template, /d\.type==="native-search"/);
+  assert.match(template, /if\(!onboarded\(\)\)\{openOnboard\(\);postHost\(\{type:"onboarding-required"\}\);return;\}/);
+  assert.match(embed, /onOnboardingRequired = null/);
+  assert.match(embed, /d\.type === "onboarding-required"/);
+  assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => setClassicOpen\(true\)\}/);
   assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
   assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
   assert.match(template, /run\(\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
