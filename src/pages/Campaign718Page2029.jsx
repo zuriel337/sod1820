@@ -10,6 +10,7 @@ import "./campaign718-2029.css";
 
 const CAMPAIGN = "tiktok-melech-hamisparim";
 const DEFAULT_EXPRESSION = "חדשות";
+const FEATURED_NUMBER = 718;
 const CONVERGENCE = Object.freeze(["שביעי באוקטובר", "חדשות", "התשובה"]);
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 
@@ -168,8 +169,7 @@ export default function Campaign718Page2029() {
   };
 
   const unlocked = signupState === "unlocked" || signupState === "exists";
-  const verifiedNumber = Number.isFinite(Number(verified.value)) ? Number(verified.value) : null;
-  const numberPageHref = verifiedNumber != null ? `/number/${verifiedNumber}` : "/number";
+  const featuredNumberPageHref = `/number/${FEATURED_NUMBER}`;
 
   return (
     <main className="sod29-campaign718" style={themeVars} dir="rtl">
@@ -251,6 +251,12 @@ export default function Campaign718Page2029() {
           </div>
         ) : null}
 
+        <Link
+          className="sod29-campaign718-text-link"
+          to={`/2029/gematria?q=${encodeURIComponent(expression.trim() || DEFAULT_EXPRESSION)}`}
+        >
+          פתחו את מחשבון הגימטריה המלא ←
+        </Link>
       </section>
 
       <section className="sod29-campaign718-story">
@@ -336,11 +342,11 @@ export default function Campaign718Page2029() {
 
       <section className="sod29-campaign718-next">
         <div>
-          <span>רוצים להמשיך מהתוצאה שקיבלתם?</span>
-          <h2>{verifiedNumber != null ? `המשיכו לדף המספר ${verifiedNumber} באתר.` : "המשיכו לדף המספר באתר."}</h2>
+          <span>רוצים לראות את כל החיבורים של המספר?</span>
+          <h2>המשיכו לדף 718 באתר הרגיל.</h2>
         </div>
         <div className="sod29-campaign718-actions">
-          <Link to={numberPageHref}>{verifiedNumber != null ? `פתחו את דף ${verifiedNumber} ←` : "פתחו את דף המספר ←"}</Link>
+          <Link to={featuredNumberPageHref}>פתחו את דף 718 ←</Link>
         </div>
       </section>
 
