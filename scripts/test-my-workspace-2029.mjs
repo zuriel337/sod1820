@@ -24,6 +24,26 @@ assert.match(frame, /data-workspace-section="research"/);
 assert.match(frame, /שמירה · חזרה מדויקת/);
 assert.match(frame, /בבנייה/);
 
+
+/* Native 2029 account connection — reuses canonical AuthProvider/auth helpers, no legacy login handoff. */
+assert.match(frame, /function AccountConnection2029/);
+assert.match(frame, /requestEmailOtp/);
+assert.match(frame, /verifyEmailOtp/);
+assert.match(frame, /isValidEmailOtp/);
+assert.match(frame, /sanitizeEmailOtp/);
+assert.match(frame, /data-workspace-section="account"/);
+assert.match(frame, /אותו חשבון SOD1820 · בתוך 2029/);
+assert.match(frame, /התחברו כדי לקחת את המחקר איתכם/);
+assert.match(frame, /שלחו לי קוד כניסה/);
+assert.match(frame, /כניסה \/ הרשמה/);
+assert.match(frame, /signOut/);
+assert.match(frame, /onClick: openAccount/);
+assert.match(frame, /<AccountConnection2029 user=\{user\} profile=\{profile\} signOut=\{signOut\} \/>/);
+assert.doesNotMatch(frame, /AuthPage|goto?\("\/login/);
+assert.doesNotMatch(frame, /createClient\(/);
+assert.match(css, /\.sod29-workspace-account/);
+assert.match(css, /\.sod29-workspace-auth-form/);
+
 // Native 2029 workspace must not import or route into the legacy UserCenter as its target UI.
 assert.doesNotMatch(frame, /UserCenter/);
 assert.doesNotMatch(frame, /goto?\("\/profile/);
