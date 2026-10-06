@@ -1172,3 +1172,9 @@
 .sod29-raziel-chat-user { opacity: .8; }
 .sod29-raziel-chat-raziel { display: grid; gap: 2px; }
 .sod29-raziel-chat-raziel small { opacity: .65; }
+
+/* Date Context Inspector (sidecar lens) */
+.sod29-date-context { display: grid; gap: 12px; }
+.sod29-date-section h4 { margin: 0 0 4px; }
+.sod29-date-section ul { margin: 0; padding-inline-start: 18px; }
+.sod29-date-temporal { display: block; font-size: 0.85em; opacity: 0.8; }

@@ -31,6 +31,8 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import DateContextProjection2029 from "./DateContextProjection2029.jsx";
+import { resolveCommandRoute } from "../../lib/research/commandContextResolver2029.js";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
@@ -1474,6 +1476,13 @@ export default function SystemFrame2029({
 
   const submitCommand = useCallback((event) => {
     event?.preventDefault?.();
+    const route = resolveCommandRoute(commandQuery);
+    if (!route) return;
+    if (route.capability === "date") {
+      setCommandQuery("");
+      openCapability("date", route.target, { source: "command" });
+      return;
+    }
     const target = targetFromSelectedText(commandQuery);
     if (!target) return;
     setEphemeralSelection(target);
@@ -1584,6 +1593,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+      if (capability === "date") return <PanelShell {...common} icon="📅" kicker="תאריך" title={inspectTarget?.label || "תאריך"}><DateContextProjection2029 query={inspectTarget?.dateQuery || resolveCommandRoute(inspectTarget?.label)?.classification} locale={locale} onOpenExpression={(t) => { if (!t) return; setEphemeralSelection(t); openCapability("number", t, { source: "date-representation" }); }} onAskRaziel={openRaziel} go={go} /></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
