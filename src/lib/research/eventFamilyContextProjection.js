@@ -49,8 +49,10 @@ function memberRefOf(raw) {
   return id ? postRef(id) : null;
 }
 
-function overlayFinding(finding, familyKey, laneKey, memberRef) {
-  // SAME id / sourceIdentity: only the query-time projection overlay is added.
+function overlayFinding(finding, familyKey) {
+  // SAME id / sourceIdentity: only the query-time projection overlay is added. The overlay is
+  // context-neutral: a Finding may be relevant through many members/lanes, so lane/member context lives
+  // in bundle.finding_contexts[id] (an array), never as one member's lane on the Finding itself.
   const anchors = Array.isArray(finding.projection?.anchors) ? finding.projection.anchors : [];
   return {
     ...finding,
@@ -59,7 +61,7 @@ function overlayFinding(finding, familyKey, laneKey, memberRef) {
       anchors: [...anchors, { space: EVENT_FAMILY_ANCHOR_SPACE, id: familyKey }],
       dimensions: {
         ...(finding.projection?.dimensions ?? {}),
-        familyContext: { family_context_key: familyKey, lane: laneKey, member_ref: memberRef, query_time: true, is_identity: false },
+        familyContext: { family_context_key: familyKey, query_time: true, is_identity: false },
       },
     },
   };
@@ -85,7 +87,7 @@ export function composeEventFamilyContext({ family, root, lanes = [], relations 
 
   const members = [];
   const findingsById = new Map();
-  const findingMember = new Map();
+  const findingContexts = new Map();
   const seenRefs = new Set();
 
   const admit = (raw, laneKey, laneKind, order, isRoot) => {
@@ -120,10 +122,11 @@ export function composeEventFamilyContext({ family, root, lanes = [], relations 
     if (pack) {
       for (const f of pack.bundle.findings ?? []) {
         if (!findingAccessDecision(f, access, ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED).allowed) continue;
-        if (findingsById.has(f.id)) continue;
-        findingsById.set(f.id, overlayFinding(f, key, laneKey, mref));
-        findingMember.set(f.id, mref);
-        m.finding_ids.push(f.id);
+        // ONE Finding object per id; every visible member that carries it records its own context.
+        if (!findingsById.has(f.id)) findingsById.set(f.id, overlayFinding(f, key));
+        if (!findingContexts.has(f.id)) findingContexts.set(f.id, []);
+        findingContexts.get(f.id).push({ member_ref: mref, lane: laneKey, lane_kind: laneKind, is_root: isRoot, chronology_eligible: m.chronology_eligible });
+        if (!m.finding_ids.includes(f.id)) m.finding_ids.push(f.id);
       }
     }
     members.push(m);
@@ -228,7 +231,7 @@ export function composeEventFamilyContext({ family, root, lanes = [], relations 
     chronology,
     occurrence_evidence: occurrenceEvidence,
     findings,
-    finding_member: Object.fromEntries(findingMember),
+    finding_contexts: Object.fromEntries(findingContexts),
     counts: { members: publicMembers.length, findings: findings.length, lanes: laneOut.length },
     invariants: {
       family_is_not_event_post_or_graph_node: true,
@@ -278,7 +281,25 @@ export function selectEventFamilyForMember(bundle, memberRef) {
     outward: outwardFor(bundle, m.ref),
     finding_ids: m.finding_ids,
     root_ref: bundle.root?.ref ?? null,
+    ...(m.is_root ? { branches: laneSummariesOf(bundle) } : {}),
   };
+}
+
+const LANE_SUMMARY_REF_LIMIT = 8;
+
+// Root hub navigation only: derived from the already access-filtered bundle.lanes. Not graph truth, no edges.
+function laneSummariesOf(bundle) {
+  return bundle.lanes.map(l => ({
+    key: l.key,
+    kind: l.kind,
+    label: l.label,
+    chronology_eligible: l.chronology_eligible,
+    member_count: l.member_count,
+    member_refs: l.member_refs.slice(0, LANE_SUMMARY_REF_LIMIT),
+    member_refs_truncated: l.member_refs.length > LANE_SUMMARY_REF_LIMIT,
+    graph_truth: false,
+    navigation_only: true,
+  }));
 }
 
 /**
@@ -294,8 +315,9 @@ export function selectEventFamilyContext(bundle, surface, { number = null, membe
     const ids = new Set(memberRef ? (memberOf(bundle, memberRef)?.finding_ids ?? []) : []);
     pool = all.filter(f => ids.has(f.id));
   } else if (surface === EVENT_SURFACE.TIMELINE || surface === EVENT_SURFACE.DATE_EVENT) {
-    const chrono = new Set(bundle.members.filter(m => m.chronology_eligible || m.is_root).map(m => m.ref));
-    pool = all.filter(f => chrono.has(bundle.finding_member[f.id]));
+    // Eligible when ANY visible member context is chronology-eligible/root; a nonchronological context
+    // neither erases a valid chronological one nor admits a Finding on its own.
+    pool = all.filter(f => (bundle.finding_contexts[f.id] ?? []).some(c => c.chronology_eligible || c.is_root));
   } else pool = all.filter(f => hasAnchor(f, EVENT_FAMILY_ANCHOR_SPACE, bundle.family.context_key));
 
   const max = limitFor(surface, limit);

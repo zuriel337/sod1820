@@ -265,3 +265,75 @@ test("one temporal architecture: family and Nasrallah both import eventTemporalC
   assert.ok(!/applyMomentClockLaw/.test(read("eventFamilyContextProjection.js")));
   assert.equal((read("eventTemporalComposition.js").match(/applyMomentClockLaw\(/g) ?? []).length, 1);
 });
+
+// ---- REV1: many-to-many Finding context + root hub navigation ----
+const memberOfLane = (src, laneKey, postId) => src.lanes.find(l => l.key === laneKey).members.find(m => (m.source_ref ?? `post:${m.post_id}`) === `post:${postId}`);
+
+test("15 same Finding id in two visible members: ONE object, both finding_ids, both contexts, identity unchanged", async () => {
+  const shared = await nasrallahPack();
+  const src = await input();
+  // chronological (NORTH_LEBANON/97) + nonchronological (INTERPRETIVE_NUMERIC/149) carry the SAME pack
+  memberOfLane(src, "NORTH_LEBANON", 97).pack = shared;
+  memberOfLane(src, "INTERPRETIVE_NUMERIC", 149).pack = shared;
+  const b = composeEventFamilyContext({ ...src, ...PUB });
+  const srcIds = shared.bundle.findings.map(f => f.id);
+  assert.ok(srcIds.length > 0);
+  const m97 = b.members.find(m => m.ref === "post:97"), m149 = b.members.find(m => m.ref === "post:149");
+  for (const id of srcIds) {
+    assert.equal(b.findings.filter(f => f.id === id).length, 1, "one object per id");
+    assert.ok(m97.finding_ids.includes(id) && m149.finding_ids.includes(id));
+    // post:92 already carries this same pack in the Oct7 fixture, so it is a third visible context
+    assert.deepEqual(b.finding_contexts[id].map(c => c.member_ref).sort(), ["post:149", "post:92", "post:97"]);
+    const f = b.findings.find(x => x.id === id), o = shared.bundle.findings.find(x => x.id === id);
+    assert.deepEqual(f.identity, o.identity);
+    assert.equal(f.projection.dimensions.familyContext.lane, undefined, "overlay is context-neutral");
+    assert.equal(f.projection.dimensions.familyContext.member_ref, undefined);
+    assert.equal(f.projection.anchors.filter(a => a.space === "event_family_context").length, 1);
+    for (const ref of ["post:97", "post:149"]) assert.ok(select(b, EVENT_SURFACE.POST, { memberRef: ref }).finding_ids.includes(id));
+    assert.ok(select(b, EVENT_SURFACE.TIMELINE, { limit: 1000 }).finding_ids.includes(id), "chronological context keeps it eligible");
+  }
+  // solely nonchronological context never enters chronology
+  const only = await input({ privateIds: [92] }); // post:92 (chronological holder of the same pack) hidden
+  memberOfLane(only, "INTERPRETIVE_NUMERIC", 149).pack = shared;
+  const nb = composeEventFamilyContext({ ...only, ...PUB });
+  for (const id of srcIds) assert.ok(!select(nb, EVENT_SURFACE.TIMELINE, { limit: 1000 }).finding_ids.includes(id));
+});
+
+test("16 hiding one sharing member leaves only the visible context; no hidden ref leaks", async () => {
+  const shared = await nasrallahPack();
+  const src = await input({ privateIds: [92, 97] });
+  memberOfLane(src, "NORTH_LEBANON", 97).pack = shared; // hidden member (private tier); post:92 hidden too
+  memberOfLane(src, "INTERPRETIVE_NUMERIC", 149).pack = shared;
+  const b = composeEventFamilyContext({ ...src, ...PUB });
+  assert.ok(!b.members.some(m => m.ref === "post:97"));
+  const ids = shared.bundle.findings.map(f => f.id);
+  for (const id of ids) assert.deepEqual(b.finding_contexts[id].map(c => c.member_ref), ["post:149"]);
+  // Context/membership structures never name a hidden member (finding payloads may legitimately cite their
+  // own source refs, so they are not part of this check).
+  const ctx = dump([b.members, b.lanes, b.edges, b.finding_contexts, forMember(b, "post:233")]);
+  assert.ok(!ctx.match(/post:97|post:92/));
+  assert.equal(forMember(b, "post:97"), null);
+  assert.ok(!dump(select(b, EVENT_SURFACE.POST, { memberRef: "post:97" }).member ?? null).match(/post:97|post:92/));
+});
+
+test("17 root selection exposes navigation-only lane summaries (no new edges); private members shrink counts", async () => {
+  const b = await compose();
+  const edgesBefore = dump(b.edges);
+  const root = forMember(b, "post:233");
+  assert.deepEqual(root.branches.map(x => x.key), OCT7_LANES.map(l => l.key));
+  for (const br of root.branches) {
+    assert.equal(br.graph_truth, false);
+    assert.equal(br.navigation_only, true);
+    assert.equal(br.member_count, OCT7_LANES.find(l => l.key === br.key).post_ids.length);
+  }
+  assert.equal(root.branches.find(x => x.key === "CROSS_TIME").chronology_eligible, false);
+  assert.ok(root.outward.every(e => e.relation !== "branch"));
+  assert.equal(dump(b.edges), edgesBefore);
+  assert.equal(forMember(b, "post:92").branches, undefined);
+  const pub = await compose(PUB, { privateIds: [92, 94], tier92: "private" });
+  const north = forMember(pub, "post:233").branches.find(x => x.key === "NORTH_LEBANON");
+  assert.equal(north.member_count, 3);
+  assert.deepEqual(north.member_refs, ["post:104", "post:97", "post:5005"]);
+  assert.ok(!dump(forMember(pub, "post:233")).match(/post:92|post:94/));
+  assert.deepEqual(forMember(pub, "post:233").outward, forMember(b, "post:233").outward);
+});
