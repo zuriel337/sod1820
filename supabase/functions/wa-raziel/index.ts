@@ -210,22 +210,12 @@ async function savePersonalData(userRef, chatId, text) {
   } catch { /* noop */ }
 }
 
-async function metatronAlerted(phone) {
-  if (!phone) return true;
-  const since = new Date(); since.setUTCHours(0, 0, 0, 0);
-  const { data } = await sb.from("wa_bot_log").select("id").eq("sender", phone).eq("action", "raziel_metatron_alert").gte("created_at", since.toISOString()).limit(1).maybeSingle();
-  return !!data;
-}
-async function alertZuriel(phone, name, question, channel) {
-  try {
-    const p = String(phone || "").replace(/[^0-9]/g, "");
-    if (!p || p === ZURIEL.replace(/[^0-9]/g, "")) return;
-    if (await metatronAlerted(p)) return;
-    const q = (question || "").replace(/\s+/g, " ").trim().slice(0, 160);
-    const msg = `🔔 מטטרון · רזיאל ענה\n👤 ${name || "—"} (${p})\n💬 ${q || "—"}\n📍 ${channel}\n\nהתגובה נשלחה כרגיל. לניתוב/החלטה: ${SITE}/admin`;
-    await waAdmin("sendMessage", { chatId: ZURIEL, message: msg });
-    await logBot({ group_id: channel, msg_id: "metatron:" + p + ":" + Date.now(), sender: p, sender_name: name || "", text_in: q, reply_out: "[metatron-alert]", action: "raziel_metatron_alert" });
-  } catch { /* best-effort */ }
+// Raziel-activity notice: NO direct WhatsApp send. Opt-in admin:raziel_activity preference (default OFF) creates a
+// bounded user_notifications row (coarse channel only — no prompt, no name, no phone, no link); the unified
+// notification pipeline (user_notifications -> bot_outbox -> wa-system-outbox) decides delivery.
+async function alertZuriel(phone, _name, _question, channel) {
+  try { await sb.rpc("fn_raziel_activity_notify", { p_sender: String(phone || ""), p_channel: String(channel || "") }); }
+  catch { /* best-effort */ }
 }
 
 async function alreadyDone(msgId, action = "christina_auto") {

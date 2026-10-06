@@ -3,7 +3,8 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "./ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { ONBOARDING_GATES, gatesToTopics } from "../lib/notifications.js";
+import { ONBOARDING_GATES, gatesToTopics, ADMIN_NOTIFICATION_PREFS, mergeTopicsForSave, mergeChannelsForSave } from "../lib/notifications.js";
+import { useWaLink } from "../lib/userCenter/useWaLink.jsx";
 import { getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
 import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush, disablePush } from "../lib/push.js";
@@ -19,7 +20,11 @@ const INTENSITY = [
 
 export default function NotificationCenter() {
   const P = usePalette();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
+  const wa = useWaLink();
+  const [waOn, setWaOn] = useState(false);
+  const [adminTopics, setAdminTopics] = useState([]);
+  const [prefsRow, setPrefsRow] = useState(null); // topics/channels כפי שנטענו — לשמירה בלי לאבד Follow/ערוצים קיימים
   const [gates, setGates] = useState([]);
   const [intensity, setIntensity] = useState("normal");
   const [mutedUntil, setMutedUntil] = useState(null);
@@ -45,6 +50,9 @@ export default function NotificationCenter() {
           setIntensity(p.intensity || "normal");
           setMutedUntil(p.muted_until || null);
           setPushOn(Array.isArray(p.channels) && p.channels.includes("push"));
+          setWaOn(Array.isArray(p.channels) && p.channels.includes("whatsapp"));
+          setAdminTopics(t.filter(x => ADMIN_NOTIFICATION_PREFS.some(a => a.key === x)));
+          setPrefsRow({ topics: t, channels: Array.isArray(p.channels) ? p.channels : null });
         }
       } catch { /* noop */ }
       if (alive) setLoading(false);
@@ -58,8 +66,8 @@ export default function NotificationCenter() {
 
   // בונה את אובייקט הזהות + ה-row לשמירה (לפי הבחירה הנוכחית).
   function buildSave(extra = {}) {
-    const topics = gatesToTopics(gates);
-    const channels = pushOn ? ["email", "push"] : ["email"];
+    const topics = mergeTopicsForSave(prefsRow?.topics || [], { gates, adminTopics: isAdmin ? adminTopics : null });
+    const channels = mergeChannelsForSave(prefsRow?.channels, { push: pushOn, whatsapp: waOn, whatsappAllowed: wa.linked });
     return { userId: user.id, topics, channels, intensity, mutedUntil, email: user.email || profile?.email || null, ...extra };
   }
 
@@ -67,7 +75,9 @@ export default function NotificationCenter() {
     if (!user) return;
     setBusy(true); setMsg("");
     try {
-      await saveNotificationPrefs(buildSave());
+      const row = buildSave();
+      await saveNotificationPrefs(row);
+      setPrefsRow({ topics: row.topics, channels: row.channels });
       if (pushOn && pushReady) await enablePush({ userId: user.id, topics: gatesToTopics(gates) });
       setMsg("הזרם שלך עודכן ✦");
     } catch { setMsg("שגיאה בשמירה"); }
@@ -94,6 +104,8 @@ export default function NotificationCenter() {
     if (r.ok) { setPushOn(true); trackConversion("push_enabled", { source: "notification-center" }); }
     else setMsg(r.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל התראות כרגע");
   }
+
+  const toggleAdminTopic = (k) => { setMsg(""); setAdminTopics(a => a.includes(k) ? a.filter(x => x !== k) : [...a, k]); };
 
   if (!user) return null;
 
@@ -184,6 +196,38 @@ export default function NotificationCenter() {
               marginTop: 18, cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 999,
               border: `1px solid ${pushOn ? P.accent : P.borderStrong}`, background: pushOn ? soft : "transparent", color: pushOn ? P.accentText : P.accentDim,
             }}>🔔 התראות בדפדפן {pushOn ? "✓" : ""}</button>
+          )}
+
+          {/* וואטסאפ — ערוץ משלוח אופציונלי, רק לחשבון מקושר ומאומת. האתר נשאר בעל ההגדרות */}
+          {wa.linked && (
+            <button onClick={() => { setMsg(""); setWaOn(v => !v); }} style={{
+              marginTop: 18, marginInlineStart: pushReady ? 8 : 0, cursor: "pointer", fontFamily: F.heading, fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 999,
+              border: `1px solid ${waOn ? P.accent : P.borderStrong}`, background: waOn ? soft : "transparent", color: waOn ? P.accentText : P.accentDim,
+            }}>💬 התראות בוואטסאפ {waOn ? "✓" : ""}</button>
+          )}
+
+          {/* אדמין — העדפות מוגבלות על topics קיימים */}
+          {isAdmin && (
+            <>
+              <div style={sectionLabel}>התראות אדמין</div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {ADMIN_NOTIFICATION_PREFS.map(a => {
+                  const on = adminTopics.includes(a.key);
+                  return (
+                    <div key={a.key} onClick={() => toggleAdminTopic(a.key)} style={{
+                      cursor: "pointer", borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10,
+                      border: `1px solid ${on ? P.accent : P.borderStrong}`, background: on ? soft : P.cardSoft,
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: on ? P.accentText : P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>{a.label}</div>
+                        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 1 }}>{a.desc}</div>
+                      </div>
+                      <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{on ? "פעיל ✓" : "כבוי"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {msg && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, marginTop: 16 }}>{msg}</div>}
