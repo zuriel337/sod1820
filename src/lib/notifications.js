@@ -24,7 +24,7 @@ export const NOTIFICATION_TOPICS = [
 export const NOTIFICATION_CHANNELS = [
   { key: "email",    label: "מייל",         emoji: "📧", available: false, note: "הפעלה מפורשת בהמשך" },
   { key: "push",     label: "התראות דפדפן", emoji: "🔔", available: false, note: "בקרוב" },
-  { key: "whatsapp", label: "וואטסאפ",      emoji: "💬", available: false, note: "עתיד" },
+  { key: "whatsapp", label: "וואטסאפ",      emoji: "💬", available: false, note: "זמין רק לחשבון וואטסאפ מקושר" },
 ];
 
 export const DEFAULT_CHANNELS = [];
@@ -43,6 +43,32 @@ export const ONBOARDING_INTENTS = [
   { key: "signs",         emoji: "🔢", label: "לזהות רמזים וסימנים" },
   { key: "flow",          emoji: "⚡", label: "לקבל עדכונים חיים מהעולם" },
 ];
+
+// העדפות אדמין — מפתחות topic קיימים ב-notification_prefs בלבד (אין registry סמנטי חדש).
+// system_high = system_suggestions ממתינה בחומרה high/critical · raziel_activity = התראת פעילות מוגבלת (כבוי כברירת-מחדל).
+// admin:attention הוסר: אין לו producer מאומת עדיין — לא מוצג ולא ניתן לשמירה.
+export const ADMIN_NOTIFICATION_PREFS = [
+  { key: "admin:system_high",     label: "תקלת מערכת חמורה", desc: "הצעת מערכת ממתינה בחומרה גבוהה/קריטית" },
+  { key: "admin:raziel_activity", label: "פעילות רזיאל",     desc: "התראת פעילות מוגבלת — פעילות ראשונה משולח/שיחה ביום, לא כל תשובה. כבוי כברירת-מחדל" },
+];
+export const ADMIN_TOPIC_KEYS = ADMIN_NOTIFICATION_PREFS.map(a => a.key);
+const GATE_TOPIC_SET = new Set(ONBOARDING_GATES.flatMap(g => g.topics));
+
+// שמירת שערים בלי למחוק Follow ישיר: רק topics ששייכים לשערים מוחלפים; כל השאר (WatchButton, admin:*) נשמרים.
+export function mergeTopicsForSave(existing = [], { gates = [], adminTopics = null } = {}) {
+  const keep = (Array.isArray(existing) ? existing : []).filter(t => !GATE_TOPIC_SET.has(t) && !(adminTopics && ADMIN_TOPIC_KEYS.includes(t)));
+  const adm = adminTopics ? adminTopics.filter(t => ADMIN_TOPIC_KEYS.includes(t)) : [];
+  return [...new Set([...keep, ...gatesToTopics(gates), ...adm])];
+}
+
+// ערוצים: משנים רק push / whatsapp; email וכל ערוץ קיים אחר נשמרים. ברירת מחדל לשורה חדשה: ["email"].
+export function mergeChannelsForSave(existing = null, { push = false, whatsapp = false, whatsappAllowed = false } = {}) {
+  const base = Array.isArray(existing) && existing.length ? existing : ["email"];
+  const out = base.filter(c => c !== "push" && c !== "whatsapp");
+  if (push) out.push("push");
+  if (whatsapp && whatsappAllowed) out.push("whatsapp");
+  return [...new Set(out)];
+}
 
 // קבוצת שערים → רשימת נושאים ייחודית (union).
 export function gatesToTopics(gateKeys = []) {

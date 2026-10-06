@@ -1,5 +1,6 @@
 import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
+import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -557,7 +558,7 @@ function isInternalServiceRequest(req: Request): boolean {
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
   return !!SB_SVC && timingSafeEq(token, SB_SVC);
 }
-type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null };
+type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null; continuity: boolean; depth: boolean };
 async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedChannel | null> {
   const tc = body?.trusted_channel;
   if (!tc || typeof tc !== "object" || !isInternalServiceRequest(req)) return null;
@@ -572,7 +573,9 @@ async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedCh
   const m = tc.media;
   const media = uid && m && RAZIEL_UUID_V.test(String(m.contribution_id || "")) && RAZIEL_UUID_V.test(String(m.storage_object_id || ""))
     ? { contribution_id: String(m.contribution_id), storage_object_id: String(m.storage_object_id) } : null;
-  return uid ? { identity: `u:${uid}`, tier: "user", uid, media } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null };
+  const continuity = tc.continuity === true;   // adapter sets it only when the current message explicitly asks to continue earlier conversation
+  const depth = tc.depth === true;   // adapter sets it only on explicit depth intent in the current message; default = concise first answer
+  return uid ? { identity: `u:${uid}`, tier: "user", uid, media, continuity, depth } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null, continuity: false, depth };
 }
 
 // Multimodal source stage (derivative only). Runs BEFORE any numeric/gematria routing. The governed private media ref is
@@ -581,7 +584,9 @@ async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedCh
 const RAZIEL_SOURCE_MAX_BYTES = 5 * 1024 * 1024;
 const RAZIEL_SOURCE_SYSTEM =
   "אתה שלב קריאת-מקור חזותי. תאר בקצרה את סוג המקור (דף/צילום/כתב-יד/צילום-מסך וכו'), תמלל מילה במילה את הטקסט הקריא שבו, וסמן [לא קריא] היכן שאי אפשר. " +
-  "אל תחשב גימטריה ואל תפרש ואל תוסיף ידע חיצוני — רק מה שנראה במקור. עברית; אם יש כתב אחר — צטט כפי שהוא.";
+  "אל תחשב גימטריה ואל תפרש ואל תוסיף ידע חיצוני — רק מה שנראה במקור. עברית; אם יש כתב אחר — צטט כפי שהוא. " +
+  "הפרד במפורש בפלט שלוש שכבות: [קריא] מה שנראה בבירור; [לא בטוח] קריאה שאינה ודאית (ציין למה); [לא קריא]. " +
+  "אל תציג סמל/צורה/מילה כוודאיים אם אינם ברורים בתמונה, ואל תנחש שמות של אנשים — שם מופיע רק אם הוא כתוב בבירור במקור, ואז סמן אותו כציטוט מהמקור.";
 function b64(buf: Uint8Array): string {
   let s = "";
   for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
@@ -1866,6 +1871,9 @@ Deno.serve(async (req: Request) => {
       // below this block behaves exactly as before (rMode false ⇒ no plan, no surface block, kind="raziel").
       const rMode = String(body?.mode || "").toLowerCase() === "advanced";
       const rSurface = String(body?.surface || "").slice(0, 40);
+      // Canonical continuation link: deterministic, from the site-supplied Research Context subject.href only (validated). Never from model output.
+      const rCont = continuationHrefFromSurface(body?.surface_semantic);
+      const rzJson = (o: Record<string, unknown>, st?: number) => json(rCont ? { ...o, continuation_href: rCont } : o, st);
       const rSurfaceCtx = rMode && body?.surface_context && typeof body.surface_context === "object" ? body.surface_context : null;
       if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
 
@@ -1917,7 +1925,7 @@ Deno.serve(async (req: Request) => {
             }
             if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
               const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
-              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
+              return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
                 facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
                 deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null,
                 // Phase F: bounded tanakh_source contract (count/books/first/last/samples) passes through verbatim; no model call.
@@ -1927,7 +1935,7 @@ Deno.serve(async (req: Request) => {
             // Phase F: unsupported source phrase / no clean subject → fail closed with the deterministic clarification (no model, no guess).
             if (det && det.enabled === true && det.mode === "needs_clarification" && det.intent === "tanakh_source" && det.needs_synthesis === false) {
               const msg = [det.reason, det.recommendation].filter((s: unknown) => typeof s === "string" && s).join(" ");
-              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
+              return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
                 facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
                 deterministic: true, source_of_truth: null, trace: det.trace || null, source_result: null },
                 engine: "deterministic", model: "none", intelligence_level: "deterministic" });
@@ -1985,7 +1993,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -2000,7 +2008,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -2015,7 +2023,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), personal: opMeta, personal_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, personal: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -2057,7 +2065,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, outcome: nc.outcome } };
         if (nc.ok && rNcDesc.mode === "deterministic" && !rToolRes && nc.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
             follow_up_question: null, continue_wa: true, deterministic: true,
             source_of_truth: "reality_graph_law v8 · number_map + number_dossier_json", number_context: { number: nc.number, anchor: nc.anchor, counts: nc.counts } },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -2084,7 +2092,8 @@ Deno.serve(async (req: Request) => {
         fetchRazielPersona(rTrusted ? "wa" : "site"),
         userRef ? fetchRazielContext(userRef, rTrusted ? "wa" : "site") : Promise.resolve(null),
       ]);
-      const ctxText = razielContextText(ctx);
+      // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
+      const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
 
       // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
       //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
@@ -2122,7 +2131,7 @@ Deno.serve(async (req: Request) => {
         : "");
       const sourceText = rTrusted?.media
         ? (rSource?.ok
-          ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין):\n" + rSource.text + "\n"
+          ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין. בתשובה הפרד בבהירות בין: מה שנקרא בבירור מהמקור, קריאה לא בטוחה, ופרשנות שלך; אל תציג כוודאי דבר שסומן [לא בטוח]/[לא קריא]. פנה למשתמש בלשון ניטרלית — אל תקרא לו בשם ואל תסיק שם מטקסט המקור או מזיכרון; התמקד במקור ובשאלה הנוכחית בלבד. ענה בטקסט טבעי קצר בתוך שדה answer):\n" + rSource.text + "\n"
           : "\n\nהמשתמש שלח מקור (תמונה/מסמך) ונשמר פרטית וממתין למודרציה, אך קריאתו החזותית לא זמינה כרגע — אמור זאת בקצרה, אל תמציא תוכן ואל תנחש מה כתוב.\n")
         : "";
       const user =
@@ -2138,6 +2147,7 @@ Deno.serve(async (req: Request) => {
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
         ctxText +
+        (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "") +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
 
       const razielModelSpanId = crypto.randomUUID();
@@ -2224,11 +2234,11 @@ Deno.serve(async (req: Request) => {
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
         if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-        return json({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

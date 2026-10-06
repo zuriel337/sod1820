@@ -88,8 +88,8 @@ test("I-fix: World/Journey navigation values survive; visited capped to 6 safe i
   assert.equal(out.navigation.journeySemanticId, "js1");
   assert.equal(out.navigation.journeyRoot, "root");
   assert.deepEqual(out.navigation.selection, { entityType: "finding", entityId: "e1", findingId: "f1", sourceRef: "s1", locator: "l1" });
-  assert.deepEqual(out.navigation.returnTo, { label: "חזרה", subjectType: "post", subjectId: "p1", subjectLabel: "פוסט" });
-  assert.equal(JSON.stringify(out).includes("/back"), false);
+  assert.deepEqual(out.navigation.returnTo, { label: "חזרה", href: "/back", subjectType: "post", subjectId: "p1", subjectLabel: "פוסט" });
+  assert.equal(JSON.stringify(out).includes("/back"), true);   // CANONICAL_CONTINUATION_HREF_V1: returnTo.href is carried as a bounded representation field
 });
 
 test("I-fix: absent reading/navigation stays absent; unsafe integers dropped", () => {
