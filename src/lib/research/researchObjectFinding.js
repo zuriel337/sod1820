@@ -25,6 +25,27 @@ function verificationFrom(row) {
   };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Explicit PER-OBJECT attribution only (Research Intake §6.7: attribution is
+ * per-object and never inherited). Resolves only when the row itself carries
+ * BOTH meta.attribution_type and a structurally valid meta.contributor_id.
+ * Never inferred from row.contributor text, source, status, uploader/Human Gate,
+ * engine_verified or the source occurrence. Attribution is not part of identity.
+ */
+export function resolveExplicitAttribution(row) {
+  const meta = row?.meta && typeof row.meta === "object" ? row.meta : {};
+  const type = clean(meta.attribution_type);
+  const contributorId = clean(meta.contributor_id);
+  const validId = contributorId && UUID_RE.test(contributorId) ? contributorId.toLowerCase() : null;
+  return {
+    type,
+    contributorId: validId,
+    createdBy: type && validId ? `CONTRIBUTOR:${validId}` : null,
+  };
+}
+
 /**
  * Read-only projection of one durable research_objects row into the shared
  * Universal Finding envelope.
@@ -47,6 +68,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const promotedNodeId = clean(row.promoted_node_id);
   const terms = Array.isArray(row.terms) ? row.terms.filter(Boolean) : [];
   const presentation = resolveResearchObjectPresentation(row, { locale });
+  const attribution = resolveExplicitAttribution(row);
   const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
 
   return makeUniversalFinding({
@@ -89,7 +111,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       reason: null,
     },
     provenance: {
-      createdBy: null,
+      createdBy: attribution.createdBy,
       createdAt: row.created_at || undefined,
       inputRef: sourceRef,
     },
@@ -98,6 +120,9 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       relations: [],
       dimensions: {
         researchObjectKind: row.kind ?? null,
+        ...(attribution.type || attribution.contributorId
+          ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: Boolean(attribution.createdBy) } }
+          : {}),
         presentation: {
           requestedLocale: presentation.requestedLocale,
           resolvedLocale: presentation.resolvedLocale,
