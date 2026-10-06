@@ -1,4 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
+import { buildGoldenPostContextPack, goldenContextPackExpressions, GOLDEN_CONTEXT_PACK_METHOD } from "./goldenPostContextPacks.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
@@ -543,6 +544,20 @@ function defaultRegionsFromSource(content = "") {
   }));
 }
 
+// Golden Context Pack calculations come only from the live canonical Method Trace RPC; any
+// failure yields no calculation rows (fail-closed), never a client-side calculation.
+async function fetchGoldenPackTraces(postId) {
+  const phrases = goldenContextPackExpressions(postId);
+  const traces = await Promise.all(phrases.map(async (phrase) => {
+    try {
+      const { data, error } = await supabase.rpc("gematria_method_trace", { p_method_key: GOLDEN_CONTEXT_PACK_METHOD, p_phrase: phrase });
+      if (error) return null;
+      return Array.isArray(data) ? data[0] : data;
+    } catch { return null; }
+  }));
+  return traces.filter(Boolean);
+}
+
 export async function fetchPost2029ReadingProjection(slug) {
   const publicPost = await getPostBySlug(slug);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
@@ -610,6 +625,10 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
 
+  const contextPack = goldenContextPackExpressions(post.id).length
+    ? buildGoldenPostContextPack({ postId: post.id, traces: await fetchGoldenPackTraces(post.id) })
+    : null;
+
   return {
     version: "post-2029-reading-v1",
     post: presentationPost,
@@ -646,6 +665,7 @@ export async function fetchPost2029ReadingProjection(slug) {
           ? "האירוע המתועד, החישובים והפרשנות נשמרים כשכבות נפרדות. אין כאן טענת סיבתיות או עמדה פוליטית."
           : "שכבת ההקשר אינה חלק מדברי המקור.",
     experience,
+    contextPack,
   };
 }
 

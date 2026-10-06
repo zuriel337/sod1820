@@ -1,4 +1,5 @@
 import { buildSurfaceFindings } from "../lib/research/surfaceFindingsAdapter.js";
+import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -176,7 +177,7 @@ function PostReadingBody() {
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
         surfaceFindings: buildSurfaceFindings({
-          connections: state.projection.experience?.connections || [],
+          connections: mergeContextPackWithConnections(state.projection.contextPack, state.projection.experience?.connections || []),
           // The active focus is the focal object, not a "connection" to itself.
           exclude: (row) => row.id === activeFocus.id
             || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
