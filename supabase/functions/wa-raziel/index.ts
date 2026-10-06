@@ -4,6 +4,7 @@
 // v47 behavior remains: Single-Mind Trunk Closure: metatron_context before each normal response.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
+import { renderWhatsappReply, hasContinuityCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -616,7 +617,10 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
   if (!cleanText && !hasSource) return { status: "permanent_error" };
   const opTrace = await beginRazielTrace(chatId, cleanText || "[source]");
   const sender = String(chatId).replace("@c.us", "");
-  const dialogue = await recentDialogue(chatId, 6, quotedId);
+  // Context isolation: an attached source is answered from the source + the current ask only. Prior dialogue (and, in
+  // ai-analyze, personal memory) is added only when THIS message explicitly asks to continue earlier conversation.
+  const continuity = hasContinuityCue(cleanText);
+  const dialogue = hasSource && !continuity ? "" : await recentDialogue(chatId, 6, quotedId);
   const startedAt = new Date().toISOString();
   const spanId = crypto.randomUUID();
   let resp, data = null;
@@ -628,7 +632,7 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
         persona: "raziel", surface: "whatsapp",
         subject: (cleanText || "מקור שנשלח בוואטסאפ").slice(0, 300),
         context: dialogue ? ("שיחה קודמת בוואטסאפ:\n" + dialogue).slice(0, 600) : "",
-        trusted_channel: { channel: "whatsapp", sender, ...(hasSource ? { media: opts.source } : {}) },
+        trusted_channel: { channel: "whatsapp", sender, ...(hasSource ? { media: opts.source, continuity } : {}) },
       }),
     });
     data = await resp.json().catch(() => null);
@@ -658,28 +662,34 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
     await sendStaticFallback(chatId, quotedId, opts.welcome);
     return { status: "refused_with_fallback" };
   }
-  if (data?.degraded && !opts.lastAttempt) { await finishRazielTrace(opTrace, "failed_with_reason", "core_degraded"); return { status: "retryable_error" }; }
-  let reply = "";
-  if (data?.error === "quota" && data?.message) reply = String(data.message);
-  else if (data?.raziel?.answer) {
-    reply = String(data.raziel.answer).trim();
-    const fu = data.raziel.follow_up_question;
-    if (typeof fu === "string" && fu.trim()) reply += "\n\n" + fu.trim();
-  } else if (typeof data?.analysis === "string") reply = data.analysis.trim();
+  // Degraded = ai-analyze already exhausted its own provider retries (genuine transient failure): one bounded extra attempt.
+  if (data?.degraded && !opts.lastAttempt && opts.allowDegradedRetry) { await finishRazielTrace(opTrace, "failed_with_reason", "core_degraded"); return { status: "retryable_error" }; }
+  // A 200 response is paid-for: normalize its envelope locally (never raw JSON/fences to WhatsApp). An envelope that cannot
+  // be normalized fails closed to the short human fallback — no further paid model attempt solely because of response shape.
+  const reply0 = renderWhatsappReply(data);
+  let reply = reply0;
   if (!reply) {
     await finishRazielTrace(opTrace, "failed_with_reason", "core_empty");
-    if (!opts.lastAttempt) return { status: "retryable_error" };
-    await sendStaticFallback(chatId, quotedId, opts.welcome);
+    await sendStaticFallback(chatId, quotedId, hasSource ? "" : opts.welcome);
     return { status: "refused_with_fallback" };
   }
   if (hasSource) reply += SOURCE_NOTICE;
-  if (opts.welcome) reply = opts.welcome + reply;
+  else if (opts.welcome) reply = opts.welcome + reply;
   const payload = { chatId, message: reply };
   if (quotedId) payload.quotedMessageId = quotedId;
   const okId = await sendVerified(payload);
   if (!okId) await enqueueOutbox("raziel:" + (quotedId || chatId), chatId, reply, cleanText);
   await finishRazielTrace(opTrace, "success", okId ? null : "queued_outbox");
   return { status: "answered" };
+}
+async function sendSourceAck(chatId, phone, msgId, kind) {
+  try {
+    if (await alreadyDone(msgId, "raziel_dm_ack")) return;
+    const { data: got } = await sb.rpc("fn_raziel_claim", { p_key: "raziel:ack:" + msgId });
+    if (got === false) return;
+    const ok = await sendVerified({ chatId, message: kind === "document" ? SOURCE_ACK_TEXT_DOC : SOURCE_ACK_TEXT, quotedMessageId: msgId });
+    await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM", text_in: "[source-ack]", reply_out: ok ? "[ack-sent]" : "[ack-failed]", action: "raziel_dm_ack" });
+  } catch (e) { trace.push({ step: "source_ack", e: String(e) }); }
 }
 async function sendStaticFallback(chatId, quotedId, welcome) {
   const msg = (welcome || "") + "לא הצלחתי לענות על זה כרגע — נסה שוב בעוד רגע. 🌳\n— רזיאל · סוד 1820";
@@ -999,7 +1009,10 @@ async function handleAllDMs(nowSec, policy) {
         continue;
       }
     } else if (media && clean(text).length < 1) { await releaseClaim(); continue; }   // unlinked/captionless media: ignore
-    const res = await razielCoreRespond(text, chatId, msgId, { welcome, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES, source });
+    // ACK UX (transport only): source ingested+bound, expensive core call next. Deterministic text, no model/token use,
+    // one per msg_id (claim + log guard) so retries of the same message never repeat it.
+    if (source) await sendSourceAck(chatId, phone, msgId, media.kind);
+    const res = await razielCoreRespond(text, chatId, msgId, { welcome: source ? "" : welcome, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES, allowDegradedRetry: priorRetries < 1, source });
     const nm = linked ? "DM" : "DM-anon";
     if (res.status === "retryable_error") {
       await releaseClaim();

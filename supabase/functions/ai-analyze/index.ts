@@ -557,7 +557,7 @@ function isInternalServiceRequest(req: Request): boolean {
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
   return !!SB_SVC && timingSafeEq(token, SB_SVC);
 }
-type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null };
+type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null; continuity: boolean };
 async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedChannel | null> {
   const tc = body?.trusted_channel;
   if (!tc || typeof tc !== "object" || !isInternalServiceRequest(req)) return null;
@@ -572,7 +572,8 @@ async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedCh
   const m = tc.media;
   const media = uid && m && RAZIEL_UUID_V.test(String(m.contribution_id || "")) && RAZIEL_UUID_V.test(String(m.storage_object_id || ""))
     ? { contribution_id: String(m.contribution_id), storage_object_id: String(m.storage_object_id) } : null;
-  return uid ? { identity: `u:${uid}`, tier: "user", uid, media } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null };
+  const continuity = tc.continuity === true;   // adapter sets it only when the current message explicitly asks to continue earlier conversation
+  return uid ? { identity: `u:${uid}`, tier: "user", uid, media, continuity } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null, continuity: false };
 }
 
 // Multimodal source stage (derivative only). Runs BEFORE any numeric/gematria routing. The governed private media ref is
@@ -581,7 +582,9 @@ async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedCh
 const RAZIEL_SOURCE_MAX_BYTES = 5 * 1024 * 1024;
 const RAZIEL_SOURCE_SYSTEM =
   "אתה שלב קריאת-מקור חזותי. תאר בקצרה את סוג המקור (דף/צילום/כתב-יד/צילום-מסך וכו'), תמלל מילה במילה את הטקסט הקריא שבו, וסמן [לא קריא] היכן שאי אפשר. " +
-  "אל תחשב גימטריה ואל תפרש ואל תוסיף ידע חיצוני — רק מה שנראה במקור. עברית; אם יש כתב אחר — צטט כפי שהוא.";
+  "אל תחשב גימטריה ואל תפרש ואל תוסיף ידע חיצוני — רק מה שנראה במקור. עברית; אם יש כתב אחר — צטט כפי שהוא. " +
+  "הפרד במפורש בפלט שלוש שכבות: [קריא] מה שנראה בבירור; [לא בטוח] קריאה שאינה ודאית (ציין למה); [לא קריא]. " +
+  "אל תציג סמל/צורה/מילה כוודאיים אם אינם ברורים בתמונה, ואל תנחש שמות של אנשים — שם מופיע רק אם הוא כתוב בבירור במקור, ואז סמן אותו כציטוט מהמקור.";
 function b64(buf: Uint8Array): string {
   let s = "";
   for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
@@ -2084,7 +2087,8 @@ Deno.serve(async (req: Request) => {
         fetchRazielPersona(rTrusted ? "wa" : "site"),
         userRef ? fetchRazielContext(userRef, rTrusted ? "wa" : "site") : Promise.resolve(null),
       ]);
-      const ctxText = razielContextText(ctx);
+      // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
+      const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
 
       // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
       //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
@@ -2122,7 +2126,7 @@ Deno.serve(async (req: Request) => {
         : "");
       const sourceText = rTrusted?.media
         ? (rSource?.ok
-          ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין):\n" + rSource.text + "\n"
+          ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין. בתשובה הפרד בבהירות בין: מה שנקרא בבירור מהמקור, קריאה לא בטוחה, ופרשנות שלך; אל תציג כוודאי דבר שסומן [לא בטוח]/[לא קריא]. פנה למשתמש בלשון ניטרלית — אל תקרא לו בשם ואל תסיק שם מטקסט המקור או מזיכרון; התמקד במקור ובשאלה הנוכחית בלבד. ענה בטקסט טבעי קצר בתוך שדה answer):\n" + rSource.text + "\n"
           : "\n\nהמשתמש שלח מקור (תמונה/מסמך) ונשמר פרטית וממתין למודרציה, אך קריאתו החזותית לא זמינה כרגע — אמור זאת בקצרה, אל תמציא תוכן ואל תנחש מה כתוב.\n")
         : "";
       const user =
