@@ -115,22 +115,71 @@ export function makeResearchAdmissionEnvelope({
   };
 }
 
+// reality_graph_law v8: Media Representation identity != Placement.
+// STRONG identity = exact canonical public-storage object of the canonical
+// project only. No filename-only / OCR / value / similarity matching.
+const CANONICAL_SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
+const PUBLIC_STORAGE_PREFIX = '/storage/v1/object/public/';
+
+export const SAME_ARTIFACT_DEPENDENCY_CLASS = 'SAME_ARTIFACT/REPRESENTATION';
+
+export function resolveGalleryArtifactIdentity(imageUrl) {
+  const original = typeof imageUrl === 'string' ? imageUrl : null;
+  const unresolved = (reason) => ({ resolved: false, reason, originalUrl: original, key: null });
+  if (!original) return unresolved('missing_url');
+
+  let url;
+  try {
+    url = new URL(original);
+  } catch {
+    return unresolved('malformed_or_relative_url');
+  }
+  if (url.protocol !== 'https:' || url.host !== CANONICAL_SUPABASE_HOST || url.port) {
+    return unresolved('noncanonical_host');
+  }
+  if (url.search || url.hash || url.username || url.password) {
+    return unresolved('query_or_fragment_url');
+  }
+  if (!url.pathname.startsWith(PUBLIC_STORAGE_PREFIX)) return unresolved('not_public_storage_path');
+
+  const rest = url.pathname.slice(PUBLIC_STORAGE_PREFIX.length);
+  const slash = rest.indexOf('/');
+  if (slash <= 0 || slash === rest.length - 1) return unresolved('unknown_storage_path');
+  const bucket = rest.slice(0, slash);
+  const objectPath = rest.slice(slash + 1);
+  if (objectPath.split('/').some((seg) => seg === '' || seg === '.' || seg === '..')) {
+    return unresolved('unknown_storage_path');
+  }
+  let decoded;
+  try {
+    decoded = decodeURIComponent(rest);
+  } catch {
+    return unresolved('malformed_or_relative_url');
+  }
+  return {
+    resolved: true,
+    strength: 'STRONG_STORAGE_OBJECT',
+    key: `storage://${decoded}`,
+    bucket,
+    objectPath: decoded.slice(decoded.indexOf('/') + 1),
+    originalUrl: original,
+  };
+}
+
 export function galleryImageToResearchAdmission(row = {}, context = {}) {
   const id = row.id ? String(row.id) : null;
   if (!id) return { admitted: false, reason: 'missing_source_identity' };
 
-  return makeResearchAdmissionEnvelope({
+  const identity = resolveGalleryArtifactIdentity(row.image_url);
+
+  const envelope = makeResearchAdmissionEnvelope({
     sourceType: 'gallery_media',
     sourceRef: `gallery_images:${id}`,
+    // Artifact-level payload only: identity of the object itself. Row-local
+    // meaning (values, name, tags, type, thumb, ...) lives in placementContext.
     intrinsicPayload: {
-      mediaId: id,
-      mediaKind: row.image_type || 'unknown',
       imageUrl: row.image_url || null,
-      thumbUrl: row.thumb_url || null,
-      name: row.name || null,
-      description: row.description || null,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      retention: row.retention || null,
+      artifactKey: identity.resolved ? identity.key : null,
     },
     historicalContext: {
       galleryId: row.gallery_id || null,
@@ -163,8 +212,110 @@ export function galleryImageToResearchAdmission(row = {}, context = {}) {
     generatedRepresentation: context.generatedRepresentation,
     legacyRelations: context.legacyRelations,
   });
+  if (!envelope.admitted) return envelope;
+
+  return {
+    ...envelope,
+    // Two distinct identities: placement (source.ref) vs artifact (below).
+    artifactIdentity: identity.resolved
+      ? {
+          resolved: true,
+          strength: identity.strength,
+          key: identity.key,
+          bucket: identity.bucket,
+          objectPath: identity.objectPath,
+          originalUrl: identity.originalUrl,
+        }
+      : { resolved: false, reason: identity.reason, key: null, originalUrl: identity.originalUrl },
+    placementContext: {
+      placementRef: `gallery_images:${id}`,
+      isArtifactTruth: false,
+      primaryValue: row.primary_value ?? null,
+      allValues: Array.isArray(row.all_values) ? row.all_values : [],
+      relatedValues: Array.isArray(row.related_values) ? row.related_values : [],
+      imageType: row.image_type || null,
+      name: row.name || null,
+      description: row.description || null,
+      tags: Array.isArray(row.tags) ? row.tags : [],
+      importance: row.importance ?? null,
+      retention: row.retention || null,
+      thumbUrl: row.thumb_url || null,
+      access: {
+        published: row.published ?? null,
+        curatorHidden: row.curator_hidden ?? null,
+        minTier: row.min_tier ?? null,
+        curationStatus: row.curation_status ?? null,
+      },
+    },
+  };
 }
 
+// Pure composition over admissions already produced by galleryImageToResearchAdmission.
+// Groups ONLY by strong artifact identity. Not an access resolver: the caller
+// passes access-filtered input or an `isVisible(admission)` predicate; excluded
+// placements contribute nothing (no fields, no counts) to the output.
+export function composeGalleryArtifactGroups(admissions = [], { isVisible = null } = {}) {
+  const seen = new Set();
+  const groups = new Map();
+  const unresolved = [];
+
+  for (const adm of Array.isArray(admissions) ? admissions : []) {
+    if (!adm || adm.admitted !== true || !adm.placementContext) continue;
+    if (typeof isVisible === 'function' && !isVisible(adm)) continue;
+    const ref = adm.placementContext.placementRef;
+    if (seen.has(ref)) continue;
+    seen.add(ref);
+
+    if (adm.artifactIdentity?.resolved) {
+      const key = adm.artifactIdentity.key;
+      if (!groups.has(key)) {
+        groups.set(key, { artifactKey: key, artifactIdentity: adm.artifactIdentity, placements: [] });
+      }
+      groups.get(key).placements.push(adm);
+    } else {
+      unresolved.push(adm);
+    }
+  }
+
+  const artifactGroups = [...groups.values()].map((g) => {
+    const values = g.placements.map((p) => p.placementContext.primaryValue);
+    const types = g.placements.map((p) => p.placementContext.imageType);
+    const distinct = (arr) => [...new Set(arr.filter((v) => v != null))];
+    return {
+      artifactKey: g.artifactKey,
+      artifactIdentity: g.artifactIdentity,
+      dependencyClass: SAME_ARTIFACT_DEPENDENCY_CLASS,
+      independentEvidenceContribution: 1,
+      placementRefs: g.placements.map((p) => p.placementContext.placementRef),
+      placements: g.placements.map((p) => ({
+        placementRef: p.placementContext.placementRef,
+        primaryValue: p.placementContext.primaryValue,
+        imageType: p.placementContext.imageType,
+        access: p.placementContext.access,
+        extraction: p.extraction,
+      })),
+      // Honest variance across placements; never elected into artifact truth.
+      placementVariance: {
+        isTruthConflict: false,
+        primaryValues: distinct(values),
+        imageTypes: distinct(types),
+        hasValueVariance: distinct(values).length > 1,
+        hasImageTypeVariance: distinct(types).length > 1,
+      },
+    };
+  });
+
+  return {
+    artifactGroups,
+    unresolvedPlacements: unresolved.map((a) => ({
+      placementRef: a.placementContext.placementRef,
+      reason: a.artifactIdentity?.reason ?? 'unresolved',
+      independentEvidenceContribution: 0,
+    })),
+    placementCount: seen.size,
+    evidenceLineageCount: artifactGroups.length,
+  };
+}
 
 export function videoAssetToResearchAdmission(asset = {}, context = {}) {
   const publicId = asset.public_id ? String(asset.public_id) : null;
