@@ -34,7 +34,14 @@ assert.equal(page.includes("INTRO_VIDEO = null"),false,"intro video asset is now
 assert.match(page,/1820 הוא המספר שממנו התחיל הסוד/);
 assert.match(page,/שם הוי״ה מופיע בתורה 1,820 פעמים/);
 assert.match(page,/למדו על הסוד/);
+assert.match(page,/FaI8Nq95NMrCvZheSrW6Ql/,"campaign must reuse the canonical WhatsApp group");
+assert.match(page,/whatsapp_join/,"WhatsApp join must be measured in the existing campaign telemetry tree");
 assert.match(app,/path="\/melech-hamisparim\/718"/);
+
+const shortRedirect = (vercel.redirects || []).find((item) => item.source === "/718");
+assert.ok(shortRedirect,"TikTok campaign must expose the short /718 entry");
+assert.match(shortRedirect.destination,/\/melech-hamisparim\/718\?/);
+assert.match(shortRedirect.destination,/utm_source=tiktok/);
 
 const rewrite = (vercel.rewrites || []).find((item) => item.source === "/melech-hamisparim/718" && !Array.isArray(item.has));
 assert.ok(rewrite,"campaign must use isolated 2029 document");
