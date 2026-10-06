@@ -38,8 +38,8 @@ assert.match(page,/FaI8Nq95NMrCvZheSrW6Ql/,"campaign must reuse the canonical Wh
 assert.match(page,/whatsapp_join/,"WhatsApp join must be measured in the existing campaign telemetry tree");
 assert.match(app,/path="\/melech-hamisparim\/718"/);
 
-const shortRedirect = (vercel.redirects || []).find((item) => item.source === "/718");
-assert.ok(shortRedirect,"TikTok campaign must expose the short /718 entry");
+const shortRedirect = (vercel.redirects || []).find((item) => item.source === "/tiktok/melech");
+assert.ok(shortRedirect,"TikTok campaign must expose the stable /tiktok/melech entry");
 assert.match(shortRedirect.destination,/\/melech-hamisparim\/718\?/);
 assert.match(shortRedirect.destination,/utm_source=tiktok/);
 
