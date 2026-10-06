@@ -34,6 +34,13 @@ assert.equal(page.includes("INTRO_VIDEO = null"),false,"intro video asset is now
 assert.match(page,/1820 הוא המספר שממנו התחיל הסוד/);
 assert.match(page,/שם הוי״ה מופיע בתורה 1,820 פעמים/);
 assert.match(page,/למדו על הסוד/);
+assert.match(page,/const DEFAULT_EXPRESSION = "חדשות"/,"evergreen landing must open on the current featured example");
+assert.match(page,/const numberPageHref = verifiedNumber != null \? `\/number\/\$\{verifiedNumber\}` : "\/number"/,"single regular-site exit must follow the calculator result dynamically");
+assert.doesNotMatch(page,/כתבתם 718 בתגובות/,"bio landing must not assume a 718-specific campaign entry");
+assert.doesNotMatch(page,/CAMPAIGN = "tiktok-melech-hamisparim-718"/,"analytics identity must be stable across featured examples");
+assert.doesNotMatch(page,/to="\/2029(?:\/|")/,"landing must not send visitors into unfinished 2029 surfaces");
+assert.doesNotMatch(page,/to="\/topic\/gapfill-718"/,"landing must not fan out to topic surfaces");
+assert.doesNotMatch(page,/SOD1820 · 2029|היכנסו ל־2029|מחשבון 2029 המלא/,"2029 must remain an internal implementation detail");
 assert.match(page,/FaI8Nq95NMrCvZheSrW6Ql/,"campaign must reuse the canonical WhatsApp group");
 assert.match(page,/whatsapp_join/,"WhatsApp join must be measured in the existing campaign telemetry tree");
 assert.match(app,/path="\/melech-hamisparim\/718"/);

@@ -8,8 +8,8 @@ import { SUPABASE_ANON, SUPABASE_URL, supabase } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";
 import "./campaign718-2029.css";
 
-const CAMPAIGN = "tiktok-melech-hamisparim-718";
-const DEFAULT_EXPRESSION = "שביעי באוקטובר";
+const CAMPAIGN = "tiktok-melech-hamisparim";
+const DEFAULT_EXPRESSION = "חדשות";
 const CONVERGENCE = Object.freeze(["שביעי באוקטובר", "חדשות", "התשובה"]);
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 
@@ -30,7 +30,6 @@ function touchMeta(extra = {}) {
     campaign: CAMPAIGN,
     account: "מלך המספרים",
     platform: "tiktok",
-    focal_value: 718,
     ...extra,
   };
 }
@@ -51,7 +50,7 @@ export default function Campaign718Page2029() {
   const is718 = Number(verified.value) === 718 && verified.phrase === expression.trim();
 
   useEffect(() => {
-    document.title = "718 · מלך המספרים × SOD1820";
+    document.title = "מלך המספרים × SOD1820";
     try {
       captureArrivalSource();
       captureAcquisition();
@@ -169,13 +168,15 @@ export default function Campaign718Page2029() {
   };
 
   const unlocked = signupState === "unlocked" || signupState === "exists";
+  const verifiedNumber = Number.isFinite(Number(verified.value)) ? Number(verified.value) : null;
+  const numberPageHref = verifiedNumber != null ? `/number/${verifiedNumber}` : "/number";
 
   return (
     <main className="sod29-campaign718" style={themeVars} dir="rtl">
       <div className="sod29-campaign718-ambient" aria-hidden="true" />
 
       <header className="sod29-campaign718-brand">
-        <div className="sod29-campaign718-brand-kicker">מלך המספרים × SOD1820 · 2029</div>
+        <div className="sod29-campaign718-brand-kicker">מלך המספרים × SOD1820</div>
         <img
           src={BRAND_LOCKUP_2029.src}
           width={BRAND_LOCKUP_2029.width}
@@ -187,18 +188,18 @@ export default function Campaign718Page2029() {
       </header>
 
       <section className="sod29-campaign718-hero" aria-labelledby="campaign718-title">
-        <div className="sod29-campaign718-eyebrow">כתבתם 718 בתגובות? עכשיו תראו למה.</div>
+        <div className="sod29-campaign718-eyebrow">ברוכים הבאים מ־TikTok · מלך המספרים</div>
         <h1 id="campaign718-title">
-          מספר אחד.<br />
-          <span>שלושה חיבורים.</span>
+          אל תסתפקו בסרטון.<br />
+          <span>בדקו את המספרים בעצמכם.</span>
         </h1>
         <p>
-          זה לא צילום מסך של מחשבון. זה מנוע הגימטריה של SOD1820.
-          נסו את הביטוי שכבר פתחנו בשבילכם — ואז שנו אותו לכל מילה שתרצו.
+          פתחנו לכם את מחשבון הגימטריה על המילה „חדשות”.
+          מכאן אפשר לשנות לכל מילה, שם או ביטוי ולראות את התוצאה מיד.
         </p>
       </section>
 
-      <section className="sod29-campaign718-calc" aria-label="מחשבון גימטריה 718">
+      <section className="sod29-campaign718-calc" aria-label="מחשבון גימטריה">
         <div className="sod29-campaign718-calc-head">
           <div>
             <span>גימטריה · רגיל</span>
@@ -236,7 +237,7 @@ export default function Campaign718Page2029() {
 
         {is718 ? (
           <div className="sod29-campaign718-reveal">
-            <div className="sod29-campaign718-reveal-title">718 נפתח לעוד שתי נקודות באותו מנוע</div>
+            <div className="sod29-campaign718-reveal-title">קיבלתם 718? הנה עוד חיבורים שמופיעים באותו מנוע</div>
             <div className="sod29-campaign718-reveal-grid">
               {convergence.filter((item) => item.phrase !== expression.trim()).map((item) => (
                 <div key={item.phrase} className={item.verified ? "is-verified" : ""}>
@@ -250,20 +251,14 @@ export default function Campaign718Page2029() {
           </div>
         ) : null}
 
-        <Link
-          className="sod29-campaign718-text-link"
-          to={`/2029/gematria?q=${encodeURIComponent(expression.trim() || DEFAULT_EXPRESSION)}`}
-        >
-          פתחו את אותו ביטוי במחשבון 2029 המלא ←
-        </Link>
       </section>
 
       <section className="sod29-campaign718-story">
         <span>מה זה SOD1820?</span>
         <h2>מערכת שמחברת מספרים, מילים, פסוקים, אנשים ואירועים לעץ מחקר אחד.</h2>
         <p>
-          718 הוא רק שער קטן. מאחוריו נמצאים דף המספר, העולם, פוסטים, צפנים, ELS,
-          מסעות מחקר ורזיאל — כולם נשענים על אותם מנועים ואותו גוף ידע.
+          התוצאה שאתם רואים כאן היא רק שער קטן. מאחוריה נמצאים דפי מספרים, פוסטים,
+          צפנים, ELS, מסעות מחקר ורזיאל — כולם נשענים על אותם מנועים ואותו גוף ידע.
         </p>
       </section>
 
@@ -341,19 +336,18 @@ export default function Campaign718Page2029() {
 
       <section className="sod29-campaign718-next">
         <div>
-          <span>רוצים להמשיך לחקור?</span>
-          <h2>היכנסו ל־2029.</h2>
+          <span>רוצים להמשיך מהתוצאה שקיבלתם?</span>
+          <h2>{verifiedNumber != null ? `המשיכו לדף המספר ${verifiedNumber} באתר.` : "המשיכו לדף המספר באתר."}</h2>
         </div>
         <div className="sod29-campaign718-actions">
-          <Link to="/topic/gapfill-718">פתחו את ציר 718 ←</Link>
-          <Link to="/2029">היכנסו ל־SOD1820 2029</Link>
+          <Link to={numberPageHref}>{verifiedNumber != null ? `פתחו את דף ${verifiedNumber} ←` : "פתחו את דף המספר ←"}</Link>
         </div>
       </section>
 
       <footer className="sod29-campaign718-footer">
         <span>מלך המספרים · TikTok</span>
         <span>×</span>
-        <span>SOD1820 · 2029</span>
+        <span>SOD1820</span>
       </footer>
     </main>
   );
