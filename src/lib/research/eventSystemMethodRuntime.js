@@ -392,7 +392,9 @@ export async function compileEventObservationWithSystemMethods({
     }));
   }
 
-  const pack = compileEventObservation({ ...compilerArgs, extraCapabilities: capabilities });
+  // Capabilities supplied by other owners (e.g. temporal observations) ride the same bundle.
+  const callerCapabilities = Array.isArray(compilerArgs.extraCapabilities) ? compilerArgs.extraCapabilities : [];
+  const pack = compileEventObservation({ ...compilerArgs, extraCapabilities: [...capabilities, ...callerCapabilities] });
   return {
     ...pack,
     system_methods: {
