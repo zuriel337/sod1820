@@ -8,6 +8,7 @@ import {
 } from "./researchResultBundle.js";
 import { resolveNumericRuleVersions } from "./researchW2ExecutorsBase.js";
 import { EVENT_MEMBER_TYPE } from "./eventObservationCompiler.js";
+import { ACCESS_TIER } from "./researchPlanV2.js";
 
 // NASRALLAH_POST92_GOLDEN_V1 — typed temporal System Method adapter (moment_clock_law v2).
 //
@@ -40,6 +41,33 @@ const clean = (v) => (v == null ? null : String(v).trim() || null);
 const isInt = (v) => typeof v === "number" && Number.isSafeInteger(v);
 const pad2 = (n) => String(n).padStart(2, "0");
 
+// Temporal access inheritance. Reuses the existing ACCESS_TIER vocabulary; adds NO auth/access system.
+// An explicit tier is mandatory on every temporal input: a missing or unknown tier fails closed and is
+// never defaulted to public (otherwise a private/community/contributor input would be laundered public).
+const TIER_RANK = Object.freeze({
+  [ACCESS_TIER.PUBLIC]: 0,
+  [ACCESS_TIER.PUBLIC_CANDIDATE]: 1,
+  [ACCESS_TIER.PRIVATE]: 2,
+  [ACCESS_TIER.PERSONAL]: 3,
+});
+export function normalizeAccessTier(v) {
+  const t = clean(v);
+  return t && Object.prototype.hasOwnProperty.call(TIER_RANK, t) ? t : null;
+}
+/** Most restrictive of the given tiers. Missing/unknown counts as private (fail closed), never public. */
+export function mostRestrictiveTier(tiers = []) {
+  let worst = ACCESS_TIER.PUBLIC;
+  for (const raw of tiers) {
+    const t = normalizeAccessTier(raw) ?? ACCESS_TIER.PRIVATE;
+    if (TIER_RANK[t] > TIER_RANK[worst]) worst = t;
+  }
+  return worst;
+}
+/** Source refs that may ride on a capability record: only those of public-tier findings (the Bundle does not scrub them). */
+export function publicSourceRefs(findings = []) {
+  return [...new Set(findings.filter(f => f?.access?.tier === ACCESS_TIER.PUBLIC).map(f => f.source?.sourceRef).filter(Boolean))];
+}
+
 export function momentClockOccurrenceKey(obs) {
   return `clock:${obs.source_ref}:${obs.display}${obs.date ? `@${obs.date}` : ""}`;
 }
@@ -58,6 +86,8 @@ export function normalizeClockObservation(input) {
   if (Number(m[1]) !== input.hour || Number(m[2]) !== input.minute) return { ok: false, reason: "clock_display_disagrees_with_hour_minute" };
   const sourceRef = clean(input.source_ref);
   if (!sourceRef) return { ok: false, reason: "clock_source_ref_required" };
+  const accessTier = normalizeAccessTier(input.accessTier);
+  if (!accessTier) return { ok: false, reason: "clock_access_tier_required" };
   const timezone = clean(input.timezone);
   const context = clean(input.context);
   if (!timezone && !context) return { ok: false, reason: "clock_timezone_or_context_required" };
@@ -78,6 +108,7 @@ export function normalizeClockObservation(input) {
       timezone,
       context,
       source_ref: sourceRef,
+      accessTier,
       date,
       meridiem: meridiem || (input.hour >= 12 ? "PM" : "AM"),
       label: clean(input.label),
@@ -129,7 +160,7 @@ export function clockOccurrenceFinding(obs, { eventKey, eventRef, postId = null,
         boundary: "a clock occurrence is a typed temporal observation, never Number 1820 and never a Gematria result",
       }],
     },
-    access: { tier: "public" },
+    access: { tier: obs.accessTier },
     provenance: { createdBy: null, inputRef: obs.source_ref, parentFindingIds: [] },
     projection: {
       // deliberately NO number anchor: occurrence != Number
@@ -177,7 +208,8 @@ function representationFinding(obs, rep, version, occurrenceFinding, { eventKey,
       score: null,
       confidence: null,
     },
-    access: { tier: "public", reason: "System Method rules are public canonical rules in nodes" },
+    // The rule is public, but the application inherits the EXACT tier of the temporal occurrence it derives from.
+    access: { tier: obs.accessTier, reason: "rule application inherits the access tier of its temporal occurrence" },
     provenance: { createdBy: `RULE:${MOMENT_CLOCK_RULE_ID}@v${version}`, inputRef: momentClockOccurrenceKey(obs), parentFindingIds: [occurrenceFinding.id] },
     projection: {
       anchors: anchorsFor(eventKey, postId, [rep.output]),
@@ -215,7 +247,7 @@ export async function applyMomentClockLaw({ observation, ruleVersions = null, ev
       owner: "numeric_rule_family_index",
       status: CAPABILITY_STATUS.UNVERIFIED,
       findings: [],
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
       semanticClass: SEMANTIC_CLASS.DERIVATION,
       reason,
     }),
@@ -255,9 +287,9 @@ export async function applyMomentClockLaw({ observation, ruleVersions = null, ev
       status: CAPABILITY_STATUS.EXECUTED,
       findings: [occurrence, ...applications],
       findingOutcomes: outcomes,
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
       semanticClass: SEMANTIC_CLASS.DERIVATION,
-      sourceRefs: [obs.source_ref],
+      sourceRefs: publicSourceRefs([occurrence]),
       versionRefs: [`${MOMENT_CLOCK_RULE_ID}:v${version}`],
       trace: { applied: reps.map(r => ({ rule_id: MOMENT_CLOCK_RULE_ID, rule_version: version, operation: r.representation, version_source: "nodes.rule_version" })), skipped: [] },
     }),

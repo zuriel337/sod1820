@@ -13,7 +13,10 @@ import {
   DAY_ORDINAL_MEMBER_TYPE,
   applyMomentClockLaw,
   momentClockOccurrenceKey,
+  mostRestrictiveTier,
+  normalizeAccessTier,
   normalizeClockObservation,
+  publicSourceRefs,
 } from "./momentClockSystemMethod.js";
 
 // NASRALLAH_POST92_GOLDEN_V1 — composition over the EXISTING event compiler / system-method runtime.
@@ -53,7 +56,9 @@ export function normalizeDayOrdinal(input) {
   if (!sourceRef) return { ok: false, reason: "day_ordinal_source_ref_required" };
   const counting = clean(input.counting_context);
   if (!counting) return { ok: false, reason: "day_ordinal_counting_context_required" };
-  return { ok: true, observation: { ordinal: input.ordinal, source_ref: sourceRef, counting_context: counting, label: clean(input.label) } };
+  const accessTier = normalizeAccessTier(input.accessTier);
+  if (!accessTier) return { ok: false, reason: "day_ordinal_access_tier_required" };
+  return { ok: true, observation: { ordinal: input.ordinal, source_ref: sourceRef, counting_context: counting, accessTier, label: clean(input.label) } };
 }
 
 function dayOrdinalFinding(obs, { eventKey, eventRef, postId }) {
@@ -78,7 +83,7 @@ function dayOrdinalFinding(obs, { eventKey, eventRef, postId }) {
         boundary: "a day ordinal is a typed source observation; its Number representation is a research relation, not a calculation",
       }],
     },
-    access: { tier: "public" },
+    access: { tier: obs.accessTier },
     provenance: { createdBy: null, inputRef: obs.source_ref, parentFindingIds: [] },
     projection: {
       // anchoring to Number N lets Number context show it, WITHOUT claiming it is gematria.
@@ -93,6 +98,8 @@ function alternateObservationFinding(alt, { eventKey, eventRef, postId }) {
   const sourceRef = clean(alt?.source_ref);
   const attr = normalizeAttribution(alt?.attribution);
   if (!sourceRef || !attr.ok) return { ok: false, reason: !sourceRef ? "alternate_source_ref_required" : attr.reason };
+  const accessTier = normalizeAccessTier(alt.accessTier);
+  if (!accessTier) return { ok: false, reason: "alternate_access_tier_required" };
   const display = clean(alt.display);
   const dayOrdinal = isInt(alt.day_ordinal) ? alt.day_ordinal : null;
   if (!display && dayOrdinal == null) return { ok: false, reason: "alternate_observation_empty" };
@@ -118,7 +125,7 @@ function alternateObservationFinding(alt, { eventKey, eventRef, postId }) {
           overrides_approved_reading: false,
         }],
       },
-      access: { tier: "public" },
+      access: { tier: accessTier },
       provenance: { createdBy: null, inputRef: sourceRef, parentFindingIds: [] },
       projection: {
         // No number anchor: a discrepancy source never competes on Number surfaces by default.
@@ -130,7 +137,7 @@ function alternateObservationFinding(alt, { eventKey, eventRef, postId }) {
   };
 }
 
-function interpretationFinding({ eventKey, eventRef, postId, numbers, parents }) {
+function interpretationFinding({ eventKey, eventRef, postId, numbers, parents, tier }) {
   const attribution = { role: ATTRIBUTION_ROLE.SITE_INTERPRETATION, display_name: SITE_INTERPRETATION_LABEL, source_id: null, work_title: null, contributor_id: null, channel: null };
   return withAttribution(makeUniversalFinding({
     kind: "event-site-interpretation",
@@ -150,7 +157,8 @@ function interpretationFinding({ eventKey, eventRef, postId, numbers, parents })
         boundary: "site interpretation over the temporal observation, day observation and engine finding; not an engine fact and not independent evidence",
       }],
     },
-    access: { tier: "public" },
+    // Derived tier: never less restrictive than any parent Finding.
+    access: { tier, reason: "most restrictive tier of the parent findings" },
     provenance: { createdBy: null, inputRef: eventCandidateRef(eventKey), parentFindingIds: parents },
     projection: {
       anchors: anchors(eventKey, postId, numbers),
@@ -272,9 +280,9 @@ export async function compileNasrallahPost92Golden({
     status: CAPABILITY_STATUS.EXECUTED,
     findings: temporalFindings,
     findingOutcomes: temporalOutcomes,
-    accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+    accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
     semanticClass: SEMANTIC_CLASS.CONTEXT,
-    sourceRefs: [day.ok ? day.observation.source_ref : null, altFinding ? altFinding.source.sourceRef : null].filter(Boolean),
+    sourceRefs: publicSourceRefs(temporalFindings),
   }) : null;
 
   const common = {
@@ -300,7 +308,10 @@ export async function compileNasrallahPost92Golden({
   let interpretation = null;
   if (clock.ok && dayFinding && trace && k1820) {
     const parents = [clock.applications[0].id, dayFinding.id, trace.id];
-    interpretation = interpretationFinding({ ...ctx, numbers: [k1820.output, day.observation.ordinal], parents });
+    // The engine Trace arrives through a public-source capability, where a tier-less Finding is public by
+    // Result Bundle semantics; an explicit but unknown tier still fails closed inside mostRestrictiveTier.
+    const tier = mostRestrictiveTier([clock.applications[0].access?.tier, dayFinding.access?.tier, trace.access?.tier ?? "public"]);
+    interpretation = interpretationFinding({ ...ctx, numbers: [k1820.output, day.observation.ordinal], parents, tier });
     const interpCap = capabilityResult({
       key: "event_site_interpretation",
       owner: "research_strategy_layer_law",
@@ -312,7 +323,7 @@ export async function compileNasrallahPost92Golden({
         dependsOn: parents,
         reason: "interpretation depends on the temporal/day observations and the engine finding; not independent evidence",
       }],
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
       semanticClass: SEMANTIC_CLASS.CONTEXT,
     });
     pack = await compileEventObservationWithSystemMethods({ ...common, extraCapabilities: [...baseCaps, interpCap] });
@@ -321,6 +332,13 @@ export async function compileNasrallahPost92Golden({
   }
 
   const byId = new Map(pack.bundle.findings.map(f => [f.id, f]));
+  // Golden convenience metadata is OUTPUT too: it may only name Findings that survived the Bundle's
+  // access filter, and may only echo a clock/day value whose source Finding survived.
+  const seen = (id) => (id != null && byId.has(id) ? id : null);
+  const visibleReps = clock.ok ? clock.representations.filter(r => byId.has(r.finding_id)) : [];
+  const clockSeen = seen(clock.occurrence?.id) != null;
+  const daySeen = seen(dayFinding?.id) != null;
+  const k1820Seen = k1820 && byId.has(k1820.finding_id) ? k1820 : null;
   const defaultReading = pack.bundle.findings
     .filter(f => f.projection?.dimensions?.prominence === PROMINENCE.DEFAULT || f.verification?.engine_result === expression.claimed_value && f.source?.engine === "gematria")
     .map(f => f.id);
@@ -330,15 +348,19 @@ export async function compileNasrallahPost92Golden({
     ...pack,
     golden: {
       task_key: "NASRALLAH_POST92_GOLDEN_V1",
-      approved_reading: { clock: clockObservation?.display ?? null, clock_24h_concat: k1820?.output ?? null, day_ordinal: day.ok ? day.observation.ordinal : null },
-      clock_occurrence_finding_id: clock.occurrence?.id ?? null,
-      representations: clock.ok ? clock.representations : [],
-      day_ordinal_finding_id: dayFinding?.id ?? null,
-      engine_trace_finding_id: trace?.id ?? null,
-      interpretation_finding_id: interpretation?.id ?? null,
-      alternate_observation_finding_id: altFinding?.id ?? null,
+      approved_reading: {
+        clock: clockSeen ? (clockObservation?.display ?? null) : null,
+        clock_24h_concat: k1820Seen?.output ?? null,
+        day_ordinal: daySeen ? day.observation.ordinal : null,
+      },
+      clock_occurrence_finding_id: seen(clock.occurrence?.id),
+      representations: visibleReps,
+      day_ordinal_finding_id: seen(dayFinding?.id),
+      engine_trace_finding_id: seen(trace?.id),
+      interpretation_finding_id: seen(interpretation?.id),
+      alternate_observation_finding_id: seen(altFinding?.id),
       default_reading_ids: defaultReading.filter(id => byId.has(id)),
-      depth_reading_ids: depthReading,
+      depth_reading_ids: depthReading.filter(id => byId.has(id)),
       refusals,
       legacy_graph_occurred_at: clean(legacyGraphOccurredAt)
         ? { value: clean(legacyGraphOccurredAt), origin: "auto_from_post", consumed_as_event_time: false, reason: "post-publication-derived; PublishedAt != OccurredAt" }

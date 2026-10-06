@@ -8,8 +8,8 @@ import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { VERIFIED_AUTHORITY_SOURCE } from "./researchPlanV2.js";
 
 const post = { id: 92, slug: "post-92", date: "2024-09-29T06:29:04Z" };
-const clock = { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut", context: "site approved reading", source_ref: "post:92" };
-const day = { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92" };
+const clock = { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut", context: "site approved reading", source_ref: "post:92", accessTier: "public" };
+const day = { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92", accessTier: "public" };
 const ruleVersions = { moment_clock_law: 2 };
 const receiptResolver = (m) => (m.expression === "משיח" && m.method_key === "רגיל"
   ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1" }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" })
@@ -134,7 +134,7 @@ test("PublishedAt != OccurredAt; legacy auto_from_post graph date is never event
 
 test("alternate observation: separate source finding, default reading and ids unchanged, deeper prominence", async () => {
   const base = await run();
-  const alt = await run({ alternateObservation: { display: "19:05", day_ordinal: 359, source_ref: "ext:caller-supplied", attribution: { role: "source_work", display_name: "Caller Source" }, verification_state: "not_tested", discrepancy_status: "unreconciled" } });
+  const alt = await run({ alternateObservation: { display: "19:05", day_ordinal: 359, source_ref: "ext:caller-supplied", accessTier: "public", attribution: { role: "source_work", display_name: "Caller Source" }, verification_state: "not_tested", discrepancy_status: "unreconciled" } });
   const f = find(alt, alt.golden.alternate_observation_finding_id);
   assert.equal(f.evidence.facts[0].overrides_approved_reading, false);
   assert.equal(f.evidence.facts[0].discrepancy.explain_why, "מקור נוסף מציג זמן אחר");
@@ -148,7 +148,7 @@ test("alternate observation: separate source finding, default reading and ids un
   const n = projectEventContextForSurface(alt, EVENT_SURFACE.NUMBER, { number: 358 });
   assert.ok(!n.finding_ids.includes(f.id));
   // governance actor can never be attribution
-  const bad = await run({ alternateObservation: { display: "x", source_ref: "s", attribution: { role: "source_work", display_name: "צוריאל" } } });
+  const bad = await run({ alternateObservation: { display: "x", source_ref: "s", accessTier: "public", attribution: { role: "source_work", display_name: "צוריאל" } } });
   assert.equal(bad.golden.alternate_observation_finding_id, null);
 });
 
@@ -209,4 +209,108 @@ test("REV1-D: duplicate row yields one Finding; public_candidate governed by des
   const deflt = await run({ contextResearchObjects: [roPublic] });
   assert.ok(!deflt.bundle.findings.some(f => f.identity?.sourceIdentity?.researchObjectId === roPublic.id));
   for (const k of ["clock_occurrence_finding_id", "day_ordinal_finding_id", "engine_trace_finding_id", "interpretation_finding_id"]) assert.equal(dup.golden[k], base.golden[k]);
+});
+
+
+// ── REV2: explicit temporal access inheritance + output scrub ──
+const adminAll = { authority_source: VERIFIED_AUTHORITY_SOURCE.ADMIN_RPC, allowed_access_tiers: ["public", "public_candidate", "private", "personal"] };
+const PRIV_REF = "private-diary:SECRET-77";
+const privClock = { ...clock, source_ref: PRIV_REF, accessTier: "private" };
+const privDay = { ...day, source_ref: PRIV_REF, accessTier: "private" };
+const privAlt = { display: "19:05", day_ordinal: 359, source_ref: PRIV_REF, accessTier: "private", attribution: { role: "source_work", display_name: "Caller Source" } };
+
+test("REV2-A: public Post92 unchanged (18:20 -> 1820/620, day 358, משיח=358, interpretation visible)", async () => {
+  const p = await run();
+  assert.deepEqual(p.golden.approved_reading, { clock: "18:20", clock_24h_concat: 1820, day_ordinal: 358 });
+  assert.deepEqual(p.golden.representations.map(r => r.output).sort(), [1820, 620]);
+  assert.ok(p.golden.interpretation_finding_id);
+  assert.equal(find(p, p.golden.interpretation_finding_id).access.tier, "public");
+  assert.equal(find(p, p.golden.engine_trace_finding_id).verification.engine_result, 358);
+  assert.equal(p.golden.refusals.length, 0);
+  assert.equal(find(p, p.golden.clock_occurrence_finding_id).access.tier, "public");
+  for (const r of p.golden.representations) assert.equal(find(p, r.finding_id).access.tier, "public");
+  const cap = p.bundle.capability_trace.find(c => c.key === "moment_clock_applications");
+  assert.equal(cap.access_class, "source_access_controlled");
+  assert.deepEqual(cap.source_refs, ["post:92"]);
+});
+
+test("REV2-B: private clock leaks nothing publicly; attested admin sees same ids with tier", async () => {
+  const pub = await run({ clockObservation: privClock });
+  const s = JSON.stringify(pub);
+  assert.ok(!s.includes(PRIV_REF));
+  assert.equal(pub.golden.clock_occurrence_finding_id, null);
+  assert.deepEqual(pub.golden.representations, []);
+  assert.equal(pub.golden.interpretation_finding_id, null);
+  assert.deepEqual([pub.golden.approved_reading.clock, pub.golden.approved_reading.clock_24h_concat], [null, null]);
+  assert.equal(pub.golden.approved_reading.day_ordinal, 358);
+  assert.ok(!pub.bundle.findings.some(f => ["clock_time", "number"].includes(f.subject.type) && f.source?.method === "moment_clock_law"));
+  assert.ok(!pub.bundle.findings.some(f => f.kind === "event-site-interpretation"));
+  const adm = await run({ clockObservation: privClock, accessDescriptor: adminAll });
+  const ref = await run({ clockObservation: privClock });
+  assert.ok(adm.golden.clock_occurrence_finding_id && adm.golden.interpretation_finding_id);
+  assert.equal(find(adm, adm.golden.clock_occurrence_finding_id).access.tier, "private");
+  for (const r of adm.golden.representations) assert.equal(find(adm, r.finding_id).access.tier, "private");
+  assert.equal(find(adm, adm.golden.interpretation_finding_id).access.tier, "private");
+  assert.equal(adm.golden.clock_occurrence_finding_id, (await run({ clockObservation: privClock, accessDescriptor: adminAll })).golden.clock_occurrence_finding_id);
+  assert.ok(ref);
+});
+
+test("REV2-C: private day leaks nothing publicly; admin sees", async () => {
+  const pub = await run({ dayOrdinal: privDay });
+  assert.ok(!JSON.stringify(pub).includes(PRIV_REF));
+  assert.equal(pub.golden.day_ordinal_finding_id, null);
+  assert.equal(pub.golden.approved_reading.day_ordinal, null);
+  assert.equal(pub.golden.interpretation_finding_id, null);
+  assert.ok(!pub.bundle.findings.some(f => f.subject.type === "day_ordinal" || f.kind === "event-site-interpretation"));
+  assert.equal(pub.golden.approved_reading.clock, "18:20");
+  const adm = await run({ dayOrdinal: privDay, accessDescriptor: adminAll });
+  assert.equal(adm.golden.approved_reading.day_ordinal, 358);
+  assert.ok(adm.golden.day_ordinal_finding_id && adm.golden.interpretation_finding_id);
+  assert.equal(find(adm, adm.golden.day_ordinal_finding_id).access.tier, "private");
+});
+
+test("REV2-D: private alternate absent publicly incl. metadata/depth; admin sees", async () => {
+  const pub = await run({ alternateObservation: privAlt });
+  assert.ok(!JSON.stringify(pub).includes(PRIV_REF));
+  assert.equal(pub.golden.alternate_observation_finding_id, null);
+  const base = await run();
+  assert.deepEqual(pub.golden.depth_reading_ids.sort(), base.golden.depth_reading_ids.sort());
+  const adm = await run({ alternateObservation: privAlt, accessDescriptor: adminAll });
+  assert.ok(adm.golden.alternate_observation_finding_id);
+  assert.ok(adm.golden.depth_reading_ids.includes(adm.golden.alternate_observation_finding_id));
+  assert.equal(find(adm, adm.golden.alternate_observation_finding_id).access.tier, "private");
+});
+
+test("REV2-E: missing/invalid tier fails closed for clock/day/alternate", async () => {
+  for (const bad of [undefined, null, "", "secret", "PUBLIC", "internal"]) {
+    assert.equal(normalizeClockObservation({ ...clock, accessTier: bad }).ok, false, String(bad));
+    const p = await run({ clockObservation: { ...clock, accessTier: bad }, dayOrdinal: { ...day, accessTier: bad }, alternateObservation: { ...privAlt, accessTier: bad } });
+    assert.deepEqual(p.golden.refusals.map(r => r.part).sort(), ["alternate_observation", "clock_occurrence", "day_ordinal", "site_interpretation"]);
+    assert.equal(p.golden.clock_occurrence_finding_id, null);
+    assert.equal(p.golden.day_ordinal_finding_id, null);
+    assert.equal(p.golden.alternate_observation_finding_id, null);
+  }
+});
+
+test("REV2-F: site interpretation tier is the most restrictive parent", async () => {
+  for (const tier of ["public_candidate", "private", "personal"]) {
+    const adm = await run({ dayOrdinal: { ...day, accessTier: tier }, accessDescriptor: adminAll });
+    assert.equal(find(adm, adm.golden.interpretation_finding_id).access.tier, tier);
+    const pub = await run({ dayOrdinal: { ...day, accessTier: tier } });
+    assert.equal(pub.golden.interpretation_finding_id, null);
+  }
+  const mixed = await run({ clockObservation: { ...clock, accessTier: "private" }, dayOrdinal: { ...day, accessTier: "personal" }, accessDescriptor: adminAll });
+  assert.equal(find(mixed, mixed.golden.interpretation_finding_id).access.tier, "personal");
+  // descriptor allowing private but not personal filters the personal-derived interpretation
+  const noPersonal = await run({ dayOrdinal: { ...day, accessTier: "personal" }, clockObservation: { ...clock, accessTier: "private" }, accessDescriptor: attested });
+  assert.equal(noPersonal.golden.interpretation_finding_id, null);
+  assert.equal(noPersonal.golden.approved_reading.day_ordinal, null);
+});
+
+test("REV2-H: no source-name branches in temporal adapters", async () => {
+  const { readFileSync } = await import("node:fs");
+  for (const f of ["momentClockSystemMethod.js", "nasrallahPost92Golden.js"]) {
+    const src = readFileSync(new URL(`./${f}`, import.meta.url), "utf8").replace(/\/\/.*$/gm, "");
+    assert.ok(!/(===|==|!==)\s*["'`](post:92|NASRALLAH)/.test(src), f);
+  }
 });
