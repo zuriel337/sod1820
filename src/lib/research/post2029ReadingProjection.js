@@ -2,7 +2,7 @@ import { getPostBySlug, supabase } from "../supabase.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { canonicalFollowTopic } from "../followIdentity.js";
 import { formatBilingualDate } from "./timeline2029.js";
-import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
+import { buildPost2029ArchitectureWireframe, buildFollowSuggestions, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
@@ -402,12 +402,13 @@ function selectContextRailConnections(connections = [], { slug = null, regionId 
 // Follow subjects the existing server resolver (canonical_follow_subject -> resolve_topics -> dispatch)
 // can already resolve. Mirrors the server list; anything else is a reported GAP, never a faked control.
 const FOLLOW_RESOLVABLE_ENTITY_TYPES = Object.freeze(["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"]);
-// Exactly three resolvable choices; bare 7 / 10 are too broad and noisy to follow.
-const SEVENTH_TENTH_FOLLOW = Object.freeze([
-  { id: "follow-number-710", entityType: "number", stableId: "710", label: "עקוב אחרי 710", explainer: "עדכון כשמתפרסם משהו חדש במספר 710." },
-  { id: "follow-category-dimension-five", entityType: "category", stableId: "מימד חמש", label: "עקוב אחרי הקטגוריה: מימד חמש", explainer: "עדכון כשמתפרסם משהו חדש בקטגוריה מימד חמש." },
-  { id: "follow-author-sefirot-guide", entityType: "author", stableId: "מדריך לריפוי 10 הספירות", label: "עקוב אחרי המחבר: מדריך לריפוי 10 הספירות", explainer: "עדכון כשמתפרסם משהו חדש של מדריך לריפוי 10 הספירות." },
-]);
+// Recommendation-led, bounded (<=4): author first, then category, then 710 as the deeper/contextual number.
+// Bare 7 / 10 are too broad and noisy to follow. Consent is explicit (WatchButton click); nothing auto-follows.
+const SEVENTH_TENTH_FOLLOW = Object.freeze(buildFollowSuggestions({
+  author: "מדריך לריפוי 10 הספירות",
+  category: "מימד חמש",
+  numbers: ["710"],
+}));
 const SEVENTH_TENTH_FOLLOW_GAPS = Object.freeze([
   { kind: "post", reason: "canonical_follow_subject has no post identity; no delivery semantics to prove" },
   { kind: "event", reason: "canonical_follow_subject has no event identity" },

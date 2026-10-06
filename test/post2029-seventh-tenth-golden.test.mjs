@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { topicLabel } from "../src/lib/notifications.js";
 import { post2029ReadingInternals as I } from "../src/lib/research/post2029ReadingProjection.js";
-import { projectPost2029Experience } from "../src/lib/research/post2029ExperienceProjection.js";
+import { projectPost2029Experience, buildFollowSuggestions, FOLLOW_SUGGESTIONS_MAX } from "../src/lib/research/post2029ExperienceProjection.js";
 import { canonicalFollowTopic, includesFollowSubject, followTopicAliases } from "../src/lib/followIdentity.js";
 
 const KEY = "10b548b4-ab22-40fc-a12c-5a622434f0bd";
@@ -73,9 +73,9 @@ test("media uses canonical source video/poster; hard-coded track removed; transc
   assert.equal(I.extractSourceVideo("<p>no video</p>"), null);
 });
 
-test("follow: exactly 710 + category + author, topics derived server-style, compatible with follow engine/topicLabel", () => {
+test("follow: exactly author + category + 710 (recommendation order) + category + author, topics derived server-style, compatible with follow engine/topicLabel", () => {
   const e = exp();
-  assert.deepEqual(e.follow.map((f) => f.topic), ["number:710", "cat:מימד חמש", "author:מדריך לריפוי 10 הספירות"]);
+  assert.deepEqual(e.follow.map((f) => f.topic), ["author:מדריך לריפוי 10 הספירות", "cat:מימד חמש", "number:710"]);
   assert.ok(!e.follow.some((f) => ["number:7", "number:10"].includes(f.topic)));
   assert.ok(e.follow.every((f) => I.FOLLOW_RESOLVABLE_ENTITY_TYPES.includes(f.entityType)));
   assert.ok(e.follow.every((f) => f.topic === canonicalFollowTopic(f.topic)));
@@ -118,4 +118,29 @@ test("Context Rail projection is bounded (<=6) per region and chain hrefs stay i
   for (const c of Object.values(I.SEVENTH_TENTH_CHAIN)) assert.ok(c.href.startsWith("/post/"), c.id);
   assert.ok([...e.trail, ...e.connections].filter((x) => x.relation === "main_spine" || x.relation === "side_branch").every((x) => x.href.startsWith("/post/")));
   assert.equal(e.connections.length, 12);
+});
+
+test("follow discovery: priority order, max 4, relevance-only, explicit consent (no auto-follow)", () => {
+  const e = exp();
+  assert.deepEqual(e.follow.map((f) => f.entityType), ["author", "category", "number"]);
+  assert.equal(FOLLOW_SUGGESTIONS_MAX, 4);
+  // bounded to 4 even when handed many numbers; order stays author > category > numbers
+  const many = buildFollowSuggestions({ author: "A", category: "C", numbers: ["1", "2", "3", "4", "5"] });
+  assert.equal(many.length, 4);
+  assert.deepEqual(many.map((f) => f.entityType), ["author", "category", "number", "number"]);
+  assert.equal(buildFollowSuggestions({ author: "A", category: "C", numbers: ["1", "2", "3"] }, 99).length, 4);
+  // relevance-only: nothing invented when context is absent; duplicates collapse; no category/tag dump
+  assert.deepEqual(buildFollowSuggestions({}), []);
+  assert.deepEqual(buildFollowSuggestions({ category: "C", numbers: ["7", "7", " "] }).map((f) => f.stableId), ["C", "7"]);
+  assert.ok(!e.follow.some((f) => ["cipher_feed", "reality_stream", "channel", "media_channel"].includes(f.entityType)));
+  // projection also caps untrusted raw follow input
+  const raw = Array.from({ length: 9 }, (_, i) => ({ entityType: "number", stableId: String(i + 1) }));
+  assert.equal(projectPost2029Experience({ _experience: { follow: raw } }).follow.length, 4);
+  // explicit consent: only WatchButton renders suggestions; no auto-follow call in the page or helper
+  const page = read("../src/pages/Post2029Page.jsx");
+  assert.match(page, /data-follow-consent="explicit-click"/);
+  assert.doesNotMatch(page, /watchToggle|subscribe\(|autoFollow/);
+  assert.doesNotMatch(read("../src/lib/research/post2029ExperienceProjection.js"), /watchToggle|autoFollow/);
+  // Raziel receives metadata only via the existing Research Context seam
+  assert.match(page, /followSuggestions:[\s\S]*updateResearchContext|updateResearchContext[\s\S]*followSuggestions:/);
 });

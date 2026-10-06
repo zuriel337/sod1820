@@ -139,12 +139,36 @@ function normalizeFollow(item, index) {
   };
 }
 
+// Recommendation-led Follow Discovery: a bounded, relevance-only ordering of follow candidates built from
+// REAL context of the current post (author, category, number). Never dumps all categories/tags, never adds a
+// follow on its own: every suggestion renders through the existing WatchButton and needs an explicit click.
+// Priority: author/Creator -> category -> deeper/contextual number. Duplicates (same entity) collapse.
+export const FOLLOW_SUGGESTIONS_MAX = 4;
+export function buildFollowSuggestions({ author, category, numbers = [], labels = {} } = {}, max = FOLLOW_SUGGESTIONS_MAX) {
+  const out = [];
+  const seen = new Set();
+  const push = (entityType, stableId, label, explainer) => {
+    const id = clean(stableId);
+    if (!id) return;
+    const key = entityType + ":" + id;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ id: `follow-${entityType}-${out.length + 1}`, entityType, stableId: id, label, explainer });
+  };
+  const a = clean(author);
+  const c = clean(category);
+  if (a) push("author", a, labels.author || `עקוב אחרי המחבר: ${a}`, `עדכון כשמתפרסם משהו חדש של ${a}.`);
+  if (c) push("category", c, labels.category || `עקוב אחרי הקטגוריה: ${c}`, `עדכון כשמתפרסם משהו חדש בקטגוריה ${c}.`);
+  for (const n of asArray(numbers)) push("number", n, `עקוב אחרי ${clean(n)}`, `עדכון כשמתפרסם משהו חדש במספר ${clean(n)}.`);
+  return out.slice(0, Math.max(0, Math.min(max, FOLLOW_SUGGESTIONS_MAX)));
+}
+
 export function projectPost2029Experience(post) {
   const raw = post?._experience && typeof post._experience === "object"
     ? post._experience
     : {};
 
-  const follow = asArray(raw.follow).map(normalizeFollow).filter(Boolean);
+  const follow = asArray(raw.follow).map(normalizeFollow).filter(Boolean).slice(0, FOLLOW_SUGGESTIONS_MAX);
   const followGaps = asArray(raw.followGaps).map((g) => ({ kind: clean(g?.kind), reason: clean(g?.reason) })).filter((g) => g.kind);
 
   return {

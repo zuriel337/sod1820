@@ -175,6 +175,8 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
+        // Recommendation metadata only (existing Research Context seam); a suggestion is never a follow.
+        followSuggestions: (state.projection.experience?.follow || []).map((f) => ({ entityType: f.entityType, stableId: f.stableId, topic: f.topic })),
         surfaceFindings: post.slug === "bennett-melach-631-78" || post.slug === "seventh-to-tenth-sefirot-2027"
           ? (post.slug === "seventh-to-tenth-sefirot-2027"
             ? selectContextRailConnections(state.projection.experience?.connections || [], { slug: post.slug, regionId: activeFocus.id })
@@ -576,7 +578,7 @@ function PostReadingBody() {
       </React.Fragment>)}
     </nav> : null}
 
-    {(experience.follow || []).length ? <section className="sod29-post-follow" aria-label="מעקב" data-post-follow="true">
+    {(experience.follow || []).length ? <section className="sod29-post-follow" aria-label="מעקב מומלץ" data-post-follow="true" data-follow-consent="explicit-click">
       {experience.follow.map((item) => <WatchButton
         key={item.id}
         topic={item.topic}
