@@ -3,6 +3,7 @@
 
 export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/2029",
+  "/718",
   "/888",
   "/about",
   "/admin",
