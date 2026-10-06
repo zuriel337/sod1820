@@ -29,7 +29,11 @@ for(const required of [
   assert.match(page,new RegExp(required),"missing campaign requirement: "+required);
 }
 
-assert.match(page,/INTRO_VIDEO = null/,"intro video must fail closed until exact canonical asset is selected");
+assert.match(page,/DClJVGBMCs0/,"campaign must use the Human-Gate-selected YouTube asset from the main SOD1820 post");
+assert.equal(page.includes("INTRO_VIDEO = null"),false,"intro video asset is now explicitly selected");
+assert.match(page,/1820 הוא המספר שממנו התחיל הסוד/);
+assert.match(page,/שם הוי״ה מופיע בתורה 1,820 פעמים/);
+assert.match(page,/למדו על הסוד/);
 assert.match(app,/path="\/melech-hamisparim\/718"/);
 
 const rewrite = (vercel.rewrites || []).find((item) => item.source === "/melech-hamisparim/718" && !Array.isArray(item.has));
