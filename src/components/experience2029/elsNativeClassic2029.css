@@ -307,14 +307,73 @@
 .els29-native-meta-grid small{font-size:var(--s29-type-micro);color:var(--s29-muted)}
 .els29-native-rail-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .els29-native-rail-head small{color:var(--s29-muted)}
+.els29-native-finding-add{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px;
+}
+.els29-native-finding-add input{
+  min-width:0;
+  min-height:38px;
+  padding:0 10px;
+  border:1px solid var(--s29-line);
+  border-radius:11px;
+  background:var(--s29-panel);
+  color:var(--s29-ink);
+  font:inherit;
+  outline:none;
+}
+.els29-native-finding-add input:focus-visible{
+  border-color:var(--s29-accent);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--s29-focus-ring) 22%,transparent);
+}
+.els29-native-finding-add button,
+.els29-native-finding-remove{
+  min-height:38px;
+  border:1px solid var(--s29-line);
+  border-radius:11px;
+  background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel));
+  color:var(--s29-ink);
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+.els29-native-finding-add button{padding:0 10px}
+.els29-native-finding-add button:disabled{opacity:.38;cursor:not-allowed}
 .els29-native-findings{display:grid;gap:5px}
 .els29-native-finding{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:11px;background:var(--s29-panel)}
+.els29-native-color-picker{
+  position:relative;
+  width:24px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  flex:none;
+  cursor:pointer;
+}
+.els29-native-color-picker input{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+}
 .els29-native-finding i{
   width:10px;height:28px;border-radius:999px;flex:none;
   background:var(--els29-mark,var(--s29-accent-secondary));
+  pointer-events:none;
 }
-.els29-native-finding span{display:grid;gap:1px;min-width:0}
+.els29-native-finding span{display:grid;gap:1px;min-width:0;flex:1}
 .els29-native-finding b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.els29-native-finding-remove{
+  width:32px;
+  min-width:32px;
+  padding:0;
+  font-size:18px;
+  color:var(--s29-muted);
+}
+.els29-native-finding-remove:hover{color:var(--s29-ink);border-color:var(--s29-line-strong)}
 .els29-native-finding small,.els29-native-muted{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
 .els29-native-source-card{
   display:grid;
@@ -369,6 +428,8 @@
   .els29-native-search,.els29-native-cross-toggle,.els29-native-more{width:100%}
   .els29-native-cross-row{grid-template-columns:1fr}
   .els29-native-cross-run{width:100%}
+  .els29-native-finding-add{grid-template-columns:1fr}
+  .els29-native-finding-add button{width:100%}
   .els29-native-stage-head{align-items:flex-start;flex-direction:column}
   .els29-native-stage-status{justify-content:flex-start}
   .els29-native-controls{align-items:stretch;flex-direction:column}
