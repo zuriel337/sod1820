@@ -384,11 +384,17 @@ const SEVENTH_TENTH_CHAIN = Object.freeze({
 // Follow subjects the existing server resolver (canonical_follow_subject -> resolve_topics -> dispatch)
 // can already resolve. Mirrors the server list; anything else is a reported GAP, never a faked control.
 const FOLLOW_RESOLVABLE_ENTITY_TYPES = Object.freeze(["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"]);
-const SEVENTH_TENTH_FOLLOW_NUMBERS = Object.freeze([7, 10, 710]);
+// Exactly three resolvable choices; bare 7 / 10 are too broad and noisy to follow.
+const SEVENTH_TENTH_FOLLOW = Object.freeze([
+  { id: "follow-number-710", entityType: "number", stableId: "710", label: "עקוב אחרי 710", explainer: "עדכון כשמתפרסם משהו חדש במספר 710." },
+  { id: "follow-category-dimension-five", entityType: "category", stableId: "מימד חמש", label: "עקוב אחרי הקטגוריה: מימד חמש", explainer: "עדכון כשמתפרסם משהו חדש בקטגוריה מימד חמש." },
+  { id: "follow-author-sefirot-guide", entityType: "author", stableId: "מדריך לריפוי 10 הספירות", label: "עקוב אחרי המחבר: מדריך לריפוי 10 הספירות", explainer: "עדכון כשמתפרסם משהו חדש של מדריך לריפוי 10 הספירות." },
+]);
 const SEVENTH_TENTH_FOLLOW_GAPS = Object.freeze([
   { kind: "post", reason: "canonical_follow_subject has no post identity; no delivery semantics to prove" },
   { kind: "event", reason: "canonical_follow_subject has no event identity" },
   { kind: "concept", reason: "no stable concept (sefirot) identity in the follow resolver" },
+  { kind: "timed_translation_vtt", reason: "only the Hebrew timed caption (captions/he.vtt) is published; timed VTT for en/ar/es/fr/ru/pt/de does not exist yet" },
   { kind: "chain", reason: "no chain identity in the follow resolver" },
 ]);
 
@@ -398,11 +404,17 @@ function extractSourceVideo(content = "") {
   const video = (html.match(/<video\b[^>]*>/i) || [])[0] || "";
   const poster = (video.match(/poster=["']([^"']+)["']/i) || [])[1] || null;
   const src = (html.match(/<source\b[^>]*\bsrc=["']([^"']+)["']/i) || [])[1] || null;
-  return key && src ? { videoKey: key, src, poster } : null;
+  const videoBlock = (html.match(/<video\b[\s\S]*?<\/video>/i) || [])[0] || "";
+  const captionTracks = [...videoBlock.matchAll(/<track\b[^>]*>/gi)].map((m) => {
+    const tag = m[0];
+    const attr = (n) => (tag.match(new RegExp(`\\b${n}=["']([^"']+)["']`, "i")) || [])[1] || null;
+    return { srclang: attr("srclang"), src: attr("src"), label: attr("label"), isDefault: /\sdefault\b/i.test(tag) };
+  }).filter((t) => t.srclang === "he" && t.src);
+  return key && src ? { videoKey: key, src, poster, captionTracks } : null;
 }
 
-// The video + its hard-coded <track> leave the body: media renders through PostEvidenceMedia2029 and
-// VideoTranscript (video_transcripts, all published languages). Source text is otherwise unchanged.
+// The video leaves the body: media renders through PostEvidenceMedia2029 (canonical he.vtt caption track
+// extracted into media.captionTracks) and VideoTranscript (video_transcripts text languages). Source text is otherwise unchanged.
 function prepareSeventhTenthContent(content = "") {
   let html = String(content || "").replace(/<video\b[\s\S]*?<\/video>/gi, "");
   html = html.replace(/<h2\b([^>]*)>/gi, (m, attrs) => /data-source-heading/.test(attrs) ? m : `<h2${attrs} data-source-heading="true">`);
@@ -421,6 +433,7 @@ function buildSeventhTenthExperience(post) {
       highlight: { src: source.src, poster: source.poster, label: "הסרטון המקורי · מדריך לריפוי 10 הספירות", sourceIdentity: source.videoKey },
       fullSource: { href: source.src, label: "לצפייה בסרטון המלא", platformId: source.videoKey },
       videoKey: source.videoKey,
+      captionTracks: source.captionTracks,
     } : null,
     connections: [
       spine(c.hub233, "מרכז ציר 7.10 באתר; הפוסט הנוכחי ממשיך אותו."),
@@ -445,14 +458,7 @@ function buildSeventhTenthExperience(post) {
       { id: "post-5116", label: "הפוסט הזה", href: "/post/" + SEVENTH_TENTH_SLUG, kind: "post", active: true },
       { id: c.depth5109.id, label: "ים המלח · תפארת", href: c.depth5109.href, kind: "post", active: false },
     ],
-    follow: SEVENTH_TENTH_FOLLOW_NUMBERS.map((n) => ({
-      id: "follow-number-" + n,
-      label: "עקוב אחרי " + n,
-      entityType: "number",
-      stableId: String(n),
-      topic: canonicalFollowTopic("number:" + n),
-      explainer: "עדכון כשמתפרסם משהו חדש במספר " + n + ".",
-    })),
+    follow: SEVENTH_TENTH_FOLLOW.map((f) => ({ ...f })),
     followGaps: SEVENTH_TENTH_FOLLOW_GAPS,
   };
 }

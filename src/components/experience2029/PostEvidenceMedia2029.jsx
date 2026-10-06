@@ -54,7 +54,16 @@ export default function PostEvidenceMedia2029({ media: rawMedia }) {
         poster={media.highlight.poster || undefined}
         src={media.highlight.src}
         aria-label={media.highlight.label || "רגע המקור"}
-      />
+      >
+        {(media.captionTracks || []).map((t) => <track
+          key={t.srclang + t.src}
+          kind="subtitles"
+          srcLang={t.srclang}
+          src={t.src}
+          label={t.label || t.srclang}
+          default={t.isDefault}
+        />)}
+      </video>
       <small>{media.highlight.label}</small>
     </div> : null}
     {media?.fullSource?.href ? <a

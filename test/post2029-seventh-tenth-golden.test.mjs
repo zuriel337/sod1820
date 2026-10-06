@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { topicLabel } from "../src/lib/notifications.js";
 import { post2029ReadingInternals as I } from "../src/lib/research/post2029ReadingProjection.js";
 import { projectPost2029Experience } from "../src/lib/research/post2029ExperienceProjection.js";
-import { canonicalFollowTopic, includesFollowSubject } from "../src/lib/followIdentity.js";
+import { canonicalFollowTopic, includesFollowSubject, followTopicAliases } from "../src/lib/followIdentity.js";
 
 const KEY = "10b548b4-ab22-40fc-a12c-5a622434f0bd";
 const BASE = `https://x.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/${KEY}`;
@@ -58,6 +59,10 @@ test("media uses canonical source video/poster; hard-coded track removed; transc
   assert.equal(e.media.videoKey, KEY);
   const body = I.prepareSeventhTenthContent(CONTENT);
   assert.doesNotMatch(body, /<video|<track|\.vtt/);
+  assert.deepEqual(e.media.captionTracks.map((t) => [t.srclang, t.src, t.isDefault]), [["he", `${BASE}/captions/he.vtt`, true]]);
+  const mediaSrc = read("../src/components/experience2029/PostEvidenceMedia2029.jsx");
+  assert.match(mediaSrc, /<track[\s\S]*srcLang=\{t\.srclang\}/);
+  assert.ok(e.followGaps.some((g) => g.kind === "timed_translation_vtt"));
   assert.equal((body.match(/data-source-heading="true"/g) || []).length, 2);
   assert.match(body, /intro/);
   const media = read("../src/components/experience2029/PostEvidenceMedia2029.jsx");
@@ -68,21 +73,32 @@ test("media uses canonical source video/poster; hard-coded track removed; transc
   assert.equal(I.extractSourceVideo("<p>no video</p>"), null);
 });
 
-test("follow reuses resolver identities (number only); post/event/concept/chain are reported gaps", () => {
+test("follow: exactly 710 + category + author, topics derived server-style, compatible with follow engine/topicLabel", () => {
   const e = exp();
-  assert.deepEqual(e.follow.map((f) => f.topic), ["number:7", "number:10", "number:710"]);
-  assert.ok(e.follow.every((f) => f.entityType === "number" && I.FOLLOW_RESOLVABLE_ENTITY_TYPES.includes(f.entityType)));
+  assert.deepEqual(e.follow.map((f) => f.topic), ["number:710", "cat:מימד חמש", "author:מדריך לריפוי 10 הספירות"]);
+  assert.ok(!e.follow.some((f) => ["number:7", "number:10"].includes(f.topic)));
+  assert.ok(e.follow.every((f) => I.FOLLOW_RESOLVABLE_ENTITY_TYPES.includes(f.entityType)));
   assert.ok(e.follow.every((f) => f.topic === canonicalFollowTopic(f.topic)));
-  assert.ok(includesFollowSubject(["num_7"], "number:7"));
-  assert.deepEqual(e.followGaps.map((g) => g.kind).sort(), ["chain", "concept", "event", "post"]);
-  // unresolvable identities never become controls, and the topic is re-derived rather than trusted
-  const bad = projectPost2029Experience({ _experience: { follow: [
-    { entityType: "post", stableId: "5116", topic: "post:5116" },
-    { entityType: "concept", stableId: "keter" },
-    { entityType: "number", stableId: "7", topic: "evil:topic" },
-  ] } });
-  assert.deepEqual(bad.follow.map((f) => f.topic), ["number:7"]);
+  assert.ok(includesFollowSubject(["num_710"], "number:710"));
+  assert.ok(includesFollowSubject(["category:מימד חמש"], e.follow[1].topic));
+  assert.ok(followTopicAliases(e.follow[1].topic).includes("cat:מימד חמש"));
+  for (const f of e.follow) assert.ok(topicLabel(f.topic), f.topic);
+  assert.deepEqual(e.followGaps.map((g) => g.kind).sort(), ["chain", "concept", "event", "post", "timed_translation_vtt"]);
+  // topic is re-derived from entityType+stableId for every resolver type, never trusted from the caller
+  const d = (entityType, stableId) => projectPost2029Experience({ _experience: { follow: [{ entityType, stableId, topic: "evil:topic" }] } }).follow?.[0]?.topic;
+  assert.equal(d("number", "7"), "number:7");
+  assert.equal(d("author", "X"), "author:X");
+  assert.equal(d("category", "מימד חמש"), "cat:מימד חמש");
+  assert.equal(d("cipher_feed", "any"), "codes:new");
+  assert.equal(d("reality_stream", "any"), "stream:reality");
+  assert.equal(d("media_channel", "orgeula"), "channel:or-geula");
+  assert.equal(d("channel", "or_geula"), "channel:or-geula");
+  assert.equal(d("channel", "foo"), "channel:foo");
+  assert.equal(d("post", "5116"), undefined);
+  assert.equal(d("concept", "keter"), undefined);
   const page = read("../src/pages/Post2029Page.jsx");
   assert.match(page, /<WatchButton\s[^>]*topic=\{item\.topic\}/);
   assert.doesNotMatch(page, /post2029_follow|localStorage\.setItem\([^)]*follow/i);
+  // no Personal Area duplicate: existing UserCenter FollowingPanel is the projection
+  assert.match(read("../src/components/userCenter/UserCenter.jsx"), /topicLabel/);
 });

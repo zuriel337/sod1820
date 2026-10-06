@@ -31,8 +31,12 @@ function normalizeMedia(raw = {}) {
       sourceUrl: clean(fullSource.sourceUrl) || null,
       platformId: clean(fullSource.platformId) || null,
     } : null,
-    // Identity for the shared video_transcripts path (all published languages); never per-post tracks.
+    // Identity for the shared video_transcripts path (published transcript/translation text languages).
     videoKey: clean(source.videoKey) || null,
+    // Canonical timed captions already published with the source video (today: Hebrew only).
+    captionTracks: asArray(source.captionTracks)
+      .map((t) => ({ srclang: clean(t?.srclang), src: clean(t?.src), label: clean(t?.label) || null, isDefault: t?.isDefault === true }))
+      .filter((t) => t.srclang && t.src),
   };
 }
 
@@ -103,12 +107,27 @@ function normalizeTrailItem(item, index) {
 // Follow choices must resolve through the existing server resolver (canonical_follow_subject).
 // Only entity types it already knows are accepted; the topic is re-derived, never trusted from input.
 const FOLLOW_ENTITY_TYPES = ["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"];
+// Mirrors server canonical_follow_subject(entity_type, stable_id); the caller-supplied topic is ignored.
+function followTopicFor(entityType, stableId) {
+  const id = stableId;
+  const slug = id.toLowerCase().replace(/_/g, "-");
+  switch (entityType) {
+    case "number": return canonicalFollowTopic("number:" + id);
+    case "author": return canonicalFollowTopic("author:" + id);
+    case "category": return canonicalFollowTopic("cat:" + id);
+    case "cipher_feed": return "codes:new";
+    case "reality_stream": return "stream:reality";
+    case "media_channel":
+    case "channel": return slug === "or-geula" || slug === "orgeula" ? "channel:or-geula" : canonicalFollowTopic("channel:" + id);
+    default: return "";
+  }
+}
 function normalizeFollow(item, index) {
   if (!item || typeof item !== "object") return null;
-  const entityType = clean(item.entityType);
+  const entityType = clean(item.entityType).toLowerCase();
   const stableId = clean(item.stableId);
   if (!FOLLOW_ENTITY_TYPES.includes(entityType) || !stableId) return null;
-  const topic = canonicalFollowTopic(entityType === "number" ? "number:" + stableId : clean(item.topic));
+  const topic = followTopicFor(entityType, stableId);
   if (!topic) return null;
   return {
     id: clean(item.id) || `follow-${index + 1}`,
