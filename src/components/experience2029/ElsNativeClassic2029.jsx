@@ -363,6 +363,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           full={classicOpen}
           hiddenBridge
           engineOnly={!classicOpen}
+          showResearchBusWhenHiddenBridge
           onState={handleEngineState}
           onGate={() => setClassicOpen(true)}
           lensRequest={lensRequest}
