@@ -1983,6 +1983,23 @@
       else if(d.action==="zoom-in")adjustZoom(0.2);
       else if(d.action==="fit-toggle")toggleFit();
     }
+    if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
+      const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
+      const scope=req.scope==="tanakh"?"tanakh":"torah";
+      if(kind==="regular"){
+        if(norm(term).length<2){toast("רשום לפחות 2 אותיות");return;}
+        if(!selectSearchScope(scope,false))return;
+        q.value=term;qb.value="";qb.style.display="none";crosstoggle.classList.remove("on");syncTip();
+        run();
+      }else if(kind==="cross"){
+        const axis=typeof req.axis==="string"&&req.axis.trim()?req.axis.trim():(st.raw||q.value||"").trim();
+        if(norm(axis).length<2||norm(term).length<2){toast("להצלבה צריך שני מונחים של לפחות 2 אותיות");return;}
+        if(!canCross()){gate("cross");return;}
+        if(!selectSearchScope(scope,false))return;
+        q.value=axis;qb.value=term;qb.style.display="";crosstoggle.classList.add("on");syncTip();
+        run();   // run() משתמש ב-runCrossSimple/logSearch/gate הקיימים — אין מנוע/דירוג מקביל
+      }
+    }
     });
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
@@ -4641,17 +4658,20 @@
   }
   // «כל התנ״ך» נעול לכל מי שאינו רשום/מנהל — הנתונים הכבדים (1.2M) לא מפוענחים כלל עד שנפתח
   function tanakhLocked(){return isAnon();}   // מנהל/רשום → פתוח; רק אנונימי נעול
-  document.querySelectorAll(".scopebtn").forEach(b=>b.onclick=()=>{
-    if(b.dataset.scope==="tanakh"&&tanakhLocked()){   // 🔒 חסום — לא מחליף היקף, לא טוען תנ״ך
+  function selectSearchScope(nextScope,rerunCurrent){
+    const next=nextScope==="tanakh"?"tanakh":"torah";
+    if(next==="tanakh"&&tanakhLocked()){   // 🔒 אותו gate קנוני — Native אינו עוקף הרשאה
       postHost({type:"gate",reason:"tanakh"});
-      toast("🔒 חיפוש בכל התנ״ך פתוח לרשומים — הירשמו בחינם לפתיחה");return;}
-    if(st.scope===b.dataset.scope)return;
-    st.scope=b.dataset.scope;updateScopeUI();
+      toast("🔒 חיפוש בכל התנ״ך פתוח לרשומים — הירשמו בחינם לפתיחה");return false;}
+    if(st.scope===next)return true;
+    st.scope=next;updateScopeUI();
     if(st.scope==="tanakh")toast("📜 היקף: כל התנ״ך — 24 ספרים ("+heb(N)+" אותיות). החיפוש איטי מעט יותר.");
     else toast("📖 היקף: התורה — "+heb(TORAH_N)+" אותיות (מהיר).");
-    // רה-חיפוש של המונח הנוכחי בהיקף החדש (אם זו הייתה חיפוש-מונח רגיל)
-    if(st.raw&&st.res&&!st.crossMeetings){q.value=st.raw;run();}
-  });
+    // אותה התנהגות של הכפתורים הישנים: אם יש חיפוש רגיל פתוח — מריצים אותו מחדש בהיקף החדש.
+    if(rerunCurrent!==false&&st.raw&&st.res&&!st.crossMeetings){q.value=st.raw;run();}
+    return true;
+  }
+  document.querySelectorAll(".scopebtn").forEach(b=>b.onclick=()=>selectSearchScope(b.dataset.scope,true));
   updateScopeUI();
   applyView();
 
