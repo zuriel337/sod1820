@@ -106,3 +106,35 @@ console.log("PASS raziel WhatsApp response/speed golden contract");
     { raziel: { opening: "https://example.com/only-link" } },
   ]) assert.equal(renderWhatsappReply(bad), "", "internal-only/anchorless legacy envelope must fail closed");
 }
+
+// (5) RAZIEL_WA_RENDER_HOTFIX_V1C — real legacy nested shape (phase_N containers, what_*/why_* keys); tied to the incident prompt
+{
+  const incident = { task: "RAZIEL_WA_RENDER_HOTFIX_V1C", user_prompt: "ערב טוב ... הרבה הודאה ... מזמור לתודה ... רוצה שאשלח לך ?????" };
+  assert.equal(incident.user_prompt, "ערב טוב ... הרבה הודאה ... מזמור לתודה ... רוצה שאשלח לך ?????");
+  const real = { raziel: {
+    response_type: "companion_reply", speaker: "raziel", tone: "warm", status: "ok",
+    opening: "ערב טוב, אני כאן איתך.",
+    structure: {
+      phase_1_understanding: { what_you_shared: "שיתפת הרבה הודאה ומזמור לתודה.", key_motifs: ["הודאה", "תודה"], note_on_image: "בתמונה יש כתב יד עדין.", source_stage: "vision", trace: "t-9" },
+      phase_4_meaning_analysis: { what_stands_out: [{ theme: "הודאה", why_relevant: "היא חוזרת שוב ושוב.", direction: "כדאי לבדוק את השורש.", model: "m1" }] },
+      phase_5_next_step: { options: ["רוצה שאשלח לך את הפירוט?", "https://example.com/x"], link: "https://example.com/y" },
+    },
+  } };
+  const out = renderWhatsappReply(real);
+  assert.ok(out.startsWith("ערב טוב, אני כאן איתך."), "opening first");
+  for (const want of ["שיתפת הרבה הודאה ומזמור לתודה.", "בתמונה יש כתב יד עדין.", "היא חוזרת שוב ושוב.", "כדאי לבדוק את השורש.", "רוצה שאשלח לך את הפירוט?"]) assert.ok(out.includes(want), want);
+  assert.doesNotMatch(out, /companion_reply|response_type|raziel|warm|\bok\b|vision|t-9|m1|https?:|example\.com|phase_|what_you_shared/);
+  assert.equal(out, out.split("\n\n").filter((x, i, a) => a.indexOf(x) === i).join("\n\n"), "deduped");
+  assert.ok(out.length <= 2200);
+  // no opening: only an explicit root content container (object of phase_* keys) is accepted
+  const noOpen = renderWhatsappReply({ raziel: { status: "ok", structure: { phase_1_x: { what_you_shared: "תוכן אנושי" } } } });
+  assert.equal(noOpen, "תוכן אנושי");
+  // no opening, no recognized root container ⇒ fail closed; arbitrary keys are never dumped
+  for (const bad of [
+    { raziel: { status: "ok", structure: ["טקסט"] } },
+    { raziel: { status: "ok", notes: "שדה שרירותי", payload: { x: "y" } } },
+    { raziel: { structure: { phase_1_x: { trace: "t", status: "ok", source_stage: "s" } } } },
+  ]) assert.equal(renderWhatsappReply(bad), "");
+  // arbitrary non-allowlisted keys inside an anchored envelope are not dumped
+  assert.equal(renderWhatsappReply({ raziel: { opening: "שלום", secret_note: "לא", structure: { phase_1: { random_key: "לא", what_you_shared: "כן" } } } }), "שלום\n\nכן");
+}

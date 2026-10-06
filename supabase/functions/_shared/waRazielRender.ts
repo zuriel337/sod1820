@@ -46,19 +46,22 @@ function fromValue(v: unknown, depth: number): string {
   return "";
 }
 
-// Legacy structured envelope (no answer key): {opening, structure|sections|phase|items|options: [...]}. Only allow-listed
-// human-text keys are read, in source order; metadata/status/tone/speaker/ids/links/internal/tool fields are never read.
-const LEGACY_CONTAINERS = ["structure", "sections", "phase", "phases", "items", "options"];
-const LEGACY_TEXT_KEYS = ["opening", "title", "heading", "label", "text", "content", "body", "summary", "description", "step", "point", "option"];
-const LEGACY_DENY = /^(metadata|meta|status|tone|speaker|id|ids|uid|link|links|url|href|internal|tool|tools|trace|agent|degraded|source_stage|v|version|context|facts|suggested_paths|continue_wa)$/i;
+// Legacy structured envelope (no answer key): {opening, structure|sections|phase_N|items|options ...}. Only user-facing keys
+// are traversed (containers + semantic prose keys), in source order, after the opening; deny-listed metadata/status/tone/
+// speaker/ids/links/internal/tool/trace/model/token/config/engine/source_stage keys are never read. Arbitrary keys are never dumped.
+const LEGACY_CONTAINER = /^(?:structure|sections?|phases?|items|options|phase_.*)$/i;
+const LEGACY_TEXT_KEY = /^(?:opening|title|heading|label|text|content|body|summary|description|step|point|option|what_.*|why_.*|current_ask|direction|theme|tentative_bridge|ask_for_clarity|key_motifs|note|note_.*)$/i;
+const LEGACY_DENY = /^(?:metadata|meta|status|tone|speaker|response_type|id|ids|uid|link|links|url|href|internal.*|tool|tools|trace|agent|degraded|source_stage|v|version|context|facts|suggested_paths|continue_wa|model.*|token.*|config.*|engine.*)$/i;
 const LEGACY_MAX_CHARS = 1800;
 const LEGACY_MAX_LINES = 24;
+const LEGACY_MAX_DEPTH = 8;
+const URL_IN_TEXT = /https?:\/\/|www\./i;
 
-function legacyLines(v: unknown, depth: number, out: string[]): void {
-  if (depth > MAX_DEPTH || v == null || out.length >= LEGACY_MAX_LINES) return;
+function legacyLines(v: unknown, depth: number, out: string[], skipOpening = false): void {
+  if (depth > LEGACY_MAX_DEPTH || v == null || out.length >= LEGACY_MAX_LINES) return;
   if (typeof v === "string") {
     const t = v.trim();
-    if (t && !looksLikeEnvelope(t) && !/^(?:https?:\/\/|www\.|\/)\S*$/i.test(t)) out.push(t);
+    if (t && !looksLikeEnvelope(t) && !URL_IN_TEXT.test(t) && !/^\/\S*$/.test(t)) out.push(t);
     return;
   }
   if (Array.isArray(v)) { for (const x of v) legacyLines(x, depth + 1, out); return; }
@@ -66,14 +69,26 @@ function legacyLines(v: unknown, depth: number, out: string[]): void {
   const o = v as Record<string, unknown>;
   for (const k of Object.keys(o)) {
     if (LEGACY_DENY.test(k)) continue;
-    if (LEGACY_TEXT_KEYS.includes(k) || LEGACY_CONTAINERS.includes(k)) legacyLines(o[k], depth + 1, out);
+    if (skipOpening && k === "opening") continue;
+    if (LEGACY_TEXT_KEY.test(k) || LEGACY_CONTAINER.test(k)) legacyLines(o[k], depth + 1, out);
   }
 }
 
-function fromLegacyStructure(o: Record<string, unknown>, depth: number): string {
-  if (typeof o.opening !== "string" || !o.opening.trim()) return "";   // opening is the anchor of the legacy shape; otherwise fail closed
+// Explicit recognized user-facing root container without an opening: structure/sections/phases as an OBJECT holding phase_*/section keys.
+function hasRootContentContainer(o: Record<string, unknown>): boolean {
+  for (const k of ["structure", "sections", "phases"]) {
+    const c = o[k];
+    if (c && typeof c === "object" && !Array.isArray(c) && Object.keys(c as object).some((x) => /^(?:phase(?:_|$)|section)/i.test(x))) return true;
+  }
+  return false;
+}
+
+function fromLegacyStructure(o: Record<string, unknown>, _depth: number): string {
+  const opening = typeof o.opening === "string" ? o.opening.trim() : "";
+  if (!opening && !hasRootContentContainer(o)) return "";   // fail closed unless anchored by opening or a recognized root container
   const lines: string[] = [];
-  legacyLines(o, depth, lines);
+  if (opening && !looksLikeEnvelope(opening) && !URL_IN_TEXT.test(opening)) lines.push(opening);   // opening-first
+  legacyLines(o, 0, lines, true);
   const seen = new Set<string>();
   const kept: string[] = [];
   let len = 0;
