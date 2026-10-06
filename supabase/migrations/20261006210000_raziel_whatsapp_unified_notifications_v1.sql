@@ -94,7 +94,7 @@ revoke all on function public.outbox_mark_system(text, text, text) from public, 
 grant execute on function public.outbox_mark_system(text, text, text) to service_role;
 
 -- (3) Raziel activity producer (replaces the direct Metatron WhatsApp alert).
--- Opt-in only: creates a user_notifications row for an ADMIN user whose notification_prefs.topics contains
+-- Bounded activity alert (first activity per sender per day — NOT every Raziel reply). Opt-in only: creates a user_notifications row for an ADMIN user whose notification_prefs.topics contains
 -- 'admin:raziel_activity' (absent by default => OFF). Privacy-minimal: coarse channel label only, no prompt, no phone,
 -- no link. One per admin per sender per day (dedupe_key). Delivery is then handled by the unified pipeline above.
 create or replace function public.fn_raziel_activity_notify(p_sender text, p_channel text)
@@ -116,7 +116,7 @@ begin
        and not exists (select 1 from public.wa_account_links l where l.user_id = p.user_id and l.phone = v_sender)
   loop
     insert into public.user_notifications(user_id, kind, title, body, source_topic, source_ref, dedupe_key)
-    values (r.user_id, 'admin_raziel_activity', 'רזיאל ענה', 'פעילות רזיאל · ' || coalesce(nullif(v_chan, ''), 'ערוץ'),
+    values (r.user_id, 'admin_raziel_activity', 'פעילות רזיאל', 'פעילות ראשונה משולח ביום · ' || coalesce(nullif(v_chan, ''), 'ערוץ'),
             'admin:raziel_activity', 'raziel:' || v_day,
             'raziel_activity:' || r.user_id::text || ':' || md5(v_sender) || ':' || v_day)
     on conflict do nothing;
@@ -127,3 +127,52 @@ end $$;
 
 revoke all on function public.fn_raziel_activity_notify(text, text) from public, anon, authenticated;
 grant execute on function public.fn_raziel_activity_notify(text, text) to service_role;
+
+-- (4) admin:system_high producer — EXISTING owner system_suggestions only. Event-driven (no polling), no new store.
+-- Notifies opted-in ADMIN users (notification_prefs.topics contains 'admin:system_high') when observed->>severity is
+-- high|critical AND status = 'pending' (live vocabulary: pending/accepted — gate to pending only). Dedupe: suggestion id + user.
+-- Message carries only a sanitized title / category / severity; never the raw observed payload, never a link.
+create or replace function public.fn_system_suggestion_notify_high()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  r record;
+  v_sev text := lower(coalesce(new.observed->>'severity', ''));
+  v_title text := left(regexp_replace(coalesce(new.title, ''), '[\r\n\t]+', ' ', 'g'), 80);
+  v_cat text := left(regexp_replace(coalesce(new.category, ''), '[\r\n\t]+', ' ', 'g'), 40);
+begin
+  if v_sev not in ('high', 'critical') or coalesce(new.status, '') <> 'pending' then return new; end if;
+  begin
+    for r in
+      select p.user_id from public.notification_prefs p
+        join public.users u on u.id = p.user_id and u.role = 'admin'
+       where p.user_id is not null and 'admin:system_high' = any(coalesce(p.topics, '{}'::text[]))
+    loop
+      insert into public.user_notifications(user_id, kind, title, body, source_topic, source_ref, dedupe_key)
+      values (r.user_id, 'admin_system_high', 'תקלת מערכת ' || case v_sev when 'critical' then 'קריטית' else 'חמורה' end,
+              concat_ws(' · ', nullif(v_title, ''), nullif(v_cat, ''), v_sev),
+              'admin:system_high', 'system_suggestion:' || new.id::text,
+              'system_high:' || r.user_id::text || ':' || new.id::text)
+      on conflict do nothing;
+    end loop;
+  exception when others then
+    null; -- must never block the system_suggestions write
+  end;
+  return new;
+end $$;
+
+revoke all on function public.fn_system_suggestion_notify_high() from public, anon, authenticated;
+
+drop trigger if exists trg_system_suggestion_notify_high on public.system_suggestions;
+create trigger trg_system_suggestion_notify_high
+  after insert or update of status, observed on public.system_suggestions
+  for each row execute function public.fn_system_suggestion_notify_high();
+
+-- (5) Delivery-receipt integrity: the browser only marks read. Authenticated may update read_at only
+-- (channels_sent / title / body / link / user_id / dedupe_key can no longer be forged). RLS owner policy and SELECT untouched.
+-- service_role and SECURITY DEFINER functions (outbox_mark_system) are unaffected.
+revoke update on public.user_notifications from authenticated;
+grant update (read_at) on public.user_notifications to authenticated;

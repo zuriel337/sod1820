@@ -45,11 +45,11 @@ export const ONBOARDING_INTENTS = [
 ];
 
 // העדפות אדמין — מפתחות topic קיימים ב-notification_prefs בלבד (אין registry סמנטי חדש).
-// attention = דורש בדיקה/החלטה אנושית · system_high = אירוע מערכת high/critical · raziel_activity = פעילות לכל תשובת רזיאל (כבוי כברירת-מחדל).
+// system_high = system_suggestions ממתינה בחומרה high/critical · raziel_activity = התראת פעילות מוגבלת (כבוי כברירת-מחדל).
+// admin:attention הוסר: אין לו producer מאומת עדיין — לא מוצג ולא ניתן לשמירה.
 export const ADMIN_NOTIFICATION_PREFS = [
-  { key: "admin:attention",       label: "דורש תשומת-לב",   desc: "פריטים שדורשים בדיקה או החלטה אנושית" },
-  { key: "admin:system_high",     label: "תקלת מערכת חמורה", desc: "אירוע מערכת בחומרה גבוהה/קריטית" },
-  { key: "admin:raziel_activity", label: "פעילות רזיאל",     desc: "הודעה על כל תשובת רזיאל — כבוי כברירת-מחדל" },
+  { key: "admin:system_high",     label: "תקלת מערכת חמורה", desc: "הצעת מערכת ממתינה בחומרה גבוהה/קריטית" },
+  { key: "admin:raziel_activity", label: "פעילות רזיאל",     desc: "התראת פעילות מוגבלת — פעילות ראשונה משולח/שיחה ביום, לא כל תשובה. כבוי כברירת-מחדל" },
 ];
 export const ADMIN_TOPIC_KEYS = ADMIN_NOTIFICATION_PREFS.map(a => a.key);
 const GATE_TOPIC_SET = new Set(ONBOARDING_GATES.flatMap(g => g.topics));
