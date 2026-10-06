@@ -806,6 +806,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/melech-hamisparim/718",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -849,6 +853,15 @@
     },
     {
       "source": "/2029/control",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/melech-hamisparim/718",
       "headers": [
         {
           "key": "X-Robots-Tag",
