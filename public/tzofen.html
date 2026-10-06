@@ -1905,6 +1905,24 @@
     }catch(e){postHost({type:"lens",lens:"verse-context",ok:false,target:t});}
   }
 
+  // 📍 Letter/Verse Lens — הקרנת-קריאה בלבד עבור תא שכבר קיים בחלון המטריצה הנוכחי.
+  //    אין חיפוש ELS, אין ranking ואין geometry חדשה: מאמתים שה-index נמצא בתוך blockOf() הפעיל,
+  //    ואז משתמשים ב-locateLetter()/ensureVerseText() הקיימים כדי להחזיר מקור + פסוק.
+  async function letterContextLens(target){
+    const t=target||{},i=Number(t.i);
+    try{
+      if(!Number.isInteger(i)||i<0||i>=scopeN()){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
+      const b=blockOf(),r=Math.floor(i/b.S),c=((i%b.S)+b.S)%b.S;
+      if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
+      await ensureVerseText();
+      const loc=locateLetter(i);
+      if(!loc){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
+      postHost({type:"lens",lens:"letter-context",ok:true,target:t,index:i,letter:T[i],
+        location:{book:loc.book,chapter:loc.chapter,verse:loc.verse,offset:loc.offset,ref:loc.ref,verseIndex:loc.verseIndex},
+        verse:{ref:loc.ref,text:loc.text||"",from:VCUM[loc.verseIndex],to:VCUM[loc.verseIndex+1]-1}});
+    }catch(e){postHost({type:"lens",lens:"letter-context",ok:false,target:t});}
+  }
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -1957,6 +1975,14 @@
       try{renderList();}catch(e){}
     }
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
+    if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
+    if(d.type==="native-control"&&typeof d.action==="string"){   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
+      if(d.action==="occurrence-prev")shiftOccurrence(-1);
+      else if(d.action==="occurrence-next")shiftOccurrence(1);
+      else if(d.action==="zoom-out")adjustZoom(-0.2);
+      else if(d.action==="zoom-in")adjustZoom(0.2);
+      else if(d.action==="fit-toggle")toggleFit();
+    }
     });
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
@@ -3812,19 +3838,19 @@
     wrap.appendChild(work);
     // ⛔ התגובות-הפרימיטיביות (localStorage) הוסרו — המחקר-הקהילתי הקנוני חי בעמוד-הצופן /codes/:slug (Discourse).
     out.innerHTML="";out.appendChild(wrap);
-    hb.querySelector(".fitbtn").onclick=()=>{st.fit=!st.fit;st.zoom=1;render();};
+    hb.querySelector(".fitbtn").onclick=toggleFit;
     hb.querySelector(".ctxrm").onclick=()=>setCtxR(st.ctxR-1);
     hb.querySelector(".ctxrp").onclick=()=>setCtxR(st.ctxR+1);
-    hb.querySelector(".zo").onclick=()=>setZoom(st.zoom-0.2);
-    hb.querySelector(".zi").onclick=()=>setZoom(st.zoom+0.2);
+    hb.querySelector(".zo").onclick=()=>adjustZoom(-0.2);
+    hb.querySelector(".zi").onclick=()=>adjustZoom(0.2);
     hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();};
     hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
     if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
     // מעבר בין מופעים = מטריצה חדשה → מאפס את החיפושים שהוספת (לא גוררים ממצא קודם)
-    head.querySelector(".pv").onclick=()=>{st.occ=(st.occ-1+n)%n;st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();};
-    head.querySelector(".nx").onclick=()=>{st.occ=(st.occ+1)%n;st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();};
+    head.querySelector(".pv").onclick=()=>shiftOccurrence(-1);
+    head.querySelector(".nx").onclick=()=>shiftOccurrence(1);
     // התאמה-למסך (או מרכוז על המילה במצב חופשי)
     requestAnimationFrame(()=>{if(st.fit){fitMatrixToScreen();mb.scrollTop=0;mb.scrollLeft=mb.scrollWidth;}else centerMain(mb);});
     refreshLenses();   // 🔬 עדשות פעילות מתעדכנות על התוצאה החדשה
@@ -4091,6 +4117,16 @@
       if(e.touches.length===0)end();
     });
   }
+  // 🎛️ Native Classic controls — presentation bridge בלבד. אותם helpers משמשים גם את ה-UI הישן,
+  //    כך שהקרנת 2029 אינה משכפלת סמנטיקה או חישוב.
+  function shiftOccurrence(delta){
+    const hits=st.res&&Array.isArray(st.res.hits)?st.res.hits:null;
+    if(!hits||!hits.length)return;
+    const n=hits.length;st.occ=(st.occ+delta+n)%n;
+    st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();
+  }
+  function toggleFit(){st.fit=!st.fit;st.zoom=1;render();}
+  function adjustZoom(delta){setZoom(st.zoom+delta);}
   function setZoom(z){st.zoom=Math.max(.5,Math.min(2.8,z));render();}
   let _rzT=null;window.addEventListener("resize",()=>{if(!hasGov(st.res))return;clearTimeout(_rzT);_rzT=setTimeout(fitMatrixToScreen,150);});
 
