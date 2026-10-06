@@ -88,7 +88,7 @@ export function normalizeAttribution(input) {
   };
 }
 
-function withAttribution(finding, attribution, governance = null) {
+export function withAttribution(finding, attribution, governance = null) {
   if (!attribution) return finding;
   const [fact, ...rest] = finding.evidence?.facts || [];
   return {
@@ -392,7 +392,7 @@ export async function compileEventObservationWithSystemMethods({
     }));
   }
 
-  const pack = compileEventObservation({ ...compilerArgs, extraCapabilities: capabilities });
+  const pack = compileEventObservation({ ...compilerArgs, extraCapabilities: [...capabilities, ...(Array.isArray(compilerArgs.extraCapabilities) ? compilerArgs.extraCapabilities : [])] });
   return {
     ...pack,
     system_methods: {
