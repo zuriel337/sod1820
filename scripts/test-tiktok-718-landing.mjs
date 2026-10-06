@@ -34,6 +34,10 @@ assert.equal(page.includes("INTRO_VIDEO = null"),false,"intro video asset is now
 assert.match(page,/1820 הוא המספר שממנו התחיל הסוד/);
 assert.match(page,/שם הוי״ה מופיע בתורה 1,820 פעמים/);
 assert.match(page,/למדו על הסוד/);
+assert.match(page,/to="\/number\/718"/,"landing must expose the canonical regular-site 718 page");
+assert.doesNotMatch(page,/to="\/2029(?:\/|")/,"landing must not send visitors into unfinished 2029 surfaces");
+assert.doesNotMatch(page,/to="\/topic\/gapfill-718"/,"landing must not fan out to topic surfaces");
+assert.doesNotMatch(page,/SOD1820 · 2029|היכנסו ל־2029|מחשבון 2029 המלא/,"2029 must remain an internal implementation detail");
 assert.match(page,/FaI8Nq95NMrCvZheSrW6Ql/,"campaign must reuse the canonical WhatsApp group");
 assert.match(page,/whatsapp_join/,"WhatsApp join must be measured in the existing campaign telemetry tree");
 assert.match(app,/path="\/melech-hamisparim\/718"/);
