@@ -295,7 +295,10 @@ export function composeGalleryArtifactGroups(admissions = [], { isVisible = null
       artifactKey: g.artifactKey,
       artifactIdentity: g.artifactIdentity,
       dependencyClass: SAME_ARTIFACT_DEPENDENCY_CLASS,
-      independentEvidenceContribution: 1,
+      // One artifact lineage unit only; NOT one independently supported evidence item.
+      artifactLineageUnit: 1,
+      // Independence beyond this same-artifact group is unproven until a higher-level dependency classifier decides.
+      independenceBeyondArtifactGroup: 'UNKNOWN',
       placementRefs: g.placements.map((p) => p.placementContext.placementRef),
       placements: g.placements.map(projectPlacement),
       // Honest variance across placements; never elected into artifact truth.
@@ -321,7 +324,7 @@ export function composeGalleryArtifactGroups(admissions = [], { isVisible = null
     placementCount: seen.size,
     strongArtifactLineageCount: artifactGroups.length,
     unresolvedLineageCount: unresolved.length,
-    evidenceLineageCount: artifactGroups.length,
+    independenceBeyondArtifactGroup: 'UNKNOWN',
   };
 }
 

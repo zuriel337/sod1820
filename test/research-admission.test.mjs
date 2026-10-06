@@ -139,18 +139,22 @@ test('fixture A: one artifact, four placements, no elected value', () => {
   assert.deepEqual(g.placements.map((p) => p.primaryValue), [1472, 1472, 14, 16]);
   assert.equal(Object.hasOwn(g, 'primaryValue'), false);
   assert.equal(g.dependencyClass, 'SAME_ARTIFACT/REPRESENTATION');
-  assert.equal(g.independentEvidenceContribution, 1);
+  assert.equal(g.artifactLineageUnit, 1);
+  assert.equal(g.independenceBeyondArtifactGroup, 'UNKNOWN');
+  assert.equal(Object.hasOwn(g, 'independentEvidenceContribution'), false);
   assert.equal(g.placementVariance.isTruthConflict, false);
   assert.equal(g.placementVariance.hasImageTypeVariance, true);
 });
 
-test('fixture B and A+B: lineage count 2, placements 7', () => {
+test('fixture B and A+B: artifact lineage count 2, placements 7', () => {
   const b = composeGalleryArtifactGroups(adm(B));
   assert.deepEqual(b.artifactGroups[0].placements.map((p) => p.primaryValue), [45, 45, 851]);
   const ab = composeGalleryArtifactGroups(adm([...A, ...B]));
   assert.equal(ab.artifactGroups.length, 2);
   assert.equal(ab.placementCount, 7);
-  assert.equal(ab.evidenceLineageCount, 2);
+  assert.equal(ab.strongArtifactLineageCount, 2);
+  assert.equal(Object.hasOwn(ab, 'evidenceLineageCount'), false);
+  assert.equal(ab.independenceBeyondArtifactGroup, 'UNKNOWN');
 });
 
 test('image_type and row-local meaning are not intrinsic artifact truth', () => {
@@ -182,7 +186,6 @@ test('non-strong URLs never merge, even with same filename/OCR/value', () => {
   const out = composeGalleryArtifactGroups(adm(rows));
   assert.equal(out.artifactGroups.length, 0);
   assert.equal(out.unresolvedPlacements.length, rows.length);
-  assert.equal(out.evidenceLineageCount, 0);
   assert.ok(out.unresolvedPlacements.every((u) => u.dependencyClass === 'UNKNOWN'));
   assert.ok(out.unresolvedPlacements.every((u) => !('independentEvidenceContribution' in u)));
   assert.equal(out.strongArtifactLineageCount, 0);
@@ -195,7 +198,7 @@ test('OCR stays extraction, non-fact, placement-scoped', () => {
   assert.deepEqual(a[0].extraction.numbers, [1472]);
   assert.deepEqual(a[2].extraction.numbers, [14]);
   const g = composeGalleryArtifactGroups(a).artifactGroups[0];
-  assert.equal(g.independentEvidenceContribution, 1);
+  assert.equal(g.artifactLineageUnit, 1);
 });
 
 test('hidden placement metadata is not lifted when caller filters it out', () => {
