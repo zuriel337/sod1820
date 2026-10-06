@@ -67,6 +67,7 @@
 .sod29-campaign718-calc,
 .sod29-campaign718-story,
 .sod29-campaign718-gate,
+.sod29-campaign718-whatsapp,
 .sod29-campaign718-next{
   background:var(--c-surface);
   border:1px solid var(--c-border);
@@ -230,6 +231,38 @@
   font-size:14px;
   margin-top:10px;
 }
+.sod29-campaign718-whatsapp{
+  padding:24px;
+  margin-bottom:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:22px;
+  border-color:var(--c-discovery);
+}
+.sod29-campaign718-whatsapp h2{
+  font:800 clamp(24px,4vw,32px) "Rubik",sans-serif;
+  margin:0;
+}
+.sod29-campaign718-whatsapp p{
+  color:var(--c-text-soft);
+  margin:8px 0 0;
+  font-size:16px;
+  line-height:1.7;
+}
+.sod29-campaign718-whatsapp>a{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:12px 18px;
+  border-radius:15px;
+  background:var(--c-discovery);
+  color:var(--c-on-primary);
+  font-weight:900;
+  text-decoration:none;
+}
 .sod29-campaign718-next{padding:24px;display:flex;justify-content:space-between;align-items:center;gap:20px}
 .sod29-campaign718-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .sod29-campaign718-actions a{
@@ -255,6 +288,7 @@
   .sod29-campaign718-calc,
   .sod29-campaign718-story,
   .sod29-campaign718-gate,
+  .sod29-campaign718-whatsapp,
   .sod29-campaign718-next{border-radius:20px}
   .sod29-campaign718-calc{padding:18px}
   .sod29-campaign718-calc-head{display:block}
@@ -264,7 +298,9 @@
   .sod29-campaign718-result>span{font-size:16px;max-width:52%}
   .sod29-campaign718-reveal-grid{grid-template-columns:1fr}
   .sod29-campaign718-gate form{grid-template-columns:1fr}
+  .sod29-campaign718-whatsapp,
   .sod29-campaign718-next{display:block}
+  .sod29-campaign718-whatsapp>a{width:100%;margin-top:16px}
   .sod29-campaign718-actions{justify-content:stretch;margin-top:18px}
   .sod29-campaign718-actions a{width:100%}
 }
