@@ -15,17 +15,26 @@ export const SOURCE_BUNDLE_INVARIANT =
   "Source-group membership is not independent evidence. Findings stay independent; the header is source provenance, not child attribution.";
 
 // Presentation order of the research move. Not a truth or rank order.
-export const SOURCE_BUNDLE_MOVE = ["calculation", "relation", "observation", "interpretation", "other"];
+export const SOURCE_BUNDLE_MOVE = ["calculation", "fact", "relation", "observation", "interpretation", "other"];
 const MOVE_BY_KIND = {
-  fact: "calculation",
+  fact: "fact",
   relation: "relation",
   observation: "observation",
   hypothesis: "interpretation",
   question: "interpretation",
 };
 
+// A generic fact is a calculation only when the Finding carries explicit method/calculation
+// owner evidence. A numeric value alone is insufficient. Presentation only — never truth/rank.
+function hasCalculationOwnerEvidence(finding) {
+  const v = finding?.verification || {};
+  const s = finding?.source || {};
+  return Boolean(clean(v.claimed_method) || clean(v.engine_method_tested) || clean(s.engine) || clean(s.method));
+}
+
 export function sourceBundleMoveFor(finding) {
   const kind = clean(finding?.projection?.dimensions?.researchObjectKind);
+  if (kind === "fact" && hasCalculationOwnerEvidence(finding)) return "calculation";
   return MOVE_BY_KIND[kind] || "other";
 }
 

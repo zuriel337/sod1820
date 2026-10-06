@@ -19,7 +19,7 @@ test("one source bundle, five unchanged ids, ordered research move", () => {
   assert.equal(rest.length, 0);
   assert.deepEqual(new Set(bundle.findingIds), new Set(f.map((x) => x.id)));
   assert.equal(bundle.count, 5);
-  assert.deepEqual(bundle.findings.map((x) => x.move), ["calculation", "calculation", "relation", "observation", "interpretation"]);
+  assert.deepEqual(bundle.findings.map((x) => x.move), ["fact", "fact", "relation", "observation", "interpretation"]);
   assert.match(bundle.invariant, /not independent evidence/);
 });
 
@@ -39,13 +39,13 @@ test("source header from occurrence; child createdBy stays null without explicit
   assert.ok(bundle.findings.every((x) => x.createdBy === null));
 });
 
-test("explicit per-object attribution resolves createdBy without changing identity", () => {
+test("explicit per-object attribution is structural only: createdBy stays null, identity unchanged", () => {
   const plain = researchObjectToUniversalFinding(row("a1", "fact"));
   const attributed = researchObjectToUniversalFinding(row("a1", "fact", { meta: { attribution_type: "source_authorship", contributor_id: ZVI } }));
-  assert.equal(attributed.provenance.createdBy, `CONTRIBUTOR:${ZVI}`);
+  assert.equal(attributed.provenance.createdBy, null);
   assert.equal(attributed.id, plain.id);
   assert.deepEqual(attributed.identity, plain.identity);
-  assert.equal(attributed.projection.dimensions.attribution.type, "source_authorship");
+  assert.deepEqual(attributed.projection.dimensions.attribution, { type: "source_authorship", contributorId: ZVI, resolved: true, explicit: true });
 });
 
 test("incomplete / inferred attribution stays unresolved", () => {

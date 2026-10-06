@@ -17,7 +17,7 @@ test("source bundle of 5 renders as ONE REST entry with bundleCount=5", () => {
   assert.equal(out[0].bundleCount, 5);
   assert.equal(out[0].sourceLabel, "צבי (OPOC)");
   assert.equal(out[0].focusKind, "source_bundle");
-  assert.match(out[0].reason, /חישובים 2 · יחסים 1 · תצפיות 1 · פרשנויות 1/);
+  assert.match(out[0].reason, /עובדות 2 · יחסים 1 · תצפיות 1 · פרשנויות 1/);
   assert.equal(new Set(out.map((x) => x.id)).size, out.length);
   assert.ok(!("findings" in out[0]) && !("findingIds" in out[0]));
 });
@@ -83,4 +83,73 @@ test("no slug-specific surfaceFindings in Post page; same adapter wired in Post/
   const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
   assert.match(rail, /sheet = false/);
   assert.match(rail, /bundleCount/);
+});
+
+const UID = "c66f0464-0928-490e-be9b-66d8a87e7fc8";
+
+test("explicit attribution: createdBy stays null; exact pair only in projection.dimensions.attribution", () => {
+  const f = researchObjectToUniversalFinding(ro("a1", "fact", { meta: { attribution_type: "source_author", contributor_id: UID } }));
+  assert.equal(f.provenance.createdBy, null);
+  assert.ok(!JSON.stringify(f.provenance).includes("CONTRIBUTOR:"));
+  assert.deepEqual(f.projection.dimensions.attribution, { type: "source_author", contributorId: UID, resolved: true, explicit: true });
+  const plain = researchObjectToUniversalFinding(ro("a2", "fact"));
+  assert.equal(plain.projection.dimensions.attribution, undefined);
+  const partial = researchObjectToUniversalFinding(ro("a3", "fact", { meta: { attribution_type: "source_author" } }));
+  assert.equal(partial.projection.dimensions.attribution.resolved, false);
+  assert.equal(partial.provenance.createdBy, null);
+  // identity unchanged by attribution
+  assert.deepEqual(f.identity.sourceIdentity, plain.identity.sourceIdentity.researchObjectId === "a2" ? { researchObjectId: "a1" } : null);
+});
+
+test("generic fact is a fact; calculation only with explicit method owner evidence", async () => {
+  const { sourceBundleMoveFor, buildSourceBundles } = await import("./sourceBundleProjection.js");
+  const numeric = researchObjectToUniversalFinding(ro("m0", "fact", { value: 631 }));
+  assert.equal(sourceBundleMoveFor(numeric), "fact");
+  const claimed = researchObjectToUniversalFinding(ro("m1", "fact", { engine_detail: { claimed_method: "mispar_hechrachi" } }));
+  const tested = researchObjectToUniversalFinding(ro("m2", "fact", { engine_detail: { engine_method_tested: "mispar_hechrachi" } }));
+  assert.equal(sourceBundleMoveFor(claimed), "calculation");
+  assert.equal(sourceBundleMoveFor(tested), "calculation");
+  assert.equal(sourceBundleMoveFor({ ...numeric, source: { ...numeric.source, engine: "e" } }), "calculation");
+  const [bundle] = buildSourceBundles([numeric, claimed, researchObjectToUniversalFinding(ro("m3", "relation"))]);
+  assert.deepEqual(bundle.byMove, { calculation: 1, fact: 1, relation: 1 });
+  assert.deepEqual(bundle.findings.map((m) => m.move), ["calculation", "fact", "relation"]);
+  const [row] = buildSurfaceFindings({ findings: [numeric, claimed] });
+  assert.match(row.reason, /חישובים 1 · עובדות 1/);
+});
+
+test("World uses the same adapter on existing governed prominence; no fetch/new store; bounded stable write", () => {
+  const world = fs.readFileSync("src/pages/World2029Page.jsx", "utf8");
+  assert.match(world, /buildSurfaceFindings\(\{ prominenceItems \}\)/);
+  assert.match(world, /surfaceFindingsSurface: "world"/);
+  assert.match(world, /worldSurfaceFindingsWritten/);
+  const items = Array.from({ length: 20 }, (_, i) => ({ id: `w${i}`, label: `L${i}`, type: "fact", sourceRef: `research_objects:w${i}` }));
+  assert.equal(buildSurfaceFindings({ prominenceItems: items }).length, 8);
+  assert.equal(JSON.stringify(buildSurfaceFindings({ prominenceItems: items })), JSON.stringify(buildSurfaceFindings({ prominenceItems: items })));
+});
+
+test("universal focus return: reading focus only on document surfaces; otherwise clear surfaceFocus only", () => {
+  const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
+  const fn = rail.slice(rail.indexOf("const restFromFinding"), rail.indexOf("const [conceptFamiliarity"));
+  assert.match(fn, /documentSurface && reading\.id && reading\.label/);
+  assert.match(fn, /setSurfaceFocus\(null\)/);
+  assert.ok(!/journey|returnTo|surfaceFindings:/.test(fn.replace(/\/\/.*$/gm, "")));
+  // cleared focus is dropped by the context normalizer (no undefined/stale focus)
+  const ctx = normalizeResearchContext({ subject: { id: "7", type: "number" }, dimensions: { surfaceFocus: null, surfaceFindings: [{ id: "x", label: "X" }], surfaceFindingsSurface: "world" } });
+  assert.equal(ctx.dimensions.surfaceFocus, undefined);
+  assert.equal(ctx.dimensions.surfaceFindings.length, 1);
+  assert.equal(ctx.dimensions.surfaceFindingsSurface, "world");
+});
+
+test("bundle focus is a bounded summary: only authorized count, no child serialization; no source-specific branches", () => {
+  const out = buildSurfaceFindings({ findings: five, occurrences: ZVI });
+  const ctx = normalizeResearchContext({ subject: { id: "1", type: "post" }, dimensions: { surfaceFindings: out, surfaceFocus: { id: out[0].id, type: "finding", label: "x", bundleCount: 5, sourceRef: REF, findings: five } } });
+  assert.equal(ctx.dimensions.surfaceFocus.bundleCount, 5);
+  assert.ok(!("findings" in ctx.dimensions.surfaceFocus));
+  const src = fs.readFileSync("src/lib/research/surfaceFindingsAdapter.js", "utf8") + fs.readFileSync("src/lib/research/sourceBundleProjection.js", "utf8");
+  assert.ok(!/Zvi|OPOC|bennett|Sod Hashmal|FZ/i.test(src));
+  assert.ok(!/supabase|fetch\(/.test(src));
+  const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
+  assert.ok(!/supabase\.from|\.from\("research_objects"/.test(rail));
+  const privateOnly = buildSurfaceFindings({ findings: [] });
+  assert.deepEqual(privateOnly, []);
 });

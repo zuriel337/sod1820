@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
@@ -25,6 +25,7 @@ import {
   worldRelationCounterpart,
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
+import { buildSurfaceFindings } from "../lib/research/surfaceFindingsAdapter.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import {
   fetchWorldContributorLens,
@@ -1236,6 +1237,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
     ? buildWorldContextualProminence(data, state.prominenceInputs || {}, { limit: 7, timeAware: data.identity?.type === "event" })
     : null, [data, state.prominenceInputs]);
   const prominenceItems = prominence?.items || [];
+  // Same governed prominence output, same adapter as Post/Topic/Number. No new fetch/store.
+  const worldSurfaceFindings = useMemo(() => buildSurfaceFindings({ prominenceItems }), [prominence]); // eslint-disable-line react-hooks/exhaustive-deps
+  const worldSurfaceFindingsSig = useMemo(() => JSON.stringify(worldSurfaceFindings), [worldSurfaceFindings]);
+  const worldSurfaceFindingsWritten = useRef(null);
+  const contextSurfaceFindingsSurface = context?.dimensions?.surfaceFindingsSurface || null;
+  useEffect(() => {
+    if (contextSurfaceFindingsSurface === "world" && worldSurfaceFindingsWritten.current === worldSurfaceFindingsSig) return;
+    worldSurfaceFindingsWritten.current = worldSurfaceFindingsSig;
+    research.updateResearchContext?.({
+      dimensions: { ...(context?.dimensions || {}), surfaceFindings: worldSurfaceFindings, surfaceFindingsSurface: "world" },
+    });
+  }, [worldSurfaceFindingsSig, contextSurfaceFindingsSurface]); // eslint-disable-line react-hooks/exhaustive-deps
   const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
   const gematriaMethods = useMemo(() => [...new Set(gematriaRows.map((row) => row.method).filter(Boolean))], [gematriaRows]);
   const visibleGematriaRows = useMemo(() => {
