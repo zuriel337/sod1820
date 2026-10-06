@@ -76,3 +76,33 @@ assert.doesNotMatch(wa, /\*\/1 \*|cron\.schedule/);                             
 assert.doesNotMatch(core, /String\(data\.raziel\.answer\)/);                                 // no raw answer passthrough
 
 console.log("PASS raziel WhatsApp response/speed golden contract");
+
+// (4) RAZIEL_WA_RENDER_HOTFIX_V1B — legacy structured envelope (opening + structure/sections/phase/items/options) → prose
+{
+  const hodaa = renderWhatsappReply({ raziel: {
+    v: 1, agent: "raziel", status: "ok", tone: "warm", speaker: "raziel", id: "abc-123", link: "https://example.com/x",
+    opening: "הודאה היא אמירה של אמת על עצמך.",
+    structure: [
+      { phase: "שורש", items: ["הודאה באה מהשורש י-ד-ה", "הודאה באה מהשורש י-ד-ה"], metadata: { trace: "t1" } },
+      { phase: "משמעות", text: "להודות זה גם להודות וגם להכיר טובה.", tool: "gematria", url: "https://example.com/y" },
+    ],
+    options: ["רוצה שנעמיק בגימטריה?"],
+  } });
+  assert.equal(hodaa, "הודאה היא אמירה של אמת על עצמך.\n\nשורש\n\nהודאה באה מהשורש י-ד-ה\n\nמשמעות\n\nלהודות זה גם להודות וגם להכיר טובה.\n\nרוצה שנעמיק בגימטריה?");
+  assert.doesNotMatch(hodaa, /https?:|abc-123|gematria|warm|trace|t1/);
+  // JSON-string/fenced form of the same shape
+  const fenced = renderWhatsappReply({ analysis: "```json\n" + JSON.stringify({ opening: "פתיחה", sections: [{ title: "א", content: "תוכן א" }] }) + "\n```" });
+  assert.equal(fenced, "פתיחה\n\nא\n\nתוכן א");
+  // answer-bearing envelopes keep priority over legacy shaping
+  assert.equal(renderWhatsappReply({ raziel: { answer: "ישיר", opening: "לא להשתמש", structure: ["x"] } }), "ישיר");
+  // bounded length
+  const big = renderWhatsappReply({ raziel: { opening: "פתיחה", items: Array.from({ length: 200 }, (_, i) => "שורה מספר " + i + " ".repeat(1) + "ט".repeat(40)) } });
+  assert.ok(big.length > 0 && big.length <= 2200, "bounded");
+  // internal-only metadata fails closed
+  for (const bad of [
+    { raziel: { opening: "x", status: "ok" } && { status: "ok", tone: "warm", speaker: "raziel", metadata: { a: 1 }, ids: ["1"], tool: "t" } },
+    { raziel: { status: "ok", structure: [{ phase: "p", metadata: {} }], opening: "" } },
+    { raziel: { structure: ["טקסט בלי פתיחה"] } },
+    { raziel: { opening: "https://example.com/only-link" } },
+  ]) assert.equal(renderWhatsappReply(bad), "", "internal-only/anchorless legacy envelope must fail closed");
+}

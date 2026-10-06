@@ -36,7 +36,7 @@ function fromValue(v: unknown, depth: number): string {
     if (o.raziel && typeof o.raziel === "object") { const r = fromValue(o.raziel, depth + 1); if (r) return r; }
     let main = "";
     for (const k of ANSWER_KEYS) { if (o[k] != null) { main = fromValue(o[k], depth + 1); if (main) break; } }
-    if (!main) return "";
+    if (!main) return fromLegacyStructure(o, depth);
     for (const k of FOLLOW_KEYS) {
       const f = o[k];
       if (typeof f === "string" && f.trim() && !looksLikeEnvelope(f)) return (main + "\n\n" + f.trim()).trim();
@@ -44,6 +44,48 @@ function fromValue(v: unknown, depth: number): string {
     return main;
   }
   return "";
+}
+
+// Legacy structured envelope (no answer key): {opening, structure|sections|phase|items|options: [...]}. Only allow-listed
+// human-text keys are read, in source order; metadata/status/tone/speaker/ids/links/internal/tool fields are never read.
+const LEGACY_CONTAINERS = ["structure", "sections", "phase", "phases", "items", "options"];
+const LEGACY_TEXT_KEYS = ["opening", "title", "heading", "label", "text", "content", "body", "summary", "description", "step", "point", "option"];
+const LEGACY_DENY = /^(metadata|meta|status|tone|speaker|id|ids|uid|link|links|url|href|internal|tool|tools|trace|agent|degraded|source_stage|v|version|context|facts|suggested_paths|continue_wa)$/i;
+const LEGACY_MAX_CHARS = 1800;
+const LEGACY_MAX_LINES = 24;
+
+function legacyLines(v: unknown, depth: number, out: string[]): void {
+  if (depth > MAX_DEPTH || v == null || out.length >= LEGACY_MAX_LINES) return;
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (t && !looksLikeEnvelope(t) && !/^(?:https?:\/\/|www\.|\/)\S*$/i.test(t)) out.push(t);
+    return;
+  }
+  if (Array.isArray(v)) { for (const x of v) legacyLines(x, depth + 1, out); return; }
+  if (typeof v !== "object") return;
+  const o = v as Record<string, unknown>;
+  for (const k of Object.keys(o)) {
+    if (LEGACY_DENY.test(k)) continue;
+    if (LEGACY_TEXT_KEYS.includes(k) || LEGACY_CONTAINERS.includes(k)) legacyLines(o[k], depth + 1, out);
+  }
+}
+
+function fromLegacyStructure(o: Record<string, unknown>, depth: number): string {
+  if (typeof o.opening !== "string" || !o.opening.trim()) return "";   // opening is the anchor of the legacy shape; otherwise fail closed
+  const lines: string[] = [];
+  legacyLines(o, depth, lines);
+  const seen = new Set<string>();
+  const kept: string[] = [];
+  let len = 0;
+  for (const l of lines) {
+    const key = l.replace(/\s+/g, " ").toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (len + l.length > LEGACY_MAX_CHARS && kept.length) break;
+    kept.push(l.length > LEGACY_MAX_CHARS ? l.slice(0, LEGACY_MAX_CHARS) : l);
+    len += l.length + 2;
+  }
+  return kept.join("\n\n").trim();
 }
 
 function fromString(raw: string, depth: number): string {
@@ -101,6 +143,7 @@ export function whatsappSurfaceProfileText(depth: boolean): string {
   const base =
     "\n\nפרופיל משטח וואטסאפ (ערוץ שיחה פרטית; הוראת סגנון בלבד — אינה משנה עובדות, אמת או גבולות):\n" +
     "• ענה בעברית טבעית ושיחתית, בלי כותרות, רשימות ארוכות או Markdown כבד.\n" +
+    "• שדה answer חייב להיות מחרוזת טקסט שיחתי אחת — לא אובייקט, לא מבנה מקונן ולא רשימת שלבים/סעיפים בתוך JSON.\n" +
     "• אל תמציא קישורים, כתובות או נתיבי אתר. אם יש טעם להמשיך באתר — הצע זאת במילים בלבד, בלי קישור.\n" +
     "• אם נדרשה פעולה בלתי-נראית משמעותית (כגון קריאת מקור או מחקר מעמיק) — הסבר זאת במשפט אחד בגובה אנושי; לעולם אל תזכיר מנגנונים פנימיים, שמות פונקציות, מזהים או עקבות.\n" +
     "• אל תבצע ואל תבטיח שינוי במצב האישי של המשתמש; פעולה כזו דורשת אישור מפורש ממנו לפני ביצוע.\n";
