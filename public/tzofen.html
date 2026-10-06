@@ -1984,6 +1984,7 @@
       else if(d.action==="fit-toggle")toggleFit();
     }
     if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
+      if(!onboarded()){openOnboard();postHost({type:"onboarding-required"});return;}   // 🎓 bridge נסתר אינו עוקף חובת-הדרכה
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
       if(kind==="regular"){
