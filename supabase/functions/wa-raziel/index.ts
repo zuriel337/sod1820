@@ -4,7 +4,7 @@
 // v47 behavior remains: Single-Mind Trunk Closure: metatron_context before each normal response.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
-import { renderWhatsappReply, hasContinuityCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
+import { renderWhatsappReply, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -620,6 +620,7 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
   // Context isolation: an attached source is answered from the source + the current ask only. Prior dialogue (and, in
   // ai-analyze, personal memory) is added only when THIS message explicitly asks to continue earlier conversation.
   const continuity = hasContinuityCue(cleanText);
+  const depth = hasDepthCue(cleanText);   // Surface Profile v1: concise first answer unless this message explicitly asks for depth
   const dialogue = hasSource && !continuity ? "" : await recentDialogue(chatId, 6, quotedId);
   const startedAt = new Date().toISOString();
   const spanId = crypto.randomUUID();
@@ -632,7 +633,7 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
         persona: "raziel", surface: "whatsapp",
         subject: (cleanText || "מקור שנשלח בוואטסאפ").slice(0, 300),
         context: dialogue ? ("שיחה קודמת בוואטסאפ:\n" + dialogue).slice(0, 600) : "",
-        trusted_channel: { channel: "whatsapp", sender, ...(hasSource ? { media: opts.source, continuity } : {}) },
+        trusted_channel: { channel: "whatsapp", sender, depth, ...(hasSource ? { media: opts.source, continuity } : {}) },
       }),
     });
     data = await resp.json().catch(() => null);

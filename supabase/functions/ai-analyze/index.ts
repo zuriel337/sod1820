@@ -1,5 +1,6 @@
 import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
+import { whatsappSurfaceProfileText } from "../_shared/waRazielRender.ts";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -557,7 +558,7 @@ function isInternalServiceRequest(req: Request): boolean {
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
   return !!SB_SVC && timingSafeEq(token, SB_SVC);
 }
-type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null; continuity: boolean };
+type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null; continuity: boolean; depth: boolean };
 async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedChannel | null> {
   const tc = body?.trusted_channel;
   if (!tc || typeof tc !== "object" || !isInternalServiceRequest(req)) return null;
@@ -573,7 +574,8 @@ async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedCh
   const media = uid && m && RAZIEL_UUID_V.test(String(m.contribution_id || "")) && RAZIEL_UUID_V.test(String(m.storage_object_id || ""))
     ? { contribution_id: String(m.contribution_id), storage_object_id: String(m.storage_object_id) } : null;
   const continuity = tc.continuity === true;   // adapter sets it only when the current message explicitly asks to continue earlier conversation
-  return uid ? { identity: `u:${uid}`, tier: "user", uid, media, continuity } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null, continuity: false };
+  const depth = tc.depth === true;   // adapter sets it only on explicit depth intent in the current message; default = concise first answer
+  return uid ? { identity: `u:${uid}`, tier: "user", uid, media, continuity, depth } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null, continuity: false, depth };
 }
 
 // Multimodal source stage (derivative only). Runs BEFORE any numeric/gematria routing. The governed private media ref is
@@ -2142,6 +2144,7 @@ Deno.serve(async (req: Request) => {
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
         ctxText +
+        (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "") +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
 
       const razielModelSpanId = crypto.randomUUID();
