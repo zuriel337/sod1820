@@ -23,8 +23,6 @@ for(const required of [
   "שביעי באוקטובר",
   "חדשות",
   "התשובה",
-  "gapfill-718",
-  "tiktok-melech-hamisparim-718",
 ]){
   assert.match(page,new RegExp(required),"missing campaign requirement: "+required);
 }
@@ -35,10 +33,15 @@ assert.match(page,/1820 הוא המספר שממנו התחיל הסוד/);
 assert.match(page,/שם הוי״ה מופיע בתורה 1,820 פעמים/);
 assert.match(page,/למדו על הסוד/);
 assert.match(page,/const DEFAULT_EXPRESSION = "חדשות"/,"evergreen landing must open on the current featured example");
-assert.match(page,/const numberPageHref = verifiedNumber != null \? `\/number\/\$\{verifiedNumber\}` : "\/number"/,"single regular-site exit must follow the calculator result dynamically");
+assert.match(page,/const FEATURED_NUMBER = 718/,"featured regular-site destination must currently be 718");
+assert.match(page,/const featuredNumberPageHref = `\/number\/\$\{FEATURED_NUMBER\}`/,"featured number must always route through the regular /number tree");
+assert.match(page,/to=\{featuredNumberPageHref\}/,"landing must expose the regular-site featured-number CTA");
+assert.doesNotMatch(page,/Number\.isFinite\(Number\(verified\.value\)\)/,"null calculator state must never be coerced into number 0 for navigation");
+assert.match(page,/to=\{`\/2029\/gematria\?q=\$\{encodeURIComponent\(expression\.trim\(\) \|\| DEFAULT_EXPRESSION\)\}`\}/,"landing must expose exactly the new Gematria calculator as the optional new-surface exit");
+assert.match(page,/פתחו את מחשבון הגימטריה המלא/);
 assert.doesNotMatch(page,/כתבתם 718 בתגובות/,"bio landing must not assume a 718-specific campaign entry");
 assert.doesNotMatch(page,/CAMPAIGN = "tiktok-melech-hamisparim-718"/,"analytics identity must be stable across featured examples");
-assert.doesNotMatch(page,/to="\/2029(?:\/|")/,"landing must not send visitors into unfinished 2029 surfaces");
+assert.doesNotMatch(page,/to="\/2029"/,"landing must not send visitors to the unfinished 2029 home");
 assert.doesNotMatch(page,/to="\/topic\/gapfill-718"/,"landing must not fan out to topic surfaces");
 assert.doesNotMatch(page,/SOD1820 · 2029|היכנסו ל־2029|מחשבון 2029 המלא/,"2029 must remain an internal implementation detail");
 assert.match(page,/FaI8Nq95NMrCvZheSrW6Ql/,"campaign must reuse the canonical WhatsApp group");
