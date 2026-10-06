@@ -175,7 +175,7 @@ export default function Campaign718Page2029() {
       <div className="sod29-campaign718-ambient" aria-hidden="true" />
 
       <header className="sod29-campaign718-brand">
-        <div className="sod29-campaign718-brand-kicker">מלך המספרים × SOD1820 · 2029</div>
+        <div className="sod29-campaign718-brand-kicker">מלך המספרים × SOD1820</div>
         <img
           src={BRAND_LOCKUP_2029.src}
           width={BRAND_LOCKUP_2029.width}
@@ -250,12 +250,6 @@ export default function Campaign718Page2029() {
           </div>
         ) : null}
 
-        <Link
-          className="sod29-campaign718-text-link"
-          to={`/2029/gematria?q=${encodeURIComponent(expression.trim() || DEFAULT_EXPRESSION)}`}
-        >
-          פתחו את אותו ביטוי במחשבון 2029 המלא ←
-        </Link>
       </section>
 
       <section className="sod29-campaign718-story">
@@ -341,19 +335,18 @@ export default function Campaign718Page2029() {
 
       <section className="sod29-campaign718-next">
         <div>
-          <span>רוצים להמשיך לחקור?</span>
-          <h2>היכנסו ל־2029.</h2>
+          <span>רוצים לראות את כל החיבורים של המספר?</span>
+          <h2>המשיכו לדף 718 באתר.</h2>
         </div>
         <div className="sod29-campaign718-actions">
-          <Link to="/topic/gapfill-718">פתחו את ציר 718 ←</Link>
-          <Link to="/2029">היכנסו ל־SOD1820 2029</Link>
+          <Link to="/number/718">פתחו את דף 718 ←</Link>
         </div>
       </section>
 
       <footer className="sod29-campaign718-footer">
         <span>מלך המספרים · TikTok</span>
         <span>×</span>
-        <span>SOD1820 · 2029</span>
+        <span>SOD1820</span>
       </footer>
     </main>
   );
