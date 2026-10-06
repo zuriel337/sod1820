@@ -196,9 +196,30 @@ function SourceLens({ lensResult }) {
   return null;
 }
 
-function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic }) {
+function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic, onFindingsChange }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.verification?.state === "MATCH";
+  const [draft, setDraft] = useState("");
+
+  const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
+
+  const addFinding = () => {
+    const term = clean(draft);
+    if (!term || !verified || findings.length >= 12) return;
+    onFindingsChange?.([...projected(), { t: term }]);
+    setDraft("");
+  };
+
+  const removeFinding = (index) => {
+    onFindingsChange?.(projected().filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  const changeFindingColor = (index, color) => {
+    onFindingsChange?.(projected().map((finding, itemIndex) =>
+      itemIndex === index ? { ...finding, color } : finding
+    ));
+  };
+
   return <aside className="els29-native-workrail" aria-label="כלי ELS והקשר המטריצה">
     <div className="els29-native-rail-section">
       <small>הממצא הפעיל</small>
@@ -220,18 +241,48 @@ function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic }) {
     </div>
 
     <div className="els29-native-rail-section">
-      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}</small></div>
+      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12</small></div>
+      <div className="els29-native-finding-add">
+        <input
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              addFinding();
+            }
+          }}
+          disabled={!verified || findings.length >= 12}
+          maxLength={26}
+          placeholder={verified ? "הוסף מילה למטריצה…" : "נדרש מופע מאומת"}
+          aria-label="ממצא חדש למטריצה"
+        />
+        <button type="button" onClick={addFinding} disabled={!verified || !clean(draft) || findings.length >= 12}>הוסף</button>
+      </div>
+
       {findings.length ? <div className="els29-native-findings">
-        {findings.map((finding, index) => <div className="els29-native-finding" key={`${finding.t}-${index}`}>
-          <i style={finding.color ? { "--els29-mark": finding.color } : undefined} />
-          <span><b>{finding.t}</b><small>{finding.inWindow || 0} בחלון · {finding.total || 0} סה״כ</small></span>
-        </div>)}
-      </div> : <p className="els29-native-muted">אחרי החיפוש תוכלו להוסיף ולראות כאן ממצאים בצבעים.</p>}
+        {findings.map((finding, index) => {
+          const pickerValue = /^#[0-9a-f]{6}$/i.test(finding.color || "") ? finding.color : "#808080";
+          return <div className="els29-native-finding" key={`${finding.t}-${index}`}>
+            <label className="els29-native-color-picker" title={`שנה צבע ל־${finding.t}`}>
+              <input
+                type="color"
+                value={pickerValue}
+                onChange={(event) => changeFindingColor(index, event.target.value)}
+                aria-label={`צבע הממצא ${finding.t}`}
+              />
+              <i style={finding.color ? { "--els29-mark": finding.color } : undefined} />
+            </label>
+            <span><b>{finding.t}</b><small>{finding.inWindow || 0} בחלון · {finding.total || 0} סה״כ</small></span>
+            <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`הסר את ${finding.t}`}>×</button>
+          </div>;
+        })}
+      </div> : <p className="els29-native-muted">הוסיפו מילה כדי לראות אם ואיפה היא מופיעה בחלון המטריצה הנוכחי.</p>}
     </div>
 
     <div className="els29-native-rail-section">
       <strong>כלים נוספים</strong>
-      <p className="els29-native-muted">הצלבות, עריכת ממצאים, שמירה, תמונה, שיתוף, סרט, ניקוד וכל כלי שעוד לא הועבר ל־2029 נשאר זמין באותו כלי קלאסי.</p>
+      <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף, סרט, ניקוד וכל כלי שעוד לא הועבר ל־2029 נשאר זמין באותו כלי קלאסי.</p>
       <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
     </div>
   </aside>;
@@ -250,6 +301,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const controlSeqRef = useRef(0);
   const [searchRequest, setSearchRequest] = useState(null);
   const searchSeqRef = useRef(0);
+  const [findingsRequest, setFindingsRequest] = useState(null);
+  const findingsSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
   const [crossTerm, setCrossTerm] = useState("");
   const [lensRequest, setLensRequest] = useState(null);
@@ -269,6 +322,11 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setNotice("");
     setClassicOpen(false);
     setSearchRequest({ kind, ...payload, seq: ++searchSeqRef.current });
+  };
+
+  const requestFindingsChange = (findings) => {
+    if (!Array.isArray(findings)) return;
+    setFindingsRequest({ findings, seq: ++findingsSeqRef.current });
   };
 
   const submit = (event) => {
@@ -334,7 +392,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     requestLens("verse-context", { hitId: engineState.axis.hitId });
   };
 
-  return <section className="els29-native-classic" data-els-native-classic="v3">
+  return <section className="els29-native-classic" data-els-native-classic="v4">
     <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <label>
         <span>מונח</span>
@@ -416,6 +474,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
           onOpenClassic={() => setClassicOpen(true)}
+          onFindingsChange={requestFindingsChange}
         />
       </> : null}
 
@@ -433,6 +492,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onLens={setLensResult}
           controlRequest={controlRequest}
           searchRequest={searchRequest}
+          findingsRequest={findingsRequest}
         />
       </div>
     </div>
