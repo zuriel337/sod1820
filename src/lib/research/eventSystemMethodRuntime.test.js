@@ -203,3 +203,71 @@ function readFileSyncText() {
     .split("\n").filter(l => !l.trim().startsWith("//") && !l.trim().startsWith("*") && !l.trim().startsWith("/*")).join("\n")
     .replace(/community_message/g, "");
 }
+
+// ── attribution ──
+const ZVI_ID = "c66f0464-0928-490e-be9b-66d8a87e7fc8";
+const named = (id, ref, type, attribution, accessTier = "public", extra = {}) => ({
+  envelope: { ...galleryImageToResearchAdmission(galleryRow(id), {}), source: { type, ref }, intrinsicPayload: { name: ref } },
+  supports: [730, 73], rank: 1, accessTier, attribution, ...extra,
+});
+const attrOf = (pack, ref) => pack.bundle.findings.find(f => f.source?.sourceRef === ref)?.evidence.facts[0].attribution;
+const trio = () => [
+  named("a", "research_object:contrib-1", "contributor_message", { role: "contributor", display_name: "צבי (OPOC)", contributor_id: ZVI_ID, channel: "research_intake" }, "public"),
+  named("b", "post:145", "post", { role: "source_work", display_name: "סוד החשמל", source_id: "wp:31656", work_title: "post 145" }, "public", { rank: 2 }),
+  named("c", "book:other-1", "book", { role: "source_work", display_name: "ספר אחר", work_title: "כותרת אחרת" }, "public", { rank: 3 }),
+];
+
+test("attribution: site interpretation is 'כי לה׳ המלוכה'; Human Gate stays governance metadata, never author", async () => {
+  const pack = await run({ humanGate: "ZURIEL" });
+  const conv = pack.bundle.findings.find(f => f.id === pack.system_methods.convergence_finding_ids[0]);
+  const fact = conv.evidence.facts[0];
+  assert.equal(fact.attribution.role, "site_interpretation");
+  assert.equal(fact.attribution.display_name, "כי לה׳ המלוכה");
+  assert.deepEqual(fact.governance, { human_gate: "ZURIEL", is_author: false });
+  assert.ok(!JSON.stringify(fact.attribution).match(/צוריאל|zuriel/i));
+  assert.ok(!readFileSyncText().includes("פרשנות צוריאל"));
+});
+
+test("attribution: contributor + source works + site coexist, separate identities, shared anchors, access untouched", async () => {
+  const pack = await run({ supportingSources: trio(), maxSupportingSources: 5 });
+  assert.deepEqual(attrOf(pack, "research_object:contrib-1"), { role: "contributor", display_name: "צבי (OPOC)", source_id: null, work_title: null, contributor_id: ZVI_ID, channel: "research_intake" });
+  const sod = attrOf(pack, "post:145");
+  assert.deepEqual([sod.role, sod.display_name, sod.source_id, sod.contributor_id], ["source_work", "סוד החשמל", "wp:31656", null]);
+  assert.equal(attrOf(pack, "book:other-1").display_name, "ספר אחר");
+  assert.equal(pack.bundle.findings.find(f => f.source.sourceRef === "research_object:contrib-1").access.tier, "public");
+  // a private contributor source stays out under default access: attribution never widens access
+  const priv = await run({ supportingSources: [named("q", "research_object:contrib-2", "contributor_message", { role: "contributor", display_name: "צבי (OPOC)", contributor_id: ZVI_ID }, "private")] });
+  assert.equal(attrOf(priv, "research_object:contrib-2"), undefined);
+  const srcs = pack.bundle.findings.filter(f => f.kind === "event-supporting-source");
+  assert.equal(new Set(srcs.map(f => f.id)).size, 3);
+  for (const f of srcs) assert.ok(f.projection.anchors.some(a => a.space === "number" && a.id === "730"));
+  assert.ok(pack.bundle.findings.some(f => f.id === pack.system_methods.convergence_finding_ids[0]));
+});
+
+test("attribution: fail-closed — governance actor, missing contributor id, minted contributor for a work, unknown role", async () => {
+  const bad = (a) => run({ supportingSources: [named("z", "x:1", "post", a)] }).then(p => [p.bundle.findings.filter(f => f.kind === "event-supporting-source").length, p.system_methods.supporting_sources.rejected[0]?.reason]);
+  assert.deepEqual(await bad({ role: "source_work", display_name: "פרשנות צוריאל" }), [0, "governance_actor_is_not_attribution"]);
+  assert.deepEqual(await bad({ role: "contributor", display_name: "צבי (OPOC)" }), [0, "contributor_id_required"]);
+  assert.deepEqual(await bad({ role: "source_work", display_name: "סוד החשמל", contributor_id: ZVI_ID }), [0, "contributor_identity_not_mintable_for_role"]);
+  assert.deepEqual(await bad({ role: "author", display_name: "x" }), [0, "attribution_role_unknown"]);
+  assert.deepEqual(await bad({ role: "site_interpretation", display_name: "צוריאל" }), [0, "site_interpretation_label_fixed"]);
+});
+
+test("attribution: dedup by source ref never merges authorship; attribution does not change finding id or rank order", async () => {
+  const plain = await run({ supportingSources: [named("p", "post:145", "post", null)] });
+  const attributed = await run({ supportingSources: [named("p", "post:145", "post", { role: "source_work", display_name: "סוד החשמל" })] });
+  const id = (p) => p.bundle.findings.find(f => f.kind === "event-supporting-source").id;
+  assert.equal(id(plain), id(attributed));
+  const two = await run({ supportingSources: trio() });
+  assert.equal(two.system_methods.supporting_sources.total, 3);
+});
+
+test("attribution: same attribution/ids through every projection surface", async () => {
+  const pack = await run({ supportingSources: trio() });
+  const ids = pack.bundle.findings.filter(f => f.kind === "event-supporting-source").map(f => f.id);
+  for (const s of [EVENT_SURFACE.POST, EVENT_SURFACE.TIMELINE, EVENT_SURFACE.CONTEXT_RAIL, EVENT_SURFACE.WORLD, EVENT_SURFACE.RAZIEL]) {
+    const got = projectEventContextForSurface(pack, s).finding_ids;
+    for (const id of ids) assert.ok(got.includes(id), `${s} missing ${id}`);
+  }
+  assert.ok(pack.bundle.findings.filter(f => f.kind === "event-supporting-source").every(f => f.projection.dimensions.attribution.display_name));
+});

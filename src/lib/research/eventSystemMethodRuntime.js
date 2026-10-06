@@ -40,6 +40,64 @@ export const DEFAULT_MAX_SUPPORTING_SOURCES = 3;
 const clean = (v) => (v == null ? null : String(v).trim() || null);
 const isNat = (v) => Number.isSafeInteger(Number(v)) && Number(v) >= 0 && v !== null && v !== "" && typeof v !== "boolean";
 
+// ── Attribution (provenance/presentation DATA; never identity, truth, rank, access or evidence) ──
+// Who a piece of material comes from. Governance actor (Human Gate) is a different axis and is never
+// an attribution. Source/work names are data supplied by the caller — nothing here knows any name.
+export const ATTRIBUTION_ROLE = Object.freeze({
+  CONTRIBUTOR: "contributor",
+  SOURCE_WORK: "source_work",
+  SOURCE_SYSTEM: "source_system",
+  SITE_INTERPRETATION: "site_interpretation",
+  ENGINE: "engine",
+});
+export const SITE_INTERPRETATION_LABEL = "כי לה׳ המלוכה";
+const SITE_INTERNAL_FORM = "מערכת כי לה׳ המלוכה";
+const GOVERNANCE_ACTOR_NAMES = /צוריאל|zuriel/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Fail-closed normalizer. Returns { ok, attribution } | { ok:false, reason }.
+ * Absent input is valid (attribution: null). A governance actor can never be the display name, a
+ * contributor needs a canonical id, and source works/systems never carry a contributor identity.
+ */
+export function normalizeAttribution(input) {
+  if (input == null) return { ok: true, attribution: null };
+  if (typeof input !== "object" || Array.isArray(input)) return { ok: false, reason: "attribution_invalid" };
+  const role = clean(input.role);
+  if (!Object.values(ATTRIBUTION_ROLE).includes(role)) return { ok: false, reason: "attribution_role_unknown" };
+  let displayName = clean(input.display_name);
+  if (role === ATTRIBUTION_ROLE.SITE_INTERPRETATION) {
+    if (displayName && displayName !== SITE_INTERNAL_FORM && displayName !== SITE_INTERPRETATION_LABEL) return { ok: false, reason: "site_interpretation_label_fixed" };
+    displayName = SITE_INTERPRETATION_LABEL;
+  }
+  if (!displayName) return { ok: false, reason: "attribution_display_name_missing" };
+  if (GOVERNANCE_ACTOR_NAMES.test(displayName) || GOVERNANCE_ACTOR_NAMES.test(clean(input.work_title) || "")) return { ok: false, reason: "governance_actor_is_not_attribution" };
+  const contributorId = clean(input.contributor_id);
+  if (role === ATTRIBUTION_ROLE.CONTRIBUTOR && !(contributorId && UUID.test(contributorId))) return { ok: false, reason: "contributor_id_required" };
+  if (role !== ATTRIBUTION_ROLE.CONTRIBUTOR && contributorId) return { ok: false, reason: "contributor_identity_not_mintable_for_role" };
+  return {
+    ok: true,
+    attribution: {
+      role,
+      display_name: displayName,
+      source_id: clean(input.source_id),
+      work_title: clean(input.work_title),
+      contributor_id: contributorId,
+      channel: clean(input.channel),
+    },
+  };
+}
+
+function withAttribution(finding, attribution, governance = null) {
+  if (!attribution) return finding;
+  const [fact, ...rest] = finding.evidence?.facts || [];
+  return {
+    ...finding,
+    evidence: { ...finding.evidence, facts: fact ? [{ ...fact, attribution, ...(governance ? { governance } : {}) }, ...rest] : finding.evidence?.facts },
+    projection: { ...finding.projection, dimensions: { ...finding.projection?.dimensions, attribution } },
+  };
+}
+
 // Reads (never computes) where an already-emitted governed Rule Application points.
 function ruleTarget(fact) {
   const out = fact?.output && typeof fact.output === "object" ? fact.output : {};
@@ -83,9 +141,10 @@ function overlayRuleFinding(finding, candidate, role, target) {
   };
 }
 
-function convergenceFinding(candidate, target, chains) {
+function convergenceFinding(candidate, target, chains, humanGate = null) {
   const parents = chains.map(c => c.findingId);
-  return makeUniversalFinding({
+  const attribution = { role: ATTRIBUTION_ROLE.SITE_INTERPRETATION, display_name: SITE_INTERPRETATION_LABEL, source_id: null, work_title: null, contributor_id: null, channel: null };
+  return withAttribution(makeUniversalFinding({
     kind: "event-rule-convergence",
     stage: "interpretation",
     subject: { type: "number", key: `number:${target}`, label: String(target), value: target },
@@ -122,7 +181,7 @@ function convergenceFinding(candidate, target, chains) {
         ruleTarget: target,
       },
     },
-  });
+  }), attribution, clean(humanGate) ? { human_gate: clean(humanGate), is_author: false } : null);
 }
 
 /**
@@ -131,9 +190,10 @@ function convergenceFinding(candidate, target, chains) {
  */
 function supportingSourceFinding(candidate, entry) {
   const env = entry.envelope;
+  const attribution = normalizeAttribution(entry.attribution).attribution;
   const ref = clean(env.source?.ref);
   const supports = (Array.isArray(entry.supports) ? entry.supports : []).filter(isNat).map(Number);
-  return makeUniversalFinding({
+  return withAttribution(makeUniversalFinding({
     kind: "event-supporting-source",
     stage: "candidate",
     subject: { type: "source", key: ref, label: clean(env.intrinsicPayload?.name) || ref, value: null },
@@ -170,7 +230,7 @@ function supportingSourceFinding(candidate, entry) {
         supportsNumbers: supports,
       },
     },
-  });
+  }), attribution);
 }
 
 function rankKey(entry) {
@@ -187,12 +247,15 @@ function rankKey(entry) {
  * @param {Array<{envelope:object,supports?:number[],rank?:number,rankReason?:string,accessTier:string}>} p.supportingSources
  *        admitted Research Admission envelopes; deeper ones are expandable, not dumped
  * @param {number} p.maxSupportingSources default sidecar bound
+ * @param {string} p.humanGate optional governance actor; recorded as governance metadata only, never as attribution
+ * (each supportingSources entry may carry `attribution`: see normalizeAttribution)
  */
 export async function compileEventObservationWithSystemMethods({
   numericOperators = null,
   supportNumbers = [],
   supportingSources = [],
   maxSupportingSources = DEFAULT_MAX_SUPPORTING_SOURCES,
+  humanGate = null,
   ...compilerArgs
 } = {}) {
   const baseDeclaration = compilerArgs.candidate;
@@ -272,7 +335,7 @@ export async function compileEventObservationWithSystemMethods({
   for (const [target, group] of [...byTarget.entries()].sort((a, b) => a[0] - b[0])) {
     if (new Set(group.map(c => c.input)).size < 2) continue;
     const sorted = [...group].sort((a, b) => a.input - b.input || a.ruleId.localeCompare(b.ruleId));
-    const f = convergenceFinding(candidate, target, sorted);
+    const f = convergenceFinding(candidate, target, sorted, humanGate);
     convergences.push(f);
     outcomes.push({
       findingId: f.id,
@@ -307,6 +370,8 @@ export async function compileEventObservationWithSystemMethods({
     const env = entry?.envelope;
     if (!env || env.admitted !== true || !clean(env.source?.ref)) { sourceRejected.push({ source_ref: clean(env?.source?.ref), reason: "envelope_not_admitted" }); continue; }
     if (env.semanticRole !== "representation" || env.governance?.canonical === true) { sourceRejected.push({ source_ref: env.source.ref, reason: "envelope_not_a_non_canonical_representation" }); continue; }
+    const attr = normalizeAttribution(entry.attribution);
+    if (!attr.ok) { sourceRejected.push({ source_ref: env.source.ref, reason: attr.reason }); continue; }
     admitted.push(entry);
   }
   const uniqueSources = [...new Map(admitted.map(e => [e.envelope.source.ref, e])).values()]
