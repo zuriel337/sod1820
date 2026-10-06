@@ -8,9 +8,10 @@ import {
   compileEventObservation,
   projectEventContextForSurface,
 } from "./eventObservationCompiler.js";
+import { gematriaTraceToFinding } from "./gematriaTrace.js";
 
-// Method identities are the canonical Registry/Trace keys (רגיל, מסתתר); API aliases such as
-// regular/misratar are NOT method identity. Fixture receipts stand in for the live canonical gematria_method_trace RPC (values verified live
+// The compiler carries no method catalog: method identity is whatever the canonical Trace adapter
+// attested. API aliases such as regular/misratar have no receipt. Fixture receipts stand in for the live canonical gematria_method_trace RPC (values verified live
 // by GPT per assignment a1a67648). The compiler under test never computes a value.
 const RECEIPTS = new Map([
   ["רגיל|המשיח", 363],
@@ -25,9 +26,13 @@ const RECEIPTS = new Map([
   ["מסתתר|חרבות ברזל", 1202],
   ["מסתתר|י״ט בתשרי תשפ״ז", 1182],
 ]);
+// Receipts are the canonical gematria-trace Universal Finding, produced by the real adapter from a
+// gematria_method_trace-shaped fixture. A method/expression with no fixture -> null (as production
+// fetchGematriaMethodTrace returns null/error for aliases like "regular").
+const trace = (method_key, input, result) => gematriaTraceToFinding({ status: "ok", method_key, input, result, method_version: "fixture-v1" }, { inputText: input, createdAt: "2026-10-06T00:00:00Z" });
 const resolver = (m) => {
   const result = RECEIPTS.get(`${m.method_key}|${m.expression}`);
-  return result == null ? null : { status: "ok", method_key: m.method_key, input: m.expression, result, method_version: "fixture-v1" };
+  return result == null ? null : trace(m.method_key, m.expression, result);
 };
 
 const post = { id: 5112, slug: "flydubai-fz1073-363-14000-remzei-geula", date: "2026-09-30T20:15:36.179757+00:00" }; // live Post 5112 published_at
@@ -92,16 +97,43 @@ test("engine-receipt gate: no receipt or wrong value -> not a verified Expressio
   assert.deepEqual(pack.rejected_members.map(r => r.reason), ["engine_receipt_missing", "engine_receipt_value_mismatch:363"]);
 });
 
-test("canonical method identity: API aliases are rejected; receipt must carry canonical method_key", () => {
-  const alias = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "regular", 363), m(T.EXPRESSION_MATCH, "המשיח", "misratar", 363)] });
-  assert.deepEqual(alias.rejected_members.map(r => r.reason), ["method_key_not_canonical", "method_key_not_canonical"]);
-  const aliasReceipt = compile({
-    members: [m(T.EXPRESSION_MATCH, "המשיח", undefined, 363)],
-    receiptResolver: (x) => ({ status: "ok", method_key: "regular", input: x.expression, result: 363 }),
+test("canonical trace receipt: Registry-open (אתבש), alias has no receipt, forged/malformed envelopes refused", () => {
+  // non-FZ method passed through the canonical adapter is accepted: no copied method catalog
+  const atbash = compile({
+    members: [m(T.EXPRESSION_MATCH, "שלום", "אתבש", 77)],
+    receiptResolver: (x) => trace("אתבש", x.expression, 77),
   });
-  assert.equal(aliasReceipt.rejected_members[0].reason, "engine_receipt_method_not_canonical");
+  assert.equal(atbash.rejected_members.length, 0);
+  assert.equal(atbash.bundle.findings[0].verification.engine_method_tested, "אתבש");
+  assert.equal(atbash.bundle.findings[0].source.method, "אתבש");
+  // API alias: canonical fetch returns null -> no receipt -> never verified (no local alias mapping)
+  const alias = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "regular", 363)] });
+  assert.equal(alias.rejected_members[0].reason, "engine_receipt_missing");
+  // alias-keyed trace whose method disagrees with the member
+  const mismatch = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: (x) => trace("מסתתר", x.expression, 363) });
+  assert.equal(mismatch.rejected_members[0].reason, "engine_receipt_method_mismatch");
+  // flat receipts / wrong envelope are not canonical trace findings
+  const flat = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: (x) => ({ status: "ok", method_key: "רגיל", input: x.expression, result: 363 }) });
+  assert.equal(flat.rejected_members[0].reason, "engine_receipt_not_canonical_trace");
+  const good = () => trace("רגיל", "המשיח", 363);
+  const forge = (mut) => { const f = JSON.parse(JSON.stringify(good())); mut(f); return f; };
+  const cases = {
+    engine_receipt_not_canonical_trace: [f => { f.source.adapter = "other"; }, f => { f.source.engine = "els"; }, f => { f.kind = "event-expression-match"; }],
+    engine_receipt_identity_mismatch: [f => { f.verification.engine_result = 364; }, f => { f.identity.sourceIdentity.methodKey = "מסתתר"; }, f => { f.subject.key = "אחר"; }],
+    engine_receipt_without_method: [f => { f.source.method = null; }],
+    engine_receipt_without_result: [f => { f.verification.engine_result = null; }],
+  };
+  for (const [reason, muts] of Object.entries(cases)) {
+    for (const mut of muts) {
+      const r = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: () => forge(mut) });
+      assert.equal(r.rejected_members[0].reason, reason);
+    }
+  }
   const ok = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)] });
   assert.equal(ok.bundle.findings[0].verification.engine_method_tested, "רגיל");
+  // source has no copied method allowlist
+  const src = readFileSync(new URL("./eventObservationCompiler.js", import.meta.url), "utf8");
+  assert.ok(!/CANONICAL_METHOD_KEYS?\b/.test(src));
 });
 
 test("source Number != Expression result: 363 is a source fact without receipt; המשיח is a separate Expression under רגיל", () => {
@@ -163,7 +195,7 @@ test("1202/1182 guard: 2026 date cannot carry 1202; 1202 only as sourced Oct7 cr
   // even with a (forged) matching receipt, an unscoped 1202 member is refused
   const forged = compile({
     members: [m(T.DATE_EXPRESSION, "י״ט בתשרי תשפ״ז", "מסתתר", 1202)],
-    receiptResolver: (x) => ({ status: "ok", method_key: "מסתתר", input: x.expression, result: 1202 }),
+    receiptResolver: (x) => trace("מסתתר", x.expression, 1202),
   });
   assert.equal(forged.rejected_members[0].reason, "1202_reserved_for_sourced_oct7_cross_time_member");
   const honest = compile({ members: [m(T.DATE_EXPRESSION, "י״ט בתשרי תשפ״ז", "מסתתר", 1182)] });
@@ -178,7 +210,7 @@ test("1202/1182 guard: 2026 date cannot carry 1202; 1202 only as sourced Oct7 cr
   // oct7 with a non-מסתתר receipt is refused too
   const wrongMethod = compile({
     members: [m(T.EXPRESSION_MATCH, "x", "רגיל", 1202, { scope: "cross_time", cross_time_subject: "oct7" })],
-    receiptResolver: (x) => ({ status: "ok", method_key: "רגיל", input: x.expression, result: 1202 }),
+    receiptResolver: (x) => trace("רגיל", x.expression, 1202),
   });
   assert.equal(wrongMethod.rejected_members[0].reason, "1202_reserved_for_sourced_oct7_cross_time_member");
   const noSource = compile({ members: [m(T.EXPRESSION_MATCH, "חרבות ברזל", "מסתתר", 1202, { scope: "cross_time", cross_time_subject: "oct7", source_ref: null })] });
@@ -273,12 +305,12 @@ test("legacy research_objects: engine_verified=true alone is insufficient; a can
     assert.equal(pack.gated_research_objects[0].research_object_id, "ro-legacy");
   }
   // invalid receipts: alias method, wrong value
-  for (const bad of [{ method_key: "regular", result: 363 }, { method_key: "רגיל", result: 364 }, { method_key: "מסתתר", result: 363 }]) {
-    const pack = compile({ researchObjects: [row], researchObjectReceiptResolver: (r) => ({ status: "ok", input: "המשיח", ...bad }) });
+  for (const bad of [{ method_key: "רגיל", result: 364 }, { method_key: "מסתתר", result: 363 }]) {
+    const pack = compile({ researchObjects: [row], researchObjectReceiptResolver: () => trace(bad.method_key, "המשיח", bad.result) });
     assert.ok(!pack.bundle.findings.some(f => f.identity.sourceIdentity?.researchObjectId === "ro-legacy"), JSON.stringify(bad));
   }
   // canonical receipt (duplicate rows supplied) -> admitted exactly once, same identity, row untouched
-  const good = (r) => ({ status: "ok", method_key: "רגיל", input: r.engine_detail.claimed_expression, result: 363 });
+  const good = (r) => trace("רגיל", r.engine_detail.claimed_expression, 363);
   const pack = compile({ researchObjects: [row, row], researchObjectReceiptResolver: good });
   const found = pack.bundle.findings.filter(f => f.identity.sourceIdentity?.researchObjectId === "ro-legacy");
   assert.equal(found.length, 1);
@@ -291,11 +323,35 @@ test("legacy research_objects: engine_verified=true alone is insufficient; a can
   assert.equal(pack.gated_research_objects.length, 0);
 });
 
-test("legacy re-verification respects access: private rows never reach the resolver or the bundle", () => {
-  let calls = 0;
+test("legacy re-verification access: public-only fails closed without calling resolver; attested descriptor admits private by same identity", () => {
   const priv = { id: "ro-priv-legacy", statement: "s", value: 363, status: "approved", privacy_scope: "private", source_ref: "post:5112#p", engine_verified: true,
     engine_detail: { claimed_expression: "המשיח", claimed_method: "רגיל", claimed_value: 363 } };
-  const pack = compile({ researchObjects: [priv], researchObjectReceiptResolver: (r) => { calls++; return { status: "ok", method_key: "רגיל", input: "המשיח", result: 363 }; } });
+  const snapshot = JSON.stringify(priv);
+  let calls = 0;
+  const resolverFn = () => { calls++; return trace("רגיל", "המשיח", 363); };
+  const find = (pack) => pack.bundle.findings.filter(f => f.identity.sourceIdentity?.researchObjectId === "ro-priv-legacy");
+  const unattested = [undefined, null, "garbage", { allowed_access_tiers: ["private"] }, { allowed_access_tiers: ["private"], authority_source: "made_up" }];
+  for (const accessDescriptor of unattested) {
+    const pack = compile({ researchObjects: [priv], researchObjectReceiptResolver: resolverFn, accessDescriptor });
+    assert.equal(find(pack).length, 0);
+    assert.match(pack.gated_research_objects[0].reason, /access_tier_not_permitted:private/);
+  }
+  assert.equal(calls, 0, "resolver is never called for a tier the normalized descriptor does not allow");
+  const attested = { authority_source: "admin_rpc", admin: true, allowed_access_tiers: ["public", "private"] };
+  const pack = compile({ researchObjects: [priv], researchObjectReceiptResolver: resolverFn, accessDescriptor: attested });
+  assert.equal(calls, 1);
+  const found = find(pack);
+  assert.equal(found.length, 1);
+  assert.equal(found[0].verification.verification_state, "match");
+  assert.equal(found[0].projection.dimensions.legacyReverified, true);
+  assert.equal(JSON.stringify(priv), snapshot);
+  // attested but tier not included (public-only attestation) still gates private and skips resolver
+  calls = 0;
+  const pubAttested = compile({ researchObjects: [priv], researchObjectReceiptResolver: resolverFn, accessDescriptor: { authority_source: "supabase_auth", allowed_access_tiers: ["public"] } });
   assert.equal(calls, 0);
-  assert.ok(!pack.bundle.findings.some(f => f.identity.sourceIdentity?.researchObjectId === "ro-priv-legacy"));
+  assert.equal(find(pubAttested).length, 0);
+  // public rows still reverify under the default (public-only) descriptor
+  const pubRow = { ...priv, id: "ro-pub-legacy", privacy_scope: "public" };
+  const pubPack = compile({ researchObjects: [pubRow], researchObjectReceiptResolver: resolverFn });
+  assert.equal(pubPack.bundle.findings.filter(f => f.identity.sourceIdentity?.researchObjectId === "ro-pub-legacy").length, 1);
 });

@@ -8,6 +8,7 @@ import {
   capabilityResult,
   composeResearchResultBundle,
 } from "./researchResultBundle.js";
+import { normalizeAccessDescriptor } from "./researchPlanV2.js";
 
 // FZ1073_OBSERVATION_PROPAGATION_GOLDEN_V1 — bounded event observation compiler.
 //
@@ -73,13 +74,17 @@ const RECEIPT_TYPES = new Set([
   EVENT_MEMBER_TYPE.EXPRESSION_MATCH,
 ]);
 const VALUE_TYPES = new Set([EVENT_MEMBER_TYPE.DATE_EXPRESSION, EVENT_MEMBER_TYPE.EXPRESSION_MATCH]);
-// Canonical Registry / gematria_method_trace method identities (live-verified: רגיל, מסתתר).
-// API JSON property aliases (ragil / misratar / regular ...) are NOT method identity.
-export const CANONICAL_METHOD_KEY = Object.freeze({
-  REGULAR: "רגיל",
-  MISTATER: "מסתתר",
-});
-const CANONICAL_METHOD_KEYS = new Set(Object.values(CANONICAL_METHOD_KEY));
+// This module owns NO method catalog. Method identity is whatever the canonical Trace adapter
+// (gematriaTrace.js::gematriaTraceToFinding over gematria_method_trace) attested; the Registry stays
+// open to every current/future canonical method. API aliases (regular / misratar ...) fail upstream:
+// fetchGematriaMethodTrace(alias, ...) returns null/error, so no receipt exists for them.
+// Envelope identity of the canonical Trace adapter (literals only; importing the adapter would pull
+// the supabase client into this pure compiler).
+const TRACE_KIND = "gematria-trace";
+const TRACE_ENGINE = "gematria";
+const TRACE_ADAPTER = "gematria-trace-v1";
+// Golden semantic guard for the 1202 rule only — not a Registry.
+const GOLDEN_1202_METHOD = "מסתתר";
 const RESERVED_CROSS_TIME_VALUE = 1202;
 const RESERVED_CROSS_TIME_SUBJECT = "oct7";
 
@@ -121,20 +126,46 @@ function anchorsFor(candidate, extra = []) {
   return [...out, ...extra];
 }
 
-function receiptGate(member, receipt) {
-  if (!receipt || receipt.status === "error") return { ok: false, reason: "engine_receipt_missing" };
-  const methodKey = clean(receipt.method_key);
-  if (!methodKey) return { ok: false, reason: "engine_receipt_without_method" };
-  if (!CANONICAL_METHOD_KEYS.has(methodKey)) return { ok: false, reason: "engine_receipt_method_not_canonical" };
-  if (clean(member.method_key) && methodKey !== clean(member.method_key)) return { ok: false, reason: "engine_receipt_method_mismatch" };
-  if (clean(member.expression) && clean(receipt.input) && clean(receipt.input) !== clean(member.expression)) {
-    return { ok: false, reason: "engine_receipt_input_mismatch" };
+// A receipt is the canonical gematria-trace Universal Finding (gematriaTraceToFinding). The envelope
+// is validated, not re-derived: kind/engine/adapter, then method / expression / result must agree
+// between source, subject, verification and identity. Only then is it exact-matched to the member.
+function readTraceReceipt(finding) {
+  if (!finding || typeof finding !== "object" || finding.status === "error") return { ok: false, reason: "engine_receipt_missing" };
+  if (finding.kind !== TRACE_KIND || finding.source?.engine !== TRACE_ENGINE || finding.source?.adapter !== TRACE_ADAPTER) {
+    return { ok: false, reason: "engine_receipt_not_canonical_trace" };
   }
-  if (!Number.isFinite(Number(receipt.result))) return { ok: false, reason: "engine_receipt_without_result" };
-  if (member.claimed_value != null && Number(receipt.result) !== Number(member.claimed_value)) {
+  const method = clean(finding.source?.method);
+  if (!method) return { ok: false, reason: "engine_receipt_without_method" };
+  const result = finding.verification?.engine_result;
+  if (result == null || result === "" || !Number.isFinite(Number(result))) return { ok: false, reason: "engine_receipt_without_result" };
+  const expression = clean(finding.subject?.key);
+  const sid = finding.identity?.sourceIdentity;
+  if (
+    !expression
+    || clean(finding.verification?.engine_method_tested) !== method
+    || clean(sid?.methodKey) !== method
+    || clean(sid?.expression) !== expression
+    || Number(sid?.value) !== Number(result)
+    || Number(finding.subject?.value) !== Number(result)
+  ) {
+    return { ok: false, reason: "engine_receipt_identity_mismatch" };
+  }
+  return {
+    ok: true,
+    receipt: { method_key: method, input: expression, result: Number(result), receipt_id: finding.id ?? null, method_version: clean(sid?.methodVersion) },
+  };
+}
+
+function receiptGate(member, finding) {
+  const read = readTraceReceipt(finding);
+  if (!read.ok) return read;
+  const { receipt } = read;
+  if (clean(member.method_key) && receipt.method_key !== clean(member.method_key)) return { ok: false, reason: "engine_receipt_method_mismatch" };
+  if (clean(member.expression) && receipt.input !== clean(member.expression)) return { ok: false, reason: "engine_receipt_input_mismatch" };
+  if (member.claimed_value != null && receipt.result !== Number(member.claimed_value)) {
     return { ok: false, reason: `engine_receipt_value_mismatch:${receipt.result}` };
   }
-  return { ok: true, reason: null };
+  return { ok: true, reason: null, receipt };
 }
 
 // 1202 belongs to the stable Oct7 cross-time subject only, with its own source and a canonical
@@ -146,14 +177,15 @@ function reservedValueGuard(member, value, receipt) {
   const ok = member.scope === "cross_time"
     && clean(member.cross_time_subject) === RESERVED_CROSS_TIME_SUBJECT
     && clean(member.source_ref)
-    && clean(receipt?.method_key) === CANONICAL_METHOD_KEY.MISTATER;
+    && clean(receipt?.method_key) === GOLDEN_1202_METHOD;
   return ok ? null : "1202_reserved_for_sourced_oct7_cross_time_member";
 }
 
 // Projection-time re-verification of a LEGACY research_objects row against a canonical receipt.
 // engine_verified=true alone never admits a row. The row is not mutated or copied; the receipt is
 // only overlaid on the projection verification, so the finding keeps the same source identity/id.
-function reverifyLegacyRow(row, receipt) {
+function reverifyLegacyRow(row, receiptFinding) {
+  let receipt = receiptFinding;
   const detail = row?.engine_detail && typeof row.engine_detail === "object" ? row.engine_detail : {};
   const claimedValue = detail.claimed_value ?? row.value ?? null;
   const gate = receiptGate({
@@ -163,6 +195,7 @@ function reverifyLegacyRow(row, receipt) {
   }, receipt);
   if (!gate.ok) return { ok: false, reason: gate.reason };
   if (claimedValue == null) return { ok: false, reason: "legacy_row_without_claimed_value" };
+  receipt = gate.receipt;
   return {
     ok: true,
     verification: {
@@ -267,8 +300,9 @@ function reject(member, reason) {
  * @param {object} p.post             existing post row ({id, slug, date})
  * @param {Array}  p.members          typed members (see EVENT_MEMBER_TYPE)
  * @param {Array}  p.researchObjects  existing research_objects rows (the FZ1073 input set)
- * @param {Function} p.receiptResolver (member) -> canonical gematria_method_trace-shaped receipt | null
- * @param {Function} p.researchObjectReceiptResolver optional (row) -> canonical receipt | null, for
+ * @param {Function} p.receiptResolver (member) -> canonical gematria-trace Universal Finding
+ *        (gematriaTraceToFinding / fetchGematriaMethodTrace) | null
+ * @param {Function} p.researchObjectReceiptResolver optional (row) -> canonical trace finding | null, for
  *        projection-time re-verification of legacy rows (read adapter; never mutates/copies the row)
  */
 export function compileEventObservation({
@@ -286,6 +320,9 @@ export function compileEventObservation({
   const memberFindings = [];
   const roFindings = [];
   const roGated = [];
+  // Effective access resolved ONCE through the existing owner. Unattested/malformed descriptors
+  // normalize to public-only (fail closed); composeResearchResultBundle remains the final filter.
+  const allowedTiers = new Set(normalizeAccessDescriptor(accessDescriptor).allowed_access_tiers);
 
   // 1. research_objects — projected by identity; the same row id is one finding no matter how often
   //    it is supplied or referenced by a member.
@@ -300,14 +337,17 @@ export function compileEventObservation({
     let finding0 = base;
     if (base.verification?.verification_state !== "match") {
       // Legacy rows (engine_verified=true, no explicit engine_detail.verification_state) are never
-      // inferred to match. Only a public row with a valid canonical re-verification receipt is admitted,
-      // through a projection-time overlay on the SAME identity. Restricted rows never reach the resolver.
+      // inferred to match. Only a row whose tier the normalized access descriptor allows, with a valid
+      // canonical re-verification receipt, is admitted through a projection-time overlay on the SAME
+      // identity. Rows outside the allowed tiers never reach the resolver.
+      const tier = clean(row.privacy_scope);
+      const tierAllowed = Boolean(tier) && allowedTiers.has(tier);
       let reverified = null;
-      if (typeof researchObjectReceiptResolver === "function" && clean(row.privacy_scope) === "public") {
+      if (typeof researchObjectReceiptResolver === "function" && tierAllowed) {
         reverified = reverifyLegacyRow(row, researchObjectReceiptResolver(row));
       }
       if (!reverified?.ok) {
-        roGated.push({ research_object_id: String(row.id), reason: reverified?.reason ? `legacy_reverification_failed:${reverified.reason}` : "engine_verification_not_match" });
+        roGated.push({ research_object_id: String(row.id), reason: reverified?.reason ? `legacy_reverification_failed:${reverified.reason}` : (!tierAllowed && typeof researchObjectReceiptResolver === "function" ? `access_tier_not_permitted:${tier ?? "none"}` : "engine_verification_not_match") });
         continue;
       }
       finding0 = { ...base, verification: { ...base.verification, ...reverified.verification } };
@@ -337,9 +377,6 @@ export function compileEventObservation({
     if (member.type === EVENT_MEMBER_TYPE.SYMBOLIC_TRANSFORMATION && (clean(member.method_key) || member.registered === true)) {
       rejected.push(reject(member, "symbolic_transformation_is_not_registered_gematria_method")); return;
     }
-    if (clean(member.method_key) && !CANONICAL_METHOD_KEYS.has(clean(member.method_key))) {
-      rejected.push(reject(member, "method_key_not_canonical")); return;
-    }
     let receipt = null;
     if (SOURCE_NUMBER_TYPES.has(member.type)) {
       // A source-observed Number / Flight Number is a source fact (number + source_ref), never an
@@ -350,9 +387,9 @@ export function compileEventObservation({
       if (!isInt(member.number)) { rejected.push(reject(member, `${member.type}_without_number`)); return; }
       if (!clean(member.source_ref)) { rejected.push(reject(member, `${member.type}_without_source_ref`)); return; }
     } else if (RECEIPT_TYPES.has(member.type)) {
-      receipt = typeof receiptResolver === "function" ? receiptResolver(member) : null;
-      const gate = receiptGate(member, receipt);
+      const gate = receiptGate(member, typeof receiptResolver === "function" ? receiptResolver(member) : null);
       if (!gate.ok) { rejected.push(reject(member, gate.reason)); return; }
+      receipt = gate.receipt;
     }
     const value = receipt ? Number(receipt.result) : null;
     const guard = reservedValueGuard(member, value ?? member.claimed_value, receipt);
