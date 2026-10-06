@@ -239,17 +239,37 @@ function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic }) {
 
 export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [query, setQuery] = useState(clean(initialSeed));
-  const [engineSeed, setEngineSeed] = useState(clean(initialSeed));
+  // The iframe source stays stable after mount. User-initiated searches travel through native-search,
+  // so changing a term/scope never creates a second engine instance or remounts the canonical one.
+  const [engineSeed] = useState(() => clean(initialSeed));
   const [engineState, setEngineState] = useState(null);
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [controlRequest, setControlRequest] = useState(null);
   const controlSeqRef = useRef(0);
+  const [searchRequest, setSearchRequest] = useState(null);
+  const searchSeqRef = useRef(0);
+  const [crossOpen, setCrossOpen] = useState(false);
+  const [crossTerm, setCrossTerm] = useState("");
   const [lensRequest, setLensRequest] = useState(null);
   const lensSeqRef = useRef(0);
   const [lensResult, setLensResult] = useState(null);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
+
+  const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
+
+  const resetReadContext = () => {
+    setLensResult(null);
+    setSelectedLetterIndex(null);
+  };
+
+  const requestSearch = (kind, payload = {}) => {
+    resetReadContext();
+    setNotice("");
+    setClassicOpen(false);
+    setSearchRequest({ kind, ...payload, seq: ++searchSeqRef.current });
+  };
 
   const submit = (event) => {
     event?.preventDefault?.();
@@ -258,25 +278,32 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       setNotice("כתבו לפחות שתי אותיות.");
       return;
     }
-    setNotice("");
-    setLensResult(null);
-    setSelectedLetterIndex(null);
-    setClassicOpen(false);
-    // The canonical engine already accepts ?q=term and performs the governed search.
-    // Changing the seed remounts only that same iframe/engine instance; React never calculates ELS.
-    setEngineSeed(term);
+    requestSearch("regular", { term, scope: activeScope });
   };
 
-  const openTanakh = () => {
-    setNotice("חיפוש בכל התנ״ך נשאר כרגע בכלי הקלאסי המלא עד שהשליטה הזו תעבור parity מלא ל־2029.");
-    setClassicOpen(true);
+  const switchScope = (scope) => {
+    const term = clean(query) || clean(engineState?.termRaw || engineState?.term);
+    if (term.length < 2) {
+      setNotice("בחרו מונח ואז עברו בין תורה לכל התנ״ך.");
+      return;
+    }
+    requestSearch("regular", { term, scope });
+  };
+
+  const submitCross = () => {
+    const axis = clean(query) || clean(engineState?.termRaw || engineState?.term);
+    const term = clean(crossTerm);
+    if (axis.length < 2 || term.length < 2) {
+      setNotice("להצלבה צריך שני מונחים של לפחות שתי אותיות.");
+      return;
+    }
+    requestSearch("cross", { axis, term, scope: activeScope });
   };
 
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || next?.status !== "ok") {
-      setLensResult(null);
-      setSelectedLetterIndex(null);
+      resetReadContext();
     }
     engineStateRef.current = next;
     setEngineState(next);
@@ -285,8 +312,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const requestControl = (action) => {
     if (!action) return;
     if (action === "occurrence-prev" || action === "occurrence-next") {
-      setLensResult(null);
-      setSelectedLetterIndex(null);
+      resetReadContext();
     }
     setControlRequest({ action, seq: ++controlSeqRef.current });
   };
@@ -308,7 +334,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     requestLens("verse-context", { hitId: engineState.axis.hitId });
   };
 
-  return <section className="els29-native-classic" data-els-native-classic="v2">
+  return <section className="els29-native-classic" data-els-native-classic="v3">
     <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <label>
         <span>מונח</span>
@@ -321,13 +347,49 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         />
       </label>
       <div className="els29-native-scope" aria-label="היקף החיפוש">
-        <button type="button" className="is-active" aria-pressed="true">תורה</button>
-        <button type="button" aria-pressed="false" onClick={openTanakh}>כל התנ״ך</button>
+        <button
+          type="button"
+          className={activeScope === "torah" ? "is-active" : ""}
+          aria-pressed={activeScope === "torah"}
+          onClick={() => switchScope("torah")}
+        >תורה</button>
+        <button
+          type="button"
+          className={activeScope === "tanakh" ? "is-active" : ""}
+          aria-pressed={activeScope === "tanakh"}
+          onClick={() => switchScope("tanakh")}
+        >כל התנ״ך</button>
       </div>
       <button className="els29-native-search" type="submit">חפש</button>
+      <button
+        className={`els29-native-cross-toggle${crossOpen ? " is-active" : ""}`}
+        type="button"
+        aria-expanded={crossOpen}
+        onClick={() => setCrossOpen((value) => !value)}
+      >הצלבה</button>
       <button className="els29-native-more" type="button" onClick={() => setClassicOpen((value) => !value)}>
         {classicOpen ? "חזור לתצוגת 2029" : "כל הכלים"}
       </button>
+
+      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
+        <label>
+          <span>מונח שני</span>
+          <input
+            value={crossTerm}
+            onChange={(event) => setCrossTerm(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                submitCross();
+              }
+            }}
+            maxLength={40}
+            placeholder="למשל: דוד"
+            autoComplete="off"
+          />
+        </label>
+        <button className="els29-native-cross-run" type="button" onClick={submitCross}>מצא מפגש</button>
+      </div> : null}
     </form>
 
     {notice ? <div className="els29-native-notice" role="status">{notice}</div> : null}
@@ -369,6 +431,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensRequest={lensRequest}
           onLens={setLensResult}
           controlRequest={controlRequest}
+          searchRequest={searchRequest}
         />
       </div>
     </div>
