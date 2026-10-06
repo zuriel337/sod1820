@@ -1,0 +1,309 @@
+.sod29-campaign718{
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+  background:var(--c-page);
+  color:var(--c-text);
+  padding:28px 20px 64px;
+  font-family:"Noto Sans Hebrew","Rubik",Arial,sans-serif;
+}
+.sod29-campaign718 *{box-sizing:border-box}
+.sod29-campaign718-ambient{
+  position:absolute;
+  inset:-20% -15% auto;
+  height:560px;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 10%,var(--c-brand-glow),transparent 58%),
+    radial-gradient(circle at 80% 30%,color-mix(in srgb,var(--c-secondary) 16%,transparent),transparent 44%),
+    radial-gradient(circle at 18% 36%,color-mix(in srgb,var(--c-discovery) 14%,transparent),transparent 42%);
+}
+.sod29-campaign718-brand,
+.sod29-campaign718-hero,
+.sod29-campaign718-calc,
+.sod29-campaign718-story,
+.sod29-campaign718-gate,
+.sod29-campaign718-next,
+.sod29-campaign718-footer{
+  width:min(760px,100%);
+  margin-inline:auto;
+  position:relative;
+  z-index:1;
+}
+.sod29-campaign718-brand{text-align:center;margin-bottom:28px}
+.sod29-campaign718-brand-kicker{
+  font-family:"Rubik",sans-serif;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:.08em;
+  color:var(--c-brand-gold);
+  margin-bottom:8px;
+}
+.sod29-campaign718-lockup{
+  width:min(210px,46vw);
+  height:auto;
+  display:block;
+  margin:0 auto;
+  filter:drop-shadow(0 18px 44px var(--c-brand-glow));
+}
+.sod29-campaign718-brand p{margin:4px 0 0;color:var(--c-text-soft);font-size:15px}
+.sod29-campaign718-hero{text-align:center;padding:18px 0 32px}
+.sod29-campaign718-eyebrow{font-weight:800;color:var(--c-discovery);font-size:16px;margin-bottom:10px}
+.sod29-campaign718-hero h1{
+  margin:0;
+  font-family:"Rubik",sans-serif;
+  font-size:clamp(42px,10vw,78px);
+  line-height:1.02;
+  letter-spacing:-.04em;
+}
+.sod29-campaign718-hero h1 span{color:var(--c-primary)}
+.sod29-campaign718-hero p{
+  max-width:600px;
+  margin:18px auto 0;
+  color:var(--c-text-soft);
+  font-size:19px;
+  line-height:1.75;
+}
+.sod29-campaign718-calc,
+.sod29-campaign718-story,
+.sod29-campaign718-gate,
+.sod29-campaign718-whatsapp,
+.sod29-campaign718-next{
+  background:var(--c-surface);
+  border:1px solid var(--c-border);
+  border-radius:26px;
+  box-shadow:0 24px 70px var(--c-brand-glow);
+}
+.sod29-campaign718-calc{padding:26px;margin-bottom:20px}
+.sod29-campaign718-calc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.sod29-campaign718-calc-head span,
+.sod29-campaign718-story>span,
+.sod29-campaign718-gate>span,
+.sod29-campaign718-next span{
+  display:block;
+  color:var(--c-discovery);
+  font-weight:800;
+  font-size:14px;
+  margin-bottom:4px;
+}
+.sod29-campaign718-calc-head strong{display:block;font-size:24px;font-family:"Rubik",sans-serif}
+.sod29-campaign718-status{
+  flex:0 0 auto;
+  border:1px solid var(--c-border);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:14px;
+  font-weight:800;
+  color:var(--c-text-soft);
+}
+.sod29-campaign718-status.is-verified{color:var(--c-discovery);border-color:var(--c-discovery)}
+.sod29-campaign718-status.is-error{color:var(--c-text-soft)}
+.sod29-campaign718-calc label{display:block;font-size:14px;font-weight:800;color:var(--c-text-soft);margin-bottom:8px}
+.sod29-campaign718-calc>input,
+.sod29-campaign718-gate form input{
+  width:100%;
+  min-height:58px;
+  border-radius:16px;
+  border:1px solid var(--c-border-strong);
+  background:var(--c-surface-soft);
+  color:var(--c-text);
+  font:700 20px "Noto Sans Hebrew",sans-serif;
+  padding:14px 16px;
+  outline:none;
+}
+.sod29-campaign718-calc>input:focus,
+.sod29-campaign718-gate form input:focus{border-color:var(--c-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--c-focus) 18%,transparent)}
+.sod29-campaign718-result{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  padding:20px;
+  margin-top:14px;
+  border-radius:18px;
+  background:var(--c-surface-soft);
+  border:1px solid var(--c-border);
+}
+.sod29-campaign718-result div{display:flex;align-items:baseline;gap:12px}
+.sod29-campaign718-result small{color:var(--c-text-soft);font-size:14px}
+.sod29-campaign718-result strong{font:800 clamp(42px,11vw,68px) "IBM Plex Mono",monospace;color:var(--c-primary)}
+.sod29-campaign718-result>span{font-size:19px;font-weight:800;text-align:end}
+.sod29-campaign718-chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.sod29-campaign718-chips button{
+  min-height:44px;
+  padding:9px 14px;
+  border-radius:999px;
+  border:1px solid var(--c-border);
+  background:var(--c-raised);
+  color:var(--c-text);
+  font:700 15px "Noto Sans Hebrew",sans-serif;
+  cursor:pointer;
+}
+.sod29-campaign718-chips button:hover{border-color:var(--c-primary)}
+.sod29-campaign718-reveal{
+  margin-top:22px;
+  padding-top:20px;
+  border-top:1px solid var(--c-border);
+}
+.sod29-campaign718-reveal-title{font-size:18px;font-weight:900;margin-bottom:12px}
+.sod29-campaign718-reveal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sod29-campaign718-reveal-grid>div{
+  border:1px solid var(--c-border);
+  background:var(--c-surface-soft);
+  border-radius:16px;
+  padding:16px;
+}
+.sod29-campaign718-reveal-grid span,
+.sod29-campaign718-reveal-grid small{display:block}
+.sod29-campaign718-reveal-grid span{font-size:17px;font-weight:800}
+.sod29-campaign718-reveal-grid strong{font:800 36px "IBM Plex Mono",monospace;color:var(--c-primary)}
+.sod29-campaign718-reveal-grid small{color:var(--c-text-soft);font-size:14px}
+.sod29-campaign718-reveal p{color:var(--c-text-soft);font-size:14px;line-height:1.7;margin:14px 0 0}
+.sod29-campaign718-text-link{display:inline-block;margin-top:18px;color:var(--c-primary);font-weight:900;text-decoration:none}
+.sod29-campaign718-story{padding:26px;margin-bottom:20px}
+.sod29-campaign718-story h2,
+.sod29-campaign718-gate h2,
+.sod29-campaign718-next h2{font:800 clamp(26px,5vw,36px) "Rubik",sans-serif;margin:0}
+.sod29-campaign718-story p,
+.sod29-campaign718-gate p{font-size:18px;line-height:1.8;color:var(--c-text-soft);margin:14px 0 0}
+.sod29-campaign718-gate{padding:28px;border-color:var(--c-border-strong);margin-bottom:20px}
+.sod29-campaign718-gate form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}
+.sod29-campaign718-gate form button,
+.sod29-campaign718-actions a:first-child{
+  min-height:58px;
+  border:0;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));
+  color:var(--c-on-primary);
+  font:900 16px "Rubik",sans-serif;
+  padding:12px 22px;
+  cursor:pointer;
+}
+.sod29-campaign718-gate form button:disabled{opacity:.65;cursor:wait}
+.sod29-campaign718-gate>small{display:block;color:var(--c-text-soft);font-size:14px;margin-top:10px}
+.sod29-campaign718-gate>small.is-error{color:var(--c-brand-gold)}
+.sod29-campaign718-secret{
+  margin-bottom:18px;
+  padding:20px;
+  border-radius:18px;
+  background:var(--c-surface-soft);
+  border:1px solid var(--c-border);
+}
+.sod29-campaign718-secret small{
+  display:block;
+  color:var(--c-discovery);
+  font-size:14px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.sod29-campaign718-secret h2{margin:0}
+.sod29-campaign718-secret p{
+  margin:12px 0 0;
+  color:var(--c-text-soft);
+  font-size:17px;
+  line-height:1.8;
+}
+.sod29-campaign718-secret strong{
+  display:block;
+  margin-top:14px;
+  color:var(--c-brand-gold);
+  font-size:16px;
+}
+.sod29-campaign718-video-frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border-radius:18px;
+  background:var(--c-surface-soft);
+  border:1px solid var(--c-border);
+}
+.sod29-campaign718-video-frame iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+}
+.sod29-campaign718-video-source{
+  display:block;
+  color:var(--c-text-soft);
+  font-size:14px;
+  margin-top:10px;
+}
+.sod29-campaign718-whatsapp{
+  padding:24px;
+  margin-bottom:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:22px;
+  border-color:var(--c-discovery);
+}
+.sod29-campaign718-whatsapp h2{
+  font:800 clamp(24px,4vw,32px) "Rubik",sans-serif;
+  margin:0;
+}
+.sod29-campaign718-whatsapp p{
+  color:var(--c-text-soft);
+  margin:8px 0 0;
+  font-size:16px;
+  line-height:1.7;
+}
+.sod29-campaign718-whatsapp>a{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:12px 18px;
+  border-radius:15px;
+  background:var(--c-discovery);
+  color:var(--c-on-primary);
+  font-weight:900;
+  text-decoration:none;
+}
+.sod29-campaign718-next{padding:24px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.sod29-campaign718-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.sod29-campaign718-actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:11px 16px;
+  border-radius:14px;
+  border:1px solid var(--c-border-strong);
+  color:var(--c-text);
+  font-weight:900;
+  text-decoration:none;
+}
+.sod29-campaign718-actions a:first-child{color:var(--c-on-primary);border:0}
+.sod29-campaign718-footer{display:flex;justify-content:center;gap:10px;color:var(--c-text-soft);font-size:14px;padding-top:24px}
+@media (max-width:620px){
+  .sod29-campaign718{padding:20px 14px 44px}
+  .sod29-campaign718-brand{margin-bottom:12px}
+  .sod29-campaign718-lockup{width:min(180px,50vw)}
+  .sod29-campaign718-hero{padding-top:8px}
+  .sod29-campaign718-hero p{font-size:17px}
+  .sod29-campaign718-calc,
+  .sod29-campaign718-story,
+  .sod29-campaign718-gate,
+  .sod29-campaign718-whatsapp,
+  .sod29-campaign718-next{border-radius:20px}
+  .sod29-campaign718-calc{padding:18px}
+  .sod29-campaign718-calc-head{display:block}
+  .sod29-campaign718-status{display:inline-flex;margin-top:10px}
+  .sod29-campaign718-result{align-items:flex-end}
+  .sod29-campaign718-result div{display:block}
+  .sod29-campaign718-result>span{font-size:16px;max-width:52%}
+  .sod29-campaign718-reveal-grid{grid-template-columns:1fr}
+  .sod29-campaign718-gate form{grid-template-columns:1fr}
+  .sod29-campaign718-whatsapp,
+  .sod29-campaign718-next{display:block}
+  .sod29-campaign718-whatsapp>a{width:100%;margin-top:16px}
+  .sod29-campaign718-actions{justify-content:stretch;margin-top:18px}
+  .sod29-campaign718-actions a{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  .sod29-campaign718 *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
