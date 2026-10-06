@@ -57,6 +57,31 @@ function resolveHeader(occurrence) {
   return null;
 }
 
+// Source-work fallback: a Finding's own source.corpus is a human work label only when it is not
+// a technical/internal token. Technical or unknown => null (UI fallback). Never author.
+const TECHNICAL_CORPUS = /(^|[\s_:./-])(channel_updates|uploaded_docx|research_objects?|work_log|engine|adapter|internal|api|rpc|import|upload(ed)?|docx)([\s_:./-]|$)/i;
+export function humanSourceCorpusLabel(corpus) {
+  const text = clean(corpus);
+  if (!text || text.length > 120) return null;
+  if (/^[a-z]+:\/\//i.test(text) || /^(www\.)/i.test(text)) return null;
+  if (!/\p{L}/u.test(text)) return null;
+  if (TECHNICAL_CORPUS.test(text)) return null;
+  if (/^[\w:.#/-]+$/.test(text) && /[_:./#]/.test(text)) return null; // single machine token
+  return text;
+}
+
+function stableCorpusHeader(findings) {
+  const labels = new Set();
+  for (const f of findings) {
+    const raw = clean(f?.source?.corpus);
+    if (!raw) continue;
+    const human = humanSourceCorpusLabel(raw);
+    if (!human) return null;
+    labels.add(human);
+  }
+  return labels.size === 1 ? { type: "source_work", contributorId: null, label: [...labels][0] } : null;
+}
+
 function summarize(finding) {
   const dims = finding.projection?.dimensions || {};
   return {
@@ -123,7 +148,7 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
         status: clean(occurrence.status) || null,
         createdAt: clean(occurrence.createdAt) || null,
       } : null,
-      header: resolveHeader(occurrence),
+      header: resolveHeader(occurrence) || stableCorpusHeader(group.findings),
       invariant: SOURCE_BUNDLE_INVARIANT,
     };
   });

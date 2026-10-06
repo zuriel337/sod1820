@@ -341,7 +341,7 @@ function TopicBody() {
       })),
       activeSectionId,
       surfaceMapLabel: "בתוך הציר",
-      surfaceFindings: buildSurfaceFindings({ prominenceItems: golden?.prominenceItems || [] }),
+      surfaceFindings: buildSurfaceFindings({ findings: goldenState.hub?.research?.findings || [], occurrences: goldenState.hub?.research?.sourceOccurrences || {}, prominenceItems: golden?.prominenceItems || [] }),
       surfaceFindingsSurface: "topic",
       surfaceFocus: {
         id: projection.slug,
@@ -358,7 +358,7 @@ function TopicBody() {
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, activeSectionId, golden?.prominenceItems]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, activeSectionId, golden?.prominenceItems, goldenState.hub]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openExpressionFocus = async (expression) => {
     const expr = clean(expression);

@@ -119,7 +119,7 @@ test("generic fact is a fact; calculation only with explicit method owner eviden
 
 test("World uses the same adapter on existing governed prominence; no fetch/new store; bounded stable write", () => {
   const world = fs.readFileSync("src/pages/World2029Page.jsx", "utf8");
-  assert.match(world, /buildSurfaceFindings\(\{ prominenceItems \}\)/);
+  assert.match(world, /buildSurfaceFindings\(\{ findings: researchFindings, occurrences: data\?\.research\?\.sourceOccurrences \|\| \{\}, prominenceItems \}\)/);
   assert.match(world, /surfaceFindingsSurface: "world"/);
   assert.match(world, /worldSurfaceFindingsWritten/);
   const items = Array.from({ length: 20 }, (_, i) => ({ id: `w${i}`, label: `L${i}`, type: "fact", sourceRef: `research_objects:w${i}` }));

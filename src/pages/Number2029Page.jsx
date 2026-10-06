@@ -882,7 +882,7 @@ function NumberPageBody() {
     const dimensions = {
       ...(research.context?.dimensions || {}),
       expressionFocusExplicit: Boolean(focusExplicit),
-      surfaceFindings: buildSurfaceFindings({ prominenceItems: contextualWorld?.items || [] }),
+      surfaceFindings: buildSurfaceFindings({ findings: researchFindings, occurrences: data?.research?.sourceOccurrences || {}, prominenceItems: contextualWorld?.items || [] }),
       surfaceFindingsSurface: "number",
     };
     const current = research.context;
@@ -891,7 +891,7 @@ function NumberPageBody() {
     } else {
       research.setResearchContext?.({ subject, selection, lens: "number", dimensions, locale: "he" });
     }
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref, contextualWorld]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref, contextualWorld, researchFindings, data?.research?.sourceOccurrences]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;

@@ -1238,7 +1238,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     : null, [data, state.prominenceInputs]);
   const prominenceItems = prominence?.items || [];
   // Same governed prominence output, same adapter as Post/Topic/Number. No new fetch/store.
-  const worldSurfaceFindings = useMemo(() => buildSurfaceFindings({ prominenceItems }), [prominence]); // eslint-disable-line react-hooks/exhaustive-deps
+  const worldSurfaceFindings = useMemo(() => buildSurfaceFindings({ findings: researchFindings, occurrences: data?.research?.sourceOccurrences || {}, prominenceItems }), [prominence, researchFindings, data?.research?.sourceOccurrences]); // eslint-disable-line react-hooks/exhaustive-deps
   const worldSurfaceFindingsSig = useMemo(() => JSON.stringify(worldSurfaceFindings), [worldSurfaceFindings]);
   const worldSurfaceFindingsWritten = useRef(null);
   const contextSurfaceFindingsSurface = context?.dimensions?.surfaceFindingsSurface || null;

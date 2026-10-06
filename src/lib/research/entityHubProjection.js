@@ -1,5 +1,6 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
+import { fetchSourceOccurrences } from "./sourceOccurrenceProjection.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
@@ -705,6 +706,9 @@ export async function fetchEntityHubProjection({
     fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
   ]);
 
+  // Projection-only enrichment of already-authorized findings; failure leaves an empty map.
+  const sourceOccurrences = await fetchSourceOccurrences(research.findings, { client: supabase, limit: researchLimit });
+
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
   const media = includeMedia
@@ -803,6 +807,7 @@ export async function fetchEntityHubProjection({
     research: {
       rows: research.rows,
       findings: research.findings,
+      sourceOccurrences,
       humanGate: humanGateSummary(research.rows),
       access: research.access,
     },
