@@ -4,6 +4,8 @@ import { EVENT_SURFACE, projectEventContextForSurface } from "./eventObservation
 import { compileNasrallahPost92Golden } from "./nasrallahPost92Golden.js";
 import { applyMomentClockLaw, normalizeClockObservation, clockRepresentations } from "./momentClockSystemMethod.js";
 import { gematriaTraceToFinding } from "./gematriaTrace.js";
+import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
+import { VERIFIED_AUTHORITY_SOURCE } from "./researchPlanV2.js";
 
 const post = { id: 92, slug: "post-92", date: "2024-09-29T06:29:04Z" };
 const clock = { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut", context: "site approved reading", source_ref: "post:92" };
@@ -163,4 +165,48 @@ test("same finding ids across all surfaces; bounded; no per-surface copies; no s
   const again = await run();
   assert.deepEqual(again.bundle.findings.map(f => f.id), p.bundle.findings.map(f => f.id));
   assert.ok(Object.values(p.invariants).every(v => v === true));
+});
+
+// ── REV1: existing research_objects as CONTEXT (no verification upgrade, access-governed) ──
+const RO_14F = "14f1df64-8152-419d-938f-859193a41f90";
+const ro14f = { id: RO_14F, kind: "relation", status: "candidate", privacy_scope: "private", statement: "compound relation", value: 1820, engine_detail: {}, created_at: "2026-09-01T00:00:00Z" };
+const roPublic = { id: "95e00000-0000-4000-8000-000000000001", kind: "claim", status: "public_candidate", privacy_scope: "public_candidate", statement: "public candidate", value: 358, engine_detail: {} };
+const attested = { authority_source: VERIFIED_AUTHORITY_SOURCE.ADMIN_RPC, allowed_access_tiers: ["public", "public_candidate", "private"] };
+
+test("REV1-A: private research_object absent under default access; capability_trace reports access_filtered", async () => {
+  const p = await run({ contextResearchObjects: [ro14f] });
+  assert.ok(!p.bundle.findings.some(f => f.identity?.sourceIdentity?.researchObjectId === RO_14F));
+  const cap = p.bundle.capability_trace.find(c => c.key === "event_research_context");
+  assert.ok(cap, "capability present in trace");
+  assert.equal(cap.access_filtered.count, 1);
+});
+
+test("REV1-B: attested private descriptor admits SAME row; verification not fabricated", async () => {
+  const p = await run({ contextResearchObjects: [ro14f], accessDescriptor: attested });
+  const f = p.bundle.findings.find(x => x.identity?.sourceIdentity?.researchObjectId === RO_14F);
+  assert.ok(f, "row admitted under attested private access");
+  assert.equal(f.verification.verification_state, null);
+  assert.equal(f.status, "candidate");
+  assert.equal(f.projection.dimensions.eventMemberType, "research_context");
+  assert.ok(!f.projection.anchors.some(a => a.space === "number"), "no number anchor from row.value");
+  const o = p.bundle.finding_outcomes.find(x => x.finding_id === f.id);
+  assert.notEqual(o.evidence_relation, "independent_evidence");
+});
+
+test("REV1-C: same research-object Finding id (== canonical adapter id) on all event surfaces; no Number", async () => {
+  const p = await run({ contextResearchObjects: [ro14f], accessDescriptor: attested });
+  const id = researchObjectToUniversalFinding(ro14f).id;
+  for (const s of [EVENT_SURFACE.POST, EVENT_SURFACE.TIMELINE, EVENT_SURFACE.CONTEXT_RAIL, EVENT_SURFACE.WORLD, EVENT_SURFACE.RAZIEL, EVENT_SURFACE.FOLLOW]) {
+    assert.ok(projectEventContextForSurface(p, s).finding_ids.includes(id), s);
+  }
+  assert.ok(!projectEventContextForSurface(p, EVENT_SURFACE.NUMBER, { number: 1820 }).finding_ids.includes(id));
+});
+
+test("REV1-D: duplicate row yields one Finding; public_candidate governed by descriptor; base ids unchanged", async () => {
+  const base = await run();
+  const dup = await run({ contextResearchObjects: [ro14f, ro14f, roPublic], accessDescriptor: attested });
+  assert.equal(dup.bundle.findings.filter(f => f.identity?.sourceIdentity?.researchObjectId === RO_14F).length, 1);
+  const deflt = await run({ contextResearchObjects: [roPublic] });
+  assert.ok(!deflt.bundle.findings.some(f => f.identity?.sourceIdentity?.researchObjectId === roPublic.id));
+  for (const k of ["clock_occurrence_finding_id", "day_ordinal_finding_id", "engine_trace_finding_id", "interpretation_finding_id"]) assert.equal(dup.golden[k], base.golden[k]);
 });

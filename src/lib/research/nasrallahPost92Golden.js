@@ -1,4 +1,5 @@
 import { makeUniversalFinding } from "./universalFinding.js";
+import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { CAPABILITY_STATUS, ACCESS_CLASS, EVIDENCE_RELATION, SEMANTIC_CLASS, capabilityResult } from "./researchResultBundle.js";
 import { EVENT_MEMBER_TYPE, eventCandidateRef } from "./eventObservationCompiler.js";
 import {
@@ -31,6 +32,7 @@ import {
 export const NASRALLAH_POST92_CANDIDATE_KEY = "NASRALLAH_POST92";
 export const ALTERNATE_OBSERVATION_MEMBER_TYPE = "alternate_temporal_observation";
 export const INTERPRETATION_MEMBER_TYPE = "site_interpretation";
+export const RESEARCH_CONTEXT_MEMBER_TYPE = "research_context";
 export const PROMINENCE = Object.freeze({ DEFAULT: "default", DEPTH: "depth" });
 
 const clean = (v) => (v == null ? null : String(v).trim() || null);
@@ -159,6 +161,49 @@ function interpretationFinding({ eventKey, eventRef, postId, numbers, parents })
 }
 
 /**
+ * Existing research_objects supplied as legacy/candidate CONTEXT (distinct from the compiler's
+ * verified researchObjects evidence path). Reuses the canonical researchObjectToUniversalFinding
+ * adapter; the overlay only appends event/post anchors and a member type, so finding.id,
+ * identity.sourceIdentity, verification, access, source and status are preserved EXACTLY.
+ * No Number anchor is derived from row.value. Row verification is never upgraded.
+ */
+function researchContextCapability(rows, { eventKey, eventRef, postId }) {
+  const byId = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row?.id || byId.has(String(row.id))) continue;
+    byId.set(String(row.id), row);
+  }
+  const findings = [];
+  for (const row of byId.values()) {
+    const base = researchObjectToUniversalFinding(row);
+    if (!base) continue;
+    findings.push({
+      ...base,
+      projection: {
+        ...base.projection,
+        anchors: [...base.projection.anchors, ...anchors(eventKey, postId)],
+        dimensions: { ...base.projection.dimensions, eventMemberType: RESEARCH_CONTEXT_MEMBER_TYPE, eventCandidate: eventRef, prominence: PROMINENCE.DEPTH },
+      },
+    });
+  }
+  if (!findings.length) return null;
+  return capabilityResult({
+    key: "event_research_context",
+    owner: "research_strategy_layer_law",
+    status: CAPABILITY_STATUS.EXECUTED,
+    findings,
+    findingOutcomes: findings.map(f => ({
+      findingId: f.id,
+      evidenceRelation: EVIDENCE_RELATION.DERIVATION,
+      dependsOn: [],
+      reason: "legacy/candidate research context; verification preserved as-is, not independent evidence",
+    })),
+    accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+    semanticClass: SEMANTIC_CLASS.CONTEXT,
+  });
+}
+
+/**
  * Compose the NASRALLAH_POST92 Golden pack.
  *
  * @param {object} p
@@ -171,6 +216,7 @@ function interpretationFinding({ eventKey, eventRef, postId, numbers, parents })
  * @param {string} p.legacyGraphOccurredAt optional auto_from_post graph value; recorded as drift, never consumed
  * @param {object} p.occurredAt            optional {at, source_ref}: an independently SOURCED event time
  * @param {Array}  p.supportingSources     generic seam, forwarded unchanged
+ * @param {Array}  p.contextResearchObjects existing research_objects rows as legacy/candidate CONTEXT (access-filtered by the Bundle)
  */
 export async function compileNasrallahPost92Golden({
   post,
@@ -185,6 +231,7 @@ export async function compileNasrallahPost92Golden({
   expression = { expression: "משיח", method_key: "רגיל", claimed_value: 358 },
   humanGate = null,
   accessDescriptor = null,
+  contextResearchObjects = [],
 } = {}) {
   const key = NASRALLAH_POST92_CANDIDATE_KEY;
   const ref = eventCandidateRef(key);
@@ -239,7 +286,8 @@ export async function compileNasrallahPost92Golden({
     supportingSources,
     humanGate,
   };
-  const baseCaps = [clock.capability, temporalCapability].filter(Boolean);
+  const contextCapability = researchContextCapability(contextResearchObjects, ctx);
+  const baseCaps = [clock.capability, temporalCapability, contextCapability].filter(Boolean);
 
   // Pass 1 (pure, deterministic) resolves the engine-finding id so the interpretation can declare its
   // dependency lineage; pass 2 adds the interpretation to the SAME bundle. Ids never change between passes.
