@@ -12,8 +12,8 @@ export const SURFACE_FINDINGS_MAX = 8;
 
 const clean = (v) => (v == null ? "" : String(v).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
 const cap = (v, n) => clean(v).slice(0, n);
-const MOVE_LABEL = { calculation: "חישובים", relation: "יחסים", observation: "תצפיות", interpretation: "פרשנויות", other: "אחר" };
-const MOVE_ORDER = ["calculation", "relation", "observation", "interpretation", "other"];
+const MOVE_LABEL = { calculation: "חישובים", fact: "עובדות", relation: "יחסים", observation: "תצפיות", interpretation: "פרשנויות", other: "אחר" };
+const MOVE_ORDER = ["calculation", "fact", "relation", "observation", "interpretation", "other"];
 
 function moveSummary(byMove) {
   return MOVE_ORDER.filter((k) => byMove?.[k]).map((k) => `${MOVE_LABEL[k]} ${byMove[k]}`).join(" · ");

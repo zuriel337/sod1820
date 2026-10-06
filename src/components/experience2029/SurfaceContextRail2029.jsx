@@ -86,11 +86,17 @@ export default function SurfaceContextRail2029({
   });
   const restFromFinding = () => {
     const reading = context?.dimensions?.readingFocus || {};
-    setSurfaceFocus({
-      id: reading.id, type: "post_region", sectionLabel: "הסיפור", label: reading.label,
-      primary: reading.primary, signals: reading.signals, number: reading.number ?? undefined,
-      sourceLabel: reading.sourceLabel, locator: reading.locator,
-    });
+    // Reading focus is a document-surface concept; elsewhere clear only surfaceFocus so the rail
+    // falls back to the current root/selection (findings, journey and return state untouched).
+    if (documentSurface && reading.id && reading.label) {
+      setSurfaceFocus({
+        id: reading.id, type: "post_region", sectionLabel: "הסיפור", label: reading.label,
+        primary: reading.primary, signals: reading.signals, number: reading.number ?? undefined,
+        sourceLabel: reading.sourceLabel, locator: reading.locator,
+      });
+    } else {
+      setSurfaceFocus(null);
+    }
   };
   const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
 
@@ -243,7 +249,7 @@ export default function SurfaceContextRail2029({
         {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
       {focusedFinding && subject.bundleCount ? <p className="sod29-surface-context-bundle" data-sidecar-source-bundle="true">
-        <b>{subject.bundleCount} ממצאים</b> מאותו מקור · קיבוץ להצגה בלבד, לא ראיה עצמאית
+        <b>{subject.bundleCount} ממצאים</b> מאותו מקור · קיבוץ להצגה בלבד, לא ראיה עצמאית · תקציר בלבד; הפירוט נפתח דרך «פתח לעומק»
       </p> : null}
       {focusedFinding && subject.verification ? <small className="sod29-surface-context-verification" data-verification-state={subject.verification}>מצב אימות מהמקור · {subject.verification}</small> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
