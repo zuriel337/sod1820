@@ -1,3 +1,4 @@
+import { buildSurfaceFindings } from "../lib/research/surfaceFindingsAdapter.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -174,19 +175,13 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
-        surfaceFindings: post.slug === "bennett-melach-631-78"
-          ? (state.projection.experience?.connections || [])
-            .filter((connection) => connection.id !== "bennett-631")
-            .map((connection) => ({
-              id: connection.id,
-              label: connection.label,
-              value: connection.value,
-              kind: connection.kind,
-              reason: connection.reason,
-              href: connection.href,
-              sourceLabel: connection.provenanceLabel || connection.kind,
-            }))
-          : [],
+        surfaceFindings: buildSurfaceFindings({
+          connections: state.projection.experience?.connections || [],
+          // The active focus is the focal object, not a "connection" to itself.
+          exclude: (row) => row.id === activeFocus.id
+            || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
+        }),
+        surfaceFindingsSurface: "post",
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,

@@ -1,6 +1,7 @@
 import { supabase } from "../supabase.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
+import { buildSourceBundles } from "./sourceBundleProjection.js";
 import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 
 const PAGE = 500;
@@ -81,6 +82,7 @@ function sourceMeta(row) {
     imageUrl: clean(row.image_url) || null,
     thumbUrl: clean(row.thumb_url) || null,
     linkUrl: clean(row.link_url) || null,
+    contributorId: clean(row.contributor_id) || null,
   };
 }
 
@@ -140,12 +142,31 @@ export function buildContributorFindingsProjection({
     .map((row) => topicBySlug[row.convergenceSlug]);
   const exactTopicSlugs = new Set(exactTopicLinks.map((row) => clean(row.slug)));
 
-  const groups = new Map();
+  // Generic Source Bundle grouping (sourceBundleProjection) owns the source_ref semantics.
+  const rowByFindingId = new Map();
+  const findings = [];
   for (const row of Array.isArray(researchObjects) ? researchObjects : []) {
     if (!row?.id) continue;
-    const sourceRef = clean(row.source_ref) || `research_objects:${row.id}`;
-    if (!groups.has(sourceRef)) groups.set(sourceRef, { sourceRef, rows: [] });
-    groups.get(sourceRef).rows.push(row);
+    const finding = researchObjectToUniversalFinding(row, { locale: "he" });
+    if (!finding) continue;
+    rowByFindingId.set(finding.id, row);
+    findings.push(finding);
+  }
+  const occurrences = {};
+  for (const [ref, src] of Object.entries(sourceIndex)) {
+    occurrences[ref] = {
+      createdAt: src.createdAt,
+      status: src.status,
+      channel: src.channel,
+      contributorId: src.contributorId,
+      contributorName: src.contributorId && src.contributorId === String(contributor.id) ? contributor.display_name : null,
+    };
+  }
+  const bundles = buildSourceBundles(findings, { occurrences });
+  const groups = new Map();
+  for (const bundle of bundles) {
+    const rows = bundle.findingIds.map((id) => rowByFindingId.get(id)).filter(Boolean);
+    groups.set(bundle.id, { sourceRef: bundle.sourceRef || `research_objects:${rows[0]?.id}`, bundle, rows });
   }
 
   const sourceGroups = [...groups.values()].map((group) => {
@@ -179,6 +200,7 @@ export function buildContributorFindingsProjection({
       title: null,
       rows: group.rows,
       universalFindings,
+      sourceHeader: group.bundle.header,
       byKind,
       findingCount: group.rows.length,
       verifiedCount,
@@ -290,7 +312,7 @@ async function fetchSourceMessages(aliases) {
   for (const column of ["credit", "speaker"]) {
     const result = await paged((start, end) => supabase
       .from("channel_updates")
-      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker")
+      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id")
       .in(column, aliases)
       .order("created_at", { ascending: false })
       .range(start, end)

@@ -60,7 +60,11 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
-  const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
+  // Findings are shown only on the surface that produced them (no stale carry-over between surfaces).
+  const findings = Array.isArray(context?.dimensions?.surfaceFindings)
+    && context.dimensions.surfaceFindingsSurface === surface
+    ? context.dimensions.surfaceFindings : [];
+  const REST_FINDINGS = 5;
   const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
     dimensions: { ...(context?.dimensions || {}), surfaceFocus },
@@ -68,13 +72,17 @@ export default function SurfaceContextRail2029({
   const focusFinding = (finding) => setSurfaceFocus({
     id: finding.id,
     type: "finding",
-    sectionLabel: "חיבור נוסף",
+    sectionLabel: finding.bundleCount ? "מקור משותף" : "חיבור נוסף",
     label: finding.label,
     primary: finding.label,
     number: finding.value != null && /^\d+$/.test(finding.value) ? Number(finding.value) : undefined,
     reason: finding.reason,
     href: finding.href,
     sourceLabel: finding.sourceLabel || finding.kind,
+    sourceRef: finding.sourceRef,
+    bundleCount: finding.bundleCount,
+    verification: finding.verification,
+    prominence: finding.prominence,
   });
   const restFromFinding = () => {
     const reading = context?.dimensions?.readingFocus || {};
@@ -234,13 +242,17 @@ export default function SurfaceContextRail2029({
         <p>{fragment.explain}</p>
         {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
+      {focusedFinding && subject.bundleCount ? <p className="sod29-surface-context-bundle" data-sidecar-source-bundle="true">
+        <b>{subject.bundleCount} ממצאים</b> מאותו מקור · קיבוץ להצגה בלבד, לא ראיה עצמאית
+      </p> : null}
+      {focusedFinding && subject.verification ? <small className="sod29-surface-context-verification" data-verification-state={subject.verification}>מצב אימות מהמקור · {subject.verification}</small> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
       {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
       {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
         {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
-          <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>
-          <ul>{findings.map((finding) => <li key={finding.id}><button type="button" onClick={() => focusFinding(finding)}>
-            <span>{finding.label}</span>{finding.value ? <b>{finding.value}</b> : null}
+          <div className="sod29-context-inspector-kicker">חיבורים בולטים</div>
+          <ul>{findings.slice(0, REST_FINDINGS).map((finding) => <li key={finding.id}><button type="button" onClick={() => focusFinding(finding)} data-source-bundle={finding.bundleCount ? "true" : undefined}>
+            <span>{finding.label}</span>{finding.bundleCount ? <b>{finding.bundleCount} ממצאים</b> : finding.value ? <b>{finding.value}</b> : null}
           </button></li>)}</ul>
         </>}
       </div> : null}
