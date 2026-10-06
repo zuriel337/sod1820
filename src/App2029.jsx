@@ -23,7 +23,8 @@ const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx")
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
 const Video2029Page = lazy(() => import("./pages/Video2029Page.jsx"));
 const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx"));
-const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));\nconst Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
+const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
+const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
@@ -80,7 +81,8 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/2029" element={<Home2029Page />} />\n              <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
+              <Route path="/2029" element={<Home2029Page />} />
+              <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
