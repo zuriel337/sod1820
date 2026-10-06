@@ -34,6 +34,7 @@ import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import {
   buildLearnHelpSeed,
@@ -1719,7 +1720,10 @@ export default function SystemFrame2029({
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
-  const showContextRail = surface !== "control"
+  // TEMPORARY pilot gate: one decision drives desktop rail, reserved width and mobile sheet.
+  const projectorPilotVisible = isProjectorPilotVisible({ surface, pathname: location.pathname, context });
+  const showContextRail = projectorPilotVisible
+    && surface !== "control"
     && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
@@ -1732,7 +1736,7 @@ export default function SystemFrame2029({
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
+    if (transientKind === TRANSIENT.CONTEXT && showContextRail) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
       sheet
       surface={surface}
       context={context}
