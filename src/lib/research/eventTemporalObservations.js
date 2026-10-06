@@ -5,7 +5,9 @@ import {
   EVIDENCE_RELATION,
   SEMANTIC_CLASS,
   capabilityResult,
+  findingAccessDecision,
 } from "./researchResultBundle.js";
+import { ACCESS_TIER } from "./researchPlanV2.js";
 import { eventCandidateRef } from "./eventObservationCompiler.js";
 import { compileEventObservationWithSystemMethods, normalizeAttribution } from "./eventSystemMethodRuntime.js";
 import {
@@ -41,6 +43,38 @@ export const COUNTING_CONVENTION = Object.freeze({
 });
 
 const clean = (v) => (v == null ? null : String(v).trim() || null);
+
+// Source access tier (existing ACCESS_TIER vocabulary; the Result Bundle composition boundary owns the
+// filtering). Every temporal observation / reported ordinal must carry an explicit tier from its
+// source adapter — there is NO implicit public. Derived Findings inherit the tier of what they derive
+// from, never weaker. Restrictiveness order is local and conservative; anything unrecognised is
+// treated as the restricted fallback (private), never public.
+const TIER_RANK = Object.freeze({
+  [ACCESS_TIER.PUBLIC]: 0,
+  [ACCESS_TIER.PUBLIC_CANDIDATE]: 1,
+  [ACCESS_TIER.PRIVATE]: 2,
+  [ACCESS_TIER.PERSONAL]: 3,
+});
+export const TEMPORAL_ACCESS_REASON = Object.freeze({
+  MISSING: "access_tier_missing",
+  INVALID: "access_tier_invalid",
+});
+const knownTier = (t) => { const v = clean(t); return v != null && Object.hasOwn(TIER_RANK, v) ? v : null; };
+export function mostRestrictiveTier(tiers) {
+  let best = null;
+  for (const t of tiers) {
+    const v = knownTier(t);
+    if (!v) return ACCESS_TIER.PRIVATE;
+    if (best == null || TIER_RANK[v] > TIER_RANK[best]) best = v;
+  }
+  return best ?? ACCESS_TIER.PRIVATE;
+}
+function admitTier(raw) {
+  const t = clean(raw?.accessTier);
+  if (!t) return { ok: false, reason: TEMPORAL_ACCESS_REASON.MISSING };
+  if (!knownTier(t)) return { ok: false, reason: TEMPORAL_ACCESS_REASON.INVALID };
+  return { ok: true, tier: t };
+}
 const ROLES = new Set(Object.values(TEMPORAL_OBSERVATION_ROLE));
 
 function anchorsFor(candidate, post, extra = []) {
@@ -79,7 +113,7 @@ function observationFinding(candidate, post, obs, clockInput) {
         canonical: false,
       }],
     },
-    access: { tier: "public" },
+    access: { tier: obs.accessTier },
     provenance: { createdBy: null, inputRef: clean(obs.source_ref), parentFindingIds: [] },
     projection: {
       anchors: anchorsFor(candidate, obs.source_ref?.startsWith?.("post:") ? post : null),
@@ -89,7 +123,7 @@ function observationFinding(candidate, post, obs, clockInput) {
   });
 }
 
-function conflictFinding(candidate, post, observations) {
+function conflictFinding(candidate, post, observations, accessTier) {
   const ids = observations.map(o => o.findingId);
   return makeUniversalFinding({
     kind: "event-occurrence-conflict",
@@ -111,7 +145,7 @@ function conflictFinding(candidate, post, observations) {
         boundary: "conflict is preserved with provenance; no observation replaces another and the Human Gate decides any resolution",
       }],
     },
-    access: { tier: "public" },
+    access: { tier: accessTier },
     provenance: { createdBy: null, inputRef: null, parentFindingIds: ids },
     projection: {
       anchors: anchorsFor(candidate, null),
@@ -151,7 +185,7 @@ function ordinalFinding(candidate, post, ord) {
         is_fact: false,
       }],
     },
-    access: { tier: "public" },
+    access: { tier: ord.accessTier },
     provenance: { createdBy: null, inputRef: ord.source_ref, parentFindingIds: [] },
     projection: {
       anchors: anchorsFor(candidate, ord.source_ref.startsWith("post:") ? post : null, anchors),
@@ -161,7 +195,7 @@ function ordinalFinding(candidate, post, ord) {
   });
 }
 
-function convergenceCard(candidate, ordinalFindingId, engineFinding, ordinal) {
+function convergenceCard(candidate, ordinalFindingId, engineFinding, ordinal, accessTier) {
   return makeUniversalFinding({
     kind: "event-ordinal-engine-convergence",
     stage: "interpretation",
@@ -184,7 +218,7 @@ function convergenceCard(candidate, ordinalFindingId, engineFinding, ordinal) {
         boundary: "two differently-typed observations meet at one Number; neither corroborates the other and no identity collapses",
       }],
     },
-    access: { tier: "public" },
+    access: { tier: accessTier },
     provenance: { createdBy: null, inputRef: null, parentFindingIds: [ordinalFindingId, engineFinding.id] },
     projection: {
       anchors: anchorsFor(candidate, null, [{ space: "number", id: String(ordinal) }]),
@@ -209,6 +243,8 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
     seen.add(key);
     if (!ROLES.has(raw.role)) { rejected.push({ key, reason: "observation_role_unknown" }); continue; }
     if (!clean(raw.source_ref)) { rejected.push({ key, reason: MOMENT_CLOCK_REASON.SOURCE_REF_MISSING }); continue; }
+    const tierAdmit = admitTier(raw);
+    if (!tierAdmit.ok) { rejected.push({ key, reason: tierAdmit.reason }); continue; }
     if (raw.attribution != null) {
       const a = normalizeAttribution(raw.attribution);
       if (!a.ok) { rejected.push({ key, reason: a.reason }); continue; }
@@ -216,9 +252,9 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
     // The occurrence observation is only admitted if its clock is typed and unambiguous.
     const applied = applyMomentClockLaw(raw);
     if (!applied.ok) { rejected.push({ key, reason: applied.reason }); continue; }
-    const finding = observationFinding(candidate, post, { ...raw, key }, applied.input);
+    const finding = observationFinding(candidate, post, { ...raw, key, accessTier: tierAdmit.tier }, applied.input);
     findings.push(finding);
-    valid.push({ key, role: raw.role, source_ref: clean(raw.source_ref), local_date: clean(raw.local_date), local_time: applied.input.local_time, timezone: applied.input.timezone, findingId: finding.id, applied, selected: raw.selected === true });
+    valid.push({ key, role: raw.role, source_ref: clean(raw.source_ref), local_date: clean(raw.local_date), local_time: applied.input.local_time, timezone: applied.input.timezone, findingId: finding.id, applied, selected: raw.selected === true, accessTier: tierAdmit.tier });
   }
 
   // Moment Clock rule applications — only with an attested rule_version; never defaulted.
@@ -229,7 +265,7 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
     } else {
       for (const o of valid) {
         for (const rep of o.applied.representations) {
-          const rf = momentClockRuleFinding({ occurrenceKey: `${candidate.key}:occurrence:${o.key}`, input: o.applied.input, representation: rep, ruleVersion, eventRef: candidate.ref, observationFindingId: o.findingId });
+          const rf = momentClockRuleFinding({ occurrenceKey: `${candidate.key}:occurrence:${o.key}`, input: o.applied.input, representation: rep, ruleVersion, eventRef: candidate.ref, observationFindingId: o.findingId, accessTier: o.accessTier });
           ruleFindings.push(rf);
           outcomes.push({ findingId: rf.id, evidenceRelation: EVIDENCE_RELATION.DERIVATION, dependsOn: [o.findingId], reason: `${rep.representation} of ${MOMENT_CLOCK_RULE_ID} v${ruleVersion} over one clock occurrence; SAME_OCCURRENCE derivation, never independent evidence` });
         }
@@ -252,7 +288,7 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
     if (differing.size) {
       const obsList = valid.map(o => ({ ...o, findingId: o.findingId }));
       obsList.differing = [...differing].sort();
-      conflict = conflictFinding(candidate, post, obsList);
+      conflict = conflictFinding(candidate, post, obsList, mostRestrictiveTier(valid.map(o => o.accessTier)));
       findings.push(conflict);
     }
   }
@@ -266,13 +302,15 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
     const sref = clean(raw?.source_ref);
     if (!key || !Number.isInteger(n) || n < 1 || raw?.ordinal === true) { rejected.push({ key, reason: "ordinal_invalid" }); continue; }
     if (!sref) { rejected.push({ key, reason: "ordinal_without_source_ref" }); continue; }
+    const ordTier = admitTier(raw);
+    if (!ordTier.ok) { rejected.push({ key, reason: ordTier.reason }); continue; }
     if (!wording) { rejected.push({ key, reason: "ordinal_without_source_wording" }); continue; }
     const attr = raw.attribution != null ? normalizeAttribution(raw.attribution) : { ok: true, attribution: null };
     if (!attr.ok) { rejected.push({ key, reason: attr.reason }); continue; }
     // The Number anchor exists ONLY if the source wording itself carries the ordinal value.
     const anchored = new RegExp(`(^|\\D)${n}(\\D|$)`).test(wording);
     const state = raw.counting_convention_state === COUNTING_CONVENTION.ATTESTED && clean(raw.counting_convention_note) ? COUNTING_CONVENTION.ATTESTED : COUNTING_CONVENTION.UNRESOLVED;
-    const ord = { key, ordinal: n, unit: clean(raw.unit) || "day", epoch_label: clean(raw.epoch_label), source_wording: wording, source_ref: sref, counting_convention_state: state, counting_convention_note: clean(raw.counting_convention_note), attribution: attr.attribution, anchored };
+    const ord = { key, ordinal: n, unit: clean(raw.unit) || "day", epoch_label: clean(raw.epoch_label), source_wording: wording, source_ref: sref, counting_convention_state: state, counting_convention_note: clean(raw.counting_convention_note), attribution: attr.attribution, anchored, accessTier: ordTier.tier };
     const f = ordinalFinding(candidate, post, ord);
     findings.push(f);
     ordinals.push({ ...ord, findingId: f.id });
@@ -286,9 +324,9 @@ function buildTemporal({ candidate, post, temporalObservations, reportedOrdinals
  *
  * @param {object} p  every compileEventObservationWithSystemMethods param, plus:
  * @param {Array}  p.temporalObservations  typed clock/occurrence observations (see applyMomentClockLaw)
- *        each: { key, role, source_ref, original_display, local_time, timezone, clock_format?, meridiem?,
+ *        each: { key, role, accessTier (required), source_ref, original_display, local_time, timezone, clock_format?, meridiem?,
  *                local_date?, hebrew_date_display?, verification_state?, selected?, attribution? }
- * @param {Array}  p.reportedOrdinals      { key, ordinal, unit?, epoch_label?, source_wording, source_ref,
+ * @param {Array}  p.reportedOrdinals      { key, accessTier (required), ordinal, unit?, epoch_label?, source_wording, source_ref,
  *                counting_convention_state?, counting_convention_note?, attribution? }
  * @param {number} p.momentClockRuleVersion rule_version attested by the live rule registry (never defaulted)
  */
@@ -303,15 +341,18 @@ export async function compileEventTemporalObservation({
   const post = args.post?.id != null ? { id: String(args.post.id) } : null;
   const t = buildTemporal({ candidate, post, temporalObservations, reportedOrdinals, momentClockRuleVersion });
 
+  const visibleTier = (o) => findingAccessDecision({ access: { tier: o.accessTier } }, args.accessDescriptor, ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED).allowed;
   const capability = (extra = []) => capabilityResult({
     key: "event_temporal_observations",
     owner: "numeric_rule_family_index",
     status: t.findings.length || t.ruleFindings.length || extra.length ? CAPABILITY_STATUS.EXECUTED : CAPABILITY_STATUS.SKIPPED,
     findings: [...t.findings, ...t.ruleFindings, ...extra.map(e => e.finding)],
     findingOutcomes: [...t.outcomes, ...extra.map(e => e.outcome)],
-    accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+    // Fails closed: a Finding without an explicit tier the descriptor allows never crosses the boundary.
+    accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
     semanticClass: SEMANTIC_CLASS.DERIVATION,
-    sourceRefs: [...new Set([...t.valid.map(o => o.source_ref), ...t.ordinals.map(o => o.source_ref)])],
+    // Capability-level refs are metadata outside the Finding filter: list only refs of visible sources.
+    sourceRefs: [...new Set([...t.valid, ...t.ordinals].filter(visibleTier).map(o => o.source_ref))],
     versionRefs: t.versionRefs,
     reason: t.rejected.length ? `${t.rejected.length} temporal item(s) rejected (fail closed)` : null,
     trace: { rejected: t.rejected },
@@ -325,22 +366,28 @@ export async function compileEventTemporalObservation({
     if (!ord.anchored) continue;
     const engine = first.bundle.findings.find(f => f.source?.engine === "gematria" && Number(f.verification?.engine_result) === ord.ordinal);
     if (!engine) continue;
-    const card = convergenceCard(candidate, ord.findingId, engine, ord.ordinal);
+    // Never weaker than the ordinal parent (nor a restricted engine parent).
+    const cardTier = mostRestrictiveTier([ord.accessTier, ...(clean(engine.access?.tier) ? [engine.access.tier] : [])]);
+    const card = convergenceCard(candidate, ord.findingId, engine, ord.ordinal, cardTier);
     cards.push({ finding: card, outcome: { findingId: card.id, evidenceRelation: EVIDENCE_RELATION.CONVERGENCE, dependsOn: [ord.findingId, engine.id], convergenceKey: `ordinal-engine:number:${ord.ordinal}`, reason: "convergence of a reported ordinal and an engine value at one Number; distinct origin roles, not independent evidence" } });
   }
   const pack = cards.length
     ? await compileEventObservationWithSystemMethods({ ...args, extraCapabilities: [capability(cards)] })
     : first;
 
+  // The temporal summary is composition metadata outside the Finding filter: only surface entries whose
+  // Finding survived the access boundary (no restricted source_ref / local_time / ordinal leaks).
+  const visibleIds = new Set(pack.bundle.findings.map(f => f.id));
+  const vis = (id) => visibleIds.has(id);
   return {
     ...pack,
     temporal: {
-      observations: t.valid.map(o => ({ key: o.key, role: o.role, finding_id: o.findingId, local_time: o.local_time, source_ref: o.source_ref, presentation: o.selected ? "primary" : "depth" })),
-      representations: t.ruleFindings.map(f => ({ finding_id: f.id, representation: f.projection.dimensions.clockRepresentation, value: f.subject.value, occurrence: f.projection.dimensions.occurrence })),
-      conflict_finding_id: t.conflict?.id ?? null,
-      conflict_state: t.conflict ? OCCURRENCE_CONFLICT_STATE : null,
-      reported_ordinals: t.ordinals.map(o => ({ key: o.key, ordinal: o.ordinal, finding_id: o.findingId, counting_convention_state: o.counting_convention_state, number_anchored: o.anchored })),
-      convergence_finding_ids: cards.map(c => c.finding.id),
+      observations: t.valid.filter(o => vis(o.findingId)).map(o => ({ key: o.key, role: o.role, finding_id: o.findingId, local_time: o.local_time, source_ref: o.source_ref, presentation: o.selected ? "primary" : "depth" })),
+      representations: t.ruleFindings.filter(f => vis(f.id)).map(f => ({ finding_id: f.id, representation: f.projection.dimensions.clockRepresentation, value: f.subject.value, occurrence: f.projection.dimensions.occurrence })),
+      conflict_finding_id: t.conflict && vis(t.conflict.id) ? t.conflict.id : null,
+      conflict_state: t.conflict && vis(t.conflict.id) ? OCCURRENCE_CONFLICT_STATE : null,
+      reported_ordinals: t.ordinals.filter(o => vis(o.findingId)).map(o => ({ key: o.key, ordinal: o.ordinal, finding_id: o.findingId, counting_convention_state: o.counting_convention_state, number_anchored: o.anchored })),
+      convergence_finding_ids: cards.filter(c => vis(c.finding.id)).map(c => c.finding.id),
       rejected: t.rejected,
     },
     invariants: {

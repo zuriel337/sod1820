@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { EVENT_MEMBER_TYPE as T, EVENT_SURFACE, projectEventContextForSurface } from "./eventObservationCompiler.js";
-import { compileEventTemporalObservation } from "./eventTemporalObservations.js";
+import { compileEventTemporalObservation, mostRestrictiveTier } from "./eventTemporalObservations.js";
 import { applyMomentClockLaw } from "./momentClockSystemMethod.js";
 import { createCanonicalNumberW2Executors } from "./researchW2ExecutorsBase.js";
 import { gematriaTraceToFinding } from "./gematriaTrace.js";
@@ -13,9 +13,9 @@ const numericOperators = createCanonicalNumberW2Executors({
 
 const candidate = { key: "NASRALLAH_STRIKE", label: "Nasrallah strike" }; // no occurred_at: never borrowed
 const post = { id: 92, slug: "post-92", date: "2024-09-29T06:29:04Z" };
-const postClaim = { key: "post92-clock", role: "source_claim", source_ref: "post:92", original_display: "החיסול אירע בשעה 18:20", local_time: "18:20", timezone: "Asia/Jerusalem", clock_format: "24h", selected: true, attribution: { role: "site_interpretation", display_name: "כי לה׳ המלוכה" } };
-const idf = { key: "idf-clock", role: "later_authoritative_source", source_ref: "https://www.idf.il/310591", original_display: "18:21", local_time: "18:21", timezone: "Asia/Jerusalem", clock_format: "24h", local_date: "2024-09-27", verification_state: "authoritative_unreviewed" };
-const ordinal = { key: "war-day", ordinal: 358, unit: "day", epoch_label: "war", source_wording: "יום ה-358 ללחימה = משיח", source_ref: "post:92" };
+const postClaim = { key: "post92-clock", accessTier: "public", role: "source_claim", source_ref: "post:92", original_display: "החיסול אירע בשעה 18:20", local_time: "18:20", timezone: "Asia/Jerusalem", clock_format: "24h", selected: true, attribution: { role: "site_interpretation", display_name: "כי לה׳ המלוכה" } };
+const idf = { key: "idf-clock", accessTier: "public", role: "later_authoritative_source", source_ref: "https://www.idf.il/310591", original_display: "18:21", local_time: "18:21", timezone: "Asia/Jerusalem", clock_format: "24h", local_date: "2024-09-27", verification_state: "authoritative_unreviewed" };
+const ordinal = { key: "war-day", accessTier: "public", ordinal: 358, unit: "day", epoch_label: "war", source_wording: "יום ה-358 ללחימה = משיח", source_ref: "post:92" };
 const messiah = { type: T.EXPRESSION_MATCH, expression: "משיח", method_key: "רגיל", claimed_value: 358, source_ref: "post:92" };
 const traceFor = (m) => (m.expression === "משיח" ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1" }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" }) : null);
 
@@ -187,4 +187,77 @@ test("malformed / ambiguous observations rejected without poisoning valid ones",
   const pack = await run({ temporalObservations: [postClaim, { ...idf, key: "amb", local_time: "6:20", original_display: "6:20", clock_format: undefined }, { ...postClaim, key: "post92-clock" }, { ...idf, key: "x", role: "weird" }] });
   assert.deepEqual(pack.temporal.observations.map(o => o.key), ["post92-clock"]);
   assert.deepEqual(pack.temporal.rejected.map(r => r.reason), ["CONTEXT_REQUIRED", "duplicate_observation_key", "observation_role_unknown"]);
+});
+
+// ── ACCESS REV1: explicit source tier, inheritance, fail-closed, restrictive conflict/convergence ──
+const ADMIN = { authority_source: "admin_rpc", admin: true, authenticated: true, allowed_access_tiers: ["public", "private"] };
+const privObs = { ...idf, key: "priv-clock", accessTier: "private", source_ref: "private:secret-source-77", original_display: "18:22", local_time: "18:22" };
+const dump = (x) => JSON.stringify(x);
+
+test("access: private clock observation omitted for default/public descriptor, visible for attested admin", async () => {
+  const pub = await run({ temporalObservations: [postClaim, privObs] });
+  assert.ok(!pub.temporal.observations.some(o => o.key === "priv-clock"));
+  assert.ok(!pub.bundle.findings.some(f => f.identity.sourceIdentity?.observation === "priv-clock"));
+  assert.ok(!pub.temporal.representations.some(r => r.occurrence.endsWith("priv-clock")));
+  assert.ok(!dump(pub).includes("secret-source-77"));
+  const adm = await run({ temporalObservations: [postClaim, privObs], accessDescriptor: ADMIN });
+  assert.ok(adm.temporal.observations.some(o => o.key === "priv-clock"));
+  const f = adm.bundle.findings.find(x => x.identity.sourceIdentity?.observation === "priv-clock");
+  assert.equal(f.access.tier, "private");
+  const rules = adm.bundle.findings.filter(x => x.kind === "numeric-operator" && x.provenance.parentFindingIds.includes(f.id));
+  assert.ok(rules.length === 2 && rules.every(x => x.access.tier === "private"));
+});
+
+test("access: mixed public+private conflict is not visible publicly and leaks no private source_ref/time", async () => {
+  const pub = await run({ temporalObservations: [postClaim, privObs] });
+  assert.equal(pub.temporal.conflict_finding_id, null);
+  assert.equal(pub.temporal.conflict_state, null);
+  assert.ok(!pub.bundle.findings.some(f => f.kind === "event-occurrence-conflict"));
+  const text = dump(pub);
+  assert.ok(!text.includes("secret-source-77") && !text.includes("18:22") && !text.includes("1822"));
+  const adm = await run({ temporalObservations: [postClaim, privObs], accessDescriptor: ADMIN });
+  const c = adm.bundle.findings.find(f => f.kind === "event-occurrence-conflict");
+  assert.equal(c.access.tier, "private");
+  // public+public conflict unchanged
+  const pp = await run();
+  assert.equal(pp.bundle.findings.find(f => f.kind === "event-occurrence-conflict").access.tier, "public");
+});
+
+test("access: private day ordinal + public engine 358 yields no public ordinal/convergence leak", async () => {
+  const pub = await run({ reportedOrdinals: [{ ...ordinal, accessTier: "private", source_ref: "private:ordinal-src" }] });
+  assert.ok(!pub.bundle.findings.some(f => f.kind === "event-reported-ordinal" || f.kind === "event-ordinal-engine-convergence"));
+  assert.equal(pub.temporal.reported_ordinals.length, 0);
+  assert.equal(pub.temporal.convergence_finding_ids.length, 0);
+  assert.ok(!dump(pub).includes("ordinal-src"));
+  assert.ok(pub.bundle.findings.some(f => f.subject.type === "expression")); // public engine 358 stays
+  const adm = await run({ reportedOrdinals: [{ ...ordinal, accessTier: "private" }], accessDescriptor: ADMIN });
+  const card = adm.bundle.findings.find(f => f.kind === "event-ordinal-engine-convergence");
+  assert.equal(card.access.tier, "private");
+  assert.equal(adm.bundle.findings.find(f => f.kind === "event-reported-ordinal").access.tier, "private");
+});
+
+test("access: missing or unrecognised tier fails closed (rejected, nothing emitted)", async () => {
+  const noTier = { ...postClaim, key: "nt" }; delete noTier.accessTier;
+  const bad = { ...idf, key: "bad", accessTier: "world" };
+  const noOrd = { ...ordinal }; delete noOrd.accessTier;
+  const pack = await run({ temporalObservations: [noTier, bad], reportedOrdinals: [noOrd] });
+  assert.deepEqual(pack.temporal.rejected.map(r => r.reason), ["access_tier_missing", "access_tier_invalid", "access_tier_missing"]);
+  assert.equal(pack.temporal.observations.length, 0);
+  assert.ok(!pack.bundle.findings.some(f => f.kind.startsWith("event-") && f.kind !== "event-candidate" && /occurrence|ordinal/.test(f.kind)));
+});
+
+test("access: combiner is most-restrictive and fails closed on unknown tiers", () => {
+  assert.equal(mostRestrictiveTier(["public", "public"]), "public");
+  assert.equal(mostRestrictiveTier(["public", "private"]), "private");
+  assert.equal(mostRestrictiveTier(["private", "personal"]), "personal");
+  assert.equal(mostRestrictiveTier(["public", "weird"]), "private");
+  assert.equal(mostRestrictiveTier([]), "private");
+});
+
+test("access: public Post92/IDF fixtures remain fully visible with public tier", async () => {
+  const pack = await run();
+  assert.equal(pack.temporal.observations.length, 2);
+  assert.equal(pack.temporal.representations.length, 4);
+  assert.ok(pack.temporal.conflict_finding_id && pack.temporal.convergence_finding_ids.length === 1 && pack.temporal.reported_ordinals.length === 1);
+  for (const f of pack.bundle.findings.filter(x => /occurrence|ordinal/.test(x.kind) || x.source.adapter === "numeric-rule-application-v1")) assert.equal(f.access.tier, "public");
 });

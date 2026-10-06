@@ -112,7 +112,7 @@ export function applyMomentClockLaw(obs) {
  * representation of ONE clock occurrence. Same envelope family as every other System Method
  * application: rule_id/version/operation/input/output provenance in evidence.facts[0].
  */
-export function momentClockRuleFinding({ occurrenceKey, input, representation, ruleVersion, eventRef = null, observationFindingId = null }) {
+export function momentClockRuleFinding({ occurrenceKey, input, representation, ruleVersion, eventRef = null, observationFindingId = null, accessTier = null }) {
   const out = { value: representation.value, display_digits: representation.display_digits, representation: representation.representation };
   return makeUniversalFinding({
     kind: "numeric-operator",
@@ -152,7 +152,8 @@ export function momentClockRuleFinding({ occurrenceKey, input, representation, r
       score: null,
       confidence: null,
     },
-    access: { tier: "public" },
+    // Inherits the exact tier of the source observation; no tier -> fails closed at composition.
+    access: { tier: accessTier },
     provenance: { createdBy: null, inputRef: input.source_ref, parentFindingIds: observationFindingId ? [observationFindingId] : [] },
     projection: {
       anchors: [{ space: "number", id: String(representation.value) }],
