@@ -16,6 +16,8 @@ import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { requestEmailOtp, verifyEmailOtp } from "../../lib/auth.js";
+import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { makeEntity } from "../../lib/research/entity.js";
 import { askRaziel, getNotificationPrefs } from "../../lib/supabase.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
@@ -839,12 +841,149 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
   );
 }
 
+function AccountConnection2029({ user, profile, signOut }) {
+  const [step, setStep] = useState("email");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setStep("email");
+    setCode("");
+    setMessage({ kind: "success", text: "החשבון מחובר. השמירות והמחקר יכולים להמשיך עם אותה זהות." });
+  }, [user?.id]);
+
+  const sendCode = async (event) => {
+    event.preventDefault();
+    const value = email.trim().toLowerCase();
+    setMessage(null);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+      setMessage({ kind: "error", text: "כתובת המייל לא נראית תקינה." });
+      return;
+    }
+    setBusy(true);
+    try {
+      await requestEmailOtp(value);
+      setEmail(value);
+      setStep("code");
+      setMessage({ kind: "info", text: "שלחנו קוד כניסה למייל. משתמש חדש ייפתח באותו חשבון SOD1820." });
+    } catch (error) {
+      setMessage({ kind: "error", text: error?.message || "לא הצלחנו לשלוח קוד כרגע." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifyCode = async (event) => {
+    event.preventDefault();
+    setMessage(null);
+    if (!isValidEmailOtp(code)) {
+      setMessage({ kind: "error", text: "הזינו את הקוד המלא שקיבלתם במייל." });
+      return;
+    }
+    setBusy(true);
+    try {
+      await verifyEmailOtp(email, code);
+      setMessage({ kind: "success", text: "מחובר. אפשר להמשיך מאותו מקום." });
+    } catch (error) {
+      setMessage({ kind: "error", text: error?.message || "הקוד שגוי או שפג תוקפו." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disconnect = async () => {
+    if (!signOut || busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      await signOut();
+      setEmail("");
+      setCode("");
+      setStep("email");
+      setMessage({ kind: "info", text: "התנתקת מהחשבון. אפשר להמשיך כאורח." });
+    } catch (error) {
+      setMessage({ kind: "error", text: error?.message || "ההתנתקות לא הושלמה." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="sod29-workspace-account" data-workspace-section="account" aria-label="חיבור לחשבון">
+      <div className="sod29-workspace-section-head">
+        <strong>החשבון שלי</strong>
+        <small>אותו חשבון SOD1820 · בתוך 2029</small>
+      </div>
+
+      {user?.id ? (
+        <div className="sod29-workspace-account-connected">
+          <UserAvatar2029 user={user} profile={profile} size="normal" />
+          <div>
+            <strong>{displayName || "מחובר"}</strong>
+            <small dir="ltr">{user.email || ""}</small>
+            <p>הזהות מחוברת. המחקר, השמירות, ההודעות וההתקדמות משתמשים באותו חשבון קנוני.</p>
+          </div>
+          <button className="sod29-action" type="button" onClick={disconnect} disabled={busy}>התנתקות</button>
+        </div>
+      ) : step === "code" ? (
+        <form className="sod29-workspace-auth-form" onSubmit={verifyCode}>
+          <div className="sod29-workspace-auth-copy">
+            <strong>הזינו את הקוד מהמייל</strong>
+            <small>נשלח אל <b dir="ltr">{email}</b>. אחרי האימות תישארו בדיוק באזור האישי.</small>
+          </div>
+          <input
+            data-autofocus
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={EMAIL_OTP_MAX_LENGTH}
+            value={code}
+            onChange={(event) => { setCode(sanitizeEmailOtp(event.target.value)); setMessage(null); }}
+            placeholder="קוד כניסה"
+            aria-label="קוד כניסה מהמייל"
+            dir="ltr"
+          />
+          <div className="sod29-actions">
+            <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מאמת…" : "כניסה / הרשמה"}</button>
+            <button className="sod29-action" type="button" disabled={busy} onClick={() => { setStep("email"); setCode(""); setMessage(null); }}>שינוי מייל</button>
+          </div>
+        </form>
+      ) : (
+        <form className="sod29-workspace-auth-form" onSubmit={sendCode}>
+          <div className="sod29-workspace-auth-copy">
+            <strong>התחברו כדי לקחת את המחקר איתכם</strong>
+            <small>אותו חשבון עובד במחשבון, במסעות, בשמירות ובהודעות. אין חשבון 2029 נפרד.</small>
+          </div>
+          <input
+            data-autofocus
+            type="email"
+            value={email}
+            onChange={(event) => { setEmail(event.target.value); setMessage(null); }}
+            placeholder="you@example.com"
+            aria-label="מייל לכניסה או הרשמה"
+            autoComplete="email"
+            dir="ltr"
+          />
+          <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "שולח…" : "שלחו לי קוד כניסה"}</button>
+        </form>
+      )}
+
+      {message ? <div className={`sod29-workspace-auth-message is-${message.kind}`} role={message.kind === "error" ? "alert" : "status"}>{message.text}</div> : null}
+    </section>
+  );
+}
+
 function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const userId = user?.id || null;
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
   const [inbox, setInbox] = useState({ status: "loading", items: [], unread: 0 });
@@ -925,8 +1064,12 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
     document.querySelector('[data-workspace-section="research"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
   };
 
+  const openAccount = () => {
+    document.querySelector('[data-workspace-section="account"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  };
+
   const core = [
-    { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "לא מחובר — מצב אורח", state: "live", readOnly: true },
+    { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
     { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
@@ -962,6 +1105,8 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
           {stats?.credits != null ? <span><b>{stats.credits}</b><small>קרדיטים</small></span> : null}
         </div>
       </section>
+
+      <AccountConnection2029 user={user} profile={profile} signOut={signOut} />
 
       <section className="sod29-workspace-home" aria-label="הדברים שלי">
         <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
