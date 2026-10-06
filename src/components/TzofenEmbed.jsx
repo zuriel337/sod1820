@@ -77,7 +77,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, journeyLoad = null, onLoadError = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, findingsRequest = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -392,6 +392,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (!searchRequest?.kind) return;
     postToTool({ type: "native-search", request: searchRequest });
   }, [searchRequest, postToTool]);
+
+  // 🎯 Native findings edits reuse the existing update-findings path.
+  // The tool normalizes, bounds, recomputes, recolors and emits the resulting governed state.
+  useEffect(() => {
+    if (!Array.isArray(findingsRequest?.findings)) return;
+    postToTool({ type: "update-findings", findings: findingsRequest.findings });
+  }, [findingsRequest, postToTool]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
