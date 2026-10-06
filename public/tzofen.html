@@ -1968,11 +1968,23 @@
       st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");
       try{loadMatrix(d.item,0);}catch(e){}
     }
-    if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 ממצאים עודכנו בפאנל (הוסר/נוסף) → צביעה-מחדש בלי טעינת-2.2MB
-      st.words=d.findings.map((w,i)=>{const t=norm(typeof w==="string"?w:(w&&w.t)||"");return{t,color:(w&&typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0};}).filter(w=>w.t);
+    if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 Native/admin edit → אותו st.words קנוני, בלי store נוסף
+      const seen=new Set(),next=[];
+      for(const raw of d.findings){
+        if(next.length>=12)break;
+        const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
+        if(!t||seen.has(t))continue;
+        seen.add(t);
+        const requested=(raw&&typeof raw==="object"&&typeof raw.color==="string")?raw.color:"";
+        const used=next.map(w=>w.color);
+        const color=requested||PALETTE.find(c=>!used.includes(c))||PALETTE[next.length%PALETTE.length];
+        next.push({t,color,hits:[],total:0,inwin:0});
+      }
+      st.words=next;st.swOpen=-1;st.expand=-1;st.lineFor=-1;
       try{recomputeWords();}catch(e){}
       try{recolorOnly();}catch(e){}
       try{renderList();}catch(e){}
+      try{emitState();}catch(e){}   // 🛰️ Native מקבל חזרה את הרשימה/הצבעים שהמנוע קיבל בפועל
     }
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
