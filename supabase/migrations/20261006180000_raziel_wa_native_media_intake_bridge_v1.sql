@@ -45,12 +45,14 @@ begin
   limit 1;
   if v_uid is null then raise exception 'sender not linked'; end if;
 
-  -- contributor provenance: SAME lookup as public.fn_raziel_identity (verified-phone match, vip first) so the edge adapter
-  -- and this RPC agree on the owner prefix; never grants a moderation bypass
+  -- contributor provenance: a phone match alone is NEVER sufficient once wa_account_links resolved a user.
+  -- The contributor is used only when contributors.user_id = the linked user_id (explicit contributor<->user binding);
+  -- otherwise accounts/<uid>/ prefix and author_contributor_id = null. Never grants a moderation bypass.
   select c.id, c.display_name, coalesce(c.trusted, false) as trusted
     into v_contrib
   from public.contributors c
   where coalesce(c.active, true)
+    and c.user_id = v_uid
     and regexp_replace(coalesce(c.phone,''), '[^0-9]', '', 'g') = v_phone
   order by c.vip desc nulls last
   limit 1;

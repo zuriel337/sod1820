@@ -594,7 +594,14 @@ async function ingestInboundSource(media, phone, idn, msgId, ts) {
   if (buf.byteLength === 0 || buf.byteLength > MAX_SOURCE_BYTES) return null;
   const ext = media.mime === "application/pdf" ? "pdf" : media.mime.includes("png") ? "png" : media.mime.includes("webp") ? "webp" : media.mime.includes("gif") ? "gif" : "jpg";
   const d = new Date((Number(ts) || Date.now() / 1000) * 1000);
-  const owner = idn?.contributor?.id ? `contributors/${idn.contributor.id}` : `accounts/${idn.user_id}`;
+  // Contributor prefix only when the contributor is explicitly bound to the linked user (contributors.user_id === idn.user_id).
+  // A phone-only contributor match (fn_raziel_identity) is not proof; default to the account path. Mirrors wa_raziel_intake_source_v1.
+  let boundContributorId = null;
+  if (idn?.contributor?.id) {
+    const { data: c } = await sb.from("contributors").select("id,user_id,active").eq("id", idn.contributor.id).maybeSingle();
+    if (c?.id && c.active !== false && c.user_id && String(c.user_id) === String(idn.user_id)) boundContributorId = c.id;
+  }
+  const owner = boundContributorId ? `contributors/${boundContributorId}` : `accounts/${idn.user_id}`;
   const path = `sod1820/2029/${owner}/${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${await msgUuid(msgId)}/${media.kind}/original.${ext}`;
   const up = await sb.storage.from("submission-inbox").upload(path, buf, { contentType: media.mime, upsert: false });
   if (up.error && !/exist|duplicate|409/i.test(String(up.error.message || up.error.statusCode || ""))) return null;   // already-exists = retry of the same message

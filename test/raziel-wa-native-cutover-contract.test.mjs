@@ -56,6 +56,26 @@ assert.doesNotMatch(sql, /'(approved|published|canonical)'/);   // pending only
 assert.match(sql, /whatsapp intake must remain pending/);                                   // standing-approval trigger cannot bypass moderation
 assert.match(sql, /'visibility', 'private'/);
 assert.doesNotMatch(sql, /create table|create schema|create bucket|insert into storage\.buckets/i);   // no new store
+// (2b) contributor<->user binding: phone-only contributor match never selects prefix/provenance
+assert.match(sql, /and c\.user_id = v_uid/);                                   // contributor used only when bound to the linked user
+assert.match(sql, /accounts\/' \|\| v_uid::text/);                              // mismatch → account prefix
+assert.match(sql, /\(v_uid, v_contrib\.id, v_name,/);                           // v_contrib.id null on mismatch → author_contributor_id null
+{
+  const lookup = sql.slice(sql.indexOf("from public.contributors c"), sql.indexOf("if v_contrib.id is not null"));
+  assert.match(lookup, /c\.user_id = v_uid/);
+  assert.match(lookup, /regexp_replace\(coalesce\(c\.phone/);                   // phone still required, but not sufficient
+}
+// adapter: explicit binding check before any upload; never trusts idn.contributor from the phone match alone
+{
+  const ing = wa.slice(wa.indexOf("async function ingestInboundSource"), wa.indexOf("async function razielCoreRespond"));
+  const iBind = ing.indexOf('from("contributors")');
+  const iUpload = ing.indexOf('.upload(');
+  assert.ok(iBind > 0 && iUpload > iBind, "contributor binding must be verified before upload");
+  assert.match(ing, /String\(c\.user_id\) === String\(idn\.user_id\)/);
+  assert.match(ing, /boundContributorId \? `contributors\/\$\{boundContributorId\}` : `accounts\/\$\{idn\.user_id\}`/);
+  assert.doesNotMatch(ing, /idn\?\.contributor\?\.id \? `contributors/);
+  assert.equal((ing.match(/contributors\/\$\{/g) || []).length, 1);            // the only contributors/ path construction
+}
 // unqualified object refs would break under search_path = ''
 const body = sql.slice(sql.indexOf("begin"), sql.indexOf("$function$;"));
 assert.doesNotMatch(body, /\bfrom\s+(?!public\.|storage\.|jsonb_array_elements)[a-z_]+\b/);
