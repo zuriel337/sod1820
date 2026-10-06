@@ -102,3 +102,20 @@ test("follow: exactly 710 + category + author, topics derived server-style, comp
   // no Personal Area duplicate: existing UserCenter FollowingPanel is the projection
   assert.match(read("../src/components/userCenter/UserCenter.jsx"), /topicLabel/);
 });
+
+test("Context Rail projection is bounded (<=6) per region and chain hrefs stay inside /post/", () => {
+  const e = exp();
+  assert.ok(e.connections.length > I.CONTEXT_RAIL_MAX);
+  for (const regionId of ["source-1", "source-2", "unknown"]) {
+    const rail = I.selectContextRailConnections(e.connections, { slug: I.SEVENTH_TENTH_SLUG, regionId });
+    assert.ok(rail.length <= 6 && rail.length > 0);
+    assert.equal(new Set(rail.map((c) => c.id)).size, rail.length);
+  }
+  const r1 = I.selectContextRailConnections(e.connections, { slug: I.SEVENTH_TENTH_SLUG, regionId: "source-1" }).map((c) => c.id);
+  assert.ok(["post-149", "number-710", "sefira-keter"].every((id) => r1.includes(id)));
+  const r2 = I.selectContextRailConnections(e.connections, { slug: I.SEVENTH_TENTH_SLUG, regionId: "source-2" }).map((c) => c.id);
+  assert.ok(["post-5109", "sefira-tiferet", "sefira-binah"].every((id) => r2.includes(id)));
+  for (const c of Object.values(I.SEVENTH_TENTH_CHAIN)) assert.ok(c.href.startsWith("/post/"), c.id);
+  assert.ok([...e.trail, ...e.connections].filter((x) => x.relation === "main_spine" || x.relation === "side_branch").every((x) => x.href.startsWith("/post/")));
+  assert.equal(e.connections.length, 12);
+});

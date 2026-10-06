@@ -4,7 +4,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, selectContextRailConnections } from "../lib/research/post2029ReadingProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
@@ -176,7 +176,9 @@ function PostReadingBody() {
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
         surfaceFindings: post.slug === "bennett-melach-631-78" || post.slug === "seventh-to-tenth-sefirot-2027"
-          ? (state.projection.experience?.connections || [])
+          ? (post.slug === "seventh-to-tenth-sefirot-2027"
+            ? selectContextRailConnections(state.projection.experience?.connections || [], { slug: post.slug, regionId: activeFocus.id })
+            : (state.projection.experience?.connections || []))
             .filter((connection) => connection.id !== "bennett-631")
             .map((connection) => ({
               id: connection.id,

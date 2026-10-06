@@ -373,14 +373,32 @@ function buildBennettSaltExperience(post) {
 // source video + video_transcripts (shared media/language path), Follow (subscription_funnel_law).
 // Main spine is curated navigation; side branches are bounded. Prominence is NOT a truth claim.
 const SEVENTH_TENTH_SLUG = "seventh-to-tenth-sefirot-2027";
-const LEGACY_HREF = (encodedSlug) => "/" + encodedSlug;
+const POST_HREF = (encodedSlug) => "/post/" + encodedSlug;
 const SEVENTH_TENTH_CHAIN = Object.freeze({
-  hub233: { id: "post-233", postId: 233, label: "רמזי 7.10 · המרכז", href: LEGACY_HREF("%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%97%d7%a0%d7%95%d7%9b%d7%94-%d7%aa%d7%a9%d7%a4%d7%92-%d7%a8%d7%9e%d7%96%d7%99-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%97%d7%93%d7%a9") },
-  bridge149: { id: "post-149", postId: 149, label: "7.10 — מן השביעי לעשירי", href: LEGACY_HREF("%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98") },
+  hub233: { id: "post-233", postId: 233, label: "רמזי 7.10 · המרכז", href: POST_HREF("%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%97%d7%a0%d7%95%d7%9b%d7%94-%d7%aa%d7%a9%d7%a4%d7%92-%d7%a8%d7%9e%d7%96%d7%99-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%97%d7%93%d7%a9") },
+  bridge149: { id: "post-149", postId: 149, label: "7.10 — מן השביעי לעשירי", href: POST_HREF("%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98") },
   depth5109: { id: "post-5109", postId: 5109, label: "ים המלח, תפארת ומפת עשר הספירות", href: "/post/yam-hamelach-tiferet-geula" },
-  side87: { id: "post-87", postId: 87, label: "גלרית 7.10 = נסתר", href: LEGACY_HREF("%d7%92%d7%9c%d7%a8%d7%99%d7%aa-7-10-%d7%a0%d7%a1%d7%aa%d7%a8") },
-  side108: { id: "post-108", postId: 108, label: "גלרית 878 · עולם הפוך · 360", href: LEGACY_HREF("%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-36-878-%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a4%d7%95%d7%9a-%d7%a8%d7%90%d7%99%d7%aa%d7%99-%d7%9e%d7%a9%d7%99%d7%97") },
+  side87: { id: "post-87", postId: 87, label: "גלרית 7.10 = נסתר", href: POST_HREF("%d7%92%d7%9c%d7%a8%d7%99%d7%aa-7-10-%d7%a0%d7%a1%d7%aa%d7%a8") },
+  side108: { id: "post-108", postId: 108, label: "גלרית 878 · עולם הפוך · 360", href: POST_HREF("%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-36-878-%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a4%d7%95%d7%9a-%d7%a8%d7%90%d7%99%d7%aa%d7%99-%d7%9e%d7%a9%d7%99%d7%97") },
 });
+// Context Rail boundedness (Post Kit): at most CONTEXT_RAIL_MAX findings, deterministic per active reading region.
+// Full experience.connections stays intact for other projections; this only selects the rail projection.
+const CONTEXT_RAIL_MAX = 6;
+const SEVENTH_TENTH_RAIL_PRIORITY = Object.freeze({
+  "source-1": ["post-149", "number-710", "number-10", "sefira-keter", "sefira-chokhmah", "sefira-binah", "number-7"],
+  "source-2": ["post-5109", "sefira-tiferet", "sefira-keter", "sefira-chokhmah", "sefira-binah", "post-233", "post-149"],
+});
+function selectContextRailConnections(connections = [], { slug = null, regionId = null } = {}) {
+  const list = Array.isArray(connections) ? connections : [];
+  if (slug !== SEVENTH_TENTH_SLUG) return list.slice(0, CONTEXT_RAIL_MAX);
+  const order = SEVENTH_TENTH_RAIL_PRIORITY[regionId] || SEVENTH_TENTH_RAIL_PRIORITY["source-1"];
+  const byId = new Map(list.map((c) => [c.id, c]));
+  const picked = [];
+  for (const id of order) if (byId.has(id) && picked.length < CONTEXT_RAIL_MAX) picked.push(byId.get(id));
+  for (const c of list) if (picked.length < CONTEXT_RAIL_MAX && !picked.includes(c)) picked.push(c);
+  return picked;
+}
+
 // Follow subjects the existing server resolver (canonical_follow_subject -> resolve_topics -> dispatch)
 // can already resolve. Mirrors the server list; anything else is a reported GAP, never a faked control.
 const FOLLOW_RESOLVABLE_ENTITY_TYPES = Object.freeze(["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"]);
@@ -756,7 +774,10 @@ export async function fetchPost2029ReadingProjection(slug) {
   };
 }
 
+export { selectContextRailConnections, CONTEXT_RAIL_MAX };
 export const post2029ReadingInternals = {
+  selectContextRailConnections,
+  CONTEXT_RAIL_MAX,
   stripTags,
   defaultRegionsFromSource,
   BENNETT_CONTEXTUAL_NUMBER_FOCUS,
