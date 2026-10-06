@@ -1,89 +1,58 @@
-// Golden Post Context Packs v1 (GOLDEN_POST_CONTEXT_PACKS_V1) — pure, bounded projection for the
-// two Golden pilot Posts into the EXISTING Post `surfaceFindings` path (surfaceFindingsAdapter).
+// Golden Post Context Packs v1 (GOLDEN_POST_CONTEXT_PACKS_V1, REV1) — thin, bounded ADAPTER from the
+// governed event/System-Method owners into the EXISTING Post `surfaceFindings` path.
 //
-// No DB access, no new store/engine/registry, no Finding/Contributor minting. The Post stays the
-// Source Representation; the event, the calculations and the site interpretation are separate rows
-// of separate kinds. Calculations are admitted ONLY from live canonical Gematria Method Trace
-// responses (parity=true) whose expression is declared by the pack — a raw textual occurrence
-// (e.g. 604 / 730 in the prose) can never become a calculation row. Same value/expression/event
-// appears once; every other mention is a relation/reference in `reason`.
+// This module declares NO domain law. It declares only (a) typed source inputs of the two pilot Posts
+// (a source-observed flight number, a typed clock/day observation, and the numeric equalities the
+// SOURCE itself claims) and (b) how an already-governed Universal Finding is summarized into a
+// bounded row. Every semantic output (clock -> 1820, day ordinal, rule applications, convergence,
+// site interpretation + its canonical attribution) is produced by the closed owner modules:
+//   eventObservationCompiler / eventSystemMethodRuntime / momentClockSystemMethod / nasrallahPost92Golden
+// and only summarized here. Calculations come only from live canonical Gematria Method Traces with
+// parity=true, for source-claimed expressions with their exact registered method.
 //
-// Rows use only keys the Research Context normalizer already carries (summary-only).
+// No DB access (live deps are injected), no new store/engine/registry, no Finding/Contributor minting.
+// Access is whatever the owner bundle's own filter allows (no descriptor => public-only, fail closed).
 
 import { gematriaTraceToFinding } from "./gematriaTrace.js";
 import { buildSourceBundles } from "./sourceBundleProjection.js";
+import { EVENT_MEMBER_TYPE, EVENT_SURFACE, FZ1073_EVENT_CANDIDATE_DECLARATION, projectEventContextForSurface } from "./eventObservationCompiler.js";
+import { ATTRIBUTION_ROLE, compileEventObservationWithSystemMethods, normalizeAttribution } from "./eventSystemMethodRuntime.js";
+import { compileNasrallahPost92Golden } from "./nasrallahPost92Golden.js";
 
-export const GOLDEN_CONTEXT_PACK_METHOD = "רגיל";
-export const GOLDEN_CONTEXT_PACK_MAX_ROWS = 8;
+export const GOLDEN_CONTEXT_PACK_MAX_ROWS = 6;
 
 const clean = (v) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim());
+const cap = (v, n) => clean(v).slice(0, n);
 
-const SITE_INTERPRETATION = "פרשנות האתר (SOD1820)";
-
-// Declarative packs: typed, non-numeric context + the calculation expressions the pack may cite.
+// Typed SOURCE inputs only. `claims` are expressions the Post source itself states with a numeric value
+// (live source presence verified); anything not listed here can never become a calculation row.
 const PACKS = Object.freeze({
   "5112": {
     packId: "golden-fz1073",
-    expressions: ["אשר בשמים ממעל", "ולמות לא נתנני", "חכמה"],
-    rows: {
-      event: {
-        id: "pack:event",
-        label: "אירוע טיסת FZ1073",
-        kind: "event_fact",
-        reason: "עובדת האירוע כפי שמתועדת במקור הפוסט; נפרדת מהחישובים ומהפרשנות.",
-        sourceLabel: "FZ1073",
-      },
-      relation: {
-        id: "pack:relation:1073-73",
-        label: "1073 → 73 ← 730",
-        kind: "typed_relation",
-        reason: "גזירה/התכנסות מוקלדת בלבד — לא שוויון ולא ראיה בלתי־תלויה. 730 אינו חישוב מנוע.",
-        sourceLabel: SITE_INTERPRETATION,
-      },
-      interpretation: {
-        id: "pack:interpretation",
-        label: "פרשנות האתר",
-        kind: "interpretation",
-        reason: "הקריאה של האתר לאירוע; אינה חלק מדברי המקור ואינה ציון אמת.",
-        sourceLabel: SITE_INTERPRETATION,
-      },
-    },
-    order: ["event", "calculations", "sourceBundles", "relation", "interpretation"],
+    flight: { type: EVENT_MEMBER_TYPE.FLIGHT_NUMBER, number: 1073, key: "flight:FZ1073", label: "FZ1073", source_ref: "post:5112" },
+    supportNumbers: [730],
+    claims: [
+      { expression: "אשר בשמים ממעל", method_key: "רגיל", claimed_value: 1073 },
+      { expression: "ולמות לא נתנני", method_key: "רגיל", claimed_value: 1073 },
+      { expression: "משיח בן דוד", method_key: "רגיל", claimed_value: 424 },
+      { expression: "ולדימיר פוטין", method_key: "מסתתר", claimed_value: 424 },
+      { expression: "שבעים וחמש", method_key: "רגיל", claimed_value: 776 },
+      { expression: "ביאת המשיח", method_key: "רגיל", claimed_value: 776 },
+    ],
+    order: ["event", "calculations", "convergence", "sourceBundles"],
   },
   "92": {
     packId: "golden-nasrallah",
-    expressions: ["משיח", "יבא שילה", "משיח בן דוד", "שבעים וחמש", "ביאת המשיח"],
-    rows: {
-      source: {
-        id: "pack:source-representation",
-        label: "הפוסט כייצוג מקור",
-        kind: "source_representation",
-        reason: "הפוסט מייצג את המקור (סוד החשמל + מסמכי האירוע); זהות האירוע נפרדת מזהות הפוסט.",
-        sourceLabel: "סוד החשמל",
-      },
-      event: {
-        id: "pack:event-clock",
-        label: "אירוע · יום · שעה 18:20",
-        kind: "typed_event",
-        reason: "18:20 = תצפית שעה מוקלדת (CLOCK_24H_CONCAT=1820); מספר היום 358 = תצפית מקור מוקלדת, לא גימטריה. מקור 18:20/18:21 סותר ולא נפתר.",
-        sourceLabel: "מקור הפוסט",
-      },
-      attribution: {
-        id: "pack:source-work",
-        label: "סוד החשמל · יצירת מקור",
-        kind: "source_work",
-        reason: "שיוך ליצירת המקור בלבד — לא Contributor, והעלאה אינה חיבור.",
-        sourceLabel: "סוד החשמל",
-      },
-      interpretation: {
-        id: "pack:interpretation",
-        label: "פרשנות האתר",
-        kind: "interpretation",
-        reason: "„כי לה׳ המלוכה” — קריאה של האתר; אינה חלק מדברי המקור ואינה ציון אמת.",
-        sourceLabel: SITE_INTERPRETATION,
-      },
-    },
-    order: ["source", "event", "calculations", "attribution", "interpretation"],
+    clockObservation: { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut", context: "site approved reading", source_ref: "post:92", accessTier: "public" },
+    dayOrdinal: { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92", accessTier: "public" },
+    sourceWork: { role: ATTRIBUTION_ROLE.SOURCE_WORK, display_name: "סוד החשמל" },
+    claims: [
+      { expression: "משיח", method_key: "רגיל", claimed_value: 358 },
+      { expression: "חכמה", method_key: "רגיל", claimed_value: 73 },
+      // 1202 is admitted by the owner compiler only as the sourced Oct7 cross-time member with a מסתתר receipt.
+      { expression: "סוד יהונתן תשפד", method_key: "מסתתר", claimed_value: 1202, scope: "cross_time", cross_time_subject: "oct7" },
+    ],
+    order: ["clock", "day", "calculations", "interpretation"],
   },
 });
 
@@ -91,37 +60,76 @@ export function goldenContextPackFor(postId) {
   return PACKS[clean(postId)] || null;
 }
 
-export function goldenContextPackExpressions(postId) {
-  return goldenContextPackFor(postId)?.expressions || [];
+/** Source claims (expression + exact registered method) whose live Trace the caller must fetch. */
+export function goldenContextPackClaims(postId) {
+  return goldenContextPackFor(postId)?.claims || [];
 }
 
-// Calculation rows: one per distinct canonical value; same-value expressions are listed, not duplicated.
-function calculationRows(pack, traces) {
-  const allowed = new Set(pack.expressions);
-  const byValue = new Map();
+const claimKey = (method, expression) => `${clean(method)}\u0000${clean(expression)}`;
+
+// Receipt resolver over PRE-FETCHED live traces: parity=true + same value as the source claim, else null.
+function makeReceiptResolver(pack, traces) {
+  const byClaim = new Map();
   for (const trace of Array.isArray(traces) ? traces : []) {
     if (!trace || trace.status === "error" || trace.verification?.parity !== true) continue;
-    if (clean(trace.method_key) !== GOLDEN_CONTEXT_PACK_METHOD) continue;
-    const finding = gematriaTraceToFinding(trace);
-    const expression = clean(trace.input);
-    if (!finding || !allowed.has(expression)) continue;
-    const value = Number(trace.result);
-    const entry = byValue.get(value) || { value, expressions: [] };
-    if (!entry.expressions.includes(expression)) entry.expressions.push(expression);
+    byClaim.set(claimKey(trace.method_key, trace.input), trace);
+  }
+  const allowed = new Map(pack.claims.map((c) => [claimKey(c.method_key, c.expression), c]));
+  return (member) => {
+    const k = claimKey(member?.method_key, member?.expression);
+    const claim = allowed.get(k);
+    const trace = byClaim.get(k);
+    if (!claim || !trace || Number(trace.result) !== claim.claimed_value) return null;
+    return gematriaTraceToFinding(trace, { inputText: claim.expression });
+  };
+}
+
+const factOf = (f) => (Array.isArray(f?.evidence?.facts) ? f.evidence.facts[0] || {} : {});
+
+// Presentation-only mapping Finding -> bounded summary row (no child findings, no evidence payload).
+function calculationRows(findings) {
+  const byValue = new Map();
+  for (const f of findings) {
+    if (f.kind !== "event-expression-match" || f.verification?.verification_state !== "match") continue;
+    const value = Number(f.verification.engine_result);
+    const entry = byValue.get(value) || { value, id: f.id, expressions: [], methods: [] };
+    entry.expressions.push(clean(f.subject?.label));
+    const m = clean(f.verification.engine_method_tested);
+    if (m && !entry.methods.includes(m)) entry.methods.push(m);
     byValue.set(value, entry);
   }
-  return [...byValue.values()].sort((a, b) => a.value - b.value).map(({ value, expressions }) => ({
-    id: `pack:calc:${value}`,
-    label: expressions.join(" = "),
-    value: String(value),
+  return [...byValue.values()].sort((a, b) => a.value - b.value).map((e) => ({
+    id: e.id,
+    label: cap(e.expressions.join(" = "), 80),
+    value: String(e.value),
     kind: "calculation",
-    reason: "חישוב קנוני (Gematria Method Trace, רגיל v1, parity=true).",
+    reason: cap(`חישוב קנוני · ${e.methods.join(" / ")} · parity=true`, 200),
     sourceLabel: "מנוע גימטריה",
   }));
 }
 
-// Source bundles: only from ALREADY access-filtered findings; a bundle is presentation grouping,
-// never independence. Only multi-member bundles surface (singletons stay in their own surface).
+function governedRows(findings, approvedClockFindingId, sourceWorkLabel) {
+  const rows = { event: [], convergence: [], clock: [], day: [], interpretation: [] };
+  for (const f of findings) {
+    const fact = factOf(f);
+    if (f.kind === "event-flight-number") {
+      rows.event.push({ id: f.id, label: cap(f.subject?.label, 80), value: f.subject?.value != null ? String(f.subject.value) : undefined, kind: "event_fact", reason: "תצפית מקור (מספר טיסה); נפרדת מחישוב ומפרשנות.", sourceLabel: cap(f.source?.sourceRef, 80) || undefined });
+    } else if (f.kind === "event-rule-convergence") {
+      const inputs = [...new Set((Array.isArray(fact.chains) ? fact.chains : []).map((c) => c.input))].sort((a, b) => b - a);
+      rows.convergence.push({ id: f.id, label: cap(`${inputs.join(" · ")} → ${fact.target}`, 80), kind: "typed_relation", reason: cap(fact.boundary, 200) || undefined, sourceLabel: "שיטות המערכת" });
+    } else if (f.kind === "numeric-operator" && f.id === approvedClockFindingId) {
+      rows.clock.push({ id: f.id, label: cap(`${fact.output?.representation_display ?? ""} → ${fact.output?.value}`, 80), value: String(fact.output?.value), kind: "typed_derivation", reason: cap(fact.boundary || `${fact.rule_id} v${fact.rule_version}`, 200), sourceLabel: sourceWorkLabel || undefined });
+    } else if (f.kind === "event-day-ordinal") {
+      rows.day.push({ id: f.id, label: cap(f.subject?.label, 80), kind: "typed_observation", reason: cap(fact.boundary, 200) || undefined, sourceLabel: sourceWorkLabel || undefined });
+    } else if (f.kind === "event-site-interpretation") {
+      rows.interpretation.push({ id: f.id, label: cap(fact.attribution?.display_name || f.subject?.label, 80), kind: "interpretation", reason: cap(fact.boundary, 200) || undefined, sourceLabel: cap(fact.attribution?.display_name, 80) || undefined });
+    }
+  }
+  return rows;
+}
+
+// Source bundles: only from ALREADY access-filtered findings the caller supplies; presentation
+// grouping, never independence. With none supplied the bundle is explicitly unavailable (fail closed).
 function sourceBundleRows(findings, occurrences) {
   return buildSourceBundles(findings, { occurrences })
     .filter((b) => !b.isSingleton)
@@ -138,31 +146,86 @@ function sourceBundleRows(findings, occurrences) {
 }
 
 /**
- * @param {object} input
- * @param {string|number} input.postId
- * @param {Array} [input.traces] live canonical gematria_method_trace responses
- * @param {Array} [input.findings] already access-filtered Universal Findings (source bundles)
- * @param {Record<string,object>} [input.occurrences]
- * @returns {null | {packId:string, rows:Array}} null for any non-pilot post (fail-closed)
+ * Summarize an already-compiled governed pack (owner output) into bounded rows. Pure.
+ * @returns {{packId:string, rows:Array, sourceBundle:{status:string, reason:string|null}}}
  */
-export function buildGoldenPostContextPack({ postId, traces = [], findings = [], occurrences = {} } = {}) {
+export function summarizeGovernedPack({ postId, governed, findings = [], occurrences = {} } = {}) {
   const pack = goldenContextPackFor(postId);
-  if (!pack) return null;
-  const parts = {
-    ...Object.fromEntries(Object.entries(pack.rows).map(([k, v]) => [k, [v]])),
-    calculations: calculationRows(pack, traces),
-    sourceBundles: pack.order.includes("sourceBundles") ? sourceBundleRows(findings, occurrences) : [],
-  };
-  const rows = pack.order.flatMap((k) => parts[k] || []);
+  if (!pack || !governed?.bundle) return null;
+  const surface = projectEventContextForSurface(governed, EVENT_SURFACE.CONTEXT_RAIL, { limit: 100 });
+  const wanted = new Set(surface?.finding_ids || []);
+  const visible = governed.bundle.findings.filter((f) => wanted.has(f.id));
+  const attribution = pack.sourceWork ? normalizeAttribution(pack.sourceWork) : null;
+  const sourceWorkLabel = attribution?.ok ? attribution.attribution?.display_name : null;
+  // The approved clock reading is selected by the OWNER's own golden output, not by a rule/operation name here.
+  const golden = governed.golden;
+  const approvedClockFindingId = golden?.representations?.find((r) => r.output === golden.approved_reading?.clock_24h_concat)?.finding_id ?? null;
+  const g = governedRows(visible, approvedClockFindingId, sourceWorkLabel);
+  const bundleRows = pack.order.includes("sourceBundles") ? sourceBundleRows(findings, occurrences) : [];
+  const parts = { ...g, calculations: calculationRows(visible), sourceBundles: bundleRows };
   const seen = new Set();
+  const rows = pack.order.flatMap((k) => parts[k] || [])
+    .filter((r) => r.id && !seen.has(r.id) && seen.add(r.id))
+    .map((r) => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== undefined)))
+    .slice(0, GOLDEN_CONTEXT_PACK_MAX_ROWS);
   return {
     packId: pack.packId,
-    rows: rows.filter((r) => !seen.has(r.id) && seen.add(r.id)).slice(0, GOLDEN_CONTEXT_PACK_MAX_ROWS),
+    rows,
+    sourceBundle: pack.order.includes("sourceBundles")
+      ? (bundleRows.length
+        ? { status: "available", reason: null }
+        : { status: "unavailable", reason: "no_access_filtered_findings_supplied" })
+      : { status: "not_applicable", reason: null },
   };
 }
 
-// Pack rows lead; an existing connection that merely repeats a pack value is a reference, so it is
-// dropped from the list (the number stays reachable from the calculation row).
+/**
+ * Compile the governed pack for a pilot Post through the closed owners, then summarize.
+ * Fail-closed: any owner refusal/exception yields null (no pack rows), never a client-side value.
+ *
+ * @param {object} input
+ * @param {string|number} input.postId
+ * @param {object} input.post existing post row ({id, slug, date})
+ * @param {Array} [input.traces] live canonical gematria_method_trace responses (raw RPC shape)
+ * @param {Function} [input.numericOperators] governed numeric_operators capability (Post 5112)
+ * @param {Function|object} [input.ruleVersions] live nodes rule-version attestation (Post 92)
+ * @param {Array} [input.findings] already access-filtered Universal Findings (source bundle)
+ * @param {Record<string,object>} [input.occurrences]
+ */
+export async function buildGoldenPostContextPack({ postId, post = null, traces = [], numericOperators = null, ruleVersions = null, findings = [], occurrences = {} } = {}) {
+  const pack = goldenContextPackFor(postId);
+  if (!pack) return null;
+  const subject = post || { id: postId };
+  const receiptResolver = makeReceiptResolver(pack, traces);
+  const expressionMembers = pack.claims.map((c) => ({ type: EVENT_MEMBER_TYPE.EXPRESSION_MATCH, ...c, source_ref: `post:${clean(postId)}` }));
+  try {
+    const governed = pack.flight
+      ? await compileEventObservationWithSystemMethods({
+        candidate: FZ1073_EVENT_CANDIDATE_DECLARATION,
+        post: subject,
+        members: [pack.flight, ...expressionMembers],
+        numericOperators,
+        supportNumbers: pack.supportNumbers || [],
+        receiptResolver,
+      })
+      : await compileNasrallahPost92Golden({
+        post: subject,
+        clockObservation: pack.clockObservation,
+        dayOrdinal: pack.dayOrdinal,
+        ruleVersions,
+        receiptResolver,
+        expression: pack.claims[0],
+        additionalExpressions: pack.claims.slice(1),
+      });
+    return summarizeGovernedPack({ postId, governed, findings, occurrences });
+  } catch {
+    return null;
+  }
+}
+
+// Pack rows lead (bounded); an existing connection that merely repeats a pack value is a reference, so
+// it is dropped from the list (the number stays reachable from the pack row). Other connections keep
+// their place: the pack never crowds out the rest of the existing adapter list.
 export function mergeContextPackWithConnections(pack, connections = []) {
   if (!pack) return Array.isArray(connections) ? connections : [];
   const packValues = new Set(pack.rows.map((r) => r.value).filter(Boolean));

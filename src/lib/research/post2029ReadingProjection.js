@@ -1,5 +1,7 @@
 import { getPostBySlug, supabase } from "../supabase.js";
-import { buildGoldenPostContextPack, goldenContextPackExpressions, GOLDEN_CONTEXT_PACK_METHOD } from "./goldenPostContextPacks.js";
+import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
+import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
+import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
@@ -544,18 +546,30 @@ function defaultRegionsFromSource(content = "") {
   }));
 }
 
-// Golden Context Pack calculations come only from the live canonical Method Trace RPC; any
-// failure yields no calculation rows (fail-closed), never a client-side calculation.
+// Golden Context Pack calculations come only from the live canonical Method Trace RPC, for the
+// source-claimed expressions with their exact registered method; any failure yields no trace
+// (fail-closed), never a client-side calculation.
 async function fetchGoldenPackTraces(postId) {
-  const phrases = goldenContextPackExpressions(postId);
-  const traces = await Promise.all(phrases.map(async (phrase) => {
+  const traces = await Promise.all(goldenContextPackClaims(postId).map(async ({ expression, method_key: methodKey }) => {
     try {
-      const { data, error } = await supabase.rpc("gematria_method_trace", { p_method_key: GOLDEN_CONTEXT_PACK_METHOD, p_phrase: phrase });
+      const { data, error } = await supabase.rpc("gematria_method_trace", { p_method_key: methodKey, p_phrase: expression });
       if (error) return null;
       return Array.isArray(data) ? data[0] : data;
     } catch { return null; }
   }));
   return traces.filter(Boolean);
+}
+
+// Governed owners are injected with live dependencies; the pack adapter itself never touches the DB.
+async function fetchGoldenContextPack(post) {
+  if (!goldenContextPackClaims(post?.id).length) return null;
+  return buildGoldenPostContextPack({
+    postId: post.id,
+    post: { id: post.id, slug: post.slug, date: post.date },
+    traces: await fetchGoldenPackTraces(post.id),
+    numericOperators: createCanonicalNumberW2Executors({ supabase, numericRuleVersions: fetchLiveNumericRuleVersions }).numeric_operators,
+    ruleVersions: fetchLiveNumericRuleVersions,
+  });
 }
 
 export async function fetchPost2029ReadingProjection(slug) {
@@ -625,9 +639,7 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
 
-  const contextPack = goldenContextPackExpressions(post.id).length
-    ? buildGoldenPostContextPack({ postId: post.id, traces: await fetchGoldenPackTraces(post.id) })
-    : null;
+  const contextPack = await fetchGoldenContextPack(post);
 
   return {
     version: "post-2029-reading-v1",

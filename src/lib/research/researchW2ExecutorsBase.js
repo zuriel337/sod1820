@@ -80,7 +80,7 @@ function graphNodeRefFromIdentity(identityResolution) {
  * Accepts either a reader function or an already-resolved map/object; anything else yields an EMPTY
  * map, which makes the numeric_operators adapter refuse to emit rather than invent a version.
  */
-async function resolveNumericRuleVersions(source) {
+export async function resolveNumericRuleVersions(source) {
   const out = new Map();
   try {
     const resolved = typeof source === 'function' ? await source(NUMERIC_SYSTEM_METHOD_RULE_IDS) : source;
