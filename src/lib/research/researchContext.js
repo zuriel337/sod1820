@@ -127,7 +127,7 @@ function normalizeSurfaceSections(value) {
 
 function normalizeSurfaceFocus(value) {
   if (!isObject(value)) return null;
-  const strings = ["id", "entityId", "type", "entityType", "sectionLabel", "label", "primary", "expression", "method", "sourceLabel", "locator", "reference", "href", "postId", "postSlug", "reason"];
+  const strings = ["id", "entityId", "type", "entityType", "sectionLabel", "label", "primary", "expression", "method", "sourceLabel", "locator", "reference", "href", "postId", "postSlug", "reason", "sourceRef", "verification", "prominence"];
   const out = {};
   for (const key of strings) {
     const cleaned = cleanString(value[key]);
@@ -137,6 +137,7 @@ function normalizeSurfaceFocus(value) {
     const numeric = Number(value[key]);
     if (Number.isFinite(numeric)) out[key] = numeric;
   }
+  if (Number.isInteger(value.bundleCount) && value.bundleCount > 1) out.bundleCount = value.bundleCount;
   if (Array.isArray(value.signals)) {
     out.signals = value.signals.map(cleanString).filter(Boolean).slice(0, 4);
   }
@@ -151,10 +152,12 @@ function normalizeSurfaceFindings(value) {
     const label = cleanString(item.label);
     if (!label) return null;
     const row = { id: cleanString(item.id) || `finding-${index + 1}`, label };
-    for (const key of ["value", "kind", "reason", "href", "sourceLabel"]) {
+    for (const key of ["value", "kind", "focusKind", "reason", "href", "sourceLabel", "sourceRef", "verification", "prominence"]) {
       const cleaned = cleanString(item[key]);
       if (cleaned) row[key] = cleaned;
     }
+    const bundleCount = cleanInteger(item.bundleCount);
+    if (bundleCount != null && bundleCount > 1) row.bundleCount = bundleCount;
     return row;
   }).filter(Boolean);
 }

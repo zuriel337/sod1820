@@ -1,3 +1,4 @@
+import { buildSurfaceFindings } from "../lib/research/surfaceFindingsAdapter.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -881,6 +882,8 @@ function NumberPageBody() {
     const dimensions = {
       ...(research.context?.dimensions || {}),
       expressionFocusExplicit: Boolean(focusExplicit),
+      surfaceFindings: buildSurfaceFindings({ prominenceItems: contextualWorld?.items || [] }),
+      surfaceFindingsSurface: "number",
     };
     const current = research.context;
     if (current?.subject?.type === "number" && String(current.subject.id) === String(root)) {
@@ -888,7 +891,7 @@ function NumberPageBody() {
     } else {
       research.setResearchContext?.({ subject, selection, lens: "number", dimensions, locale: "he" });
     }
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref, contextualWorld]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;

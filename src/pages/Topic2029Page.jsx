@@ -1,3 +1,4 @@
+import { buildSurfaceFindings } from "../lib/research/surfaceFindingsAdapter.js";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -340,6 +341,8 @@ function TopicBody() {
       })),
       activeSectionId,
       surfaceMapLabel: "בתוך הציר",
+      surfaceFindings: buildSurfaceFindings({ prominenceItems: golden?.prominenceItems || [] }),
+      surfaceFindingsSurface: "topic",
       surfaceFocus: {
         id: projection.slug,
         type: "topic",
@@ -355,7 +358,7 @@ function TopicBody() {
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, activeSectionId, golden?.prominenceItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openExpressionFocus = async (expression) => {
     const expr = clean(expression);
