@@ -55,7 +55,8 @@ export default function SurfaceContextRail2029({
   // Post/Topic: REST orients (where am I, outward connections, pointer to in-body depth).
   // Only an explicit expression FOCUS replaces it; reading alone never traces or calculates here.
   const documentSurface = surface === "post" || surface === "topic";
-  const restMode = documentSurface && !hasMethodContext && subject?.type !== "gematria_expression";
+  const focusedFinding = subject?.type === "finding";
+  const restMode = documentSurface && !hasMethodContext && subject?.type !== "gematria_expression" && !focusedFinding;
   const activeSection = sections.find((item) => item?.id === activeSectionId) || null;
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
@@ -65,7 +66,6 @@ export default function SurfaceContextRail2029({
     && context.dimensions.surfaceFindingsSurface === surface
     ? context.dimensions.surfaceFindings : [];
   const REST_FINDINGS = 5;
-  const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
     dimensions: { ...(context?.dimensions || {}), surfaceFocus },
   });

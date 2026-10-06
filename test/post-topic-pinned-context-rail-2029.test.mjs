@@ -74,3 +74,16 @@ test("Glass Rolling Locator: single mobile affordance over the same rail, opens 
   assert.match(css, /--s29-island-clearance/);
   assert.equal((rail.match(/sod29-glass-locator"/g) || []).length, 1);
 });
+
+test("Post/Topic finding focus => FOCUS mode, never REST; depth pointer gated by REST only", () => {
+  const decl = rail.indexOf('const focusedFinding = subject?.type === "finding"');
+  const rest = rail.indexOf("const restMode =");
+  assert.ok(decl > -1 && rest > -1 && decl < rest, "focusedFinding declared before restMode");
+  assert.match(rail, /const restMode = documentSurface && !hasMethodContext && subject\?\.type !== "gematria_expression" && !focusedFinding;/);
+  assert.equal((rail.match(/const focusedFinding =/g) || []).length, 1);
+  assert.match(rail, /\{restMode && activeSection \? <button className="sod29-surface-context-depth-pointer"/);
+  assert.match(rail, /data-context-rail-mode=\{documentSurface \? \(restMode \? "rest" : "focus"\) : undefined\}/);
+  // gematria-expression focus and normal REST semantics unchanged
+  assert.match(rail, /subject\?\.type !== "gematria_expression"/);
+  assert.match(rail, /restMode \? null : hasMethodContext/);
+});
