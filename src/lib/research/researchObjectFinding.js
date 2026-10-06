@@ -31,6 +31,8 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  * Explicit PER-OBJECT attribution only (Research Intake §6.7: attribution is
  * per-object and never inherited). Resolves only when the row itself carries
  * BOTH meta.attribution_type and a structurally valid meta.contributor_id.
+ * Structural only: provenance.createdBy stays null (no canonical owner/vocabulary for a
+ * string identity namespace exists); the exact pair is kept in projection.dimensions.attribution.
  * Never inferred from row.contributor text, source, status, uploader/Human Gate,
  * engine_verified or the source occurrence. Attribution is not part of identity.
  */
@@ -42,7 +44,7 @@ export function resolveExplicitAttribution(row) {
   return {
     type,
     contributorId: validId,
-    createdBy: type && validId ? `CONTRIBUTOR:${validId}` : null,
+    resolved: Boolean(type && validId),
   };
 }
 
@@ -111,7 +113,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       reason: null,
     },
     provenance: {
-      createdBy: attribution.createdBy,
+      createdBy: null,
       createdAt: row.created_at || undefined,
       inputRef: sourceRef,
     },
@@ -121,7 +123,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       dimensions: {
         researchObjectKind: row.kind ?? null,
         ...(attribution.type || attribution.contributorId
-          ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: Boolean(attribution.createdBy) } }
+          ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: attribution.resolved, explicit: attribution.resolved } }
           : {}),
         presentation: {
           requestedLocale: presentation.requestedLocale,
