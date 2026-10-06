@@ -10,14 +10,17 @@ import {
   withAttribution,
 } from "./eventSystemMethodRuntime.js";
 import {
-  DAY_ORDINAL_MEMBER_TYPE,
-  applyMomentClockLaw,
   momentClockOccurrenceKey,
   mostRestrictiveTier,
-  normalizeAccessTier,
   normalizeClockObservation,
-  publicSourceRefs,
 } from "./momentClockSystemMethod.js";
+import {
+  ALTERNATE_OBSERVATION_MEMBER_TYPE,
+  PROMINENCE,
+  composeEventTemporalObservations,
+  eventAnchors as anchors,
+  normalizeDayOrdinal,
+} from "./eventTemporalComposition.js";
 
 // NASRALLAH_POST92_GOLDEN_V1 — composition over the EXISTING event compiler / system-method runtime.
 // No new owner, store, registry or law. Event stays a non-canonical candidate; nothing is minted.
@@ -33,109 +36,14 @@ import {
 // source finding with discrepancy metadata and never mutates the approved reading or its ids.
 
 export const NASRALLAH_POST92_CANDIDATE_KEY = "NASRALLAH_POST92";
-export const ALTERNATE_OBSERVATION_MEMBER_TYPE = "alternate_temporal_observation";
 export const INTERPRETATION_MEMBER_TYPE = "site_interpretation";
 export const RESEARCH_CONTEXT_MEMBER_TYPE = "research_context";
-export const PROMINENCE = Object.freeze({ DEFAULT: "default", DEPTH: "depth" });
+
+// Temporal composition (clock / day ordinal / alternate source) lives in eventTemporalComposition.js;
+// re-exported here so existing consumers keep their import surface.
+export { ALTERNATE_OBSERVATION_MEMBER_TYPE, PROMINENCE, normalizeDayOrdinal };
 
 const clean = (v) => (v == null ? null : String(v).trim() || null);
-const isInt = (v) => typeof v === "number" && Number.isSafeInteger(v) && v >= 0;
-
-function anchors(eventKey, postId, numbers = []) {
-  const out = [{ space: "event_candidate", id: eventKey }];
-  if (postId != null) out.push({ space: "post", id: String(postId) });
-  for (const n of numbers) if (n != null) out.push({ space: "number", id: String(n) });
-  return out;
-}
-
-/** Strict typed DAY_ORDINAL observation. An ordinal is a position in a count, never a Gematria result. */
-export function normalizeDayOrdinal(input) {
-  if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, reason: "day_ordinal_invalid" };
-  if (!isInt(input.ordinal) || input.ordinal < 1) return { ok: false, reason: "day_ordinal_must_be_explicit_positive_integer" };
-  const sourceRef = clean(input.source_ref);
-  if (!sourceRef) return { ok: false, reason: "day_ordinal_source_ref_required" };
-  const counting = clean(input.counting_context);
-  if (!counting) return { ok: false, reason: "day_ordinal_counting_context_required" };
-  const accessTier = normalizeAccessTier(input.accessTier);
-  if (!accessTier) return { ok: false, reason: "day_ordinal_access_tier_required" };
-  return { ok: true, observation: { ordinal: input.ordinal, source_ref: sourceRef, counting_context: counting, accessTier, label: clean(input.label) } };
-}
-
-function dayOrdinalFinding(obs, { eventKey, eventRef, postId }) {
-  return makeUniversalFinding({
-    kind: "event-day-ordinal",
-    stage: "candidate",
-    subject: { type: "day_ordinal", key: `${eventKey}:day_ordinal:${obs.ordinal}`, label: obs.label || `day ${obs.ordinal}`, value: null },
-    source: { engine: null, adapter: "event-temporal-observation-v1", sourceRef: obs.source_ref, method: null, corpus: null, lang: null },
-    identity: { sourceIdentity: { eventCandidate: eventKey, type: "day_ordinal", ordinal: obs.ordinal, countingContext: obs.counting_context }, entityRef: null, relationRef: null },
-    verification: {},
-    evidence: {
-      refs: [obs.source_ref],
-      facts: [{
-        type: "temporal-observation",
-        temporal_kind: "DAY_ORDINAL",
-        ordinal: obs.ordinal,
-        counting_context: obs.counting_context,
-        source_ref: obs.source_ref,
-        is_gematria_result: false,
-        is_rule_application: false,
-        number_representation: { number: obs.ordinal, relation: "source_representation_of_ordinal", engine_fact: false },
-        boundary: "a day ordinal is a typed source observation; its Number representation is a research relation, not a calculation",
-      }],
-    },
-    access: { tier: obs.accessTier },
-    provenance: { createdBy: null, inputRef: obs.source_ref, parentFindingIds: [] },
-    projection: {
-      // anchoring to Number N lets Number context show it, WITHOUT claiming it is gematria.
-      anchors: anchors(eventKey, postId, [obs.ordinal]),
-      relations: [{ type: "represented_as_number", target: { space: "number", id: String(obs.ordinal) }, kind: "research_relation", engine_fact: false }],
-      dimensions: { eventMemberType: DAY_ORDINAL_MEMBER_TYPE, eventCandidate: eventRef, prominence: PROMINENCE.DEFAULT },
-    },
-  });
-}
-
-function alternateObservationFinding(alt, { eventKey, eventRef, postId }) {
-  const sourceRef = clean(alt?.source_ref);
-  const attr = normalizeAttribution(alt?.attribution);
-  if (!sourceRef || !attr.ok) return { ok: false, reason: !sourceRef ? "alternate_source_ref_required" : attr.reason };
-  const accessTier = normalizeAccessTier(alt.accessTier);
-  if (!accessTier) return { ok: false, reason: "alternate_access_tier_required" };
-  const display = clean(alt.display);
-  const dayOrdinal = isInt(alt.day_ordinal) ? alt.day_ordinal : null;
-  if (!display && dayOrdinal == null) return { ok: false, reason: "alternate_observation_empty" };
-  return {
-    ok: true,
-    finding: withAttribution(makeUniversalFinding({
-      kind: "event-alternate-temporal-observation",
-      stage: "candidate",
-      subject: { type: "alternate_temporal_observation", key: `${eventKey}:alternate:${sourceRef}`, label: display || `day ${dayOrdinal}`, value: null },
-      source: { engine: null, adapter: "event-temporal-observation-v1", sourceRef, method: null, corpus: null, lang: null },
-      identity: { sourceIdentity: { eventCandidate: eventKey, type: "alternate_temporal_observation", sourceRef, display, dayOrdinal }, entityRef: null, relationRef: null },
-      verification: { verification_state: clean(alt.verification_state) || "not_tested" },
-      evidence: {
-        refs: [sourceRef],
-        facts: [{
-          type: "temporal-observation",
-          temporal_kind: "ALTERNATE_SOURCE_OBSERVATION",
-          display,
-          day_ordinal: dayOrdinal,
-          timezone: clean(alt.timezone),
-          source_ref: sourceRef,
-          discrepancy: { against: "approved_site_reading", status: clean(alt.discrepancy_status) || "unreconciled", note: clean(alt.note), explain_why: "מקור נוסף מציג זמן אחר" },
-          overrides_approved_reading: false,
-        }],
-      },
-      access: { tier: accessTier },
-      provenance: { createdBy: null, inputRef: sourceRef, parentFindingIds: [] },
-      projection: {
-        // No number anchor: a discrepancy source never competes on Number surfaces by default.
-        anchors: anchors(eventKey, postId),
-        relations: [],
-        dimensions: { eventMemberType: ALTERNATE_OBSERVATION_MEMBER_TYPE, eventCandidate: eventRef, prominence: PROMINENCE.DEPTH },
-      },
-    }), attr.attribution),
-  };
-}
 
 function interpretationFinding({ eventKey, eventRef, postId, numbers, parents, tier }) {
   const attribution = { role: ATTRIBUTION_ROLE.SITE_INTERPRETATION, display_name: SITE_INTERPRETATION_LABEL, source_id: null, work_title: null, contributor_id: null, channel: null };
@@ -252,38 +160,15 @@ export async function compileNasrallahPost92Golden({
   };
   const refusals = [];
 
-  const clock = await applyMomentClockLaw({ observation: clockObservation, ruleVersions, event: { key, ref, postId } });
-  if (!clock.ok) refusals.push({ part: "clock_occurrence", reason: clock.reason });
-
-  const day = normalizeDayOrdinal(dayOrdinal);
-  let dayFinding = null;
-  if (day.ok) dayFinding = dayOrdinalFinding(day.observation, ctx);
-  else refusals.push({ part: "day_ordinal", reason: day.reason });
-
-  let altFinding = null;
-  if (alternateObservation != null) {
-    const alt = alternateObservationFinding(alternateObservation, ctx);
-    if (alt.ok) altFinding = alt.finding;
-    else refusals.push({ part: "alternate_observation", reason: alt.reason });
-  }
-
-  const temporalFindings = [dayFinding, altFinding].filter(Boolean);
-  const temporalOutcomes = temporalFindings.map(f => ({
-    findingId: f.id,
-    evidenceRelation: EVIDENCE_RELATION.DERIVATION,
-    dependsOn: [],
-    reason: "typed source observation; not a calculation and not independent corroboration",
-  }));
-  const temporalCapability = temporalFindings.length ? capabilityResult({
-    key: "event_temporal_observations",
-    owner: "research_intake_foundation_contract_law",
-    status: CAPABILITY_STATUS.EXECUTED,
-    findings: temporalFindings,
-    findingOutcomes: temporalOutcomes,
-    accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
-    semanticClass: SEMANTIC_CLASS.CONTEXT,
-    sourceRefs: publicSourceRefs(temporalFindings),
-  }) : null;
+  const temporal = await composeEventTemporalObservations({
+    event: { key, ref, postId },
+    clockObservations: clockObservation === undefined ? [null] : [clockObservation],
+    dayOrdinal: dayOrdinal === undefined ? null : dayOrdinal,
+    alternateObservation,
+    ruleVersions,
+  });
+  const { clock, day, dayFinding, altFinding } = temporal;
+  refusals.push(...temporal.refusals);
 
   const common = {
     candidate: declaration,
@@ -295,7 +180,7 @@ export async function compileNasrallahPost92Golden({
     humanGate,
   };
   const contextCapability = researchContextCapability(contextResearchObjects, ctx);
-  const baseCaps = [clock.capability, temporalCapability, contextCapability].filter(Boolean);
+  const baseCaps = [...temporal.capabilities, contextCapability].filter(Boolean);
 
   // Pass 1 (pure, deterministic) resolves the engine-finding id so the interpretation can declare its
   // dependency lineage; pass 2 adds the interpretation to the SAME bundle. Ids never change between passes.
