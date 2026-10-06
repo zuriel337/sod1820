@@ -16,7 +16,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
-  assert.match(nativeClassic, /data-els-native-classic="v3"/);
+  assert.match(nativeClassic, /data-els-native-classic="v4"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
   assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} />"));
   assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
@@ -66,6 +66,26 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
   assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
   assert.match(template, /run\(\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
+});
+
+test("Native finding editor delegates normalization, recompute and colors to canonical st.words", () => {
+  assert.match(nativeClassic, /findingsRequest=\{findingsRequest\}/);
+  assert.match(nativeClassic, /onFindingsChange=\{requestFindingsChange\}/);
+  assert.match(nativeClassic, /type="color"/);
+  assert.match(nativeClassic, /findings\.length >= 12/);
+  assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
+
+  assert.match(embed, /findingsRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings \}\)/);
+
+  assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
+  assert.match(template, /if\(next\.length>=12\)break/);
+  assert.match(template, /if\(!t\|\|seen\.has\(t\)\)continue/);
+  assert.match(template, /const color=requested\|\|PALETTE\.find/);
+  assert.match(template, /try\{recomputeWords\(\);\}catch\(e\)\{\}/);
+  assert.match(template, /try\{recolorOnly\(\);\}catch\(e\)\{\}/);
+  assert.match(template, /try\{emitState\(\);\}catch\(e\)\{\}/);
+  assert.match(css, /\.els29-native-color-picker/);
 });
 
 test("Native matrix controls reuse the canonical Tzofen presentation helpers", () => {
