@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/718",
+      "destination": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
+      "permanent": false
+    },
+    {
       "source": "/bennett-melach-631-78",
       "destination": "/post/bennett-melach-631-78",
       "permanent": true
