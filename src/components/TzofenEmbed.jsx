@@ -77,7 +77,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, showResearchBusWhenHiddenBridge = false, onGate = null, lensRequest = null, onLens = null, controlRequest = null, journeyLoad = null, onLoadError = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, showResearchBusWhenHiddenBridge = false, onGate = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -305,6 +305,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
+        if (searchRequest?.kind) postToTool({ type: "native-search", request: searchRequest });
         return;
       }
       if (d.type === "state") {
@@ -368,7 +369,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onLens, lensRequest, onLoadError, journeyLoad]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onLens, lensRequest, searchRequest, onLoadError, journeyLoad]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
@@ -382,6 +383,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (!controlRequest?.action) return;
     postToTool({ type: "native-control", action: controlRequest.action });
   }, [controlRequest, postToTool]);
+
+  // 🔎 Native Classic search requests stay separate from presentation controls.
+  // The iframe remains the only search executor and reuses its canonical auth/gate/ranking paths.
+  useEffect(() => {
+    if (!searchRequest?.kind) return;
+    postToTool({ type: "native-search", request: searchRequest });
+  }, [searchRequest, postToTool]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
