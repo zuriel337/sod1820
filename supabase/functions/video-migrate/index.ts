@@ -14,7 +14,7 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const BUCKET = "media";
 const MAX_ITEMS = 20;
-const MAX_BYTES = 1024 * 1024 * 1024; // 1 GiB safety ceiling for this legacy buffered bridge.
+const MAX_BYTES = 1024 * 1024 * 1024; // 1 GiB safety ceiling for the existing Source Video bridge.
 
 type ResolvedSource = {
   kind: "direct" | "tiktok";
@@ -26,13 +26,50 @@ type ResolvedSource = {
 };
 
 function json(body: unknown, status = 200) { return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }); }
-async function uploadToStorage(path: string, data: ArrayBuffer, contentType: string): Promise<void> {
-  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
-    method: "POST",
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": contentType, "x-upsert": "false" },
-    body: data,
-  });
-  if (!r.ok) throw new Error(`upload ${r.status}`);
+async function deleteFromStorage(path: string): Promise<void> {
+  try {
+    await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+      method: "DELETE",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+    });
+  } catch { /* best-effort cleanup only */ }
+}
+
+async function uploadStreamToStorage(
+  path: string,
+  body: ReadableStream<Uint8Array> | null,
+  contentType: string,
+): Promise<number> {
+  if (!body) throw new Error("source_body_missing");
+
+  let bytes = 0;
+  const limited = body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, controller) {
+      bytes += chunk.byteLength;
+      if (bytes > MAX_BYTES) {
+        controller.error(new Error("source_too_large"));
+        return;
+      }
+      controller.enqueue(chunk);
+    },
+  }));
+
+  try {
+    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+      method: "POST",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": contentType, "x-upsert": "false" },
+      body: limited,
+      // @ts-ignore Deno supports streaming request bodies.
+      duplex: "half",
+    });
+    if (!r.ok) throw new Error(`upload ${r.status}`);
+    return bytes;
+  } catch (error) {
+    // The destination was verified absent before upload. If the source stream or Storage
+    // request fails, remove any incomplete object so a retry cannot be mistaken for success.
+    await deleteFromStorage(path);
+    throw error;
+  }
 }
 async function existsInStorage(path: string): Promise<boolean> {
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/info/public/${BUCKET}/${path}`, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
@@ -194,13 +231,17 @@ Deno.serve(async (req: Request) => {
         const ct = resp.headers.get("content-type") || "video/mp4";
         if (contentLooksLikeHtml(ct)) { out.status = "source_not_video_html"; results.push(out); continue; }
         if (contentLooksLikeAudio(ct)) { out.status = "source_not_video_audio"; results.push(out); continue; }
-        const buf = await resp.arrayBuffer();
-        out.bytes = buf.byteLength;
+        if (len > 0 && len < 1024) { out.status = "too_small_likely_error_page"; results.push(out); continue; }
         out.source_content_type = ct;
         out.resolved_media_host = (() => { try { return new URL(finalUrl).hostname; } catch { return null; } })();
-        if (buf.byteLength < 1024) { out.status = "too_small_likely_error_page"; results.push(out); continue; }
-        if (buf.byteLength > MAX_BYTES) { out.status = "too_large"; results.push(out); continue; }
-        await uploadToStorage(dest, buf, ct.startsWith("video") ? ct : "video/mp4");
+        const streamedBytes = await uploadStreamToStorage(dest, resp.body, ct.startsWith("video") ? ct : "video/mp4");
+        out.bytes = streamedBytes;
+        if (streamedBytes < 1024) {
+          await deleteFromStorage(dest);
+          out.status = "too_small_likely_error_page";
+          results.push(out);
+          continue;
+        }
         out.status = "uploaded";
         out.public_url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${dest}`;
       } catch (error) {
