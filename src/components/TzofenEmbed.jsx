@@ -305,7 +305,6 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
-        if (controlRequest?.action) postToTool({ type: "native-control", action: controlRequest.action });
         return;
       }
       if (d.type === "state") {
@@ -369,7 +368,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onLens, lensRequest, controlRequest, onLoadError, journeyLoad]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onLens, lensRequest, onLoadError, journeyLoad]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
