@@ -552,6 +552,136 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   await finishRazielTrace(opTrace, "success", okId ? null : "queued_outbox");
   return { status: "answered" };
 }
+// ===== Thin transport adapter → ONE Raziel Core (ai-analyze persona=raziel), RAZIEL_WHATSAPP_2029_NATIVE_CUTOVER_V2 =====
+// New DM traffic gets its semantic response from the SAME ai-analyze Raziel Core the site uses. This adapter owns only
+// transport: Green receive/send, identity (fn_raziel_identity), retries/outbox/logging. The trusted_channel input is honored by
+// ai-analyze ONLY because this call carries the service-role key; linked sender => user context (never admin), unlinked => anon.
+// Legacy razielRespond/buildFacts/fn_all_methods/direct-Anthropic stay in-file for the (disabled) group path only; DM no longer uses them.
+const SB_URL_ENV = Deno.env.get("SUPABASE_URL") ?? "";
+const SB_SVC_ENV = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const MAX_SOURCE_BYTES = 5 * 1024 * 1024;
+const SOURCE_NOTICE = "\n\n(הקובץ נשמר אצלנו בפרטיות וממתין לבדיקה — הוא לא מפורסם ולא נחשב ממצא.)";
+
+function inboundMedia(m) {
+  const t = String(m?.typeMessage || "");
+  const mime = String(m?.mimeType || (m?.fileMessageData?.mimeType) || "").toLowerCase();
+  const url = String(m?.downloadUrl || m?.fileMessageData?.downloadUrl || "");
+  if (!url) return null;
+  if (t === "imageMessage") return { url, kind: "image", mime: mime.startsWith("image/") ? mime : "image/jpeg", caption: String(m?.caption || m?.fileMessageData?.caption || "") };
+  if (t === "documentMessage" && mime === "application/pdf") return { url, kind: "document", mime, caption: String(m?.caption || m?.fileMessageData?.caption || "") };
+  return null;
+}
+function providerMediaUrl(raw) {
+  try {
+    const u = new URL(String(raw || "").trim());
+    if (u.protocol !== "https:" || !u.hostname) return "";
+    return u.toString();
+  } catch { return ""; }
+}
+async function msgUuid(msgId) {
+  const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("wa-raziel-source:" + msgId));
+  const x = [...new Uint8Array(h)].slice(0, 16).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${x.slice(0,8)}-${x.slice(8,12)}-4${x.slice(13,16)}-a${x.slice(17,20)}-${x.slice(20,32)}`;
+}
+// Rehost inbound DM media into the existing PRIVATE submission-inbox under the 2029 owner convention
+// (contributors/<id>/ else accounts/<uid>/), then bind via the single service-only RPC (pending, private ref only).
+async function ingestInboundSource(media, phone, idn, msgId, ts) {
+  const url = providerMediaUrl(media.url);
+  if (!url || !idn?.user_id) return null;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const buf = new Uint8Array(await res.arrayBuffer());
+  if (buf.byteLength === 0 || buf.byteLength > MAX_SOURCE_BYTES) return null;
+  const ext = media.mime === "application/pdf" ? "pdf" : media.mime.includes("png") ? "png" : media.mime.includes("webp") ? "webp" : media.mime.includes("gif") ? "gif" : "jpg";
+  const d = new Date((Number(ts) || Date.now() / 1000) * 1000);
+  const owner = idn?.contributor?.id ? `contributors/${idn.contributor.id}` : `accounts/${idn.user_id}`;
+  const path = `sod1820/2029/${owner}/${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${await msgUuid(msgId)}/${media.kind}/original.${ext}`;
+  const up = await sb.storage.from("submission-inbox").upload(path, buf, { contentType: media.mime, upsert: false });
+  if (up.error && !/exist|duplicate|409/i.test(String(up.error.message || up.error.statusCode || ""))) return null;   // already-exists = retry of the same message
+  const { data, error } = await sb.rpc("wa_raziel_intake_source_v1", { p_sender: phone, p_storage_path: path, p_caption: media.caption || null, p_role: "source" });
+  if (error || !data?.ok) return null;
+  return { contribution_id: data.contribution_id, storage_object_id: data.storage_object_id };
+}
+
+async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
+  const cleanText = String(text || "").replace(RAZIEL_TRIGGER, "").trim();
+  const hasSource = !!opts.source;
+  if (!cleanText && !hasSource) return { status: "permanent_error" };
+  const opTrace = await beginRazielTrace(chatId, cleanText || "[source]");
+  const sender = String(chatId).replace("@c.us", "");
+  const dialogue = await recentDialogue(chatId, 6, quotedId);
+  const startedAt = new Date().toISOString();
+  const spanId = crypto.randomUUID();
+  let resp, data = null;
+  try {
+    resp = await fetch(`${SB_URL_ENV}/functions/v1/ai-analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SB_SVC_ENV, Authorization: `Bearer ${SB_SVC_ENV}` },
+      body: JSON.stringify({
+        persona: "raziel", surface: "whatsapp",
+        subject: (cleanText || "מקור שנשלח בוואטסאפ").slice(0, 300),
+        context: dialogue ? ("שיחה קודמת בוואטסאפ:\n" + dialogue).slice(0, 600) : "",
+        trusted_channel: { channel: "whatsapp", sender, ...(hasSource ? { media: opts.source } : {}) },
+      }),
+    });
+    data = await resp.json().catch(() => null);
+  } catch (e) {
+    trace.push({ step: "core_throw", e: String(e) });
+    resp = null;
+  }
+  const endedAt = new Date().toISOString();
+  const coreFail = !resp || !resp.ok || !data;
+  await recordRazielSpan(opTrace, {
+    spanId, kind: "model_call", name: "wa-raziel:ai-analyze-core", startedAt, endedAt,
+    outcome: coreFail ? "provider_error" : "success",
+    detail: {
+      capability: "wa-raziel:reply", owner_ref: "raziel_companion_layer_law v3",
+      provider: "internal:ai-analyze", model: data?.model ?? "unknown", intelligence_level: data?.intelligence_level ?? "unknown",
+      output_use: coreFail ? "not_applicable" : "used", stop_reason: coreFail ? ("core_" + (resp?.status ?? "throw")) : (data?.degraded ? "degraded" : null),
+      resources: { api_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+      cost: { certainty: "unknown" },
+      replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  if (coreFail) {
+    await finishRazielTrace(opTrace, "failed_with_reason", "core_" + (resp?.status ?? "throw"));
+    if (resp && !TRANSIENT_HTTP.has(resp.status) && resp.status < 500) { /* permanent core error → static fallback below */ }
+    else if (!opts.lastAttempt) return { status: "retryable_error" };
+    await sendStaticFallback(chatId, quotedId, opts.welcome);
+    return { status: "refused_with_fallback" };
+  }
+  if (data?.degraded && !opts.lastAttempt) { await finishRazielTrace(opTrace, "failed_with_reason", "core_degraded"); return { status: "retryable_error" }; }
+  let reply = "";
+  if (data?.error === "quota" && data?.message) reply = String(data.message);
+  else if (data?.raziel?.answer) {
+    reply = String(data.raziel.answer).trim();
+    const fu = data.raziel.follow_up_question;
+    if (typeof fu === "string" && fu.trim()) reply += "\n\n" + fu.trim();
+  } else if (typeof data?.analysis === "string") reply = data.analysis.trim();
+  if (!reply) {
+    await finishRazielTrace(opTrace, "failed_with_reason", "core_empty");
+    if (!opts.lastAttempt) return { status: "retryable_error" };
+    await sendStaticFallback(chatId, quotedId, opts.welcome);
+    return { status: "refused_with_fallback" };
+  }
+  if (hasSource) reply += SOURCE_NOTICE;
+  if (opts.welcome) reply = opts.welcome + reply;
+  const payload = { chatId, message: reply };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel:" + (quotedId || chatId), chatId, reply, cleanText);
+  await finishRazielTrace(opTrace, "success", okId ? null : "queued_outbox");
+  return { status: "answered" };
+}
+async function sendStaticFallback(chatId, quotedId, welcome) {
+  const msg = (welcome || "") + "לא הצלחתי לענות על זה כרגע — נסה שוב בעוד רגע. 🌳\n— רזיאל · סוד 1820";
+  const payload = { chatId, message: msg };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel-fb:" + (quotedId || chatId), chatId, msg, "");
+}
+
 const rzOk = (s) => s === "answered" || s === "refused_with_fallback";
 
 async function initiativeBudget(chatId) {
@@ -726,8 +856,9 @@ async function handleAllDMs(nowSec, policy) {
   for (const chatId of Object.keys(byChat).slice(0, MAX_DM_CHATS_PER_RUN)) {
     const m = byChat[chatId];
     const msgId = m.idMessage; if (!msgId || await alreadyDone(msgId, "raziel_dm")) continue;
-    const text = m.textMessage || m.extendedTextMessageData?.text || "";
-    if (clean(text).length < 1) continue;
+    const media = inboundMedia(m);
+    const text = m.textMessage || m.extendedTextMessageData?.text || (media ? media.caption : "") || "";
+    if (clean(text).length < 1 && !media) continue;
     const phone = chatId.replace("@c.us","");
     if (owned.has(phone)) continue;
     const claimKey = "raziel:dm:" + msgId;
@@ -848,9 +979,20 @@ async function handleAllDMs(nowSec, policy) {
         welcome = lastThread ? `שלום שוב. בפעם הקודמת עסקנו ב: ${String(lastThread).slice(0,80)}.\n\n` : "שלום שוב.\n\n";
       }
     }
-    const extra = SERVICES_INTENT.test(text) ? await servicesText() : "";
     const priorRetries = await countAiRetries(msgId);
-    const res = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES });
+    // Source/media intake: linked senders only (unlinked media is never stored). Private rehost + one service-only bind RPC.
+    let source = null;
+    if (media && linked && idn?.user_id) {
+      try { source = await ingestInboundSource(media, phone, idn, msgId, m.timestamp); } catch (e) { trace.push({ step: "source_ingest", e: String(e) }); }
+      if (!source) {
+        const msg = "לא הצלחתי לקלוט את הקובץ שנשלח (סוג/גודל לא נתמך או תקלה זמנית). אפשר לנסות שוב כתמונה או PDF עד 5MB.\n— רזיאל · סוד 1820";
+        const okId = await sendVerified({ chatId, message: msg, quotedMessageId: msgId });
+        if (!okId) await enqueueOutbox("raziel-src:"+msgId, chatId, msg, text);
+        await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: "DM", text_in: text.slice(0,500), reply_out: "[dm-source-failed]", action: "raziel_dm" });
+        continue;
+      }
+    } else if (media && clean(text).length < 1) { await releaseClaim(); continue; }   // unlinked/captionless media: ignore
+    const res = await razielCoreRespond(text, chatId, msgId, { welcome, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES, source });
     const nm = linked ? "DM" : "DM-anon";
     if (res.status === "retryable_error") {
       await releaseClaim();
