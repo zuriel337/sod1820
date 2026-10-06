@@ -11,6 +11,7 @@ import "./campaign718-2029.css";
 const CAMPAIGN = "tiktok-melech-hamisparim-718";
 const DEFAULT_EXPRESSION = "שביעי באוקטובר";
 const CONVERGENCE = Object.freeze(["שביעי באוקטובר", "חדשות", "התשובה"]);
+const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 
 // Human-Gate-selected intro asset: the YouTube video embedded in the canonical main SOD1820 post
 // (posts.id=1799, slug="סוד-1820"). The post remains the source; this landing only projects it.
@@ -320,10 +321,28 @@ export default function Campaign718Page2029() {
         )}
       </section>
 
+      <section className="sod29-campaign718-whatsapp" aria-label="עדכונים שוטפים בוואטסאפ">
+        <div>
+          <span>רוצים לקבל את הרמז הבא כשהוא עולה?</span>
+          <h2>עדכונים שוטפים על רמזים — ישר לוואטסאפ.</h2>
+          <p>הצטרפו לקבוצת SOD1820 וקבלו רמזים, גילויים ועדכונים חדשים.</p>
+        </div>
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            try { track("campaign_landing", CAMPAIGN, "whatsapp_join", touchMeta({ destination: "canonical_group" })); } catch { /* noop */ }
+          }}
+        >
+          הצטרפו לקבוצת הוואטסאפ ←
+        </a>
+      </section>
+
       <section className="sod29-campaign718-next">
         <div>
-          <span>רוצים להמשיך בלי לחכות?</span>
-          <h2>היכנסו ל־2029 ותתחילו לחקור.</h2>
+          <span>רוצים להמשיך לחקור?</span>
+          <h2>היכנסו ל־2029.</h2>
         </div>
         <div className="sod29-campaign718-actions">
           <Link to="/topic/gapfill-718">פתחו את ציר 718 ←</Link>
