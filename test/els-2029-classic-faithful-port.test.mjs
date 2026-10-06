@@ -7,6 +7,7 @@ const nativeClassic = readFileSync(new URL("../src/components/experience2029/Els
 const embed = readFileSync(new URL("../src/components/TzofenEmbed.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/elsNativeClassic2029.css", import.meta.url), "utf8");
 const provider = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
+const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
 
 test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
   assert.match(page, /import ElsNativeClassic2029 from/);
@@ -15,10 +16,11 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
-  assert.match(nativeClassic, /data-els-native-classic="v1"/);
+  assert.match(nativeClassic, /data-els-native-classic="v2"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
-  assert.ok(nativeClassic.includes("<MatrixSnapshot state={engineState} />"));
-  assert.match(nativeClassic, /<FindingsRail state=\{engineState\}/);
+  assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} />"));
+  assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
+  assert.match(nativeClassic, /<FindingsRail/);
 });
 
 test("Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback", () => {
@@ -27,7 +29,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /\n          hiddenBridge\n          engineOnly=\{!classicOpen\}/);
   assert.match(nativeClassic, /engineOnly=\{!classicOpen\}/);
   assert.doesNotMatch(nativeClassic, /hiddenBridge=\{!classicOpen\}/);
-  assert.match(nativeClassic, /onState=\{setEngineState\}/);
+  assert.match(nativeClassic, /onState=\{handleEngineState\}/);
   assert.match(nativeClassic, /onGate=\{\(\) => setClassicOpen\(true\)\}/);
   assert.match(nativeClassic, /פתח את כל הכלים הקלאסיים/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
@@ -41,16 +43,63 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
 });
 
-test("Native matrix renders only the governed matrix snapshot emitted by the canonical engine", () => {
+test("Native matrix controls reuse the canonical Tzofen presentation helpers", () => {
+  assert.match(nativeClassic, /controlRequest=\{controlRequest\}/);
+  assert.match(nativeClassic, /occurrence-prev/);
+  assert.match(nativeClassic, /occurrence-next/);
+  assert.match(nativeClassic, /zoom-out/);
+  assert.match(nativeClassic, /zoom-in/);
+  assert.match(nativeClassic, /fit-toggle/);
+
+  assert.match(embed, /controlRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "native-control", action: controlRequest\.action \}\)/);
+
+  assert.match(template, /function shiftOccurrence\(delta\)/);
+  assert.match(template, /function toggleFit\(\)/);
+  assert.match(template, /function adjustZoom\(delta\)/);
+  assert.match(template, /d\.type==="native-control"/);
+  assert.match(template, /d\.action==="occurrence-prev"\)shiftOccurrence\(-1\)/);
+  assert.match(template, /d\.action==="occurrence-next"\)shiftOccurrence\(1\)/);
+  assert.match(template, /d\.action==="zoom-out"\)adjustZoom\(-0\.2\)/);
+  assert.match(template, /d\.action==="zoom-in"\)adjustZoom\(0\.2\)/);
+  assert.match(template, /d\.action==="fit-toggle"\)toggleFit\(\)/);
+  assert.match(template, /querySelector\("\.pv"\)\.onclick=\(\)=>shiftOccurrence\(-1\)/);
+  assert.match(template, /querySelector\("\.nx"\)\.onclick=\(\)=>shiftOccurrence\(1\)/);
+  assert.match(template, /querySelector\("\.fitbtn"\)\.onclick=toggleFit/);
+});
+
+test("Native letter click uses a bounded read-only canonical source lens", () => {
+  assert.match(nativeClassic, /requestLens\("letter-context", \{ i: index \}\)/);
+  assert.match(nativeClassic, /requestLens\("verse-context", \{ hitId: engineState\.axis\.hitId \}\)/);
+  assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
+  assert.match(nativeClassic, /onLens=\{setLensResult\}/);
+
+  assert.match(template, /async function letterContextLens\(target\)/);
+  assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);
+  assert.match(template, /i>=scopeN\(\)/);
+  assert.match(template, /await ensureVerseText\(\)/);
+  assert.match(template, /const loc=locateLetter\(i\)/);
+  assert.match(template, /lens:"letter-context"/);
+  assert.match(template, /d\.type==="request-lens"&&d\.lens==="letter-context"/);
+  assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("const isAnon")), /findAll|verifyBatch|crossFind|els_search/);
+});
+
+test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {
   assert.match(nativeClassic, /matrix\?\.rows/);
   assert.match(nativeClassic, /matrix\?\.marks/);
   assert.match(nativeClassic, /mark\?\.type === "main"/);
   assert.match(nativeClassic, /mark\?\.type === "finding"/);
   assert.match(nativeClassic, /state\?\.verification\?\.state === "MATCH"/);
+  assert.match(nativeClassic, /onPointerDown=\{onPointerDown\}/);
+  assert.match(nativeClassic, /scrollLeft = drag\.left - dx/);
+  assert.match(nativeClassic, /is-fit/);
   assert.match(css, /\.els29-native-matrix\{[\s\S]*direction:rtl/);
   assert.match(css, /\.els29-native-matrix-row\{[\s\S]*direction:rtl/);
+  assert.match(css, /\.els29-native-matrix\.is-fit/);
+  assert.match(css, /\.els29-native-matrix-scroll\.is-dragging/);
   assert.match(css, /\.els29-native-cell\.is-axis/);
   assert.match(css, /\.els29-native-cell\.is-finding/);
+  assert.match(css, /\.els29-native-cell\.is-selected/);
 });
 
 test("Native empty and candidate states remain truth-safe", () => {
@@ -61,12 +110,13 @@ test("Native empty and candidate states remain truth-safe", () => {
   assert.match(nativeClassic, /MATCH מהמנוע הקנוני/);
 });
 
-test("Native matrix is keyboard-scrollable and exposes a non-color-only text summary", () => {
+test("Native matrix is keyboard-scrollable and exposes an accessible source path", () => {
   assert.match(nativeClassic, /tabIndex=\{0\}/);
   assert.match(nativeClassic, /aria-describedby=\{summaryId\}/);
   assert.match(nativeClassic, /els29-native-sr-only/);
   assert.match(nativeClassic, /אותיות ציר מסומנות/);
   assert.match(nativeClassic, /אותיות ממצאים מסומנות/);
+  assert.match(nativeClassic, /מקור הממצא/);
   assert.match(nativeClassic, /aria-hidden="true"/);
   assert.match(css, /\.els29-native-matrix-scroll:focus-visible/);
 });
@@ -79,11 +129,11 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 
-test("canonical tzofen state already feeds the shared Research Context replay selection", () => {
+test("canonical tzofen state still feeds the shared Research Context replay selection", () => {
   assert.match(provider, /d\.source !== "tzofen" \|\| d\.type !== "state" \|\| d\.status !== "ok"/);
   assert.match(provider, /const elsSelection = \{/);
   assert.match(provider, /entityType: "els", locator, term, corpus: scope/);
   assert.match(provider, /actions\.setResearchContext\(next\)/);
 });
 
-console.log("ELS Native Classic 2029 parity-first slice: PASS");
+console.log("ELS Native Classic 2029 matrix parity slice: PASS");
