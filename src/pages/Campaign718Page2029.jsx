@@ -12,9 +12,13 @@ const CAMPAIGN = "tiktok-melech-hamisparim-718";
 const DEFAULT_EXPRESSION = "שביעי באוקטובר";
 const CONVERGENCE = Object.freeze(["שביעי באוקטובר", "חדשות", "התשובה"]);
 
-// Deliberately null until the exact canonical "what is SOD1820" asset is Human-Gate identified.
-// The landing may ship only after this is wired or the gated-video promise is removed.
-const INTRO_VIDEO = null;
+// Human-Gate-selected intro asset: the YouTube video embedded in the canonical main SOD1820 post
+// (posts.id=1799, slug="סוד-1820"). The post remains the source; this landing only projects it.
+const INTRO_VIDEO = Object.freeze({
+  youtubeId: "DClJVGBMCs0",
+  embedSrc: "https://www.youtube-nocookie.com/embed/DClJVGBMCs0?rel=0&modestbranding=1",
+  sourcePostSlug: "סוד-1820",
+});
 
 function validEmail(value) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(value || "").trim());
@@ -133,7 +137,10 @@ export default function Campaign718Page2029() {
       if (next === "unlocked" || next === "exists") {
         try {
           track("campaign_landing", CAMPAIGN, "signup", touchMeta({ result: next }));
-          track("campaign_landing", CAMPAIGN, "video_unlock", touchMeta({ asset_ready: Boolean(INTRO_VIDEO) }));
+          track("campaign_landing", CAMPAIGN, "video_unlock", touchMeta({
+            asset_ready: Boolean(INTRO_VIDEO?.youtubeId),
+            video_asset: INTRO_VIDEO?.youtubeId || null,
+          }));
         } catch { /* noop */ }
       }
     } catch {
@@ -285,19 +292,30 @@ export default function Campaign718Page2029() {
             {signupState === "error" ? <small className="is-error">ההרשמה לא הושלמה. נסו שוב.</small> : null}
             <small>חינם · אפשר להסיר בכל רגע · המייל משמש לעדכוני SOD1820.</small>
           </>
-        ) : INTRO_VIDEO ? (
+        ) : (
           <div className="sod29-campaign718-video">
             <span>נפתח ✓</span>
-            <h2 id="campaign718-video-title">מהו סוד 1820</h2>
-            <video controls playsInline preload="metadata" poster={INTRO_VIDEO.poster || undefined}>
-              <source src={INTRO_VIDEO.src} type="video/mp4" />
-            </video>
-          </div>
-        ) : (
-          <div className="sod29-campaign718-video-pending">
-            <span>נרשמתם ✓</span>
-            <h2 id="campaign718-video-title">הסרטון שלכם שמור כאן</h2>
-            <p>אזור הווידאו מחובר למשפך. לפני פרסום הדף נחבר כאן את סרטון ההיכרות הקנוני של SOD1820 — לא סרטון חלופי.</p>
+
+            <div className="sod29-campaign718-secret">
+              <small>לפני הסרטון — למה דווקא 1820?</small>
+              <h2 id="campaign718-video-title">1820 הוא המספר שממנו התחיל הסוד.</h2>
+              <p>
+                שם הוי״ה מופיע בתורה 1,820 פעמים. מכאן נולד השם SOD1820 —
+                ומשם נפתח מחקר שמחבר מספרים, מילים, פסוקים ואירועים.
+              </p>
+              <strong>למדו על הסוד ↓</strong>
+            </div>
+
+            <div className="sod29-campaign718-video-frame">
+              <iframe
+                src={INTRO_VIDEO.embedSrc}
+                title="סוד 1820 — סרטון ההיכרות"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+            <small className="sod29-campaign718-video-source">הסרטון המקורי מתוך הפוסט הראשי של סוד 1820.</small>
           </div>
         )}
       </section>
