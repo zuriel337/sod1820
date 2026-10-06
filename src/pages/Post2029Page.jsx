@@ -8,6 +8,7 @@ import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingP
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import WatchButton from "../components/WatchButton.jsx";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -174,7 +175,7 @@ function PostReadingBody() {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
-        surfaceFindings: post.slug === "bennett-melach-631-78"
+        surfaceFindings: post.slug === "bennett-melach-631-78" || post.slug === "seventh-to-tenth-sefirot-2027"
           ? (state.projection.experience?.connections || [])
             .filter((connection) => connection.id !== "bennett-631")
             .map((connection) => ({
@@ -185,6 +186,8 @@ function PostReadingBody() {
               reason: connection.reason,
               href: connection.href,
               sourceLabel: connection.provenanceLabel || connection.kind,
+              relation: connection.relation || null,
+              truthState: connection.truthState || null,
             }))
           : [],
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
@@ -570,6 +573,18 @@ function PostReadingBody() {
           : <a className="sod29-chain-trail-step" href={step.href}>{step.label}</a>}
       </React.Fragment>)}
     </nav> : null}
+
+    {(experience.follow || []).length ? <section className="sod29-post-follow" aria-label="מעקב" data-post-follow="true">
+      {experience.follow.map((item) => <WatchButton
+        key={item.id}
+        topic={item.topic}
+        source={`post:${post.slug}`}
+        label={item.label}
+        explainer={item.explainer}
+        compact
+        ghost
+      />)}
+    </section> : null}
 
     <div className="sod29-reading-layout">
       <section

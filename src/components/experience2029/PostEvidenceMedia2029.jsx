@@ -1,4 +1,5 @@
 import React from "react";
+import VideoTranscript from "../VideoTranscript.jsx";
 
 export default function PostEvidenceMedia2029({ media: rawMedia }) {
   // A canonical playable mediaUrl, once published, takes the highlight slot; until then the source card is the fallback.
@@ -66,5 +67,6 @@ export default function PostEvidenceMedia2029({ media: rawMedia }) {
       <strong>{media.fullSource.label || "לצפייה בסרטון המלא"}</strong>
       <b aria-hidden="true">←</b>
     </a> : null}
+    {media?.videoKey ? <VideoTranscript videoKey={media.videoKey} title={media.highlight?.label} /> : null}
   </section>;
 }

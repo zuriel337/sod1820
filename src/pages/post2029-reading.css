@@ -1266,3 +1266,10 @@
 .sod29-chain-trail-step small{color:var(--s29-muted);font-weight:700}
 .sod29-chain-trail-sep{color:var(--s29-muted)}
 @media (max-width:640px){.sod29-source-video-card{grid-template-columns:1fr}}
+
+.sod29-post-follow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 14px 0 6px;
+}

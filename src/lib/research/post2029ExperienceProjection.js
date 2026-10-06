@@ -1,3 +1,5 @@
+import { canonicalFollowTopic } from "../followIdentity.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 
 const asArray = (value) => Array.isArray(value) ? value : [];
@@ -29,6 +31,8 @@ function normalizeMedia(raw = {}) {
       sourceUrl: clean(fullSource.sourceUrl) || null,
       platformId: clean(fullSource.platformId) || null,
     } : null,
+    // Identity for the shared video_transcripts path (all published languages); never per-post tracks.
+    videoKey: clean(source.videoKey) || null,
   };
 }
 
@@ -44,6 +48,7 @@ function normalizeConnection(item, index) {
     href: clean(item.href) || null,
     reason: clean(item.reason) || null,
     provenanceLabel: clean(item.provenanceLabel) || null,
+    relation: clean(item.relation) || null,
     truthState: clean(item.truthState) || null,
   };
 }
@@ -95,10 +100,33 @@ function normalizeTrailItem(item, index) {
  *   media, connections, timeline, trail
  * }
  */
+// Follow choices must resolve through the existing server resolver (canonical_follow_subject).
+// Only entity types it already knows are accepted; the topic is re-derived, never trusted from input.
+const FOLLOW_ENTITY_TYPES = ["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"];
+function normalizeFollow(item, index) {
+  if (!item || typeof item !== "object") return null;
+  const entityType = clean(item.entityType);
+  const stableId = clean(item.stableId);
+  if (!FOLLOW_ENTITY_TYPES.includes(entityType) || !stableId) return null;
+  const topic = canonicalFollowTopic(entityType === "number" ? "number:" + stableId : clean(item.topic));
+  if (!topic) return null;
+  return {
+    id: clean(item.id) || `follow-${index + 1}`,
+    label: clean(item.label) || topic,
+    entityType,
+    stableId,
+    topic,
+    explainer: clean(item.explainer) || "",
+  };
+}
+
 export function projectPost2029Experience(post) {
   const raw = post?._experience && typeof post._experience === "object"
     ? post._experience
     : {};
+
+  const follow = asArray(raw.follow).map(normalizeFollow).filter(Boolean);
+  const followGaps = asArray(raw.followGaps).map((g) => ({ kind: clean(g?.kind), reason: clean(g?.reason) })).filter((g) => g.kind);
 
   return {
     version: "post-2029-experience-v1",
@@ -106,6 +134,7 @@ export function projectPost2029Experience(post) {
     connections: asArray(raw.connections).map(normalizeConnection).filter(Boolean),
     timeline: asArray(raw.timeline).map(normalizeTimelineItem).filter(Boolean),
     trail: asArray(raw.trail).map(normalizeTrailItem).filter(Boolean),
+    ...(follow.length ? { follow, followGaps } : {}),
   };
 }
 

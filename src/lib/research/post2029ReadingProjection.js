@@ -1,5 +1,6 @@
 import { getPostBySlug, supabase } from "../supabase.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
+import { canonicalFollowTopic } from "../followIdentity.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
@@ -367,6 +368,95 @@ function buildBennettSaltExperience(post) {
   };
 }
 
+// ---- Golden #4 · Post 5116 "from the seventh to the tenth" (7.10 chain) ----
+// Presentation over existing identities only: Post (posts), numbers (/2029/number/N), canonical
+// source video + video_transcripts (shared media/language path), Follow (subscription_funnel_law).
+// Main spine is curated navigation; side branches are bounded. Prominence is NOT a truth claim.
+const SEVENTH_TENTH_SLUG = "seventh-to-tenth-sefirot-2027";
+const LEGACY_HREF = (encodedSlug) => "/" + encodedSlug;
+const SEVENTH_TENTH_CHAIN = Object.freeze({
+  hub233: { id: "post-233", postId: 233, label: "רמזי 7.10 · המרכז", href: LEGACY_HREF("%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%97%d7%a0%d7%95%d7%9b%d7%94-%d7%aa%d7%a9%d7%a4%d7%92-%d7%a8%d7%9e%d7%96%d7%99-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%97%d7%93%d7%a9") },
+  bridge149: { id: "post-149", postId: 149, label: "7.10 — מן השביעי לעשירי", href: LEGACY_HREF("%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98") },
+  depth5109: { id: "post-5109", postId: 5109, label: "ים המלח, תפארת ומפת עשר הספירות", href: "/post/yam-hamelach-tiferet-geula" },
+  side87: { id: "post-87", postId: 87, label: "גלרית 7.10 = נסתר", href: LEGACY_HREF("%d7%92%d7%9c%d7%a8%d7%99%d7%aa-7-10-%d7%a0%d7%a1%d7%aa%d7%a8") },
+  side108: { id: "post-108", postId: 108, label: "גלרית 878 · עולם הפוך · 360", href: LEGACY_HREF("%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-36-878-%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a4%d7%95%d7%9a-%d7%a8%d7%90%d7%99%d7%aa%d7%99-%d7%9e%d7%a9%d7%99%d7%97") },
+});
+// Follow subjects the existing server resolver (canonical_follow_subject -> resolve_topics -> dispatch)
+// can already resolve. Mirrors the server list; anything else is a reported GAP, never a faked control.
+const FOLLOW_RESOLVABLE_ENTITY_TYPES = Object.freeze(["number", "author", "category", "cipher_feed", "reality_stream", "media_channel", "channel"]);
+const SEVENTH_TENTH_FOLLOW_NUMBERS = Object.freeze([7, 10, 710]);
+const SEVENTH_TENTH_FOLLOW_GAPS = Object.freeze([
+  { kind: "post", reason: "canonical_follow_subject has no post identity; no delivery semantics to prove" },
+  { kind: "event", reason: "canonical_follow_subject has no event identity" },
+  { kind: "concept", reason: "no stable concept (sefirot) identity in the follow resolver" },
+  { kind: "chain", reason: "no chain identity in the follow resolver" },
+]);
+
+function extractSourceVideo(content = "") {
+  const html = String(content || "");
+  const key = (html.match(/data-video-key=["']([^"']+)["']/i) || [])[1] || null;
+  const video = (html.match(/<video\b[^>]*>/i) || [])[0] || "";
+  const poster = (video.match(/poster=["']([^"']+)["']/i) || [])[1] || null;
+  const src = (html.match(/<source\b[^>]*\bsrc=["']([^"']+)["']/i) || [])[1] || null;
+  return key && src ? { videoKey: key, src, poster } : null;
+}
+
+// The video + its hard-coded <track> leave the body: media renders through PostEvidenceMedia2029 and
+// VideoTranscript (video_transcripts, all published languages). Source text is otherwise unchanged.
+function prepareSeventhTenthContent(content = "") {
+  let html = String(content || "").replace(/<video\b[\s\S]*?<\/video>/gi, "");
+  html = html.replace(/<h2\b([^>]*)>/gi, (m, attrs) => /data-source-heading/.test(attrs) ? m : `<h2${attrs} data-source-heading="true">`);
+  return html;
+}
+
+function buildSeventhTenthExperience(post) {
+  const c = SEVENTH_TENTH_CHAIN;
+  const source = extractSourceVideo(post?.content);
+  const spine = (item, reason) => ({ id: item.id, label: item.label, kind: "POST · ציר ראשי", relation: "main_spine", href: item.href, reason, provenanceLabel: "post:" + item.postId, truthState: "navigation" });
+  const side = (item, value, reason) => ({ id: item.id, label: item.label, kind: "POST · ענף צדדי", relation: "side_branch", value, href: item.href, reason, provenanceLabel: "post:" + item.postId, truthState: "navigation" });
+  const num = (n, reason) => ({ id: "number-" + n, label: String(n), kind: "NUMBER", relation: "topic", value: String(n), href: "/2029/number/" + n, reason, provenanceLabel: "post:5116", truthState: "source_stated" });
+  const sefira = (id, label, reason, provenanceLabel) => ({ id, label, kind: "CONCEPT · ספירה", relation: "topic", href: null, reason, provenanceLabel, truthState: "source_stated" });
+  return {
+    media: source ? {
+      highlight: { src: source.src, poster: source.poster, label: "הסרטון המקורי · מדריך לריפוי 10 הספירות", sourceIdentity: source.videoKey },
+      fullSource: { href: source.src, label: "לצפייה בסרטון המלא", platformId: source.videoKey },
+      videoKey: source.videoKey,
+    } : null,
+    connections: [
+      spine(c.hub233, "מרכז ציר 7.10 באתר; הפוסט הנוכחי ממשיך אותו."),
+      spine(c.bridge149, "הפוסט עצמו מפנה אליו כהמשך הציר."),
+      spine(c.depth5109, "הפוסט עצמו מפנה אליו כהעמקה: ים המלח, תפארת ומפת עשר הספירות."),
+      side(c.side87, "710", "הפוסט הזה מצמיד 7.10 לנסתר; חיבור ניווט, לא הוכחה."),
+      side(c.side108, "878", "ענף צדדי: עולם הפוך, 878 ו־360; חיבור ניווט בלבד."),
+      num(7, "השביעי — כפי שנאמר בסרטון ובכותרת הפוסט."),
+      num(10, "העשירי — כפי שנאמר בסרטון ובכותרת הפוסט."),
+      num(710, "7.10 כציר; ניווט אל המספר, ללא טענת סיבתיות."),
+      sefira("sefira-keter", "כתר", "מוזכרת בטקסט המקור.", "post:5116"),
+      sefira("sefira-chokhmah", "חכמה", "מוזכרת בטקסט המקור.", "post:5116"),
+      sefira("sefira-binah", "בינה", "מוזכרת בטקסט המקור.", "post:5116"),
+      sefira("sefira-tiferet", "תפארת", "מופיעה בפוסט ההעמקה המקושר, לא בטקסט הזה.", "post:5109"),
+    ],
+    timeline: [
+      { id: "seventh-tenth-published", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-10-06", temporalRole: "published", href: "/post/" + SEVENTH_TENTH_SLUG, current: true, sourceLabel: null, note: "תאריך הפרסום של הפוסט." },
+    ],
+    trail: [
+      { id: c.hub233.id, label: "7.10 · המרכז", href: c.hub233.href, kind: "post", active: false },
+      { id: c.bridge149.id, label: "מן השביעי לעשירי (7.10)", href: c.bridge149.href, kind: "post", active: false },
+      { id: "post-5116", label: "הפוסט הזה", href: "/post/" + SEVENTH_TENTH_SLUG, kind: "post", active: true },
+      { id: c.depth5109.id, label: "ים המלח · תפארת", href: c.depth5109.href, kind: "post", active: false },
+    ],
+    follow: SEVENTH_TENTH_FOLLOW_NUMBERS.map((n) => ({
+      id: "follow-number-" + n,
+      label: "עקוב אחרי " + n,
+      entityType: "number",
+      stableId: String(n),
+      topic: canonicalFollowTopic("number:" + n),
+      explainer: "עדכון כשמתפרסם משהו חדש במספר " + n + ".",
+    })),
+    followGaps: SEVENTH_TENTH_FOLLOW_GAPS,
+  };
+}
+
 // ---- Golden #3 · elections chain (631 parent of the Bennett continuation) ----
 // Presentation over the existing Post identity. The source HTML is preserved; we only
 // (a) tag the big-number paragraphs as reading regions, (b) turn engine-verified equalities
@@ -554,6 +644,7 @@ export async function fetchPost2029ReadingProjection(slug) {
   const isFz1073Pilot = post.slug === FZ1073_SLUG;
   const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
   const isElectionsChain = post.slug === ELECTIONS_SLUG;
+  const isSeventhTenth = post.slug === SEVENTH_TENTH_SLUG;
   const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
   const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
@@ -569,6 +660,12 @@ export async function fetchPost2029ReadingProjection(slug) {
           ...post,
           content: markElectionsChain(post.content, electionsVerification),
           _experience: buildElectionsExperience(post),
+        }
+    : isSeventhTenth
+      ? {
+          ...post,
+          content: prepareSeventhTenthContent(post.content),
+          _experience: buildSeventhTenthExperience(post),
         }
     : isBennettSaltPilot
       ? {
@@ -625,6 +722,8 @@ export async function fetchPost2029ReadingProjection(slug) {
         ? "תיעוד אירוע · Flydubai FZ1073"
         : isElectionsChain
           ? "הבחירות לכנסת ה־26 · תחילת הרמזים"
+        : isSeventhTenth
+          ? "מדריך לריפוי 10 הספירות · ציר 7.10"
         : isBennettSaltPilot
           ? "תיעוד אירוע · בני ברק · 24.09.2026"
           : clean(post.author) || "מקור הפוסט",
@@ -632,7 +731,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
     regions,
     defaultRegionId: regions[0]?.id || null,
-    golden: isGolden || isFz1073Pilot || isBennettSaltPilot || isElectionsChain,
+    golden: isGolden || isFz1073Pilot || isBennettSaltPilot || isElectionsChain || isSeventhTenth,
     draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
     privateStage: post._privateStage === true,
     previewSnapshot: post._previewSnapshot === true,
@@ -642,6 +741,8 @@ export async function fetchPost2029ReadingProjection(slug) {
         ? "הפוסט הוא מקור הסיפור. החיבורים בשוליים הם שכבת הקשר נפרדת; רמת רמז אינה ציון אמת."
         : isElectionsChain
           ? "המספרים והחישובים מוצגים כפי שהם. החיבורים בשוליים הם שכבת קריאה נפרדת; המשך הציר חי בפוסט נפרד."
+        : isSeventhTenth
+          ? "המסר על 2027 הוא דברי היוצר בסרטון, כפי שנאמרו. החיבורים בשוליים הם ניווט בלבד: גודלם או מיקומם אינם ציון אמת."
         : isBennettSaltPilot
           ? "האירוע המתועד, החישובים והפרשנות נשמרים כשכבות נפרדות. אין כאן טענת סיבתיות או עמדה פוליטית."
           : "שכבת ההקשר אינה חלק מדברי המקור.",
@@ -663,6 +764,12 @@ export const post2029ReadingInternals = {
   BENNETT_SALT_REGIONS,
   buildBennettSaltExperience,
   buildBennettGoldenBody,
+  SEVENTH_TENTH_SLUG,
+  SEVENTH_TENTH_CHAIN,
+  FOLLOW_RESOLVABLE_ENTITY_TYPES,
+  extractSourceVideo,
+  prepareSeventhTenthContent,
+  buildSeventhTenthExperience,
   ELECTIONS_SLUG,
   ELECTIONS_EQUALITIES,
   ELECTIONS_REGIONS,
