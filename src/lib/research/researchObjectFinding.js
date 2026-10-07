@@ -126,6 +126,9 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
   for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
     addMethod(operand?.method, "engine_detail.compound.operands[].method");
   }
+  for (const component of Array.isArray(detail.method_components) ? detail.method_components : []) {
+    addMethod(component?.method_key || component?.method, "engine_detail.method_components[].method_key");
+  }
 
   const registryByMethodKey = new Map();
   const registryByDbColumn = new Map();
@@ -151,6 +154,25 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
     canonicalMethodMap.set(methodKey, current);
   }
   const canonicalMethods = [...canonicalMethodMap.values()];
+
+  const methodComponents = (Array.isArray(detail.method_components) ? detail.method_components : [])
+    .map((component) => {
+      const rawMethod = clean(component?.method_key || component?.method);
+      if (!rawMethod) return null;
+      const registry = registryByMethodKey.get(rawMethod) || registryByDbColumn.get(rawMethod) || null;
+      return {
+        methodKey: clean(registry?.method_key) || rawMethod,
+        dbColumn: clean(registry?.db_column) || null,
+        displayLabel: clean(registry?.display_label) || rawMethod,
+        registryResolved: Boolean(registry),
+        expression: clean(component?.expression) || null,
+        claimedValue: finiteNumber(component?.claimed_value),
+        engineResult: finiteNumber(component?.engine_result),
+        verificationState: clean(component?.verification_state) || null,
+        verifiedVia: clean(component?.verified_via) || null,
+      };
+    })
+    .filter(Boolean);
 
   const sourceMethods = (Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : [])
     .map((mention) => ({
@@ -193,6 +215,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
   const facets = {
     methods: methodRefs,
     canonicalMethods,
+    methodComponents,
     sourceMethods,
     operation,
     family,
@@ -210,7 +233,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
     } : null,
   };
 
-  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.sourceMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.methodComponents.length || facets.sourceMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
   return hasFacet ? facets : null;
 }
 
