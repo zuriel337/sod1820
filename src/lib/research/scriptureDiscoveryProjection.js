@@ -12,9 +12,14 @@ function boundedInt(value, fallback, max) {
 }
 
 function safeInteger(value) {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  return Number.isSafeInteger(n) && n >= 0 ? n : null;
+  if (typeof value === "number") {
+    return Number.isSafeInteger(value) && value > 0 ? value : null;
+  }
+  if (typeof value !== "string") return null;
+  const raw = value.trim();
+  if (!/^[0-9]+$/.test(raw)) return null;
+  const n = Number(raw);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
 }
 
 function clean(value) {
@@ -116,6 +121,7 @@ export async function fetchScriptureDiscoveryForFindings(findings = [], {
         expressions: seed.expressions,
         status: "ready",
         matchKind: "verse_gematria",
+        verseMethod: "רגיל",
       };
     } catch {
       return {
@@ -128,6 +134,7 @@ export async function fetchScriptureDiscoveryForFindings(findings = [], {
         expressions: seed.expressions,
         status: "unavailable",
         matchKind: "verse_gematria",
+        verseMethod: "רגיל",
       };
     }
   }));
@@ -140,7 +147,9 @@ export async function fetchScriptureDiscoveryForFindings(findings = [], {
     candidates: results.flatMap((result) => result.verses.map((verse) => ({
       ...verse,
       discoveryValue: result.value,
-      discoveryBasis: "same_canonical_numeric_value",
+      discoveryBasis: "seed_numeric_value_to_verse_ragil_value",
+      seedMethods: result.methods,
+      verseMethod: "רגיל",
       sourceFindingRefs: result.sourceFindingRefs,
       sourceRefs: result.sourceRefs,
       truthPromotion: false,
@@ -158,7 +167,7 @@ export async function fetchScriptureDiscoveryForFindings(findings = [], {
       automaticPublication: false,
       semanticProof: false,
       humanGateRequiredForClaim: true,
-      note: "Same numeric value is a discovery lead only; relevance/meaning remains a separate research decision.",
+      note: "Verse values are always canonical רגיל. A seed may originate in another method; that cross-method equality is a discovery lead only, never semantic proof.",
     },
   };
 }
