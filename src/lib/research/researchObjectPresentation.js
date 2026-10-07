@@ -191,36 +191,47 @@ function contextualFallbackTitle(row, rawStatement, { typeLabel, sourceLabel } =
 
 function presentationAttribution(row) {
   const meta = objectValue(row?.meta);
-  const type = clean(meta.attribution_type);
-  const contributorId = clean(meta.contributor_id);
+  const ext = objectValue(meta.ext);
+  const waIntake = objectValue(ext.wa_channel_intake);
   const contributor = clean(row?.contributor);
-  const validId = Boolean(type && contributorId && /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(contributorId));
 
-  if (validId) {
-    const displayName = contributor === "ZURIEL" ? "צוריאל"
-      : contributor === "GPT" ? "מערכת המחקר"
-        : contributor === "CLAUDE" ? "מערכת המחקר"
-          : hebrewOnlyLabel(contributor);
+  const explicitType = clean(meta.attribution_type);
+  const explicitContributorId = clean(meta.contributor_id);
+  const trustedIntakeContributorId = waIntake.trusted_author === true
+    ? clean(waIntake.contributor_id)
+    : null;
+
+  const contributorId = explicitContributorId || trustedIntakeContributorId;
+  const hasValidContributorId = Boolean(
+    contributorId && /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(contributorId)
+  );
+  const attributionIsExplicit = Boolean(explicitType && explicitContributorId);
+  const attributionIsTrustedIntake = Boolean(trustedIntakeContributorId);
+
+  const displayName = contributor === "ZURIEL" ? "צוריאל"
+    : contributor === "GPT" ? "מערכת המחקר"
+      : contributor === "CLAUDE" ? "מערכת המחקר"
+        : hebrewOnlyLabel(contributor);
+
+  if (hasValidContributorId && (attributionIsExplicit || attributionIsTrustedIntake)) {
     return {
       state: "resolved",
+      contributorId,
       label: displayName ? `ייחוס מקור מאומת: ${displayName}` : "ייחוס מקור מאומת",
     };
   }
 
   if (contributor) {
-    const displayName = contributor === "ZURIEL" ? "צוריאל"
-      : contributor === "GPT" ? "מערכת המחקר"
-        : contributor === "CLAUDE" ? "מערכת המחקר"
-          : hebrewOnlyLabel(contributor);
     return {
       state: "unresolved",
+      contributorId: null,
       label: displayName
         ? `תווית ייחוס במקור: ${displayName} · זהות המחבר לא הוכרעה`
         : "קיימת תווית ייחוס במקור · זהות המחבר לא הוכרעה",
     };
   }
 
-  return { state: "unknown", label: "זהות המחבר לא צוינה" };
+  return { state: "unknown", contributorId: null, label: "זהות המחבר לא צוינה" };
 }
 
 function safeHebrewPrimaryTitle(title, fallback) {
