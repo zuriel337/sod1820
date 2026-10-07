@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
-import { buildSourceBundles, canonicalResearchSourceRef, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
+import { buildSourceBundles, canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
 
 const ZVI = "c66f0464-0928-490e-be9b-66d8a87e7fc8";
 const REF = "channel_updates:0c2aaf88-5df4-45fc-a92e-f644610a4f1a";
@@ -114,13 +114,19 @@ test("batch fragments from one channel update collapse into one source bundle", 
   assert.equal(bundle.count, 2);
 });
 
-test("semantic source fragments do not collapse into the same bundle", () => {
+test("semantic finding fragments keep identity but collapse into one source occurrence bundle", () => {
+  assert.equal(canonicalResearchSourceRef(`${REF}#interpretation`), `${REF}#interpretation`);
+  assert.equal(researchSourceOccurrenceKey(`${REF}#interpretation`), REF);
+  assert.equal(researchSourceOccurrenceKey(`${REF}#valuation`), REF);
   const f = finds([
     row("sem-a", "fact", { source_ref: `${REF}#interpretation` }),
     row("sem-b", "relation", { source_ref: `${REF}#valuation` }),
   ]);
-  const bundles = buildSourceBundles(f);
-  assert.equal(bundles.length, 2);
+  const [bundle, ...rest] = buildSourceBundles(f);
+  assert.equal(rest.length, 0);
+  assert.equal(bundle.sourceRef, REF);
+  assert.deepEqual(new Set(bundle.sourceIdentityRefs), new Set([`${REF}#interpretation`, `${REF}#valuation`]));
+  assert.equal(bundle.count, 2);
 });
 
 test("source occurrence preserves exact wording and adds display-only normalization", () => {
