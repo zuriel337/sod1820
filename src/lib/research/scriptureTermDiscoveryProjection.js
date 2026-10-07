@@ -198,7 +198,6 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           entityIdentityClaim: false,
           truthPromotion: false,
           semanticProof: false,
-          semanticProof: false,
         });
       }
       for (const item of Array.isArray(occurrence.notarikon?.sofeiTevot) ? occurrence.notarikon.sofeiTevot : []) {
@@ -212,7 +211,6 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           notarikonKind: "סופי",
           entityIdentityClaim: false,
           truthPromotion: false,
-          semanticProof: false,
           semanticProof: false,
         });
       }
