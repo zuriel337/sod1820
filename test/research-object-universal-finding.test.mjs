@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { researchObjectToUniversalFinding } from "../src/lib/research/researchObjectFinding.js";
+import { researchObjectToUniversalFinding, isGeneralResearchProjectionEligible, researchObjectPersonalScope } from "../src/lib/research/researchObjectFinding.js";
 
 const base = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -24,6 +24,17 @@ const base = {
   privacy_scope: "shared",
   promoted_node_id: "22222222-2222-2222-2222-222222222222",
 };
+
+assert.equal(researchObjectPersonalScope(base), null);
+assert.equal(isGeneralResearchProjectionEligible(base), true, "ordinary private/shared research remains eligible for general admin projection");
+const personOnly = {
+  ...base,
+  id: "66666666-6666-4666-8666-666666666666",
+  privacy_scope: "private",
+  meta: { ext: { personal_scope: { scope: "person_only", owner_slug: "ariel-ben-moshe" } } },
+};
+assert.equal(researchObjectPersonalScope(personOnly), "person_only");
+assert.equal(isGeneralResearchProjectionEligible(personOnly), false, "only explicit Human-Gate person_only scope is excluded from the general tree");
 
 const finding = researchObjectToUniversalFinding(base);
 assert.ok(finding);

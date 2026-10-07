@@ -1,6 +1,7 @@
 import { supabase } from "../supabase.js";
 import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
+import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
@@ -308,8 +309,11 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
 }
 
 export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
+  const researchRows = Array.isArray(familyRows.researchObjects) ? familyRows.researchObjects : [];
+  const generalResearchRows = researchRows.filter(isGeneralResearchProjectionEligible);
+  const excludedPersonOnlyResearch = researchRows.length - generalResearchRows.length;
   const rows = [
-    ...(familyRows.researchObjects || []).map((row) => normalizeWorldAllResearchRow(row, "research_object")),
+    ...generalResearchRows.map((row) => normalizeWorldAllResearchRow(row, "research_object")),
     ...(familyRows.contributions || []).map((row) => normalizeWorldAllResearchRow(row, "contribution")),
     ...(familyRows.sourceMessages || []).map((row) => normalizeWorldAllResearchRow(row, "source_message")),
     ...(familyRows.topics || []).map((row) => normalizeWorldAllResearchRow(row, "topic")),
@@ -337,7 +341,8 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     byStatus: countBy(rows, "status"),
     byVerification: countBy(rows, "verification"),
     byContributor: countBy(rows, "contributor"),
-    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות.",
+    excludedPersonOnlyResearch,
+    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
   };
 }
 

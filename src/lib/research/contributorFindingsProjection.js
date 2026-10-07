@@ -257,19 +257,39 @@ async function fetchContributor(slug) {
   return data || null;
 }
 
-async function fetchResearchObjects(aliases) {
-  return paged((start, end, first) => {
-    let q = supabase
+async function fetchResearchObjects(aliases, ownerSlug = null) {
+  const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope";
+  const aliasResult = await paged((start, end, first) => supabase
+    .from("research_objects")
+    .select(fields, first ? { count: "exact" } : undefined)
+    .in("contributor", aliases)
+    .order("created_at", { ascending: false })
+    .range(start, end)
+  );
+
+  let personalResult = { rows: [], total: 0, truncated: false };
+  const slug = clean(ownerSlug);
+  if (slug) {
+    personalResult = await paged((start, end, first) => supabase
       .from("research_objects")
-      .select(
-        "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope",
-        first ? { count: "exact" } : undefined
-      )
-      .in("contributor", aliases)
+      .select(fields, first ? { count: "exact" } : undefined)
+      .contains("meta", { ext: { personal_scope: { scope: "person_only", owner_slug: slug } } })
       .order("created_at", { ascending: false })
-      .range(start, end);
-    return q;
-  });
+      .range(start, end)
+    );
+  }
+
+  const byId = new Map();
+  for (const row of [...aliasResult.rows, ...personalResult.rows]) {
+    if (row?.id) byId.set(String(row.id), row);
+  }
+  const rows = [...byId.values()].sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
+  return {
+    rows,
+    total: rows.length,
+    truncated: aliasResult.truncated || personalResult.truncated,
+    personalScopedLoaded: personalResult.rows.length,
+  };
 }
 
 async function fetchContributorContributions(contributorId) {
@@ -346,7 +366,7 @@ export async function fetchContributorFindingsProjection(slug) {
 
   const sourceMessagesPromise = fetchSourceMessages(aliases).catch(() => []);
   const [research, sourceMessages, contributions, topics] = await Promise.all([
-    fetchResearchObjects(aliases),
+    fetchResearchObjects(aliases, contributor.slug),
     sourceMessagesPromise,
     fetchContributorContributions(contributor.id),
     fetchContributorTopics(aliases),
@@ -374,6 +394,7 @@ export async function fetchContributorFindingsProjection(slug) {
     loadState: {
       researchObjectsTotal: research.total,
       researchObjectsTruncated: research.truncated,
+      personalScopedResearchLoaded: research.personalScopedLoaded || 0,
       contributionsTotal: contributions.total,
       contributionsTruncated: contributions.truncated,
       sourceMessagesLoaded: sourceMessages.length,

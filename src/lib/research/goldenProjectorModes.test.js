@@ -108,6 +108,19 @@ test("admin universe: every governed finding and every authorized row stays reac
   assert.equal(u.total, Object.values(u.layers).reduce((n, l) => n + l.length, 0));
 });
 
+test("admin universe: ordinary private research stays visible; only explicit person_only is excluded", async () => {
+  const pack = await packA();
+  const ordinaryPrivate = ro("ordinary-private", { privacy_scope: "private" });
+  const personOnly = ro("person-only", {
+    privacy_scope: "private",
+    meta: { ext: { personal_scope: { scope: "person_only", owner_slug: "ariel-ben-moshe" } } },
+  });
+  const u = buildGoldenAdminUniverse({ pack, researchRowsByNumber: { 1073: [ordinaryPrivate, personOnly] } });
+  const ids = u.layers[ADMIN_LAYER.RESEARCH].map((item) => item.researchObjectId);
+  assert.ok(ids.includes("ordinary-private"), "private research must remain visible to admin");
+  assert.equal(ids.includes("person-only"), false, "explicit person_only research must stay in the person lens, not the general Projector");
+});
+
 test("admin universe: same value != same identity; duplicates and HOLD/REJECT/unknown verification are labeled", async () => {
   const pack = await packA();
   const rows = [

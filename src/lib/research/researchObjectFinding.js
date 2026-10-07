@@ -9,6 +9,14 @@ function clean(v) {
   return s || null;
 }
 
+export function researchObjectPersonalScope(row) {
+  return clean(row?.meta?.ext?.personal_scope?.scope)?.toLowerCase() || null;
+}
+
+export function isGeneralResearchProjectionEligible(row) {
+  return researchObjectPersonalScope(row) !== "person_only";
+}
+
 function verificationFrom(row) {
   const detail = row?.engine_detail && typeof row.engine_detail === "object" ? row.engine_detail : {};
   const explicit = clean(detail.verification_state);
