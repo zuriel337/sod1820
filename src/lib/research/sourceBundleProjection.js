@@ -49,6 +49,15 @@ const MILUY_VARIANTS = Object.freeze([
   { token: "מילוי ב״ן", re: /מילוי[^\n.!?]{0,40}(?:ב["״']?ן|שם\s*ב["״']?ן)/u },
 ]);
 
+export function researchSourceOccurrenceKey(value) {
+  const ref = canonicalResearchSourceRef(value);
+  if (!ref) return null;
+  // A source occurrence is the underlying source item, not a finding/sub-locus fragment.
+  // Preserve the full ref separately for provenance/claim identity.
+  const match = ref.match(/^((?:channel_updates|wa_bot_log|gallery_images|posts):[^#]+)(?:#.*)?$/i);
+  return match?.[1] || ref;
+}
+
 export function sourceOccurrenceMethodMentions(value, { registryRows = [] } = {}) {
   const text = value == null ? "" : String(value);
   if (!text.trim()) return [];
@@ -222,9 +231,11 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
     if (!finding?.id || seen.has(finding.id)) continue;
     seen.add(finding.id);
     const rawSourceRef = clean(finding.source?.sourceRef) || null;
-    const sourceRef = canonicalResearchSourceRef(rawSourceRef);
+    const sourceIdentityRef = canonicalResearchSourceRef(rawSourceRef);
+    const sourceRef = researchSourceOccurrenceKey(rawSourceRef);
     const key = sourceRef || `finding:${finding.id}`;
-    if (!groups.has(key)) groups.set(key, { key, sourceRef, rawSourceRefs: new Set(), findings: [] });
+    if (!groups.has(key)) groups.set(key, { key, sourceRef, sourceIdentityRefs: new Set(), rawSourceRefs: new Set(), findings: [] });
+    if (sourceIdentityRef) groups.get(key).sourceIdentityRefs.add(sourceIdentityRef);
     if (rawSourceRef) groups.get(key).rawSourceRefs.add(rawSourceRef);
     groups.get(key).findings.push(finding);
   }
@@ -261,6 +272,7 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
       id: group.key,
       sourceRef: group.sourceRef,
       sourceRefs: [...(group.rawSourceRefs || [])],
+      sourceIdentityRefs: [...(group.sourceIdentityRefs || [])],
       isSingleton: members.length === 1,
       findingIds: members.map((m) => m.id),
       findings: members,
