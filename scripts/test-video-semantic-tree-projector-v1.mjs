@@ -146,3 +146,33 @@ test("RPC envelope remains a private Research Intake map request, not a truth tr
   assert.ok(!("status" in args));
   assert.ok(!("privacy_scope" in args));
 });
+
+
+test("full transcript map beats an older partial caption map for the same video", () => {
+  const partial = readVideoSemanticMap({
+    id: "partial",
+    meta: { ext: { video_semantic_map: {
+      map_key: "partial",
+      video_key: "same-video",
+      media_url: "https://example.invalid/same.mp4",
+      completeness: "partial",
+      anchors: [{ id: "p", labels: ["718"] }],
+    } } },
+  });
+  const full = readVideoSemanticMap({
+    id: "full",
+    meta: { ext: { video_semantic_map: {
+      map_key: "full",
+      video_key: "same-video",
+      media_url: "https://example.invalid/same.mp4",
+      completeness: "full",
+      anchors: [{ id: "f", labels: ["718"], start_sec: 123 }],
+    } } },
+  });
+  const hit = contextualVideosFromMaps([partial, full], {
+    dimensions: { surfaceFocus: { id: "718", number: 718, label: "718" } },
+  })[0];
+  assert.equal(hit.anchor.id, "f");
+  assert.equal(hit.completeness, "full");
+  assert.equal(videoUrlForAnchor(hit), "https://example.invalid/same.mp4#t=123");
+});
