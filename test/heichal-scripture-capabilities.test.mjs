@@ -17,6 +17,8 @@ test("Heichal projects Scripture discovery from the existing Research/Entity Hub
 test("Heichal does not call Tanakh research RPCs directly", () => {
   assert.doesNotMatch(heichal, /supabase\.rpc\(["']fn_(?:notarikon|name_in_tanach|name_in_verse|tanach_together|tanach_proximity|verses_by_gematria)/);
   assert.match(heichal, /fetchEntityHubProjection/);
+  assert.match(heichal, /to="\/verse-gematria"/);
+  assert.doesNotMatch(heichal, /tool=verse/);
 });
 
 test("technical ordinal projection is explicitly current-corpus and bounded", () => {
