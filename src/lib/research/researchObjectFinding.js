@@ -22,12 +22,18 @@ function verificationFrom(row) {
   const explicit = clean(detail.verification_state);
   const verification_state = explicit && VALID_VERIFICATION.has(explicit) ? explicit : null;
 
+  // Explicit historical aliases are normalized here only when they are already engine-owned
+  // fields. Never fall back to row.value or infer a result from free text / arbitrary value maps.
+  const trace = detail.trace && typeof detail.trace === "object" && !Array.isArray(detail.trace)
+    ? detail.trace
+    : {};
+
   return {
     claimed_expression: detail.claimed_expression ?? null,
     claimed_method: detail.claimed_method ?? null,
-    claimed_value: detail.claimed_value ?? null,
-    engine_method_tested: detail.engine_method_tested ?? detail.engine ?? null,
-    engine_result: detail.engine_result ?? detail.result ?? null,
+    claimed_value: detail.claimed_value ?? detail.source_claimed_value ?? null,
+    engine_method_tested: detail.engine_method_tested ?? detail.engine ?? detail.method_key ?? trace.method_key ?? null,
+    engine_result: detail.engine_result ?? detail.engine_value ?? detail.result ?? trace.result ?? null,
     statement_lang: detail.statement_lang ?? null,
     verification_state,
   };
