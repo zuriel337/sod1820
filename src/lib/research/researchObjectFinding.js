@@ -170,6 +170,11 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
         engineResult: finiteNumber(component?.engine_result),
         verificationState: clean(component?.verification_state) || null,
         verifiedVia: clean(component?.verified_via) || null,
+        claimedTransform: clean(component?.claimed_transform) || null,
+        engineTransform: clean(component?.engine_transform) || null,
+        valueVerificationState: clean(component?.value_verification_state) || null,
+        transformVerificationState: clean(component?.transform_verification_state) || null,
+        sourceMethodLabel: clean(component?.source_method_label) || null,
       };
     })
     .filter(Boolean);
