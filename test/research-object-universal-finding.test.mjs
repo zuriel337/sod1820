@@ -50,6 +50,7 @@ assert.equal(finding.subject.label, "אהרן = 256");
 assert.equal(finding.subject.lang, "he", "Hebrew-only legacy statement may be safely inferred as Hebrew");
 assert.equal(finding.projection.dimensions.presentation.fallbackMode, "raw_statement");
 assert.deepEqual(finding.projection.dimensions.presentation.rawStatementRef, { researchObjectId: base.id, field: "statement" });
+assert.equal(finding.view.rendererHints.presentation.displayText, "אהרן = 256", "source wording travels with the finding");
 
 const multilingual = {
   ...base,
@@ -232,7 +233,7 @@ assert.equal(facets.methods[0].registryResolutionRequired, true);
 assert.equal(facets.operation.kind, "quantity-product");
 assert.equal(facets.operation.multiplier, 4);
 assert.deepEqual(facets.operation.factors, [4]);
-assert.deepEqual(facets.operation.operators, []);
+assert.deepEqual(facets.operation.operators, ["multiply"]);
 assert.equal(facets.operation.result, 408);
 assert.equal(facets.family.key, "zvi:spatial:408:zot");
 assert.equal(facets.family.cluster, "408 זאת · קוביית חיים");
@@ -257,6 +258,14 @@ const noTextGuess = researchObjectFacetDimensions({
   meta: {},
 });
 assert.equal(noTextGuess, null, "facets must never be guessed from free statement text");
+
+const normalizedSourceFinding = researchObjectToUniversalFinding({
+  ...base,
+  id: "88888888-8888-4888-8888-888888888888",
+  statement: "שורה   א   \n\n\n   שורה ב",
+});
+assert.equal(normalizedSourceFinding.view.rendererHints.presentation.displayText, "שורה א\n\nשורה ב",
+  "display normalization may tidy spacing but must preserve words, order and paragraph structure");
 
 const verifiedGeneralChain = researchObjectFacetDimensions({
   ...base,
