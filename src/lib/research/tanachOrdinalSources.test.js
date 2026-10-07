@@ -59,3 +59,30 @@ test("out-of-range is explicit and does not manufacture a verse", async () => {
   assert.equal(out.verse, null);
   assert.equal(out.totalInScope, 5846);
 });
+
+
+test("book-scoped ordinal preserves the Post 976 Deuteronomy mismatch as technical evidence", async () => {
+  const out = await fetchTanachVerseByOrdinal(358, {
+    scope: "book",
+    book: "דברים",
+    fetchRow: async (request) => {
+      assert.equal(request.scope, TANACH_ORDINAL_SCOPE.BOOK);
+      assert.equal(request.book, "דברים");
+      assert.equal(request.offset, 357);
+      return {
+        count: 955,
+        row: {
+          book_idx: 4,
+          book: "דברים",
+          chapter: 12,
+          verse: 13,
+          text: "השמר לך פןתעלה עלתיך בכלמקום אשר תראה",
+        },
+      };
+    },
+  });
+
+  assert.equal(out.verse.ref, "דברים 12:13");
+  assert.equal(out.countingScheme, TANACH_ORDINAL_SCHEME);
+  assert.equal(out.governance.sourceCountingSchemeInferred, false);
+});
