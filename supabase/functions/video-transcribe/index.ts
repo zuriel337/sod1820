@@ -159,7 +159,7 @@ async function saveSemanticMap({
     sourceLang: source_lang, mappingBasis: mapping_basis, completeness,
     anthropicKey: ANTHROPIC_KEY, model: SEMANTIC_MODEL,
   });
-  if (!analyzed.ok) return analyzed;
+  if (!analyzed.ok || !analyzed.map) return analyzed;
   const args = semanticMapRpcArgs(analyzed, { sourceRef: `video:${video_key}` });
   const save = await fetch(`${SB_URL}/rest/v1/rpc/research_video_semantic_map_save_v1`, {
     method: "POST",
