@@ -250,6 +250,33 @@ assert.equal(facetedFinding.projection.dimensions.researchFacets.operation.multi
 assert.equal(facetedFinding.projection.dimensions.researchFacets.family.key, "zvi:spatial:408:zot");
 assert.equal(facetedFinding.projection.dimensions.researchFacets.spatial.role, "STRUCTURAL_3D");
 
+const registryResolvedFinding = researchObjectToUniversalFinding({
+  ...structuredFacetRow,
+  engine_detail: {
+    method: "ragil",
+    verification_state: "match",
+    compound: {
+      kind: "quantity-product",
+      quantity: 4,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+      operand: { phrase: "טוב", value: 17, method: "ragil" },
+    },
+  },
+  meta: { ext: {} },
+}, {
+  methodRegistry: [{
+    method_key: "רגיל",
+    db_column: "ragil",
+    display_label: "רגיל",
+    active: true,
+    in_engine: true,
+  }],
+});
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods.length, 1);
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].methodKey, "רגיל");
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].displayLabel, "רגיל");
+assert.deepEqual(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].refs.map((row) => row.token), ["ragil"]);
+
 const noTextGuess = researchObjectFacetDimensions({
   ...base,
   source_ref: null,
