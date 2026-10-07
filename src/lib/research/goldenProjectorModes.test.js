@@ -8,6 +8,7 @@ import {
 } from "./goldenProjectorModes.js";
 import { normalizeResearchContext } from "./researchContext.js";
 import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
+import { buildResearchFacetControl, filterResearchFacetItems } from "./researchFacetProjection.js";
 
 const trace = (input, result, extra = {}) => ({ input, result, method_key: "רגיל", method_version: 1, trace_kind: "LETTER_LEDGER", verification: { parity: true, trace_value: result, canonical_value: result }, ...extra });
 const A_TRACES = [
@@ -121,6 +122,52 @@ test("admin universe: ordinary private research stays visible; only explicit per
   assert.equal(ids.includes("person-only"), false, "explicit person_only research must stay in the person lens, not the general Projector");
 });
 
+test("admin universe: Projector consumes the same structured one-tree facets as World", async () => {
+  const pack = await packA();
+  const faceted = ro("facet-x4", {
+    statement: "  טוב   כפול ארבע  ",
+    engine_detail: {
+      verification_state: "match",
+      compound: {
+        kind: "quantity-product",
+        quantity: 4,
+        result: 1073,
+        computedTotal: 1073,
+        status: "ENGINE_VERIFIED_COMPOSITE",
+        operand: { phrase: "טוב", method: "ragil", value: 17 },
+      },
+    },
+    meta: {
+      ext: {
+        spatial_research: {
+          role: "STRUCTURAL_3D",
+          cluster: "סט תלת־ממדי לדוגמה",
+          research_focus_key: "zvi:spatial:test-x4",
+        },
+        source_media_profile: { class: "SPATIAL_3D", load_bearing_visual_candidate: true },
+      },
+    },
+  });
+  const u = buildGoldenAdminUniverse({
+    pack,
+    researchRowsByNumber: { 1073: [faceted] },
+    researchMethodRegistryRows: [{ method_key: "רגיל", db_column: "ragil", display_label: "רגיל", active: true, in_engine: true }],
+  });
+  const research = u.layers[ADMIN_LAYER.RESEARCH];
+  assert.equal(research.length, 1);
+  assert.equal(research[0].sourceText, "טוב כפול ארבע");
+  assert.deepEqual(research[0].researchFacets.operation.factors, [4]);
+  assert.equal(research[0].researchFacets.spatial.is3d, true);
+  const control = buildResearchFacetControl(research);
+  assert.equal(control.byMethod["רגיל"], 1, "db_column alias ragil resolves to canonical Registry method_key רגיל");
+  assert.equal(control.byMethod.ragil, undefined, "raw db_column alias must not fork the method filter");
+  assert.equal(control.byFactor["4"], 1);
+  assert.equal(control.spatial3d, 1);
+  assert.equal(filterResearchFacetItems(research, { factor: "4" }).length, 1);
+  assert.equal(filterResearchFacetItems(research, { spatial: "3d" }).length, 1);
+  assert.equal(filterResearchFacetItems(research, { family: "zvi:spatial:test-x4" }).length, 1);
+});
+
 test("admin universe: same value != same identity; duplicates and HOLD/REJECT/unknown verification are labeled", async () => {
   const pack = await packA();
   const rows = [
@@ -166,6 +213,12 @@ test("NEGATIVE PRIVACY (wiring): PUBLIC_VIEW never fetches admin data; admin pay
   assert.match(layer, /if \(!visible \|\| mode !== PROJECTOR_MODE\.ADMIN_ALL \|\| !postSlug\) \{\s*setUniverse\(\{ status: "idle", data: null \}\);/);
   assert.match(layer, /if \(!visible \|\| loading \|\| !isAdmin\) return null;/);
   assert.match(layer, /resolveProjectorMode\(\{ isAdmin: !loading && isAdmin, requested \}\)/);
+  assert.match(layer, /RESEARCH_FACET_FILTER_DEFAULTS/);
+  assert.match(layer, /filterResearchFacetItems/);
+  assert.match(layer, /מכפיל/);
+  assert.match(layer, /תלת־ממד/);
+  assert.match(layer, /סט מחקרי/);
+  assert.match(layer, /דברי המקור/);
   assert.ok(!/updateResearchContext|setContext|addToResearch|localStorage/.test(layer), "admin layer never writes Research Context / persistent storage");
   assert.ok(!/\?admin|searchParams|URLSearchParams/.test(layer), "no query-param admin switch");
   assert.match(layer, /isProjectorPilotVisible\(/);
