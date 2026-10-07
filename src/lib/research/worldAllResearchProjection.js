@@ -1,11 +1,43 @@
 import { supabase } from "../supabase.js";
 import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
+import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
 const MAX_ROWS_PER_SOURCE = 10000;
 
 const finite = normalizeWorldNumber;
+
+function hasHebrew(value) {
+  return /[א-ת]/.test(clean(value));
+}
+
+function isUrl(value) {
+  return /^https?:\/\//i.test(clean(value));
+}
+
+function sourceMessageTitle(row) {
+  const text = clean(row?.text);
+  const contributor = clean(row?.credit || row?.speaker);
+  if (text && hasHebrew(text)) return text;
+  if (isUrl(text)) return contributor ? `קישור מקור שהתקבל מ${contributor}` : "הודעת מקור עם קישור";
+  if (text) return contributor ? `הודעת מקור שהתקבלה מ${contributor}` : "הודעת מקור";
+  return row?.image_url ? "הודעת מקור עם מדיה" : "הודעת מקור ללא טקסט";
+}
+
+function sourceMessageSummary(row) {
+  const text = clean(row?.text);
+  if (!text || hasHebrew(text)) return null;
+  if (isUrl(text)) return "הקישור המקורי נשמר כמקום המקור; זהות מחבר התוכן אינה מוסקת מעצם שם השולח.";
+  return "הטקסט המקורי נשמר במקור. שכבת התצוגה בעברית אינה משנה את תוכן המקור או את מעמדו.";
+}
+
+function safeContributionTitle(row) {
+  const raw = clean(row?.title || row?.body);
+  if (raw && hasHebrew(raw)) return raw;
+  const value = finite(row?.gematria_claim?.value);
+  return value != null ? `תרומת מחקר סביב ${value}` : "תרומת מחקר";
+}
 
 // Structured (never text-scanned) per-scope verification carrier: known source metadata
 // keeps its own scoped state, e.g. meta.ext.batch_001b.notarikon_verification_state or
@@ -104,22 +136,29 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
   if (!row?.id) return null;
 
   if (family === "source_message") {
+    const sourceRef = "channel_updates:" + row.id;
+    const rawText = clean(row.text) || null;
     return {
       id: "source:" + row.id,
       sourceId: String(row.id),
       family,
       createdAt: row.created_at || null,
       kind: "source_message",
-      statement: clean(row.text) || (row.image_url ? "הודעת מדיה" : "הודעת מקור ללא טקסט"),
-      secondary: null,
+      statement: sourceMessageTitle(row),
+      secondary: sourceMessageSummary(row),
+      originalStatement: rawText,
       terms: [],
       value: null,
       values: [],
       relates: [],
       source: clean(row.channel || row.source) || "channel_updates",
-      sourceRef: "channel_updates:" + row.id,
-      sourceRefs: ["channel_updates:" + row.id],
+      sourceLabel: "הודעות מקור",
+      sourceRef,
+      sourceRefs: [sourceRef],
       contributor: clean(row.credit || row.speaker) || null,
+      attributionLabel: clean(row.credit || row.speaker)
+        ? `תווית שולח במקור: ${clean(row.credit || row.speaker)} · זהות מחבר התוכן לא הוכרעה`
+        : "זהות השולח לא צוינה",
       status: clean(row.status) || "לא צוין",
       access: null,
       verification: "not_applicable",
@@ -127,14 +166,20 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       mediaUrl: clean(row.image_url) || null,
       mediaClass: row.image_url ? "image" : null,
       spatialCluster: null,
-      href: clean(row.link_url) || null,
+      href: clean(row.link_url) || (isUrl(rawText) ? rawText : null),
+      presentation: {
+        typeLabel: "הודעת מקור",
+        sourceLabel: "הודעות מקור",
+        contextLine: ["הודעת מקור", clean(row.channel), row.created_at ? new Date(row.created_at).toLocaleDateString("he-IL") : null].filter(Boolean).join(" · "),
+      },
     };
   }
 
   if (family === "contribution") {
     const claimValue = finite(row?.gematria_claim?.value);
-    const statement = clean(row.title || row.body) || "תרומת מחקר";
-    const secondary = row.title ? clean(row.body) : null;
+    const statement = safeContributionTitle(row);
+    const rawContribution = clean(row.title || row.body) || null;
+    const secondary = rawContribution && hasHebrew(rawContribution) ? (row.title ? clean(row.body) : null) : null;
     const mediaUrl = clean(row.image_url) || (
       Array.isArray(row.media) ? clean(row.media[0]?.url || row.media[0]) : clean(row?.media?.url)
     );
@@ -151,6 +196,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       values: claimValue == null ? [] : [claimValue],
       relates: [clean(row.target_id), clean(row.convergence_slug)].filter(Boolean),
       source: clean(row.origin) || "research_contributions",
+      sourceLabel: "תרומת מחקר",
       sourceRef: "research_contributions:" + row.id,
       sourceRefs: ["research_contributions:" + row.id],
       contributor: clean(row.author_name) || null,
@@ -176,13 +222,14 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       family,
       createdAt: row.created_at || null,
       kind: "topic",
-      statement: clean(row.title) || "Topic",
+      statement: clean(row.title) || "נושא",
       secondary: clean(row.subtitle) || null,
       terms: Array.isArray(row.search_terms) ? row.search_terms.map(String) : [],
       value: values.length === 1 ? values[0] : null,
       values,
       relates: [],
       source: "topic_cards",
+      sourceLabel: "נושא",
       sourceRef: "topic_cards:" + row.id,
       sourceRefs: ["topic_cards:" + row.id],
       contributor: clean(row.created_by) || null,
@@ -203,6 +250,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
   const value = finite(row.value);
   const metaSourceRefs = Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs.map(String) : [];
   const sourceRef = clean(row.source_ref) || ("research_objects:" + row.id);
+  const presentation = resolveResearchObjectPresentation(row, { locale: "he" });
   const operationalState = clean(
     row?.engine_detail?.status
     || row?.engine_detail?.classification
@@ -215,13 +263,19 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     family: "research_object",
     createdAt: row.created_at || null,
     kind: clean(row.kind) || "observation",
-    statement: clean(row.statement) || "ממצא ללא ניסוח",
-    secondary: clean(row.evidence) || null,
+    statement: presentation.title || "ממצא מחקר",
+    secondary: presentation.summary || null,
+    originalStatement: clean(row.statement) || null,
+    presentation,
+    typeLabel: presentation.typeLabel,
+    contextLine: presentation.contextLine,
+    attributionLabel: presentation.attributionLabel,
     terms: Array.isArray(row.terms) ? row.terms.map(String) : [],
     value,
     values: value == null ? [] : [value],
     relates: Array.isArray(row.relates) ? row.relates.map(String) : [],
     source: clean(row.source) || null,
+    sourceLabel: presentation.sourceLabel || humanizeResearchSource(row.source, sourceRef),
     sourceRef,
     sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
@@ -274,7 +328,7 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     byStatus: countBy(rows, "status"),
     byVerification: countBy(rows, "verification"),
     byContributor: countBy(rows, "contributor"),
-    truthBoundary: "Human-Gate visibility does not change access, governance, verification, canonicality or publication. Raw source, contribution, research object and Topic remain distinct layers.",
+    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות.",
   };
 }
 
@@ -299,6 +353,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       row.family,
       row.statement,
       row.secondary,
+      row.originalStatement,
+      row.contextLine,
+      row.attributionLabel,
+      row.sourceLabel,
       row.contributor,
       row.source,
       row.sourceRef,
