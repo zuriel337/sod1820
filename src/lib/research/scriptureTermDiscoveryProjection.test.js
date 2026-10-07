@@ -101,6 +101,7 @@ test("lexical discovery keeps terms within the same Finding and never asserts en
   assert.equal(out.candidates.some((item) => item.discoveryBasis === "notarikon_rashei_tevot"), true);
   assert.equal(out.candidates.every((item) => item.entityIdentityClaim === false), true);
   assert.equal(out.candidates.every((item) => item.truthPromotion === false), true);
+  assert.equal(out.candidates.every((item) => item.semanticProof === false), true);
   assert.equal(out.governance.crossFindingMixing, false);
   assert.equal(out.governance.semanticProof, false);
 });
