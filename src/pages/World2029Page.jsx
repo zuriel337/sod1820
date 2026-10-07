@@ -1,3 +1,4 @@
+import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -1845,7 +1846,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
             const date = mediaDate(item);
             return <article className="sod29-world-media-card" key={item.galleryImageId}>
               <div className="sod29-world-media-frame">
-                <img src={item.thumbUrl || item.imageUrl} alt={label} loading="lazy" />
+                <CanonicalMediaFigure2029 item={item} thumbnail alt={label} contextNote={relationLabel(item.relationType)} />
               </div>
               <div className="sod29-world-media-copy">
                 <div className="sod29-world-primary-meta">

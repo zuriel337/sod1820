@@ -11,7 +11,8 @@ import { shareOrCopy } from "../lib/share.js";
 // לייטבוקס מועשר: תמונה + פאנל-מידע (צד בדסקטופ, מתחת במובייל) עם כל המספרים
 // כקישורים, משמעויות מספרי-הליבה, תגיות, תיאור מלא, ו-CTA לדף-המספר (עץ אחד —
 // כל ההקשרים חיים שם, לא משוכפלים כאן).
-export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null }) {
+// research — אופציונלי: { ocrStatus, ocrText, ocrNumbers, sourceLabel, provenance } לתמונה הפעילה; טענות שמורות בלבד (לא חישוב/אמת).
+export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null, research = null }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const [shared, setShared] = useState(false);
@@ -69,7 +70,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   const nums = [...new Set(hintNums(h || {}))];
   const tags = Array.isArray(h?.tags) ? h.tags.filter(Boolean) : [];
   const desc = h?.description ? h.description.replace(/<[^>]+>/g, "").trim() : "";
-  const hasInfo = !!(title || h?.name || date || desc || nums.length || tags.length || onEdit || note);
+  const hasInfo = !!(title || h?.name || date || desc || nums.length || tags.length || onEdit || note || research);
 
   return createPortal((
     <div
@@ -162,6 +163,18 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
 
             {date && (
               <div style={{ color: "#ffffff77", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 12 }}>🗓️ {date}</div>
+            )}
+
+            {research && (
+              <div className="lb-sec" data-lightbox-research="true">
+                <div className="lb-sec-t">פרטי מחקר</div>
+                <div style={{ color: "#ffffffaa", fontFamily: F.body, fontSize: 13, lineHeight: 1.6 }}>
+                  <div>OCR: {({ done: "הושלם", pending: "ממתין", error: "שגיאה" })[research.ocrStatus] || "לא ידוע"}</div>
+                  {research.sourceLabel ? <div>מקור: {research.sourceLabel}</div> : null}
+                  {research.ocrText ? <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{research.ocrText}</div> : null}
+                  {research.provenance ? <div style={{ marginTop: 6, fontSize: 11.5, color: "#ffffff66" }}>המספרים שמורים כטענה בגלריה — לא חושבו מחדש ואינם הוכחה.</div> : null}
+                </div>
+              </div>
             )}
 
             {nums.length > 0 && (

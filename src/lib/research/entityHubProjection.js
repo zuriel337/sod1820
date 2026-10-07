@@ -7,6 +7,7 @@ import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
+import { buildMediaEnvelope, dedupeMediaEnvelopes } from "./galleryMediaEnvelope.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -14,7 +15,7 @@ const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source
 const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
-const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags";
+const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,primary_value,all_values,related_values";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -559,37 +560,23 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   }
 
   const galleryById = new Map(galleryRows.map((row) => [String(row.id), row]));
-  const seen = new Set();
-  const items = mediaNodes.flatMap((node) => {
+  const built = mediaNodes.flatMap((node) => {
     const galleryId = clean(node?.metadata?.gallery_image_id);
     const row = galleryId ? galleryById.get(galleryId) : null;
     // Defense in depth: public media remains published + non-hidden even if a future reader
     // changes the server-side query. Representation availability never broadens publication.
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true || seen.has(String(row.id))) return [];
-    seen.add(String(row.id));
+    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
     const relationType = candidates.get(String(node.id))?.relationType || "related";
-    return [{
-      nodeId: String(node.id),
-      galleryImageId: String(row.id),
-      label: canonicalMediaPublicLabel({
-        name: row.name,
-        label: node.label,
-        description: row.description,
-      }),
-      description: clean(row.description) || null,
-      imageUrl: row.image_url,
-      thumbUrl: row.thumb_url || row.image_url,
+    const envelope = buildMediaEnvelope({
+      row,
+      node,
       relationType,
-      occurredAt: row.occurred_at || null,
-      createdAt: row.created_at || node.created_at || null,
-      imageType: clean(row.image_type) || null,
-      space: clean(row.space) || null,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      sourceRef: `gallery_images:${row.id}`,
-      projectionReason: `reality_graph:${relationType}`,
-    }];
+      label: canonicalMediaPublicLabel({ name: row.name, label: node.label, description: row.description }),
+    });
+    return envelope ? [envelope] : [];
   });
-
+  // Contextual sort first, then dedupe by stable media identity (best relation wins).
+  const items = built;
   items.sort((a, b) => (
     // Relation directness is the existing contextual projection reason. After that, use
     // temporal/stable identity only. Legacy gallery importance is intentionally NOT a
@@ -599,9 +586,10 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
     || a.galleryImageId.localeCompare(b.galleryImageId)
   ));
 
+  const unique = dedupeMediaEnvelopes(items);
   return {
-    items: items.slice(0, cap),
-    totalEligible: items.length,
+    items: unique.slice(0, cap),
+    totalEligible: unique.length,
     access: { available: true, reason: null },
     note: "Direct Reality Graph adjacency supplies projection reason; published non-hidden gallery_images supplies the media representation. Presentation order is contextual only, never truth rank.",
   };

@@ -90,11 +90,19 @@ export function buildTopicGoldenProjection(projection, { hub = null, prominence 
     ...asArray(projection.attribution).map(normalizedAttribution),
   ].filter(Boolean))];
 
+  // Same media envelope as World/Number (shared intrinsic payload); Topic only supplies context.
   const media = asArray(hub?.media?.items).slice(0, 8).map((row, index) => ({
     id: clean(row?.galleryImageId || row?.nodeId) || `media-${index}`,
+    mediaId: row?.mediaId || null,
+    nodeId: row?.nodeId || null,
+    galleryImageId: row?.galleryImageId || null,
     label: clean(row?.label) || "מדיה",
     description: clean(row?.description) || null,
-    imageUrl: clean(row?.thumbUrl || row?.imageUrl) || null,
+    imageUrl: clean(row?.imageUrl) || clean(row?.thumbUrl) || null,
+    thumbUrl: clean(row?.thumbUrl) || clean(row?.imageUrl) || null,
+    relationType: row?.relationType || "related",
+    intrinsic: row?.intrinsic || null,
+    contextRelation: row?.contextRelation || null,
   })).filter((row) => row.imageUrl);
 
   const prominenceItems = asArray(prominence?.items).map((item) => ({

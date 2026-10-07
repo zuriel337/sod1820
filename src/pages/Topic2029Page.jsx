@@ -1,3 +1,4 @@
+import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -200,7 +201,7 @@ function TopicSourcesMedia({ golden }) {
   return <section className="sod29-section sod29-topic-section" id="topic-sources">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה מגיעים החיבורים?</h2></div></div>
     {media.length ? <div className="sod29-topic-media-grid">
-      {media.slice(0, 4).map((item) => <figure key={item.id}><img loading="lazy" src={item.imageUrl} alt={item.label} /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
+      {media.slice(0, 4).map((item) => <figure key={item.id}><CanonicalMediaFigure2029 item={item} thumbnail alt={item.label} contextNote="מוצג כאן בגלל קשר בגרף לנושא" /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
     {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}

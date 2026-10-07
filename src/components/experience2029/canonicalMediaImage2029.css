@@ -16,3 +16,15 @@
 .sod29-canonical-media-image.is-thumbnail{
   object-fit:contain!important;
 }
+.sod29-canonical-media-figure{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:none;
+  color:inherit;
+  font:inherit;
+  text-align:inherit;
+  cursor:zoom-in;
+}
+.sod29-canonical-media-figure:focus-visible{outline:2px solid currentColor;outline-offset:2px}

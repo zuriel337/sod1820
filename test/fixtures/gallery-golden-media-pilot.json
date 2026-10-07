@@ -1,0 +1,24 @@
+{
+  "task_key": "GALLERY_INTRINSIC_MEDIA_PROJECTOR_V1",
+  "note": "Existing live published gallery_images rows only (read-only selection, no DB mutation). Selection by stored columns; no image-content or face inference.",
+  "rows": [
+    {"galleryImageId": "ab8cde02-efb8-4971-9bbf-2cbdb3cb7e27", "nodeId": "8421e1e3-8f0e-4fd8-8e9e-797dee172afd", "coverage": ["strong_ocr", "text", "number_linked", "historical"]},
+    {"galleryImageId": "373f324e-ac9a-469e-a845-1071f05b156d", "nodeId": "c2f84ac6-efe3-4d53-81ef-3ded4ad7a5b5", "coverage": ["strong_ocr", "gematria", "number_linked", "historical"]},
+    {"galleryImageId": "225e40ce-15e5-4e01-874e-e28d6155e8da", "nodeId": "be0388e2-d443-434b-b210-ed60e105348d", "coverage": ["strong_ocr", "text", "source_date"]},
+    {"galleryImageId": "179ef5cd-ebdd-4fb7-9a83-97a113f3d6e4", "nodeId": "a5ad7a8d-ab50-448f-ace2-e535ccd935b6", "coverage": ["pending_ocr", "event_news", "number_linked"]},
+    {"galleryImageId": "466740b7-f1f5-4355-9c79-09eed34e1e8d", "nodeId": "f9340620-f8f1-4ad2-8b4f-c87264fb7b2d", "coverage": ["pending_ocr", "event_news", "number_linked"]},
+    {"galleryImageId": "215c6cc8-9355-42f4-9190-358057c7ce25", "nodeId": "3c53a4d1-6ff5-4383-8fd5-08297683ddde", "coverage": ["error_ocr", "event_news", "number_linked"]},
+    {"galleryImageId": "abf634b9-cb8f-46c0-927d-87fbe341971c", "nodeId": "a3c5ff4e-1242-40c4-a64b-90b16534722d", "coverage": ["error_ocr", "event_news", "number_linked"]},
+    {"galleryImageId": "424fd753-2609-4696-a26f-bc9f012080d4", "nodeId": "ed51533e-2771-4fda-b95e-95ade6cc0d97", "coverage": ["gematria", "event_news", "number_linked"]},
+    {"galleryImageId": "115e8e0c-ad44-4d82-bd07-cb1405d32427", "nodeId": "bd50b68c-90fe-406f-bc05-272941e3389b", "coverage": ["gematria", "number_linked", "source_date"]},
+    {"galleryImageId": "146dc9cd-7495-49e4-8432-e825e0ec2851", "nodeId": "26eed846-2c0e-423d-a9aa-958f10ca394c", "coverage": ["event", "historical", "number_linked"]},
+    {"galleryImageId": "59e930cb-0d7c-4d49-9a82-4dbcc4fcc5c4", "nodeId": "34d32cdb-9039-4540-a80c-7eaa505535e5", "coverage": ["event", "number_linked"]},
+    {"galleryImageId": "5bc32365-6dcf-430c-8102-46dc918ccc84", "nodeId": "1ab2cb3a-2342-4b17-b200-3478027c3af5", "coverage": ["event", "historical", "number_linked"]},
+    {"galleryImageId": "34b5f3d7-f4ba-4e7a-9365-0ff1aec563bc", "nodeId": "631a70ab-2053-4d6f-ac5e-5e2edb85b0fa", "coverage": ["historical", "gematria", "number_linked"]},
+    {"galleryImageId": "00172bc7-901c-47ef-9cf0-3c13e6ed29d8", "nodeId": "ea27fbb7-100a-42bf-ab07-d26db6de964d", "coverage": ["no_stored_number", "source_date"]}
+  ],
+  "known_gaps": {
+    "screenshot": "No stored column classifies screenshots; classifying would require image-content inference. Not claimed.",
+    "post_context_linked": "Live: no Post→Image graph edges and gallery_images.related_post_id is NULL for all rows. Not fabricated per assignment do_not_touch."
+  }
+}

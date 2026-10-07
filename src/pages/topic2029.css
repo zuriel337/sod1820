@@ -59,7 +59,7 @@
 .sod29-topic-graph-grid>a:hover{border-color:color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line))}
 .sod29-topic-media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:12px}
 .sod29-topic-media-grid figure{margin:0;overflow:hidden;border:1px solid var(--s29-line);border-radius:17px;background:var(--s29-panel-soft)}
-.sod29-topic-media-grid img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.sod29-topic-media-grid img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain}
 .sod29-topic-media-grid figcaption{display:grid;gap:2px;padding:10px}
 .sod29-topic-media-grid figcaption strong{color:var(--s29-ink)}
 .sod29-topic-media-grid figcaption small{color:var(--s29-muted);line-height:1.45}
