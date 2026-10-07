@@ -22,6 +22,7 @@ on:
       - "test/post-publishing-2029-chain.test.mjs"
       - "scripts/test-video-semantic-tree-projector-v1.mjs"
       - "src/lib/research/videoSemanticMap.js"
+      - "src/lib/research/entityHubProjection.js"
       - "src/lib/research/goldenProjectorModes.js"
       - "src/components/experience2029/GoldenProjectorModeLayer2029.jsx"
       - "src/components/experience2029/ContextualVideoLayer2029.jsx"
