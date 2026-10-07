@@ -26,6 +26,30 @@ for (const route of singleStatic) {
   assert.equal(isKnownSingleSegmentRoute(route), true, `known App route missing from route legitimacy projection: ${route}`);
 }
 
+// Native 2029 exact single-segment routes share the same Edge legitimacy owner.
+const app2029Routes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]);
+const singleStatic2029 = app2029Routes.filter(p => {
+  if (!p.startsWith("/")) return false;
+  const rest = p.slice(1);
+  return rest && !rest.includes("/") && !rest.includes(":") && !rest.includes("*");
+});
+for (const route of singleStatic2029) {
+  assert.equal(isKnownSingleSegmentRoute(route), true, `known App2029 route missing from route legitimacy projection: ${route}`);
+}
+
+// Every exact single-segment Vercel rewrite into the 2029 document must bypass Edge slug validation.
+const rewriteSingles2029 = (vercel.rewrites || [])
+  .filter(r => r.destination === "/2029.html")
+  .map(r => r.source)
+  .filter(p => {
+    if (!p.startsWith("/")) return false;
+    const rest = p.slice(1);
+    return rest && !rest.includes("/") && !rest.includes("(") && !rest.includes(":") && !rest.includes("*");
+  });
+for (const route of rewriteSingles2029) {
+  assert.equal(isKnownSingleSegmentRoute(route), true, `known 2029 rewrite missing from route legitimacy projection: ${route}`);
+}
+
 // Every exact single-segment Vercel redirect source must also bypass validation.
 const redirectSingles = (vercel.redirects || []).map(r => r.source).filter(p => {
   if (!p.startsWith("/")) return false;
