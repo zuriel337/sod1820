@@ -25,7 +25,7 @@ const ACTIONS = [
 const SCRIPTURE_BASIS_LABEL = Object.freeze({
   seed_numeric_value_to_verse_ragil_value: "פסוק באותו ערך · רגיל",
   lexical_exact_token: "הופעת מילה בתנ״ך",
-  lexical_phrase_sequence: "רצף ביטוי בפסוק",
+  lexical_substring_spaceless: "התאמת טקסט רציף · ללא רווחים",
   same_finding_terms_same_verse: "מונחים מאותו ממצא · באותו פסוק",
   same_finding_terms_proximity: "מונחים מאותו ממצא · קרבה בפסוק",
   notarikon_rashei_tevot: "ראשי תיבות",
