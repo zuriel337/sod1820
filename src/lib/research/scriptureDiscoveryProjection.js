@@ -152,6 +152,8 @@ export async function fetchScriptureDiscoveryForFindings(findings = [], {
       verseMethod: "רגיל",
       sourceFindingRefs: result.sourceFindingRefs,
       sourceRefs: result.sourceRefs,
+      entityIdentityClaim: false,
+      semanticProof: false,
       truthPromotion: false,
     }))),
     coverage: {
