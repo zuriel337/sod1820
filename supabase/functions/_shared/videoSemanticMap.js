@@ -75,6 +75,21 @@ export function semanticMapTerms(map) {
   return [...out].slice(0, 80);
 }
 
+/**
+ * @param {{
+ *   text: string,
+ *   title?: string|null,
+ *   videoKey: string,
+ *   mediaUrl: string,
+ *   posterUrl?: string|null,
+ *   sourceLang?: string|null,
+ *   mappingBasis?: string,
+ *   completeness?: "full"|"partial",
+ *   anthropicKey: string,
+ *   model?: string,
+ *   fetchImpl?: typeof fetch
+ * }} input
+ */
 export async function analyzeVideoSemanticMap({
   text,
   title = null,
@@ -156,6 +171,10 @@ export async function analyzeVideoSemanticMap({
   };
 }
 
+/**
+ * @param {any} result
+ * @param {{sourceRef?: string|null, contributor?: string}} options
+ */
 export function semanticMapRpcArgs(result, { sourceRef = null, contributor = "SYSTEM:video-semantic-map" } = {}) {
   if (!result?.ok || !result.map) return null;
   const ref = clean(sourceRef) || `video:${result.map.video_key}`;
