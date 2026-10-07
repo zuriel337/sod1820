@@ -92,6 +92,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
         postSlug,
         loadPack: projection.fetchGoldenContextPackBySlug,
         readResearchObjects: hub.fetchResearchObjectsForEntity,
+        readSourceOccurrences: hub.fetchResearchSourceOccurrences,
       });
     })().then((data) => {
       if (alive) setUniverse({ status: data ? "ready" : "empty", data });
@@ -129,6 +130,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
             : <div className="sod29-golden-admin" data-admin-total={data.total}>
               <p className="sod29-golden-mode-note">מנהל / הכל · {data.total} פריטים. גלוי ≠ מאומת / מפורסם / קנוני. סדר לפי צירי SMART, בלי ציון יחיד; אותו ערך ≠ אותה זהות.</p>
               {data.researchAccess?.available === false ? <p className="sod29-golden-mode-note">קריאת המחקר אינה זמינה לחשבון זה ({data.researchAccess.reason}).</p> : null}
+              {data.researchSourceAccess?.available === false ? <p className="sod29-golden-mode-note">דברי המקור המלאים אינם זמינים לחשבון זה ({data.researchSourceAccess.reason}). הממצאים עצמם נשארים מוצגים.</p> : null}
               {data.truncatedNumbers?.length ? <p className="sod29-golden-mode-note">הגעתי לגבול העמוד עבור {data.truncatedNumbers.join(", ")} — קיימים פריטים נוספים.</p> : null}
               {facetControl.hasStructuredFacets ? <div className="sod29-golden-facet-filters" aria-label="סינון מחקר לפי העץ">
                 <label><span>שיטה</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
@@ -152,6 +154,9 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
                   {Object.entries(facetControl.byFamily).map(([key, family]) => <option key={key} value={key}>{family.label} · {family.count}</option>)}
                 </select></label>
                 <button type="button" onClick={resetFacets}>אפס סינון</button>
+                {Object.keys(facetControl.bySourceMethod || {}).length ? <small>
+                  שיטות שנאמרו במקור (אינן פילטר חישובי עד קישור/אימות): {Object.entries(facetControl.bySourceMethod).map(([method, count]) => `${method} · ${count}`).join(" · ")}
+                </small> : null}
                 <small>{filteredResearchItems.length} מתוך {researchItems.length} ממצאי מחקר</small>
               </div> : null}
               {Object.values(ADMIN_LAYER).map((key) => <AdminLayer key={key} layerKey={key} items={key === ADMIN_LAYER.RESEARCH ? filteredResearchItems : (data.layers[key] || [])} />)}
