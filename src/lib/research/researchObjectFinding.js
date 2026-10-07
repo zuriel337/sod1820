@@ -101,7 +101,7 @@ function verifiedCompoundOperationShape(compound) {
  * canonical_methods_registry_law; spatial/family identity is carried only when the source row
  * already owns meta.ext.spatial_research; operation shape comes only from engine_detail.compound.
  */
-export function researchObjectFacetDimensions(row) {
+export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   const detail = asObject(row?.engine_detail);
   const compound = asObject(detail.compound);
   const ext = asObject(row?.meta?.ext);
@@ -126,6 +126,31 @@ export function researchObjectFacetDimensions(row) {
   for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
     addMethod(operand?.method, "engine_detail.compound.operands[].method");
   }
+
+  const registryByMethodKey = new Map();
+  const registryByDbColumn = new Map();
+  for (const registryRow of Array.isArray(registryRows) ? registryRows : []) {
+    const methodKey = clean(registryRow?.method_key);
+    const dbColumn = clean(registryRow?.db_column);
+    if (methodKey) registryByMethodKey.set(methodKey, registryRow);
+    if (dbColumn) registryByDbColumn.set(dbColumn, registryRow);
+  }
+  const canonicalMethodMap = new Map();
+  for (const ref of methodRefs) {
+    const registry = registryByMethodKey.get(ref.token) || registryByDbColumn.get(ref.token) || null;
+    const methodKey = clean(registry?.method_key);
+    if (!methodKey) continue;
+    const current = canonicalMethodMap.get(methodKey) || {
+      methodKey,
+      dbColumn: clean(registry?.db_column),
+      displayLabel: clean(registry?.display_label) || methodKey,
+      refs: [],
+      registryResolved: true,
+    };
+    current.refs.push({ token: ref.token, namespace: ref.namespace, basis: ref.basis });
+    canonicalMethodMap.set(methodKey, current);
+  }
+  const canonicalMethods = [...canonicalMethodMap.values()];
 
   const operation = verifiedCompoundOperationShape(compound);
 
@@ -156,6 +181,7 @@ export function researchObjectFacetDimensions(row) {
 
   const facets = {
     methods: methodRefs,
+    canonicalMethods,
     operation,
     family,
     spatial: (family || mediaClass) ? {
@@ -172,7 +198,7 @@ export function researchObjectFacetDimensions(row) {
     } : null,
   };
 
-  const hasFacet = facets.methods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
   return hasFacet ? facets : null;
 }
 
@@ -214,7 +240,7 @@ export function resolveExplicitAttribution(row) {
  * - human presentation is a locale projection only. It never replaces statement,
  *   source/source_ref, verification, governance or access state.
  */
-export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
+export function researchObjectToUniversalFinding(row, { locale = "he", methodRegistry = [] } = {}) {
   if (!row?.id) return null;
 
   const sourceRef = clean(row.source_ref);
@@ -223,7 +249,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const presentation = resolveResearchObjectPresentation(row, { locale });
   const attribution = resolveExplicitAttribution(row);
   const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
-  const researchFacets = researchObjectFacetDimensions(row);
+  const researchFacets = researchObjectFacetDimensions(row, { registryRows: methodRegistry });
 
   return makeUniversalFinding({
     kind: "research-object",
