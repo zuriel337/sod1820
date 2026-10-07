@@ -33,7 +33,7 @@ test("term groups come only from structured evidence facts, never subject text",
       },
     },
     { id: "b", subject: { label: "משיח דוד" }, evidence: { facts: [] } },
-  ]);
+  ], { maxTerms: 3 });
 
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].terms.map((row) => row.sourceTerm), ["חָכְמָה", "בינה"]);
