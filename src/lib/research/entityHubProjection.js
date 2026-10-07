@@ -11,6 +11,7 @@ import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
+const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags";
@@ -131,6 +132,49 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
         findings: [],
         access: { available: false, reason: "research_objects_not_readable_for_current_session" },
       };
+    }
+    throw error;
+  }
+}
+
+
+/**
+ * Narrow RLS-backed reader for the existing VIDEO_REPRESENTATION_MAP rows.
+ * Same research_objects owner, no new store/registry and no access widening.
+ * This avoids contextual video retrieval competing with unrelated research rows
+ * inside the generic per-entity page limit.
+ */
+export async function fetchVideoSemanticMapsForEntity(node, { limit = 24 } = {}) {
+  if (!node?.id) return { rows: [], access: { available: true, reason: null } };
+  const cap = safeLimit(limit, 24, 60);
+  const label = clean(node.label);
+  const identityKey = clean(node.identity_key);
+  const terms = [...new Set([label, identityKey].filter(Boolean))];
+  const queries = [];
+  const mapOnly = (builder) => builder.contains("meta", { layer: "VIDEO_REPRESENTATION_MAP" });
+
+  if (node.type === "number" && Number.isSafeInteger(Number(label))) {
+    queries.push(runResearchQuery(
+      mapOnly(supabase.from("research_objects").select(VIDEO_SEMANTIC_MAP_FIELDS).contains("terms", [String(Number(label))])),
+      cap
+    ));
+  }
+
+  for (const term of terms) {
+    queries.push(runResearchQuery(
+      mapOnly(supabase.from("research_objects").select(VIDEO_SEMANTIC_MAP_FIELDS).contains("terms", [term])),
+      cap
+    ));
+  }
+
+  if (!queries.length) return { rows: [], access: { available: true, reason: null } };
+
+  try {
+    const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
+    return { rows, access: { available: true, reason: null } };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { rows: [], access: { available: false, reason: "video_semantic_maps_not_readable_for_current_session" } };
     }
     throw error;
   }
