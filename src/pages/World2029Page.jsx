@@ -43,6 +43,7 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
+import { RESEARCH_OPERATION_LABELS_HE } from "../lib/research/researchFacetProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
@@ -256,6 +257,7 @@ function humanFindingPresentation(finding, anchorLabel) {
     && (looksTechnicalResearchTitle(projectedTitle) || /[A-Za-z]{3}/.test(String(projectedTitle || "")));
   return {
     title: hideRawTechnical ? `מחקר נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודת מחקר"),
+    sourceText: hideRawTechnical ? null : (presentation.displayText || null),
     summary: hideRawTechnical ? null : (presentation.summary || null),
     sourceLabel: presentation.sourceLabel || null,
     fallbackMode,
@@ -1317,6 +1319,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
     timeline: data?.timeline?.length || 0,
   };
   const adminSummary = researchControl;
+  const researchFacetSummary = adminSummary.facets || {
+    byMethod: {}, byOperation: {}, byFactor: {}, byFamily: {}, spatial3d: 0, hasStructuredFacets: false,
+  };
   const updateResearchFilter = (key, value) => setResearchFilters((current) => ({ ...current, [key]: value }));
   const resetResearchFilters = () => setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
 
@@ -1682,6 +1687,26 @@ function AnchoredWorld({ research, shell, subject, context }) {
               <option value="all">כל מצבי האימות</option>
               {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_VERIFICATION_LABELS_HE, value, "מצב אימות נוסף")} · {count}</option>)}
             </select></label>
+            {Object.keys(researchFacetSummary.byMethod).length ? <label><span>שיטת גימטריה</span><select value={researchFilters.method} onChange={(event) => updateResearchFilter("method", event.target.value)}>
+              <option value="all">כל השיטות</option>
+              {Object.entries(researchFacetSummary.byMethod).map(([method, count]) => <option key={method} value={method}>{method} · {count}</option>)}
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byOperation).length ? <label><span>סוג פעולה</span><select value={researchFilters.operation} onChange={(event) => updateResearchFilter("operation", event.target.value)}>
+              <option value="all">כל הפעולות</option>
+              {Object.entries(researchFacetSummary.byOperation).map(([operation, count]) => <option key={operation} value={operation}>{RESEARCH_OPERATION_LABELS_HE[operation] || "פעולה מחקרית"} · {count}</option>)}
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byFactor).length ? <label><span>מכפיל</span><select value={researchFilters.factor} onChange={(event) => updateResearchFilter("factor", event.target.value)}>
+              <option value="all">כל המכפילים</option>
+              {Object.entries(researchFacetSummary.byFactor).sort((a, b) => Number(a[0]) - Number(b[0])).map(([factor, count]) => <option key={factor} value={factor}>×{factor} · {count}</option>)}
+            </select></label> : null}
+            {researchFacetSummary.spatial3d ? <label><span>מבנה מחקרי</span><select value={researchFilters.spatial} onChange={(event) => updateResearchFilter("spatial", event.target.value)}>
+              <option value="all">כל המבנים</option>
+              <option value="3d">תלת־ממד · {researchFacetSummary.spatial3d}</option>
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byFamily).length ? <label><span>סט מחקרי</span><select value={researchFilters.family} onChange={(event) => updateResearchFilter("family", event.target.value)}>
+              <option value="all">כל הסטים</option>
+              {Object.entries(researchFacetSummary.byFamily).map(([key, family]) => <option key={key} value={key}>{family.label} · {family.count}</option>)}
+            </select></label> : null}
             <button className="sod29-action" type="button" onClick={resetResearchFilters}>אפס סינון</button>
           </div>
           <div className="sod29-muted sod29-world-research-result-count">מוצגים {filteredResearchFindings.length} מתוך {visibleResearchFindings.length} ממצאי מחקר מורשים.</div>
@@ -1949,6 +1974,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           return <div className="sod29-row sod29-world-research-row" key={finding.id || index}>
             <div>
               <strong>{presentation.title}</strong>
+              {presentation.sourceText ? <p className="sod29-world-source-wording"><b>דברי המקור</b><br />{presentation.sourceText}</p> : null}
               {presentation.summary ? <p className="sod29-world-row-summary">{presentation.summary}</p> : null}
               <small>{verification}{presentation.sourceLabel ? ` · ${presentation.sourceLabel}` : ""}</small>
               {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { researchObjectToUniversalFinding, isGeneralResearchProjectionEligible, researchObjectPersonalScope } from "../src/lib/research/researchObjectFinding.js";
+import { researchObjectToUniversalFinding, researchObjectFacetDimensions, isGeneralResearchProjectionEligible, researchObjectPersonalScope } from "../src/lib/research/researchObjectFinding.js";
 
 const base = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -50,6 +50,7 @@ assert.equal(finding.subject.label, "אהרן = 256");
 assert.equal(finding.subject.lang, "he", "Hebrew-only legacy statement may be safely inferred as Hebrew");
 assert.equal(finding.projection.dimensions.presentation.fallbackMode, "raw_statement");
 assert.deepEqual(finding.projection.dimensions.presentation.rawStatementRef, { researchObjectId: base.id, field: "statement" });
+assert.equal(finding.view.rendererHints.presentation.displayText, "אהרן = 256", "source wording travels with the finding");
 
 const multilingual = {
   ...base,
@@ -186,6 +187,161 @@ assert.equal(unknownKind.projection.dimensions.researchObjectKind, "hypothesis")
 const noNode = researchObjectToUniversalFinding({ ...base, promoted_node_id: null });
 assert.equal(noNode.identity.entityRef, null);
 assert.deepEqual(noNode.projection.anchors, []);
+
+
+const structuredFacetRow = {
+  ...base,
+  id: "77777777-7777-4777-8777-777777777777",
+  source_ref: "channel_updates:structured-facet-source",
+  engine_detail: {
+    method: "ragil",
+    verification_state: "match",
+    compound: {
+      kind: "quantity-product",
+      quantity: 4,
+      result: 408,
+      computedTotal: 408,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+      operand: { phrase: "טוב", value: 102, method: "רגיל", ok: true },
+    },
+  },
+  meta: {
+    ext: {
+      spatial_research: {
+        role: "STRUCTURAL_3D",
+        cluster: "408 זאת · קוביית חיים",
+        research_focus_key: "zvi:spatial:408:zot",
+        classification: "DERIVED_RESEARCH_CLASSIFICATION",
+      },
+      source_media_profile: {
+        class: "SPATIAL_3D",
+        load_bearing_visual_candidate: true,
+      },
+      exact_duplicate_lineage: {
+        occurrence_count: 3,
+      },
+      gematria: {
+        method_key: "רגיל",
+      },
+    },
+  },
+};
+
+const facets = researchObjectFacetDimensions(structuredFacetRow);
+assert.deepEqual(facets.methods.map((row) => row.token), ["ragil", "רגיל"]);
+assert.equal(facets.methods[0].registryResolutionRequired, true);
+assert.equal(facets.operation.kind, "quantity-product");
+assert.equal(facets.operation.multiplier, 4);
+assert.deepEqual(facets.operation.factors, [4]);
+assert.deepEqual(facets.operation.operators, ["multiply"]);
+assert.equal(facets.operation.result, 408);
+assert.equal(facets.family.key, "zvi:spatial:408:zot");
+assert.equal(facets.family.cluster, "408 זאת · קוביית חיים");
+assert.equal(facets.spatial.role, "STRUCTURAL_3D");
+assert.equal(facets.spatial.mediaClass, "SPATIAL_3D");
+assert.equal(facets.spatial.is3d, true);
+assert.equal(facets.spatial.loadBearingVisualCandidate, true);
+assert.equal(facets.sourceOccurrence.ref, "channel_updates:structured-facet-source");
+assert.deepEqual(facets.sourceOccurrence.refs, ["channel_updates:structured-facet-source"]);
+assert.equal(facets.sourceOccurrence.duplicateOccurrenceCount, 3);
+
+const facetedFinding = researchObjectToUniversalFinding(structuredFacetRow);
+assert.equal(facetedFinding.projection.dimensions.researchFacets.operation.multiplier, 4);
+assert.equal(facetedFinding.projection.dimensions.researchFacets.family.key, "zvi:spatial:408:zot");
+assert.equal(facetedFinding.projection.dimensions.researchFacets.spatial.role, "STRUCTURAL_3D");
+
+const registryResolvedFinding = researchObjectToUniversalFinding({
+  ...structuredFacetRow,
+  engine_detail: {
+    method: "ragil",
+    verification_state: "match",
+    compound: {
+      kind: "quantity-product",
+      quantity: 4,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+      operand: { phrase: "טוב", value: 17, method: "ragil" },
+    },
+  },
+  meta: { ext: {} },
+}, {
+  methodRegistry: [{
+    method_key: "רגיל",
+    db_column: "ragil",
+    display_label: "רגיל",
+    active: true,
+    in_engine: true,
+  }],
+});
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods.length, 1);
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].methodKey, "רגיל");
+assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].displayLabel, "רגיל");
+assert.deepEqual(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].refs.map((row) => row.token), ["ragil"]);
+
+const noTextGuess = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  statement: "זה טקסט שכותב ×4 ותלת מימד אבל אין metadata מובנה",
+  engine_detail: {},
+  meta: {},
+});
+assert.equal(noTextGuess, null, "facets must never be guessed from free statement text");
+
+const normalizedSourceFinding = researchObjectToUniversalFinding({
+  ...base,
+  id: "88888888-8888-4888-8888-888888888888",
+  statement: "שורה   א   \n\n\n   שורה ב",
+});
+assert.equal(normalizedSourceFinding.view.rendererHints.presentation.displayText, "שורה א\n\nשורה ב",
+  "display normalization may tidy spacing but must preserve words, order and paragraph structure");
+
+const verifiedGeneralChain = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "(טוב×36)×5=3060",
+      kind: "general-chain",
+      result: 3060,
+      computedTotal: 3060,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(verifiedGeneralChain.operation.factors, [36, 5]);
+assert.deepEqual(verifiedGeneralChain.operation.operators, ["multiply"]);
+assert.equal(verifiedGeneralChain.operation.basis, "verified_engine_compound");
+
+const verifiedHebrewTimes = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "רחל=14 פעמים טוב",
+      kind: "general-chain",
+      result: 238,
+      computedTotal: 238,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(verifiedHebrewTimes.operation.factors, [14]);
+
+const unverifiedCompoundText = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "טוב×4=68",
+      kind: "general-chain",
+      status: "UNVERIFIED",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(unverifiedCompoundText.operation.factors, [],
+  "unverified compound raw text must not mint filter factors");
 
 assert.equal(researchObjectToUniversalFinding(null), null);
 console.log("research-object-universal-finding: ok");

@@ -1,6 +1,6 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
-import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
@@ -101,6 +101,35 @@ async function runResearchQuery(builder, limit) {
   return Array.isArray(data) ? data : [];
 }
 
+function dedupeRegistryRows(rows = []) {
+  const byMethod = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (row?.method_key) byMethod.set(String(row.method_key), row);
+  }
+  return [...byMethod.values()];
+}
+
+async function fetchResearchFacetRegistry(rows = []) {
+  const tokens = [];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const facets = researchObjectFacetDimensions(row);
+    for (const ref of facets?.methods || []) {
+      const token = clean(ref?.token);
+      if (token && !tokens.includes(token)) tokens.push(token);
+    }
+  }
+  if (!tokens.length) return { rows: [], available: true };
+  try {
+    const [byMethodKey, byDbColumn] = await Promise.all([
+      fetchMethodRegistry(tokens),
+      fetchRegistryByDbColumns(tokens),
+    ]);
+    return { rows: dedupeRegistryRows([...byMethodKey, ...byDbColumn]), available: true };
+  } catch {
+    return { rows: [], available: false };
+  }
+}
+
 export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
   if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
@@ -125,7 +154,14 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
 
   try {
     const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
-    return { rows, findings: researchObjectsToUniversalFindings(rows, { locale }), access: { available: true, reason: null } };
+    const methodRegistry = await fetchResearchFacetRegistry(rows);
+    return {
+      rows,
+      findings: researchObjectsToUniversalFindings(rows, { locale, methodRegistry: methodRegistry.rows }),
+      methodRegistryRows: methodRegistry.rows,
+      methodRegistryAccess: { available: methodRegistry.available },
+      access: { available: true, reason: null },
+    };
   } catch (error) {
     if (isAccessDenied(error)) {
       return {

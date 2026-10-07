@@ -197,6 +197,13 @@ assert.match(world, /WORLD_RESEARCH_ATTENTION/);
 assert.match(world, /filterWorldResearchFindings/);
 assert.match(worldCss, /sod29-world-research-control/);
 assert.match(worldCss, /sod29-world-research-filters/);
+assert.match(world, /שיטת גימטריה/);
+assert.match(world, /סוג פעולה/);
+assert.match(world, /מכפיל/);
+assert.match(world, /תלת־ממד/);
+assert.match(world, /סט מחקרי/);
+assert.match(world, /דברי המקור/);
+assert.match(worldCss, /sod29-world-source-wording/);
 
 const controlFindings = [
   {
@@ -204,7 +211,16 @@ const controlFindings = [
     status: "candidate",
     access: { tier: "private" },
     verification: { verification_state: "not_tested" },
-    projection: { dimensions: { researchObjectKind: "observation" } },
+    projection: { dimensions: {
+      researchObjectKind: "observation",
+      researchFacets: {
+        methods: [{ token: "ragil", namespace: "db_column_or_alias", registryResolutionRequired: true }],
+        canonicalMethods: [{ methodKey: "רגיל", dbColumn: "ragil", displayLabel: "רגיל", registryResolved: true }],
+        operation: { operators: ["multiply"], factors: [4], kind: "quantity-product" },
+        family: { key: "zvi:spatial:408:zot", cluster: "408 זאת · קוביית חיים", role: "STRUCTURAL_3D" },
+        spatial: { is3d: true, role: "STRUCTURAL_3D", mediaClass: "SPATIAL_3D" },
+      },
+    } },
     source: { sourceRef: "chat:1" },
   },
   {
@@ -231,6 +247,16 @@ assert.equal(control.byAccess.private, 2);
 assert.equal(control.byGovernance.approved, 1);
 assert.equal(control.attention.needs_verification, 2);
 assert.equal(control.attention.public_candidate, 1);
+assert.equal(control.facets.byMethod["רגיל"], 1);
+assert.equal(control.facets.byOperation.multiply, 1);
+assert.equal(control.facets.byFactor["4"], 1);
+assert.equal(control.facets.spatial3d, 1);
+assert.equal(control.facets.byFamily["zvi:spatial:408:zot"].count, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, method: "רגיל" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, operation: "multiply" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, factor: "4" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, spatial: "3d" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, family: "zvi:spatial:408:zot" }).length, 1);
 assert.equal(control.capabilities.processingState, false, "World must not invent raw→processed without Research Intake projection");
 assert.equal(control.capabilities.publicationState, false, "public_candidate is not Published");
 assert.equal(control.capabilities.rawSource, true);
