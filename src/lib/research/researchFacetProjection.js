@@ -18,6 +18,17 @@ export const RESEARCH_OPERATION_LABELS_HE = Object.freeze({
   add: "חיבור",
 });
 
+export function methodComponentStateLabelHe(component) {
+  const method = clean(component?.displayLabel || component?.methodKey) || "שיטה";
+  const expression = clean(component?.expression);
+  const state = clean(component?.verificationState);
+  const prefix = expression ? `${method} · ${expression}` : method;
+  if (state === "match") return `${prefix} · מאומת במנוע`;
+  if (state === "mismatch" || /mismatch/.test(state)) return `${prefix} · אי־התאמה למקור`;
+  if (state) return `${prefix} · ${state}`;
+  return `${prefix} · טרם אומת`;
+}
+
 export function sourceMethodStateLabelHe(method) {
   const label = clean(method?.displayLabel || method?.token) || "שיטה";
   switch (clean(method?.state)) {
