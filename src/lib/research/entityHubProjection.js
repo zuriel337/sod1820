@@ -8,11 +8,14 @@ import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
 import { MEDIA_RELATION_KIND, buildMediaEnvelope, dedupeMediaEnvelopes, normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
+import { canonicalResearchSourceRef, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
+import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
+const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,status,contributor_id";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
@@ -181,6 +184,97 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
  * This avoids contextual video retrieval competing with unrelated research rows
  * inside the generic per-entity page limit.
  */
+
+const CHANNEL_UPDATE_SOURCE_RE = /^channel_updates:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+function channelUpdateIdFromResearchSourceRef(sourceRef) {
+  const canonical = canonicalResearchSourceRef(sourceRef);
+  const match = canonical?.match(CHANNEL_UPDATE_SOURCE_RE);
+  return match?.[1]?.toLowerCase() || null;
+}
+
+/**
+ * RLS-backed Source Occurrence reader for research rows.
+ * No source text is copied into research_objects and no attribution is inferred:
+ * channel_updates remains the source owner. This reader is intended for authorized
+ * inspection surfaces; callers must keep public/admin boundaries intact.
+ */
+export async function fetchResearchSourceOccurrences(rows = [], { limit = 120 } = {}) {
+  const refs = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const canonical = canonicalResearchSourceRef(row?.source_ref);
+    const id = channelUpdateIdFromResearchSourceRef(row?.source_ref);
+    if (canonical && id && !refs.has(id)) refs.set(id, canonical);
+  }
+  const cap = safeLimit(limit, 120, 240);
+  const ids = [...refs.keys()].slice(0, cap);
+  if (!ids.length) {
+    return { occurrences: {}, methodRegistryRows: [], access: { available: true, reason: null }, truncated: false };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("channel_updates")
+      .select(CHANNEL_UPDATE_SOURCE_FIELDS)
+      .in("id", ids)
+      .limit(cap);
+    if (error) throw error;
+
+    const sourceRows = Array.isArray(data) ? data : [];
+    const seeded = sourceRows.map((row) => ({
+      row,
+      mentions: sourceOccurrenceMethodMentions(row?.text),
+    }));
+    const methodKeys = [...new Set(seeded
+      .flatMap((item) => item.mentions)
+      .map((mention) => clean(mention?.methodKey))
+      .filter(Boolean))];
+
+    let registryRows = [];
+    try {
+      registryRows = methodKeys.length ? await fetchMethodRegistry(methodKeys) : [];
+    } catch {
+      // Source wording must remain inspectable even if Registry lookup is unavailable.
+      registryRows = [];
+    }
+
+    const occurrences = {};
+    for (const { row } of seeded) {
+      const id = clean(row?.id).toLowerCase();
+      if (!id) continue;
+      const ref = refs.get(id) || `channel_updates:${id}`;
+      const originalText = row?.text == null ? null : String(row.text);
+      occurrences[ref] = {
+        contributorId: clean(row?.contributor_id) || null,
+        contributorName: clean(row?.credit) || clean(row?.speaker) || null,
+        channel: clean(row?.channel) || null,
+        status: clean(row?.status) || null,
+        createdAt: clean(row?.created_at) || null,
+        originalText,
+        displayTextNormalized: normalizeResearchDisplayText(originalText),
+        methodMentions: sourceOccurrenceMethodMentions(originalText, { registryRows }),
+      };
+    }
+
+    return {
+      occurrences,
+      methodRegistryRows: registryRows,
+      access: { available: true, reason: null },
+      truncated: refs.size > ids.length,
+    };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return {
+        occurrences: {},
+        methodRegistryRows: [],
+        access: { available: false, reason: "research_source_occurrences_not_readable_for_current_session" },
+        truncated: false,
+      };
+    }
+    throw error;
+  }
+}
+
 export async function fetchVideoSemanticMapsForEntity(node, { limit = 24 } = {}) {
   if (!node?.id) return { rows: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 24, 60);
