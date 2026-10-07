@@ -133,7 +133,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
               {data.researchSourceAccess?.available === false ? <p className="sod29-golden-mode-note">דברי המקור המלאים אינם זמינים לחשבון זה ({data.researchSourceAccess.reason}). הממצאים עצמם נשארים מוצגים.</p> : null}
               {data.truncatedNumbers?.length ? <p className="sod29-golden-mode-note">הגעתי לגבול העמוד עבור {data.truncatedNumbers.join(", ")} — קיימים פריטים נוספים.</p> : null}
               {(facetControl.hasStructuredFacets || facetControl.hasSourceMethodMentions) ? <div className="sod29-golden-facet-filters" aria-label="סינון מחקר לפי העץ">
-                {Object.keys(facetControl.byMethod).length ? <label><span>שיטה מאומתת/מובנית</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
+                {Object.keys(facetControl.byMethod).length ? <label><span>שיטה מובנית</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
                   <option value="all">כל השיטות המובנות</option>
                   {Object.entries(facetControl.byMethod).map(([method, count]) => <option key={method} value={method}>{method} · {count}</option>)}
                 </select></label> : null}
