@@ -1654,3 +1654,12 @@
   .sod29-world-primary-copy h3{font-size:17px}
   .sod29-world-primary-item.is-lead .sod29-world-primary-copy h3{font-size:23px}
 }
+
+/* Original research wording travels with the same Universal Finding. */
+.sod29-world-source-wording{
+  white-space:pre-line;
+  line-height:1.6;
+  margin:.45rem 0;
+  overflow-wrap:anywhere;
+}
+.sod29-world-source-wording b{font-weight:800}
