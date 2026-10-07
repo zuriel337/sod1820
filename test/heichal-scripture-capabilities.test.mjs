@@ -21,8 +21,12 @@ test("Heichal does not call Tanakh research RPCs directly", () => {
   assert.doesNotMatch(heichal, /tool=verse/);
 });
 
-test("technical ordinal projection is explicitly current-corpus and bounded", () => {
+test("technical ordinal projection requires explicit user intent and stays bounded", () => {
   assert.match(heichal, /TANACH_ORDINAL_SCOPE\.TORAH/);
-  assert.match(heichal, /ordinal > 10000/);
+  assert.match(heichal, /canProbeTorahOrdinal/);
+  assert.match(heichal, /ordinalValue <= 5846/);
+  assert.match(heichal, /onClick=\{runOrdinalDiscovery\}/);
+  assert.match(heichal, /requestIntent: "explicit_user_action"/);
+  assert.match(heichal, /A bare number is NOT ordinal intent/);
   assert.match(heichal, /סדר קורפוס התורה הנוכחי/);
 });
