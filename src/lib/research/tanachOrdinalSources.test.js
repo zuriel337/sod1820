@@ -35,7 +35,7 @@ test("technical ordinal result never claims source counting-scheme equivalence",
           book: "דברים",
           chapter: 32,
           verse: 32,
-          text: "חמת תנינם יינם",
+          text: "כימגפן סדם גפנם ומשדמת עמרה ענבמו ענבירוש אשכלת מררת למו",
         },
       };
     },
