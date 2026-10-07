@@ -456,7 +456,7 @@ assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
 assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
-assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
+assert.match(world, /שכבת המחקר המלאה שמורה לשער האנושי/);
 assert.ok(
   world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",
