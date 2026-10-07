@@ -69,6 +69,8 @@ const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensPr
 const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
 const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
 const contributorFindingsComponent = read("src/components/research/ContributorFindingsLens.jsx");
+const contributorFindingsSource = read("src/lib/research/contributorFindingsProjection.js");
+const attributionAttentionMigration = read("supabase/migrations/20261007163000_ariel_personal_research_attribution_attention_v1.sql");
 const topicConvergenceContent = read("src/components/research/TopicConvergenceContent.jsx");
 const worldAnchorMapSource = read("src/components/research/WorldAnchorMap.jsx");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
@@ -116,6 +118,10 @@ assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical c
 assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
 assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributor findings remain Human-Gate/admin only");
+assert.match(contributorFindingsSource, /personal_scope/, "Contributor lens must include explicit person-only research");
+assert.match(contributorFindingsSource, /owner_slug/, "Contributor lens must bind person-only research to the contributor slug");
+assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
+assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
@@ -263,6 +269,19 @@ assert.equal(allMaterialFixture.byAccess.private, 1, "private remains an access 
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all" }).length, 4);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
+
+const personOnlyWorldFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "ordinary-private", created_at: "2026-10-07T10:00:00Z", kind: "observation",
+    statement: "מחקר פרטי רגיל", privacy_scope: "private", status: "candidate", meta: {},
+  }, {
+    id: "ariel-person-only", created_at: "2026-10-07T10:01:00Z", kind: "relation",
+    statement: "ממצא אישי של אריאל", privacy_scope: "private", status: "candidate",
+    meta: { ext: { personal_scope: { scope: "person_only", owner_slug: "ariel-ben-moshe" } } },
+  }],
+}, { researchObjects: 2, sourceMessages: 0, contributions: 0, topics: 0 });
+assert.deepEqual(personOnlyWorldFixture.rows.map((row) => row.sourceId), ["ordinary-private"], "ordinary private research stays visible to admin World");
+assert.equal(personOnlyWorldFixture.excludedPersonOnlyResearch, 1, "only explicit person_only research is removed from the general World tree");
 
 // PhaseA repair — shared World numeric normalizer: null/undefined/empty/whitespace/boolean/array/object
 // must never leak in as 0; a genuinely finite 0 must stay 0. Single normalizer, reused everywhere.
