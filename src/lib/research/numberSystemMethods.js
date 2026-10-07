@@ -86,7 +86,7 @@ function humanSystemMethodCard(finding) {
   };
 }
 
-async function fetchLiveNumericRuleVersions(ids) {
+export async function fetchLiveNumericRuleVersions(ids) {
   const wanted = Array.isArray(ids) ? ids.filter(Boolean) : [...NUMERIC_SYSTEM_METHOD_RULE_IDS];
   if (!wanted.length) return {};
   const { data, error } = await supabase

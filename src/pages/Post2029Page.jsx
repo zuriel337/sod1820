@@ -5,6 +5,8 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
+import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
+import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
@@ -71,6 +73,7 @@ function PostReadingBody() {
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
     [regions, activeRegionId],
   );
+  const activeRegionFocus = activeFocus;
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
@@ -106,6 +109,11 @@ function PostReadingBody() {
   }, [state.projection, regions]);
 
   useEffect(() => {
+    // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
+    // still gets one whole-post reading focus, so the Golden layer can mount. Others are unchanged.
+    const activeFocus = activeRegionFocus || (state.projection?.contextPack && state.projection?.post
+      ? { id: "post-story", label: "הסיפור", primary: state.projection.post.title, signals: [], number: null }
+      : null);
     if (!state.projection || !activeFocus) return;
     const post = state.projection.post;
     const currentContext = research.context || null;
@@ -186,7 +194,15 @@ function PostReadingBody() {
               href: connection.href,
               sourceLabel: connection.provenanceLabel || connection.kind,
             }))
-          : [],
+          : state.projection.contextPack
+            // Golden Posts 5112/92 only: governed pack rows + existing connections, public layer only.
+            ? goldenPublicSurfaceFindings({
+              rows: mergeContextPackWithConnections(state.projection.contextPack, state.projection.experience?.connections || []),
+              // The active focus is the focal object, not a "connection" to itself.
+              exclude: (row) => row.id === activeFocus.id
+                || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
+            })
+            : [],
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,
@@ -203,7 +219,7 @@ function PostReadingBody() {
         },
       },
     });
-  }, [activeFocus?.id, state.projection?.post?.id]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack)]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
