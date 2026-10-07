@@ -10,6 +10,7 @@ import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation
 import { MEDIA_RELATION_KIND, buildMediaEnvelope, dedupeMediaEnvelopes, normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
 import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
 import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
+import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -965,6 +966,7 @@ export async function fetchEntityHubProjection({
   numberResearchLenses = null,
   numberLookupLimit = 500,
   includeMedia = true,
+  includeScriptureDiscovery = true,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
@@ -1046,6 +1048,13 @@ export async function fetchEntityHubProjection({
     numberJourney = projectNumberJourney(numberResearch);
   }
 
+  // Generic Research Finding → Scripture discovery is a bounded read-only projection.
+  // Number nodes already expose the same-value verse path through numberJourney, so do not
+  // issue a duplicate verse lookup there. Same-value verses are discovery leads only.
+  const scriptureDiscovery = includeScriptureDiscovery && !isNumberNode
+    ? await fetchScriptureDiscoveryForFindings(research.findings, { maxSeeds: 3, verseLimit: 6 })
+    : null;
+
   return {
     v: 3,
     identity: {
@@ -1073,6 +1082,7 @@ export async function fetchEntityHubProjection({
     research: {
       rows: research.rows,
       findings: research.findings,
+      scriptureDiscovery,
       humanGate: humanGateSummary(research.rows),
       access: research.access,
     },
