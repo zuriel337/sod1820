@@ -21,6 +21,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/contact",
   "/credits",
   "/cross",
+  "/early-access",
   "/editor",
   "/els",
   "/enter",
