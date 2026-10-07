@@ -104,9 +104,8 @@ function matchAnchor(anchor, tokens) {
   return { score, why: [...new Set(why)] };
 }
 
-export function resolveVideoForResearchRow(row, context) {
-  const map = readVideoSemanticMap(row);
-  if (!map) return null;
+export function resolveVideoSemanticMap(map, context) {
+  if (!map?.mediaUrl) return null;
   const tokens = contextTokens(context);
   const ranked = map.anchors
     .map((anchor) => ({ anchor, ...matchAnchor(anchor, tokens) }))
@@ -133,10 +132,15 @@ export function resolveVideoForResearchRow(row, context) {
   };
 }
 
-export function contextualVideosFromResearchRows(rows, context, { limit = 3 } = {}) {
+export function resolveVideoForResearchRow(row, context) {
+  const map = readVideoSemanticMap(row);
+  return map ? resolveVideoSemanticMap(map, context) : null;
+}
+
+export function contextualVideosFromMaps(maps, context, { limit = 3 } = {}) {
   const byVideo = new Map();
-  for (const row of Array.isArray(rows) ? rows : []) {
-    const item = resolveVideoForResearchRow(row, context);
+  for (const map of Array.isArray(maps) ? maps : []) {
+    const item = resolveVideoSemanticMap(map, context);
     if (!item) continue;
     const key = item.videoPublicId || item.videoKey || item.mediaUrl;
     const prev = byVideo.get(key);
@@ -146,6 +150,11 @@ export function contextualVideosFromResearchRows(rows, context, { limit = 3 } = 
     .filter((item) => item.matched)
     .sort((a, b) => b.score - a.score)
     .slice(0, Math.max(1, Math.min(6, Number(limit) || 3)));
+}
+
+export function contextualVideosFromResearchRows(rows, context, options = {}) {
+  const maps = (Array.isArray(rows) ? rows : []).map(readVideoSemanticMap).filter(Boolean);
+  return contextualVideosFromMaps(maps, context, options);
 }
 
 export function videoUrlForAnchor(item) {
