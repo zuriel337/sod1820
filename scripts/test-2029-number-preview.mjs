@@ -84,7 +84,7 @@ assert.match(livingWorld, /onInspect=\{onFocusContext \? \(row\) => onFocusConte
 assert.match(livingWorld, /locator: "#number-timeline-live"/);
 assert.match(page, /focusSurfaceContext/);
 assert.equal(/>graph-relation</.test(livingWorld), false, "internal graph-relation kind must never be public copy");
-assert.match(livingWorld, /CanonicalMediaImage2029/);
+assert.match(livingWorld, /CanonicalMediaFigure2029/);
 assert.match(canonicalMedia, /data-media-fit="preserve-whole-image"/);
 assert.match(canonicalMediaCss, /object-fit:contain!important/);
 assert.equal(/sod29-lw-feature-media>figure img\{[^}]*object-fit:cover/.test(livingWorldCss), false, "Number content media must preserve the whole image");

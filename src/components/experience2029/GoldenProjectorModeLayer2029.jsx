@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import ProjectorMediaCards2029 from "./ProjectorMediaCards2029.jsx";
 import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
 import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse, resolveProjectorMode } from "../../lib/research/goldenProjectorModes.js";
 
@@ -102,6 +103,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
       <button type="button" aria-pressed={mode === PROJECTOR_MODE.ADMIN_ALL} onClick={() => choose(PROJECTOR_MODE.ADMIN_ALL)}>מנהל / הכל</button>
       <button type="button" aria-pressed={mode === PROJECTOR_MODE.PUBLIC_VIEW} onClick={() => choose(PROJECTOR_MODE.PUBLIC_VIEW)}>ציבור</button>
     </div>
+    <ProjectorMediaCards2029 postSlug={postSlug} context={context} />
     {mode === PROJECTOR_MODE.PUBLIC_VIEW
       ? <p className="sod29-golden-mode-note">תצוגה ציבורית: מוצג בדיוק מה שמבקר ציבורי מורשה לראות. לא נטען כאן שום חומר פרטי.</p>
       : universe.status === "loading" ? <p className="sod29-golden-mode-note">טוען את כל החומר המורשה…</p>
