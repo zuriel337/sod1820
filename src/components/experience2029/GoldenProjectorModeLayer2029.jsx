@@ -4,6 +4,12 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import ProjectorMediaCards2029 from "./ProjectorMediaCards2029.jsx";
 import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
 import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse, resolveProjectorMode } from "../../lib/research/goldenProjectorModes.js";
+import {
+  RESEARCH_FACET_FILTER_DEFAULTS,
+  RESEARCH_OPERATION_LABELS_HE,
+  buildResearchFacetControl,
+  filterResearchFacetItems,
+} from "../../lib/research/researchFacetProjection.js";
 
 // "מנהל | ציבור" inside the EXISTING Contextual Sidecar (Golden Posts 5112/92 only).
 // Mode changes presentation only. The admin layer is read with the viewer's own session through the
@@ -42,6 +48,7 @@ function AdminRow({ item }) {
         <dt>מצב</dt><dd>{(item.states || []).map((s) => <span key={s} className="sod29-golden-admin-state">{s}</span>)}</dd>
         <dt>למה</dt><dd>{item.reason || "—"}</dd>
         <dt>מקור</dt><dd>{item.provenance || "—"}</dd>
+        {item.sourceText ? <><dt>דברי המקור</dt><dd className="sod29-golden-source-text">{item.sourceText}</dd></> : null}
         {item.axes ? <><dt>סדר</dt><dd>{explainProminence(item.axes)}</dd></> : null}
       </dl>
     </details>
@@ -66,6 +73,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
   const mode = resolveProjectorMode({ isAdmin: !loading && isAdmin, requested });
   const postSlug = context?.dimensions?.readingFocus?.postSlug || null;
   const [universe, setUniverse] = useState({ status: "idle", data: null });
+  const [facetFilters, setFacetFilters] = useState(() => ({ ...RESEARCH_FACET_FILTER_DEFAULTS }));
 
   useEffect(() => {
     if (!visible || mode !== PROJECTOR_MODE.ADMIN_ALL || !postSlug) {
@@ -93,10 +101,19 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
     return () => { alive = false; };
   }, [visible, mode, postSlug]);
 
+  useEffect(() => {
+    setFacetFilters({ ...RESEARCH_FACET_FILTER_DEFAULTS });
+  }, [postSlug]);
+
   if (!visible || loading || !isAdmin) return null;
 
   const choose = (next) => { storeMode(next); setRequested(next); };
   const data = universe.data;
+  const researchItems = data?.layers?.[ADMIN_LAYER.RESEARCH] || [];
+  const facetControl = buildResearchFacetControl(researchItems);
+  const filteredResearchItems = filterResearchFacetItems(researchItems, facetFilters);
+  const updateFacet = (key, value) => setFacetFilters((current) => ({ ...current, [key]: value }));
+  const resetFacets = () => setFacetFilters({ ...RESEARCH_FACET_FILTER_DEFAULTS });
 
   return <section className="sod29-golden-mode" data-golden-projector-mode={mode} aria-label="מצב תצוגת ההקשר">
     <div className="sod29-golden-mode-toggle" role="group" aria-label="מנהל | ציבור">
@@ -113,7 +130,31 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
               <p className="sod29-golden-mode-note">מנהל / הכל · {data.total} פריטים. גלוי ≠ מאומת / מפורסם / קנוני. סדר לפי צירי SMART, בלי ציון יחיד; אותו ערך ≠ אותה זהות.</p>
               {data.researchAccess?.available === false ? <p className="sod29-golden-mode-note">קריאת המחקר אינה זמינה לחשבון זה ({data.researchAccess.reason}).</p> : null}
               {data.truncatedNumbers?.length ? <p className="sod29-golden-mode-note">הגעתי לגבול העמוד עבור {data.truncatedNumbers.join(", ")} — קיימים פריטים נוספים.</p> : null}
-              {Object.values(ADMIN_LAYER).map((key) => <AdminLayer key={key} layerKey={key} items={data.layers[key] || []} />)}
+              {facetControl.hasStructuredFacets ? <div className="sod29-golden-facet-filters" aria-label="סינון מחקר לפי העץ">
+                <label><span>שיטה</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
+                  <option value="all">כל השיטות</option>
+                  {Object.entries(facetControl.byMethod).map(([method, count]) => <option key={method} value={method}>{method} · {count}</option>)}
+                </select></label>
+                <label><span>פעולה</span><select value={facetFilters.operation} onChange={(event) => updateFacet("operation", event.target.value)}>
+                  <option value="all">כל הפעולות</option>
+                  {Object.entries(facetControl.byOperation).map(([operation, count]) => <option key={operation} value={operation}>{RESEARCH_OPERATION_LABELS_HE[operation] || "פעולה מחקרית"} · {count}</option>)}
+                </select></label>
+                <label><span>מכפיל</span><select value={facetFilters.factor} onChange={(event) => updateFacet("factor", event.target.value)}>
+                  <option value="all">כל המכפילים</option>
+                  {Object.entries(facetControl.byFactor).sort((a, b) => Number(a[0]) - Number(b[0])).map(([factor, count]) => <option key={factor} value={factor}>×{factor} · {count}</option>)}
+                </select></label>
+                <label><span>מבנה</span><select value={facetFilters.spatial} onChange={(event) => updateFacet("spatial", event.target.value)}>
+                  <option value="all">כל המבנים</option>
+                  {facetControl.spatial3d ? <option value="3d">תלת־ממד · {facetControl.spatial3d}</option> : null}
+                </select></label>
+                <label><span>סט מחקרי</span><select value={facetFilters.family} onChange={(event) => updateFacet("family", event.target.value)}>
+                  <option value="all">כל הסטים</option>
+                  {Object.entries(facetControl.byFamily).map(([key, family]) => <option key={key} value={key}>{family.label} · {family.count}</option>)}
+                </select></label>
+                <button type="button" onClick={resetFacets}>אפס סינון</button>
+                <small>{filteredResearchItems.length} מתוך {researchItems.length} ממצאי מחקר</small>
+              </div> : null}
+              {Object.values(ADMIN_LAYER).map((key) => <AdminLayer key={key} layerKey={key} items={key === ADMIN_LAYER.RESEARCH ? filteredResearchItems : (data.layers[key] || [])} />)}
             </div>}
   </section>;
 }
