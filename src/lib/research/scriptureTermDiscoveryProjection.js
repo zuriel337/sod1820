@@ -41,6 +41,7 @@ function validSourceTerm(value) {
   if (/https?:\/\//i.test(sourceTerm) || /[<>]/.test(sourceTerm) || /\d/.test(sourceTerm)) return null;
   const queryTerm = normalizeTanachLexicalQuery(sourceTerm);
   if (!queryTerm || queryTerm.length < 2 || queryTerm.length > 80) return null;
+  if (!/^[א-תךםןףץ ]+$/.test(queryTerm)) return null;
   return {
     sourceTerm,
     queryTerm,
@@ -178,7 +179,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           sourceRef: result.sourceRef,
           sourceTerm: occurrence.sourceTerm,
           queryTerm: occurrence.queryTerm,
-          discoveryBasis: occurrence.tokenEligible ? "lexical_exact_token" : "lexical_phrase_sequence",
+          discoveryBasis: occurrence.tokenEligible ? "lexical_exact_token" : "lexical_substring_spaceless",
           entityIdentityClaim: false,
           truthPromotion: false,
           semanticProof: false,
