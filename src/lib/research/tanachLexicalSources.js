@@ -1,12 +1,14 @@
 import { supabase } from "../supabase.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-const NIQQUD = /[\u0591-\u05C7]/g;
+const NIQQUD = /[\u0591-\u05BD\u05BF\u05C1-\u05C2\u05C4-\u05C7]/g;
+const MAQAF = /\u05BE/g;
 
 export function normalizeTanachLexicalQuery(value) {
   return clean(value)
     .normalize("NFKC")
     .replace(NIQQUD, "")
+    .replace(MAQAF, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -43,7 +45,7 @@ export async function fetchTanachPhraseOccurrences(term, { limit = 6 } = {}) {
     type: "verse",
     ref: clean(row?.ref),
     text: clean(row?.text),
-    lexicalMatchKind: "phrase_sequence",
+    lexicalMatchKind: "substring_spaceless",
   })).filter((row) => row.ref && row.text);
   return {
     term: queryTerm,
