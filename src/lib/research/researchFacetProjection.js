@@ -18,6 +18,20 @@ export const RESEARCH_OPERATION_LABELS_HE = Object.freeze({
   add: "חיבור",
 });
 
+export function sourceMethodStateLabelHe(method) {
+  const label = clean(method?.displayLabel || method?.token) || "שיטה";
+  switch (clean(method?.state)) {
+    case "registry_supported_unlinked":
+      return `שיטת מקור: ${label} · קיימת במנוע, טרם קושרה לחישוב הזה`;
+    case "registry_registered_not_engine":
+      return `שיטת מקור: ${label} · רשומה, טרם זמינה במנוע`;
+    case "source_attested_variant_unregistered":
+      return `שיטת מקור: ${label} · טרם רשומה כווריאנט קנוני`;
+    default:
+      return `שיטת מקור: ${label} · טרם אומתה לחישוב הזה`;
+  }
+}
+
 export function researchFacetsOf(item) {
   return item?.researchFacets
     || item?.projection?.dimensions?.researchFacets
