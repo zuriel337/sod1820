@@ -43,18 +43,18 @@ function tightRoute(pathname) {
     || pathname === "/heichal"
     || pathname === "/היכל"
     || pathname === "/research"
-    || /^\\/2029\\//.test(pathname)
-    || /^\\/code(\\/|$)/.test(pathname)
-    || /^\\/galaxy(\\/|$)/.test(pathname)
-    || /^\\/sulamot/.test(pathname)
+    || /^\/2029\//.test(pathname)
+    || /^\/code(\/|$)/.test(pathname)
+    || /^\/galaxy(\/|$)/.test(pathname)
+    || /^\/sulamot/.test(pathname)
     || pathname === "/experience"
     || pathname === "/ניסיון"
-    || /^\\/entity-hub-preview(\\/|$)/.test(pathname);
+    || /^\/entity-hub-preview(\/|$)/.test(pathname);
 }
 
 function tagHref(tag) {
   const value = String(tag || "").trim();
-  if (/^\\d+$/.test(value)) return `/2029/number/${encodeURIComponent(value)}`;
+  if (/^\d+$/.test(value)) return `/2029/number/${encodeURIComponent(value)}`;
   return `/2029/gematria?q=${encodeURIComponent(value)}`;
 }
 
