@@ -219,6 +219,9 @@ const structuredFacetRow = {
       exact_duplicate_lineage: {
         occurrence_count: 3,
       },
+      gematria: {
+        method_key: "רגיל",
+      },
     },
   },
 };
@@ -235,8 +238,10 @@ assert.equal(facets.family.key, "zvi:spatial:408:zot");
 assert.equal(facets.family.cluster, "408 זאת · קוביית חיים");
 assert.equal(facets.spatial.role, "STRUCTURAL_3D");
 assert.equal(facets.spatial.mediaClass, "SPATIAL_3D");
+assert.equal(facets.spatial.is3d, true);
 assert.equal(facets.spatial.loadBearingVisualCandidate, true);
 assert.equal(facets.sourceOccurrence.ref, "channel_updates:structured-facet-source");
+assert.deepEqual(facets.sourceOccurrence.refs, ["channel_updates:structured-facet-source"]);
 assert.equal(facets.sourceOccurrence.duplicateOccurrenceCount, 3);
 
 const facetedFinding = researchObjectToUniversalFinding(structuredFacetRow);
