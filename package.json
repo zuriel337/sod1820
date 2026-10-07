@@ -49,7 +49,8 @@
     "test:entry-learn-2029": "node scripts/test-entry-contextual-learn-2029.mjs",
     "test:my-workspace-2029": "node scripts/test-my-workspace-2029.mjs",
     "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs",
-    "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs"
+    "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs",
+    "test:whatsapp-kod-hametsiut-join": "node scripts/test-whatsapp-kod-hametsiut-join.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"
