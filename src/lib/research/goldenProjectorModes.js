@@ -19,7 +19,7 @@ import { classifyWorldVerificationStrength } from "./worldContextualProminence.j
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } from "./researchObjectFinding.js";
 import { canonicalResearchSourceRef } from "./sourceBundleProjection.js";
-import { sourceMethodStateLabelHe } from "./researchFacetProjection.js";
+import { methodComponentStateLabelHe, sourceMethodStateLabelHe } from "./researchFacetProjection.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -298,8 +298,12 @@ export function buildGoldenAdminUniverse({
     const dk = `${occ}\u0000${clean(row.statement)}\u0000${row.value}`;
     const dupOf = dupKey.get(dk) || null;
     if (!dupOf) dupKey.set(dk, row.id);
+    const researchFacets = researchObjectFacetDimensions(row, { registryRows: researchMethodRegistryRows, sourceOccurrence });
     const states = researchRowState(row);
     if (dupOf) states.push("כפילות בתוך אותו מקום במקור");
+    for (const component of Array.isArray(researchFacets?.methodComponents) ? researchFacets.methodComponents : []) {
+      states.push(methodComponentStateLabelHe(component));
+    }
     for (const method of Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : []) {
       states.push(sourceMethodStateLabelHe(method));
     }
@@ -320,7 +324,7 @@ export function buildGoldenAdminUniverse({
       presentation,
       sourceText: sourceOccurrence?.displayTextNormalized || presentation.displayText || null,
       sourceOriginalText: sourceOccurrence?.originalText ?? null,
-      researchFacets: researchObjectFacetDimensions(row, { registryRows: researchMethodRegistryRows, sourceOccurrence }),
+      researchFacets,
       occurrenceKey: occ,
       axes: {
         contextRelevance: 1,
