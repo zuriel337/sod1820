@@ -32,9 +32,10 @@ test("public 2029 copy has no forbidden internal labels", () => {
   }
 });
 
-test("command label is gated: public says חיפוש, Heichal keeps פקודה", () => {
+test("Glass Dock keeps public command entry human-facing", () => {
   const src = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
-  assert.ok(src.includes('surface === "heichal" ? "פקודה" : "חיפוש"'));
+  assert.ok(src.includes("⌕ חיפוש"));
+  assert.ok(!src.includes("חיפוש / פקודה"));
   assert.ok(!src.includes("<small>פקודה</small>"));
 });
 

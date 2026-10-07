@@ -66,6 +66,7 @@ const TRANSIENT = Object.freeze({
   WORKSPACE: "workspace",
   ISSUE: "issue",
   CONTEXT: "context",
+  MORE: "more",
 });
 
 const ShellContext = createContext({
@@ -569,6 +570,25 @@ function ToolsProjection({ surface, target, go, onCapability }) {
       </div>
       {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{target.label}</strong><small>{target.type}</small></div> : null}
       <ContextualActionButtons actions={tools} target={target} onCapability={onCapability} go={go} />
+    </>
+  );
+}
+
+function MoreProjection({ onCommand, onTools, onWorkspace, onIssue, onReturn, canReturn }) {
+  return (
+    <>
+      <div className="sod29-panel-lead">
+        <div className="sod29-kicker">עוד · אותה מערכת</div>
+        <h3>כל מה שלא צריך לתפוס מקום קבוע בזכוכית.</h3>
+        <p>הפעולות נשארות זמינות בלי להפוך את ה־Dock למחסן כפתורים.</p>
+      </div>
+      <div className="sod29-panel-actions-grid" data-glass-dock-more="true">
+        <button className="sod29-action" type="button" onClick={onCommand}>⌕ חיפוש</button>
+        <button className="sod29-action" type="button" onClick={onTools}>◇ כלים</button>
+        <button className="sod29-action" type="button" onClick={onWorkspace}>◎ האזור האישי</button>
+        <button className="sod29-action" type="button" onClick={onIssue}>! דיווח / קשר</button>
+        {canReturn ? <button className="sod29-action" type="button" onClick={onReturn}>↩ חזרה מדויקת</button> : null}
+      </div>
     </>
   );
 }
@@ -1712,15 +1732,77 @@ export default function SystemFrame2029({
     surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
     surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
   ].filter(Boolean);
-  // Preserve the closed Number 2029 command-island behavior. Post keeps its stale-context
-  // guard; World/Topic may project the active Research Path when the surface supplies one.
+  // Preserve existing Post/World/Topic trail semantics, then project the same current context
+  // into the canonical Glass Dock. Tool surfaces do not create a second bottom bar.
   const bottomTrail = surface === "post"
     ? postTrail
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
+
+  const elsSelection = context?.selection?.entityType === "els" ? context.selection : null;
+  const elsCorpusLabel = elsSelection?.corpus === "tanakh" ? "תנ״ך" : elsSelection?.corpus === "torah" ? "תורה" : null;
+  const elsTrail = surface === "els" ? [
+    { id: "surface", label: "ELS" },
+    elsSelection?.term || context?.subject?.label ? { id: "term", label: elsSelection?.term || context?.subject?.label } : null,
+    Number.isInteger(Number(elsSelection?.skip)) ? { id: "skip", label: `דילוג ${Number(elsSelection.skip)}` } : null,
+    elsCorpusLabel ? { id: "corpus", label: elsCorpusLabel } : null,
+  ].filter(Boolean) : [];
+  const surfaceLabels = {
+    home: "בית",
+    world: "העולם",
+    topic: "נושא",
+    post: "פוסט",
+    number: "דף המספר",
+    books: "ספרים ומקורות",
+    els: "ELS",
+    heichal: "היכל",
+    journey: "מסע",
+    researcher: "חוקר",
+    video: "וידאו",
+  };
+  const genericTrail = [
+    { id: "surface", label: surfaceLabels[surface] || "SOD1820" },
+    context?.subject?.label && context.subject.label !== surfaceLabels[surface]
+      ? { id: "subject", label: context.subject.label }
+      : null,
+    surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
+    surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
+  ].filter(Boolean);
+  const glassTrailRaw = bottomTrail.length
+    ? bottomTrail
+    : elsTrail.length
+      ? elsTrail
+      : configuredTrail.length
+        ? configuredTrail
+        : genericTrail;
+  const glassTrail = glassTrailRaw.filter((item, index, all) =>
+    item?.label && all.findIndex((other) => other?.label === item.label) === index
+  ).slice(-6);
+  const glassContextLabel = glassTrail.map((item) => item.label).join(" › ") || "SOD1820";
+  const glassContextLong = Array.from(glassContextLabel).length > 34;
   const showContextRail = surface !== "control"
     && Boolean(activeTarget || context?.subject);
+
+  const openDockContext = () => {
+    const desktop = typeof window !== "undefined"
+      && typeof window.matchMedia === "function"
+      && window.matchMedia("(min-width: 981px)").matches;
+    const rail = typeof document !== "undefined"
+      ? document.querySelector(".sod29-surface-context-rail:not(.is-sheet)")
+      : null;
+    if (desktop && rail) {
+      rail.scrollIntoView?.({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      const focusable = rail.querySelector?.(FOCUSABLE);
+      focusable?.focus?.({ preventScroll: true });
+      return;
+    }
+    if (showContextRail) {
+      openTransient(TRANSIENT.CONTEXT);
+      return;
+    }
+    openAction(activeTarget);
+  };
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -1745,6 +1827,14 @@ export default function SystemFrame2029({
     /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
+    if (transientKind === TRANSIENT.MORE) return <PanelShell {...common} icon="•••" kicker="עוד" title="עוד"><MoreProjection
+      onCommand={openCommand}
+      onTools={openTools}
+      onWorkspace={openWorkspace}
+      onIssue={openIssueReport}
+      onReturn={returnExact}
+      canReturn={Boolean(context?.returnTo?.href)}
+    /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
       pathname={location.pathname}
@@ -1912,52 +2002,56 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
-          {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
-            {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
-              {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
-              {numberPageRoute ? <button
-                type="button"
-                className="sod29-command-trail-item"
-                aria-current={item.active ? "page" : undefined}
-                onClick={() => {
-                  if (item.number != null) {
-                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/2029/number/${item.number}` });
-                    return;
-                  }
-                  if (item.targetId) {
-                    document.getElementById(item.targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    return;
-                  }
-                  if (item.href) go(item.href);
-                }}
-                disabled={!item.number && !item.targetId && !item.href}
-              >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
-            </React.Fragment>)}
-          </nav> : <>
-            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
-          </>}
-          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          {bottomTrail.length ? <>
-            {surface === "number" ? <button
-              className="sod29-number-island-action"
+        <div
+          className={`sod29-command-island glass-context-dock${glassTrail.length > 1 ? " has-context-trail" : ""}`}
+          role="toolbar"
+          aria-label="הקשר פעיל והפעולות הזמינות עכשיו"
+          data-raziel-anchor="center"
+          data-glass-context-dock="v1"
+          data-dock-mode={surface === "els" ? "tool" : glassTrail.length > 1 ? "context" : "global"}
+        >
+          <div className="sod29-glass-dock-wing is-context" data-dock-wing="context">
+            <button
+              className={`sod29-glass-context-capsule${glassContextLong ? " is-rolling" : ""}`}
+              type="button"
+              onClick={openDockContext}
+              aria-label={`פתח הקשר: ${glassContextLabel}`}
+              title={glassContextLabel}
+            >
+              <span className="sod29-glass-context-mark" aria-hidden="true">⌖</span>
+              <span className="sod29-glass-context-viewport">
+                <span className="sod29-command-trail sod29-glass-context-track" aria-label="מסלול המחקר הנוכחי">
+                  {glassTrail.map((item, index) => <React.Fragment key={item.id || `glass-trail-${index}`}>
+                    {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
+                    <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>
+                  </React.Fragment>)}
+                </span>
+              </span>
+            </button>
+            <button
+              className="sod29-glass-dock-action"
               type="button"
               onClick={() => openAction(activeTarget)}
               aria-pressed={transientKind === TRANSIENT.ACTION}
-            ><span>◎</span><small>פעולה</small></button> : null}
-            <div className="sod29-command-actions">
-              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-              {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
-              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-              <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
-              <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
-            </div>
-          </> : <>
-            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
-            <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
-          </>}
+            ><span>◎</span><small>פעולה</small></button>
+          </div>
+
+          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
+
+          <div className="sod29-glass-dock-wing is-system" data-dock-wing="system">
+            <button
+              className="sod29-glass-dock-action sod29-glass-dock-pulse"
+              type="button"
+              onClick={openAttention}
+              aria-pressed={transientKind === TRANSIENT.ATTENTION}
+            ><span>◉</span><small>מה חדש</small></button>
+            <button
+              className="sod29-glass-dock-action"
+              type="button"
+              onClick={() => openTransient(TRANSIENT.MORE)}
+              aria-pressed={transientKind === TRANSIENT.MORE}
+            ><span>•••</span><small>עוד</small></button>
+          </div>
         </div>
 
         {renderTransient()}

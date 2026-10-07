@@ -74,11 +74,16 @@ assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
 // follow list sits after research section; summary count near top
 assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
-// bottom personal affordance lives in the single existing command island and opens WORKSPACE
-assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
-assert.match(frame, /className="sod29-island-personal" onClick=\{openWorkspace\}/);
-assert.equal((frame.match(/sod29-island-personal/g) || []).length, 2); // one per island layout, mutually exclusive branches
-assert.match(frame, /small>אישי</);
+// Glass Context Dock keeps one canonical bottom surface. Personal remains reachable through More
+// and still opens the same native WORKSPACE owner; it is no longer a permanent Dock slot.
+assert.equal((frame.match(/data-glass-context-dock="v1"/g) || []).length, 1);
+assert.match(frame, /function MoreProjection\(\{ onCommand, onTools, onWorkspace/);
+assert.match(frame, /onClick=\{onWorkspace\}>◎ האזור האישי<\/button>/);
+assert.match(frame, /onWorkspace=\{openWorkspace\}/);
+assert.match(frame, /onCommand=\{openCommand\}/);
+assert.match(frame, /<small>מה חדש<\/small>/);
+assert.match(frame, /onClick=\{openAttention\}/);
+assert.match(frame, /onClick=\{\(\) => openTransient\(TRANSIENT\.MORE\)\}/);
 
 
 // Saved / research state — ResearchProvider snapshot only, explicit action semantics.
