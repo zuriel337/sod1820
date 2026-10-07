@@ -1,6 +1,6 @@
 // TEMPORARY rollout gate (PROJECTOR_GOLDEN_POSTS_PILOT_GATE_V1).
-// Visibility/mount/layout only: the Contextual Sidecar (desktop) and Bottom Context Sheet (mobile)
-// render only on the current routed Post surface when the post is a Golden pilot post.
+// Scopes the Golden Projector layer (מנהל | ציבור) to the current routed Golden pilot post only.
+// The existing Contextual Sidecar mount/layout on Bennett and ordinary surfaces is left unchanged.
 // Projection infrastructure, Research Context state and findings semantics are untouched.
 export const PROJECTOR_PILOT_POST_IDS = Object.freeze(["5112", "92"]);
 

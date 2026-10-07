@@ -60,9 +60,9 @@ test("5112 ASCII still visible; encoded stale/mismatched slug and non-post surfa
   assert.equal(normalizePostSlug("%E0%A4%A"), null, "malformed encoding fails closed");
   assert.equal(vis({ surface: "post", pathname: "/post/%E0%A4%A", context: post(92, "%E0%A4%A") }), false);
 });
-test("SystemFrame consumes the single gate for rail, layout and sheet", () => {
-  const src = readFileSync(new URL("../components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
-  assert.match(src, /isProjectorPilotVisible\(/);
-  assert.match(src, /const showContextRail = projectorPilotVisible/);
-  assert.match(src, /transientKind === TRANSIENT\.CONTEXT && showContextRail/);
+test("gate scopes only the Golden layer; SystemFrame keeps existing (Bennett/ordinary) rail behavior", () => {
+  const frame = readFileSync(new URL("../components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+  assert.ok(!/isProjectorPilotVisible/.test(frame), "no global rail hiding: ordinary surfaces unchanged");
+  const layer = readFileSync(new URL("../components/experience2029/GoldenProjectorModeLayer2029.jsx", import.meta.url), "utf8");
+  assert.match(layer, /isProjectorPilotVisible\(\{ surface, pathname: location\.pathname, context \}\)/);
 });
