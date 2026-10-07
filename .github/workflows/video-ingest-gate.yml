@@ -24,6 +24,8 @@ on:
       - "src/lib/research/videoSemanticMap.js"
       - "src/lib/research/goldenProjectorModes.js"
       - "src/components/experience2029/GoldenProjectorModeLayer2029.jsx"
+      - "src/components/experience2029/ContextualVideoLayer2029.jsx"
+      - "src/components/experience2029/SurfaceContextRail2029.jsx"
       - "supabase/migrations/20261007104500_video_semantic_tree_projector_v1.sql"
       - "test/fixtures/post-publishing/**"
       - ".github/workflows/video-ingest-gate.yml"
