@@ -9,6 +9,101 @@ function clean(v) {
   return s || null;
 }
 
+function objectValue(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+function cleanList(values) {
+  return [...new Set((values || []).map(clean).filter(Boolean))];
+}
+
+function finiteNumber(value) {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+/**
+ * Shared one-tree research facets.
+ *
+ * This is a READ-ONLY projection over already structured research metadata.
+ * It creates no taxonomy, method registry, graph edge or research family.
+ * World / Projector / future writer surfaces may consume the same facets, but
+ * each source-owned identity remains exactly where it already lives:
+ * - method refs come only from structured engine fields and still require the
+ *   canonical Method Registry for public naming/order;
+ * - operator/quantity comes only from engine_detail.compound (never text regex);
+ * - spatial family/cluster comes only from meta.ext.spatial_research;
+ * - source occurrences remain provenance, not independent evidence.
+ */
+export function researchObjectFacets(row) {
+  const detail = objectValue(row?.engine_detail);
+  const compound = objectValue(detail.compound);
+  const ext = objectValue(row?.meta?.ext);
+  const gematria = objectValue(ext.gematria);
+  const spatial = objectValue(ext.spatial_research);
+  const mediaProfile = objectValue(ext.source_media_profile);
+  const duplicateLineage = objectValue(ext.exact_duplicate_lineage);
+
+  const compoundOperand = objectValue(compound.operand);
+  const compoundOperands = Array.isArray(compound.operands) ? compound.operands.map(objectValue) : [];
+  const methodRefs = cleanList([
+    detail.claimed_method,
+    detail.engine_method_tested,
+    detail.method,
+    compoundOperand.method,
+    ...compoundOperands.map((operand) => operand.method),
+    gematria.method_key,
+    gematria.method,
+  ]);
+
+  const sourceRef = clean(row?.source_ref);
+  const occurrenceRefs = cleanList([
+    sourceRef,
+    ...(Array.isArray(compound.occurrences) ? compound.occurrences : []),
+    ...(Array.isArray(ext.source_refs) ? ext.source_refs : []),
+  ]);
+
+  const spatialRole = clean(spatial.role);
+  const mediaClass = clean(mediaProfile.class);
+  const spatial3d = [spatialRole, mediaClass].some((value) => /(?:^|_)3D(?:_|$)/i.test(value || ""));
+
+  const compoundKind = clean(compound.kind);
+  const multiplier = compoundKind === "quantity-product" ? finiteNumber(compound.quantity) : null;
+  const computedResult = finiteNumber(compound.computedTotal ?? compound.result);
+
+  const researchFocusKey = clean(spatial.research_focus_key);
+  const cluster = clean(spatial.cluster);
+
+  return {
+    methods: {
+      refs: methodRefs,
+      registryResolutionRequired: methodRefs.length > 0,
+    },
+    operation: {
+      compoundKind,
+      multiplier,
+      computedResult,
+      linkCount: finiteNumber(compound.linkCount),
+    },
+    family: {
+      researchFocusKey,
+      cluster,
+      spatialRole,
+      spatial3d,
+    },
+    media: {
+      class: mediaClass,
+      loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
+    },
+    provenance: {
+      sourceRef,
+      occurrenceRefs,
+      duplicateOccurrenceCount: finiteNumber(duplicateLineage.occurrence_count),
+    },
+  };
+}
+
 export function researchObjectPersonalScope(row) {
   return clean(row?.meta?.ext?.personal_scope?.scope)?.toLowerCase() || null;
 }
@@ -79,6 +174,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const terms = Array.isArray(row.terms) ? row.terms.filter(Boolean) : [];
   const presentation = resolveResearchObjectPresentation(row, { locale });
   const attribution = resolveExplicitAttribution(row);
+  const researchFacets = researchObjectFacets(row);
   const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
 
   return makeUniversalFinding({
@@ -130,6 +226,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       relations: [],
       dimensions: {
         researchObjectKind: row.kind ?? null,
+        researchFacets,
         ...(attribution.type || attribution.contributorId
           ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: attribution.resolved, explicit: attribution.resolved } }
           : {}),
