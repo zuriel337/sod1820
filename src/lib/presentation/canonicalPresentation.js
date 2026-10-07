@@ -109,6 +109,26 @@ export function canonicalMediaPublicLabel(input, { fallback = "תמונה" } = {
   return human.length > 82 ? human.slice(0, 81).trimEnd() + "…" : human;
 }
 
+// ONE public media label + summary for every surface (Number/World/Topic/Projector).
+// Accepts an intrinsic payload or a raw {name,label,description}. Context reasons live elsewhere.
+const MEDIA_KIND_LABEL = Object.freeze({ screenshot: "צילום מסך" });
+export function canonicalMediaPresentation(input, { fallback = "תמונה" } = {}) {
+  const src = input && typeof input === "object" ? input : { label: input };
+  const label = canonicalMediaPublicLabel({
+    publicLabel: src.publicLabel,
+    title: src.title,
+    name: src.name,
+    label: src.label,
+    description: src.legacyPlacement?.description ?? src.description,
+  }, { fallback });
+  const kind = clean(src.provenance?.storedMediaKind);
+  const event = clean(src.interpretation?.event);
+  const desc = clean(src.legacyPlacement?.description ?? src.description);
+  const summaryRaw = event || (desc && desc !== label ? desc : "");
+  const summary = summaryRaw.length > 160 ? summaryRaw.slice(0, 159).trimEnd() + "…" : summaryRaw;
+  return { label, summary: summary || null, kindLabel: MEDIA_KIND_LABEL[kind] || null };
+}
+
 export function canonicalGraphRelationTitle(relation, { anchorId = null } = {}) {
   if (!relation || typeof relation !== "object") return "קשר";
   const from = relation.from || null;

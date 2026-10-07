@@ -11,7 +11,7 @@ import { shareOrCopy } from "../lib/share.js";
 // לייטבוקס מועשר: תמונה + פאנל-מידע (צד בדסקטופ, מתחת במובייל) עם כל המספרים
 // כקישורים, משמעויות מספרי-הליבה, תגיות, תיאור מלא, ו-CTA לדף-המספר (עץ אחד —
 // כל ההקשרים חיים שם, לא משוכפלים כאן).
-// research — אופציונלי: { ocrStatus, ocrText, ocrNumbers, sourceLabel, provenance } לתמונה הפעילה; טענות שמורות בלבד (לא חישוב/אמת).
+// research — אופציונלי: { ocrStatus, ocrText, ocrNumbers, sourceLabel, provenance, mediaKind, author, publication, event, entities, numbersMeaning, gematriaNote } לתמונה הפעילה; טענות שמורות בלבד (לא חישוב/אמת).
 export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null, research = null }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
@@ -171,6 +171,12 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
                 <div style={{ color: "#ffffffaa", fontFamily: F.body, fontSize: 13, lineHeight: 1.6 }}>
                   <div>OCR: {({ done: "הושלם", pending: "ממתין", error: "שגיאה" })[research.ocrStatus] || "לא ידוע"}</div>
                   {research.sourceLabel ? <div>מקור: {research.sourceLabel}</div> : null}
+                  {research.mediaKind === "screenshot" ? <div>סוג: צילום מסך (לפי מטא־דאטה שמורה)</div> : null}
+                  {research.author || research.publication ? <div>מפרסם: {[research.author, research.publication].filter(Boolean).join(" · ")}</div> : null}
+                  {research.event ? <div>אירוע (טענה שמורה): {research.event}</div> : null}
+                  {research.entities?.length ? <div>ישויות (טענה שמורה): {research.entities.join(", ")}</div> : null}
+                  {research.numbersMeaning && Object.keys(research.numbersMeaning).length ? <div>משמעות מספרים (טענת מקור): {Object.entries(research.numbersMeaning).map(([n, m]) => `${n} = ${m}`).join(" · ")}</div> : null}
+                  {research.gematriaNote ? <div>הערת גימטריה (טענת מקור, לא חושבה כאן): {research.gematriaNote}</div> : null}
                   {research.ocrText ? <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{research.ocrText}</div> : null}
                   {research.provenance ? <div style={{ marginTop: 6, fontSize: 11.5, color: "#ffffff66" }}>המספרים שמורים כטענה בגלריה — לא חושבו מחדש ואינם הוכחה.</div> : null}
                 </div>

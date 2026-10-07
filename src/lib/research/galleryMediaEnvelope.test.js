@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
+  MEDIA_RELATION_KIND,
   buildMediaEnvelope,
+  normalizeMediaPostSlug,
   dedupeMediaEnvelopes,
   intrinsicToLightboxImage,
   intrinsicResearchDetails,
@@ -21,7 +23,11 @@ test("pilot manifest: 10-20 unique rows, required coverage, no fabricated covera
   assert.equal(new Set(pilot.rows.map((r) => r.galleryImageId)).size, pilot.rows.length);
   const covered = new Set(pilot.rows.flatMap((r) => r.coverage));
   for (const c of ["text", "gematria", "event_news", "historical", "source_date", "strong_ocr", "pending_ocr", "error_ocr", "number_linked"]) assert.ok(covered.has(c), c);
-  assert.ok(pilot.known_gaps.screenshot && pilot.known_gaps.post_context_linked);
+  for (const c of ["screenshot", "post_context_linked"]) assert.ok(covered.has(c), c);
+  const ctx = pilot.rows.find((r) => r.galleryImageId === "7287ad08-1c7b-4642-a5c4-cecbbaf35b81");
+  assert.equal(ctx.nodeId, null);
+  assert.equal(ctx.relationKind, "source_metadata");
+  assert.ok(pilot.rows.some((r) => r.galleryImageId === "abf634b9-cb8f-46c0-927d-87fbe341971c" && r.coverage.includes("screenshot")));
 });
 
 test("identity is stable and derived from gallery id only", () => {
@@ -82,4 +88,83 @@ test("surfaces consume the shared figure and never read gallery_images directly;
   const lb = fs.readFileSync("src/components/Lightbox.jsx", "utf8");
   assert.match(lb, /object-fit: contain/);
   assert.match(lb, /ArrowLeft/);
+});
+
+const meta = { source: "news_screenshot", author: "מעריב אונליין", entities: ["נתניהו"], event: "אירוע X", numbers_meaning: { "89": "מסתתר אלהים" },
+  gematria_note: "המשיח = 363; verified", post_slug: "chibur-bein-hasafot-mafteach-lagan", approved_by: "ZURIEL", secret: "x" };
+
+test("envelope separates representation / extraction / interpretation / provenance / legacy placement", () => {
+  const e = buildMediaEnvelope({ row: row(pilot.rows[0].galleryImageId, { ocr_meta: meta }), relationType: "related" });
+  const i = e.intrinsic;
+  for (const k of ["representation", "extraction", "interpretation", "provenance", "legacyPlacement"]) assert.ok(i[k], k);
+  assert.equal(i.legacyPlacement.state, "legacy_placement_not_visual_truth");
+  assert.equal(i.legacyPlacement.description, "d");
+  assert.equal(i.interpretation.state, "stored_source_claim");
+  assert.equal(i.interpretation.gematriaClaimState, "source_claim_not_recomputed_here");
+  assert.equal(i.interpretation.numbersMeaning["89"], "מסתתר אלהים");
+  assert.equal(i.provenance.author, "מעריב אונליין");
+  assert.equal(JSON.stringify(i).includes("approved_by"), false);
+  assert.equal(JSON.stringify(i).includes("secret"), false);
+});
+
+test("screenshot comes from stored ocr_meta.source only, never pixels", () => {
+  const shot = buildMediaEnvelope({ row: row(pilot.rows[0].galleryImageId, { ocr_meta: meta }) });
+  const plain = buildMediaEnvelope({ row: row(pilot.rows[1].galleryImageId, { ocr_meta: { source: "post_5112_existing_approved_asset" } }) });
+  const none = buildMediaEnvelope({ row: row(pilot.rows[2].galleryImageId) });
+  assert.equal(shot.intrinsic.provenance.storedMediaKind, "screenshot");
+  assert.equal(shot.intrinsic.provenance.storedMediaKindBasis, "ocr_meta.source=news_screenshot");
+  assert.equal(shot.presentation.kindLabel, "צילום מסך");
+  assert.equal(plain.intrinsic.provenance.storedMediaKind, null);
+  assert.equal(none.intrinsic.provenance.storedMediaKind, null);
+});
+
+test("source_metadata relation is distinct from reality_graph and carries the same intrinsic payload", () => {
+  const id = "7287ad08-1c7b-4642-a5c4-cecbbaf35b81";
+  const slug = "flydubai-fz1073-363-14000-remzei-geula";
+  const r = row(id, { ocr_meta: { post_slug: slug } });
+  const m = buildMediaEnvelope({ row: r, relationType: "post_metadata", relationKind: MEDIA_RELATION_KIND.SOURCE_METADATA, postSlug: slug });
+  const g = buildMediaEnvelope({ row: r, node: { id: "n9" }, relationType: "contains" });
+  assert.equal(m.contextRelation.relationKind, "source_metadata");
+  assert.equal(m.contextRelation.projectionReason, "source_metadata:post_metadata");
+  assert.doesNotMatch(m.contextRelation.projectionReason, /reality_graph/);
+  assert.equal(m.nodeId, null);
+  assert.equal(g.contextRelation.relationKind, "reality_graph");
+  assert.equal(m.mediaId, g.mediaId);
+  assert.equal(m.galleryImageId, g.galleryImageId);
+  assert.deepEqual(m.presentation, g.presentation);
+  // dedupe: graph relation wins when it comes first
+  assert.equal(dedupeMediaEnvelopes([g, m])[0].contextRelation.relationKind, "reality_graph");
+  assert.equal(normalizeMediaPostSlug(encodeURIComponent("פוסט-92")), "פוסט-92");
+});
+
+test("one canonical presentation: identical across surfaces; context differs", () => {
+  const id = pilot.rows[0].galleryImageId;
+  const a = buildMediaEnvelope({ row: row(id), node: { id: "n1" }, relationType: "contains" });
+  const b = buildMediaEnvelope({ row: row(id), node: { id: "n1" }, relationType: "mentions" });
+  assert.deepEqual(a.presentation, b.presentation);
+  assert.equal(a.label, a.presentation.label);
+  assert.ok(a.presentation.label);
+  assert.notEqual(a.contextRelation.projectionReason, b.contextRelation.projectionReason);
+});
+
+test("Projector media: shared figure via Entity Hub only, no gallery_images read, no crop, public-safe query", () => {
+  const card = fs.readFileSync("src/components/experience2029/ProjectorMediaCards2029.jsx", "utf8");
+  assert.match(card, /CanonicalMediaFigure2029/);
+  assert.match(card, /fetchPostContextMedia/);
+  assert.doesNotMatch(card, /gallery_images|supabase/);
+  assert.doesNotMatch(card, /object-fit:\s*cover/);
+  assert.match(fs.readFileSync("src/components/experience2029/GoldenProjectorModeLayer2029.jsx", "utf8"), /ProjectorMediaCards2029/);
+  const hub = fs.readFileSync("src/lib/research/entityHubProjection.js", "utf8");
+  const fn = hub.slice(hub.indexOf("export async function fetchPostContextMedia"), hub.indexOf("function humanGateSummary"));
+  assert.match(fn, /\.eq\("published", 1\)/);
+  assert.match(fn, /curator_hidden\.is\.null,curator_hidden\.eq\.false/);
+  assert.match(fn, /SOURCE_METADATA/);
+  assert.doesNotMatch(fn, /\.(insert|update|upsert|delete)\(/);
+  assert.doesNotMatch(fn, /from\("(nodes|edges)"\)/);
+});
+
+test("no page-local media label rewriting; no DB mutation in media adapter", () => {
+  assert.doesNotMatch(fs.readFileSync("src/pages/World2029Page.jsx", "utf8"), /humanMediaLabel/);
+  const env = fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8");
+  assert.doesNotMatch(env, /supabase|\.insert\(|\.update\(|\.upsert\(/);
 });

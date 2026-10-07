@@ -556,20 +556,20 @@ export default function NumberLivingWorld2029({
       {mediaItems.length ? <div className="sod29-lw-feature-media">
         {(() => {
           const item = mediaItems[0];
-          const label = canonicalMediaPublicLabel(item, { fallback: `תמונה של ${root}` });
+          const label = (item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" }));
           return <CanonicalMediaFigure2029
             item={item}
             primary
             alt={label}
             className="sod29-lw-media-focus is-primary"
             contextNote={canonicalRelationPublicLabel(item?.relationType || "related")}
-            onOpen={() => onFocusContext?.(focusPayload(item, canonicalMediaPublicLabel(item, { fallback: "תמונה" })))}
+            onOpen={() => onFocusContext?.(focusPayload(item, item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" })))}
           >
             <span className="sod29-lw-media-caption"><small>ייצוג מוביל</small><strong>{label}</strong></span>
           </CanonicalMediaFigure2029>;
         })()}
         <div>{mediaItems.slice(1, 4).map((item, index) => {
-          const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+          const label = item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" });
           return <CanonicalMediaFigure2029
             key={item?.galleryImageId || item?.nodeId || index}
             item={item}

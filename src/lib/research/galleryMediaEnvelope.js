@@ -5,6 +5,8 @@
 // contextRelation varies. Stored numbers/OCR are provenance claims — never recomputed here,
 // never truth/canonical/publication.
 
+import { canonicalMediaPresentation } from "../presentation/canonicalPresentation.js";
+
 const OCR_TEXT_CAP = 4000;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -16,55 +18,152 @@ export function mediaIdentity(galleryImageId) {
   return uuid.test(id) ? `media:gallery_image:${id.toLowerCase()}` : null;
 }
 
+const strList = (value, cap = 24) => (Array.isArray(value)
+  ? value.map((v) => clean(typeof v === "string" ? v : "")).filter(Boolean).slice(0, cap)
+  : []);
+const strMap = (value) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out = {};
+  for (const [k, v] of Object.entries(value).slice(0, 24)) if (typeof v === "string" && clean(v)) out[clean(k)] = clean(v);
+  return out;
+};
+
+// Slugs may be stored percent-encoded; compare fully decoded + NFC (same rule as the pilot gate).
+export function normalizeMediaPostSlug(value) {
+  let out = clean(String(value ?? ""));
+  if (!out) return null;
+  try { for (let i = 0; i < 3 && /%[0-9a-f]{2}/i.test(out); i += 1) out = decodeURIComponent(out); } catch { return null; }
+  return out.normalize("NFC") || null;
+}
+
+// Stored ocr_meta → labelled SOURCE CLAIMS. Whitelist only (no approved_by / unknown keys);
+// nothing here is pixel inference, face/person identity, or recomputed gematria.
+export function buildStoredInterpretation(ocrMeta) {
+  const meta = ocrMeta && typeof ocrMeta === "object" && !Array.isArray(ocrMeta) ? ocrMeta : {};
+  const gematriaNote = clean(meta.gematria_note) || null;
+  return {
+    state: "stored_source_claim",
+    basis: "gallery_images.ocr_meta",
+    topic: clean(meta.topic) || null,
+    topics: strList(meta.topics),
+    entities: strList(meta.entities),
+    scene: clean(meta.scene) || null,
+    imageType: clean(meta.image_type) || null,
+    event: clean(meta.event) || null,
+    numbersMeaning: strMap(meta.numbers_meaning),
+    // A stored note that says "verified" is still a claim here: trace proof lives in the engine, not in this row.
+    gematriaNote,
+    gematriaClaimState: gematriaNote ? "source_claim_not_recomputed_here" : null,
+  };
+}
+
+export function buildMediaProvenance(row) {
+  const meta = row?.ocr_meta && typeof row.ocr_meta === "object" && !Array.isArray(row.ocr_meta) ? row.ocr_meta : {};
+  const metaSource = clean(meta.source) || null;
+  return {
+    sourceRef: `gallery_images:${row.id}`,
+    storedSource: clean(row.source) || null,
+    metaSource,
+    author: clean(meta.author) || null,
+    publication: clean(meta.publication) || null,
+    sourceProvenance: clean(meta.source_provenance) || null,
+    postSlug: normalizeMediaPostSlug(meta.post_slug),
+    // Screenshot is read from STORED metadata only (never pixels).
+    storedMediaKind: metaSource === "news_screenshot" ? "screenshot" : null,
+    storedMediaKindBasis: metaSource === "news_screenshot" ? "ocr_meta.source=news_screenshot" : null,
+  };
+}
+
 export function buildIntrinsicMedia({ row, node = null, label = "" }) {
   const mediaId = mediaIdentity(row?.id);
   if (!mediaId || !row?.image_url) return null;
   const ocrText = clean(row.ocr_text);
+  const tags = Array.isArray(row.tags) ? row.tags : [];
+  const storedNumbers = {
+    primary: Number.isSafeInteger(row.primary_value) ? row.primary_value : null,
+    all: ints(row.all_values),
+    related: ints(row.related_values),
+    provenance: "stored_gallery_claim_not_recomputed",
+  };
+  const ocr = {
+    status: clean(row.ocr_status) || null,
+    text: ocrText ? ocrText.slice(0, OCR_TEXT_CAP) : null,
+    numbers: ints(row.ocr_numbers),
+  };
+  const representation = {
+    imageUrl: row.image_url,
+    thumbUrl: row.thumb_url || row.image_url,
+    fit: "preserve-whole-image",
+  };
+  const provenance = buildMediaProvenance(row);
+  // Legacy PLACEMENT metadata: where/how the row was filed on gallery_images. It is not
+  // visual truth about the image; kept for compatibility and labelled as such.
+  const legacyPlacement = {
+    description: clean(row.description) || null,
+    tags,
+    space: clean(row.space) || null,
+    imageType: clean(row.image_type) || null,
+    occurredAt: row.occurred_at || null,
+    createdAt: row.created_at || node?.created_at || null,
+    storedNumbers,
+    state: "legacy_placement_not_visual_truth",
+  };
   return Object.freeze({
     mediaId,
     nodeId: node?.id ? String(node.id) : null,
     galleryImageId: String(row.id),
     label,
-    description: clean(row.description) || null,
-    imageUrl: row.image_url,
-    thumbUrl: row.thumb_url || row.image_url,
-    occurredAt: row.occurred_at || null,
-    createdAt: row.created_at || node?.created_at || null,
-    imageType: clean(row.image_type) || null,
-    space: clean(row.space) || null,
-    tags: Array.isArray(row.tags) ? row.tags : [],
-    sourceLabel: clean(row.source) || null,
-    sourceRef: `gallery_images:${row.id}`,
-    ocr: {
-      status: clean(row.ocr_status) || null,
-      text: ocrText ? ocrText.slice(0, OCR_TEXT_CAP) : null,
-      numbers: ints(row.ocr_numbers),
-    },
-    // Stored claims only: provenance of the gallery row, not engine output.
-    storedNumbers: {
-      primary: Number.isSafeInteger(row.primary_value) ? row.primary_value : null,
-      all: ints(row.all_values),
-      related: ints(row.related_values),
-      provenance: "stored_gallery_claim_not_recomputed",
-    },
+    // Explicit layers: representation / extraction / interpretation / provenance / legacy placement.
+    representation,
+    extraction: { ...ocr, state: "stored_extraction" },
+    interpretation: buildStoredInterpretation(row.ocr_meta),
+    provenance,
+    legacyPlacement,
+    // Flat legacy fields (compatibility only — new code reads the layers above).
+    description: legacyPlacement.description,
+    imageUrl: representation.imageUrl,
+    thumbUrl: representation.thumbUrl,
+    occurredAt: legacyPlacement.occurredAt,
+    createdAt: legacyPlacement.createdAt,
+    imageType: legacyPlacement.imageType,
+    space: legacyPlacement.space,
+    tags,
+    sourceLabel: provenance.storedSource,
+    sourceRef: provenance.sourceRef,
+    ocr,
+    storedNumbers,
   });
 }
 
-export function buildContextRelation({ relationType = "related", surface = null } = {}) {
-  return { relationType, projectionReason: `reality_graph:${relationType}`, surface };
+// relationKind separates graph-proven adjacency from stored-metadata context. A
+// source_metadata relation is NOT reality_graph: no node/edge exists or is created for it.
+export const MEDIA_RELATION_KIND = Object.freeze({ GRAPH: "reality_graph", SOURCE_METADATA: "source_metadata" });
+
+export function buildContextRelation({ relationType = "related", surface = null, relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null } = {}) {
+  const sourceMeta = relationKind === MEDIA_RELATION_KIND.SOURCE_METADATA;
+  return {
+    relationKind,
+    relationType,
+    projectionReason: sourceMeta ? `source_metadata:${relationType}` : `reality_graph:${relationType}`,
+    basis: sourceMeta ? "gallery_images.ocr_meta.post_slug" : "nodes/edges",
+    postSlug: sourceMeta ? normalizeMediaPostSlug(postSlug) : null,
+    surface,
+  };
 }
 
-// Flat legacy fields are preserved so existing consumers keep working; `intrinsic` and
-// `contextRelation` are the split contract new/updated surfaces consume.
-export function buildMediaEnvelope({ row, node = null, label = "", relationType = "related" }) {
+// Flat legacy fields are preserved so existing consumers keep working; `intrinsic`,
+// `presentation` and `contextRelation` are the contract new/updated surfaces consume.
+// `presentation` ({label, summary}) is computed ONCE here via the shared canonical function.
+export function buildMediaEnvelope({ row, node = null, label = "", relationType = "related", relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null }) {
   const intrinsic = buildIntrinsicMedia({ row, node, label });
   if (!intrinsic) return null;
-  const contextRelation = buildContextRelation({ relationType });
+  const contextRelation = buildContextRelation({ relationType, relationKind, postSlug });
+  const presentation = Object.freeze(canonicalMediaPresentation(intrinsic));
   return {
     mediaId: intrinsic.mediaId,
     nodeId: intrinsic.nodeId,
     galleryImageId: intrinsic.galleryImageId,
-    label: intrinsic.label,
+    label: presentation.label,
     description: intrinsic.description,
     imageUrl: intrinsic.imageUrl,
     thumbUrl: intrinsic.thumbUrl,
@@ -77,6 +176,7 @@ export function buildMediaEnvelope({ row, node = null, label = "", relationType 
     sourceRef: intrinsic.sourceRef,
     projectionReason: contextRelation.projectionReason,
     intrinsic,
+    presentation,
     contextRelation,
   };
 }
@@ -120,6 +220,15 @@ export function intrinsicResearchDetails(intrinsic) {
     ocrNumbers: intrinsic.ocr.numbers,
     sourceLabel: intrinsic.sourceLabel,
     provenance: intrinsic.storedNumbers.provenance,
+    mediaKind: intrinsic.provenance?.storedMediaKind || null,
+    author: intrinsic.provenance?.author || null,
+    publication: intrinsic.provenance?.publication || null,
+    event: intrinsic.interpretation?.event || null,
+    entities: intrinsic.interpretation?.entities || [],
+    numbersMeaning: intrinsic.interpretation?.numbersMeaning || {},
+    gematriaNote: intrinsic.interpretation?.gematriaNote || null,
+    gematriaClaimState: intrinsic.interpretation?.gematriaClaimState || null,
+    interpretationState: intrinsic.interpretation?.state || null,
   };
 }
 

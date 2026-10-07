@@ -833,7 +833,7 @@ assert.match(entityHubProjection, /fetchWorldMediaProjection/);
 assert.match(entityHubProjection, /from\("gallery_images"\)/);
 assert.match(entityHubProjection, /eq\("published", 1\)/);
 assert.match(entityHubProjection, /curator_hidden\.is\.null,curator_hidden\.eq\.false/);
-assert.match(fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8"), /projectionReason: `reality_graph:\$\{relationType\}`/);
+assert.match(fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8"), /projectionReason: sourceMeta \? `source_metadata:\$\{relationType\}` : `reality_graph:\$\{relationType\}`/);
 assert.match(entityHubProjection, /buildMediaEnvelope/);
 assert.match(entityHubProjection, /row\.published !== 1 \|\| row\.curator_hidden === true/, "media builder must fail closed on unpublished/hidden rows");
 assert.equal(/WORLD_MEDIA_FIELDS\s*=\s*"[^"]*importance/.test(entityHubProjection), false, "legacy gallery importance must not enter the 2029 media payload");

@@ -28,3 +28,9 @@
   cursor:zoom-in;
 }
 .sod29-canonical-media-figure:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+
+.sod29-projector-media ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:10px}
+.sod29-projector-media li{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
+.sod29-projector-media .sod29-canonical-media-figure{width:96px}
+.sod29-projector-media p{margin:2px 0}
+.sod29-projector-media small{display:block;opacity:.75}

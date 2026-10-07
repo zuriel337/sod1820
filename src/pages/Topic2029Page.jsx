@@ -201,7 +201,7 @@ function TopicSourcesMedia({ golden }) {
   return <section className="sod29-section sod29-topic-section" id="topic-sources">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה מגיעים החיבורים?</h2></div></div>
     {media.length ? <div className="sod29-topic-media-grid">
-      {media.slice(0, 4).map((item) => <figure key={item.id}><CanonicalMediaFigure2029 item={item} thumbnail alt={item.label} contextNote="מוצג כאן בגלל קשר בגרף לנושא" /><figcaption><strong>{item.label}</strong>{item.description ? <small>{item.description}</small> : null}</figcaption></figure>)}
+      {media.slice(0, 4).map((item) => <figure key={item.id}><CanonicalMediaFigure2029 item={item} thumbnail alt={item.presentation?.label || item.label} contextNote="מוצג כאן בגלל קשר בגרף לנושא" /><figcaption><strong>{item.presentation?.label || item.label}</strong>{(item.presentation ? item.presentation.summary : item.description) ? <small>{item.presentation ? item.presentation.summary : item.description}</small> : null}</figcaption></figure>)}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
     {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}

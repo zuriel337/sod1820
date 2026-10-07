@@ -102,6 +102,7 @@ export function buildTopicGoldenProjection(projection, { hub = null, prominence 
     thumbUrl: clean(row?.thumbUrl) || clean(row?.imageUrl) || null,
     relationType: row?.relationType || "related",
     intrinsic: row?.intrinsic || null,
+    presentation: row?.presentation || null,
     contextRelation: row?.contextRelation || null,
   })).filter((row) => row.imageUrl);
 

@@ -43,7 +43,7 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
+import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
@@ -376,14 +376,6 @@ function humanTimelineLabel(item) {
   if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
   const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
   return withoutTechnicalRelation || label || "נקודת מחקר";
-}
-
-function humanMediaLabel(item, anchorLabel) {
-  const label = String(item?.label || "").replace(/^#+\s*/, "").trim();
-  if (!label || looksLikeFilename(label) || /^עדכון\b/u.test(label) || looksTechnicalResearchTitle(label)) {
-    return `תמונה סביב ${anchorLabel || "הנקודה"}`;
-  }
-  return label;
 }
 
 function mediaDate(item) {
@@ -1460,7 +1452,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     shell.openInspect({
       id: String(item?.nodeId || item?.galleryImageId || "media"),
       type: "image",
-      label: humanMediaLabel(item, data?.identity?.label || subject.label || subject.id),
+      label: item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" }),
       href: "/world",
     });
   };
@@ -1842,7 +1834,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         {data?.media?.access?.available !== false && !mediaItems.length ? <FrameState kind="empty" title="אין כרגע תמונות מחוברות לנקודה הזאת">לא מוצגת תמונה חלופית אם אין ייצוג חזותי מחובר וגלוי.</FrameState> : null}
         {mediaItems.length ? <div className="sod29-world-media-grid">
           {mediaItems.map((item) => {
-            const label = humanMediaLabel(item, data.identity.label);
+            const label = item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" });
             const date = mediaDate(item);
             return <article className="sod29-world-media-card" key={item.galleryImageId}>
               <div className="sod29-world-media-frame">
