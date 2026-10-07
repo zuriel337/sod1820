@@ -101,7 +101,7 @@ function verifiedCompoundOperationShape(compound) {
  * canonical_methods_registry_law; spatial/family identity is carried only when the source row
  * already owns meta.ext.spatial_research; operation shape comes only from engine_detail.compound.
  */
-export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
+export function researchObjectFacetDimensions(row, { registryRows = [], sourceOccurrence = null } = {}) {
   const detail = asObject(row?.engine_detail);
   const compound = asObject(detail.compound);
   const ext = asObject(row?.meta?.ext);
@@ -152,6 +152,17 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   }
   const canonicalMethods = [...canonicalMethodMap.values()];
 
+  const sourceMethods = (Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : [])
+    .map((mention) => ({
+      token: clean(mention?.token),
+      methodKey: clean(mention?.methodKey),
+      displayLabel: clean(mention?.displayLabel) || clean(mention?.token),
+      state: clean(mention?.state),
+      sourceAttested: mention?.sourceAttested === true,
+      appliesToFinding: mention?.appliesToFinding === true,
+    }))
+    .filter((mention) => mention.token && mention.sourceAttested);
+
   const operation = verifiedCompoundOperationShape(compound);
 
   const family = Object.keys(spatial).length ? {
@@ -182,6 +193,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   const facets = {
     methods: methodRefs,
     canonicalMethods,
+    sourceMethods,
     operation,
     family,
     spatial: (family || mediaClass) ? {
@@ -198,7 +210,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
     } : null,
   };
 
-  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.sourceMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
   return hasFacet ? facets : null;
 }
 
