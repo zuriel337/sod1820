@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   readVideoSemanticMap,
   contextualVideosFromMaps,
@@ -175,4 +176,18 @@ test("full transcript map beats an older partial caption map for the same video"
   assert.equal(hit.anchor.id, "f");
   assert.equal(hit.completeness, "full");
   assert.equal(videoUrlForAnchor(hit), "https://example.invalid/same.mp4#t=123");
+});
+
+
+test("one shared rail consumer serves all projector surfaces without copying private maps into Research Context", () => {
+  const rail = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
+  const shared = readFileSync(new URL("../src/components/experience2029/ContextualVideoLayer2029.jsx", import.meta.url), "utf8");
+  const golden = readFileSync(new URL("../src/components/experience2029/GoldenProjectorModeLayer2029.jsx", import.meta.url), "utf8");
+
+  assert.match(rail, /<ContextualVideoLayer2029 subject=\{subject\} context=\{context\} \/>/);
+  assert.match(shared, /fetchResearchObjectsForEntity/);
+  assert.match(shared, /contextualVideosFromResearchRows/);
+  assert.match(shared, /!isAdmin/);
+  assert.doesNotMatch(shared, /updateResearchContext/);
+  assert.doesNotMatch(golden, /ContextVideo|contextualVideosFromMaps|sod29-golden-context-video/);
 });
