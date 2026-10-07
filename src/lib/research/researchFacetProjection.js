@@ -23,6 +23,9 @@ export function methodComponentStateLabelHe(component) {
   const expression = clean(component?.expression);
   const state = clean(component?.verificationState);
   const prefix = expression ? `${method} · ${expression}` : method;
+  if (component?.valueVerificationState === "match" && /mismatch/.test(clean(component?.transformVerificationState))) {
+    return `${prefix} · הערך תואם, צורת האותיות אינה תואמת`;
+  }
   if (state === "match") return `${prefix} · מאומת במנוע`;
   if (state === "mismatch" || /mismatch/.test(state)) return `${prefix} · אי־התאמה למקור`;
   if (state) return `${prefix} · ${state}`;
