@@ -203,6 +203,9 @@ assert.match(world, /מכפיל/);
 assert.match(world, /תלת־ממד/);
 assert.match(world, /סט מחקרי/);
 assert.match(world, /דברי המקור/);
+assert.match(world, /חילוץ המחקר/);
+assert.match(world, /fetchResearchSourceOccurrences/);
+assert.match(world, /שיטות שנאמרו במקור בלבד/);
 assert.match(worldCss, /sod29-world-source-wording/);
 
 const controlFindings = [
@@ -216,6 +219,14 @@ const controlFindings = [
       researchFacets: {
         methods: [{ token: "ragil", namespace: "db_column_or_alias", registryResolutionRequired: true }],
         canonicalMethods: [{ methodKey: "רגיל", dbColumn: "ragil", displayLabel: "רגיל", registryResolved: true }],
+        sourceMethods: [{
+          token: "מילוי",
+          methodKey: "מילוי",
+          displayLabel: "מילוי",
+          state: "registry_supported_unlinked",
+          sourceAttested: true,
+          appliesToFinding: false,
+        }],
         operation: { operators: ["multiply"], factors: [4], kind: "quantity-product" },
         family: { key: "zvi:spatial:408:zot", cluster: "408 זאת · קוביית חיים", role: "STRUCTURAL_3D" },
         spatial: { is3d: true, role: "STRUCTURAL_3D", mediaClass: "SPATIAL_3D" },
@@ -248,6 +259,9 @@ assert.equal(control.byGovernance.approved, 1);
 assert.equal(control.attention.needs_verification, 2);
 assert.equal(control.attention.public_candidate, 1);
 assert.equal(control.facets.byMethod["רגיל"], 1);
+assert.equal(control.facets.byMethod["מילוי"], undefined, "source-only milui must not become verified method filter");
+assert.equal(control.facets.bySourceMethod["מילוי"], 1);
+assert.equal(control.facets.hasSourceMethodMentions, true);
 assert.equal(control.facets.byOperation.multiply, 1);
 assert.equal(control.facets.byFactor["4"], 1);
 assert.equal(control.facets.spatial3d, 1);
