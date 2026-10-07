@@ -6,7 +6,7 @@ import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";
 import "./whatsapp-welcome-2029.css";
 
-const CAMPAIGN = "whatsapp-welcome-2029";
+const CAMPAIGN = "welcome-2029";
 const VIDEO_URL = "https://d2ol7oe51mr4n9.cloudfront.net/user_3K6QdKjtRzXBDRzO9MYVhCqEOG4/0524acef-077d-49f8-9be5-5dad2c8fe538.mp4";
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 const TIKTOK_URL = "https://www.tiktok.com/@sod_1820";
@@ -21,7 +21,7 @@ export default function WhatsAppWelcome2029Page() {
   const [state, setState] = useState("idle");
 
   useEffect(() => {
-    document.title = "SOD1820 — המערכת החדשה נבנית";
+    document.title = "סוד 1820 — המערכת החדשה נבנית";
     try {
       captureArrivalSource();
       captureAcquisition();
@@ -50,7 +50,7 @@ export default function WhatsAppWelcome2029Page() {
         },
         body: JSON.stringify({
           email: value,
-          source: CAMPAIGN,
+          source: "whatsapp-welcome-2029",
           back: "/whatsapp/kod-hametsiut",
           acquisition: signupAttribution(),
           visitor_id: visitorId(),
@@ -97,14 +97,14 @@ export default function WhatsAppWelcome2029Page() {
           alt={BRAND_LOCKUP_2029.alt}
           className="sod29-wa-welcome-lockup"
         />
-        <p>המערכת החדשה של סוד 1820</p>
+        <p>סוד 1820 · המערכת החדשה</p>
       </header>
 
       <section className="sod29-wa-welcome-hero" aria-labelledby="wa-welcome-title">
         <div className="sod29-wa-welcome-badge">האתר בבנייה · אתם נכנסים לפני כולם</div>
         <h1 id="wa-welcome-title">אנחנו בונים דרך חדשה <span>לחקור את המציאות.</span></h1>
         <p>
-          SOD1820 נבנה מחדש כמערכת מחקר חכמה שמחברת תוכן, רמזים, מספרים, מקורות,
+          סוד 1820 נבנה מחדש כמערכת מחקר חכמה שמחברת תוכן, רמזים, מספרים, מקורות,
           מסעות וכלי AI במקום אחד.
         </p>
       </section>
@@ -135,29 +135,29 @@ export default function WhatsAppWelcome2029Page() {
         <div className="sod29-wa-welcome-section-head">
           <span>מה נפתח בקרוב</span>
           <h2 id="wa-coming-title">לא עוד אתר לקריאה בלבד.</h2>
-          <p>המטרה היא לתת לכם מערכת שאפשר לחקור איתה, לשמור בה ולהוסיף לה חומר חדש.</p>
+          <p>חלק מהכלים כבר נבנים ונבדקים עכשיו, והם ייפתחו לציבור בהדרגה.</p>
         </div>
 
         <div className="sod29-wa-welcome-grid">
           <article>
             <b>✦</b>
             <h3>שלחו רמזים למערכת</h3>
-            <p>תוכלו לשלוח תמונה, מספר, תיאור או מקור — והמערכת תכניס אותו למסלול מחקר מסודר.</p>
+            <p>בקרוב תוכלו לשלוח תמונה, מספר, תיאור או מקור — והמערכת תכניס אותו למסלול מחקר מסודר.</p>
           </article>
           <article>
             <b>◎</b>
             <h3>מסע החיים</h3>
-            <p>מסע אישי שמחבר שמות, תאריכים, משפחה והקשרים לאורך החיים למפת מחקר אחת.</p>
+            <p>כלי אישי שכבר נבנה במערכת החדשה ומחבר שמות, תאריכים, משפחה והקשרים למפת מחקר אחת.</p>
           </article>
           <article>
             <b>⌁</b>
             <h3>חיפוש בתורה</h3>
-            <p>חיפוש מתקדם בפסוקים, מילים, דילוגים וחיבורים — עם הקשר ולא רק רשימת תוצאות.</p>
+            <p>בקרוב: חיפוש מתקדם בפסוקים, מילים, דילוגים וחיבורים — עם הקשר ולא רק רשימת תוצאות.</p>
           </article>
           <article>
             <b>AI</b>
             <h3>מחקר עם בינה מלאכותית</h3>
-            <p>AI שיעזור לאתר קשרים, להסביר מה נמצא ולהוביל אתכם להמשך המחקר בלי להחליף את המקורות.</p>
+            <p>בקרוב: AI שיעזור לאתר קשרים, להסביר מה נמצא ולהוביל להמשך המחקר — כשהמקורות נשארים במרכז.</p>
           </article>
         </div>
       </section>
@@ -198,7 +198,7 @@ export default function WhatsAppWelcome2029Page() {
       <section className="sod29-wa-welcome-whatsapp">
         <div>
           <span>רוצים להישאר קרובים בינתיים?</span>
-          <h2>הצטרפו לקבוצת SOD1820 ב־WhatsApp.</h2>
+          <h2>הצטרפו לקבוצת סוד 1820 ב־WhatsApp.</h2>
           <p>רמזים, גילויים ועדכונים חדשים בזמן שהמערכת ממשיכה להיבנות.</p>
         </div>
         <a
@@ -212,7 +212,7 @@ export default function WhatsAppWelcome2029Page() {
       </section>
 
       <footer className="sod29-wa-welcome-footer">
-        <span>SOD1820</span>
+        <span>סוד 1820</span>
         <span>·</span>
         <span>המערכת החדשה נבנית עכשיו</span>
       </footer>
