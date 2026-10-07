@@ -870,7 +870,7 @@ assert.match(world, /מיון קשרים/);
 assert.match(world, /useAuth/);
 assert.match(world, /const \{ isAdmin \} = useAuth\(\)/);
 assert.match(world, /מצב מנהל/);
-assert.match(world, /מצב הניהול של World נפתח רק כשמנהל בוחר בו/);
+assert.match(world, /מצב הניהול של העולם נפתח רק כשמנהל בוחר בו/);
 assert.match(world, /אינו עוקף הרשאות נתונים/);
 assert.match(world, /גישה ·/);
 assert.match(world, /ממשל ·/);
