@@ -12,7 +12,7 @@ async function readRows(queryKey, queryNode) {
   let pending = inFlightResearchReads.get(queryKey);
   if (!pending) {
     pending = import("../../lib/research/entityHubProjection.js")
-      .then(({ fetchResearchObjectsForEntity }) => fetchResearchObjectsForEntity(queryNode, { limit: 120 }))
+      .then(({ fetchVideoSemanticMapsForEntity }) => fetchVideoSemanticMapsForEntity(queryNode, { limit: 24 }))
       .finally(() => inFlightResearchReads.delete(queryKey));
     inFlightResearchReads.set(queryKey, pending);
   }
