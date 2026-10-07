@@ -1,3 +1,5 @@
+import { RESEARCH_FACET_FILTER_DEFAULTS, buildResearchFacetControl, filterResearchFacetItems } from "./researchFacetProjection.js";
+
 // World 2029 research control-plane projection.
 // EXTEND_EXISTING: consumes Universal Finding axes already owned by Research/Truth/Access.
 // It never invents a publication state, processing state, verification, or access tier.
@@ -10,6 +12,7 @@ export const WORLD_RESEARCH_FILTER_DEFAULTS = Object.freeze({
   governance: "all",
   verification: "all",
   attention: "all",
+  ...RESEARCH_FACET_FILTER_DEFAULTS,
 });
 
 export const WORLD_RESEARCH_ATTENTION = Object.freeze({
@@ -59,7 +62,8 @@ export function filterWorldResearchFindings(findings = [], filters = {}) {
     if (f.access !== "all" && axes.access !== f.access) return false;
     if (f.governance !== "all" && axes.governance !== f.governance) return false;
     if (f.verification !== "all" && axes.verification !== f.verification) return false;
-    return matchesResearchAttention(finding, f.attention);
+    if (!matchesResearchAttention(finding, f.attention)) return false;
+    return filterResearchFacetItems([finding], f).length === 1;
   });
 }
 
@@ -85,11 +89,12 @@ export function buildWorldResearchControl(findings = []) {
     byGovernance: countBy(rows, "governance"),
     byVerification: countBy(rows, "verification"),
     attention,
+    facets: buildResearchFacetControl(rows),
     capabilities: {
       processingState: false,
       publicationState: false,
       rawSource: rows.some((finding) => Boolean(finding?.source?.sourceRef || finding?.provenance?.inputRef)),
     },
-    truthBoundary: "Projection only: kind/access/governance/verification remain independent source-owned axes.",
+    truthBoundary: "Projection only: kind/access/governance/verification plus method/operator/factor/spatial/family facets remain source-owned; filters change presentation only.",
   };
 }
