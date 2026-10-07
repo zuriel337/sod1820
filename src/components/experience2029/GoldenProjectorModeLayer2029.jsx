@@ -132,30 +132,30 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
               {data.researchAccess?.available === false ? <p className="sod29-golden-mode-note">קריאת המחקר אינה זמינה לחשבון זה ({data.researchAccess.reason}).</p> : null}
               {data.researchSourceAccess?.available === false ? <p className="sod29-golden-mode-note">דברי המקור המלאים אינם זמינים לחשבון זה ({data.researchSourceAccess.reason}). הממצאים עצמם נשארים מוצגים.</p> : null}
               {data.truncatedNumbers?.length ? <p className="sod29-golden-mode-note">הגעתי לגבול העמוד עבור {data.truncatedNumbers.join(", ")} — קיימים פריטים נוספים.</p> : null}
-              {facetControl.hasStructuredFacets ? <div className="sod29-golden-facet-filters" aria-label="סינון מחקר לפי העץ">
-                <label><span>שיטה</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
-                  <option value="all">כל השיטות</option>
+              {(facetControl.hasStructuredFacets || facetControl.hasSourceMethodMentions) ? <div className="sod29-golden-facet-filters" aria-label="סינון מחקר לפי העץ">
+                {Object.keys(facetControl.byMethod).length ? <label><span>שיטה מאומתת/מובנית</span><select value={facetFilters.method} onChange={(event) => updateFacet("method", event.target.value)}>
+                  <option value="all">כל השיטות המובנות</option>
                   {Object.entries(facetControl.byMethod).map(([method, count]) => <option key={method} value={method}>{method} · {count}</option>)}
-                </select></label>
-                <label><span>פעולה</span><select value={facetFilters.operation} onChange={(event) => updateFacet("operation", event.target.value)}>
+                </select></label> : null}
+                {Object.keys(facetControl.byOperation).length ? <label><span>פעולה</span><select value={facetFilters.operation} onChange={(event) => updateFacet("operation", event.target.value)}>
                   <option value="all">כל הפעולות</option>
                   {Object.entries(facetControl.byOperation).map(([operation, count]) => <option key={operation} value={operation}>{RESEARCH_OPERATION_LABELS_HE[operation] || "פעולה מחקרית"} · {count}</option>)}
-                </select></label>
-                <label><span>מכפיל</span><select value={facetFilters.factor} onChange={(event) => updateFacet("factor", event.target.value)}>
+                </select></label> : null}
+                {Object.keys(facetControl.byFactor).length ? <label><span>מכפיל</span><select value={facetFilters.factor} onChange={(event) => updateFacet("factor", event.target.value)}>
                   <option value="all">כל המכפילים</option>
                   {Object.entries(facetControl.byFactor).sort((a, b) => Number(a[0]) - Number(b[0])).map(([factor, count]) => <option key={factor} value={factor}>×{factor} · {count}</option>)}
-                </select></label>
-                <label><span>מבנה</span><select value={facetFilters.spatial} onChange={(event) => updateFacet("spatial", event.target.value)}>
+                </select></label> : null}
+                {facetControl.spatial3d ? <label><span>מבנה</span><select value={facetFilters.spatial} onChange={(event) => updateFacet("spatial", event.target.value)}>
                   <option value="all">כל המבנים</option>
-                  {facetControl.spatial3d ? <option value="3d">תלת־ממד · {facetControl.spatial3d}</option> : null}
-                </select></label>
-                <label><span>סט מחקרי</span><select value={facetFilters.family} onChange={(event) => updateFacet("family", event.target.value)}>
+                  <option value="3d">תלת־ממד · {facetControl.spatial3d}</option>
+                </select></label> : null}
+                {Object.keys(facetControl.byFamily).length ? <label><span>סט מחקרי</span><select value={facetFilters.family} onChange={(event) => updateFacet("family", event.target.value)}>
                   <option value="all">כל הסטים</option>
                   {Object.entries(facetControl.byFamily).map(([key, family]) => <option key={key} value={key}>{family.label} · {family.count}</option>)}
-                </select></label>
-                <button type="button" onClick={resetFacets}>אפס סינון</button>
+                </select></label> : null}
+                {facetControl.hasStructuredFacets ? <button type="button" onClick={resetFacets}>אפס סינון</button> : null}
                 {Object.keys(facetControl.bySourceMethod || {}).length ? <small>
-                  שיטות שנאמרו במקור (אינן פילטר חישובי עד קישור/אימות): {Object.entries(facetControl.bySourceMethod).map(([method, count]) => `${method} · ${count}`).join(" · ")}
+                  שיטות שנאמרו במקור בלבד (לא פילטר חישובי עד קישור/אימות): {Object.entries(facetControl.bySourceMethod).map(([method, count]) => `${method} · ${count} מקורות`).join(" · ")}
                 </small> : null}
                 <small>{filteredResearchItems.length} מתוך {researchItems.length} ממצאי מחקר</small>
               </div> : null}
