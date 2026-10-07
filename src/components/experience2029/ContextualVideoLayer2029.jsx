@@ -6,6 +6,19 @@ import {
   videoUrlForAnchor,
 } from "../../lib/research/videoSemanticMap.js";
 
+const inFlightResearchReads = new Map();
+
+async function readRows(queryKey, queryNode) {
+  let pending = inFlightResearchReads.get(queryKey);
+  if (!pending) {
+    pending = import("../../lib/research/entityHubProjection.js")
+      .then(({ fetchResearchObjectsForEntity }) => fetchResearchObjectsForEntity(queryNode, { limit: 120 }))
+      .finally(() => inFlightResearchReads.delete(queryKey));
+    inFlightResearchReads.set(queryKey, pending);
+  }
+  return pending;
+}
+
 // Shared contextual-video projection for every 2029 SurfaceContextRail.
 // It is deliberately ADMIN/authorized-research only while VIDEO_REPRESENTATION_MAP rows are private.
 // The component reads through the existing RLS research reader, never writes Research Context,
@@ -66,31 +79,37 @@ export default function ContextualVideoLayer2029({ subject, context, limit = 2 }
   const queryKey = queryNode
     ? [user?.id || "anon", queryNode.type, queryNode.id, queryNode.label, queryNode.identity_key || ""].join("|")
     : "";
-  const [state, setState] = useState({ key: "", status: "idle", videos: [] });
+  const [state, setState] = useState({ key: "", status: "idle", rows: [] });
 
   useEffect(() => {
     if (loading || !isAdmin || !queryNode || !queryKey) {
-      setState({ key: queryKey, status: "idle", videos: [] });
+      setState({ key: queryKey, status: "idle", rows: [] });
       return undefined;
     }
 
     let alive = true;
-    setState({ key: queryKey, status: "loading", videos: [] });
-    import("../../lib/research/entityHubProjection.js")
-      .then(({ fetchResearchObjectsForEntity }) => fetchResearchObjectsForEntity(queryNode, { limit: 120 }))
+    setState({ key: queryKey, status: "loading", rows: [] });
+    readRows(queryKey, queryNode)
       .then((result) => {
         if (!alive) return;
-        const videos = contextualVideosFromResearchRows(result?.rows || [], context, { limit });
-        setState({ key: queryKey, status: videos.length ? "ready" : "empty", videos });
+        const rows = Array.isArray(result?.rows) ? result.rows : [];
+        setState({ key: queryKey, status: rows.length ? "ready" : "empty", rows });
       })
       .catch(() => {
-        if (alive) setState({ key: queryKey, status: "error", videos: [] });
+        if (alive) setState({ key: queryKey, status: "error", rows: [] });
       });
 
     return () => { alive = false; };
-  }, [loading, isAdmin, queryKey, limit, context]);
+  }, [loading, isAdmin, queryKey]);
 
-  if (loading || !isAdmin || state.key !== queryKey || !state.videos.length) return null;
+  const videos = useMemo(
+    () => state.key === queryKey
+      ? contextualVideosFromResearchRows(state.rows, context, { limit })
+      : [],
+    [state.key, state.rows, queryKey, context, limit]
+  );
+
+  if (loading || !isAdmin || state.key !== queryKey || !videos.length) return null;
 
   return <section
     className="sod29-context-videos"
@@ -98,6 +117,6 @@ export default function ContextualVideoLayer2029({ subject, context, limit = 2 }
     data-experience-capability="contextual-video-projector"
   >
     <div className="sod29-context-inspector-kicker">וידאו ממופה · בלי סריקה מחדש</div>
-    {state.videos.map((item) => <ContextVideo key={item.id} item={item} />)}
+    {videos.map((item) => <ContextVideo key={item.id} item={item} />)}
   </section>;
 }
