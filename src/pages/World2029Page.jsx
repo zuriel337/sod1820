@@ -11,7 +11,7 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchResearchSourceOccurrences } from "../lib/research/entityHubProjection.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -43,7 +43,8 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { RESEARCH_OPERATION_LABELS_HE } from "../lib/research/researchFacetProjection.js";
+import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
+import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
@@ -247,6 +248,25 @@ function looksTechnicalResearchTitle(value) {
   return /\b(?:DOSSIER|CHAIN|ENGINE|PROCEDURE|FAMILY|SYNTHESIS|UUID|CANONICAL)\b/i.test(text)
     || /[0-9a-f]{8}-[0-9a-f-]{27,}/i.test(text)
     || /\w+_\w+/.test(text);
+}
+
+function researchSourceOccurrenceForFinding(finding, occurrences = {}) {
+  const ref = researchSourceOccurrenceKey(finding?.source?.sourceRef || finding?.provenance?.inputRef);
+  return ref ? occurrences?.[ref] || null : null;
+}
+
+function buildSourceMethodOccurrenceSummary(occurrences = {}) {
+  const counts = {};
+  for (const occurrence of Object.values(occurrences || {})) {
+    const seen = new Set();
+    for (const method of Array.isArray(occurrence?.methodMentions) ? occurrence.methodMentions : []) {
+      const label = String(method?.displayLabel || method?.token || "").trim();
+      if (!label || seen.has(label)) continue;
+      seen.add(label);
+      counts[label] = (counts[label] || 0) + 1;
+    }
+  }
+  return counts;
 }
 
 function humanFindingPresentation(finding, anchorLabel) {
@@ -1131,6 +1151,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [activeLane, setActiveLane] = useState("overview");
   const [contributorFilter, setContributorFilter] = useState("all");
   const [contributorLensState, setContributorLensState] = useState({ loading: false, data: null, error: null });
+  const [researchSourceState, setResearchSourceState] = useState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
   const [gematriaMethodFilter, setGematriaMethodFilter] = useState("all");
   const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
   const [gematriaQuery, setGematriaQuery] = useState("");
@@ -1160,6 +1181,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
     setContributorLensState({ loading: false, data: null, error: null });
+    setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
@@ -1184,6 +1206,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setAdminView("research");
     setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
+    if (!isAdmin) setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
   }, [isAdmin]);
 
   const goldenJourneyRelevant = (
@@ -1226,6 +1249,35 @@ function AnchoredWorld({ research, shell, subject, context }) {
     });
     return () => { alive = false; };
   }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!adminMode || !isAdmin || !data?.research?.rows?.length) {
+      setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setResearchSourceState((current) => ({ ...current, loading: true, error: null }));
+    fetchResearchSourceOccurrences(data.research.rows, { limit: 240 })
+      .then((result) => {
+        if (!alive) return;
+        setResearchSourceState({
+          loading: false,
+          occurrences: result?.occurrences || {},
+          access: result?.access || { available: true, reason: null },
+          error: null,
+        });
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setResearchSourceState({
+          loading: false,
+          occurrences: {},
+          access: { available: false, reason: "research_source_occurrence_read_failed" },
+          error,
+        });
+      });
+    return () => { alive = false; };
+  }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
   const currentNodeId = data?.identity?.nodeId || null;
   const graphRelations = data?.graph?.relations || [];
@@ -1322,6 +1374,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const researchFacetSummary = adminSummary.facets || {
     byMethod: {}, byOperation: {}, byFactor: {}, byFamily: {}, spatial3d: 0, hasStructuredFacets: false,
   };
+  const sourceMethodOccurrenceSummary = useMemo(
+    () => buildSourceMethodOccurrenceSummary(researchSourceState.occurrences),
+    [researchSourceState.occurrences],
+  );
   const updateResearchFilter = (key, value) => setResearchFilters((current) => ({ ...current, [key]: value }));
   const resetResearchFilters = () => setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
 
@@ -1709,6 +1765,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
             </select></label> : null}
             <button className="sod29-action" type="button" onClick={resetResearchFilters}>אפס סינון</button>
           </div>
+          {Object.keys(sourceMethodOccurrenceSummary).length ? <div className="sod29-muted sod29-world-research-result-count">
+            שיטות שנאמרו במקור בלבד (לא פילטר חישובי עד קישור/אימות): {Object.entries(sourceMethodOccurrenceSummary).map(([method, count]) => `${method} · ${count} מקורות`).join(" · ")}
+          </div> : null}
+          {researchSourceState.loading ? <div className="sod29-muted sod29-world-research-result-count">טוען דברי מקור מורשים…</div> : null}
+          {researchSourceState.access?.available === false ? <div className="sod29-muted sod29-world-research-result-count">דברי המקור המלאים אינם זמינים לחשבון זה.</div> : null}
           <div className="sod29-muted sod29-world-research-result-count">מוצגים {filteredResearchFindings.length} מתוך {visibleResearchFindings.length} ממצאי מחקר מורשים.</div>
         </> : <>
           <div className="sod29-book-grid sod29-world-govern-grid">
@@ -1717,7 +1778,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
             <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${axisLabel(RESEARCH_VERIFICATION_LABELS_HE, name, "מצב אימות")}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
           </div>
           <div className="sod29-world-govern-boundaries">
-            <FrameState kind={adminSummary.capabilities.rawSource ? "empty" : "unavailable"} title="מקור גולמי / תיעוד מקור">{adminSummary.capabilities.rawSource ? "לפחות לחלק מהפריטים יש מזהי מקור פנימיים שניתן לעקוב אחריהם. פתיחת המקור הגולמי המלא תחובר דרך בעל הסמכות של קליטת המחקר." : "בתצוגה הנוכחית אין מזהה מקור שמאפשר לפתוח את המקור הגולמי; העולם לא ימציא מקור."}</FrameState>
+            <FrameState kind={researchSourceState.loading ? "loading" : researchSourceState.access?.available === false ? "unavailable" : "empty"} title="מקור גולמי / תיעוד מקור">{researchSourceState.loading ? "טוען את מופעי המקור דרך גבול Research Intake הקיים." : researchSourceState.access?.available === false ? "המקור הגולמי אינו מורשה לחשבון זה; העולם לא יעקוף את גבול הגישה." : Object.keys(researchSourceState.occurrences || {}).length ? "מופעי המקור המורשים מחוברים דרך channel_updates. דברי המקור נשמרים בנפרד מחילוץ המערכת." : adminSummary.capabilities.rawSource ? "קיימים מזהי מקור, אך לא נמצא כרגע מופע מקור מלא לקריאה." : "בתצוגה הנוכחית אין מזהה מקור שמאפשר לפתוח את המקור הגולמי; העולם לא ימציא מקור."}</FrameState>
             <FrameState kind="unavailable" title="מצב עיבוד עדיין לא מחובר">מקור גולמי → חילוץ → עיבוד חייב להגיע מחוזה קליטת המחקר. אין שדה כזה ברשומות המחקר ולכן הוא לא מוצג כאילו קיים.</FrameState>
             <FrameState kind="unavailable" title="מצב פרסום עדיין לא מחובר">מועמד לציבור אינו פרסום. פרסום יישאר החלטה נפרדת של השער האנושי כאשר בעל הסמכות של הפרסום יחובר לעולם.</FrameState>
           </div>
@@ -1971,16 +2032,24 @@ function AnchoredWorld({ research, shell, subject, context }) {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           const presentation = humanFindingPresentation(finding, data.identity.label);
+          const sourceOccurrence = adminMode
+            ? researchSourceOccurrenceForFinding(finding, researchSourceState.occurrences)
+            : null;
+          const exactSourceText = sourceOccurrence?.displayTextNormalized || null;
+          const extractionText = presentation.sourceText || null;
           return <div className="sod29-row sod29-world-research-row" key={finding.id || index}>
             <div>
               <strong>{presentation.title}</strong>
-              {presentation.sourceText ? <p className="sod29-world-source-wording"><b>דברי המקור</b><br />{presentation.sourceText}</p> : null}
+              {exactSourceText ? <p className="sod29-world-source-wording"><b>דברי המקור</b><br />{exactSourceText}</p> : null}
+              {extractionText && extractionText !== exactSourceText ? <p className="sod29-world-source-wording"><b>חילוץ המחקר</b><br />{extractionText}</p> : null}
               {presentation.summary ? <p className="sod29-world-row-summary">{presentation.summary}</p> : null}
               <small>{verification}{presentation.sourceLabel ? ` · ${presentation.sourceLabel}` : ""}</small>
               {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>
                 <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
                 <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
                 <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+                {(finding?.projection?.dimensions?.researchFacets?.methodComponents || []).map((component, componentIndex) => <span className="sod29-chip" key={`component:${component.methodKey || componentIndex}:${component.expression || componentIndex}`}>{methodComponentStateLabelHe(component)}</span>)}
+                {(sourceOccurrence?.methodMentions || []).map((method) => <span className="sod29-chip" key={`${method.token}:${method.state}`}>{sourceMethodStateLabelHe(method)}</span>)}
                 {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
               </div> : null}
             </div>

@@ -10,6 +10,7 @@ import { getVisitorId } from "../lib/visitorId.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
+import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
   { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
@@ -20,6 +21,95 @@ const ACTIONS = [
   { id: "patterns", label: "חקור דפוס", detail: "Pattern / Sequence workbench", live: false },
   { id: "person", label: "חקור אדם / חיים", detail: "Life Journey / Person", live: false },
 ];
+
+const SCRIPTURE_BASIS_LABEL = Object.freeze({
+  seed_numeric_value_to_verse_ragil_value: "פסוק באותו ערך · רגיל",
+  lexical_exact_token: "הופעת מילה בתנ״ך",
+  lexical_substring_spaceless: "התאמת טקסט רציף · ללא רווחים",
+  same_finding_terms_same_verse: "מונחים מאותו ממצא · באותו פסוק",
+  same_finding_terms_proximity: "מונחים מאותו ממצא · קרבה בפסוק",
+  notarikon_rashei_tevot: "ראשי תיבות",
+  notarikon_sofei_tevot: "סופי תיבות",
+});
+
+function scriptureCandidateKey(item, index) {
+  return [
+    item?.ref || "",
+    item?.discoveryBasis || "",
+    item?.queryTerm || "",
+    Array.isArray(item?.queryTerms) ? item.queryTerms.join("|") : "",
+    index,
+  ].join(":");
+}
+
+function ScriptureDiscoveryPanel({ researchProjection, ordinalProjection, subject }) {
+  const numeric = Array.isArray(researchProjection?.scriptureDiscovery?.candidates)
+    ? researchProjection.scriptureDiscovery.candidates
+    : [];
+  const lexical = Array.isArray(researchProjection?.scriptureTermDiscovery?.candidates)
+    ? researchProjection.scriptureTermDiscovery.candidates
+    : [];
+  const ordinal = ordinalProjection?.status === "ready" && ordinalProjection?.verse
+    ? [{
+        ...ordinalProjection.verse,
+        discoveryBasis: "technical_torah_ordinal",
+        ordinal: ordinalProjection.ordinal,
+        countingScheme: ordinalProjection.countingScheme,
+      }]
+    : [];
+
+  const candidates = [...numeric, ...lexical, ...ordinal].slice(0, 12);
+  if (!candidates.length) return null;
+
+  return (
+    <section className="sod29-section" data-experience-capability="heichal-scripture-discovery">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">SCRIPTURE DISCOVERY · READ ONLY</div>
+          <h2>פסוקים ומבנים שנפתחו מהמחקר</h2>
+          <div className="sod29-muted">
+            אלה מועמדי גילוי שנגזרו מממצאים מובנים או מהמספר הפעיל. התאמה מספרית, הופעת מילה,
+            קרבה או נוטריקון אינן הוכחת קשר ואינן הופכות אוטומטית ל־Finding קנוני.
+          </div>
+        </div>
+        <div className="sod29-actions">
+          {numeric.length ? <span className="sod29-chip">ערך · {numeric.length}</span> : null}
+          {lexical.length ? <span className="sod29-chip">טקסט · {lexical.length}</span> : null}
+          {ordinal.length ? <span className="sod29-chip">מיקום · 1</span> : null}
+        </div>
+      </div>
+
+      <div className="sod29-list">
+        {candidates.map((item, index) => {
+          const basis = item.discoveryBasis === "technical_torah_ordinal"
+            ? `פסוק #${item.ordinal} · סדר קורפוס התורה הנוכחי`
+            : (SCRIPTURE_BASIS_LABEL[item.discoveryBasis] || "מועמד גילוי");
+          return (
+            <div className="sod29-row" key={scriptureCandidateKey(item, index)}>
+              <div>
+                <strong>{item.ref || "פסוק"}</strong>
+                <div className="sod29-muted">{item.text || (Array.isArray(item.words) ? item.words.join(" · ") : basis)}</div>
+                <div className="sod29-actions">
+                  <span className="sod29-chip">{basis}</span>
+                  <span className="sod29-chip">Discovery ≠ Truth</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="sod29-actions" style={{ marginTop: 14 }}>
+        <Link
+          className="sod29-action"
+          to="/verse-gematria"
+        >
+          פתח חיפוש גימטריית פסוקים
+        </Link>
+      </div>
+    </section>
+  );
+}
 
 function NoContextEntry() {
   const research = useResearch();
@@ -111,6 +201,7 @@ function ActiveResearchEnvironment() {
   const context = research.context || null;
   const subject = context?.subject;
   const [state, setState] = useState({ loading: true, data: null, error: null });
+  const [ordinalState, setOrdinalState] = useState({ loading: false, data: null, error: null });
   const key = subject ? `${subject.type}:${subject.id}` : null;
 
   useEffect(() => {
@@ -126,6 +217,29 @@ function ActiveResearchEnvironment() {
       .catch(error => alive && setState({ loading: false, data: null, error }));
     return () => { alive = false; };
   }, [key]);
+
+  useEffect(() => {
+    // A new root clears any prior explicit ordinal probe. A bare number is NOT ordinal intent.
+    setOrdinalState({ loading: false, data: null, error: null });
+  }, [key]);
+
+  const ordinalValue = subject?.type === "number" ? Number(subject.id) : null;
+  const canProbeTorahOrdinal = Number.isSafeInteger(ordinalValue) && ordinalValue >= 1 && ordinalValue <= 5846;
+
+  const runOrdinalDiscovery = async () => {
+    if (!canProbeTorahOrdinal || ordinalState.loading) return;
+    setOrdinalState({ loading: true, data: null, error: null });
+    try {
+      const data = await fetchTanachVerseByOrdinal(ordinalValue, { scope: TANACH_ORDINAL_SCOPE.TORAH });
+      setOrdinalState({
+        loading: false,
+        data: { ...data, requestIntent: "explicit_user_action" },
+        error: null,
+      });
+    } catch (error) {
+      setOrdinalState({ loading: false, data: null, error });
+    }
+  };
 
   const data = state.data;
   const counts = useMemo(() => ({
@@ -248,6 +362,12 @@ function ActiveResearchEnvironment() {
       </div>
     </section>
 
+    <ScriptureDiscoveryPanel
+      researchProjection={data?.research || null}
+      ordinalProjection={ordinalState.data}
+      subject={subject}
+    />
+
     {context?.selection?.expression ? (
       <GematriaOpeningProjection
         expression={context.selection.expression}
@@ -260,6 +380,12 @@ function ActiveResearchEnvironment() {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
+        {canProbeTorahOrdinal ? (
+          <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={ordinalState.loading}>
+            {ordinalState.loading ? "בודק מיקום פסוק…" : `בדוק כפסוק #${ordinalValue} בתורה`}
+          </button>
+        ) : null}
+        <Link className="sod29-action" to="/verse-gematria">חיפוש גימטריית פסוקים</Link>
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
         <button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>

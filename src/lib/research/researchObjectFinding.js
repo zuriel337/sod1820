@@ -22,12 +22,18 @@ function verificationFrom(row) {
   const explicit = clean(detail.verification_state);
   const verification_state = explicit && VALID_VERIFICATION.has(explicit) ? explicit : null;
 
+  // Explicit historical aliases are normalized here only when they are already engine-owned
+  // fields. Never fall back to row.value or infer a result from free text / arbitrary value maps.
+  const trace = detail.trace && typeof detail.trace === "object" && !Array.isArray(detail.trace)
+    ? detail.trace
+    : {};
+
   return {
     claimed_expression: detail.claimed_expression ?? null,
     claimed_method: detail.claimed_method ?? null,
-    claimed_value: detail.claimed_value ?? null,
-    engine_method_tested: detail.engine_method_tested ?? detail.engine ?? null,
-    engine_result: detail.engine_result ?? detail.result ?? null,
+    claimed_value: detail.claimed_value ?? detail.source_claimed_value ?? null,
+    engine_method_tested: detail.engine_method_tested ?? detail.engine ?? detail.method_key ?? trace.method_key ?? null,
+    engine_result: detail.engine_result ?? detail.engine_value ?? detail.result ?? trace.result ?? null,
     statement_lang: detail.statement_lang ?? null,
     verification_state,
   };
@@ -101,7 +107,7 @@ function verifiedCompoundOperationShape(compound) {
  * canonical_methods_registry_law; spatial/family identity is carried only when the source row
  * already owns meta.ext.spatial_research; operation shape comes only from engine_detail.compound.
  */
-export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
+export function researchObjectFacetDimensions(row, { registryRows = [], sourceOccurrence = null } = {}) {
   const detail = asObject(row?.engine_detail);
   const compound = asObject(detail.compound);
   const ext = asObject(row?.meta?.ext);
@@ -125,6 +131,9 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   addMethod(compound?.operand?.method, "engine_detail.compound.operand.method");
   for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
     addMethod(operand?.method, "engine_detail.compound.operands[].method");
+  }
+  for (const component of Array.isArray(detail.method_components) ? detail.method_components : []) {
+    addMethod(component?.method_key || component?.method, "engine_detail.method_components[].method_key");
   }
 
   const registryByMethodKey = new Map();
@@ -152,6 +161,41 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   }
   const canonicalMethods = [...canonicalMethodMap.values()];
 
+  const methodComponents = (Array.isArray(detail.method_components) ? detail.method_components : [])
+    .map((component) => {
+      const rawMethod = clean(component?.method_key || component?.method);
+      if (!rawMethod) return null;
+      const registry = registryByMethodKey.get(rawMethod) || registryByDbColumn.get(rawMethod) || null;
+      return {
+        methodKey: clean(registry?.method_key) || rawMethod,
+        dbColumn: clean(registry?.db_column) || null,
+        displayLabel: clean(registry?.display_label) || rawMethod,
+        registryResolved: Boolean(registry),
+        expression: clean(component?.expression) || null,
+        claimedValue: finiteNumber(component?.claimed_value),
+        engineResult: finiteNumber(component?.engine_result),
+        verificationState: clean(component?.verification_state) || null,
+        verifiedVia: clean(component?.verified_via) || null,
+        claimedTransform: clean(component?.claimed_transform) || null,
+        engineTransform: clean(component?.engine_transform) || null,
+        valueVerificationState: clean(component?.value_verification_state) || null,
+        transformVerificationState: clean(component?.transform_verification_state) || null,
+        sourceMethodLabel: clean(component?.source_method_label) || null,
+      };
+    })
+    .filter(Boolean);
+
+  const sourceMethods = (Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : [])
+    .map((mention) => ({
+      token: clean(mention?.token),
+      methodKey: clean(mention?.methodKey),
+      displayLabel: clean(mention?.displayLabel) || clean(mention?.token),
+      state: clean(mention?.state),
+      sourceAttested: mention?.sourceAttested === true,
+      appliesToFinding: mention?.appliesToFinding === true,
+    }))
+    .filter((mention) => mention.token && mention.sourceAttested);
+
   const operation = verifiedCompoundOperationShape(compound);
 
   const family = Object.keys(spatial).length ? {
@@ -161,7 +205,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
     classification: clean(spatial.classification),
   } : null;
 
-  const sourceOccurrence = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
+  const sourceOccurrenceRef = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
   const occurrenceRefs = [];
   const addOccurrence = (value) => {
     const ref = clean(value);
@@ -182,6 +226,8 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
   const facets = {
     methods: methodRefs,
     canonicalMethods,
+    methodComponents,
+    sourceMethods,
     operation,
     family,
     spatial: (family || mediaClass) ? {
@@ -191,14 +237,14 @@ export function researchObjectFacetDimensions(row, { registryRows = [] } = {}) {
       is3d: spatial3d,
       loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
     } : null,
-    sourceOccurrence: sourceOccurrence || occurrenceRefs.length ? {
-      ref: sourceOccurrence,
+    sourceOccurrence: sourceOccurrenceRef || occurrenceRefs.length ? {
+      ref: sourceOccurrenceRef,
       refs: occurrenceRefs,
       duplicateOccurrenceCount,
     } : null,
   };
 
-  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  const hasFacet = facets.methods.length || facets.canonicalMethods.length || facets.methodComponents.length || facets.sourceMethods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
   return hasFacet ? facets : null;
 }
 

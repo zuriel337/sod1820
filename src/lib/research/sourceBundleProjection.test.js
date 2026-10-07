@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
-import { buildSourceBundles } from "./sourceBundleProjection.js";
+import { buildSourceBundles, canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
 
 const ZVI = "c66f0464-0928-490e-be9b-66d8a87e7fc8";
 const REF = "channel_updates:0c2aaf88-5df4-45fc-a92e-f644610a4f1a";
@@ -92,4 +92,79 @@ test("bundle carries contextual Hebrew presentation without changing finding ide
   assert.match(bundle.presentation.primaryTitle, /ייחוס הדובר|השערה/);
   assert.ok(!/[A-Za-z]{3}/.test(bundle.presentation.primaryTitle));
   assert.match(bundle.presentation.contextLine, /השערה|מודל מחקר משיחי/);
+});
+
+
+test("canonical source occurrence strips only ingestion fragments and preserves semantic fragments", () => {
+  assert.equal(canonicalResearchSourceRef(`${REF}#batch12`), REF);
+  assert.equal(canonicalResearchSourceRef(`${REF}#a3`), REF);
+  assert.equal(canonicalResearchSourceRef(`${REF}#interpretation`), `${REF}#interpretation`);
+  assert.equal(canonicalResearchSourceRef(`${REF}#valuation`), `${REF}#valuation`);
+});
+
+test("batch fragments from one channel update collapse into one source bundle", () => {
+  const f = finds([
+    row("batch-a", "fact", { source_ref: `${REF}#batch0` }),
+    row("batch-b", "relation", { source_ref: `${REF}#batch1` }),
+  ]);
+  const [bundle, ...rest] = buildSourceBundles(f);
+  assert.equal(rest.length, 0);
+  assert.equal(bundle.sourceRef, REF);
+  assert.deepEqual(new Set(bundle.sourceRefs), new Set([`${REF}#batch0`, `${REF}#batch1`]));
+  assert.equal(bundle.count, 2);
+});
+
+test("semantic finding fragments keep identity but collapse into one source occurrence bundle", () => {
+  assert.equal(canonicalResearchSourceRef(`${REF}#interpretation`), `${REF}#interpretation`);
+  assert.equal(researchSourceOccurrenceKey(`${REF}#interpretation`), REF);
+  assert.equal(researchSourceOccurrenceKey(`${REF}#valuation`), REF);
+  const f = finds([
+    row("sem-a", "fact", { source_ref: `${REF}#interpretation` }),
+    row("sem-b", "relation", { source_ref: `${REF}#valuation` }),
+  ]);
+  const [bundle, ...rest] = buildSourceBundles(f);
+  assert.equal(rest.length, 0);
+  assert.equal(bundle.sourceRef, REF);
+  assert.deepEqual(new Set(bundle.sourceIdentityRefs), new Set([`${REF}#interpretation`, `${REF}#valuation`]));
+  assert.equal(bundle.count, 2);
+});
+
+test("source occurrence preserves exact wording and adds display-only normalization", () => {
+  const originalText = "  מיכאל   ורות\r\n\r\nגימטריה   במילוי  ";
+  const mentions = sourceOccurrenceMethodMentions(originalText, {
+    registryRows: [{ method_key: "מילוי", display_label: "מילוי", active: true, in_engine: true }],
+  });
+  const [bundle] = buildSourceBundles(finds([row("source-text", "fact")]), {
+    occurrences: {
+      [REF]: {
+        contributorId: ZVI,
+        contributorName: "צבי (OPOC)",
+        originalText,
+        methodMentions: mentions,
+      },
+    },
+  });
+  assert.equal(bundle.occurrence.originalText, originalText, "source wording is untouched");
+  assert.equal(bundle.occurrence.displayTextNormalized, "מיכאל ורות\n\nגימטריה במילוי");
+  assert.deepEqual(bundle.occurrence.methodMentions.map((m) => [m.token, m.state]), [["מילוי", "registry_supported_unlinked"]]);
+});
+
+test("source-attested milui variants remain explicitly unregistered rather than becoming canonical calculations", () => {
+  const mentions = sourceOccurrenceMethodMentions("גימטריא מילוי ב״ן של הויה = 52", {
+    registryRows: [{ method_key: "מילוי", display_label: "מילוי", active: true, in_engine: true }],
+  });
+  assert.deepEqual(mentions.map((m) => [m.token, m.state, m.appliesToFinding]), [
+    ["מילוי ב״ן", "source_attested_variant_unregistered", false],
+  ]);
+});
+
+
+test("ordinary Hebrew 'מסתתר' is not promoted to the canonical מסתתר method", () => {
+  assert.deepEqual(sourceOccurrenceMethodMentions("תראו מה מסתתר במספר 98"), []);
+  assert.deepEqual(sourceOccurrenceMethodMentions("הקוד שמסתתר בפסוק"), []);
+  const [method] = sourceOccurrenceMethodMentions("גימטריה מסתתר של מילה", {
+    registryRows: [{ method_key: "מסתתר", display_label: "מסתתר", active: true, in_engine: true }],
+  });
+  assert.equal(method?.methodKey, "מסתתר");
+  assert.equal(method?.state, "registry_supported_unlinked");
 });

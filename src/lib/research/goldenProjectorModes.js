@@ -18,6 +18,8 @@
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } from "./researchObjectFinding.js";
+import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
+import { methodComponentStateLabelHe, sourceMethodStateLabelHe } from "./researchFacetProjection.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -228,7 +230,15 @@ function researchRowState(row) {
  * order inside each layer is SMART prominence. `researchRows` must already be RLS-filtered for the
  * current session (caller's responsibility; see fetchGoldenAdminUniverse).
  */
-export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {}, researchAccess = null, truncatedNumbers = [], researchMethodRegistryRows = [] } = {}) {
+export function buildGoldenAdminUniverse({
+  pack = null,
+  researchRowsByNumber = {},
+  researchAccess = null,
+  researchSourceAccess = null,
+  researchSourceOccurrences = {},
+  truncatedNumbers = [],
+  researchMethodRegistryRows = [],
+} = {}) {
   const publicIds = new Set((pack?.rows || []).map((r) => r.id));
   const layers = { [ADMIN_LAYER.PUBLIC]: [], [ADMIN_LAYER.GOVERNED]: [], [ADMIN_LAYER.TRACE]: [], [ADMIN_LAYER.RESEARCH]: [] };
 
@@ -281,13 +291,22 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
   const occCount = new Map();
   const dupKey = new Map();
   const researchItems = [...seen.values()].map(({ row, linkedNumbers }) => {
-    const occ = clean(row.source_ref) || `ro:${row.id}`;
+    const rawOcc = clean(row.source_ref) || null;
+    const occ = researchSourceOccurrenceKey(rawOcc) || `ro:${row.id}`;
+    const sourceOccurrence = researchSourceOccurrences?.[occ] || null;
     occCount.set(occ, (occCount.get(occ) || 0) + 1);
     const dk = `${occ}\u0000${clean(row.statement)}\u0000${row.value}`;
     const dupOf = dupKey.get(dk) || null;
     if (!dupOf) dupKey.set(dk, row.id);
+    const researchFacets = researchObjectFacetDimensions(row, { registryRows: researchMethodRegistryRows, sourceOccurrence });
     const states = researchRowState(row);
     if (dupOf) states.push("כפילות בתוך אותו מקום במקור");
+    for (const component of Array.isArray(researchFacets?.methodComponents) ? researchFacets.methodComponents : []) {
+      states.push(methodComponentStateLabelHe(component));
+    }
+    for (const method of Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : []) {
+      states.push(sourceMethodStateLabelHe(method));
+    }
     const vstate = clean(row.engine_detail?.verification_state).toLowerCase() || null;
     const directExpr = clean(row.engine_detail?.claimed_expression);
     const directMethod = clean(row.engine_detail?.claimed_method || row.engine_detail?.engine_method_tested);
@@ -303,8 +322,9 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
       reason: `מקושר לפי ערך בלבד (${[...linkedNumbers].join(", ")}) — אותו ערך אינו אותה זהות; זהו הקשר מחקרי ולא ראיה בפני עצמו.`,
       provenance: [presentation.contextLine, presentation.attributionLabel].filter(Boolean).join(" · "),
       presentation,
-      sourceText: presentation.displayText || null,
-      researchFacets: researchObjectFacetDimensions(row, { registryRows: researchMethodRegistryRows }),
+      sourceText: sourceOccurrence?.displayTextNormalized || presentation.displayText || null,
+      sourceOriginalText: sourceOccurrence?.originalText ?? null,
+      researchFacets,
       occurrenceKey: occ,
       axes: {
         contextRelevance: 1,
@@ -343,6 +363,7 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
     layers,
     total,
     researchAccess: researchAccess || { available: true, reason: null },
+    researchSourceAccess: researchSourceAccess || { available: true, reason: null },
     // A reader page limit was reached for these numbers: more rows exist and must be paged, never assumed absent.
     truncatedNumbers: Array.isArray(truncatedNumbers) ? truncatedNumbers : [],
   };
@@ -354,13 +375,15 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
  *  - research_objects via fetchResearchObjectsForEntity (RLS: ro_admin_read).
  * Dependencies are injected for tests; nothing is written anywhere.
  */
-export async function fetchGoldenAdminUniverse({ postSlug, loadPack, readResearchObjects, limitPerNumber = 120 } = {}) {
+export async function fetchGoldenAdminUniverse({ postSlug, loadPack, readResearchObjects, readSourceOccurrences, limitPerNumber = 120 } = {}) {
   const pack = typeof loadPack === "function" ? await loadPack(postSlug) : null;
   if (!pack) return null;
   const numbers = goldenContextNumbers(pack);
   const researchRowsByNumber = {};
   const researchMethodRegistryByKey = new Map();
   let researchAccess = { available: true, reason: null };
+  let researchSourceAccess = { available: true, reason: null };
+  let researchSourceOccurrences = {};
   const truncatedNumbers = [];
   if (typeof readResearchObjects === "function") {
     const results = await Promise.all(numbers.map(async (n) => {
@@ -379,10 +402,32 @@ export async function fetchGoldenAdminUniverse({ postSlug, loadPack, readResearc
       if (res?.access && res.access.available === false) researchAccess = res.access;
     }
   }
+
+  if (typeof readSourceOccurrences === "function") {
+    const uniqueRows = [...new Map(Object.values(researchRowsByNumber)
+      .flat()
+      .filter((row) => row?.id)
+      .map((row) => [String(row.id), row])).values()];
+    try {
+      const sourceResult = await readSourceOccurrences(uniqueRows, { limit: 240 });
+      researchSourceOccurrences = sourceResult?.occurrences && typeof sourceResult.occurrences === "object"
+        ? sourceResult.occurrences
+        : {};
+      researchSourceAccess = sourceResult?.access || researchSourceAccess;
+      for (const registryRow of Array.isArray(sourceResult?.methodRegistryRows) ? sourceResult.methodRegistryRows : []) {
+        if (registryRow?.method_key) researchMethodRegistryByKey.set(String(registryRow.method_key), registryRow);
+      }
+    } catch {
+      researchSourceAccess = { available: false, reason: "research_source_occurrence_read_failed" };
+    }
+  }
+
   return buildGoldenAdminUniverse({
     pack,
     researchRowsByNumber,
     researchAccess,
+    researchSourceAccess,
+    researchSourceOccurrences,
     truncatedNumbers,
     researchMethodRegistryRows: [...researchMethodRegistryByKey.values()],
   });
