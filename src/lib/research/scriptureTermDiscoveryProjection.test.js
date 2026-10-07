@@ -27,6 +27,8 @@ test("term groups come only from structured evidence facts, never subject text",
           { type: "term", value: " חָכְמָה " },
           { type: "term", value: "בינה" },
           { type: "other", value: "משיח" },
+          { type: "term", value: "יום 358" },
+          { type: "term", value: "18:20" },
         ],
       },
     },
@@ -36,6 +38,7 @@ test("term groups come only from structured evidence facts, never subject text",
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].terms.map((row) => row.sourceTerm), ["חָכְמָה", "בינה"]);
   assert.deepEqual(groups[0].terms.map((row) => row.queryTerm), ["חכמה", "בינה"]);
+  assert.equal(groups[0].terms.some((row) => /\d/.test(row.queryTerm)), false, "numeric/clock contamination is not a lexical seed");
   assert.equal(groups[0].sourceFindingRef, "a");
 });
 
