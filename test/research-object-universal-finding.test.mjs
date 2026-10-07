@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { researchObjectToUniversalFinding, isGeneralResearchProjectionEligible, researchObjectPersonalScope } from "../src/lib/research/researchObjectFinding.js";
+import { researchObjectToUniversalFinding, isGeneralResearchProjectionEligible, researchObjectPersonalScope, researchObjectFacets } from "../src/lib/research/researchObjectFinding.js";
 
 const base = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -186,6 +186,65 @@ assert.equal(unknownKind.projection.dimensions.researchObjectKind, "hypothesis")
 const noNode = researchObjectToUniversalFinding({ ...base, promoted_node_id: null });
 assert.equal(noNode.identity.entityRef, null);
 assert.deepEqual(noNode.projection.anchors, []);
+
+const structuredFacetRow = {
+  ...base,
+  id: "77777777-7777-4777-8777-777777777777",
+  statement: "10×כפור=3060",
+  source_ref: "channel_updates:012e90b9-fb40-4ca8-9d41-d7c1f220a7f1",
+  engine_detail: {
+    compound: {
+      kind: "quantity-product",
+      quantity: 10,
+      result: 3060,
+      computedTotal: 3060,
+      operand: { phrase: "כפור", value: 306, method: "רגיל", status: "verified" },
+      occurrences: ["channel_updates:012e90b9-fb40-4ca8-9d41-d7c1f220a7f1"],
+    },
+  },
+  meta: {
+    ext: {
+      spatial_research: {
+        role: "STRUCTURAL_3D_FAMILY",
+        cluster: "3060 זכות אבות · קוביית ישר/מחומש/משולשים",
+        research_focus_key: "zvi:spatial:3060:zechut-avot",
+      },
+      source_media_profile: {
+        class: "SPATIAL_3D",
+        load_bearing_visual_candidate: true,
+      },
+      exact_duplicate_lineage: { occurrence_count: 3 },
+    },
+  },
+};
+const facets = researchObjectFacets(structuredFacetRow);
+assert.deepEqual(facets.methods.refs, ["רגיל"]);
+assert.equal(facets.methods.registryResolutionRequired, true);
+assert.equal(facets.operation.compoundKind, "quantity-product");
+assert.equal(facets.operation.multiplier, 10);
+assert.equal(facets.operation.computedResult, 3060);
+assert.equal(facets.family.researchFocusKey, "zvi:spatial:3060:zechut-avot");
+assert.equal(facets.family.cluster, "3060 זכות אבות · קוביית ישר/מחומש/משולשים");
+assert.equal(facets.family.spatial3d, true);
+assert.equal(facets.media.class, "SPATIAL_3D");
+assert.equal(facets.media.loadBearingVisualCandidate, true);
+assert.deepEqual(facets.provenance.occurrenceRefs, ["channel_updates:012e90b9-fb40-4ca8-9d41-d7c1f220a7f1"]);
+assert.equal(facets.provenance.duplicateOccurrenceCount, 3);
+
+const structuredFacetFinding = researchObjectToUniversalFinding(structuredFacetRow);
+assert.deepEqual(structuredFacetFinding.projection.dimensions.researchFacets, facets,
+  "World and Projector must receive the same source-owned research facets through Universal Finding");
+
+const rawTextOnly = researchObjectFacets({
+  ...base,
+  statement: "4 פעמים טוב = משהו",
+  engine_detail: {},
+  meta: {},
+});
+assert.equal(rawTextOnly.operation.multiplier, null,
+  "operator facets must never be inferred from free text");
+assert.equal(rawTextOnly.family.spatial3d, false,
+  "3D/spatial facets must require structured metadata, not wording");
 
 assert.equal(researchObjectToUniversalFinding(null), null);
 console.log("research-object-universal-finding: ok");
