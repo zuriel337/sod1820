@@ -54,6 +54,45 @@ function methodRef(token, basis) {
   };
 }
 
+function verifiedCompoundOperationShape(compound) {
+  if (!compound || typeof compound !== "object" || Array.isArray(compound) || !Object.keys(compound).length) return null;
+  const raw = clean(compound.raw) || clean(compound.text) || clean(compound.origRaw);
+  const verifiedComposite = clean(compound.status) === "ENGINE_VERIFIED_COMPOSITE";
+  const factors = [];
+  const addFactor = (value) => {
+    const n = finiteNumber(value);
+    if (n == null || factors.includes(n)) return;
+    factors.push(n);
+  };
+
+  const quantity = finiteNumber(compound.quantity);
+  if (quantity != null) addFactor(quantity);
+
+  // Deterministic parsing is allowed only over the engine-owned, verified compound expression.
+  // Never inspect row.statement here. The factors are projection/filter hints, not new calculations.
+  if (verifiedComposite && raw) {
+    for (const match of raw.matchAll(/(?:×|x)\s*(\d+(?:\.\d+)?)/gi)) addFactor(match[1]);
+    for (const match of raw.matchAll(/(\d+(?:\.\d+)?)\s*(?:×|x)/gi)) addFactor(match[1]);
+    for (const match of raw.matchAll(/(\d+(?:\.\d+)?)\s*פעמים/g)) addFactor(match[1]);
+  }
+
+  const operators = [];
+  if (verifiedComposite && raw && /×|x/i.test(raw)) operators.push("multiply");
+  if (verifiedComposite && raw && /\+/.test(raw)) operators.push("add");
+
+  return {
+    kind: clean(compound.kind),
+    multiplier: quantity,
+    factors,
+    operators,
+    result: finiteNumber(compound.result),
+    computedTotal: finiteNumber(compound.computedTotal),
+    linkCount: finiteNumber(compound.linkCount),
+    status: clean(compound.status),
+    basis: verifiedComposite ? "verified_engine_compound" : "structured_compound",
+  };
+}
+
 /**
  * Shared one-tree filtering facets extracted only from already-structured research metadata.
  * No statement-text guessing and no new taxonomy: method identity is resolved later through
@@ -83,14 +122,7 @@ export function researchObjectFacetDimensions(row) {
     addMethod(operand?.method, "engine_detail.compound.operands[].method");
   }
 
-  const operation = Object.keys(compound).length ? {
-    kind: clean(compound.kind),
-    multiplier: finiteNumber(compound.quantity),
-    result: finiteNumber(compound.result),
-    computedTotal: finiteNumber(compound.computedTotal),
-    linkCount: finiteNumber(compound.linkCount),
-    status: clean(compound.status),
-  } : null;
+  const operation = verifiedCompoundOperationShape(compound);
 
   const family = Object.keys(spatial).length ? {
     key: clean(spatial.research_focus_key),
