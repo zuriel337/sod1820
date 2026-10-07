@@ -29,7 +29,18 @@ export function researchFacetAxes(item) {
   const methods = Array.isArray(facets.methods)
     ? [...new Set(facets.methods.map((row) => clean(row?.token)).filter(Boolean))]
     : [];
-  const displayMethods = methods.filter(hasHebrew);
+  const canonicalMethods = Array.isArray(facets.canonicalMethods)
+    ? facets.canonicalMethods
+      .map((row) => ({
+        methodKey: clean(row?.methodKey),
+        displayLabel: clean(row?.displayLabel) || clean(row?.methodKey),
+        dbColumn: clean(row?.dbColumn) || null,
+      }))
+      .filter((row) => row.methodKey)
+    : [];
+  const displayMethods = canonicalMethods.length
+    ? [...new Set(canonicalMethods.map((row) => row.displayLabel || row.methodKey).filter(Boolean))]
+    : methods.filter(hasHebrew);
   const factors = Array.isArray(facets.operation?.factors)
     ? [...new Set(facets.operation.factors.map(Number).filter(Number.isFinite))]
     : [];
@@ -40,6 +51,7 @@ export function researchFacetAxes(item) {
   const familyLabel = clean(facets.family?.cluster) || familyKey;
   return {
     methods,
+    canonicalMethods,
     displayMethods,
     operations,
     factors,
@@ -53,7 +65,11 @@ export function filterResearchFacetItems(items = [], filters = {}) {
   const f = { ...RESEARCH_FACET_FILTER_DEFAULTS, ...(filters || {}) };
   return (Array.isArray(items) ? items : []).filter((item) => {
     const axes = researchFacetAxes(item);
-    if (f.method !== "all" && !axes.methods.includes(f.method)) return false;
+    if (f.method !== "all") {
+      const canonicalHit = axes.canonicalMethods.some((row) => row.methodKey === f.method || row.displayLabel === f.method);
+      const rawFallbackHit = !axes.canonicalMethods.length && axes.methods.includes(f.method);
+      if (!canonicalHit && !rawFallbackHit) return false;
+    }
     if (f.operation !== "all" && !axes.operations.includes(f.operation)) return false;
     if (f.factor !== "all" && !axes.factors.includes(Number(f.factor))) return false;
     if (f.spatial === "3d" && !axes.is3d) return false;
