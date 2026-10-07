@@ -228,7 +228,7 @@ function researchRowState(row) {
  * order inside each layer is SMART prominence. `researchRows` must already be RLS-filtered for the
  * current session (caller's responsibility; see fetchGoldenAdminUniverse).
  */
-export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {}, researchAccess = null, truncatedNumbers = [] } = {}) {
+export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {}, researchAccess = null, truncatedNumbers = [], researchMethodRegistryRows = [] } = {}) {
   const publicIds = new Set((pack?.rows || []).map((r) => r.id));
   const layers = { [ADMIN_LAYER.PUBLIC]: [], [ADMIN_LAYER.GOVERNED]: [], [ADMIN_LAYER.TRACE]: [], [ADMIN_LAYER.RESEARCH]: [] };
 
@@ -304,7 +304,7 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
       provenance: [presentation.contextLine, presentation.attributionLabel].filter(Boolean).join(" · "),
       presentation,
       sourceText: presentation.displayText || null,
-      researchFacets: researchObjectFacetDimensions(row),
+      researchFacets: researchObjectFacetDimensions(row, { registryRows: researchMethodRegistryRows }),
       occurrenceKey: occ,
       axes: {
         contextRelevance: 1,
@@ -359,6 +359,7 @@ export async function fetchGoldenAdminUniverse({ postSlug, loadPack, readResearc
   if (!pack) return null;
   const numbers = goldenContextNumbers(pack);
   const researchRowsByNumber = {};
+  const researchMethodRegistryByKey = new Map();
   let researchAccess = { available: true, reason: null };
   const truncatedNumbers = [];
   if (typeof readResearchObjects === "function") {
@@ -371,9 +372,18 @@ export async function fetchGoldenAdminUniverse({ postSlug, loadPack, readResearc
     }));
     for (const [n, res] of results) {
       researchRowsByNumber[n] = Array.isArray(res?.rows) ? res.rows : [];
+      for (const registryRow of Array.isArray(res?.methodRegistryRows) ? res.methodRegistryRows : []) {
+        if (registryRow?.method_key) researchMethodRegistryByKey.set(String(registryRow.method_key), registryRow);
+      }
       if (researchRowsByNumber[n].length >= limitPerNumber) truncatedNumbers.push(n);
       if (res?.access && res.access.available === false) researchAccess = res.access;
     }
   }
-  return buildGoldenAdminUniverse({ pack, researchRowsByNumber, researchAccess, truncatedNumbers });
+  return buildGoldenAdminUniverse({
+    pack,
+    researchRowsByNumber,
+    researchAccess,
+    truncatedNumbers,
+    researchMethodRegistryRows: [...researchMethodRegistryByKey.values()],
+  });
 }
