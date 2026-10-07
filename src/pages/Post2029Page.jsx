@@ -73,6 +73,7 @@ function PostReadingBody() {
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
     [regions, activeRegionId],
   );
+  const activeRegionFocus = activeFocus;
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
@@ -108,6 +109,11 @@ function PostReadingBody() {
   }, [state.projection, regions]);
 
   useEffect(() => {
+    // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
+    // still gets one whole-post reading focus, so the Golden layer can mount. Others are unchanged.
+    const activeFocus = activeRegionFocus || (state.projection?.contextPack && state.projection?.post
+      ? { id: "post-story", label: "הסיפור", primary: state.projection.post.title, signals: [], number: null }
+      : null);
     if (!state.projection || !activeFocus) return;
     const post = state.projection.post;
     const currentContext = research.context || null;
@@ -213,7 +219,7 @@ function PostReadingBody() {
         },
       },
     });
-  }, [activeFocus?.id, state.projection?.post?.id]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack)]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
