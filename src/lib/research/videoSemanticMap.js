@@ -57,6 +57,7 @@ export function readVideoSemanticMap(row) {
     mediaUrl,
     posterUrl: clean(raw.poster_url) || null,
     mappingBasis: clean(raw.mapping_basis) || null,
+    completeness: clean(raw.completeness) === "full" ? "full" : clean(raw.completeness) === "partial" ? "partial" : null,
     timecodeQuality: clean(raw.timecode_quality) || null,
     sourceRole: clean(raw.source_role) || "representation",
     independentEvidence: raw.independent_evidence === true,
@@ -121,6 +122,7 @@ export function resolveVideoSemanticMap(map, context) {
     mediaUrl: map.mediaUrl,
     posterUrl: map.posterUrl,
     mappingBasis: map.mappingBasis,
+    completeness: map.completeness,
     timecodeQuality: map.timecodeQuality,
     sourceRole: map.sourceRole,
     independentEvidence: map.independentEvidence,
@@ -144,7 +146,16 @@ export function contextualVideosFromMaps(maps, context, { limit = 3 } = {}) {
     if (!item) continue;
     const key = item.videoPublicId || item.videoKey || item.mediaUrl;
     const prev = byVideo.get(key);
-    if (!prev || item.score > prev.score) byVideo.set(key, item);
+    const itemCompleteness = item.completeness === "full" ? 2 : item.completeness === "partial" ? 1 : 0;
+    const prevCompleteness = prev?.completeness === "full" ? 2 : prev?.completeness === "partial" ? 1 : 0;
+    const itemTimed = item.anchor?.startSec != null ? 1 : 0;
+    const prevTimed = prev?.anchor?.startSec != null ? 1 : 0;
+    if (!prev
+      || item.score > prev.score
+      || (item.score === prev.score && itemCompleteness > prevCompleteness)
+      || (item.score === prev.score && itemCompleteness === prevCompleteness && itemTimed > prevTimed)) {
+      byVideo.set(key, item);
+    }
   }
   return [...byVideo.values()]
     .filter((item) => item.matched)
