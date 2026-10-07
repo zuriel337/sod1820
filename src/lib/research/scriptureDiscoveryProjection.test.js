@@ -96,6 +96,8 @@ test("discovery uses the injected canonical reader and never promotes truth", as
   assert.equal(out.coverage.eligibleSeeds, 2);
   assert.equal(out.coverage.candidateVerses, 2);
   assert.equal(out.candidates.every((item) => item.truthPromotion === false), true);
+  assert.equal(out.candidates.every((item) => item.entityIdentityClaim === false), true);
+  assert.equal(out.candidates.every((item) => item.semanticProof === false), true);
   assert.equal(out.candidates.every((item) => item.verseMethod === "רגיל"), true);
   assert.equal(out.candidates[0].discoveryBasis, "seed_numeric_value_to_verse_ragil_value");
   assert.deepEqual(out.candidates[0].seedMethods, ["רגיל"]);
