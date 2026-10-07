@@ -43,7 +43,7 @@ import {
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { RESEARCH_OPERATION_LABELS_HE, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
+import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
 import { canonicalResearchSourceRef } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
@@ -2048,6 +2048,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                 <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
                 <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
                 <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+                {(finding?.projection?.dimensions?.researchFacets?.methodComponents || []).map((component, componentIndex) => <span className="sod29-chip" key={`component:${component.methodKey || componentIndex}:${component.expression || componentIndex}`}>{methodComponentStateLabelHe(component)}</span>)}
                 {(sourceOccurrence?.methodMentions || []).map((method) => <span className="sod29-chip" key={`${method.token}:${method.state}`}>{sourceMethodStateLabelHe(method)}</span>)}
                 {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
               </div> : null}
