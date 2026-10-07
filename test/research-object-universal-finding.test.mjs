@@ -134,6 +134,36 @@ assert.match(hebrewSafeFallback.view.rendererHints.presentation.contextLine, /ה
 assert.equal(hebrewSafeFallback.projection.dimensions.presentation.fallbackMode, "raw_statement",
   "safe runtime fallback does not pretend durable Hebrew backfill already exists");
 
+
+const trustedIntakeAttribution = researchObjectToUniversalFinding({
+  ...base,
+  id: "44444444-4444-4444-8444-444444444444",
+  contributor: "צבי (OPOC)",
+  source: "channel_updates",
+  source_ref: "channel_updates:958c36c9-adaa-4e7c-a623-585565fc1d35",
+  meta: {
+    ext: {
+      wa_channel_intake: {
+        contributor_id: "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+        trusted_author: true,
+      },
+    },
+  },
+}, { locale: "he" });
+assert.equal(trustedIntakeAttribution.view.rendererHints.presentation.attributionState, "resolved");
+assert.match(trustedIntakeAttribution.view.rendererHints.presentation.attributionLabel, /ייחוס מקור מאומת: צבי/);
+
+const nameOnlyAttribution = researchObjectToUniversalFinding({
+  ...base,
+  id: "55555555-5555-4555-8555-555555555555",
+  contributor: "אור הגאולה",
+  source: "channel_updates",
+  source_ref: "channel_updates:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  meta: { ext: { wa_channel_intake: { trusted_author: false } } },
+}, { locale: "he" });
+assert.equal(nameOnlyAttribution.view.rendererHints.presentation.attributionState, "unresolved");
+assert.match(nameOnlyAttribution.view.rendererHints.presentation.attributionLabel, /זהות המחבר לא הוכרעה/);
+
 const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, engine_verified: true });
 assert.equal(noDetail.verification.verification_state, null,
   "derived engine_verified=true must not manufacture verification_state=match");
