@@ -33,6 +33,147 @@ function verificationFrom(row) {
   };
 }
 
+function asObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+function finiteNumber(value) {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function methodRef(token, basis) {
+  const value = clean(token);
+  if (!value) return null;
+  return {
+    token: value,
+    namespace: /^[a-z0-9_+.-]+$/i.test(value) ? "db_column_or_alias" : "method_key",
+    basis,
+    registryResolutionRequired: true,
+  };
+}
+
+function verifiedCompoundOperationShape(compound) {
+  if (!compound || typeof compound !== "object" || Array.isArray(compound) || !Object.keys(compound).length) return null;
+  const raw = clean(compound.raw) || clean(compound.text) || clean(compound.origRaw);
+  const verifiedComposite = clean(compound.status) === "ENGINE_VERIFIED_COMPOSITE";
+  const factors = [];
+  const addFactor = (value) => {
+    const n = finiteNumber(value);
+    if (n == null || factors.includes(n)) return;
+    factors.push(n);
+  };
+
+  const quantity = finiteNumber(compound.quantity);
+  if (quantity != null) addFactor(quantity);
+
+  // Deterministic parsing is allowed only over the engine-owned, verified compound expression.
+  // Never inspect row.statement here. The factors are projection/filter hints, not new calculations.
+  if (verifiedComposite && raw) {
+    for (const match of raw.matchAll(/(?:×|x)\s*(\d+(?:\.\d+)?)/gi)) addFactor(match[1]);
+    for (const match of raw.matchAll(/(\d+(?:\.\d+)?)\s*(?:×|x)/gi)) addFactor(match[1]);
+    for (const match of raw.matchAll(/(\d+(?:\.\d+)?)\s*פעמים/g)) addFactor(match[1]);
+  }
+
+  const operators = [];
+  if (verifiedComposite && raw && /×|x/i.test(raw)) operators.push("multiply");
+  if (verifiedComposite && raw && /\+/.test(raw)) operators.push("add");
+
+  return {
+    kind: clean(compound.kind),
+    multiplier: quantity,
+    factors,
+    operators,
+    result: finiteNumber(compound.result),
+    computedTotal: finiteNumber(compound.computedTotal),
+    linkCount: finiteNumber(compound.linkCount),
+    status: clean(compound.status),
+    basis: verifiedComposite ? "verified_engine_compound" : "structured_compound",
+  };
+}
+
+/**
+ * Shared one-tree filtering facets extracted only from already-structured research metadata.
+ * No statement-text guessing and no new taxonomy: method identity is resolved later through
+ * canonical_methods_registry_law; spatial/family identity is carried only when the source row
+ * already owns meta.ext.spatial_research; operation shape comes only from engine_detail.compound.
+ */
+export function researchObjectFacetDimensions(row) {
+  const detail = asObject(row?.engine_detail);
+  const compound = asObject(detail.compound);
+  const ext = asObject(row?.meta?.ext);
+  const spatial = asObject(ext.spatial_research);
+  const mediaProfile = asObject(ext.source_media_profile);
+  const duplicate = asObject(ext.exact_duplicate_lineage);
+  const gematria = asObject(ext.gematria);
+
+  const methodRefs = [];
+  const addMethod = (token, basis) => {
+    const ref = methodRef(token, basis);
+    if (!ref || methodRefs.some((item) => item.token === ref.token && item.namespace === ref.namespace)) return;
+    methodRefs.push(ref);
+  };
+
+  addMethod(detail.claimed_method, "engine_detail.claimed_method");
+  addMethod(detail.engine_method_tested, "engine_detail.engine_method_tested");
+  addMethod(detail.method, "engine_detail.method");
+  addMethod(gematria.method_key, "meta.ext.gematria.method_key");
+  addMethod(gematria.method, "meta.ext.gematria.method");
+  addMethod(compound?.operand?.method, "engine_detail.compound.operand.method");
+  for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
+    addMethod(operand?.method, "engine_detail.compound.operands[].method");
+  }
+
+  const operation = verifiedCompoundOperationShape(compound);
+
+  const family = Object.keys(spatial).length ? {
+    key: clean(spatial.research_focus_key),
+    cluster: clean(spatial.cluster),
+    role: clean(spatial.role),
+    classification: clean(spatial.classification),
+  } : null;
+
+  const sourceOccurrence = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
+  const occurrenceRefs = [];
+  const addOccurrence = (value) => {
+    const ref = clean(value);
+    if (ref && !occurrenceRefs.includes(ref)) occurrenceRefs.push(ref);
+  };
+  addOccurrence(row?.source_ref);
+  addOccurrence(spatial.source_ref);
+  addOccurrence(mediaProfile.source_ref);
+  for (const ref of Array.isArray(compound.occurrences) ? compound.occurrences : []) addOccurrence(ref);
+  for (const ref of Array.isArray(ext.source_refs) ? ext.source_refs : []) addOccurrence(ref);
+  for (const ref of Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs : []) addOccurrence(ref);
+
+  const duplicateOccurrenceCount = finiteNumber(duplicate.occurrence_count);
+  const spatialRole = family?.role || null;
+  const mediaClass = clean(mediaProfile.class);
+  const spatial3d = [spatialRole, mediaClass].some((value) => /(?:^|_)3D(?:_|$)/i.test(value || ""));
+
+  const facets = {
+    methods: methodRefs,
+    operation,
+    family,
+    spatial: (family || mediaClass) ? {
+      role: spatialRole,
+      cluster: family?.cluster || null,
+      mediaClass,
+      is3d: spatial3d,
+      loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
+    } : null,
+    sourceOccurrence: sourceOccurrence || occurrenceRefs.length ? {
+      ref: sourceOccurrence,
+      refs: occurrenceRefs,
+      duplicateOccurrenceCount,
+    } : null,
+  };
+
+  const hasFacet = facets.methods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  return hasFacet ? facets : null;
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
@@ -80,6 +221,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const presentation = resolveResearchObjectPresentation(row, { locale });
   const attribution = resolveExplicitAttribution(row);
   const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
+  const researchFacets = researchObjectFacetDimensions(row);
 
   return makeUniversalFinding({
     kind: "research-object",
@@ -130,6 +272,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       relations: [],
       dimensions: {
         researchObjectKind: row.kind ?? null,
+        ...(researchFacets ? { researchFacets } : {}),
         ...(attribution.type || attribution.contributorId
           ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: attribution.resolved, explicit: attribution.resolved } }
           : {}),
