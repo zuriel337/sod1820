@@ -102,9 +102,9 @@ function ScriptureDiscoveryPanel({ researchProjection, ordinalProjection, subjec
       <div className="sod29-actions" style={{ marginTop: 14 }}>
         <Link
           className="sod29-action"
-          to={`/research?tool=verse&q=${encodeURIComponent(subject?.label || subject?.id || "")}`}
+          to="/verse-gematria"
         >
-          פתח חיפוש פסוקים מלא
+          פתח חיפוש גימטריית פסוקים
         </Link>
       </div>
     </section>
@@ -371,7 +371,7 @@ function ActiveResearchEnvironment() {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
-        <Link className="sod29-action" to={`/research?tool=verse&q=${encodeURIComponent(subject?.label || subject?.id || "")}`}>חפש בפסוקים</Link>
+        <Link className="sod29-action" to="/verse-gematria">חיפוש גימטריית פסוקים</Link>
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
         <button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>
