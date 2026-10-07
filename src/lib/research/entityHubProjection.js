@@ -213,14 +213,19 @@ export async function fetchResearchSourceOccurrences(rows = [], { limit = 120 } 
   }
 
   try {
-    const { data, error } = await supabase
-      .from("channel_updates")
-      .select(CHANNEL_UPDATE_SOURCE_FIELDS)
-      .in("id", ids)
-      .limit(cap);
-    if (error) throw error;
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 40) chunks.push(ids.slice(i, i + 40));
+    const results = await Promise.all(chunks.map(async (chunk) => {
+      const { data, error } = await supabase
+        .from("channel_updates")
+        .select(CHANNEL_UPDATE_SOURCE_FIELDS)
+        .in("id", chunk)
+        .limit(chunk.length);
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }));
 
-    const sourceRows = Array.isArray(data) ? data : [];
+    const sourceRows = results.flat();
     const seeded = sourceRows.map((row) => ({
       row,
       mentions: sourceOccurrenceMethodMentions(row?.text),
