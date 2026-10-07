@@ -26,25 +26,29 @@ assert.match(page, /newsletter-signup/);
 assert.match(page, /signupAttribution\(\)/);
 assert.match(page, /source: CAMPAIGN/);
 assert.match(page, /source: "whatsapp"/);
+assert.match(page, /back: "\/early-access"/);
 
 assert.doesNotMatch(page, /קוד המציאות/);
 assert.doesNotMatch(page, /Calculator|2029\/gematria|fn_method_value|buildCalculator2029FastPreview/);
 
 assert.match(app, /WhatsAppWelcome2029Page/);
-assert.match(app, /path="\/whatsapp\/kod-hametsiut"/);
+assert.match(app, /path="\/early-access"/);
+assert.doesNotMatch(app, /path="\/whatsapp\/kod-hametsiut" element=\{<WhatsAppWelcome2029Page/);
 
-const redirect = (vercel.redirects || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
-assert.equal(redirect, undefined, "stable WhatsApp URL must no longer redirect into legacy /join");
+const legacyRedirect = (vercel.redirects || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
+assert.ok(legacyRedirect, "old circulated WhatsApp link must remain valid");
+assert.equal(legacyRedirect.destination, "/early-access");
+assert.equal(legacyRedirect.permanent, false);
 
-const rewrite = (vercel.rewrites || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
-assert.ok(rewrite, "stable WhatsApp URL must be served by the isolated 2029 document");
+const rewrite = (vercel.rewrites || []).find((item) => item.source === "/early-access");
+assert.ok(rewrite, "neutral public entry must be served by the isolated 2029 document");
 assert.equal(rewrite.destination, "/2029.html");
 
-const header = (vercel.headers || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
-assert.ok(header, "welcome landing needs explicit robots policy");
+const header = (vercel.headers || []).find((item) => item.source === "/early-access");
+assert.ok(header, "early access landing needs explicit robots policy");
 assert.ok((header.headers || []).some((item) => item.key === "X-Robots-Tag" && /noindex/.test(item.value)));
 
 assert.doesNotMatch(join, /kod-hametsiut|קוד המציאות|isKodReality/);
 assert.match(brand, /sod1820_primary_lockup_v2_transparent_candidate\.png/);
 
-console.log("WhatsApp 2029 welcome landing regression: PASS");
+console.log("2029 early access welcome landing regression: PASS");
