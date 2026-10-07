@@ -15,7 +15,7 @@ const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source
 const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
-const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
+const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -595,15 +595,55 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   };
 }
 
+// Graph media for a bounded set of numbers ALREADY present in the research context. Reuses the
+// canonical path only: resolveEntityHubNode (number node) -> fetchCanonicalGraphEntityFindings ->
+// fetchWorldMediaProjection. No node/edge is created and no Post->Image edge is implied: the
+// context numbers are the graph anchors, the media keeps relationKind=reality_graph.
+export async function fetchGraphMediaForNumbers({ numbers = [], limit = 12, perNumberLimit = 8 } = {}) {
+  const cap = safeLimit(limit, 12, 24);
+  const list = [...new Set((Array.isArray(numbers) ? numbers : []).filter((n) => Number.isSafeInteger(n) && n > 0))].slice(0, 8);
+  if (!list.length) return { items: [], access: { available: true, reason: null } };
+  const results = await Promise.all(list.map(async (n) => {
+    const node = await resolveEntityHubNode({ type: "number", key: String(n) });
+    if (!node?.id) return { items: [], access: { available: true, reason: null } };
+    const findings = await fetchCanonicalGraphEntityFindings(node.id, { relationLimit: 80 });
+    const relations = findings.filter((finding) => finding?.kind === "graph-relation");
+    return fetchWorldMediaProjection(relations, { limit: perNumberLimit });
+  }));
+  const merged = results.flatMap((r) => r.items || []);
+  merged.sort((a, b) => (
+    mediaRelationPriority(a.relationType) - mediaRelationPriority(b.relationType)
+    || String(b.occurredAt || b.createdAt || "").localeCompare(String(a.occurredAt || a.createdAt || ""))
+    || a.galleryImageId.localeCompare(b.galleryImageId)
+  ));
+  const items = dedupeMediaEnvelopes(merged);
+  const denied = results.find((r) => r.access && r.access.available === false);
+  return {
+    items: items.slice(0, cap),
+    totalEligible: items.length,
+    access: denied ? denied.access : { available: true, reason: null },
+    note: "Graph adjacency of context numbers via the canonical graph finding path; order is contextual only, never truth rank.",
+  };
+}
+
 // Contextual media adapter for the EXACT stored post relation gallery_images.ocr_meta.post_slug.
 // Admitted as relationKind=source_metadata (NOT reality_graph): no node/edge is read as proof
 // or created. Same published + non-hidden gate as graph media; public-safe for any viewer.
 // Graph-derived media (optional graphMedia from fetchWorldMediaProjection) is merged and deduped
 // by stable mediaId, graph relation winning on collision.
-export async function fetchPostContextMedia({ postSlug, graphMedia = [], limit = 12 } = {}) {
+export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers = [], limit = 12 } = {}) {
   const slug = normalizeMediaPostSlug(postSlug);
   const cap = safeLimit(limit, 12, 24);
   if (!slug) return { items: [], access: { available: true, reason: null } };
+  // Graph media from existing context numbers (explicit graphMedia, if given, wins first).
+  let graphItems = Array.isArray(graphMedia) ? graphMedia : [];
+  if (Array.isArray(numbers) && numbers.length) {
+    try {
+      const viaNumbers = await fetchGraphMediaForNumbers({ numbers, limit: cap });
+      graphItems = dedupeMediaEnvelopes([...graphItems, ...viaNumbers.items]);
+    } catch { /* graph read failure must not hide exact source_metadata media */ }
+  }
+  graphMedia = graphItems;
   // Stored slugs may be raw or percent-encoded; match both exact forms (no fuzzy matching).
   const variants = [...new Set([slug, encodeURIComponent(slug)])];
   let rows = [];

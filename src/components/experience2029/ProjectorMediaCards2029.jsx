@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CanonicalMediaFigure2029 from "./CanonicalMediaFigure2029.jsx";
+import { deriveContextNumbers } from "../../lib/research/galleryMediaEnvelope.js";
 
 // Shared gallery media inside the EXISTING Golden Projector / Contextual Sidecar layer.
 // Data comes ONLY from the Entity Hub (fetchPostContextMedia): this component never reads
@@ -12,19 +13,21 @@ const REASON = {
   source_metadata: "מקושר לפוסט לפי מטא־דאטה שמורה (לא קשר בגרף)",
 };
 
-export default function ProjectorMediaCards2029({ postSlug, graphMedia = [] }) {
+export default function ProjectorMediaCards2029({ postSlug, context = null }) {
   const [state, setState] = useState({ status: "idle", items: [] });
+  // Bounded numbers already in the existing context (no domain values hardcoded here).
+  const numbersKey = deriveContextNumbers(context).join(",");
 
   useEffect(() => {
     if (!postSlug) { setState({ status: "idle", items: [] }); return undefined; }
     let alive = true;
     setState({ status: "loading", items: [] });
     import("../../lib/research/entityHubProjection.js")
-      .then((hub) => hub.fetchPostContextMedia({ postSlug, graphMedia, limit: 12 }))
+      .then((hub) => hub.fetchPostContextMedia({ postSlug, numbers: numbersKey ? numbersKey.split(",").map(Number) : [], limit: 12 }))
       .then((out) => { if (alive) setState({ status: out?.items?.length ? "ready" : "empty", items: out?.items || [] }); })
       .catch(() => { if (alive) setState({ status: "error", items: [] }); });
     return () => { alive = false; };
-  }, [postSlug, graphMedia]);
+  }, [postSlug, numbersKey]);
 
   if (state.status === "idle" || state.status === "empty") return null;
   if (state.status === "loading") return <p className="sod29-golden-mode-note">טוען מדיה מחוברת…</p>;

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { canonicalMediaPresentation } from "../presentation/canonicalPresentation.js";
 import {
   MEDIA_RELATION_KIND,
   buildMediaEnvelope,
@@ -9,6 +10,7 @@ import {
   intrinsicToLightboxImage,
   intrinsicResearchDetails,
   mediaIdentity,
+  deriveContextNumbers,
 } from "./galleryMediaEnvelope.js";
 
 const pilot = JSON.parse(fs.readFileSync("test/fixtures/gallery-golden-media-pilot.json", "utf8"));
@@ -58,7 +60,7 @@ test("dedupe keeps first by media identity", () => {
 
 test("stored numbers are marked as unrecomputed claims; lightbox adapter uses full image", () => {
   const e = buildMediaEnvelope({ row: row(pilot.rows[1].galleryImageId), relationType: "related" });
-  assert.equal(e.intrinsic.storedNumbers.provenance, "stored_gallery_claim_not_recomputed");
+  assert.equal(e.intrinsic.legacyPlacement.storedNumbers.provenance, "stored_gallery_claim_not_recomputed");
   const lb = intrinsicToLightboxImage(e.intrinsic);
   assert.equal(lb.image_url, e.imageUrl);
   assert.notEqual(lb.image_url, e.thumbUrl);
@@ -167,4 +169,83 @@ test("no page-local media label rewriting; no DB mutation in media adapter", () 
   assert.doesNotMatch(fs.readFileSync("src/pages/World2029Page.jsx", "utf8"), /humanMediaLabel/);
   const env = fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8");
   assert.doesNotMatch(env, /supabase|\.insert\(|\.update\(|\.upsert\(/);
+});
+
+test("strict intrinsic: only identity + layers, no flat legacy aliases; outer envelope stays compatible", () => {
+  const e = buildMediaEnvelope({ row: row(pilot.rows[0].galleryImageId, { ocr_meta: { event: "E" } }), node: { id: "n1" }, label: "L" });
+  assert.deepEqual(Object.keys(e.intrinsic).sort(), ["extraction", "galleryImageId", "interpretation", "label", "legacyPlacement", "mediaId", "nodeId", "provenance", "representation"]);
+  for (const k of ["description", "tags", "imageType", "sourceLabel", "ocr", "storedNumbers", "imageUrl", "thumbUrl", "occurredAt", "createdAt", "space", "sourceRef"]) assert.ok(!(k in e.intrinsic), k);
+  for (const k of ["description", "tags", "imageType", "sourceLabel", "ocr", "storedNumbers", "imageUrl", "thumbUrl", "occurredAt", "createdAt", "space", "sourceRef"]) assert.ok(k in e, k);
+  assert.equal(e.storedNumbers.primary, 14);
+  assert.equal(e.ocr.status, "done");
+});
+
+test("legacy gallery placement history + date provenance survive (no order/date mutation)", () => {
+  const e = buildMediaEnvelope({ row: row(pilot.rows[0].galleryImageId, { gallery_id: "3ee0ec23-04f3-468b-a7b5-67087d41681a", wp_gallery_id: 7, ordering: 3, space: "s", created_at: "2026-09-30T10:00:00Z" }) });
+  const lp = e.intrinsic.legacyPlacement;
+  assert.equal(lp.galleryId, "3ee0ec23-04f3-468b-a7b5-67087d41681a");
+  assert.equal(lp.wpGalleryId, 7);
+  assert.equal(lp.ordering, 3);
+  assert.deepEqual(lp.storedNumbers.all, [14, 26]);
+  assert.equal(lp.occurredAt, "2023-10-01");
+  assert.equal(lp.dateProvenance.occurredAt.basis, "gallery_images.occurred_at");
+  assert.equal(lp.dateProvenance.createdAt.basis, "gallery_images.created_at");
+  assert.equal(lp.state, "legacy_placement_not_visual_truth");
+  assert.match(fs.readFileSync("src/lib/research/entityHubProjection.js", "utf8"), /WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,/);
+});
+
+test("ocr_meta semantic whitelist expanded; operational keys stay out", () => {
+  const e = buildMediaEnvelope({ row: row(pilot.rows[0].galleryImageId, { ocr_meta: { summary: "S", media_kind: "photo", category: "c", language: "he", country: "IL", is_news: true, sha256: "h", raw_bytes: "b", cleared: true, video: "v" } }) });
+  const i = e.intrinsic.interpretation;
+  assert.deepEqual([i.summary, i.mediaKind, i.category, i.language, i.country, i.isNews], ["S", "photo", "c", "he", "IL", true]);
+  const dump = JSON.stringify(e.intrinsic);
+  for (const k of ["sha256", "raw_bytes", "cleared", "video"]) assert.equal(dump.includes(k), false, k);
+});
+
+test("presentation prefers structured interpretation; legacy description fallback is labelled", () => {
+  const id = pilot.rows[0].galleryImageId;
+  const s = buildMediaEnvelope({ row: row(id, { ocr_meta: { summary: "תקציר שמור" } }) });
+  assert.equal(s.presentation.summary, "תקציר שמור");
+  assert.equal(s.presentation.summaryBasis, "stored_interpretation_summary");
+  const ev = buildMediaEnvelope({ row: row(id, { ocr_meta: { event: "אירוע" } }) });
+  assert.equal(ev.presentation.summaryBasis, "stored_interpretation_event");
+  const legacy = buildMediaEnvelope({ row: row(id, { description: "תיאור ישן ארוך" }), label: "כותרת" });
+  assert.equal(legacy.presentation.summary, "תיאור ישן ארוך");
+  assert.equal(legacy.presentation.summaryBasis, "legacy_placement_description");
+  const none = canonicalMediaPresentation({ label: "x" });
+  assert.equal(none.summaryBasis, null);
+});
+
+test("deriveContextNumbers: bounded, from existing context only, no computation", () => {
+  const ctx = { dimensions: { readingFocus: { number: 358 }, surfaceFocus: { number: 73 }, surfaceFindings: [{ value: "1202" }, { value: "1820" }, { value: "358" }, { value: "abc" }, { label: "no value" }] } };
+  assert.deepEqual(deriveContextNumbers(ctx), [358, 73, 1202, 1820]);
+  assert.deepEqual(deriveContextNumbers(null), []);
+  const many = { dimensions: { surfaceFindings: Array.from({ length: 8 }, (_, i) => ({ value: String(i + 1) })) } };
+  assert.equal(deriveContextNumbers(many, { cap: 3 }).length, 3);
+});
+
+test("Projector graph path is wired: context-derived numbers -> Entity Hub -> existing graph projection, merged with source_metadata", () => {
+  const card = fs.readFileSync("src/components/experience2029/ProjectorMediaCards2029.jsx", "utf8");
+  assert.match(card, /deriveContextNumbers\(context\)/);
+  assert.match(card, /fetchPostContextMedia\(\{ postSlug, numbers:/);
+  assert.doesNotMatch(card, /graphMedia = \[\]/);
+  assert.doesNotMatch(card, /\b(92|5112|358|1820|424|776)\b/);
+  assert.match(fs.readFileSync("src/components/experience2029/GoldenProjectorModeLayer2029.jsx", "utf8"), /<ProjectorMediaCards2029 postSlug=\{postSlug\} context=\{context\}/);
+  const hub = fs.readFileSync("src/lib/research/entityHubProjection.js", "utf8");
+  const g = hub.slice(hub.indexOf("export async function fetchGraphMediaForNumbers"), hub.indexOf("export async function fetchPostContextMedia"));
+  assert.match(g, /resolveEntityHubNode\(\{ type: "number"/);
+  assert.match(g, /fetchCanonicalGraphEntityFindings/);
+  assert.match(g, /fetchWorldMediaProjection/);
+  assert.doesNotMatch(g, /\.(insert|update|upsert|delete)\(|from\("gallery_images"\)|\b(92|5112|358|1820)\b/);
+  const p = hub.slice(hub.indexOf("export async function fetchPostContextMedia"), hub.indexOf("function humanGateSummary"));
+  assert.match(p, /fetchGraphMediaForNumbers/);
+  assert.match(p, /SOURCE_METADATA/);
+  // graph first, source_metadata second; same media -> graph relation wins
+  assert.match(p, /dedupeMediaEnvelopes\(\[\.\.\.\(graphMedia \|\| \[\]\), \.\.\.metaItems\]\)/);
+});
+
+test("Lightbox/research adapters read nested layers", () => {
+  const src = fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8");
+  const fn = src.slice(src.indexOf("export function intrinsicToLightboxImage"), src.indexOf("// Surfaces share ONE"));
+  assert.doesNotMatch(fn, /intrinsic\.(description|imageUrl|thumbUrl|tags|storedNumbers|ocr|sourceLabel|occurredAt|createdAt|imageType)\b/);
 });

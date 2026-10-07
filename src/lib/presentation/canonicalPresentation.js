@@ -122,11 +122,21 @@ export function canonicalMediaPresentation(input, { fallback = "תמונה" } = 
     description: src.legacyPlacement?.description ?? src.description,
   }, { fallback });
   const kind = clean(src.provenance?.storedMediaKind);
-  const event = clean(src.interpretation?.event);
+  const interp = src.interpretation || {};
   const desc = clean(src.legacyPlacement?.description ?? src.description);
-  const summaryRaw = event || (desc && desc !== label ? desc : "");
+  // Prefer STRUCTURED stored interpretation; legacy placement description is a labelled fallback.
+  const structured = clean(interp.summary) || clean(interp.event) || clean(interp.scene) || clean(interp.mediaKind);
+  let summaryRaw = "";
+  let summaryBasis = null;
+  if (structured) {
+    summaryRaw = structured;
+    summaryBasis = clean(interp.summary) ? "stored_interpretation_summary" : clean(interp.event) ? "stored_interpretation_event" : clean(interp.scene) ? "stored_interpretation_scene" : "stored_interpretation_media_kind";
+  } else if (desc && desc !== label) {
+    summaryRaw = desc;
+    summaryBasis = "legacy_placement_description";
+  }
   const summary = summaryRaw.length > 160 ? summaryRaw.slice(0, 159).trimEnd() + "…" : summaryRaw;
-  return { label, summary: summary || null, kindLabel: MEDIA_KIND_LABEL[kind] || null };
+  return { label, summary: summary || null, summaryBasis: summary ? summaryBasis : null, kindLabel: MEDIA_KIND_LABEL[kind] || null };
 }
 
 export function canonicalGraphRelationTitle(relation, { anchorId = null } = {}) {

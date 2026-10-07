@@ -50,6 +50,12 @@ export function buildStoredInterpretation(ocrMeta) {
     scene: clean(meta.scene) || null,
     imageType: clean(meta.image_type) || null,
     event: clean(meta.event) || null,
+    summary: clean(meta.summary) || null,
+    mediaKind: clean(meta.media_kind) || null,
+    category: clean(meta.category) || null,
+    language: clean(meta.language) || null,
+    country: clean(meta.country) || null,
+    isNews: typeof meta.is_news === "boolean" ? meta.is_news : null,
     numbersMeaning: strMap(meta.numbers_meaning),
     // A stored note that says "verified" is still a claim here: trace proof lives in the engine, not in this row.
     gematriaNote,
@@ -99,39 +105,35 @@ export function buildIntrinsicMedia({ row, node = null, label = "" }) {
   // Legacy PLACEMENT metadata: where/how the row was filed on gallery_images. It is not
   // visual truth about the image; kept for compatibility and labelled as such.
   const legacyPlacement = {
+    galleryId: row.gallery_id ?? null,
+    wpGalleryId: row.wp_gallery_id ?? null,
+    ordering: Number.isFinite(row.ordering) ? row.ordering : null,
     description: clean(row.description) || null,
     tags,
     space: clean(row.space) || null,
     imageType: clean(row.image_type) || null,
     occurredAt: row.occurred_at || null,
     createdAt: row.created_at || node?.created_at || null,
+    // Date provenance: which stored column each date came from (never inferred from pixels).
+    dateProvenance: {
+      occurredAt: row.occurred_at ? { value: row.occurred_at, basis: "gallery_images.occurred_at" } : null,
+      createdAt: row.created_at ? { value: row.created_at, basis: "gallery_images.created_at" } : (node?.created_at ? { value: node.created_at, basis: "nodes.created_at" } : null),
+    },
     storedNumbers,
     state: "legacy_placement_not_visual_truth",
   };
+  // STRICT intrinsic: identity + explicit layers only. Flat compatibility aliases live on the
+  // outer envelope (buildMediaEnvelope), never here.
   return Object.freeze({
     mediaId,
     nodeId: node?.id ? String(node.id) : null,
     galleryImageId: String(row.id),
     label,
-    // Explicit layers: representation / extraction / interpretation / provenance / legacy placement.
     representation,
     extraction: { ...ocr, state: "stored_extraction" },
     interpretation: buildStoredInterpretation(row.ocr_meta),
     provenance,
     legacyPlacement,
-    // Flat legacy fields (compatibility only — new code reads the layers above).
-    description: legacyPlacement.description,
-    imageUrl: representation.imageUrl,
-    thumbUrl: representation.thumbUrl,
-    occurredAt: legacyPlacement.occurredAt,
-    createdAt: legacyPlacement.createdAt,
-    imageType: legacyPlacement.imageType,
-    space: legacyPlacement.space,
-    tags,
-    sourceLabel: provenance.storedSource,
-    sourceRef: provenance.sourceRef,
-    ocr,
-    storedNumbers,
   });
 }
 
@@ -159,21 +161,25 @@ export function buildMediaEnvelope({ row, node = null, label = "", relationType 
   if (!intrinsic) return null;
   const contextRelation = buildContextRelation({ relationType, relationKind, postSlug });
   const presentation = Object.freeze(canonicalMediaPresentation(intrinsic));
+  const lp = intrinsic.legacyPlacement;
   return {
     mediaId: intrinsic.mediaId,
     nodeId: intrinsic.nodeId,
     galleryImageId: intrinsic.galleryImageId,
     label: presentation.label,
-    description: intrinsic.description,
-    imageUrl: intrinsic.imageUrl,
-    thumbUrl: intrinsic.thumbUrl,
+    description: lp.description,
+    imageUrl: intrinsic.representation.imageUrl,
+    thumbUrl: intrinsic.representation.thumbUrl,
     relationType,
-    occurredAt: intrinsic.occurredAt,
-    createdAt: intrinsic.createdAt,
-    imageType: intrinsic.imageType,
-    space: intrinsic.space,
-    tags: intrinsic.tags,
-    sourceRef: intrinsic.sourceRef,
+    occurredAt: lp.occurredAt,
+    createdAt: lp.createdAt,
+    imageType: lp.imageType,
+    space: lp.space,
+    tags: lp.tags,
+    sourceRef: intrinsic.provenance.sourceRef,
+    sourceLabel: intrinsic.provenance.storedSource,
+    ocr: { status: intrinsic.extraction.status, text: intrinsic.extraction.text, numbers: intrinsic.extraction.numbers },
+    storedNumbers: lp.storedNumbers,
     projectionReason: contextRelation.projectionReason,
     intrinsic,
     presentation,
@@ -192,22 +198,24 @@ export function dedupeMediaEnvelopes(items) {
   });
 }
 
-// Existing Lightbox consumes gallery-row-shaped objects; adapt the intrinsic payload only.
+// Existing Lightbox consumes gallery-row-shaped objects; adapt the nested intrinsic layers only.
 export function intrinsicToLightboxImage(intrinsic) {
   if (!intrinsic) return null;
+  const lp = intrinsic.legacyPlacement || {};
+  const rep = intrinsic.representation || {};
   return {
     id: intrinsic.galleryImageId,
     name: intrinsic.label,
-    description: intrinsic.description,
-    image_url: intrinsic.imageUrl,
-    thumb_url: intrinsic.thumbUrl,
-    occurred_at: intrinsic.occurredAt,
-    created_at: intrinsic.createdAt,
-    tags: intrinsic.tags,
-    image_type: intrinsic.imageType,
-    primary_value: intrinsic.storedNumbers.primary,
-    all_values: intrinsic.storedNumbers.all,
-    related_values: intrinsic.storedNumbers.related,
+    description: lp.description,
+    image_url: rep.imageUrl,
+    thumb_url: rep.thumbUrl,
+    occurred_at: lp.occurredAt,
+    created_at: lp.createdAt,
+    tags: lp.tags,
+    image_type: lp.imageType,
+    primary_value: lp.storedNumbers?.primary ?? null,
+    all_values: lp.storedNumbers?.all || [],
+    related_values: lp.storedNumbers?.related || [],
   };
 }
 
@@ -215,11 +223,11 @@ export function intrinsicToLightboxImage(intrinsic) {
 export function intrinsicResearchDetails(intrinsic) {
   if (!intrinsic) return null;
   return {
-    ocrStatus: intrinsic.ocr.status,
-    ocrText: intrinsic.ocr.text,
-    ocrNumbers: intrinsic.ocr.numbers,
-    sourceLabel: intrinsic.sourceLabel,
-    provenance: intrinsic.storedNumbers.provenance,
+    ocrStatus: intrinsic.extraction?.status ?? null,
+    ocrText: intrinsic.extraction?.text ?? null,
+    ocrNumbers: intrinsic.extraction?.numbers || [],
+    sourceLabel: intrinsic.provenance?.storedSource ?? null,
+    provenance: intrinsic.legacyPlacement?.storedNumbers?.provenance ?? null,
     mediaKind: intrinsic.provenance?.storedMediaKind || null,
     author: intrinsic.provenance?.author || null,
     publication: intrinsic.provenance?.publication || null,
@@ -235,4 +243,22 @@ export function intrinsicResearchDetails(intrinsic) {
 // Surfaces share ONE presentation entry: given any envelope, return the intrinsic payload.
 export function mediaIntrinsicOf(item) {
   return item?.intrinsic || null;
+}
+
+// Bounded governed numbers already present in the EXISTING research context (readingFocus /
+// surfaceFocus / surfaceFindings values). Pure: no domain values are hardcoded here and nothing
+// is computed — only integers the context already carries are passed to the Entity Hub.
+export function deriveContextNumbers(context, { cap = 8 } = {}) {
+  const dims = context?.dimensions || {};
+  const out = [];
+  const add = (value) => {
+    const text = typeof value === "string" ? value.trim() : value;
+    if (typeof text === "string" && !/^\d{1,9}$/.test(text)) return;
+    const n = Number(text);
+    if (Number.isSafeInteger(n) && n > 0 && !out.includes(n)) out.push(n);
+  };
+  add(dims.readingFocus?.number);
+  add(dims.surfaceFocus?.number);
+  for (const finding of Array.isArray(dims.surfaceFindings) ? dims.surfaceFindings : []) add(finding?.value);
+  return out.slice(0, Math.max(0, cap));
 }
