@@ -5,25 +5,46 @@ import path from "node:path";
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
-const page = read("src/pages/JoinPage.jsx");
+const page = read("src/pages/WhatsAppWelcome2029Page.jsx");
+const app = read("src/App2029.jsx");
+const join = read("src/pages/JoinPage.jsx");
 const vercel = JSON.parse(read("vercel.json"));
+const brand = read("src/lib/brandAssets2029.js");
 
-assert.match(page, /campaign === "kod-hametsiut"/);
-assert.match(page, /קוד המציאות · WHATSAPP/);
-assert.match(page, /הקישור עבר אליכם\. המחקר מתחיל כאן\./);
-assert.match(page, /source: isKodReality \? "whatsapp-kod-hametsiut" : "join"/);
-assert.match(page, /signupAttribution\(\)/);
+assert.match(page, /BRAND_LOCKUP_2029/);
+assert.match(page, /האתר בבנייה · אתם נכנסים לפני כולם/);
+assert.match(page, /הסרטון שמתפוצץ ברשת/);
+assert.match(page, /0524acef-077d-49f8-9be5-5dad2c8fe538\.mp4/);
+assert.match(page, /רשמו אותי לעדכון הראשון/);
+assert.match(page, /שלחו רמזים למערכת/);
+assert.match(page, /מסע החיים/);
+assert.match(page, /חיפוש בתורה/);
+assert.match(page, /מחקר עם בינה מלאכותית/);
+assert.match(page, /https:\/\/www\.tiktok\.com\/@sod_1820/);
+assert.match(page, /VITE_WHATSAPP_CHANNEL/);
 assert.match(page, /newsletter-signup/);
-assert.match(page, /הצטרפו לעדכונים/);
-assert.match(page, /רוצים לראות את האתר עכשיו\? היכנסו לסוד 1820/);
-assert.match(page, /!isKodReality && <div/);
+assert.match(page, /signupAttribution\(\)/);
+assert.match(page, /source: CAMPAIGN/);
+assert.match(page, /source: "whatsapp"/);
 
-const route = (vercel.redirects || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
-assert.ok(route, "stable WhatsApp channel entry must exist");
-assert.equal(route.permanent, false);
-assert.match(route.destination, /^\/join\?/);
-assert.match(route.destination, /src=wa-kod-hametsiut/);
-assert.match(route.destination, /utm_medium=group_share/);
-assert.match(route.destination, /utm_campaign=kod-hametsiut/);
+assert.doesNotMatch(page, /קוד המציאות/);
+assert.doesNotMatch(page, /Calculator|2029\/gematria|fn_method_value|buildCalculator2029FastPreview/);
 
-console.log("WhatsApp קוד המציאות join landing regression: PASS");
+assert.match(app, /WhatsAppWelcome2029Page/);
+assert.match(app, /path="\/whatsapp\/kod-hametsiut"/);
+
+const redirect = (vercel.redirects || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
+assert.equal(redirect, undefined, "stable WhatsApp URL must no longer redirect into legacy /join");
+
+const rewrite = (vercel.rewrites || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
+assert.ok(rewrite, "stable WhatsApp URL must be served by the isolated 2029 document");
+assert.equal(rewrite.destination, "/2029.html");
+
+const header = (vercel.headers || []).find((item) => item.source === "/whatsapp/kod-hametsiut");
+assert.ok(header, "welcome landing needs explicit robots policy");
+assert.ok((header.headers || []).some((item) => item.key === "X-Robots-Tag" && /noindex/.test(item.value)));
+
+assert.doesNotMatch(join, /kod-hametsiut|קוד המציאות|isKodReality/);
+assert.match(brand, /sod1820_primary_lockup_v2_transparent_candidate\.png/);
+
+console.log("WhatsApp 2029 welcome landing regression: PASS");
