@@ -181,6 +181,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           discoveryBasis: occurrence.tokenEligible ? "lexical_exact_token" : "lexical_phrase_sequence",
           entityIdentityClaim: false,
           truthPromotion: false,
+          semanticProof: false,
         });
       }
     }
@@ -197,6 +198,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           entityIdentityClaim: false,
           truthPromotion: false,
           semanticProof: false,
+          semanticProof: false,
         });
       }
       for (const item of Array.isArray(occurrence.notarikon?.sofeiTevot) ? occurrence.notarikon.sofeiTevot : []) {
@@ -211,6 +213,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           entityIdentityClaim: false,
           truthPromotion: false,
           semanticProof: false,
+          semanticProof: false,
         });
       }
     }
@@ -223,6 +226,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
         discoveryBasis: "same_finding_terms_same_verse",
         entityIdentityClaim: false,
         truthPromotion: false,
+        semanticProof: false,
       });
     }
     for (const item of Array.isArray(result.proximity?.items) ? result.proximity.items : []) {
@@ -234,6 +238,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
         discoveryBasis: "same_finding_terms_proximity",
         entityIdentityClaim: false,
         truthPromotion: false,
+        semanticProof: false,
       });
     }
   }
