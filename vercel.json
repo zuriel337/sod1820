@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/whatsapp/kod-hametsiut",
+      "destination": "/updates",
+      "permanent": false
+    },
+    {
       "source": "/tiktok/melech",
       "destination": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
       "permanent": false
@@ -815,7 +820,7 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/whatsapp/kod-hametsiut",
+      "source": "/updates",
       "destination": "/2029.html"
     },
     {
@@ -824,15 +829,6 @@
     }
   ],
   "headers": [
-    {
-      "source": "/whatsapp/kod-hametsiut",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
     {
       "source": "/2029/journey",
       "headers": [
@@ -931,6 +927,15 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/updates",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
         }
       ]
     }
