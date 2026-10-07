@@ -78,7 +78,12 @@ owner_rows as (
     limit 1
   ) c on true
   cross join admin_ok a
-  where a.ok and r.owner_person_id is not null
+  where a.ok
+    and r.owner_person_id is not null
+    and (
+      c.display_name is null
+      or lower(btrim(c.display_name)) not in ('sod1820','מערכת','המערכת','רזיאל','רזיאל · ai')
+    )
 ),
 v1_rows as (
   select
