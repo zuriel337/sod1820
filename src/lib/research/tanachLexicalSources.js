@@ -52,6 +52,32 @@ export async function fetchTanachPhraseOccurrences(term, { limit = 6 } = {}) {
   };
 }
 
+export async function fetchTanachNotarikon(term, { limit = 6 } = {}) {
+  const queryTerm = normalizeTanachLexicalQuery(term);
+  if (!/^[א-תךםןףץ]{2,6}$/.test(queryTerm)) {
+    return {
+      term: queryTerm,
+      count: 0,
+      rasheiCount: 0,
+      sofeiCount: 0,
+      rasheiTevot: [],
+      sofeiTevot: [],
+      status: "not_applicable",
+    };
+  }
+  const { data, error } = await supabase.rpc("fn_notarikon", { p_word: queryTerm });
+  if (error) throw error;
+  return {
+    term: queryTerm,
+    count: Number.isFinite(Number(data?.count)) ? Number(data.count) : 0,
+    rasheiCount: Number.isFinite(Number(data?.rashei_count)) ? Number(data.rashei_count) : 0,
+    sofeiCount: Number.isFinite(Number(data?.sofei_count)) ? Number(data.sofei_count) : 0,
+    rasheiTevot: trimItems(data?.rashei_tevot, limit),
+    sofeiTevot: trimItems(data?.sofei_tevot, limit),
+    status: "ready",
+  };
+}
+
 export async function fetchTanachTermsTogether(terms, { limit = 6 } = {}) {
   const words = (Array.isArray(terms) ? terms : [])
     .map(normalizeTanachLexicalQuery)
