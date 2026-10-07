@@ -50,7 +50,7 @@ export default function WhatsAppWelcome2029Page() {
         body: JSON.stringify({
           email: value,
           source: "whatsapp-welcome-2029",
-          back: "/whatsapp/kod-hametsiut",
+          back: "/early-access",
           acquisition: signupAttribution(),
           visitor_id: visitorId(),
         }),
