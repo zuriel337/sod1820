@@ -37,7 +37,7 @@ function validSourceTerm(value) {
   if (typeof value !== "string") return null;
   const sourceTerm = value.trim().replace(/\s+/g, " ");
   if (sourceTerm.length < 2 || sourceTerm.length > 80) return null;
-  if (/https?:\/\//i.test(sourceTerm) || /[<>]/.test(sourceTerm) || /^\d+$/.test(sourceTerm)) return null;
+  if (/https?:\/\//i.test(sourceTerm) || /[<>]/.test(sourceTerm) || /\d/.test(sourceTerm)) return null;
   const queryTerm = normalizeTanachLexicalQuery(sourceTerm);
   if (!queryTerm || queryTerm.length < 2 || queryTerm.length > 80) return null;
   return {
