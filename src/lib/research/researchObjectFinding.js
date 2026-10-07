@@ -169,6 +169,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const presentation = resolveResearchObjectPresentation(row, { locale });
   const attribution = resolveExplicitAttribution(row);
   const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
+  const researchFacets = researchObjectFacetDimensions(row);
 
   return makeUniversalFinding({
     kind: "research-object",
@@ -219,7 +220,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       relations: [],
       dimensions: {
         researchObjectKind: row.kind ?? null,
-        ...(researchObjectFacetDimensions(row) ? { researchFacets: researchObjectFacetDimensions(row) } : {}),
+        ...(researchFacets ? { researchFacets } : {}),
         ...(attribution.type || attribution.contributorId
           ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: attribution.resolved, explicit: attribution.resolved } }
           : {}),
