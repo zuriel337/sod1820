@@ -219,18 +219,27 @@ function ActiveResearchEnvironment() {
   }, [key]);
 
   useEffect(() => {
-    let alive = true;
-    const ordinal = subject?.type === "number" ? Number(subject.id) : null;
-    if (!Number.isSafeInteger(ordinal) || ordinal < 1 || ordinal > 10000) {
-      setOrdinalState({ loading: false, data: null, error: null });
-      return () => { alive = false; };
-    }
-    setOrdinalState({ loading: true, data: null, error: null });
-    fetchTanachVerseByOrdinal(ordinal, { scope: TANACH_ORDINAL_SCOPE.TORAH })
-      .then(data => alive && setOrdinalState({ loading: false, data, error: null }))
-      .catch(error => alive && setOrdinalState({ loading: false, data: null, error }));
-    return () => { alive = false; };
+    // A new root clears any prior explicit ordinal probe. A bare number is NOT ordinal intent.
+    setOrdinalState({ loading: false, data: null, error: null });
   }, [key]);
+
+  const ordinalValue = subject?.type === "number" ? Number(subject.id) : null;
+  const canProbeTorahOrdinal = Number.isSafeInteger(ordinalValue) && ordinalValue >= 1 && ordinalValue <= 5846;
+
+  const runOrdinalDiscovery = async () => {
+    if (!canProbeTorahOrdinal || ordinalState.loading) return;
+    setOrdinalState({ loading: true, data: null, error: null });
+    try {
+      const data = await fetchTanachVerseByOrdinal(ordinalValue, { scope: TANACH_ORDINAL_SCOPE.TORAH });
+      setOrdinalState({
+        loading: false,
+        data: { ...data, requestIntent: "explicit_user_action" },
+        error: null,
+      });
+    } catch (error) {
+      setOrdinalState({ loading: false, data: null, error });
+    }
+  };
 
   const data = state.data;
   const counts = useMemo(() => ({
@@ -371,6 +380,11 @@ function ActiveResearchEnvironment() {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
+        {canProbeTorahOrdinal ? (
+          <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={ordinalState.loading}>
+            {ordinalState.loading ? "בודק מיקום פסוק…" : `בדוק כפסוק #${ordinalValue} בתורה`}
+          </button>
+        ) : null}
         <Link className="sod29-action" to="/verse-gematria">חיפוש גימטריית פסוקים</Link>
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
