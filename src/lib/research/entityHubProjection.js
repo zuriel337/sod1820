@@ -8,7 +8,7 @@ import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
 import { MEDIA_RELATION_KIND, buildMediaEnvelope, dedupeMediaEnvelopes, normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
-import { canonicalResearchSourceRef, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
+import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
 import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
@@ -188,7 +188,7 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
 const CHANNEL_UPDATE_SOURCE_RE = /^channel_updates:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 function channelUpdateIdFromResearchSourceRef(sourceRef) {
-  const canonical = canonicalResearchSourceRef(sourceRef);
+  const canonical = researchSourceOccurrenceKey(sourceRef);
   const match = canonical?.match(CHANNEL_UPDATE_SOURCE_RE);
   return match?.[1]?.toLowerCase() || null;
 }
@@ -202,7 +202,7 @@ function channelUpdateIdFromResearchSourceRef(sourceRef) {
 export async function fetchResearchSourceOccurrences(rows = [], { limit = 120 } = {}) {
   const refs = new Map();
   for (const row of Array.isArray(rows) ? rows : []) {
-    const canonical = canonicalResearchSourceRef(row?.source_ref);
+    const canonical = researchSourceOccurrenceKey(row?.source_ref);
     const id = channelUpdateIdFromResearchSourceRef(row?.source_ref);
     if (canonical && id && !refs.has(id)) refs.set(id, canonical);
   }
