@@ -19,6 +19,7 @@ import { classifyWorldVerificationStrength } from "./worldContextualProminence.j
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } from "./researchObjectFinding.js";
 import { canonicalResearchSourceRef } from "./sourceBundleProjection.js";
+import { sourceMethodStateLabelHe } from "./researchFacetProjection.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -206,20 +207,6 @@ export function goldenContextNumbers(pack) {
   return [...out].sort((a, b) => a - b);
 }
 
-function sourceMethodStateLabel(method) {
-  const label = clean(method?.displayLabel || method?.token) || "שיטה";
-  switch (clean(method?.state)) {
-    case "registry_supported_unlinked":
-      return `שיטת מקור: ${label} · קיימת במנוע, טרם קושרה לחישוב הזה`;
-    case "registry_registered_not_engine":
-      return `שיטת מקור: ${label} · רשומה, טרם זמינה במנוע`;
-    case "source_attested_variant_unregistered":
-      return `שיטת מקור: ${label} · טרם רשומה כווריאנט קנוני`;
-    default:
-      return `שיטת מקור: ${label} · טרם אומתה לחישוב הזה`;
-  }
-}
-
 function researchRowState(row) {
   const states = [];
   const tier = clean(row.privacy_scope).toLowerCase();
@@ -314,7 +301,7 @@ export function buildGoldenAdminUniverse({
     const states = researchRowState(row);
     if (dupOf) states.push("כפילות בתוך אותו מקום במקור");
     for (const method of Array.isArray(sourceOccurrence?.methodMentions) ? sourceOccurrence.methodMentions : []) {
-      states.push(sourceMethodStateLabel(method));
+      states.push(sourceMethodStateLabelHe(method));
     }
     const vstate = clean(row.engine_detail?.verification_state).toLowerCase() || null;
     const directExpr = clean(row.engine_detail?.claimed_expression);
