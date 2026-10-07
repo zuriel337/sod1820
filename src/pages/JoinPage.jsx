@@ -23,14 +23,18 @@ export default function JoinPage() {
   const { user } = useAuth();
   const [sp] = useSearchParams();
   const ref = sp.get("ref") || "";
+  const campaign = sp.get("utm_campaign") || "";
+  const isKodReality = campaign === "kod-hametsiut";
   const [email, setEmail] = useState("");
   const [st, setSt] = useState("idle"); // idle | sending | new | exists | invalid | error
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    track("join");
-    applySeo({ title: "הצטרפו אל סוד 1820 — הרשמה, וואטסאפ וקרדיטים", description: "הצטרפו לקהילת סוד 1820: קבלו רמזים וצפנים במייל, הצטרפו לקבוצת הוואטסאפ, והזמינו חברים כדי לצבור קרדיטים לחיפוש בצופן.", path: "/join" });
-  }, []);
+    track("join", isKodReality ? "whatsapp-kod-hametsiut" : null, "view", isKodReality ? { source: "whatsapp", campaign: "kod-hametsiut" } : null);
+    applySeo(isKodReality
+      ? { title: "קוד המציאות × סוד 1820 — הצטרפו למחקר", description: "הגעתם דרך קוד המציאות? הצטרפו לעדכוני סוד 1820 וקבלו רמזים, גימטריות, מקורות וחיבורים חדשים ישירות למייל.", path: "/join" }
+      : { title: "הצטרפו אל סוד 1820 — הרשמה, וואטסאפ וקרדיטים", description: "הצטרפו לקהילת סוד 1820: קבלו רמזים וצפנים במייל, הצטרפו לקבוצת הוואטסאפ, והזמינו חברים כדי לצבור קרדיטים לחיפוש בצופן.", path: "/join" });
+  }, [isKodReality]);
 
   // 🔗 קישור-הפניה אישי (למחוברים) — כל נרשם דרכו מזוכה לך.
   const myRefLink = useMemo(() => user ? `https://sod1820.co.il/join?ref=${user.id}` : "", [user]);
@@ -50,7 +54,7 @@ export default function JoinPage() {
         method: "POST",
         headers: { "content-type": "application/json", apikey: SUPABASE_ANON, authorization: `Bearer ${SUPABASE_ANON}` },
         // WIRING: תצלום-ייחוס (מגע-ראשון/אחרון/הרשמה) + visitor_id הקנוני → נשמר ב-subscribers.acquisition.
-        body: JSON.stringify({ email: v, source: "join", ref, back: "/join", acquisition: signupAttribution(), visitor_id: visitorId() }),
+        body: JSON.stringify({ email: v, source: isKodReality ? "whatsapp-kod-hametsiut" : "join", ref, back: "/join", acquisition: signupAttribution(), visitor_id: visitorId() }),
       });
       const d = await res.json().catch(() => ({ ok: false, status: "error" }));
       setSt(d.status === "new" ? "new" : d.status === "exists" ? "exists" : d.status === "invalid" ? "invalid" : d.ok ? "new" : "error");
@@ -69,10 +73,13 @@ export default function JoinPage() {
     <div dir="rtl" style={{ maxWidth: 620, margin: "0 auto", padding: "28px 16px 90px", position: "relative", zIndex: 1 }}>
       {/* HERO */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ fontSize: 46, lineHeight: 1, marginBottom: 6 }}>👑</div>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,40px)", fontWeight: 800, margin: "0 0 10px" }}>הצטרפו אל סוד 1820</h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, lineHeight: 1.8, maxWidth: 480, margin: "0 auto" }}>
-          הבית של רמזי הגאולה בשפת המספרים. קבלו את הרמזים והצפנים החזקים ביותר — ותהיו חלק מהקהילה שמפענחת את הקוד שמאחורי המציאות.
+        <div style={{ fontSize: 46, lineHeight: 1, marginBottom: 6 }}>{isKodReality ? "✦" : "👑"}</div>
+        {isKodReality && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, letterSpacing: 1.8, fontWeight: 800, marginBottom: 7 }}>קוד המציאות · WHATSAPP</div>}
+        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5.5vw,40px)", fontWeight: 800, margin: "0 0 10px" }}>{isKodReality ? "הקישור עבר אליכם. המחקר מתחיל כאן." : "הצטרפו אל סוד 1820"}</h1>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, lineHeight: 1.8, maxWidth: 500, margin: "0 auto" }}>
+          {isKodReality
+            ? "סוד 1820 מרכז במקום אחד גימטריה, צפנים, מקורות ורמזים שמתחברים למספרים ולאירועים. הירשמו וקבלו את הגילויים החדשים גם אחרי שההודעה ממשיכה הלאה בין הקבוצות."
+            : "הבית של רמזי הגאולה בשפת המספרים. קבלו את הרמזים והצפנים החזקים ביותר — ותהיו חלק מהקהילה שמפענחת את הקוד שמאחורי המציאות."}
         </p>
         {ref && <div style={{ marginTop: 10, color: P.accentDim, fontFamily: F.heading, fontSize: 12.5 }}>✨ הוזמנת על ידי חבר — ברוך הבא!</div>}
       </div>
@@ -80,26 +87,39 @@ export default function JoinPage() {
       <div style={{ display: "grid", gap: 16 }}>
         {/* 1 — הרשמה במייל */}
         <div style={card}>
-          <div style={label}>✉️ הרשמה במייל</div>
+          <div style={label}>{isKodReality ? "✉️ קבלו את הגילוי הבא" : "✉️ הרשמה במייל"}</div>
           {st === "new" ? (
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "6px 0" }}>🎉 נרשמתם! הרמז הבא בדרך אליכם.</div>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "6px 0" }}>{isKodReality ? "✓ נרשמתם. ברוכים הבאים לקוד המציאות של סוד 1820." : "🎉 נרשמתם! הרמז הבא בדרך אליכם."}</div>
           ) : st === "exists" ? (
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "6px 0" }}>🎓 אתם כבר איתנו — נתראה בגיליון הבא.</div>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "6px 0" }}>{isKodReality ? "אתם כבר רשומים — טוב שחזרתם." : "🎓 אתם כבר איתנו — נתראה בגיליון הבא."}</div>
           ) : (
             <form onSubmit={submit} style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
               <input type="email" value={email} onChange={e => { setEmail(e.target.value); if (st === "invalid" || st === "error") setSt("idle"); }}
                 placeholder="האימייל שלך" dir="ltr"
                 style={{ flex: 1, minWidth: 200, background: P.card, border: `1px solid ${st === "invalid" ? (P.danger || "#c0392b") : P.border}`, borderRadius: 12, padding: "13px 15px", color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none", boxSizing: "border-box" }} />
-              <button type="submit" disabled={st === "sending"} style={{ ...primaryBtn, opacity: st === "sending" ? 0.6 : 1 }}>{st === "sending" ? "שולח…" : "הרשמה ←"}</button>
+              <button type="submit" disabled={st === "sending"} style={{ ...primaryBtn, opacity: st === "sending" ? 0.6 : 1 }}>{st === "sending" ? "שולח…" : isKodReality ? "הצטרפו לעדכונים ←" : "הרשמה ←"}</button>
             </form>
           )}
           {st === "invalid" && <div style={{ color: P.danger || "#c0392b", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>כתובת המייל לא נראית תקינה — נסו שוב.</div>}
           {st === "error" && <div style={{ color: P.danger || "#c0392b", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>משהו השתבש — נסו שוב בעוד רגע.</div>}
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 9 }}>חינם. אפשר להסיר בכל רגע — לינק הסרה בכל מייל.</div>
+          {isKodReality && (
+            <div style={{ display: "grid", gap: 7, marginTop: 16 }}>
+              {[
+                ["🔢", "רמזים וגימטריות חדשות"],
+                ["📜", "מקורות והצלבות ששווה לבדוק"],
+                ["🧭", "קישור ישיר להמשך המחקר באתר"],
+              ].map(([icon, text]) => (
+                <div key={text} style={{ display: "flex", gap: 9, alignItems: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
+                  <span aria-hidden="true">{icon}</span><span>{text}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 2 — וואטסאפ */}
-        <div style={{ ...card, background: "linear-gradient(135deg, rgba(37,211,102,0.12), rgba(37,211,102,0.04))", border: "1px solid rgba(37,211,102,0.4)" }}>
+        {!isKodReality && <div style={{ ...card, background: "linear-gradient(135deg, rgba(37,211,102,0.12), rgba(37,211,102,0.04))", border: "1px solid rgba(37,211,102,0.4)" }}>
           <div style={label}>💬 קבוצת הוואטסאפ</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, marginBottom: 14 }}>
             הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים, דיונים, וחברי קהילה מכל הארץ.
@@ -108,10 +128,10 @@ export default function JoinPage() {
             style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "#25D366", color: "#083b1a", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "13px 28px" }}>
             💬 הצטרפו לקבוצה ←
           </a>
-        </div>
+        </div>}
 
         {/* 3 — הזמן חברים, קבל קרדיטים */}
-        <div style={{ ...card, border: `1px solid ${P.borderStrong}` }}>
+        {!isKodReality && <div style={{ ...card, border: `1px solid ${P.borderStrong}` }}>
           <div style={label}>🎁 הזמינו חברים · צברו קרדיטים</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, marginBottom: 14 }}>
             כל חבר שמצטרף דרך הקישור שלכם מזכה אתכם ב<b style={{ color: P.accentText }}>קרדיטים</b> — שנפדים ל<b style={{ color: P.accentText }}>חיפושים בצופן התנ״כי</b> ולכלים מתקדמים.
@@ -146,11 +166,13 @@ export default function JoinPage() {
               <a href={waShare} target="_blank" rel="noopener noreferrer" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "none", flex: "1 1 auto", textAlign: "center" }}>או שתפו את האתר עכשיו</a>
             </div>
           )}
-        </div>
+        </div>}
       </div>
 
       <div style={{ textAlign: "center", marginTop: 22 }}>
-        <Link to="/start" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>חדשים כאן? כל המדריך → כאן מתחילים ←</Link>
+        <Link to="/start" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+          {isKodReality ? "רוצים לראות את האתר עכשיו? היכנסו לסוד 1820 ←" : "חדשים כאן? כל המדריך → כאן מתחילים ←"}
+        </Link>
       </div>
     </div>
   );

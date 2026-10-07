@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/whatsapp/kod-hametsiut",
+      "destination": "/join?src=wa-kod-hametsiut&utm_medium=group_share&utm_campaign=kod-hametsiut",
+      "permanent": false
+    },
+    {
       "source": "/tiktok/melech",
       "destination": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
       "permanent": false
