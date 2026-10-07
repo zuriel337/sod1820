@@ -81,7 +81,9 @@ owner_rows as (
   where a.ok and r.owner_person_id is not null
 ),
 v1_rows as (
-  select f.*
+  select
+    f.attention_key,f.source_type,f.source_ref,f.source_group,f.actor_name,f.title,f.body,
+    f.context_label,f.context_ref,f.created_at,f.status,f.available_actions,f.metadata
   from public.admin_attention_feed_v1(true,2000) f
 ),
 gap_only_missing_from_v1 as (
