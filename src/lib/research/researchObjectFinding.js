@@ -77,11 +77,13 @@ function verifiedCompoundOperationShape(compound) {
   }
 
   const operators = [];
-  if (verifiedComposite && raw && /×|x/i.test(raw)) operators.push("multiply");
+  const compoundKind = clean(compound.kind);
+  if (compoundKind && /product/i.test(compoundKind)) operators.push("multiply");
+  if (verifiedComposite && raw && /×|x/i.test(raw) && !operators.includes("multiply")) operators.push("multiply");
   if (verifiedComposite && raw && /\+/.test(raw)) operators.push("add");
 
   return {
-    kind: clean(compound.kind),
+    kind: compoundKind,
     multiplier: quantity,
     factors,
     operators,
@@ -287,6 +289,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
           sourceWitnessLangBasis: presentation.sourceWitnessLangBasis,
           rawStatementRef,
           sourceLocator: sourceRef,
+          displayText: presentation.displayText,
           typeLabel: presentation.typeLabel,
           contextLine: presentation.contextLine,
           attributionLabel: presentation.attributionLabel,
@@ -311,6 +314,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
           attributionState: presentation.attributionState,
           occurrenceLabel: presentation.occurrenceLabel,
           dateLabel: presentation.dateLabel,
+          displayText: presentation.displayText,
           rawStatementRef,
         },
       },
