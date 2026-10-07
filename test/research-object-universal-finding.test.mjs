@@ -180,6 +180,41 @@ const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, 
 assert.equal(noDetail.verification.verification_state, null,
   "derived engine_verified=true must not manufacture verification_state=match");
 
+const explicitEngineValueAlias = researchObjectToUniversalFinding({
+  ...base,
+  engine_detail: {
+    source_claimed_value: 256,
+    engine_value: 256,
+    method_key: "רגיל",
+    verification_state: "match",
+  },
+});
+assert.equal(explicitEngineValueAlias.verification.claimed_value, 256);
+assert.equal(explicitEngineValueAlias.verification.engine_result, 256);
+assert.equal(explicitEngineValueAlias.verification.engine_method_tested, "רגיל");
+
+const explicitTraceAlias = researchObjectToUniversalFinding({
+  ...base,
+  value: 48,
+  engine_detail: {
+    verification_state: "match",
+    trace: { method_key: "רגיל", result: 48 },
+  },
+});
+assert.equal(explicitTraceAlias.verification.engine_result, 48);
+assert.equal(explicitTraceAlias.verification.engine_method_tested, "רגיל");
+
+const ambiguousValuesMap = researchObjectToUniversalFinding({
+  ...base,
+  value: 170,
+  engine_detail: {
+    verification_state: "match",
+    values: { "ענן": 170, "לפני": 170 },
+  },
+});
+assert.equal(ambiguousValuesMap.verification.engine_result, null,
+  "multi-value maps remain ambiguous; projection must not infer a single engine result from row.value");
+
 const unknownKind = researchObjectToUniversalFinding({ ...base, kind: "hypothesis" });
 assert.equal(unknownKind.stage, null);
 assert.equal(unknownKind.projection.dimensions.researchObjectKind, "hypothesis");
