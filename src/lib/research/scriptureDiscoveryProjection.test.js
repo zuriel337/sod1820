@@ -36,6 +36,11 @@ test("scripture discovery seeds are fail-closed to explicit engine matches", () 
     finding({ id: "unknown", value: 1202, state: "method_unknown" }),
     finding({ id: "missing-result", value: 73, engineResult: null }),
     finding({ id: "contradiction", value: 123, engineResult: 124, state: "match" }),
+    finding({ id: "boolean", value: 1, engineResult: true, state: "match" }),
+    finding({ id: "array", value: 5, engineResult: [5], state: "match" }),
+    finding({ id: "hex", value: 16, engineResult: "0x10", state: "match" }),
+    finding({ id: "scientific", value: 1000, engineResult: "1e3", state: "match" }),
+    finding({ id: "zero", value: 0, engineResult: 0, state: "match" }),
   ]);
 
   assert.deepEqual(seeds.map((seed) => seed.value), [776]);
@@ -91,6 +96,9 @@ test("discovery uses the injected canonical reader and never promotes truth", as
   assert.equal(out.coverage.eligibleSeeds, 2);
   assert.equal(out.coverage.candidateVerses, 2);
   assert.equal(out.candidates.every((item) => item.truthPromotion === false), true);
+  assert.equal(out.candidates.every((item) => item.verseMethod === "רגיל"), true);
+  assert.equal(out.candidates[0].discoveryBasis, "seed_numeric_value_to_verse_ragil_value");
+  assert.deepEqual(out.candidates[0].seedMethods, ["רגיל"]);
   assert.equal(out.governance.readOnly, true);
   assert.equal(out.governance.automaticCanonicalPromotion, false);
   assert.equal(out.governance.semanticProof, false);
