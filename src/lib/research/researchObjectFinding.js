@@ -106,6 +106,7 @@ export function researchObjectFacetDimensions(row) {
   const spatial = asObject(ext.spatial_research);
   const mediaProfile = asObject(ext.source_media_profile);
   const duplicate = asObject(ext.exact_duplicate_lineage);
+  const gematria = asObject(ext.gematria);
 
   const methodRefs = [];
   const addMethod = (token, basis) => {
@@ -117,6 +118,8 @@ export function researchObjectFacetDimensions(row) {
   addMethod(detail.claimed_method, "engine_detail.claimed_method");
   addMethod(detail.engine_method_tested, "engine_detail.engine_method_tested");
   addMethod(detail.method, "engine_detail.method");
+  addMethod(gematria.method_key, "meta.ext.gematria.method_key");
+  addMethod(gematria.method, "meta.ext.gematria.method");
   addMethod(compound?.operand?.method, "engine_detail.compound.operand.method");
   for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
     addMethod(operand?.method, "engine_detail.compound.operands[].method");
@@ -132,20 +135,37 @@ export function researchObjectFacetDimensions(row) {
   } : null;
 
   const sourceOccurrence = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
+  const occurrenceRefs = [];
+  const addOccurrence = (value) => {
+    const ref = clean(value);
+    if (ref && !occurrenceRefs.includes(ref)) occurrenceRefs.push(ref);
+  };
+  addOccurrence(row?.source_ref);
+  addOccurrence(spatial.source_ref);
+  addOccurrence(mediaProfile.source_ref);
+  for (const ref of Array.isArray(compound.occurrences) ? compound.occurrences : []) addOccurrence(ref);
+  for (const ref of Array.isArray(ext.source_refs) ? ext.source_refs : []) addOccurrence(ref);
+  for (const ref of Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs : []) addOccurrence(ref);
+
   const duplicateOccurrenceCount = finiteNumber(duplicate.occurrence_count);
+  const spatialRole = family?.role || null;
+  const mediaClass = clean(mediaProfile.class);
+  const spatial3d = [spatialRole, mediaClass].some((value) => /(?:^|_)3D(?:_|$)/i.test(value || ""));
 
   const facets = {
     methods: methodRefs,
     operation,
     family,
-    spatial: (family || clean(mediaProfile.class)) ? {
-      role: family?.role || null,
+    spatial: (family || mediaClass) ? {
+      role: spatialRole,
       cluster: family?.cluster || null,
-      mediaClass: clean(mediaProfile.class),
+      mediaClass,
+      is3d: spatial3d,
       loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
     } : null,
-    sourceOccurrence: sourceOccurrence ? {
+    sourceOccurrence: sourceOccurrence || occurrenceRefs.length ? {
       ref: sourceOccurrence,
+      refs: occurrenceRefs,
       duplicateOccurrenceCount,
     } : null,
   };
