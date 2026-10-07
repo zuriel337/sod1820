@@ -33,7 +33,7 @@ const SOURCE_METHOD_PATTERNS = Object.freeze([
   { token: "משולש מדרגות", methodKey: "משולש מדרגות", re: /משולש\s+מדרגות/u },
   { token: "ריבוע", methodKey: "ריבוע", re: /ריבוע/u },
   { token: "סידורי", methodKey: "סידורי", re: /סידורי/u },
-  { token: "מסתתר", methodKey: "מסתתר", re: /מסתתר/u },
+  { token: "מסתתר", methodKey: "מסתתר", re: /(?:גימטר(?:יא|יה)|שיטת?)\s+מסתתר/u },
   { token: "אתבש", methodKey: "אתבש", re: /אתב["״']?ש/u },
   { token: "אלבם", methodKey: "אלבם", re: /אלב["״']?ם/u },
   { token: "אטבח", methodKey: "אטבח", re: /אטב["״']?ח/u },
