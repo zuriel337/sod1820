@@ -3,6 +3,7 @@ import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
+import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
 import {
   buildLearnHelpSeed,
   emitEntryLearn,
@@ -244,6 +245,7 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
+      {surface === "post" ? <GoldenProjectorModeLayer2029 context={context} surface={surface} /> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>

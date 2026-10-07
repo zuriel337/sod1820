@@ -5,6 +5,8 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
+import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
+import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
@@ -186,7 +188,15 @@ function PostReadingBody() {
               href: connection.href,
               sourceLabel: connection.provenanceLabel || connection.kind,
             }))
-          : [],
+          : state.projection.contextPack
+            // Golden Posts 5112/92 only: governed pack rows + existing connections, public layer only.
+            ? goldenPublicSurfaceFindings({
+              rows: mergeContextPackWithConnections(state.projection.contextPack, state.projection.experience?.connections || []),
+              // The active focus is the focal object, not a "connection" to itself.
+              exclude: (row) => row.id === activeFocus.id
+                || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
+            })
+            : [],
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,
