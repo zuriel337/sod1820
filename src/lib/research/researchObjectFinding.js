@@ -33,6 +33,95 @@ function verificationFrom(row) {
   };
 }
 
+function asObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+function finiteNumber(value) {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function methodRef(token, basis) {
+  const value = clean(token);
+  if (!value) return null;
+  return {
+    token: value,
+    namespace: /^[a-z0-9_+.-]+$/i.test(value) ? "db_column_or_alias" : "method_key",
+    basis,
+    registryResolutionRequired: true,
+  };
+}
+
+/**
+ * Shared one-tree filtering facets extracted only from already-structured research metadata.
+ * No statement-text guessing and no new taxonomy: method identity is resolved later through
+ * canonical_methods_registry_law; spatial/family identity is carried only when the source row
+ * already owns meta.ext.spatial_research; operation shape comes only from engine_detail.compound.
+ */
+export function researchObjectFacetDimensions(row) {
+  const detail = asObject(row?.engine_detail);
+  const compound = asObject(detail.compound);
+  const ext = asObject(row?.meta?.ext);
+  const spatial = asObject(ext.spatial_research);
+  const mediaProfile = asObject(ext.source_media_profile);
+  const duplicate = asObject(ext.exact_duplicate_lineage);
+
+  const methodRefs = [];
+  const addMethod = (token, basis) => {
+    const ref = methodRef(token, basis);
+    if (!ref || methodRefs.some((item) => item.token === ref.token && item.namespace === ref.namespace)) return;
+    methodRefs.push(ref);
+  };
+
+  addMethod(detail.claimed_method, "engine_detail.claimed_method");
+  addMethod(detail.engine_method_tested, "engine_detail.engine_method_tested");
+  addMethod(detail.method, "engine_detail.method");
+  addMethod(compound?.operand?.method, "engine_detail.compound.operand.method");
+  for (const operand of Array.isArray(compound.operands) ? compound.operands : []) {
+    addMethod(operand?.method, "engine_detail.compound.operands[].method");
+  }
+
+  const operation = Object.keys(compound).length ? {
+    kind: clean(compound.kind),
+    multiplier: finiteNumber(compound.quantity),
+    result: finiteNumber(compound.result),
+    computedTotal: finiteNumber(compound.computedTotal),
+    linkCount: finiteNumber(compound.linkCount),
+    status: clean(compound.status),
+  } : null;
+
+  const family = Object.keys(spatial).length ? {
+    key: clean(spatial.research_focus_key),
+    cluster: clean(spatial.cluster),
+    role: clean(spatial.role),
+    classification: clean(spatial.classification),
+  } : null;
+
+  const sourceOccurrence = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
+  const duplicateOccurrenceCount = finiteNumber(duplicate.occurrence_count);
+
+  const facets = {
+    methods: methodRefs,
+    operation,
+    family,
+    spatial: (family || clean(mediaProfile.class)) ? {
+      role: family?.role || null,
+      cluster: family?.cluster || null,
+      mediaClass: clean(mediaProfile.class),
+      loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
+    } : null,
+    sourceOccurrence: sourceOccurrence ? {
+      ref: sourceOccurrence,
+      duplicateOccurrenceCount,
+    } : null,
+  };
+
+  const hasFacet = facets.methods.length || facets.operation || facets.family || facets.spatial || facets.sourceOccurrence;
+  return hasFacet ? facets : null;
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
@@ -130,6 +219,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       relations: [],
       dimensions: {
         researchObjectKind: row.kind ?? null,
+        ...(researchObjectFacetDimensions(row) ? { researchFacets: researchObjectFacetDimensions(row) } : {}),
         ...(attribution.type || attribution.contributorId
           ? { attribution: { type: attribution.type, contributorId: attribution.contributorId, resolved: attribution.resolved, explicit: attribution.resolved } }
           : {}),
