@@ -219,6 +219,8 @@ test("NEGATIVE PRIVACY (wiring): PUBLIC_VIEW never fetches admin data; admin pay
   assert.match(layer, /תלת־ממד/);
   assert.match(layer, /סט מחקרי/);
   assert.match(layer, /דברי המקור/);
+  assert.match(layer, /readSourceOccurrences: hub\.fetchResearchSourceOccurrences/);
+  assert.match(layer, /שיטות שנאמרו במקור בלבד/);
   assert.ok(!/updateResearchContext|setContext|addToResearch|localStorage/.test(layer), "admin layer never writes Research Context / persistent storage");
   assert.ok(!/\?admin|searchParams|URLSearchParams/.test(layer), "no query-param admin switch");
   assert.match(layer, /isProjectorPilotVisible\(/);
@@ -235,4 +237,72 @@ test("NEGATIVE PRIVACY (wiring): PUBLIC_VIEW never fetches admin data; admin pay
 test("Research Context cannot carry admin-only fields even if a caller tried", () => {
   const ctx = normalizeResearchContext({ dimensions: { surfaceFindings: [{ id: "a", label: "l", states: ["PRIVATE"], provenance: "secret", statement: "private text" }] } });
   assert.deepEqual(Object.keys(ctx.dimensions.surfaceFindings[0]).sort(), ["id", "label"]);
+});
+
+
+test("admin universe: canonical source occurrence keeps Zvi wording and source-only milui separate from calculation facets", async () => {
+  const pack = await packA();
+  const ref = "channel_updates:0c2aaf88-5df4-45fc-a92e-f644610a4f1a";
+  const rows = [
+    ro("src-b0", { source_ref: `${ref}#batch0`, statement: "חילוץ א" }),
+    ro("src-b1", { source_ref: `${ref}#batch1`, statement: "חילוץ ב" }),
+  ];
+  const sourceOccurrence = {
+    originalText: "  דברי   צבי\r\n\r\nגימטריה במילוי  ",
+    displayTextNormalized: "דברי צבי\n\nגימטריה במילוי",
+    methodMentions: [{
+      token: "מילוי",
+      methodKey: "מילוי",
+      displayLabel: "מילוי",
+      state: "registry_supported_unlinked",
+      sourceAttested: true,
+      appliesToFinding: false,
+    }],
+  };
+  const u = buildGoldenAdminUniverse({
+    pack,
+    researchRowsByNumber: { 1073: rows },
+    researchSourceOccurrences: { [ref]: sourceOccurrence },
+    researchMethodRegistryRows: [{ method_key: "מילוי", db_column: "miluy", display_label: "מילוי", active: true, in_engine: true }],
+  });
+  const research = u.layers[ADMIN_LAYER.RESEARCH];
+  assert.equal(research.length, 2);
+  assert.equal(research[0].occurrenceKey, ref);
+  assert.equal(research[1].occurrenceKey, ref);
+  assert.ok(research.every((item) => item.sourceText === sourceOccurrence.displayTextNormalized));
+  assert.ok(research.every((item) => item.sourceOriginalText === sourceOccurrence.originalText));
+  assert.ok(research.every((item) => item.states.some((state) => /שיטת מקור: מילוי/.test(state))));
+  assert.ok(research.every((item) => item.researchFacets.sourceMethods[0].appliesToFinding === false));
+
+  const control = buildResearchFacetControl(research);
+  assert.equal(control.bySourceMethod["מילוי"], 1, "source method count is by source occurrence, not extracted row");
+  assert.equal(control.byMethod["מילוי"], undefined, "source-only method must not become a calculation-method filter");
+  assert.equal(control.hasSourceMethodMentions, true);
+});
+
+test("admin fetch: source occurrence reader is RLS-injected and enriches the same research rows only", async () => {
+  const pack = await packA();
+  const ref = "channel_updates:0c2aaf88-5df4-45fc-a92e-f644610a4f1a";
+  let sourceReadRows = null;
+  const u = await fetchGoldenAdminUniverse({
+    postSlug: "x",
+    loadPack: async () => pack,
+    readResearchObjects: async () => ({ rows: [ro("src-reader", { source_ref: `${ref}#batch0` })], methodRegistryRows: [], access: { available: true, reason: null } }),
+    readSourceOccurrences: async (rows) => {
+      sourceReadRows = rows;
+      return {
+        occurrences: {
+          [ref]: {
+            originalText: "מילוי משיח",
+            displayTextNormalized: "מילוי משיח",
+            methodMentions: [{ token: "מילוי", displayLabel: "מילוי", state: "source_attested_unresolved", sourceAttested: true, appliesToFinding: false }],
+          },
+        },
+        methodRegistryRows: [],
+        access: { available: true, reason: null },
+      };
+    },
+  });
+  assert.ok(sourceReadRows?.length > 0);
+  assert.equal(u.layers[ADMIN_LAYER.RESEARCH][0].sourceText, "מילוי משיח");
 });
