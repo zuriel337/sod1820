@@ -44,7 +44,7 @@ import {
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
 import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
-import { canonicalResearchSourceRef } from "../lib/research/sourceBundleProjection.js";
+import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
@@ -251,7 +251,7 @@ function looksTechnicalResearchTitle(value) {
 }
 
 function researchSourceOccurrenceForFinding(finding, occurrences = {}) {
-  const ref = canonicalResearchSourceRef(finding?.source?.sourceRef || finding?.provenance?.inputRef);
+  const ref = researchSourceOccurrenceKey(finding?.source?.sourceRef || finding?.provenance?.inputRef);
   return ref ? occurrences?.[ref] || null : null;
 }
 
