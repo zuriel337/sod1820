@@ -18,7 +18,7 @@ export function canonicalResearchSourceRef(value) {
   if (!ref) return null;
   // Projection mirror of DB owner fn_research_source_uid(text): strip ONLY proven
   // ingestion ordinals. Semantic fragments such as #interpretation remain identity.
-  return ref.replace(/#(?:batch|a)\d+$/i, "");
+  return ref.replace(/#(?:batch|a)\d+$/i, "").toLowerCase();
 }
 
 const SOURCE_METHOD_PATTERNS = Object.freeze([
