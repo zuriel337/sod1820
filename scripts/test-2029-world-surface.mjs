@@ -214,7 +214,8 @@ const controlFindings = [
     projection: { dimensions: {
       researchObjectKind: "observation",
       researchFacets: {
-        methods: [{ token: "רגיל", namespace: "method_key", registryResolutionRequired: true }],
+        methods: [{ token: "ragil", namespace: "db_column_or_alias", registryResolutionRequired: true }],
+        canonicalMethods: [{ methodKey: "רגיל", dbColumn: "ragil", displayLabel: "רגיל", registryResolved: true }],
         operation: { operators: ["multiply"], factors: [4], kind: "quantity-product" },
         family: { key: "zvi:spatial:408:zot", cluster: "408 זאת · קוביית חיים", role: "STRUCTURAL_3D" },
         spatial: { is3d: true, role: "STRUCTURAL_3D", mediaClass: "SPATIAL_3D" },
