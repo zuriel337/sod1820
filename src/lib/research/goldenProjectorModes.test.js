@@ -134,7 +134,7 @@ test("admin universe: Projector consumes the same structured one-tree facets as 
         result: 1073,
         computedTotal: 1073,
         status: "ENGINE_VERIFIED_COMPOSITE",
-        operand: { phrase: "טוב", method: "רגיל", value: 17 },
+        operand: { phrase: "טוב", method: "ragil", value: 17 },
       },
     },
     meta: {
@@ -148,13 +148,19 @@ test("admin universe: Projector consumes the same structured one-tree facets as 
       },
     },
   });
-  const u = buildGoldenAdminUniverse({ pack, researchRowsByNumber: { 1073: [faceted] } });
+  const u = buildGoldenAdminUniverse({
+    pack,
+    researchRowsByNumber: { 1073: [faceted] },
+    researchMethodRegistryRows: [{ method_key: "רגיל", db_column: "ragil", display_label: "רגיל", active: true, in_engine: true }],
+  });
   const research = u.layers[ADMIN_LAYER.RESEARCH];
   assert.equal(research.length, 1);
   assert.equal(research[0].sourceText, "טוב כפול ארבע");
   assert.deepEqual(research[0].researchFacets.operation.factors, [4]);
   assert.equal(research[0].researchFacets.spatial.is3d, true);
   const control = buildResearchFacetControl(research);
+  assert.equal(control.byMethod["רגיל"], 1, "db_column alias ragil resolves to canonical Registry method_key רגיל");
+  assert.equal(control.byMethod.ragil, undefined, "raw db_column alias must not fork the method filter");
   assert.equal(control.byFactor["4"], 1);
   assert.equal(control.spatial3d, 1);
   assert.equal(filterResearchFacetItems(research, { factor: "4" }).length, 1);
