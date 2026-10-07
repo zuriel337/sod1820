@@ -106,7 +106,7 @@ test("lexical discovery keeps terms within the same Finding and never asserts en
   assert.equal(out.governance.semanticProof, false);
 });
 
-test("multi-word structured terms use phrase-sequence reader, not token reader", async () => {
+test("multi-word structured terms use the spaceless-substring reader, not token reader", async () => {
   const tokenCalls = [];
   const phraseCalls = [];
   const out = await fetchScriptureTermDiscoveryForFindings([
@@ -124,7 +124,7 @@ test("multi-word structured terms use phrase-sequence reader, not token reader",
 
   assert.deepEqual(tokenCalls, []);
   assert.deepEqual(phraseCalls, ["סוד יהוה"]);
-  assert.equal(out.candidates[0].discoveryBasis, "lexical_phrase_sequence");
+  assert.equal(out.candidates[0].discoveryBasis, "lexical_substring_spaceless");
   assert.equal(out.candidates[0].sourceTerm, "סוד יהוה");
 });
 
@@ -164,4 +164,21 @@ test("notarikon failure stays isolated from lexical occurrence evidence", async 
   assert.equal(out.candidates.some((item) => item.discoveryBasis === "lexical_exact_token"), true);
   assert.equal(out.candidates.some((item) => String(item.discoveryBasis).startsWith("notarikon_")), false);
   assert.equal(out.governance.notarikonInterpretation, false);
+});
+
+
+test("maqaf preserves a lexical boundary instead of fusing Hebrew words", () => {
+  const groups = scriptureTermGroupsFromFindings([
+    finding("maqaf", ["בן־אדם"]),
+  ]);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].terms[0].queryTerm, "בן אדם");
+  assert.equal(groups[0].terms[0].tokenEligible, false);
+});
+
+test("unsupported punctuation fails closed instead of becoming a fuzzy phrase seed", () => {
+  const groups = scriptureTermGroupsFromFindings([
+    finding("punctuation", ["סוד: יהוה"]),
+  ]);
+  assert.equal(groups.length, 0);
 });
