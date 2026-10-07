@@ -3,6 +3,7 @@ import {
   fetchTanachTermOccurrences,
   fetchTanachTermsTogether,
   fetchTanachTermProximity,
+  fetchTanachNotarikon,
   normalizeTanachLexicalQuery,
 } from "./tanachLexicalSources.js";
 
@@ -92,17 +93,19 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
   fetchPhrase = fetchTanachPhraseOccurrences,
   fetchTogether = fetchTanachTermsTogether,
   fetchProximity = fetchTanachTermProximity,
+  fetchNotarikon = fetchTanachNotarikon,
 } = {}) {
   const groups = scriptureTermGroupsFromFindings(findings, { maxGroups, maxTerms });
   const limit = boundedInt(resultLimit, SCRIPTURE_TERM_DEFAULT_RESULT_LIMIT, 12);
 
   const results = await Promise.all(groups.map(async (group) => {
     const occurrenceResults = await Promise.all(group.terms.map(async (term) => {
+      let occurrence;
       try {
         const found = term.tokenEligible
           ? await fetchToken(term.queryTerm, { limit })
           : await fetchPhrase(term.queryTerm, { limit });
-        return {
+        occurrence = {
           sourceTerm: term.sourceTerm,
           queryTerm: term.queryTerm,
           tokenEligible: term.tokenEligible,
@@ -111,7 +114,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           items: Array.isArray(found?.items) ? found.items : [],
         };
       } catch {
-        return {
+        occurrence = {
           sourceTerm: term.sourceTerm,
           queryTerm: term.queryTerm,
           tokenEligible: term.tokenEligible,
@@ -120,6 +123,25 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
           items: [],
         };
       }
+
+      let notarikon = null;
+      if (term.tokenEligible && term.queryTerm.length >= 2 && term.queryTerm.length <= 6) {
+        try {
+          notarikon = await fetchNotarikon(term.queryTerm, { limit });
+        } catch {
+          notarikon = {
+            term: term.queryTerm,
+            count: null,
+            rasheiCount: null,
+            sofeiCount: null,
+            rasheiTevot: [],
+            sofeiTevot: [],
+            status: "unavailable",
+          };
+        }
+      }
+
+      return { ...occurrence, notarikon };
     }));
 
     const tokenTerms = group.terms.filter((term) => term.tokenEligible).map((term) => term.queryTerm);
@@ -162,6 +184,36 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
         });
       }
     }
+    for (const occurrence of result.occurrenceResults) {
+      for (const item of Array.isArray(occurrence.notarikon?.rasheiTevot) ? occurrence.notarikon.rasheiTevot : []) {
+        candidates.push({
+          ...item,
+          sourceFindingRef: result.sourceFindingRef,
+          sourceRef: result.sourceRef,
+          sourceTerm: occurrence.sourceTerm,
+          queryTerm: occurrence.queryTerm,
+          discoveryBasis: "notarikon_rashei_tevot",
+          notarikonKind: "ראשי",
+          entityIdentityClaim: false,
+          truthPromotion: false,
+          semanticProof: false,
+        });
+      }
+      for (const item of Array.isArray(occurrence.notarikon?.sofeiTevot) ? occurrence.notarikon.sofeiTevot : []) {
+        candidates.push({
+          ...item,
+          sourceFindingRef: result.sourceFindingRef,
+          sourceRef: result.sourceRef,
+          sourceTerm: occurrence.sourceTerm,
+          queryTerm: occurrence.queryTerm,
+          discoveryBasis: "notarikon_sofei_tevot",
+          notarikonKind: "סופי",
+          entityIdentityClaim: false,
+          truthPromotion: false,
+          semanticProof: false,
+        });
+      }
+    }
     for (const item of Array.isArray(result.together?.sameVerse) ? result.together.sameVerse : []) {
       candidates.push({
         ...item,
@@ -188,7 +240,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
 
   return {
     kind: "scripture-term-discovery-projection",
-    version: 1,
+    version: 2,
     groups,
     results,
     candidates,
@@ -203,6 +255,7 @@ export async function fetchScriptureTermDiscoveryForFindings(findings = [], {
       statementParsing: false,
       synonymExpansion: false,
       crossFindingMixing: false,
+      notarikonInterpretation: false,
       entityIdentityClaim: false,
       automaticCanonicalPromotion: false,
       automaticPublication: false,
