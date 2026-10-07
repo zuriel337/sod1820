@@ -180,13 +180,13 @@ assert.match(world, /item\.kind === "finding"/);
 assert.match(world, /world-discovery-finding/);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
-assert.match(world, /WORLD RESEARCH CONTROL/);
-assert.match(world, /RESEARCH INBOX/);
+assert.match(world, /בקרת מחקר בעולם/);
+assert.match(world, /תיבת מחקר/);
 assert.match(world, /מצב מחקר/);
 assert.match(world, /מצב ממשל/);
-assert.match(world, /Processing state עדיין לא מחובר/);
-assert.match(world, /Publication state עדיין לא מחובר/);
-assert.match(world, /privacy_scope=public_candidate אינו Published/);
+assert.match(world, /מצב עיבוד עדיין לא מחובר/);
+assert.match(world, /מצב פרסום עדיין לא מחובר/);
+assert.match(world, /מועמד לציבור אינו פרסום/);
 assert.match(world, /WORLD_RESEARCH_ATTENTION/);
 assert.match(world, /filterWorldResearchFindings/);
 assert.match(worldCss, /sod29-world-research-control/);
@@ -477,7 +477,7 @@ assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
-assert.match(worldAllResearchComponent, /private · גלוי לך/);
+assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
 for (const table of ["research_objects", "channel_updates", "research_contributions", "topic_cards"]) {
   assert.equal(
     worldAllResearchSource.includes('fetchAllRows(\n      "' + table + '"'),
@@ -1330,3 +1330,14 @@ assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method
 assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower calculator-era expression duplication must stay retired");
 
 console.log("2029 native World surface acceptance: PASS");
+
+
+// Hebrew-first admin presentation gate: internal English identifiers may remain in values/code,
+// but the visible research/admin copy must not regress to the old technical labels.
+assert.doesNotMatch(worldAllResearchComponent, />private · גלוי לך</);
+assert.doesNotMatch(worldAllResearchComponent, />Research Objects</);
+assert.doesNotMatch(worldAllResearchComponent, /source_ref…/);
+assert.doesNotMatch(world, />WORLD RESEARCH CONTROL</);
+assert.doesNotMatch(world, />RESEARCH INBOX</);
+assert.doesNotMatch(world, /Processing state עדיין לא מחובר/);
+assert.doesNotMatch(world, /Publication state עדיין לא מחובר/);
