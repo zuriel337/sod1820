@@ -1,3 +1,5 @@
+import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
+
 // Source Bundle projection v1 — PRESENTATION-ONLY grouping of already-governed Universal Findings.
 //
 // Pure. Never queries. Consumes Universal Findings that have ALREADY passed the
@@ -10,6 +12,90 @@
 
 const clean = (value) => (value == null ? "" : String(value).trim());
 const uniq = (values) => [...new Set((Array.isArray(values) ? values : []).map(clean).filter(Boolean))];
+
+export function canonicalResearchSourceRef(value) {
+  const ref = clean(value);
+  if (!ref) return null;
+  // Projection mirror of DB owner fn_research_source_uid(text): strip ONLY proven
+  // ingestion ordinals. Semantic fragments such as #interpretation remain identity.
+  return ref.replace(/#(?:batch|a)\d+$/i, "");
+}
+
+const SOURCE_METHOD_PATTERNS = Object.freeze([
+  { token: "מילוי דמילוי גדול", methodKey: "מילוי דמילוי גדול", re: /מילוי\s+דמילוי\s+גדול/u },
+  { token: "מילוי דמילוי", methodKey: "מילוי דמילוי", re: /מילוי\s+דמילוי/u },
+  { token: "מילוי בלבד גדול", methodKey: "מילוי בלבד גדול", re: /מילוי\s+בלבד\s+גדול/u },
+  { token: "מילוי בלבד", methodKey: "מילוי בלבד", re: /מילוי\s+בלבד/u },
+  { token: "מילוי גדול", methodKey: "מילוי גדול", re: /מילוי\s+גדול/u },
+  { token: "מילוי", methodKey: "מילוי", re: /מילוי/u },
+  { token: "משולש מילה", methodKey: "משולש מילה", re: /משולש\s+מילה/u },
+  { token: "משולש הפוך", methodKey: "משולש הפוך", re: /משולש\s+הפוך/u },
+  { token: "משולש מדרגות", methodKey: "משולש מדרגות", re: /משולש\s+מדרגות/u },
+  { token: "ריבוע", methodKey: "ריבוע", re: /ריבוע/u },
+  { token: "סידורי", methodKey: "סידורי", re: /סידורי/u },
+  { token: "מסתתר", methodKey: "מסתתר", re: /מסתתר/u },
+  { token: "אתבש", methodKey: "אתבש", re: /אתב["״']?ש/u },
+  { token: "אלבם", methodKey: "אלבם", re: /אלב["״']?ם/u },
+  { token: "אטבח", methodKey: "אטבח", re: /אטב["״']?ח/u },
+  { token: "איק בכר", methodKey: "איק בכר", re: /אי["״']?ק\s+בכ["״']?ר/u },
+  { token: "אות רבתי", methodKey: "אות רבתי", re: /אות\s+רבתי/u },
+  { token: "מיקום האות", methodKey: "מיקום האות", re: /מיקום\s+האות/u },
+]);
+
+const MILUY_VARIANTS = Object.freeze([
+  { token: "מילוי ע״ב", re: /מילוי[^\n.!?]{0,40}(?:ע["״']?ב|שם\s*ע["״']?ב)/u },
+  { token: "מילוי ס״ג", re: /מילוי[^\n.!?]{0,40}(?:ס["״']?ג|שם\s*ס["״']?ג)/u },
+  { token: "מילוי מ״ה", re: /מילוי[^\n.!?]{0,40}(?:מ["״']?ה|שם\s*מ["״']?ה)/u },
+  { token: "מילוי ב״ן", re: /מילוי[^\n.!?]{0,40}(?:ב["״']?ן|שם\s*ב["״']?ן)/u },
+]);
+
+export function sourceOccurrenceMethodMentions(value, { registryRows = [] } = {}) {
+  const text = value == null ? "" : String(value);
+  if (!text.trim()) return [];
+  const registry = new Map((Array.isArray(registryRows) ? registryRows : [])
+    .filter((row) => clean(row?.method_key))
+    .map((row) => [clean(row.method_key), row]));
+  const out = [];
+  const add = ({ token, methodKey = null, variant = false }) => {
+    if (!token || out.some((row) => row.token === token)) return;
+    const registered = methodKey ? registry.get(methodKey) || null : null;
+    const state = registered
+      ? (registered.in_engine === true && registered.active !== false
+        ? "registry_supported_unlinked"
+        : "registry_registered_not_engine")
+      : (variant ? "source_attested_variant_unregistered" : "source_attested_unresolved");
+    out.push({
+      token,
+      methodKey: clean(registered?.method_key) || methodKey,
+      displayLabel: clean(registered?.display_label) || token,
+      state,
+      sourceAttested: true,
+      appliesToFinding: false,
+    });
+  };
+
+  let hasMiluyVariant = false;
+  for (const pattern of MILUY_VARIANTS) {
+    if (pattern.re.test(text)) {
+      hasMiluyVariant = true;
+      add({ token: pattern.token, variant: true });
+    }
+  }
+  for (const pattern of SOURCE_METHOD_PATTERNS) {
+    if (pattern.token === "מילוי" && hasMiluyVariant) continue;
+    if (pattern.re.test(text)) add(pattern);
+  }
+  if (/גימטר(?:יא|יה)\s+אחורית/u.test(text) || /הארה\s+אחורית/u.test(text)) {
+    add({ token: "אחורית" });
+  }
+  if (/גימטר(?:יא|יה)\s+קדמית/u.test(text) || /הארה\s+קדמית/u.test(text)) {
+    add({ token: "קדמית" });
+  }
+  if (/גימטר(?:יא|יה)\s+רגילה/u.test(text)) {
+    add({ token: "רגיל", methodKey: "רגיל" });
+  }
+  return out;
+}
 
 export const SOURCE_BUNDLE_INVARIANT =
   "Source-group membership is not independent evidence. Findings stay independent; the header is source provenance, not child attribution.";
@@ -135,14 +221,18 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
   for (const finding of Array.isArray(findings) ? findings : []) {
     if (!finding?.id || seen.has(finding.id)) continue;
     seen.add(finding.id);
-    const sourceRef = clean(finding.source?.sourceRef) || null;
+    const rawSourceRef = clean(finding.source?.sourceRef) || null;
+    const sourceRef = canonicalResearchSourceRef(rawSourceRef);
     const key = sourceRef || `finding:${finding.id}`;
-    if (!groups.has(key)) groups.set(key, { key, sourceRef, findings: [] });
+    if (!groups.has(key)) groups.set(key, { key, sourceRef, rawSourceRefs: new Set(), findings: [] });
+    if (rawSourceRef) groups.get(key).rawSourceRefs.add(rawSourceRef);
     groups.get(key).findings.push(finding);
   }
 
   return [...groups.values()].map((group) => {
-    const occurrence = (group.sourceRef && occurrences?.[group.sourceRef]) || null;
+    const occurrence = (group.sourceRef && occurrences?.[group.sourceRef])
+      || [...(group.rawSourceRefs || [])].map((ref) => occurrences?.[ref]).find(Boolean)
+      || null;
     const members = group.findings
       .map(summarize)
       .sort((a, b) => SOURCE_BUNDLE_MOVE.indexOf(a.move) - SOURCE_BUNDLE_MOVE.indexOf(b.move)
@@ -158,9 +248,19 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
     const times = group.findings.map((f) => safeMs(f.provenance?.createdAt)).filter((x) => x != null);
     const createdAt = clean(occurrence?.createdAt)
       || (times.length ? new Date(Math.max(...times)).toISOString() : null);
+    const originalText = occurrence?.originalText != null
+      ? String(occurrence.originalText)
+      : occurrence?.text != null
+        ? String(occurrence.text)
+        : null;
+    const displayTextNormalized = clean(occurrence?.displayTextNormalized)
+      || normalizeResearchDisplayText(originalText);
+    const methodMentions = Array.isArray(occurrence?.methodMentions) ? occurrence.methodMentions : [];
+
     return {
       id: group.key,
       sourceRef: group.sourceRef,
+      sourceRefs: [...(group.rawSourceRefs || [])],
       isSingleton: members.length === 1,
       findingIds: members.map((m) => m.id),
       findings: members,
@@ -174,6 +274,9 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
         channel: clean(occurrence.channel) || null,
         status: clean(occurrence.status) || null,
         createdAt: clean(occurrence.createdAt) || null,
+        originalText,
+        displayTextNormalized,
+        methodMentions,
       } : null,
       header: resolveHeader(occurrence) || stableCorpusHeader(group.findings),
       presentation: {
