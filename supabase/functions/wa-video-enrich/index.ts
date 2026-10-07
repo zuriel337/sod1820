@@ -508,7 +508,7 @@ async function mapGroundedVideoText(
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
   });
-  if (!analyzed.ok) return analyzed;
+  if (!analyzed.ok || !analyzed.map) return analyzed;
   await logTokens(analyzed.usage, opTrace, spanId, "semantic_map");
 
   const args = semanticMapRpcArgs(analyzed, { sourceRef: `video:${videoKey}` });
