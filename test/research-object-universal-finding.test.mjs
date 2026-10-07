@@ -115,6 +115,25 @@ assert.equal(labelOnly.projection.dimensions.presentation.hasHumanPresentation, 
   "source label alone must not launder raw statement into a normalized locale presentation");
 assert.equal(labelOnly.projection.dimensions.presentation.resolvedLocale, null);
 
+
+const hebrewSafeFallback = researchObjectToUniversalFinding({
+  ...base,
+  id: "33333333-3333-3333-3333-333333333333",
+  kind: "hypothesis",
+  statement: 'Speaker of the phrase "אקים סכת דוד" is hypothesized to be GOD',
+  source: "ai:messianic_model_v1",
+  source_ref: "book:amos-9-11",
+  value: 645,
+  meta: {},
+}, { locale: "he" });
+assert.ok(!/[A-Za-z]{3}/.test(hebrewSafeFallback.subject.label),
+  "Hebrew surface primary title must not leak English technical prose");
+assert.match(hebrewSafeFallback.subject.label, /ייחוס הדובר|השערה/);
+assert.equal(hebrewSafeFallback.view.rendererHints.presentation.sourceLabel, "מודל מחקר משיחי");
+assert.match(hebrewSafeFallback.view.rendererHints.presentation.contextLine, /השערה/);
+assert.equal(hebrewSafeFallback.projection.dimensions.presentation.fallbackMode, "raw_statement",
+  "safe runtime fallback does not pretend durable Hebrew backfill already exists");
+
 const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, engine_verified: true });
 assert.equal(noDetail.verification.verification_state, null,
   "derived engine_verified=true must not manufacture verification_state=match");
