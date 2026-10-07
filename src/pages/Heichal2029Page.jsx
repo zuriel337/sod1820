@@ -88,7 +88,7 @@ function ScriptureDiscoveryPanel({ researchProjection, ordinalProjection, subjec
             <div className="sod29-row" key={scriptureCandidateKey(item, index)}>
               <div>
                 <strong>{item.ref || "פסוק"}</strong>
-                <div className="sod29-muted">{item.text || basis}</div>
+                <div className="sod29-muted">{item.text || (Array.isArray(item.words) ? item.words.join(" · ") : basis)}</div>
                 <div className="sod29-actions">
                   <span className="sod29-chip">{basis}</span>
                   <span className="sod29-chip">Discovery ≠ Truth</span>
