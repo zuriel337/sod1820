@@ -17,7 +17,7 @@
 
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
-import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
+import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } from "./researchObjectFinding.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -303,6 +303,8 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
       reason: `מקושר לפי ערך בלבד (${[...linkedNumbers].join(", ")}) — אותו ערך אינו אותה זהות; זהו הקשר מחקרי ולא ראיה בפני עצמו.`,
       provenance: [presentation.contextLine, presentation.attributionLabel].filter(Boolean).join(" · "),
       presentation,
+      sourceText: presentation.displayText || null,
+      researchFacets: researchObjectFacetDimensions(row),
       occurrenceKey: occ,
       axes: {
         contextRelevance: 1,
