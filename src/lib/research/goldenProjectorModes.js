@@ -18,7 +18,7 @@
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } from "./researchObjectFinding.js";
-import { canonicalResearchSourceRef } from "./sourceBundleProjection.js";
+import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { methodComponentStateLabelHe, sourceMethodStateLabelHe } from "./researchFacetProjection.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
@@ -292,7 +292,7 @@ export function buildGoldenAdminUniverse({
   const dupKey = new Map();
   const researchItems = [...seen.values()].map(({ row, linkedNumbers }) => {
     const rawOcc = clean(row.source_ref) || null;
-    const occ = canonicalResearchSourceRef(rawOcc) || `ro:${row.id}`;
+    const occ = researchSourceOccurrenceKey(rawOcc) || `ro:${row.id}`;
     const sourceOccurrence = researchSourceOccurrences?.[occ] || null;
     occCount.set(occ, (occCount.get(occ) || 0) + 1);
     const dk = `${occ}\u0000${clean(row.statement)}\u0000${row.value}`;
