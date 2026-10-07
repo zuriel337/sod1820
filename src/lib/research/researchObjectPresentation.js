@@ -67,6 +67,27 @@ export function researchKindLabel(kind) {
   return HEBREW_KIND_LABEL[clean(kind)] || "ממצא מחקר";
 }
 
+export function normalizeResearchDisplayText(value) {
+  const text = value == null ? "" : String(value)
+    .replace(/\r\n?/g, "\n")
+    .replace(/\u00a0/g, " ");
+  if (!text.trim()) return null;
+  const lines = text.split("\n").map((line) => line.replace(/[\t ]+/g, " ").trim());
+  const out = [];
+  let blanks = 0;
+  for (const line of lines) {
+    if (!line) {
+      blanks += 1;
+      if (blanks <= 1 && out.length) out.push("");
+      continue;
+    }
+    blanks = 0;
+    out.push(line);
+  }
+  while (out.length && !out[out.length - 1]) out.pop();
+  return out.join("\n").trim() || null;
+}
+
 function inferStatementLanguage(statement) {
   const text = clean(statement) || "";
   const hasHebrew = /[א-ת]/.test(text);
@@ -303,6 +324,7 @@ export function resolveResearchObjectPresentation(row, { locale = "he" } = {}) {
     hasHumanPresentation,
     fallbackMode: hasHumanPresentation ? null : "raw_statement",
     originalText: rawStatement,
+    displayText: normalizeResearchDisplayText(rawStatement),
     originalLanguage: statementLang,
     compiled: objectValue(presentation.compiled),
   };
