@@ -1266,3 +1266,37 @@
 .sod29-chain-trail-step small{color:var(--s29-muted);font-weight:700}
 .sod29-chain-trail-sep{color:var(--s29-muted)}
 @media (max-width:640px){.sod29-source-video-card{grid-template-columns:1fr}}
+
+
+/* VIDEO_SEMANTIC_TREE_PROJECTOR_V1 — one shared contextual-video projection in the canonical rail. */
+.sod29-context-videos{
+  display:grid;
+  gap:10px;
+  margin-block:12px 18px;
+}
+.sod29-context-video{
+  display:grid;
+  gap:8px;
+  padding:10px;
+  border:1px solid var(--s29-line);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);
+}
+.sod29-context-video-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.sod29-context-video-head b{color:var(--s29-accent-text);font-size:13px}
+.sod29-context-video-head span,
+.sod29-context-video small{color:var(--s29-muted);font-size:12px;line-height:1.55}
+.sod29-context-video video{
+  display:block;
+  width:100%;
+  max-height:330px;
+  object-fit:contain;
+  border-radius:12px;
+  background:#050505;
+}

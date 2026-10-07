@@ -135,6 +135,43 @@ const SORT_LABELS = Object.freeze({
   number_desc: "מספר יורד",
 });
 
+
+const RESEARCH_KIND_LABELS_HE = Object.freeze({
+  fact: "ממצא מסוג עובדה",
+  relation: "קשר מחקרי",
+  observation: "תצפית",
+  hypothesis: "השערה",
+  question: "שאלת מחקר",
+});
+
+const RESEARCH_ACCESS_LABELS_HE = Object.freeze({
+  private: "פרטי",
+  public_candidate: "מועמד לציבור",
+  public: "ציבורי",
+  shared: "משותף",
+});
+
+const RESEARCH_GOVERNANCE_LABELS_HE = Object.freeze({
+  candidate: "מועמד",
+  approved: "מאושר",
+  canonical: "קנוני",
+  published: "פורסם",
+  rejected: "נדחה",
+  draft: "טיוטה",
+});
+
+const RESEARCH_VERIFICATION_LABELS_HE = Object.freeze({
+  match: "אומת",
+  mismatch: "נמצאה אי־התאמה",
+  not_tested: "טרם נבדק",
+  method_unknown: "השיטה אינה זמינה לבדיקה",
+  partial: "בדיקה חלקית",
+  partial_match_with_mismatches: "בדיקה חלקית עם אי־התאמות",
+  partial_needs_review: "בדיקה חלקית — דורש סקירה",
+});
+
+const axisLabel = (map, value, fallback) => map[String(value || "").trim()] || fallback;
+
 const WORLD_LANES = Object.freeze([
   { key: "overview", label: "מבט כללי" },
   { key: "media", label: "תמונות" },
@@ -252,10 +289,10 @@ function prominenceWhyLines(item) {
   if (why.uncertainty) lines.push("יש כאן אי־התאמה או שאלה שיכולה לשנות את ההבנה.");
   if (String(why.directness || "").includes("direct")) lines.push("הקשר ישיר לעוגן הנוכחי.");
   if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת חישוב תואמת.");
-  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור או provenance מתועד.");
+  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש תיעוד מקור מתועד.");
   if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים תלויים קובצו לפני בחירת העיקר.");
-  if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי כ־Gold; זהו אות אוצרות, לא דירוג אמת.");
-  else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי כ־Silver; זהו שובר שוויון בלבד.");
+  if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי ברמת זהב; זהו אות אוצרות, לא דירוג אמת.");
+  else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי ברמת כסף; זהו שובר שוויון בלבד.");
   if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
   if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`);
   return lines.length ? lines : ["הפריט נבחר בגלל הרלוונטיות שלו לנקודה הזאת."];
@@ -943,7 +980,7 @@ function LiveWorldLanding({ research, shell, context }) {
         title={`כל הממצאים של ${selectedWriter.displayName}`}
         action={!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : null}
       >
-        שכבת המחקר המלאה שמורה ל־Human Gate. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
+        שכבת המחקר המלאה שמורה לשער האנושי. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
       </FrameState>
     </NativeStateSection> : null}
 
@@ -953,7 +990,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">כלי מנהל</div>
           <h2>בקרה פנימית</h2>
-          <div className="sod29-muted">כלי Human Gate ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
+          <div className="sod29-muted">כלי השער האנושי ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
         </div>
       </div>
       <WorldConvergenceLens state={allResearchState} />
@@ -1606,9 +1643,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {adminMode ? <section className="sod29-section sod29-world-research-control" aria-label="מצב מחקר וממשל">
         <div className="sod29-section-head">
           <div>
-            <div className="sod29-kicker">WORLD RESEARCH CONTROL</div>
+            <div className="sod29-kicker">בקרת מחקר בעולם</div>
             <h2>{adminView === "research" ? "מצב מחקר" : "מצב ממשל"}</h2>
-            <p className="sod29-muted">אותו עולם, אותה מציאות. המצב הזה חושף רק צירים שה־owners החיים כבר מחזיקים; הוא לא ממציא Processing או Publication state.</p>
+            <p className="sod29-muted">אותו עולם, אותה מציאות. המצב הזה חושף רק צירים שבעלי הסמכות החיים כבר מחזיקים; הוא לא ממציא מצב עיבוד או מצב פרסום.</p>
           </div>
           <div className="sod29-actions" role="group" aria-label="מצב עבודה בעולם">
             <button className={`sod29-action${adminView === "research" ? " primary" : ""}`} type="button" aria-pressed={adminView === "research"} onClick={() => setAdminView("research")}>מחקר</button>
@@ -1616,12 +1653,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
         </div>
 
-        <FrameState title="הרשאות נשארות בשרת">מצב הניהול של World נפתח רק כשמנהל בוחר בו. הוא אינו עוקף הרשאות נתונים: World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
+        <FrameState title="הרשאות נשארות בשרת">מצב הניהול של העולם נפתח רק כשמנהל בוחר בו. הוא אינו עוקף הרשאות נתונים: העולם מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. גישה, ממשל, אימות וסוג נשארים צירים נפרדים; מצב מחקר אינו עוקף את מדיניות הגישה בשרת ואינו מפרסם דבר.</FrameState>
 
         {adminView === "research" ? <>
           <div className="sod29-world-research-inbox">
             <div>
-              <div className="sod29-kicker">RESEARCH INBOX</div>
+              <div className="sod29-kicker">תיבת מחקר</div>
               <h3>מה דורש תשומת לב סביב {data.identity.label}</h3>
             </div>
             <div className="sod29-world-attention-buttons" role="group" aria-label="סינון לפי תשומת לב מחקרית">
@@ -1638,33 +1675,33 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div className="sod29-world-research-filters">
             <label><span>סוג חומר</span><select value={researchFilters.kind} onChange={(event) => updateResearchFilter("kind", event.target.value)}>
               <option value="all">כל הסוגים · {adminSummary.total}</option>
-              {Object.entries(adminSummary.byKind).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byKind).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_KIND_LABELS_HE, value, "סוג מחקר נוסף")} · {count}</option>)}
             </select></label>
             <label><span>גישה</span><select value={researchFilters.access} onChange={(event) => updateResearchFilter("access", event.target.value)}>
               <option value="all">כל רמות הגישה</option>
-              {Object.entries(adminSummary.byAccess).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byAccess).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_ACCESS_LABELS_HE, value, "רמת גישה נוספת")} · {count}</option>)}
             </select></label>
             <label><span>ממשל</span><select value={researchFilters.governance} onChange={(event) => updateResearchFilter("governance", event.target.value)}>
               <option value="all">כל מצבי הממשל</option>
-              {Object.entries(adminSummary.byGovernance).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byGovernance).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, value, "מצב ממשל נוסף")} · {count}</option>)}
             </select></label>
             <label><span>אימות</span><select value={researchFilters.verification} onChange={(event) => updateResearchFilter("verification", event.target.value)}>
               <option value="all">כל מצבי האימות</option>
-              {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_VERIFICATION_LABELS_HE, value, "מצב אימות נוסף")} · {count}</option>)}
             </select></label>
             <button className="sod29-action" type="button" onClick={resetResearchFilters}>אפס סינון</button>
           </div>
           <div className="sod29-muted sod29-world-research-result-count">מוצגים {filteredResearchFindings.length} מתוך {visibleResearchFindings.length} ממצאי מחקר מורשים.</div>
         </> : <>
           <div className="sod29-book-grid sod29-world-govern-grid">
-            <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3><p>מי רשאי לקרוא את החומר. זה אינו מצב פרסום.</p></div>
-            <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3><p>Candidate / Approved / Canonical נשארים נפרדים מאימות ומנראות.</p></div>
-            <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${axisLabel(RESEARCH_ACCESS_LABELS_HE, name, "רמת גישה")}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3><p>מי רשאי לקרוא את החומר. זה אינו מצב פרסום.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, name, "מצב ממשל")}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3><p>מועמד / מאושר / קנוני נשארים נפרדים מאימות ומנראות.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${axisLabel(RESEARCH_VERIFICATION_LABELS_HE, name, "מצב אימות")}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
           </div>
           <div className="sod29-world-govern-boundaries">
-            <FrameState kind={adminSummary.capabilities.rawSource ? "empty" : "unavailable"} title="מקור גולמי / provenance">{adminSummary.capabilities.rawSource ? "לפחות לחלק מהפריטים יש sourceRef/inputRef שניתן לעקוב אחריו. פתיחת raw מלאה תחובר דרך Research Intake owner." : "ב־projection הנוכחי אין sourceRef שמאפשר לפתוח raw; World לא ימציא מקור."}</FrameState>
-            <FrameState kind="unavailable" title="Processing state עדיין לא מחובר">Raw → Extracted → Processed חייב להגיע מ־Research Intake v11. אין שדה כזה ב־research_objects ולכן הוא לא מוצג כאילו קיים.</FrameState>
-            <FrameState kind="unavailable" title="Publication state עדיין לא מחובר">privacy_scope=public_candidate אינו Published. פרסום יישאר Human Gate נפרד כאשר owner הפרסום יחובר ל־World.</FrameState>
+            <FrameState kind={adminSummary.capabilities.rawSource ? "empty" : "unavailable"} title="מקור גולמי / תיעוד מקור">{adminSummary.capabilities.rawSource ? "לפחות לחלק מהפריטים יש מזהי מקור פנימיים שניתן לעקוב אחריהם. פתיחת המקור הגולמי המלא תחובר דרך בעל הסמכות של קליטת המחקר." : "בתצוגה הנוכחית אין מזהה מקור שמאפשר לפתוח את המקור הגולמי; העולם לא ימציא מקור."}</FrameState>
+            <FrameState kind="unavailable" title="מצב עיבוד עדיין לא מחובר">מקור גולמי → חילוץ → עיבוד חייב להגיע מחוזה קליטת המחקר. אין שדה כזה ברשומות המחקר ולכן הוא לא מוצג כאילו קיים.</FrameState>
+            <FrameState kind="unavailable" title="מצב פרסום עדיין לא מחובר">מועמד לציבור אינו פרסום. פרסום יישאר החלטה נפרדת של השער האנושי כאשר בעל הסמכות של הפרסום יחובר לעולם.</FrameState>
           </div>
         </>}
 
@@ -1672,10 +1709,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div>
             <div className="sod29-kicker">חוקר / כותב</div>
             <h3>סנן חומר מיוחס</h3>
-            <p className="sod29-muted">World מציג את קבוצת החוקרים/כותבים שאושרה בעבר ובנוסף זהויות חיות שמסומנות trusted במאגר הקנוני. ברירת המחדל היא הכול. הסינון משתמש רק ב־attribution קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
+            <p className="sod29-muted">העולם מציג את קבוצת החוקרים והכותבים שאושרה בעבר ובנוסף זהויות חיות שמסומנות כמהימנות במאגר הקנוני. ברירת המחדל היא הכול. הסינון משתמש רק בייחוס קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
           </div>
-          {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא attribution והרשאות מנהל.</FrameState> : null}
-          {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר ה־World ממשיך לפעול ללא ניחוש attribution.</FrameState> : null}
+          {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא ייחוס והרשאות מנהל.</FrameState> : null}
+          {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר העולם ממשיך לפעול ללא ניחוש ייחוס.</FrameState> : null}
           {contributorLens?.contributors?.length ? <div className="sod29-world-contributor-buttons" role="group" aria-label="סינון לפי חוקר או כותב">
             <button className={`sod29-action${contributorFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={contributorFilter === "all"} onClick={() => setContributorFilter("all")}>הכול</button>
             {contributorLens.contributors.map((person) => {

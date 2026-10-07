@@ -49,11 +49,25 @@ function resolveHeader(occurrence) {
   if (!occurrence || typeof occurrence !== "object") return null;
   const contributorId = clean(occurrence.contributorId);
   const contributorName = clean(occurrence.contributorName);
-  if (contributorId || contributorName) {
-    return { type: "source_author", contributorId: contributorId || null, label: contributorName || null };
+  if (contributorId) {
+    return {
+      type: "source_author",
+      contributorId,
+      label: contributorName || null,
+      attributionState: "resolved",
+    };
+  }
+  if (contributorName) {
+    return {
+      type: "source_attribution_unresolved",
+      contributorId: null,
+      label: contributorName,
+      attributionState: "unresolved",
+      note: "זהות המחבר לא הוכרעה",
+    };
   }
   const work = clean(occurrence.sourceWork);
-  if (work) return { type: "source_work", contributorId: null, label: work };
+  if (work) return { type: "source_work", contributorId: null, label: work, attributionState: "not_applicable" };
   return null;
 }
 
@@ -79,11 +93,12 @@ function stableCorpusHeader(findings) {
     if (!human) return null;
     labels.add(human);
   }
-  return labels.size === 1 ? { type: "source_work", contributorId: null, label: [...labels][0] } : null;
+  return labels.size === 1 ? { type: "source_work", contributorId: null, label: [...labels][0], attributionState: "not_applicable" } : null;
 }
 
 function summarize(finding) {
   const dims = finding.projection?.dimensions || {};
+  const presentation = finding?.view?.rendererHints?.presentation || {};
   return {
     id: finding.id,
     kind: clean(dims.researchObjectKind) || null,
@@ -94,6 +109,18 @@ function summarize(finding) {
     status: finding.status ?? null,
     createdBy: finding.provenance?.createdBy ?? null,
     createdAt: finding.provenance?.createdAt ?? null,
+    presentation: {
+      title: clean(presentation.title) || clean(finding.subject?.label) || null,
+      summary: clean(presentation.summary) || null,
+      typeLabel: clean(presentation.typeLabel) || null,
+      sourceLabel: clean(presentation.sourceLabel) || null,
+      contextLine: clean(presentation.contextLine) || null,
+      attributionLabel: clean(presentation.attributionLabel) || null,
+      attributionState: clean(presentation.attributionState) || null,
+      occurrenceLabel: clean(presentation.occurrenceLabel) || null,
+      dateLabel: clean(presentation.dateLabel) || null,
+      fallbackMode: clean(presentation.fallbackMode) || null,
+    },
   };
 }
 
@@ -149,6 +176,12 @@ export function buildSourceBundles(findings, { occurrences = {} } = {}) {
         createdAt: clean(occurrence.createdAt) || null,
       } : null,
       header: resolveHeader(occurrence) || stableCorpusHeader(group.findings),
+      presentation: {
+        primaryTitle: members[0]?.presentation?.title || members[0]?.label || null,
+        contextLine: members[0]?.presentation?.contextLine || null,
+        sourceLabel: members[0]?.presentation?.sourceLabel || null,
+        occurrenceLabel: members[0]?.presentation?.occurrenceLabel || null,
+      },
       invariant: SOURCE_BUNDLE_INVARIANT,
     };
   });

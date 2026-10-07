@@ -33,7 +33,7 @@ test("filtered-out private finding cannot be revealed or counted", () => {
 test("source header from occurrence; child createdBy stays null without explicit attribution", () => {
   const f = finds();
   const [bundle] = buildSourceBundles(f, { occurrences: { [REF]: { contributorId: ZVI, contributorName: "צבי (OPOC)" } } });
-  assert.deepEqual(bundle.header, { type: "source_author", contributorId: ZVI, label: "צבי (OPOC)" });
+  assert.deepEqual(bundle.header, { type: "source_author", contributorId: ZVI, label: "צבי (OPOC)", attributionState: "resolved" });
   assert.ok(f.every((x) => x.provenance.createdBy === null));
   assert.ok(bundle.findings.every((x) => x.createdBy === null));
 });
@@ -59,7 +59,7 @@ test("Sod Hashmal is source_work, never a contributor; uploader not shown", () =
   const ref = "posts:5104";
   const f = finds([row("s1", "fact", { source_ref: ref, contributor: "ZURIEL" })]);
   const [bundle] = buildSourceBundles(f, { occurrences: { [ref]: { sourceWork: "סוד החשמל" } } });
-  assert.deepEqual(bundle.header, { type: "source_work", contributorId: null, label: "סוד החשמל" });
+  assert.deepEqual(bundle.header, { type: "source_work", contributorId: null, label: "סוד החשמל", attributionState: "not_applicable" });
   assert.ok(!JSON.stringify(bundle).includes("ZURIEL"));
 });
 
@@ -70,4 +70,26 @@ test("singleton stays singleton; repeated finding does not inflate", () => {
   assert.equal(b.sourceRef, null);
   const [dup] = buildSourceBundles([...finds(), ...finds()]);
   assert.equal(dup.count, 5);
+});
+
+
+test("name-only occurrence attribution stays unresolved and never becomes a person", () => {
+  const [bundle] = buildSourceBundles(finds(), { occurrences: { [REF]: { contributorName: "אור הגאולה" } } });
+  assert.equal(bundle.header.type, "source_attribution_unresolved");
+  assert.equal(bundle.header.attributionState, "unresolved");
+  assert.equal(bundle.header.contributorId, null);
+  assert.match(bundle.header.note, /לא הוכרעה/);
+});
+
+test("bundle carries contextual Hebrew presentation without changing finding identity", () => {
+  const [bundle] = buildSourceBundles(finds([row("eng", "hypothesis", {
+    statement: 'Speaker of the phrase "אקים סכת דוד" is hypothesized to be GOD',
+    value: 645,
+    source: "ai:messianic_model_v1",
+    source_ref: "book:amos-9-11",
+  })]));
+  assert.equal(bundle.findingIds.length, 1);
+  assert.match(bundle.presentation.primaryTitle, /ייחוס הדובר|השערה/);
+  assert.ok(!/[A-Za-z]{3}/.test(bundle.presentation.primaryTitle));
+  assert.match(bundle.presentation.contextLine, /השערה|מודל מחקר משיחי/);
 });

@@ -20,9 +20,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 import { canonicalMediaPath, isCanonicalVideoOriginalPath } from "../_shared/mediaPosterLane.js";
 import { isUniqueViolation, planOriginal, sttOriginalRow, translationRow, translationTargets } from "../_shared/videoTranscriptPolicy.js";
+import { analyzeVideoSemanticMap, semanticMapRpcArgs } from "../_shared/videoSemanticMap.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL   = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
+const SEMANTIC_MODEL = (Deno.env.get("FAST_MODEL") || "claude-haiku-4-5").trim();
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SB_URL  = Deno.env.get("SUPABASE_URL") || "";
 const SB_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -131,6 +133,55 @@ async function logTokens(row: Record<string, unknown>) {
   } catch { /* fire-and-forget — לא מפיל את התרגום */ }
 }
 
+async function saveSemanticMap({
+  video_key,
+  text,
+  source_lang,
+  media_url,
+  poster_url = null,
+  title = null,
+  mapping_basis = "transcript",
+  completeness = "full",
+}: {
+  video_key: string;
+  text: string;
+  source_lang?: string | null;
+  media_url?: string | null;
+  poster_url?: string | null;
+  title?: string | null;
+  mapping_basis?: string;
+  completeness?: "full" | "partial";
+}) {
+  const mediaUrl = String(media_url || "").trim();
+  if (!mediaUrl || !String(text || "").trim()) return { ok: false, skipped: "semantic_map_missing_source" };
+  const analyzed = await analyzeVideoSemanticMap({
+    text, title, videoKey: video_key, mediaUrl, posterUrl: poster_url,
+    sourceLang: source_lang, mappingBasis: mapping_basis, completeness,
+    anthropicKey: ANTHROPIC_KEY, model: SEMANTIC_MODEL,
+  });
+  if (!analyzed.ok || !analyzed.map) return analyzed;
+  const args = semanticMapRpcArgs(analyzed, { sourceRef: `video:${video_key}` });
+  const save = await fetch(`${SB_URL}/rest/v1/rpc/research_video_semantic_map_save_v1`, {
+    method: "POST",
+    headers: {
+      apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(args),
+  });
+  const raw = await save.text();
+  if (!save.ok) return { ok: false, error: `semantic_map_save_${save.status}:${raw.slice(0, 180)}` };
+  let persisted: unknown = null;
+  try { persisted = JSON.parse(raw); } catch { persisted = raw; }
+  await logTokens({
+    source: "video-semantic-map", kind: "semantic_map", model: analyzed.model,
+    input_tokens: analyzed.usage?.input_tokens || 0,
+    output_tokens: analyzed.usage?.output_tokens || 0,
+    ref: video_key,
+  });
+  return { ok: true, persisted, anchors: analyzed.map.anchors.length, map_key: analyzed.map.map_key };
+}
+
 // upsert שורת-תמלול (service role → REST) לפי (video_key, lang)
 async function upsertRow(row: Record<string, unknown>, onDuplicate: "merge" | "ignore" = "merge") {
   const r = await fetch(`${SB_URL}/rest/v1/video_transcripts?on_conflict=video_key,lang`, {
@@ -208,6 +259,23 @@ Deno.serve(async (req) => {
       return json({ ok: true, rows: await r.json() });
     }
 
+    if (action === "semantic_map") {
+      const originals = await listOriginals(video_key);
+      if (originals.length > 1) return json({ error: "original_conflict", originals: originals.map((o) => o.lang) }, 409);
+      if (originals.length !== 1 || !originals[0].transcript) return json({ error: "original_required_for_semantic_map" }, 409);
+      const semantic_map = await saveSemanticMap({
+        video_key,
+        text: originals[0].transcript,
+        source_lang: originals[0].lang,
+        media_url: String(b.media_url || b.source_url || base.source_url || ""),
+        poster_url: String(b.poster_url || ""),
+        title: String(b.title || base.title || ""),
+        mapping_basis: String(b.mapping_basis || "stored_original_transcript"),
+        completeness: b.completeness === "partial" ? "partial" : "full",
+      });
+      return json({ ok: semantic_map.ok === true, semantic_map }, semantic_map.ok ? 200 : 502);
+    }
+
     if (action === "transcribe") {
       // Canonical media only: the stored source video in the media bucket (no raw external URL as identity).
       // Strict WHATWG parse: exact Supabase origin, no credentials/query/hash/encoding/dot segments, and the storage path
@@ -241,7 +309,17 @@ Deno.serve(async (req) => {
       const after = await listOriginals(video_key);
       if (after.length > 1) return json({ error: "original_conflict", originals: after.map((o) => o.lang) }, 409);
       if (!Array.isArray(saved) || !saved.length) return json({ ok: true, state: "original_exists", original: after[0]?.lang ?? null, saved: [], translated: [] });
-      return json({ ok: true, original: built.row.lang, language_evidence: built.language_evidence, saved: [built.row.lang], translated: [] });
+      const semantic_map = await saveSemanticMap({
+        video_key,
+        text: built.row.transcript,
+        source_lang: built.row.lang,
+        media_url: mediaUrl,
+        poster_url: String(b.poster_url || ""),
+        title: String(b.title || base.title || ""),
+        mapping_basis: "stt_original",
+        completeness: "full",
+      });
+      return json({ ok: true, original: built.row.lang, language_evidence: built.language_evidence, saved: [built.row.lang], translated: [], semantic_map });
     }
 
     // ORIGINAL INVARIANT: always inspect stored originals BEFORE trusting caller original_text/original_lang.
@@ -253,6 +331,7 @@ Deno.serve(async (req) => {
     const original_text = plan.text;
     const original_lang = plan.lang;
     const callerOriginalIgnored = plan.kind === "use_stored" && plan.caller_original_ignored ? true : undefined;
+    let semantic_map: unknown = null;
 
     // 1) first human source only (non-overwriting insert). A concurrent writer that wins the (video_key, lang) key or the
     //    one-original partial unique index is re-read and reported — never merged over.
@@ -270,10 +349,20 @@ Deno.serve(async (req) => {
       if (after.length > 1) return json({ error: "original_conflict", originals: after.map((o) => o.lang) }, 409);
       if (!Array.isArray(saved) || !saved.length || after.length !== 1 || after[0].lang !== original_lang || after[0].transcript !== original_text)
         return json({ error: "original_exists", original: after[0]?.lang ?? null, saved: [], translated: [] }, 409);
+      semantic_map = await saveSemanticMap({
+        video_key,
+        text: original_text,
+        source_lang: original_lang,
+        media_url: String(b.media_url || b.source_url || base.source_url || ""),
+        poster_url: String(b.poster_url || ""),
+        title: String(b.title || base.title || ""),
+        mapping_basis: "human_original_transcript",
+        completeness: "full",
+      });
     }
 
     if (action === "set_original")
-      return json({ ok: true, saved: [original_lang], translated: [] });
+      return json({ ok: true, saved: [original_lang], translated: [], semantic_map });
 
     // 2) תרגום לכל שפות-היעד (הקנוני פחות שפת-המקור), אלא אם נשלחה רשימה
     const targets = translationTargets({ requested: b.langs, sourceLang: original_lang });
@@ -285,7 +374,7 @@ Deno.serve(async (req) => {
       await upsertRow(translationRow({ base, lang, text: t.text, model: t.model }));
       done.push(lang);
     }
-    return json({ ok: true, original: original_lang, original_source: plan.kind === "use_stored" ? "stored" : "created", caller_original_ignored: callerOriginalIgnored, translated: done, failed, last_err: failed.length ? LAST_ERR : undefined });
+    return json({ ok: true, original: original_lang, original_source: plan.kind === "use_stored" ? "stored" : "created", caller_original_ignored: callerOriginalIgnored, translated: done, failed, semantic_map, last_err: failed.length ? LAST_ERR : undefined });
   } catch (e) {
     return json({ error: "server_error", detail: String((e as Error)?.message || e) }, 500);
   }

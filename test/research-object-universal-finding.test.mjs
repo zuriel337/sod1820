@@ -115,6 +115,55 @@ assert.equal(labelOnly.projection.dimensions.presentation.hasHumanPresentation, 
   "source label alone must not launder raw statement into a normalized locale presentation");
 assert.equal(labelOnly.projection.dimensions.presentation.resolvedLocale, null);
 
+
+const hebrewSafeFallback = researchObjectToUniversalFinding({
+  ...base,
+  id: "33333333-3333-3333-3333-333333333333",
+  kind: "hypothesis",
+  statement: 'Speaker of the phrase "אקים סכת דוד" is hypothesized to be GOD',
+  source: "ai:messianic_model_v1",
+  source_ref: "book:amos-9-11",
+  value: 645,
+  meta: {},
+}, { locale: "he" });
+assert.ok(!/[A-Za-z]{3}/.test(hebrewSafeFallback.subject.label),
+  "Hebrew surface primary title must not leak English technical prose");
+assert.match(hebrewSafeFallback.subject.label, /ייחוס הדובר|השערה/);
+assert.equal(hebrewSafeFallback.view.rendererHints.presentation.sourceLabel, "מודל מחקר משיחי");
+assert.match(hebrewSafeFallback.view.rendererHints.presentation.contextLine, /השערה/);
+assert.equal(hebrewSafeFallback.projection.dimensions.presentation.fallbackMode, "raw_statement",
+  "safe runtime fallback does not pretend durable Hebrew backfill already exists");
+
+
+const trustedIntakeAttribution = researchObjectToUniversalFinding({
+  ...base,
+  id: "44444444-4444-4444-8444-444444444444",
+  contributor: "צבי (OPOC)",
+  source: "channel_updates",
+  source_ref: "channel_updates:958c36c9-adaa-4e7c-a623-585565fc1d35",
+  meta: {
+    ext: {
+      wa_channel_intake: {
+        contributor_id: "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+        trusted_author: true,
+      },
+    },
+  },
+}, { locale: "he" });
+assert.equal(trustedIntakeAttribution.view.rendererHints.presentation.attributionState, "resolved");
+assert.match(trustedIntakeAttribution.view.rendererHints.presentation.attributionLabel, /ייחוס מקור מאומת: צבי/);
+
+const nameOnlyAttribution = researchObjectToUniversalFinding({
+  ...base,
+  id: "55555555-5555-4555-8555-555555555555",
+  contributor: "אור הגאולה",
+  source: "channel_updates",
+  source_ref: "channel_updates:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  meta: { ext: { wa_channel_intake: { trusted_author: false } } },
+}, { locale: "he" });
+assert.equal(nameOnlyAttribution.view.rendererHints.presentation.attributionState, "unresolved");
+assert.match(nameOnlyAttribution.view.rendererHints.presentation.attributionLabel, /זהות המחבר לא הוכרעה/);
+
 const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, engine_verified: true });
 assert.equal(noDetail.verification.verification_state, null,
   "derived engine_verified=true must not manufacture verification_state=match");

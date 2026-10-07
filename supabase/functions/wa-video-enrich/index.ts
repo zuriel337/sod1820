@@ -4,6 +4,7 @@
 // Protected by FB_ADMIN_KEY. OPENAI_API_KEY is retrieved through a service-role-only RPC.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { MAX_STT_BYTES, mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
+import { analyzeVideoSemanticMap, semanticMapRpcArgs } from "../_shared/videoSemanticMap.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
@@ -459,6 +460,69 @@ async function aiMetadata(text: string, opTrace: VideoTrace | null = null, paren
   }
 }
 
+async function mapGroundedVideoText(
+  row: any,
+  text: string,
+  title: string | null,
+  enrichmentSource: string,
+  opTrace: VideoTrace | null = null,
+  parentSpanId: string | null = null,
+) {
+  // Only text that belongs to THIS video can seed its semantic map. Neighbor context and
+  // thumbnail vision may help presentation metadata, but they are not source transcripts.
+  if (!["caption", "stt"].includes(enrichmentSource) || !cleanText(text)) {
+    return { ok: false, skipped: "no_video_owned_text_for_semantic_map" };
+  }
+  const videoKey = `${row.channel || "video"}:${row.id}`;
+  const spanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  const analyzed = await analyzeVideoSemanticMap({
+    text,
+    title,
+    videoKey,
+    mediaUrl: String(row.image_url || ""),
+    posterUrl: String(row.thumb_url || ""),
+    sourceLang: enrichmentSource === "stt" ? "he" : null,
+    mappingBasis: enrichmentSource === "stt" ? "stt_original" : "source_caption",
+    completeness: enrichmentSource === "stt" ? "full" : "partial",
+    anthropicKey: ANTHROPIC_KEY,
+    model: MODEL,
+  });
+  const endedAt = new Date().toISOString();
+
+  await recordVideoSpan(opTrace, {
+    spanId, parentSpanId, kind: "model_call", name: "wa-video-enrich:semantic-map",
+    startedAt, endedAt, outcome: analyzed.ok ? "success" : "failed_with_reason",
+    detail: {
+      capability: "video-semantic-map", owner_ref: "research_intake_foundation_contract_law + reality_graph_law",
+      provider: "anthropic", model: MODEL, output_use: analyzed.ok ? "used" : "not_applicable",
+      stop_reason: analyzed.ok ? null : analyzed.error,
+      resources: {
+        input_tokens: analyzed.usage?.input_tokens ?? null,
+        output_tokens: analyzed.usage?.output_tokens ?? null,
+        api_calls: 1,
+        latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)),
+      },
+      cost: { certainty: "unknown" },
+      replay: { inputRef: "sha256:" + (opTrace?.inputHash || "") },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  if (!analyzed.ok || !analyzed.map) return analyzed;
+  await logTokens(analyzed.usage, opTrace, spanId, "semantic_map");
+
+  const args = semanticMapRpcArgs(analyzed, { sourceRef: `video:${videoKey}` });
+  const { data, error } = await sb.rpc("research_video_semantic_map_save_v1", args);
+  if (error) return { ok: false, error: "semantic_map_save:" + error.message };
+  return {
+    ok: data?.ok === true,
+    persisted: data || null,
+    map_key: analyzed.map.map_key,
+    anchors: analyzed.map.anchors.length,
+    completeness: analyzed.map.completeness,
+  };
+}
+
 async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null) {
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
@@ -525,6 +589,10 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
 
   if (!meta) meta = await aiMetadata(basis, opTrace, null);
   const title = meta.title || fallbackTitle(basis);
+  // Mapping is best-effort and never blocks ordinary video enrichment. It is saved once,
+  // private/candidate, through the existing Research Intake home.
+  const semanticMap = await mapGroundedVideoText(row, basis, title, enrichmentSource, opTrace, itemSpanId)
+    .catch((e) => ({ ok: false, error: String((e as Error)?.message || e) }));
 
   if (row.speaker == null && meta.speaker) updates.speaker = meta.speaker;
   if (title) updates.seo_title = title;
@@ -555,6 +623,7 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     seo_title: title || null,
     topics: meta.topics || [],
     enrichment_source: enrichmentSource,
+    semantic_map: semanticMap,
   };
 }
 

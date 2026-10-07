@@ -16,11 +16,67 @@
 // changes admission, truth, access, canonicality or publication.
 
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
+import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
 const clean = (v) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim());
 const cap = (v, n) => clean(v).slice(0, n);
+
+const PACK_TYPE_HE = Object.freeze({
+  event_fact: "עובדת אירוע",
+  typed_observation: "תצפית",
+  typed_derivation: "חישוב נגזר",
+  source_representation: "ייצוג מקור",
+  calculation: "חישוב",
+  typed_relation: "קשר מחקרי",
+  source_work: "מקור",
+  interpretation: "פרשנות",
+  source_bundle: "חבילת מקור",
+  source_claim: "טענת מקור",
+});
+
+const VERIFICATION_HE = Object.freeze({
+  match: "אומת",
+  mismatch: "נמצאה אי־התאמה",
+  not_tested: "טרם נבדק",
+  method_unknown: "השיטה אינה זמינה לבדיקה",
+  partial_needs_review: "בדיקה חלקית — דורש סקירה",
+  trace_unavailable: "בדיקת האימות אינה זמינה",
+  trace_error: "בדיקת האימות נכשלה",
+});
+
+const STATUS_HE = Object.freeze({
+  candidate: "מועמד",
+  approved: "מאושר",
+  canonical: "קנוני",
+  published: "פורסם",
+  draft: "טיוטה",
+  rejected: "נדחה",
+  reject: "נדחה",
+  active: "פעיל",
+});
+
+function hebrewPackType(kind) {
+  return PACK_TYPE_HE[clean(kind)] || "ממצא מחקר";
+}
+
+function hebrewVerification(value) {
+  const key = clean(value).toLowerCase();
+  return VERIFICATION_HE[key] || "מצב אימות לא ידוע";
+}
+
+function safeHebrewLabel(label, { fallback = "ממצא מחקר", value = null } = {}) {
+  const text = clean(label);
+  if (!text) return value != null ? `${fallback} · ${value}` : fallback;
+  if (!/[A-Za-z]/.test(text)) return text;
+  const hebrew = text
+    .replace(/[A-Za-z][A-Za-z0-9_.:/#()'’-]*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (/[א-ת]/.test(hebrew)) return cap(hebrew, 160);
+  return value != null ? `${fallback} · ${value}` : fallback;
+}
 
 /** Admin is the default for an authorized admin; anything else is PUBLIC_VIEW (fail closed). */
 export function resolveProjectorMode({ isAdmin = false, requested = null } = {}) {
@@ -131,11 +187,11 @@ export const ADMIN_LAYER = Object.freeze({
 });
 
 const CLAIM_OUTCOME_LABEL = Object.freeze({
-  match: ["ADMITTED", "Trace parity=true והערך תואם לטענת המקור"],
-  trace_unavailable: ["UNKNOWN_VERIFICATION", "אין Trace חי — לא הוכנס כחישוב (fail-closed)"],
-  trace_error: ["FAILED_VERIFICATION", "ה-Trace החזיר שגיאה — לא הוכנס כחישוב"],
-  parity_failed: ["FAILED_VERIFICATION", "parity≠true — לא הוכנס כחישוב"],
-  value_mismatch: ["REJECT", "תוצאת המנוע שונה מהערך שהמקור טוען — נדחה"],
+  match: ["התקבל", "בדיקת ההתאמה הצליחה והערך תואם לטענת המקור"],
+  trace_unavailable: ["אימות לא זמין", "אין בדיקת אימות זמינה — הפריט לא הוצג כחישוב"],
+  trace_error: ["בדיקת האימות נכשלה", "בדיקת האימות החזירה שגיאה — הפריט לא הוצג כחישוב"],
+  parity_failed: ["בדיקת התאמה נכשלה", "בדיקת ההתאמה לא הושלמה בהצלחה"],
+  value_mismatch: ["נדחה", "תוצאת המנוע שונה מהערך שהמקור טוען"],
 });
 
 /** Context numbers of the active Golden pack, taken only from governed outputs + source claims. */
@@ -150,15 +206,19 @@ export function goldenContextNumbers(pack) {
 
 function researchRowState(row) {
   const states = [];
-  const tier = clean(row.privacy_scope);
-  states.push(tier === "private" ? "PRIVATE" : tier === "public_candidate" ? "PUBLIC_CANDIDATE (לא Published)" : tier ? tier.toUpperCase() : "ACCESS_UNSPECIFIED");
+  const tier = clean(row.privacy_scope).toLowerCase();
+  if (tier === "private") states.push("פרטי");
+  else if (tier === "public_candidate") states.push("מועמד לציבור — טרם פורסם");
+  else if (tier === "public") states.push("ציבורי");
+  else if (tier) states.push("היקף גישה מוגדר");
+  else states.push("היקף גישה לא צוין");
+
   const status = clean(row.status).toLowerCase();
-  if (status === "candidate") states.push("HOLD / CANDIDATE");
-  else if (status === "rejected" || status === "reject") states.push("REJECT");
-  else if (status) states.push(status.toUpperCase());
+  states.push(STATUS_HE[status] || (status ? "מצב ממשל פנימי" : "מצב ממשל לא צוין"));
+
   const v = clean(row.engine_detail?.verification_state).toLowerCase();
-  states.push(v ? `VERIFICATION:${v}` : "VERIFICATION:unknown");
-  if (!clean(row.source_ref)) states.push("SOURCE_UNLOCATED");
+  states.push(v ? hebrewVerification(v) : "אימות לא ידוע");
+  if (!clean(row.source_ref)) states.push("מיקום מקור לא צוין");
   return states;
 }
 
@@ -173,29 +233,35 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
 
   for (const r of pack?.rows || []) {
     layers[ADMIN_LAYER.PUBLIC].push({
-      id: `pub:${r.id}`, type: r.kind, label: r.label, value: r.value ?? null,
-      states: ["ADMITTED", "PUBLIC_LAYER"], reason: r.reason || "", provenance: r.sourceLabel || "", occurrenceKey: "post",
+      id: `pub:${r.id}`, type: hebrewPackType(r.kind),
+      label: safeHebrewLabel(r.label, { fallback: hebrewPackType(r.kind), value: r.value }),
+      value: r.value ?? null,
+      states: ["התקבל", "בשכבה הציבורית"], reason: r.reason || "", provenance: safeHebrewLabel(r.sourceLabel, { fallback: "מקור הפוסט" }), occurrenceKey: "post",
     });
   }
   for (const f of pack?.audit?.findings || []) {
     if (publicIds.has(f.id)) continue;
-    const states = [f.inContextRail ? "GOVERNED_NOT_IN_PUBLIC_LAYER (bounded/capacity)" : "GOVERNED_NOT_SURFACED"];
-    if (f.status) states.push(String(f.status).toUpperCase());
-    if (f.verificationState) states.push(`VERIFICATION:${f.verificationState}`);
-    if (f.accessTier) states.push(`ACCESS:${f.accessTier}`);
-    if (/interpretation/.test(f.kind)) states.push("INTERPRETATION");
+    const states = [f.inContextRail ? "מנוהל — לא נכנס לשכבה הציבורית בגלל גבול התצוגה" : "מנוהל — לא הוצג"];
+    if (f.status) states.push(STATUS_HE[clean(f.status).toLowerCase()] || "מצב ממשל פנימי");
+    if (f.verificationState) states.push(hebrewVerification(f.verificationState));
+    if (f.accessTier) states.push("קיימת מגבלת גישה");
+    if (/interpretation/.test(f.kind)) states.push("פרשנות");
     layers[ADMIN_LAYER.GOVERNED].push({
-      id: `gov:${f.id}`, type: f.kind, label: f.label, value: f.value, states,
-      reason: f.boundary || "פלט owner מנוהל; לא נבחר לשכבה הציבורית.", provenance: f.sourceRef || "owner", occurrenceKey: f.sourceRef || "post",
+      id: `gov:${f.id}`, type: hebrewPackType(f.kind),
+      label: safeHebrewLabel(f.label, { fallback: hebrewPackType(f.kind), value: f.value }),
+      value: f.value, states,
+      reason: f.boundary || "פלט מנוהל; לא נבחר לשכבה הציבורית.",
+      provenance: safeHebrewLabel(f.sourceLabel || "", { fallback: "מקור מנוהל" }), occurrenceKey: f.sourceRef || "post",
     });
   }
   for (const c of pack?.audit?.claims || []) {
     const [state, why] = CLAIM_OUTCOME_LABEL[c.outcome] || ["UNKNOWN_VERIFICATION", c.outcome];
     layers[ADMIN_LAYER.TRACE].push({
-      id: `claim:${c.method_key}:${c.expression}`, type: "source_claim", label: `${c.expression} (${c.method_key})`,
+      id: `claim:${c.method_key}:${c.expression}`, type: "טענת מקור",
+      label: safeHebrewLabel(c.expression, { fallback: "טענת גימטריה", value: c.claimed_value }),
       value: String(c.claimed_value),
-      states: [state, `engine=${c.engine_result ?? "—"}`, `parity=${c.parity ?? "—"}`],
-      reason: why, provenance: "טענת מקור בפוסט · gematria_method_trace", occurrenceKey: "post",
+      states: [state, `תוצאת מנוע: ${c.engine_result ?? "—"}`, c.parity === true ? "התאמת חישוב: כן" : c.parity === false ? "התאמת חישוב: לא" : "התאמת חישוב: לא ידוע"],
+      reason: why, provenance: "טענת מקור בפוסט · בדיקת גימטריה קנונית", occurrenceKey: "post",
     });
   }
 
@@ -219,20 +285,22 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
     const dupOf = dupKey.get(dk) || null;
     if (!dupOf) dupKey.set(dk, row.id);
     const states = researchRowState(row);
-    if (dupOf) states.push(`DUPLICATE_OF:${dupOf}`);
+    if (dupOf) states.push("כפילות בתוך אותו מקום במקור");
     const vstate = clean(row.engine_detail?.verification_state).toLowerCase() || null;
     const directExpr = clean(row.engine_detail?.claimed_expression);
     const directMethod = clean(row.engine_detail?.claimed_method || row.engine_detail?.engine_method_tested);
+    const presentation = resolveResearchObjectPresentation(row, { locale: "he" });
     return {
       identityKey: directExpr ? `expr:${directMethod}\u0000${directExpr}` : `ro:${row.id}`,
       id: `ro:${row.id}`,
       researchObjectId: String(row.id),
-      type: `research_object:${clean(row.kind) || "unknown"}`,
-      label: cap(row.statement, 200) || `research_object ${row.id}`,
+      type: presentation.typeLabel || "ממצא מחקר",
+      label: cap(presentation.title, 200) || "ממצא מחקר",
       value: row.value != null ? String(row.value) : null,
       states,
-      reason: `מקושר לפי ערך בלבד (${[...linkedNumbers].join(", ")}) — אותו ערך ≠ אותה זהות; זה מועמד/הקשר, לא ראיה.`,
-      provenance: [clean(row.source) && `source=${clean(row.source)}`, clean(row.source_ref) && `ref=${clean(row.source_ref)}`, clean(row.contributor) && `contributor=${clean(row.contributor)}`, clean(row.created_at).slice(0, 10)].filter(Boolean).join(" · "),
+      reason: `מקושר לפי ערך בלבד (${[...linkedNumbers].join(", ")}) — אותו ערך אינו אותה זהות; זהו הקשר מחקרי ולא ראיה בפני עצמו.`,
+      provenance: [presentation.contextLine, presentation.attributionLabel].filter(Boolean).join(" · "),
+      presentation,
       occurrenceKey: occ,
       axes: {
         contextRelevance: 1,
@@ -258,10 +326,10 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
   }
   for (const item of researchItems) {
     const n = occCount.get(item.occurrenceKey) || 1;
-    if (n > 1) item.states.push(`SAME_OCCURRENCE_GROUP:${n}`);
+    if (n > 1) item.states.push(`אותו מקום במקור · ${n} פריטים`);
     const independent = identityOccurrences.get(item.identityKey)?.size || 1;
     item.axes.sourceIndependence = -independent;
-    if (independent > 1) item.states.push(`INDEPENDENT_OCCURRENCES:${independent}`);
+    if (independent > 1) item.states.push(`${independent} מופעי מקור עצמאיים`);
   }
   layers[ADMIN_LAYER.RESEARCH] = orderBySmartProminence(researchItems, { axesOf: (r) => r.axes });
 

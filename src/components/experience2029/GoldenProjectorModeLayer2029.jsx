@@ -27,6 +27,8 @@ function storeMode(mode) {
   try { window.sessionStorage.setItem(MODE_KEY, mode); } catch { /* per-viewer convenience only */ }
 }
 
+
+
 function AdminRow({ item }) {
   return <li className="sod29-golden-admin-row">
     <details>
