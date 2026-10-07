@@ -54,6 +54,7 @@ test("group and term counts are hard-bounded", () => {
 test("lexical discovery keeps terms within the same Finding and never asserts entity identity", async () => {
   const togetherCalls = [];
   const proximityCalls = [];
+  const notarikonCalls = [];
   const out = await fetchScriptureTermDiscoveryForFindings([
     finding("a", ["משיח", "דוד"]),
     finding("b", ["נחש"]),
@@ -79,11 +80,25 @@ test("lexical discovery keeps terms within the same Finding and never asserts en
       proximityCalls.push([a, b, gap]);
       return { terms: [a, b], gap, count: 0, items: [] };
     },
+    fetchNotarikon: async (term) => {
+      notarikonCalls.push(term);
+      return {
+        term,
+        status: "ready",
+        count: term === "משיח" ? 1 : 0,
+        rasheiTevot: term === "משיח"
+          ? [{ ref: "ישעיהו 1:1", text: "fixture", words: ["מ", "ש", "י", "ח"], kind: "ראשי" }]
+          : [],
+        sofeiTevot: [],
+      };
+    },
   });
 
   assert.deepEqual(togetherCalls, [["משיח", "דוד"]]);
   assert.deepEqual(proximityCalls, [["משיח", "דוד", 6]]);
+  assert.deepEqual(notarikonCalls, ["משיח", "דוד", "נחש"]);
   assert.equal(out.results[1].together, null, "single-term Finding must not be mixed with another Finding");
+  assert.equal(out.candidates.some((item) => item.discoveryBasis === "notarikon_rashei_tevot"), true);
   assert.equal(out.candidates.every((item) => item.entityIdentityClaim === false), true);
   assert.equal(out.candidates.every((item) => item.truthPromotion === false), true);
   assert.equal(out.governance.crossFindingMixing, false);
@@ -115,8 +130,37 @@ test("multi-word structured terms use phrase-sequence reader, not token reader",
 test("reader failures remain explicit and manufacture no candidate", async () => {
   const out = await fetchScriptureTermDiscoveryForFindings(
     [finding("a", ["חכמה"])],
-    { fetchToken: async () => { throw new Error("offline"); } },
+    {
+      fetchToken: async () => { throw new Error("offline"); },
+      fetchNotarikon: async () => ({
+        status: "ready",
+        count: 0,
+        rasheiTevot: [],
+        sofeiTevot: [],
+      }),
+    },
   );
   assert.equal(out.results[0].occurrenceResults[0].status, "unavailable");
   assert.deepEqual(out.candidates, []);
+});
+
+
+test("notarikon failure stays isolated from lexical occurrence evidence", async () => {
+  const out = await fetchScriptureTermDiscoveryForFindings(
+    [finding("a", ["משיח"])],
+    {
+      fetchToken: async (term) => ({
+        term,
+        count: 1,
+        items: [{ ref: "תהלים 2:2", text: "על יהוה ועל משיחו", lexicalMatchKind: "exact_token" }],
+      }),
+      fetchNotarikon: async () => { throw new Error("notarikon unavailable"); },
+    },
+  );
+
+  assert.equal(out.results[0].occurrenceResults[0].status, "ready");
+  assert.equal(out.results[0].occurrenceResults[0].notarikon.status, "unavailable");
+  assert.equal(out.candidates.some((item) => item.discoveryBasis === "lexical_exact_token"), true);
+  assert.equal(out.candidates.some((item) => String(item.discoveryBasis).startsWith("notarikon_")), false);
+  assert.equal(out.governance.notarikonInterpretation, false);
 });
