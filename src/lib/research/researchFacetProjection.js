@@ -105,16 +105,24 @@ export function buildResearchFacetControl(items = []) {
   const byFamily = {};
   const bySourceMethod = {};
   const sourceMethodStates = {};
+  const sourceMethodOccurrenceSeen = new Set();
   let spatial3d = 0;
 
-  for (const item of rows) {
+  for (const [index, item] of rows.entries()) {
     const axes = researchFacetAxes(item);
     for (const method of axes.displayMethods) increment(byMethod, method);
     for (const operation of axes.operations) increment(byOperation, operation);
     for (const factor of axes.factors) increment(byFactor, String(factor));
     for (const method of axes.sourceMethods) {
       const label = method.displayLabel || method.token;
-      increment(bySourceMethod, label);
+      const occurrenceKey = clean(item?.occurrenceKey)
+        || clean(researchFacetsOf(item)?.sourceOccurrence?.ref)
+        || `item:${index}`;
+      const seenKey = `${label}\u0000${occurrenceKey}`;
+      if (!sourceMethodOccurrenceSeen.has(seenKey)) {
+        sourceMethodOccurrenceSeen.add(seenKey);
+        increment(bySourceMethod, label);
+      }
       const current = sourceMethodStates[label] || new Set();
       current.add(method.state || "source_attested_unresolved");
       sourceMethodStates[label] = current;
@@ -141,9 +149,9 @@ export function buildResearchFacetControl(items = []) {
       || Object.keys(byOperation).length
       || Object.keys(byFactor).length
       || Object.keys(byFamily).length
-      || Object.keys(bySourceMethod).length
       || spatial3d
     ),
+    hasSourceMethodMentions: Boolean(Object.keys(bySourceMethod).length),
   };
 }
 
