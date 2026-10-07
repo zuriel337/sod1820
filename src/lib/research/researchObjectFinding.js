@@ -172,7 +172,7 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
     classification: clean(spatial.classification),
   } : null;
 
-  const sourceOccurrence = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
+  const sourceOccurrenceRef = clean(row?.source_ref) || clean(spatial.source_ref) || clean(mediaProfile.source_ref);
   const occurrenceRefs = [];
   const addOccurrence = (value) => {
     const ref = clean(value);
@@ -203,8 +203,8 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
       is3d: spatial3d,
       loadBearingVisualCandidate: mediaProfile.load_bearing_visual_candidate === true,
     } : null,
-    sourceOccurrence: sourceOccurrence || occurrenceRefs.length ? {
-      ref: sourceOccurrence,
+    sourceOccurrence: sourceOccurrenceRef || occurrenceRefs.length ? {
+      ref: sourceOccurrenceRef,
       refs: occurrenceRefs,
       duplicateOccurrenceCount,
     } : null,
