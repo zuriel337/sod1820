@@ -185,8 +185,12 @@ test("one shared rail consumer serves all projector surfaces without copying pri
   const golden = readFileSync(new URL("../src/components/experience2029/GoldenProjectorModeLayer2029.jsx", import.meta.url), "utf8");
 
   assert.match(rail, /<ContextualVideoLayer2029 subject=\{subject\} context=\{context\} \/>/);
-  assert.match(shared, /fetchResearchObjectsForEntity/);
+  assert.match(shared, /fetchVideoSemanticMapsForEntity/);
   assert.match(shared, /contextualVideosFromResearchRows/);
+  const hub = readFileSync(new URL("../src/lib/research/entityHubProjection.js", import.meta.url), "utf8");
+  assert.match(hub, /export async function fetchVideoSemanticMapsForEntity/);
+  assert.match(hub, /VIDEO_REPRESENTATION_MAP/);
+  assert.match(hub, /video_semantic_maps_not_readable_for_current_session/);
   assert.match(shared, /!isAdmin/);
   assert.doesNotMatch(shared, /updateResearchContext/);
   assert.doesNotMatch(golden, /ContextVideo|contextualVideosFromMaps|sod29-golden-context-video/);
