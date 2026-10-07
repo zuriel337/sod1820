@@ -87,7 +87,7 @@ test("claim outcomes: mismatch => REJECT, parity failure => FAILED, missing => U
   assert.ok(!pB.rows.some((r) => r.kind === "calculation" && r.value === "1202"));
   const u = buildGoldenAdminUniverse({ pack: pA });
   const states = u.layers[ADMIN_LAYER.TRACE].map((i) => i.states[0]);
-  assert.ok(states.includes("REJECT") && states.includes("ADMITTED"));
+  assert.ok(states.includes("נדחה") && states.includes("התקבל"));
 });
 
 test("admin universe: every governed finding and every authorized row stays reachable; nothing hidden by ranking", async () => {
@@ -100,11 +100,11 @@ test("admin universe: every governed finding and every authorized row stays reac
   for (const f of pack.audit.findings) assert.ok(governedIds.has(f.id), `governed finding ${f.id} reachable`);
   for (const item of u.layers[ADMIN_LAYER.RESEARCH]) {
     assert.ok(item.states.length && item.reason && item.provenance, "explicit state/reason/provenance");
-    assert.match(item.reason, /אותו ערך ≠ אותה זהות/);
+    assert.match(item.reason, /אותו ערך אינו אותה זהות/);
   }
   const multi = u.layers[ADMIN_LAYER.RESEARCH].find((i) => i.researchObjectId === "r0");
-  assert.ok(multi.states.includes("PRIVATE"));
-  assert.ok(multi.states.some((s) => s.startsWith("SAME_OCCURRENCE_GROUP:")));
+  assert.ok(multi.states.includes("פרטי"));
+  assert.ok(multi.states.some((s) => s.startsWith("אותו מקום במקור")));
   assert.equal(u.total, Object.values(u.layers).reduce((n, l) => n + l.length, 0));
 });
 
@@ -119,11 +119,11 @@ test("admin universe: same value != same identity; duplicates and HOLD/REJECT/un
   ];
   const u = buildGoldenAdminUniverse({ pack, researchRowsByNumber: { 1073: rows } });
   const by = Object.fromEntries(u.layers[ADMIN_LAYER.RESEARCH].map((i) => [i.researchObjectId, i]));
-  assert.ok(by.x1.states.includes("INDEPENDENT_OCCURRENCES:2"));
-  assert.ok(!by.y1.states.some((s) => s.startsWith("INDEPENDENT_OCCURRENCES")), "value-only rows never merge identities");
-  assert.ok(by.y2.states.includes("DUPLICATE_OF:y1"));
-  assert.ok(by.z.states.includes("HOLD / CANDIDATE") && by.z.states.includes("SOURCE_UNLOCATED") && by.z.states.includes("VERIFICATION:mismatch"));
-  assert.ok(by.z.states.some((s) => s.startsWith("PUBLIC_CANDIDATE")), "public_candidate is labeled not-published");
+  assert.ok(by.x1.states.includes("2 מופעי מקור עצמאיים"));
+  assert.ok(!by.y1.states.some((s) => s.includes("מופעי מקור עצמאיים")), "value-only rows never merge identities");
+  assert.ok(by.y2.states.includes("כפילות בתוך אותו מקום במקור"));
+  assert.ok(by.z.states.includes("מועמד") && by.z.states.includes("מיקום מקור לא צוין") && by.z.states.includes("נמצאה אי־התאמה"));
+  assert.ok(by.z.states.some((s) => s.startsWith("מועמד לציבור")), "public_candidate is labeled not-published");
   // The typed identity backed by two independent occurrences leads the research layer.
   assert.equal(u.layers[ADMIN_LAYER.RESEARCH][0].researchObjectId, "x1");
 });
