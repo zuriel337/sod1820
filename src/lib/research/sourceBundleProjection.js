@@ -93,7 +93,7 @@ function stableCorpusHeader(findings) {
     if (!human) return null;
     labels.add(human);
   }
-  return labels.size === 1 ? { type: "source_work", contributorId: null, label: [...labels][0] } : null;
+  return labels.size === 1 ? { type: "source_work", contributorId: null, label: [...labels][0], attributionState: "not_applicable" } : null;
 }
 
 function summarize(finding) {
