@@ -1,0 +1,85 @@
+.sod29-early-access{
+  min-height:100vh;position:relative;overflow:hidden;background:var(--c-page);color:var(--c-text);
+  padding:28px 20px 64px;font-family:"Noto Sans Hebrew","Rubik",Arial,sans-serif
+}
+.sod29-early-access *{box-sizing:border-box}
+.sod29-early-access-ambient{
+  position:absolute;inset:-18% -20% auto;height:620px;pointer-events:none;
+  background:radial-gradient(circle at 50% 14%,var(--c-brand-glow),transparent 56%),
+    radial-gradient(circle at 78% 30%,color-mix(in srgb,var(--c-secondary) 17%,transparent),transparent 44%),
+    radial-gradient(circle at 18% 42%,color-mix(in srgb,var(--c-discovery) 13%,transparent),transparent 44%)
+}
+.sod29-early-access-brand,.sod29-early-access-hero,.sod29-early-access-card,.sod29-early-access-footer{
+  width:min(760px,100%);margin-inline:auto;position:relative;z-index:1
+}
+.sod29-early-access-brand{text-align:center;margin-bottom:22px}
+.sod29-early-access-lockup{width:min(215px,48vw);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 18px 44px var(--c-brand-glow))}
+.sod29-early-access-brand p{margin:6px 0 0;color:var(--c-text-soft);font-size:14px}
+.sod29-early-access-hero{text-align:center;padding:16px 0 30px}
+.sod29-early-access-badge{
+  display:inline-flex;align-items:center;min-height:34px;padding:7px 13px;border:1px solid var(--c-border-strong);
+  border-radius:999px;color:var(--c-brand-gold);background:var(--c-surface-soft);font-weight:900;font-size:13px;margin-bottom:16px
+}
+.sod29-early-access-hero h1{margin:0;font:900 clamp(38px,8vw,68px)/1.08 "Rubik",sans-serif;letter-spacing:-.035em}
+.sod29-early-access-hero h1 span{color:var(--c-primary)}
+.sod29-early-access-hero p{max-width:650px;margin:18px auto 0;color:var(--c-text-soft);font-size:18px;line-height:1.75}
+.sod29-early-access-card{
+  background:var(--c-surface);border:1px solid var(--c-border);border-radius:26px;
+  box-shadow:0 24px 70px var(--c-brand-glow);padding:26px;margin-bottom:20px
+}
+.sod29-early-access-section-head span,.sod29-early-access-signup>span,.sod29-early-access-whatsapp span{
+  display:block;color:var(--c-discovery);font-size:14px;font-weight:900;margin-bottom:5px
+}
+.sod29-early-access-section-head h2,.sod29-early-access-signup h2,.sod29-early-access-whatsapp h2{
+  margin:0;font:900 clamp(25px,5vw,36px)/1.25 "Rubik",sans-serif
+}
+.sod29-early-access-section-head p,.sod29-early-access-signup p,.sod29-early-access-whatsapp p{
+  margin:10px 0 0;color:var(--c-text-soft);font-size:16px;line-height:1.7
+}
+.sod29-early-access-video-frame{
+  margin-top:18px;position:relative;width:100%;aspect-ratio:9/16;max-height:72vh;overflow:hidden;
+  border-radius:20px;background:#05050a;border:1px solid var(--c-border)
+}
+.sod29-early-access-video-frame video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+.sod29-early-access-text-link{display:inline-block;margin-top:14px;color:var(--c-primary);font-weight:900;text-decoration:none}
+.sod29-early-access-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.sod29-early-access-grid article{border:1px solid var(--c-border);background:var(--c-surface-soft);border-radius:18px;padding:18px}
+.sod29-early-access-grid b{
+  display:inline-flex;min-width:34px;height:34px;align-items:center;justify-content:center;border-radius:10px;
+  background:var(--c-raised);color:var(--c-primary);font:900 15px "Rubik",sans-serif
+}
+.sod29-early-access-grid h3{font:900 18px "Rubik",sans-serif;margin:12px 0 0}
+.sod29-early-access-grid p{color:var(--c-text-soft);font-size:14.5px;line-height:1.65;margin:8px 0 0}
+.sod29-early-access-signup{border-color:var(--c-border-strong)}
+.sod29-early-access-signup form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}
+.sod29-early-access-signup input{
+  min-height:58px;border-radius:16px;border:1px solid var(--c-border-strong);background:var(--c-surface-soft);
+  color:var(--c-text);font:700 17px "Noto Sans Hebrew",sans-serif;padding:14px 16px;outline:none
+}
+.sod29-early-access-signup input:focus{border-color:var(--c-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--c-focus) 18%,transparent)}
+.sod29-early-access-signup button,.sod29-early-access-whatsapp>a{
+  min-height:58px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));
+  color:var(--c-on-primary);font:900 15px "Rubik",sans-serif;padding:12px 20px;cursor:pointer;text-decoration:none
+}
+.sod29-early-access-signup button:disabled{opacity:.65;cursor:wait}
+.sod29-early-access-signup>small{display:block;color:var(--c-text-soft);font-size:13px;margin-top:10px}
+.sod29-early-access-signup>small.is-error{color:var(--c-brand-gold)}
+.sod29-early-access-success{
+  margin-top:18px;border:1px solid var(--c-discovery);background:var(--c-surface-soft);border-radius:16px;
+  padding:16px;color:var(--c-text);font-weight:900
+}
+.sod29-early-access-whatsapp{display:flex;align-items:center;justify-content:space-between;gap:22px;border-color:var(--c-discovery)}
+.sod29-early-access-whatsapp>a{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;background:var(--c-discovery)}
+.sod29-early-access-footer{display:flex;justify-content:center;gap:9px;color:var(--c-text-soft);font-size:13px;padding-top:12px}
+@media(max-width:620px){
+  .sod29-early-access{padding:20px 14px 44px}
+  .sod29-early-access-lockup{width:min(185px,52vw)}
+  .sod29-early-access-hero{padding-top:8px}
+  .sod29-early-access-hero p{font-size:16.5px}
+  .sod29-early-access-card{padding:19px;border-radius:20px}
+  .sod29-early-access-grid{grid-template-columns:1fr}
+  .sod29-early-access-signup form{grid-template-columns:1fr}
+  .sod29-early-access-whatsapp{display:block}
+  .sod29-early-access-whatsapp>a{width:100%;margin-top:16px}
+}
+@media(prefers-reduced-motion:reduce){.sod29-early-access *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
