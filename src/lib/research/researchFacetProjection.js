@@ -47,6 +47,18 @@ export function researchFacetAxes(item) {
   const operations = Array.isArray(facets.operation?.operators)
     ? [...new Set(facets.operation.operators.map(clean).filter(Boolean))]
     : [];
+  const sourceMethods = Array.isArray(facets.sourceMethods)
+    ? facets.sourceMethods
+      .map((row) => ({
+        token: clean(row?.token),
+        methodKey: clean(row?.methodKey) || null,
+        displayLabel: clean(row?.displayLabel) || clean(row?.token),
+        state: clean(row?.state) || "source_attested_unresolved",
+        sourceAttested: row?.sourceAttested === true,
+        appliesToFinding: row?.appliesToFinding === true,
+      }))
+      .filter((row) => row.token && row.sourceAttested)
+    : [];
   const familyKey = clean(facets.family?.key) || clean(facets.family?.cluster) || null;
   const familyLabel = clean(facets.family?.cluster) || familyKey;
   return {
@@ -55,6 +67,7 @@ export function researchFacetAxes(item) {
     displayMethods,
     operations,
     factors,
+    sourceMethods,
     is3d: facets.spatial?.is3d === true,
     familyKey,
     familyLabel,
@@ -90,6 +103,8 @@ export function buildResearchFacetControl(items = []) {
   const byOperation = {};
   const byFactor = {};
   const byFamily = {};
+  const bySourceMethod = {};
+  const sourceMethodStates = {};
   let spatial3d = 0;
 
   for (const item of rows) {
@@ -97,6 +112,13 @@ export function buildResearchFacetControl(items = []) {
     for (const method of axes.displayMethods) increment(byMethod, method);
     for (const operation of axes.operations) increment(byOperation, operation);
     for (const factor of axes.factors) increment(byFactor, String(factor));
+    for (const method of axes.sourceMethods) {
+      const label = method.displayLabel || method.token;
+      increment(bySourceMethod, label);
+      const current = sourceMethodStates[label] || new Set();
+      current.add(method.state || "source_attested_unresolved");
+      sourceMethodStates[label] = current;
+    }
     if (axes.is3d) spatial3d += 1;
     if (axes.familyKey) {
       const current = byFamily[axes.familyKey] || { label: axes.familyLabel || axes.familyKey, count: 0 };
@@ -111,12 +133,15 @@ export function buildResearchFacetControl(items = []) {
     byOperation,
     byFactor,
     byFamily,
+    bySourceMethod,
+    sourceMethodStates: Object.fromEntries(Object.entries(sourceMethodStates).map(([key, states]) => [key, [...states]])),
     spatial3d,
     hasStructuredFacets: Boolean(
       Object.keys(byMethod).length
       || Object.keys(byOperation).length
       || Object.keys(byFactor).length
       || Object.keys(byFamily).length
+      || Object.keys(bySourceMethod).length
       || spatial3d
     ),
   };
