@@ -84,7 +84,7 @@ export default function App2029() {
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
-              <Route path="/whatsapp/kod-hametsiut" element={<WhatsAppWelcome2029Page />} />
+              <Route path="/updates" element={<WhatsAppWelcome2029Page />} />
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
