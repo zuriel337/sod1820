@@ -16,9 +16,18 @@ function isUrl(value) {
   return /^https?:\/\//i.test(clean(value));
 }
 
+function humanContributor(value) {
+  const text = clean(value);
+  if (!text) return null;
+  if (/[א-ת]/.test(text)) return text;
+  if (/^ZURIEL$/i.test(text)) return "צוריאל";
+  if (/^(?:GPT|CLAUDE)$/i.test(text)) return "מערכת המחקר";
+  return "תווית ייחוס לא פתורה";
+}
+
 function sourceMessageTitle(row) {
   const text = clean(row?.text);
-  const contributor = clean(row?.credit || row?.speaker);
+  const contributor = humanContributor(row?.credit || row?.speaker);
   if (text && hasHebrew(text)) return text;
   if (isUrl(text)) return contributor ? `קישור מקור שהתקבל מ${contributor}` : "הודעת מקור עם קישור";
   if (text) return contributor ? `הודעת מקור שהתקבלה מ${contributor}` : "הודעת מקור";
@@ -157,7 +166,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       sourceRefs: [sourceRef],
       contributor: clean(row.credit || row.speaker) || null,
       attributionLabel: clean(row.credit || row.speaker)
-        ? `תווית שולח במקור: ${clean(row.credit || row.speaker)} · זהות מחבר התוכן לא הוכרעה`
+        ? `תווית שולח במקור: ${humanContributor(row.credit || row.speaker)} · זהות מחבר התוכן לא הוכרעה`
         : "זהות השולח לא צוינה",
       status: clean(row.status) || "לא צוין",
       access: null,
