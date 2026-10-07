@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
 import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse, resolveProjectorMode } from "../../lib/research/goldenProjectorModes.js";
-import { contextualVideosFromMaps, describeVideoMatch, videoUrlForAnchor } from "../../lib/research/videoSemanticMap.js";
 
 // "מנהל | ציבור" inside the EXISTING Contextual Sidecar (Golden Posts 5112/92 only).
 // Mode changes presentation only. The admin layer is read with the viewer's own session through the
@@ -29,27 +28,6 @@ function storeMode(mode) {
 }
 
 
-function ContextVideo({ item }) {
-  const src = videoUrlForAnchor(item);
-  if (!src) return null;
-  return <article className="sod29-golden-context-video" data-video-public-id={item.videoPublicId || undefined}>
-    <div className="sod29-golden-context-video-head">
-      <b>וידאו בהקשר</b>
-      <span>{describeVideoMatch(item)}</span>
-    </div>
-    <video
-      controls
-      playsInline
-      preload="none"
-      src={src}
-      poster={item.posterUrl || undefined}
-      aria-label={`וידאו רלוונטי: ${describeVideoMatch(item)}`}
-    />
-    <small>
-      {item.anchor?.note || "מפת מקור פנימית — דברי הסרטון אינם מקבלים מעמד של עובדה רק משום שמופו."}
-    </small>
-  </article>;
-}
 
 function AdminRow({ item }) {
   return <li className="sod29-golden-admin-row">
@@ -118,9 +96,6 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
 
   const choose = (next) => { storeMode(next); setRequested(next); };
   const data = universe.data;
-  const contextualVideos = data
-    ? contextualVideosFromMaps(data.videoMaps || [], context, { limit: 2 })
-    : [];
 
   return <section className="sod29-golden-mode" data-golden-projector-mode={mode} aria-label="מצב תצוגת ההקשר">
     <div className="sod29-golden-mode-toggle" role="group" aria-label="מנהל | ציבור">
@@ -134,10 +109,6 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
           : !data ? <p className="sod29-golden-mode-note">אין חבילת הקשר לפוסט הזה.</p>
             : <div className="sod29-golden-admin" data-admin-total={data.total}>
               <p className="sod29-golden-mode-note">מנהל / הכל · {data.total} פריטים. גלוי ≠ מאומת / מפורסם / קנוני. סדר לפי צירי SMART, בלי ציון יחיד; אותו ערך ≠ אותה זהות.</p>
-              {contextualVideos.length ? <section className="sod29-golden-context-videos" aria-label="סרטונים רלוונטיים להקשר">
-                <div className="sod29-golden-mode-note">וידאו ממופה · מוצג מה־Asset שכבר נותח ונשמר, בלי סריקה מחדש.</div>
-                {contextualVideos.map((item) => <ContextVideo key={item.id} item={item} />)}
-              </section> : null}
               {data.researchAccess?.available === false ? <p className="sod29-golden-mode-note">קריאת המחקר אינה זמינה לחשבון זה ({data.researchAccess.reason}).</p> : null}
               {data.truncatedNumbers?.length ? <p className="sod29-golden-mode-note">הגעתי לגבול העמוד עבור {data.truncatedNumbers.join(", ")} — קיימים פריטים נוספים.</p> : null}
               {Object.values(ADMIN_LAYER).map((key) => <AdminLayer key={key} layerKey={key} items={data.layers[key] || []} />)}
