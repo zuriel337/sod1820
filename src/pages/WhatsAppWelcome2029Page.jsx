@@ -27,7 +27,6 @@ export default function WhatsAppWelcome2029Page() {
       captureAcquisition();
       track("campaign_landing", CAMPAIGN, "view", {
         landing: window.location.pathname,
-        source: "whatsapp",
       });
     } catch { /* analytics never blocks landing */ }
   }, []);
@@ -60,7 +59,7 @@ export default function WhatsAppWelcome2029Page() {
       const next = data.status === "exists" ? "exists" : data.ok || data.status === "new" ? "new" : "error";
       setState(next);
       if (next === "new" || next === "exists") {
-        try { track("campaign_landing", CAMPAIGN, "signup", { result: next, source: "whatsapp" }); } catch { /* noop */ }
+        try { track("campaign_landing", CAMPAIGN, "signup", { result: next }); } catch { /* noop */ }
       }
     } catch {
       setState("error");
