@@ -16,6 +16,7 @@
 // changes admission, truth, access, canonicality or publication.
 
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
+import { readVideoSemanticMap } from "./videoSemanticMap.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -265,11 +266,26 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
   }
   layers[ADMIN_LAYER.RESEARCH] = orderBySmartProminence(researchItems, { axesOf: (r) => r.axes });
 
+  // Video maps are representation metadata only. Keep the raw research row out of the
+  // component state; pass only the normalized bounded map. Access was already enforced by
+  // the RLS-backed research reader used above.
+  const videoMaps = [...seen.values()]
+    .map(({ row }) => {
+      const map = readVideoSemanticMap(row);
+      return map ? {
+        ...map,
+        researchStatus: clean(row.status) || null,
+        privacyScope: clean(row.privacy_scope) || null,
+      } : null;
+    })
+    .filter(Boolean);
+
   const total = Object.values(layers).reduce((n, l) => n + l.length, 0);
   return {
     mode: PROJECTOR_MODE.ADMIN_ALL,
     layers,
     total,
+    videoMaps,
     researchAccess: researchAccess || { available: true, reason: null },
     // A reader page limit was reached for these numbers: more rows exist and must be paged, never assumed absent.
     truncatedNumbers: Array.isArray(truncatedNumbers) ? truncatedNumbers : [],
