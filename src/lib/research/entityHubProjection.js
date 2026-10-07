@@ -634,16 +634,30 @@ export async function fetchGraphMediaForNumbers({ numbers = [], limit = 12, perN
 export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers = [], limit = 12 } = {}) {
   const slug = normalizeMediaPostSlug(postSlug);
   const cap = safeLimit(limit, 12, 24);
-  if (!slug) return { items: [], access: { available: true, reason: null } };
   // Graph media from existing context numbers (explicit graphMedia, if given, wins first).
   let graphItems = Array.isArray(graphMedia) ? graphMedia : [];
+  let graphAccess = { available: true, reason: null };
   if (Array.isArray(numbers) && numbers.length) {
     try {
       const viaNumbers = await fetchGraphMediaForNumbers({ numbers, limit: cap });
       graphItems = dedupeMediaEnvelopes([...graphItems, ...viaNumbers.items]);
-    } catch { /* graph read failure must not hide exact source_metadata media */ }
+      if (viaNumbers.access) graphAccess = viaNumbers.access;
+    } catch (error) {
+      // A graph read failure must not hide exact source_metadata media; with no slug there is nothing else to show.
+      if (!slug) throw error;
+    }
   }
   graphMedia = graphItems;
+  // source_metadata is ADDITIVE: only an exact valid slug adds it; without one the graph result stands.
+  if (!slug) {
+    const only = dedupeMediaEnvelopes(graphMedia);
+    return {
+      items: only.slice(0, cap),
+      totalEligible: only.length,
+      access: graphAccess,
+      note: "graph-derived media only (no valid post slug); no source_metadata lookup, no fuzzy matching.",
+    };
+  }
   // Stored slugs may be raw or percent-encoded; match both exact forms (no fuzzy matching).
   const variants = [...new Set([slug, encodeURIComponent(slug)])];
   let rows = [];
@@ -679,7 +693,7 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
   return {
     items: items.slice(0, cap),
     totalEligible: items.length,
-    access: { available: true, reason: null },
+    access: graphAccess.available === false ? graphAccess : { available: true, reason: null },
     note: "source_metadata context relation (ocr_meta.post_slug) is distinct from reality_graph adjacency; no edge/node is created. Order is contextual only.",
   };
 }

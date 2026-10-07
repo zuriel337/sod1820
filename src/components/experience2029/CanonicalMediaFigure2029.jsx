@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Lightbox from "../Lightbox.jsx";
 import CanonicalMediaImage2029 from "./CanonicalMediaImage2029.jsx";
-import { intrinsicResearchDetails, intrinsicToLightboxImage } from "../../lib/research/galleryMediaEnvelope.js";
+import { mediaResearchDetails, mediaToLightboxImage } from "../../lib/research/galleryMediaEnvelope.js";
 
 /**
  * Shared 2029 media presentation: whole-image (contain) + click opens the existing Lightbox
@@ -20,9 +20,8 @@ export default function CanonicalMediaFigure2029({
   children = null,
 }) {
   const [open, setOpen] = useState(false);
-  const intrinsic = item?.intrinsic || null;
   if (!item || !(item.imageUrl || item.thumbUrl)) return null;
-  const lightboxImage = intrinsicToLightboxImage(intrinsic);
+  const lightboxImage = mediaToLightboxImage(item);
   return <>
     <button
       type="button"
@@ -40,7 +39,7 @@ export default function CanonicalMediaFigure2029({
       initialIndex={0}
       onClose={() => setOpen(false)}
       note={contextNote}
-      research={intrinsicResearchDetails(intrinsic)}
+      research={mediaResearchDetails(item)}
     /> : null}
   </>;
 }

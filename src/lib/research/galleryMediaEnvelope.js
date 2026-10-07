@@ -1,8 +1,8 @@
 // Gallery media envelope (GALLERY_INTRINSIC_MEDIA_PROJECTOR_V1) — pure adapter, no I/O.
 // Extends the Entity Hub media projection: ONE stable media identity + an INTRINSIC payload
-// (what the image is) kept separate from the CONTEXT relation (why it shows up here).
-// Intrinsic payload is byte-equivalent across Projector / Number / World / Topic; only
-// contextRelation varies. Stored numbers/OCR are provenance claims — never recomputed here,
+// (what belongs to the media itself) kept separate from sibling layers: provenance, legacyPlacement
+// (gallery history) and contextRelation (why it shows up here). Intrinsic is byte-equivalent across
+// Projector / Number / World / Topic; only contextRelation varies. Stored numbers/OCR are provenance claims — never recomputed here,
 // never truth/canonical/publication.
 
 import { canonicalMediaPresentation } from "../presentation/canonicalPresentation.js";
@@ -48,7 +48,7 @@ export function buildStoredInterpretation(ocrMeta) {
     topics: strList(meta.topics),
     entities: strList(meta.entities),
     scene: clean(meta.scene) || null,
-    imageType: clean(meta.image_type) || null,
+    storedImageKind: clean(meta.image_type) || null,
     event: clean(meta.event) || null,
     summary: clean(meta.summary) || null,
     mediaKind: clean(meta.media_kind) || null,
@@ -80,17 +80,12 @@ export function buildMediaProvenance(row) {
   };
 }
 
+// INTRINSIC = what belongs to the media itself: identity, representation, stored extraction
+// (OCR) and stored interpretation claims. Nothing about where/when/how the gallery filed it.
 export function buildIntrinsicMedia({ row, node = null, label = "" }) {
   const mediaId = mediaIdentity(row?.id);
   if (!mediaId || !row?.image_url) return null;
   const ocrText = clean(row.ocr_text);
-  const tags = Array.isArray(row.tags) ? row.tags : [];
-  const storedNumbers = {
-    primary: Number.isSafeInteger(row.primary_value) ? row.primary_value : null,
-    all: ints(row.all_values),
-    related: ints(row.related_values),
-    provenance: "stored_gallery_claim_not_recomputed",
-  };
   const ocr = {
     status: clean(row.ocr_status) || null,
     text: ocrText ? ocrText.slice(0, OCR_TEXT_CAP) : null,
@@ -101,29 +96,6 @@ export function buildIntrinsicMedia({ row, node = null, label = "" }) {
     thumbUrl: row.thumb_url || row.image_url,
     fit: "preserve-whole-image",
   };
-  const provenance = buildMediaProvenance(row);
-  // Legacy PLACEMENT metadata: where/how the row was filed on gallery_images. It is not
-  // visual truth about the image; kept for compatibility and labelled as such.
-  const legacyPlacement = {
-    galleryId: row.gallery_id ?? null,
-    wpGalleryId: row.wp_gallery_id ?? null,
-    ordering: Number.isFinite(row.ordering) ? row.ordering : null,
-    description: clean(row.description) || null,
-    tags,
-    space: clean(row.space) || null,
-    imageType: clean(row.image_type) || null,
-    occurredAt: row.occurred_at || null,
-    createdAt: row.created_at || node?.created_at || null,
-    // Date provenance: which stored column each date came from (never inferred from pixels).
-    dateProvenance: {
-      occurredAt: row.occurred_at ? { value: row.occurred_at, basis: "gallery_images.occurred_at" } : null,
-      createdAt: row.created_at ? { value: row.created_at, basis: "gallery_images.created_at" } : (node?.created_at ? { value: node.created_at, basis: "nodes.created_at" } : null),
-    },
-    storedNumbers,
-    state: "legacy_placement_not_visual_truth",
-  };
-  // STRICT intrinsic: identity + explicit layers only. Flat compatibility aliases live on the
-  // outer envelope (buildMediaEnvelope), never here.
   return Object.freeze({
     mediaId,
     nodeId: node?.id ? String(node.id) : null,
@@ -132,8 +104,37 @@ export function buildIntrinsicMedia({ row, node = null, label = "" }) {
     representation,
     extraction: { ...ocr, state: "stored_extraction" },
     interpretation: buildStoredInterpretation(row.ocr_meta),
-    provenance,
-    legacyPlacement,
+  });
+}
+
+// Legacy PLACEMENT / HISTORY layer (sibling of intrinsic): where/how/when the row was filed on
+// gallery_images, preserved unchanged (chronology/order never rewritten). Not visual truth about
+// the image and never confused with the current surface context (contextRelation).
+export function buildLegacyPlacement({ row, node = null }) {
+  const storedNumbers = {
+    primary: Number.isSafeInteger(row?.primary_value) ? row.primary_value : null,
+    all: ints(row?.all_values),
+    related: ints(row?.related_values),
+    provenance: "stored_gallery_claim_not_recomputed",
+  };
+  const createdAt = row?.created_at || node?.created_at || null;
+  return Object.freeze({
+    galleryId: row?.gallery_id ?? null,
+    wpGalleryId: row?.wp_gallery_id ?? null,
+    ordering: Number.isFinite(row?.ordering) ? row.ordering : null,
+    description: clean(row?.description) || null,
+    tags: Array.isArray(row?.tags) ? row.tags : [],
+    space: clean(row?.space) || null,
+    imageType: clean(row?.image_type) || null,
+    occurredAt: row?.occurred_at || null,
+    createdAt,
+    // Date provenance: which stored column each date came from (never inferred from pixels).
+    dateProvenance: {
+      occurredAt: row?.occurred_at ? { value: row.occurred_at, basis: "gallery_images.occurred_at" } : null,
+      createdAt: row?.created_at ? { value: row.created_at, basis: "gallery_images.created_at" } : (node?.created_at ? { value: node.created_at, basis: "nodes.created_at" } : null),
+    },
+    storedNumbers,
+    state: "legacy_placement_not_visual_truth",
   });
 }
 
@@ -159,9 +160,11 @@ export function buildContextRelation({ relationType = "related", surface = null,
 export function buildMediaEnvelope({ row, node = null, label = "", relationType = "related", relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null }) {
   const intrinsic = buildIntrinsicMedia({ row, node, label });
   if (!intrinsic) return null;
+  const provenance = Object.freeze(buildMediaProvenance(row));
+  const legacyPlacement = buildLegacyPlacement({ row, node });
   const contextRelation = buildContextRelation({ relationType, relationKind, postSlug });
-  const presentation = Object.freeze(canonicalMediaPresentation(intrinsic));
-  const lp = intrinsic.legacyPlacement;
+  const presentation = Object.freeze(canonicalMediaPresentation({ ...intrinsic, provenance, legacyPlacement }));
+  const lp = legacyPlacement;
   return {
     mediaId: intrinsic.mediaId,
     nodeId: intrinsic.nodeId,
@@ -176,12 +179,15 @@ export function buildMediaEnvelope({ row, node = null, label = "", relationType 
     imageType: lp.imageType,
     space: lp.space,
     tags: lp.tags,
-    sourceRef: intrinsic.provenance.sourceRef,
-    sourceLabel: intrinsic.provenance.storedSource,
+    sourceRef: provenance.sourceRef,
+    sourceLabel: provenance.storedSource,
     ocr: { status: intrinsic.extraction.status, text: intrinsic.extraction.text, numbers: intrinsic.extraction.numbers },
     storedNumbers: lp.storedNumbers,
     projectionReason: contextRelation.projectionReason,
+    // Strict sibling layers (the contract): intrinsic · provenance · legacyPlacement · presentation · contextRelation.
     intrinsic,
+    provenance,
+    legacyPlacement,
     presentation,
     contextRelation,
   };
@@ -198,14 +204,16 @@ export function dedupeMediaEnvelopes(items) {
   });
 }
 
-// Existing Lightbox consumes gallery-row-shaped objects; adapt the nested intrinsic layers only.
-export function intrinsicToLightboxImage(intrinsic) {
+// Existing Lightbox consumes gallery-row-shaped objects; adapt the envelope's sibling layers
+// (intrinsic representation + legacyPlacement history) — placement is never read from intrinsic.
+export function mediaToLightboxImage(envelope) {
+  const intrinsic = envelope?.intrinsic;
   if (!intrinsic) return null;
-  const lp = intrinsic.legacyPlacement || {};
+  const lp = envelope.legacyPlacement || {};
   const rep = intrinsic.representation || {};
   return {
     id: intrinsic.galleryImageId,
-    name: intrinsic.label,
+    name: envelope.presentation?.label || intrinsic.label,
     description: lp.description,
     image_url: rep.imageUrl,
     thumb_url: rep.thumbUrl,
@@ -220,17 +228,19 @@ export function intrinsicToLightboxImage(intrinsic) {
 }
 
 // Compact research-details model for the Lightbox side panel (claims, labelled as such).
-export function intrinsicResearchDetails(intrinsic) {
+export function mediaResearchDetails(envelope) {
+  const intrinsic = envelope?.intrinsic;
   if (!intrinsic) return null;
+  const prov = envelope.provenance || {};
   return {
     ocrStatus: intrinsic.extraction?.status ?? null,
     ocrText: intrinsic.extraction?.text ?? null,
     ocrNumbers: intrinsic.extraction?.numbers || [],
-    sourceLabel: intrinsic.provenance?.storedSource ?? null,
-    provenance: intrinsic.legacyPlacement?.storedNumbers?.provenance ?? null,
-    mediaKind: intrinsic.provenance?.storedMediaKind || null,
-    author: intrinsic.provenance?.author || null,
-    publication: intrinsic.provenance?.publication || null,
+    sourceLabel: prov.storedSource ?? null,
+    provenance: envelope.legacyPlacement?.storedNumbers?.provenance ?? null,
+    mediaKind: prov.storedMediaKind || null,
+    author: prov.author || null,
+    publication: prov.publication || null,
     event: intrinsic.interpretation?.event || null,
     entities: intrinsic.interpretation?.entities || [],
     numbersMeaning: intrinsic.interpretation?.numbersMeaning || {},

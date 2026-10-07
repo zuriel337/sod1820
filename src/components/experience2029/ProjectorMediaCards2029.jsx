@@ -19,11 +19,11 @@ export default function ProjectorMediaCards2029({ postSlug, context = null }) {
   const numbersKey = deriveContextNumbers(context).join(",");
 
   useEffect(() => {
-    if (!postSlug) { setState({ status: "idle", items: [] }); return undefined; }
+    if (!postSlug && !numbersKey) { setState({ status: "idle", items: [] }); return undefined; }
     let alive = true;
     setState({ status: "loading", items: [] });
     import("../../lib/research/entityHubProjection.js")
-      .then((hub) => hub.fetchPostContextMedia({ postSlug, numbers: numbersKey ? numbersKey.split(",").map(Number) : [], limit: 12 }))
+      .then((hub) => hub.fetchPostContextMedia({ postSlug: postSlug || null, numbers: numbersKey ? numbersKey.split(",").map(Number) : [], limit: 12 }))
       .then((out) => { if (alive) setState({ status: out?.items?.length ? "ready" : "empty", items: out?.items || [] }); })
       .catch(() => { if (alive) setState({ status: "error", items: [] }); });
     return () => { alive = false; };
