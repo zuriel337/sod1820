@@ -228,6 +228,8 @@ assert.deepEqual(facets.methods.map((row) => row.token), ["ragil", "רגיל"]);
 assert.equal(facets.methods[0].registryResolutionRequired, true);
 assert.equal(facets.operation.kind, "quantity-product");
 assert.equal(facets.operation.multiplier, 4);
+assert.deepEqual(facets.operation.factors, [4]);
+assert.deepEqual(facets.operation.operators, []);
 assert.equal(facets.operation.result, 408);
 assert.equal(facets.family.key, "zvi:spatial:408:zot");
 assert.equal(facets.family.cluster, "408 זאת · קוביית חיים");
@@ -250,6 +252,55 @@ const noTextGuess = researchObjectFacetDimensions({
   meta: {},
 });
 assert.equal(noTextGuess, null, "facets must never be guessed from free statement text");
+
+const verifiedGeneralChain = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "(טוב×36)×5=3060",
+      kind: "general-chain",
+      result: 3060,
+      computedTotal: 3060,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(verifiedGeneralChain.operation.factors, [36, 5]);
+assert.deepEqual(verifiedGeneralChain.operation.operators, ["multiply"]);
+assert.equal(verifiedGeneralChain.operation.basis, "verified_engine_compound");
+
+const verifiedHebrewTimes = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "רחל=14 פעמים טוב",
+      kind: "general-chain",
+      result: 238,
+      computedTotal: 238,
+      status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(verifiedHebrewTimes.operation.factors, [14]);
+
+const unverifiedCompoundText = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    compound: {
+      raw: "טוב×4=68",
+      kind: "general-chain",
+      status: "UNVERIFIED",
+    },
+  },
+  meta: {},
+});
+assert.deepEqual(unverifiedCompoundText.operation.factors, [],
+  "unverified compound raw text must not mint filter factors");
 
 assert.equal(researchObjectToUniversalFinding(null), null);
 console.log("research-object-universal-finding: ok");
