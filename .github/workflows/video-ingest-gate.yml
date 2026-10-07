@@ -10,6 +10,7 @@ on:
       - "supabase/functions/video-transcribe/**"
       - "supabase/functions/wa-video-enrich/**"
       - "supabase/functions/_shared/sttTranscribe.js"
+      - "supabase/functions/_shared/videoSemanticMap.js"
       - "supabase/functions/_shared/videoTranscriptPolicy.js"
       - "supabase/functions/_shared/postPublishPreflight.js"
       - "supabase/functions/_shared/mediaPosterLane.js"
@@ -19,6 +20,11 @@ on:
       - "supabase/migrations/20261005030000_post_writers_id_alloc_advisory_lock_v1.sql"
       - "supabase/migrations/20261005040000_video_transcripts_single_original_invariant_v1.sql"
       - "test/post-publishing-2029-chain.test.mjs"
+      - "scripts/test-video-semantic-tree-projector-v1.mjs"
+      - "src/lib/research/videoSemanticMap.js"
+      - "src/lib/research/goldenProjectorModes.js"
+      - "src/components/experience2029/GoldenProjectorModeLayer2029.jsx"
+      - "supabase/migrations/20261007104500_video_semantic_tree_projector_v1.sql"
       - "test/fixtures/post-publishing/**"
       - ".github/workflows/video-ingest-gate.yml"
   workflow_dispatch:
@@ -40,6 +46,8 @@ jobs:
         run: node --experimental-strip-types supabase/functions/agent-upload/tiktok-mode.test.mts
       - name: Post publishing 2029 chain (preflight, shared STT, service-only writer ACL)
         run: node test/post-publishing-2029-chain.test.mjs
+      - name: Video semantic tree + contextual projector acceptance
+        run: node --test scripts/test-video-semantic-tree-projector-v1.mjs
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
