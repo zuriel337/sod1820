@@ -17,6 +17,7 @@
 
 import { classifyWorldVerificationStrength } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
+import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 
@@ -271,6 +272,7 @@ export function buildGoldenAdminUniverse({ pack = null, researchRowsByNumber = {
   for (const [number, rows] of Object.entries(researchRowsByNumber || {})) {
     for (const row of Array.isArray(rows) ? rows : []) {
       if (!row?.id) continue;
+      if (!isGeneralResearchProjectionEligible(row)) continue;
       const prev = seen.get(row.id);
       if (prev) { prev.linkedNumbers.add(String(number)); continue; }
       seen.set(row.id, { row, linkedNumbers: new Set([String(number)]) });
