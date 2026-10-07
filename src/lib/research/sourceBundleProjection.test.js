@@ -151,3 +151,14 @@ test("source-attested milui variants remain explicitly unregistered rather than 
     ["מילוי ב״ן", "source_attested_variant_unregistered", false],
   ]);
 });
+
+
+test("ordinary Hebrew 'מסתתר' is not promoted to the canonical מסתתר method", () => {
+  assert.deepEqual(sourceOccurrenceMethodMentions("תראו מה מסתתר במספר 98"), []);
+  assert.deepEqual(sourceOccurrenceMethodMentions("הקוד שמסתתר בפסוק"), []);
+  const [method] = sourceOccurrenceMethodMentions("גימטריה מסתתר של מילה", {
+    registryRows: [{ method_key: "מסתתר", display_label: "מסתתר", active: true, in_engine: true }],
+  });
+  assert.equal(method?.methodKey, "מסתתר");
+  assert.equal(method?.state, "registry_supported_unlinked");
+});
