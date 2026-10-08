@@ -455,6 +455,22 @@
 .els29-native-line{overflow-wrap:anywhere;letter-spacing:3px;line-height:2!important}
 .els29-native-line mark{background:var(--s29-accent);color:var(--s29-ink)}
 
+.els29-native-axis-entry{display:grid;gap:6px;padding:10px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel)}
+.els29-native-axis-entry small{font-size:var(--s29-type-micro);color:var(--s29-muted)}
+.els29-native-line-scroll{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior:contain;padding:8px 0;direction:rtl}
+.els29-native-line-scroll:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:-2px}
+.els29-native-line-cells{display:flex;gap:2px;width:max-content;align-items:center}
+.els29-native-line-cells span{flex:none;width:24px;min-height:36px;display:grid;place-items:center;border-radius:6px;background:var(--s29-panel-soft);color:var(--s29-ink);font-size:var(--s29-type-lead)}
+.els29-native-line-cells .is-main{background:color-mix(in srgb,var(--s29-accent) 20%,var(--s29-panel));font-weight:900;border-block-end:3px solid var(--s29-accent)}
+.els29-native-line-cells .is-word{outline:2px solid var(--s29-ink);outline-offset:-2px;background:color-mix(in srgb,var(--s29-accent-secondary) 20%,var(--s29-panel))}
+.els29-native-line-words{display:grid;gap:6px;min-width:0}
+.els29-native-line-word{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.els29-native-line-word button{min-height:44px;min-width:44px;padding:6px 9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
+.els29-native-line-word button:first-child{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;text-align:start}
+.els29-native-line-word button[aria-pressed="true"]{outline:2px solid var(--s29-ink);outline-offset:-2px;background:var(--s29-panel-soft)}
+.els29-native-line-word button:disabled{opacity:.5;cursor:not-allowed}
+.els29-native-line-word small{font-size:var(--s29-type-micro);color:var(--s29-muted)}
+
 /* One on-demand inspector: wide matrix at rest, optional desktop pin, mobile bottom sheet. */
 .els29-native-layout{grid-template-columns:minmax(0,1fr) 58px;align-items:start}
 .els29-native-stage{grid-column:1;grid-row:1}

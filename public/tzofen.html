@@ -2030,7 +2030,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
     if(d.type==="request-lens"&&d.lens==="line-context"){
       const target=d.target||{},hit=findLensHit(target);
-      if(hit&&isGov(hit)&&(!target.hitId||hitKey(hit)===target.hitId))postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),cells:lineContextCells(hit)});
+      if(hit&&isGov(hit)&&(!target.hitId||hitKey(hit)===target.hitId)){
+        const cells=lineContextCells(hit),word=target.term||st.raw;
+        const scan=target.scan===true?scanLineWords(cells,word,64,256):null;
+        postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan});
+      }
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
@@ -3795,12 +3799,30 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     for(let k=1;k<=EXT;k++){const p=last+k*step;if(p>=0&&p<scopeN())positions.push(p);}
     return positions.map(i=>({i,letter:T[i],main:main.has(i)}));
   }
+  // The legacy strip and native inspector share the SAME literal, on-line dictionary scan.
+  // Offsets are display offsets only, not verified ELS occurrences or new Finding identities.
+  function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity){
+    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),seen=new Set(),words=[];
+    let count=0,truncated=false;
+    for(const raw of DICT){
+      const t=norm(raw);if(t.length<3||t===axisN||seen.has(t))continue;
+      let at=lineStr.indexOf(t);if(at<0)continue;
+      if(words.length>=maxWords){truncated=true;break;}
+      seen.add(t);const matches=[];
+      while(at>=0){
+        if(count>=maxMatches){truncated=true;break;}
+        matches.push({at,length:t.length});count++;at=lineStr.indexOf(t,at+1);
+      }
+      if(matches.length)words.push({term:t,label:raw,matches});
+      if(truncated)break;
+    }
+    return {status:"CANDIDATE",source:"legacy_els_dict",minLength:3,words,truncated};
+  }
   function buildLineStrip(hit,color,word){
     const S=Math.abs(hit.skip),step=S*hit.dir,EXT=80;
     const first=hit.positions[0],last=hit.positions[hit.positions.length-1];
     const hlSet=new Set(hit.positions);
     const linePos=lineContextCells(hit).map(cell=>cell.i);
-    const lineStr=linePos.map(p=>T[p]).join("");
     const rowsSpan=Math.round(Math.abs((last-first)+2*EXT*Math.abs(step))/S);
     const wrap=document.createElement("div");wrap.className="linestrip";
     wrap.innerHTML='<div class="ls-lbl">🔭 קו-הצופן של «<b>'+word+'</b>» · דילוג '+heb(S)+' · '+(hit.dir===1?"→":"←")+' · פרוש על ~'+heb(rowsSpan)+' שורות '+
@@ -3820,11 +3842,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     requestAnimationFrame(()=>{const sc=wrap.querySelector(".ls-scroll");sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)/2;});
     wrap.querySelector(".ls-scan").onclick=()=>{
       // סורק מילים מהמאגר שמופיעות רצוף על הקו (אותו דילוג) — משפט מתמשך
-      const hits=[],scanSet=new Set();
-      for(const raw of DICT){const t=norm(raw);if(t.length<3||t===word)continue;let idx=lineStr.indexOf(t);
-        while(idx>=0){for(let k=0;k<t.length;k++)scanSet.add(idx+k);hits.push({term:raw,at:idx});idx=lineStr.indexOf(t,idx+1);}}
+      const scan=scanLineWords(lineContextCells(hit),word),scanSet=new Set();
+      for(const w of scan.words)for(const m of w.matches)for(let k=0;k<m.length;k++)scanSet.add(m.at+k);
       paint(scanSet);
-      found.innerHTML=hits.length?('💬 על הקו: '+[...new Set(hits.map(h=>h.term))].map(t=>'<b>'+t+'</b>').join(" · ")):'<span class="ls-none">לא נמצאו מילים נוספות רצופות על הקו הזה.</span>';
+      found.innerHTML=scan.words.length?('💬 על הקו: '+scan.words.map(w=>'<b>'+w.label+'</b>').join(" · ")):'<span class="ls-none">לא נמצאו מילים נוספות רצופות על הקו הזה.</span>';
     };
     return wrap;
   }

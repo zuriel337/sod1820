@@ -8,6 +8,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { ELS_GOLDENS } from './fixtures/els-runtime-goldens.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const letters = readFileSync(join(root, 'tools/els/data/tk-letters.txt'), 'utf8');
@@ -73,8 +74,10 @@ async function withHarness(fn) {
     res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(HARNESS);
   });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r));
-  const browser = await pw.chromium.launch({ headless: true });
+  let browser;
   try {
+    browser = await pw.chromium.launch({ headless: true,
+      ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}) });
     const page = await browser.newPage();
     await page.addInitScript(() => { try { localStorage.setItem('tzofen_onboarded_v1', '1'); } catch { /* noop */ } });
     const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
@@ -84,7 +87,7 @@ async function withHarness(fn) {
     await page.waitForFunction(() => window.__log.some((m) => m.type === 'ready'), null, { timeout: 60000 });
     await fn({ page, frame, calls, errors });
     assert.deepEqual(errors, [], 'no uncaught page errors');
-  } finally { await browser.close(); srv.close(); }
+  } finally { await browser?.close(); srv.close(); }
 }
 const states = (page) => page.evaluate(() => window.__log.filter((m) => m.type === 'state'));
 const waitState = (page, pred, ms = 60000) => page.waitForFunction((src) => { const p = eval('(' + src + ')'); return window.__log.some((m) => m.type === 'state' && p(m)); }, pred.toString(), { timeout: ms });
@@ -272,6 +275,47 @@ const nativeSend = (page, message) => page.evaluate((d) => {
   document.querySelector('#t').contentWindow.postMessage({ source: 'sod-host', ...d }, location.origin);
 }, message);
 const latestState = async (page) => (await states(page)).at(-1);
+
+test('browser: axis word scan reads the canonical line, matches literal corpus text and preserves research state', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    const golden = ELS_GOLDENS.find(g => g.id === 'torah-kedosha-10065-fwd');
+    await nativeSend(page, { type: 'load-matrix', item: golden });
+    await waitState(page, (m) => m.status === 'ok' && m.provenance?.editId === 'torah-kedosha-10065-fwd');
+    const before = await latestState(page), beforeCalls = calls.length;
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: before.axis.hitId, scan: true, nativeSeq: 721 } });
+    await page.waitForFunction(() => window.__log.some(m => m.lens === 'line-context' && m.target?.nativeSeq === 721));
+    const line = await page.evaluate(() => window.__log.find(m => m.lens === 'line-context' && m.target?.nativeSeq === 721));
+    assert.equal(line.ok, true);
+    assert.equal(line.scan.status, 'CANDIDATE');
+    assert.equal(line.scan.source, 'legacy_els_dict');
+    assert.ok(line.cells.length <= before.length + 160);
+    const step = before.axis.direction === 'back' ? -before.axis.skip : before.axis.skip;
+    for (let i = 0; i < line.cells.length; i++) {
+      assert.equal(line.cells[i].letter, letters[line.cells[i].i]);
+      if (i) assert.equal(line.cells[i].i - line.cells[i - 1].i, step);
+    }
+    const sequence = line.cells.map(c => c.letter).join('');
+    const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
+    const normalized = (word) => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
+    const expected = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== golden.term && sequence.includes(term));
+    assert.deepEqual(line.scan.words.map(w => w.term), expected);
+    assert.ok(line.scan.words.length > 0, 'real axis has inspectable dictionary words');
+    for (const word of line.scan.words) {
+      for (const match of word.matches) {
+        assert.equal(sequence.slice(match.at, match.at + match.length), word.term);
+        assert.equal(match.length, word.term.length);
+      }
+      assert.ok(!('hitId' in word) && !('verified' in word), 'lexical candidates never become verified findings');
+    }
+    assert.equal(calls.length, beforeCalls, 'line scan makes no new search/verifier requests');
+    assert.deepEqual(await latestState(page), before, 'inspection preserves axis, findings, selection and geometry');
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: 'stale-axis', scan: true, nativeSeq: 722 } });
+    await page.waitForFunction(() => window.__log.some(m => m.target?.nativeSeq === 722));
+    const stale = await page.evaluate(() => window.__log.find(m => m.target?.nativeSeq === 722));
+    assert.equal(stale.ok, false);
+    assert.ok(!stale.scan && !stale.cells, 'stale axis cannot leak a line or words');
+  });
+});
 
 test('browser: native color and reorder preserve selected hits, axis and geometry without verification I/O; line lens is bounded', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {

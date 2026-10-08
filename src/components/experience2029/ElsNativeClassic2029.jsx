@@ -181,7 +181,63 @@ function MatrixControls({ state, onControl, onContext }) {
   </div>;
 }
 
-function SourceLens({ lensResult }) {
+function LineExplorer({ result, findings, onScan, onAddFinding }) {
+  const [selectedTerm, setSelectedTerm] = useState(null);
+  const stripRef = useRef(null);
+  const cells = result.cells || [];
+  const words = result.scan?.words || [];
+  const selected = words.find((word) => word.term === selectedTerm);
+  const highlighted = useMemo(() => {
+    const offsets = new Set();
+    for (const match of selected?.matches || []) {
+      for (let index = match.at; index < match.at + match.length; index++) offsets.add(index);
+    }
+    return offsets;
+  }, [selected]);
+
+  useEffect(() => {
+    const target = stripRef.current?.querySelector(selected ? ".is-word" : ".is-main");
+    target?.scrollIntoView({ block: "nearest", inline: "center", behavior: "instant" });
+  }, [result.hitId, selected]);
+
+  return <div className="els29-native-source-list" data-experience-capability="els-line-inspection">
+    <strong>לאורך הציר · {result.word}</strong>
+    <small>דילוג {result.skip} · {directionLabel(result.direction)} · עד 80 אותיות לפני ואחרי</small>
+    <div ref={stripRef} className="els29-native-line-scroll" tabIndex={0} role="region" aria-label={`רצף הציר של ${result.word}`}>
+      <div className="els29-native-line-cells" dir="rtl">
+        {cells.map((cell, offset) => <span key={cell.i}
+          className={`${cell.main ? "is-main" : ""}${highlighted.has(offset) ? " is-word" : ""}`}
+        >{cell.letter}</span>)}
+      </div>
+    </div>
+    <small>המילה שבחרתם מודגשת. גללו לצדדים כדי לקרוא את המשך הרצף.</small>
+    <div className="els29-native-hit-actions">
+      <button type="button" onClick={onScan}>{result.scan ? "סרוק שוב את הרצף" : "סרוק שורה · מילים לאורך הציר"}</button>
+      {selected ? <button type="button" onClick={() => setSelectedTerm(null)}>חזור למילת הציר</button> : null}
+    </div>
+    {result.scan ? <>
+      <small>מילים מהמאגר הקיים שמופיעות ברצף · מועמדות לבדיקה</small>
+      <div className="els29-native-line-words" aria-label="מילים מזוהות לאורך הציר">
+        {words.map((word) => {
+          const added = findings.some((finding) => finding.t === word.term);
+          return <div key={word.term} className="els29-native-line-word">
+            <button type="button" aria-pressed={selectedTerm === word.term} onClick={() => setSelectedTerm(word.term)}
+              aria-label={`סמן את ${word.label} ברצף`}>
+              <b>{word.label}</b><small>{word.matches.length} ברצף</small>
+            </button>
+            <button type="button" disabled={added || findings.length >= 12} onClick={() => onAddFinding(word.term)}
+              aria-label={`הוסף את ${word.label} לממצאים`}>{added ? "נוסף" : "הוסף"}</button>
+          </div>;
+        })}
+      </div>
+      {!words.length ? <p className="els29-native-muted">לא זוהו מילים נוספות מהמאגר ברצף הזה. אפשר להמשיך לקרוא את האותיות או לבדוק מופע אחר.</p> : null}
+      {result.scan.truncated ? <small>הרשימה חלקית: הוצגה תקרת המילים או המופעים של הסריקה.</small> : null}
+      <small>הסימון מציג התאמה ברצף. הוספה לממצאים מפעילה את הבדיקה הרגילה לפני הצגה במטריצה.</small>
+    </> : null}
+  </div>;
+}
+
+function SourceLens({ lensResult, findings, onScanLine, onAddLineFinding }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">המקור לא זמין לתא הזה במצב הנוכחי.</p>;
 
@@ -196,12 +252,8 @@ function SourceLens({ lensResult }) {
   }
 
   if (lensResult.lens === "line-context") {
-    return <div className="els29-native-source-list">
-      <strong>הרצף בדילוג הנבחר</strong>
-      <p className="els29-native-line" dir="rtl">{(lensResult.cells || []).map((cell) => cell.main
-        ? <mark key={cell.i}>{cell.letter}</mark> : <span key={cell.i}>{cell.letter}</span>)}</p>
-      <small>עד 80 אותיות לכל צד, בגבולות תחום החיפוש. האותיות המסומנות הן הממצא המאומת.</small>
-    </div>;
+    return <LineExplorer key={lensResult.hitId} result={lensResult} findings={findings}
+      onScan={onScanLine} onAddFinding={onAddLineFinding} />;
   }
   if (lensResult.lens === "verse-context") {
     const verses = Array.isArray(lensResult.verses) ? lensResult.verses : [];
@@ -216,7 +268,7 @@ function SourceLens({ lensResult }) {
   return null;
 }
 
-function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onAxisControl, onScanLine, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -256,15 +308,27 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
 
     <div className="els29-native-rail-section" hidden={activeTool !== "source"}>
       <div className="els29-native-rail-head"><strong>מקור ופסוק</strong><small>Lens</small></div>
-      <SourceLens lensResult={lensResult} />
+      <SourceLens lensResult={lensResult} findings={findings} onScanLine={onScanLine} onAddLineFinding={onAddLineFinding} />
       <button className="sod29-action" type="button" disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
         מקור הממצא
       </button>
-      <button className="sod29-action" type="button" disabled={!verified} onClick={onAxisLine}>קרא רצף בדילוג</button>
+      <button className="sod29-action" type="button" disabled={!verified} onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
     </div>
 
     <div className="els29-native-rail-section" hidden={activeTool !== "findings"}>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12</small></div>
+      {verified ? <div className="els29-native-axis-entry" data-experience-capability="els-axis-actions">
+        <small>הציר המרכזי</small>
+        <strong>{state.termRaw || state.term}</strong>
+        <small>דילוג {state.axis?.skip} · מופע {(state.occurrence?.index || 0) + 1} מתוך {state.occurrence?.count || 1}</small>
+        <div className="els29-native-hit-actions">
+          <button type="button" onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
+          <button type="button" onClick={onAxisVerse}>פסוקי הציר</button>
+          <button type="button" aria-pressed={!state.ui?.hideMain} onClick={() => onAxisControl("axis-visibility")}>
+            {state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"}
+          </button>
+        </div>
+      </div> : null}
       <div className="els29-native-finding-add">
         <input
           value={draft}
@@ -303,7 +367,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
                   <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small></span>
                 </label>
                 <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
-                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context")}>רצף</button>
+                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context")}>רצף ומילים</button>
               </div>)}
               {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
               {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
@@ -491,6 +555,14 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setActionRequest({ action: "save", seq: ++actionSeqRef.current });
   };
 
+  const addLineFinding = (term) => {
+    const findings = engineStateRef.current?.findings || [];
+    if (!term || findings.length >= 12 || findings.some((finding) => finding.t === term)) return;
+    // Append through the existing canonical editor. Preserve the read-only line inspector:
+    // adding a term does not change its axis, corpus or selected occurrence.
+    setFindingsRequest({ findings: [...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term }], seq: ++findingsSeqRef.current });
+  };
+
   const handleLetterClick = ({ index }) => {
     setSelectedLetterIndex(index);
     requestLens("letter-context", { i: index });
@@ -600,6 +672,9 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
           onAxisLine={() => requestLens("line-context", { hitId: engineState?.axis?.hitId })}
+          onAxisControl={requestControl}
+          onScanLine={() => requestLens("line-context", { term: lensResult?.target?.term, hitId: lensResult?.hitId, scan: true })}
+          onAddLineFinding={addLineFinding}
           onFindingLens={(term, hitId, lens = "verse-context") => requestLens(lens, { term, hitId })}
           onFindingControl={requestFindingControl}
           onSave={requestSave}
