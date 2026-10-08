@@ -793,12 +793,22 @@ function LiveWorldLanding({ research, shell, context }) {
   const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
   const openDiscoveryItem = (item) => {
     if (!item) return;
+    if (item.kind === "source" && item.href) {
+      research.updateResearchContext?.({
+        subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
+        selection: { entityId: item.sourceRef, entityType: "post" },
+        lens: "world",
+        returnTo: { href: "/world", label: "מה חדש בעולם" },
+      });
+      shell.go(item.href);
+      return;
+    }
     if (item.kind === "convergence" && item.slug) {
       openCard({ id: item.id, facet: "topic", label: item.label, sub: item.summary, refId: item.slug });
       return;
     }
     if (item.kind === "finding") {
-      if (Number.isFinite(Number(item.value))) {
+      if (Number.isFinite(item.value)) {
         const value = Number(item.value);
         research.setResearchContext?.({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
@@ -866,7 +876,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
           <h2>מה חדש בעולם?</h2>
-          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
+          <p>דברי מקור שהתעדכנו באתר, ממצאי מחקר מורשים והתכנסויות מאושרות. המקור מופיע גם לפני שעבר מחקר; החידושים מסודרים לפי זמן, לא לפי דירוג אמת.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -903,6 +913,7 @@ function LiveWorldLanding({ research, shell, context }) {
           </div>
 
           {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
+          {landing.discovery?.unavailableSources?.includes("posts") ? <div className="sod29-world-stream-truth-note">חלק מעדכוני המקורות אינם זמינים כרגע.</div> : null}
           {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
 
           {discoveryItems.length ? <div className="sod29-world-stream-list">
@@ -910,17 +921,18 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
+                {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
               </div>
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
             </button>)}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מאחד Research Findings מורשים והתכנסויות מאושרות. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
