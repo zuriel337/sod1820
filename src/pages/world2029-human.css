@@ -1663,3 +1663,148 @@
   overflow-wrap:anywhere;
 }
 .sod29-world-source-wording b{font-weight:800}
+
+
+/* World 2029: editorial discovery-first Golden entry.
+   Existing Experience tokens + real canonical routes only; no new visual or data owner. */
+.sod29-world-discovery-head h2 span {
+  color:var(--s29-hero);
+  font-weight:inherit;
+}
+.sod29-world-golden-intro {
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:12px;
+}
+.sod29-world-golden-intro p {
+  margin:0;
+  max-width:600px;
+  color:var(--s29-muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.sod29-world-golden-gates {
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:clamp(20px,3vw,30px);
+}
+.sod29-world-golden-card {
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:9px;
+  min-width:0;
+  min-height:216px;
+  padding:clamp(17px,2vw,25px);
+  border:1px solid color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line));
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 10% 5%,color-mix(in srgb,var(--s29-glow) 32%,transparent),transparent 56%),
+    linear-gradient(135deg,color-mix(in srgb,var(--s29-panel-soft) 94%,transparent),color-mix(in srgb,var(--s29-panel) 78%,transparent));
+  color:var(--s29-ink);
+  text-decoration:none;
+  text-align:start;
+  font:inherit;
+  cursor:pointer;
+  backdrop-filter:blur(14px);
+  transition:transform var(--s29-motion),border-color var(--s29-motion),box-shadow var(--s29-motion);
+}
+.sod29-world-golden-card::before {
+  content:"";
+  position:absolute;
+  inset-block:0;
+  inset-inline-start:0;
+  width:3px;
+  background:linear-gradient(180deg,transparent,var(--s29-accent),transparent);
+  opacity:.65;
+  pointer-events:none;
+}
+.sod29-world-golden-card.is-source {
+  background:
+    radial-gradient(circle at 85% 0%,color-mix(in srgb,var(--s29-glow) 25%,transparent),transparent 60%),
+    color-mix(in srgb,var(--s29-panel) 91%,transparent);
+}
+.sod29-world-golden-card.is-story {
+  border-color:color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line));
+  background:
+    radial-gradient(circle at 70% 0%,color-mix(in srgb,var(--s29-glow) 38%,transparent),transparent 58%),
+    color-mix(in srgb,var(--s29-panel) 89%,transparent);
+}
+.sod29-world-golden-card:hover:not(:disabled) {
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--s29-accent) 66%,var(--s29-line));
+  box-shadow:0 18px 44px color-mix(in srgb,var(--s29-glow) 14%,transparent);
+}
+.sod29-world-golden-card:focus-visible {
+  outline:2px solid var(--s29-accent);
+  outline-offset:4px;
+}
+.sod29-world-golden-card:disabled {
+  cursor:not-allowed;
+  opacity:.64;
+}
+.sod29-world-golden-symbol {
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 37%,var(--s29-line));
+  background:color-mix(in srgb,var(--s29-panel-soft) 76%,transparent);
+  color:var(--s29-hero);
+  font-size:24px;
+}
+.sod29-world-golden-kicker {
+  color:var(--s29-muted);
+  font-size:11px;
+  font-weight:800;
+}
+.sod29-world-golden-card strong {
+  color:var(--s29-ink);
+  font-size:clamp(20px,2vw,27px);
+  line-height:1.25;
+}
+.sod29-world-golden-description {
+  color:var(--s29-muted);
+  font-size:13px;
+  line-height:1.6;
+  flex:1;
+}
+.sod29-world-golden-action {
+  color:var(--s29-hero);
+  font-weight:800;
+  font-size:12px;
+}
+.sod29-world-live-head {
+  margin:0 2px 12px;
+}
+.sod29-world-live-head h3 {
+  margin:4px 0 0;
+  font-size:clamp(20px,2vw,27px);
+  color:var(--s29-ink);
+}
+@media(max-width:900px) {
+  .sod29-world-golden-gates {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-world-golden-card.is-story {grid-column:1/-1}
+}
+@media(max-width:620px) {
+  .sod29-world-golden-intro {align-items:flex-start;flex-direction:column;gap:5px}
+  .sod29-world-golden-gates {grid-template-columns:1fr;gap:9px}
+  .sod29-world-golden-card,
+  .sod29-world-golden-card.is-story {grid-column:auto;min-height:0;padding:16px;gap:7px;border-radius:19px}
+  .sod29-world-golden-symbol {width:32px;height:32px;font-size:20px}
+  .sod29-world-golden-card strong {font-size:22px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .sod29-world-golden-card {transition:none}
+  .sod29-world-golden-card:hover:not(:disabled) {transform:none}
+}
