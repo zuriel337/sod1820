@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs tests/sql/world_group_source_arrivals_v1.sql on a throwaway local Postgres (never a live project).
+# Runs tests/sql/world_group_source_provenance_v2.sql on a throwaway local Postgres (never a live project).
 set -euo pipefail
 BIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
 D=$(mktemp -d); chown postgres "$D" 2>/dev/null || true
@@ -8,4 +8,4 @@ run "$BIN/initdb -D $D/data -A trust >/dev/null"
 run "$BIN/pg_ctl -D $D/data -o '-p 55432 -k $D' -l $D/log -w start >/dev/null"
 trap 'run "$BIN/pg_ctl -D '$D'/data -m immediate stop >/dev/null" || true; rm -rf "$D"' EXIT
 run "$BIN/createdb -h $D -p 55432 t"
-run "cd $(pwd) && $BIN/psql -h $D -p 55432 -d t -v ON_ERROR_STOP=1 -q -f tests/sql/world_group_source_arrivals_v1.sql"
+run "cd $(pwd) && $BIN/psql -h $D -p 55432 -d t -v ON_ERROR_STOP=1 -q -f tests/sql/world_group_source_provenance_v2.sql"

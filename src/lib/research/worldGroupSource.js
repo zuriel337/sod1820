@@ -1,7 +1,7 @@
 // Group source arrivals for World: ONE narrow sanitized reader (RPC), projected into the existing
 // worldDiscoveryStream. A group message is a SOURCE occurrence: unverified, never research, never a Finding.
-// Eligibility is proved server-side (group JID, source auto, ext_msg_id, status live, editorial flag on the
-// contributor). This file is the second line: it never trusts a row without slug + group proof and re-redacts.
+// Eligibility is proved server-side (private proof row: real group JID + incoming text + sender JID -> unique contributor phone,
+// no human hold, editorial flag on the contributor). This file is the second line: it never trusts a row without slug + group proof and re-redacts.
 
 const clean = (v) => v == null ? "" : String(v).trim();
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
@@ -15,7 +15,7 @@ export function redactGroupText(text) {
 }
 
 export function groupRowToWorldUpdate(row) {
-  if (!row?.id || row.group_proof !== true || !clean(row.contributor_slug)) return null; // unknown author => excluded
+  if (!row?.id || row.group_proof !== true || row.proof_basis !== "jid_phone_unique" || !clean(row.contributor_slug)) return null; // unproved / unverified author => excluded
   const body = redactGroupText(row.body);
   if (!body) return null;
   const at = Date.parse(clean(row.created_at));
@@ -39,9 +39,9 @@ export function groupRowToWorldUpdate(row) {
   };
 }
 
-export async function fetchGroupSourceArrivals({ limit = 12, rpc } = {}) {
+export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc } = {}) {
   const call = rpc || (await import("../supabase.js")).supabase.rpc.bind((await import("../supabase.js")).supabase);
-  const { data, error } = await call("world_group_source_arrivals_v1", { p_limit: limit });
+  const { data, error } = await call("world_group_source_arrivals_v2", { p_limit: limit, p_before: before });
   if (error) throw error;
   return (Array.isArray(data) ? data : []).map(groupRowToWorldUpdate).filter(Boolean);
 }
