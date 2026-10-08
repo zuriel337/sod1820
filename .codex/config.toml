@@ -1,0 +1,6 @@
+# SOD1820 Codex MCP — project-scoped, read-only Supabase connector.
+# Requires an authenticated connection (e.g. OAuth); this file contains NO credentials.
+# IMPORTANT: read_only limits writes; it does NOT restrict reads to work_log_current.
+# A trusted Codex client must load this project config and authenticate the MCP server.
+[mcp_servers.sod1820_supabase_readonly]
+url = "https://mcp.supabase.com/mcp?project_ref=linswmnnkjxvweumprav&read_only=true&features=database"
