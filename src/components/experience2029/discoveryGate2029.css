@@ -157,3 +157,47 @@
 }
 .sod29-gate-arcs path {stroke:currentColor;stroke-width:1.25;stroke-linecap:round}
 .sod29-discovery-gate[data-open="true"] .sod29-gate-arcs {transform:rotate(18deg);opacity:1}
+
+/* Compact research orientation overrides legacy hero breakpoints. */
+.sod29-root.closed-shell .sod29-page-intro.is-compact {
+  display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;
+  min-height:0;padding:18px 20px;gap:14px;border-radius:16px;
+  background:var(--s29-panel);box-shadow:none;position:relative;overflow:hidden;
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact::before {
+  inset:0;opacity:1;background:none;border-block-start:1px solid var(--s29-line);
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact::after {
+  content:"";position:absolute;inset-block-start:0;inset-inline-start:0;width:35%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--s29-accent-text),transparent);
+  pointer-events:none;animation:sod29-intro-light 620ms ease-out both;
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact .sod29-hero-visual {
+  position:relative;inset:auto;width:48px;height:48px;min-height:0;opacity:1;aspect-ratio:auto;
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact .sod29-hero-symbol {
+  width:44px;height:44px;border-radius:12px;background:var(--s29-panel-soft);box-shadow:none;color:var(--s29-accent-text);
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact .sod29-hero-copy {
+  max-width:none;min-width:0;animation:sod29-intro-enter 280ms ease-out both;
+}
+.sod29-root.closed-shell .sod29-page-intro.is-compact h1 {font-size:clamp(24px,2.2vw,30px);line-height:1.2;margin:2px 0 6px}
+.sod29-root.closed-shell .sod29-page-intro.is-compact p {font-size:var(--s29-type-ui,16px);line-height:1.55;margin:0;max-width:85ch}
+.sod29-root.closed-shell .sod29-page-intro.is-compact .sod29-eyebrow {font-size:var(--s29-type-micro,14px);letter-spacing:0}
+.sod29-root.closed-shell .sod29-page-intro.is-compact .sod29-context-strip {margin-top:10px}
+.sod29-root .sod29-page-intro.is-compact .sod29-ui-icon {animation:sod29-intro-icon 420ms ease-out both}
+@keyframes sod29-intro-enter {from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes sod29-intro-icon {from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
+@keyframes sod29-intro-light {from{opacity:0;transform:translateX(0)}40%{opacity:.65}to{opacity:0;transform:translateX(-190%)}}
+@media(max-width:720px) {
+  .sod29-root.closed-shell .sod29-page-intro.is-compact {padding:14px;gap:10px;grid-template-columns:44px minmax(0,1fr)}
+  .sod29-root.closed-shell .sod29-page-intro.is-compact h1 {font-size:24px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .sod29-root .sod29-page-intro.is-compact::after,
+  .sod29-root .sod29-page-intro.is-compact .sod29-hero-copy,
+  .sod29-root .sod29-page-intro.is-compact .sod29-ui-icon {animation:none!important}
+}
+.sod29-root[data-frame-reduced-motion="true"] .sod29-page-intro.is-compact::after,
+.sod29-root[data-frame-reduced-motion="true"] .sod29-page-intro.is-compact .sod29-hero-copy,
+.sod29-root[data-frame-reduced-motion="true"] .sod29-page-intro.is-compact .sod29-ui-icon {animation:none!important}

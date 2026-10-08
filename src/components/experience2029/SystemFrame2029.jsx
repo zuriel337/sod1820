@@ -1775,6 +1775,8 @@ export default function SystemFrame2029({
     /></PanelShell>;
   };
 
+  const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
+  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
       <div
@@ -1857,9 +1859,9 @@ export default function SystemFrame2029({
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {introVariant !== "none" && (eyebrow || title || description) ? (
-                <section className={`sod29-page-intro${introVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={introVariant}>
-                  <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
+              {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
+                <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
+                  <div className="sod29-hero-visual" aria-hidden="true">{resolvedIntroVariant !== "compact" ? <><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /></> : null}<span className="sod29-hero-symbol">{introIcon ? <NavigationIcon2029 name={introIcon} /> : symbol}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
