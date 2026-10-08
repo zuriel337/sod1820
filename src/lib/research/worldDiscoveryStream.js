@@ -47,7 +47,10 @@ function finite(value) {
 export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
   if (row?.id == null || !clean(row.slug) || row.home_hidden === true) return null;
   if ((Array.isArray(row.tags) ? row.tags : []).some((tag) => ["טיוטה", "פורום"].includes(clean(tag)))) return null;
-  if (["ai", "gpt-draft", "web", "uploaded_file"].includes(clean(row.source).toLowerCase())) return null;
+  // Ingestion origin is NOT publication authority: published posts may have "ai"
+  // or "uploaded_file" origin (including the public Golden airplane post).
+  // Only explicit internal draft/import origins remain excluded in this bounded reader.
+  if (["gpt-draft", "web"].includes(clean(row.source).toLowerCase())) return null;
   const label = stripHtml(clean(row.title));
   if (!label) return null;
   const author = clean(row.author);
@@ -198,7 +201,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       .eq("home_hidden", false)
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")
-      .in("source", ["wordpress", "SOD1820", "sod1820", "source_document"])
+      .in("source", ["wordpress", "SOD1820", "sod1820", "source_document", "ai", "uploaded_file"])
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(Math.min(80, Math.max(requested * 2, 32)));
     if (error) throw error;
