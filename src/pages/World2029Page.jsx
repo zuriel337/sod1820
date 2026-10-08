@@ -39,6 +39,7 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
+import { presentFiniteNumber, presentSafeNumber } from "../lib/research/worldDiscoveryRouting.js";
 import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
@@ -383,7 +384,7 @@ function contributionDisplay(row) {
   return {
     title: String(row?.title || claim.claim || row?.body || "תרומת מחקר").trim(),
     method: String(claim.method || "").trim() || null,
-    value: Number.isFinite(Number(claim.value)) ? Number(claim.value) : null,
+    value: presentFiniteNumber(claim.value),
     status: row?.status || null,
     convergenceSlug: row?.convergence_slug || null,
   };
@@ -765,7 +766,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const topicNumbers = useMemo(() => (
     (topicDetail.finding?.projection?.anchors || [])
-      .filter((anchor) => anchor?.type === "number" && Number.isFinite(Number(anchor.value)))
+      .filter((anchor) => anchor?.type === "number" && presentSafeNumber(anchor.value) != null)
       .map((anchor) => Number(anchor.value))
   ), [topicDetail.finding]);
 
@@ -800,8 +801,8 @@ function LiveWorldLanding({ research, shell, context }) {
       return;
     }
     if (item.kind === "finding") {
-      if (Number.isFinite(Number(item.value))) {
-        const value = Number(item.value);
+      const value = presentSafeNumber(item.value);
+      if (value != null) {
         research.setResearchContext?.({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
           selection: { entityId: String(value), entityType: "number" },
@@ -811,13 +812,16 @@ function LiveWorldLanding({ research, shell, context }) {
         });
         return;
       }
+      if (shell.openInspect) {
+        shell.openInspect({ id: item.id, type: "finding", label: item.label, href: "/world" });
+        return;
+      }
       const slug = item.creatorSlug || landing.contributors?.people?.find((person) => person.displayName === item.creator)?.slug || null;
       if (slug && landing.contributors?.bySlug?.[slug]) {
         setWriterFilter(slug);
         requestAnimationFrame(() => document.getElementById("world-researchers")?.scrollIntoView({ behavior: "smooth", block: "start" }));
         return;
       }
-      shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
     }
   };
   const discoveryDate = (value) => {
