@@ -11,6 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const index = readFileSync(resolve(root, 'SOD1820_MASTER_OWNER_INDEX.md'), 'utf8');
 const adapter = readFileSync(resolve(root, 'CLAUDE.md'), 'utf8');
 const design = readFileSync(resolve(root, 'SOD1820_DESIGN_CONTRACT_V2.md'), 'utf8');
+const legacyDesign = readFileSync(resolve(root, 'SOD1820_DESIGN_CONTRACT_V1.md'), 'utf8');
 
 function ownerRow(label) {
   const found = index.split('\n').filter(line => line.startsWith('| ' + label + ' |'));
@@ -56,6 +57,8 @@ test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', (
   assert.match(adapter, /Load only that owner plus the \*\*smallest direct dependency set\*\*/);
   assert.match(adapter, /DRIFT/);
   assert.match(design, /V1 remains historical\/Legacy provenance/);
+  assert.match(legacyDesign, /2029 STATUS: SUPERSEDED by/);
+  assert.match(legacyDesign, /V1 is retained for Legacy compatibility and historical\/provenance use only/);
   assert.match(adapter, /without relying on prior conversation memory/);
   assert.match(index, /nodes\.type='rule' AND nodes\.is_active=true/);
   assert.match(index, /rules_active.*without filtering \x60is_active\x60/);
