@@ -123,7 +123,7 @@ test("/els Research profile composes canonical replay projection/layers while Na
   assert.equal((classic.match(/<TzofenEmbed/g) || []).length, 1);
   assert.match(classic, /onState=\{handleEngineState\}/);
   assert.match(src, /\{researchProfile \? <div className="sod29-els-architecture">/);
-  assert.match(src, /display: researchProfile \? "none" : "block"/);
+  assert.doesNotMatch(src, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(src, /tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);
   assert.doesNotMatch(classic, /findAllAdaptive|function\s+findAll|els_search_core_v1|verifyBatch\(/);
 });

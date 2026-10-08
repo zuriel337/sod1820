@@ -35,7 +35,7 @@ test("ELS 2029 defaults to Research and switches presentation without replay/sea
   assert.match(page, /<ElsNativeClassic2029 initialSeed=\{classicSeed\} \/>/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
   assert.match(page, /one canonical Tzofen engine/);
-  assert.match(page, /display: researchProfile \? "none" : "block"/);
+  assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
 });
 
 test("Classic representation remains a flat projection of the same canonical layers", async () => {

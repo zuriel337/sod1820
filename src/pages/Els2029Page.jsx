@@ -153,29 +153,44 @@ export default function Els2029Page() {
     symbol="✦"
     eyebrow="ONE ELS ENGINE · MANY PROJECTIONS"
     title="ELS"
-    description="משטח 2029 מקרין Research Context ותוצאות קנוניות. הוא אינו מחשב ELS בעצמו ואינו יורש את ה־Work Area הישן כארכיטקטורה."
+    description="חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר."
   >
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "CLASSIC 2029 · FULL TOOL"}</div>
           <h2>{researchProfile
-            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "ELS מחכה להקשר מחקר")
+            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
             : "הצופן הקלאסי · בתוך 2029"}</h2>
           <div className="sod29-muted">
             {researchProfile
               ? (subject
                 ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
-                : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר.")
+                : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
               : "אותו ממשק עבודה מוכר: חיפוש, מטריצת אותיות, הצלבות, המשך פסוק, סימוני הצבע בצד, שמירות ושיתוף. המעבר למחקר שומר את אותו ממצא בתוך אותו Research Context."}
           </div>
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
           <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
-          <span className="sod29-chip">{subject ? "CONTEXT READY" : "CONTEXT REQUIRED"}</span>
+          <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
         </div>
       </div>
 
+      <section
+        className="sod29-section"
+        aria-label="ELS Classic 2029 workspace"
+        data-els-classic-2029="native-v1"
+        style={{ marginTop: 18, padding: 14, overflow: "hidden" }}
+      >
+        {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
+            The same iframe instance remains mounted as an engine-only bridge and can be revealed
+            as the parity fallback for capabilities that have not yet been ported to 2029. */}
+        <ElsNativeClassic2029 initialSeed={classicSeed} />
+      </section>
+
+
+      <details className="sod29-els-research-details" hidden={!researchProfile}>
+        <summary>פרטי מחקר מתקדמים</summary>
       {researchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
           <div style={{ width: "100%" }}>
@@ -238,18 +253,6 @@ export default function Els2029Page() {
         </aside> : null}
       </div> : null}
 
-      <section
-        className="sod29-section"
-        aria-label="ELS Classic 2029 workspace"
-        data-els-classic-2029="native-v1"
-        aria-hidden={researchProfile}
-        style={{ marginTop: 18, display: researchProfile ? "none" : "block", padding: 14, overflow: "hidden" }}
-      >
-        {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
-            The same iframe instance remains mounted as an engine-only bridge and can be revealed
-            as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={classicSeed} />
-      </section>
 
       {researchProfile ?       <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
         <div className="sod29-section-head">
@@ -275,6 +278,7 @@ export default function Els2029Page() {
           Neighborhood / Axis Continuation נשמרים כאן כנקודות הרחבה בלבד. חוקי האינטליגנציה שלהם ייקבעו מאוחר יותר מתוך דוגמאות מחקר אמיתיות, בלי לחסום את G3.
         </p>
       </section> : null}
+      </details>
     </section>
   </Sod2029Shell>;
 }

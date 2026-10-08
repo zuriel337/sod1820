@@ -1819,9 +1819,12 @@
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
-      findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
+      findings:st.words.map(w=>({t:w.t,color:w.color,total:w.total||0,
         inWindow:w.inwin||0,shown:shownHitsOf(w).filter(isGov).map(hitKey),
-        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length})),
+        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length,
+        hits:(w.hits||[]).filter(isGov).slice(0,64).map(h=>({hitId:hitKey(h),verified:true,
+          skip:isGov(h)?Math.abs(h.skip):null,direction:isGov(h)?(h.dir===1?"fwd":"back"):null,
+          shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
         showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
@@ -1923,6 +1926,45 @@
     }catch(e){postHost({type:"lens",lens:"letter-context",ok:false,target:t});}
   }
 
+  // Native list edits are identity-preserving. Color/reorder never re-search or re-verify.
+  function updateNativeFindings(rawFindings){
+    if(!hasGov(st.res))return;
+    const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];
+    for(const raw of rawFindings){
+      if(next.length>=12)break;
+      const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
+      if(!t||seen.has(t))continue;
+      seen.add(t);
+      const old=previous.get(t),requested=raw&&typeof raw==="object"?raw.color:null;
+      const color=typeof requested==="string"&&/^#[0-9a-f]{6}$/i.test(requested)?requested:
+        (old&&old.color)||PALETTE.find(c=>!next.some(w=>w.color===c))||PALETTE[next.length%PALETTE.length];
+      const word=old||{t,color,hits:[],total:0,inwin:0};
+      word.color=color;next.push(word);
+    }
+    const membershipChanged=next.length!==st.words.length||next.some(w=>!previous.has(w.t));
+    const expanded=st.words[st.expand],line=st.words[st.lineFor];
+    st.words=next;st.swOpen=-1;
+    st.expand=expanded?next.indexOf(expanded):-1;st.lineFor=line?next.indexOf(line):-1;
+    if(membershipChanged)recomputeWords();
+    recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
+  }
+  function nativeFindingControl(d){
+    if(!hasGov(st.res))return;
+    const i=st.words.findIndex(w=>w.t===norm(d.term||"")),w=st.words[i];
+    if(!w)return;
+    if(d.action==="toggle-hit"){
+      const h=(w.hits||[]).find(h=>hitKey(h)===d.hitId);
+      if(!h||!isGov(h))return;
+      // Only already verified hits are exposed by the native controls.
+      toggleHit(w,h);recolorOnly();
+    }else if(d.action==="move-up"||d.action==="move-down"){
+      const j=i+(d.action==="move-up"?-1:1);if(j<0||j>=st.words.length)return;
+      const next=st.words.slice();[next[i],next[j]]=[next[j],next[i]];
+      updateNativeFindings(next);return;
+    }else return;
+    if(st._renderNativeList)st._renderNativeList();emitState();
+  }
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -1969,31 +2011,31 @@
       try{loadMatrix(d.item,0);}catch(e){}
     }
     if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 Native/admin edit → אותו st.words קנוני, בלי store נוסף
-      const seen=new Set(),next=[];
-      for(const raw of d.findings){
-        if(next.length>=12)break;
-        const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
-        if(!t||seen.has(t))continue;
-        seen.add(t);
-        const requested=(raw&&typeof raw==="object"&&typeof raw.color==="string")?raw.color:"";
-        const used=next.map(w=>w.color);
-        const color=requested||PALETTE.find(c=>!used.includes(c))||PALETTE[next.length%PALETTE.length];
-        next.push({t,color,hits:[],total:0,inwin:0});
-      }
-      st.words=next;st.swOpen=-1;st.expand=-1;st.lineFor=-1;
-      try{recomputeWords();}catch(e){}
-      try{recolorOnly();}catch(e){}
-      try{renderList();}catch(e){}
-      try{emitState();}catch(e){}   // 🛰️ Native מקבל חזרה את הרשימה/הצבעים שהמנוע קיבל בפועל
+      updateNativeFindings(d.findings);
+    }
+    if(d.type==="native-finding-control")nativeFindingControl(d);
+    if(d.type==="native-action"&&hasGov(st.res)){
+      // Explicit user actions only. The host reveals this SAME iframe for its canonical dialogs.
+      if(d.action==="save")addCurrentToGallery();
     }
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
+    if(d.type==="request-lens"&&d.lens==="line-context"){
+      const target=d.target||{},hit=findLensHit(target);
+      if(hit&&isGov(hit)&&(!target.hitId||hitKey(hit)===target.hitId))postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),cells:lineContextCells(hit)});
+      else postHost({type:"lens",lens:"line-context",ok:false,target});
+    }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
+      if(!hasGov(st.res))return;
       if(d.action==="occurrence-prev")shiftOccurrence(-1);
       else if(d.action==="occurrence-next")shiftOccurrence(1);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
       else if(d.action==="fit-toggle")toggleFit();
+      else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
+    }
+    if(d.type==="native-context"&&hasGov(st.res)&&[1,-1].includes(d.delta)){
+      setCtxR(st.ctxR+d.delta);
     }
     if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
       if(!onboarded()){openOnboard();postHost({type:"onboarding-required"});return;}   // 🎓 bridge נסתר אינו עוקף חובת-הדרכה
@@ -3728,14 +3770,19 @@
 
   // 🔭 קו-הצופן של ממצא — פורש את ה-ELS (אותיות לפני/אחרי באותו דילוג) כרצף נגלל מימין לשמאל,
   //    ומאפשר «סריקת-שורה» (מחפש מילים רצופות על הקו) — לגלות אם הצופן נמשך למשפט.
+  function lineContextCells(hit){
+    const step=Math.abs(hit.skip)*hit.dir,EXT=80;
+    const first=hit.positions[0],last=hit.positions[hit.positions.length-1],main=new Set(hit.positions),positions=[];
+    for(let k=EXT;k>=1;k--){const p=first-k*step;if(p>=0&&p<scopeN())positions.push(p);}
+    positions.push(...hit.positions);
+    for(let k=1;k<=EXT;k++){const p=last+k*step;if(p>=0&&p<scopeN())positions.push(p);}
+    return positions.map(i=>({i,letter:T[i],main:main.has(i)}));
+  }
   function buildLineStrip(hit,color,word){
     const S=Math.abs(hit.skip),step=S*hit.dir,EXT=80;
     const first=hit.positions[0],last=hit.positions[hit.positions.length-1];
     const hlSet=new Set(hit.positions);
-    const linePos=[];
-    for(let i=EXT;i>=1;i--){const p=first-i*step;if(p>=0&&p<N)linePos.push(p);}
-    hit.positions.forEach(p=>linePos.push(p));
-    for(let i=1;i<=EXT;i++){const p=last+i*step;if(p>=0&&p<N)linePos.push(p);}
+    const linePos=lineContextCells(hit).map(cell=>cell.i);
     const lineStr=linePos.map(p=>T[p]).join("");
     const rowsSpan=Math.round(Math.abs((last-first)+2*EXT*Math.abs(step))/S);
     const wrap=document.createElement("div");wrap.className="linestrip";
@@ -4532,6 +4579,7 @@
       renderMC();
     }
     st._refreshQuality=updateQuality;   // חשיפה: מאפשר לרענן ולצרוב את st.lastQuality בזמן שמירה (מחוץ לסגור)
+    st._renderNativeList=renderList;
     function renderList(){
       updateQuality();
       list.innerHTML="";

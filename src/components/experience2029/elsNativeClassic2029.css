@@ -442,3 +442,15 @@
 @media(prefers-reduced-motion:reduce){
   .els29-native-classic *{scroll-behavior:auto!important}
 }
+
+/* Keep the native matrix mounted while the same canonical tool is revealed. */
+.els29-native-layout [hidden]{display:none!important}
+.els29-native-hit-details summary,.sod29-els-research-details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:var(--s29-type-micro)}
+.els29-native-hit-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.els29-native-hit-actions button{min-height:44px;min-width:44px;padding:6px 10px;background:var(--s29-panel);color:var(--s29-ink);border:1px solid var(--s29-line);border-radius:10px;font:inherit;font-size:var(--s29-type-micro);cursor:pointer}
+.els29-native-hit-actions button:disabled{opacity:.4;cursor:not-allowed}
+.els29-native-hit-actions label{min-height:44px;display:flex;align-items:center;gap:6px;font-size:var(--s29-type-micro)}
+.els29-native-hit-details{padding:0 8px}
+.els29-native-source-list{max-height:360px;overflow:auto}
+.els29-native-line{overflow-wrap:anywhere;letter-spacing:3px;line-height:2!important}
+.els29-native-line mark{background:var(--s29-accent);color:var(--s29-ink)}

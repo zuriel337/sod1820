@@ -267,3 +267,61 @@ test('browser trust: same-origin non-parent cannot spoof sod-host tier or load c
   });
 });
 
+
+const nativeSend = (page, message) => page.evaluate((d) => {
+  document.querySelector('#t').contentWindow.postMessage({ source: 'sod-host', ...d }, location.origin);
+}, message);
+const latestState = async (page) => (await states(page)).at(-1);
+
+test('browser: native color and reorder preserve selected hits, axis and geometry without verification I/O; line lens is bounded', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    await search(frame, 'משיח');
+    await waitState(page, (m) => m.status === 'ok');
+    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
+    await waitState(page, (m) => m.findings?.length === 2 && m.findings.some(w => w.hits?.length > 0));
+    const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown);
+    assert.ok(hit, 'verified shown hit available');
+    assert.ok(initial.findings.every(w => w.hits.every(h => h.verified && h.skip >= 2)), 'native hit list exposes only verified coordinates');
+    await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'toggle-hit', hitId: hit.hitId });
+    await waitState(page, (m) => m.findings?.[0]?.hits?.some(h => !h.shown));
+    const selected = await latestState(page), beforeCalls = calls.length;
+    await nativeSend(page, { type: 'native-control', action: 'zoom-in' });
+    await waitState(page, (m) => m.ui?.zoom > 1);
+    const before = await latestState(page);
+    await nativeSend(page, { type: 'update-findings', findings: before.findings.map((w, i) => ({ t: w.t, color: i ? w.color : '#abcdef' })) });
+    await waitState(page, (m) => m.findings?.[0]?.color === '#abcdef');
+    await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'move-down' });
+    await waitState(page, (m) => m.findings?.[1]?.color === '#abcdef');
+    const after = await latestState(page);
+    assert.deepEqual(after.findings[1].shown, selected.findings[0].shown, 'hidden choice survives color and reorder');
+    assert.deepEqual(after.axis, before.axis);
+    assert.deepEqual(after.geometry, before.geometry);
+    assert.equal(after.ui.zoom, before.ui.zoom);
+    assert.equal(calls.length, beforeCalls, 'color, order and presentation do not verify or search again');
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: after.axis.hitId, nativeSeq: 987 } });
+    await page.waitForFunction(() => window.__log.some(m => m.lens === 'line-context' && m.target?.nativeSeq === 987));
+    const lens = await page.evaluate(() => window.__log.find(m => m.lens === 'line-context' && m.target?.nativeSeq === 987));
+    assert.equal(lens.ok, true);
+    assert.ok(lens.cells.length <= 160 + after.length);
+    assert.ok(lens.cells.every(c => c.i >= 0 && c.i < TORAH_LEN && c.letter === letters[c.i]));
+    assert.equal(lens.cells.filter(c => c.main).map(c => c.letter).join(''), 'משיח');
+    assert.equal(calls.length, beforeCalls, 'line lens is a read-only projection');
+    // Canonical dialog and save event, acknowledged by the test host only; no live database writes.
+    await nativeSend(page, { type: 'native-action', action: 'save' });
+    await frame.locator('.sh-desc').fill('בדיקת שימור צבעים ובחירת מופעים במטריצה');
+    await frame.locator('.sh-save').click();
+    await page.waitForFunction(() => window.__log.some(m => m.type === 'save'));
+    const saved = await page.evaluate(() => window.__log.find(m => m.type === 'save'));
+    assert.equal(saved.term, 'משיח');
+    assert.ok(JSON.stringify(saved).includes('#abcdef'), 'canonical save carries edited colors');
+    await page.evaluate(() => { window.__log = window.__log.filter(m => m.type !== 'state'); });
+    await nativeSend(page, { type: 'load-matrix', item: {
+      term: saved.term, scope: saved.scope, skip: saved.skip, start: saved.start,
+      dir: saved.direction === 'back' ? -1 : 1, words: saved.findings, hideMain: saved.hideMain,
+    } });
+    await waitState(page, (m) => m.status === 'ok' && m.findings?.[1]?.color === '#abcdef');
+    const restored = await latestState(page);
+    assert.deepEqual(restored.axis, after.axis, 'reopen uses the exact saved axis');
+    assert.deepEqual(restored.findings.map(w => [w.t, w.color, w.shown]), after.findings.map(w => [w.t, w.color, w.shown]), 'reopen preserves colors, order and verified selection');
+  });
+});

@@ -18,7 +18,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
 
   assert.match(nativeClassic, /data-els-native-classic="v4"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
-  assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} />"));
+  assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />"));
   assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
   assert.match(nativeClassic, /<FindingsRail/);
 });
@@ -81,10 +81,8 @@ test("Native finding editor delegates normalization, recompute and colors to can
   assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
   assert.match(template, /if\(next\.length>=12\)break/);
   assert.match(template, /if\(!t\|\|seen\.has\(t\)\)continue/);
-  assert.match(template, /const color=requested\|\|PALETTE\.find/);
-  assert.match(template, /try\{recomputeWords\(\);\}catch\(e\)\{\}/);
-  assert.match(template, /try\{recolorOnly\(\);\}catch\(e\)\{\}/);
-  assert.match(template, /try\{emitState\(\);\}catch\(e\)\{\}/);
+  assert.match(template, /const word=old\|\|/);
+  assert.match(template, /if\(membershipChanged\)recomputeWords\(\)/);
   assert.match(css, /\.els29-native-color-picker/);
 });
 
@@ -117,7 +115,7 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(nativeClassic, /requestLens\("letter-context", \{ i: index \}\)/);
   assert.match(nativeClassic, /requestLens\("verse-context", \{ hitId: engineState\.axis\.hitId \}\)/);
   assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
-  assert.match(nativeClassic, /onLens=\{setLensResult\}/);
+  assert.match(nativeClassic, /onLens=\{handleLens\}/);
 
   assert.match(template, /async function letterContextLens\(target\)/);
   assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);
@@ -168,8 +166,9 @@ test("Native matrix is keyboard-scrollable and exposes an accessible source path
 
 test("Classic engine stays mounted across Classic/Research profile switches so working state can be preserved", () => {
   assert.match(page, /const \[classicSeed\] = useState\(\(\) => clean\(selection\?\.term \|\| subject\?\.label \|\| ""\)\)/);
-  assert.match(page, /display: researchProfile \? "none" : "block"/);
-  assert.match(page, /aria-hidden=\{researchProfile\}/);
+  assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
+  assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
   assert.ok(page.includes("<ElsNativeClassic2029 initialSeed={classicSeed} />"));
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });

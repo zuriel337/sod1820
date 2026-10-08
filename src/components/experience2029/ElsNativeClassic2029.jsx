@@ -145,7 +145,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex }) {
   </div>;
 }
 
-function MatrixControls({ state, onControl }) {
+function MatrixControls({ state, onControl, onContext }) {
   const active = state?.status === "ok" && state?.verification?.state === "MATCH";
   const count = Number(state?.occurrence?.count) || 0;
   const current = count ? (Number(state?.occurrence?.index) || 0) + 1 : 0;
@@ -165,6 +165,9 @@ function MatrixControls({ state, onControl }) {
       <button type="button" disabled={!active} aria-pressed={fit} onClick={() => onControl("fit-toggle")}>
         {fit ? "גודל חופשי" : "התאם למסך"}
       </button>
+      <button type="button" disabled={!active} aria-pressed={!state?.ui?.hideMain} onClick={() => onControl("axis-visibility")}>סימון הציר</button>
+      <button type="button" disabled={!active || state?.ui?.ctxR <= 1} onClick={() => onContext(-1)}>צמצם חלון</button>
+      <button type="button" disabled={!active || state?.ui?.ctxR >= 8} onClick={() => onContext(1)}>הרחב חלון</button>
     </div>
   </div>;
 }
@@ -183,8 +186,16 @@ function SourceLens({ lensResult }) {
     </div>;
   }
 
+  if (lensResult.lens === "line-context") {
+    return <div className="els29-native-source-list">
+      <strong>הרצף בדילוג הנבחר</strong>
+      <p className="els29-native-line" dir="rtl">{(lensResult.cells || []).map((cell) => cell.main
+        ? <mark key={cell.i}>{cell.letter}</mark> : <span key={cell.i}>{cell.letter}</span>)}</p>
+      <small>עד 80 אותיות לכל צד, בגבולות תחום החיפוש. האותיות המסומנות הן הממצא המאומת.</small>
+    </div>;
+  }
   if (lensResult.lens === "verse-context") {
-    const verses = Array.isArray(lensResult.verses) ? lensResult.verses.slice(0, 4) : [];
+    const verses = Array.isArray(lensResult.verses) ? lensResult.verses : [];
     return <div className="els29-native-source-list">
       <strong>{lensResult?.span?.fromRef === lensResult?.span?.toRef
         ? lensResult?.span?.fromRef
@@ -196,7 +207,7 @@ function SourceLens({ lensResult }) {
   return null;
 }
 
-function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic, onFindingsChange }) {
+function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.verification?.state === "MATCH";
   const [draft, setDraft] = useState("");
@@ -238,6 +249,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic, onFinding
       <button className="sod29-action" type="button" disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
         מקור הממצא
       </button>
+      <button className="sod29-action" type="button" disabled={!verified} onClick={onAxisLine}>קרא רצף בדילוג</button>
     </div>
 
     <div className="els29-native-rail-section">
@@ -263,7 +275,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic, onFinding
       {findings.length ? <div className="els29-native-findings">
         {findings.map((finding, index) => {
           const pickerValue = /^#[0-9a-f]{6}$/i.test(finding.color || "") ? finding.color : "#808080";
-          return <div className="els29-native-finding" key={`${finding.t}-${index}`}>
+          return <div className="els29-native-finding-group" key={finding.t}><div className="els29-native-finding">
             <label className="els29-native-color-picker" title={`שנה צבע ל־${finding.t}`}>
               <input
                 type="color"
@@ -273,15 +285,34 @@ function FindingsRail({ state, lensResult, onAxisVerse, onOpenClassic, onFinding
               />
               <i style={finding.color ? { "--els29-mark": finding.color } : undefined} />
             </label>
-            <span><b>{finding.t}</b><small>{finding.inWindow || 0} בחלון · {finding.total || 0} סה״כ</small></span>
+            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.hits?.length || 0} מאומתים</small></span>
             <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`הסר את ${finding.t}`}>×</button>
+          </div>
+            <details className="els29-native-hit-details">
+              <summary>בחירת מופעים וסדר</summary>
+              <div className="els29-native-hit-actions">
+                <button type="button" disabled={index === 0} onClick={() => onFindingControl(finding.t, "move-up")}>העלה</button>
+                <button type="button" disabled={index === findings.length - 1} onClick={() => onFindingControl(finding.t, "move-down")}>הורד</button>
+              </div>
+              {(finding.hits || []).map((hit) => <div className="els29-native-hit-actions" key={hit.hitId}>
+                <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId)} />דילוג {hit.skip} · {directionLabel(hit.direction)}</label>
+                <button type="button" disabled={!hit.shown} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
+              </div>)}
+              {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
+              {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
+            </details>
           </div>;
         })}
       </div> : <p className="els29-native-muted">הוסיפו מילה כדי לראות אם ואיפה היא מופיעה בחלון המטריצה הנוכחי.</p>}
     </div>
 
     <div className="els29-native-rail-section">
-      <strong>כלים נוספים</strong>
+      <strong>שמירה והמשך מחקר</strong>
+      <div className="els29-native-hit-actions">
+        <button type="button" disabled={!verified} onClick={onSave}>שמור מטריצה</button>
+        <button type="button" disabled={!verified} onClick={onWorkspace}>הוסף למחקר</button>
+        <button type="button" onClick={onOpenClassic}>שמירות ושיתוף</button>
+      </div>
       <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף, סרט, ניקוד וכל כלי שעוד לא הועבר ל־2029 נשאר זמין באותו כלי קלאסי.</p>
       <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
     </div>
@@ -303,6 +334,11 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const searchSeqRef = useRef(0);
   const [findingsRequest, setFindingsRequest] = useState(null);
   const findingsSeqRef = useRef(0);
+  const [findingControlRequest, setFindingControlRequest] = useState(null);
+  const [contextRequest, setContextRequest] = useState(null);
+  const [actionRequest, setActionRequest] = useState(null);
+  const [workspaceRequest, setWorkspaceRequest] = useState(null);
+  const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
   const [crossTerm, setCrossTerm] = useState("");
   const [lensRequest, setLensRequest] = useState(null);
@@ -313,6 +349,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
   const resetReadContext = () => {
+    ++lensSeqRef.current;
+    setLensRequest(null);
     setLensResult(null);
     setSelectedLetterIndex(null);
   };
@@ -326,6 +364,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const requestFindingsChange = (findings) => {
     if (!Array.isArray(findings)) return;
+    const previousTerms = (engineStateRef.current?.findings || []).map((finding) => finding.t);
+    if (findings.length !== previousTerms.length || findings.some((finding, index) => finding.t !== previousTerms[index])) resetReadContext();
     setFindingsRequest({ findings, seq: ++findingsSeqRef.current });
   };
 
@@ -360,9 +400,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
-    if (previous?.axis?.hitId !== next?.axis?.hitId || next?.status !== "ok") {
+    if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
       resetReadContext();
     }
+    if (next?.termRaw && next.termRaw !== previous?.termRaw) setQuery(next.termRaw);
     engineStateRef.current = next;
     setEngineState(next);
   };
@@ -379,6 +420,23 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
+  };
+
+  const handleLens = (result) => {
+    if (result?.target?.nativeSeq !== lensSeqRef.current) return;
+    setLensResult(result);
+  };
+  const requestFindingControl = (term, action, hitId) => {
+    resetReadContext();
+    setFindingControlRequest({ term, action, hitId, seq: ++actionSeqRef.current });
+  };
+  const requestContext = (delta) => {
+    resetReadContext();
+    setContextRequest({ delta, seq: ++actionSeqRef.current });
+  };
+  const requestSave = () => {
+    setClassicOpen(true);
+    setActionRequest({ action: "save", seq: ++actionSeqRef.current });
   };
 
   const handleLetterClick = ({ index }) => {
@@ -453,8 +511,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     {notice ? <div className="els29-native-notice" role="status">{notice}</div> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}`}>
-      {!classicOpen ? <>
-        <main className="els29-native-stage">
+      <>
+        <main className="els29-native-stage" hidden={classicOpen}>
           <div className="els29-native-stage-head">
             <div>
               <small>{engineState?.status === "ok" ? "מטריצה פעילה" : "ELS 2029"}</small>
@@ -466,17 +524,24 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
               {engineState?.occurrence?.count ? <span>מופע {(engineState.occurrence.index || 0) + 1}/{engineState.occurrence.count}</span> : null}
             </div>
           </div>
-          <MatrixControls state={engineState} onControl={requestControl} />
+          <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
           <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} />
         </main>
+        <div hidden={classicOpen} style={{ minWidth: 0 }}>
         <FindingsRail
           state={engineState}
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
+          onAxisLine={() => requestLens("line-context", { hitId: engineState?.axis?.hitId })}
+          onFindingLens={(term, hitId) => requestLens("verse-context", { term, hitId })}
+          onFindingControl={requestFindingControl}
+          onSave={requestSave}
+          onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onOpenClassic={() => setClassicOpen(true)}
           onFindingsChange={requestFindingsChange}
         />
-      </> : null}
+        </div>
+      </>
 
       <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
         <TzofenEmbed
@@ -489,10 +554,15 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onGate={() => setClassicOpen(true)}
           onOnboardingRequired={() => setClassicOpen(true)}
           lensRequest={lensRequest}
-          onLens={setLensResult}
+          onLens={handleLens}
           controlRequest={controlRequest}
           searchRequest={searchRequest}
           findingsRequest={findingsRequest}
+          findingControlRequest={findingControlRequest}
+          contextRequest={contextRequest}
+          actionRequest={actionRequest}
+          workspaceRequest={workspaceRequest}
+          onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />
       </div>
     </div>
