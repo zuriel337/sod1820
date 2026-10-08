@@ -57,6 +57,8 @@ test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', (
   assert.match(adapter, /DRIFT/);
   assert.match(design, /V1 remains historical\/Legacy provenance/);
   assert.match(adapter, /without relying on prior conversation memory/);
+  assert.match(index, /nodes\.type='rule' AND nodes\.is_active=true/);
+  assert.match(index, /rules_active.*without filtering \x60is_active\x60/);
 });
 
 // Deliberately not marked PASS here: a real fresh GPT/CLAUDE session must independently
