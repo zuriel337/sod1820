@@ -1,5 +1,8 @@
 # SOD1820 DESIGN CONTRACT V1
 
+> **2029 STATUS: SUPERSEDED by [SOD1820_DESIGN_CONTRACT_V2.md](SOD1820_DESIGN_CONTRACT_V2.md).** V2 is the current 2029 web-product visual authority.
+> V1 is retained for Legacy compatibility and historical/provenance use only; do not route new 2029 UI work here.
+
 ## Purpose
 One canonical visual language for the whole product. New UI must reuse tokens instead of inventing local typography, colors, radii or component language.
 
