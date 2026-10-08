@@ -145,7 +145,7 @@ assert.match(world, /to="\/post\/elementor-31725"/, "Sod Hashmal source sample u
 assert.match(world, /to="\/post\/flydubai-fz1073-363-14000-remzei-geula"/);
 assert.match(world, /ממצא מתועד/, "public discovery should read as content, not as a research console");
 assert.match(worldCss, /sod29-world-golden-card:focus-visible/, "Golden gates require visible keyboard focus");
-assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-golden-card\{transition:none\}/);
+assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-golden-card\s*\{\s*transition:\s*none\s*\}/);
 assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
