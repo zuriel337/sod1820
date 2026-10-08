@@ -71,6 +71,33 @@ function claimPhrases(claims) {
 // המספר שבסוף claim ("ישועת אלהינו=888" → 888) — ללחיצת-סינון
 function claimNumber(c) { const m = String(c).match(/=\s*(\d+)\s*$/); return m ? m[1] : null; }
 
+// Admin-only editorial selection for the general World stream (existing dossier_settings.general_feed_enabled).
+// No public / owner self-toggle; the server RPC re-checks admin. Independent of trusted / visibility / verification.
+function GeneralFeedAdminEditor({ P, slug, initial }) {
+  const [on, setOn] = useState(initial === true);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  useEffect(() => { setOn(initial === true); }, [initial, slug]);
+  const toggle = async () => {
+    setBusy(true); setErr("");
+    const { data, error } = await supabase.rpc("admin_set_contributor_general_feed_v1", { p_slug: slug, p_enabled: !on });
+    setBusy(false);
+    if (error || !data?.ok) { setErr("השמירה נכשלה"); return; }
+    setOn(data.general_feed_enabled === true);
+  };
+  return (
+    <div style={{ border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 14px", marginBottom: 12, direction: "rtl" }}>
+      <strong style={{ color: P.accentText, fontSize: 13 }}>עריכה: הופעה ב״מה חדש בעולם״ (מנהל בלבד)</strong>
+      <div style={{ marginTop: 6, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 13 }}>{on ? "מופעל" : "כבוי"}</span>
+        <button type="button" disabled={busy} onClick={toggle} style={{ minHeight: 44, padding: "0 14px" }}>{on ? "כבה" : "הפעל"}</button>
+        {err ? <span role="alert" style={{ color: "#c0392b", fontSize: 12 }}>{err}</span> : null}
+      </div>
+      <small style={{ color: P.inkSoft }}>בחירה עריכתית; אינה אימות מחקרי ואינה משנה נראות התיק.</small>
+    </div>
+  );
+}
+
 function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
   const [open, setOpen] = useState(false);
   const [promoting, setPromoting] = useState(false);
@@ -1408,6 +1435,7 @@ export default function ContributorPage() {
       {/* ═══ סלוט 10 · 📁 תיק החוקר ═══ (מטא-מחקר · השפעה · בקרת-בעלים · נתונים-אישיים אדמין) */}
       <WriterSlot P={P} emoji="📁" title="תיק החוקר" empty={dossierEmpty} emptyText="התיק עדיין ריק.">
         {effIsOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
+        {effIsAdmin && <GeneralFeedAdminEditor P={P} slug={c.slug} initial={c.dossier_settings?.general_feed_enabled} />}
         <PersonalDataCard P={P} slug={c.slug} isAdmin={effIsAdmin} />
         <ResearcherStatsCard P={P} c={c} name={c.display_name} level={level} />
         <ImpactBar P={P} level={level} matrices={matrices} />

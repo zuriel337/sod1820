@@ -946,6 +946,7 @@ function LiveWorldLanding({ research, shell, context }) {
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
+                {item.stateLabel ? <small>{item.stateLabel}</small> : null}
                 {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
               </div>
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}

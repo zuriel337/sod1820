@@ -2,6 +2,7 @@ import { fetchTopicCardList } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
+import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
@@ -133,7 +134,8 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const topicRows = Array.isArray(input) ? input : (Array.isArray(input?.topics) ? input.topics : []);
   const researchRows = Array.isArray(input) ? [] : (Array.isArray(input?.research) ? input.research : []);
   const postRows = Array.isArray(input) ? [] : (Array.isArray(input?.posts) ? input.posts : []);
-  const sourceItems = postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean);
+  const groupItems = Array.isArray(input?.groupItems) ? input.groupItems : [];
+  const sourceItems = [...postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean), ...groupItems];
   const sourceByOccurrence = new Map(sourceItems.map((item) => [item.sourceRef, item]));
   // Collapse authorized research on the SAME source occurrence; do not multiply arrivals
   // or treat repeated findings as independent sources. Unrelated findings keep their identities.
@@ -222,8 +224,8 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   });
 
   // Failed/restricted research access must not erase otherwise-readable source posts.
-  const [topicResult, researchResult, postsResult] = await Promise.allSettled([
-    topicPromise, researchPromise, postsPromise,
+  const [topicResult, researchResult, postsResult, groupResult] = await Promise.allSettled([
+    topicPromise, researchPromise, postsPromise, fetchGroupSourceArrivals({ limit: requested }),
   ]);
   if (topicResult.status === "rejected" && postsResult.status === "rejected") {
     throw new Error("world_public_arrivals_unavailable");
@@ -231,9 +233,11 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   const topics = topicResult.status === "fulfilled" && Array.isArray(topicResult.value?.rows) ? topicResult.value.rows : [];
   const research = researchResult.status === "fulfilled" ? researchResult.value : [];
   const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
+  const groupItems = groupResult.status === "fulfilled" ? groupResult.value : [];
   return {
-    ...buildWorldDiscoveryStream({ topics, research, posts }, { limit: requested, publicPeople }),
-    groupArrivals: GROUP_ARRIVALS_AVAILABILITY,
+    ...buildWorldDiscoveryStream({ topics, research, posts, groupItems }, { limit: requested, publicPeople }),
+    // Reader unavailable (not applied / error) => honest not_connected; never a fake "connected".
+    groupArrivals: groupResult.status === "fulfilled" ? GROUP_ARRIVALS_CONNECTED : GROUP_ARRIVALS_AVAILABILITY,
     unavailableSources: [
       ...(topicResult.status === "rejected" ? ["topics"] : []),
       ...(researchResult.status === "rejected" && includeResearch ? ["research"] : []),
