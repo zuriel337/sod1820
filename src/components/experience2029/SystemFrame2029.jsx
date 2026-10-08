@@ -11,6 +11,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { timeAgoHe } from "../../lib/format.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
@@ -539,19 +540,64 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace }) {
+function AttentionProjection({ context, onWorkspace, onOpen }) {
+  const [arrivals, setArrivals] = useState({ loading: true, items: [], error: false, partial: false });
+
+  // SAME owner/reader as /world. Loaded only on opening the bottom attention sheet;
+  // never copy a private/admin research bundle into global Context or local storage.
+  useEffect(() => {
+    let live = true;
+    import("../../lib/research/worldDiscoveryStream.js")
+      .then(({ fetchWorldDiscoveryStream }) => fetchWorldDiscoveryStream({ limit: 10, includeResearch: false }))
+      .then((result) => {
+        if (live) setArrivals({
+          loading: false,
+          items: result.items || [],
+          error: false,
+          partial: (result.unavailableSources || []).length > 0,
+        });
+      })
+      .catch(() => { if (live) setArrivals({ loading: false, items: [], error: true, partial: false }); });
+    return () => { live = false; };
+  }, []);
+
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">מה קורה עכשיו</div>
-        <h3>מה באמת דורש תשומת לב עכשיו?</h3>
-        <p>כאן יופיע רק מה שבאמת חדש, רלוונטי או דורש תשומת לב.</p>
+        <div className="sod29-kicker">העולם חי</div>
+        <h3>מה חדש בעולם</h3>
+        <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
       </div>
-      <div className="sod29-attention-projection">
-        <FrameState kind="unavailable" title="עדכונים">זרם העדכונים של 2029 עדיין לא מחובר כאן.</FrameState>
-        <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
-        <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
-        <FrameState kind="unavailable" title="רזיאל מציע">רזיאל יופיע כאן רק כשיש משהו חדש ומשמעותי להראות.</FrameState>
+      <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
+        {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
+        {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
+        {arrivals.items.slice(0, 8).map((item) => {
+          const href = item.kind === "source"
+            ? item.href
+            : item.kind === "convergence" && item.slug
+              ? `/topic/${encodeURIComponent(item.slug)}`
+              : null;
+          return <button
+            type="button"
+            key={item.id}
+            className="sod29-action"
+            disabled={!href}
+            onClick={() => onOpen?.(href)}
+            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
+          >
+            <small>{item.kind === "source" ? "כתב מקור" : "התכנסות"} · {item.creator} · {timeAgoHe(item.at) || "זמן לא צוין"}</small>
+            <strong>{item.label}</strong>
+            {item.summary ? <small>{item.summary}</small> : null}
+            {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
+          </button>;
+        })}
+        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את כל החידושים בעולם</button>
+        <details><summary>עוד התראות אישיות</summary>
+          <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
+          <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
+        </details>
       </div>
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
@@ -1743,7 +1789,7 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
@@ -1949,12 +1995,12 @@ export default function SystemFrame2029({
             <div className="sod29-command-actions">
               <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
               {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
-              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
+              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>חדש בעולם</small></button>
               <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
               <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
             </div>
           </> : <>
-            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
+            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>חדש בעולם</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
             <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
           </>}
