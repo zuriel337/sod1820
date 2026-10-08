@@ -1663,3 +1663,11 @@
   overflow-wrap:anywhere;
 }
 .sod29-world-source-wording b{font-weight:800}
+
+/* World source/subject depth */
+.sod29-world-sourcedepth-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.sod29-world-sourcedepth-chip{min-height:44px;padding:8px 14px;font-size:16px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+.sod29-world-sourcedepth-chip[aria-pressed="true"]{font-weight:700}
+.sod29-world-sourcedepth-chip small{font-size:14px;opacity:.75}
+.sod29-world-sourcedepth-panel,.sod29-world-sourcedepth-dir{font-size:16px;margin:12px 0}
+.sod29-world-sourcedepth-dir summary{min-height:44px;display:flex;align-items:center;cursor:pointer}

@@ -6,6 +6,7 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
+import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -944,6 +945,8 @@ function LiveWorldLanding({ research, shell, context }) {
       error={anchorState.error}
       onOpen={openAnchorValue}
     />
+
+    <WorldSourceDepth />
 
     {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
