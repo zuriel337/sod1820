@@ -142,9 +142,11 @@ assert.equal(frame.includes("shareOrCopy"), false, "2029 Frame must not bypass c
 assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
-// Navigation may name World, but Frame operation must not hard-code World as the destination of inspect/search/tools.
+// Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
+// Generic inspect/search/tool actions must still never force navigation to World.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 1, "System Frame may list World in global navigation but must not route generic actions through World");
+assert.equal(worldLiteralCount, 2, "Only main navigation and the user-opened World updates panel may link to World");
+assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
 const validRazielRoute = {
@@ -233,7 +235,9 @@ assert.match(frame, /<small>פעולה<\/small>/);
 assert.match(frame, /<small>כלים<\/small>/);
 assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
-assert.match(frame, /<small>עכשיו<\/small>/);
+assert.match(frame, /<small>חדש בעולם<\/small>/);
+assert.match(frame, /title="מה חדש בעולם"/);
+assert.match(frame, /fetchWorldDiscoveryStream\(\{ limit: 10, includeResearch: false \}\)/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
