@@ -16,8 +16,12 @@ import {
   ZVI_ADMISSION_MANIFEST_V1, ZVI_CONTRIBUTOR_ID, ZVI_CONTRIBUTOR_LABEL, ZVI_SOURCE_TABLE,
 } from "./intake/zviAdmissionManifestV1.js";
 import { SOD_HASHMAL_ADMISSION_MANIFEST_V1, SOD_HASHMAL_SOURCE_WORK } from "./intake/sodHashmalAdmissionManifestV1.js";
+import ZVI_SAVE_PAYLOADS_V1 from "./intake/zviSavePayloadsV1.json" with { type: "json" };
+import ZVI_SOURCE_TEXTS_V1 from "./intake/zviSourceTextsV1.json" with { type: "json" };
 
 export const INTAKE_BATCH_KEY = "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1";
+export const INTAKE_ASSIGNMENT_KEY = "RESEARCH_2029_ADMIN_INTAKE_V1";
+export const ZVI_AUDIT_WORK_LOG_ID = "18f6c4a2-3959-446b-933d-5967fd9e2527";
 export const SAVE_RPC = "research_artifact_save";
 export const ADMITTED_EVENT = "sod29:research-admitted";
 export const RPC_KINDS = Object.freeze(["fact", "relation", "observation", "hypothesis", "question"]);
@@ -59,6 +63,14 @@ export function zviSourceRef(sourceId, idx = 0) {
 
 const sameText = (a, b) => String(a ?? "") === String(b ?? "");
 
+// Method words that appear verbatim in the source occurrence. They are the SOURCE's own labels (source-attested) and are
+// kept apart from the canonical method identity (engine_detail.method / Method Registry), which only the engine sets.
+const SOURCE_METHOD_TOKENS = Object.freeze(["נוטריקון", "ראשי תיבות", "סופי תיבות", "אתב\"ש", "מילוי", "אחורית", "בגימטריא", "גימטריא", "כפל"]);
+export function sourceAttestedMethodLabels(text) {
+  const t = String(text || "");
+  return SOURCE_METHOD_TOKENS.filter((tok) => t.includes(tok));
+}
+
 /** The WarRoom statement convention (TriageArtifactCard.save) so rows look like every other Intake row. */
 function statementFromCandidate(c) {
   return c.text + (c.value != null ? ` = ${c.value}` : "") + (c.method ? ` (${c.method})` : "");
@@ -98,7 +110,11 @@ export function buildZviPayload(entry, row) {
   } else {
     kind = "observation";
     statement = entry.note;
-    engineDetail = { verification_state: "not_run_client", audit_disposition: entry.disposition };
+    engineDetail = {
+      verification_state: "not_run_client",
+      audit_disposition: entry.disposition,
+      audit_attestation: { work_log_id: ZVI_AUDIT_WORK_LOG_ID, manifest: ZVI_ADMISSION_MANIFEST_V1.version, note: entry.note, rerun_here: false },
+    };
     intakeMeta = buildIntakeMeta(kase, null);
     kindBasis = pick ? "manifest_note_triage_disagrees" : "manifest_note_no_routable_candidate";
   }
@@ -114,6 +130,13 @@ export function buildZviPayload(entry, row) {
       audit_note: entry.note,
       kind_basis: kindBasis,
       triage_artifacts_total: arts.length,
+      assignment: INTAKE_ASSIGNMENT_KEY,
+      audit: { version: ZVI_ADMISSION_MANIFEST_V1.version, generated_at: ZVI_ADMISSION_MANIFEST_V1.generated_at, work_log_id: ZVI_AUDIT_WORK_LOG_ID },
+      extraction_fidelity: "exact_source_text",
+      method: {
+        canonical_method_key: engineDetail?.method ?? null,
+        source_attested_labels: sourceAttestedMethodLabels(row.text),
+      },
     },
     source_text: row.text,
     source_occurrence: { table: ZVI_SOURCE_TABLE, id: entry.source_id, channel: row.channel ?? null, created_at: row.created_at ?? null },
@@ -133,6 +156,64 @@ export function buildZviPayload(entry, row) {
       p_meta: meta,
     },
   };
+}
+
+const FROZEN_ZVI = Object.freeze(Object.fromEntries(ZVI_SAVE_PAYLOADS_V1.entries.map((e) => [e.source_id, e])));
+
+/**
+ * Runtime Zvi builder: the payload that is shown, confirmed and saved is the FROZEN one (zviSavePayloadsV1.json), so
+ * what the admin reviewed is exactly what the RPC receives. The live row only gates it: the contributor identity must
+ * match and the live channel_updates text must still equal the frozen exact text, otherwise the item is BLOCKED
+ * (source_text_drift) - the frozen artifact is never trusted over the canonical source occurrence.
+ */
+export function buildFrozenZviPayload(entry, row) {
+  const frozen = FROZEN_ZVI[entry.source_id];
+  const blockers = [];
+  if (!frozen || !frozen.save) return { ok: false, blockers: ["no_frozen_payload"] };
+  if (!row) return { ok: false, blockers: ["source_row_missing"] };
+  if (!sameText(row.credit, ZVI_CONTRIBUTOR_LABEL)) blockers.push("contributor_label_mismatch");
+  if (row.contributor_id !== ZVI_CONTRIBUTOR_ID) blockers.push("contributor_identity_mismatch");
+  if (!sameText(row.text, ZVI_SOURCE_TEXTS_V1.rows[entry.source_id]?.text)) blockers.push("source_text_drift");
+  if (blockers.length) return { ok: false, blockers };
+  return { ok: true, blockers: [], payload: JSON.parse(JSON.stringify(frozen.save)) };
+}
+
+/** Everything the admin must see BEFORE a save: source work/contributor, exact wording, class, proposed kind/value/method, verification state, disposition. */
+export function describeItem(item) {
+  const e = item.entry;
+  const pl = item.payload || null;
+  const intake = pl?.p_meta?.intake || {};
+  const frozenText = ZVI_SOURCE_TEXTS_V1.rows[e.source_id]?.text ?? pl?.p_meta?.source_text ?? null;
+  return {
+    key: item.key,
+    state: item.state,
+    disposition: item.disposition,
+    candidate_class: e.class ?? null,
+    source_work: pl?.p_meta?.source_work?.label ?? null,
+    contributor: pl ? (pl.p_contributor ?? null) : (item.corpus === "zvi" ? ZVI_CONTRIBUTOR_LABEL : null),
+    source_ref: pl?.p_source_ref ?? item.reuse?.source_ref ?? null,
+    exact_source_text: pl?.p_meta?.source_text ?? frozenText,
+    proposed: pl ? { kind: pl.p_kind, statement: pl.p_statement, value: pl.p_value, terms: pl.p_terms } : null,
+    method: pl ? { canonical: intake.method?.canonical_method_key ?? pl.p_engine_detail?.method ?? null, source_attested: intake.method?.source_attested_labels ?? [] } : null,
+    engine: pl ? { verified: pl.p_engine_verified === true, state: pl.p_engine_verified ? "engine_verified" : (pl.p_engine_detail?.verification_state || "not_engine_verified"), audit_disposition: e.disposition } : null,
+    audit_note: e.note ?? null,
+    reason: item.reason ?? null,
+    saves_as: "candidate · private",
+  };
+}
+
+/** PURE. What the explicit batch action would send right now (settled items excluded) - shown in the confirmation. */
+export function batchPreview(items, previous = {}) {
+  const settled = new Set([RESULT_STATE.INSERTED, RESULT_STATE.ALREADY_EXISTED, RESULT_STATE.APPENDED, RESULT_STATE.ALREADY_PRESENT]);
+  const toSend = sendable(items).filter((it) => !(previous[it.key] && settled.has(previous[it.key].state)));
+  const by_disposition = {};
+  for (const it of toSend) bump(by_disposition, it.disposition);
+  return { will_send: toSend.length, by_disposition, excluded: items.length - toSend.length, keys: toSend.map((it) => it.key) };
+}
+
+/** Per-entry Human-Gate action: the same sequential idempotent executor, restricted to exactly one sendable item. */
+export function executeOne(item, deps) {
+  return executePlan(sendable([item]), deps);
 }
 
 /**
@@ -237,7 +318,7 @@ export async function loadZviSourceRows(client, manifest = ZVI_ADMISSION_MANIFES
 
 export function buildCorpora(rowsByCorpus = {}) {
   return [
-    { key: "zvi", label: "צבי (OPOC) · ZVI_ADMISSION_MANIFEST_V1", manifest: ZVI_ADMISSION_MANIFEST_V1, builder: buildZviPayload, rowsById: rowsByCorpus.zvi || {} },
+    { key: "zvi", label: "צבי (OPOC) · ZVI_ADMISSION_MANIFEST_V1", manifest: ZVI_ADMISSION_MANIFEST_V1, builder: buildFrozenZviPayload, rowsById: rowsByCorpus.zvi || {} },
     { key: "sod_hashmal", label: "סוד החשמל (Source Work) · Golden admission", manifest: SOD_HASHMAL_ADMISSION_MANIFEST_V1, builder: (e) => buildSourceWorkPayload(e), rowsById: rowsByCorpus.sod_hashmal || {} },
   ].map((c) => ({ ...c, items: planCorpus(c.key, c.manifest, c), blocker: c.manifest.entries_blocker || null }));
 }

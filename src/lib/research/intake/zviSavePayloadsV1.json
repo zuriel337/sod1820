@@ -1,0 +1,2603 @@
+{
+  "version": "ZVI_SAVE_PAYLOADS_V1",
+  "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+  "manifest_generated_at": "2026-10-07T18:29:46.215217+00:00",
+  "counts": {
+    "payloads": 42,
+    "read_only": 10,
+    "reuse": 1,
+    "blocked": 0
+  },
+  "entries": [
+    {
+      "source_id": "0bddbec3-7c72-41fb-a5a2-a54aff2b7f52",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "מודה אני לפניך=306=אשה",
+      "text_md5": "6b99728f629ed28c52f0ca3ddf8ec054",
+      "save": {
+        "p_source_ref": "channel_updates:0bddbec3-7c72-41fb-a5a2-a54aff2b7f52#a0",
+        "p_kind": "observation",
+        "p_statement": "מודה אני לפניך=306=אשה",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "מודה אני לפניך=306=אשה",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "0bddbec3-7c72-41fb-a5a2-a54aff2b7f52",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "מודה אני לפניך=306=אשה",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "מודה אני לפניך-גימטריא -אשה גימטריא 306.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "0bddbec3-7c72-41fb-a5a2-a54aff2b7f52",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-09 14:27:47+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "0deb25aa-99b4-4297-9999-f6184f13b40f",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "2×ברחמים גדולים(393)=786=כתר עליון; representative claim occurrence",
+      "text_md5": "c68e89363e5982f94164eff3f03e059e",
+      "save": {
+        "p_source_ref": "channel_updates:0deb25aa-99b4-4297-9999-f6184f13b40f#a0",
+        "p_kind": "observation",
+        "p_statement": "2×ברחמים גדולים(393)=786=כתר עליון; representative claim occurrence",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "2×ברחמים גדולים(393)=786=כתר עליון; representative claim occurrence",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "0deb25aa-99b4-4297-9999-f6184f13b40f",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "2×ברחמים גדולים(393)=786=כתר עליון; representative claim occurrence",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא",
+                "כפל"
+              ]
+            }
+          },
+          "source_text": "כפל של \"ברחמים גדולים\" נותן גם כן גימטריא תשפ\"ו (786) וגם \"כתר עליון\" -786 🌹",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "0deb25aa-99b4-4297-9999-f6184f13b40f",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-13 13:06:25+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "3c338877-a574-49c0-90b3-ecd99ef0962a",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "תשפז=787; ותשועה=787; והושעת=787",
+      "text_md5": "f0e7b059c11bfee8575865342f68e036",
+      "save": {
+        "p_source_ref": "channel_updates:3c338877-a574-49c0-90b3-ecd99ef0962a#a0",
+        "p_kind": "observation",
+        "p_statement": "תשפז=787; ותשועה=787; והושעת=787",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "תשפז=787; ותשועה=787; והושעת=787",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "3c338877-a574-49c0-90b3-ecd99ef0962a",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "תשפז=787; ותשועה=787; והושעת=787",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "תשפ\"ז בגימטריא 787 וגם: \"ותשועה\"-787.\nוגם:\"והושעת\"-787",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "3c338877-a574-49c0-90b3-ecd99ef0962a",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-10 08:41:58+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "50+26+620=696 and עתיק יומין=696",
+      "text_md5": "16f18ffe78bd90df4feb2e2fd013f89a",
+      "save": {
+        "p_source_ref": "channel_updates:4b24de5e-dc9b-473c-b5d4-c006cd8bd21a#a0",
+        "p_kind": "observation",
+        "p_statement": "50+26+620=696 and עתיק יומין=696",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "50+26+620=696 and עתיק יומין=696",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "ext": {
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "partial",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          },
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "50+26+620=696 and עתיק יומין=696",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "50+26+620=696\n696 גימטריא של:\n\"עתיק יומין\"",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-08 20:38:12+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "5d4357c9-7921-4c6c-a40d-1ad29ddbd28e",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_MIXED",
+      "audit_note": "בראשית=913 verified; broader משה relation not explicit in this occurrence",
+      "text_md5": "93e482dd53cf51698635004f51d0ddee",
+      "save": {
+        "p_source_ref": "channel_updates:5d4357c9-7921-4c6c-a40d-1ad29ddbd28e#a0",
+        "p_kind": "observation",
+        "p_statement": "בראשית=913 verified; broader משה relation not explicit in this occurrence",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_MIXED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "בראשית=913 verified; broader משה relation not explicit in this occurrence",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "5d4357c9-7921-4c6c-a40d-1ad29ddbd28e",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_MIXED",
+            "audit_note": "בראשית=913 verified; broader משה relation not explicit in this occurrence",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "נגעת בנקודה עדינה מאד.913-בראשית.\nשולח לכם על הקשר בגימטריא למשה רבנו.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "5d4357c9-7921-4c6c-a40d-1ad29ddbd28e",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-24 13:25:05+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "63d07245-6fb2-4970-806a-0e777ae16967",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "ברוך מחיה המתים=786 and תשפו=786",
+      "text_md5": "1e9a2144f091bdf5518cb49a9e14c5cf",
+      "save": {
+        "p_source_ref": "channel_updates:63d07245-6fb2-4970-806a-0e777ae16967#a0",
+        "p_kind": "observation",
+        "p_statement": "ברוך מחיה המתים=786 and תשפו=786",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "ברוך מחיה המתים=786 and תשפו=786",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "63d07245-6fb2-4970-806a-0e777ae16967",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "ברוך מחיה המתים=786 and תשפו=786",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "ברוך מחיה המתים בגימטריא :תשפ\"ו=786",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "63d07245-6fb2-4970-806a-0e777ae16967",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-26 09:04:19+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "27×יהוה(26)=702=שבת; parser direct שבת=27 rejected in favor of compound meaning",
+      "text_md5": "4012326b105c347c57ebbbce2ed3c054",
+      "save": {
+        "p_source_ref": "channel_updates:76176bf3-e94a-44bb-a7e0-73b736d1a2e6#a0",
+        "p_kind": "observation",
+        "p_statement": "27×יהוה(26)=702=שבת; parser direct שבת=27 rejected in favor of compound meaning",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "27×יהוה(26)=702=שבת; parser direct שבת=27 rejected in favor of compound meaning",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "27×יהוה(26)=702=שבת; parser direct שבת=27 rejected in favor of compound meaning",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "שבת בגימטריא 27 הוויות.\n{27×26=702=שבת} .\nהשבת היא המצווה היחידה שנקראת:\n\"מתנה טובה\"💢",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-24 12:19:43+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "78319af9-937f-45c0-94d3-2283e9af3088",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "הודו ליהוה כי טוב כי לעולם חסדו=408; phrase appears four times when paragraph marker is ignored",
+      "text_md5": "167e206c5407015b828d656cb91b94cd",
+      "save": {
+        "p_source_ref": "channel_updates:78319af9-937f-45c0-94d3-2283e9af3088#a0",
+        "p_kind": "observation",
+        "p_statement": "הודו ליהוה כי טוב כי לעולם חסדו=408; phrase appears four times when paragraph marker is ignored",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "הודו ליהוה כי טוב כי לעולם חסדו=408; phrase appears four times when paragraph marker is ignored",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "78319af9-937f-45c0-94d3-2283e9af3088",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "הודו ליהוה כי טוב כי לעולם חסדו=408; phrase appears four times when paragraph marker is ignored",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "יש פסוק אחד שלם עם גימטריא 408:\n\"הודו לי-הוה כי טוב כי לעולם חסדו\".\nהכתוב הזה חוזר 4 פעמים.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "78319af9-937f-45c0-94d3-2283e9af3088",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 03:57:54+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "79e6047b-3763-48de-8740-6afd43d7a361",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_TESTED_MISMATCH",
+      "audit_note": "source claims פשרה and verse=580; canonical engine gives both 585",
+      "text_md5": "93c84dd268c1a57a6853f8194571b52a",
+      "save": null
+    },
+    {
+      "source_id": "7c59cf5b-39aa-41f2-8e4f-cd2fee2726e8",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "ישראל בעל שם טוב=1000; canonical tanach corpus has exactly 4 Psalms verses with ragil=1000",
+      "text_md5": "dfccc8d993c49b025c2b44e0ba06de84",
+      "save": {
+        "p_source_ref": "channel_updates:7c59cf5b-39aa-41f2-8e4f-cd2fee2726e8#a0",
+        "p_kind": "observation",
+        "p_statement": "ישראל בעל שם טוב = 1000",
+        "p_value": 1000,
+        "p_terms": [
+          "ישראל בעל שם טוב"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "phrase": "ישראל בעל שם טוב",
+          "method": "רגיל",
+          "claimed": 1000,
+          "computed": 1000
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "7c59cf5b-39aa-41f2-8e4f-cd2fee2726e8",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "ישראל בעל שם טוב=1000; canonical tanach corpus has exactly 4 Psalms verses with ragil=1000",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 3,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": "רגיל",
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "\"ישראל בעל שם טוב\"=1000\n4 פסוקים שלמים בספר תהילים עם גימטריא:1000 בדיוק.\nא-\"אליך י-ה-וה אקרא ואל א_ד- ני אתחנן\" (תהלים ל,ט).\nב-\"נדרי לי-ה-וה אשלם נגדה נא לכל עמו\" (תהילים קט\"ז י\"ד וגם תהילים קט\"ז יח').\nג- \"עזי אליך אזמרה כי אל-ה-ים משגבי אל-הי חסדי\"(תהילים נט,יח').\nאלו הפסוקים היחידים השלמים עם גימטריא:1000 בכל התנ\"ך.\n1000 בגימטריא:\n\"ישראל בעל שם טוב\"\nכולם פסוקי בטחון בהשם !!!",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "7c59cf5b-39aa-41f2-8e4f-cd2fee2726e8",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-31 17:30:49+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "8a88c42f-d321-4ffd-812b-64ccb8b16efd",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_MIXED",
+      "audit_note": "source enumerates 17 gifts; טוב=17 verified; enumeration/interpretation remains source-attested",
+      "text_md5": "01a1e5b8bf43bed91cb170b1ab95c7c3",
+      "save": {
+        "p_source_ref": "channel_updates:8a88c42f-d321-4ffd-812b-64ccb8b16efd#a0",
+        "p_kind": "observation",
+        "p_statement": "source enumerates 17 gifts; טוב=17 verified; enumeration/interpretation remains source-attested",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_MIXED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "source enumerates 17 gifts; טוב=17 verified; enumeration/interpretation remains source-attested",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "8a88c42f-d321-4ffd-812b-64ccb8b16efd",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_MIXED",
+            "audit_note": "source enumerates 17 gifts; טוב=17 verified; enumeration/interpretation remains source-attested",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "אברהם המשפיע טוב לישראל\nנביא את רשימת הטובות שהגיעו אל עם ישראל בזכות אברהם אבינו.\n\n'מעש--ה אבו--ת סימ--ן לבני--ם\" סופי התיבות לא כסדרן משמאל לימין: אותיות 'מתנה'.\n🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻👑👑👑👑❤️❤️❤️❤️\nאפר פרה אדומה ועפר סוטה.(ואנוכי עפר ואפר).\nמצוות  תפילין ומצוות ציצית (מחוט ועד שרוך נעל).\nיוקח נא מעט מים (בארה של מרים).\nעשרת ימי תשובה.(אולי ימצאון שם עשרה)\nמצוות פדיון הבן.(מסירת יצחק לעקידה).\nרחצו רגליכם.(עמוד הענן).\nהשענו תחת העץ.(צל ענני הכבוד).\nמצוות שופר(בזכות האיל שהקריב אברהם לאחר העקידה).\nבזכות אברהם ביום השלישי.(מתן תורה ביום השלישי).\nויבקע עצי עולה(בזכות אברהם נבקע הים \nלבני ישראל ביציאת מצרים).\nהגנה לישראל על ידי נתינת הדם במשקוף(הזכות של מילת אברהם).\nבזכות \"ונשתחוה ונשובה אליכם\" נגאלו ישראל ממצרים.(ויאמר העם...ויקדו וישתחוו).\nהתורה נתנה לעם ישראל בזכות השתחוויה שנאמר:'והשתחויתם מרחוק'.\nויש אומרים \"בהיות הבוקר\" במעמד הר סיני-בזכות \"וישכם אברהם בבוקר\" קבלנו את התורה.!!! \nבית המקדש לא נבנה אלא בזכות השתחוויה שנאמר:\"רוממו ה' אלוקינו והשתחוו ללהר קודשו\".\nישראל נגאלו ממצרים גם בזכות אברהם,יתר האבות ובזכות משה ואהרון.\nואקחה פת לחם - זכו בני ישראל ללחם מן השמיים המן שאכלו אותו 40 שנה.\nואל הבקר רץ אברהם-והגיש בשר לאורחים יזכו בני ישראל לעוף השלו.\n🔥🔥🔥🌈🌈🌈🔥🔥🔥🌈🌈🌈\nסה\"כ 17 מתנות כמניין  'טוב' בגימטריא.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "8a88c42f-d321-4ffd-812b-64ccb8b16efd",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-26 04:04:25+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "8a8cac93-0350-45cf-8100-c0b1924de374",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "מי שגמלך כל טוב הוא יגמלך כל טוב סלה=787",
+      "text_md5": "22adc5bdb53ceb13341f2adb97b0fbdd",
+      "save": {
+        "p_source_ref": "channel_updates:8a8cac93-0350-45cf-8100-c0b1924de374#a0",
+        "p_kind": "observation",
+        "p_statement": "מי שגמלך כל טוב הוא יגמלך כל טוב סלה=787",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "מי שגמלך כל טוב הוא יגמלך כל טוב סלה=787",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "8a8cac93-0350-45cf-8100-c0b1924de374",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "מי שגמלך כל טוב הוא יגמלך כל טוב סלה=787",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "שנת תשפ\"ז (787) בגימטריא:\n\"מי שגמלך כל טוב הוא יגמלך כל טוב סלה\".(787).\n⭐⭐🍒🍒⭐⭐🍒🍒⭐⭐🍒👑👑🍒\nזה בדיוק הנוסח שהציבור עונה למי שמברך \"ברכת הגומל\".\nזה מלמד על הטוב הצפון לכל עם ישראל בשנת תשפ\"ז הבאה עלינו לטובה.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "8a8cac93-0350-45cf-8100-c0b1924de374",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-11 11:01:24+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "ים=50",
+      "text_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "save": {
+        "p_source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2#a0",
+        "p_kind": "observation",
+        "p_statement": "ים=50",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "ים=50",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "ים=50",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "50 בגימטריא ים.\nים כנוי לספירת המלכות.\nמי כנוי לספירת הבינה...\nיום החמישים הוא חג השבועות יום מתן תורה",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-08 20:20:19+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "רזא208+שבת702 = סוד70×אחד13 = 910",
+      "text_md5": "df52ff71f5efce861a487e5c7b2d168a",
+      "save": {
+        "p_source_ref": "channel_updates:bc0aa8ce-30fc-4a22-b42d-113a456f5e58#a0",
+        "p_kind": "observation",
+        "p_statement": "רזא208+שבת702 = סוד70×אחד13 = 910",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "רזא208+שבת702 = סוד70×אחד13 = 910",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "ext": {
+            "media_refs": [
+              {
+                "kind": "image",
+                "raw": "[Image 3818.jpg]",
+                "filename": "3818.jpg",
+                "resolved_url": null,
+                "resolution_status": "unresolved"
+              }
+            ],
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "partial",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          },
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "רזא208+שבת702 = סוד70×אחד13 = 910",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא",
+                "כפל"
+              ]
+            }
+          },
+          "source_text": "רזא דשבת אחד-בציור מימדי\n\n[Image 3818.jpg]\nהשבת היא מעטפת שמירה רוחנית חזקה מאד (מתנה טובה)השומרת על עם ישראל מכל ה-6 כיוונים.\n\"אתה אחד ושמך אחד ומי כעמך גוי אחד\" (27 הוויות גימטריא שבת).\nהתצורה הרוחנית היא \"קוביית אחד\"\nלשמירה ברכה והצלחה על עם ישראל בכל ימות השבוע.\n👑👑👑👑👑👑👑👑👑👑👑\nאם נוסיף לשבת רזא מקבלים:\n\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא.\nכאן יש שני פלאים;\nהסכום (רזא+שבת)שווה למכפלה (סוד×אחד) וגם התוצאה:910 בגימטריא \"שרית\" שזה מקור השם 'ישראל' בברכה שנתנה ליעקב במעבר יבק.  ✓\nויש גם פלא שלישי:\"שרית\"+ \"שרית\" נותן 1820 (\"סוד'×\"י-הוה\")✓✓",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-04 12:02:11+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "אהיה21 + יהוה26 + אהיה21 = 68",
+      "text_md5": "08f0ae3b52b3e7cf33404c80c6eb0d03",
+      "save": {
+        "p_source_ref": "channel_updates:c9df0633-f04c-4a07-939d-d4d74ff8f0c6#a0",
+        "p_kind": "observation",
+        "p_statement": "אהיה21 + יהוה26 + אהיה21 = 68",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "אהיה21 + יהוה26 + אהיה21 = 68",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "אהיה21 + יהוה26 + אהיה21 = 68",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "חיים -3 שמות הקב\"ה:\nא-היה+י-הוה+א-היה=\n=68 בגימטריא.(שלושת הספירות העליונות!!!)✓✓",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 03:42:13+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "d30951a5-544e-4301-9565-4b5979592a32",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "ירמיהו=271",
+      "text_md5": "fee0abee1951b0875b47964d184cc360",
+      "save": {
+        "p_source_ref": "channel_updates:d30951a5-544e-4301-9565-4b5979592a32#a0",
+        "p_kind": "observation",
+        "p_statement": "ירמיהו=271",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "ירמיהו=271",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "d30951a5-544e-4301-9565-4b5979592a32",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "ירמיהו=271",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "השם ירמיהו רומז לגאולה-גימטריא:271 ראו המשך להודעה זאת.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "d30951a5-544e-4301-9565-4b5979592a32",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 04:25:54+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "dd9a985c-2e7e-4c22-a775-1046977bd167",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "עכוב=98; זמן=97 so זמן+1=98; סגלה=98; כוכבים=98",
+      "text_md5": "63c4e14b258bffa339c85897d1e52e64",
+      "save": {
+        "p_source_ref": "channel_updates:dd9a985c-2e7e-4c22-a775-1046977bd167#a0",
+        "p_kind": "observation",
+        "p_statement": "עכוב=98; זמן=97 so זמן+1=98; סגלה=98; כוכבים=98",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "עכוב=98; זמן=97 so זמן+1=98; סגלה=98; כוכבים=98",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "dd9a985c-2e7e-4c22-a775-1046977bd167",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "עכוב=98; זמן=97 so זמן+1=98; סגלה=98; כוכבים=98",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 2,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "\"עכוב\" בגימטריא :\n\"זמן\"+1.\nבורא עולם גורם \nלעיכובים גם בעם ישראל.העכוב הזה הוא תמיד לטובה.\nיעקב התעכב בבית לבן 20 שנה ותראו איזה טובה יצאה מכך לכל עם ישראל.\nעם סגלה מכל העמים.\nסגלה =עכוב בגימטריא.\nבמילים אחרות מתוך כל העמים עם ישראל \"מתעכב\" כלומר בקיום שלו נצחי! העכוב נמצא מעל הזמן.\nעכוב=כוכבים=98 בגימטריא.\nנראה דהכוכבים מתעכבים ומופיעים רק בלילה.וזה לא נכון הם נמצאים כל הזמן.רק הופעתם מתעכבת!!!",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "dd9a985c-2e7e-4c22-a775-1046977bd167",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-08 18:15:17+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "de3b4c56-5ab1-4f96-bf06-d7e915de7ff0",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "שבע ברכות=1000 רגיל",
+      "text_md5": "1d11869a452f89e176c5115b9acb9e73",
+      "save": {
+        "p_source_ref": "channel_updates:de3b4c56-5ab1-4f96-bf06-d7e915de7ff0#a0",
+        "p_kind": "observation",
+        "p_statement": "שבע ברכות = 1000",
+        "p_value": 1000,
+        "p_terms": [
+          "שבע ברכות"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "phrase": "שבע ברכות",
+          "method": "רגיל",
+          "claimed": 1000,
+          "computed": 1000
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "de3b4c56-5ab1-4f96-bf06-d7e915de7ff0",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "שבע ברכות=1000 רגיל",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": "רגיל",
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "שבע ברכות =1000 בגימטריא.🍒⭐🍒",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "de3b4c56-5ab1-4f96-bf06-d7e915de7ff0",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-21 01:54:58+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "חיים=68=4×טוב(17) verified composite",
+      "text_md5": "418bc05cb38a7e7e26ac67beb4dd9ce8",
+      "save": {
+        "p_source_ref": "channel_updates:e40244a0-ed02-43d5-8a1a-a1acc839ed1f#a0",
+        "p_kind": "observation",
+        "p_statement": "חיים=68=4×טוב(17) verified composite",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "חיים=68=4×טוב(17) verified composite",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "ext": {
+            "media_refs": [
+              {
+                "kind": "image",
+                "raw": "[Image 627.jpg]",
+                "filename": "627.jpg",
+                "resolved_url": null,
+                "resolution_status": "unresolved"
+              }
+            ],
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "partial",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          },
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "חיים=68=4×טוב(17) verified composite",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "חיים חלק ו: שווה 4 פעמים טוב. 68=4 ×17 !\n[Image 627.jpg]\nכדאי תמיד לדעת:-\n\nהעבר - זכרונות.\nהעתיד-דמיונות.\nההווה- נסיונות.\n\nיום טוב לכולם.\n✓✓✓✓✓✓✓\n\nטו\"ב+טו\"ב+טו\"ב+טו\"ב=חיים.\nכי :17(טוב) כפול 4 נותן :68 =חיים בגימטריא .\n\nברכתי לכם ולכל עם ישראל:\n🌐🌐☑️☑️🏁🏁🗝️🏺🏺🏺\nתחשבו טוב,תדברו טוב,תעשו טוב,תעמדו טוב בנסיון ,\nויהיו לכם חיים שלמים.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 03:35:53+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "e4d38096-fc9a-4bf8-a785-3672a3849ced",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "REUSE_CLAIM_OCCURRENCE",
+      "audit_note": "same claim family as earlier 0deb25aa: 2×393=786",
+      "text_md5": "6628279d8c1b45d1010c475cd924a607",
+      "save": null
+    },
+    {
+      "source_id": "ebe50a0c-912a-41ef-aa4a-97d8c846c244",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "מיכאל=101; parser prefix למה excluded",
+      "text_md5": "341ef6d071ccca0a8bd30e6f465e7988",
+      "save": {
+        "p_source_ref": "channel_updates:ebe50a0c-912a-41ef-aa4a-97d8c846c244#a0",
+        "p_kind": "observation",
+        "p_statement": "מיכאל=101; parser prefix למה excluded",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "מיכאל=101; parser prefix למה excluded",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "ebe50a0c-912a-41ef-aa4a-97d8c846c244",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "מיכאל=101; parser prefix למה excluded",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "למה מיכאל גימטריא 101??",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "ebe50a0c-912a-41ef-aa4a-97d8c846c244",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-25 20:52:06+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "f1873268-0931-4cad-9dcf-aca2e8823ef2",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "משיח=358; אהיה=21; 4×מיכאל(101)=404",
+      "text_md5": "1d0d79bb962c73c903a4447e33f67f56",
+      "save": {
+        "p_source_ref": "channel_updates:f1873268-0931-4cad-9dcf-aca2e8823ef2#a0",
+        "p_kind": "observation",
+        "p_statement": "משיח=358; אהיה=21; 4×מיכאל(101)=404",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "משיח=358; אהיה=21; 4×מיכאל(101)=404",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "f1873268-0931-4cad-9dcf-aca2e8823ef2",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "משיח=358; אהיה=21; 4×מיכאל(101)=404",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "358-משיח בגימטריא\n21-א-ה-י-ה\n404- 4 פעמים \"מיכאל\"\nבקיצור המשיח מגיע בע\"ה יתברך.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "f1873268-0931-4cad-9dcf-aca2e8823ef2",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-18 07:11:01+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+      "class": "GEMATRIA_CLAIM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "חסד 72 + 3×רחל 238 = 786; תשפו=786",
+      "text_md5": "062742f6ec4551fe413bc203f7cf8d67",
+      "save": {
+        "p_source_ref": "channel_updates:f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e#a0",
+        "p_kind": "observation",
+        "p_statement": "חסד 72 + 3×רחל 238 = 786; תשפו=786",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "חסד 72 + 3×רחל 238 = 786; תשפו=786",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+            "class": "GEMATRIA_CLAIM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "חסד 72 + 3×רחל 238 = 786; תשפו=786",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "חסד+רחל+רחל+רחל סה\"כ בגימטריא:786=תשפו",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-23 13:50:26+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "36066382-23de-46e5-a642-7a579a8b3247",
+      "class": "METHOD_OR_TRANSFORM",
+      "disposition": "READY_MIXED",
+      "audit_note": "פו=86=אלהים regular clear; source miluy יוד=300 / אחורית=200 preserved but exact spelling/method binding requires source-attested treatment",
+      "text_md5": "d7f4d9a3e53ebc4e467f4eee86ad4f0a",
+      "save": {
+        "p_source_ref": "channel_updates:36066382-23de-46e5-a642-7a579a8b3247#a0",
+        "p_kind": "observation",
+        "p_statement": "פו = 86",
+        "p_value": 86,
+        "p_terms": [
+          "פו"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "phrase": "פו",
+          "method": "רגיל",
+          "claimed": 86,
+          "computed": 86
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "36066382-23de-46e5-a642-7a579a8b3247",
+            "class": "METHOD_OR_TRANSFORM",
+            "disposition": "READY_MIXED",
+            "audit_note": "פו=86=אלהים regular clear; source miluy יוד=300 / אחורית=200 preserved but exact spelling/method binding requires source-attested treatment",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 2,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": "רגיל",
+              "source_attested_labels": [
+                "מילוי",
+                "אחורית",
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "מהות המילה \"שופר\"\nהמילה שופר מורכבת מ-3 חלקים.\nבמרכז: אותיות פ\"ו.\nמימין:ש.\nמשמאל:ר.\nזוהי בדיוק מערכת המשפט האלוקית ביום הדין.\nפ\"ו=86=אל-ה-ים\nמימין :300 בגימטריא:: \"אלוהים\" במילוי ה' עם יוד-הארת פנים.הסנגור במשפט.\nמשמאל:200 בגימטריא אחורית של אלוקים בדיוק 200 שזה הקטגור במשפט או הסתר פנים.\nאנחנו מתפללים עם השופר שהימין יגבר על השמאל וכולנו נזכה במשפט לצד של הארת הפנים!!!",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "36066382-23de-46e5-a642-7a579a8b3247",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-05 21:12:18+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "a6554a4a-8f92-40c1-a67b-e901154a3c61",
+      "class": "METHOD_OR_TRANSFORM",
+      "disposition": "DUPLICATE_REPRESENTATION",
+      "audit_note": "semantic duplicate of 36066382; similarity 1.0 after punctuation/emoji normalization",
+      "text_md5": "8a057c9ca783324800ccc759d20ff58f",
+      "save": null
+    },
+    {
+      "source_id": "bd6c9e6b-fa15-4c91-ba75-7f3b66bcc2cd",
+      "class": "METHOD_OR_TRANSFORM",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "אתבש פשרה→ובגצ verified by fn_name_research; numeric transform=101",
+      "text_md5": "df13bfae705ec459a5a5b1247db2359e",
+      "save": {
+        "p_source_ref": "channel_updates:bd6c9e6b-fa15-4c91-ba75-7f3b66bcc2cd#a0",
+        "p_kind": "observation",
+        "p_statement": "אתבש פשרה→ובגצ verified by fn_name_research; numeric transform=101",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "אתבש פשרה→ובגצ verified by fn_name_research; numeric transform=101",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "bd6c9e6b-fa15-4c91-ba75-7f3b66bcc2cd",
+            "class": "METHOD_OR_TRANSFORM",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "אתבש פשרה→ובגצ verified by fn_name_research; numeric transform=101",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "אתב\"ש"
+              ]
+            }
+          },
+          "source_text": "הפשרה אינה משפט ואם שני הצדדים מסכימים לפני המשפט על הפשרה  היא עדיפה על משפט .כי מעשה הצדקה מביא שלום .\n\nובכל זאת קבלתי \"פשרה\" באתב\"ש: \"ובג\"ץ''.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "bd6c9e6b-fa15-4c91-ba75-7f3b66bcc2cd",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-20 12:16:39+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "1b79f104-f104-45e1-9aa4-8561ebaf95c1",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "four notarikon expansions of בשמחה; number 4 is count, not gematria operation",
+      "text_md5": "69df5ea43f846aaf3b9868f5d5f17a6d",
+      "save": {
+        "p_source_ref": "channel_updates:1b79f104-f104-45e1-9aa4-8561ebaf95c1#a0",
+        "p_kind": "observation",
+        "p_statement": "four notarikon expansions of בשמחה; number 4 is count, not gematria operation",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "four notarikon expansions of בשמחה; number 4 is count, not gematria operation",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "1b79f104-f104-45e1-9aa4-8561ebaf95c1",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "four notarikon expansions of בשמחה; number 4 is count, not gematria operation",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "\"בשמחה\" -4 נוטריקונים! \n⭐\nב-לב ש-מח מ-תגלה ח-סד ה-בורא.\n⭐⭐\nב-קיום ש-ל מ-צוות ח-וגגים ה-גאולה.\n⭐⭐⭐\nב-כח ש-מיים מ-תברכים ח-יי ה-אדם.\n⭐⭐⭐⭐\nב-זמן ש-מחה מ-תגברת ח-יות ה-נשמה.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "1b79f104-f104-45e1-9aa4-8561ebaf95c1",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-18 12:15:20+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "90d450d3-4b8b-4b7b-bfbf-0eea2edae8e9",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "הכנסת ספר תורה=1486",
+      "text_md5": "52ea78ebf914d6a2d87778f467dfe100",
+      "save": {
+        "p_source_ref": "channel_updates:90d450d3-4b8b-4b7b-bfbf-0eea2edae8e9#a0",
+        "p_kind": "observation",
+        "p_statement": "הכנסת ספר תורה=1486",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "הכנסת ספר תורה=1486",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "ext": {
+            "media_refs": [
+              {
+                "kind": "image",
+                "raw": "[Image 3872.jpg]",
+                "filename": "3872.jpg",
+                "resolved_url": null,
+                "resolution_status": "unresolved"
+              }
+            ],
+            "extraction_integrity": {
+              "arithmetic_verified": false,
+              "semantic_operand_coverage": "not_applicable",
+              "media_reference_coverage": "partial",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          },
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "90d450d3-4b8b-4b7b-bfbf-0eea2edae8e9",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "הכנסת ספר תורה=1486",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "הכנסת ספר תורה -1486\n[Image 3872.jpg]",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "90d450d3-4b8b-4b7b-bfbf-0eea2edae8e9",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-01 11:09:10+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "696+90=786 and כתר עליון=786",
+      "text_md5": "9f7e339b7488a9ec141ddd574fb13a5e",
+      "save": {
+        "p_source_ref": "channel_updates:94cc1578-6aa6-4df5-8a76-0378f3bbedf8#a0",
+        "p_kind": "observation",
+        "p_statement": "696 + 90 = 786 = 786",
+        "p_value": 786,
+        "p_terms": [
+          "696 + 90 = 786"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "kind": "arithmetic",
+          "text": "696 + 90 = 786",
+          "ok": true
+        },
+        "p_meta": {
+          "ext": {
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "partial",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          },
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "696+90=786 and כתר עליון=786",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 3,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "אם נחבר צ של מנצפ\"ך(הגאולה האחרונה) אל 696\nנקבל 696+90=786.\n786=כתר עליון! (תשפ\"ו)",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-08 20:54:06+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "bbf73c85-437e-4afd-b5ce-8c58683cc4a1",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "ובחרת בחיים=686",
+      "text_md5": "0c56ba1c7286c2ac2302efb3a942b3c4",
+      "save": {
+        "p_source_ref": "channel_updates:bbf73c85-437e-4afd-b5ce-8c58683cc4a1#a0",
+        "p_kind": "observation",
+        "p_statement": "ובחרת בחיים = 686",
+        "p_value": 686,
+        "p_terms": [
+          "ובחרת בחיים"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "phrase": "ובחרת בחיים",
+          "method": "רגיל",
+          "claimed": 686,
+          "computed": 686
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "bbf73c85-437e-4afd-b5ce-8c58683cc4a1",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "ובחרת בחיים=686",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": "רגיל",
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "ובחרת בחיים=686 שזה מביא לשמחה תמיד בעבודת השם.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "bbf73c85-437e-4afd-b5ce-8c58683cc4a1",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 03:34:21+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "כתר620 + הוא אלהים חיים166 = 786",
+      "text_md5": "3d2ab6656581463a00ebb49735e20e6a",
+      "save": {
+        "p_source_ref": "channel_updates:c74f7949-fda7-4c85-8142-eb0fb9b3dc44#a0",
+        "p_kind": "observation",
+        "p_statement": "כתר620 + הוא אלהים חיים166 = 786",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "כתר620 + הוא אלהים חיים166 = 786",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "כתר620 + הוא אלהים חיים166 = 786",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "זהו פסוק מופלא בירמיהו פרק י, פסוק י.\nאגב אם נחבר:\n'כתר' +'הוא אל-הי-ם חיים' נקבל :786=תשפ\"ו=כתר עליון⭐",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 04:13:18+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "e6b097db-4d19-4834-9c58-5004b16ab3c8",
+      "class": "NUMERIC_CALC",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "איש=311; ה=5; 311-5=306=אשה",
+      "text_md5": "494cb353669199b31ea92722b89d11f4",
+      "save": {
+        "p_source_ref": "channel_updates:e6b097db-4d19-4834-9c58-5004b16ab3c8#a0",
+        "p_kind": "observation",
+        "p_statement": "איש=311; ה=5; 311-5=306=אשה",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "איש=311; ה=5; 311-5=306=אשה",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "e6b097db-4d19-4834-9c58-5004b16ab3c8",
+            "class": "NUMERIC_CALC",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "איש=311; ה=5; 311-5=306=אשה",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 3,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "לקחה\" לקח ה. \" לזאת יקרא אשה  כי מאיש לקחה זאת\" אם הוריד ה=5 מאיש (311) נקבל אשה(306).",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "e6b097db-4d19-4834-9c58-5004b16ab3c8",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-09 14:56:24+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "2feaa8f5-2789-4398-87fa-7492290f4fcc",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "READY_TESTED_MISMATCH",
+      "audit_note": "source claims כי תבא=4 / כי תבוא=6; canonical corpus phrase hits are 8 / 4",
+      "text_md5": "837e56e77362dbf0b64441a0d4d19d6d",
+      "save": null
+    },
+    {
+      "source_id": "41388ee7-1395-477d-9991-30765c1d5bb6",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "HOLD_CONTEXT_DEPENDENT",
+      "audit_note": "says עוד 3 פסוקים כאלה with no verses in this occurrence; cannot safely extract standalone finding",
+      "text_md5": "516d8953f6c8727657c1c8f72e2e518a",
+      "save": null
+    },
+    {
+      "source_id": "422febb1-93a8-4b0b-9595-df6509d7d406",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "Torah: שופר full=2 occurrences in one verse; defective שפר/השפר=3 occurrences at Sinai",
+      "text_md5": "834bf2e284ad86e85ae1b5e4bf9a92b1",
+      "save": {
+        "p_source_ref": "channel_updates:422febb1-93a8-4b0b-9595-df6509d7d406#a0",
+        "p_kind": "observation",
+        "p_statement": "Torah: שופר full=2 occurrences in one verse; defective שפר/השפר=3 occurrences at Sinai",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "Torah: שופר full=2 occurrences in one verse; defective שפר/השפר=3 occurrences at Sinai",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "422febb1-93a8-4b0b-9595-df6509d7d406",
+            "class": "SOURCE_OCCURRENCE",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "Torah: שופר full=2 occurrences in one verse; defective שפר/השפר=3 occurrences at Sinai",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "שופר או שפר בכתיב חסר?\nהאם בתורה כתוב שופר או שפר בכתיב חסר??\nהמילה \"שופר\" מופיעה בתורה רק פעמיים בפסוק אחד.בפרשת בהר.\nהמילה \"שפר\" בכתיב חסר מופיעה בתורה 3 פעמים במעמד הר סיני.\nבפרשת יתרו.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "422febb1-93a8-4b0b-9595-df6509d7d406",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-06 03:33:50+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "651cb4fb-da39-48f3-9765-fac58cae1643",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "משלי ל:א occurrence confirmed; לאיתיאל is palindromic and doubled in verse",
+      "text_md5": "27ac1c01dfe146afb45bcd1c61520fda",
+      "save": {
+        "p_source_ref": "channel_updates:651cb4fb-da39-48f3-9765-fac58cae1643#a0",
+        "p_kind": "observation",
+        "p_statement": "משלי ל:א occurrence confirmed; לאיתיאל is palindromic and doubled in verse",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "משלי ל:א occurrence confirmed; לאיתיאל is palindromic and doubled in verse",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "651cb4fb-da39-48f3-9765-fac58cae1643",
+            "class": "SOURCE_OCCURRENCE",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "משלי ל:א occurrence confirmed; לאיתיאל is palindromic and doubled in verse",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "פלינדרום בן 14 אותיות בפסוק!\n\"דִּבְרֵ֤י ׀ אָג֥וּר בִּן־יָקֶ֗ה הַמַּ֫שָּׂ֥א נְאֻ֣ם הַ֭גֶּבֶר לְאִֽיתִיאֵ֑ל לְאִ֖יתִיאֵ֣ל וְאֻכָֽל׃\" (משלי ל', א').\nפסוק נדיר בספר משלי שבו מופיע צמד מילים זהות:\n°לאיתיאל לאיתיאל° שניתן לקרוא אותן מימין לשמאל וגם משמאל לימין. עם סימטריה מלאה.\n{גם המילה  \"לאיתיאל\" היא פלינדרום בעצמה}.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "651cb4fb-da39-48f3-9765-fac58cae1643",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-22 05:32:35+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "bfe68d3c-0732-4fc3-9b1d-b753cf3f28d8",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "READY_TESTED_MISMATCH",
+      "audit_note": "source claims שמעו נא=13; canonical tanach corpus yields 9 phrase hits",
+      "text_md5": "b618ffc34bf0f995ebc5210410c630f8",
+      "save": null
+    },
+    {
+      "source_id": "f314e111-c9ba-4bf4-824c-d0f1f9b801f2",
+      "class": "SOURCE_OCCURRENCE",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "canonical corpus confirms listed named וישכם subjects; יהושע appears 4 times",
+      "text_md5": "f2908cc44c9feb3a99c9d2f06446aab8",
+      "save": {
+        "p_source_ref": "channel_updates:f314e111-c9ba-4bf4-824c-d0f1f9b801f2#a0",
+        "p_kind": "observation",
+        "p_statement": "canonical corpus confirms listed named וישכם subjects; יהושע appears 4 times",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "canonical corpus confirms listed named וישכם subjects; יהושע appears 4 times",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "f314e111-c9ba-4bf4-824c-d0f1f9b801f2",
+            "class": "SOURCE_OCCURRENCE",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "canonical corpus confirms listed named וישכם subjects; יהושע appears 4 times",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "השכמת הבוקר בתנ\"ך.\n📎📎📎📎📎📎📎📎📎📎\n\nעשרה אנשים בודדים  מופיעים בשמותם שהשכימו בבוקר.(וישכם).\n\nאברהם,אבימלך,יעקב,לבן,משה,\nיהושע,גדעון,שמואל,דוד,יחזקיהו.\n\nבין המשכימים בבוקר: מלך גוי, ומלכים יהודים.\nשני משכימים- לא יהודים.\nויהושע  הוא אלוף ההשכמות:\n 4 פעמים סה\"כ.\n\n👑👑🍎🍎👑👑🍎🍎👑👑",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "f314e111-c9ba-4bf4-824c-d0f1f9b801f2",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-16 16:37:20+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "145f6ac0-b27d-4004-afef-7a5f334e069c",
+      "class": "SPATIAL_RESEARCH",
+      "disposition": "EXCLUDE_NO_STANDALONE_FINDING",
+      "audit_note": "roadmap/meta statement that 3D gematria is not yet on site; undisclosed findings not extractable",
+      "text_md5": "4aab333fe31fafb9a3b0a2f89c633356",
+      "save": null
+    },
+    {
+      "source_id": "463abc48-ed6e-4578-a5c7-2b992cd57fc5",
+      "class": "SPATIAL_RESEARCH",
+      "disposition": "EXCLUDE_NO_STANDALONE_FINDING",
+      "audit_note": "thank-you/meta message; no research finding",
+      "text_md5": "830c792fc2fa4c009cd1ed4894ca026c",
+      "save": null
+    },
+    {
+      "source_id": "f94382bb-063e-41ae-85f5-14c3ab113853",
+      "class": "SPATIAL_RESEARCH",
+      "disposition": "EXCLUDE_NO_STANDALONE_FINDING",
+      "audit_note": "only says גימטריה מופלאה בתלת מימד; no finding payload",
+      "text_md5": "68a0c3973fbf3c6d5fb249460af5dd9a",
+      "save": null
+    },
+    {
+      "source_id": "05f8614a-9809-4d7a-8398-14fd7dcbf4f7",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "אשה=306=כפור; 3×אמונה102=306",
+      "text_md5": "11c6cf826aebb5d54ce043233690cf84",
+      "save": {
+        "p_source_ref": "channel_updates:05f8614a-9809-4d7a-8398-14fd7dcbf4f7#a0",
+        "p_kind": "observation",
+        "p_statement": "אשה=306=כפור; 3×אמונה102=306",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "אשה=306=כפור; 3×אמונה102=306",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "05f8614a-9809-4d7a-8398-14fd7dcbf4f7",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "אשה=306=כפור; 3×אמונה102=306",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "אשה בגימטריא כפור.\nאמונה +אמונה+אמונה=אשה בגימטריא",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "05f8614a-9809-4d7a-8398-14fd7dcbf4f7",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-09 14:28:34+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "1adc4865-a5bf-4d5f-a1ed-65a197a25b15",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "נחש=358=משיח",
+      "text_md5": "9b396caa32642b0c2534bce3a06db61b",
+      "save": {
+        "p_source_ref": "channel_updates:1adc4865-a5bf-4d5f-a1ed-65a197a25b15#a0",
+        "p_kind": "relation",
+        "p_statement": "נחש = משיח 👑👑👑",
+        "p_value": null,
+        "p_terms": [
+          "נחש = משיח 👑👑👑"
+        ],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": true,
+        "p_engine_detail": {
+          "method": "רגיל",
+          "a": {
+            "phrase": "נחש",
+            "value": 358
+          },
+          "b": {
+            "phrase": "משיח 👑👑👑",
+            "value": 358
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "1adc4865-a5bf-4d5f-a1ed-65a197a25b15",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "נחש=358=משיח",
+            "kind_basis": "canonical_triage",
+            "triage_artifacts_total": 1,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": "רגיל",
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "נחש =משיח 👑👑👑",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "1adc4865-a5bf-4d5f-a1ed-65a197a25b15",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-09 14:22:24+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "2ac8e51a-bd45-4b59-9ebb-c041122925f1",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "דבש לפי/חידא acronym/source claim preserved; external work not independently verified here",
+      "text_md5": "d1416199951a49985173155944afa5e6",
+      "save": {
+        "p_source_ref": "channel_updates:2ac8e51a-bd45-4b59-9ebb-c041122925f1#a0",
+        "p_kind": "observation",
+        "p_statement": "דבש לפי/חידא acronym/source claim preserved; external work not independently verified here",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "דבש לפי/חידא acronym/source claim preserved; external work not independently verified here",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "2ac8e51a-bd45-4b59-9ebb-c041122925f1",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "דבש לפי/חידא acronym/source claim preserved; external work not independently verified here",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "ראשי תיבות"
+              ]
+            }
+          },
+          "source_text": "ימים לקום בהשכמה חלק ב\nיש מספר ימים שצריך לקום בהשכמה יותר מכל השנה.\n\n וזה רמוז במילה אברה\"ם  בפסוק:\n\"וישכם אברהם בבוקר\".\n\nמופיע בספר \"דבש לפי\" של החיד\"א,\nראשי תיבות של הימים הבאים:\n\n1- איכה.(ט' באב).\n2-ב.מתן תורה שמתחילה באות \"ב\".\n3- ראש השנה.\n4- הושענא רבא.\n5- מגילה (פורים).",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "2ac8e51a-bd45-4b59-9ebb-c041122925f1",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-16 16:35:21+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "2c41a244-8ba8-4b73-ac4d-8e2daf9d0853",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "אלול notarikon set; representative occurrence",
+      "text_md5": "c1a2f8a09f36c211d8b6de0f3bc494a2",
+      "save": {
+        "p_source_ref": "channel_updates:2c41a244-8ba8-4b73-ac4d-8e2daf9d0853#a0",
+        "p_kind": "observation",
+        "p_statement": "אלול notarikon set; representative occurrence",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "אלול notarikon set; representative occurrence",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "2c41a244-8ba8-4b73-ac4d-8e2daf9d0853",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "אלול notarikon set; representative occurrence",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "ראשי תיבות"
+              ]
+            }
+          },
+          "source_text": "אלול נוטריקונים\n                   אלול\nבראשי תיבות יחודיים :\n\n🍒🍒🍒🍒🍒🍒🍒🍒🍒\nאנושי לטעות ואלוקי למחול  (אלול)\n=====================\nאדם למעט אלוקים להרבות (אלול)\n🍓🍓🍓🍓🍓🍓🍓🍓🍓\nלעולם ימעט אדם בכבודו\nוירבה בכבוד שמיים.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "2c41a244-8ba8-4b73-ac4d-8e2daf9d0853",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-30 19:36:35+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "יצחק notarikon source-attested; ארבע קבוצות sum=1406; תהלים קיא:ב canonical ragil=1406; שרשרות=1406",
+      "text_md5": "9abd3503db7fe13c67b96a83fa3438e7",
+      "save": {
+        "p_source_ref": "channel_updates:2d218895-96ea-4dc2-aac6-907dc00c4bf7#a0",
+        "p_kind": "observation",
+        "p_statement": "יצחק notarikon source-attested; ארבע קבוצות sum=1406; תהלים קיא:ב canonical ragil=1406; שרשרות=1406",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "יצחק notarikon source-attested; ארבע קבוצות sum=1406; תהלים קיא:ב canonical ragil=1406; שרשרות=1406",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "יצחק notarikon source-attested; ארבע קבוצות sum=1406; תהלים קיא:ב canonical ragil=1406; שרשרות=1406",
+            "kind_basis": "manifest_note_triage_disagrees",
+            "triage_artifacts_total": 3,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "ראשי תיבות",
+                "בגימטריא",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "יצחק- נוטריקונים\nישרים צדיקים חסידים קדושים ראשי התיבות:יצחק.\n🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷\nי-שועת צ-דיק ח-סד ק-ב\"ה.\nראשי תיבות: יצחק.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nגימטריא:ישרים+צדיקים+חסידים+\n+קדושים=1406 בגימטריא.\n כמו הגימטריא של תהילים קיא ב:\n\"גדולים מעשי י-הוה, דרושים לכל חפציהם\"גימטריא:1406.\n--❤️‍🩹❤️‍🩹🌈🌈❤️‍🩹❤️‍🩹🌈🌈❤️‍🩹❤️‍🩹-\nגימטריא:\"שרשרות\"=1406.\nמילה שמופיעה במלכים ובדברי הימים.\n\"שרשרות\" אותיות \"שרש רות\". השרשרות היו מחוברות לעמודים יכין ובעז בבית המקדש.יש כאן רמז לחיבור בין בועז לרות.שמהם יוצא דוד ומשיח.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+            "channel": "torat-haremez",
+            "created_at": "2026-09-08 06:08:13+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "40c949b4-a2d2-45a9-91dc-2f1be5d30887",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "מטה משה acronym/source claim preserved; external work not independently verified here",
+      "text_md5": "4dc2bfa8812c551ae0ca301cab40e608",
+      "save": {
+        "p_source_ref": "channel_updates:40c949b4-a2d2-45a9-91dc-2f1be5d30887#a0",
+        "p_kind": "observation",
+        "p_statement": "מטה משה acronym/source claim preserved; external work not independently verified here",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "מטה משה acronym/source claim preserved; external work not independently verified here",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "40c949b4-a2d2-45a9-91dc-2f1be5d30887",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "מטה משה acronym/source claim preserved; external work not independently verified here",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "סופי תיבות"
+              ]
+            }
+          },
+          "source_text": "ימים לקום בהשכמה :חלק א\n\nמתי לקום בהשכמה?\n\nיש מספר ימים בשנה לפי הפסוק:\n\"וישכם אברהם בבוקר\"\nשצריך לקום בהשכמה יותר מכל השנה.\nמתוך ספר \"מטה משה\":\nסופי תיבות: אברה\"ם.\n\n1-הושענא רבא.\n2-תשעה באב.\n3-יום כפור.\n4-ראש השנה\n4-פורים.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "40c949b4-a2d2-45a9-91dc-2f1be5d30887",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-16 16:27:26+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "6132ddf7-1c30-49ac-87a5-71d835cd3313",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "תכלת begins/ends ת and source acronym ראש; semantic interpretation remains source",
+      "text_md5": "d3c636cda5bfa21862610fa5bcb2ed41",
+      "save": {
+        "p_source_ref": "channel_updates:6132ddf7-1c30-49ac-87a5-71d835cd3313#a0",
+        "p_kind": "observation",
+        "p_statement": "תכלת begins/ends ת and source acronym ראש; semantic interpretation remains source",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "תכלת begins/ends ת and source acronym ראש; semantic interpretation remains source",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "6132ddf7-1c30-49ac-87a5-71d835cd3313",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "תכלת begins/ends ת and source acronym ראש; semantic interpretation remains source",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "ראשי תיבות"
+              ]
+            }
+          },
+          "source_text": "תכלת  חלק ג\n\n\nהתכלת מתחילה ומסתיימת באות 'ת'.\nזה מציין \"סוף מעשה במחשבה תחילה\"\n'ת' ראשונה זאת המחשבה להגיע לתכלית.\n'ת' אחרונה מורה על הסוף-השגת התכלית. \nכלומר המסר הוא לתכנן ולהתכוון  להגיע לתוצאה מראש.לא בצורה אקראית. רא\"ש  ראשי תיבות: ר-צון א-בינו ש-בשמיים.\nבין שתי אותיות ה 'ת' של התכלת נמצאת המילה 'כל' שרומזת על כל הכלים והצרכים הנדרשים להשגת התכלית.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "6132ddf7-1c30-49ac-87a5-71d835cd3313",
+            "channel": "torat-haremez",
+            "created_at": "2026-08-06 23:57:07+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "8570f018-0d7c-4a42-afcb-82d9dde1157c",
+      "class": "TEXT_PATTERN",
+      "disposition": "DUPLICATE_REPRESENTATION",
+      "audit_note": "semantic duplicate of 2c41a244; similarity 1.0 after punctuation/emoji normalization",
+      "text_md5": "bb6dd5013bd711f4c0097b7015a797a4",
+      "save": null
+    },
+    {
+      "source_id": "8b70034e-e93f-4669-8864-2bb8ed486565",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_MIXED",
+      "audit_note": "עכוב/כובע letter rearrangement source-attested; ישועת=786 verified; interpretation separate",
+      "text_md5": "bacfcba027361cdf662a7fc121cc9d5c",
+      "save": {
+        "p_source_ref": "channel_updates:8b70034e-e93f-4669-8864-2bb8ed486565#a0",
+        "p_kind": "observation",
+        "p_statement": "עכוב/כובע letter rearrangement source-attested; ישועת=786 verified; interpretation separate",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_MIXED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "עכוב/כובע letter rearrangement source-attested; ישועת=786 verified; interpretation separate",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "8b70034e-e93f-4669-8864-2bb8ed486565",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_MIXED",
+            "audit_note": "עכוב/כובע letter rearrangement source-attested; ישועת=786 verified; interpretation separate",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "נוטריקון",
+                "גימטריא"
+              ]
+            }
+          },
+          "source_text": "\"עכוב\" בשינוי אותיות \"כובע\"\nהכובע ביום יום הוא כסוי ראש.\nהכובע בעומק המחשבה והמדרשים הוא לבוש המכסה את אור הכתר.\n\"וכובע ישועה בראשו\" פסוק מספר ישעיהו נ\"ט.\nהישועה מעל הראש.\nרא\"ש נוטריקון רצון אבינו שבשמיים!\nכינוי לכתר.\n'ישועת' גימטריא תשפ\"ו✓✓",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "8b70034e-e93f-4669-8864-2bb8ed486565",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-28 06:01:45+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "b8913499-a93d-4c97-a4b8-b41f3771c2d4",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_ENGINE_VERIFIED",
+      "audit_note": "מרדכי274 + רשבי512 = 786",
+      "text_md5": "f5cf5f4493f5083e6e224ed1ba8dbd37",
+      "save": {
+        "p_source_ref": "channel_updates:b8913499-a93d-4c97-a4b8-b41f3771c2d4#a0",
+        "p_kind": "observation",
+        "p_statement": "מרדכי274 + רשבי512 = 786",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_ENGINE_VERIFIED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "מרדכי274 + רשבי512 = 786",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "b8913499-a93d-4c97-a4b8-b41f3771c2d4",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_ENGINE_VERIFIED",
+            "audit_note": "מרדכי274 + רשבי512 = 786",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": []
+            }
+          },
+          "source_text": "שאלה לא פשוטה על נושא מרתק:\nלמה \"מרדכי+רשב''י\"=תשפ\"ו",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "b8913499-a93d-4c97-a4b8-b41f3771c2d4",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-25 20:59:35+00"
+          }
+        }
+      }
+    },
+    {
+      "source_id": "c5b7da00-7a43-49d5-932a-4a32bbf75881",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_TESTED_MISMATCH",
+      "audit_note": "claims only one ראשי-תיבות עכוב verse; canonical rashei field has 2 verses",
+      "text_md5": "84c67a53e780b53e2b649a81ac30eed4",
+      "save": null
+    },
+    {
+      "source_id": "c736e15c-9dba-4fcc-83b3-bb0b8466e398",
+      "class": "TEXT_PATTERN",
+      "disposition": "READY_SOURCE_ATTESTED",
+      "audit_note": "canonical sofei field confirms עכוב in Genesis 36:33 and 1 Chronicles 1:44",
+      "text_md5": "90986e47a57882b7fa177f5f48a2e24b",
+      "save": {
+        "p_source_ref": "channel_updates:c736e15c-9dba-4fcc-83b3-bb0b8466e398#a0",
+        "p_kind": "observation",
+        "p_statement": "canonical sofei field confirms עכוב in Genesis 36:33 and 1 Chronicles 1:44",
+        "p_value": null,
+        "p_terms": [],
+        "p_contributor": "צבי (OPOC)",
+        "p_engine_verified": false,
+        "p_engine_detail": {
+          "verification_state": "not_run_client",
+          "audit_disposition": "READY_SOURCE_ATTESTED",
+          "audit_attestation": {
+            "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "note": "canonical sofei field confirms עכוב in Genesis 36:33 and 1 Chronicles 1:44",
+            "rerun_here": false
+          }
+        },
+        "p_meta": {
+          "intake": {
+            "batch": "RESEARCH_2029_ADMIN_INTAKE_BATCH_V1",
+            "manifest": "ZVI_ADMISSION_MANIFEST_V1",
+            "source_id": "c736e15c-9dba-4fcc-83b3-bb0b8466e398",
+            "class": "TEXT_PATTERN",
+            "disposition": "READY_SOURCE_ATTESTED",
+            "audit_note": "canonical sofei field confirms עכוב in Genesis 36:33 and 1 Chronicles 1:44",
+            "kind_basis": "manifest_note_no_routable_candidate",
+            "triage_artifacts_total": 0,
+            "assignment": "RESEARCH_2029_ADMIN_INTAKE_V1",
+            "audit": {
+              "version": "ZVI_ADMISSION_MANIFEST_V1",
+              "generated_at": "2026-10-07T18:29:46.215217+00:00",
+              "work_log_id": "18f6c4a2-3959-446b-933d-5967fd9e2527"
+            },
+            "extraction_fidelity": "exact_source_text",
+            "method": {
+              "canonical_method_key": null,
+              "source_attested_labels": [
+                "סופי תיבות"
+              ]
+            }
+          },
+          "source_text": "\"עכוב\" בסופי תיבות בתנ\"ך\n\"וַיָּ֖מָת בָּ֑לַ-ע וַיִּמְלֹ֣-ךְ תַּחְתָּ֔י-ו יוֹבָ֥-ב בֶּן־זֶ֖רַח מִבָּצְרָֽה׃\" (בראשית ל\"ו, ל\"ג)\n\"וַיָּ֖מָת בָּ֑לַ-ע וַיִּמְלֹ֣-ךְ תַּחְתָּ֔י-ו יוֹבָ֥-ב בֶּן־זֶ֖רַח מִבָּצְרָֽה׃\" (דברי הימים).\nהפסוק הזה מופיע גם בבראשית וגם בדברי הימים.\nמופיעה בו המילה \"עכוב\" בסופי תיבות.\nהמלכים הללו קדמו למלכות ישראל..\nכלומר יש כאן עכוב במלכות ישראל.\nוזהו מוזכר בספר הזוהר.",
+          "source_occurrence": {
+            "table": "channel_updates",
+            "id": "c736e15c-9dba-4fcc-83b3-bb0b8466e398",
+            "channel": "torat-haremez",
+            "created_at": "2026-07-30 11:34:02+00"
+          }
+        }
+      }
+    }
+  ]
+}

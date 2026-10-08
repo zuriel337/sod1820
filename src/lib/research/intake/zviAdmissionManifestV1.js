@@ -2,7 +2,8 @@
 // ZVI_DEEP_CORPUS_ONE_TREE_MAPPING_V1 (work_log 18f6c4a2-3959-446b-933d-5967fd9e2527, generated_at
 // 2026-10-07T18:29:46Z). This is a provenance artifact, NOT a store and NOT a re-scan: it carries only the
 // source occurrence identity (channel_updates.id), the audit disposition and the audit note. The exact
-// source text is read live, at dry-run time, through the signed-in admin's own session.
+// source text lives in zviSourceTextsV1.json (md5-verified against the canonical DB) and the frozen save payloads in
+// zviSavePayloadsV1.json (scripts/generate-zvi-save-payloads-v1.mjs); at dry-run the live row must still equal the frozen text.
 
 export const ZVI_MANIFEST_VERSION = "ZVI_ADMISSION_MANIFEST_V1";
 export const ZVI_SOURCE_TABLE = "channel_updates";
