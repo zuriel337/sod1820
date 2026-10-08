@@ -35,6 +35,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
+import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
   buildLearnHelpSeed,
   classifyEntryArrival,
@@ -54,6 +55,7 @@ import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
 import "./myWorkspace2029.css";
+import "./discoveryGate2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1788,7 +1790,7 @@ export default function SystemFrame2029({
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
-        <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
           <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
@@ -1808,10 +1810,12 @@ export default function SystemFrame2029({
         <div className="sod29-main">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
-              <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
-              <Link className="sod29-header-brand" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
-                <BrandLockup2029 className="is-header" />
-              </Link>
+              <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
+                <DiscoveryGateMark2029 open={navOpen} />
+              </button>
+              <button className="sod29-desktop-gate-trigger sod29-gate-trigger" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} title={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation">
+                <DiscoveryGateMark2029 open={!sidebarCollapsed} />
+              </button>
               <div className="sod29-orientation" aria-label="איפה אני">
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
@@ -1891,7 +1895,9 @@ export default function SystemFrame2029({
           >
             <div className="sod29-mobile-drawer-head">
               <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
-              <button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button>
+              <button className="sod29-gate-trigger" data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור ניווט">
+                <DiscoveryGateMark2029 open />
+              </button>
             </div>
             <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
               <BrandLockup2029 />
