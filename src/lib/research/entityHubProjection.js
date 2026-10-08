@@ -135,7 +135,7 @@ async function fetchResearchFacetRegistry(rows = []) {
   }
 }
 
-export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
+export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he", client = supabase } = {}) {
   if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
@@ -145,14 +145,14 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
 
   if (node.type === "number" && Number.isSafeInteger(Number(label))) {
     const value = Number(label);
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).eq("value", value), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [String(value)]), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [String(value)]), cap));
+    queries.push(runResearchQuery(client.from("research_objects").select(RESEARCH_FIELDS).eq("value", value), cap));
+    queries.push(runResearchQuery(client.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [String(value)]), cap));
+    queries.push(runResearchQuery(client.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [String(value)]), cap));
   }
 
   for (const term of terms) {
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
+    queries.push(runResearchQuery(client.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap));
+    queries.push(runResearchQuery(client.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
   }
 
   if (!queries.length) return { rows: [], findings: [], access: { available: true, reason: null } };
@@ -963,6 +963,7 @@ export async function fetchEntityHubProjection({
   locale = "he",
   relationLimit = 100,
   researchLimit = 40,
+  researchClient = supabase,
   topicLimit = 12,
   numberResearchLenses = null,
   numberLookupLimit = 500,
@@ -976,7 +977,7 @@ export async function fetchEntityHubProjection({
   const [definition, graphFindings, research] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
     fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
-    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
+    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, client: researchClient }),
   ]);
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;

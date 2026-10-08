@@ -1214,3 +1214,6 @@
 .sod29-golden-facet-filters button{cursor:pointer;font-weight:700}
 .sod29-golden-facet-filters small{align-self:center;color:var(--s29-muted)}
 .sod29-golden-source-text{white-space:pre-line;line-height:1.55;overflow-wrap:anywhere}
+.sod29-golden-mode-toggle button{min-height:44px;min-width:44px}
+.sod29-publication-control{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sod29-publication-control .sod29-action{min-height:44px}

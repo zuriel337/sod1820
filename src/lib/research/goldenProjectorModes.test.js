@@ -212,7 +212,10 @@ test("NEGATIVE PRIVACY (wiring): PUBLIC_VIEW never fetches admin data; admin pay
   // Fetch only inside the ADMIN_ALL branch; any other mode resets state to empty (no client-side hiding).
   assert.match(layer, /if \(!visible \|\| mode !== PROJECTOR_MODE\.ADMIN_ALL \|\| !postSlug\) \{\s*setUniverse\(\{ status: "idle", data: null \}\);/);
   assert.match(layer, /if \(!visible \|\| loading \|\| !isAdmin\) return null;/);
-  assert.match(layer, /resolveProjectorMode\(\{ isAdmin: !loading && isAdmin, requested \}\)/);
+  assert.match(layer, /useResearchViewMode\(\)/);
+  const shared = fs.readFileSync("src/components/experience2029/ResearchViewMode2029.jsx", "utf8");
+  assert.match(shared, /resolveProjectorMode\(\{ isAdmin: admin, requested \}\)/);
+  assert.match(shared, /const admin = !loading && !!isAdmin;/);
   assert.match(layer, /RESEARCH_FACET_FILTER_DEFAULTS/);
   assert.match(layer, /filterResearchFacetItems/);
   assert.match(layer, /מכפיל/);

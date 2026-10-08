@@ -21,7 +21,9 @@ import { isGeneralResearchProjectionEligible, researchObjectFacetDimensions } fr
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { methodComponentStateLabelHe, sourceMethodStateLabelHe } from "./researchFacetProjection.js";
 
-export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
+// Mode semantics live in the shared helper so World 2029 and the Projector cannot diverge.
+export { PROJECTOR_MODE, resolveProjectorMode } from "./researchViewMode.js";
+import { PROJECTOR_MODE } from "./researchViewMode.js";
 
 const clean = (v) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim());
 const cap = (v, n) => clean(v).slice(0, n);
@@ -79,12 +81,6 @@ function safeHebrewLabel(label, { fallback = "ממצא מחקר", value = null }
     .trim();
   if (/[א-ת]/.test(hebrew)) return cap(hebrew, 160);
   return value != null ? `${fallback} · ${value}` : fallback;
-}
-
-/** Admin is the default for an authorized admin; anything else is PUBLIC_VIEW (fail closed). */
-export function resolveProjectorMode({ isAdmin = false, requested = null } = {}) {
-  if (!isAdmin) return PROJECTOR_MODE.PUBLIC_VIEW;
-  return requested === PROJECTOR_MODE.PUBLIC_VIEW ? PROJECTOR_MODE.PUBLIC_VIEW : PROJECTOR_MODE.ADMIN_ALL;
 }
 
 // ── SMART prominence ──────────────────────────────────────────────────────────────────────────
@@ -315,6 +311,8 @@ export function buildGoldenAdminUniverse({
       identityKey: directExpr ? `expr:${directMethod}\u0000${directExpr}` : `ro:${row.id}`,
       id: `ro:${row.id}`,
       researchObjectId: String(row.id),
+      privacyScope: row.privacy_scope ?? null,
+      meta: { ext: { personal_scope: { scope: row.meta?.ext?.personal_scope?.scope ?? null } } },
       type: presentation.typeLabel || "ממצא מחקר",
       label: cap(presentation.title, 200) || "ממצא מחקר",
       value: row.value != null ? String(row.value) : null,

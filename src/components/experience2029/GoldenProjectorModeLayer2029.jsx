@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useAuth } from "../../lib/AuthContext.jsx";
 import ProjectorMediaCards2029 from "./ProjectorMediaCards2029.jsx";
 import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
-import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse, resolveProjectorMode } from "../../lib/research/goldenProjectorModes.js";
+import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse } from "../../lib/research/goldenProjectorModes.js";
+import { ResearchPublicationControl2029, ResearchViewModeSwitch2029, useResearchViewMode } from "./ResearchViewMode2029.jsx";
 import {
   RESEARCH_FACET_FILTER_DEFAULTS,
   RESEARCH_OPERATION_LABELS_HE,
@@ -17,7 +17,6 @@ import {
 // Research Context (persisted/synced, read by Raziel). PUBLIC_VIEW performs no admin read and drops
 // any admin payload already in memory, so the public preview equals what a public visitor receives.
 
-const MODE_KEY = "sod29.goldenProjector.mode";
 const PAGE = 30;
 
 const LAYER_LABEL = {
@@ -26,15 +25,6 @@ const LAYER_LABEL = {
   [ADMIN_LAYER.TRACE]: "טענות מקור ואימות Trace",
   [ADMIN_LAYER.RESEARCH]: "מחקר מורשה (פרטי / מועמדים / מקושר לפי ערך)",
 };
-
-function readStoredMode() {
-  try { return window.sessionStorage.getItem(MODE_KEY); } catch { return null; }
-}
-function storeMode(mode) {
-  try { window.sessionStorage.setItem(MODE_KEY, mode); } catch { /* per-viewer convenience only */ }
-}
-
-
 
 function AdminRow({ item }) {
   return <li className="sod29-golden-admin-row">
@@ -50,6 +40,7 @@ function AdminRow({ item }) {
         <dt>מקור</dt><dd>{item.provenance || "—"}</dd>
         {item.sourceText ? <><dt>דברי המקור</dt><dd className="sod29-golden-source-text">{item.sourceText}</dd></> : null}
         {item.axes ? <><dt>סדר</dt><dd>{explainProminence(item.axes)}</dd></> : null}
+        {item.researchObjectId ? <><dt>פרסום</dt><dd><ResearchPublicationControl2029 researchObjectId={item.researchObjectId} row={{ privacy_scope: item.privacyScope, meta: item.meta }} /></dd></> : null}
       </dl>
     </details>
   </li>;
@@ -66,11 +57,9 @@ function AdminLayer({ layerKey, items }) {
 }
 
 export default function GoldenProjectorModeLayer2029({ context, surface }) {
-  const { isAdmin, loading } = useAuth();
+  const { isAdmin, loading, mode, choose } = useResearchViewMode();
   const location = useLocation();
   const visible = isProjectorPilotVisible({ surface, pathname: location.pathname, context });
-  const [requested, setRequested] = useState(readStoredMode);
-  const mode = resolveProjectorMode({ isAdmin: !loading && isAdmin, requested });
   const postSlug = context?.dimensions?.readingFocus?.postSlug || null;
   const [universe, setUniverse] = useState({ status: "idle", data: null });
   const [facetFilters, setFacetFilters] = useState(() => ({ ...RESEARCH_FACET_FILTER_DEFAULTS }));
@@ -108,7 +97,6 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
 
   if (!visible || loading || !isAdmin) return null;
 
-  const choose = (next) => { storeMode(next); setRequested(next); };
   const data = universe.data;
   const researchItems = data?.layers?.[ADMIN_LAYER.RESEARCH] || [];
   const facetControl = buildResearchFacetControl(researchItems);
@@ -117,10 +105,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
   const resetFacets = () => setFacetFilters({ ...RESEARCH_FACET_FILTER_DEFAULTS });
 
   return <section className="sod29-golden-mode" data-golden-projector-mode={mode} aria-label="מצב תצוגת ההקשר">
-    <div className="sod29-golden-mode-toggle" role="group" aria-label="מנהל | ציבור">
-      <button type="button" aria-pressed={mode === PROJECTOR_MODE.ADMIN_ALL} onClick={() => choose(PROJECTOR_MODE.ADMIN_ALL)}>מנהל / הכל</button>
-      <button type="button" aria-pressed={mode === PROJECTOR_MODE.PUBLIC_VIEW} onClick={() => choose(PROJECTOR_MODE.PUBLIC_VIEW)}>ציבור</button>
-    </div>
+    <ResearchViewModeSwitch2029 mode={mode} onChange={choose} />
     <ProjectorMediaCards2029 postSlug={postSlug} context={context} />
     {mode === PROJECTOR_MODE.PUBLIC_VIEW
       ? <p className="sod29-golden-mode-note">תצוגה ציבורית: מוצג בדיוק מה שמבקר ציבורי מורשה לראות. לא נטען כאן שום חומר פרטי.</p>

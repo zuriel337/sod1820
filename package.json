@@ -51,6 +51,7 @@
     "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs",
     "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs",
     "test:whatsapp-kod-hametsiut-join": "node scripts/test-whatsapp-kod-hametsiut-join.mjs",
+    "test:research-admin-public-control": "node --test src/lib/research/researchAdminPublicControl.test.js src/lib/research/goldenProjectorModes.test.js && bash scripts/run-research-admin-public-control-sql-test.sh",
     "test:video-semantic-tree": "node --test scripts/test-video-semantic-tree-projector-v1.mjs"
   },
   "engines": {

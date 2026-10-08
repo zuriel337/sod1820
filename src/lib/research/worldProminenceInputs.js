@@ -20,10 +20,10 @@ function isAccessDenied(error) {
   return error?.code === "42501" || /permission denied/i.test(String(error?.message || ""));
 }
 
-async function fetchResearchSupplements(data) {
+async function fetchResearchSupplements(data, client = supabase) {
   const ids = [...new Set(asArray(data?.research?.rows).map((row) => clean(row?.id)).filter(Boolean))];
   if (!ids.length) return { available: true, rows: [] };
-  const { data: rows, error } = await supabase
+  const { data: rows, error } = await client
     .from("research_objects")
     .select("id,parent_id,evidence,owner_person_id,meta")
     .in("id", ids);
@@ -50,7 +50,7 @@ async function fetchCrossMethodStrength(data) {
   return { available: true, row: row || null };
 }
 
-async function fetchEventContext(data, { researchLimit = 20 } = {}) {
+async function fetchEventContext(data, { researchLimit = 20, client = supabase } = {}) {
   if (data?.identity?.type !== "event" || !data?.identity?.nodeId) return { available: true, context: null };
   const nodeId = String(data.identity.nodeId);
   const { data: node, error: nodeError } = await supabase
@@ -89,7 +89,7 @@ async function fetchEventContext(data, { researchLimit = 20 } = {}) {
 
   const cap = Math.max(1, Math.min(Math.trunc(Number(researchLimit) || 20), 40));
   const sourcePrefix = `posts:${post.id}`;
-  const { data: researchRows, error: researchError } = await supabase
+  const { data: researchRows, error: researchError } = await client
     .from("research_objects")
     .select(RESEARCH_PROMINENCE_FIELDS)
     .like("source_ref", `${sourcePrefix}%`)
@@ -124,7 +124,7 @@ async function fetchEventContext(data, { researchLimit = 20 } = {}) {
  * service-role bypass. Raw reads exist only for dimensions with no shared adapter yet; source
  * identity, truth state and access are preserved rather than inferred.
  */
-export async function fetchWorldProminenceInputs(data, { eventResearchLimit = 20 } = {}) {
+export async function fetchWorldProminenceInputs(data, { eventResearchLimit = 20, researchClient = supabase } = {}) {
   if (!data?.identity) {
     return {
       researchSupplements: [],
@@ -140,9 +140,9 @@ export async function fetchWorldProminenceInputs(data, { eventResearchLimit = 20
   }
 
   const [supplements, crossMethod, event] = await Promise.all([
-    fetchResearchSupplements(data),
+    fetchResearchSupplements(data, researchClient),
     fetchCrossMethodStrength(data),
-    fetchEventContext(data, { researchLimit: eventResearchLimit }),
+    fetchEventContext(data, { researchLimit: eventResearchLimit, client: researchClient }),
   ]);
 
   return {

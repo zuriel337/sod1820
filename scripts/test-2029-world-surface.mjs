@@ -506,14 +506,14 @@ assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct 
 assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
 assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
-assert.match(world, /const \[adminToolsOpen, setAdminToolsOpen\] = useState\(false\)/);
-assert.match(world, /const controlMode = isAdmin && adminToolsOpen/);
-assert.match(world, /aria-controls="world-admin-tools"/);
-assert.match(world, /adminToolsOpen \? "סגור כלי מנהל" : "כלי מנהל"/);
+assert.match(world, /const viewMode = useResearchViewMode\(\)/); // RESEARCH_2029_ADMIN_PUBLIC_CONTROL_V1: shared מנהל / הכל | ציבור switch replaces the ad-hoc admin-tools toggle
+assert.match(world, /const controlMode = isAdmin && viewMode\.mode === PROJECTOR_MODE\.ADMIN_ALL/);
+assert.equal(world.includes("adminToolsOpen"), false, "ad-hoc admin-tools open/close removed");
+assert.match(world, /<ResearchViewModeSwitch2029 mode=\{viewMode\.mode\}/);
 assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
-assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
+assert.match(world, /const adminMode = isAdmin && viewMode\.mode === PROJECTOR_MODE\.ADMIN_ALL/);
 assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
 assert.match(world, /שכבת המחקר המלאה שמורה לשער האנושי/);
 assert.ok(
@@ -929,7 +929,7 @@ assert.match(world, /מיון קשרים/);
 // Admin mode consumes the existing Auth owner and is visibility-only.
 assert.match(world, /useAuth/);
 assert.match(world, /const \{ isAdmin \} = useAuth\(\)/);
-assert.match(world, /מצב מנהל/);
+assert.match(world, /ResearchViewModeSwitch2029/); // shared מנהל / הכל | ציבור switch
 assert.match(world, /מצב הניהול של העולם נפתח רק כשמנהל בוחר בו/);
 assert.match(world, /אינו עוקף הרשאות נתונים/);
 assert.match(world, /גישה ·/);

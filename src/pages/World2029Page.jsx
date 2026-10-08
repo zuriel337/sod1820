@@ -1,3 +1,5 @@
+import { ResearchPublicationControl2029, ResearchViewModeSwitch2029, useResearchViewMode } from "../components/experience2029/ResearchViewMode2029.jsx";
+import { PROJECTOR_MODE, researchReaderForMode } from "../lib/research/researchViewMode.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -472,8 +474,8 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
-  const [adminToolsOpen, setAdminToolsOpen] = useState(false);
-  const controlMode = isAdmin && adminToolsOpen;
+  const viewMode = useResearchViewMode();
+  const controlMode = isAdmin && viewMode.mode === PROJECTOR_MODE.ADMIN_ALL;
   const [landing, setLanding] = useState({
     loading: true,
     sections: {},
@@ -876,13 +878,7 @@ function LiveWorldLanding({ research, shell, context }) {
               {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
             </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
           </div>
-          {isAdmin ? <button
-            className="sod29-action"
-            type="button"
-            aria-expanded={adminToolsOpen}
-            aria-controls="world-admin-tools"
-            onClick={() => setAdminToolsOpen((open) => !open)}
-          >{adminToolsOpen ? "סגור כלי מנהל" : "כלי מנהל"}</button> : null}
+          {isAdmin ? <ResearchViewModeSwitch2029 mode={viewMode.mode} onChange={viewMode.choose} /> : null}
           <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
           <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
         </div>
@@ -1140,12 +1136,15 @@ function LiveWorldLanding({ research, shell, context }) {
 
 function AnchoredWorld({ research, shell, subject, context }) {
   const { isAdmin } = useAuth();
+  const viewMode = useResearchViewMode();
+  // ADMIN_ALL only for an authorized admin; PUBLIC_VIEW reads research through the anonymous client.
+  const adminMode = isAdmin && viewMode.mode === PROJECTOR_MODE.ADMIN_ALL;
+  const researchClient = researchReaderForMode(isAdmin ? viewMode.mode : PROJECTOR_MODE.PUBLIC_VIEW);
   const [state, setState] = useState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
   const [relationFilter, setRelationFilter] = useState("all");
   const [relationSort, setRelationSort] = useState("recommended");
   const [whyOpen, setWhyOpen] = useState(null);
-  const [adminMode, setAdminMode] = useState(false);
   const [adminView, setAdminView] = useState("research");
   const [researchFilters, setResearchFilters] = useState(() => ({ ...WORLD_RESEARCH_FILTER_DEFAULTS }));
   const [activeLane, setActiveLane] = useState("overview");
@@ -1185,13 +1184,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40 })
+    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40, researchClient })
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
         let prominenceError = null;
         try {
-          prominenceInputs = data ? await fetchWorldProminenceInputs(data) : null;
+          prominenceInputs = data ? await fetchWorldProminenceInputs(data, { researchClient }) : null;
         } catch (error) {
           prominenceError = error;
         }
@@ -1199,10 +1198,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
       })
       .catch((error) => alive && setState({ loading: false, data: null, prominenceInputs: null, prominenceError: null, error }));
     return () => { alive = false; };
-  }, [key, subject.id, subject.type]);
+  }, [key, subject.id, subject.type, adminMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!isAdmin) setAdminMode(false);
     setAdminView("research");
     setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
@@ -1582,7 +1580,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-actions">
           {data?.identity ? <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span> : null}
-          {isAdmin && data ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
+          {isAdmin ? <ResearchViewModeSwitch2029 mode={viewMode.mode} onChange={viewMode.choose} /> : null}
           <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
         </div>
       </div>
@@ -2048,6 +2046,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                 <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
                 <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
                 <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+                <ResearchPublicationControl2029 researchObjectId={researchObjectIdFromFinding(finding)} row={{ privacy_scope: finding.access?.tier }} />
                 {(finding?.projection?.dimensions?.researchFacets?.methodComponents || []).map((component, componentIndex) => <span className="sod29-chip" key={`component:${component.methodKey || componentIndex}:${component.expression || componentIndex}`}>{methodComponentStateLabelHe(component)}</span>)}
                 {(sourceOccurrence?.methodMentions || []).map((method) => <span className="sod29-chip" key={`${method.token}:${method.state}`}>{sourceMethodStateLabelHe(method)}</span>)}
                 {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
