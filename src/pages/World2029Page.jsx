@@ -40,6 +40,7 @@ import {
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
+import { discoveryFindingRoute } from "../lib/research/worldDiscoveryRoute.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -800,8 +801,9 @@ function LiveWorldLanding({ research, shell, context }) {
       return;
     }
     if (item.kind === "finding") {
-      if (Number.isFinite(Number(item.value))) {
-        const value = Number(item.value);
+      const target = discoveryFindingRoute(item);
+      if (target.route === "number") {
+        const value = target.value;
         research.setResearchContext?.({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
           selection: { entityId: String(value), entityType: "number" },
@@ -809,6 +811,10 @@ function LiveWorldLanding({ research, shell, context }) {
           dimensions: { entrySource: "world-discovery-finding", sourceRef: item.sourceRef || null },
           returnTo: { href: "/world", label: "מה חדש בעולם" },
         });
+        return;
+      }
+      if (target.route === "inspect") {
+        shell.openInspect?.({ id: target.id, type: target.type, label: item.label, href: "/world" });
         return;
       }
       const slug = item.creatorSlug || landing.contributors?.people?.find((person) => person.displayName === item.creator)?.slug || null;
