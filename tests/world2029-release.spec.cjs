@@ -194,7 +194,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
   await expect(entry.getByRole('button', { name: /חפש בעולם/ })).toBeVisible();
 
-  const core = entry.locator('.sod29-world-core-map');
+  const core = page.locator('#world-advanced .sod29-world-core-map');
   await expect(core).toBeVisible();
   await expect(core.getByRole('button', { name: 'פתח חיפוש בעולם' })).toBeVisible();
   await expect(core.getByText('בחר שער כדי לקפוץ ישר אליו')).toBeVisible();
