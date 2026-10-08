@@ -70,9 +70,34 @@ async function readAttestedLinks(topics) {
   return links;
 }
 
-export async function fetchWorldSourceDepth() {
-  if (!supabase) return buildSourceDepth({ complete: false });
-  const [{ posts, complete }, topics] = await Promise.all([readAllPosts(), readTopics()]);
-  const attestedLinks = await readAttestedLinks(topics);
-  return buildSourceDepth({ posts, topics, attestedLinks, complete });
+// Module-level memo: one bounded facet read per page session, never per component mount.
+let depthPromise = null;
+export function fetchWorldSourceDepth() {
+  if (!supabase) return Promise.resolve(buildSourceDepth({ complete: false }));
+  if (!depthPromise) {
+    depthPromise = (async () => {
+      const [{ posts, complete }, topics] = await Promise.all([readAllPosts(), readTopics()]);
+      const attestedLinks = await readAttestedLinks(topics);
+      return buildSourceDepth({ posts, topics, attestedLinks, complete });
+    })().catch((error) => { depthPromise = null; throw error; });
+  }
+  return depthPromise;
+}
+
+export const SOURCE_PAGE_SIZE = 12;
+
+// Genuine server-side pagination of public source works for ONE category (existing posts reader,
+// same anon-readable columns the rest of World uses). Returns {rows, hasMore}.
+export async function fetchCategorySources(category, page = 0) {
+  if (!supabase || !clean(category)) return { rows: [], hasMore: false };
+  const from = page * SOURCE_PAGE_SIZE;
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id,slug,title,date")
+    .contains("categories", [category])
+    .order("date", { ascending: false, nullsFirst: false })
+    .range(from, from + SOURCE_PAGE_SIZE);
+  if (error) throw error;
+  const rows = (data || []).filter((r) => clean(r.slug));
+  return { rows: rows.slice(0, SOURCE_PAGE_SIZE), hasMore: (data || []).length > SOURCE_PAGE_SIZE };
 }
