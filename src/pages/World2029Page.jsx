@@ -830,6 +830,18 @@ function LiveWorldLanding({ research, shell, context }) {
     return value;
   };
 
+  // World Golden #1: the contributor lens is a projection of the existing public
+  // attributed material. It never opens a private research collection.
+  const openZviGolden = () => {
+    if (!landing.contributors?.bySlug?.["tzvi-opoc"] || typeof document === "undefined") return;
+    setWriterFilter("tzvi-opoc");
+    const target = document.getElementById("world-researchers");
+    if (!target) return;
+    target.focus?.({ preventScroll: true });
+    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
+
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
     const section = document.getElementById(landingSectionId(facet.key));
@@ -864,8 +876,8 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-world-discovery-head">
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
-          <h2>מה חדש בעולם?</h2>
-          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
+          <h2>עולם של רמזים.<br /><span>כל גילוי פותח סיפור.</span></h2>
+          <p>כתבים עתיקים, רמזי גאולה, סיפורים מהמציאות וחיבורים מפתיעים. מתחילים במה שמסקרן — ומעמיקים רק כשרוצים.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -888,8 +900,43 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
 
+      <div className="sod29-world-golden-intro">
+        <span className="sod29-kicker">שלושה שערים להתחיל מהם</span>
+        <p>בחר מה מסקרן אותך. לא צריך להכיר מנועים, שיטות או מספרים כדי לצאת לדרך.</p>
+      </div>
+      <nav className="sod29-world-golden-gates" aria-label="שלושה שערי גילוי ראשונים" data-experience-capability="world-golden-discovery-entrances">
+        <button
+          type="button"
+          className="sod29-world-golden-card is-contributor"
+          onClick={openZviGolden}
+          disabled={!landing.contributors?.bySlug?.["tzvi-opoc"]}
+          aria-label="גלה חומרים ציבוריים המיוחסים לצבי"
+        >
+          <span className="sod29-world-golden-symbol" aria-hidden="true">✧</span>
+          <span className="sod29-world-golden-kicker">אדם · רמזים וכתבים</span>
+          <strong>בעקבות צבי</strong>
+          <span className="sod29-world-golden-description">לגלות חיבורים דרך כתביו וממצאיו המיוחסים לצבי, כשהם זמינים להצגה ציבורית.</span>
+          <span className="sod29-world-golden-action">{landing.contributors?.bySlug?.["tzvi-opoc"] ? "פתח את העדשה ←" : "החומר הציבורי עדיין לא זמין"}</span>
+        </button>
+        <Link className="sod29-world-golden-card is-source" to="/post/elementor-31725" aria-label="קרא דוגמה מתוך כתבי סוד החשמל">
+          <span className="sod29-world-golden-symbol" aria-hidden="true">❖</span>
+          <span className="sod29-world-golden-kicker">מקור · דברי הכותב</span>
+          <strong>סוד החשמל</strong>
+          <span className="sod29-world-golden-description">היכרות עם כתבי המקור דרך סיפור אחד. עדשת הקורפוס המלאה נבנית בנפרד, על אותו עץ.</span>
+          <span className="sod29-world-golden-action">קרא כתב מקור ←</span>
+        </Link>
+        <Link className="sod29-world-golden-card is-story" to="/post/flydubai-fz1073-363-14000-remzei-geula" aria-label="פתח את פוסט המטוס וטיסה 1073">
+          <span className="sod29-world-golden-symbol" aria-hidden="true">✦</span>
+          <span className="sod29-world-golden-kicker">סיפור · מציאות ורמז</span>
+          <strong>המטוס ו־1073</strong>
+          <span className="sod29-world-golden-description">סיפור אחד, מספרים ורמזים שנקשרים אליו — ולצידם ההבחנה בין אירוע לבין פרשנות.</span>
+          <span className="sod29-world-golden-action">פתח את הסיפור ←</span>
+        </Link>
+      </nav>
+
       <div className="sod29-world-discovery-grid">
         <div className="sod29-world-live-stream">
+          <div className="sod29-world-live-head"><span className="sod29-kicker">מתעדכן מהתוכן המורשה</span><h3>מה חדש בעולם?</h3></div>
           <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
             <button type="button" className={`sod29-world-stream-filter${discoveryCreator === "all" ? " is-active" : ""}`} aria-pressed={discoveryCreator === "all"} onClick={() => setDiscoveryCreator("all")}>הכול</button>
             {discoveryCreators.map((creator) => <button
@@ -909,7 +956,7 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "finding" ? "ממצא מתועד" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
@@ -919,14 +966,14 @@ function LiveWorldLanding({ research, shell, context }) {
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
             </button>)}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מאחד Research Findings מורשים והתכנסויות מאושרות. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
+          <div className="sod29-world-stream-truth-note">מוצגים כאן תכנים המותרים לצפייה. רמז, פרשנות או חיבור אינם כשלעצמם הוכחה.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
           <div className="sod29-world-spatial-copy">
             <span className="sod29-kicker">לב העולם</span>
-            <h3>לא רשימה — מרחב.</h3>
-            <p>כל שער הוא projection של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
+            <h3>אפשר ללכת בעקבות רמז.</h3>
+            <p>בחר נושא, מקור או מספר — וגלה לאילו סיפורים וקשרים הוא מוביל.</p>
           </div>
           <WorldCoreMap
             sections={landing.sections}
