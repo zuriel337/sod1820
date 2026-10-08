@@ -117,28 +117,28 @@ function SourceGroup({ group, P, S }) {
       <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, fontWeight: 900, color: P.accentText, marginBottom: SPACE[1] }}>המקור · דברי החוקר</div>
       <div style={{ ...TYPE_SCALE.body, fontFamily: F.body, whiteSpace: "pre-wrap", color: P.ink }}>{group.source.text}</div>
       {(group.source.imageUrl || group.source.thumbUrl) ? <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginTop: SPACE[2] }}>יש מדיה מקורית שמורה במקור.</div> : null}
-    </section> : <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>מקור: {group.sourceRef}</div>}
+    </section> : <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>מקור ללא טקסט שמור{group.source?.channel ? ` · ${group.source.channel}` : ""}</div>}
 
-    {findings.length ? <section data-experience-capability="contributor-system-analysis">
+    {findings.length ? <details data-experience-capability="contributor-system-analysis">
+      <summary style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink, cursor: "pointer", fontWeight: 800, marginBottom: SPACE[2] }}>ניתוח המערכת · {findings.length} ממצאים (סגור כברירת מחדל)</summary>
       <div style={{ display: "flex", gap: SPACE[2], justifyContent: "space-between", alignItems: "center", marginBottom: SPACE[2], flexWrap: "wrap" }}>
         <div>
-          <strong style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink }}>ניתוח המערכת</strong>
-          <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>המקור נשאר מקור; הממצאים למטה הם extraction / verification נפרדים.</div>
+          <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>המקור נשאר מקור; הממצאים למטה הם חילוץ ואימות נפרדים.</div>
         </div>
         {findings.length > 6 ? <button type="button" onClick={() => setExpanded((value) => !value)} style={S.action}>
           {expanded ? "צמצם" : `כל ${findings.length} הממצאים`}
         </button> : null}
       </div>
       {shown.map((finding) => <FindingSurface key={finding.id} finding={finding} compact />)}
-    </section> : null}
+    </details> : null}
 
     {(group.lexicalTags || []).length ? <footer style={{ display: "flex", gap: SPACE[1], flexWrap: "wrap", alignItems: "center" }}>
-      <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>תגיות exact-match קיימות:</span>
+      <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>תגיות קשורות:</span>
       {group.lexicalTags.slice(0, 18).map((tag) => <span key={tag} style={{ ...S.pill, color: P.inkSoft }}>{tag}</span>)}
     </footer> : null}
 
     <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>
-      {findings.length ? null : "מקור ציבורי כפי שנשלח; פרסום מקור אינו אימות מחקרי. "}מצב: {group.topicState === "linked_topic" ? "מקושר ל־Topic קיים" : "Finding-first · עדיין לא Topic"}
+      {findings.length ? null : "מקור ציבורי כפי שנשלח; פרסום מקור אינו אימות מחקרי. "}מצב: {group.topicState === "linked_topic" ? "מקושר להתכנסות" : "טרם צורף להתכנסות"}
     </div>
   </article>;
 }
@@ -149,7 +149,7 @@ function TopicCard({ topic, P, S }) {
     data-experience-capability="contributor-approved-topic"
     style={{ ...S.box, display: "block", padding: SPACE[3], color: P.ink, textDecoration: "none" }}
   >
-    <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>Topic מאושר / היסטורי · {dt(topic.approvedAt || topic.createdAt)}</div>
+    <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>התכנסות מאושרת / היסטורית · {dt(topic.approvedAt || topic.createdAt)}</div>
     <strong style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>{topic.statement}</strong>
     {topic.secondary ? <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft, marginTop: SPACE[1] }}>{topic.secondary}</div> : null}
     {(topic.values || []).length ? <div style={{ marginTop: SPACE[2], display: "flex", gap: SPACE[1], flexWrap: "wrap" }}>
@@ -211,7 +211,7 @@ export default function ContributorFindingsLens({
       <h2 style={{ margin: `${SPACE[1]}px 0 ${SPACE[2]}px`, ...TYPE_SCALE.title, fontFamily: F.ui }}>כל הממצאים של {projection.contributor.displayName}</h2>
       <div style={{ ...TYPE_SCALE.body, fontFamily: F.body, color: P.inkSoft, maxWidth: LAYOUT.readingMax }}>
         זו עדשת provenance על אותו Research OS. החוקר הוא מי שהביא את החומר — לא “עולם” נפרד.
-        מקור, ממצא, אימות, Topic ופרסום נשארים שכבות שונות.
+        מקור, ממצא, אימות, התכנסות ופרסום נשארים שכבות שונות.
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: SPACE[2], marginTop: SPACE[3] }}>
         {[
@@ -219,7 +219,7 @@ export default function ContributorFindingsLens({
           ["מהם עם ממצאים", countOrUnknown("research", projection.counts.sourceGroupsWithFindings)],
           ["ממצאים שחולצו", countOrUnknown("research", projection.counts.researchObjects)],
           ["אימותי מנוע", countOrUnknown("research", projection.counts.engineVerified)],
-          ["Topics קיימים", countOrUnknown("topics", projection.counts.topics)],
+          ["התכנסויות", countOrUnknown("topics", projection.counts.topics)],
           ["ערכים מספריים", projection.counts.uniqueValues],
         ].map(([label, value]) => <div key={label} style={{ ...S.box, padding: SPACE[2] }}>
           <strong style={{ ...TYPE_SCALE.title, fontFamily: F.numeric, color: P.accentText }}>{value}</strong>
@@ -238,7 +238,7 @@ export default function ContributorFindingsLens({
           ["recent", `חדש · ${recentDays} ימים`],
           ["all", "כל המקורות"],
           ["verified", "עם אימות מנוע"],
-          ["topics", `Topics · ${projection.counts.topics}`],
+          ["topics", `התכנסויות · ${projection.counts.topics}`],
         ].map(([key, label]) => <button
           key={key}
           type="button"

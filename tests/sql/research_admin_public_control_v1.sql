@@ -12,7 +12,7 @@ create table public.users (id uuid primary key, role text);
 create table public.research_objects (
   id uuid primary key default gen_random_uuid(), status text not null default 'candidate',
   privacy_scope text not null default 'private', engine_verified boolean default false, engine_detail jsonb,
-  promoted_node_id uuid, source_ref text, contributor text, meta jsonb default '{}'::jsonb);
+  promoted_node_id uuid, owner_person_id uuid, source_ref text, contributor text, meta jsonb default '{}'::jsonb);
 alter table public.research_objects add constraint research_objects_privacy_scope_check
   check (privacy_scope = any (array['private','family_shared','public_candidate']));
 alter table public.research_objects enable row level security;
@@ -85,9 +85,19 @@ insert into research_objects (id,status,privacy_scope,contributor,meta) values
 set role anon; set test.uid = '';
 select t_assert((select count(*) from research_objects where id in ('10000000-0000-0000-0000-000000000005','10000000-0000-0000-0000-000000000006'))=0, 'public_candidate/family_shared not anon-readable after grant');
 reset role;
+-- owner-bound (personal) rows: cannot be published, and a forced-public one is still not anon-readable
+insert into research_objects (id,status,privacy_scope,owner_person_id,meta) values
+ ('10000000-0000-0000-0000-000000000007','candidate','private','20000000-0000-0000-0000-000000000001','{}');
+set role authenticated; set test.uid = '00000000-0000-0000-0000-0000000000aa';
+select t_assert((public.admin_research_set_publication_v1('10000000-0000-0000-0000-000000000007', true)->>'error')='owner_bound_cannot_publish', 'owner-bound refused');
+reset role;
+update research_objects set privacy_scope='public' where id='10000000-0000-0000-0000-000000000007';
+set role anon; set test.uid = '';
+select t_assert((select count(*) from research_objects where id='10000000-0000-0000-0000-000000000007')=0, 'owner-bound never public-readable');
+reset role;
 -- admin can read everything after the grant (previously 403 without table privilege)
 set role authenticated; set test.uid = '00000000-0000-0000-0000-0000000000aa';
-select t_assert((select count(*) from research_objects)=6, 'admin reads all rows after grant');
+select t_assert((select count(*) from research_objects)=7, 'admin reads all rows after grant');
 reset role;
 -- non-admin authenticated reads only public rows
 set role authenticated; set test.uid = '00000000-0000-0000-0000-0000000000bb';

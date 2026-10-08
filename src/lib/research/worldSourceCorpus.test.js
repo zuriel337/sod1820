@@ -40,3 +40,15 @@ test("read failure throws (shown as failure, never as an empty library)", async 
   const client = { from: () => { const b = { select: () => b, or: () => b, order: () => b, range: () => Promise.resolve({ data: null, error: { message: "boom" } }) }; return b; } };
   await assert.rejects(() => fetchCorpusPage(HASHMAL, 0, { client }));
 });
+
+test("draft/forum suppression happens in the SERVER query; count and hasMore are the exact public figures", async () => {
+  const ors = [];
+  const rows = Array.from({ length: CORPUS_PAGE_SIZE }, (_, i) => ({ id: i, slug: `s${i}`, title: `מקור ${i}`, tags: [] }));
+  const client = { from: () => { const b = { select: () => b, or: (f) => { ors.push(f); return b; }, order: () => b, range: () => Promise.resolve({ data: rows, count: 131 }) }; return b; } };
+  const page = await fetchCorpusPage(HASHMAL, 0, { client });
+  assert.ok(ors.some((f) => f.includes("tags.not.ov.{טיוטה,פורום}") && f.includes("tags.is.null")), "server filter excludes draft/forum, keeps null tags");
+  assert.equal(page.total, 131, "public count, not raw 132");
+  assert.equal(page.hasMore, true);
+  const last = await fetchCorpusPage(HASHMAL, 5, { client: { from: () => { const b = { select: () => b, or: () => b, order: () => b, range: () => Promise.resolve({ data: rows.slice(0, 11), count: 131 }) }; return b; } } });
+  assert.equal(last.hasMore, false, "5*24+11 = 131 -> no more pages");
+});

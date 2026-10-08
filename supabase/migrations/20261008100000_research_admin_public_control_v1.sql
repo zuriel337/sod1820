@@ -11,12 +11,13 @@ alter table public.research_objects
   add constraint research_objects_privacy_scope_check
   check (privacy_scope = any (array['private','family_shared','public_candidate','public']));
 
--- 2. Public read: ONLY privacy_scope='public' and not person_only. public_candidate / family_shared not widened.
+-- 2. Public read: ONLY privacy_scope='public', not person_only, and not owner-bound (owner_person_id is null). public_candidate / family_shared not widened.
 drop policy if exists ro_public_read on public.research_objects;
 create policy ro_public_read on public.research_objects
   for select
   using (
     privacy_scope = 'public'
+    and owner_person_id is null
     and coalesce(meta #>> '{ext,personal_scope,scope}', '') <> 'person_only'
   );
 
@@ -32,6 +33,7 @@ create policy ro_dossier_read on public.research_objects
   for select
   using (
     privacy_scope = 'public'
+    and owner_person_id is null
     and coalesce(meta #>> '{ext,personal_scope,scope}', '') <> 'person_only'
     and coalesce(((meta -> 'ext') -> 'writer_dossier') ->> 'visible', 'false') = 'true'
     and exists (
@@ -70,6 +72,9 @@ begin
   if p_publish then
     if coalesce(r.meta #>> '{ext,personal_scope,scope}', '') = 'person_only' then
       return jsonb_build_object('ok', false, 'error', 'person_only_cannot_publish', 'privacy_scope', r.privacy_scope);
+    end if;
+    if r.owner_person_id is not null then
+      return jsonb_build_object('ok', false, 'error', 'owner_bound_cannot_publish', 'privacy_scope', r.privacy_scope);
     end if;
     if r.privacy_scope = 'public' then
       return jsonb_build_object('ok', false, 'error', 'already_public', 'privacy_scope', r.privacy_scope);

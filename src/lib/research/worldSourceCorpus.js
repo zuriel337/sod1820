@@ -28,6 +28,11 @@ export function corpusOrFilter(spec) {
   return parts.join(",");
 }
 
+// Server-side suppression of draft/forum rows: the browser never receives them. NULL tags are public.
+export function publicOnlyFilter() {
+  return `tags.is.null,tags.not.ov.{${DRAFT_TAGS.join(",")}}`;
+}
+
 function isDraft(row) {
   return (Array.isArray(row?.tags) ? row.tags : []).some((tag) => DRAFT_TAGS.includes(clean(tag)));
 }
@@ -61,18 +66,20 @@ export async function fetchCorpusPage(spec, page = 0, { client = supabase } = {}
   const from = page * CORPUS_PAGE_SIZE;
   const { data, error, count } = await client
     .from("posts")
-    .select("id,slug,title,excerpt,date,home_hidden,tags", page === 0 ? { count: "exact" } : undefined)
+    .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
     .or(filter)
+    .or(publicOnlyFilter())
     .order("date", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true })
     .range(from, from + CORPUS_PAGE_SIZE - 1);
   if (error) throw error;
   const rows = Array.isArray(data) ? data : [];
   const { items, excluded } = classifyCorpusRows(rows);
+  const total = count != null && Number.isFinite(Number(count)) ? Number(count) : null;
   return {
     items,
     excluded,
-    total: page === 0 && Number.isFinite(Number(count)) ? Number(count) : null,
-    hasMore: rows.length === CORPUS_PAGE_SIZE,
+    total, // exact PUBLIC count (drafts/forum suppressed by the server query), not the raw mapped total
+    hasMore: total != null ? from + rows.length < total : rows.length === CORPUS_PAGE_SIZE,
   };
 }

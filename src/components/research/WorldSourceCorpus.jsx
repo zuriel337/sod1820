@@ -33,16 +33,16 @@ export default function WorldSourceCorpus({ spec, recentCount = null }) {
       <h2>{spec.label} — כל המקורות</h2>
       <div className="sod29-muted">
         {st.total != null ? `${st.total} מקורות זמינים בספרייה` : "טוען את הספרייה…"}
-        {st.excludedCount ? ` · ${st.excludedCount} פריטים שמורים אך לא מוצגים (טיוטה/פורום/ללא כותרת)` : ""}
+        {st.excludedCount ? ` · ${st.excludedCount} פריטים ללא כותרת לא מוצגים` : ""}
         {recentCount != null ? ` · ${recentCount} מהם בין העדכונים האחרונים (זרם העדכונים האחרונים אינו הספרייה המלאה)` : ""}
       </div>
     </div></div>
     {st.items.length ? <ul className="sod29-world-corpus-list">{st.items.map((item) => <li key={item.id}>
       <Link to={item.href}><strong>{item.title}</strong></Link>
       {yearOf(item.date) ? <small> · {yearOf(item.date)}</small> : null}
-      {item.homeHidden ? <small> · מוסתר מדף הבית</small> : null}
-      {item.excerpt ? <p className="sod29-world-corpus-source">{item.excerpt}</p> : null}
-      <details><summary>מחקר על מקור זה</summary><p className="sod29-muted">המחקר נשאר בהעמקה; פתיחת המקור מציגה אותו עם הממצאים המורשים.</p></details>
+      {item.homeHidden ? <small> · לא מוצג בדף הבית</small> : null}
+      {item.excerpt ? <p className="sod29-world-corpus-source"><small className="sod29-muted">תקציר: </small>{item.excerpt}</p> : null}
+      <p className="sod29-muted"><Link to={item.href}>לקריאת המקור המלא</Link> · פרסום מקור אינו אימות מחקרי.</p>
     </li>)}</ul> : null}
     {st.loading ? <p className="sod29-muted" role="status">טוען מקורות…</p> : null}
     {st.error ? <p className="sod29-muted">טעינת הספרייה נכשלה — זו אינה ספרייה ריקה. <button type="button" className="sod29-world-subject-more" onClick={() => load(st.page)}>נסו שוב</button></p> : null}
