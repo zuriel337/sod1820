@@ -34,10 +34,14 @@ test("no fake new items when reader returns nothing; reader error propagates (ca
   assert.deepEqual(await fetchGroupSourceArrivals({ rpc: async () => ({ data: [], error: null }) }), []);
   await assert.rejects(fetchGroupSourceArrivals({ rpc: async () => ({ data: null, error: new Error("503") }) }));
 });
-test("migration contract: group JID proof, auto, ext_msg_id, live-only, no media, flag, no table grant, admin-only editor", () => {
+test("migration contract: ingest-chain group JID proof (no wa_msg_ext requirement, no wa_bot_config), auto, ext_msg_id, live-only, no media, flag, no table grant, admin-only editor", () => {
   const sql = readFileSync(new URL("../../../supabase/migrations/20261008170000_world_group_source_arrivals_v1.sql", import.meta.url), "utf8");
-  for (const needle of ["wa_msg_ext", "wa_bot_config", "@g.us", "cu.source = 'auto'", "cu.ext_msg_id is not null", "cu.status = 'live'", "image_url is null", "general_feed_enabled", "admin only"])
+  for (const needle of ["channel_ingest_sources", "wa_msg_ext", "@g.us", "'torat-haremez', 'gilui-yomi'", "is distinct from s.chat_id", "cu.source = 'auto'", "cu.ext_msg_id is not null", "cu.status = 'live'", "image_url is null", "general_feed_enabled", "admin only"])
     assert.ok(sql.includes(needle), needle);
+  const code = sql.replace(/--.*$/gm, "");
+  assert.ok(!/join\s+public\.wa_msg_ext/i.test(code), "wa_msg_ext must never be a required join");
+  assert.ok(!/wa_bot_config/.test(code), "wa_bot_config is not source authority");
+  assert.ok(!/status\s+in\s*\(|status\s*=\s*'private'/i.test(code.split("admin_set_contributor_general_feed_v1")[0]), "private rows are not exposed");
   assert.ok(!/grant\s+select\s+on\s+(table\s+)?public\./i.test(sql));
   assert.ok(!/(create|alter|drop)\s+policy/i.test(sql));
   assert.ok(!/update\s+public\.channel_updates|research_objects/i.test(sql.replace(/--.*$/gm, "")));
