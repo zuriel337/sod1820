@@ -873,3 +873,31 @@ test('private researcher corpus stays gated for non-admin 2029 sessions', async 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/researcher-corpus-gated-390.png', fullPage: true });
 });
+
+for (const preset of ['light', 'parchment', 'dark']) {
+  for (const width of [390, 1440]) {
+    test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
+      await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      const writer = page.locator('.sod29-world-person-card').filter({ hasText: 'יניב לוי' }).first();
+      await expect(writer).toBeVisible({ timeout: 30_000 });
+      await writer.click();
+      const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
+      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible();
+      await expect(lens.locator('[data-experience-capability="contributor-source-finding-group"]')).toHaveCount(1);
+      await expect(lens).not.toContainText('CONTRIBUTOR FINDINGS');
+      await expect(lens.locator('details[open]')).toHaveCount(0);
+      await assertNoHorizontalOverflow(page);
+      await lens.screenshot({ path: `test-results/release-visual/writer-projector-${preset}-${width}.png` });
+      await page.getByRole('button', { name: 'סוד החשמל · כל המקורות', exact: true }).click();
+      const corpus = page.locator('[data-experience-capability="world-source-corpus"]');
+      await expect(corpus.getByRole('combobox')).toBeVisible();
+      await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).toBeVisible({ timeout: 20_000 });
+      await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).not.toBeEmpty();
+      await assertNoHorizontalOverflow(page);
+      await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toBeVisible();
+    });
+  }
+}

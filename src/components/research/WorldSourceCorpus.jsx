@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchCorpusPage } from "../../lib/research/worldSourceCorpus.js";
+import { fetchCorpusPage, fetchCorpusSource } from "../../lib/research/worldSourceCorpus.js";
 
-// Full available source library for one corpus. Source text (excerpt) is shown expanded; research stays collapsed.
+// Public corpus with one selected full-text source; excerpts never stand in for full source.
 // Counts come from the read, never assumed; load failure is shown as failure, never as an empty library.
 const yearOf = (d) => { const y = String(d || "").slice(0, 4); return /^\d{4}$/.test(y) ? y : ""; };
 const EMPTY = { items: [], excludedCount: 0, total: null, page: 0, hasMore: false, loading: true, error: false };
@@ -10,12 +10,24 @@ const EMPTY = { items: [], excludedCount: 0, total: null, page: 0, hasMore: fals
 export default function WorldSourceCorpus({ spec, recentCount = null }) {
   const [st, setSt] = useState(EMPTY);
   const token = useRef(0);
+  const [selected, setSelected] = useState(null);
+  const [source, setSource] = useState({ loading: false });
+  useEffect(() => {
+    let live = true;
+    if (!selected) return;
+    setSource({ loading: true });
+    fetchCorpusSource(spec, selected.id).then((result) => {
+      if (live) setSource({ loading: false, id: selected.id, text: result.text });
+    }).catch(() => { if (live) setSource({ loading: false, id: selected.id, error: true }); });
+    return () => { live = false; };
+  }, [spec, selected]);
   const load = useCallback((page) => {
     const mine = ++token.current;
     setSt((s) => ({ ...s, loading: true, error: false }));
     fetchCorpusPage(spec, page)
       .then((res) => {
         if (mine !== token.current) return; // late response for a previous corpus/page
+        if (!page) setSelected(res.items[0] || null);
         setSt((s) => ({
           items: page ? [...s.items, ...res.items] : res.items,
           excludedCount: (page ? s.excludedCount : 0) + res.excluded.length,
@@ -25,7 +37,7 @@ export default function WorldSourceCorpus({ spec, recentCount = null }) {
       })
       .catch(() => { if (mine === token.current) setSt((s) => ({ ...s, loading: false, error: true })); });
   }, [spec]);
-  useEffect(() => { setSt(EMPTY); load(0); return () => { token.current += 1; }; }, [load]);
+  useEffect(() => { setSt(EMPTY); setSelected(null); load(0); return () => { token.current += 1; }; }, [load]);
 
   return <section className="sod29-section sod29-world-corpus" id={`world-corpus-${spec.key}`} aria-label={`כל המקורות של ${spec.label}`} data-experience-capability="world-source-corpus">
     <div className="sod29-section-head"><div>
@@ -37,13 +49,18 @@ export default function WorldSourceCorpus({ spec, recentCount = null }) {
         {recentCount != null ? ` · ${recentCount} מהם בין העדכונים האחרונים (זרם העדכונים האחרונים אינו הספרייה המלאה)` : ""}
       </div>
     </div></div>
-    {st.items.length ? <ul className="sod29-world-corpus-list">{st.items.map((item) => <li key={item.id}>
-      <Link to={item.href}><strong>{item.title}</strong></Link>
-      {yearOf(item.date) ? <small> · {yearOf(item.date)}</small> : null}
-      {item.homeHidden ? <small> · לא מוצג בדף הבית</small> : null}
-      {item.excerpt ? <p className="sod29-world-corpus-source"><small className="sod29-muted">תקציר: </small>{item.excerpt}</p> : null}
-      <p className="sod29-muted"><Link to={item.href}>לקריאת המקור המלא</Link> · פרסום מקור אינו אימות מחקרי.</p>
-    </li>)}</ul> : null}
+    {st.items.length ? <label>בחירת מקור לקריאה
+      <select aria-label="בחירת מקור בסוד החשמל" value={selected?.id || ""} onChange={(event) => setSelected(st.items.find((item) => item.id === event.target.value))} style={{ display: "block", width: "100%", minHeight: 44, fontSize: 16, marginBlock: 12 }}>
+        {st.items.map((item) => <option key={item.id} value={item.id}>{item.title}{yearOf(item.date) ? ` · ${yearOf(item.date)}` : ""}</option>)}
+      </select>
+    </label> : null}
+    {selected ? <article className="sod29-world-corpus-reading" style={{ maxWidth: 780, marginInline: "auto", overflowWrap: "anywhere" }}>
+      <h3>{selected.title}</h3>
+      <p style={{ fontSize: 14 }}>{yearOf(selected.date)}{selected.homeHidden ? " · לא מוצג בדף הבית" : ""} · מקור: סוד החשמל</p>
+      {source.loading || source.id !== selected.id ? <p role="status">טוען את המקור המלא…</p> : source.error ? <p role="status">המקור המלא לא נטען. אפשר לנסות לפתוח את עמוד המקור.</p> : <div data-experience-capability="corpus-full-source" style={{ whiteSpace: "pre-wrap", fontFamily: "'Noto Sans Hebrew',sans-serif", fontSize: 18, lineHeight: 1.8 }}>{source.text}</div>}
+      <p style={{ fontSize: 14 }}><Link to={selected.href}>לעמוד המקור עם העיצוב והמדיה המקוריים</Link></p>
+      <p style={{ fontSize: 14 }}>פרסום מקור אינו אימות מחקרי. אין כאן טענה לקיומו או להיעדרו של מחקר קשור.</p>
+    </article> : null}
     {st.loading ? <p className="sod29-muted" role="status">טוען מקורות…</p> : null}
     {st.error ? <p className="sod29-muted">טעינת הספרייה נכשלה — זו אינה ספרייה ריקה. <button type="button" className="sod29-world-subject-more" onClick={() => load(st.page)}>נסו שוב</button></p> : null}
     {!st.loading && !st.error && !st.items.length ? <p className="sod29-muted">לא נמצאו מקורות ציבוריים בספרייה זו.</p> : null}

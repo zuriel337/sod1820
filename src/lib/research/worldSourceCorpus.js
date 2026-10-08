@@ -1,4 +1,4 @@
-import { supabase } from "../supabase.js";
+import { getPublicResearchClient } from "./researchViewMode.js";
 import { stripHtml } from "../format.js";
 
 // ONE reusable corpus/source selector for World: a corpus is a bounded, paginated READ over the existing
@@ -60,7 +60,7 @@ export function classifyCorpusRows(rows = []) {
   return { items, excluded };
 }
 
-export async function fetchCorpusPage(spec, page = 0, { client = supabase } = {}) {
+export async function fetchCorpusPage(spec, page = 0, { client = getPublicResearchClient() } = {}) {
   const filter = corpusOrFilter(spec);
   if (!client || !filter) return { items: [], excluded: [], total: null, hasMore: false };
   const from = page * CORPUS_PAGE_SIZE;
@@ -82,4 +82,18 @@ export async function fetchCorpusPage(spec, page = 0, { client = supabase } = {}
     total, // exact PUBLIC count (drafts/forum suppressed by the server query), not the raw mapped total
     hasMore: total != null ? from + rows.length < total : rows.length === CORPUS_PAGE_SIZE,
   };
+}
+
+// Read the selected published source independently of its excerpt; same corpus and public boundary.
+export async function fetchCorpusSource(spec, id, { client = getPublicResearchClient() } = {}) {
+  const filter = corpusOrFilter(spec);
+  if (!filter || !id) throw new Error("source_unavailable");
+  const { data, error } = await client.from("posts")
+    .select("id,slug,title,content,tags").eq("id", id)
+    .or(filter).or(publicOnlyFilter()).maybeSingle();
+  if (error) throw error;
+  if (!data || isDraft(data) || !clean(data.content)) throw new Error("source_unavailable");
+  // React renders text only. No remote HTML, event handlers, embeds or attachment URLs execute.
+  const text = String(data.content).replace(/<\/(p|div|h[1-6]|li|blockquote)>|<br\s*\/?\s*>/gi, "\n\n").split(/\n+/).map((line) => stripHtml(line.replace(/\[/g, "&#91;").replace(/\]/g, "&#93;"))).filter(Boolean).join("\n\n");
+  return { id: String(data.id), text };
 }

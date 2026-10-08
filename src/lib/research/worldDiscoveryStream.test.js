@@ -106,3 +106,11 @@ test("creator chips expose recent-window counts: a creator absent from the last 
   assert.equal(stream.items.some((i) => i.creator === "סוד החשמל"), false);
   assert.equal(stream.recentCounts["אחר"], 3);
 });
+
+
+test("unconnected group arrivals cannot masquerade as a working empty group feed", async () => {
+  const { GROUP_ARRIVALS_AVAILABILITY } = await import("./worldDiscoveryStream.js");
+  assert.equal(GROUP_ARRIVALS_AVAILABILITY.state, "not_connected");
+  assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /תורת הרמז והגילוי היומי/);
+  assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /טרם חוברו/);
+});

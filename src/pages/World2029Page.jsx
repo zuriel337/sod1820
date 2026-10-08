@@ -930,11 +930,7 @@ function LiveWorldLanding({ research, shell, context }) {
             >{spec.label} · כל המקורות</button>)}
           </div>
 
-          {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
-            key={spec.key}
-            spec={spec}
-            recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
-          />)}
+          {landing.discovery?.groupArrivals ? <p role="status" className="sod29-world-stream-truth-note">{landing.discovery.groupArrivals.message}</p> : null}
           {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
           {landing.discovery?.unavailableSources?.includes("posts") ? <div className="sod29-world-stream-truth-note">חלק מעדכוני המקורות אינם זמינים כרגע.</div> : null}
           {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
@@ -973,6 +969,12 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
     </section>
+
+          {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
+            key={spec.key}
+            spec={spec}
+            recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
+          />)}
 
     <WorldAnchorMap
       projection={anchorState.projection}

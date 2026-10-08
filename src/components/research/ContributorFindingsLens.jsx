@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import FindingSurface from "./FindingSurface.jsx";
-import { usePalette } from "../../lib/palette.js";
-import { worldColor } from "../../lib/worlds.js";
-import { F } from "../../theme.js";
-import { LAYOUT, RADIUS, SPACE, TYPE_SCALE } from "../../lib/designTokens.js";
+import { use2029Palette } from "../../lib/palette.js";
+import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -42,7 +40,7 @@ function makeStyles(P) {
   const box = {
     border: `1px solid ${P.border}`,
     borderRadius: RADIUS.lg,
-    background: P.cardGrad,
+    background: P.card,
     color: P.ink,
   };
   const pill = {
@@ -67,7 +65,7 @@ function makeStyles(P) {
   return { box, pill, action };
 }
 
-function SourceGroup({ group, P, S }) {
+function SourceGroup({ group, P, S, researchUnavailable }) {
   const [expanded, setExpanded] = useState(false);
   const findings = group.universalFindings || [];
   const shown = expanded ? findings : findings.slice(0, 6);
@@ -80,15 +78,14 @@ function SourceGroup({ group, P, S }) {
       <div style={{ minWidth: 0, flex: "1 1 360px" }}>
         <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>
           {dt(group.createdAt)}
-          {group.source?.channel ? ` · ${group.source.channel}` : ""}
-          {group.source?.status ? ` · ${group.source.status}` : ""}
+
         </div>
         <h3 style={{ margin: 0, ...TYPE_SCALE.lead, fontFamily: F.ui, color: P.ink }}>{group.title}</h3>
         <div style={{ marginTop: SPACE[2], display: "flex", gap: SPACE[1], flexWrap: "wrap" }}>
           {(group.facets || []).map((facet) => <span key={facet} style={S.pill}>{FACET_LABELS[facet] || facet}</span>)}
           {(group.lexicalWorlds || []).map((world) => <span
             key={`world:${world}`}
-            style={{ ...S.pill, borderColor: worldColor(world), color: worldColor(world) }}
+            style={{ ...S.pill, borderColor: P.border, color: P.accentText }}
           >עולם: {world}</span>)}
         </div>
       </div>
@@ -96,7 +93,7 @@ function SourceGroup({ group, P, S }) {
         {findings.length ? <>
           <strong style={{ color: P.ink }}>{group.findingCount}</strong> ממצאים<br />
           <strong style={{ color: P.ink }}>{group.verifiedCount}</strong> עם אימות מנוע
-        </> : <span data-experience-capability="contributor-source-only">מקור בלבד · עדיין ללא ממצא מחקר</span>}
+        </> : <span data-experience-capability="contributor-source-only">{researchUnavailable ? "מקור ציבורי · המחקר אינו זמין בתצוגה זו" : "מקור בלבד · אין ממצא מחקר מוצג"}</span>}
       </div>
     </header>
 
@@ -120,7 +117,7 @@ function SourceGroup({ group, P, S }) {
     </section> : <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>מקור ללא טקסט שמור{group.source?.channel ? ` · ${group.source.channel}` : ""}</div>}
 
     {findings.length ? <details data-experience-capability="contributor-system-analysis">
-      <summary style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink, cursor: "pointer", fontWeight: 800, marginBottom: SPACE[2] }}>ניתוח המערכת · {findings.length} ממצאים (סגור כברירת מחדל)</summary>
+      <summary style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink, cursor: "pointer", fontWeight: 800, marginBottom: SPACE[2] }}>ניתוח המערכת · {findings.length} ממצאים</summary>
       <div style={{ display: "flex", gap: SPACE[2], justifyContent: "space-between", alignItems: "center", marginBottom: SPACE[2], flexWrap: "wrap" }}>
         <div>
           <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>המקור נשאר מקור; הממצאים למטה הם חילוץ ואימות נפרדים.</div>
@@ -129,7 +126,7 @@ function SourceGroup({ group, P, S }) {
           {expanded ? "צמצם" : `כל ${findings.length} הממצאים`}
         </button> : null}
       </div>
-      {shown.map((finding) => <FindingSurface key={finding.id} finding={finding} compact />)}
+      {shown.map((finding) => <FindingSurface key={finding.id} finding={finding} projector />)}
     </details> : null}
 
     {(group.lexicalTags || []).length ? <footer style={{ display: "flex", gap: SPACE[1], flexWrap: "wrap", alignItems: "center" }}>
@@ -164,11 +161,12 @@ export default function ContributorFindingsLens({
   error = null,
   recentDays = 7,
 }) {
-  const P = usePalette();
+  const P = use2029Palette();
   const S = useMemo(() => makeStyles(P), [P]);
   const [mode, setMode] = useState("all");
   const [world, setWorld] = useState("all");
   const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
   const groups = useMemo(() => {
     let rows = Array.isArray(projection?.sourceGroups) ? projection.sourceGroups : [];
@@ -204,28 +202,14 @@ export default function ContributorFindingsLens({
   return <section
     data-experience-surface="contributor-findings-lens"
     data-experience-capability="contributor-findings-projection"
-    style={{ display: "grid", gap: SPACE[4], color: P.ink }}
+    dir="rtl"
+    style={{ display: "grid", gap: SPACE[4], color: P.ink, minWidth: 0, overflowWrap: "anywhere" }}
   >
     <header style={{ ...S.box, padding: SPACE[4] }}>
-      <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.accentDim, fontWeight: 900 }}>CONTRIBUTOR FINDINGS · ONE RESEARCH OS</div>
-      <h2 style={{ margin: `${SPACE[1]}px 0 ${SPACE[2]}px`, ...TYPE_SCALE.title, fontFamily: F.ui }}>כל הממצאים של {projection.contributor.displayName}</h2>
-      <div style={{ ...TYPE_SCALE.body, fontFamily: F.body, color: P.inkSoft, maxWidth: LAYOUT.readingMax }}>
-        זו עדשת provenance על אותו Research OS. החוקר הוא מי שהביא את החומר — לא “עולם” נפרד.
-        מקור, ממצא, אימות, התכנסות ופרסום נשארים שכבות שונות.
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: SPACE[2], marginTop: SPACE[3] }}>
-        {[
-          ["מקורות", countOrUnknown("sources", projection.counts.sourceGroups)],
-          ["מהם עם ממצאים", countOrUnknown("research", projection.counts.sourceGroupsWithFindings)],
-          ["ממצאים שחולצו", countOrUnknown("research", projection.counts.researchObjects)],
-          ["אימותי מנוע", countOrUnknown("research", projection.counts.engineVerified)],
-          ["התכנסויות", countOrUnknown("topics", projection.counts.topics)],
-          ["ערכים מספריים", projection.counts.uniqueValues],
-        ].map(([label, value]) => <div key={label} style={{ ...S.box, padding: SPACE[2] }}>
-          <strong style={{ ...TYPE_SCALE.title, fontFamily: F.numeric, color: P.accentText }}>{value}</strong>
-          <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>{label}</div>
-        </div>)}
-      </div>
+      <h2 style={{ margin: 0, ...TYPE_SCALE.title, fontFamily: F.ui }}>המקורות של {projection.contributor.displayName}</h2>
+      <p style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: 0 }}>
+        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · המקור פתוח לקריאה; ממצאים קשורים נפתחים בנפרד.
+      </p>
     </header>
 
     {unavailable.length ? <div role="status" data-experience-capability="contributor-availability-warning" style={{ ...S.box, padding: SPACE[3], ...TYPE_SCALE.small, fontFamily: F.body }}>
@@ -249,12 +233,12 @@ export default function ContributorFindingsLens({
       </div>
 
       {worlds.length ? <div style={{ display: "flex", gap: SPACE[1], flexWrap: "wrap" }}>
-        <button type="button" onClick={() => setWorld("all")} style={{ ...S.action, minHeight: 36, color: world === "all" ? P.accentText : P.ink }}>כל העולמות</button>
+        <button type="button" onClick={() => setWorld("all")} style={{ ...S.action, minHeight: 44, color: world === "all" ? P.accentText : P.ink }}>כל העולמות</button>
         {worlds.map(([label, count]) => <button
           key={label}
           type="button"
           onClick={() => setWorld(label)}
-          style={{ ...S.action, minHeight: 36, borderColor: worldColor(label), color: world === label ? worldColor(label) : P.ink }}
+          style={{ ...S.action, minHeight: 44, borderColor: P.border, color: world === label ? P.accentText : P.ink }}
         >{label} · {count}</button>)}
       </div> : null}
 
@@ -284,13 +268,18 @@ export default function ContributorFindingsLens({
       </div>
     ) : groups.length ? (
       <div style={{ display: "grid", gap: SPACE[3] }}>
-        {groups.map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} />)}
+        <label style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>בחירת מקור · {groups.length} תוצאות
+          <select aria-label="בחירת מקור לקריאה" value={groups.some((g) => g.id === selectedId) ? selectedId : groups[0].id}
+            onChange={(event) => setSelectedId(event.target.value)} style={{ ...S.action, display: "block", width: "100%", maxWidth: "100%", marginTop: SPACE[2] }}>
+            {groups.map((group) => <option key={group.id} value={group.id}>{dt(group.createdAt)} · {group.title}</option>)}
+          </select>
+        </label>
+        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} researchUnavailable={availability.research === "unavailable"} />)}
       </div>
     ) : <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין חומר במסנן הזה.</div>}
 
     <footer style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
-      {projection.truthBoundary}<br />
-      {projection.topicAdmission}
+      פרסום מקור אינו אימות מחקרי. רק ממצאים והתכנסויות המקושרים במפורש מוצגים כמחקר קשור.
     </footer>
   </section>;
 }

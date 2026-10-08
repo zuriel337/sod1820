@@ -553,6 +553,7 @@ function AttentionProjection({ context, onWorkspace, onOpen }) {
         if (live) setArrivals({
           loading: false,
           items: result.items || [],
+          groupArrivals: result.groupArrivals,
           error: false,
           partial: (result.unavailableSources || []).length > 0,
         });
@@ -572,6 +573,7 @@ function AttentionProjection({ context, onWorkspace, onOpen }) {
         {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
         {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
         {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {arrivals.groupArrivals ? <p role="status">{arrivals.groupArrivals.message}</p> : null}
         {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
         {arrivals.items.slice(0, 8).map((item) => {
           const href = item.kind === "source"

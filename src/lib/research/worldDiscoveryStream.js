@@ -4,6 +4,11 @@ import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
+  state: "not_connected",
+  message: "עדכוני תורת הרמז והגילוי היומי טרם חוברו לתצוגה הציבורית. מוצגים כאן עדכוני האתר בלבד; זמן האיסוף האחרון מהקבוצות אינו זמין בתצוגה זו.",
+});
+
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
 
 function publicPersonForName(name, publicPeople = []) {
@@ -228,6 +233,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
   return {
     ...buildWorldDiscoveryStream({ topics, research, posts }, { limit: requested, publicPeople }),
+    groupArrivals: GROUP_ARRIVALS_AVAILABILITY,
     unavailableSources: [
       ...(topicResult.status === "rejected" ? ["topics"] : []),
       ...(researchResult.status === "rejected" && includeResearch ? ["research"] : []),

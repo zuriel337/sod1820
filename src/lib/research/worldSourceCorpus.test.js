@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyCorpusRows, corpusForCreator, corpusOrFilter, fetchCorpusPage, CORPUS_PAGE_SIZE, WORLD_SOURCE_CORPORA } from "./worldSourceCorpus.js";
+import { classifyCorpusRows, corpusForCreator, corpusOrFilter, fetchCorpusPage, fetchCorpusSource, CORPUS_PAGE_SIZE, WORLD_SOURCE_CORPORA } from "./worldSourceCorpus.js";
 
 const HASHMAL = WORLD_SOURCE_CORPORA[0];
 
@@ -51,4 +51,22 @@ test("draft/forum suppression happens in the SERVER query; count and hasMore are
   assert.equal(page.hasMore, true);
   const last = await fetchCorpusPage(HASHMAL, 5, { client: { from: () => { const b = { select: () => b, or: () => b, order: () => b, range: () => Promise.resolve({ data: rows.slice(0, 11), count: 131 }) }; return b; } } });
   assert.equal(last.hasMore, false, "5*24+11 = 131 -> no more pages");
+});
+
+
+test("full source read keeps exact corpus/id/public filter and never substitutes excerpt", async () => {
+  const calls = [];
+  const makeClient = (data) => ({ from: (table) => {
+    calls.push(table);
+    const b = { select: () => b, eq: (...args) => { calls.push(args); return b; }, or: (f) => { calls.push(f); return b; }, maybeSingle: async () => ({ data }) };
+    return b;
+  } });
+  const result = await fetchCorpusSource(HASHMAL, "source-1", { client: makeClient({ id: "source-1", content: "<p>ראשון</p><p>שני</p>", tags: [] }) });
+  assert.equal(result.id, "source-1");
+  assert.match(result.text, /ראשון\n\nשני/);
+  assert.ok(calls.some((v) => Array.isArray(v) && v[0] === "id" && v[1] === "source-1"));
+  assert.ok(calls.includes(corpusOrFilter(HASHMAL)));
+  assert.ok(calls.some((v) => typeof v === "string" && v.includes("tags.not.ov")));
+  await assert.rejects(fetchCorpusSource(HASHMAL, "source-1", { client: makeClient({ id: "source-1", excerpt: "תקציר בלבד" }) }));
+  await assert.rejects(fetchCorpusSource(HASHMAL, "source-1", { client: makeClient({ id: "source-1", content: "פרטי", tags: ["טיוטה"] }) }));
 });
