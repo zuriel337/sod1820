@@ -121,3 +121,10 @@
 }
 @media(prefers-reduced-motion:reduce) {.sod29-gate-menu path{transition:none!important}}
 .sod29-root[data-frame-reduced-motion="true"] .sod29-gate-menu path {transition:none!important}
+
+.sod29-root.closed-shell .sod29-header-actions .workspace-label {display:none}
+.sod29-root.closed-shell .sod29-header-workspace {width:44px;min-width:44px;height:44px;padding:0!important;display:grid;place-items:center;border-color:transparent;background:transparent}
+.sod29-root.closed-shell .sod29-nav-icon {font-size:18px;color:var(--s29-ink);opacity:.88}
+.sod29-root.closed-shell .sod29-nav-link.active .sod29-nav-icon {color:var(--s29-accent-text);opacity:1}
+.sod29-root.closed-shell .sod29-sidebar>*:not(.sod29-nav) {flex-shrink:0}
+.sod29-root.closed-shell .sod29-nav {flex-shrink:1}

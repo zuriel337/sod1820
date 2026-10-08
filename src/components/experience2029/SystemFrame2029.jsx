@@ -1806,7 +1806,7 @@ export default function SystemFrame2029({
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true">!</span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
-          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed}>
             <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "" : "כווץ"}</b>
           </button>
