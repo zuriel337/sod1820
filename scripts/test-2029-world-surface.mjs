@@ -132,6 +132,20 @@ assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
 assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
 assert.match(world, /מה חדש בעולם\?/);
+
+// World-first Golden invitations are a human-first projection, never a new data home.
+assert.match(world, /world-golden-discovery-entrances/);
+assert.ok(world.indexOf("world-golden-discovery-entrances") < world.indexOf('className="sod29-world-live-stream"'), "Golden stories must precede the technical/live catalog");
+assert.match(world, /בעקבות צבי/);
+assert.match(world, /סוד החשמל/);
+assert.match(world, /המטוס ו־1073/);
+assert.match(world, /onClick=\{openZviGolden\}/);
+assert.ok(world.includes('disabled={!landing.contributors?.bySlug?.["tzvi-opoc"]}'), "Zvi gate must fail closed if no admitted contributor is loaded");
+assert.match(world, /to="\/post\/elementor-31725"/, "Sod Hashmal source sample uses an existing post identity");
+assert.match(world, /to="\/post\/flydubai-fz1073-363-14000-remzei-geula"/);
+assert.match(world, /ממצא מתועד/, "public discovery should read as content, not as a research console");
+assert.match(worldCss, /sod29-world-golden-card:focus-visible/, "Golden gates require visible keyboard focus");
+assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-golden-card\{transition:none\}/);
 assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
