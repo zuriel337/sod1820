@@ -789,7 +789,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await expect(mobileNav).toBeVisible();
   let exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeDisabled();
-  await page.getByRole('button', { name: 'סגור' }).click();
+  await mobileNav.getByRole('button', { name: 'סגור ניווט', exact: true }).click();
 
   await selectWorldLane(page, 'קשרים');
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
@@ -873,3 +873,42 @@ test('private researcher corpus stays gated for non-admin 2029 sessions', async 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/researcher-corpus-gated-390.png', fullPage: true });
 });
+
+for (const preset of ['light', 'parchment', 'dark']) {
+  for (const width of [390, 1440]) {
+    test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
+      await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      const response = await groupResponse;
+      expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);
+      const groupRows = await response.json();
+      expect(Array.isArray(groupRows)).toBe(true);
+      for (const row of groupRows) {
+        expect(row.group_proof).toBe(true);
+        expect(row.proof_basis).toBe('verified_phone_unique');
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
+      }
+      const writer = page.locator('.sod29-world-person-card').filter({ hasText: 'יניב לוי' }).first();
+      await expect(writer).toBeVisible({ timeout: 30_000 });
+      await writer.click();
+      const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
+      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible();
+      await expect(lens.locator('[data-experience-capability="contributor-source-finding-group"]')).toHaveCount(1);
+      await expect(lens).not.toContainText('CONTRIBUTOR FINDINGS');
+      await expect(lens.locator('details[open]')).toHaveCount(0);
+      await assertNoHorizontalOverflow(page);
+      await lens.screenshot({ path: `test-results/release-visual/writer-projector-${preset}-${width}.png` });
+      await page.getByRole('button', { name: 'סוד החשמל · כל המקורות', exact: true }).click();
+      const corpus = page.locator('[data-experience-capability="world-source-corpus"]');
+      await expect(corpus.getByRole('combobox')).toBeVisible();
+      await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).toBeVisible({ timeout: 20_000 });
+      await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).not.toBeEmpty();
+      await assertNoHorizontalOverflow(page);
+      await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      await expect(page.getByText(/מוצגות הודעות מקור מארבעה כותבים שאושרו לעריכה/)).toBeVisible();
+      await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+    });
+  }
+}

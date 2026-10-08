@@ -85,6 +85,7 @@ function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   if (Array.isArray(v?.result)) return { ok: true, rows: v.result as T[] };
   return { ok: false, rows: [] };
 }
+const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi"]);
 function channelStatus(channel: string): "live" | "private" {
   return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
@@ -324,13 +325,25 @@ async function ingestSource(
       source,
       credit,
       contributor_id: contributorId,
+      group_source_intake_public: WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us"),
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
       ext_msg_id: msgId,
       created_at: new Date(ts * 1000).toISOString(),
-    });
+    }).select("id").single();
     if (ins.error) trace.push({ msgId, step: "insert-fail", error: String(ins.error.message || ins.error) });
-    else n++;
+    else {
+      n++;
+      // Positive group provenance (private side table). Identity comes ONLY from senderId (JID) -> contributors.phone,
+      // never from senderName/credit. Any failure leaves the row without proof => excluded from public World reads.
+      if (WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us")) {
+        const pr = await sb.rpc("record_channel_update_group_proof_v1", {
+          p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
+          p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
+        });
+        if (pr.error || pr.data?.ok !== true) trace.push({ msgId, step: "group-proof-skip", channel: src.channel, reason: String(pr.error?.message || pr.data?.error || "unknown") });
+      }
+    }
   }
 
   const upd: Record<string, unknown> = {};
