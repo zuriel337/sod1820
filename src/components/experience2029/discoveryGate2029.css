@@ -22,17 +22,18 @@
 .sod29-discovery-gate {position:relative;display:block;width:70px;height:44px;pointer-events:none;isolation:isolate}
 .sod29-gate-halo {
   position:absolute;
-  inset-block:0;
-  inset-inline-start:0;
-  width:44px;
+  inset-block:-2px;
+  inset-inline-start:-2px;
+  width:48px;
   border:1px solid var(--s29-brand-sapphire,var(--s29-accent));
   border-radius:50%;
-  opacity:.36;
-  transform:scale(.88);
-  box-shadow:0 0 7px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 24%,transparent);
+  background:#101a31;
+  opacity:1;
+  transform:scale(1);
+  box-shadow:0 0 7px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 48%,transparent);
   transition:transform 300ms cubic-bezier(.2,.8,.2,1),opacity 300ms ease;
 }
-.sod29-discovery-gate[data-open="true"] .sod29-gate-halo {opacity:.72;transform:scale(1)}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-halo {opacity:1;transform:scale(1.06)}
 /* Full crown + Hebrew inscription: no crop, redraw, or separate wordmark. */
 .sod29-gate-artwork {position:absolute;inset-block:2px;inset-inline-start:2px;width:40px;overflow:hidden;border-radius:8px}
 .sod29-gate-lockup {display:block;width:40px;height:40px;object-fit:contain;user-select:none}
@@ -128,3 +129,22 @@
 .sod29-root.closed-shell .sod29-nav-link.active .sod29-nav-icon {color:var(--s29-accent-text);opacity:1}
 .sod29-root.closed-shell .sod29-sidebar>*:not(.sod29-nav) {flex-shrink:0}
 .sod29-root.closed-shell .sod29-nav {flex-shrink:1}
+
+/* Mobile navigation always exposes labels, independently of desktop collapse. */
+.sod29-root.closed-shell.sidebar-collapsed .sod29-mobile-drawer .sod29-nav-copy,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-mobile-drawer .sod29-nav-status {
+  opacity:1;transform:none;max-width:none;overflow:visible;white-space:normal;pointer-events:auto;
+}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-mobile-drawer .sod29-nav-group-title {
+  opacity:.78;transform:none;max-height:none;overflow:visible;margin-bottom:2px;padding-inline:12px;pointer-events:auto;
+}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-mobile-drawer .sod29-nav-link,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-mobile-drawer .sod29-sidebar-workspace {
+  justify-content:flex-start;padding-inline:12px;gap:10px;
+}
+.sod29-root .sod29-mobile-close {
+  display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;padding:0;
+  border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);
+  color:var(--s29-ink);font-size:28px;cursor:pointer;
+}
+.sod29-root .sod29-mobile-close:focus-visible {outline:2px solid var(--s29-accent-text);outline-offset:3px}

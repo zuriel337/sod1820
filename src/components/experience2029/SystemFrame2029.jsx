@@ -1901,13 +1901,10 @@ export default function SystemFrame2029({
           >
             <div className="sod29-mobile-drawer-head">
               <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
-              <button className="sod29-gate-trigger" data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור ניווט">
-                <DiscoveryGateMark2029 open />
+              <button className="sod29-mobile-close" data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור ניווט">
+                <span aria-hidden="true">×</span>
               </button>
             </div>
-            <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
-              <BrandLockup2029 />
-            </Link>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
