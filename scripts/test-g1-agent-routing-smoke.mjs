@@ -53,7 +53,7 @@ test('release_gate: Foundation + canonical release owner + coordination', () => 
 test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', () => {
   assert.match(index, /Default read budget: \*\*L1\*\*/);
   assert.match(adapter, /Do \*\*not\*\* automatically read all rules/);
-  assert.match(adapter, /Read only that owner plus the \*\*smallest direct dependency set\*\*/);
+  assert.match(adapter, /Load only that owner plus the \*\*smallest direct dependency set\*\*/);
   assert.match(adapter, /DRIFT/);
   assert.match(design, /V1 remains historical\/Legacy provenance/);
   assert.match(adapter, /without relying on prior conversation memory/);
