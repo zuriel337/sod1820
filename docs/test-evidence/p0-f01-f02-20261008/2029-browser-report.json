@@ -1,0 +1,14 @@
+{
+  "runtime": "2029",
+  "result": "FAIL",
+  "role": "admin",
+  "completed_results": [],
+  "app_errors": [
+    "Unknown SOD1820 experience surface: admin"
+  ],
+  "error": "Native 2029 runtime failed: Unknown SOD1820 experience surface: admin",
+  "no_API_mocks": true,
+  "production_applied": false,
+  "scope": "existing_ControlPlane2029_not_full_admin_replacement",
+  "work_log_UI_in_2029": "NOT_IMPLEMENTED_IN_CURRENT_CONTROL_PLANE"
+}

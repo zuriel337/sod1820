@@ -1,0 +1,164 @@
+{
+  "checks": [
+    {
+      "name": "Baseline uses the real insecure history function",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception posts/tmp-content-5074.txt",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/cards/ego-confession.png",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/videos/ego-confession.en.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/videos/ego-confession.he.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/videos/ego-confession.jpg",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/videos/ego-confession.mp4",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/updates/metro-gush-dan-fixture-a.png",
+      "result": "PASS"
+    },
+    {
+      "name": "Baseline anonymous exception sod1820/updates/metro-gush-dan-fixture-b.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F01 denies anon",
+      "result": "PASS"
+    },
+    {
+      "name": "F01 denies user",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 existing public object bytes unchanged immediately after the patch",
+      "result": "PASS"
+    },
+    {
+      "name": "F01 genuine admin JWT preserves response/order/1000-row bound",
+      "result": "PASS"
+    },
+    {
+      "name": "F01 current operator reader preserves authenticated-admin access",
+      "result": "PASS"
+    },
+    {
+      "name": "F01 authorized direct SQL retains full history",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied posts/tmp-content-5074.txt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied posts/tmp-content-5074.txt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/cards/ego-confession.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/cards/ego-confession.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/videos/ego-confession.en.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/videos/ego-confession.en.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/videos/ego-confession.he.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/videos/ego-confession.he.vtt",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/videos/ego-confession.jpg",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/videos/ego-confession.jpg",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/videos/ego-confession.mp4",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/videos/ego-confession.mp4",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/updates/metro-gush-dan-fixture-a.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/updates/metro-gush-dan-fixture-a.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous overwrite denied sod1820/updates/metro-gush-dan-fixture-b.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 anonymous fresh INSERT denied sod1820/updates/metro-gush-dan-fixture-b.png",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 unrelated unauthorized target denied",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 intentional anonymous community image insertion preserved",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 existing user insertion preserved",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 existing admin insertion preserved",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 public bytes remain unchanged after policy removal",
+      "result": "PASS"
+    },
+    {
+      "name": "F02 exact temporary policy set removed; intended policies kept",
+      "result": "PASS"
+    }
+  ],
+  "isolated_test_environment": true,
+  "real_auth_issued_JWT": true,
+  "real_storage_HTTP": true,
+  "source_schema_without_data": true,
+  "original_private_media_copied": false,
+  "f01_sha256": "0c05f1c2afb718275a0cf97a0517116b2a3c56f907b76df9500397fc4578155a",
+  "f02_sha256": "997e4fef2b18d1295f39a048cafc890a6612d1ac37bc34b6da14da329cfeafbd",
+  "baseline_public_fixture_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba",
+  "production_applied": false,
+  "independent_main_GO": false,
+  "browser_acceptance": "LEGACY_COMPATIBILITY_PASS_NOT_2029_ACCEPTANCE",
+  "service_role_HTTP": "NOT_TESTED_NO_SERVICE_CREDENTIAL_INSTALLED"
+}

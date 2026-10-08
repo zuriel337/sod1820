@@ -1,0 +1,6 @@
+{
+  "environment": "krnaxxndgtrdnaddlzws",
+  "native_service_role_without_admin_JWT": "PASS_DENIED_42501",
+  "service_role_HTTP": "NOT_TESTED",
+  "production_applied": false
+}

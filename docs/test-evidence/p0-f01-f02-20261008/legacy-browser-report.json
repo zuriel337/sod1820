@@ -1,0 +1,31 @@
+{
+  "results": [
+    {
+      "role": "admin",
+      "result": "PASS",
+      "real_rpc_status": 200,
+      "rows": 1000,
+      "search": true
+    },
+    {
+      "role": "user",
+      "result": "PASS",
+      "admin_history_visible": false
+    },
+    {
+      "role": "anon",
+      "result": "PASS",
+      "admin_history_visible": false
+    }
+  ],
+  "no_API_mocks": true,
+  "external_requests_blocked": true,
+  "blocked_hosts": [
+    "fonts.googleapis.com",
+    "linswmnnkjxvweumprav.supabase.co",
+    "www.clarity.ms"
+  ],
+  "production_applied": false,
+  "runtime": "legacy",
+  "purpose": "compatibility_only_not_2029_acceptance"
+}

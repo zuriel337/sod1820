@@ -1,0 +1,24 @@
+{
+  "schema_restore_operations": 8011,
+  "restore_pending": 0,
+  "source_rows_copied": 0,
+  "table_fingerprints_compared": 305,
+  "constraint_fingerprints_compared": 557,
+  "function_fingerprints_compared": 854,
+  "policy_fingerprints_compared": 220,
+  "view_fingerprints_compared": 37,
+  "offline_external_integrations": [
+    "social_admin(text,jsonb)",
+    "sod_fb_call(text,jsonb,integer,boolean)",
+    "video_translate(jsonb)"
+  ],
+  "normalization_only": [
+    "public.contact_messages.contact_insert AND grouping",
+    "public.video_media_placements_v1 internal UNION literal aliases"
+  ],
+  "ai_query_owner_reconciled": "ai_reader",
+  "historical_replay": "MIGRATIONS_FAILED",
+  "manual_schema_snapshot_restore": true,
+  "production_product_changes": false,
+  "production_migration_ledger_changes": false
+}
