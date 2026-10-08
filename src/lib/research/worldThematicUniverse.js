@@ -73,6 +73,7 @@ export function topicToWorldConvergence(row) {
   return {
     id: update.id,
     kind: "convergence",
+    slug: update.slug,
     label: update.label,
     summary: update.summary,
     writer: update.creator,
@@ -83,40 +84,92 @@ export function topicToWorldConvergence(row) {
   };
 }
 
-export function buildWorldThematicUniverse({ posts = [], topics = [] } = {}, { theme = WORLD_THEME_ALL, writer = WORLD_THEME_ALL } = {}) {
-  const allWorks = (Array.isArray(posts) ? posts : []).map(postToWorldSourceWork).filter(Boolean);
-  const excluded = (Array.isArray(posts) ? posts : []).reduce((acc, post) => {
+export function categoriesForTheme(theme) {
+  const found = WORLD_THEMES.find((t) => t.key === theme);
+  return found ? [...found.categories] : WORLD_THEMES.flatMap((t) => t.categories);
+}
+
+// Topic <-> theme relations must be source-attested/owner-backed ({ themeKey, topicSlug, attestedBy }).
+// No such owner field exists on topic_cards_public today, so by default NO topic is linked to a theme:
+// a post category never manufactures topic identity or a topic relationship.
+export function attestedTopicsForTheme(topics, relations, theme) {
+  if (theme === WORLD_THEME_ALL || !WORLD_THEMES.some((t) => t.key === theme)) return { linked: topics, attested: false };
+  const slugs = new Set((Array.isArray(relations) ? relations : [])
+    .filter((r) => r && r.themeKey === theme && clean(r.topicSlug) && clean(r.attestedBy))
+    .map((r) => clean(r.topicSlug)));
+  return { linked: topics.filter((t) => t.slug && slugs.has(t.slug)), attested: slugs.size > 0 };
+}
+
+// Pure projection over rows ALREADY loaded for the focused theme (source-side paginated).
+// `page` carries honest bounds: total (server count or null when unknown) and hasMore.
+export function buildWorldThematicUniverse({ posts = [], topics = [], page = {}, relations = [] } = {}, { theme = WORLD_THEME_ALL, writer = WORLD_THEME_ALL } = {}) {
+  const rows = Array.isArray(posts) ? posts : [];
+  const themeValid = WORLD_THEMES.some((t) => t.key === theme);
+  const allWorks = rows.map(postToWorldSourceWork).filter(Boolean);
+  const excluded = rows.reduce((acc, post) => {
     const { eligible, reason } = classifyWorldSourceAccess(post);
     if (!eligible) acc[reason] = (acc[reason] || 0) + 1;
     return acc;
   }, {});
   const convergences = (Array.isArray(topics) ? topics : []).map(topicToWorldConvergence).filter(Boolean);
   const byTime = (a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0) || a.id.localeCompare(b.id);
-  const themeValid = WORLD_THEMES.some((t) => t.key === theme);
   const works = allWorks
     .filter((w) => !themeValid || w.themes.includes(theme))
     .filter((w) => writer === WORLD_THEME_ALL || w.writer === writer)
     .sort(byTime);
+  const { linked, attested } = attestedTopicsForTheme(convergences.sort(byTime), relations, theme);
+  const total = page.total != null && Number.isFinite(Number(page.total)) ? Number(page.total) : null;
   return {
-    themes: WORLD_THEMES.map((t) => ({ key: t.key, label: t.label, hint: t.hint, count: allWorks.filter((w) => w.themes.includes(t.key)).length })),
     writers: [...new Set(allWorks.map((w) => w.writer).filter(Boolean))].sort(),
     sourceWorks: works,
-    convergences: convergences.sort(byTime),
+    convergences: linked,
+    topicRelation: theme === WORLD_THEME_ALL ? "all" : attested ? "attested" : "none_attested",
+    bounds: { total, loaded: rows.length, hasMore: Boolean(page.hasMore), totalKnown: total != null },
     excluded,
     note: "Open to visitors ≠ verified. Source works, AI analyses and Convergences are distinct kinds; order is time, never truth rank.",
   };
 }
 
-export async function fetchWorldThematicSources({ postLimit = 120 } = {}) {
-  const [{ supabase }, { fetchTopicCardList }] = await Promise.all([import("../supabase.js"), import("./topicConvergence.js")]);
-  const [postsRes, topicsRes] = await Promise.all([
-    supabase.from("posts")
-      .select("id,title,slug,date,created_at,excerpt,categories,author,source,tags,thumb_url")
+const SOURCE_ORIGIN_LIST = [...SOURCE_WORK_ORIGINS];
+const POST_FIELDS = "id,title,slug,date,created_at,excerpt,categories,author,source,tags,thumb_url";
+export const WORLD_THEME_PAGE_SIZE = 24;
+
+// Source-side, category-specific, bounded pagination (no global LIMIT). Origin filter is applied
+// server-side so the count reflects source works; private markers are still screened client-side
+// and reported in `excluded`.
+export async function fetchWorldThemePosts({ theme = WORLD_THEME_ALL, offset = 0, limit = WORLD_THEME_PAGE_SIZE } = {}) {
+  const { supabase } = await import("../supabase.js");
+  const size = Math.max(1, Math.min(Number(limit) || WORLD_THEME_PAGE_SIZE, 48));
+  const start = Math.max(0, Number(offset) || 0);
+  const { data, error, count } = await supabase.from("posts")
+    .select(POST_FIELDS, { count: "exact" })
+    .not("slug", "is", null)
+    .in("source", SOURCE_ORIGIN_LIST)
+    .overlaps("categories", categoriesForTheme(theme))
+    .order("date", { ascending: false })
+    .order("id", { ascending: true })
+    .range(start, start + size - 1);
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  const total = count != null && Number.isFinite(Number(count)) ? Number(count) : null;
+  return { posts: rows, total, hasMore: total != null ? start + rows.length < total : rows.length === size };
+}
+
+export async function fetchWorldThemeCounts() {
+  const { supabase } = await import("../supabase.js");
+  const entries = await Promise.all(WORLD_THEMES.map(async (t) => {
+    const { count, error } = await supabase.from("posts")
+      .select("id", { count: "exact", head: true })
       .not("slug", "is", null)
-      .order("date", { ascending: false })
-      .limit(Math.max(1, Math.min(Number(postLimit) || 120, 300))),
-    fetchTopicCardList({ limit: 24, offset: 0 }),
-  ]);
-  if (postsRes.error) throw postsRes.error;
-  return { posts: postsRes.data || [], topics: topicsRes?.rows || [] };
+      .in("source", SOURCE_ORIGIN_LIST)
+      .overlaps("categories", t.categories);
+    return [t.key, error || count == null ? null : Number(count)]; // unknown stays null, never 0
+  }));
+  return Object.fromEntries(entries);
+}
+
+export async function fetchWorldThemeTopics({ limit = 12 } = {}) {
+  const { fetchTopicCardList } = await import("./topicConvergence.js");
+  const result = await fetchTopicCardList({ limit, offset: 0 });
+  return result?.rows || [];
 }

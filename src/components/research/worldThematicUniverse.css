@@ -17,3 +17,17 @@
 .wtu-value{font-family:"IBM Plex Mono",monospace;font-size:16px}
 .wtu-note{font-size:14px;opacity:.85;margin-top:16px}
 @media (max-width:360px){.wtu-chip{padding:8px 12px}}
+.wtu-hint{font-size:14px;opacity:.85;margin:4px 0}
+.wtu-space{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.wtu-space{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+.wtu-lane-block{min-width:0}
+.wtu-bounds{font-size:14px;opacity:.85;margin:10px 0}
+.wtu-more{min-height:44px;padding:8px 20px;font-size:16px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--s29-accent);background:transparent;color:inherit}
+.wtu-more:disabled{opacity:.6;cursor:progress}
+.wtu-grid-compact{grid-template-columns:1fr}
+.wtu-advanced{margin-block:16px;border:1px solid var(--s29-border,currentColor);border-radius:14px;padding:4px 14px}
+.wtu-advanced>summary{min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:700;cursor:pointer}
+.wtu-intro{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.wtu-intro h2{font-size:21px;margin:0}
+.wtu-intro p{font-size:14px;margin:4px 0 0;opacity:.85}

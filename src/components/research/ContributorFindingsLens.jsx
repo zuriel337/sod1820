@@ -186,10 +186,19 @@ export default function ContributorFindingsLens({
   }, [projection, mode, world, query, recentDays]);
 
   if (loading) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>טוען את ממצאי החוקר…</div>;
-  if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>ממצאי החוקר לא נטענו כרגע. לא יוצג חומר חלופי במקום הנתונים החסרים.</div>;
+  if (error) {
+    const diagnostics = Array.isArray(error.diagnostics) ? error.diagnostics : [];
+    return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>
+      ממצאי החוקר לא נטענו כרגע. לא יוצג חומר חלופי במקום הנתונים החסרים.
+      {diagnostics.length ? <ul data-admin-diagnostics="contributor-findings" dir="ltr" style={{ margin: "8px 0 0", paddingInlineStart: 18, fontSize: 14 }}>
+        {diagnostics.map((d) => <li key={d.stage}>{d.stage}: {d.hint}{d.code ? ` · ${d.code}` : ""}{d.status ? ` · HTTP ${d.status}` : ""}{d.message ? ` · ${d.message}` : ""}</li>)}
+      </ul> : null}
+    </div>;
+  }
   if (!projection) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>לא נמצא חוקר לעדשה הזו.</div>;
 
   const worlds = Object.entries(projection.worldCounts || {}).sort((a, b) => b[1] - a[1]);
+  const sourceMessagesFailed = Boolean(projection.loadState?.sourceMessagesFailed);
 
   return <section
     data-experience-surface="contributor-findings-lens"
@@ -203,6 +212,9 @@ export default function ContributorFindingsLens({
         זו עדשת provenance על אותו Research OS. החוקר הוא מי שהביא את החומר — לא “עולם” נפרד.
         מקור, ממצא, אימות, Topic ופרסום נשארים שכבות שונות.
       </div>
+      {sourceMessagesFailed ? <div role="status" style={{ ...TYPE_SCALE.body, fontFamily: F.body, marginTop: SPACE[2] }}>
+        שכבת הודעות המקור לא נטענה (channel_updates) — היעדרה אינו אומר שאין מקורות. מקורות חסרים אינם מוצגים כריקים.
+      </div> : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: SPACE[2], marginTop: SPACE[3] }}>
         {[
           ["מקורות עם ממצאים", projection.counts.sourceGroups],

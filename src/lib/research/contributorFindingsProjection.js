@@ -359,18 +359,52 @@ async function fetchLexicalRows(terms) {
   return [...byPhrase.values()];
 }
 
+// Admin-only staged diagnostics: identifies WHICH query failed and whether it looks like auth/RLS.
+// Carries only stage name + PostgREST code/status/short message. Never rows, filters, aliases or ids.
+export function summarizeStageError(stage, error) {
+  const code = clean(error?.code) || null;
+  const status = Number.isFinite(Number(error?.status)) ? Number(error.status) : null;
+  const message = clean(error?.message).slice(0, 160);
+  const hint = /^(42501|PGRST301|PGRST302)$/.test(code || "") || status === 401 || status === 403 || /row-level security|permission denied|jwt/i.test(message)
+    ? "auth_or_rls"
+    : /^(42P01|42703|PGRST200|PGRST204|PGRST205)$/.test(code || "") ? "schema_or_relation"
+    : /timeout|57014/i.test(`${code} ${message}`) ? "timeout" : "unknown";
+  return { stage, code, status, message, hint };
+}
+
+async function runStage(stage, loader, diagnostics) {
+  try {
+    return { ok: true, value: await loader() };
+  } catch (error) {
+    diagnostics.push(summarizeStageError(stage, error));
+    return { ok: false };
+  }
+}
+
 export async function fetchContributorFindingsProjection(slug) {
   const contributor = await fetchContributor(slug);
   if (!contributor) return null;
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
 
-  const sourceMessagesPromise = fetchSourceMessages(aliases).catch(() => []);
-  const [research, sourceMessages, contributions, topics] = await Promise.all([
-    fetchResearchObjects(aliases, contributor.slug),
-    sourceMessagesPromise,
-    fetchContributorContributions(contributor.id),
-    fetchContributorTopics(aliases),
+  const diagnostics = [];
+  const [researchStage, messagesStage, contributionsStage, topicsStage] = await Promise.all([
+    runStage("research_objects", () => fetchResearchObjects(aliases, contributor.slug), diagnostics),
+    runStage("channel_updates", () => fetchSourceMessages(aliases), diagnostics),
+    runStage("research_contributions", () => fetchContributorContributions(contributor.id), diagnostics),
+    runStage("topic_cards", () => fetchContributorTopics(aliases), diagnostics),
   ]);
+  // Optional source-message layer degrades visibly (reported in loadState), never silently as "empty".
+  const sourceMessagesFailed = !messagesStage.ok;
+  const fatal = diagnostics.filter((d) => d.stage !== "channel_updates");
+  if (fatal.length) {
+    const failure = new Error(`contributor findings failed at: ${fatal.map((d) => d.stage).join(", ")}`);
+    failure.diagnostics = diagnostics;
+    throw failure;
+  }
+  const research = researchStage.value;
+  const sourceMessages = messagesStage.ok ? messagesStage.value : [];
+  const contributions = contributionsStage.value;
+  const topics = topicsStage.value;
 
   const terms = uniq(research.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
   let lexicalRows = [];
@@ -398,6 +432,8 @@ export async function fetchContributorFindingsProjection(slug) {
       contributionsTotal: contributions.total,
       contributionsTruncated: contributions.truncated,
       sourceMessagesLoaded: sourceMessages.length,
+      sourceMessagesFailed,
+      diagnostics,
       topicsLoaded: topics.length,
     },
   };
