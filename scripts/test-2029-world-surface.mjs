@@ -131,7 +131,15 @@ assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landin
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
 assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
-assert.match(world, /מה חדש בעולם\?/);
+// Experience v2: human-first intro above the fold; the legacy live stream is preserved under progressively-disclosed advanced details.
+assert.match(world, /העולם · נושאים ויצירות/, "World v2 human-first intro");
+assert.match(world, /<details className="wtu-advanced" id="world-advanced"/, "legacy live research stays preserved in advanced details");
+assert.match(world, /מחקר מתקדם · זרם חי/, "advanced details summary names the preserved live stream");
+assert.ok(
+  world.indexOf("העולם · נושאים ויצירות") < world.indexOf('id="world-advanced"') &&
+  world.indexOf('id="world-advanced"') < world.indexOf('className="sod29-world-live-stream"'),
+  "live stream must sit inside advanced details, below the intro (not above the fold)",
+);
 assert.match(world, /sod29-world-live-stream/);
 assert.match(world, /sod29-world-spatial-gateway/);
 assert.match(worldCss, /sod29-world-discovery-entrance/);
@@ -1057,7 +1065,8 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /מה חדש בעולם\?/);
+assert.match(world, /העולם · נושאים ויצירות/);
+assert.match(world, /סינון מה חדש בעולם לפי יוצר/, "live stream filter accessibility label preserved");
 assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
 assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 
