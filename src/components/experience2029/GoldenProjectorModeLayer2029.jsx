@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import ProjectorMediaCards2029 from "./ProjectorMediaCards2029.jsx";
 import { isProjectorPilotVisible } from "../../lib/projectorPilotGate.js";
 import { ADMIN_LAYER, PROJECTOR_MODE, explainProminence, fetchGoldenAdminUniverse } from "../../lib/research/goldenProjectorModes.js";
+import ResearchAdminIntakePanel2029, { useResearchAdmittedEpoch } from "./ResearchAdminIntakePanel2029.jsx";
 import { ResearchPublicationControl2029, ResearchViewModeSwitch2029, useResearchViewMode } from "./ResearchViewMode2029.jsx";
 import {
   RESEARCH_FACET_FILTER_DEFAULTS,
@@ -58,6 +59,7 @@ function AdminLayer({ layerKey, items }) {
 
 export default function GoldenProjectorModeLayer2029({ context, surface }) {
   const { isAdmin, loading, mode, choose } = useResearchViewMode();
+  const admittedEpoch = useResearchAdmittedEpoch();
   const location = useLocation();
   const visible = isProjectorPilotVisible({ surface, pathname: location.pathname, context });
   const postSlug = context?.dimensions?.readingFocus?.postSlug || null;
@@ -89,7 +91,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
       if (alive) setUniverse({ status: "error", data: null });
     });
     return () => { alive = false; };
-  }, [visible, mode, postSlug]);
+  }, [visible, mode, postSlug, admittedEpoch]);
 
   useEffect(() => {
     setFacetFilters({ ...RESEARCH_FACET_FILTER_DEFAULTS });
@@ -106,6 +108,7 @@ export default function GoldenProjectorModeLayer2029({ context, surface }) {
 
   return <section className="sod29-golden-mode" data-golden-projector-mode={mode} aria-label="מצב תצוגת ההקשר">
     <ResearchViewModeSwitch2029 mode={mode} onChange={choose} />
+    {mode === PROJECTOR_MODE.ADMIN_ALL ? <ResearchAdminIntakePanel2029 /> : null}
     <ProjectorMediaCards2029 postSlug={postSlug} context={context} />
     {mode === PROJECTOR_MODE.PUBLIC_VIEW
       ? <p className="sod29-golden-mode-note">תצוגה ציבורית: מוצג בדיוק מה שמבקר ציבורי מורשה לראות. לא נטען כאן שום חומר פרטי.</p>

@@ -1,3 +1,4 @@
+import ResearchAdminIntakePanel2029, { useResearchAdmittedEpoch } from "../components/experience2029/ResearchAdminIntakePanel2029.jsx";
 import { ResearchPublicationControl2029, ResearchViewModeSwitch2029, useResearchViewMode } from "../components/experience2029/ResearchViewMode2029.jsx";
 import { PROJECTOR_MODE, researchReaderForMode } from "../lib/research/researchViewMode.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
@@ -879,6 +880,7 @@ function LiveWorldLanding({ research, shell, context }) {
             </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
           </div>
           {isAdmin ? <ResearchViewModeSwitch2029 mode={viewMode.mode} onChange={viewMode.choose} /> : null}
+          {controlMode ? <ResearchAdminIntakePanel2029 /> : null}
           <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
           <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
         </div>
@@ -1140,6 +1142,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   // ADMIN_ALL only for an authorized admin; PUBLIC_VIEW reads research through the anonymous client.
   const adminMode = isAdmin && viewMode.mode === PROJECTOR_MODE.ADMIN_ALL;
   const researchClient = researchReaderForMode(isAdmin ? viewMode.mode : PROJECTOR_MODE.PUBLIC_VIEW);
+  const admittedEpoch = useResearchAdmittedEpoch();
   const [state, setState] = useState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
   const [relationFilter, setRelationFilter] = useState("all");
@@ -1198,7 +1201,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       })
       .catch((error) => alive && setState({ loading: false, data: null, prominenceInputs: null, prominenceError: null, error }));
     return () => { alive = false; };
-  }, [key, subject.id, subject.type, adminMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, subject.id, subject.type, adminMode, admittedEpoch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setAdminView("research");
