@@ -5,7 +5,9 @@ create role anon nologin; create role authenticated nologin; create role service
 create schema auth;
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
 create table public.users (id uuid primary key, role text);
-create table public.contributors (id uuid primary key, slug text unique, display_name text, phone text, dossier_settings jsonb);
+create table public.contributors (id uuid primary key, slug text unique, display_name text, phone text, dossier_settings jsonb, user_id uuid);
+create table public.wa_account_links (id bigserial primary key, user_id uuid, phone text, verified_at timestamptz);
+alter table public.wa_account_links enable row level security;   -- like live: RLS on, no anon policy; function owner bypasses
 create table public.channel_ingest_sources (id uuid primary key default gen_random_uuid(), channel text, chat_id text, enabled boolean, intake_mode text);
 create table public.wa_msg_ext (msg_id text, group_id text);
 create table public.channel_updates (id uuid primary key default gen_random_uuid(), text text, image_url text, thumb_url text,
@@ -16,13 +18,29 @@ grant select on public.channel_updates to anon;
 \i supabase/migrations/20261008170000_world_group_source_arrivals_v1.sql
 \i supabase/migrations/20261008190000_world_group_source_provenance_v2.sql
 
-insert into public.contributors values
+insert into public.contributors(id,slug,display_name,phone,dossier_settings) values
  ('00000000-0000-0000-0000-0000000000a1','tzvi-opoc','צבי','0501111111','{"general_feed_enabled":true}'),
  ('00000000-0000-0000-0000-0000000000a2','yaniv-levi','יניב','972502222222','{"general_feed_enabled":true}'),
  ('00000000-0000-0000-0000-0000000000a3','flag-off','כבוי','0503333333','{"general_feed_enabled":false}'),
  ('00000000-0000-0000-0000-0000000000a4','dup-a','כפול א','0504444444','{"general_feed_enabled":true}'),
  ('00000000-0000-0000-0000-0000000000a5','dup-b','כפול ב','+972-50-4444444','{"general_feed_enabled":true}'),
  ('00000000-0000-0000-0000-0000000000a6','lookalike','צבי','0509999999','{"general_feed_enabled":true}');
+insert into public.contributors(id,slug,display_name,phone,dossier_settings,user_id) values
+ ('00000000-0000-0000-0000-0000000000b1','acct-verified','חשבון','', '{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e1'),
+ ('00000000-0000-0000-0000-0000000000b2','acct-unverified','לא מאומת',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e2'),
+ ('00000000-0000-0000-0000-0000000000b3','acct-dupA','כפול חשבון א',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e3'),
+ ('00000000-0000-0000-0000-0000000000b4','acct-dupB','כפול חשבון ב',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e4'),
+ ('00000000-0000-0000-0000-0000000000b5','phone-conflict','סותר','0507070707','{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e5'),
+ ('00000000-0000-0000-0000-0000000000b6','phone-owner-B','בעל חשבון','0506060606','{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e6'),
+ ('00000000-0000-0000-0000-0000000000b7','no-user','בלי משתמש',null,'{"general_feed_enabled":true}',null);
+insert into public.wa_account_links(user_id,phone,verified_at) values
+ ('00000000-0000-0000-0000-0000000000e1','+972-52-1000001',now()),                -- verified, unique
+ ('00000000-0000-0000-0000-0000000000e2','0522000002',null),                       -- NOT verified
+ ('00000000-0000-0000-0000-0000000000e3','972523000003',now()),                    -- duplicate verified phone ...
+ ('00000000-0000-0000-0000-0000000000e4','0523000003',now()),                      -- ... across two accounts
+ ('00000000-0000-0000-0000-0000000000e5','0524000005',now()),                      -- c.phone 0507070707 vs verified 0524000005
+ ('00000000-0000-0000-0000-0000000000e6','0507070707',now()),                      -- other account verified 0507070707 => conflicts with b5.phone
+ ('00000000-0000-0000-0000-0000000000e7','0525000007',now());                      -- verified link whose user has no contributor
 insert into public.users values ('00000000-0000-0000-0000-0000000000f1','admin'),('00000000-0000-0000-0000-0000000000f2','user');
 insert into public.channel_ingest_sources(id,channel,chat_id,enabled,intake_mode) values
  ('00000000-0000-0000-0000-00000000c001','torat-haremez','120363409557354268@g.us',true,'research_first'),
@@ -72,6 +90,13 @@ select pg_temp.add('src_ai','x','torat-haremez','private','M18',src=>'ai');
 select pg_temp.add('vcard','BEGIN:VCARD','torat-haremez','private','M19');
 select pg_temp.add('pii','call 050-123-4567 or a@b.com or https://x.co/y www.z.com','torat-haremez','private','M20');
 select pg_temp.add('mail','x','torat-haremez','private','mail_1');
+select pg_temp.add('acct_ok','x','torat-haremez','private','A1',null);                                           -- pushname matched nothing: contributor_id null
+select pg_temp.add('acct_spoof','x','torat-haremez','private','A2');                                              -- pushname credited tzvi, JID is acct-verified
+select pg_temp.add('acct_unverified','x','torat-haremez','private','A3',null);
+select pg_temp.add('acct_dup','x','torat-haremez','private','A4',null);
+select pg_temp.add('acct_conflict','x','torat-haremez','private','A5',null);
+select pg_temp.add('acct_nouser','x','torat-haremez','private','A6',null);
+select pg_temp.add('acct_old','x','torat-haremez','private','A8',null,ts=>now()-interval '2 days');
 select pg_temp.add('wrong_ext','x','torat-haremez','private','M21');
 
 -- proof writer: negatives return errors and write nothing ---------------------------------------------------------
@@ -89,13 +114,25 @@ select pg_temp.ok(pg_temp.err(pg_temp.proof('wrong_ext',:'T','M21',:'TC',''))='b
 select pg_temp.ok((select count(*) from public.channel_update_group_proof)=0, 'rejected calls wrote nothing');
 
 -- positives + unverified identities --------------------------------------------------------------------------------
-select pg_temp.ok((pg_temp.proof('pos_private_tzvi',:'T','M1',:'TC','972501111111@c.us')->>'identity_basis')='jid_phone_unique', 'tzvi 05x -> 9725x unique');
-select pg_temp.ok((pg_temp.proof('pos_live_yaniv',:'G','M2',:'GC','972502222222@c.us')->>'identity_basis')='jid_phone_unique', 'yaniv unique');
-select pg_temp.ok((pg_temp.proof('lookalike_pushname',:'T','M3',:'TC','972509999999@c.us')->>'identity_basis')='jid_phone_unique', 'JID resolves to the REAL owner (lookalike contributor), not tzvi');
+select pg_temp.ok((pg_temp.proof('pos_private_tzvi',:'T','M1',:'TC','972501111111@c.us')->>'identity_basis')='verified_phone_unique', 'tzvi 05x -> 9725x unique');
+select pg_temp.ok((pg_temp.proof('pos_live_yaniv',:'G','M2',:'GC','972502222222@c.us')->>'identity_basis')='verified_phone_unique', 'yaniv unique');
+select pg_temp.ok((pg_temp.proof('lookalike_pushname',:'T','M3',:'TC','972509999999@c.us')->>'identity_basis')='verified_phone_unique', 'JID resolves to the REAL owner (lookalike contributor), not tzvi');
 select pg_temp.ok((pg_temp.proof('unknown_jid',:'T','M4',:'TC','972508888888@c.us')->>'identity_basis')='unverified', 'unknown JID -> unverified');
 select pg_temp.ok((pg_temp.proof('dup_phone',:'T','M14',:'TC','972504444444@c.us')->>'identity_basis')='unverified', 'non-unique phone -> unverified');
-select pg_temp.ok((pg_temp.proof('no_contributor',:'T','M15',:'TC','972501111111@c.us')->>'identity_basis')='jid_phone_unique', 'proof ok but row has no contributor');
-select pg_temp.ok((pg_temp.proof('contrib_mismatch',:'T','M16',:'TC','972501111111@c.us')->>'identity_basis')='jid_phone_unique', 'proof ok, row credit disagrees');
+select pg_temp.ok((pg_temp.proof('no_contributor',:'T','M15',:'TC','972501111111@c.us')->>'identity_basis')='verified_phone_unique', 'proof ok but row has no contributor');
+select pg_temp.ok((pg_temp.proof('contrib_mismatch',:'T','M16',:'TC','972501111111@c.us')->>'identity_basis')='verified_phone_unique', 'proof ok, row credit disagrees');
+select pg_temp.ok((pg_temp.proof('acct_ok',:'T','A1',:'TC','972521000001@c.us')->>'identity_basis')='verified_phone_unique', 'verified account link, null contributor.phone -> positive');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_ok'))='00000000-0000-0000-0000-0000000000b1', 'just-inserted row bound to proven contributor');
+select pg_temp.ok((pg_temp.proof('acct_spoof',:'T','A2',:'TC','972521000001@c.us')->>'identity_basis')='verified_phone_unique', 'spoofed pushname row: JID resolves to real account owner');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_spoof'))='00000000-0000-0000-0000-0000000000b1', 'spoofed row rebound to JID owner, not tzvi');
+select pg_temp.ok((select text from public.channel_updates where id=pg_temp.uid('acct_spoof'))='x' and (select status from public.channel_updates where id=pg_temp.uid('acct_spoof'))='private', 'rebind leaves text/status untouched');
+select pg_temp.ok((pg_temp.proof('acct_unverified',:'T','A3',:'TC','972522000002@c.us')->>'identity_basis')='unverified', 'unverified wa link rejected');
+select pg_temp.ok((pg_temp.proof('acct_dup',:'T','A4',:'TC','972523000003@c.us')->>'identity_basis')='unverified', 'duplicate verified account phones -> unverified');
+select pg_temp.ok((pg_temp.proof('acct_conflict',:'T','A5',:'TC','972507070707@c.us')->>'identity_basis')='unverified', 'c.phone vs other account verified link -> fail closed');
+select pg_temp.ok((pg_temp.proof('acct_nouser',:'T','A6',:'TC','972525000007@c.us')->>'identity_basis')='unverified', 'verified link without contributor user association rejected');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_unverified')) is null, 'unverified: no rebind');
+select pg_temp.ok((pg_temp.proof('acct_old',:'T','A8',:'TC','972521000001@c.us')->>'identity_basis')='verified_phone_unique', 'old row still proves');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_old')) is null, 'historical (old) row NOT rebound');
 select pg_temp.proof('held',:'T','M9',:'TC','972501111111@c.us');
 select pg_temp.proof('hidden',:'T','M10',:'TC','972501111111@c.us');
 select pg_temp.proof('off',:'T','M11',:'TC','972501111111@c.us');
@@ -106,13 +143,17 @@ select pg_temp.proof('vcard',:'T','M19',:'TC','972501111111@c.us');
 select pg_temp.proof('pii',:'T','M20',:'TC','972501111111@c.us');
 -- (mail_ and unproved legacy rows get no proof row)
 
-select pg_temp.ok(pg_temp.got() = array['held','pii','pos_live_yaniv','pos_private_tzvi'],
+select pg_temp.ok('acct_ok' = any(pg_temp.got()) and 'acct_spoof' = any(pg_temp.got()), 'verified owner projects even though pushname unmatched/spoofed (after binding)');
+select pg_temp.ok(not (pg_temp.got() && array['acct_unverified','acct_dup','acct_conflict','acct_nouser','acct_old']), 'unverified/dup/conflict/historical excluded');
+select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='acct_spoof')='acct-verified', 'spoofed row shown under JID owner only');
+select pg_temp.ok(not has_table_privilege('anon','public.wa_account_links','select') and not has_table_privilege('authenticated','public.wa_account_links','select'), 'no anon/authenticated grant on wa_account_links');
+select pg_temp.ok(pg_temp.got() = array['acct_ok','acct_spoof','contrib_mismatch','held','lookalike_pushname','no_contributor','pii','pos_live_yaniv','pos_private_tzvi'],
    'pre-hold set: '||pg_temp.got()::text);
 -- the lookalike case: row credited to tzvi but JID belongs to 'lookalike' => contributor id mismatch => excluded
-select pg_temp.ok(not ('lookalike_pushname' = any(pg_temp.got())), 'lookalike pushname with different JID is NOT exposed');
-select pg_temp.ok(not ('contrib_mismatch' = any(pg_temp.got())), 'row contributor != JID-proven contributor -> excluded');
+select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='lookalike_pushname')='lookalike', 'pushname-credited tzvi but JID=lookalike: shown ONLY under JID owner');
+select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='contrib_mismatch')='tzvi-opoc', 'row credited yaniv, JID=tzvi: shown under tzvi, never yaniv');
 select pg_temp.ok(not ('unproved_legacy_live' = any(pg_temp.got())), 'legacy live row without proof stays out');
-select pg_temp.ok(not ('unknown_jid' = any(pg_temp.got())) and not ('dup_phone' = any(pg_temp.got())) and not ('no_contributor' = any(pg_temp.got())), 'unverified/no-contributor excluded');
+select pg_temp.ok(not ('unknown_jid' = any(pg_temp.got())) and not ('dup_phone' = any(pg_temp.got())) and ('no_contributor' = any(pg_temp.got())), 'unverified excluded; null-contributor row bound by JID projects');
 select pg_temp.ok(not (pg_temp.got() && array['hidden','off','blocked','flag_off','expired','vcard','mail','src_ai','media']), 'hidden/off/blocked/flag/expiry/vcard/media excluded');
 select pg_temp.ok((select body !~ '050-123|@|http|www' and body like '%[מספר]%' and body like '%[קישור]%' and body like '%[דוא״ל]%'
                      from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='pii'), 'PII redacted');

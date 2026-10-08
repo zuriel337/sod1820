@@ -4,7 +4,7 @@ import { groupRowToWorldUpdate, redactGroupText, fetchGroupSourceArrivals, GROUP
 import { buildWorldDiscoveryStream } from "./worldDiscoveryStream.js";
 import { readFileSync } from "node:fs";
 
-const row = (o = {}) => ({ id: "u1", body: "שלום עולם 358", created_at: "2026-10-01T10:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "jid_phone_unique", ...o });
+const row = (o = {}) => ({ id: "u1", body: "שלום עולם 358", created_at: "2026-10-01T10:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique", ...o });
 
 test("projects a proved four-author group row as unverified source", () => {
   const it = groupRowToWorldUpdate(row());
@@ -45,13 +45,18 @@ test("v2 migration contract: private proof table, service-only writer, hold, no 
   const sql = readFileSync(new URL("../../../supabase/migrations/20261008190000_world_group_source_provenance_v2.sql", import.meta.url), "utf8");
   const code = sql.replace(/--.*$/gm, "");
   for (const needle of ["channel_update_group_proof", "enable row level security", "revoke all on public.channel_update_group_proof from public, anon, authenticated",
-    "to service_role", "held_at is null", "jid_phone_unique", "@g.us", "drop function if exists public.world_group_source_arrivals_v1"])
+    "to service_role", "held_at is null", "verified_phone_unique", "@g.us", "drop function if exists public.world_group_source_arrivals_v1"])
     assert.ok(sql.includes(needle), needle);
   const writerGrant = code.split(";").filter((st) => /grant\s+execute/i.test(st) && st.includes("record_channel_update_group_proof_v1"));
   assert.equal(writerGrant.length, 1); assert.ok(/to service_role\s*$/i.test(writerGrant[0].trim()), "proof writer granted to service_role only");
   assert.ok(!/senderName|pushname|wa_names|credit/i.test(code), "no name-based identity");
   assert.ok(!/grant\s+select\s+on\s+(table\s+)?public\.channel_updates/i.test(code));
-  assert.ok(!/(create|alter|drop)\s+policy|research_objects|update\s+public\.channel_updates/i.test(code));
+  assert.ok(!/(create|alter|drop)\s+policy|research_objects/i.test(code));
+  // the only channel_updates write: one id-scoped contributor_id bind of the just-inserted row (no text/status/credit change)
+  const upd = code.match(/update\s+public\.channel_updates[^;]*;/gi) || [];
+  assert.equal(upd.length, 1); assert.ok(/set contributor_id = v_contrib where id = p_update_id;$/i.test(upd[0].trim()), upd[0]);
+  assert.ok(/wa_account_links/.test(code) && /w\.verified_at is not null/.test(code), "verified account links only");
+  assert.ok(!/grant[^;]*wa_account_links/i.test(code), "no grant on wa_account_links");
 });
 test("ingest sends proof from senderId, never senderName", () => {
   const ts = readFileSync(new URL("../../../supabase/functions/wa-channel-ingest/index.ts", import.meta.url), "utf8");

@@ -2,7 +2,8 @@
 -- EXTEND_EXISTING: narrow PRIVATE proof extension for channel_updates (not a new source/feed/tree/store owner).
 -- Replaces the v1 reader, which trusted contributor_id derived from the user-controlled WhatsApp pushname.
 -- Positive proof = (real configured group source, incoming text message, provider ext_msg_id, sender JID whose phone
--- matches exactly ONE contributors.phone). No proof row => excluded (fail closed). held_at => excluded (human hold wins).
+-- matches exactly ONE contributor via contributors.phone OR a VERIFIED wa_account_links phone owned by contributors.user_id).
+-- Verified-account amend (WORLD_2029_VERIFIED_WA_ACCOUNT_ID_BINDING_AMEND_V1): no new registry; free-text aliases/pushname never count. No proof row => excluded (fail closed). held_at => excluded (human hold wins).
 -- Historical rows have no proof row and therefore stay out until separately re-proven + explicitly authorized.
 -- No change to channel_updates columns/RLS/grants, no status flip, no research_objects touch.
 
@@ -16,7 +17,7 @@ create table if not exists public.channel_update_group_proof (
   group_chat_id      text not null check (group_chat_id like '%@g.us' and group_chat_id <> '__ALL__'),
   sender_jid         text not null,                       -- private; never returned by any public function
   identity_contributor_id uuid references public.contributors(id) on delete restrict, -- NULL = UNVERIFIED
-  identity_basis     text not null check (identity_basis in ('jid_phone_unique','unverified')),
+  identity_basis     text not null check (identity_basis in ('verified_phone_unique','unverified')),
   incoming           boolean not null check (incoming is true),
   text_only          boolean not null check (text_only is true),
   proven_at          timestamptz not null default now(),
@@ -59,14 +60,30 @@ begin
     return jsonb_build_object('ok', false, 'error', 'source_mismatch'); end if;
   if coalesce(p_sender_jid,'') = '' or p_sender_jid not like '%@c.us' then
     return jsonb_build_object('ok', false, 'error', 'bad_sender'); end if;
-  select array_agg(c.id) into v_ids from public.contributors c
-   where public.fn_wa_phone_digits(c.phone) = public.fn_wa_phone_digits(p_sender_jid);
-  if coalesce(array_length(v_ids,1),0) = 1 then v_contrib := v_ids[1]; v_basis := 'jid_phone_unique';
+  -- Candidate contributors, deduplicated by contributor.id: (A) contributors.phone, (B) VERIFIED wa_account_links owned by
+  -- contributors.user_id. Reads wa_account_links as function owner (RLS-bypass); no grant to anon/authenticated.
+  with jid as (select public.fn_wa_phone_digits(p_sender_jid) as d),
+  cand as (
+    select c.id from public.contributors c, jid
+     where jid.d is not null and public.fn_wa_phone_digits(c.phone) = jid.d
+    union
+    select c.id from public.contributors c
+      join public.wa_account_links w on w.user_id = c.user_id and w.verified_at is not null, jid
+     where c.user_id is not null and jid.d is not null and public.fn_wa_phone_digits(w.phone) = jid.d)
+  select array_agg(id) into v_ids from cand;                 -- >1 distinct contributors (incl. c.phone vs another account's verified link) => unverified
+  if coalesce(array_length(v_ids,1),0) = 1 then v_contrib := v_ids[1]; v_basis := 'verified_phone_unique';
   else v_contrib := null; v_basis := 'unverified'; end if;
   insert into public.channel_update_group_proof(update_id, source_id, channel, ext_msg_id, group_chat_id, sender_jid,
          identity_contributor_id, identity_basis, incoming, text_only)
   values (p_update_id, p_source_id, cu.channel, p_ext_msg_id, p_group_chat_id, p_sender_jid, v_contrib, v_basis, true, true)
   on conflict do nothing;                                    -- replay: first proof stands, held_at never reset
+  -- First-time capture binding: the just-inserted row's contributor_id was derived from the user-controlled pushname.
+  -- Once the sender JID proves a unique owner, bind THAT row (only; created moments ago, only if its proof was just written)
+  -- to the proven contributor. Raw text/credit/source/status untouched; no UPDATE triggers exist on channel_updates.
+  if v_contrib is not null and cu.contributor_id is distinct from v_contrib and cu.created_at > now() - interval '15 minutes'
+     and exists (select 1 from public.channel_update_group_proof g where g.update_id = p_update_id and g.identity_contributor_id = v_contrib) then
+    update public.channel_updates set contributor_id = v_contrib where id = p_update_id;
+  end if;
   return jsonb_build_object('ok', true, 'identity_basis', v_basis);
 end $$;
 revoke all on function public.record_channel_update_group_proof_v1(uuid,uuid,text,text,text,boolean,text) from public, anon, authenticated;
@@ -110,7 +127,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
      and s.chat_id = g.group_chat_id and s.chat_id like '%@g.us' and s.chat_id <> '__ALL__'
     join public.contributors c on c.id = g.identity_contributor_id and c.id = cu.contributor_id
    where g.held_at is null
-     and g.identity_basis = 'jid_phone_unique'
+     and g.identity_basis = 'verified_phone_unique'
      and cu.source = 'auto' and cu.ext_msg_id = g.ext_msg_id and cu.ext_msg_id !~ '^mail_'
      and cu.status in ('live','private')                       -- off / hidden / blocked never qualify
      and (cu.expires_at is null or cu.expires_at > now())

@@ -15,7 +15,7 @@ export function redactGroupText(text) {
 }
 
 export function groupRowToWorldUpdate(row) {
-  if (!row?.id || row.group_proof !== true || row.proof_basis !== "jid_phone_unique" || !clean(row.contributor_slug)) return null; // unproved / unverified author => excluded
+  if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !clean(row.contributor_slug)) return null; // unproved / unverified author => excluded
   const body = redactGroupText(row.body);
   if (!body) return null;
   const at = Date.parse(clean(row.created_at));
