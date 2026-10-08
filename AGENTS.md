@@ -3,6 +3,21 @@
 > This file is a **runtime routing adapter**, not a new system, contract, owner map, memory store, queue or source of project truth.
 > The current authoritative pointers are `CLAUDE.md`, `SOD1820_MASTER_OWNER_INDEX.md`, the canonical Supabase project `linswmnnkjxvweumprav`, and live `origin/main`.
 
+## Every session startup — preserving existing main behavior
+
+At the start of every SOD1820 session, verify access to the canonical
+Supabase project `linswmnnkjxvweumprav` with a read-only connection check.
+Do not assume authentication persists from another session.
+Prefer `sod1820_supabase_readonly` when available. If using the general
+Supabase connector, report that distinction and execute only read-only checks.
+Report unavailable tools or required OAuth approval; never request passwords
+or API keys in chat.
+Do not change data, permissions, or configuration during startup.
+
+Read `CLAUDE.md` and `SOD1820_MASTER_OWNER_INDEX.md` for canonical routing.
+This file adds a startup instruction only; it does not replace live canonical
+owners or authorize writes, task claims, merges, or deployments.
+
 ## At the beginning of every substantial task
 
 1. Classify the request by intent, capability and domain. Use `SOD1820_MASTER_OWNER_INDEX.md` to resolve the *current* owner and read only its direct dependencies. Consult relevant sections of `CLAUDE.md` for the shared runtime, truth and coordination protocol; do not dump all project documents into context.
