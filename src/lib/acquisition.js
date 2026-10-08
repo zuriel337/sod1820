@@ -17,6 +17,13 @@ const ACQ_LAST = "sod_acq_last";
 function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
 function jparse(s) { try { return s ? JSON.parse(s) : null; } catch { return null; } }
 
+// Read-only snapshot of the canonical session created by identity.js.  We deliberately
+// do not import identity.js here: supabase.js imports this module, while identity.js
+// imports supabase.js, so an import would create a runtime cycle.
+function currentSessionId() {
+  try { return localStorage.getItem("sod_sid") || null; } catch { return null; }
+}
+
 // אותו sod_vid בדיוק — מיוצא-מחדש מהפרימיטיב הקנוני (בלי יצירה שנייה, בלי מפתח שני).
 export { getVisitorId as visitorId };
 
@@ -53,11 +60,12 @@ export function signupAttribution() {
     return {
       attribution_version: "v1",
       visitor_id: getVisitorId(),
+      session_id: currentSessionId(),
       first_touch: first || null,
       last_touch: last || null,
       signup_touch: signupTouch(),
     };
   } catch {
-    return { attribution_version: "v1", visitor_id: null, first_touch: null, last_touch: null, signup_touch: null };
+    return { attribution_version: "v1", visitor_id: null, session_id: null, first_touch: null, last_touch: null, signup_touch: null };
   }
 }
