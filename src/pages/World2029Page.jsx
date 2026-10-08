@@ -5,6 +5,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
+import WorldThematicUniverse from "../components/research/WorldThematicUniverse.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -937,6 +938,8 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
     </section>
+
+    <WorldThematicUniverse />
 
     <WorldAnchorMap
       projection={anchorState.projection}
