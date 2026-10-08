@@ -879,7 +879,17 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      const response = await groupResponse;
+      expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);
+      const groupRows = await response.json();
+      expect(Array.isArray(groupRows)).toBe(true);
+      for (const row of groupRows) {
+        expect(row.group_proof).toBe(true);
+        expect(row.proof_basis).toBe('verified_phone_unique');
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
+      }
       const writer = page.locator('.sod29-world-person-card').filter({ hasText: 'יניב לוי' }).first();
       await expect(writer).toBeVisible({ timeout: 30_000 });
       await writer.click();
@@ -897,7 +907,8 @@ for (const preset of ['light', 'parchment', 'dark']) {
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).not.toBeEmpty();
       await assertNoHorizontalOverflow(page);
       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
-      await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toBeVisible();
+      await expect(page.getByText(/מוצגות הודעות מקור מארבעה כותבים שאושרו לעריכה/)).toBeVisible();
+      await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
     });
   }
 }
