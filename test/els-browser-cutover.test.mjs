@@ -278,7 +278,7 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     await search(frame, 'משיח');
     await waitState(page, (m) => m.status === 'ok' && m.term === 'משיח');
     await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
-    await waitState(page, (m) => m.findings?.length === 2 && m.findings.some(w => w.hits?.some(h => h.verified && h.shown)));
+    await waitState(page, (m) => m.findings?.length === 2 && m.findings[0].hits?.some(h => h.verified && h.shown));
     const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown && h.verified);
     assert.ok(hit, 'verified shown hit available');
     assert.ok(initial.findings.every(w => w.hits.every(h => h.verified ? h.skip >= 2 : h.skip === null && h.hitId === null)), 'unverified candidates carry no coordinates');
@@ -306,6 +306,15 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     assert.ok(lens.cells.every(c => c.i >= 0 && c.i < TORAH_LEN && c.letter === letters[c.i]));
     assert.equal(lens.cells.filter(c => c.main).map(c => c.letter).join(''), 'משיח');
     assert.equal(calls.length, beforeCalls, 'line lens is a read-only projection');
+    await nativeSend(page, { type: 'request-lens', lens: 'verse-context', target: { hitId: after.axis.hitId, nativeSeq: 988 } });
+    await page.waitForFunction(() => window.__log.some(m => m.lens === 'verse-context' && m.target?.nativeSeq === 988));
+    const source = await page.evaluate(() => window.__log.find(m => m.lens === 'verse-context' && m.target?.nativeSeq === 988));
+    assert.equal(source.ok, true);
+    assert.ok(source.verses.length > 0);
+    for (const ref of [source.span.fromRef, source.span.toRef, ...source.verses.map(v => v.ref)]) {
+      assert.match(ref, /[א-ת׳״]+, [א-ת׳״]+$/u, 'chapter and verse use shared readable separation');
+      assert.ok(!ref.includes(':') && !ref.includes('"'));
+    }
     // Canonical dialog and save event, acknowledged by the test host only; no live database writes.
     await nativeSend(page, { type: 'native-action', action: 'save' });
     await frame.locator('.sh-desc').fill('בדיקת שימור צבעים ובחירת מופעים במטריצה');

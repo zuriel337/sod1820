@@ -1103,10 +1103,16 @@
     if(n<=0)return ""+n;const U=["","א","ב","ג","ד","ה","ו","ז","ח","ט"],TN=["","י","כ","ל","מ","נ","ס","ע","פ","צ"],H=["","ק","ר","ש","ת"];
     let s="",x=n;const hs=Math.floor(x/100);x%=100;let m=""; if(hs){m+=(hs<=4?H[hs]:H[4].repeat(Math.floor(hs/4))+(H[hs%4]||""));}
     if(x===15)m+="טו";else if(x===16)m+="טז";else{m+=TN[Math.floor(x/10)]+U[x%10];}
-    s=m; if(s.length>1)s=s.slice(0,-1)+'"'+s.slice(-1); else if(s.length===1)s=s+"׳"; return s;};
+    s=m; if(s.length>1)s=s.slice(0,-1)+'״'+s.slice(-1); else if(s.length===1)s=s+"׳"; return s;};
+  // Shared display punctuation for the app and the offline ELS document.
+// Inputs are already formatted Hebrew numerals; numeric source identity stays separate.
+function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
+  return verseHe ? `${book} ${chapterHe}, ${verseHe}` : `${book} ${chapterHe}`;
+}
+
   let VTEXT=null;   // טקסט מלא לכל פסוק — מפוענח בעצלתיים (נדרש רק בהקשה על אות); נטען-מראש ברקע אחרי הרינדור
   async function ensureVerseText(){if(!VTEXT)VTEXT=(await inflate(document.getElementById("verse-text").textContent)).split("\n");return VTEXT;}
-  const refStr=vi=>{const r=VREF[vi]||[0,0,0];return BOOKNM[r[0]]+" "+HEBNUM(r[1])+":"+HEBNUM(r[2]);};
+  const refStr=vi=>{const r=VREF[vi]||[0,0,0];return formatTanakhReferenceParts(BOOKNM[r[0]],HEBNUM(r[1]),HEBNUM(r[2]));};
   function verseAt(pos){   // אינדקס-הפסוק המכיל את המיקום
     if(pos<0||pos>=N)return -1;let lo=0,hi=VLENS.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(VCUM[m]<=pos)lo=m;else hi=m-1;}return lo;}
   function locateLetter(pos){
