@@ -1,5 +1,7 @@
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
+import { stripHtml } from "../format.js";
+import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
@@ -38,6 +40,34 @@ function finite(value) {
   if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+// A public post is a source occurrence, even when no research Finding exists yet.
+// Source authorship is display provenance; it never creates a Contributor identity.
+export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
+  if (row?.id == null || !clean(row.slug) || row.home_hidden === true) return null;
+  if ((Array.isArray(row.tags) ? row.tags : []).some((tag) => ["טיוטה", "פורום"].includes(clean(tag)))) return null;
+  if (["ai", "gpt-draft", "web", "uploaded_file"].includes(clean(row.source).toLowerCase())) return null;
+  const label = stripHtml(clean(row.title));
+  if (!label) return null;
+  const author = clean(row.author);
+  const person = publicPersonForName(author, publicPeople);
+  const summary = stripHtml(clean(row.excerpt));
+  return {
+    id: `post:${row.id}`,
+    kind: "source",
+    label,
+    summary: summary ? summary.slice(0, 240) : null,
+    creator: person?.displayName || author || "יצירה באתר",
+    creatorSlug: person?.slug || null,
+    at: safeDate(row.modified) || safeDate(row.date) || safeDate(row.created_at),
+    sourceRef: `posts:${row.id}`,
+    href: `/post/${encodeURIComponent(clean(row.slug))}`,
+    value: null,
+    numbers: [],
+    researchCount: 0,
+    publicState: "published_source_representation",
+  };
 }
 
 export function topicRowToWorldUpdate(row, { publicPeople = [] } = {}) {
@@ -94,10 +124,25 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const safeCreator = clean(creator);
   const topicRows = Array.isArray(input) ? input : (Array.isArray(input?.topics) ? input.topics : []);
   const researchRows = Array.isArray(input) ? [] : (Array.isArray(input?.research) ? input.research : []);
+  const postRows = Array.isArray(input) ? [] : (Array.isArray(input?.posts) ? input.posts : []);
+  const sourceItems = postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean);
+  const sourceByOccurrence = new Map(sourceItems.map((item) => [item.sourceRef, item]));
+  // Collapse authorized research on the SAME source occurrence; do not multiply arrivals
+  // or treat repeated findings as independent sources. Unrelated findings keep their identities.
+  const findingItems = researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople }))
+    .filter(Boolean)
+    .filter((item) => {
+      const source = sourceByOccurrence.get(researchSourceOccurrenceKey(item.sourceRef));
+      if (!source) return true;
+      source.researchCount += 1;
+      if (item.at && (!source.at || Date.parse(item.at) > Date.parse(source.at))) source.at = item.at;
+      return false;
+    });
 
   const candidates = [
+    ...sourceItems,
     ...topicRows.map((row) => topicRowToWorldUpdate(row, { publicPeople })),
-    ...researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople })),
+    ...findingItems,
   ].filter(Boolean);
 
   const items = candidates
@@ -116,10 +161,11 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     creators,
     total: items.length,
     sourceCounts: {
+      sources: candidates.filter((item) => item.kind === "source").length,
       findings: candidates.filter((item) => item.kind === "finding").length,
       convergences: candidates.filter((item) => item.kind === "convergence").length,
     },
-    note: "Latest authorized Research Findings + approved public Convergences. Visibility follows the current session/RLS; order is time, never truth rank.",
+    note: "Latest authorized source posts + Research Findings + approved public Convergences. Source arrival is not research verification; order is time, never truth rank.",
   };
 }
 
@@ -143,10 +189,38 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       })
     : Promise.resolve([]);
 
-  const [topicResult, researchResult] = await Promise.all([topicPromise, researchPromise]);
-  const topics = Array.isArray(topicResult?.rows) ? topicResult.rows : [];
-  return buildWorldDiscoveryStream(
-    { topics, research: researchResult },
-    { limit: requested, publicPeople }
-  );
+  // Public Source is read from the existing posts RLS boundary, never a privileged
+  // legacy WhatsApp endpoint. Group messages require a separately verified source reader.
+  const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
+      .eq("home_hidden", false)
+      .not("tags", "cs", "{טיוטה}")
+      .not("tags", "cs", "{פורום}")
+      .in("source", ["wordpress", "SOD1820", "sod1820", "source_document"])
+      .order("modified", { ascending: false, nullsFirst: false })
+      .limit(Math.min(80, Math.max(requested * 2, 32)));
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  });
+
+  // Failed/restricted research access must not erase otherwise-readable source posts.
+  const [topicResult, researchResult, postsResult] = await Promise.allSettled([
+    topicPromise, researchPromise, postsPromise,
+  ]);
+  if (topicResult.status === "rejected" && postsResult.status === "rejected") {
+    throw new Error("world_public_arrivals_unavailable");
+  }
+  const topics = topicResult.status === "fulfilled" && Array.isArray(topicResult.value?.rows) ? topicResult.value.rows : [];
+  const research = researchResult.status === "fulfilled" ? researchResult.value : [];
+  const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
+  return {
+    ...buildWorldDiscoveryStream({ topics, research, posts }, { limit: requested, publicPeople }),
+    unavailableSources: [
+      ...(topicResult.status === "rejected" ? ["topics"] : []),
+      ...(researchResult.status === "rejected" && includeResearch ? ["research"] : []),
+      ...(postsResult.status === "rejected" ? ["posts"] : []),
+    ],
+  };
 }
