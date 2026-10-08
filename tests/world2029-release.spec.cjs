@@ -789,7 +789,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await expect(mobileNav).toBeVisible();
   let exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeDisabled();
-  await mobileNav.getByRole('button', { name: 'סגור', exact: true }).click();
+  await mobileNav.getByRole('button', { name: 'סגור ניווט', exact: true }).click();
 
   await selectWorldLane(page, 'קשרים');
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
