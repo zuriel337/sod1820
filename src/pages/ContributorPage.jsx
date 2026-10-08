@@ -30,6 +30,7 @@ import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
+import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -516,7 +517,7 @@ export default function ContributorPage() {
       return () => { alive = false; };
     }
     setFindingsLens({ loading: true, projection: null, error: null });
-    fetchContributorFindingsProjection(c.slug)
+    fetchContributorFindingsProjection(c.slug, { mode: PROJECTOR_MODE.ADMIN_ALL })
       .then((projection) => {
         if (alive) setFindingsLens({ loading: false, projection, error: null });
       })

@@ -6,6 +6,8 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
+import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
+import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
 import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -49,6 +51,7 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
@@ -488,6 +491,7 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
+  const [corpusKey, setCorpusKey] = useState(null);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
   const [allCreatorOptions, setAllCreatorOptions] = useState([]);
@@ -497,7 +501,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
   const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
-  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, loading: false, projection: null, error: null });
+  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -558,24 +562,26 @@ function LiveWorldLanding({ research, shell, context }) {
     return () => { alive = false; };
   }, []);
 
+  // PUBLIC for everyone (anonymous client, site-writer source material). ADMIN only inside explicit admin tools.
+  const contributorReadMode = controlMode ? PROJECTOR_MODE.ADMIN_ALL : PROJECTOR_MODE.PUBLIC_VIEW;
   useEffect(() => {
     let alive = true;
     const slug = writerFilter === "all" ? null : writerFilter;
-    if (!isAdmin || !slug) {
-      setContributorFindingsState({ slug: null, loading: false, projection: null, error: null });
+    if (!slug) {
+      setContributorFindingsState({ slug: null, mode: null, loading: false, projection: null, error: null });
       return () => { alive = false; };
     }
 
-    setContributorFindingsState({ slug, loading: true, projection: null, error: null });
-    fetchContributorFindingsProjection(slug)
+    setContributorFindingsState({ slug, mode: contributorReadMode, loading: true, projection: null, error: null });
+    fetchContributorFindingsProjection(slug, { mode: contributorReadMode })
       .then((projection) => {
-        if (alive) setContributorFindingsState({ slug, loading: false, projection, error: null });
+        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection, error: null });
       })
       .catch((error) => {
-        if (alive) setContributorFindingsState({ slug, loading: false, projection: null, error });
+        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection: null, error });
       });
     return () => { alive = false; };
-  }, [isAdmin, writerFilter]);
+  }, [contributorReadMode, writerFilter]);
 
   useEffect(() => {
     let alive = true;
@@ -903,15 +909,32 @@ function LiveWorldLanding({ research, shell, context }) {
         <div className="sod29-world-live-stream">
           <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
             <button type="button" className={`sod29-world-stream-filter${discoveryCreator === "all" ? " is-active" : ""}`} aria-pressed={discoveryCreator === "all"} onClick={() => setDiscoveryCreator("all")}>הכול</button>
-            {discoveryCreators.map((creator) => <button
+            {discoveryCreators.map((creator) => {
+              const recent = landing.discovery?.recentCounts?.[creator] ?? 0;
+              const corpus = corpusForCreator(creator);
+              return <button
+                type="button"
+                key={creator}
+                className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
+                aria-pressed={discoveryCreator === creator}
+                onClick={() => { setDiscoveryCreator(creator); if (corpus) setCorpusKey(corpus.key); }}
+              >{creator}{recent ? ` · ${recent}` : " · אין בעדכונים האחרונים"}</button>;
+            })}
+            {WORLD_SOURCE_CORPORA.map((spec) => <button
               type="button"
-              key={creator}
-              className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
-              aria-pressed={discoveryCreator === creator}
-              onClick={() => setDiscoveryCreator(creator)}
-            >{creator}</button>)}
+              key={`corpus:${spec.key}`}
+              className={`sod29-world-stream-filter${corpusKey === spec.key ? " is-active" : ""}`}
+              aria-pressed={corpusKey === spec.key}
+              data-experience-capability="world-source-corpus-entry"
+              onClick={() => setCorpusKey(corpusKey === spec.key ? null : spec.key)}
+            >{spec.label} · כל המקורות</button>)}
           </div>
 
+          {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
+            key={spec.key}
+            spec={spec}
+            recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
+          />)}
           {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
           {landing.discovery?.unavailableSources?.includes("posts") ? <div className="sod29-world-stream-truth-note">חלק מעדכוני המקורות אינם זמינים כרגע.</div> : null}
           {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
@@ -932,7 +955,7 @@ function LiveWorldLanding({ research, shell, context }) {
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
             </button>)}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
@@ -992,28 +1015,20 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
     </section> : null}
 
-    {selectedWriter && isAdmin ? <section
+    {selectedWriter ? <section
       className="sod29-section sod29-world-contributor-findings-section"
-      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
+      aria-label={`כל החומר של ${selectedWriter.displayName}`}
       data-experience-capability="world-contributor-findings-projection"
     >
-      <ContributorFindingsLens
-        projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
-        loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
-      />
+      {(() => {
+        const own = contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode;
+        return <ContributorFindingsLens
+          projection={own ? contributorFindingsState.projection : null}
+          loading={!own || contributorFindingsState.loading}
+          error={own ? contributorFindingsState.error : null}
+        />;
+      })()}
     </section> : null}
-
-    {selectedWriter && !isAdmin ? <NativeStateSection>
-      <FrameState
-        kind="gated"
-        title={`כל הממצאים של ${selectedWriter.displayName}`}
-        action={!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : null}
-      >
-        שכבת המחקר המלאה שמורה לשער האנושי. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
-      </FrameState>
-    </NativeStateSection> : null}
-
 
     {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
       <div className="sod29-section-head">

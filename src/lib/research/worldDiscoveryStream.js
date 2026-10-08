@@ -148,20 +148,28 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     ...findingItems,
   ].filter(Boolean);
 
+  const max = Math.max(1, Math.min(Number(limit) || 18, 40));
+  const byTime = (a, b) => {
+    const atA = a.at ? Date.parse(a.at) : 0;
+    const atB = b.at ? Date.parse(b.at) : 0;
+    return atB - atA || a.id.localeCompare(b.id);
+  };
   const items = candidates
     .filter((item) => safeCreator === "all" || item.creator === safeCreator)
-    .sort((a, b) => {
-      const atA = a.at ? Date.parse(a.at) : 0;
-      const atB = b.at ? Date.parse(b.at) : 0;
-      return atB - atA || a.id.localeCompare(b.id);
-    })
-    .slice(0, Math.max(1, Math.min(Number(limit) || 18, 40)));
+    .sort(byTime)
+    .slice(0, max);
 
   const creators = [...new Set(candidates.map((item) => item.creator).filter(Boolean))];
+  // Creator chips come from every candidate, but the visible list is only the last N. Expose how many of each
+  // creator are in the recent window so a chip with 0 is shown as "none in recent", never as an empty library.
+  const recentWindow = [...candidates].sort(byTime).slice(0, max);
+  const recentCounts = {};
+  for (const item of recentWindow) if (item.creator) recentCounts[item.creator] = (recentCounts[item.creator] || 0) + 1;
 
   return {
     items,
     creators,
+    recentCounts,
     total: items.length,
     sourceCounts: {
       sources: candidates.filter((item) => item.kind === "source").length,

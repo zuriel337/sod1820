@@ -93,3 +93,16 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(frame, /title="מה חדש בעולם"/);
   assert.match(frame, /<small>חדש בעולם<\/small>/);
 });
+
+test("creator chips expose recent-window counts: a creator absent from the last N has 0, not hidden", async () => {
+  const { buildWorldDiscoveryStream } = await import("./worldDiscoveryStream.js");
+  const posts = [
+    ...Array.from({ length: 5 }, (_, i) => ({ id: i + 1, slug: `n${i}`, title: `חדש ${i}`, author: "אחר", modified: `2026-10-0${i + 1}T00:00:00Z`, tags: [] })),
+    { id: 99, slug: "old", title: "ישן", author: "סוד החשמל", modified: "2020-01-01T00:00:00Z", tags: [] },
+  ];
+  const stream = buildWorldDiscoveryStream({ posts }, { limit: 3 });
+  assert.ok(stream.creators.includes("סוד החשמל"));
+  assert.equal(stream.recentCounts["סוד החשמל"] || 0, 0);
+  assert.equal(stream.items.some((i) => i.creator === "סוד החשמל"), false);
+  assert.equal(stream.recentCounts["אחר"], 3);
+});

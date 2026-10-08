@@ -93,8 +93,10 @@ function SourceGroup({ group, P, S }) {
         </div>
       </div>
       <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, textAlign: "end" }}>
-        <strong style={{ color: P.ink }}>{group.findingCount}</strong> ממצאים<br />
-        <strong style={{ color: P.ink }}>{group.verifiedCount}</strong> עם אימות מנוע
+        {findings.length ? <>
+          <strong style={{ color: P.ink }}>{group.findingCount}</strong> ממצאים<br />
+          <strong style={{ color: P.ink }}>{group.verifiedCount}</strong> עם אימות מנוע
+        </> : <span data-experience-capability="contributor-source-only">מקור בלבד · עדיין ללא ממצא מחקר</span>}
       </div>
     </header>
 
@@ -117,7 +119,7 @@ function SourceGroup({ group, P, S }) {
       {(group.source.imageUrl || group.source.thumbUrl) ? <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginTop: SPACE[2] }}>יש מדיה מקורית שמורה במקור.</div> : null}
     </section> : <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>מקור: {group.sourceRef}</div>}
 
-    <section data-experience-capability="contributor-system-analysis">
+    {findings.length ? <section data-experience-capability="contributor-system-analysis">
       <div style={{ display: "flex", gap: SPACE[2], justifyContent: "space-between", alignItems: "center", marginBottom: SPACE[2], flexWrap: "wrap" }}>
         <div>
           <strong style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink }}>ניתוח המערכת</strong>
@@ -128,7 +130,7 @@ function SourceGroup({ group, P, S }) {
         </button> : null}
       </div>
       {shown.map((finding) => <FindingSurface key={finding.id} finding={finding} compact />)}
-    </section>
+    </section> : null}
 
     {(group.lexicalTags || []).length ? <footer style={{ display: "flex", gap: SPACE[1], flexWrap: "wrap", alignItems: "center" }}>
       <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>תגיות exact-match קיימות:</span>
@@ -136,7 +138,7 @@ function SourceGroup({ group, P, S }) {
     </footer> : null}
 
     <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>
-      מצב: {group.topicState === "linked_topic" ? "מקושר ל־Topic קיים" : "Finding-first · עדיין לא Topic"}
+      {findings.length ? null : "מקור ציבורי כפי שנשלח; פרסום מקור אינו אימות מחקרי. "}מצב: {group.topicState === "linked_topic" ? "מקושר ל־Topic קיים" : "Finding-first · עדיין לא Topic"}
     </div>
   </article>;
 }
@@ -164,7 +166,7 @@ export default function ContributorFindingsLens({
 }) {
   const P = usePalette();
   const S = useMemo(() => makeStyles(P), [P]);
-  const [mode, setMode] = useState("recent");
+  const [mode, setMode] = useState("all");
   const [world, setWorld] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -189,6 +191,14 @@ export default function ContributorFindingsLens({
   if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>ממצאי החוקר לא נטענו כרגע. לא יוצג חומר חלופי במקום הנתונים החסרים.</div>;
   if (!projection) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>לא נמצא חוקר לעדשה הזו.</div>;
 
+  const availability = projection.availability || {};
+  const unavailable = [
+    availability.research === "unavailable" ? "ממצאי המחקר" : null,
+    availability.sources === "unavailable" ? "הודעות המקור" : null,
+    availability.contributions === "unavailable" ? "התרומות" : null,
+    availability.topics === "unavailable" ? "ההתכנסויות" : null,
+  ].filter(Boolean);
+  const countOrUnknown = (key, value) => (availability[key] === "unavailable" ? "—" : value);
   const worlds = Object.entries(projection.worldCounts || {}).sort((a, b) => b[1] - a[1]);
 
   return <section
@@ -205,10 +215,11 @@ export default function ContributorFindingsLens({
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: SPACE[2], marginTop: SPACE[3] }}>
         {[
-          ["מקורות עם ממצאים", projection.counts.sourceGroups],
-          ["ממצאים שחולצו", projection.counts.researchObjects],
-          ["אימותי מנוע", projection.counts.engineVerified],
-          ["Topics קיימים", projection.counts.topics],
+          ["מקורות", countOrUnknown("sources", projection.counts.sourceGroups)],
+          ["מהם עם ממצאים", countOrUnknown("research", projection.counts.sourceGroupsWithFindings)],
+          ["ממצאים שחולצו", countOrUnknown("research", projection.counts.researchObjects)],
+          ["אימותי מנוע", countOrUnknown("research", projection.counts.engineVerified)],
+          ["Topics קיימים", countOrUnknown("topics", projection.counts.topics)],
           ["ערכים מספריים", projection.counts.uniqueValues],
         ].map(([label, value]) => <div key={label} style={{ ...S.box, padding: SPACE[2] }}>
           <strong style={{ ...TYPE_SCALE.title, fontFamily: F.numeric, color: P.accentText }}>{value}</strong>
@@ -217,11 +228,15 @@ export default function ContributorFindingsLens({
       </div>
     </header>
 
+    {unavailable.length ? <div role="status" data-experience-capability="contributor-availability-warning" style={{ ...S.box, padding: SPACE[3], ...TYPE_SCALE.small, fontFamily: F.body }}>
+      {unavailable.join(", ")} אינם זמינים כרגע בתצוגה זו — זה אינו אומר שאין כאלה. המקורות והחומר שנטענו מוצגים כמות שהם.
+    </div> : null}
+
     <div style={{ ...S.box, padding: SPACE[3], display: "grid", gap: SPACE[2] }}>
       <div style={{ display: "flex", gap: SPACE[2], flexWrap: "wrap" }}>
         {[
           ["recent", `חדש · ${recentDays} ימים`],
-          ["all", "כל הממצאים"],
+          ["all", "כל המקורות"],
           ["verified", "עם אימות מנוע"],
           ["topics", `Topics · ${projection.counts.topics}`],
         ].map(([key, label]) => <button
