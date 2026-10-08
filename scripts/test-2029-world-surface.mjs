@@ -117,9 +117,14 @@ assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly 
 assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical contributor findings lens");
 assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
-assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributor findings remain Human-Gate/admin only");
-assert.match(contributorFindingsSource, /personal_scope/, "Contributor lens must include explicit person-only research");
-assert.match(contributorFindingsSource, /owner_slug/, "Contributor lens must bind person-only research to the contributor slug");
+// Public site-writer sources are distinct from private personal research and admin tools.
+assert.match(world, /\{selectedWriter \? <section/, "selected writer sources are available to every viewer");
+assert.equal(world.includes("selectedWriter && isAdmin"), false, "public writer sources are not admin-only");
+assert.match(world, /controlMode \? PROJECTOR_MODE\.ADMIN_ALL : PROJECTOR_MODE\.PUBLIC_VIEW/, "admin reader requires authorized control mode");
+assert.match(world, /const controlMode = isAdmin && adminToolsOpen/, "admin reader requires admin AND open tools");
+assert.equal((world.match(/PROJECTOR_MODE\.ADMIN_ALL/g) || []).length, 1, "no second unguarded admin reader");
+assert.doesNotMatch(contributorFindingsSource, /owner_slug|personal_scope/, "site contributor lens must not import personal research by owner");
+assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? sessionClient : publicClient\(\)/, "public reads use anonymous client even for signed-in admins");
 assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
 assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
@@ -515,7 +520,7 @@ assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
 assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
-assert.match(world, /שכבת המחקר המלאה שמורה לשער האנושי/);
+assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
 assert.ok(
   world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",

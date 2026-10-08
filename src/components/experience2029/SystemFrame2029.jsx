@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
 import React, {
   createContext,
@@ -11,6 +12,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { timeAgoHe } from "../../lib/format.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
@@ -35,6 +37,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
+import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
   buildLearnHelpSeed,
   classifyEntryArrival,
@@ -54,6 +57,7 @@ import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
 import "./myWorkspace2029.css";
+import "./discoveryGate2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -260,21 +264,23 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           key={item.to}
           to={item.to}
           end={item.exact}
+          aria-label={item.label}
+          title={item.label}
           className={activeClass}
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
-          <span className="sod29-nav-icon">{item.icon}</span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
       ) : item.action ? (
-        <button className="sod29-nav-link" key={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
-          <span className="sod29-nav-icon">{item.icon}</span>
+        <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </button>
       ) : (
-        <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled title={item.status}>
-          <span className="sod29-nav-icon">{item.icon}</span>
+        <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled aria-label={`${item.label} · ${item.status}`} title={`${item.label} · ${item.status}`}>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
           <span className="sod29-nav-status">{item.status}</span>
         </button>
@@ -539,19 +545,68 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace }) {
+function AttentionProjection({ context, onWorkspace, onOpen }) {
+  const [arrivals, setArrivals] = useState({ loading: true, items: [], error: false, partial: false });
+
+  // SAME owner/reader as /world. Loaded only on opening the bottom attention sheet;
+  // never copy a private/admin research bundle into global Context or local storage.
+  useEffect(() => {
+    let stop;
+    let mounted = true;
+    import("../../lib/research/worldDiscoveryStream.js")
+      .then(({ watchWorldDiscoveryStream }) => {
+        if (!mounted) return;
+        stop = watchWorldDiscoveryStream({
+          limit: 10, includeResearch: false,
+          onResult: (result) => setArrivals({
+            loading: false, items: result.items || [], groupArrivals: result.groupArrivals,
+            error: false, partial: (result.unavailableSources || []).length > 0,
+          }),
+          onError: () => setArrivals({ loading: false, items: [], error: true, partial: false }),
+        });
+      })
+      .catch(() => { if (mounted) setArrivals({ loading: false, items: [], error: true, partial: false }); });
+    return () => { mounted = false; stop?.(); };
+  }, []);
+
   return (
     <>
       <div className="sod29-panel-lead">
-        <div className="sod29-kicker">מה קורה עכשיו</div>
-        <h3>מה באמת דורש תשומת לב עכשיו?</h3>
-        <p>כאן יופיע רק מה שבאמת חדש, רלוונטי או דורש תשומת לב.</p>
+        <div className="sod29-kicker">העולם חי</div>
+        <h3>מה חדש בעולם</h3>
+        <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
       </div>
-      <div className="sod29-attention-projection">
-        <FrameState kind="unavailable" title="עדכונים">זרם העדכונים של 2029 עדיין לא מחובר כאן.</FrameState>
-        <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
-        <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
-        <FrameState kind="unavailable" title="רזיאל מציע">רזיאל יופיע כאן רק כשיש משהו חדש ומשמעותי להראות.</FrameState>
+      <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
+        {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
+        {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {arrivals.groupArrivals ? <p role="status">{arrivals.groupArrivals.message}</p> : null}
+        {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
+        {arrivals.items.slice(0, 8).map((item) => {
+          const href = item.kind === "source"
+            ? item.href
+            : item.kind === "convergence" && item.slug
+              ? `/topic/${encodeURIComponent(item.slug)}`
+              : null;
+          return <button
+            type="button"
+            key={item.id}
+            className="sod29-action"
+            disabled={!href}
+            onClick={() => onOpen?.(href)}
+            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
+          >
+            <small>{item.kind === "source" ? "כתב מקור" : "התכנסות"} · {item.creator} · {timeAgoHe(item.at) || "זמן לא צוין"}</small>
+            <strong>{item.label}</strong>
+            {item.summary ? <small>{item.summary}</small> : null}
+            {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
+          </button>;
+        })}
+        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את כל החידושים בעולם</button>
+        <details><summary>עוד התראות אישיות</summary>
+          <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
+          <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
+        </details>
       </div>
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
@@ -1249,7 +1304,7 @@ export default function SystemFrame2029({
   const { user, profile } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try { return localStorage.getItem("sod-global-rail") === "collapsed"; } catch { return false; }
+    try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
@@ -1743,7 +1798,7 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
@@ -1770,6 +1825,8 @@ export default function SystemFrame2029({
     /></PanelShell>;
   };
 
+  const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
+  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
       <div
@@ -1788,17 +1845,21 @@ export default function SystemFrame2029({
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
-        <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
           <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
-          <nav className="sod29-nav">
+          <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
+          <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
+            <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
+            <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
+          </div>
           <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
-          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed}>
             <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "" : "כווץ"}</b>
           </button>
@@ -1808,11 +1869,13 @@ export default function SystemFrame2029({
         <div className="sod29-main">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
-              <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
-              <Link className="sod29-header-brand" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
-                <BrandLockup2029 className="is-header" />
-              </Link>
-              <div className="sod29-orientation" aria-label="איפה אני">
+              <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
+                <DiscoveryGateMark2029 open={navOpen} />
+              </button>
+              <button className="sod29-desktop-gate-trigger sod29-gate-trigger" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} title={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation">
+                <DiscoveryGateMark2029 open={!sidebarCollapsed} />
+              </button>
+              <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
@@ -1824,8 +1887,8 @@ export default function SystemFrame2029({
               <kbd>⌘K</kbd>
             </button>
             <div className="sod29-header-actions">
-              <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="return-label"> חזרה מדויקת</span></button>
-              <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true">!</span><span className="issue-label"> דווח על בעיה</span></button>
+              <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
+              <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <button type="button" className="sod29-header-workspace" onClick={openWorkspace} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">האזור האישי שלי</span></button>
             </div>
           </header>
@@ -1846,9 +1909,9 @@ export default function SystemFrame2029({
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {introVariant !== "none" && (eyebrow || title || description) ? (
-                <section className={`sod29-page-intro${introVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={introVariant}>
-                  <div className="sod29-hero-visual" aria-hidden="true"><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /><span className="sod29-hero-symbol">{symbol}</span></div>
+              {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
+                <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
+                  <div className="sod29-hero-visual" aria-hidden="true">{resolvedIntroVariant !== "compact" ? <><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /></> : null}<span className="sod29-hero-symbol">{introIcon ? <NavigationIcon2029 name={introIcon} /> : symbol}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
@@ -1891,11 +1954,10 @@ export default function SystemFrame2029({
           >
             <div className="sod29-mobile-drawer-head">
               <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
-              <button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button>
+              <button className="sod29-mobile-close" data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור ניווט">
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
-            <Link className="sod29-mobile-brand-lockup" to="/2029" state={{ sodEntryArrival: "internal" }} onClick={() => { preserveReturnFor("/2029"); closeMobileNav(false); }} aria-label="SOD1820 · בית">
-              <BrandLockup2029 />
-            </Link>
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
@@ -1903,9 +1965,9 @@ export default function SystemFrame2029({
               <ThemePresetControl2029 />
             </section>
             <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
-              <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon">↩</span><span>חזרה מדויקת</span></button>
+              <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon"><NavigationIcon2029 name="back" /></span><span>חזרה מדויקת</span></button>
               <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><UserAvatar2029 user={user} profile={profile} size="rail" /><span>האזור האישי שלי</span></button>
-              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon">!</span><span>דווח על בעיה</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon"><NavigationIcon2029 name="issue" /></span><span>דווח על בעיה</span></button>
             </div>
           </aside>
         </> : null}
@@ -1935,8 +1997,8 @@ export default function SystemFrame2029({
               >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : <>
-            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
+            <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span><NavigationIcon2029 name="search" /></span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
+            <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button>
           </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
           {bottomTrail.length ? <>
@@ -1945,17 +2007,17 @@ export default function SystemFrame2029({
               type="button"
               onClick={() => openAction(activeTarget)}
               aria-pressed={transientKind === TRANSIENT.ACTION}
-            ><span>◎</span><small>פעולה</small></button> : null}
+            ><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
             <div className="sod29-command-actions">
-              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span>⌘</span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-              {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button> : null}
-              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-              <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+              <button type="button" onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span><NavigationIcon2029 name="search" /></span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
+              {!numberPageRoute ? <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
+              <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span><NavigationIcon2029 name="now" /></span><small>חדש בעולם</small></button>
+              <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
               <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
             </div>
           </> : <>
-            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
-            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
+            <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span><NavigationIcon2029 name="now" /></span><small>חדש בעולם</small></button>
+            <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
             <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
           </>}
         </div>
