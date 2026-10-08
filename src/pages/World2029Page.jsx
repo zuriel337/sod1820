@@ -5,6 +5,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
+import WorldThematicUniverse from "../components/research/WorldThematicUniverse.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -36,6 +37,7 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
+import { presentFiniteNumber, presentSafeNumber } from "../lib/research/worldDiscoveryRouting.js";
 import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
@@ -380,7 +382,7 @@ function contributionDisplay(row) {
   return {
     title: String(row?.title || claim.claim || row?.body || "תרומת מחקר").trim(),
     method: String(claim.method || "").trim() || null,
-    value: Number.isFinite(Number(claim.value)) ? Number(claim.value) : null,
+    value: presentFiniteNumber(claim.value),
     status: row?.status || null,
     convergenceSlug: row?.convergence_slug || null,
   };
@@ -473,6 +475,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const controlMode = isAdmin && adminToolsOpen;
   const [landing, setLanding] = useState({
     loading: true,
@@ -762,7 +765,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const topicNumbers = useMemo(() => (
     (topicDetail.finding?.projection?.anchors || [])
-      .filter((anchor) => anchor?.type === "number" && Number.isFinite(Number(anchor.value)))
+      .filter((anchor) => anchor?.type === "number" && presentSafeNumber(anchor.value) != null)
       .map((anchor) => Number(anchor.value))
   ), [topicDetail.finding]);
 
@@ -797,8 +800,8 @@ function LiveWorldLanding({ research, shell, context }) {
       return;
     }
     if (item.kind === "finding") {
-      if (Number.isFinite(Number(item.value))) {
-        const value = Number(item.value);
+      const value = presentSafeNumber(item.value);
+      if (value != null) {
         research.setResearchContext?.({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
           selection: { entityId: String(value), entityType: "number" },
@@ -808,13 +811,17 @@ function LiveWorldLanding({ research, shell, context }) {
         });
         return;
       }
+      if (shell.openInspect) {
+        shell.openInspect({ id: item.id, type: "finding", label: item.label, href: "/world" });
+        return;
+      }
       const slug = item.creatorSlug || landing.contributors?.people?.find((person) => person.displayName === item.creator)?.slug || null;
       if (slug && landing.contributors?.bySlug?.[slug]) {
         setWriterFilter(slug);
+        setAdvancedOpen(true);
         requestAnimationFrame(() => document.getElementById("world-researchers")?.scrollIntoView({ behavior: "smooth", block: "start" }));
         return;
       }
-      shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
     }
   };
   const discoveryDate = (value) => {
@@ -832,11 +839,14 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
+    setAdvancedOpen(true);
     const section = document.getElementById(landingSectionId(facet.key));
     if (!section) return;
-    section.focus?.({ preventScroll: true });
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    requestAnimationFrame(() => { // after the advanced <details> has opened
+      section.focus?.({ preventScroll: true });
+      section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    });
   };
 
 
@@ -864,8 +874,8 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-world-discovery-head">
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
-          <h2>מה חדש בעולם?</h2>
-          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
+          <h2>העולם · נושאים ויצירות</h2>
+          <p>בחרו נושא — יצירות מקור והתכנסויות מאושרות במרחב אחד. פתוח לכולם ≠ מאומת.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -887,7 +897,12 @@ function LiveWorldLanding({ research, shell, context }) {
           <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
         </div>
       </div>
+    </section>
 
+    <WorldThematicUniverse />
+
+    <details className="wtu-advanced" id="world-advanced" open={advancedOpen || controlMode || Boolean(selectedWriter)} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
+      <summary>מחקר מתקדם · זרם חי, שערים, חוקרים וקטלוג מלא</summary>
       <div className="sod29-world-discovery-grid">
         <div className="sod29-world-live-stream">
           <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
@@ -936,7 +951,7 @@ function LiveWorldLanding({ research, shell, context }) {
           />
         </div>
       </div>
-    </section>
+
 
     <WorldAnchorMap
       projection={anchorState.projection}
@@ -1119,6 +1134,8 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </section>;
     })}
+
+    </details>
 
     {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את ההתכנסות">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
     {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="ההתכנסות לא נטענה כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}

@@ -118,6 +118,14 @@ async function seedWorldAnchor(page, value) {
   }, { key: CONTEXT_KEY, value: context });
 }
 
+// Experience v2: legacy live stream, gates, researchers and catalog live under the progressively-disclosed advanced details.
+async function openWorldAdvanced(page) {
+  const advanced = page.locator('#world-advanced');
+  await expect(advanced).toBeVisible({ timeout: 30_000 });
+  if (!(await advanced.evaluate((el) => el.open))) await advanced.locator('> summary').click();
+  await expect(advanced).toHaveJSProperty('open', true);
+}
+
 async function openWorldAnchor(page, value, width = 390) {
   await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
   await seedWorldAnchor(page, value);
@@ -171,9 +179,10 @@ async function selectWorldLane(page, label) {
 test('direct /world opens the Golden discovery landing without a stored anchor', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await openWorldAdvanced(page);
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'העולם · נושאים ויצירות' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
@@ -185,7 +194,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
   await expect(entry.getByRole('button', { name: /חפש בעולם/ })).toBeVisible();
 
-  const core = entry.locator('.sod29-world-core-map');
+  const core = page.locator('#world-advanced .sod29-world-core-map');
   await expect(core).toBeVisible();
   await expect(core.getByRole('button', { name: 'פתח חיפוש בעולם' })).toBeVisible();
   await expect(core.getByText('בחר שער כדי לקפוץ ישר אליו')).toBeVisible();
@@ -208,6 +217,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
 test('World catalog exposes the full canonical convergence index with server pagination and search', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await openWorldAdvanced(page);
 
   const catalog = page.locator('#world-all-convergences');
   await expect(catalog).toBeVisible({ timeout: 30_000 });
@@ -572,6 +582,7 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
 test('Golden Journey 878 starts in World and keeps its rail across a path transition', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await openWorldAdvanced(page);
 
   const start = page.getByRole('button', { name: 'פתח 878 והתחל מסע' });
   await expect(start).toBeVisible({ timeout: 30_000 });
@@ -606,7 +617,8 @@ for (const width of MOBILE_WIDTHS) {
   test(`World Core remains usable and overflow-free at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
+    await openWorldAdvanced(page);
+    await expect(page.getByRole('heading', { name: 'העולם · נושאים ויצירות' })).toBeVisible({ timeout: 30_000 });
     const core = page.locator('.sod29-world-core-map');
     await expect(core).toBeVisible();
     const firstGate = core.locator('.sod29-world-core-node').first();
