@@ -25,12 +25,12 @@
   inset-block:-2px;
   inset-inline-start:-2px;
   width:48px;
-  border:1px solid var(--s29-brand-sapphire,var(--s29-accent));
+  border:0;
   border-radius:50%;
   background:#101a31;
   opacity:1;
   transform:scale(1);
-  box-shadow:0 0 7px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 48%,transparent);
+  box-shadow:0 0 7px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 32%,transparent);
   transition:transform 300ms cubic-bezier(.2,.8,.2,1),opacity 300ms ease;
 }
 .sod29-discovery-gate[data-open="true"] .sod29-gate-halo {opacity:1;transform:scale(1.06)}
@@ -148,3 +148,12 @@
   color:var(--s29-ink);font-size:28px;cursor:pointer;
 }
 .sod29-root .sod29-mobile-close:focus-visible {outline:2px solid var(--s29-accent-text);outline-offset:3px}
+
+/* Two open sapphire arcs frame the brand without enclosing it in a ring. */
+.sod29-gate-arcs {
+  position:absolute;inset-block-start:-2px;inset-inline-start:-2px;
+  color:var(--s29-brand-sapphire);opacity:.76;transform:rotate(-18deg);
+  transition:transform 320ms cubic-bezier(.2,.8,.2,1),opacity 240ms ease;
+}
+.sod29-gate-arcs path {stroke:currentColor;stroke-width:1.25;stroke-linecap:round}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-arcs {transform:rotate(18deg);opacity:1}

@@ -26,6 +26,10 @@ export default function DiscoveryGateMark2029({ open = false }) {
   return (
     <span ref={markRef} className="sod29-discovery-gate" data-open={open} aria-hidden="true">
       <span className="sod29-gate-halo" />
+      <svg className="sod29-gate-arcs" viewBox="0 0 48 48" width="48" height="48" fill="none" focusable="false">
+        <path d="M8.44 8.44A22 22 0 0 1 39.56 8.44" />
+        <path d="M39.56 39.56A22 22 0 0 1 8.44 39.56" />
+      </svg>
       <span className="sod29-gate-artwork">
         <img
           className="sod29-gate-lockup"
