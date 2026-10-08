@@ -38,14 +38,16 @@ test("a public source post arrives even with zero research Findings, without num
   assert.deepEqual(item.numbers, []);
 });
 
-test("do not render hidden, draft, forum, AI or unidentified post representations as new public sources", () => {
+test("exclude hidden/draft/forum and unresolved internal origins; published AI/uploaded source is still a source", () => {
   assert.equal(postRowToWorldUpdate(makePost({ home_hidden: true })), null);
   assert.equal(postRowToWorldUpdate(makePost({ tags: ["טיוטה"] })), null);
   assert.equal(postRowToWorldUpdate(makePost({ tags: ["פורום"] })), null);
-  assert.equal(postRowToWorldUpdate(makePost({ source: "ai" })), null);
   assert.equal(postRowToWorldUpdate(makePost({ source: "gpt-draft" })), null);
+  assert.equal(postRowToWorldUpdate(makePost({ source: "web" })), null);
   assert.equal(postRowToWorldUpdate(makePost({ slug: null })), null);
   assert.equal(postRowToWorldUpdate(makePost({ title: "<p></p>" })), null);
+  assert.equal(postRowToWorldUpdate(makePost({ source: "ai" })).kind, "source");
+  assert.equal(postRowToWorldUpdate(makePost({ source: "uploaded_file" })).kind, "source");
 });
 
 test("same occurrence groups authorized research beneath the source, not two independent arrivals", () => {
