@@ -11,6 +11,7 @@ const SIGNUP_SOURCE = "whatsapp-early-access-2029";
 const VIDEO_URL = "https://d2ol7oe51mr4n9.cloudfront.net/user_3K6QdKjtRzXBDRzO9MYVhCqEOG4/0524acef-077d-49f8-9be5-5dad2c8fe538.mp4";
 const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_CHANNEL || "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 const TIKTOK_URL = "https://www.tiktok.com/@sod_1820";
+const RETURN_KEY = "sod_early_access_last_seen";
 
 function validEmail(value) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(value || "").trim());
@@ -26,7 +27,13 @@ export default function EarlyAccess2029Page() {
     try {
       captureArrivalSource();
       captureAcquisition();
-      track("campaign_landing", CAMPAIGN, "view", { landing: window.location.pathname, source: "whatsapp" });
+      const lastSeen = Number(localStorage.getItem(RETURN_KEY) || 0);
+      const now = Date.now();
+      track("campaign_landing", CAMPAIGN, "landing_view", { landing: window.location.pathname, source: "whatsapp" });
+      if (lastSeen > 0 && now - lastSeen >= 30 * 60 * 1000) {
+        track("campaign_landing", CAMPAIGN, "returned", { landing: window.location.pathname, previous_seen_at: new Date(lastSeen).toISOString() });
+      }
+      localStorage.setItem(RETURN_KEY, String(now));
     } catch { /* analytics never blocks landing */ }
   }, []);
 
@@ -59,7 +66,7 @@ export default function EarlyAccess2029Page() {
       const next = data.status === "exists" ? "exists" : data.ok || data.status === "new" ? "new" : "error";
       setState(next);
       if (next === "new" || next === "exists") {
-        try { track("campaign_landing", CAMPAIGN, "signup", { result: next, source: "whatsapp" }); } catch { /* noop */ }
+        try { track("campaign_landing", CAMPAIGN, "email_signup", { result: next, source: "whatsapp" }); } catch { /* noop */ }
       }
     } catch {
       setState("error");
@@ -205,7 +212,7 @@ export default function EarlyAccess2029Page() {
           href={WHATSAPP_URL}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => { try { track("campaign_landing", CAMPAIGN, "whatsapp_join", { source: "landing" }); } catch { /* noop */ } }}
+          onClick={() => { try { track("campaign_landing", CAMPAIGN, "whatsapp_click", { source: "landing" }); } catch { /* noop */ } }}
         >
           הצטרפו לקבוצה ←
         </a>

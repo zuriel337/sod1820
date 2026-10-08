@@ -9,6 +9,21 @@
 
 drop function if exists public.world_group_source_arrivals_v1(integer);
 
+-- Intake marker defaults closed for all historical/manual rows. Only the ingester sets it on a NEW eligible insert.
+-- Existing status-based privacy controls clear the marker even when assigning private -> private before proof capture.
+alter table public.channel_updates add column if not exists group_source_intake_public boolean not null default false;
+create or replace function public.guard_group_source_status_hold_v1()
+returns trigger language plpgsql set search_path = pg_catalog as $$
+begin
+  if new.status is distinct from 'live' then new.group_source_intake_public := false; end if;
+  return new;
+end $$;
+revoke all on function public.guard_group_source_status_hold_v1() from public, anon, authenticated;
+drop trigger if exists trg_group_source_status_hold_v1 on public.channel_updates;
+create trigger trg_group_source_status_hold_v1 before update of status on public.channel_updates
+for each row execute function public.guard_group_source_status_hold_v1();
+
+
 create table if not exists public.channel_update_group_proof (
   update_id          uuid primary key references public.channel_updates(id) on delete cascade,
   source_id          uuid not null references public.channel_ingest_sources(id) on delete restrict,
@@ -44,14 +59,14 @@ create or replace function public.record_channel_update_group_proof_v1(
   p_update_id uuid, p_source_id uuid, p_ext_msg_id text, p_group_chat_id text,
   p_sender_jid text, p_incoming boolean, p_type_message text)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
-declare cu record; s record; v_ids uuid[]; v_contrib uuid; v_basis text;
+declare cu record; s record; v_ids uuid[]; v_contrib uuid; v_basis text; v_inserted int;
 begin
   if p_incoming is not true then return jsonb_build_object('ok', false, 'error', 'not_incoming'); end if;
   if p_type_message is null or p_type_message not in ('textMessage','extendedTextMessage','quotedMessage') then
     return jsonb_build_object('ok', false, 'error', 'not_text'); end if;
   select * into cu from public.channel_updates where id = p_update_id;
   if not found or cu.ext_msg_id is distinct from p_ext_msg_id or cu.source is distinct from 'auto'
-     or cu.image_url is not null or cu.thumb_url is not null then
+     or cu.image_url is not null or cu.thumb_url is not null or cu.group_source_intake_public is not true then
     return jsonb_build_object('ok', false, 'error', 'update_mismatch'); end if;
   select * into s from public.channel_ingest_sources where id = p_source_id;
   if not found or s.channel is distinct from cu.channel or s.channel not in ('torat-haremez','gilui-yomi')
@@ -77,11 +92,10 @@ begin
          identity_contributor_id, identity_basis, incoming, text_only)
   values (p_update_id, p_source_id, cu.channel, p_ext_msg_id, p_group_chat_id, p_sender_jid, v_contrib, v_basis, true, true)
   on conflict do nothing;                                    -- replay: first proof stands, held_at never reset
-  -- First-time capture binding: the just-inserted row's contributor_id was derived from the user-controlled pushname.
-  -- Once the sender JID proves a unique owner, bind THAT row (only; created moments ago, only if its proof was just written)
-  -- to the proven contributor. Raw text/credit/source/status untouched; no UPDATE triggers exist on channel_updates.
-  if v_contrib is not null and cu.contributor_id is distinct from v_contrib and cu.created_at > now() - interval '15 minutes'
-     and exists (select 1 from public.channel_update_group_proof g where g.update_id = p_update_id and g.identity_contributor_id = v_contrib) then
+  get diagnostics v_inserted = row_count;
+  -- Only the first proof capture may attribute this newly admitted intake row. Provider timestamp may be old.
+  -- Replay never overwrites later editorial attribution. Historical rows have the closed default intake marker.
+  if v_inserted = 1 and v_contrib is not null and cu.contributor_id is distinct from v_contrib then
     update public.channel_updates set contributor_id = v_contrib where id = p_update_id;
   end if;
   return jsonb_build_object('ok', true, 'identity_basis', v_basis);
@@ -103,6 +117,8 @@ begin
    where update_id = p_update_id;
   get diagnostics v_n = row_count;
   if v_n = 0 then return jsonb_build_object('ok', false, 'error', 'no_proof'); end if;
+  -- Explicit admin unhold may restore the new-intake marker, but status/source/proof checks still apply.
+  update public.channel_updates set group_source_intake_public = not p_hold where id = p_update_id;
   return jsonb_build_object('ok', true, 'held', p_hold);
 end $$;
 revoke all on function public.admin_hold_group_source_v1(uuid, boolean) from public, anon;
@@ -129,11 +145,14 @@ language sql stable security definer set search_path = public, pg_temp as $$
    where g.held_at is null
      and g.identity_basis = 'verified_phone_unique'
      and cu.source = 'auto' and cu.ext_msg_id = g.ext_msg_id and cu.ext_msg_id !~ '^mail_'
+     and cu.group_source_intake_public is true
      and cu.status in ('live','private')                       -- off / hidden / blocked never qualify
      and (cu.expires_at is null or cu.expires_at > now())
      and cu.image_url is null and cu.thumb_url is null
      and cu.text is not null and length(btrim(cu.text)) > 0
      and cu.text !~* '(vcard|begin:vcard|wa\.me/|chat\.whatsapp\.com)'
+     and c.active is true
+     and c.slug in ('tzvi-opoc','yaniv-levi','shachar-kandro','shimon-haimov')
      and coalesce(c.dossier_settings ->> 'general_feed_enabled','false') = 'true'
      and (p_before is null or cu.created_at < p_before)
    order by cu.created_at desc, cu.id

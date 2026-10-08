@@ -30,7 +30,7 @@ create policy ro_dossier_read on public.research_objects for select using (
 create policy ro_admin_read on public.research_objects for select using (exists (select 1 from users u where u.id = auth.uid() and u.role='admin'));
 -- before: no privilege at all
 select t_pre();
-\i supabase/migrations/20261008100000_research_admin_public_control_v1.sql
+\i tests/sql/fixtures/deferred_research_admin_public_control_v1.sql
 select t_assert(has_table_privilege('anon','public.research_objects','SELECT') and has_table_privilege('authenticated','public.research_objects','SELECT'), 'SELECT granted by migration');
 
 insert into users values ('00000000-0000-0000-0000-0000000000aa','admin'),('00000000-0000-0000-0000-0000000000bb','user');

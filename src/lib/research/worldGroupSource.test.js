@@ -9,6 +9,7 @@ const row = (o = {}) => ({ id: "u1", body: "שלום עולם 358", created_at: 
 test("projects a proved four-author group row as unverified source", () => {
   const it = groupRowToWorldUpdate(row());
   assert.equal(it.kind, "source"); assert.equal(it.stateLabel, GROUP_SOURCE_LABEL);
+  assert.equal(it.href, "/world#group-source-u1");
   assert.equal(it.publicState, "group_source_message_unverified"); assert.equal(it.researchCount, 0);
   assert.equal(it.value, null); assert.deepEqual(it.numbers, []); // no Number 0, no invented number
 });
@@ -19,6 +20,7 @@ test("unknown author / no group proof / empty body excluded (no name inference)"
   assert.equal(groupRowToWorldUpdate(row({ proof_basis: "unverified" })), null);
   assert.equal(groupRowToWorldUpdate(row({ proof_basis: undefined })), null);
   assert.equal(groupRowToWorldUpdate(row({ body: "  " })), null);
+  assert.equal(groupRowToWorldUpdate(row({ contributor_slug: "lookalike" })), null);
 });
 test("PII redaction: phone, email, url", () => {
   const t = redactGroupText("התקשרו 050-123-4567 או a@b.com או https://x.co/y www.z.com");
@@ -54,7 +56,10 @@ test("v2 migration contract: private proof table, service-only writer, hold, no 
   assert.ok(!/(create|alter|drop)\s+policy|research_objects/i.test(code));
   // the only channel_updates write: one id-scoped contributor_id bind of the just-inserted row (no text/status/credit change)
   const upd = code.match(/update\s+public\.channel_updates[^;]*;/gi) || [];
-  assert.equal(upd.length, 1); assert.ok(/set contributor_id = v_contrib where id = p_update_id;$/i.test(upd[0].trim()), upd[0]);
+  assert.equal(upd.length, 2); assert.ok(/set contributor_id = v_contrib where id = p_update_id;$/i.test(upd[0].trim()), upd[0]);
+  assert.match(upd[1], /set group_source_intake_public = not p_hold where id = p_update_id/);
+  assert.match(code, /v_inserted = 1/);
+  assert.match(code, /cu.group_source_intake_public is true/);
   assert.ok(/wa_account_links/.test(code) && /w\.verified_at is not null/.test(code), "verified account links only");
   assert.ok(!/grant[^;]*wa_account_links/i.test(code), "no grant on wa_account_links");
 });

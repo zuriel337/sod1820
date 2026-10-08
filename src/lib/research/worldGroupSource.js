@@ -4,6 +4,7 @@
 // no human hold, editorial flag on the contributor). This file is the second line: it never trusts a row without slug + group proof and re-redacts.
 
 const clean = (v) => v == null ? "" : String(v).trim();
+export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 'shachar-kandro', 'shimon-haimov']);
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 
 export function redactGroupText(text) {
@@ -15,7 +16,7 @@ export function redactGroupText(text) {
 }
 
 export function groupRowToWorldUpdate(row) {
-  if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !clean(row.contributor_slug)) return null; // unproved / unverified author => excluded
+  if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !APPROVED_GROUP_WRITERS.includes(clean(row.contributor_slug))) return null; // unproved / unverified author => excluded
   const body = redactGroupText(row.body);
   if (!body) return null;
   const at = Date.parse(clean(row.created_at));
@@ -31,7 +32,7 @@ export function groupRowToWorldUpdate(row) {
     creatorSlug: clean(row.contributor_slug),
     at: Number.isFinite(at) ? new Date(at).toISOString() : null,
     sourceRef: `channel_updates:${row.id}`,
-    href: "/world",
+    href: `/world#group-source-${encodeURIComponent(row.id)}`,
     value: null,
     numbers: [],
     researchCount: 0,

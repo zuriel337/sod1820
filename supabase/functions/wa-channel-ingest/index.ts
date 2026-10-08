@@ -325,6 +325,7 @@ async function ingestSource(
       source,
       credit,
       contributor_id: contributorId,
+      group_source_intake_public: WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us"),
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
       ext_msg_id: msgId,

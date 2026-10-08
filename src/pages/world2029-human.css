@@ -1683,3 +1683,14 @@
 .sod29-world-sourcedepth-dir summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.sod29-world-subject-card{transition:none}.sod29-world-subject-rail{scroll-behavior:auto}}
 @media (max-width:480px){.sod29-world-subject-stage{padding:12px;border-radius:16px}.sod29-world-subject-card{min-width:120px}}
+
+/* Original sanitized group source stays in the same native stream and exact anchor. */
+.sod29-world-group-source{min-width:0;scroll-margin-block-start:90px}
+.sod29-world-group-source>summary{list-style:none;cursor:pointer}
+.sod29-world-group-source>summary::-webkit-details-marker{display:none}
+.sod29-world-group-source-body{
+  margin:0;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;
+  color:inherit;background:var(--s29-panel-soft);border:1px solid var(--s29-line);
+  border-radius:0 0 14px 14px;font-size:18px;line-height:1.8;
+}
+.sod29-world-group-source .sod29-world-stream-copy strong{font-size:18px;line-height:1.5}

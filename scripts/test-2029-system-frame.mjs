@@ -237,7 +237,7 @@ assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
 assert.match(frame, /<small>חדש בעולם<\/small>/);
 assert.match(frame, /title="מה חדש בעולם"/);
-assert.match(frame, /fetchWorldDiscoveryStream\(\{ limit: 10, includeResearch: false \}\)/);
+assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);

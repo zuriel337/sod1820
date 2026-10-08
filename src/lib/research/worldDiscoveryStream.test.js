@@ -89,7 +89,7 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.doesNotMatch(reader, /live-whatsapp-feed|wa_bot_log|wa_vip_inbox|\.from\("channel_updates"\)/);
   assert.match(world, /item\.kind === "source" && item\.href/);
   assert.match(world, /Number\.isFinite\(item\.value\)/);
-  assert.match(frame, /fetchWorldDiscoveryStream\(\{ limit: 10, includeResearch: false \}\)/);
+  assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
   assert.match(frame, /title="מה חדש בעולם"/);
   assert.match(frame, /<small>חדש בעולם<\/small>/);
 });

@@ -5,7 +5,7 @@ create role anon nologin; create role authenticated nologin; create role service
 create schema auth;
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
 create table public.users (id uuid primary key, role text);
-create table public.contributors (id uuid primary key, slug text unique, display_name text, phone text, dossier_settings jsonb, user_id uuid);
+create table public.contributors (id uuid primary key, slug text unique, display_name text, phone text, dossier_settings jsonb, user_id uuid, active boolean default true);
 create table public.wa_account_links (id bigserial primary key, user_id uuid, phone text, verified_at timestamptz);
 alter table public.wa_account_links enable row level security;   -- like live: RLS on, no anon policy; function owner bypasses
 create table public.channel_ingest_sources (id uuid primary key default gen_random_uuid(), channel text, chat_id text, enabled boolean, intake_mode text);
@@ -26,7 +26,7 @@ insert into public.contributors(id,slug,display_name,phone,dossier_settings) val
  ('00000000-0000-0000-0000-0000000000a5','dup-b','כפול ב','+972-50-4444444','{"general_feed_enabled":true}'),
  ('00000000-0000-0000-0000-0000000000a6','lookalike','צבי','0509999999','{"general_feed_enabled":true}');
 insert into public.contributors(id,slug,display_name,phone,dossier_settings,user_id) values
- ('00000000-0000-0000-0000-0000000000b1','acct-verified','חשבון','', '{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e1'),
+ ('00000000-0000-0000-0000-0000000000b1','shimon-haimov','חשבון','', '{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e1'),
  ('00000000-0000-0000-0000-0000000000b2','acct-unverified','לא מאומת',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e2'),
  ('00000000-0000-0000-0000-0000000000b3','acct-dupA','כפול חשבון א',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e3'),
  ('00000000-0000-0000-0000-0000000000b4','acct-dupB','כפול חשבון ב',null,'{"general_feed_enabled":true}','00000000-0000-0000-0000-0000000000e4'),
@@ -52,8 +52,8 @@ create temp table _ids(k text primary key, id uuid default gen_random_uuid());
 create function pg_temp.add(k text, txt text, ch text, st text, ext text, contrib text default '00000000-0000-0000-0000-0000000000a1',
   img text default null, exp timestamptz default null, ts timestamptz default now(), src text default 'auto') returns void language sql as $$
   with i as (insert into _ids(k) values (k) returning id)
-  insert into public.channel_updates(id,text,image_url,source,status,expires_at,created_at,channel,ext_msg_id,contributor_id)
-  select i.id, txt, img, src, st, exp, ts, ch, ext, contrib::uuid from i; $$;
+  insert into public.channel_updates(id,text,image_url,source,status,expires_at,created_at,channel,ext_msg_id,contributor_id,group_source_intake_public)
+  select i.id, txt, img, src, st, exp, ts, ch, ext, contrib::uuid, true from i; $$;
 create function pg_temp.uid(k text) returns uuid language sql as $$ select id from _ids where _ids.k = $1 $$;
 create function pg_temp.proof(k text, src text, ext text, chat text, jid text, incoming boolean default true, typ text default 'textMessage') returns jsonb language sql as $$
   select public.record_channel_update_group_proof_v1(pg_temp.uid(k), src::uuid, ext, chat, jid, incoming, typ) $$;
@@ -131,8 +131,8 @@ select pg_temp.ok((pg_temp.proof('acct_dup',:'T','A4',:'TC','972523000003@c.us')
 select pg_temp.ok((pg_temp.proof('acct_conflict',:'T','A5',:'TC','972507070707@c.us')->>'identity_basis')='unverified', 'c.phone vs other account verified link -> fail closed');
 select pg_temp.ok((pg_temp.proof('acct_nouser',:'T','A6',:'TC','972525000007@c.us')->>'identity_basis')='unverified', 'verified link without contributor user association rejected');
 select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_unverified')) is null, 'unverified: no rebind');
-select pg_temp.ok((pg_temp.proof('acct_old',:'T','A8',:'TC','972521000001@c.us')->>'identity_basis')='verified_phone_unique', 'old row still proves');
-select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_old')) is null, 'historical (old) row NOT rebound');
+select pg_temp.ok((pg_temp.proof('acct_old',:'T','A8',:'TC','972521000001@c.us')->>'identity_basis')='verified_phone_unique', 'delayed new intake proves');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_old'))='00000000-0000-0000-0000-0000000000b1', 'delayed new intake bound on first proof capture');
 select pg_temp.proof('held',:'T','M9',:'TC','972501111111@c.us');
 select pg_temp.proof('hidden',:'T','M10',:'TC','972501111111@c.us');
 select pg_temp.proof('off',:'T','M11',:'TC','972501111111@c.us');
@@ -144,19 +144,41 @@ select pg_temp.proof('pii',:'T','M20',:'TC','972501111111@c.us');
 -- (mail_ and unproved legacy rows get no proof row)
 
 select pg_temp.ok('acct_ok' = any(pg_temp.got()) and 'acct_spoof' = any(pg_temp.got()), 'verified owner projects even though pushname unmatched/spoofed (after binding)');
-select pg_temp.ok(not (pg_temp.got() && array['acct_unverified','acct_dup','acct_conflict','acct_nouser','acct_old']), 'unverified/dup/conflict/historical excluded');
-select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='acct_spoof')='acct-verified', 'spoofed row shown under JID owner only');
+select pg_temp.ok(not (pg_temp.got() && array['acct_unverified','acct_dup','acct_conflict','acct_nouser']), 'unverified/dup/conflict/historical excluded');
+select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='acct_spoof')='shimon-haimov', 'spoofed row shown under JID owner only');
 select pg_temp.ok(not has_table_privilege('anon','public.wa_account_links','select') and not has_table_privilege('authenticated','public.wa_account_links','select'), 'no anon/authenticated grant on wa_account_links');
-select pg_temp.ok(pg_temp.got() = array['acct_ok','acct_spoof','contrib_mismatch','held','lookalike_pushname','no_contributor','pii','pos_live_yaniv','pos_private_tzvi'],
+select pg_temp.ok(pg_temp.got() = array['acct_ok','acct_old','acct_spoof','contrib_mismatch','held','no_contributor','pii','pos_live_yaniv','pos_private_tzvi'],
    'pre-hold set: '||pg_temp.got()::text);
 -- the lookalike case: row credited to tzvi but JID belongs to 'lookalike' => contributor id mismatch => excluded
-select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='lookalike_pushname')='lookalike', 'pushname-credited tzvi but JID=lookalike: shown ONLY under JID owner');
+select pg_temp.ok(not ('lookalike_pushname' = any(pg_temp.got())), 'unapproved lookalike excluded even with editorial flag and verified phone');
 select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='contrib_mismatch')='tzvi-opoc', 'row credited yaniv, JID=tzvi: shown under tzvi, never yaniv');
 select pg_temp.ok(not ('unproved_legacy_live' = any(pg_temp.got())), 'legacy live row without proof stays out');
 select pg_temp.ok(not ('unknown_jid' = any(pg_temp.got())) and not ('dup_phone' = any(pg_temp.got())) and ('no_contributor' = any(pg_temp.got())), 'unverified excluded; null-contributor row bound by JID projects');
 select pg_temp.ok(not (pg_temp.got() && array['hidden','off','blocked','flag_off','expired','vcard','mail','src_ai','media']), 'hidden/off/blocked/flag/expiry/vcard/media excluded');
 select pg_temp.ok((select body !~ '050-123|@|http|www' and body like '%[מספר]%' and body like '%[קישור]%' and body like '%[דוא״ל]%'
                      from public.world_group_source_arrivals_v2(40) r join _ids i on i.id=r.id and i.k='pii'), 'PII redacted');
+-- Inactive approved contributors are excluded even with proof and editorial flag.
+update public.contributors set active=false where slug='shimon-haimov';
+select pg_temp.ok(not (pg_temp.got() && array['acct_ok','acct_old','acct_spoof']), 'inactive approved writer excluded');
+update public.contributors set active=true where slug='shimon-haimov';
+-- Existing status-based privacy controls stop publication even on private -> private updates.
+update public.channel_updates set status='private' where id=pg_temp.uid('pos_private_tzvi');
+select pg_temp.ok(not ('pos_private_tzvi' = any(pg_temp.got())), 'status-private hold clears intake marker');
+set test.uid = '00000000-0000-0000-0000-0000000000f1';
+select public.admin_hold_group_source_v1(pg_temp.uid('pos_private_tzvi'), false);
+-- Replay must not clobber an admin attribution edit.
+update public.channel_updates set contributor_id='00000000-0000-0000-0000-0000000000a2' where id=pg_temp.uid('acct_spoof');
+select pg_temp.proof('acct_spoof',:'T','A2',:'TC','972521000001@c.us');
+select pg_temp.ok((select contributor_id from public.channel_updates where id=pg_temp.uid('acct_spoof'))='00000000-0000-0000-0000-0000000000a2', 'replay preserves subsequent editorial attribution');
+update public.channel_updates set contributor_id='00000000-0000-0000-0000-0000000000b1' where id=pg_temp.uid('acct_spoof');
+-- Pre-proof status hold (race) is closed before any proof can be created.
+select pg_temp.add('preproof_hold','x','torat-haremez','private','HOLD_BEFORE');
+update public.channel_updates set status='private' where id=pg_temp.uid('preproof_hold');
+select pg_temp.ok(pg_temp.err(pg_temp.proof('preproof_hold',:'T','HOLD_BEFORE',:'TC','972501111111@c.us'))='update_mismatch', 'status hold before capture cannot be overridden by proof');
+-- Historical default marker stays closed even when a privileged proof writer is called.
+select pg_temp.add('historical_closed','x','torat-haremez','private','OLD_CLOSED');
+update public.channel_updates set group_source_intake_public=false where id=pg_temp.uid('historical_closed');
+select pg_temp.ok(pg_temp.err(pg_temp.proof('historical_closed',:'T','OLD_CLOSED',:'TC','972501111111@c.us'))='update_mismatch', 'historical default-closed row cannot receive proof');
 -- human hold overrides (admin)
 set test.uid = '00000000-0000-0000-0000-0000000000f1';
 select public.admin_hold_group_source_v1(pg_temp.uid('held'), true);

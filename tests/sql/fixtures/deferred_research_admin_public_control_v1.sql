@@ -1,3 +1,5 @@
+-- DEFERRED TEST FIXTURE ONLY. NOT A RELEASE MIGRATION.
+-- Preserved proposed publication helper for separate security gate; never apply through the World release.
 -- RESEARCH_2029_ADMIN_PUBLIC_CONTROL_V1 — Human-Gate publication action on research_objects.
 -- EXTEND_EXISTING over truth_axes_foundation_law v3 (Axis 4 privacy_scope).
 --   PUBLIC != CANONICAL      : publishing changes ACCESS only; never status/verification/canonicality.

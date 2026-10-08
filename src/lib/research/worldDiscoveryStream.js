@@ -245,3 +245,29 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
     ],
   };
 }
+
+// Visibility-bound refresh of the existing reader. No feed cache/store or private bundle sharing.
+export function watchWorldDiscoveryStream({ onResult, onError, immediate = true, intervalMs = 60000, ...options } = {}) {
+  let active = true;
+  let pending = false;
+  const refresh = async () => {
+    if (!active || pending || document.visibilityState === "hidden") return;
+    pending = true;
+    try {
+      const result = await fetchWorldDiscoveryStream(options);
+      if (active) onResult?.(result);
+    } catch (error) {
+      if (active) onError?.(error);
+    } finally { pending = false; }
+  };
+  const timer = window.setInterval(refresh, Math.max(60000, intervalMs));
+  document.addEventListener("visibilitychange", refresh);
+  window.addEventListener("focus", refresh);
+  if (immediate) refresh();
+  return () => {
+    active = false;
+    window.clearInterval(timer);
+    document.removeEventListener("visibilitychange", refresh);
+    window.removeEventListener("focus", refresh);
+  };
+}

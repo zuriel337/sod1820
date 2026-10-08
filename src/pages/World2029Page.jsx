@@ -1,6 +1,7 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
@@ -39,7 +40,7 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
-import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
+import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -474,6 +475,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 }
 
 function LiveWorldLanding({ research, shell, context }) {
+  const location = useLocation();
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
@@ -547,6 +549,16 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (landing.loading) return;
+    return watchWorldDiscoveryStream({
+      limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
+      onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
+      onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+    });
+  }, [landing.loading, landing.contributors]);
+
 
 
   useEffect(() => {
@@ -797,6 +809,15 @@ function LiveWorldLanding({ research, shell, context }) {
     return items.filter((item) => item.creator === discoveryCreator);
   }, [landing.discovery, discoveryCreator]);
   const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
+  useEffect(() => {
+    if (!location.hash.startsWith("#group-source-")) return;
+    const element = document.getElementById(location.hash.slice(1));
+    if (element?.classList.contains("sod29-world-group-source")) {
+      element.open = true;
+      element.scrollIntoView({ block: "nearest" });
+    }
+  }, [location.hash, discoveryItems]);
+
   const openDiscoveryItem = (item) => {
     if (!item) return;
     if (item.kind === "source" && item.href) {
@@ -936,7 +957,8 @@ function LiveWorldLanding({ research, shell, context }) {
           {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
 
           {discoveryItems.length ? <div className="sod29-world-stream-list">
-            {discoveryItems.slice(0, 12).map((item, index) => <button type="button" className={`sod29-world-stream-item${index === 0 ? " is-lead" : ""}`} key={item.id} onClick={() => openDiscoveryItem(item)}>
+            {discoveryItems.slice(0, 12).map((item, index) => {
+              const copy = <>
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
@@ -949,8 +971,15 @@ function LiveWorldLanding({ research, shell, context }) {
                 {item.stateLabel ? <small>{item.stateLabel}</small> : null}
                 {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
               </div>
-              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
-            </button>)}
+              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
+              </>;
+              const itemClass = `sod29-world-stream-item${index === 0 ? " is-lead" : ""}`;
+              if (item.sourceKind === "group_message") return <details key={item.id} id={`group-source-${item.id.slice(6)}`} className="sod29-world-group-source">
+                <summary className={itemClass}>{copy}</summary>
+                <p className="sod29-world-group-source-body">{item.fullText}</p>
+              </details>;
+              return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
+            })}
           </div> : null}
           <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
         </div>
