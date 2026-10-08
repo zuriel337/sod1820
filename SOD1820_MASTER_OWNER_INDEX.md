@@ -21,6 +21,8 @@ For every substantive task:
 
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
 
+**Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
+
 ## 2. Owner creation gate
 
 Before creating a new Law / Contract / System / Store / Engine / Registry / Graph / Context system / global owner:
