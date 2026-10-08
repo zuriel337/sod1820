@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { attestedTopicsForTheme, categoriesForTheme, WORLD_THEMES, buildWorldThematicUniverse, classifyWorldSourceAccess, topicToWorldConvergence, postToWorldSourceWork } from "./worldThematicUniverse.js";
+import { buildWorldThemePostsQuery, fetchWorldThemePosts, fetchWorldThemeCounts, createRequestGuard, WORLD_SOURCE_QUERY_ORIGINS, attestedTopicsForTheme, categoriesForTheme, WORLD_THEMES, buildWorldThematicUniverse, classifyWorldSourceAccess, topicToWorldConvergence, postToWorldSourceWork } from "./worldThematicUniverse.js";
 
 const post = (o = {}) => ({ id: 1, slug: "a", title: "א", source: "wordpress", categories: ["סוד החשמל"], author: "סוד החשמל", date: "2026-01-02", ...o });
 
@@ -63,7 +63,7 @@ test("bounds are honest: unknown total stays unknown, never 0", () => {
 
 test("theme category query is source-side and covers every theme category (no global LIMIT)", () => {
   assert.equal(categoriesForTheme("source_works").includes("סוד החשמל"), true);
-  assert.equal(categoriesForTheme("all").length, WORLD_THEMES.flatMap((t) => t.categories).length);
+  assert.equal(categoriesForTheme("all"), null, "all = every eligible source post, no category constraint");
   const src = readFileSync(new URL("./worldThematicUniverse.js", import.meta.url), "utf8");
   assert.match(src, /\.overlaps\("categories"/);
   assert.match(src, /count: "exact"/);
@@ -79,4 +79,75 @@ test("World first view composes the universe above the advanced research block",
   assert.ok(src.indexOf('id="world-researchers"') > adv);
   assert.ok(src.indexOf('id="world-all-convergences"') > adv);
   assert.doesNotMatch(src, /Number\(item\.value\)\)/);
+});
+
+// Fake chainable supabase client recording the calls.
+function fakeClient(result = { data: [], count: 0, error: null }) {
+  const calls = [];
+  const q = new Proxy({}, { get: (_, name) => {
+    if (name === "then") return (res, rej) => Promise.resolve(result).then(res, rej);
+    return (...args) => { calls.push([name, ...args]); return q; };
+  } });
+  return { client: { from: (t) => { calls.push(["from", t]); return q; } }, calls };
+}
+
+test("source query lists exact live canonical origins incl. uppercase SOD1820", () => {
+  assert.ok(WORLD_SOURCE_QUERY_ORIGINS.includes("SOD1820"));
+  assert.ok(WORLD_SOURCE_QUERY_ORIGINS.includes("wordpress"));
+  const { client, calls } = fakeClient();
+  buildWorldThemePostsQuery(client, { theme: "redemption" });
+  const inCall = calls.find((c) => c[0] === "in");
+  assert.deepEqual(inCall.slice(1), ["source", [...WORLD_SOURCE_QUERY_ORIGINS]]);
+  // both DB-original uppercase and lowercase shapes classify as eligible source works
+  assert.equal(classifyWorldSourceAccess(post({ source: "SOD1820" })).eligible, true);
+  assert.equal(classifyWorldSourceAccess(post({ source: "sod1820" })).eligible, true);
+});
+
+test("'all' applies no category constraint so unmapped posts (58 wordpress) are not dropped; themes still do", async () => {
+  const all = fakeClient(); buildWorldThemePostsQuery(all.client, { theme: "all" });
+  assert.equal(all.calls.some((c) => c[0] === "overlaps"), false);
+  assert.equal(categoriesForTheme("all"), null);
+  const themed = fakeClient(); buildWorldThemePostsQuery(themed.client, { theme: "timeless" });
+  assert.equal(themed.calls.some((c) => c[0] === "overlaps"), true);
+  const counts = fakeClient({ data: null, count: 1296, error: null });
+  const result = await fetchWorldThemeCounts(counts.client);
+  assert.equal(result.all, 1296);
+  assert.equal(counts.calls.filter((c) => c[0] === "overlaps").length, WORLD_THEMES.length);
+  // an unclassified post is still a visible work under "all"
+  const u = buildWorldThematicUniverse({ posts: [post({ categories: ["לא ממופה"] })] }, { theme: "all" });
+  assert.equal(u.sourceWorks.length, 1);
+  assert.deepEqual(u.sourceWorks[0].themes, []);
+});
+
+test("writer is a server-side lens over all eligible posts, with paging bounds", async () => {
+  const { client, calls } = fakeClient({ data: [{ id: 1 }, { id: 2 }], count: 5, error: null });
+  const page = await fetchWorldThemePosts({ theme: "all", offset: 2, limit: 2, author: "צבי" }, client);
+  assert.deepEqual(calls.find((c) => c[0] === "eq").slice(1), ["author", "צבי"]);
+  assert.deepEqual(calls.find((c) => c[0] === "range").slice(1), [2, 3]);
+  assert.equal(page.hasMore, true);
+  const none = fakeClient(); buildWorldThemePostsQuery(none.client, { author: "all" });
+  assert.equal(none.calls.some((c) => c[0] === "eq"), false);
+});
+
+test("no attested relation: catalog topics appear only as NOT-LINKED general topics, never as linked", () => {
+  const topics = [{ id: "t1", slug: "t", title: "נושא" }];
+  const u = buildWorldThematicUniverse({ posts: [post()], topics }, { theme: "redemption" });
+  assert.equal(u.convergences.length, 0);
+  assert.equal(u.topicRelation, "none_attested");
+  assert.equal(u.generalTopics.length, 1);
+  const linked = buildWorldThematicUniverse({ topics, relations: [{ themeKey: "redemption", topicSlug: "t", attestedBy: "owner" }] }, { theme: "redemption" });
+  assert.equal(linked.convergences.length, 1);
+  assert.equal(linked.generalTopics.length, 0);
+  assert.equal(buildWorldThematicUniverse({ topics }, { theme: "all" }).generalTopics.length, 0);
+});
+
+test("load-more race: a page resolving after a theme switch is discarded", async () => {
+  const guard = createRequestGuard();
+  const loadMoreToken = guard.next();
+  const slow = new Promise((r) => setTimeout(() => r("old-theme-page"), 5));
+  const switchToken = guard.next(); // theme switched while load-more in flight
+  const page = await slow;
+  assert.equal(guard.isCurrent(loadMoreToken), false, "stale load-more must not append");
+  assert.equal(guard.isCurrent(switchToken), true);
+  assert.equal(page, "old-theme-page");
 });

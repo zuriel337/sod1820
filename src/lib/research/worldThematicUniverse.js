@@ -84,9 +84,11 @@ export function topicToWorldConvergence(row) {
   };
 }
 
+// null = no category constraint: "all" means every eligible public source post, including posts
+// whose categories match no curated theme (unclassified posts stay visible, never silently dropped).
 export function categoriesForTheme(theme) {
   const found = WORLD_THEMES.find((t) => t.key === theme);
-  return found ? [...found.categories] : WORLD_THEMES.flatMap((t) => t.categories);
+  return found ? [...found.categories] : null;
 }
 
 // Topic <-> theme relations must be source-attested/owner-backed ({ themeKey, topicSlug, attestedBy }).
@@ -123,6 +125,8 @@ export function buildWorldThematicUniverse({ posts = [], topics = [], page = {},
     writers: [...new Set(allWorks.map((w) => w.writer).filter(Boolean))].sort(),
     sourceWorks: works,
     convergences: linked,
+    // Catalog topics shown ONLY as explicit NOT-LINKED general discovery when no attested relation exists.
+    generalTopics: theme !== WORLD_THEME_ALL && !attested ? convergences : [],
     topicRelation: theme === WORLD_THEME_ALL ? "all" : attested ? "attested" : "none_attested",
     bounds: { total, loaded: rows.length, hasMore: Boolean(page.hasMore), totalKnown: total != null },
     excluded,
@@ -130,42 +134,56 @@ export function buildWorldThematicUniverse({ posts = [], topics = [], page = {},
   };
 }
 
-const SOURCE_ORIGIN_LIST = [...SOURCE_WORK_ORIGINS];
+// Exact live canonical posts.source values (wordpress=1177, SOD1820=5; lowercase sod1820=0). The query is
+// case-sensitive, so the canonical uppercase value must be listed; lowercase is kept for shape tolerance.
+export const WORLD_SOURCE_QUERY_ORIGINS = Object.freeze(["wordpress", "SOD1820", "sod1820"]);
 const POST_FIELDS = "id,title,slug,date,created_at,excerpt,categories,author,source,tags,thumb_url";
 export const WORLD_THEME_PAGE_SIZE = 24;
 
 // Source-side, category-specific, bounded pagination (no global LIMIT). Origin filter is applied
 // server-side so the count reflects source works; private markers are still screened client-side
-// and reported in `excluded`.
-export async function fetchWorldThemePosts({ theme = WORLD_THEME_ALL, offset = 0, limit = WORLD_THEME_PAGE_SIZE } = {}) {
-  const { supabase } = await import("../supabase.js");
+// and reported in `excluded`. `author` is a server-side attribution lens over ALL eligible posts.
+export function buildWorldThemePostsQuery(client, { theme = WORLD_THEME_ALL, offset = 0, limit = WORLD_THEME_PAGE_SIZE, author = WORLD_THEME_ALL } = {}) {
   const size = Math.max(1, Math.min(Number(limit) || WORLD_THEME_PAGE_SIZE, 48));
   const start = Math.max(0, Number(offset) || 0);
-  const { data, error, count } = await supabase.from("posts")
+  let query = client.from("posts")
     .select(POST_FIELDS, { count: "exact" })
     .not("slug", "is", null)
-    .in("source", SOURCE_ORIGIN_LIST)
-    .overlaps("categories", categoriesForTheme(theme))
-    .order("date", { ascending: false })
-    .order("id", { ascending: true })
-    .range(start, start + size - 1);
+    .in("source", [...WORLD_SOURCE_QUERY_ORIGINS]);
+  const categories = categoriesForTheme(theme);
+  if (categories) query = query.overlaps("categories", categories);
+  if (author && author !== WORLD_THEME_ALL) query = query.eq("author", author);
+  return { query: query.order("date", { ascending: false }).order("id", { ascending: true }).range(start, start + size - 1), size, start };
+}
+
+export async function fetchWorldThemePosts(options = {}, client = null) {
+  const db = client || (await import("../supabase.js")).supabase;
+  const { query, size, start } = buildWorldThemePostsQuery(db, options);
+  const { data, error, count } = await query;
   if (error) throw error;
   const rows = Array.isArray(data) ? data : [];
   const total = count != null && Number.isFinite(Number(count)) ? Number(count) : null;
   return { posts: rows, total, hasMore: total != null ? start + rows.length < total : rows.length === size };
 }
 
-export async function fetchWorldThemeCounts() {
-  const { supabase } = await import("../supabase.js");
-  const entries = await Promise.all(WORLD_THEMES.map(async (t) => {
-    const { count, error } = await supabase.from("posts")
+export async function fetchWorldThemeCounts(client = null) {
+  const db = client || (await import("../supabase.js")).supabase;
+  const entries = await Promise.all([{ key: WORLD_THEME_ALL, categories: null }, ...WORLD_THEMES].map(async (t) => {
+    let query = db.from("posts")
       .select("id", { count: "exact", head: true })
       .not("slug", "is", null)
-      .in("source", SOURCE_ORIGIN_LIST)
-      .overlaps("categories", t.categories);
+      .in("source", [...WORLD_SOURCE_QUERY_ORIGINS]);
+    if (t.categories) query = query.overlaps("categories", t.categories);
+    const { count, error } = await query;
     return [t.key, error || count == null ? null : Number(count)]; // unknown stays null, never 0
   }));
   return Object.fromEntries(entries);
+}
+
+// Request-generation guard: an async page that resolves after the theme/writer changed is discarded.
+export function createRequestGuard() {
+  let generation = 0;
+  return { next: () => ++generation, isCurrent: (token) => token === generation };
 }
 
 export async function fetchWorldThemeTopics({ limit = 12 } = {}) {

@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
   WORLD_THEMES,
   WORLD_THEME_ALL,
   buildWorldThematicUniverse,
+  createRequestGuard,
   fetchWorldThemeCounts,
   fetchWorldThemePosts,
   fetchWorldThemeTopics,
@@ -28,11 +29,15 @@ export default function WorldThematicUniverse({ children = null }) {
   const [writer, setWriter] = useState(WORLD_THEME_ALL);
   const [feed, setFeed] = useState({ loading: true, loadingMore: false, error: null, posts: [], total: null, hasMore: false });
   const [counts, setCounts] = useState(null);
+  const [writerOptions, setWriterOptions] = useState([]);
+  const guard = useRef(null);
+  if (!guard.current) guard.current = createRequestGuard();
   const [topics, setTopics] = useState({ loading: true, error: null, rows: [] });
 
   const setTheme = useCallback((next) => {
     setThemeState(next);
     setWriter(WORLD_THEME_ALL);
+    setWriterOptions([]);
     try { // exact return: browser back/refresh/share lands on the same focused theme
       const url = new URL(window.location.href);
       if (next === WORLD_THEME_ALL) url.searchParams.delete(THEME_PARAM); else url.searchParams.set(THEME_PARAM, next);
@@ -48,51 +53,65 @@ export default function WorldThematicUniverse({ children = null }) {
     return () => { alive = false; };
   }, []);
 
+  const rememberWriters = (posts) => setWriterOptions((prev) => {
+    const names = new Set(prev);
+    posts.forEach((p) => { const a = p?.author ? String(p.author).trim() : ""; if (a) names.add(a); });
+    return [...names].sort();
+  });
+
+  // Theme/writer change starts a new request generation; any older page resolving later is dropped.
   useEffect(() => {
-    let alive = true;
+    const token = guard.current.next();
     setFeed({ loading: true, loadingMore: false, error: null, posts: [], total: null, hasMore: false });
-    fetchWorldThemePosts({ theme, offset: 0 })
-      .then((page) => alive && setFeed({ loading: false, loadingMore: false, error: null, posts: page.posts, total: page.total, hasMore: page.hasMore }))
-      .catch((error) => alive && setFeed((prev) => ({ ...prev, loading: false, error })));
-    return () => { alive = false; };
-  }, [theme]);
+    fetchWorldThemePosts({ theme, offset: 0, author: writer })
+      .then((page) => {
+        if (!guard.current.isCurrent(token)) return;
+        rememberWriters(page.posts);
+        setFeed({ loading: false, loadingMore: false, error: null, posts: page.posts, total: page.total, hasMore: page.hasMore });
+      })
+      .catch((error) => guard.current.isCurrent(token) && setFeed((prev) => ({ ...prev, loading: false, error })));
+    return () => { guard.current.next(); };
+  }, [theme, writer]);
 
   const loadMore = async () => {
     if (feed.loadingMore || !feed.hasMore) return;
+    const token = guard.current.next(); // reserve: only this request may append
     setFeed((prev) => ({ ...prev, loadingMore: true, error: null }));
     try {
-      const page = await fetchWorldThemePosts({ theme, offset: feed.posts.length });
+      const page = await fetchWorldThemePosts({ theme, offset: feed.posts.length, author: writer });
+      if (!guard.current.isCurrent(token)) return;
+      rememberWriters(page.posts);
       setFeed((prev) => ({ ...prev, loadingMore: false, posts: [...prev.posts, ...page.posts], total: page.total ?? prev.total, hasMore: page.hasMore }));
     } catch (error) {
-      setFeed((prev) => ({ ...prev, loadingMore: false, error }));
+      if (guard.current.isCurrent(token)) setFeed((prev) => ({ ...prev, loadingMore: false, error }));
     }
   };
 
   const universe = useMemo(
     () => buildWorldThematicUniverse(
       { posts: feed.posts, topics: topics.rows, page: { total: feed.total, hasMore: feed.hasMore } },
-      { theme, writer },
+      { theme, writer: WORLD_THEME_ALL }, // writer is applied server-side over all eligible posts
     ),
-    [feed.posts, feed.total, feed.hasMore, topics.rows, theme, writer],
+    [feed.posts, feed.total, feed.hasMore, topics.rows, theme],
   );
   const { bounds } = universe;
   const activeTheme = WORLD_THEMES.find((t) => t.key === theme) || null;
 
   return <section className="sod29-section wtu" id="world-themes" aria-label="עולם נושאים">
     <div className="wtu-chips" role="group" aria-label="נושאים">
-      {[{ key: WORLD_THEME_ALL, label: "הכול" }, ...WORLD_THEMES].map((t) => {
-        const count = t.key === WORLD_THEME_ALL ? null : counts?.[t.key];
+      {[{ key: WORLD_THEME_ALL, label: "כל יצירות המקור" }, ...WORLD_THEMES].map((t) => {
+        const count = counts?.[t.key];
         return <button type="button" key={t.key} className={`wtu-chip${theme === t.key ? " is-active" : ""}`} aria-pressed={theme === t.key} onClick={() => setTheme(t.key)}>
           {t.label}{count != null ? <span className="wtu-count">{count}</span> : null}
         </button>;
       })}
     </div>
     {activeTheme ? <p className="wtu-hint">{activeTheme.hint}</p> : null}
-    {universe.writers.length > 1 ? <label className="wtu-writer">
-      <span>זווית מקור (בין מה שנטען)</span>
+    {writerOptions.length > 1 || writer !== WORLD_THEME_ALL ? <label className="wtu-writer">
+      <span>זווית מקור (סינון על כל היצירות הפתוחות)</span>
       <select value={writer} onChange={(e) => setWriter(e.target.value)}>
         <option value={WORLD_THEME_ALL}>כולם</option>
-        {universe.writers.map((w) => <option key={w} value={w}>{w}</option>)}
+        {writerOptions.map((w) => <option key={w} value={w}>{w}</option>)}
       </select>
     </label> : null}
 
@@ -121,7 +140,7 @@ export default function WorldThematicUniverse({ children = null }) {
 
       <aside className="wtu-lane-block wtu-topics" aria-label="התכנסויות מאושרות">
         <h3 className="wtu-lane">התכנסויות מאושרות</h3>
-        {universe.topicRelation === "none_attested" ? <p className="wtu-hint">אין עדיין קשר מאושר בין התכנסויות לנושא זה. מקור הקטגוריה אינו יוצר קשר — ההתכנסויות הללו נשארות בקטלוג המלא.</p> : null}
+        {universe.topicRelation === "none_attested" ? <p className="wtu-hint">אין עדיין קשר מאושר בין התכנסויות לנושא זה. מקור הקטגוריה אינו יוצר קשר. להלן המלצות כלליות מהקטלוג — לא מקושרות לנושא.</p> : null}
         {topics.error ? <FrameState kind="unavailable" title="ההתכנסויות לא נטענו">לא נחליף חומר חסר.</FrameState> : null}
         {universe.convergences.length ? <ul className="wtu-grid wtu-grid-compact">
           {universe.convergences.slice(0, 8).map((c) => <li key={c.id}>
@@ -130,6 +149,15 @@ export default function WorldThematicUniverse({ children = null }) {
               <strong>{c.label}</strong>
               {c.summary ? <small>{c.summary}</small> : null}
               {c.value != null ? <b className="wtu-value">{c.value}</b> : null}
+            </Link>
+          </li>)}
+        </ul> : null}
+        {universe.generalTopics.length ? <ul className="wtu-grid wtu-grid-compact" aria-label="המלצות כלליות — לא מקושרות לנושא">
+          {universe.generalTopics.slice(0, 8).map((c) => <li key={c.id}>
+            <Link className="wtu-card is-convergence is-unlinked" to={c.href} data-source-ref={c.sourceRef} data-topic-link="not_linked">
+              <span className="wtu-meta">כללי · לא מקושר לנושא{c.at ? ` · ${dateLabel(c.at)}` : ""}</span>
+              <strong>{c.label}</strong>
+              {c.summary ? <small>{c.summary}</small> : null}
             </Link>
           </li>)}
         </ul> : null}
