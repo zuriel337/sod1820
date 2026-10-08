@@ -262,21 +262,23 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           key={item.to}
           to={item.to}
           end={item.exact}
+          aria-label={item.label}
+          title={item.label}
           className={activeClass}
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
-          <span className="sod29-nav-icon">{item.icon}</span>
+          <span className="sod29-nav-icon" aria-hidden="true">{item.icon}</span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
       ) : item.action ? (
-        <button className="sod29-nav-link" key={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
-          <span className="sod29-nav-icon">{item.icon}</span>
+        <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
+          <span className="sod29-nav-icon" aria-hidden="true">{item.icon}</span>
           <span className="sod29-nav-copy">{item.label}</span>
         </button>
       ) : (
-        <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled title={item.status}>
-          <span className="sod29-nav-icon">{item.icon}</span>
+        <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled aria-label={`${item.label} · ${item.status}`} title={`${item.label} · ${item.status}`}>
+          <span className="sod29-nav-icon" aria-hidden="true">{item.icon}</span>
           <span className="sod29-nav-copy">{item.label}</span>
           <span className="sod29-nav-status">{item.status}</span>
         </button>
@@ -1251,7 +1253,7 @@ export default function SystemFrame2029({
   const { user, profile } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try { return localStorage.getItem("sod-global-rail") === "collapsed"; } catch { return false; }
+    try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
@@ -1795,10 +1797,14 @@ export default function SystemFrame2029({
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
-          <nav className="sod29-nav">
+          <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
             <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
+          <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
+            <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true">↩</span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
+            <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true">!</span><span className="sod29-nav-copy">דווח על בעיה</span></button>
+          </div>
           <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed}>
@@ -1816,7 +1822,7 @@ export default function SystemFrame2029({
               <button className="sod29-desktop-gate-trigger sod29-gate-trigger" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} title={sidebarCollapsed ? "פתח תפריט" : "כווץ תפריט"} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation">
                 <DiscoveryGateMark2029 open={!sidebarCollapsed} />
               </button>
-              <div className="sod29-orientation" aria-label="איפה אני">
+              <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>

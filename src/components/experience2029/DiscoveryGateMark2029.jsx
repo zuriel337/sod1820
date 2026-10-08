@@ -40,6 +40,11 @@ export default function DiscoveryGateMark2029({ open = false }) {
         />
         <i className="sod29-gate-glint" />
       </span>
+      <svg className="sod29-gate-menu" viewBox="0 0 20 20" width="20" height="20" fill="none" focusable="false">
+        <path className="is-top" d="M3 5h14" />
+        <path className="is-middle" d="M3 10h14" />
+        <path className="is-bottom" d="M3 15h14" />
+      </svg>
     </span>
   );
 }
