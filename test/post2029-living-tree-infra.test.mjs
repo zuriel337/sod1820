@@ -274,7 +274,7 @@ test("Unified Experience exposes one shared rail and section navigation without 
   assert.match(frame, /SurfaceContextRail2029/);
   assert.match(frame, /surfaceFocus/);
   assert.match(rail, /ContextualInspector2029/);
-  assert.match(rail, /sod29-surface-context-mobile-cue/);
+  assert.match(rail, /sod29-glass-locator/);
   assert.match(rail, /interactive/);
   assert.match(rail, /בתוך הפוסט/);
   assert.match(rail, /בתוך הציר/);

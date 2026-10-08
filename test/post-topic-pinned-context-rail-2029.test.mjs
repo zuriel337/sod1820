@@ -40,7 +40,7 @@ test("page map / section tabs / reading spine are non-sticky", () => {
 
 test("mobile keeps capability as cue/sheet, rail hidden", () => {
   assert.match(css, /@media\(max-width:980px\)\{\s*\.sod29-main-stage\.has-context-rail\{display:block;padding-inline-end:0\}\s*\.sod29-surface-context-rail\{display:none\}/);
-  assert.match(rail, /sod29-surface-context-mobile-cue/);
+  assert.doesNotMatch(rail, /sod29-surface-context-mobile-cue/);
   assert.match(rail, /onClick=\{onOpenContext\}/);
   assert.doesNotMatch(restoreCss.split("@media(min-width:981px)")[0], /context-rail\{[^}]*position:sticky/);
 });
@@ -65,12 +65,27 @@ test("rail points to in-body depth but does not duplicate it", () => {
 
 test("Glass Rolling Locator: single mobile affordance over the same rail, opens shared context sheet", () => {
   assert.match(rail, /glass-rolling-locator/);
-  assert.match(rail, /useLocator \? <nav/);
   assert.match(rail, /sheet \? null/);
   assert.match(frame, /TRANSIENT\.CONTEXT/);
   assert.match(frame, /onOpenSheet=\{\(\) => openTransient\(TRANSIENT\.CONTEXT\)\}/);
   assert.match(css, /GLASS_ROLLING_LOCATOR_V1/);
   assert.match(css, /prefers-reduced-motion:reduce\)\{\s*\.sod29-glass-locator/);
   assert.match(css, /--s29-island-clearance/);
-  assert.equal((rail.match(/sod29-glass-locator"/g) || []).length, 1);
+  assert.equal((rail.match(/<nav\s+className=\{`sod29-glass-locator/g) || []).length, 1);
+});
+
+test("MOBILE_LEFT_GLASS_CONTEXT_HANDLE_V1: left glass handle in every state, core-only without stations, no bottom cue", () => {
+  // Rendered whenever the rail has a subject and is not the sheet; stations only add prev/next.
+  assert.match(rail, /\{sheet \? null : <nav/);
+  assert.match(rail, /is-core-only/);
+  assert.match(rail, /\{useLocator \? <button[^>]*is-prev/);
+  assert.match(rail, /onClick=\{openSheet\} aria-haspopup="dialog"/);
+  assert.doesNotMatch(rail, /mobile-cue/);
+  // Physical left edge with left safe-area; never the right inset.
+  const locator = css.slice(css.indexOf("GLASS_ROLLING_LOCATOR_V1"));
+  assert.match(locator, /left:max\(4px,env\(safe-area-inset-left/);
+  assert.doesNotMatch(locator.split(".sod29-glass-locator-step{")[0], /safe-area-inset-right/);
+  assert.match(locator, /\.sod29-glass-locator\.is-core-only/);
+  assert.match(locator, /min-width:44px/);
+  assert.match(locator, /button:focus-visible/);
 });

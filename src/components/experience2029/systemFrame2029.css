@@ -1112,11 +1112,13 @@
   overflow:visible;
 }
 @media(max-width:980px){
-  /* one context affordance: the locator replaces the cue wherever sections exist */
+  /* one context affordance: the left glass handle in every Context Rail state (core-only without stations) */
   .sod29-glass-locator{
     position:fixed;
     z-index:60;
-    inset-inline-end:max(4px,env(safe-area-inset-right,0px));
+    /* physical LEFT edge (RTL-safe): safe-area-inset-left, never paired with the right inset */
+    left:max(4px,env(safe-area-inset-left,0px));
+    right:auto;
     inset-block-start:50%;
     transform:translateY(-50%);
     max-height:min(46vh,calc(100vh - var(--s29-island-clearance,104px) - 120px - env(safe-area-inset-bottom,0px)));
@@ -1175,6 +1177,7 @@
     white-space:nowrap;
     font-size:var(--s29-type-micro);
   }
+  .sod29-glass-locator.is-core-only{grid-template-rows:minmax(0,1fr)}
   .sod29-glass-locator button:focus-visible{outline:2px solid var(--s29-hero);outline-offset:1px}
   .sod29-glass-locator-step:not(:disabled):active{transform:scale(.94)}
 }

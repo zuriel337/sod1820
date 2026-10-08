@@ -343,6 +343,10 @@ jobs:
               await expect(restRail).toBeHidden();
               const glassLocator = page.locator('.sod29-glass-locator');
               await expect(glassLocator).toBeVisible();
+              const glassBox = await glassLocator.boundingBox();
+              expect(glassBox).not.toBeNull();
+              expect(glassBox.x).toBeLessThan(width / 2);
+              await expect(page.locator('.sod29-surface-context-mobile-cue')).toHaveCount(0);
               await glassLocator.locator('.sod29-glass-locator-core').click();
               const contextSheet = page.locator('[data-experience-capability="contextual-sidecar"]');
               await expect(contextSheet).toBeVisible({ timeout: 20_000 });

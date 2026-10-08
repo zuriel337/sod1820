@@ -251,32 +251,25 @@ export default function SurfaceContextRail2029({
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
-    {sheet ? null : useLocator ? <nav
-      className="sod29-glass-locator"
-      aria-label={`${mapLabel} · תחנה ${stationIndex + 1} מתוך ${stations.length}`}
+    {sheet ? null : <nav
+      className={`sod29-glass-locator${useLocator ? "" : " is-core-only"}`}
+      aria-label={useLocator ? `${mapLabel} · תחנה ${stationIndex + 1} מתוך ${stations.length}` : `הקשר: ${title}`}
       data-experience-capability="glass-rolling-locator"
-      data-station-index={stationIndex}
-      data-station-count={stations.length}
+      data-station-index={useLocator ? stationIndex : undefined}
+      data-station-count={useLocator ? stations.length : 0}
     >
-      <button type="button" className="sod29-glass-locator-step is-prev" disabled={!prevStation} onClick={() => goStation(-1)} aria-label={prevStation ? `לתחנה הקודמת: ${prevStation.label}` : "זו התחנה הראשונה"}>
+      {useLocator ? <button type="button" className="sod29-glass-locator-step is-prev" disabled={!prevStation} onClick={() => goStation(-1)} aria-label={prevStation ? `לתחנה הקודמת: ${prevStation.label}` : "זו התחנה הראשונה"}>
         <span aria-hidden="true">⌃</span>
         <small aria-hidden="true">{prevStation?.label || ""}</small>
+      </button> : null}
+      <button type="button" className="sod29-glass-locator-core" onClick={openSheet} aria-haspopup="dialog" aria-label={`פתח הקשר: ${useLocator ? stations[stationIndex].label : title}`}>
+        {useLocator ? <small>{stationIndex + 1}/{stations.length}</small> : <small>הקשר</small>}
+        <b>{useLocator ? stations[stationIndex].label : title}</b>
       </button>
-      <button type="button" className="sod29-glass-locator-core" onClick={openSheet} aria-haspopup="dialog" aria-label={`פתח הקשר: ${stations[stationIndex].label}`}>
-        <small>{stationIndex + 1}/{stations.length}</small>
-        <b>{stations[stationIndex].label}</b>
-      </button>
-      <button type="button" className="sod29-glass-locator-step is-next" disabled={!nextStation} onClick={() => goStation(1)} aria-label={nextStation ? `לתחנה הבאה: ${nextStation.label}` : "זו התחנה האחרונה"}>
+      {useLocator ? <button type="button" className="sod29-glass-locator-step is-next" disabled={!nextStation} onClick={() => goStation(1)} aria-label={nextStation ? `לתחנה הבאה: ${nextStation.label}` : "זו התחנה האחרונה"}>
         <small aria-hidden="true">{nextStation?.label || ""}</small>
         <span aria-hidden="true">⌄</span>
-      </button>
-    </nav> : <button className="sod29-surface-context-mobile-cue" type="button" onClick={openSheet} aria-label="פתח הקשר">
-      <span className="sod29-surface-context-mobile-cue-icon">✦</span>
-      <span className="sod29-surface-context-mobile-cue-copy">
-        <small>{sections.length ? mapLabel : "הקשר"}</small>
-        <b>{title}</b>
-      </span>
-      <span className="sod29-surface-context-mobile-cue-value">{hasNumber ? number : "פתח"}</span>
-    </button>}
+      </button> : null}
+    </nav>}
   </>;
 }
