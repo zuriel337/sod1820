@@ -454,3 +454,31 @@
 .els29-native-source-list{max-height:360px;overflow:auto}
 .els29-native-line{overflow-wrap:anywhere;letter-spacing:3px;line-height:2!important}
 .els29-native-line mark{background:var(--s29-accent);color:var(--s29-ink)}
+
+/* One on-demand inspector: wide matrix at rest, optional desktop pin, mobile bottom sheet. */
+.els29-native-layout{grid-template-columns:minmax(0,1fr) 58px;align-items:start}
+.els29-native-stage{grid-column:1;grid-row:1}
+.els29-native-toolstrip{grid-column:2;grid-row:1;display:grid;gap:8px;position:sticky;top:80px}
+.els29-native-toolstrip button,.els29-native-panel-head button{min-width:44px;min-height:44px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
+.els29-native-toolstrip button{display:grid;justify-items:center;align-content:center;padding:6px 2px;gap:2px}
+.els29-native-toolstrip span{font-size:22px}
+.els29-native-toolstrip small{font-size:var(--s29-type-micro)}
+.els29-native-toolstrip button[aria-expanded="true"],.els29-native-panel-head button[aria-pressed="true"]{border-color:var(--s29-accent);background:var(--s29-panel-soft)}
+.els29-native-panel-wrap{position:absolute;inset-inline-end:70px;top:0;width:min(350px,calc(100% - 70px));z-index:15;min-width:0}
+.els29-native-context-panel{max-height:min(700px,calc(100dvh - 120px));overflow:auto;overscroll-behavior:contain;border:1px solid var(--s29-line-strong);border-radius:20px;background:var(--s29-panel);box-shadow:0 16px 48px #0004}
+.els29-native-panel-head{display:flex;align-items:center;gap:6px;padding:10px;position:sticky;top:0;background:var(--s29-panel);z-index:1;border-bottom:1px solid var(--s29-line)}
+.els29-native-panel-head strong{flex:1;font-size:var(--s29-type-small)}
+.els29-native-panel-head button{font-size:var(--s29-type-micro);padding:4px 8px}
+.els29-native-context-panel .els29-native-workrail{border:0;box-shadow:none;border-radius:0;background:transparent;padding:8px;overflow:visible}
+.els29-native-layout.is-panel-pinned{grid-template-columns:minmax(0,1fr) minmax(270px,320px) 58px}
+.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:3}
+.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:sticky;top:80px;grid-column:2;grid-row:1;width:auto;inset-inline-end:auto;z-index:1}
+@media(max-width:980px){
+ .els29-native-layout,.els29-native-layout.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
+ .els29-native-stage{grid-row:2}
+ .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;position:static;justify-content:flex-end}
+ .els29-native-toolstrip button{min-width:64px}
+ .els29-native-panel-wrap,.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:fixed;inset: auto 8px max(8px,env(safe-area-inset-bottom));width:auto;z-index:70}
+ .els29-native-context-panel{max-height:70dvh;border-radius:22px 22px 12px 12px;box-shadow:0 -12px 48px #0005}
+ .els29-native-pin{display:none}
+}

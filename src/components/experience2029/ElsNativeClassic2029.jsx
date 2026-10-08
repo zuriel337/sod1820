@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import "./elsNativeClassic2029.css";
 
@@ -52,17 +53,22 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex }) {
       top: el.scrollTop,
       moved: false,
     };
-    try { el.setPointerCapture(event.pointerId); } catch { /* noop */ }
-    el.classList.add("is-dragging");
+
   };
 
   const onPointerMove = (event) => {
     const el = scrollRef.current;
     const drag = dragRef.current;
     if (!el || !drag.active || drag.pointerId !== event.pointerId) return;
+    if (event.buttons === 0) { stopDrag(event); return; }
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    if (Math.abs(dx) + Math.abs(dy) > 4 && !drag.moved) {
+      drag.moved = true;
+      // Capture only a real drag; capturing pointerdown retargets ordinary letter clicks.
+      try { el.setPointerCapture(event.pointerId); } catch { /* noop */ }
+      el.classList.add("is-dragging");
+    }
     el.scrollLeft = drag.left - dx;
     el.scrollTop = drag.top - dy;
   };
@@ -207,7 +213,7 @@ function SourceLens({ lensResult }) {
   return null;
 }
 
-function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.verification?.state === "MATCH";
   const [draft, setDraft] = useState("");
@@ -231,8 +237,8 @@ function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassi
     ));
   };
 
-  return <aside className="els29-native-workrail" aria-label="כלי ELS והקשר המטריצה">
-    <div className="els29-native-rail-section">
+  return <div className="els29-native-workrail">
+    <div className="els29-native-rail-section" hidden={activeTool !== "source"}>
       <small>הממצא הפעיל</small>
       <strong>{state?.termRaw || state?.term || "עדיין לא נבחר מונח"}</strong>
       <div className="els29-native-meta-grid">
@@ -243,7 +249,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassi
       </div>
     </div>
 
-    <div className="els29-native-rail-section">
+    <div className="els29-native-rail-section" hidden={activeTool !== "source"}>
       <div className="els29-native-rail-head"><strong>מקור ופסוק</strong><small>Lens</small></div>
       <SourceLens lensResult={lensResult} />
       <button className="sod29-action" type="button" disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
@@ -252,7 +258,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassi
       <button className="sod29-action" type="button" disabled={!verified} onClick={onAxisLine}>קרא רצף בדילוג</button>
     </div>
 
-    <div className="els29-native-rail-section">
+    <div className="els29-native-rail-section" hidden={activeTool !== "findings"}>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12</small></div>
       <div className="els29-native-finding-add">
         <input
@@ -306,7 +312,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassi
       </div> : <p className="els29-native-muted">הוסיפו מילה כדי לראות אם ואיפה היא מופיעה בחלון המטריצה הנוכחי.</p>}
     </div>
 
-    <div className="els29-native-rail-section">
+    <div className="els29-native-rail-section" hidden={activeTool !== "research"}>
       <strong>שמירה והמשך מחקר</strong>
       <div className="els29-native-hit-actions">
         <button type="button" disabled={!verified} onClick={onSave}>שמור מטריצה</button>
@@ -316,7 +322,7 @@ function FindingsRail({ state, lensResult, onAxisVerse, onAxisLine, onOpenClassi
       <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף, סרט, ניקוד וכל כלי שעוד לא הועבר ל־2029 נשאר זמין באותו כלי קלאסי.</p>
       <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
     </div>
-  </aside>;
+  </div>;
 }
 
 export default function ElsNativeClassic2029({ initialSeed = "" }) {
@@ -327,6 +333,40 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [engineState, setEngineState] = useState(null);
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
+  const [activeTool, setActiveTool] = useState(null);
+  const [panelPinned, setPanelPinned] = useState(false);
+  const toolRailRef = useRef(null);
+  const panelRef = useRef(null);
+  const panelTriggerRef = useRef(null);
+  const openTool = (tool, trigger) => {
+    if (trigger) panelTriggerRef.current = trigger;
+    setActiveTool(tool);
+  };
+  const closeTool = () => {
+    setActiveTool(null);
+    panelTriggerRef.current?.focus();
+  };
+  useEffect(() => {
+    if (!activeTool || classicOpen) return;
+    panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus();
+    const onKey = (event) => {
+      if (event.key === "Escape" && !event.defaultPrevented) {
+        event.preventDefault();
+        setActiveTool(null);
+        panelTriggerRef.current?.focus();
+      }
+    };
+    const onOutside = (event) => {
+      if ((panelPinned && window.matchMedia("(min-width:981px)").matches) || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
+      setActiveTool(null);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onOutside);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onOutside);
+    };
+  }, [activeTool, classicOpen, panelPinned]);
   const [notice, setNotice] = useState("");
   const [controlRequest, setControlRequest] = useState(null);
   const controlSeqRef = useRef(0);
@@ -417,6 +457,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   };
 
   const requestLens = (lens, target = {}) => {
+    openTool("source", toolRailRef.current?.querySelector('[aria-label="מקור"]'));
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
@@ -510,7 +551,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
     {notice ? <div className="els29-native-notice" role="status">{notice}</div> : null}
 
-    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}`}>
+    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${activeTool && panelPinned ? " is-panel-pinned" : ""}`}>
       <>
         <main className="els29-native-stage" hidden={classicOpen}>
           <div className="els29-native-stage-head">
@@ -527,8 +568,22 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
           <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} />
         </main>
-        <div hidden={classicOpen} style={{ minWidth: 0 }}>
+        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+          {[["source", "מקור", "¶"], ["findings", "ממצאים", "+"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
+            type="button" key={tool} aria-label={label} title={label}
+            aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
+            onClick={(event) => activeTool === tool ? closeTool() : openTool(tool, event.currentTarget)}
+          ><span aria-hidden="true">{icon}</span><small>{label}</small></button>)}
+        </div>
+        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
+        <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
+          <header className="els29-native-panel-head">
+            <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : "שמירה והמשך מחקר"}</strong>
+            <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה">×</button>
+          </header>
         <FindingsRail
+          activeTool={activeTool}
           state={engineState}
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
@@ -540,6 +595,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onOpenClassic={() => setClassicOpen(true)}
           onFindingsChange={requestFindingsChange}
         />
+        </ContextualInspector2029>
         </div>
       </>
 

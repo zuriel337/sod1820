@@ -1574,7 +1574,8 @@ export default function SystemFrame2029({
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
-  const showContextRail = surface !== "control"
+  // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
+  const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
