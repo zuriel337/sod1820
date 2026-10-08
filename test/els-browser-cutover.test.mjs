@@ -278,12 +278,12 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     await search(frame, 'משיח');
     await waitState(page, (m) => m.status === 'ok');
     await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
-    await waitState(page, (m) => m.findings?.length === 2 && m.findings.some(w => w.hits?.length > 0));
-    const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown);
+    await waitState(page, (m) => m.findings?.length === 2 && m.findings.some(w => w.hits?.some(h => h.verified && h.shown)));
+    const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown && h.verified);
     assert.ok(hit, 'verified shown hit available');
-    assert.ok(initial.findings.every(w => w.hits.every(h => h.verified && h.skip >= 2)), 'native hit list exposes only verified coordinates');
+    assert.ok(initial.findings.every(w => w.hits.every(h => h.verified ? h.skip >= 2 : h.skip === null && h.hitId === null)), 'unverified candidates carry no coordinates');
     await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'toggle-hit', hitId: hit.hitId });
-    await waitState(page, (m) => m.findings?.[0]?.hits?.some(h => !h.shown));
+    await page.waitForFunction(id => {const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.hitId===id&&!h.shown);}, hit.hitId);
     const selected = await latestState(page), beforeCalls = calls.length;
     await nativeSend(page, { type: 'native-control', action: 'zoom-in' });
     await waitState(page, (m) => m.ui?.zoom > 1);
@@ -323,5 +323,33 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     const restored = await latestState(page);
     assert.deepEqual(restored.axis, after.axis, 'reopen uses the exact saved axis');
     assert.deepEqual(restored.findings.map(w => [w.t, w.color, w.shown]), after.findings.map(w => [w.t, w.color, w.shown]), 'reopen preserves colors, order and verified selection');
+  });
+});
+
+test('browser: native finding can show three verified occurrences then hide exactly one; stale candidate handles are rejected', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({page, frame}) => {
+    await search(frame, 'משיח');
+    await waitState(page, m=>m.status==='ok');
+    await nativeSend(page,{type:'update-findings',findings:[{t:'אל',color:'#5465ff'}]});
+    await waitState(page,m=>m.findings?.[0]?.hits?.some(h=>h.verified));
+    let current=await latestState(page);
+    for(let n=0;n<3 && current.findings[0].shown.length<3;n++) {
+      const candidate=current.findings[0].hits.find(h=>!h.shown);
+      assert.ok(candidate,'additional occurrence available');
+      await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:candidate.hitId,axisHitId:current.axis.hitId,candidateIndex:candidate.candidateIndex,revision:candidate.revision});
+      await page.waitForFunction(index=>{const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.candidateIndex===index&&h.shown&&h.verified);},candidate.candidateIndex);
+      current=await latestState(page);
+    }
+    const shown=current.findings[0].shown;
+    assert.equal(shown.length,3);
+    await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:shown[1]});
+    await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.length===2);
+    const hidden=await latestState(page);
+    assert.deepEqual(hidden.findings[0].shown,[shown[0],shown[2]],'only selected occurrence hidden');
+    const remaining=hidden.findings[0].hits.find(h=>!h.shown);
+    await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',axisHitId:hidden.axis.hitId,candidateIndex:remaining.candidateIndex,revision:remaining.revision+1});
+    await nativeSend(page,{type:'request-lens',lens:'line-context',target:{hitId:hidden.axis.hitId,nativeSeq:321}});
+    await page.waitForFunction(()=>window.__log.some(m=>m.lens==='line-context'&&m.target?.nativeSeq===321));
+    assert.deepEqual((await latestState(page)).findings[0].shown,hidden.findings[0].shown,'stale handle leaves selection intact');
   });
 });

@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { use2029Palette } from "../../lib/palette.js";
+import { findingColorChoices, projectFindingColor } from "./elsFindingColors2029.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import "./elsNativeClassic2029.css";
@@ -9,6 +11,7 @@ const directionLabel = (direction) => direction === "back" ? "אחורה" : dire
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex }) {
+  const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
   const scrollRef = useRef(null);
@@ -16,9 +19,9 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex }) {
 
   const markMap = useMemo(() => {
     const map = new Map();
-    for (const mark of matrix?.marks || []) map.set(Number(mark.i), mark);
+    for (const mark of matrix?.marks || []) map.set(Number(mark.i), mark.type === "finding" ? { ...mark, color: projectFindingColor(mark.color, palette) } : mark);
     return map;
-  }, [matrix?.marks]);
+  }, [matrix?.marks, palette]);
 
   const markSummary = useMemo(() => {
     let axis = 0;
@@ -214,6 +217,8 @@ function SourceLens({ lensResult }) {
 }
 
 function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
+  const palette = use2029Palette("research_lab");
+  const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.verification?.state === "MATCH";
   const [draft, setDraft] = useState("");
@@ -223,7 +228,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
   const addFinding = () => {
     const term = clean(draft);
     if (!term || !verified || findings.length >= 12) return;
-    onFindingsChange?.([...projected(), { t: term }]);
+    onFindingsChange?.([...projected(), { t: term, color: colorChoices[findings.length % colorChoices.length].stored }]);
     setDraft("");
   };
 
@@ -280,32 +285,35 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
 
       {findings.length ? <div className="els29-native-findings">
         {findings.map((finding, index) => {
-          const pickerValue = /^#[0-9a-f]{6}$/i.test(finding.color || "") ? finding.color : "#808080";
+          const displayColor = projectFindingColor(finding.color, palette);
           return <div className="els29-native-finding-group" key={finding.t}><div className="els29-native-finding">
-            <label className="els29-native-color-picker" title={`שנה צבע ל־${finding.t}`}>
-              <input
-                type="color"
-                value={pickerValue}
-                onChange={(event) => changeFindingColor(index, event.target.value)}
-                aria-label={`צבע הממצא ${finding.t}`}
-              />
-              <i style={finding.color ? { "--els29-mark": finding.color } : undefined} />
-            </label>
-            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.hits?.length || 0} מאומתים</small></span>
-            <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`הסר את ${finding.t}`}>×</button>
+            <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
+            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.shown?.length || 0} מוצגים ומאומתים</small></span>
+            <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`} title="מחק מילה שלמה">×</button>
           </div>
             <details className="els29-native-hit-details">
-              <summary>בחירת מופעים וסדר</summary>
+              <summary>מופעים של {finding.t} · הצגה והסתרה</summary>
+              <p className="els29-native-muted">כיבוי מופע אחד משאיר את שאר המופעים.</p>
               <div className="els29-native-hit-actions">
                 <button type="button" disabled={index === 0} onClick={() => onFindingControl(finding.t, "move-up")}>העלה</button>
                 <button type="button" disabled={index === findings.length - 1} onClick={() => onFindingControl(finding.t, "move-down")}>הורד</button>
               </div>
-              {(finding.hits || []).map((hit) => <div className="els29-native-hit-actions" key={hit.hitId}>
-                <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId)} />דילוג {hit.skip} · {directionLabel(hit.direction)}</label>
-                <button type="button" disabled={!hit.shown} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
+              {(finding.hits || []).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={`${hit.revision}:${hit.candidateIndex}`}>
+                <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
+                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small></span>
+                </label>
+                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
+                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context")}>רצף</button>
               </div>)}
               {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
               {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
+            </details>
+            <details className="els29-native-hit-details">
+              <summary>צבע הממצא</summary>
+              <div className="els29-native-system-colors" role="group" aria-label={`צבע הממצא ${finding.t}`}>
+                {colorChoices.map((choice) => <button type="button" key={choice.label} aria-label={`צבע ${choice.label} לממצא ${finding.t}`} aria-pressed={displayColor === choice.color} title={choice.label}
+                  onClick={() => changeFindingColor(index, choice.stored)} style={{ "--els29-mark": choice.color }}><i aria-hidden="true" /><span>{choice.label}</span>{displayColor === choice.color ? " ✓" : ""}</button>)}
+              </div>
             </details>
           </div>;
         })}
@@ -333,12 +341,15 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [engineState, setEngineState] = useState(null);
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState(null);
-  const [panelPinned, setPanelPinned] = useState(false);
+  const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
+  const [panelPinned, setPanelPinned] = useState(true);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const panelInteractedRef = useRef(false);
   const toolRailRef = useRef(null);
   const panelRef = useRef(null);
   const panelTriggerRef = useRef(null);
   const openTool = (tool, trigger) => {
+    panelInteractedRef.current = true;
     if (trigger) panelTriggerRef.current = trigger;
     setActiveTool(tool);
   };
@@ -348,7 +359,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   };
   useEffect(() => {
     if (!activeTool || classicOpen) return;
-    panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus();
+    if (panelInteractedRef.current) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus();
     const onKey = (event) => {
       if (event.key === "Escape" && !event.defaultPrevented) {
         event.preventDefault();
@@ -467,9 +478,9 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     setLensResult(result);
   };
-  const requestFindingControl = (term, action, hitId) => {
+  const requestFindingControl = (term, action, hitId, hit = {}) => {
     resetReadContext();
-    setFindingControlRequest({ term, action, hitId, seq: ++actionSeqRef.current });
+    setFindingControlRequest({ term, action, hitId, axisHitId: engineStateRef.current?.axis?.hitId, candidateIndex: hit.candidateIndex, revision: hit.revision, seq: ++actionSeqRef.current });
   };
   const requestContext = (delta) => {
     resetReadContext();
@@ -575,12 +586,13 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             onClick={(event) => activeTool === tool ? closeTool() : openTool(tool, event.currentTarget)}
           ><span aria-hidden="true">{icon}</span><small>{label}</small></button>)}
         </div>
-        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
+        <div ref={panelRef} className={`els29-native-panel-wrap${sheetExpanded ? " is-sheet-expanded" : ""}`} hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
             <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : "שמירה והמשך מחקר"}</strong>
+            <button type="button" className="els29-native-sheet-size" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded((value) => !value)}>{sheetExpanded ? "צמצם" : "הרחב"}</button>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה">×</button>
+            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="הרחב את המטריצה וסגור את הסרגל">×</button>
           </header>
         <FindingsRail
           activeTool={activeTool}
@@ -588,7 +600,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
           onAxisLine={() => requestLens("line-context", { hitId: engineState?.axis?.hitId })}
-          onFindingLens={(term, hitId) => requestLens("verse-context", { term, hitId })}
+          onFindingLens={(term, hitId, lens = "verse-context") => requestLens(lens, { term, hitId })}
           onFindingControl={requestFindingControl}
           onSave={requestSave}
           onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}

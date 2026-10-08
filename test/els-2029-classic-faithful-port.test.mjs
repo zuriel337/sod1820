@@ -71,7 +71,8 @@ test("Native scope and simple cross search delegate to the canonical search path
 test("Native finding editor delegates normalization, recompute and colors to canonical st.words", () => {
   assert.match(nativeClassic, /findingsRequest=\{findingsRequest\}/);
   assert.match(nativeClassic, /onFindingsChange=\{requestFindingsChange\}/);
-  assert.match(nativeClassic, /type="color"/);
+  assert.match(nativeClassic, /els29-native-system-colors/);
+  assert.doesNotMatch(nativeClassic, /type="color"/);
   assert.match(nativeClassic, /findings\.length >= 12/);
   assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
 
