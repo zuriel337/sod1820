@@ -18,10 +18,14 @@ export default function DiscoveryGateMark2029({ open = false }) {
         data-brand-asset-state={BRAND_LOCKUP_NAV_2029.state}
       />
       <svg className="sod29-gate-frame" viewBox="0 0 48 48" width="48" height="48" fill="none" focusable="false">
-        <path className="sod29-gate-wing is-left" d="M13 5H8a3 3 0 0 0-3 3v32a3 3 0 0 0 3 3h5" />
-        <path className="sod29-gate-wing is-right" d="M35 5h5a3 3 0 0 1 3 3v32a3 3 0 0 1-3 3h-5" />
-        <path className="sod29-gate-light" d="M19 3h10M19 45h10" />
+        <circle className="sod29-gate-orbit" cx="24" cy="24" r="22.5" />
+        <path className="sod29-gate-wing is-left" d="M14 4H8a4 4 0 0 0-4 4v6m0 20v6a4 4 0 0 0 4 4h6" />
+        <path className="sod29-gate-wing is-right" d="M34 4h6a4 4 0 0 1 4 4v6m0 20v6a4 4 0 0 1-4 4h-6" />
+        <path className="sod29-gate-light" d="M20 3h8M20 45h8" />
+        <circle className="sod29-gate-node" cx="24" cy="2.5" r="1" />
+        <circle className="sod29-gate-node" cx="24" cy="45.5" r="1" />
       </svg>
+      <i className="sod29-gate-scan" />
     </span>
   );
 }

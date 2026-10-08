@@ -14,35 +14,62 @@
   flex-shrink:0;
   transition:border-color 180ms ease,background 180ms ease;
 }
-.sod29-root .sod29-gate-trigger:hover {border-color:var(--s29-accent-text)}
+.sod29-root .sod29-gate-trigger:hover {
+  border-color:var(--s29-accent-text);
+  box-shadow:0 0 16px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 24%,transparent);
+}
 .sod29-root .sod29-gate-trigger:focus-visible {
   outline:2px solid var(--s29-accent-text);
   outline-offset:4px;
 }
 /* Full crown + Hebrew inscription, uncropped and never split or morphed. */
-.sod29-discovery-gate {position:relative;display:block;width:44px;height:44px;pointer-events:none}
+.sod29-discovery-gate {position:relative;display:block;width:44px;height:44px;pointer-events:none;isolation:isolate}
 .sod29-gate-lockup {position:absolute;inset:2px;width:40px;height:40px;object-fit:contain;user-select:none}
-.sod29-gate-frame {position:absolute;inset:-2px;overflow:visible;color:var(--s29-brand-gold,var(--s29-accent-text))}
+.sod29-gate-frame {position:absolute;inset:-2px;overflow:visible;color:var(--s29-brand-gold,var(--s29-accent-text));z-index:1}
+.sod29-gate-orbit {
+  stroke:var(--s29-brand-sapphire,var(--s29-accent));
+  stroke-width:.65;
+  stroke-dasharray:1 3.2;
+  opacity:.18;
+  transform-origin:24px 24px;
+  transition:opacity 300ms ease,transform 500ms cubic-bezier(.2,.8,.2,1);
+}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-orbit {opacity:.78;transform:rotate(90deg)}
 .sod29-gate-wing {
   stroke:currentColor;
-  stroke-width:1.1;
+  stroke-width:1.25;
   stroke-linecap:round;
   stroke-linejoin:round;
-  opacity:.55;
-  transition:transform 300ms cubic-bezier(.2,.8,.2,1),opacity 300ms ease;
+  opacity:.62;
+  filter:drop-shadow(0 0 2px currentColor);
+  transition:transform 320ms cubic-bezier(.2,.8,.2,1),opacity 320ms ease;
 }
-.sod29-discovery-gate[data-open="true"] .is-left {transform:translateX(-2px);opacity:.9}
-.sod29-discovery-gate[data-open="true"] .is-right {transform:translateX(2px);opacity:.9}
+.sod29-discovery-gate[data-open="true"] .is-left {transform:translateX(-1.5px);opacity:1}
+.sod29-discovery-gate[data-open="true"] .is-right {transform:translateX(1.5px);opacity:1}
 .sod29-gate-light {
   stroke:currentColor;
-  stroke-width:1.1;
+  stroke-width:1.25;
   stroke-linecap:round;
   opacity:0;
   transform:scaleX(.35);
   transform-origin:24px 24px;
   transition:opacity 300ms ease,transform 300ms cubic-bezier(.2,.8,.2,1);
 }
-.sod29-discovery-gate[data-open="true"] .sod29-gate-light {opacity:.85;transform:scaleX(1)}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-light {opacity:1;transform:scaleX(1)}
+.sod29-gate-node {fill:var(--s29-brand-sapphire,var(--s29-accent));opacity:.5;transition:opacity 300ms ease,r 300ms ease}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-node {opacity:1}
+.sod29-gate-scan {
+  position:absolute;
+  z-index:2;
+  inset:0;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 80%,transparent) 48%,color-mix(in srgb,var(--s29-brand-gold,var(--s29-accent-text)) 88%,transparent) 52%,transparent 100%);
+  filter:blur(3px);
+}
+.sod29-discovery-gate[data-open="true"] .sod29-gate-scan {animation:sod29-gate-scan 420ms cubic-bezier(.18,.7,.2,1) both}
+@keyframes sod29-gate-scan {0%{opacity:0;transform:translateY(-13px) scaleY(.35)}22%{opacity:.85}100%{opacity:0;transform:translateY(13px) scaleY(1)}}
 .sod29-root .sod29-mobile-menu-trigger.sod29-gate-trigger {display:none}
 @media(min-width:981px) {
   .sod29-root.closed-shell {transition:grid-template-columns 300ms cubic-bezier(.2,.8,.2,1)}
