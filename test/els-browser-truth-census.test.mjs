@@ -22,16 +22,16 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   const allowed = [
     /st\.res=res;/, // autoTerms scratch (finally-restored)
     /st\.res=save\.res;/, /st\.res=sv\.res;/, /st\.res=findAll\(item\.term,4000\);/, // scratch + restore
-    /st\.res=await discoverVerified\(w,4000\);/, // regular search (verified-eager)
+    /st\.res=discovered;/, // regular/search restore: verified discovery, latest-request guard below
     /st\.res=resA;/, // cross: resA from faVerified cache
     /st\.res=R\.resA;/, // cross-simple: prefetchVerified([A,B])
     /st\.res=st\.crossResCache\[z\.axis\];/, // free-cross: resCache from faVerified
     /st\.res=faMemo\(a\.term\);/, // discovery seed: lazily healed, exits gated
-    /st\.res=await discoverVerified\(item\.term,4000\);/, // saved restore (verified-eager)
   ];
   const found = [...code.matchAll(/st\.res=[^;\n]*;?/g)].map((m) => m[0]);
   for (const f of found) assert.ok(allowed.some((a) => a.test(f)), `unclassified st.res assignment: ${f}`);
   assert.equal(found.length, 10, 'st.res assignment census changed - classify the new site');
+  assert.equal([...code.matchAll(/const discovered=await discoverVerified\((?:w|item\.term),4000\);\s*if\(requestSeq!==_matrixRequestSeq\)return;\s*st\.res=discovered;/g)].length, 2, 'both new assignments require canonical discovery and reject stale requests');
 });
 
 test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discovery kernels directly', () => {

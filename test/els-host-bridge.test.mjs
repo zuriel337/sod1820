@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 
 const src = readFileSync(new URL('../src/components/TzofenEmbed.jsx', import.meta.url), 'utf8');
 
@@ -44,3 +45,17 @@ test('host bridge rejects same-origin spoof: e.source must be the exact iframe c
 });
 
 console.log('els-host-bridge contract: PASS');
+
+
+test('deduplicated state still drains verification work selected during an in-flight request', () => {
+  const template = readFileSync(new URL('../tools/els/els-code.template.html', import.meta.url), 'utf8');
+  const start = template.indexOf('function emitState()');
+  const end = template.indexOf('// 🧬 G3: כל מופע', start);
+  let posted = 0, drains = 0;
+  const context = { elsState: () => ({status: 'ok'}), postHost: () => posted++, healGoverned: () => drains++ };
+  runInNewContext('let _stateSig="";' + template.slice(start, end) + ';globalThis.emit=emitState;', context);
+  context.emit();
+  context.emit();
+  assert.equal(posted, 1, 'duplicate projection is not posted twice');
+  assert.equal(drains, 2, 'new verification work is not starved by projection deduplication');
+});

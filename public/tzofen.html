@@ -1840,7 +1840,8 @@
   // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
   // (משתנה-עזר לסריאליזציה — אינו state של המנוע ואינו משפיע על שום חישוב.)
   let _stateSig="";
-  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}
+  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig!==_stateSig){_stateSig=sig;postHost(s);}}catch(e){}
+    // Always drain newly selected candidates after an in-flight verification, even when the snapshot is unchanged.
     try{healGoverned();}catch(e){}}
   // 🧬 G3: כל מופע שהגיע ל-st.res/st.words בלי אימות-שרת (מסלול פנימי שלא עבר promoteVerified) מאומת כאן, ואז
   //    מוצא-שוב את ה-state. h.v נקבע *רק* לפי תשובת ה-verifier הקנוני (MATCH/MISMATCH); כשל-גשר → CANDIDATE (fail closed).
@@ -2098,6 +2099,7 @@
     parts.push('<span>דילוג <b>'+heb(shownSkip)+'</b></span>');
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
+  let _matrixRequestSeq=0; // Latest user search/load owns the canonical workspace.
   function run(preserveWords){
     if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
@@ -2107,7 +2109,7 @@
     // 🔀 חיפוש מוצלב פשוט — תיבה שנייה בשורה (לרשומים בלבד)
     if(simpleOpen()){const B=qb.value.trim();if(norm(B).length>=2){
       if(!canCross()){gate("cross");return;}
-      runCrossSimple(w,B);logSearch("cross",w+" × "+B);return;}}
+      ++_matrixRequestSeq;runCrossSimple(w,B);logSearch("cross",w+" × "+B);return;}}
     // 📜 צפייה בצופן-תנ״ך שמור פתוחה לכולם (loadMatrix), אבל *חיפוש* בתנ״ך נעול לאנונימי —
     //    בלי זה, אנונימי שצפה בצופן-תנ״ך (שהעביר scope=tanakh) היה יכול לחפש בתנ״ך בעקיפה.
     if(st.scope==="tanakh"&&tanakhLocked()){gate("tanakh");return;}
@@ -2116,11 +2118,14 @@
     if(isAnon())bumpFree();
     // 🧬 לוח-הצורות (FORMS) נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
     try{if(!_formsShown.has(t))hideForms();}catch(e){}
+    const requestSeq=++_matrixRequestSeq;
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      st.res=await discoverVerified(w,4000);   // 🧬 G3: גילוי-מועמדים אדפטיבי (ADAPTIVE_CAPPED_V1) → אימות canonical בשרת; רק MATCH הופך ל-st.res
+      const discovered=await discoverVerified(w,4000);
+      if(requestSeq!==_matrixRequestSeq)return;
+      st.res=discovered;   // 🧬 G3: גילוי-מועמדים אדפטיבי (ADAPTIVE_CAPPED_V1) → אימות canonical בשרת; רק MATCH הופך ל-st.res
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
@@ -3252,6 +3257,7 @@
 
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
   async function loadMatrix(item,filmTimes){
+    const requestSeq=++_matrixRequestSeq;
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
@@ -3264,7 +3270,9 @@
     // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
-    st.res=await discoverVerified(item.term,4000);   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
+    const discovered=await discoverVerified(item.term,4000);
+    if(requestSeq!==_matrixRequestSeq)return;
+    st.res=discovered;   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
     if(!hasGov(st.res)){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
     // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
     //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט

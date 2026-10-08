@@ -276,7 +276,7 @@ const latestState = async (page) => (await states(page)).at(-1);
 test('browser: native color and reorder preserve selected hits, axis and geometry without verification I/O; line lens is bounded', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {
     await search(frame, 'משיח');
-    await waitState(page, (m) => m.status === 'ok');
+    await waitState(page, (m) => m.status === 'ok' && m.term === 'משיח');
     await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
     await waitState(page, (m) => m.findings?.length === 2 && m.findings.some(w => w.hits?.some(h => h.verified && h.shown)));
     const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown && h.verified);
@@ -329,7 +329,7 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
 test('browser: native finding can show three verified occurrences then hide exactly one; stale candidate handles are rejected', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({page, frame}) => {
     await search(frame, 'משיח');
-    await waitState(page, m=>m.status==='ok');
+    await waitState(page, m=>m.status==='ok' && m.term==='משיח');
     await nativeSend(page,{type:'update-findings',findings:[{t:'אל',color:'#5465ff'}]});
     await waitState(page,m=>m.findings?.[0]?.hits?.some(h=>h.verified));
     let current=await latestState(page);
@@ -337,7 +337,7 @@ test('browser: native finding can show three verified occurrences then hide exac
       const candidate=current.findings[0].hits.find(h=>!h.shown);
       assert.ok(candidate,'additional occurrence available');
       await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:candidate.hitId,axisHitId:current.axis.hitId,candidateIndex:candidate.candidateIndex,revision:candidate.revision});
-      await page.waitForFunction(index=>{const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.candidateIndex===index&&h.shown&&h.verified);},candidate.candidateIndex);
+      await page.waitForFunction(index=>{const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.candidateIndex===index&&h.shown&&h.verified);},candidate.candidateIndex,{timeout:5000}).catch(async error=>{throw new Error(JSON.stringify({candidate,latest:(await latestState(page)).findings}),{cause:error});});
       current=await latestState(page);
     }
     const shown=current.findings[0].shown;
