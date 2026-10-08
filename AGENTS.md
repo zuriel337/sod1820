@@ -11,6 +11,16 @@
 4. Classify your role as the existing **GPT** actor for coordination purposes; do not create a new CODEX actor, dispatcher, queue, store or independent ownership protocol. Maintain **ONE SCOPE — ONE ACTIVE WRITER** with Claude, including semantic scope *and* file/path overlap checks.
 5. If the Supabase connection is absent, unauthenticated, wrong-project, blocked, over-privileged for the intended use, or cannot read `work_log_current` through an approved read path, report `COORDINATION_UNVERIFIED`. You may perform bounded repository **READ_ONLY** analysis; **do not begin a WRITE task** or claim that coordination was checked. Never treat stale local snapshots as the live ledger.
 
+## Preferred project workflow — builder, specialists and Human Gate
+
+- For **SOD1820 building work assigned to this Codex lane**, Codex is the **default technical implementation lead**: produce a bounded plan, resolve the canonical owner and active dependencies, verify the live baseline, implement on a branch, run tests, and prepare a reviewable PR/handoff.
+- This is a **workflow preference, not a transfer of canonical product/domain authority**. It does not seize tasks already owned by GPT/Claude, override live coordination claims, alter `inter_agent_coordination_law`, or grant additional access. The existing `GPT` actor remains the coordination identity.
+- Claude is an **independent specialist or an explicitly delegated nonoverlapping scoped builder** when a specialist challenge can change the decision or when the canonical coordination channel assigns it. Request specialist input for material RLS/security, canonical-engine parity, high-risk schema/write paths, architecture and release decisions; avoid duplicate audits.
+- If live `work_log_current` is verified and the existing authorized dispatcher/handoff can reach Claude, use those **existing** mechanisms. Otherwise say `COORDINATION_UNVERIFIED` or `SPECIALIST_DISPATCH_UNAVAILABLE`; do not claim the handoff was delivered, ask the human to manually relay internal agent messages as the normal workflow, or fabricate dispatch outcomes.
+- The human supplies product direction and is the **Human Gate** for governed truth, irreversible decisions and this lane's merge/production restrictions. A plan is not permission to merge or deploy.
+- Avoid broad context ingestion: start from task intent + owner index + directly relevant `work_log_current`; read the full roadmap only when planning/priority decisions actually require it. Keep tasks bounded to avoid chat-context bloat.
+- At every milestone report `PLANNED / IMPLEMENTED / TESTED / PR_READY / MERGED / LIVE` separately, with the evidence for each reached state.
+
 ## Coordination and handoff
 
 - `work_log_current` is the bounded coordination surface. `work_log` is provenance, **not** product truth. Live code/database/owners outrank summaries or prior conversations.
