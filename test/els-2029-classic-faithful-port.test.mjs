@@ -47,7 +47,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
 test("Native scope and simple cross search delegate to the canonical search path", () => {
   assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
   assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
-  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope: activeScope \}\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope: activeScope, radius: crossRadius \}\)/);
   assert.match(nativeClassic, /switchScope\("torah"\)/);
   assert.match(nativeClassic, /switchScope\("tanakh"\)/);
   assert.match(nativeClassic, /data-els-native-cross="simple"/);
@@ -65,7 +65,7 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => setClassicOpen\(true\)\}/);
   assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
   assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
-  assert.match(template, /run\(\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
+  assert.match(template, /run\(false,radius\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
 });
 
 test("Native finding editor delegates normalization, recompute and colors to canonical st.words", () => {
@@ -96,7 +96,7 @@ test("Native matrix controls reuse the canonical Tzofen presentation helpers", (
   assert.match(nativeClassic, /fit-toggle/);
 
   assert.match(embed, /controlRequest = null/);
-  assert.match(embed, /postToTool\(\{ type: "native-control", action: controlRequest\.action \}\)/);
+  assert.match(embed, /postToTool\(\{ type: "native-control", action: controlRequest\.action, value: controlRequest\.value \}\)/);
 
   assert.match(template, /function shiftOccurrence\(delta\)/);
   assert.match(template, /function toggleFit\(\)/);

@@ -1469,8 +1469,9 @@
     const k=hitKey(h),defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
     w.off=w.off||new Set();w.extra=w.extra||new Set();
     const shown=(defKeys.has(k)&&!w.off.has(k))||w.extra.has(k);
-    if(shown){if(defKeys.has(k))w.off.add(k);w.extra.delete(k);}
-    else{if(defKeys.has(k))w.off.delete(k);else w.extra.add(k);}
+    // Explicit choices survive count changes, including a manually hidden extra hit.
+    if(shown){w.off.add(k);w.extra.delete(k);}
+    else{w.off.delete(k);w.extra.add(k);}
   }
   // ── זיהוי דילוג "מסודר / מוכר" (לברירת-מחדל של רשימת המופעים) ──
   const SIGNIFICANT=new Set([7,10,12,13,18,22,26,32,37,42,50,70,72,86,100,111,113,137,222,248,300,304,313,333,358,365,400,444,500,555,613,620,666,700,770,777,888,999,1000,1111,1290,1335,1600,1820,2000,3000,5000,10000]);
@@ -1825,13 +1826,15 @@
         candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length,
         hits:(w.hits||[]).map((h,index)=>({h,index})).filter(({h})=>Math.abs(h.skip)>=2&&h.v!=="MISMATCH").slice(0,64).map(({h,index})=>({hitId:isGov(h)?hitKey(h):null,candidateIndex:index,revision:w.nativeRevision||0,verified:isGov(h),
           skip:isGov(h)?Math.abs(h.skip):null,direction:isGov(h)?(h.dir===1?"fwd":"back"):null,
+          axisDistance:isGov(h)&&Number.isFinite(h.axisDistance)?h.axisDistance:null,
+          clusterDistance:isGov(h)&&Number.isFinite(h.cost)?h.cost:null,
           shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
         showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
-        crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,
+        crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,crossRadius:st.crossSimple?(st.crossRadius||18):null,
         zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx},
       provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
         postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
@@ -2041,6 +2044,9 @@
       else if(d.action==="zoom-in")adjustZoom(0.2);
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
+      else if(d.action==="finding-count"&&Number.isInteger(d.value)&&d.value>=1&&d.value<=15){
+        st.showN=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
+      }
     }
     if(d.type==="native-context"&&hasGov(st.res)&&[1,-1].includes(d.delta)){
       setCtxR(st.ctxR+d.delta);
@@ -2056,11 +2062,13 @@
         run();
       }else if(kind==="cross"){
         const axis=typeof req.axis==="string"&&req.axis.trim()?req.axis.trim():(st.raw||q.value||"").trim();
+        const radius=req.radius===undefined?18:req.radius;
+        if(!Number.isInteger(radius)||radius<2||radius>20){toast("בחר מרחק הצלבה בין 2 ל-20 תאים");return;}
         if(norm(axis).length<2||norm(term).length<2){toast("להצלבה צריך שני מונחים של לפחות 2 אותיות");return;}
         if(!canCross()){gate("cross");return;}
         if(!selectSearchScope(scope,false))return;
         q.value=axis;qb.value=term;qb.style.display="";crosstoggle.classList.add("on");syncTip();
-        run();   // run() משתמש ב-runCrossSimple/logSearch/gate הקיימים — אין מנוע/דירוג מקביל
+        run(false,radius);   // run() משתמש ב-runCrossSimple/logSearch/gate הקיימים — אין מנוע/דירוג מקביל
       }
     }
     });
@@ -2105,7 +2113,7 @@
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
   let _matrixRequestSeq=0; // Latest user search/load owns the canonical workspace.
-  function run(preserveWords){
+  function run(preserveWords,crossRadius){
     if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
@@ -2114,7 +2122,7 @@
     // 🔀 חיפוש מוצלב פשוט — תיבה שנייה בשורה (לרשומים בלבד)
     if(simpleOpen()){const B=qb.value.trim();if(norm(B).length>=2){
       if(!canCross()){gate("cross");return;}
-      ++_matrixRequestSeq;runCrossSimple(w,B);logSearch("cross",w+" × "+B);return;}}
+      ++_matrixRequestSeq;runCrossSimple(w,B,crossRadius);logSearch("cross",w+" × "+B);return;}}
     // 📜 צפייה בצופן-תנ״ך שמור פתוחה לכולם (loadMatrix), אבל *חיפוש* בתנ״ך נעול לאנונימי —
     //    בלי זה, אנונימי שצפה בצופן-תנ״ך (שהעביר scope=tanakh) היה יכול לחפש בתנ״ך בעקיפה.
     if(st.scope==="tanakh"&&tanakhLocked()){gate("tanakh");return;}
@@ -2172,6 +2180,14 @@
   const gridStep=(sk,S)=>{const rs=Math.round(sk/S),co=sk-rs*S;return Math.max(Math.abs(rs),Math.abs(co))||1;};  // 1=צמוד; גדול=פערים
   const gapF=s=>s<=1?1:s<=2?.55:s<=3?.35:s<=4?.22:s<=6?.14:s<=8?.09:.05;    // פער בין אותיות
   const proxF=c=>c<=0?1:c<=2?.8:c<=5?.55:c<=10?.3:.12;                       // מרחק מהציר
+  // Same cylindrical Manhattan metric used by finding ranking and cross cutoffs.
+  function distanceToAnchors(positions,anchors,S){
+    let m=1e9;
+    for(const p of positions){const r=Math.floor(p/S),c=((p%S)+S)%S;
+      for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));
+        const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}}
+    return m;
+  }
   const lenF=L=>Math.min(1.3,0.7+((typeof L==="string"?L.length:L)-2)*0.15);
   const rarF=c=>c<=1?1.4:c<=5?1.2:c<=30?1.05:c<=120?.95:c<=500?.85:.7;       // נדירות בתורה
   const starsFromTq=tq=>tq>=2.6?5:tq>=1.8?4:tq>=1.1?3:tq>=0.5?2:1;
@@ -2222,7 +2238,7 @@
     for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-        if(!ok)continue;let cc=1e9;for(const p of pos){const a2=rc(p);for(const a of anchorCells){const dc=Math.min(Math.abs(a2[1]-a[1]),S-Math.abs(a2[1]-a[1]));const dd=Math.abs(a2[0]-a[0])+dc;if(dd<cc)cc=dd;}}
+        if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
       if(bc<=pure){const step=gridStep(bsk,S),gf=gapF(step),pf=proxF(bc),rf=rarF(rar.get(t));
         detail.push({t,skip:bsk,dir:bdir,cost:bc,gem:gem(t),rar:rar.get(t),step,p0:bs0,p1:bs0+bdir*bsk*(L-1)});   // p0/p1 = תאי-קצה (לשרשרת-צופן)
@@ -2276,11 +2292,11 @@
     },10);
   }
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
-  function runCrossSimple(A,B){
+  function runCrossSimple(A,B,pure=18){
     goBusy("מצליב…");
     setTimeout(async ()=>{
       await prefetchVerified([A,B]);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
-      const r1=crossFindMulti(A,[B],18),r2=crossFindMulti(B,[A],18);   // שני הכיוונים
+      const r1=crossFindMulti(A,[B],pure),r2=crossFindMulti(B,[A],pure);   // שני הכיוונים, אותו מרחק מבוקש
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
       if(!m1.length&&!m2.length){toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");return;}
@@ -2297,6 +2313,7 @@
       //    כפי שהוקלדו, ו**לא דורסים את שדות-הקלט** — אחרת שתי השורות מציגות את אותה מילה.
       //    st.crossPairA/B כבר קיימים ב-st (שימשו עד כה רק במצב «גשר») — אין state חדש.
       st.crossPairA=A;st.crossPairB=B;
+      st.crossRadius=pure;
       updGem();
       openZone(0);
       const sw=norm(axis)!==norm(A);
@@ -2352,7 +2369,7 @@
         "const gridStep="+gridStep.toString()+";\nconst gapF="+gapF.toString()+";\n"+
         "const proxF="+proxF.toString()+";\nconst lenF="+lenF.toString()+";\n"+
         "const rarF="+rarF.toString()+";\nconst starsFromTq="+starsFromTq.toString()+";\n"+
-        "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+crossFindMultiHit.toString()+"\n"+crossFindMulti.toString()+"\n"+
+        "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+distanceToAnchors.toString()+"\n"+crossFindMultiHit.toString()+"\n"+crossFindMulti.toString()+"\n"+
         "onmessage=function(e){var d=e.data;"+
         "if(d.type===\"init\"){T=d.T;N=d.N;SN=d.SN;BOOKS=d.BOOKS;postMessage({type:\"ready\",reqId:d.reqId});return;}"+
         "if(d.type===\"cfm\"){for(var k in d.seed)FA.set(k,d.seed[k]);"+
@@ -3720,7 +3737,7 @@
       }
       // עוגני-אשכול = ראשי + המופעים המוצגים של שאר המילים
       const anchors=baseA.concat(...st.words.filter((_,j)=>j!==wi).map(o=>(o.hits||[]).slice(0,st.showN).flatMap(hit=>hit.positions.map(rc))));
-      const cost=h=>{let m=1e9;for(const p of h.positions){const a=rc(p);for(const g of anchors){const dc=Math.min(Math.abs(a[1]-g[1]),S-Math.abs(a[1]-g[1]));const d=Math.abs(a[0]-g[0])+dc;if(d<m){m=d;if(m===0)return 0;}}}return m;};
+      const cost=h=>distanceToAnchors(h.positions,anchors,S);
       hits.forEach(h=>{h.cost=cost(h);});
       // 🏅 דירוג הממצא: **הידוק × קרבה**, לא קרבה בלבד. עד מחזור 1 מרחב-הדילוגים היה צר
       //    ({1..8, kS±2}) ולכן כל מועמד היה ממילא צמוד-לציר, ומיון לפי cost הספיק. מרחב-החיפוש
@@ -3740,6 +3757,8 @@
        if(keep.size){const inTop=new Set(w.hits.map(hitKey));
          const pin=hits.filter(h=>{const k=hitKey(h);return keep.has(k)&&!inTop.has(k);});
          if(pin.length)w.hits=w.hits.concat(pin);}}
+      // Main-axis distance is separate from the unchanged cluster ranking cost.
+      w.hits.forEach(h=>{h.axisDistance=distanceToAnchors(h.positions,baseA,S);});
       // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו
       //    ל-off/extra מול ברירת-המחדל, כך שהופעה רחוקה שהמשתמש הסתיר לא תחזור בפתיחת הצופן.
       if(w._savedShown){

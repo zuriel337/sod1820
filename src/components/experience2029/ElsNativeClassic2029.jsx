@@ -221,8 +221,13 @@ function LineExplorer({ result, findings, onScan, onAddFinding }) {
   }, [selected]);
 
   useEffect(() => {
-    const target = stripRef.current?.querySelector(selected ? ".is-word" : ".is-main");
-    target?.scrollIntoView({ block: "nearest", inline: "center", behavior: "instant" });
+    const strip = stripRef.current;
+    const target = strip?.querySelector(selected ? ".is-word" : ".is-main");
+    if (!strip || !target) return;
+    const viewport = strip.getBoundingClientRect();
+    const cell = target.getBoundingClientRect();
+    // Move only this strip. scrollIntoView can also pan the matrix or the document.
+    strip.scrollLeft += cell.left + cell.width / 2 - viewport.left - strip.clientWidth / 2;
   }, [result.hitId, selected]);
 
   return <div className="els29-native-source-list" data-experience-capability="els-line-inspection">
@@ -298,6 +303,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.verification?.state === "MATCH";
+  const showN = clamp(Math.round(Number(state?.ui?.showN) || 1), 1, 15);
   const [draft, setDraft] = useState("");
 
   const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
@@ -354,6 +360,13 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
           </button>
         </div>
       </div> : null}
+      <label className="els29-native-proximity">
+        <span>מד קרבה · מופעים לכל ממצא <output>{showN}</output></span>
+        <input type="range" min="1" max="15" step="1" value={showN}
+          aria-label="מופעים לכל ממצא" disabled={!verified}
+          onChange={(event) => onAxisControl("finding-count", Number(event.target.value))} />
+        <small>מספר המופעים הקרובים המוצגים מכל ממצא. מרחק ההצלבה נקבע בחיפוש.</small>
+      </label>
       <div className="els29-native-finding-add">
         <input
           value={draft}
@@ -375,11 +388,20 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
       {findings.length ? <div className="els29-native-findings">
         {findings.map((finding, index) => {
           const displayColor = projectFindingColor(finding.color, palette);
+          const firstShownHit = (finding.hits || []).find((hit) => hit.shown && hit.verified);
           return <div className="els29-native-finding-group" key={finding.t}><div className="els29-native-finding">
             <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
-            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.shown?.length || 0} מוצגים ומאומתים</small></span>
+            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.shown?.length || 0} מוצגים ומאומתים</small>
+              {firstShownHit && Number.isFinite(firstShownHit.axisDistance) ? <small>דילוג {firstShownHit.skip} · מרחק מהציר הראשי {firstShownHit.axisDistance} תאים</small> : null}
+            </span>
             <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`} title="מחק מילה שלמה">×</button>
           </div>
+            <div className="els29-native-hit-actions">
+              <button type="button" disabled={!firstShownHit}
+                onClick={() => onFindingLens(finding.t, firstShownHit.hitId, "line-context", true)}>
+                סרוק מילים לאורך הציר של {finding.t}
+              </button>
+            </div>
             <details className="els29-native-hit-details">
               <summary>מופעים של {finding.t} · הצגה והסתרה</summary>
               <p className="els29-native-muted">כיבוי מופע אחד משאיר את שאר המופעים.</p>
@@ -389,10 +411,12 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
               </div>
               {(finding.hits || []).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={`${hit.revision}:${hit.candidateIndex}`}>
                 <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
-                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small></span>
+                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small>
+                    {hit.verified && Number.isFinite(hit.axisDistance) ? <small>מרחק מהציר הראשי · {hit.axisDistance} תאים</small> : null}
+                  </span>
                 </label>
                 <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
-                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context")}>רצף ומילים</button>
+                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context", true)}>רצף ומילים</button>
               </div>)}
               {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
               {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
@@ -444,16 +468,16 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   };
   const closeTool = () => {
     setActiveTool(null);
-    panelTriggerRef.current?.focus();
+    panelTriggerRef.current?.focus({ preventScroll: true });
   };
   useEffect(() => {
     if (!activeTool || classicOpen) return;
-    if (panelInteractedRef.current) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus();
+    if (panelInteractedRef.current) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     const onKey = (event) => {
       if (event.key === "Escape" && !event.defaultPrevented) {
         event.preventDefault();
         setActiveTool(null);
-        panelTriggerRef.current?.focus();
+        panelTriggerRef.current?.focus({ preventScroll: true });
       }
     };
     const onOutside = (event) => {
@@ -481,6 +505,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
   const [crossTerm, setCrossTerm] = useState("");
+  const [crossRadius, setCrossRadius] = useState(18);
+  const crossRadiusDraftRef = useRef({ edited: false, revision: 0, submitted: null });
   const [lensRequest, setLensRequest] = useState(null);
   const lensSeqRef = useRef(0);
   const [lensResult, setLensResult] = useState(null);
@@ -535,7 +561,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       setNotice("להצלבה צריך שני מונחים של לפחות שתי אותיות.");
       return;
     }
-    requestSearch("cross", { axis, term, scope: activeScope });
+    crossRadiusDraftRef.current.submitted = { value: crossRadius, revision: crossRadiusDraftRef.current.revision };
+    requestSearch("cross", { axis, term, scope: activeScope, radius: crossRadius });
   };
 
   const handleEngineState = (next) => {
@@ -544,16 +571,30 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       resetReadContext();
     }
     if (next?.termRaw && next.termRaw !== previous?.termRaw) setQuery(next.termRaw);
+    const canonicalRadius = Number(next?.search?.crossRadius);
+    if (Number.isInteger(canonicalRadius) && canonicalRadius >= 2 && canonicalRadius <= 20) {
+      const draft = crossRadiusDraftRef.current;
+      const submitted = draft.submitted;
+      if (submitted?.value === canonicalRadius) {
+        if (submitted.revision === draft.revision) {
+          setCrossRadius(canonicalRadius);
+          draft.edited = false;
+        }
+        draft.submitted = null;
+      } else if (!draft.edited && canonicalRadius !== previous?.search?.crossRadius) {
+        setCrossRadius(canonicalRadius);
+      }
+    }
     engineStateRef.current = next;
     setEngineState(next);
   };
 
-  const requestControl = (action) => {
+  const requestControl = (action, value) => {
     if (!action) return;
     if (action === "occurrence-prev" || action === "occurrence-next") {
       resetReadContext();
     }
-    setControlRequest({ action, seq: ++controlSeqRef.current });
+    setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
   };
 
   const requestLens = (lens, target = {}) => {
@@ -653,13 +694,23 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             autoComplete="off"
           />
         </label>
+        <label className="els29-native-cross-distance">
+          <span>מרחק מרבי מהציר בהצלבה <output>{crossRadius} תאים</output></span>
+          <input type="range" min="2" max="20" step="1" value={crossRadius}
+            aria-label="מרחק מרבי מהציר בהצלבה"
+            onChange={(event) => {
+              crossRadiusDraftRef.current.edited = true;
+              crossRadiusDraftRef.current.revision += 1;
+              setCrossRadius(Number(event.target.value));
+            }} />
+        </label>
         <button className="els29-native-cross-run" type="button" onClick={submitCross}>מצא מפגש</button>
       </div> : null}
     </form>
 
     {notice ? <div className="els29-native-notice" role="status">{notice}</div> : null}
 
-    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${activeTool && panelPinned ? " is-panel-pinned" : ""}`}>
+    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
         <main className="els29-native-stage" hidden={classicOpen}>
           <div className="els29-native-stage-head">
@@ -689,7 +740,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : "שמירה והמשך מחקר"}</strong>
             <button type="button" className="els29-native-sheet-size" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded((value) => !value)}>{sheetExpanded ? "צמצם" : "הרחב"}</button>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="הרחב את המטריצה וסגור את הסרגל">×</button>
+            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
         <FindingsRail
           activeTool={activeTool}
@@ -700,7 +751,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onAxisControl={requestControl}
           onScanLine={() => requestLens("line-context", { term: lensResult?.target?.term, hitId: lensResult?.hitId, scan: true })}
           onAddLineFinding={addLineFinding}
-          onFindingLens={(term, hitId, lens = "verse-context") => requestLens(lens, { term, hitId })}
+          onFindingLens={(term, hitId, lens = "verse-context", scan = false) => requestLens(lens, { term, hitId, ...(scan ? { scan: true } : {}) })}
           onFindingControl={requestFindingControl}
           onSave={requestSave}
           onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}

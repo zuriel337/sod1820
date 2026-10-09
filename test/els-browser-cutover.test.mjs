@@ -59,7 +59,7 @@ function oracleVerify(p, reject) {
   return { ok: true, result: { status: 'OK', corpus_id: cid, verified }, trace_id: 't-' + seen.size };
 }
 
-async function withHarness(fn) {
+async function withHarness(fn, { mode = 'ok' } = {}) {
   const calls = [];
   const srv = createServer((req, res) => {
     if (req.url === '/oracle' && req.method === 'POST') {
@@ -71,7 +71,7 @@ async function withHarness(fn) {
     }
     if (req.url.startsWith('/attacker.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<!doctype html><meta charset=utf-8><body>attacker</body>'); return; }
     if (req.url.startsWith('/tzofen.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(tool); return; }
-    res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(HARNESS);
+    res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(HARNESS.replace("window.__mode='ok'", "window.__mode=" + JSON.stringify(mode)));
   });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r));
   let browser;
@@ -120,13 +120,13 @@ test('browser: bridge unavailable → fail closed (candidate label, no ok state,
     await search(frame, 'משיח');
     await waitState(page, (m) => m.term === 'משיח' && m.status === 'candidate');
     const all = await states(page);
-    assert.ok(all.every((m) => m.status !== 'ok'), 'no governed ok state while unverified');
+    assert.ok(all.every((m) => m.status !== 'ok'), 'no governed ok state while unverified: ' + JSON.stringify(all.map(m => ({ term: m.term, status: m.status, verification: m.verification?.state }))));
     const cand = all.filter((m) => m.status === 'candidate').pop();
     assert.equal(cand.verification.negative_authority, false);
     assert.equal(cand.axis, undefined); assert.equal(cand.matrix, undefined);
     const leaked = await page.evaluate(() => window.__log.filter((m) => m.type === 'search' && m.skip > 0).length);
     assert.equal(leaked, 0, 'search log never carries an unverified skip');
-  });
+  }, { mode: 'down' });
 });
 
 test('browser: canonical MISMATCH is never promoted (rejected candidate absent from st.res / state)', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
@@ -179,11 +179,39 @@ test('browser: cross-simple prefetches BOTH axes through the canonical verifier;
     const terms = new Set(calls.filter((c) => c.op === 'verify_batch').map((c) => c.payload.term));
     assert.ok(terms.has('משיח') && terms.has('גאולה'), 'both cross axes verified server-side: ' + [...terms]);
     const st = (await states(page)).filter((m) => m.status === 'ok' && m.search.mode !== 'regular').pop();
+    assert.equal(st.search.crossRadius, 18, 'the classic simple cross keeps its original radius');
     // every governed finding id must replay MATCH against the independent oracle
     for (const w of st.findings) for (const id of w.shown) {
       const [skip, dir, start] = id.split('_').map(Number);
       assert.equal(oracleVerify({ scope: 'torah', corpus_id: '0b022e8eef6f9c16', term: w.t, candidates: [{ skip, dir, start }] }).result.verified.length, 1, `${w.t} ${id}`);
     }
+    const request = { kind: 'cross', axis: 'משיח', term: 'גאולה', scope: 'torah' };
+    const atRadius = async (radius) => {
+      await nativeSend(page, { type: 'native-search', request: { ...request, ...(radius === undefined ? {} : { radius }) } });
+      await page.waitForFunction(expected => {
+        const current = window.__log.filter(m => m.type === 'state').at(-1);
+        return current?.status === 'ok' && current.search?.mode === 'cross-simple' && current.search.crossRadius === expected &&
+          current.findings?.some(word => word.hits?.some(hit => hit.shown && hit.verified && hit.axisDistance <= expected));
+      }, radius ?? 18);
+      const current = await latestState(page);
+      const meetingHits = current.findings.flatMap(word => word.hits.filter(hit => hit.shown && hit.verified));
+      assert.ok(meetingHits.some(hit => hit.axisDistance <= (radius ?? 18)), 'the selected meeting has a verified finding inside the requested radius');
+      return current;
+    };
+    const strict = await atRadius(2), relaxed = await atRadius(20);
+    assert.ok(relaxed.search.zones >= strict.search.zones, 'relaxing the radius cannot remove meeting zones');
+    const defaultRadius = await atRadius();
+    assert.equal(defaultRadius.search.zones, st.search.zones, 'native default matches classic meeting count');
+    assert.deepEqual(defaultRadius.axis, st.axis, 'native default chooses the same classic axis');
+    for (const radius of [1, 21, 2.5, '3', null]) {
+      await nativeSend(page, { type: 'native-search', request: { ...request, radius } });
+    }
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: defaultRadius.axis.hitId, nativeSeq: 820 } });
+    await page.waitForFunction(() => window.__log.some(m => m.target?.nativeSeq === 820));
+    const rejected = await latestState(page);
+    assert.deepEqual(rejected.axis, defaultRadius.axis, 'invalid radii preserve the selected axis');
+    assert.deepEqual(rejected.geometry, defaultRadius.geometry);
+    assert.equal(rejected.search.crossRadius, 18, 'out-of-range and noninteger radii are ignored');
   });
 });
 
@@ -322,16 +350,44 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     await search(frame, 'משיח');
     await waitState(page, (m) => m.status === 'ok' && m.term === 'משיח');
     await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
-    await waitState(page, (m) => m.findings?.length === 2 && m.findings[0].hits?.some(h => h.verified && h.shown));
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.findings?.length === 2 && current.findings[0].hits?.some(hit => hit.verified && hit.shown);
+    });
     const initial = await latestState(page), finding = initial.findings[0], hit = finding.hits.find(h => h.shown && h.verified);
     assert.ok(hit, 'verified shown hit available');
-    assert.ok(initial.findings.every(w => w.hits.every(h => h.verified ? h.skip >= 2 : h.skip === null && h.hitId === null)), 'unverified candidates carry no coordinates');
+    assert.ok(initial.findings.every(w => w.hits.every(h => h.verified ? h.skip >= 2 : h.skip === null && h.hitId === null && h.axisDistance === null && h.clusterDistance === null)), 'unverified candidates carry no coordinates or distances');
+    const [axisSkip, axisDir, axisStart] = initial.axis.hitId.split('_').map(Number);
+    const axisPositions = Array.from({ length: initial.length }, (_, i) => axisStart + axisDir * axisSkip * i);
+    for (const word of initial.findings) for (const occurrence of word.hits.filter(h => h.verified)) {
+      const [skip, dir, start] = occurrence.hitId.split('_').map(Number);
+      let expectedDistance = Infinity;
+      for (let i = 0; i < word.t.length; i++) for (const anchor of axisPositions) {
+        const position = start + dir * skip * i;
+        const rows = Math.abs(Math.floor(position / axisSkip) - Math.floor(anchor / axisSkip));
+        const columns = Math.abs(position % axisSkip - anchor % axisSkip);
+        expectedDistance = Math.min(expectedDistance, rows + Math.min(columns, axisSkip - columns));
+      }
+      assert.equal(occurrence.axisDistance, expectedDistance, 'main-axis distance agrees with canonical coordinates');
+      assert.ok(Number.isInteger(occurrence.clusterDistance) && occurrence.clusterDistance >= 0);
+      assert.ok(occurrence.clusterDistance <= occurrence.axisDistance, 'cluster includes the main axis');
+    }
+    const additional = finding.hits.find(candidate => !candidate.shown);
+    assert.ok(additional, 'a further secondary occurrence is available');
+    await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'toggle-hit', hitId: additional.hitId,
+      axisHitId: initial.axis.hitId, candidateIndex: additional.candidateIndex, revision: additional.revision });
+    await page.waitForFunction(index => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.findings?.[0]?.hits?.some(candidate => candidate.candidateIndex === index && candidate.shown && candidate.verified);
+    }, additional.candidateIndex);
     await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'toggle-hit', hitId: hit.hitId });
     await page.waitForFunction(id => {const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.hitId===id&&!h.shown);}, hit.hitId);
-    const selected = await latestState(page), beforeCalls = calls.length;
+    const selected = await latestState(page);
     await nativeSend(page, { type: 'native-control', action: 'zoom-in' });
     await waitState(page, (m) => m.ui?.zoom > 1);
-    const before = await latestState(page);
+    // Canonical zoom rebuilds its legacy matrix; settle that before measuring list-only edits.
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.every(word => word.hits?.every(candidate => !candidate.shown || candidate.verified)));
+    const before = await latestState(page), beforeCalls = calls.length;
     await nativeSend(page, { type: 'update-findings', findings: before.findings.map((w, i) => ({ t: w.t, color: i ? w.color : '#abcdef' })) });
     await waitState(page, (m) => m.findings?.[0]?.color === '#abcdef');
     await nativeSend(page, { type: 'native-finding-control', term: finding.t, action: 'move-down' });
@@ -341,7 +397,7 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     assert.deepEqual(after.axis, before.axis);
     assert.deepEqual(after.geometry, before.geometry);
     assert.equal(after.ui.zoom, before.ui.zoom);
-    assert.equal(calls.length, beforeCalls, 'color, order and presentation do not verify or search again');
+    assert.equal(calls.length, beforeCalls, 'color and order do not verify or search again');
     await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: after.axis.hitId, nativeSeq: 987 } });
     await page.waitForFunction(() => window.__log.some(m => m.lens === 'line-context' && m.target?.nativeSeq === 987));
     const lens = await page.evaluate(() => window.__log.find(m => m.lens === 'line-context' && m.target?.nativeSeq === 987));
@@ -350,6 +406,34 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     assert.ok(lens.cells.every(c => c.i >= 0 && c.i < TORAH_LEN && c.letter === letters[c.i]));
     assert.equal(lens.cells.filter(c => c.main).map(c => c.letter).join(''), 'משיח');
     assert.equal(calls.length, beforeCalls, 'line lens is a read-only projection');
+    const secondary = after.findings[1], secondaryHit = secondary.hits.find(h => h.shown && h.verified);
+    assert.ok(secondaryHit, 'a displayed secondary axis is available for scanning');
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { term: secondary.t, hitId: secondaryHit.hitId, scan: true, nativeSeq: 989 } });
+    await page.waitForFunction(() => window.__log.some(m => m.target?.nativeSeq === 989));
+    const secondaryLine = await page.evaluate(() => window.__log.find(m => m.target?.nativeSeq === 989));
+    assert.equal(secondaryLine.ok, true);
+    assert.equal(secondaryLine.hitId, secondaryHit.hitId);
+    assert.equal(secondaryLine.cells.filter(c => c.main).map(c => c.letter).join(''), secondary.t);
+    const secondarySequence = secondaryLine.cells.map(c => c.letter).join('');
+    const [secondarySkip, secondaryDir] = secondaryHit.hitId.split('_').map(Number);
+    for (let i = 0; i < secondaryLine.cells.length; i++) {
+      assert.equal(secondaryLine.cells[i].letter, letters[secondaryLine.cells[i].i]);
+      if (i) assert.equal(secondaryLine.cells[i].i - secondaryLine.cells[i - 1].i, secondarySkip * secondaryDir);
+    }
+    const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
+    const normalized = word => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
+    const expectedWords = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== secondary.t && secondarySequence.includes(term));
+    assert.deepEqual(secondaryLine.scan.words.map(w => w.term), expectedWords, 'secondary scan uses the same literal dictionary');
+    for (const word of secondaryLine.scan.words) for (const match of word.matches) {
+      assert.equal(secondarySequence.slice(match.at, match.at + match.length), word.term);
+    }
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { term: secondary.t, hitId: hit.hitId, scan: true, nativeSeq: 990 } });
+    await page.waitForFunction(() => window.__log.some(m => m.target?.nativeSeq === 990));
+    const hiddenLine = await page.evaluate(() => window.__log.find(m => m.target?.nativeSeq === 990));
+    assert.equal(hiddenLine.ok, false, 'hidden secondary occurrence is rejected instead of falling back to another hit');
+    assert.ok(!hiddenLine.cells && !hiddenLine.scan);
+    assert.deepEqual(await latestState(page), after, 'secondary scans preserve exact research state');
+    assert.equal(calls.length, beforeCalls, 'secondary scans make no search or verification requests');
     await nativeSend(page, { type: 'request-lens', lens: 'verse-context', target: { hitId: after.axis.hitId, nativeSeq: 988 } });
     await page.waitForFunction(() => window.__log.some(m => m.lens === 'verse-context' && m.target?.nativeSeq === 988));
     const source = await page.evaluate(() => window.__log.find(m => m.lens === 'verse-context' && m.target?.nativeSeq === 988));
@@ -372,7 +456,11 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
       term: saved.term, scope: saved.scope, skip: saved.skip, start: saved.start,
       dir: saved.direction === 'back' ? -1 : 1, words: saved.findings, hideMain: saved.hideMain,
     } });
-    await waitState(page, (m) => m.status === 'ok' && m.findings?.[1]?.color === '#abcdef');
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.status === 'ok' && current.findings?.[1]?.color === '#abcdef' && current.findings[1].shown.length > 0 &&
+        current.findings.every(word => word.hits.every(candidate => !candidate.shown || candidate.verified));
+    });
     const restored = await latestState(page);
     assert.deepEqual(restored.axis, after.axis, 'reopen uses the exact saved axis');
     assert.deepEqual(restored.findings.map(w => [w.t, w.color, w.shown]), after.findings.map(w => [w.t, w.color, w.shown]), 'reopen preserves colors, order and verified selection');
@@ -399,6 +487,24 @@ test('browser: native finding can show three verified occurrences then hide exac
     await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.length===2);
     const hidden=await latestState(page);
     assert.deepEqual(hidden.findings[0].shown,[shown[0],shown[2]],'only selected occurrence hidden');
+    for (const count of [1, 4, 2]) {
+      await nativeSend(page,{type:'native-control',action:'finding-count',value:count});
+      await page.waitForFunction(expected=>window.__log.filter(m=>m.type==='state').at(-1)?.ui?.showN===expected,count);
+      await page.waitForFunction(id=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.includes(id),shown[2]);
+      await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.hits?.every(h=>!h.shown||h.verified));
+      const changed=await latestState(page);
+      assert.deepEqual(changed.axis,hidden.axis,'count changes preserve the main axis');
+      assert.deepEqual(changed.geometry,hidden.geometry,'count changes preserve the research window');
+      assert.ok(!changed.findings[0].shown.includes(shown[1]),'an explicitly hidden occurrence stays hidden');
+      assert.ok(changed.findings[0].shown.includes(shown[2]),'an explicitly added occurrence stays shown');
+    }
+    await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.length===2);
+    const restoredCount=await latestState(page);
+    assert.deepEqual(restoredCount.findings[0].shown,hidden.findings[0].shown,'restoring the count restores the exact selected occurrences');
+    for (const value of [0,16,1.5,'3',null]) await nativeSend(page,{type:'native-control',action:'finding-count',value});
+    await nativeSend(page,{type:'request-lens',lens:'line-context',target:{hitId:hidden.axis.hitId,nativeSeq:320}});
+    await page.waitForFunction(()=>window.__log.some(m=>m.target?.nativeSeq===320));
+    assert.deepEqual(await latestState(page),restoredCount,'invalid count values do not mutate engine state');
     const remaining=hidden.findings[0].hits.find(h=>!h.shown);
     await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',axisHitId:hidden.axis.hitId,candidateIndex:remaining.candidateIndex,revision:remaining.revision+1});
     await nativeSend(page,{type:'request-lens',lens:'line-context',target:{hitId:hidden.axis.hitId,nativeSeq:321}});

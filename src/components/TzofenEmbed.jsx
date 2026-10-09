@@ -400,7 +400,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // 🎛️ Native Classic one-shot controls — presentation-only allowlist בתוך ה-Tzofen הקנוני.
   useEffect(() => {
     if (!controlRequest?.action) return;
-    postToTool({ type: "native-control", action: controlRequest.action });
+    postToTool({ type: "native-control", action: controlRequest.action, value: controlRequest.value });
   }, [controlRequest, postToTool]);
 
   // 🔎 Native Classic search requests stay separate from presentation controls.
