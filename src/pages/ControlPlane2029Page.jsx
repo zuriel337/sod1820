@@ -55,19 +55,28 @@ function SpanRow({ span }) {
 
 export default function ControlPlane2029Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], errors: {} });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
-    setState(current => ({ ...current, loading: true, error: null }));
-    try {
-      const [health, traces, videoMap] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
-      setState({ loading: false, health, videoMap, traces, error: null });
-      setSelectedId(current => current || traces?.[0]?.trace_id || null);
-    } catch (error) {
-      setState({ loading: false, health: null, videoMap: null, traces: [], error });
-    }
+    setState(current => ({ ...current, loading: true, errors: {} }));
+    // Each reader succeeds or fails on its own: one slow/failed owner must not discard the others.
+    const [health, traces, videoMap] = await Promise.allSettled([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
+    const ok = r => r.status === "fulfilled";
+    const traceRows = ok(traces) ? traces.value : [];
+    setState({
+      loading: false,
+      health: ok(health) ? health.value : null,
+      videoMap: ok(videoMap) ? videoMap.value : null,
+      traces: traceRows,
+      errors: {
+        health: ok(health) ? null : health.reason || new Error("unavailable"),
+        traces: ok(traces) ? null : traces.reason || new Error("unavailable"),
+        videoMap: ok(videoMap) ? null : videoMap.reason || new Error("unavailable"),
+      },
+    });
+    if (ok(traces)) setSelectedId(current => current || traceRows?.[0]?.trace_id || null);
   }, []);
 
   useEffect(() => {
@@ -87,6 +96,10 @@ export default function ControlPlane2029Page() {
     return () => { alive = false; };
   }, [isAdmin, selectedId]);
 
+  const { errors } = state;
+  const healthDown = Boolean(errors.health);
+  const videoDown = Boolean(errors.videoMap);
+  const tracesDown = Boolean(errors.traces);
   const health = state.health || {};
   const usage = health.usage || {};
   const db = health.db || {};
@@ -125,12 +138,12 @@ export default function ControlPlane2029Page() {
           <div className="sod29-muted">המסך מקרין owners חיים; הוא אינו מקור אמת חדש.</div></div>
         <div className="sod29-actions"><button className="sod29-action" type="button" onClick={load} disabled={state.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
       </div>
-      {state.error ? <FrameState kind="error" title="לא ניתן לקרוא את מצב המערכת">{String(state.error?.message || state.error)}</FrameState> : null}
+      {healthDown ? <FrameState kind="error" title="מצב המערכת לא זמין">{String(errors.health?.message || errors.health)}</FrameState> : null}
       <div className="sod29-grid">
-        <Metric label="AI · 7 ימים" value={usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={`בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
-        <Metric label="DB connections" value={`${num(db.connections)} / ${num(db.max_connections)}`} note={`idle tx: ${num(db.idle_in_transaction)}`} />
-        <Metric label="Media objects" value={num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
-        <Metric label="Traces · 7 ימים" value={num(state.traces.length)} note="לחיצה פותחת spans ועלות" />
+        <Metric label="AI · 7 ימים" value={healthDown ? "לא זמין" : usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : `בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
+        <Metric label="DB connections" value={healthDown ? "לא זמין" : `${num(db.connections)} / ${num(db.max_connections)}`} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : `idle tx: ${num(db.idle_in_transaction)}`} />
+        <Metric label="Media objects" value={healthDown ? "לא זמין" : num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : "aggregate קיים"} />
+        <Metric label="Traces · 7 ימים" value={tracesDown ? "לא זמין" : num(state.traces.length)} note={tracesDown ? "הקריאה נכשלה — הערך אינו אפס" : "לחיצה פותחת spans ועלות"} />
       </div>
     </section>
 
@@ -148,6 +161,7 @@ export default function ControlPlane2029Page() {
           <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
         </div>
       </div>
+      {healthDown ? <FrameState kind="error" title="נתוני egress לא זמינים">מקור ה־health נכשל; לא מוצגים אפסים או היסטוריה ריקה במקומו.</FrameState> : <>
       <div className="sod29-grid">
         <Metric
           label="Observed · שעה אחרונה"
@@ -205,6 +219,7 @@ export default function ControlPlane2029Page() {
           </div>
         </div>)}
       </div> : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
+      </>}
     </section>
 
     <section className="sod29-section">
@@ -212,10 +227,11 @@ export default function ControlPlane2029Page() {
         <div><div className="sod29-kicker">VIDEO MAP · 2029</div><h2>וידאו — מיפוי, Google ועלות</h2>
           <div className="sod29-muted">Projection אחד מעל Posts · WhatsApp · Home Videos · Stories. המיפוי הדטרמיניסטי אינו צורך טוקנים.</div></div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
-          <span className="sod29-chip">{videoCron.schedule || "—"}</span>
+          <span className="sod29-chip">{videoDown ? "cron לא ידוע" : videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
+          <span className="sod29-chip">{videoDown ? "—" : videoCron.schedule || "—"}</span>
         </div>
       </div>
+      {videoDown ? <FrameState kind="error" title="מיפוי הווידאו לא זמין">{String(errors.videoMap?.message || errors.videoMap)}</FrameState> : <>
       <div className="sod29-grid">
         <Metric label="Video assets" value={num(videoSummary.unique_assets)} note={`${num(videoSummary.placements)} placements · ${num(videoSummary.duplicate_assets)} assets כפולים`} />
         <Metric label="Google Video" value={num(videoSummary.google_indexable_assets)} note={`${num(videoSummary.generic_google_pages)} דפי /video fallback`} />
@@ -229,12 +245,14 @@ export default function ControlPlane2029Page() {
         <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
         <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
+      </>}
     </section>
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
         <div className="sod29-muted">עלות לא ידועה נשארת לא ידועה; אין חיבור מומצא בין אגרגציות.</div></div></div>
       {state.loading ? <FrameState kind="loading" title="טוען traces" /> :
+        tracesDown ? <FrameState kind="error" title="רשימת ה־traces לא זמינה">{String(errors.traces?.message || errors.traces)}</FrameState> :
         state.traces.length ? <div className="sod29-list">{state.traces.map(row =>
           <TraceRow key={row.trace_id} row={row} active={row.trace_id === selectedId} open={setSelectedId} />
         )}</div> : <FrameState kind="empty" title="אין traces בטווח הזה">אין root traces להצגה בשבעת הימים האחרונים.</FrameState>}

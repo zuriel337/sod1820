@@ -168,8 +168,13 @@ if (!LIVE) {
   test('native control renders monitoring failures without fabricating data', async ({ context, page }) => {
     const evidence = await prepare(context, page, 'admin', 'dark', { failHealth: true });
     await openControl(page);
-    await expect(page.getByText('לא ניתן לקרוא את מצב המערכת', { exact: true })).toBeVisible();
+    await expect(page.getByText('מצב המערכת לא זמין', { exact: true })).toBeVisible();
     await expect(page.getByText('Synthetic monitoring unavailable', { exact: true })).toBeVisible();
+    // Partial failure: the independent trace reader still renders, and failed metrics are unavailable, not 0.
+    await expect(page.getByText('לא זמין').first()).toBeVisible();
+    await expect(page.getByText('אין traces בטווח הזה', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('רשימת ה־traces לא זמינה')).toHaveCount(0);
+    await expect(page.locator('.sod29-row[aria-pressed]').first()).toBeVisible();
     expect(evidence.errors).toEqual([]);
   });
   test('native control handles empty trace data', async ({ context, page }) => {
