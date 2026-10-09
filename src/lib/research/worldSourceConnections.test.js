@@ -103,3 +103,13 @@ test('method entitlement/state is checked live before requesting a trace', () =>
   for (const patch of [{ active: false }, { in_engine: false }, { required_entitlement: 'admin' }, { required_entitlement: null }, { version: null }])
     assert.equal(isPublicWorldMethod({ ...publicRow, ...patch }), false);
 });
+
+test('a Post paragraph can be read without acquiring a missing Topic', () => {
+  const spec = witnesses.find((w) => w.id === 'flight-descent');
+  const post = { id: 5112, slug: 'plane', tags: [], source: 'ai', content: '<p>טיסת Flydubai ירדה ביותר מ־14,000 רגל.</p>' };
+  const source = witnessSource(spec, { post, topic: null });
+  assert.ok(source);
+  assert.equal(source.topicHref, null);
+  assert.equal(source.topicSlug, null);
+  assert.equal(source.sourceRef, 'posts:5112#quote-flight-descent');
+});

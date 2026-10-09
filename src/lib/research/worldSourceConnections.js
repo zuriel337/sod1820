@@ -99,8 +99,8 @@ export function witnessSource(spec, { gallery, india, post, topic } = {}) {
   }
   if (!text || !spec.guards.every((quote) => text.includes(quote))) return null;
   return { text, sourceRef: `posts:${post.id}#${spec.postMarker || `quote-${spec.id}`}`, href: `/post/${encodeURIComponent(post.slug)}`,
-    topicHref: topic?.topicSlug === spec.topicSlug ? `/topic/${encodeURIComponent(topic.topicSlug)}` : null,
-    topicSlug: topic?.topicSlug === spec.topicSlug ? topic.topicSlug : null,
+    topicHref: spec.topicSlug && topic?.topicSlug === spec.topicSlug ? `/topic/${encodeURIComponent(topic.topicSlug)}` : null,
+    topicSlug: spec.topicSlug && topic?.topicSlug === spec.topicSlug ? topic.topicSlug : null,
     postTitle: post.title, author: post.author,
     routePrecision: 'post_only_region_not_visible',
   };
