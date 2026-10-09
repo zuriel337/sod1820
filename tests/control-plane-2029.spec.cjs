@@ -56,12 +56,13 @@ async function prepare(context, page, role, preset = 'light', options = {}) {
     if (url.pathname === '/auth/v1/user') return respond(session?.user || {});
     if (rpc === 'admin_system_health') {
       healthReads++;
+      if (options.holdSecondHealth && healthReads === 2) await new Promise(resolve => options.holdSecondHealth.push(resolve));
       if (options.failHealth || (options.failHealthFrom && healthReads >= options.failHealthFrom)) return respond({ message: 'Synthetic monitoring unavailable' }, 503);
       if (options.holdHealth && healthReads === 1) await new Promise(resolve => options.holdHealth.push(resolve));
       // Existing SQL catches sub-reader errors and returns {} for that block: fulfilled but empty.
       if (options.partialHealth) return respond({ db: { connections: 3, max_connections: 100 }, media: {}, usage: {} });
-      return respond({ db: { connections: healthReads, max_connections: 100 }, media: { storage: { total_objects: 2 } },
-        usage: { ai_cost_usd_7d: 0.125, ai_cost_basis: 'SYNTHETIC', supabase_cached_egress_basis: 'UNKNOWN', storage_egress_observed_basis: 'OBSERVED_STORAGE_LOGS', storage_egress_guard: { state: 'sensor_stale' } } });
+      return respond({ db: { connections: healthReads, max_connections: 100 }, media: { storage: { total_objects: options.zeroMedia ? 0 : 2 } },
+        usage: { ...(options.emptyHistory ? { storage_egress_observed_history_24h: [] } : {}), ai_cost_usd_7d: 0.125, ai_cost_basis: 'SYNTHETIC', supabase_cached_egress_basis: 'UNKNOWN', storage_egress_observed_basis: 'OBSERVED_STORAGE_LOGS', storage_egress_guard: { state: 'sensor_stale' } } });
     }
     if (rpc === 'admin_video_map_health') {
       if (options.failVideo) return respond({ message: 'Synthetic video unavailable' }, 503);
@@ -195,13 +196,27 @@ if (!LIVE) {
     await expect(page.getByText('cron לא ידוע', { exact: true })).toBeVisible();
     await expect(page.getByText('cron לא פעיל', { exact: true })).toHaveCount(0);
     await expect(metric(page, 'Traces · 7 ימים')).toHaveText('2'); // true measured value survives
+    // usage:{} means the egress history was never read: UNKNOWN/unavailable, not NO_HOURLY_DATA / "no snapshots".
+    const egress = page.locator('[data-experience-capability="storage-egress-health"]');
+    await expect(egress.getByText('NO_HOURLY_DATA')).toHaveCount(0);
+    await expect(egress.getByText('אין עדיין hourly snapshots')).toHaveCount(0);
+    await expect(egress.getByText('היסטוריית egress לא זמינה', { exact: true })).toBeVisible();
+    await expect(egress.locator('.sod29-chip', { hasText: /^UNKNOWN$/ }).first()).toBeVisible();
     expect(evidence.errors).toEqual([]);
   });
   test('native control shows a measured zero and inactive cron as such', async ({ context, page }) => {
-    await prepare(context, page, 'admin', 'light');
+    await prepare(context, page, 'admin', 'light', { zeroMedia: true });
     await openControl(page);
     await expect(page.getByText('cron לא פעיל', { exact: true })).toBeVisible();
-    await expect(metric(page, 'Media objects')).toHaveText('2');
+    await expect(metric(page, 'Media objects')).toHaveText('0'); // real measured 0, not unknown
+  });
+  test('native control shows genuine empty egress history only when explicitly returned as []', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'light', { emptyHistory: true });
+    await openControl(page);
+    const egress = page.locator('[data-experience-capability="storage-egress-health"]');
+    await expect(egress.getByText('אין עדיין hourly snapshots', { exact: true })).toBeVisible();
+    await expect(egress.getByText('היסטוריית egress לא זמינה')).toHaveCount(0);
+    expect(evidence.errors).toEqual([]);
   });
   test('native control initial load shows loading, not zero, until readers settle', async ({ context, page }) => {
     const release = [];
@@ -216,11 +231,17 @@ if (!LIVE) {
     expect(evidence.errors).toEqual([]);
   });
   test('native control refresh with a still-rejecting read stays unknown, never falsely zero', async ({ context, page }) => {
-    const evidence = await prepare(context, page, 'admin', 'light', { failHealthFrom: 1 });
+    const gate = [];
+    const evidence = await prepare(context, page, 'admin', 'light', { failHealthFrom: 1, holdSecondHealth: gate });
     await openControl(page);
     await expect(metric(page, 'Media objects')).toHaveText('לא זמין');
     await page.getByRole('button', { name: 'רענן', exact: true }).click();
-    // While the refresh is in flight the previously failed reader is loading, not zero.
+    // Second (failing) request is held: the in-flight frame must be loading, not zero.
+    await expect.poll(() => gate.length).toBe(1);
+    await expect(metric(page, 'Media objects')).toHaveText('טוען…');
+    await expect(metric(page, 'DB connections')).toHaveText('טוען…');
+    await expect(metric(page, 'DB connections')).not.toHaveText(/^0\s*\/\s*0$/);
+    gate.forEach(fn => fn());
     await expect(page.getByRole('button', { name: 'רענן', exact: true })).toBeEnabled();
     await expect(metric(page, 'Media objects')).toHaveText('לא זמין');
     await expect(metric(page, 'DB connections')).not.toHaveText(/^0\s*\/\s*0$/);

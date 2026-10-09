@@ -120,7 +120,9 @@ export default function ControlPlane2029Page() {
   const egressTraffic = egressLatest.traffic_classes || {};
   const egressGuard = usage.storage_egress_guard || {};
   const providerHistory = usage.supabase_egress_historical_exact || {};
-  const egressHistory = Array.isArray(usage.storage_egress_observed_history_24h) ? usage.storage_egress_observed_history_24h : [];
+  // Absent history/guard (e.g. SQL sub-reader caught -> usage {}) is UNKNOWN; only a returned [] means "no snapshots yet".
+  const historyKnown = Array.isArray(usage.storage_egress_observed_history_24h);
+  const egressHistory = historyKnown ? usage.storage_egress_observed_history_24h : [];
   const videoMap = state.videoMap || {};
   const videoSummary = videoMap.summary || {};
   const videoAi = videoMap.ai || {};
@@ -168,7 +170,7 @@ export default function ControlPlane2029Page() {
           </div>
         </div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{egressGuard.state || "NO_HOURLY_DATA"}</span>
+          <span className="sod29-chip">{egressGuard.state || "UNKNOWN"}</span>
           <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
         </div>
       </div>
@@ -231,7 +233,9 @@ export default function ControlPlane2029Page() {
             {n(row.burst_files) > 1 ? <span className="sod29-chip">{num(row.burst_files)} MP4 burst</span> : null}
           </div>
         </div>)}
-      </div> : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
+      </div> : !historyKnown
+        ? <FrameState kind="error" title="היסטוריית egress לא זמינה">ההיסטוריה לא נקראה — לא מוצגת כריקה.</FrameState>
+        : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
       </>}
     </section>
 
