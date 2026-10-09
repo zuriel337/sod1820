@@ -95,7 +95,7 @@ export const stagePercent = stage => STAGE_PROGRESS[Number(stage || 0)] || 0;
 export const FIRST_STAGE_RELEASE_GATES = [
   { id:"G0", label:"ניקוי ופריטי בסיס", state:"closed", closedAt:"2026-09-12" },
   { id:"G1", label:"כניסת סוכנים ומקורות אמת", state:"closed", closedAt:"2026-09-12" },
-  { id:"G2", label:"מודל 2029 והמשמעות הסמנטית", state:"closed", closedAt:"2026-09-15" },
+  { id:"G2", label:"מודל העולם החדש והמשמעות הסמנטית", state:"closed", closedAt:"2026-09-15" },
   { id:"G3", label:"מימוש תשתיות 2029", state:"closed", closedAt:"2026-10-01" },
   { id:"G3.5", label:"מוכנות תרחישי אמת ומעבר ל־G4", state:"active", closedAt:null },
   { id:"G4", label:"חוויית הזהב הראשונה", state:"pending", closedAt:null },

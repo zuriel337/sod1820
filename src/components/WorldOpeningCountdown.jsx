@@ -58,7 +58,7 @@ export default function WorldOpeningCountdown({ compact = false }) {
         <p style={{ margin:0, fontFamily:F.body, lineHeight:1.65, fontSize:16, color:P.inkSoft }}>
           {remaining.ended
             ? "מועד הספירה הגיע. גלו אילו חלקים כבר נפתחו בפועל."
-            : "ארבעה ימים של ציפייה · SOD1820 2029 נפתח בהדרגה"}
+            : "ארבעה ימים של ציפייה · העולם החדש של SOD1820 נפתח בהדרגה"}
         </p>
       </div>
       {!remaining.ended ? (

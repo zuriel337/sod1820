@@ -7,7 +7,7 @@ export default function Video2029Page() {
     surface="video"
     symbol="▶"
     eyebrow="VIDEO · SOURCE · CONTEXT"
-    title="וידאו · SOD1820 2029"
+    title="וידאו · SOD1820"
     description="נכס וידאו אחד, הקשרים רבים — מקור, סדרה, צופן ופוסטים על אותה זהות מדיה."
   >
     <VideoAssetPage />
