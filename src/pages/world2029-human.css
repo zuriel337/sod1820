@@ -1143,14 +1143,14 @@
 .sod29-world-stream-filters::-webkit-scrollbar{display:none}
 .sod29-world-stream-filter{
   flex:0 0 auto;
-  min-height:34px;
+  min-height:44px;
   padding:7px 12px;
   border-radius:999px;
   border:1px solid var(--s29-line);
   background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
   color:var(--s29-muted);
   font:inherit;
-  font-size:11px;
+  font-size:14px;
   font-weight:800;
   cursor:pointer;
 }
@@ -1170,6 +1170,7 @@
 }
 .sod29-world-stream-item{
   width:100%;
+  min-height:56px;
   display:grid;
   grid-template-columns:14px minmax(0,1fr) auto;
   gap:10px;
@@ -1210,16 +1211,17 @@
   flex-wrap:wrap;
   gap:5px 8px;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:14px;
   font-weight:800;
 }
 .sod29-world-stream-copy strong{
   overflow-wrap:anywhere;
-  font-size:14px;
-  line-height:1.35;
+  font-size:16px;
+  line-height:1.45;
 }
 .sod29-world-stream-copy small{
   color:var(--s29-muted);
+  font-size:14px;
   line-height:1.45;
   overflow-wrap:anywhere;
 }
@@ -1230,14 +1232,14 @@
 }
 .sod29-world-stream-open{
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:14px;
   font-weight:800;
   white-space:nowrap;
 }
 .sod29-world-stream-truth-note{
   margin-top:10px;
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:14px;
   line-height:1.5;
 }
 .sod29-world-spatial-gateway{
@@ -1689,8 +1691,10 @@
 .sod29-world-group-source>summary{list-style:none;cursor:pointer}
 .sod29-world-group-source>summary::-webkit-details-marker{display:none}
 .sod29-world-group-source-body{
-  margin:0;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;
+  margin:0;padding:18px;overflow-wrap:anywhere;
   color:inherit;background:var(--s29-panel-soft);border:1px solid var(--s29-line);
   border-radius:0 0 14px 14px;font-size:18px;line-height:1.8;
 }
+.sod29-world-group-source-body small{display:block;font-size:14px;color:var(--s29-muted)}
+.sod29-world-group-source-body p{margin:8px 0 0;white-space:pre-wrap;font-family:'Noto Sans Hebrew',sans-serif}
 .sod29-world-group-source .sod29-world-stream-copy strong{font-size:18px;line-height:1.5}
