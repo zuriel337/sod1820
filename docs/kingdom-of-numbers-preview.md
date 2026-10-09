@@ -173,3 +173,10 @@ Icon correction verification: dual builds and the existing isolation/frame check
 pass, all 14 Kingdom browser cases pass, and a browser inspection of Entity Hub
 found 26 compatibility icons / 26 shared menu SVGs, zero old `.rf-icon` or
 `.sig-icon` elements, and no empty glyphs.
+
+Updated hosted icon preview: `dpl_FoBFUA3myJDkbRWHyPPC7AFnPJqW`, source commit
+`2090e93d372e663a6f35958a4baad28fbbc64e0e`, READY / preview, no production aliases.
+Host: `sod1820-qqjgkkrex-sod1820-s-projects.vercel.app`. Fresh mobile verification
+returned HTTP 200, 16 shared game icons, zero old icons, a successful 20-light
+first reward and zero JavaScript errors. The deployment-scoped seven-day share
+link was supplied directly to the user; no share token is stored in this document.
