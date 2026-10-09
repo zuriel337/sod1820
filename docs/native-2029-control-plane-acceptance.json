@@ -1,0 +1,838 @@
+{
+  "task": "SOD1820_NATIVE_2029_CONTROL_PLANE_REPAIR_V1",
+  "base_sha": "45315ef269fd1aef7eadb8b5ca445839e435390f",
+  "runtime": "native App2029 /2029/control",
+  "production_modified": false,
+  "suites": [
+    {
+      "mode": "synthetic_HTTP",
+      "stats": {
+        "startTime": "2026-10-09T00:14:25.183Z",
+        "duration": 56524.553,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "native control admin: 1440px light HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 1440,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 1440px parchment HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 1440,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 1440px dark HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 1440,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px light HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 390,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px parchment HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 390,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px dark HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 390,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px light HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 320,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px parchment HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 320,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px dark HTTP fixtures",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "synthetic_HTTP",
+              "role": "admin",
+              "width": 320,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control denies user before admin data requests",
+          "status": "passed",
+          "acceptance": []
+        },
+        {
+          "title": "native control denies anon before admin data requests",
+          "status": "passed",
+          "acceptance": []
+        },
+        {
+          "title": "native control renders monitoring failures without fabricating data",
+          "status": "passed",
+          "acceptance": []
+        },
+        {
+          "title": "native control handles empty trace data",
+          "status": "passed",
+          "acceptance": []
+        }
+      ]
+    },
+    {
+      "mode": "real_GoTrue_PostgREST",
+      "stats": {
+        "startTime": "2026-10-09T00:14:21.228Z",
+        "duration": 80417.27100000001,
+        "expected": 11,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "native control admin: 1440px light real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 1440,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 1440px parchment real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 1440,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 1440px dark real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 1440,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px light real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 390,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px parchment real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 390,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 390px dark real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 390,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px light real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 320,
+              "preset": "light",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px parchment real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 320,
+              "preset": "parchment",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control admin: 320px dark real APIs",
+          "status": "passed",
+          "acceptance": [
+            {
+              "mode": "real_GoTrue_PostgREST",
+              "role": "admin",
+              "width": 320,
+              "preset": "dark",
+              "rpc_statuses": [
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200,
+                200
+              ],
+              "requested_admin_rpcs": [
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health",
+                "admin_op_trace_v1",
+                "admin_op_trace_v1",
+                "admin_system_health",
+                "admin_op_trace_list_v1",
+                "admin_video_map_health"
+              ],
+              "refresh": true,
+              "trace_selection": true,
+              "rtl": true,
+              "horizontal_overflow": false
+            }
+          ]
+        },
+        {
+          "title": "native control denies user before admin data requests",
+          "status": "passed",
+          "acceptance": [
+            {
+              "role": "user",
+              "redirect": "/2029",
+              "admin_requests_before_redirect": 0,
+              "denied": [
+                {
+                  "rpc": "admin_system_health",
+                  "status": 400,
+                  "code": "P0001",
+                  "message": "not authorized",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_video_map_health",
+                  "status": 400,
+                  "code": "P0001",
+                  "message": "not authorized",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_op_trace_list_v1",
+                  "status": 400,
+                  "code": "P0001",
+                  "message": "forbidden",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_op_trace_v1",
+                  "status": 400,
+                  "code": "P0001",
+                  "message": "forbidden",
+                  "leaked": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "native control denies anon before admin data requests",
+          "status": "passed",
+          "acceptance": [
+            {
+              "role": "anon",
+              "redirect": "/2029",
+              "admin_requests_before_redirect": 0,
+              "denied": [
+                {
+                  "rpc": "admin_system_health",
+                  "status": 401,
+                  "code": "42501",
+                  "message": "permission denied for function admin_system_health",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_video_map_health",
+                  "status": 401,
+                  "code": "42501",
+                  "message": "permission denied for function admin_video_map_health",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_op_trace_list_v1",
+                  "status": 401,
+                  "code": "42501",
+                  "message": "permission denied for function admin_op_trace_list_v1",
+                  "leaked": false
+                },
+                {
+                  "rpc": "admin_op_trace_v1",
+                  "status": 401,
+                  "code": "42501",
+                  "message": "permission denied for function admin_op_trace_v1",
+                  "leaked": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

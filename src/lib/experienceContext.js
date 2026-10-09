@@ -8,6 +8,7 @@ import { STREAMS, isStream } from "./stream.js";
 import { ENVIRONMENT, MOTION, motionForPreference } from "./designTokens.js";
 
 export const EXPERIENCE_SURFACE = Object.freeze({
+  ADMIN: "admin",
   HOME: "home",
   WORLD: "world",
   NUMBER: "number",
@@ -61,6 +62,23 @@ const P = MOTION.pattern;
 // Implementation projection of the Human-Gate approved Experience Projection Matrix.
 // These are surface defaults/ceilings, not new semantic owners.
 const SURFACE_PROFILES = Object.freeze({
+  // Internal operational projection under the existing Experience owner.
+  // This profile controls presentation only; AuthProvider/page and admin RPCs
+  // remain responsible for authorization. Never normalize unknown surfaces here.
+  [EXPERIENCE_SURFACE.ADMIN]: Object.freeze({
+    question: "מה דורש תשומת לב עכשיו?",
+    environment: ENVIRONMENT.RESEARCH_LAB,
+    motionIntensity: "low",
+    motionPatterns: Object.freeze([P.reveal, P.focus, P.settle]),
+    spatialDefault: SPATIAL_LEVEL.S0,
+    spatialMax: SPATIAL_LEVEL.S1,
+    voiceMode: VOICE_MODE.NONE,
+    captionMode: CAPTION_MODE.NONE,
+    ambience: "none",
+    spatialAudio: false,
+    aiVisualFreedom: "low_evidence_safe",
+    brandLockup: "identity_compact",
+  }),
   [EXPERIENCE_SURFACE.HOME]: Object.freeze({
     question: "מאיפה מתחילים?",
     environment: ENVIRONMENT.DARK_OBSERVATORY,

@@ -17,6 +17,7 @@ for (const [surface, expectedQuestion] of [
   [EXPERIENCE_SURFACE.NUMBER, "מה המספר הזה מראה?"],
   [EXPERIENCE_SURFACE.TOPIC, "מה מחבר את הציר הזה?"],
   [EXPERIENCE_SURFACE.BOOKS, "מה המקור אומר?"],
+  [EXPERIENCE_SURFACE.ADMIN, "מה דורש תשומת לב עכשיו?"],
 ]) {
   const ctx = resolveExperienceContext({ surface, locale: "he-IL" });
   assert.equal(ctx.surface, surface);
@@ -30,6 +31,13 @@ const worldHe = resolveExperienceContext({
   locale: "he-IL",
   lens: "kingdom",
 });
+const admin = resolveExperienceContext({ surface: EXPERIENCE_SURFACE.ADMIN, voiceRequested: true, requestedSpatialLevel: SPATIAL_LEVEL.S5 });
+assert.equal(admin.surface, "admin");
+assert.equal(admin.voice.available, false);
+assert.equal(admin.voice.active, false);
+assert.equal(admin.spatial.effectiveLevel, SPATIAL_LEVEL.S1);
+assert.equal(admin.audio.spatialAudioAllowed, false);
+assert.throws(() => resolveExperienceContext({ surface: "unknown_internal_surface" }), /Unknown SOD1820 experience surface/);
 assert.equal(worldHe.brand.identity, "סוד 1820");
 assert.equal(worldHe.brand.canonicalLatinIdentity, "SOD1820");
 assert.equal(worldHe.brand.expression, "כי לה׳ המלוכה");
