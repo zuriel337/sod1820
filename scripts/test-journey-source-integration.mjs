@@ -156,6 +156,8 @@ try {
         const preset = page.locator('[data-number-path-continuation]');
         await preset.getByRole('button', { name: 'התחל מסע מהבחירה', exact: true }).click({ timeout: 60000 });
         await page.waitForURL(`${base}/world`);
+        await page.getByText('אתה בתוך מסע 878', { exact: true }).waitFor({ timeout: 60000 });
+        await page.waitForTimeout(700); // existing World/frame entrance must finish before opening its menu
         const guest = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')));
         assert.equal((await guest()).journey.root.id, '878');
         if (width === 390) {
