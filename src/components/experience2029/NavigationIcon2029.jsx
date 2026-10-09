@@ -2,6 +2,14 @@ import React from "react";
 import "./navigationIcons2029.css";
 
 const GLYPH_NAMES = { "⌂":"home", "◌":"world", "◇":"tools", "↟":"posts", "↝":"journey", "◎":"community", "123":"number", "▤":"books", "✦":"els" };
+// Compatibility names route to this single approved menu family. No second SVG set.
+export const RESEARCH_ICON_ALIASES = Object.freeze({
+  research: "search", graph: "world", journey: "journey", spatial: "world",
+  scan: "search", time: "now", layers: "tools", source: "posts", gallery: "posts",
+  dna: "journey", cipher: "els", globe: "world", signal: "now", raziel: "personal",
+  portal: "heichal", spark: "action", door: "heichal", book: "books", cosmos: "world",
+  gematria: "number", els: "els",
+});
 const SHAPES = {
   home: <><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z" /></>,
   world: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></>,
@@ -21,9 +29,11 @@ const SHAPES = {
 };
 
 /** Decorative SVG: the enclosing control owns its live accessible name. */
-export default function NavigationIcon2029({ name, glyph, label }) {
-  const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
-  return <svg className={`sod29-ui-icon sod29-ui-icon--${resolved}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-    {resolved === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : SHAPES[resolved]}
+export default function NavigationIcon2029({ name, glyph, label, size }) {
+  const requested = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
+  const resolved = RESEARCH_ICON_ALIASES[requested] || requested;
+  const shape = SHAPES[resolved] || SHAPES.tools;
+  return <svg className={`sod29-ui-icon sod29-ui-icon--${resolved}`} width={size || 24} height={size || 24} style={size ? { width: size, height: size } : undefined} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    {resolved === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : shape}
   </svg>;
 }

@@ -9,9 +9,9 @@ export const FIXTURE_PROVENANCE = Object.freeze({
   engineRuleVersion: 2, authority: 'vetted_preview_fixture',
 });
 export const BUILDINGS = Object.freeze([
-  { id: 'garden', name: 'גן האותיות', icon: 'gematria', description: 'כל אות היא התחלה של גילוי.', unlock: null },
-  { id: 'mine', name: 'מכרה המספרים', icon: 'research', description: 'אותה מילה, מבט חדש על המספר.', unlock: 'garden-2' },
-  { id: 'factory', name: 'מפעל הצירופים', icon: 'layers', description: 'הגילויים שלכם הופכים לאור.', unlock: 'mine-2' },
+  { id: 'garden', name: 'גן האותיות', icon: 'number', description: 'כל אות היא התחלה של גילוי.', unlock: null },
+  { id: 'mine', name: 'מכרה המספרים', icon: 'search', description: 'אותה מילה, מבט חדש על המספר.', unlock: 'garden-2' },
+  { id: 'factory', name: 'מפעל הצירופים', icon: 'tools', description: 'הגילויים שלכם הופכים לאור.', unlock: 'mine-2' },
 ]);
 // Values captured by read-only execution of the canonical method profile, not
 // authored arithmetic. Local replay uses the SAME existing client METHODS.

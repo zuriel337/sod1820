@@ -255,3 +255,15 @@ Ordinary icons use theme text; selected controls consume the canonical accent. S
 
 ### Compact research introduction implementation
 World, Heichal, Topic, Books, ELS and Calculator use the shared compact System Frame intro (explicit none remains none). Existing copy stays live and unchanged. A 44px identity tile consumes the navigation SVG family beside a 24–30px heading; no orbit/rings, fixed height, truncation or large decorative media. Content follows directly. Day/Parchment/Night consume semantic panel/text/accent roles. One-shot entry (280ms copy, 420ms icon, 620ms fading edge light) honors both reduced-motion preferences. Home, story media and Journey retain their separate approved Hero behavior. The topbar preserves orientation when the intro scrolls away.
+
+### Shared icon family — user correction 9.10.2026
+
+The approved menu family in `NavigationIcon2029` is the shared family for product
+surfaces, including Kingdom and the spatial research preview. `ResearchIcon` and
+`SignatureResearchIcon` are compatibility consumers only: they must not own SVG
+artwork, a second visual family, orbital frames or theme/motion skins. Existing
+semantic names map to the menu family's shapes. New surfaces import the shared
+family directly. Preserve accessible control labels, currentColor, the 24×24
+viewBox, 1.8px rounded strokes and reduced-motion behavior. Icon sizing may vary
+with context; touch targets remain at least 44×44px. This supersedes the Kingdom
+brief's earlier instruction to use the old ResearchIcon artwork.

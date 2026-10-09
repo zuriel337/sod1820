@@ -156,3 +156,20 @@ This supersedes the initial local-only deployment status above.
 - Response CSP `connect-src 'self'; form-action 'self'` preserves the live-service
   boundary. No custom production alias, main push, merge or database write.
 - Hosted browser screenshot: `/workspace/artifacts/kingdom/hosted-mobile.png`.
+
+## Icon-family correction — 2026-10-09
+
+The user explicitly superseded the original icon mapping: use the newly approved
+menu family throughout the site. Kingdom now imports `NavigationIcon2029`
+directly. Existing `ResearchIcon` and `SignatureResearchIcon` consumers delegate
+to that same owner; the old SVG collection, tone skins, orbital frame and their
+component-level motion import are removed. The current repository consumers of
+that older family are Kingdom and EntityHubPreviewPage. Existing menu artwork
+and its default CSS sizing remain unchanged; explicit sizes serve game buildings.
+The current Design V2 document records this instruction for future consumers.
+This replaces the older brief's preference for the original ResearchIcon artwork.
+
+Icon correction verification: dual builds and the existing isolation/frame checks
+pass, all 14 Kingdom browser cases pass, and a browser inspection of Entity Hub
+found 26 compatibility icons / 26 shared menu SVGs, zero old `.rf-icon` or
+`.sig-icon` elements, and no empty glyphs.

@@ -11,7 +11,7 @@
 .kingdom button:disabled { cursor: default; color: var(--s29-muted); background: var(--s29-panel-soft); }
 .kingdom .kingdom-primary { background: var(--s29-accent); color: var(--s29-on-accent); border-color: var(--s29-accent); }
 .kingdom .kingdom-primary:disabled { background: var(--s29-panel-soft); border-color: var(--s29-line); color: var(--s29-muted); }
-.kingdom .rf-icon { color: inherit; background: none; border: 0; flex-shrink: 0; vertical-align: middle; }
+.kingdom .sod29-ui-icon { color: inherit; background: none; border: 0; flex-shrink: 0; vertical-align: middle; }
 .kingdom-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
 .kingdom-eyebrow { display: flex; align-items: center; gap: 8px; font: 14px var(--s29-font-ui); color: var(--s29-accent-text); }
 .kingdom-preview-label { max-width: 220px; border-inline-start: 2px solid var(--s29-line-strong); padding-inline-start: 16px; }
@@ -20,11 +20,11 @@
 .kingdom-gate-copy { max-width: 490px; }
 .kingdom-gate-copy small { display: block; margin-top: 16px; }
 .kingdom-gate-art { position: relative; min-height: 310px; display: grid; place-items: center; }
-.kingdom-gate-art > .rf-icon { position: absolute; top: 10px; color: var(--s29-brand-gold); }
+.kingdom-gate-art > .sod29-ui-icon { position: absolute; top: 10px; color: var(--s29-brand-gold); }
 .kingdom-gate-art .kingdom-art { transform: scale(1.65); }
 .kingdom-stats { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 16px 24px; background: var(--s29-panel); border: 1px solid var(--s29-line); border-radius: 18px; }
 .kingdom-stats > div { display: flex; align-items: center; gap: 10px; font-size: 16px; }
-.kingdom-stats .rf-icon { color: var(--s29-discovery); }
+.kingdom-stats .sod29-ui-icon { color: var(--s29-discovery); }
 .kingdom-stats strong { unicode-bidi: isolate; display: inline-block; font-family: var(--s29-font-numeric); font-size: 21px; }
 .kingdom-map { position: relative; margin-top: 20px; padding: 20px 24px 28px; border: 1px solid var(--s29-line); border-radius: 24px; background: radial-gradient(ellipse at 50% 60%, var(--s29-brand-glow), transparent 65%), var(--s29-panel-soft); overflow: hidden; }
 .kingdom-map-caption { display: flex; align-items: center; gap: 8px; color: var(--s29-muted); font-size: 14px; }
@@ -86,7 +86,7 @@
   .kingdom-gate { padding: 28px; gap: 12px; grid-template-columns: 1fr; }
   .kingdom-gate-art { min-height: 240px; }
   .kingdom-gate-art .kingdom-art { transform: scale(1.3); }
-  .kingdom-gate-art > .rf-icon { top: 0; }
+  .kingdom-gate-art > .sod29-ui-icon { top: 0; }
 }
 @media (max-width: 480px) {
   .kingdom-panel { padding: 18px; }

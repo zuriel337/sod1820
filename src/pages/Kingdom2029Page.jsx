@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import Sod2029Shell, { use2029Shell } from '../components/experience2029/Sod2029Shell.jsx';
-import ResearchIcon from '../components/ResearchIcon.jsx';
+import NavigationIcon2029 from '../components/experience2029/NavigationIcon2029.jsx';
 import { useResearch } from '../lib/research/ResearchProvider.jsx';
 import { numberExpressionFocusHref } from '../lib/research/numberExpressionFocus.js';
 import {
@@ -17,7 +17,7 @@ function BuildingArt({ building, level }) {
   return <span className={`kingdom-art kingdom-art--${building.id}`} aria-hidden="true">
     <span className="kingdom-art-model">
     <span className="kingdom-island" />
-    <span className="kingdom-tower"><span className="kingdom-roof" /><span className="kingdom-face"><ResearchIcon name={building.icon} size={34} /></span><span className="kingdom-side" /></span>
+    <span className="kingdom-tower"><span className="kingdom-roof" /><span className="kingdom-face"><NavigationIcon2029 name={building.icon} size={34} /></span><span className="kingdom-side" /></span>
     {level > 1 && <span className="kingdom-spire" />}
     {level > 2 && <span className="kingdom-spire kingdom-spire--second" />}
     <span className="kingdom-orbit" />
@@ -83,28 +83,28 @@ function KingdomGame() {
   }
   return <div className="kingdom" dir="rtl">
     <header className="kingdom-intro">
-      <div><p className="kingdom-eyebrow"><ResearchIcon name="portal" size={18} /> מסע של אותיות וגילויים</p>
+      <div><p className="kingdom-eyebrow"><NavigationIcon2029 name="heichal" size={18} /> מסע של אותיות וגילויים</p>
         <h1 ref={heading} tabIndex={-1}>ממלכת המספרים</h1>
         <p>כל חידה פותחת דרך. כל גילוי בונה את הממלכה שלכם.</p>
       </div>
       <span className="kingdom-preview-label">גרסת התנסות · התקדמות במכשיר הזה בלבד</span>
     </header>
     {!state.started ? <section className="kingdom-gate" aria-label="שער הממלכה">
-      <div className="kingdom-gate-art" aria-hidden="true"><BuildingArt building={BUILDINGS[0]} level={3} /><ResearchIcon name="portal" size={64} /></div>
+      <div className="kingdom-gate-art" aria-hidden="true"><BuildingArt building={BUILDINGS[0]} level={3} /><NavigationIcon2029 name="heichal" size={64} /></div>
       <div className="kingdom-gate-copy"><p className="kingdom-eyebrow">הממלכה מתחילה בסקרנות</p><h2>בין אות למספר,<br />עולם שלם מחכה.</h2>
         <p>פתרו חידות גימטריה, אספו אור והעירו את שלושת מבני הממלכה. אין שעון שסופר לאחור — מגלים בקצב שלכם.</p>
-        <button className="kingdom-primary" onClick={() => { dispatch({ type: 'start' }); heading.current?.focus(); }}><ResearchIcon name="portal" /> כניסה לממלכה</button>
+        <button className="kingdom-primary" onClick={() => { dispatch({ type: 'start' }); heading.current?.focus(); }}><NavigationIcon2029 name="heichal" /> כניסה לממלכה</button>
         <small>10 חידות · 3 מבנים · 5 שדרוגים</small>
       </div>
     </section> : <>
       <section className="kingdom-stats" aria-label="ההתקדמות שלי">
-        <div><ResearchIcon name="spark" /><span><strong data-testid="light">{state.light}</strong> אור</span></div>
-        <div><ResearchIcon name="journey" /><span><strong>{state.xp}</strong> ניסיון במשחק</span></div>
-        <div><ResearchIcon name="research" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
-        <div><ResearchIcon name="layers" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
+        <div><NavigationIcon2029 name="action" /><span><strong data-testid="light">{state.light}</strong> אור</span></div>
+        <div><NavigationIcon2029 name="journey" /><span><strong>{state.xp}</strong> ניסיון במשחק</span></div>
+        <div><NavigationIcon2029 name="search" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
+        <div><NavigationIcon2029 name="tools" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
       </section>
       <section className="kingdom-map" aria-label="מפת הממלכה">
-        <div className="kingdom-map-caption"><ResearchIcon name="graph" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
+        <div className="kingdom-map-caption"><NavigationIcon2029 name="world" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
         <div className="kingdom-buildings">
           {BUILDINGS.map((item) => {
             const level = buildingLevel(state, item.id);
@@ -120,7 +120,7 @@ function KingdomGame() {
       <p className="kingdom-feedback" role="status" aria-live="polite">{feedback || (finished ? 'כל עשר החידות פוענחו. אפשר להשלים שדרוגים ולהמשיך מהגילויים אל המחקר.' : 'התחילו בחידה, ואז השתמשו באור כדי לשדרג מבנה.')}</p>
       <div className="kingdom-workbench" id="kingdom-workbench">
         <section className="kingdom-panel kingdom-challenge" aria-labelledby="kingdom-challenge-title">
-          <div className="kingdom-panel-heading"><ResearchIcon name={building.icon} /><span>{building.name}</span><small>{building.description}</small></div>
+          <div className="kingdom-panel-heading"><NavigationIcon2029 name={building.icon} /><span>{building.name}</span><small>{building.description}</small></div>
           {!unlocked ? <div className="kingdom-empty"><h2 id="kingdom-challenge-title">דרך חדשה מחכה להיפתח</h2><p>השלימו את השדרוג ״{UPGRADES.find((item) => item.id === building.unlock)?.title}״ כדי להיכנס.</p><button onClick={() => chooseBuilding(selected === 'mine' ? 'garden' : 'mine')}>חזרה למבנה הקודם</button></div>
             : challenge ? <>
               <h2 id="kingdom-challenge-title" ref={challengeHeading} tabIndex={-1}>{challenge.title}</h2>
@@ -130,15 +130,15 @@ function KingdomGame() {
                 <label htmlFor="kingdom-answer">התשובה שלכם</label>
                 <div className="kingdom-answer-row"><input id="kingdom-answer" inputMode="numeric" autoComplete="off" value={answer} maxLength={6} onChange={(event) => setAnswer(event.target.value)} required aria-describedby="kingdom-method-help" /><button className="kingdom-primary" type="submit">בדיקת התשובה</button></div>
                 <p id="kingdom-method-help" className="kingdom-small">{challenge.method === 'רגיל' ? 'רגיל: מחברים את ערכי האותיות; לאות סופית אותו ערך כמו לאות הרגילה.' : 'סידורי: מחברים את מיקומי האותיות באלף־בית, מ־1 עד 22.'}</p>
-                <button type="button" className="kingdom-hint" aria-expanded={hint} aria-controls="kingdom-hint" onClick={() => setHint((value) => !value)}><ResearchIcon name="spark" size={18} /> {hint ? 'סגירת הרמז' : 'אפשר רמז?'}</button>
+                <button type="button" className="kingdom-hint" aria-expanded={hint} aria-controls="kingdom-hint" onClick={() => setHint((value) => !value)}><NavigationIcon2029 name="action" size={18} /> {hint ? 'סגירת הרמז' : 'אפשר רמז?'}</button>
                 {hint && <p id="kingdom-hint">{challenge.hint}</p>}
               </form> : <div className="kingdom-solved">
-                <p><ResearchIcon name="spark" /> פענחתם! הגילוי נוסף למחברת.</p>
+                <p><NavigationIcon2029 name="action" /> פענחתם! הגילוי נוסף למחברת.</p>
                 <div className="kingdom-actions"><button className="kingdom-primary" onClick={nextChallenge}>המשך הגילוי</button><button onClick={() => openResearch(challenge)}>לחקור את {challenge.answer}</button></div>
               </div>}
             </> : <div className="kingdom-empty"><h2 id="kingdom-challenge-title">כל הגילויים כאן הושלמו</h2><p>אפשר לשדרג את הממלכה או לבחור מבנה נוסף במפה.</p><button onClick={() => chooseBuilding(selected === 'garden' ? 'mine' : selected === 'mine' ? 'factory' : 'garden')}>אל המבנה הבא</button></div>}
         </section>
-        <section className="kingdom-panel kingdom-upgrades" aria-labelledby="kingdom-upgrades-title"><h2 id="kingdom-upgrades-title"><ResearchIcon name="layers" /> מגדלים את הממלכה</h2>
+        <section className="kingdom-panel kingdom-upgrades" aria-labelledby="kingdom-upgrades-title"><h2 id="kingdom-upgrades-title"><NavigationIcon2029 name="tools" /> מגדלים את הממלכה</h2>
           <ul>{UPGRADES.map((upgrade) => {
             const bought = state.upgrades.includes(upgrade.id);
             return <li key={upgrade.id}><div><strong>{upgrade.title}</strong><p>{upgrade.benefit}</p><small>{upgrade.discoveries} גילויים{upgrade.requires ? ` · נדרש: ${UPGRADES.find((item) => item.id === upgrade.requires).title}` : ''}</small></div>
@@ -146,18 +146,18 @@ function KingdomGame() {
           })}</ul>
         </section>
       </div>
-      <section className="kingdom-panel kingdom-production" aria-labelledby="kingdom-production-title"><div><h2 id="kingdom-production-title"><ResearchIcon name="layers" /> האור שבמפעל</h2>
+      <section className="kingdom-panel kingdom-production" aria-labelledby="kingdom-production-title"><div><h2 id="kingdom-production-title"><NavigationIcon2029 name="tools" /> האור שבמפעל</h2>
         <p>{isUnlocked(state, 'factory') ? 'כל גילוי חדש מזין את המפעל. השדרוגים מגדילים את האור שייווצר בגילויים הבאים.' : 'המפעל יתחיל לייצר אור מגילויים חדשים אחרי שדרוג ״עדשת המספרים״.'}</p></div>
         <button className="kingdom-primary" disabled={!state.pending} onClick={() => { dispatch({ type: 'collect' }); setFeedback(`${state.pending} אור נאספו מהמפעל.`); }}>איסוף {state.pending} אור</button>
       </section>
-      <details className="kingdom-panel kingdom-journal"><summary><ResearchIcon name="journey" /> מחברת הגילויים · {state.completed.length}</summary>
+      <details className="kingdom-panel kingdom-journal"><summary><NavigationIcon2029 name="journey" /> מחברת הגילויים · {state.completed.length}</summary>
         <p>החישוב מתאר ערך מספרי. שוויון בין ערכים הוא הזמנה לבדיקה, ואינו מוכיח קשר או טענה על המציאות.</p>
         {!state.completed.length ? <p>הגילוי הראשון שלכם יופיע כאן.</p> : <ul>{state.completed.map((id) => {
           const item = CHALLENGES.find((c) => c.id === id);
           return <li key={id}><span><strong>{item.expression}</strong> · {item.method} · <bdi>{item.answer}</bdi></span><button onClick={() => openResearch(item)}>פתיחה במחקר</button></li>;
         })}</ul>}
         <p className="kingdom-small">חידות ההתנסות נבדקו במנוע הגימטריה ב־9.10.2026. במחקר אפשר לבדוק את החישוב העדכני ואת פרטיו. נקודות המשחק אינן דירוג מחקרי.</p>
-        <div className="kingdom-actions"><button onClick={() => shell.go('/books')}><ResearchIcon name="book" /> ספריית המקורות</button><button onClick={() => shell.go('/els')}><ResearchIcon name="els" /> אל מחקר הצפנים</button></div>
+        <div className="kingdom-actions"><button onClick={() => shell.go('/books')}><NavigationIcon2029 name="books" /> ספריית המקורות</button><button onClick={() => shell.go('/els')}><NavigationIcon2029 name="els" /> אל מחקר הצפנים</button></div>
       </details>
     </>}
     <p className="kingdom-local-note">{saveFailed ? 'השמירה במכשיר אינה זמינה. אפשר להמשיך לשחק, אך ההתקדמות לא תישמר לאחר סגירה.' : 'ההתקדמות נשמרת בדפדפן הזה כהתנסות אישית. אור הוא משאב משחק בלבד.'}</p>
