@@ -222,7 +222,7 @@ test('adversarial owner snapshots fail closed for inactive, duplicate and stale 
   assert.throws(() => oneActiveRule('agent_onboarding_law'));
 });
 
-test('real GPT/Claude acceptance stays pending until live apply and released pointers', () => {
+test('historical preparation snapshot never claims real GPT/Claude acceptance', () => {
   assert.equal(entryCases.fresh_sessions.length, 8);
   assert.equal(new Set(entryCases.fresh_sessions.map(x => x.actor + ':' + x.case_id)).size, 8);
   for (const replay of entryCases.fresh_sessions) {
@@ -234,4 +234,47 @@ test('real GPT/Claude acceptance stays pending until live apply and released poi
   assert.equal(entryCases.post_apply_preconditions.live_rule_versions.live_state_resolution_law, 3);
   assert.equal(entryCases.post_apply_preconditions.live_rule_versions.experience_governance_foundation_v1_law, 9);
   assert.match(entryCases.evidence_requirements.join(' '), /Static fixture results are not fresh-agent acceptance/);
+});
+
+const applied = jsonFile('G1_ROUTING_APPLIED_EVIDENCE_20261009.json');
+
+test('applied evidence matches approved successor bodies, lineage and explicit approval', () => {
+  assert.equal(applied.canonical_project, packet.canonical_project);
+  assert.equal(applied.successors.length, 2);
+  for (const amendment of packet.amendments) {
+    const live = applied.successors.find(row => row.rule_id === amendment.rule_id);
+    assert.ok(live && live.is_active);
+    assert.equal(live.rule_version, amendment.proposed_version);
+    assert.equal(applied.active_versions[live.rule_id], live.rule_version);
+    assert.equal(live.supersedes_version, amendment.source_version);
+    assert.notEqual(live.id, amendment.source_node_id);
+    for (const key of Object.keys(amendment.candidate)) {
+      if (['metadata', 'is_active'].includes(key)) continue;
+      assert.deepEqual(live[key], amendment.candidate[key], 'approved field: ' + key);
+    }
+    const { g1_routing_amendment, ...originalMetadata } = live.metadata;
+    assert.deepEqual(originalMetadata, amendment.before.metadata);
+    assert.equal(g1_routing_amendment.status, 'APPLIED');
+    assert.equal(g1_routing_amendment.human_gate_approval, applied.approval_work_log_id);
+    assert.equal(g1_routing_amendment.approved_sha, applied.approved_packet_sha);
+  }
+  assert.match(ownerRow('Experience lifecycle / projection / zero legacy-UI inheritance'), /v9 ACTIVE/);
+});
+
+test('post-apply case expectations resolve actual successors without granting writes or closure', () => {
+  for (const task of entryCases.cases) {
+    for (const ruleId of task.required_rules) {
+      const expected = applied.active_versions[ruleId] ?? task.baseline_versions[ruleId];
+      const actual = applied.successors.find(row => row.rule_id === ruleId) ?? oneActiveRule(ruleId);
+      assert.equal(actual.rule_version, expected);
+    }
+  }
+  assert.equal(applied.fresh_sessions.length, 8);
+  assert.equal(applied.g1_closed, false);
+  for (const replay of applied.fresh_sessions) {
+    assert.equal(replay.status, 'NOT_RUN_WAITING_CODE_POINTER_RELEASE');
+    assert.equal(replay.session_id, null);
+    assert.equal(replay.read_trace, null);
+    assert.equal(replay.after_work_log_id, null);
+  }
 });

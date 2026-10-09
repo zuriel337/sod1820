@@ -1,6 +1,8 @@
 # G1 routing rule release preparation — 2026-10-09
 
-**PREPARED / BRANCH ONLY / NOT APPLIED / G1 NOT CLOSED.**
+**HISTORICAL PREPARATION SNAPSHOT at approved SHA `e3fb40f936036e54e67be8938861aeece6100498`. G1 NOT CLOSED.**
+
+Application update, 2026-10-09 01:22 UTC: the exact two successors below were atomically applied under Human approval `a05e003f-8cb4-40bb-adf9-84bd9a5abe7c`, following independent MAIN review `47652361-5bc2-4d3d-a591-366b9508c75b`. Live State v3 and Experience v9 are active; predecessor history, Brand owners and inactive onboarding were verified unchanged. Transaction receipt: `01e828a3-0127-4697-8629-df9a714e6356`. See [applied evidence](G1_ROUTING_APPLIED_EVIDENCE_20261009.json). Owner Index now reflects applied v9 on this branch. Code-pointer release and eight actual cold-entry sessions remain pending; no G1 closure is asserted. The preparation text and fixtures below describe their original pre-application baseline, not current live state.
 
 Existing task: `SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1`.
 Existing branch: `gpt/g1-routing-acceptance-oct08-v1`; Draft PR: [#1006](https://github.com/zuriel337/sod1820/pull/1006).
