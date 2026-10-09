@@ -12,6 +12,7 @@ import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurren
 import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
 import { fetchScriptureTermDiscoveryForFindings } from "./scriptureTermDiscoveryProjection.js";
+import { buildTopicSourceContext, INDIA_CAPTAIN_SOURCE, isPublicSourceImage, TOPIC_SOURCE_LIMIT, TOPIC_OCCURRENCE_LIMIT } from "./topicSourceContext.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -21,6 +22,7 @@ const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
+const TOPIC_MEDIA_FIELDS = `${WORLD_MEDIA_FIELDS},min_tier,wp_image_id`;
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -835,6 +837,51 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
   };
 }
 
+// Existing public Topic memberships, then exact-object historical appearances. All reads are
+// bounded; numeric similarity never seeds a query. Gallery SELECT RLS does not filter hidden,
+// unpublished or entitled rows, so this reader applies AND rechecks all three public gates.
+export async function fetchTopicSourceContext({ topicSlug, client = supabase } = {}) {
+  const slug = normalizeMediaPostSlug(topicSlug);
+  if (!slug) return null;
+  const { data: topic, error: topicError } = await client.from(TOPIC_SOURCE)
+    .select("id,slug,title,status,node_id,image_ids").eq("slug", slug).eq("status", "approved").maybeSingle();
+  if (topicError) throw topicError;
+  if (!topic || topic.status !== "approved" || topic.slug !== slug) return null;
+
+  const ids = [...new Set(Array.isArray(topic.image_ids) ? topic.image_ids.slice(0, TOPIC_SOURCE_LIMIT) : [])];
+  const publicImages = (query) => query.eq("published", 1).eq("min_tier", 0)
+    .or("curator_hidden.is.null,curator_hidden.eq.false");
+  const { data: selectedRows, error: imageError } = ids.length
+    ? await publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS).in("id", ids)).limit(TOPIC_SOURCE_LIMIT)
+    : { data: [] };
+  if (imageError) throw imageError;
+  const images = (selectedRows || []).filter(isPublicSourceImage);
+  const urls = [...new Set(images.map((row) => row.image_url))];
+  const [appearances, postResult] = await Promise.all([
+    urls.length
+      ? publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+        .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
+      : Promise.resolve({ data: [], count: 0 }),
+    slug === INDIA_CAPTAIN_SOURCE.topicSlug
+      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+        .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  if (appearances.error) throw appearances.error;
+  const occurrences = (appearances.data || []).filter(isPublicSourceImage);
+  const galleryIds = [...new Set([...images, ...occurrences].map((row) => row.gallery_id).filter(Boolean))];
+  const { data: galleries, error: galleryError } = galleryIds.length
+    ? await client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT + TOPIC_SOURCE_LIMIT)
+    : { data: [] };
+  if (galleryError) throw galleryError;
+  const projection = buildTopicSourceContext({
+    topic, images, occurrences, galleries: galleries || [], post: postResult.error ? null : postResult.data,
+    occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT,
+  });
+  if (projection && postResult.error) projection.coverage.captain = "source_read_failed";
+  return projection;
+}
+
 function humanGateSummary(rows) {
   const status = { candidate: 0, approved: 0, canonical: 0, rejected: 0, other: 0 };
   const access = { private: 0, family_shared: 0, public_candidate: 0, other: 0 };
@@ -969,14 +1016,17 @@ export async function fetchEntityHubProjection({
   includeMedia = true,
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
+  topicSourceSlug = null,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
 
-  const [definition, graphFindings, research] = await Promise.all([
+  const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
     fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
     fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
+    topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
+      .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
   ]);
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
@@ -1088,6 +1138,8 @@ export async function fetchEntityHubProjection({
       relations: relationFindings,
     },
     media,
+    // Opt-in Topic composition only; Number/Posts/World retain their existing query profile.
+    sourceContext: topicSources?.topicNodeId && topicSources.topicNodeId !== String(node.id) ? null : topicSources,
     research: {
       rows: research.rows,
       findings: research.findings,

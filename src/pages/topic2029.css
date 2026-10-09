@@ -63,6 +63,20 @@
 .sod29-topic-media-grid figcaption{display:grid;gap:2px;padding:10px}
 .sod29-topic-media-grid figcaption strong{color:var(--s29-ink)}
 .sod29-topic-media-grid figcaption small{color:var(--s29-muted);line-height:1.45}
+.sod29-topic-source-list{display:grid;gap:24px;margin-block:20px}
+.sod29-topic-source-card{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr);gap:24px;margin:0;padding:20px;border:1px solid var(--s29-line);border-radius:18px;background:var(--s29-panel-soft);scroll-margin-block:100px;overflow-wrap:anywhere}
+.sod29-topic-source-card:focus-visible,.sod29-topic-source-card[data-source-selected="true"]{outline:2px solid var(--s29-accent);outline-offset:3px}
+.sod29-topic-source-card>div{min-width:0}
+.sod29-topic-source-card .sod29-canonical-media-image{aspect-ratio:4/3;min-height:120px}
+.sod29-topic-source-card h3{margin:0 0 12px;font-size:22px;color:var(--s29-ink)}
+.sod29-topic-source-card p{font-family:var(--s29-font-body,inherit);font-size:18px;line-height:1.8;color:var(--s29-ink)}
+.sod29-topic-source-card .sod29-topic-source-meta,.sod29-topic-source-card .sod29-topic-source-history-note{font-size:14px;color:var(--s29-muted)}
+.sod29-topic-source-verbatim{white-space:pre-wrap}
+.sod29-topic-source-history{border-top:1px solid var(--s29-line);padding-block:12px}
+.sod29-topic-source-history summary{min-height:44px;display:list-item;align-content:center;font-size:16px;cursor:pointer;line-height:1.6}
+.sod29-topic-source-card a{display:inline-flex;align-items:center;min-height:44px;font-size:16px;color:var(--s29-accent);text-underline-offset:4px}
+.sod29-topic-source-sequence{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;border-top:1px solid var(--s29-line);margin-top:12px}
+@media(max-width:680px){.sod29-topic-source-card{grid-template-columns:minmax(0,1fr);padding:16px;gap:16px}}
 .sod29-topic-people{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
 .sod29-topic-people span{padding:7px 10px;border:1px solid color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line));border-radius:999px;color:var(--s29-ink);background:var(--s29-panel-soft);font-size:11px}
 .sod29-topic-journey p{max-width:850px;color:var(--s29-muted);line-height:1.7}
