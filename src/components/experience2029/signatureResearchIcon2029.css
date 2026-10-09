@@ -9,6 +9,18 @@
 @media(hover:hover){.sig-icon[data-icon-family="navigation"]:hover,button:hover>.sig-icon[data-icon-family="navigation"],a:hover>.sig-icon[data-icon-family="navigation"]{transform:rotateX(9deg) rotateY(-12deg)}
 .sig-icon[data-icon-family="navigation"]:hover .sig-icon__core{transform:translateZ(12px)}}
 :focus-visible>.sig-icon[data-icon-family="navigation"]{transform:rotateY(-8deg)}
+/* Press and release work on touch as well as mouse; no sticky hover or loop. */
+.sig-icon[data-icon-family="navigation"]:active,
+button:active .sig-icon[data-icon-family="navigation"],
+a:active .sig-icon[data-icon-family="navigation"]{transform:scale(.94) rotateX(-6deg)}
+.sig-icon[data-icon-family="navigation"]:active .sig-icon__core,
+button:active .sig-icon[data-icon-family="navigation"] .sig-icon__core,
+a:active .sig-icon[data-icon-family="navigation"] .sig-icon__core{transform:translateZ(0)}
+/* Legacy feature-card styles cannot reintroduce independent glyph motion. */
+.sig-icon[data-icon-family="navigation"] .sig-icon__core,
+.sig-icon[data-icon-family="navigation"] .sig-icon__core .rf-icon{animation:none!important;filter:none}
+.sig-icon[data-icon-family="navigation"] .rf-icon::after{display:none}
+.sig-icon[data-icon-family="navigation"] .sod29-ui-icon{animation:none!important;transform:none!important;filter:none!important}
 @media(prefers-reduced-motion:reduce){.sig-icon[data-icon-family="navigation"],.sig-icon[data-icon-family="navigation"] *{animation:none!important;transition:none!important;transform:none!important}.sig-icon[data-icon-family="navigation"] .sig-icon__depth{display:none}}
 [data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"],[data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"] *{animation:none!important;transition:none!important;transform:none!important}
 [data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"] .sig-icon__depth{display:none}

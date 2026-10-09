@@ -1,4 +1,5 @@
 import React from "react";
+import { iconPress2029 } from "./iconPress2029.js";
 import "./navigationIcons2029.css";
 
 const GLYPH_NAMES = { "⌂":"home", "◌":"world", "◇":"tools", "↟":"posts", "↝":"journey", "◎":"community", "123":"number", "▤":"books", "✦":"els" };
@@ -19,6 +20,7 @@ const SHAPES = {
   back: <><path d="m9 4-6 6 6 6M3 10h11a6 6 0 0 1 0 12"/></>,
   issue: <><circle cx="12" cy="12" r="9"/><path d="M12 6v7m0 4h.01"/></>,
 
+  video: <><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3Z"/></>,
   research: <><circle cx="12" cy="12" r="6.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="12" cy="12" r="2"/></>,
   graph: <><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="6" r="2.2"/><circle cx="19" cy="12" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M6.8 10.6 10.2 7.5M13.8 7.5l3.4 3.1M17.2 13.4l-3.4 3.1M10.2 16.5l-3.4-3.1"/></>,
   spatial: <><path d="m12 3 7 4v10l-7 4-7-4V7z"/><path d="m5 7 7 4 7-4M12 11v10"/></>,
@@ -42,7 +44,7 @@ const ALIASES = { time: "now", source: "posts", globe: "world", book: "books", g
 export default function NavigationIcon2029({ name, glyph, label, size = 24, className = "" }) {
   const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
   const canonical = ALIASES[resolved] || (NAVIGATION_ICON_NAMES.includes(resolved) ? resolved : "tools");
-  return <svg className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+  return <svg className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} onPointerDown={iconPress2029} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {canonical === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : SHAPES[canonical]}
   </svg>;
 }

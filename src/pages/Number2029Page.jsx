@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -1238,7 +1239,7 @@ export default function Number2029Page() {
 
   return <Sod2029Shell
     surface="number"
-    symbol="123"
+    symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
     <NumberPageBody />
