@@ -11,6 +11,7 @@ const OCR_TEXT_CAP = 4000;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const clean = (value) => (typeof value === "string" ? value.trim() : "");
+const originalText = (value) => typeof value === "string" ? value : null;
 const ints = (value) => (Array.isArray(value) ? value.filter((n) => Number.isSafeInteger(n)) : []);
 
 export function mediaIdentity(galleryImageId) {
@@ -110,7 +111,7 @@ export function buildIntrinsicMedia({ row, node = null, label = "" }) {
 // Legacy PLACEMENT / HISTORY layer (sibling of intrinsic): where/how/when the row was filed on
 // gallery_images, preserved unchanged (chronology/order never rewritten). Not visual truth about
 // the image and never confused with the current surface context (contextRelation).
-export function buildLegacyPlacement({ row, node = null }) {
+export function buildLegacyPlacement({ row, node = null, gallery = null }) {
   const storedNumbers = {
     primary: Number.isSafeInteger(row?.primary_value) ? row.primary_value : null,
     all: ints(row?.all_values),
@@ -119,9 +120,20 @@ export function buildLegacyPlacement({ row, node = null }) {
   };
   const createdAt = row?.created_at || node?.created_at || null;
   return Object.freeze({
+    galleryImageId: row?.id ?? null,
+    wpImageId: row?.wp_image_id ?? null,
     galleryId: row?.gallery_id ?? null,
     wpGalleryId: row?.wp_gallery_id ?? null,
+    galleryName: gallery?.name ?? null,
     ordering: Number.isFinite(row?.ordering) ? row.ordering : null,
+    // Verbatim historical text. Presentation labels must never replace these fields.
+    originalName: row?.name ?? null,
+    originalCaption: row?.description ?? null,
+    originalCredit: {
+      author: originalText(row?.ocr_meta?.author),
+      publication: originalText(row?.ocr_meta?.publication),
+      source: originalText(row?.source),
+    },
     description: clean(row?.description) || null,
     tags: Array.isArray(row?.tags) ? row.tags : [],
     space: clean(row?.space) || null,
@@ -130,7 +142,12 @@ export function buildLegacyPlacement({ row, node = null }) {
     createdAt,
     // Date provenance: which stored column each date came from (never inferred from pixels).
     dateProvenance: {
-      occurredAt: row?.occurred_at ? { value: row.occurred_at, basis: "gallery_images.occurred_at" } : null,
+      occurredAt: row?.occurred_at ? {
+        value: row.occurred_at,
+        basis: "gallery_images.occurred_at",
+        derivedFrom: clean(row?.ocr_meta?.date_derived) || null,
+        certainty: "stored_date_not_verified_event_date",
+      } : null,
       createdAt: row?.created_at ? { value: row.created_at, basis: "gallery_images.created_at" } : (node?.created_at ? { value: node.created_at, basis: "nodes.created_at" } : null),
     },
     storedNumbers,
@@ -157,11 +174,11 @@ export function buildContextRelation({ relationType = "related", surface = null,
 // Flat legacy fields are preserved so existing consumers keep working; `intrinsic`,
 // `presentation` and `contextRelation` are the contract new/updated surfaces consume.
 // `presentation` ({label, summary}) is computed ONCE here via the shared canonical function.
-export function buildMediaEnvelope({ row, node = null, label = "", relationType = "related", relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null }) {
+export function buildMediaEnvelope({ row, node = null, gallery = null, label = "", relationType = "related", relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null }) {
   const intrinsic = buildIntrinsicMedia({ row, node, label });
   if (!intrinsic) return null;
   const provenance = Object.freeze(buildMediaProvenance(row));
-  const legacyPlacement = buildLegacyPlacement({ row, node });
+  const legacyPlacement = buildLegacyPlacement({ row, node, gallery });
   const contextRelation = buildContextRelation({ relationType, relationKind, postSlug });
   const presentation = Object.freeze(canonicalMediaPresentation({ ...intrinsic, provenance, legacyPlacement }));
   const lp = legacyPlacement;
@@ -193,15 +210,54 @@ export function buildMediaEnvelope({ row, node = null, label = "", relationType 
   };
 }
 
-// Dedupe by stable media identity (first wins — callers sort by context before calling).
-export function dedupeMediaEnvelopes(items) {
-  const seen = new Set();
-  return (items || []).filter((item) => {
-    const key = item?.mediaId || item?.galleryImageId;
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+// Strong representation identity only: the exact public storage object, including its host.
+// No basename, thumbnail, OCR, number or theme equivalence. Signed/transformed URLs are not
+// used to establish identity. This is a read-time reference, not a new canonical media row.
+export function mediaSourceIdentity(envelope) {
+  const imageUrl = envelope?.intrinsic?.representation?.imageUrl;
+  try {
+    const url = new URL(imageUrl);
+    if (url.protocol === "https:" && !url.search && !url.hash && !url.username && !url.password
+      && /^\/storage\/v1\/object\/public\/[^/]+\/.+/.test(url.pathname)) {
+      return { ref: `storage-object:${url.origin}${url.pathname}`, basis: "exact_public_storage_object", imageUrl };
+    }
+  } catch { /* A row identity remains usable without storage-object equivalence. */ }
+  const ref = envelope?.mediaId || null;
+  return ref ? { ref, basis: "source_row_only", imageUrl: imageUrl || null } : null;
+}
+
+// Existing callers keep row-level identity. Source-context consumers explicitly opt into
+// object equivalence and retain EVERY occurrence/caption/relation; the first item determines
+// presentation order only, never canonical ownership or independent-evidence count.
+export function dedupeMediaEnvelopes(items, { bySourceObject = false } = {}) {
+  const groups = new Map();
+  for (const item of items || []) {
+    const identity = bySourceObject ? mediaSourceIdentity(item) : null;
+    const key = identity?.ref || item?.mediaId || item?.galleryImageId;
+    if (!key) continue;
+    if (!bySourceObject) {
+      if (!groups.has(key)) groups.set(key, item);
+      continue;
+    }
+    const occurrence = {
+      mediaId: item.mediaId,
+      intrinsic: item.intrinsic,
+      provenance: item.provenance,
+      legacyPlacement: item.legacyPlacement || null,
+      postPlacement: item.postPlacement || null,
+    };
+    const incoming = item.occurrences || [occurrence];
+    const relations = item.contextRelations || (item.contextRelation ? [item.contextRelation] : []);
+    if (!groups.has(key)) groups.set(key, { ...item, sourceIdentity: identity, occurrences: [], contextRelations: [] });
+    const group = groups.get(key);
+    for (const entry of incoming) {
+      if (!group.occurrences.some((old) => old.mediaId === entry.mediaId)) group.occurrences.push(entry);
+    }
+    for (const relation of relations) {
+      if (!group.contextRelations.some((old) => JSON.stringify(old) === JSON.stringify(relation))) group.contextRelations.push(relation);
+    }
+  }
+  return [...groups.values()];
 }
 
 // Existing Lightbox consumes gallery-row-shaped objects; adapt the envelope's sibling layers
@@ -212,13 +268,15 @@ export function mediaToLightboxImage(envelope) {
   const lp = envelope.legacyPlacement || {};
   const rep = intrinsic.representation || {};
   return {
-    id: intrinsic.galleryImageId,
+    id: intrinsic.galleryImageId || intrinsic.mediaId,
     name: envelope.presentation?.label || intrinsic.label,
-    description: lp.description,
+    description: lp.originalCaption ?? lp.description ?? envelope.postPlacement?.originalCaption,
     image_url: rep.imageUrl,
     thumb_url: rep.thumbUrl,
-    occurred_at: lp.occurredAt,
-    created_at: lp.createdAt,
+    // Source-context cards show labelled date provenance beside the image. The legacy
+    // Lightbox date is unlabelled, so it must not turn ingestion/derived dates into events.
+    occurred_at: envelope.dateUse === "provenance_only" ? null : lp.occurredAt,
+    created_at: envelope.dateUse === "provenance_only" ? null : lp.createdAt,
     tags: lp.tags,
     image_type: lp.imageType,
     primary_value: lp.storedNumbers?.primary ?? null,
