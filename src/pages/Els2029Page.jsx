@@ -15,6 +15,7 @@ import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
 const clean = (value) => String(value ?? "").trim();
+const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
 
 function StateRow({ label, value, state = "ready" }) {
   return <div className="sod29-state" data-state={state}>
@@ -136,13 +137,13 @@ export default function Els2029Page() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (elsState.loading) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="טוען את מצב היכולת הקנוני…">
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description={ELS_DESCRIPTION}>
       <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
   }
 
   if (elsState.blocked) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="אותו מנוע קנוני, עם מצב פתיחה/סגירה אחד לכל המערכת.">
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description={ELS_DESCRIPTION}>
       <FeatureClosedNotice state={elsState} title="ELS" to="/world" />
     </Sod2029Shell>;
   }
@@ -153,7 +154,7 @@ export default function Els2029Page() {
     symbol="✦"
     eyebrow="ONE ELS ENGINE · MANY PROJECTIONS"
     title="ELS"
-    description="חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר."
+    description={ELS_DESCRIPTION}
   >
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">

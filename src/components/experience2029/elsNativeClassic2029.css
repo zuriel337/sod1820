@@ -10,6 +10,9 @@
 .els29-native-classic.is-height-expanded{--els29-stage-height:calc(var(--els29-stage-height-base) * 1.5)}
 [data-els-2029-surface="v1"].sod29-focus-stage{padding-inline:6px}
 [data-els-classic-2029="native-v1"].sod29-section{padding:6px}
+/* The first verified axis fills this strip asynchronously. Reserve one readable row. */
+.sod29-root.surface-els .sod29-context-strip{min-height:44px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start}
+.sod29-root.surface-els .sod29-context-strip span{flex-shrink:0;white-space:nowrap}
 @media(min-width:981px){
   .sod29-root.surface-els .sod29-content.wide{width:90%;max-width:none;margin-inline:auto;padding-inline:8px}
 }
