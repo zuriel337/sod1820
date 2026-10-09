@@ -4,6 +4,8 @@ import { parseElsHitKey } from "../../lib/elsJourney.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
+import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import "./elsNativeClassic2029.css";
 
 const clean = (value) => String(value ?? "").trim();
@@ -401,7 +403,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   </div>;
 }
 
-function FindingsRail({ activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -542,21 +544,12 @@ function FindingsRail({ activeTool, state, selected, lensResult, lensPending, op
       <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>{lensPending ? "טוען…" : "סרוק לאורך הציר הנבחר"}</button>
       <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
     </div>
-    <div className="els29-native-rail-scroll" hidden={activeTool !== "research"}>
-      <strong>שמירה והמשך מחקר</strong>
-      <div className="els29-native-hit-actions">
-        <button type="button" disabled={!verified || pending} onClick={onSave}>שמור מטריצה</button>
-        <button type="button" disabled={!verified || pending} onClick={onWorkspace}>הוסף למחקר</button>
-        <button type="button" onClick={onOpenClassic}>שמירות ושיתוף</button>
-      </div>
-      <p className="els29-native-muted">כלי ההצלבות המתקדמים, תמונה ושיתוף זמינים בכלים הקלאסיים.</p>
-      <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
-    </div>
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "" }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }) {
   const palette = use2029Palette("research_lab");
+  const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -617,7 +610,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const findingsSeqRef = useRef(0);
   const [findingControlRequest, setFindingControlRequest] = useState(null);
   const [contextRequest, setContextRequest] = useState(null);
-  const [actionRequest, setActionRequest] = useState(null);
+  const [saveRequest, setSaveRequest] = useState(null);
+  const [savePending, setSavePending] = useState(false);
+  const [saveResult, setSaveResult] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
@@ -631,6 +627,15 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
+  useEffect(() => {
+    if (!matrix) return;
+    setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
+    setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
+    setSaveResult(null);
+    const view = matrix.positions?.view || {};
+    setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
+    setShortSkipView(view.shortSkipView === "columns" ? "columns" : "reading");
+  }, [matrix?.id]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
@@ -648,6 +653,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const requestSearch = (kind, payload = {}) => {
     resetReadContext();
+    setLoadError(null);
     setNotice("");
     setAccountRequired(false);
     setClassicOpen(false);
@@ -773,9 +779,12 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     resetReadContext();
     setContextRequest({ delta, seq: ++actionSeqRef.current });
   };
-  const requestSave = () => {
-    setClassicOpen(true);
-    setActionRequest({ action: "save", seq: ++actionSeqRef.current });
+  const requestSave = (draft) => {
+    if (!draft) { setActiveTool("research"); return; }
+    if (savePending) return;
+    setSaveResult(null);setSavePending(true);
+    setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
+      view: { classicGlyphs, heightExpanded, shortSkipView } });
   };
 
   const addLineFinding = (term) => {
@@ -791,7 +800,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     requestLens("letter-context", { i: index });
   };
 
-  const matrixActive = engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
@@ -859,7 +868,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         onClick={() => { if (crossOpen && operations.search?.searchKind === "cross") cancelOperation("search"); setCrossOpen((value) => !value); }}
       >הצלבה בין צירים</button>
       <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen((value) => !value); }}>
-        {classicOpen ? "חזור לתצוגת 2029" : "כל הכלים"}
+        {classicOpen ? "חזור למטריצה" : "כל הכלים"}
       </button>
 
       {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
@@ -960,6 +969,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           </header>
         <CrossResultsRail state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results"} onSelect={requestControl} />
+        <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
+          pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
+          onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
+          onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
         <FindingsRail
           selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}
@@ -975,9 +988,6 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onAxisControl={requestControl}
           onAddLineFinding={addLineFinding}
           onFindingControl={requestFindingControl}
-          onSave={requestSave}
-          onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
-          onOpenClassic={() => setClassicOpen(true)}
           onFindingsChange={requestFindingsChange}
         />
         </ContextualInspector2029>
@@ -987,6 +997,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
         <TzofenEmbed
           seed={engineSeed || undefined}
+          matrix={matrix}
           full={classicOpen}
           hiddenBridge
           experience2029
@@ -1004,7 +1015,9 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           findingsRequest={findingsRequest}
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}
-          actionRequest={actionRequest}
+          saveRequest={saveRequest}
+          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result); }}
+          onLoadError={(error) => { setLoadError(error);setNotice("לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />

@@ -937,7 +937,7 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
-    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
+    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
   ];
 

@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
-import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
+import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -46,22 +47,7 @@ function buildEngineDetail(d, s) {
 //    loadMatrix() נופל ל-fallback הקיים שלו (item.skip בלבד, ללא שינוי-התנהגות לנתונים-ישנים-ודו-משמעיים).
 function rowToItem(m) {
   if (!m) return null;
-  const dir = m.direction === "back" ? -1 : m.direction === "fwd" ? 1 : null;
-  return {
-    id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
-    slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
-    name: m.title || m.search_term, term: m.search_term,
-    skip: m.skip_distance || 0, scope: m.scope || "torah",
-    start: m.start_index != null ? m.start_index : null, dir,   // 🆔 עוגן-מדויק ל-loadMatrix() exact-match
-    words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
-    searchWindow: m.positions?.searchWindow || null,
-    hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
-    postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
-    desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
-    // 🖼 תצוגה-מקדימה בגלריה = ממוזערת (thumb) ולא הכרטיס המלא — חיסכון ~5-6× Egress, טעינה קלה.
-    //    (resize=contain בתוך thumb → בלי חיתוך. עמוד-הצופן הקנוני מושך את image_url המלא בנפרד.)
-    image: thumb(m.image_url, 200) || "", author: m.author_name || "",
-  };
+  return { ...savedMatrixToItem(m), image: thumb(m.image_url, 200) || "" };
 }
 
 // 🛰️ onState — מקבל-המצב של Work Area. ה-iframe הוא **מקור-העובדות**; ה-host רק מקבל אותן.
@@ -82,7 +68,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -216,32 +202,49 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const [savedToast, setSavedToast] = useState(null);          // 💾 אישור-שמירה חוזר עם קישור לדף-המחקר (כל שמירה)
   // 🔔 טוסט-השמירה נעלם לבד אחרי 7ש' (המשתמש עדיין יכול ללחוץ «לדף המחקר»)
   useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
+  const nativeSavedRowRef = useRef(null);
+  useEffect(() => { nativeSavedRowRef.current = null; }, [matrix?.id]);
   const saveToCloud = useCallback(async (d) => {
+    const native = d.nativeRequestId != null;
+    const savedState = lastStateRef.current;
+    if (native && (!experience2029 || d.nativeRequestId !== saveRequest?.seq)) return;
+    const completeNative = (result) => onSaveResult?.({ requestId: d.nativeRequestId, ...result });
+    if (native && (!user || savedState?.axis?.hitId !== saveRequest.axisHitId)) {
+      completeNative({ ok: false, error: user ? "selection_changed" : "auth_required" }); return;
+    }
     // G3 one-engine: a governed save needs the tool's last state to carry a canonical MATCH (defense in depth;
     // the tool already refuses to post `save` for an unverified occurrence).
-    if (lastStateRef.current?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); return; }
+    if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
     try {
-      const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
+      const contextMatrix = native ? (nativeSavedRowRef.current || matrix) : matrix;
+      const privateNative = native && saveRequest.isPublic !== true;
+      const canUpdateNative = privateNative && contextMatrix?.owner_user_id === user?.id
+        && contextMatrix?.visibility === "private" && !contextMatrix?.self_published
+        && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
+      // Private research never uploads its rendered letters into the public gallery bucket.
+      const shapeUrl = !privateNative && d.shape ? await uploadCipherCard(d.shape) : null;
       // 🎴 כרטיס-הצופן → Storage. אם אין כרטיס מרונדר — נופלים לצורת-המטריצה, כך שצופן לעולם
       //    לא נשמר בלי תמונת-שיתוף (auto-render: כל צופן אוטומטית מקבל תמונה, בלי צעד ידני).
-      const imageUrl = (d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
+      const imageUrl = (!privateNative && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
-      const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null };
+      const positions = { ...(canUpdateNative ? contextMatrix.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null, view: d.view || null };
 
       // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
       //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
       //    כ«גרסה» מקושרת למקור (variantOf) שממתינה לאישור — לעולם לא דורסים צופן קיים.
       const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
-      const isReSave = !!(matrix?.id
+      const isReSave = native ? savedMatrixMatchesAxis(contextMatrix, savedState) : !!(matrix?.id
         && nrm(d.term) === nrm(matrix.search_term)
         && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
         && (d.scope || "torah") === (matrix.scope || "torah"));
 
       // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
       //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
-      const engineDetail = buildEngineDetail(d, lastStateRef.current);
-      const editId = d.editId || (isReSave ? matrix.id : null);
+      const engineDetail = buildEngineDetail(d, savedState);
+      // The native private path uses the existing save RPC's exact-identity upsert,
+      // including title updates. Published rows cannot be selected by that opt-in path.
+      const editId = native ? null : (d.editId || (isReSave ? matrix.id : null));
       if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
           p_id: editId, p_positions: positions,
@@ -263,15 +266,25 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
         // גרסה על צופן קיים (לא-אדמין) → מקושרת למקור כדי שהאדמין יראה «גרסה» ולא כפילות אקראית.
-        positions: isReSave ? { ...positions, variantOf: matrix.id, variantOfSlug: matrix.slug || null } : positions,
+        positions: isReSave && !canUpdateNative ? { ...positions, variantOf: contextMatrix.id, variantOfSlug: contextMatrix.slug || null } : positions,
         // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
-        title: d.postTitle || d.term, note: d.desc || null, imageUrl,
+        title: (native ? saveRequest.title : null) || d.postTitle || d.term, note: d.desc || null, imageUrl,
         // 🆔 עוגן-הממצא 0-based (occ().start מהמנוע). `!= null` כי start=0 חוקי. corpus_id/term_norm נגזרים בשרת.
         startIndex: d.start != null ? d.start : null,
         engineDetail,
       };
       if (user) {
-        await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
+        const id = await saveMatrix({ ...common, isPublic: native ? saveRequest.isPublic === true : true, fromTopic: privateNative ? null : fromTopic || null });
+        if (native) {
+          let row = { id, search_term: d.term, title: common.title, scope: common.scope, skip_distance: common.skip,
+            direction: common.direction, start_index: common.startIndex, corpus_id: savedState?.verification?.corpus_id,
+            positions: common.positions, owner_user_id: user.id, visibility: privateNative ? "private" : null,
+            status: privateNative ? "draft" : null, description: common.note };
+          try { row = await getMatrixById(id) || row; } catch { /* retain the committed id if readback is temporarily unavailable */ }
+          nativeSavedRowRef.current = row;
+          postToTool({ type: "saved", ok: true, status: row.status || "saved" });
+          completeNative({ ok: true, id, row, status: row.status || "saved" }); return;
+        }
         const st = isAdmin ? "published" : (isReSave ? "variant" : "pending");
         postToTool({ type: "saved", ok: true, status: st });
         // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
@@ -286,8 +299,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       }
     } catch {
       postToTool({ type: "saved", ok: false });
+      if (native) completeNative({ ok: false, error: "save_failed" });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult]);
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
@@ -383,6 +397,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "native-save-result" && d.requestId === saveRequest?.seq) {
+        onSaveResult?.(d);
       } else if (d.type === "contribute" && d.slug) {
         // ➕ 1ב — שיתוף ממצא מתוך הכלי כתגובת-מחקר על הצופן הנוכחי (עץ אחד: לא צופן חדש, תרומה על הקיים).
         const words = Array.isArray(d.words) ? d.words.filter(Boolean) : [];
@@ -424,7 +440,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad]);
+  }, [verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult]);
 
   const workspaceSeqRef = useRef(null);
   useEffect(() => {
@@ -472,12 +488,20 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq });
   }, [findingsRequest, postToTool]);
 
-  // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
+  // A native save is sent once for its explicit user action.
+  const saveSeqRef = useRef(null);
+  useEffect(() => {
+    if (!saveRequest || saveSeqRef.current === saveRequest.seq) return;
+    saveSeqRef.current = saveRequest.seq;
+    postToTool({ ...saveRequest, type: "native-save", requestId: saveRequest.seq });
+  }, [saveRequest, postToTool]);
+
+  // Saved record loading still uses the same mounted canonical engine.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
   //    אחרת שינוי-סטטוס היה מריץ מחדש את כל הצופן + סרט-הצופן ללא צורך.
   useEffect(() => {
     if (!matrix) { lastKeyRef.current = null; return; }
-    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope].join("|");
+    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope, matrix.start_index, matrix.direction, matrix.corpus_id].join("|");
     if (lastKeyRef.current === key) return;
     lastKeyRef.current = key;
     postToTool({ type: "load-matrix", item: rowToItem(matrix) });
@@ -585,10 +609,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       <iframe
         ref={iframeRef}
         onLoad={postTier}
-        // 🔑 מפתח לפי זהות-הצופן: מעבר לצופן אחר (id שונה) → iframe נטען מחדש נקי, בלי מצב-כלי ישן דולף.
-        //    כך צופן שנמחק ונוצר-מחדש עם אותו מונח/דילוג לא מציג את הגרסה הישנה שהכלי שמר בזיכרון.
-        //    שינויי-שדה באותו צופן (סטטוס/איכות) לא מחליפים id → אין טעינה-מחדש מיותרת.
-        key={matrix?.id ? "els-" + matrix.id : (seed || "els")}
+        // Native records load into the same canonical engine. Remounting would replay stale search requests.
+        // Legacy pages keep their established record/seed keyed lifecycle.
+        key={experience2029 ? "els-native-engine" : matrix?.id ? "els-" + matrix.id : (seed || "els")}
         src={src}
         title="הצופן התנ״כי — דילוגי אותיות (ELS)"
         loading={hiddenBridge || engineOnly ? "eager" : "lazy"}

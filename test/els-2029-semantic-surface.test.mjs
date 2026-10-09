@@ -26,7 +26,7 @@ test("ELS 2029 exact replay is fail-closed through the canonical replay request 
 test("ELS 2029 Research stays projection-only while Native Classic projects the one canonical tool", () => {
   assert.match(src, /\{researchProfile \? <div className="sod29-els-architecture">/);
   assert.match(src, /data-els-classic-2029="native-v1"/);
-  assert.match(src, /<ElsNativeClassic2029 initialSeed=\{classicSeed\} \/>/);
+  assert.match(src, /<ElsNativeClassic2029 initialSeed=\{savedRecord.row \? "" : classicSeed\} matrix=\{savedRecord.row\} \/>/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
   assert.match(nativeClassic, /engineOnly=\{!classicOpen\}/);
   assert.doesNotMatch(src, /tzofen\.html|findAllAdaptive|function\s+findAll|els_search_core_v1/);

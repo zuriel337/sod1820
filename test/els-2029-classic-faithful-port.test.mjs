@@ -12,7 +12,7 @@ const template = readFileSync(new URL("../tools/els/els-code.template.html", imp
 test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
   assert.match(page, /import ElsNativeClassic2029 from/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.ok(page.includes("<ElsNativeClassic2029 initialSeed={classicSeed} />"));
+  assert.ok(page.includes('<ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} />'));
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
@@ -33,7 +33,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
   assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
   assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
-  assert.match(nativeClassic, /פתח את כל הכלים הקלאסיים/);
+  assert.match(nativeClassic, /classicOpen \? "חזור למטריצה" : "כל הכלים"/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
   assert.match(embed, /engineOnly = false/);
@@ -209,7 +209,7 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
-  assert.ok(page.includes("<ElsNativeClassic2029 initialSeed={classicSeed} />"));
+  assert.ok(page.includes('<ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} />'));
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 

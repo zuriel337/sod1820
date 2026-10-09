@@ -2,7 +2,32 @@
 // קריאה ציבורית למאושרות (status=published). כתיבה/אישור דרך RPC (SECURITY DEFINER).
 import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 
-const COLS = "id,slug,title,search_term,scope,skip_distance,direction,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published";
+const COLS = "id,slug,title,search_term,scope,skip_distance,direction,start_index,corpus_id,engine_detail,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published";
+
+// The native library reads the same rows under the caller's RLS. Pagination never
+// silently turns an arbitrary first 100 records into the complete collection.
+export async function getMatrixLibraryPage({ view = "public", userId, query = "", offset = 0, pageSize = 24 } = {}) {
+  if (!supabase) throw new Error("library_unavailable");
+  if (view === "mine" && !userId) return { rows: [], more: false };
+  const size = Math.max(1, Math.min(48, Math.trunc(Number(pageSize)) || 24));
+  const start = Math.max(0, Math.trunc(Number(offset)) || 0);
+  let request = supabase.from("els_records").select(COLS + ",status,visibility,owner_user_id");
+  if (view === "mine") request = request.eq("owner_user_id", userId);
+  else request = request.eq("status", "published").eq("visibility", "public").or("source.is.null,source.neq.research");
+  // Remove PostgREST filter syntax, while retaining Hebrew terms and normal titles.
+  const words = String(query).replace(/[%,()."\\]/g, " ").trim().slice(0, 120);
+  if (words) request = request.or(`search_term.ilike.%${words}%,title.ilike.%${words}%`);
+  const { data, error } = await request.order("created_at", { ascending: false }).order("id", { ascending: false }).range(start, start + size);
+  if (error) throw error;
+  return { rows: (data || []).slice(0, size), more: (data || []).length > size };
+}
+
+export async function getMatrixById(id) {
+  if (!supabase || !id) return null;
+  const { data, error } = await supabase.from("els_records").select(COLS + ",status,visibility,owner_user_id").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
 
 // ספריית-הצפנים הראשית (וגם גלריית-הכלי/בית) — מאושרות, **בלי תיקיית-המחקר** (source='research').
 // אלה חיים רק בתיקייה הנסתרת /codes/מחקר (getResearchMatrices). כך המחקר לא מוצג לכל מי שנכנס.
@@ -52,7 +77,7 @@ export async function getMatrixBySlug(slug) {
   try {
     let token = SUPABASE_ANON;
     try { const { data: s } = await supabase.auth.getSession(); if (s?.session?.access_token) token = s.session.access_token; } catch { /* אנונימי */ }
-    const url = `${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&select=${COLS},status&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&select=${COLS},status,visibility,owner_user_id&limit=1`;
     const res = await fetch(url, {
       cache: "no-store",
       headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${token}`, Accept: "application/json" },
@@ -63,7 +88,7 @@ export async function getMatrixBySlug(slug) {
   } catch {
     // נפילה ל-supabase-js אם ה-fetch נכשל (רשת/CORS חריג) — לפחות נטען, גם אם דרך הקאש
     try {
-      const { data } = await supabase.from("els_records").select(COLS + ",status").eq("slug", slug).maybeSingle();
+      const { data } = await supabase.from("els_records").select(COLS + ",status,visibility,owner_user_id").eq("slug", slug).maybeSingle();
       return data || null;
     } catch { return null; }
   }

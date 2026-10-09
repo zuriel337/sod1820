@@ -1439,7 +1439,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     out.vmismatch=mismatch;out.vtrace=vr.traces;out.vstate="VERIFIED";out.corpus_id=vr.corpus_id||CORPUS_ID[sc];
     return out;
   }
-  async function discoverVerified(raw,cap,operation){
+  async function discoverVerified(raw,cap,operation,exactAnchor=null){
     const scope=st.scope,epoch=_matrixRequestSeq;
     const cancelled=()=>({hits:[],capped:0,t:norm(raw),vstate:"CANCELLED"});
     let candidates;
@@ -1449,6 +1449,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       candidates=pool?(await xfCall(pool,{type:"routed-discover",reqId:++_xfReqId,raw,cap,scope})).result:await routedDiscover(raw,cap);
     }catch(e){if(e?.name==="AbortError"||epoch!==_matrixRequestSeq)return cancelled();throw e;}
     if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
+    // Mandatory replay anchor joins the canonical verifier batch even when the
+    // bounded discovery sample omitted it. Other occurrences remain navigable.
+    if(exactAnchor&&!candidates.hits.some(h=>hitKey(h)===hitKey(exactAnchor)))candidates.hits.push(exactAnchor);
     if(candidates.hits.some(h=>Math.abs(h.skip)>=2))operationStatus(operation,"verifying");
     return promoteVerified(candidates,scope,operation);
   }
@@ -1593,7 +1596,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     btn.onclick=()=>{const d=ta.value.trim();if(d.length<MIN){toast("כתוב מה רואים בצופן כדי לשמור");return;}
       st.desc=d;st.author=nm.value.trim();ov.remove();render();onConfirm();};
   }
-  function performSaveToGallery(h){
+  function performSaveToGallery(h,nativeRequest=null){
+    const epoch=_matrixRequestSeq,anchor=hitKey(h);
+    const fail=reason=>{if(nativeRequest)postHost({type:"native-save-result",requestId:nativeRequest.requestId,ok:false,error:reason});};
     // 👁️ חיווי מיידי — מונטה-קרלו (למטה) חוסם את ה-UI לשנייה-שתיים; בלי חיווי מוקדם המשתמש
     //    חושב שכלום לא קרה. משנים את הכפתור מיד, ומריצים את החישוב-הכבד ב-setTimeout כדי שה-UI ייצבע קודם.
     const sbs=[document.querySelector(".save-act"),document.querySelector(".save")].filter(Boolean);
@@ -1604,16 +1609,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
       //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions.
       try{
-        if(st.words.length && !(st.mc&&st.mc.done&&!st.mc.err&&st.mc.sig===mcSig())){
+        if(!nativeRequest && st.words.length && !(st.mc&&st.mc.done&&!st.mc.err&&st.mc.sig===mcSig())){
           const r=runMonteCarlo(); if(r&&!r.err){st.mc={...r,sig:mcSig(),done:true};}
         }
         if(st._refreshQuality)st._refreshQuality();
       }catch(e){}
       // 🧬 G3: שמירה (מטריצה/ממצא governed) רק אחרי אימות canonical בשרת של הציר ושל הממצאים המוצגים.
       await healGoverned();
+      if(nativeRequest&&(epoch!==_matrixRequestSeq||!hasGov(st.res)||hitKey(occ())!==anchor)){fail("selection_changed");return;}
       if(!isGov(h)){
         sbs.forEach(sb=>{sb.textContent=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";sb.disabled=false;});
         toast("⛔ לא נשמר — המופע טרם אומת מול מנוע-השרת (מועמד בלבד). נסו שוב בעוד רגע.");
+        fail("verification_required");
         return;
       }
       const it=galleryCurrentItem();
@@ -1627,6 +1634,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       //    loadMatrix()'s exact-match fallback/the axis-message below already key off) — reusing the
       //    SAME "fwd"/"back" vocabulary already used for the axis message, not inventing a second one.
       postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.dir===-1?"back":"fwd"),
+        nativeRequestId:nativeRequest?.requestId||null,title:nativeRequest?.title||null,isPublic:nativeRequest?.isPublic===true,
+        view:{...nativeRequest?.view,showN:st.showN,findingRadius:st.findingRadius,zoom:st.zoom,fit:!!st.fit,heat:!!st.heat,niqqud:!!st.niqqud},
         searchWindow:searchWindowSnapshot(),
         start:h.start,   // 🆔 עוגן-הממצא 0-based (occ().start === positions[0]) → start_index. corpus_id/term_norm נגזרים בשרת.
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
@@ -2175,6 +2184,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
     if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId);
+    if(d.type==="native-save"){
+      if(!EXPR2029||!hasGov(st.res)||hitKey(occ())!==d.axisHitId||String(d.desc||"").trim().length<12){
+        postHost({type:"native-save-result",requestId:d.requestId,ok:false,error:"selection_changed"});
+      }else{
+        st.desc=String(d.desc).trim();st.author=String(d.author||"").trim();
+        performSaveToGallery(occ(),d);
+      }
+    }
     if(d.type==="native-action"&&hasGov(st.res)){
       // Explicit user actions only. The host reveals this SAME iframe for its canonical dialogs.
       if(d.action==="save")addCurrentToGallery();
@@ -3560,7 +3577,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
-    const discovered=await discoverVerified(item.term,4000);
+    const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
+    // Exact saved occurrences use the SAME canonical verifier. A capped
+    // discovery list must never substitute a different occurrence of the word.
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
+    const t=norm(item.term);
+    const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
+    const discovered=await discoverVerified(item.term,4000,null,anchor);
     if(requestSeq!==_matrixRequestSeq)return;
     const win=item.searchWindow;
     Object.assign(st,win&&Number.isInteger(win.ctxR)&&win.ctxR>=1&&win.ctxR<=8&&Number.isInteger(win.windowColumns)&&win.windowColumns>=1&&win.windowColumns<=80
@@ -3568,7 +3591,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       : {ctxR:3,windowColumns:80,windowSize:"legacy",windowRequested:"legacy"});
     st.crossMeetings=null;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossPairA="";st.crossPairB="";st.crossB="";st.zoneStars=null;st.zoneSig="";
     st.res=discovered;   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
-    if(!hasGov(st.res)){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
+    if(!hasGov(st.res)){st.res=null;postHost({type:"load-error",term:item.term,reason:exact?"anchor-not-found":"not-found"});updGem();render();return;}
     // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
     //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט
     //    הקנוני הקיים (כבר בשימוש ב-Verse-Lens). נופל לגיבוי הישן (skip בלבד) לצפנים-שמורים ותיקים
@@ -3576,14 +3599,20 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     //    כדי ש-journeyAnchorMatches() בצד ה-React ידע להבחין הצלחה משחזור-קירוב.
     let idx=-1;
     if(item.hitId)idx=st.res.hits.findIndex(h=>hitKey(h)===item.hitId);
-    if(idx<0&&item.start!=null&&item.dir!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&h.dir===item.dir);
-    if(idx<0&&item.skip)idx=st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip);
+    if(idx<0&&item.start!=null&&item.dir!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&h.dir===item.dir&&(!exact||h.skip===item.skip));
+    if(idx<0&&!exact&&!item.hitId&&item.skip)idx=st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip);
+    if(idx<0&&(exact||item.hitId)){st.res=null;postHost({type:"load-error",term:item.term,reason:"anchor-not-found"});updGem();render();return;}
     if(idx<0){
       if(item.hitId||item.start!=null)postHost({type:"load-error",term:item.term,reason:"anchor-not-found"});
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;
     }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
+    const view=item.view||{};
+    st.showN=Number.isInteger(view.showN)&&view.showN>=1&&view.showN<=15?view.showN:2;
+    st.findingRadius=Number.isFinite(view.findingRadius)&&view.findingRadius>=0?view.findingRadius:null;
+    st.zoom=Number.isFinite(view.zoom)?Math.max(.35,Math.min(3,view.zoom)):1;st.fit=view.fit!==false;
+    st.heat=view.heat===true;st.niqqud=view.niqqud===true;
     st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?[...w.sh,...(Array.isArray(w.sourceShown)?w.sourceShown:[])]:null};});
     updGem();render();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch{}

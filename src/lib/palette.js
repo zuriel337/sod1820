@@ -185,7 +185,7 @@ export const DESIGN_V2_PALETTES = Object.freeze({
   }),
   dark: Object.freeze({
     preset: "dark", mode: "dark",
-    matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#070C1B", ink: "#D7DFEE", frame: "#D7AC4C" }),
+    matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#130F23", ink: "#E2DDED", frame: "#AB96C6" }),
     pageBg: "#080D1D",
     card: "rgba(16,24,45,0.94)",
     cardSoft: "rgba(22,33,60,0.84)",

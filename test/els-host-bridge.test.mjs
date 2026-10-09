@@ -20,7 +20,8 @@ test('Tzofen host bridge preserves browser trust boundary', () => {
 });
 
 test('host save/state only accept a canonical MATCH from the tool (defense in depth)', () => {
-  assert.match(src, /lastStateRef\.current\?\.verification\?\.state !== "MATCH"/);
+  assert.match(src, /const savedState = lastStateRef\.current/);
+  assert.match(src, /savedState\?\.verification\?\.state !== "MATCH"/);
   assert.match(src, /d\?\.verification\?\.state === "MATCH"/);
 });
 

@@ -7,6 +7,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
+import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -73,6 +74,7 @@ window.__log=[];window.__hostLog=[];
 window.__setThemePreset=setThemePreset;
 window.__findingColors={findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette};
 function Fixture(){
+const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
 const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minHeight:'100vh',padding:12};
@@ -87,7 +89,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native)))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix})))))),dock);
 }
 createRoot(document.getElementById('root')).render(React.createElement(Fixture));
 `;
@@ -124,11 +126,23 @@ function verify({ op, payload, denied }) {
 // These read-only stubs let first-search acceptance exercise the real TzofenEmbed adapter and
 // its gate portal, while keeping auth, saved matrices, tracking and workspace writes out of tests.
 const realHostStubs = {
-  '../lib/AuthContext.jsx': `export const useAuth=()=>({isAdmin:window.__fixtureTier==='admin',verified:window.__fixtureTier!=='anon',user:null});`,
+  '../lib/AuthContext.jsx': `export const useAuth=()=>({isAdmin:window.__fixtureTier==='admin',verified:window.__fixtureTier!=='anon',user:window.__fixtureTier==='anon'?null:{id:'fixture-owner'},loading:false});`,
   '../lib/tracking.js': `export const track=()=>{};export const getVisitorId=()=>'native-ui-fixture';`,
-  '../lib/elsMatrices.js': `export const getSavedMatrices=async()=>[];export const saveMatrix=async()=>{};export const saveMatrixAnon=async()=>{};export const moderateMatrix=async()=>{};`,
+  '../lib/elsMatrices.js': `export const getSavedMatrices=async()=>[];
+    export const getMatrixById=async id=>structuredClone((window.__savedRows||[]).find(row=>row.id===id)||null);
+    export const saveMatrix=async payload=>{
+      (window.__saveCalls||=[]).push(structuredClone(payload));
+      if(window.__saveFails)throw new Error('fixture save failure');
+      const rows=window.__savedRows||=[];
+      const old=rows.find(row=>row.search_term===payload.term&&row.skip_distance===payload.skip&&row.direction===payload.direction&&row.start_index===payload.startIndex);
+      const row={id:old?.id||'saved-'+(rows.length+1),slug:old?.slug||'native-save-'+(rows.length+1),search_term:payload.term,title:payload.title,
+        scope:payload.scope,skip_distance:payload.skip,direction:payload.direction,start_index:payload.startIndex,corpus_id:'${ELS_GOLDEN_CORPUS_ID}',
+        owner_user_id:'fixture-owner',visibility:'private',status:'draft',self_published:false,positions:payload.positions,description:payload.note};
+      if(old)Object.assign(old,row);else rows.push(row);return row.id;
+    };
+    export const saveMatrixAnon=async()=>{throw new Error('unexpected anonymous save')};export const moderateMatrix=async()=>{};`,
   '../lib/contributions.js': `export const addContribution=async()=>{};`,
-  '../lib/supabase.js': `export const supabase={functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
+  '../lib/supabase.js': `export const supabase={storage:{from:()=>{window.__publicUploads=(window.__publicUploads||0)+1;throw new Error('public upload forbidden in private-save fixture');}},functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
     if(window.__fixtureHoldVerification)await new Promise(resolve=>{window.__fixtureReleaseVerification=resolve;signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
@@ -144,6 +158,7 @@ async function withNative(viewport, run, options = {}) {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
+      if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
       if (realHost && importer?.endsWith('/TzofenEmbed.jsx') && Object.hasOwn(realHostStubs, id)) return '\0els-host-stub:' + id;
     },
@@ -177,7 +192,7 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
     await page.addInitScript(({ realHost, loadGolden, onboarded, tier }) => {
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
@@ -983,6 +998,61 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
   },{realHost:true});
  });
 
+test('native save: private retry, same-record update and exact restore preserve findings without legacy dialogs or public uploads',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    await openPanel(page);
+    await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('התורה');await activate(page,'חפש במטריצה');
+    await page.waitForFunction(()=>window.__state?.findings?.some(f=>f.t==='התורה'&&f.shown.length));
+    await radius(page,5);
+    await activate(page,'שמירה');
+    await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('מחקר שמור לבדיקה');
+    const note='מצאתי הצטלבות מעניינת, ואחזור לבדוק את הפסוקים בהמשך.';
+    await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill(note);
+    await activate(page,'סריקה וממצאים');await activate(page,'שמירה');
+    assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note,'switching tabs preserves the unsaved explanation');
+    await page.evaluate(()=>window.__saveFails=true);await activate(page,'שמור אצלי');
+    await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('לא הושלמה'));
+    assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note);
+    await page.evaluate(()=>window.__saveFails=false);await activate(page,'שמור אצלי');
+    await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר אצלך'));
+    if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'save-mobile.png')});
+    const saved=await page.evaluate(()=>window.__savedRows[0]);
+    const state=await page.evaluate(()=>window.__state);
+    assert.equal(saved.start_index,state.axis.start);assert.equal(saved.direction,state.axis.direction);
+    assert.equal(saved.title,'מחקר שמור לבדיקה');assert.equal(saved.description,note);
+    assert.equal(saved.positions.view.findingRadius,5);
+    assert.equal(saved.positions.findings[0].color,state.findings[0].color);
+    assert.ok(saved.positions.findings[0].sh.length>0);
+    assert.equal(await page.evaluate(()=>window.__saveCalls.every(call=>call.isPublic===false)),true);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),0);
+    const frame=page.frames().find(f=>f.parentFrame());
+    assert.equal(await frame.locator('.shareov').count(),0,'saving never opens the legacy description dialog');
+    await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('כותרת מעודכנת');await activate(page,'שמור אצלי');
+    await page.waitForFunction(()=>window.__savedRows?.[0]?.title==='כותרת מעודכנת');
+    assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'repeat saving updates the same exact private record');
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__state.axis?.hitId==='2_-1_49435');
+    await page.evaluate(row=>window.__openSavedMatrix(row),saved);
+    await page.waitForFunction(id=>window.__state?.axis?.hitId===id&&window.__state?.findings?.[0]?.hits?.some(hit=>hit.verified),state.axis.hitId);
+    const restored=await page.evaluate(()=>window.__state);
+    assert.deepEqual(restored.geometry,state.geometry);
+    assert.equal(restored.ui.findingRadius,5);
+    assert.deepEqual(restored.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})),state.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})));
+    assert.equal(restored.provenance.desc,note);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.evaluate(row=>window.__openSavedMatrix({...row,id:'bad-skip',skip_distance:row.skip_distance+1}),saved);
+    await page.waitForFunction(()=>window.__state?.status==='empty');
+    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0,'another valid skip at the same start is not the saved occurrence');
+    // Explicit bad coordinates must not silently fall back to another hit of the same word.
+    await page.evaluate(row=>window.__openSavedMatrix({...row,id:'bad-anchor',start_index:row.start_index+1}),saved);
+    await page.waitForFunction(()=>window.__state?.status==='empty');
+    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0);
+    assert.match(await page.locator('.els29-native-notice').textContent(),/לשחזר/);
+  },{realHost:true,mobile:true});
+ });
+
 test('native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
@@ -1019,3 +1089,76 @@ test('native reliability: cancellation terminates discovery and cross workers; p
     assert.equal(complete.search.zones,3,'new workers complete the replacement search');
   },{realHost:true});
  });
+
+test('native library: paginated existing records, legacy disclosure and account changes remain scoped',
+  { skip: !canRun, timeout: 120000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: '127.0.0.1', port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?library=mine`);
+    await page.waitForFunction(() => window.__switchLibraryUser && window.__libraryCalls?.length);
+    await page.evaluate(corpus => {
+      const row = (id, owner = 'owner-a', extra = {}) => ({ id, owner_user_id: owner, search_term: 'תורהקדשה', title: 'צופן '+id,
+        status: 'draft', visibility: 'private', scope: 'torah', skip_distance: 10065, direction: 'fwd', start_index: 32836,
+        corpus_id: corpus, positions: { findings: [{ t: 'התורה', c: '#FF3C61' }] }, description: 'הסבר על הצופן השמור', ...extra });
+      window.__libraryRows = [
+        ...Array.from({length:25},(_,i)=>row('mine-'+i)),
+        row('legacy','owner-a',{start_index:null,direction:null,image_url:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='}),
+        row('other','owner-b'),
+        row('public','owner-b',{status:'published',visibility:'public'}),
+        row('research','owner-b',{status:'published',visibility:'public',source:'research'}),
+      ];
+    }, ELS_GOLDEN_CORPUS_ID);
+    await button(page,'צפנים שפורסמו').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    assert.match(await page.locator('.els29-library-card').textContent(), /צופן public/);
+    await button(page,'הצפנים שלי').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===24);
+    await button(page,'טען צפנים נוספים').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===26);
+    assert.deepEqual(await page.evaluate(()=>window.__libraryCalls.filter(c=>c.eq.some(([key])=>key==='owner_user_id')).slice(-2).map(c=>c.range)),[[0,24],[24,48]]);
+    assert.equal(await button(page,'טען צפנים נוספים').count(),0);
+    assert.equal(await page.locator('.els29-library-card').filter({hasText:'צופן other'}).count(),0);
+    await page.getByLabel('חיפוש בצפנים').fill('legacy');await button(page,'חפש בספרייה').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    await page.locator('.els29-library-card a').click();
+    await page.waitForFunction(()=>window.__libraryMatrix?.id==='legacy');
+    assert.match(await page.locator('.els29-saved-record').textContent(),/אינה שחזור מדויק/);
+    assert.equal(await page.evaluate(()=>window.__libraryMatrix.start_index),null,'old anchors are never synthesized by the library');
+    await page.getByText('התמונה המקורית שנשמרה',{exact:true}).click();
+    assert.equal(await page.locator('.els29-saved-record img').isVisible(),true);
+    await button(page,'הצפנים שלי').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===24);
+    await page.locator('.els29-library-card a').first().click();
+    await page.waitForFunction(()=>window.__libraryMatrix?.id==='mine-0');
+    assert.equal(await page.locator('.els29-saved-record').getByText(/אינה שחזור מדויק/).count(),0);
+    assert.equal(await page.evaluate(()=>window.__libraryMatrix.positions.findings[0].t),'התורה');
+    await page.evaluate(()=>window.__switchLibraryUser(null));
+    await page.getByRole('heading',{name:'הצופן אינו זמין'}).waitFor();
+    assert.equal(await page.locator('[data-fixture-matrix="mine-0"]').count(),0,'sign-out removes the private matrix');
+    await button(page,'הצפנים שלי').click();
+    await page.getByText('כדי לראות את הצפנים שלך,',{exact:false}).waitFor();
+    await page.evaluate(()=>{window.__libraryHold=true;window.__switchLibraryUser('owner-a');});
+    await page.waitForFunction(()=>window.__releaseLibrary);
+    await page.evaluate(()=>window.__switchLibraryUser('owner-b'));
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===3);
+    await page.evaluate(()=>window.__releaseLibrary());
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.equal(await page.locator('.els29-library-card').filter({hasText:'mine-0'}).count(),0,'late old-account responses are discarded');
+    await page.evaluate(()=>window.__libraryFailure=true);
+    await button(page,'צפנים שפורסמו').click();
+    await page.getByRole('alert').waitFor();
+    await page.evaluate(()=>window.__libraryFailure=false);await button(page,'נסה שוב').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'library fits mobile width');
+    assert.deepEqual(errors,[]);
+    if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'library-mobile.png'),fullPage:true});
+  } finally {
+    await browser?.close();await server.close();
+  }
+});

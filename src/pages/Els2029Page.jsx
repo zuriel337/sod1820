@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
+import ElsSavedLibrary2029 from "../components/experience2029/ElsSavedLibrary2029.jsx";
+import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
@@ -57,6 +62,26 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
 
 export default function Els2029Page() {
   const research = useResearch();
+  const { user, loading: authLoading } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const library = params.get("library");
+  const cipherSlug = params.get("cipher");
+  const recordId = params.get("record");
+  const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}`;
+  const [recordState, setSavedRecord] = useState({ key: null, row: null, error: false });
+  // Hide the previous account/URL's record during the render that precedes the next fetch.
+  const savedRecord = recordState.key === recordKey ? recordState
+    : { loading: Boolean(cipherSlug || recordId), row: null, error: false };
+  useEffect(() => {
+    let alive = true;
+    if (!cipherSlug && !recordId) { setSavedRecord({ key: recordKey, loading: false, row: null, error: false });return; }
+    setSavedRecord({ key: recordKey, loading: true, row: null, error: false });
+    if (authLoading) return;
+    (cipherSlug ? getMatrixBySlug(cipherSlug) : getMatrixById(recordId))
+      .then(row => { if (alive) setSavedRecord({ key: recordKey, loading: false, row, error: !row }); })
+      .catch(() => { if (alive) setSavedRecord({ key: recordKey, loading: false, row: null, error: true }); });
+    return () => { alive = false; };
+  }, [recordKey]);
   const elsState = useFeatureState("lock_els");
   const context = research.context || null;
   const subject = context?.subject || null;
@@ -132,18 +157,18 @@ export default function Els2029Page() {
   const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
 
   useEffect(() => {
-    applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
+    applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/els" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (elsState.loading) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description={ELS_DESCRIPTION}>
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
   }
 
   if (elsState.blocked) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description={ELS_DESCRIPTION}>
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FeatureClosedNotice state={elsState} title="ELS" to="/world" />
     </Sod2029Shell>;
   }
@@ -152,17 +177,36 @@ export default function Els2029Page() {
     wide
     surface="els"
     symbol="✦"
-    eyebrow="ONE ELS ENGINE · MANY PROJECTIONS"
+    eyebrow="הצופן התנ״כי · חיפוש ומחקר"
     title="ELS"
     description={ELS_DESCRIPTION}
   >
+    {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
+      onView={view => setParams({ library: view })} onClose={() => setParams({})}
+      onOpen={row => setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1]))} />
+      : savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => setParams({ library: "mine" })}>הצפנים שלי</button></FrameState>
+      : <>
+    <div className="els29-library-tabs" style={{ marginBottom: 18 }}>
+      <button className="sod29-action" type="button" onClick={() => setParams({ library: "mine" })}>הצפנים שלי</button>
+      <button className="sod29-action" type="button" onClick={() => setParams({ library: "public" })}>צפנים שפורסמו</button>
+      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
+    </div>
+    {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
+      <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
+      {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
+      {!hasExactSavedMatrix(savedRecord.row) ? <>
+        <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
+        {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
+      </> : null}
+    </section> : null}
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "CLASSIC 2029 · FULL TOOL"}</div>
+          <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "כלי המחקר הקלאסי"}</div>
           <h2>{researchProfile
             ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
-            : "הצופן הקלאסי · בתוך 2029"}</h2>
+            : "הצופן הקלאסי"}</h2>
           <div className="sod29-muted">
             {researchProfile
               ? (subject
@@ -179,14 +223,14 @@ export default function Els2029Page() {
 
       <section
         className="sod29-section"
-        aria-label="ELS Classic 2029 workspace"
+        aria-label="סביבת המחקר של הצופן"
         data-els-classic-2029="native-v1"
         style={{ marginTop: 18, overflow: "hidden" }}
       >
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={classicSeed} />
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} />
       </section>
 
 
@@ -281,5 +325,6 @@ export default function Els2029Page() {
       </section> : null}
       </details>
     </section>
+    </>}
   </Sod2029Shell>;
 }
