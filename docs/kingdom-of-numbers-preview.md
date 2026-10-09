@@ -137,3 +137,22 @@ migration of local demo progress is provided. Social sharing, account persistenc
 production analytics and the advanced zones remain deferred as in the brief.
 
 Handoff to: existing authorized coordinator / ZURIEL for prototype review.
+
+## Hosted review follow-up — 2026-10-09
+
+After the user reported that the localhost link was inaccessible, the tested
+static output from commit `90b9e5a7687531377063561fca431f004610c0f1` was uploaded
+as a Preview to the existing Vercel project `sod1820` (team
+`team_vtfWHZfKvdbob8gvynQb5N89`, project `prj_43q7k7QFAcWnin1tcBjce5xOi7Cq`).
+This supersedes the initial local-only deployment status above.
+
+- Deployment: `dpl_3LugfJCw1PUcbAm1tPidMMWCsCwa`, READY, preview (`target=null`).
+- Host: `sod1820-fl0x5w1xb-sod1820-s-projects.vercel.app`, path `/2029/kingdom`.
+- Build: static Vite/React output, about 3 seconds; no server functions supplied.
+- Protection remains enabled; a deployment-scoped share link valid for seven days
+  was supplied directly to the user, without storing its token in Git.
+- A fresh mobile browser opened the shared URL with HTTP 200, entered the kingdom,
+  solved the first challenge and received 20 demo light; zero JavaScript errors.
+- Response CSP `connect-src 'self'; form-action 'self'` preserves the live-service
+  boundary. No custom production alias, main push, merge or database write.
+- Hosted browser screenshot: `/workspace/artifacts/kingdom/hosted-mobile.png`.
