@@ -44,6 +44,85 @@ test('host bridge rejects same-origin spoof: e.source must be the exact iframe c
   assert.equal(guard({ origin: 'https://evil', source: real }, 'https://x', real), false);
 });
 
+function hostMessageHarness(overrides = {}) {
+  const toolWindow = {};
+  const sent = [], operations = [], gates = [], legacyGates = [];
+  const start = src.indexOf('async function onMsg(e)');
+  const end = src.indexOf('    window.addEventListener("message", onMsg);', start);
+  const context = {
+    window: { location: { origin: 'https://els.test' } },
+    iframeRef: { current: { contentWindow: toolWindow } },
+    verified: false, experience2029: true,
+    onOperation: (message) => operations.push(message),
+    onGate: (message) => gates.push(message),
+    setGate: (gate) => legacyGates.push(gate),
+    postToTool: (message) => sent.push(message),
+    postTier: () => {}, pushSavedMatrices: () => {},
+    journeyLoad: null, matrix: null, lensRequest: null,
+    searchRequest: null, findingsRequest: null,
+    ...overrides,
+  };
+  runInNewContext(src.slice(start, end) + ';globalThis.handle=onMsg;', context);
+  return {
+    sent, operations, gates, legacyGates,
+    send: (data, source = toolWindow, origin = context.window.location.origin) => context.handle({ data, source, origin }),
+  };
+}
+
+test('operation progress comes only from the mounted canonical iframe and preserves request correlation', async () => {
+  const host = hostMessageHarness();
+  const progress = { source: 'tzofen', type: 'operation', kind: 'findings', requestId: 37, status: 'verifying' };
+  await host.send(progress, {});
+  await host.send(progress, undefined, 'https://other.test');
+  await host.send({ ...progress, source: 'other' });
+  assert.equal(host.operations.length, 0, 'spoofed progress cannot finish or replace a live search');
+  await host.send(progress);
+  assert.equal(host.operations[0], progress, 'the exact canonical acknowledgement reaches the consumer');
+});
+
+test('queued primary and secondary searches keep their request IDs when the engine becomes ready', async () => {
+  const searchRequest = { kind: 'regular', term: 'תורה', seq: 10 };
+  const findingsRequest = { findings: [{ t: 'אור', color: '#ffaa00' }], seq: 11 };
+  let tierPosts = 0;
+  const host = hostMessageHarness({ searchRequest, findingsRequest, postTier: () => tierPosts++ });
+  await host.send({ source: 'tzofen', type: 'ready' });
+  assert.equal(tierPosts, 1);
+  const search = host.sent.find((message) => message.type === 'native-search');
+  const findings = host.sent.find((message) => message.type === 'update-findings');
+  assert.equal(search.request, searchRequest);
+  assert.equal(search.requestId, 10);
+  assert.equal(findings.findings, findingsRequest.findings);
+  assert.equal(findings.requestId, 11);
+});
+
+test('2029 access notifications use the parent account entry while legacy hosts retain their gate', async () => {
+  const message = { source: 'tzofen', type: 'gate', reason: 'save' };
+  const native = hostMessageHarness();
+  await native.send(message);
+  assert.equal(native.gates[0], message);
+  assert.equal(native.legacyGates.length, 0);
+  const legacy = hostMessageHarness({ experience2029: false });
+  await legacy.send(message);
+  assert.equal(legacy.legacyGates[0].reason, 'save');
+  assert.equal(legacy.gates[0], message);
+  assert.match(src, /const gateOverlay = !experience2029 && gate && !verified/);
+});
+
+test('2029 engine scope stays stable when switching projections and never changes auth tier', () => {
+  const srcExpression = src.match(/const src =\s*([\s\S]*?);/)[1];
+  const urls = [true, false].map((engineOnly) => runInNewContext(srcExpression, { seed: '', hiddenBridge: true, engineOnly, experience2029: true }));
+  assert.equal(urls[0], urls[1], 'opening classic tools does not reload a different engine scope');
+  assert.equal(new URL(urls[0], 'https://els.test').searchParams.get('experience'), '2029');
+  const legacy = runInNewContext(srcExpression, { seed: '', hiddenBridge: false, engineOnly: false, experience2029: false });
+  assert.equal(new URL(legacy, 'https://els.test').searchParams.has('experience'), false);
+  const tierExpression = src.match(/const tier = ([^;]+);/)[1];
+  for (const experience2029 of [true, false]) {
+    assert.equal(runInNewContext(tierExpression, { isAdmin: false, verified: false, experience2029 }), 'anon');
+    assert.equal(runInNewContext(tierExpression, { isAdmin: false, verified: true, experience2029 }), 'registered');
+    assert.equal(runInNewContext(tierExpression, { isAdmin: true, verified: true, experience2029 }), 'admin');
+  }
+});
+
 console.log('els-host-bridge contract: PASS');
 
 

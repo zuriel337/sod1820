@@ -28,7 +28,7 @@ const canRun = !!pw;
 test('CI: browser acceptance must not be skipped', () => { if (process.env.ELS_REQUIRE_EXECUTABLE) assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 but Playwright/Chromium is missing'); });
 
 const HARNESS = `<!doctype html><meta charset=utf-8><body><iframe id=t src="/tzofen.html?embed=1" style="width:1200px;height:900px"></iframe><script>
-window.__log=[];window.__mode='ok';window.__reject=null;window.__oraclePending=0;
+window.__log=[];window.__mode='ok';window.__reject=null;window.__oraclePending=0;window.__holdOracleTerm=null;window.__heldOracle=[];
 const f=document.getElementById('t');
 addEventListener('message',async e=>{const d=e.data;if(!d||d.source!=='tzofen')return;
   window.__log.push(d);
@@ -36,6 +36,7 @@ addEventListener('message',async e=>{const d=e.data;if(!d||d.source!=='tzofen')r
   if(d.type==='engine-request'){
     window.__oraclePending++;
     const r=await fetch('/oracle',{method:'POST',body:JSON.stringify({mode:window.__mode,reject:window.__reject,op:d.op,payload:d.payload})}).then(x=>x.json());
+    if(d.payload?.term===window.__holdOracleTerm)await new Promise(release=>window.__heldOracle.push({term:d.payload.term,release}));
     f.contentWindow.postMessage(Object.assign({source:'sod-host',type:'engine-result',requestId:d.requestId},r),location.origin);
     window.__oraclePending--;
   }
@@ -61,7 +62,7 @@ function oracleVerify(p, reject) {
   return { ok: true, result: { status: 'OK', corpus_id: cid, verified }, trace_id: 't-' + seen.size };
 }
 
-async function withHarness(fn, { mode = 'ok', onboarded = true, hiddenBridge = false, tier = 'admin' } = {}) {
+async function withHarness(fn, { mode = 'ok', onboarded = true, hiddenBridge = false, tier = 'admin', native2029 = false } = {}) {
   const calls = [];
   const srv = createServer((req, res) => {
     if (req.url === '/oracle' && req.method === 'POST') {
@@ -75,7 +76,7 @@ async function withHarness(fn, { mode = 'ok', onboarded = true, hiddenBridge = f
     if (req.url.startsWith('/tzofen.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(tool); return; }
     const harness = HARNESS.replace("window.__mode='ok'", "window.__mode=" + JSON.stringify(mode))
       .replace("tier:'admin'", 'tier:' + JSON.stringify(tier))
-      .replace('/tzofen.html?embed=1', '/tzofen.html?embed=1' + (hiddenBridge ? '&bridge=hidden' : ''));
+      .replace('/tzofen.html?embed=1', '/tzofen.html?embed=1' + (hiddenBridge ? '&bridge=hidden' : '') + (native2029 ? '&experience=2029' : ''));
     res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(harness);
   });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r));
@@ -308,6 +309,72 @@ const nativeSend = (page, message) => page.evaluate((d) => {
   document.querySelector('#t').contentWindow.postMessage({ source: 'sod-host', ...d }, location.origin);
 }, message);
 const latestState = async (page) => (await states(page)).at(-1);
+const operations = (page) => page.evaluate(() => window.__log.filter(message => message.type === 'operation'));
+const waitOperation = (page, kind, requestId, status) => page.waitForFunction(([kind, requestId, status]) =>
+  window.__log.some(message => message.type === 'operation' && message.kind === kind && message.requestId === requestId && message.status === status),
+  [kind, requestId, status], { timeout: 60000 });
+const waitSettledMatrix = (page) => page.waitForFunction(() => {
+  const current = window.__log.filter(message => message.type === 'state').at(-1);
+  return current?.status === 'ok' && window.__oraclePending === 0 &&
+    (current.findings || []).every(word => (word.hits || []).every(hit => !hit.shown || hit.verified));
+}, null, { timeout: 60000 });
+
+// Independent geometry oracle: shortest row/column distance from an occurrence to the main axis.
+function mainAxisDistance(state, word, hitId) {
+  const [skip, dir, start] = hitId.split('_').map(Number), width = state.geometry.S;
+  const [mainSkip, mainDir, mainStart] = state.axis.hitId.split('_').map(Number);
+  let closest = Infinity;
+  for (let character = 0; character < word.length; character++) {
+    const index = start + dir * skip * character;
+    assert.equal(letters[index], word[character], 'secondary coordinate replays the independent canonical stream');
+    for (let mainCharacter = 0; mainCharacter < state.length; mainCharacter++) {
+      const anchor = mainStart + mainDir * mainSkip * mainCharacter;
+      const horizontal = Math.abs(index % width - anchor % width);
+      closest = Math.min(closest, Math.abs(Math.floor(index / width) - Math.floor(anchor / width)) + Math.min(horizontal, width - horizontal));
+    }
+  }
+  return closest;
+}
+
+function assertHeatMatchesEffectiveHits(state) {
+  const { geometry, matrix } = state, raw = new Map();
+  const sources = [];
+  const addOccurrence = (word, hitId) => {
+    const [skip, dir, start] = hitId.split('_').map(Number);
+    for (let character = 0; character < word.length; character++) sources.push(start + dir * skip * character);
+  };
+  if (!state.ui.hideMain) addOccurrence(state.term, state.axis.hitId);
+  for (const word of state.findings) for (const hit of word.hits.filter(hit => hit.verified && hit.shown)) addOccurrence(word.t, hit.hitId);
+  for (let row = geometry.r0; row <= geometry.r1; row++) for (let column = geometry.c0; column < geometry.c0 + geometry.cw; column++) {
+    const index = row * geometry.S + column;
+    if (index < 0 || index >= state.corpusLetters) continue;
+    let density = 0;
+    for (const source of sources) {
+      const dr = row - Math.floor(source / geometry.S), dc = column - source % geometry.S;
+      if (Math.abs(dr) <= 2 && Math.abs(dc) <= 2) density += 1 / (1 + dr ** 2 + dc ** 2);
+    }
+    if (density > 0) raw.set(index, density);
+  }
+  const maximum = Math.max(...raw.values()), actual = new Map(matrix.heat.cells.map(cell => [cell.i, cell.strength]));
+  assert.equal(actual.size, raw.size, 'heat covers exactly the neighborhoods of effective governed occurrences');
+  for (const [index, density] of raw) assert.ok(Math.abs(actual.get(index) - density / maximum) < 1e-12, `effective heat at ${index}`);
+}
+
+function assertMarksMatchEffectiveHits(state) {
+  const positions = new Set(), { geometry } = state;
+  const addHit = (word, hitId) => {
+    const [skip, dir, start] = hitId.split('_').map(Number);
+    for (let character = 0; character < word.length; character++) {
+      const index = start + dir * skip * character;
+      assert.equal(letters[index], word[character]);
+      const row = Math.floor(index / geometry.S), column = index % geometry.S;
+      if (row >= geometry.r0 && row <= geometry.r1 && column >= geometry.c0 && column < geometry.c0 + geometry.cw) positions.add(index);
+    }
+  };
+  if (!state.ui.hideMain) addHit(state.term, state.axis.hitId);
+  for (const word of state.findings) for (const hit of word.hits.filter(hit => hit.shown && hit.verified)) addHit(word.t, hit.hitId);
+  assert.deepEqual([...new Set(state.matrix.marks.map(mark => mark.i))].sort((a, b) => a - b), [...positions].sort((a, b) => a - b), 'matrix marks contain exactly the effective verified occurrences');
+}
 
 test('browser: a fresh hidden native first search runs without a persisted onboarding acknowledgement and preserves anonymous gates', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {
@@ -365,6 +432,350 @@ test('browser: visible first-visit onboarding still blocks the requested search 
     });
     assert.ok(calls.some(call => call.op === 'verify_batch' && call.payload.term === 'משיח'));
   }, { onboarded: false });
+});
+
+test('browser: anonymous 2029 searches remain open beyond the legacy allowance without changing identity or its counter', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    await waitSettledMatrix(page);
+    const hostUrl = page.url(), mountedUrl = page.frames().find(candidate => candidate.url().includes('/tzofen.html')).url();
+    assert.equal(new URL(mountedUrl).searchParams.get('experience'), '2029');
+    await page.evaluate(() => localStorage.setItem('tzofen_free_v1', '9'));
+    const assertAnonymous = async (state) => {
+      assert.equal(state.tier, 'anon');
+      assert.equal(state.admin, false, '2029 access never impersonates an administrator');
+      assert.equal(state.verification.state, 'MATCH');
+      assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_free_v1')), '9', '2029 leaves the existing legacy demo counter intact');
+      const [skip, dir, start] = state.axis.hitId.split('_').map(Number);
+      assert.equal(oracleVerify({ scope: state.scope, corpus_id: state.verification.corpus_id, term: state.term, candidates: [{ skip, dir, start }] }).result.verified.length, 1);
+    };
+    for (const [index, term] of ['תורה', 'אליהו', 'משיח', 'ירושלים'].entries()) {
+      await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term, scope: 'torah', seq: 210 + index } });
+      await page.waitForFunction(expected => {
+        const current = window.__log.filter(message => message.type === 'state').at(-1);
+        return current?.termRaw === expected && current.status === 'ok' && current.search?.mode === 'regular' && window.__oraclePending === 0;
+      }, term);
+      await assertAnonymous(await latestState(page));
+    }
+    const crossCalls = calls.length;
+    await nativeSend(page, { type: 'native-search', request: { kind: 'cross', axis: 'משיח', term: 'גאולה', scope: 'torah', radius: 18, seq: 220 } });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.status === 'ok' && current.search?.mode === 'cross-simple' &&
+        current.findings?.some(word => word.hits.some(hit => hit.shown && hit.verified)) && window.__oraclePending === 0;
+    });
+    await assertAnonymous(await latestState(page));
+    const crossTerms = new Set(calls.slice(crossCalls).map(call => call.payload.term));
+    assert.ok(crossTerms.has('משיח') && crossTerms.has('גאולה'), 'anonymous cross still verifies both axes');
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'תורהקדשה', scope: 'tanakh', seq: 221 } });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.scope === 'tanakh' && current.term === 'תורהקדשה' && current.status === 'ok' && window.__oraclePending === 0;
+    }, null, { timeout: 120000 });
+    await assertAnonymous(await latestState(page));
+    assert.ok(calls.some(call => call.payload.scope === 'tanakh' && call.payload.term === 'תורהקדשה'), 'Tanakh remains governed by its canonical corpus verifier');
+    assert.equal(await page.evaluate(() => window.__log.some(message => message.type === 'gate')), false, '2029 search access emits no legacy registration gate');
+    assert.equal(await frame.locator('#onbov').count(), 0);
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
+    assert.equal(page.url(), hostUrl);
+    assert.equal(page.frames().find(candidate => candidate.url().includes('/tzofen.html')).url(), mountedUrl);
+    assert.equal(await page.locator('iframe').count(), 1);
+  }, { onboarded: false, hiddenBridge: true, tier: 'anon', native2029: true });
+});
+
+test('browser: native search operations correlate progress, canonical completion, verifier failure and partial empty results', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page }) => {
+    await waitSettledMatrix(page);
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah', seq: 301 } });
+    await waitOperation(page, 'search', 301, 'done');
+    let current = await latestState(page);
+    assert.equal(current.term, 'משיח');
+    assert.equal(current.verification.state, 'MATCH');
+    const completed = (await operations(page)).filter(operation => operation.kind === 'search' && operation.requestId === 301);
+    assert.equal(completed[0].status, 'searching');
+    assert.ok(completed.some(operation => operation.status === 'verifying'), 'verification progress precedes a canonical completion');
+    assert.deepEqual(completed.filter(operation => ['done', 'error', 'empty'].includes(operation.status)).map(operation => operation.status), ['done']);
+    await page.evaluate(() => { window.__mode = 'down'; });
+    await nativeSend(page, { type: 'native-search', requestId: 302, request: { kind: 'regular', term: 'אליהו', scope: 'torah' } });
+    await waitOperation(page, 'search', 302, 'error');
+    current = await latestState(page);
+    assert.equal(current.term, 'אליהו');
+    assert.equal(current.status, 'candidate');
+    assert.equal(current.verification.negative_authority, false);
+    assert.ok(!current.axis && !current.matrix, 'a verifier failure exposes no governed coordinates');
+    await page.evaluate(() => { window.__mode = 'ok'; });
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'זזזזז', scope: 'torah', seq: 303 } });
+    await waitOperation(page, 'search', 303, 'empty');
+    current = await latestState(page);
+    assert.equal(current.termRaw, 'זזזזז');
+    assert.equal(current.status, 'empty');
+    assert.equal(current.verification.state, 'LOCAL_NO_HIT');
+    assert.equal(current.verification.negative_authority, false, 'empty operation is still only a partial local result');
+    for (const [requestId, status] of [[302, 'error'], [303, 'empty']]) {
+      const terminal = (await operations(page)).filter(operation => operation.kind === 'search' && operation.requestId === requestId && ['done', 'error', 'empty'].includes(operation.status));
+      assert.deepEqual(terminal.map(operation => operation.status), [status]);
+    }
+    await page.evaluate(() => { window.__holdOracleTerm = 'תורה'; });
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'תורה', scope: 'torah', seq: 304 } });
+    await waitOperation(page, 'search', 304, 'verifying');
+    await page.waitForFunction(() => window.__heldOracle.some(request => request.term === 'תורה'));
+    const boundary = await page.evaluate(() => window.__log.length);
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'אליהו', scope: 'torah', seq: 305 } });
+    await waitOperation(page, 'search', 304, 'cancelled');
+    await waitOperation(page, 'search', 305, 'done');
+    await page.evaluate(() => {
+      window.__holdOracleTerm = null;
+      for (const request of window.__heldOracle.splice(0)) request.release();
+    });
+    await page.waitForFunction(() => window.__oraclePending === 0);
+    const afterReplacement = await page.evaluate(index => window.__log.slice(index), boundary);
+    assert.equal(afterReplacement.some(message => message.type === 'operation' && message.kind === 'search' && message.requestId === 304 && ['done', 'error', 'empty'].includes(message.status)), false, 'superseded main search cannot emit a late completion');
+    current = await latestState(page);
+    assert.equal(current.term, 'אליהו');
+    assert.equal(current.verification.state, 'MATCH', 'late oracle response cannot replace the latest verified search');
+  }, { hiddenBridge: true, native2029: true });
+});
+
+test('browser: findings operation completion follows canonical verification and an older request cannot complete a newer edit', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    await search(frame, 'משיח');
+    await waitState(page, state => state.term === 'משיח' && state.status === 'ok');
+    await waitSettledMatrix(page);
+    await page.evaluate(() => { window.__holdOracleTerm = 'אל'; });
+    await nativeSend(page, { type: 'update-findings', requestId: 401, findings: [{ t: 'אל', color: '#123456' }] });
+    await waitOperation(page, 'findings', 401, 'verifying');
+    await page.waitForFunction(() => window.__heldOracle.some(request => request.term === 'אל'));
+    assert.equal((await operations(page)).some(operation => operation.kind === 'findings' && operation.requestId === 401 && ['done', 'error'].includes(operation.status)), false, 'pending canonical response cannot be reported as completed');
+    const boundary = await page.evaluate(() => window.__log.length);
+    await nativeSend(page, { type: 'update-findings', requestId: 402, findings: [{ t: 'אל', color: '#654321' }, { t: 'את', color: '#fedcba' }] });
+    await waitOperation(page, 'findings', 401, 'cancelled');
+    await waitOperation(page, 'findings', 402, 'searching');
+    await page.evaluate(() => {
+      window.__holdOracleTerm = null;
+      for (const request of window.__heldOracle.splice(0)) request.release();
+    });
+    await waitOperation(page, 'findings', 402, 'done');
+    await waitSettledMatrix(page);
+    const current = await latestState(page);
+    assert.deepEqual(current.findings.map(word => [word.t, word.color]), [['אל', '#654321'], ['את', '#fedcba']], 'latest edit owns the resulting finding list and colors');
+    assert.ok(current.findings[0].hits.some(hit => hit.verified && hit.shown), 'completion waits for displayed eligible occurrences to be verified');
+    const messagesAfterNewEdit = await page.evaluate(index => window.__log.slice(index), boundary);
+    assert.equal(messagesAfterNewEdit.some(message => message.type === 'operation' && message.kind === 'findings' && message.requestId === 401 && ['done', 'error'].includes(message.status)), false, 'superseded operation emits no late terminal completion');
+    const progress = (await operations(page)).filter(operation => operation.kind === 'findings' && operation.requestId === 402);
+    assert.equal(progress[0].status, 'searching');
+    assert.ok(progress.some(operation => operation.status === 'verifying'));
+    assert.deepEqual(progress.filter(operation => ['done', 'error'].includes(operation.status)).map(operation => operation.status), ['done']);
+    const additional = current.findings[0].hits.find(hit => !hit.selected && !hit.verified);
+    assert.ok(additional, 'an unverified extra occurrence is available after the correlated update completes');
+    const completedCalls = calls.length, completedEvents = await page.evaluate(() => window.__log.length);
+    await nativeSend(page, { type: 'native-finding-control', term: 'אל', action: 'toggle-hit',
+      axisHitId: current.axis.hitId, candidateIndex: additional.candidateIndex, revision: additional.revision });
+    await page.waitForFunction(index => {
+      const state = window.__log.filter(message => message.type === 'state').at(-1);
+      return state?.findings?.[0]?.hits.some(hit => hit.candidateIndex === index && hit.selected && hit.shown && hit.verified) && window.__oraclePending === 0;
+    }, additional.candidateIndex);
+    assert.ok(calls.length > completedCalls, 'later explicit selection really invokes canonical verification');
+    assert.equal(await page.evaluate(index => window.__log.slice(index).some(message => message.type === 'operation' && message.kind === 'findings' && message.requestId === 402), completedEvents), false, 'later candidate verification cannot reopen the completed operation');
+    assert.equal((await operations(page)).filter(operation => operation.kind === 'findings' && operation.requestId === 402).at(-1).status, 'done');
+    await page.evaluate(() => { window.__mode = 'down'; });
+    await nativeSend(page, { type: 'update-findings', requestId: 403, findings: [{ t: 'אל', color: '#123456' }] });
+    await waitOperation(page, 'findings', 403, 'error');
+    const failed = await latestState(page);
+    assert.ok(failed.findings[0].hits.some(hit => hit.selected && !hit.verified), 'failed selected occurrences remain opaque candidates');
+    assert.ok(failed.findings[0].hits.every(hit => !hit.verified && hit.hitId === null && hit.axisDistance === null));
+    assert.equal(failed.matrix.marks.some(mark => mark.color === '#123456'), false, 'failed verification adds no governed finding marks');
+  }, { hiddenBridge: true, native2029: true });
+});
+
+test('browser: loading an exact matrix cancels pending native search and same-axis finding operations without late completion', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page }) => {
+    await waitSettledMatrix(page);
+    const golden = ELS_GOLDENS.find(fixture => fixture.id === 'torah-50-fwd');
+    const expectedHitId = `${golden.skip}_${golden.dir}_${golden.start}`;
+    for (const [kind, requestId] of [['search', 501], ['findings', 502]]) {
+      if (kind === 'findings') {
+        assert.equal((await latestState(page)).axis.hitId, expectedHitId, 'finding cancellation starts on the same exact axis that will be reloaded');
+        await nativeSend(page, { type: 'native-control', action: 'finding-count', value: 15 });
+        await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.showN === 15);
+      }
+      const term = kind === 'search' ? 'משיח' : 'אל';
+      await page.evaluate(word => { window.__holdOracleTerm = word; }, term);
+      await nativeSend(page, kind === 'search'
+        ? { type: 'native-search', request: { kind: 'regular', term, scope: 'torah', seq: requestId } }
+        : { type: 'update-findings', requestId, findings: [{ t: term, color: '#123456' }] });
+      await waitOperation(page, kind, requestId, 'verifying');
+      await page.waitForFunction(word => window.__heldOracle.some(request => request.term === word), term);
+      await nativeSend(page, { type: 'load-matrix', item: golden });
+      await waitOperation(page, kind, requestId, 'cancelled');
+      await page.waitForFunction(hitId => {
+        const current = window.__log.filter(message => message.type === 'state').at(-1);
+        return current?.status === 'ok' && current.axis?.hitId === hitId && current.findings?.length === 0 &&
+          window.__oraclePending === window.__heldOracle.length && window.__heldOracle.length > 0;
+      }, expectedHitId);
+      const loaded = await latestState(page), cancellationBoundary = await page.evaluate(() => window.__log.length);
+      assert.equal(loaded.term, golden.term);
+      assert.equal(loaded.verification.state, 'MATCH');
+      await page.evaluate(() => {
+        window.__holdOracleTerm = null;
+        for (const request of window.__heldOracle.splice(0)) request.release();
+      });
+      await page.waitForFunction(() => window.__oraclePending === 0);
+      await waitSettledMatrix(page);
+      assert.deepEqual(await latestState(page), loaded, `${kind}: late oracle results preserve the exact loaded workspace`);
+      const laterMessages = await page.evaluate(index => window.__log.slice(index), cancellationBoundary);
+      assert.equal(laterMessages.some(message => message.type === 'operation' && message.kind === kind && message.requestId === requestId), false, `${kind}: cancelled operation emits no later progress or completion`);
+      const progress = (await operations(page)).filter(operation => operation.kind === kind && operation.requestId === requestId);
+      assert.equal(progress[0].status, 'searching');
+      assert.ok(progress.some(operation => operation.status === 'verifying'));
+      assert.deepEqual(progress.filter(operation => ['done', 'error', 'empty', 'cancelled'].includes(operation.status)).map(operation => operation.status), ['cancelled']);
+    }
+  }, { hiddenBridge: true, native2029: true });
+});
+
+test('browser: a rejected newer search cancels pending verification without relabeling or replacing the original matrix', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    const golden = ELS_GOLDENS.find(fixture => fixture.id === 'torah-50-fwd');
+    await nativeSend(page, { type: 'load-matrix', item: golden });
+    await page.waitForFunction(id => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.status === 'ok' && current.provenance?.editId === id && window.__oraclePending === 0;
+    }, golden.id);
+    const before = await latestState(page);
+    const beforeGlyphs = await frame.locator('.mc[data-i] .l').allTextContents();
+    await page.evaluate(() => { window.__holdOracleTerm = 'משיח'; });
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah', seq: 601 } });
+    await waitOperation(page, 'search', 601, 'verifying');
+    await page.waitForFunction(() => window.__heldOracle.some(request => request.term === 'משיח'));
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'ab', scope: 'torah', seq: 602 } });
+    await waitOperation(page, 'search', 601, 'cancelled');
+    await waitOperation(page, 'search', 602, 'error');
+    const rejectedAt = await page.evaluate(() => window.__log.length);
+    assert.equal(calls.some(call => call.payload.term === 'ab'), false, 'non-Hebrew input is rejected before canonical verification');
+    await page.evaluate(() => {
+      window.__holdOracleTerm = null;
+      for (const request of window.__heldOracle.splice(0)) request.release();
+    });
+    await page.waitForFunction(() => window.__oraclePending === 0);
+    assert.deepEqual(await latestState(page), before, 'late verification cannot replace the previous exact matrix');
+    assert.deepEqual(await frame.locator('.mc[data-i] .l').allTextContents(), beforeGlyphs, 'the canonical matrix DOM keeps its original letters');
+    // Force fresh snapshots after cancellation: an old draft must not become the saved workspace label.
+    await nativeSend(page, { type: 'native-control', action: 'heat-toggle' });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.heat === true);
+    await nativeSend(page, { type: 'native-control', action: 'heat-toggle' });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.heat === false);
+    const refreshed = await latestState(page);
+    assert.equal(refreshed.termRaw, before.termRaw, 'a cancelled pending term cannot relabel the original workspace on its next state emission');
+    assert.deepEqual(refreshed, before, 'presentation controls preserve original term, axis, rows and research identity after rejection');
+    const laterMessages = await page.evaluate(index => window.__log.slice(index), rejectedAt);
+    assert.equal(laterMessages.some(message => message.type === 'operation' && message.kind === 'search' && message.requestId === 601), false, 'the cancelled search emits no later progress or terminal status');
+    const progress = await operations(page);
+    assert.deepEqual(progress.filter(operation => operation.kind === 'search' && operation.requestId === 601 && ['done', 'error', 'empty', 'cancelled'].includes(operation.status)).map(operation => operation.status), ['cancelled']);
+    assert.deepEqual(progress.filter(operation => operation.kind === 'search' && operation.requestId === 602).map(operation => operation.status), ['searching', 'error']);
+  }, { hiddenBridge: true, native2029: true });
+});
+
+test('browser: native finding radius filters marks, heat and scan targets without losing selections or verifying again', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, calls }) => {
+    const golden = ELS_GOLDENS.find(fixture => fixture.id === 'torah-50-fwd');
+    await nativeSend(page, { type: 'load-matrix', item: golden });
+    await page.waitForFunction(id => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.status === 'ok' && current.provenance?.editId === id;
+    }, golden.id);
+    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#123456' }, { t: 'את', color: '#654321' }] });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.findings?.length === 2);
+    await nativeSend(page, { type: 'native-control', action: 'finding-count', value: 15 });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.ui?.showN === 15 && current.findings?.[0]?.hits.some(hit => hit.shown && hit.verified) && window.__oraclePending === 0;
+    });
+    await waitSettledMatrix(page);
+    const initial = await latestState(page), word = initial.findings[0];
+    const defaultHit = word.hits.find(hit => hit.selected && hit.verified && hit.candidateIndex < 15);
+    const extra = word.hits.find(hit => !hit.selected && hit.candidateIndex >= 15);
+    assert.ok(defaultHit && extra, 'fixture provides both a selected default and an additional eligible occurrence');
+    await nativeSend(page, { type: 'native-finding-control', term: word.t, action: 'toggle-hit', hitId: defaultHit.hitId });
+    await page.waitForFunction(id => window.__log.filter(message => message.type === 'state').at(-1)?.findings?.[0]?.hits.some(hit => hit.hitId === id && !hit.selected), defaultHit.hitId);
+    await nativeSend(page, { type: 'native-finding-control', term: word.t, action: 'toggle-hit', hitId: extra.hitId,
+      axisHitId: initial.axis.hitId, candidateIndex: extra.candidateIndex, revision: extra.revision });
+    await page.waitForFunction(index => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.findings?.[0]?.hits.some(hit => hit.candidateIndex === index && hit.selected && hit.shown && hit.verified) && window.__oraclePending === 0;
+    }, extra.candidateIndex);
+    await nativeSend(page, { type: 'native-control', action: 'heat-toggle' });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.heat === true);
+    await waitSettledMatrix(page);
+    const before = await latestState(page), beforeCalls = calls.length;
+    assert.equal(before.ui.findingRadius, null, 'unrestricted radius is the default');
+    const selected = before.findings.map(finding => ({ t: finding.t, hits: finding.hits.map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })) }));
+    const selectedExtra = before.findings[0].hits.find(hit => hit.candidateIndex === extra.candidateIndex);
+    assert.ok(selectedExtra.shown && selectedExtra.verified);
+    for (const finding of before.findings) for (const hit of finding.hits.filter(hit => hit.verified)) {
+      assert.equal(hit.axisDistance, mainAxisDistance(before, finding.t, hit.hitId));
+      assert.equal(hit.withinRadius, true);
+    }
+    assert.ok(before.findings[0].hits.filter(hit => hit.verified).every(hit => hit.axisDistance > 0), 'the main word תורה shares no letters with אל, so every אל occurrence is outside radius zero');
+    assertMarksMatchEffectiveHits(before);
+    assertHeatMatchesEffectiveHits(before);
+    await nativeSend(page, { type: 'native-control', action: 'finding-radius', value: 0 });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.findingRadius === 0);
+    const filtered = await latestState(page);
+    assert.deepEqual(filtered.axis, before.axis);
+    assert.deepEqual(filtered.geometry, before.geometry);
+    assert.deepEqual(filtered.matrix.rows, before.matrix.rows);
+    assert.equal(filtered.ui.showN, before.ui.showN);
+    assert.deepEqual(filtered.findings.map(finding => ({ t: finding.t, hits: finding.hits.map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })) })), selected, 'filtering preserves pre-radius manual/default selection and candidate identity');
+    for (const finding of filtered.findings) for (const hit of finding.hits) {
+      assert.equal(typeof hit.withinRadius, 'boolean');
+      if (hit.verified) assert.equal(hit.withinRadius, mainAxisDistance(filtered, finding.t, hit.hitId) === 0);
+      else assert.equal(hit.withinRadius, false, 'active radius never makes an unverified candidate eligible');
+      assert.equal(hit.shown, hit.selected && hit.withinRadius, 'shown is the effective selection after filtering');
+    }
+    assert.deepEqual(filtered.findings[0].shown, [], 'all distant אל occurrences are effectively hidden');
+    assert.equal(filtered.matrix.marks.some(mark => mark.color === '#123456'), false, 'far finding colors disappear from matrix marks');
+    assert.deepEqual(filtered.matrix.marks.filter(mark => mark.type === 'main'), before.matrix.marks.filter(mark => mark.type === 'main'));
+    assertMarksMatchEffectiveHits(filtered);
+    assertHeatMatchesEffectiveHits(filtered);
+    assert.notDeepEqual(filtered.matrix.heat, before.matrix.heat, 'removing distant marks also changes the heat layer');
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { term: 'אל', hitId: selectedExtra.hitId, scan: true, nativeSeq: 610 } });
+    await page.waitForFunction(() => window.__log.some(message => message.target?.nativeSeq === 610));
+    const hiddenScan = await page.evaluate(() => window.__log.find(message => message.target?.nativeSeq === 610));
+    assert.equal(hiddenScan.ok, false, 'a filtered secondary occurrence cannot become a scan target');
+    assert.ok(!hiddenScan.cells && !hiddenScan.scan);
+    for (const count of [1, 15]) {
+      await nativeSend(page, { type: 'native-control', action: 'finding-count', value: count });
+      await page.waitForFunction(expected => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.showN === expected, count);
+      const changed = await latestState(page), selectedWord = changed.findings[0];
+      assert.equal(selectedWord.hits.find(hit => hit.hitId === defaultHit.hitId).selected, false, 'explicitly hidden default stays hidden when count changes');
+      assert.equal(selectedWord.hits.find(hit => hit.hitId === selectedExtra.hitId).selected, true, 'explicitly added hit survives count changes under the filter');
+      assert.ok(selectedWord.hits.every(hit => !hit.shown));
+    }
+    const afterCounts = await latestState(page);
+    for (const value of [-1, 101, 1.5, '3', false, {}, undefined]) await nativeSend(page, { type: 'native-control', action: 'finding-radius', value });
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { hitId: before.axis.hitId, nativeSeq: 611 } });
+    await page.waitForFunction(() => window.__log.some(message => message.target?.nativeSeq === 611));
+    assert.deepEqual(await latestState(page), afterCounts, 'invalid radius values leave the entire research state unchanged');
+    await nativeSend(page, { type: 'native-control', action: 'finding-radius', value: null });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.findingRadius === null);
+    assert.deepEqual(await latestState(page), before, 'clearing the filter restores exact hits, colors, marks, heat, count and manual choices');
+    await nativeSend(page, { type: 'native-control', action: 'finding-radius', value: 100 });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.findingRadius === 100);
+    const widest = await latestState(page);
+    for (const finding of widest.findings) for (const hit of finding.hits) {
+      if (hit.verified) assert.equal(hit.withinRadius, mainAxisDistance(widest, finding.t, hit.hitId) <= 100);
+      else assert.equal(hit.withinRadius, false, 'even the widest active radius rejects opaque candidates');
+    }
+    assert.deepEqual(widest.axis, before.axis);
+    assert.deepEqual(widest.geometry, before.geometry);
+    await nativeSend(page, { type: 'native-control', action: 'finding-radius', value: null });
+    await page.waitForFunction(() => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.findingRadius === null);
+    await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { term: 'אל', hitId: selectedExtra.hitId, scan: true, nativeSeq: 612 } });
+    await page.waitForFunction(() => window.__log.some(message => message.target?.nativeSeq === 612));
+    const restoredScan = await page.evaluate(() => window.__log.find(message => message.target?.nativeSeq === 612));
+    assert.equal(restoredScan.ok, true, 'cleared filter restores the same selected scan target');
+    assert.equal(restoredScan.hitId, selectedExtra.hitId);
+    assert.deepEqual(await latestState(page), before);
+    assert.equal(calls.length, beforeCalls, 'radius, count restoration and line scans perform no verifier I/O for existing verified selections');
+  }, { hiddenBridge: true, native2029: true });
 });
 
 test('browser: native and classic niqqud use aligned Torah marks without changing selection, findings, geometry or verifier I/O', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
@@ -702,7 +1113,11 @@ test('browser: native finding can show three verified occurrences then hide exac
     await search(frame, 'משיח');
     await waitState(page, m=>m.status==='ok' && m.term==='משיח');
     await nativeSend(page,{type:'update-findings',findings:[{t:'אל',color:'#5465ff'}]});
-    await waitState(page,m=>m.findings?.[0]?.hits?.some(h=>h.verified));
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(message => message.type === 'state').at(-1);
+      return current?.term === 'משיח' && current.findings?.length === 1 && current.findings[0].t === 'אל' &&
+        current.findings[0].color === '#5465ff' && current.findings[0].hits?.some(hit => hit.verified && hit.shown);
+    });
     let current=await latestState(page);
     for(let n=0;n<3 && current.findings[0].shown.length<3;n++) {
       const candidate=current.findings[0].hits.find(h=>!h.shown);

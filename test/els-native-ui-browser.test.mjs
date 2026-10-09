@@ -41,22 +41,24 @@ export default function Host(props){
    window.__log.push(message);
    if(message.type==='ready'){ready.current=true;send({type:'tier',tier:'admin'});if(window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
    if(message.type==='engine-request'){
-    const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload})}).then(response=>response.json());
+    if(window.__fixtureHoldVerification)await new Promise(resolve=>window.__fixtureReleaseVerification=resolve);
+    const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());
     send({type:'engine-result',requestId:message.requestId,...result});
    }
    if(message.type==='state'){window.__state=message;latest.current.onState?.(message);}
    if(message.type==='lens'){window.__lens=message;latest.current.onLens?.(message);}
    if(message.type==='gate')latest.current.onGate?.(message);
    if(message.type==='onboarding-required')latest.current.onOnboardingRequired?.(message);
+   if(message.type==='operation'){window.__operation=message;latest.current.onOperation?.(message);}
   };
   addEventListener('message',receive);return()=>removeEventListener('message',receive);
  },[]);
  useEffect(()=>{if(ready.current&&props.lensRequest)send({type:'request-lens',...props.lensRequest});},[props.lensRequest]);
- useEffect(()=>{if(ready.current&&props.findingsRequest)send({type:'update-findings',findings:props.findingsRequest.findings});},[props.findingsRequest]);
+ useEffect(()=>{if(ready.current&&props.findingsRequest)send({type:'update-findings',findings:props.findingsRequest.findings,requestId:props.findingsRequest.seq});},[props.findingsRequest]);
  useEffect(()=>{if(ready.current&&props.controlRequest)send({type:'native-control',...props.controlRequest});},[props.controlRequest]);
  useEffect(()=>{if(ready.current&&props.findingControlRequest)send({type:'native-finding-control',...props.findingControlRequest});},[props.findingControlRequest]);
- useEffect(()=>{if(ready.current&&props.searchRequest)send({type:'native-search',request:props.searchRequest});},[props.searchRequest]);
- return React.createElement('iframe',{ref:frame,src:'/tzofen.html?embed=1&bridge=hidden',title:'canonical engine fixture',style:{position:'absolute',width:1,height:1,clipPath:'inset(100%)'}});
+ useEffect(()=>{if(ready.current&&props.searchRequest)send({type:'native-search',request:props.searchRequest,requestId:props.searchRequest.seq});},[props.searchRequest]);
+ return React.createElement('iframe',{ref:frame,src:'/tzofen.html?embed=1&bridge=hidden'+(props.experience2029?'&experience=2029':''),title:'canonical engine fixture',style:{position:'absolute',width:1,height:1,clipPath:'inset(100%)'}});
 }`;
 
 const entry = `import React from 'react';import {createRoot} from 'react-dom/client';
@@ -81,7 +83,8 @@ createRoot(document.getElementById('root')).render(React.createElement('div',{st
      React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native))))))));
 `;
 
-function verify({ op, payload }) {
+function verify({ op, payload, denied }) {
+  if (denied) return { ok: false, error: 'bridge_unavailable' };
   if (op !== 'verify_batch') return { ok: false, error: 'unsupported_test_operation' };
   const hi = payload.scope === 'tanakh' ? letters.length : TORAH_LEN;
   const corpusId = payload.scope === 'tanakh'
@@ -116,7 +119,7 @@ const realHostStubs = {
   '../lib/tracking.js': `export const track=()=>{};export const getVisitorId=()=>'native-ui-fixture';`,
   '../lib/elsMatrices.js': `export const getSavedMatrices=async()=>[];export const saveMatrix=async()=>{};export const saveMatrixAnon=async()=>{};export const moderateMatrix=async()=>{};`,
   '../lib/contributions.js': `export const addContribution=async()=>{};`,
-  '../lib/supabase.js': `export const supabase={functions:{invoke:async(name,{body})=>{const {op,...payload}=body;const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
+  '../lib/supabase.js': `export const supabase={functions:{invoke:async(name,{body})=>{const {op,...payload}=body;if(window.__fixtureHoldVerification)await new Promise(resolve=>window.__fixtureReleaseVerification=resolve);const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
   '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:()=>{}};export const useUniversalWorkspace=()=>workspace;`,
   './SubscribeGate.jsx': `import React from 'react';export default function Gate(){return React.createElement('div',{'data-fixture-subscribe-gate':'true'},'Test registration gate');}`,
@@ -183,6 +186,7 @@ async function withNative(viewport, run, options = {}) {
           (window.__log ||= []).push(message);
           if (message.type === 'state') window.__state = message;
           if (message.type === 'lens') window.__lens = message;
+          if (message.type === 'operation') window.__operation = message;
           if (message.type === 'ready' && loadGolden) frame.contentWindow.postMessage({ source: 'sod-host', type: 'load-matrix', item: window.__fixtureGolden }, location.origin);
         });
       }
@@ -235,16 +239,50 @@ async function changeRange(page, label, value) {
   }, value);
 }
 async function inspectAndScanPrimary(page, before) {
-  if (await button(page, 'מקור').getAttribute('aria-expanded') !== 'true') await activate(page, 'מקור');
-  await activate(page, 'רצף ומילים לאורך הציר');
-  await page.waitForFunction(() => window.__lens?.lens === 'line-context');
-  await expectStable(page, before, 'open primary line');
-  await activate(page, 'סרוק שורה · מילים לאורך הציר');
+  await openPanel(page);
+  await selectAxis(page, golden.term);
+  assert.equal(await button(page, 'סרוק לאורך הציר הנבחר').count(), 1, 'one shared scan action');
+  const requests = await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length);
+  await button(page, 'סרוק לאורך הציר הנבחר').evaluate((element) => { element.click(); element.click(); element.click(); });
   await button(page, 'סמן את תורה ברצף').waitFor();
+  assert.equal(await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length), requests + 1, 'scan spam produces one pending lens request');
   await expectStable(page, before, 'scan primary line');
   await activate(page, 'סמן את תורה ברצף');
   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"] .is-word').count(), 4);
   await expectStable(page, before, 'highlight line word');
+}
+
+async function openPanel(page) {
+  if (await button(page, 'סריקה וממצאים').getAttribute('aria-expanded') !== 'true') await activate(page, 'סריקה וממצאים');
+}
+async function selectAxis(page, term) {
+  await openPanel(page);
+  await activate(page, `בחר ציר לסריקה: ${term}`);
+}
+async function addSecondary(page, term) {
+  await openPanel(page);
+  await page.getByRole('textbox', { name: 'חיפוש משני במטריצה', exact: true }).fill(term);
+  await activate(page, 'חפש במטריצה');
+  await page.waitForFunction((word) => window.__state?.findings?.some((finding) => finding.t === word && finding.hits?.some((hit) => hit.shown && hit.verified)), term);
+}
+async function radius(page, value) {
+  const control = page.getByLabel('מרחק מרבי מהציר הראשי', { exact: true });
+  if (await control.evaluate((element) => element.tagName) === 'SELECT') await control.selectOption(value === null ? 'all' : String(value));
+  else {
+    await control.fill(value === null ? '' : String(value));
+    await control.dispatchEvent('change');
+  }
+}
+async function alignedPanel(page, label) {
+  const stage = await page.locator('.els29-native-stage').boundingBox();
+  const panel = await page.locator('.els29-native-context-panel').boundingBox();
+  assert.ok(Math.abs(stage.y - panel.y) <= 1, `${label}: panel top matches the matrix`);
+  assert.ok(Math.abs(stage.y + stage.height - panel.y - panel.height) <= 1, `${label}: panel bottom matches the matrix`);
+}
+async function injectToolMessage(page, message) {
+  const frame = page.frames().find((item) => item.parentFrame());
+  assert.ok(frame, 'canonical iframe exists');
+  await frame.evaluate((data) => parent.postMessage(data, location.origin), message);
 }
 
 const stageHeight = (page) => page.locator('.els29-native-stage').evaluate((stage) => stage.getBoundingClientRect().height);
@@ -278,241 +316,206 @@ async function expectHeightControl(page) {
   assert.deepEqual(await identity(page), engine, 'height changes presentation only');
 }
 
-test('native UI: source/findings panels, line scans and proximity retain matrix geometry, pan and page position',
-  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
-    await withNative({ width: 1440, height: 1000 }, async (page) => {
-      const stageHeight = await page.locator('.els29-native-stage').evaluate((stage) => stage.getBoundingClientRect().height);
-      assert.ok(Math.abs(stageHeight - 750) <= 1, 'desktop matrix stage is 25% taller than the previous 600px');
-      const initial = await page.evaluate(() => window.__state);
-      const before = await pan(page);
-      await activate(page, 'מקור');
-      await expectStable(page, before, 'open source');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectStable(page, before, 'close source');
-      await activate(page, 'מקור');
-      await expectStable(page, before, 'reopen source');
-      await activate(page, 'ממצאים');
-      await expectStable(page, before, 'switch to findings');
-      await inspectAndScanPrimary(page, before);
-      const readOnly = await page.evaluate(() => window.__state);
-      assert.deepEqual(readOnly.axis, initial.axis);
-      assert.deepEqual(readOnly.geometry, initial.geometry);
-      assert.deepEqual(readOnly.findings, initial.findings);
 
-      await activate(page, 'הוסף את תורה לממצאים');
-      await page.waitForFunction(() => window.__state?.findings?.some((finding) => finding.t === 'תורה' && finding.hits?.some((hit) => hit.shown && hit.verified)));
-      await activate(page, 'ממצאים');
-      const state = await page.evaluate(() => window.__state);
-      const firstShown = state.findings.find((finding) => finding.t === 'תורה').hits.find((hit) => hit.shown && hit.verified);
-      const findingPan = await pan(page);
-      await activate(page, 'סרוק מילים לאורך הציר של תורה');
-      await page.waitForFunction((id) => window.__lens?.lens === 'line-context' && window.__lens?.hitId === id && window.__lens?.target?.term === 'תורה' && window.__lens?.scan, firstShown.hitId);
-      const scanned = await page.evaluate(() => window.__state);
-      assert.deepEqual(scanned.axis, state.axis, 'secondary scan retains the main axis');
-      assert.deepEqual(scanned.geometry, state.geometry, 'secondary scan retains canonical geometry');
-      await expectStable(page, findingPan, 'direct secondary-axis scan');
-
-      await activate(page, 'הצלבה');
-      const radius = page.getByRole('slider', { name: 'מרחק מרבי מהציר בהצלבה', exact: true });
-      assert.equal(await radius.inputValue(), '18');
-      assert.equal(await radius.getAttribute('min'), '2');
-      assert.equal(await radius.getAttribute('max'), '20');
-      await changeRange(page, 'מרחק מרבי מהציר בהצלבה', 7);
-      await activate(page, 'ממצאים');
-      const countPan = await pan(page);
-      await changeRange(page, 'מופעים לכל ממצא', 3);
-      await page.waitForFunction(() => window.__state?.ui?.showN === 3);
-      await expectStable(page, countPan, 'legacy proximity count');
-      assert.equal(await radius.inputValue(), '7', 'unrelated canonical state preserves the cross-distance draft');
-      const sent = await page.evaluate(() => window.__hostLog.findLast((message) => message.type === 'native-control' && message.action === 'finding-count'));
-      assert.equal(sent.value, 3, 'count reaches the real canonical bridge with its numeric value');
-      await page.getByPlaceholder('למשל: דוד', { exact: true }).fill('גאולה');
-      await activate(page, 'מצא מפגש');
-      await page.waitForFunction(() => window.__hostLog.some((message) => message.type === 'native-search' && message.request?.kind === 'cross' && message.request?.radius === 7));
-    });
+test('native UI: one unified rail scans exact primary and secondary targets without moving the matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const url=page.url(),initial=await identity(page),before=await pan(page);
+   await alignedPanel(page,'initial pinned rail');
+   await activate(page,'סגור כלי מטריצה');await expectStable(page,before,'close unified rail');
+   await openPanel(page);await expectStable(page,before,'reopen unified rail');
+   await inspectAndScanPrimary(page,before);
+   assert.deepEqual(await identity(page),initial,'primary scan preserves verified identity');
+   const primary=await page.evaluate(()=>window.__lens);
+   await addSecondary(page,'התורה');
+   const state=await page.evaluate(()=>window.__state);
+   const hit=state.findings.find(f=>f.t==='התורה').hits.find(h=>h.shown&&h.verified);
+   const input=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});
+   await input.fill('דוד');const draft=await input.inputValue(),secondaryPan=await pan(page);
+   await selectAxis(page,'התורה');await activate(page,'סרוק לאורך הציר הנבחר');
+   await page.waitForFunction(id=>window.__lens?.lens==='line-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה'&&window.__lens?.scan,hit.hitId);
+   await expectStable(page,secondaryPan,'secondary scan');await expectNative(page,url,'secondary scan');
+   assert.equal(await input.inputValue(),draft,'scan retains the secondary input');
+   assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true,'scan retains the finding list');
+   assert.equal(await button(page,'סרוק לאורך הציר הנבחר').count(),1,'still one shared scan action');
+   assert.deepEqual(await identity(page),{term:state.term,scope:state.scope,axis:state.axis,geometry:state.geometry,occurrence:state.occurrence,findings:state.findings,verification:state.verification});
+   // Append a dictionary candidate from a selected secondary line, without losing that line.
+   await activate(page,'סמן את תורה ברצף');
+   const retained=await page.locator('.els29-native-line-cells').textContent();
+   await page.evaluate(()=>window.__fixtureHoldVerification=true);
+   await activate(page,'הוסף את תורה לממצאים');
+   await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+   assert.equal(await button(page,'בחר ציר לסריקה: התורה').getAttribute('aria-pressed'),'true','secondary target is retained while its candidates are reverified');
+   assert.equal(await page.locator('.els29-native-line-cells').textContent(),retained,'secondary scan stays open through verification');
+   assert.equal(await page.locator('.els29-native-line-cells .is-word').count(),4,'candidate highlight survives verification');
+   assert.equal(await input.inputValue(),draft,'candidate append retains the secondary draft');
+   for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','הוסף את תורה לממצאים'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during candidate verification');
+   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification()});
+   await page.waitForFunction(()=>window.__state?.findings?.find(f=>f.t==='תורה')?.hits?.some(hit=>hit.shown&&hit.verified));
+   await page.waitForFunction(()=>!document.querySelector('[aria-label="סרוק לאורך הציר הנבחר"]').disabled);
+   assert.equal(await button(page,'בחר ציר לסריקה: התורה').getAttribute('aria-pressed'),'true','original secondary target is revalidated after completion');
+   assert.equal(await input.inputValue(),draft);
+   assert.equal(await page.locator('.els29-native-line-cells').textContent(),retained);
+   assert.equal(await page.locator('.els29-native-line-cells .is-word').count(),4);
+   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').innerText().then(text=>text.includes('לאורך הציר · התורה')),true);
+   await activate(page,'מקור הממצא הנבחר');
+   await page.waitForFunction(id=>window.__lens?.lens==='verse-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה',hit.hitId);
+   await expectStable(page,secondaryPan,'inline source');assert.equal(await input.isVisible(),true);
+   assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true);
+   // A delayed old primary completion must not replace the selected secondary result.
+   await injectToolMessage(page,primary);
+   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').count(),0,'stale primary scan cannot replace the newer inline source');
+   const body=page.locator('.els29-native-rail-scroll').filter({visible:true});
+   await body.evaluate(element=>element.scrollTop=element.scrollHeight);
+   await alignedPanel(page,'scrolled rail');
+   for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר']){
+    const action=await button(page,label).boundingBox(),panel=await page.locator('.els29-native-context-panel').boundingBox();
+    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the persistent footer');
+   }
+   await expectStable(page,secondaryPan,'internal rail scroll');
   });
+ });
 
-test('native UI: 390px matrix stays taller, side tools become bounded sheets without moving the matrix',
-  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
-    await withNative({ width: 390, height: 844 }, async (page) => {
-      const stageHeight = await page.locator('.els29-native-stage').evaluate((stage) => stage.getBoundingClientRect().height);
-      assert.ok(Math.abs(stageHeight - 844 * 0.775) <= 1, 'mobile stage grows by 25% from 62dvh');
-      const mobileRatio = await page.evaluate(() => document.querySelector('.sod29-content').getBoundingClientRect().width / document.querySelector('.sod29-main').getBoundingClientRect().width);
-      assert.ok(Math.abs(mobileRatio - 1) <= 0.001, 'desktop 90% margins do not narrow the mobile frame');
-      const before = await pan(page);
-      await activate(page, 'מקור');
-      await expectStable(page, before, 'mobile source');
-      const sheet = page.getByRole('complementary', { name: 'כלי ELS והקשר המטריצה', exact: true });
-      const compact = await sheet.boundingBox();
-      assert.ok(compact.height <= 844 * 0.36 + 1, 'compact source sheet respects 36dvh');
-      assert.ok(compact.x >= 0 && compact.x + compact.width <= 390, 'sheet fits the screen width');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectStable(page, before, 'mobile close');
-      await activate(page, 'ממצאים');
-      await expectStable(page, before, 'mobile findings');
-      await inspectAndScanPrimary(page, before);
-      await activate(page, 'הרחב');
-      const expanded = await sheet.boundingBox();
-      assert.ok(expanded.height <= 844 * 0.7 + 1, 'expanded sheet respects 70dvh');
-      await expectStable(page, before, 'expanded source');
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal page overflow');
-      const strip = page.locator('.els29-native-line-scroll');
-      assert.equal(await strip.getAttribute('tabindex'), '0', 'axis sequence remains keyboard reachable');
-      await activate(page, 'ממצאים');
-      const proximityHeight = await page.getByRole('slider', { name: 'מופעים לכל ממצא', exact: true }).evaluate((input) => input.getBoundingClientRect().height);
-      assert.ok(proximityHeight >= 44, 'proximity slider remains touch accessible');
-      await expectStable(page, before, 'mobile tools preserve panning');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectHeightControl(page);
-    });
+test('native UI: selected targets are invalidated by radius, hiding, removal and a new main axis',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await addSecondary(page,'תורה');await selectAxis(page,'תורה');
+   const initial=await page.evaluate(()=>window.__state),old=initial.findings.find(f=>f.t==='תורה').hits.find(h=>h.shown&&h.verified);
+   assert.ok(old.axisDistance>1,'fixture has a secondary hit outside the narrow radius');
+   await radius(page,1);
+   await page.waitForFunction(()=>window.__state?.findings?.find(f=>f.t==='תורה')?.hits?.every(hit=>!hit.shown||hit.axisDistance<=1));
+   assert.notEqual(await button(page,'בחר ציר לסריקה: תורה').getAttribute('aria-pressed'),'true','radius invalidates the unavailable selected hit');
+   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').count(),0);
+   await radius(page,null);await page.waitForFunction(()=>window.__state?.findings?.find(f=>f.t==='תורה')?.hits?.some(hit=>hit.shown&&hit.verified));
+   await selectAxis(page,'תורה');
+   await activate(page,'מופעים וצבע של תורה');
+   const group=page.locator('.els29-native-finding-group').filter({has:page.getByRole('button',{name:'בחר ציר לסריקה: תורה',exact:true})});
+   await group.locator('input[type="checkbox"]:checked').first().dispatchEvent('click');
+   await page.waitForFunction(id=>!window.__state?.findings?.find(f=>f.t==='תורה')?.hits?.some(hit=>hit.hitId===id&&hit.shown),old.hitId);
+   assert.notEqual(await button(page,'בחר ציר לסריקה: תורה').getAttribute('aria-pressed'),'true','hiding invalidates the selected hit');
+   await activate(page,'מחק את המילה תורה וכל מופעיה');
+   await page.waitForFunction(()=>!window.__state?.findings?.some(f=>f.t==='תורה'));
+   assert.equal(await button(page,'בחר ציר לסריקה: תורה').count(),0);
+   await selectAxis(page,golden.term);
+   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('אליהו');await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state?.status==='ok');
+   assert.equal(await button(page,'בחר ציר לסריקה: '+golden.term).count(),0,'old primary target disappears after main-axis replacement');
+   await selectAxis(page,'אליהו');await activate(page,'סרוק לאורך הציר הנבחר');
+   await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.word==='אליהו'&&window.__lens?.scan);
+   const reloadItem=await page.evaluate(()=>{const state=window.__state;return{term:state.term,scope:state.scope,skip:state.axis.skip,start:state.axis.start,dir:state.axis.direction==='back'?-1:1}});
+   const restoredAxis=await page.evaluate(()=>window.__state.axis.hitId);
+   // A same-axis reload must terminate pending operations even without an axis identity change.
+   for(const kind of ['findings','search']){
+    await page.evaluate(()=>{window.__fixtureHoldVerification=true;delete window.__fixtureReleaseVerification});
+    if(kind==='findings'){
+     await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('דוד');await activate(page,'חפש במטריצה');
+    }else{
+     await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משיח');await activate(page,'חפש');
+    }
+    await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+    const requestId=await page.evaluate(currentKind=>window.__hostLog.findLast(message=>message.type===(currentKind==='search'?'native-search':'update-findings')).requestId,kind);
+    await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureHeldRelease=window.__fixtureReleaseVerification});
+    await page.locator('iframe').evaluate((element,item)=>element.contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...reloadItem,id:'same-axis-'+kind+'-cancel'});
+    await page.waitForFunction(({kind,requestId})=>window.__log.some(message=>message.type==='operation'&&message.kind===kind&&message.requestId===requestId&&message.status==='cancelled'),{kind,requestId});
+    await page.waitForFunction(id=>window.__state?.provenance?.editId===id,'same-axis-'+kind+'-cancel');
+    await page.waitForFunction(()=>!document.querySelector('.els29-native-search').disabled&&!document.querySelector('[aria-label="חיפוש משני במטריצה"]').disabled);
+    assert.equal(await page.evaluate(()=>window.__state.axis.hitId),restoredAxis,'reload retains the same main axis');
+    await page.evaluate(()=>window.__fixtureHeldRelease());
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.equal(await page.evaluate(()=>window.__state.axis.hitId),restoredAxis,'late cancelled verification cannot replace the restored axis');
+   }
   });
+ });
 
-test('native UI: large displays use the available width, and pinned/overlay inspectors retain their matrix space',
-  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
-    await withNative({ width: 2560, height: 1000 }, async (page) => {
-      const contentWidth = await page.locator('.sod29-content').evaluate((content) => content.getBoundingClientRect().width);
-      assert.ok(contentWidth > 1450, 'ELS content exceeds the old 1450px shell cap');
-      assert.ok((await capture(page)).width > 1450, 'large displays gain actual matrix width');
-      const margins = await page.evaluate(() => {
-        // The real frame intentionally uses display:contents for main-stage without a context rail.
-        const frame = document.querySelector('.sod29-main').getBoundingClientRect();
-        const content = document.querySelector('.sod29-content').getBoundingClientRect();
-        return { ratio: content.width / frame.width, left: content.left - frame.left, right: frame.right - content.right };
-      });
-      assert.ok(Math.abs(margins.ratio - 0.9) <= 0.001, 'desktop ELS uses 90% of the available frame');
-      assert.ok(margins.left > 0 && Math.abs(margins.left - margins.right) <= 1, 'desktop keeps balanced side margins');
-      assert.equal(await page.locator('.els29-native-layout.is-panel-pinned').count(), 1, 'inspector starts pinned');
-      const pinned = await pan(page);
-      await activate(page, 'מקור');
-      await expectStable(page, pinned, 'large pinned source');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectStable(page, pinned, 'large pinned close');
-      await activate(page, 'מקור');
-      await activate(page, 'בטל הצמדה');
-      const overlay = await pan(page);
-      assert.ok(overlay.width > pinned.width, 'explicit unpin frees the reserved inspector column');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectStable(page, overlay, 'overlay close');
-      await activate(page, 'מקור');
-      await expectStable(page, overlay, 'overlay reopen');
-      await activate(page, 'הצמד');
-      const repinned = await pan(page);
-      assert.ok(Math.abs(repinned.width - pinned.width) <= 1, 'repinning restores the original matrix width');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectStable(page, repinned, 'repinned close');
-      await activate(page, 'ממצאים');
-      await expectStable(page, repinned, 'repinned findings');
-      await activate(page, 'סגור כלי מטריצה');
-      await expectHeightControl(page);
-      await button(page, 'התאם מטריצה למסך').scrollIntoViewIfNeeded();
-      const fit = Boolean(await page.evaluate(() => window.__state.ui.fit));
-      const fitIdentity = await identity(page);
-      await activate(page, 'התאם מטריצה למסך');
-      await page.waitForFunction((previous) => window.__state?.ui?.fit !== previous, fit);
-      assert.deepEqual(await identity(page), fitIdentity, 'bottom fit control preserves research identity');
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'wide ELS has no horizontal page overflow');
-    });
+test('native UI: mobile bounded sheets and wide 90% panels preserve geometry, pan and reachable height controls',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:2560,height:1000},async page=>{
+   const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
+   assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
+   assert.ok((await capture(page)).width>1450);await alignedPanel(page,'wide pinned rail');
+   const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
+   await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectStable(page,overlay,'overlay reopen');
+   await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
+   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
+   await activate(page,'חזור לגובה הרגיל');await alignedPanel(page,'restored pinned rail');
+   await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
+   await page.setViewportSize({width:390,height:844});await openPanel(page);
+   const before=await pan(page),sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
+   const compact=await sheet.boundingBox();assert.ok(compact.height<=844*.36+1&&compact.x>=0&&compact.x+compact.width<=390);
+   await inspectAndScanPrimary(page,before);
+   await activate(page,'הרחב');const expanded=await sheet.boundingBox();assert.ok(expanded.height<=844*.7+1);await expectStable(page,before,'expanded mobile rail');
+   await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   });
+ });
 
-test('native UI: every scan entry stays native through classic fallback; heat changes only unmarked presentation',
-  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
-    await withNative({ width: 1440, height: 1000 }, async (page) => {
-      const url = page.url();
-      const before = await pan(page);
-      const engine = await identity(page);
-      await activate(page, 'סריקה');
-      await page.waitForFunction(() => window.__lens?.lens === 'line-context' && window.__lens?.scan);
-      await expectNative(page, url, 'scan tool');
-      await expectStable(page, before, 'scan tool');
-      await activate(page, 'סרוק מילים לאורך הציר הראשי');
-      await button(page, 'סמן את תורה ברצף').waitFor();
-      await expectNative(page, url, 'main-axis scan');
-      await expectStable(page, before, 'main-axis scan');
-      await activate(page, 'סמן את תורה ברצף');
-      await expectNative(page, url, 'scan result highlight');
-      assert.deepEqual(await identity(page), engine, 'main-axis scans are read-only');
-      await activate(page, 'הוסף את תורה לממצאים');
-      await page.waitForFunction(() => window.__state?.findings?.some((finding) => finding.t === 'תורה' && finding.hits?.some((hit) => hit.shown && hit.verified)));
-      await activate(page, 'ממצאים');
-      await activate(page, 'סרוק מילים לאורך הציר של תורה');
-      await page.waitForFunction(() => window.__lens?.target?.term === 'תורה' && window.__lens?.scan);
-      await expectNative(page, url, 'secondary-axis scan');
-      assert.equal(await page.locator('.els29-native-bottom-controls').getByRole('button', { name: 'סרוק ציר ראשי', exact: true }).count(), 0, 'scanning stays in the scan rail');
-
-      await activate(page, 'כל הכלים');
-      assert.equal(await page.locator('.els29-classic-fallback.is-open').count(), 1, 'classic fallback was explicitly opened');
-      await page.locator('.els29-native-toolstrip [aria-label="סריקה"]').dispatchEvent('click');
-      await button(page, 'סמן את תורה ברצף').waitFor();
-      await expectNative(page, url, 'scan after classic fallback');
-      await activate(page, 'כל הכלים');
-      await page.locator('.els29-native-cell.is-axis').first().dispatchEvent('click');
-      await page.waitForFunction(() => window.__lens?.lens === 'letter-context');
-      await expectNative(page, url, 'letter inspection after classic fallback');
-
-      await activate(page, 'סגור כלי מטריצה');
-      await button(page, 'מפת חום').scrollIntoViewIfNeeded();
-      const heatIdentity = await identity(page);
-      const heatPan = await pan(page);
-      const marked = () => page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding').evaluateAll((cells) => cells.map((cell) => ({ index: cell.dataset.elsIndex, background: getComputedStyle(cell).backgroundColor, color: getComputedStyle(cell).color })));
-      const backgrounds = () => page.locator('.els29-native-cell:not(.is-axis):not(.is-finding)').evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
-      const initialMarks = await marked();
-      const initialBackgrounds = await backgrounds();
-      await activate(page, 'מפת חום');
-      await page.waitForFunction(() => window.__state?.ui?.heat === true);
-      assert.deepEqual(await identity(page), heatIdentity, 'heat preserves the verified research identity');
-      assert.deepEqual(await marked(), initialMarks, 'heat does not repaint axis or finding marks');
-      assert.notDeepEqual(await backgrounds(), initialBackgrounds, 'heat paints density on unmarked matrix cells');
-      await expectStable(page, heatPan, 'heat on');
-      await expectNative(page, url, 'heat on');
-      await activate(page, 'מפת חום');
-      await page.waitForFunction(() => window.__state?.ui?.heat === false);
-      assert.deepEqual(await backgrounds(), initialBackgrounds, 'heat off restores the original unmarked cells');
-      assert.deepEqual(await marked(), initialMarks);
-      await expectStable(page, heatPan, 'heat off');
-      await expectNative(page, url, 'heat off');
-    });
+test('native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const url=page.url();await selectAxis(page,golden.term);await activate(page,'כל הכלים');
+   assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),1);
+   await page.getByRole('button',{name:'סרוק לאורך הציר הנבחר',exact:true,includeHidden:true}).dispatchEvent('click');
+   await button(page,'סמן את תורה ברצף').waitFor();await expectNative(page,url,'scan after Classic');
+   await activate(page,'סגור כלי מטריצה');await button(page,'מפת חום').scrollIntoViewIfNeeded();
+   const initial=await identity(page),before=await pan(page);
+   const marked=()=>page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding').evaluateAll(cells=>cells.map(cell=>({index:cell.dataset.elsIndex,background:getComputedStyle(cell).backgroundColor,color:getComputedStyle(cell).color})));
+   const backgrounds=()=>page.locator('.els29-native-cell:not(.is-axis):not(.is-finding)').evaluateAll(cells=>cells.map(cell=>getComputedStyle(cell).backgroundColor));
+   const originalMarks=await marked(),originalBackgrounds=await backgrounds();
+   await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state?.ui?.heat===true);
+   assert.deepEqual(await marked(),originalMarks);assert.notDeepEqual(await backgrounds(),originalBackgrounds);assert.deepEqual(await identity(page),initial);await expectStable(page,before,'heat on');
+   await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state?.ui?.heat===false);
+   assert.deepEqual(await marked(),originalMarks);assert.deepEqual(await backgrounds(),originalBackgrounds);await expectStable(page,before,'heat off');
   });
+ });
 
-test('native UI: fresh storage first and second searches remain native; the real host gate stays visible outside the hidden engine',
-  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
-    await withNative({ width: 1440, height: 1000 }, async (page) => {
-      const url = page.url();
-      assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null, 'first search starts without an onboarding preset');
-      for (const term of ['תורה', 'אליהו']) {
-        await page.getByRole('textbox', { name: 'מונח', exact: true }).fill(term);
-        await activate(page, 'חפש');
-        await page.waitForFunction((searched) => window.__state?.term === searched && window.__state?.status === 'ok' && window.__state?.verification?.state === 'MATCH', term, { timeout: 60000 });
-        await expectNative(page, url, `fresh regular search ${term}`);
-        assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null, 'hidden bridge does not persist onboarding acceptance');
-        assert.equal(await page.locator('.els29-native-cell.is-axis').count(), term.length, 'new search displays its verified native matrix');
-      }
-      assert.equal(await page.evaluate(() => window.__log.some((message) => message.type === 'onboarding-required')), false, 'native search follows the existing hidden-bridge onboarding policy');
-      const mounted = await page.locator('iframe').getAttribute('src');
-      await activate(page, 'הצלבה');
-      await page.getByPlaceholder('למשל: דוד', { exact: true }).fill('גאולה');
-      await activate(page, 'מצא מפגש');
-      await page.waitForFunction(() => window.__log.some((message) => message.type === 'gate' && message.reason === 'cross'));
-      const gate = page.locator('[data-fixture-subscribe-gate]');
-      await gate.waitFor({ state: 'visible' });
-      assert.equal(await gate.evaluate((element) => element.closest('[aria-hidden="true"]') === null), true, 'registration gate is outside aria-hidden engine ancestors');
-      const bounds = await gate.boundingBox();
-      assert.ok(bounds.width > 100 && bounds.height > 10, 'gate is visible at a usable size');
-      assert.equal(await page.locator('iframe').getAttribute('src'), mounted, 'gate keeps the existing engine');
-      await expectNative(page, url, 'cross registration gate');
-    }, { realHost: true, loadGolden: false, onboarded: false, tier: 'anon' });
-  });
+test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while canonical verification remains required',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const url=page.url();assert.equal(await page.evaluate(()=>localStorage.getItem('tzofen_onboarded_v1')),null);
+   assert.ok((await page.locator('iframe').getAttribute('src')).includes('experience=2029'));
+   for(const [index,term] of ['תורה','אליהו','דוד','משיח'].entries()){
+    const oldOperation=await page.evaluate(()=>window.__operation);
+    if(index===3)await page.evaluate(()=>window.__fixtureHoldVerification=true);
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill(term);await activate(page,'חפש');
+    if(index===3){
+     await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+     assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'primary search stays disabled while verification is pending');
+     for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','חפש במטריצה','הגדל מטריצה','התאם מטריצה למסך','הרחב חלון'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during main verification');
+     assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true);
+     assert.equal(await page.getByLabel('מרחק מרבי מהציר הראשי',{exact:true}).isDisabled(),true);
+     const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length);
+     await page.locator('.els29-native-search').evaluate(element=>{element.click();element.click();element.click()});
+     assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length),requests,'disabled search ignores repeated clicks');
+     await injectToolMessage(page,{...oldOperation,status:'done'});
+     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+     assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'stale completion cannot clear the current pending search');
+     await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification()});
+    }
+    await page.waitForFunction(word=>window.__state?.term===word&&window.__state?.status==='ok'&&window.__state?.verification?.state==='MATCH',term,{timeout:60000});
+    await page.waitForFunction(()=>!document.querySelector('.els29-native-search').disabled);
+    await expectNative(page,url,'fresh anonymous '+term);
+   }
+   await activate(page,'כל התנ״ך');await page.waitForFunction(()=>window.__state?.scope==='tanakh'&&window.__state?.status==='ok');
+   assert.equal(await page.evaluate(()=>window.__log.some(message=>message.type==='gate'||message.type==='onboarding-required')),false,'no local demo or scope signup gates');
+   assert.equal(await page.locator('[data-fixture-subscribe-gate]').count(),0);
+   assert.equal(await page.evaluate(()=>localStorage.getItem('tzofen_onboarded_v1')),null);
+   await page.evaluate(()=>window.__fixtureVerificationDenied=true);
+   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('גאולה');await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='גאולה'&&window.__state?.status==='candidate');
+   assert.notEqual(await page.evaluate(()=>window.__state.verification.state),'MATCH','server verification denial still fails closed');
+   assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0);
+   await expectNative(page,url,'canonical verification denial');
+  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon'});
+ });
 
 test('native UI: compact findings, vowels, classic letters and depth retain exact base letters and source indices',
   { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
     await withNative({ width: 1440, height: 1000 }, async (page) => {
-      await activate(page, 'סריקה');
-      await button(page, 'הוסף את תורה לממצאים').waitFor();
-      await activate(page, 'הוסף את תורה לממצאים');
-      await page.waitForFunction(() => window.__state?.findings?.some((finding) => finding.t === 'תורה' && finding.hits?.some((hit) => hit.shown && hit.verified)));
-      await activate(page, 'ממצאים');
-      const finding = page.locator('.els29-native-finding-group').filter({ has: page.getByRole('button', { name: 'סרוק מילים לאורך הציר של תורה', exact: true }) });
+      await addSecondary(page, 'תורה');
+      const finding = page.locator('.els29-native-finding-group').filter({ has: page.getByRole('button', { name: 'בחר ציר לסריקה: תורה', exact: true }) });
       assert.equal(await finding.count(), 1);
-      for (const name of ['סרוק מילים לאורך הציר של תורה', 'מקור הממצא תורה', 'העלה את תורה', 'הורד את תורה']) {
+      for (const name of ['בחר ציר לסריקה: תורה', 'מופעים וצבע של תורה']) {
         const target = finding.getByRole('button', { name, exact: true });
         const bounds = await target.boundingBox();
         assert.ok(bounds.width >= 44 && bounds.height >= 44, `${name}: compact action retains a usable hit target`);
@@ -527,6 +530,7 @@ test('native UI: compact findings, vowels, classic letters and depth retain exac
       await disclosure.dispatchEvent('click');
       assert.equal(await disclosure.getAttribute('aria-expanded'), 'true');
       assert.equal(await extra.isVisible(), true, 'one disclosure reveals the occurrence and color controls');
+      for(const name of ['העלה את תורה','הורד את תורה','מחק את המילה תורה וכל מופעיה']){const bounds=await finding.getByRole('button',{name,exact:true}).boundingBox();assert.ok(bounds.width>=44&&bounds.height>=44,name+' remains touch accessible inside the disclosure');}
       await disclosure.dispatchEvent('click');
       await activate(page, 'סגור כלי מטריצה');
       const url = page.url();

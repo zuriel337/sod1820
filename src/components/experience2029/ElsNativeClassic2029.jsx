@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
 import { findingColorChoices, projectFindingColor } from "./elsFindingColors2029.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -189,8 +189,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
   </div>;
 }
 
-function MatrixControls({ state, onControl, onContext }) {
-  const active = state?.status === "ok" && state?.verification?.state === "MATCH";
+function MatrixControls({ state, onControl, onContext, busy }) {
+  const active = !busy && state?.status === "ok" && state?.verification?.state === "MATCH";
   const count = Number(state?.occurrence?.count) || 0;
   const current = count ? (Number(state?.occurrence?.index) || 0) + 1 : 0;
   const zoom = clamp(Number(state?.ui?.zoom) || 1, 0.5, 2.8);
@@ -216,7 +216,7 @@ function MatrixControls({ state, onControl, onContext }) {
   </div>;
 }
 
-function LineExplorer({ result, findings, onScan, onAddFinding }) {
+function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   const [selectedTerm, setSelectedTerm] = useState(null);
   const stripRef = useRef(null);
   const cells = result.cells || [];
@@ -252,7 +252,6 @@ function LineExplorer({ result, findings, onScan, onAddFinding }) {
     </div>
     <small>המילה שבחרתם מודגשת. גללו לצדדים כדי לקרוא את המשך הרצף.</small>
     <div className="els29-native-hit-actions">
-      <button type="button" onClick={onScan}>{result.scan ? "סרוק שוב את הרצף" : "סרוק שורה · מילים לאורך הציר"}</button>
       {selected ? <button type="button" onClick={() => setSelectedTerm(null)}>חזור למילת הציר</button> : null}
     </div>
     {result.scan ? <>
@@ -265,7 +264,7 @@ function LineExplorer({ result, findings, onScan, onAddFinding }) {
               aria-label={`סמן את ${word.label} ברצף`}>
               <b>{word.label}</b><small>{word.matches.length} ברצף</small>
             </button>
-            <button type="button" disabled={added || findings.length >= 12} onClick={() => onAddFinding(word.term)}
+            <button type="button" disabled={addingFinding || added || findings.length >= 12} onClick={() => onAddFinding(word.term)}
               aria-label={`הוסף את ${word.label} לממצאים`}>{added ? "נוסף" : "הוסף"}</button>
           </div>;
         })}
@@ -277,7 +276,7 @@ function LineExplorer({ result, findings, onScan, onAddFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onScanLine, onAddLineFinding }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">המקור לא זמין לתא הזה במצב הנוכחי.</p>;
 
@@ -293,7 +292,7 @@ function SourceLens({ lensResult, findings, onScanLine, onAddLineFinding }) {
 
   if (lensResult.lens === "line-context") {
     return <LineExplorer key={lensResult.hitId} result={lensResult} findings={findings}
-      onScan={onScanLine} onAddFinding={onAddLineFinding} />;
+      onAddFinding={onAddLineFinding} addingFinding={addingFinding} />;
   }
   if (lensResult.lens === "verse-context") {
     const verses = Array.isArray(lensResult.verses) ? lensResult.verses : [];
@@ -308,148 +307,156 @@ function SourceLens({ lensResult, findings, onScanLine, onAddLineFinding }) {
   return null;
 }
 
-function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onAxisScan, onAxisControl, onScanLine, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, lensResult, lensPending, operation, searchPending, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
-  const verified = state?.verification?.state === "MATCH";
+  const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const showN = clamp(Math.round(Number(state?.ui?.showN) || 1), 1, 15);
+  const radius = state?.ui?.findingRadius ?? null;
   const [draft, setDraft] = useState("");
   const [expandedFinding, setExpandedFinding] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const railScrollRef = useRef(null);
+  const inspectionRef = useRef(null);
+  const findingPending = ["searching", "verifying"].includes(operation?.status);
+  const pending = searchPending || findingPending;
+  const eligible = (finding) => (finding?.hits || []).filter((hit) => hit.verified && hit.shown && hit.withinRadius !== false);
+  const selectedFinding = selected?.term ? findings.find((finding) => finding.t === selected.term) : null;
+  const selectedHit = eligible(selectedFinding).find((hit) => hit.hitId === selected?.hitId);
+  const selectionValid = selected && selected.scope === state?.scope && selected.axisHitId === state?.axis?.hitId && selectedFinding && (selectedHit || findingPending);
+  const target = selectionValid ? { term: selected.term, hitId: selected.hitId } : { hitId: state?.axis?.hitId };
+  const targetLabel = selectionValid ? selected.term : state?.termRaw || state?.term || "הציר הראשי";
+  const targetReady = verified && !!target.hitId;
 
+  useEffect(() => {
+    if (selected && !selectionValid) {
+      setSelected(null);
+      onSelectTarget();
+    }
+  }, [selected, selectionValid, onSelectTarget]);
+
+  useLayoutEffect(() => {
+    if (!lensResult || !railScrollRef.current || !inspectionRef.current) return;
+    const rail = railScrollRef.current;
+    const box = rail.getBoundingClientRect();
+    const result = inspectionRef.current.getBoundingClientRect();
+    rail.scrollTop = clamp(rail.scrollTop + result.top - box.top - 8, 0, rail.scrollHeight - rail.clientHeight);
+  }, [lensResult]);
+
+  const selectTarget = (term, hitId) => {
+    setSelected(term ? { term, hitId, scope: state.scope, axisHitId: state.axis.hitId } : null);
+    onSelectTarget();
+  };
   const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
-
   const addFinding = () => {
     const term = clean(draft);
-    if (!term || !verified || findings.length >= 12) return;
-    onFindingsChange?.([...projected(), { t: term, color: colorChoices[findings.length % colorChoices.length].stored }]);
+    if (!term || !verified || pending || findings.length >= 12) return;
+    onFindingsChange([...projected(), { t: term, color: colorChoices[findings.length % colorChoices.length].stored }]);
     setDraft("");
   };
+  const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
+  const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  const removeFinding = (index) => {
-    onFindingsChange?.(projected().filter((_, itemIndex) => itemIndex !== index));
-  };
-
-  const changeFindingColor = (index, color) => {
-    onFindingsChange?.(projected().map((finding, itemIndex) =>
-      itemIndex === index ? { ...finding, color } : finding
-    ));
-  };
-
-  return <div className="els29-native-workrail">
-    <div className="els29-native-rail-section" hidden={activeTool !== "source"}>
-      <small>הממצא הפעיל</small>
-      <strong>{state?.termRaw || state?.term || "עדיין לא נבחר מונח"}</strong>
-      <div className="els29-native-meta-grid">
-        <span><b>{verified ? "מאומת" : state?.status === "candidate" ? "מועמד" : "ממתין"}</b><small>מצב</small></span>
-        <span><b>{state?.axis?.skip ?? "—"}</b><small>דילוג</small></span>
-        <span><b>{directionLabel(state?.axis?.direction)}</b><small>כיוון</small></span>
-        <span><b>{state?.occurrence?.count ?? "—"}</b><small>מופעים</small></span>
-      </div>
-    </div>
-
-    <div className="els29-native-rail-section" hidden={activeTool !== "source" && activeTool !== "scan"}>
-      <div className="els29-native-rail-head"><strong>{activeTool === "scan" ? "מילים לאורך הציר" : "מקור ופסוק"}</strong></div>
-      <SourceLens lensResult={lensResult} findings={findings} onScanLine={onScanLine} onAddLineFinding={onAddLineFinding} />
-      <button className="sod29-action" type="button" hidden={activeTool === "scan"} disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
-        מקור הממצא
-      </button>
-      <button className="sod29-action" type="button" hidden={activeTool === "scan"} disabled={!verified} onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
-      <button className="sod29-action" type="button" hidden={activeTool !== "scan"} disabled={!verified || !state?.axis?.hitId} onClick={onAxisScan}>סרוק מילים לאורך הציר הראשי</button>
-    </div>
-
-    <div className="els29-native-rail-section" hidden={activeTool !== "findings"}>
-      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12</small></div>
-      {verified ? <div className="els29-native-axis-entry" data-experience-capability="els-axis-actions">
-        <div className="els29-native-finding">
-          <i className="els29-native-color-dot" style={{ "--els29-mark": palette.accent }} aria-hidden="true" />
-          <span><b>{state.termRaw || state.term}</b><small>ציר · דילוג {state.axis?.skip} · מופע {(state.occurrence?.index || 0) + 1}/{state.occurrence?.count || 1}</small></span>
-        </div>
-        <div className="els29-native-finding-actions">
-          <button type="button" aria-label="רצף ומילים לאורך הציר" title="רצף ומילים לאורך הציר" onClick={onAxisLine}>⌕</button>
-          <button type="button" aria-label="פסוקי הציר" title="פסוקי הציר" onClick={onAxisVerse}>¶</button>
-          <button type="button" aria-label={state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"} title={state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"} aria-pressed={!state.ui?.hideMain} onClick={() => onAxisControl("axis-visibility")}>◉</button>
-        </div>
-      </div> : null}
-      <label className="els29-native-proximity">
-        <span>מד קרבה · מופעים לכל ממצא <output>{showN}</output></span>
-        <input type="range" min="1" max="15" step="1" value={showN}
-          aria-label="מופעים לכל ממצא" disabled={!verified}
-          onChange={(event) => onAxisControl("finding-count", Number(event.target.value))} />
-        <small>{showN === 1 ? "מופע אחד לכל ממצא" : `עד ${showN} מופעים לכל ממצא`} · הגדילו כדי לראות יותר.</small>
-      </label>
+  return <div className="els29-native-unified-rail">
+    <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
+      <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
       <div className="els29-native-finding-add">
-        <input
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              addFinding();
-            }
-          }}
-          disabled={!verified || findings.length >= 12}
-          maxLength={26}
-          placeholder={verified ? "הוסף מילה למטריצה…" : "נדרש מופע מאומת"}
-          aria-label="ממצא חדש למטריצה"
-        />
-        <button type="button" onClick={addFinding} disabled={!verified || !clean(draft) || findings.length >= 12}>הוסף</button>
+        <input id="els29-secondary-term" value={draft} onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addFinding(); } }}
+          disabled={!verified || pending || findings.length >= 12} maxLength={26}
+          placeholder={verified ? "כתבו מילה נוספת…" : "התחילו בחיפוש ראשי"} aria-label="חיפוש משני במטריצה" />
+        <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= 12}>{pending ? "מחפש…" : "חפש"}</button>
       </div>
-
-      {findings.length ? <div className="els29-native-findings">
+      <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
+        {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע סביב הציר הראשי הנוכחי."}
+      </div>
+      <label className="els29-native-radius">
+        <span>מרחק מרבי מהציר הראשי</span>
+        <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
+          onChange={(event) => onAxisControl("finding-radius", event.target.value === "all" ? null : Number(event.target.value))}>
+          <option value="all">כל המרחקים בחלון</option>
+          {[0, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100].map((value) => <option key={value} value={value}>{value === 0 ? "נוגע בציר · 0 תאים" : `עד ${value} תאים`}</option>)}
+        </select>
+      </label>
+      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
+      <div className="els29-native-findings">
+        {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} data-experience-capability="els-axis-actions">
+          <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
+            aria-pressed={!selectionValid} disabled={searchPending} onClick={() => selectTarget("", state.axis.hitId)}>
+            <i className="els29-native-color-dot" style={{ "--els29-mark": palette.accent }} aria-hidden="true" />
+            <span><b>{state.termRaw || state.term}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {(state.occurrence?.index || 0) + 1}/{state.occurrence?.count || 1}</small></span>
+          </button>
+        </div> : <p className="els29-native-muted">אחרי החיפוש הראשי יופיעו כאן הציר והממצאים שלו.</p>}
         {findings.map((finding, index) => {
+          const hits = eligible(finding);
+          const firstHit = hits[0];
+          const chosen = selectionValid && selected.term === finding.t;
+          const displayHit = chosen ? selectedHit : firstHit;
           const displayColor = projectFindingColor(finding.color, palette);
-          const firstShownHit = (finding.hits || []).find((hit) => hit.shown && hit.verified);
-          return <div className="els29-native-finding-group" key={finding.t}><div className="els29-native-finding">
-            <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
-            <span><b>{finding.t}</b><small>מציג {finding.shown?.length || 0} · מתוך {finding.inWindow || 0} באזור{firstShownHit ? ` · דילוג ${firstShownHit.skip}` : " · טרם אומת"}</small>
-              {firstShownHit && Number.isFinite(firstShownHit.axisDistance) ? <small>מרחק מהציר הראשי {firstShownHit.axisDistance} תאים</small> : null}
-            </span>
-            <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`} title="מחק מילה שלמה">×</button>
-          </div>
-            <div className="els29-native-finding-actions">
-              <button type="button" disabled={!firstShownHit} aria-label={`סרוק מילים לאורך הציר של ${finding.t}`} title={`סרוק מילים לאורך הציר של ${finding.t}`}
-                onClick={() => onFindingLens(finding.t, firstShownHit.hitId, "line-context", true)}>
-                ⌕
+          const hasVerified = (finding.hits || []).some((hit) => hit.verified);
+          return <div className={`els29-native-finding-group${chosen ? " is-selected" : ""}`} key={finding.t}>
+            <div className="els29-native-finding">
+              <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${finding.t}`} aria-pressed={!!chosen}
+                disabled={!firstHit || pending} onClick={() => selectTarget(finding.t, firstHit.hitId)}>
+                <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
+                <span><b>{finding.t}</b><small>מוצגים {finding.shown?.length || 0} · {finding.inWindow || 0} בחלון</small>
+                  {displayHit ? <small>דילוג {displayHit.skip} · מרחק {displayHit.axisDistance} תאים</small> : <small>{hasVerified ? "אין מופע מוצג בטווח שנבחר" : pending ? "מחפש…" : "אין מופע מאומת להצגה"}</small>}
+                </span>
               </button>
-              <button type="button" disabled={!firstShownHit} aria-label={`מקור הממצא ${finding.t}`} title={`מקור הממצא ${finding.t}`} onClick={() => onFindingLens(finding.t, firstShownHit.hitId)}>¶</button>
-              <button type="button" disabled={index === 0} aria-label={`העלה את ${finding.t}`} title="העלה ממצא" onClick={() => onFindingControl(finding.t, "move-up")}>↑</button>
-              <button type="button" disabled={index === findings.length - 1} aria-label={`הורד את ${finding.t}`} title="הורד ממצא" onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
-              <button type="button" aria-label={`מופעים וצבע של ${finding.t}`} title={`מופעים וצבע של ${finding.t}`}
-                aria-expanded={expandedFinding === finding.t} aria-controls={`els29-finding-extra-${index}`}
-                onClick={() => setExpandedFinding((term) => term === finding.t ? null : finding.t)}>⋯</button>
+              <button type="button" aria-label={`מופעים וצבע של ${finding.t}`} title="מופעים, צבע ופעולות" aria-expanded={expandedFinding === finding.t}
+                aria-controls={`els29-finding-extra-${index}`} onClick={() => setExpandedFinding((term) => term === finding.t ? null : finding.t)}>⋯</button>
             </div>
+            {chosen && selectedHit && hits.length > 1 ? <label className="els29-native-selected-occurrence">מופע לסריקה
+              <select aria-label={`מופע לסריקה של ${finding.t}`} disabled={pending} value={selectedHit.hitId} onChange={(event) => selectTarget(finding.t, event.target.value)}>
+                {hits.map((hit, hitIndex) => <option key={hit.hitId} value={hit.hitId}>מופע {hitIndex + 1} · דילוג {hit.skip} · מרחק {hit.axisDistance}</option>)}
+              </select>
+            </label> : null}
             <div className="els29-native-finding-extra" id={`els29-finding-extra-${index}`} hidden={expandedFinding !== finding.t}>
-              <p className="els29-native-muted">כיבוי מופע אחד משאיר את שאר המופעים.</p>
+              <div className="els29-native-finding-actions">
+                <button type="button" disabled={pending || index === 0} aria-label={`העלה את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-up")}>↑</button>
+                <button type="button" disabled={pending || index === findings.length - 1} aria-label={`הורד את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
+                <button type="button" disabled={pending} onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`}>מחק</button>
+              </div>
               {(finding.hits || []).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={`${hit.revision}:${hit.candidateIndex}`}>
-                <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
-                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small>
-                    {hit.verified && Number.isFinite(hit.axisDistance) ? <small>מרחק מהציר הראשי · {hit.axisDistance} תאים</small> : null}
-                  </span>
+                <label><input type="checkbox" disabled={pending} checked={hit.selected ?? hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
+                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "בבדיקה") : hit.withinRadius === false ? "מחוץ לטווח" : "מוסתר"}</b>
+                    <small>{hit.verified ? `דילוג ${hit.skip} · מרחק ${hit.axisDistance} תאים` : "מועמד לבדיקה"}</small></span>
                 </label>
-                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId)}>מקור</button>
-                <button type="button" disabled={!hit.shown || !hit.verified} onClick={() => onFindingLens(finding.t, hit.hitId, "line-context", true)}>רצף ומילים</button>
               </div>)}
-              {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
-              {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
+              {finding.hitsTruncated ? <small>מוצגים עד 64 מופעים. הרשימה המלאה בכלים הקלאסיים.</small> : null}
               <div className="els29-native-system-colors" role="group" aria-label={`צבע הממצא ${finding.t}`}>
-                {colorChoices.map((choice) => <button type="button" key={choice.label} aria-label={`צבע ${choice.label} לממצא ${finding.t}`} aria-pressed={displayColor === choice.color} title={choice.label}
+                {colorChoices.map((choice) => <button type="button" key={choice.label} aria-label={`צבע ${choice.label} לממצא ${finding.t}`} disabled={pending} aria-pressed={displayColor === choice.color}
                   onClick={() => changeFindingColor(index, choice.stored)} style={{ "--els29-mark": choice.color }}><i aria-hidden="true" /><span>{choice.label}</span>{displayColor === choice.color ? " ✓" : ""}</button>)}
               </div>
             </div>
           </div>;
         })}
-      </div> : <p className="els29-native-muted">הוסיפו מילה כדי לראות אם ואיפה היא מופיעה בחלון המטריצה הנוכחי.</p>}
+      </div>
+      {lensPending || lensResult ? <details ref={inspectionRef} key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
+        <summary>{lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
+      </details> : null}
+      <details className="els29-native-findings-options"><summary>אפשרויות תצוגת ממצאים</summary>
+        <label className="els29-native-proximity"><span>מופעים להצגה לכל מילה <output>{showN}</output></span>
+          <input type="range" min="1" max="15" step="1" value={showN} aria-label="מופעים לכל ממצא" disabled={!verified || pending}
+            onChange={(event) => onAxisControl("finding-count", Number(event.target.value))} />
+        </label>
+      </details>
     </div>
-
-    <div className="els29-native-rail-section" hidden={activeTool !== "research"}>
+    <div className="els29-native-scan-action" hidden={activeTool === "research"}>
+      <small>הציר הנבחר: <b>{targetLabel}</b></small>
+      <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>{lensPending ? "טוען…" : "סרוק לאורך הציר הנבחר"}</button>
+      <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
+    </div>
+    <div className="els29-native-rail-scroll" hidden={activeTool !== "research"}>
       <strong>שמירה והמשך מחקר</strong>
       <div className="els29-native-hit-actions">
-        <button type="button" disabled={!verified} onClick={onSave}>שמור מטריצה</button>
-        <button type="button" disabled={!verified} onClick={onWorkspace}>הוסף למחקר</button>
+        <button type="button" disabled={!verified || pending} onClick={onSave}>שמור מטריצה</button>
+        <button type="button" disabled={!verified || pending} onClick={onWorkspace}>הוסף למחקר</button>
         <button type="button" onClick={onOpenClassic}>שמירות ושיתוף</button>
       </div>
-      <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף וסרט נשארים זמינים באותו כלי קלאסי.</p>
+      <p className="els29-native-muted">כלי ההצלבות המתקדמים, תמונה ושיתוף זמינים בכלים הקלאסיים.</p>
       <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
     </div>
   </div>;
@@ -504,6 +511,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     };
   }, [activeTool, classicOpen, panelPinned]);
   const [notice, setNotice] = useState("");
+  const [accountRequired, setAccountRequired] = useState(false);
+  const [operations, setOperations] = useState({ search: null, findings: null });
   const [controlRequest, setControlRequest] = useState(null);
   const controlSeqRef = useRef(0);
   const [searchRequest, setSearchRequest] = useState(null);
@@ -522,6 +531,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [lensRequest, setLensRequest] = useState(null);
   const lensSeqRef = useRef(0);
   const [lensResult, setLensResult] = useState(null);
+  const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
@@ -530,21 +540,39 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     ++lensSeqRef.current;
     setLensRequest(null);
     setLensResult(null);
+    setLensPending(false);
     setSelectedLetterIndex(null);
   };
 
   const requestSearch = (kind, payload = {}) => {
     resetReadContext();
     setNotice("");
+    setAccountRequired(false);
     setClassicOpen(false);
-    setSearchRequest({ kind, ...payload, seq: ++searchSeqRef.current });
+    ++findingsSeqRef.current;
+    const seq = ++searchSeqRef.current;
+    setOperations({ search: { requestId: seq, status: "searching" }, findings: null });
+    setSearchRequest({ kind, ...payload, seq });
   };
 
-  const requestFindingsChange = (findings) => {
+  const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
     if (!Array.isArray(findings)) return;
     const previousTerms = (engineStateRef.current?.findings || []).map((finding) => finding.t);
-    if (findings.length !== previousTerms.length || findings.some((finding, index) => finding.t !== previousTerms[index])) resetReadContext();
-    setFindingsRequest({ findings, seq: ++findingsSeqRef.current });
+    const membershipChanged = findings.length !== previousTerms.length || findings.some((finding) => !previousTerms.includes(finding.t));
+    if (membershipChanged && !preserveRead) resetReadContext();
+    const seq = ++findingsSeqRef.current;
+    if (membershipChanged) setOperations((current) => ({ ...current, findings: { requestId: seq, status: "searching" } }));
+    setFindingsRequest({ findings, seq });
+  };
+
+  const handleOperation = (operation) => {
+    const kind = operation?.kind;
+    if (kind !== "search" && kind !== "findings") return;
+    const expected = kind === "search" ? searchSeqRef.current : findingsSeqRef.current;
+    if (operation.requestId !== expected) return;
+    setOperations((current) => ({ ...current, [kind]: operation }));
+    if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
+    if (kind === "search" && operation.status === "empty") setNotice("לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
   };
 
   const submit = (event) => {
@@ -581,6 +609,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
       resetReadContext();
+      if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term) {
+        ++findingsSeqRef.current;
+        setOperations((current) => ({ ...current, findings: null }));
+      }
     }
     if (next?.termRaw && next.termRaw !== previous?.termRaw) setQuery(next.termRaw);
     const canonicalRadius = Number(next?.search?.crossRadius);
@@ -605,23 +637,27 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     if (!action) return;
     if (action === "occurrence-prev" || action === "occurrence-next") {
       resetReadContext();
+      ++findingsSeqRef.current;
+      setOperations((current) => ({ ...current, findings: null }));
     }
+    if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
   };
 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    const tool = target.scan === true ? "scan" : "source";
-    openTool(tool, toolRailRef.current?.querySelector(`[aria-label="${tool === "scan" ? "סריקה" : "מקור"}"]`));
+    openTool("findings", toolRailRef.current?.querySelector('[aria-label="סריקה וממצאים"]'));
     const seq = ++lensSeqRef.current;
     setLensResult(null);
+    setLensPending(true);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
   };
 
   const handleLens = (result) => {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     setLensResult(result);
+    setLensPending(false);
   };
   const requestFindingControl = (term, action, hitId, hit = {}) => {
     resetReadContext();
@@ -638,10 +674,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const addLineFinding = (term) => {
     const findings = engineStateRef.current?.findings || [];
-    if (!term || findings.length >= 12 || findings.some((finding) => finding.t === term)) return;
+    if (!term || ["searching", "verifying"].includes(operations.findings?.status) || ["searching", "verifying"].includes(operations.search?.status) || findings.length >= 12 || findings.some((finding) => finding.t === term)) return;
     // Append through the existing canonical editor. Preserve the read-only line inspector:
     // adding a term does not change its axis, corpus or selected occurrence.
-    setFindingsRequest({ findings: [...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term }], seq: ++findingsSeqRef.current });
+    requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term }], { preserveRead: true });
   };
 
   const handleLetterClick = ({ index }) => {
@@ -649,16 +685,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     requestLens("letter-context", { i: index });
   };
 
-  const requestAxisVerse = () => {
-    if (!engineState?.axis?.hitId) return;
-    setSelectedLetterIndex(null);
-    requestLens("verse-context", { hitId: engineState.axis.hitId });
-  };
-  const requestAxisScan = () => {
-    if (!engineState?.axis?.hitId) return;
-    requestLens("line-context", { hitId: engineState.axis.hitId, scan: true });
-  };
   const matrixActive = engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  const searchPending = ["searching", "verifying"].includes(operations.search?.status);
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4">
     <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
@@ -686,13 +714,13 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      <button className="els29-native-search" type="submit">חפש</button>
+      <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : "חפש"}</button>
       <button
         className={`els29-native-cross-toggle${crossOpen ? " is-active" : ""}`}
         type="button"
         aria-expanded={crossOpen}
         onClick={() => setCrossOpen((value) => !value)}
-      >הצלבה</button>
+      >הצלבה בין צירים</button>
       <button className="els29-native-more" type="button" onClick={() => setClassicOpen((value) => !value)}>
         {classicOpen ? "חזור לתצוגת 2029" : "כל הכלים"}
       </button>
@@ -728,7 +756,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       </div> : null}
     </form>
 
-    {notice ? <div className="els29-native-notice" role="status">{notice}</div> : null}
+    {notice || searchPending ? <div className="els29-native-notice" role="status">{searchPending ? operations.search?.status === "verifying" ? "בודק את המופעים שנמצאו…" : "מחפש את הציר…" : notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
@@ -748,7 +776,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
               {engineState?.ui?.niqqud && activeScope === "tanakh" ? <span>ניקוד לתורה בלבד</span> : null}
             </div>
           </div>
-          <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
+          <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
@@ -756,7 +784,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             {heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
           </button>
           <button type="button" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
-            disabled={!matrixActive} onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
+            disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
           <button type="button" aria-pressed={!!engineState?.ui?.heat} disabled={!matrixActive}
             title="צפיפות סביב אותיות הציר והממצאים המאומתים" onClick={() => requestControl("heat-toggle")}>מפת חום</button>
           <button type="button" aria-label="סימון הציר הראשי" aria-pressed={!engineState?.ui?.hideMain}
@@ -770,17 +798,16 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         </footer>
         </div>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
-          {[["source", "מקור", "¶"], ["findings", "ממצאים", "+"], ["scan", "סריקה", "⌕"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
+          {[["findings", "סריקה וממצאים", "⌕"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
-            disabled={tool === "scan" && !matrixActive}
-            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : tool === "scan" ? requestAxisScan() : openTool(tool, event.currentTarget)}
-          ><span aria-hidden="true">{icon}</span><small>{label}</small></button>)}
+            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
+          ><span aria-hidden="true">{icon}</span><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
         </div>
         <div ref={panelRef} className={`els29-native-panel-wrap${sheetExpanded ? " is-sheet-expanded" : ""}`} hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : activeTool === "scan" ? "סריקת מילים בציר" : "שמירה והמשך מחקר"}</strong>
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : "סריקה וממצאים"}</strong>
             <button type="button" className="els29-native-sheet-size" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded((value) => !value)}>{sheetExpanded ? "צמצם" : "הרחב"}</button>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
@@ -789,13 +816,14 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           activeTool={activeTool}
           state={engineState}
           lensResult={lensResult}
-          onAxisVerse={requestAxisVerse}
-          onAxisLine={() => requestLens("line-context", { hitId: engineState?.axis?.hitId })}
-          onAxisScan={requestAxisScan}
+          lensPending={lensPending}
+          operation={operations.findings}
+          searchPending={searchPending}
+          onSelectTarget={resetReadContext}
+          onScan={(target) => requestLens("line-context", { ...target, scan: true })}
+          onSource={(target) => requestLens("verse-context", target)}
           onAxisControl={requestControl}
-          onScanLine={() => requestLens("line-context", { term: lensResult?.target?.term, hitId: lensResult?.hitId, scan: true })}
           onAddLineFinding={addLineFinding}
-          onFindingLens={(term, hitId, lens = "verse-context", scan = false) => requestLens(lens, { term, hitId, ...(scan ? { scan: true } : {}) })}
           onFindingControl={requestFindingControl}
           onSave={requestSave}
           onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
@@ -811,10 +839,12 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           seed={engineSeed || undefined}
           full={classicOpen}
           hiddenBridge
+          experience2029
           engineOnly={!classicOpen}
           showResearchBusWhenHiddenBridge
           onState={handleEngineState}
-          onGate={() => setClassicOpen(false)}
+          onOperation={handleOperation}
+          onGate={() => { setClassicOpen(false); setOperations({ search: null, findings: null }); setAccountRequired(true); setNotice("פעולה זו זמינה דרך החשבון באתר."); }}
           onOnboardingRequired={() => { setClassicOpen(false); setNotice("התחילו במילה קצרה, ואז בדקו את המקור והמילים שסביבה."); }}
           lensRequest={lensRequest}
           onLens={handleLens}

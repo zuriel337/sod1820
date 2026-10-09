@@ -1072,6 +1072,9 @@
   //    לא הסקה מ-CSS. משפיע *רק* על ensureOnboarded() למטה (§3921) — דילוג-חד-פעמי-לריצה-הזו על
   //    חלון-ההדרכה, בלי markOnboarded()/localStorage, בלי לגעת בתור/tier/הרשמה (SubscribeGate).
   let BRIDGE_HIDDEN=false;try{BRIDGE_HIDDEN=/[?&]bridge=hidden\b/.test(location.search);}catch(e){}
+  // 2029 delegates account access to the platform; only the archived local search/demo gates retire here.
+  // This flag never changes tier/admin, canonical verification, server access or request budgets.
+  let EXPR2029=false;try{EXPR2029=new URLSearchParams(location.search).get("experience")==="2029";}catch(e){}
   const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
   const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};
   // 🗜️ פענוח הנתונים הדחוסים (gzip→base64) בעזרת DecompressionStream המובנה — בלי רשת, תואם-CSP.
@@ -1427,7 +1430,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     out.vmismatch=mismatch;out.vtrace=vr.traces;out.vstate="VERIFIED";out.corpus_id=vr.corpus_id||CORPUS_ID[sc];
     return out;
   }
-  async function discoverVerified(raw,cap){return promoteVerified(await routedDiscover(raw,cap));}
+  async function discoverVerified(raw,cap,operation){
+    const candidates=await routedDiscover(raw,cap);
+    if(candidates.hits.some(h=>Math.abs(h.skip)>=2))operationStatus(operation,"verifying");
+    return promoteVerified(candidates);
+  }
   const isGov=h=>!!h&&h.v==="MATCH";
   // 🧬 render-truth: a result gets the normal «נמצא» UI ONLY if at least one occurrence is a canonical MATCH.
   const hasGov=r=>!!r&&!!r.hits&&r.hits.some(isGov);
@@ -1463,13 +1470,16 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
-  // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
-  function shownHitsOf(w){
+  st.findingRadius=null;
+  // Selected occurrences retain showN and explicit choices; radius is a reversible display filter only.
+  function selectedHitsOf(w){
     if(!w.hits||!w.hits.length)return [];
     const defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
     const off=w.off||new Set(),extra=w.extra||new Set();
     return w.hits.filter(h=>{const k=hitKey(h);return (defKeys.has(k)&&!off.has(k))||extra.has(k);});
   }
+  const withinFindingRadius=h=>st.findingRadius===null||(isGov(h)&&Number.isFinite(h.axisDistance)&&h.axisDistance<=st.findingRadius);
+  function shownHitsOf(w){return selectedHitsOf(w).filter(withinFindingRadius);}
   function toggleHit(w,h){
     const k=hitKey(h),defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
     w.off=w.off||new Set();w.extra=w.extra||new Set();
@@ -1518,7 +1528,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   // sh = מפתחות ההופעות שהמשתמש בחר להציג (skip_dir_start). נשמר כדי שהסתרת הופעה רחוקה
   //      תשוחזר בפתיחה (אחרת הכלי מוצא מחדש את *כל* ההופעות והרחוקה חוזרת). הבאג המדובר.
-  function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color,sh:shownHitsOf(w).map(hitKey)})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
+  function galleryCurrentItem(){return {name:st.raw,term:st.raw,skip:Math.abs(occ().skip),words:st.words.map(w=>({t:w.t,color:w.color,sh:selectedHitsOf(w).map(hitKey)})),postUrl:st.postUrl||"",postTitle:st.postTitle||"",scope:st.scope};}
   // 💾 שמירה לענן בלבד (אין שמירה-למכשיר): שולח את המטריצה לאתר → נכנסת לגלריית-הענן המשותפת.
   // אדמין → מתפרסמת מיד · משתמש רשום → ממתינה לאישור · אנונימי → נשמר כ«ממתין לאישור».
   // 📝 חובה (בקשת צוריאל 20.7.2026): כל שומר-צופן כותב תחילה «מה רואים בצופן» — אין שמירה בלי הסבר.
@@ -1572,7 +1582,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         return;
       }
       const it=galleryCurrentItem();
-      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:shownHitsOf(st.words[i]).filter(isGov).map(hitKey)}));   // רק ממצאים שאומתו יוצאים לשמירה
+      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:selectedHitsOf(st.words[i]).filter(isGov).map(hitKey)}));   // verified user choices; a radius filter is not a saved deselection
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
@@ -1846,9 +1856,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           skip:isGov(h)?Math.abs(h.skip):null,direction:isGov(h)?(h.dir===1?"fwd":"back"):null,
           axisDistance:isGov(h)&&Number.isFinite(h.axisDistance)?h.axisDistance:null,
           clusterDistance:isGov(h)&&Number.isFinite(h.cost)?h.cost:null,
-          shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
+          selected:selectedHitsOf(w).includes(h),withinRadius:withinFindingRadius(h),shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
-        showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
+        showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
@@ -1874,17 +1884,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const r=st.res;
     if(r&&r.hits&&r.t){const need=r.hits.filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);if(need.length)jobs.push({t:r.t,hits:need,strategy:r.strategy||null});
       r.hits.forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="PLAIN_TEXT";});}
-    st.words.forEach(w=>{const need=shownHitsOf(w).filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);
-      shownHitsOf(w).forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="LOCAL_ONLY";});
+    st.words.forEach(w=>{const need=selectedHitsOf(w).filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);
+      selectedHitsOf(w).forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="LOCAL_ONLY";});
       if(need.length&&norm(w.t).length>=2)jobs.push({t:norm(w.t),hits:need,strategy:{policy:"WINDOW_CANDIDATE_V1"}});});
     if(!jobs.length)return;
     _healBusy=true;
     try{
       for(const j of jobs){
+        operationStatus(_nativeFindingsOperation,"verifying");
         const vr=await verifyBatch(j.t,j.hits,j.strategy);
         j.hits.forEach(h=>{h.v=vr.ok?(vr.verified.has(hitKey(h))?"MATCH":"MISMATCH"):"CANDIDATE";});
       }
     }finally{_healBusy=false;}
+    if(st.findingRadius!==null){recolorOnly();if(st._renderNativeList)st._renderNativeList();}
     emitState();
   }
 
@@ -1910,7 +1922,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     if(target&&target.hitId){
       const byKey=candidates.find(h=>hitKey(h)===target.hitId);
-      if(byKey)return byKey;
+      return byKey||null;
     }
     return candidates[0];
   }
@@ -1971,6 +1983,40 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(membershipChanged)recomputeWords();
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
+  let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0;
+  function operationStatus(operation,status,message){
+    if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
+    if(operation.terminal)return;
+    if(operation.status===status)return;operation.status=status;
+    if(status==="done"||status==="empty"||status==="error"||status==="cancelled")operation.terminal=true;
+    postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} )});
+  }
+  function beginOperation(kind,requestId){
+    const valid=Number.isSafeInteger(requestId)&&requestId>=0;
+    const operation=valid?{kind,requestId}:null;
+    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();_nativeSearchOperation=operation;}
+    else{invalidateFindingsOperation();_nativeFindingsOperation=operation;}
+    operationStatus(operation,"searching");return operation;
+  }
+  function invalidateSearchOperation(){operationStatus(_nativeSearchOperation,"cancelled");_nativeSearchOperation=null;}
+  function invalidateFindingsOperation(){operationStatus(_nativeFindingsOperation,"cancelled");++_nativeFindingsSeq;_nativeFindingsOperation=null;}
+  function supersedeNativeOperations(){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();}
+  const paintOperation=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
+  async function updateNativeFindingsOperation(findings,requestId){
+    const operation=beginOperation("findings",requestId),seq=_nativeFindingsSeq,axis=hasGov(st.res)?hitKey(occ()):null;
+    if(!axis){operationStatus(operation,"error","נדרש ציר מאומת כדי לחפש ממצאים.");return;}
+    try{
+      await paintOperation();
+      if(seq!==_nativeFindingsSeq||!hasGov(st.res)||hitKey(occ())!==axis)return;
+      updateNativeFindings(findings);
+      do{
+        await healGoverned();
+        if(seq!==_nativeFindingsSeq||!hasGov(st.res)||hitKey(occ())!==axis)return;
+      }while(_healBusy||st.words.some(w=>selectedHitsOf(w).some(h=>Math.abs(h.skip)>=2&&h.v===undefined)));
+      const failed=st.words.some(w=>selectedHitsOf(w).some(h=>Math.abs(h.skip)>=2&&h.v==="CANDIDATE"));
+      operationStatus(operation,failed?"error":"done",failed?"האימות לא הושלם. המועמדים נשארו ללא אישור.":null);
+    }catch(e){operationStatus(operation,"error","חיפוש הממצאים לא הושלם. אפשר לנסות שוב.");}
+  }
   function nativeFindingControl(d){
     if(!hasGov(st.res))return;
     const i=st.words.findIndex(w=>w.t===norm(d.term||"")),w=st.words[i];
@@ -1993,9 +2039,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
-  const canCross=()=>!isAnon();
+  const canCross=()=>EXPR2029||!isAnon();
   // אורח מקבל FREE_DEMO חיפושי-מילה חינם ל«טעימה» (שיראה שהכלי עובד) ואז נדרש רישום.
-  const canRegular=()=>!isAnon()||freeCount()<FREE_DEMO;
+  const canRegular=()=>EXPR2029||!isAnon()||freeCount()<FREE_DEMO;
   function gate(reason){postHost({type:"gate",reason,count:freeCount(),limit:FREE_LIMIT});
     toast(reason==="cross"?"🔀 חיפוש מוצלב פתוח לרשומים — הירשמו בחינם להמשך":"🔒 סיימת "+FREE_LIMIT+" חיפושים חינם — הירשמו בחינם להמשך");}
   function logSearch(kind,term){postHost({type:"search",kind,term:term||st.raw,skip:(()=>{try{const h=occ();return isGov(h)?Math.abs(h.skip):0;}catch(e){return 0;}})(),scope:st.scope});}   // 🧬 G3: skip יוצא רק ממופע שאומת
@@ -2036,7 +2082,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       try{loadMatrix(d.item,0);}catch(e){}
     }
     if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 Native/admin edit → אותו st.words קנוני, בלי store נוסף
-      updateNativeFindings(d.findings);
+      updateNativeFindingsOperation(d.findings,d.requestId);
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
     if(d.type==="native-action"&&hasGov(st.res)){
@@ -2064,6 +2110,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
       else if(d.action==="niqqud-toggle")toggleNiqqud();
+      else if(d.action==="finding-radius"&&(d.value===null||(Number.isInteger(d.value)&&d.value>=0&&d.value<=100))){
+        st.findingRadius=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
+      }
       else if(d.action==="finding-count"&&Number.isInteger(d.value)&&d.value>=1&&d.value<=15){
         st.showN=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }
@@ -2072,24 +2121,25 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       setCtxR(st.ctxR+d.delta);
     }
     if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
-      if(!ensureOnboarded()){postHost({type:"onboarding-required"});return;}   // 🎓 אותו helper: bridge=hidden אינו שומר אישור ואינו משנה הרשאות
+      const operation=beginOperation("search",d.requestId===undefined?d.request.seq:d.requestId);
+      if(!ensureOnboarded()){postHost({type:"onboarding-required"});operationStatus(operation,"error","קראו את ההדרכה לפני החיפוש הראשון.");return;}   // 🎓 אותו helper: bridge=hidden אינו שומר אישור ואינו משנה הרשאות
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
       if(kind==="regular"){
-        if(norm(term).length<2){toast("רשום לפחות 2 אותיות");return;}
-        if(!selectSearchScope(scope,false))return;
+        if(norm(term).length<2){toast("רשום לפחות 2 אותיות");operationStatus(operation,"error","כתבו לפחות שתי אותיות.");return;}
+        if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
         q.value=term;qb.value="";qb.style.display="none";crosstoggle.classList.remove("on");syncTip();
-        run();
+        run(false,undefined,operation);
       }else if(kind==="cross"){
         const axis=typeof req.axis==="string"&&req.axis.trim()?req.axis.trim():(st.raw||q.value||"").trim();
         const radius=req.radius===undefined?18:req.radius;
-        if(!Number.isInteger(radius)||radius<2||radius>20){toast("בחר מרחק הצלבה בין 2 ל-20 תאים");return;}
-        if(norm(axis).length<2||norm(term).length<2){toast("להצלבה צריך שני מונחים של לפחות 2 אותיות");return;}
-        if(!canCross()){gate("cross");return;}
-        if(!selectSearchScope(scope,false))return;
+        if(!Number.isInteger(radius)||radius<2||radius>20){toast("בחר מרחק הצלבה בין 2 ל-20 תאים");operationStatus(operation,"error","בחרו מרחק הצלבה בין 2 ל-20 תאים.");return;}
+        if(norm(axis).length<2||norm(term).length<2){toast("להצלבה צריך שני מונחים של לפחות 2 אותיות");operationStatus(operation,"error","להצלבה נדרשים שני מונחים קצרים.");return;}
+        if(!canCross()){gate("cross");operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+        if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
         q.value=axis;qb.value=term;qb.style.display="";crosstoggle.classList.add("on");syncTip();
-        run(false,radius);   // run() משתמש ב-runCrossSimple/logSearch/gate הקיימים — אין מנוע/דירוג מקביל
-      }
+        run(false,radius,operation);   // run() משתמש ב-runCrossSimple/logSearch/gate הקיימים — אין מנוע/דירוג מקביל
+      }else operationStatus(operation,"error","סוג החיפוש אינו נתמך.");
     }
     });
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
@@ -2133,31 +2183,35 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
   let _matrixRequestSeq=0; // Latest user search/load owns the canonical workspace.
-  function run(preserveWords,crossRadius){
+  function run(preserveWords,crossRadius,operation){
+    if(!operation)invalidateSearchOperation();
     if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
-    // ✏️ חיפוש-מונח חדש שיזם המשתמש מנקה את קשר-העריכה — שלא נעדכן בטעות צופן שנטען קודם (loadMatrix לא עובר כאן)
-    st.editId=null;st.editTerm=null;
     // 🔀 חיפוש מוצלב פשוט — תיבה שנייה בשורה (לרשומים בלבד)
     if(simpleOpen()){const B=qb.value.trim();if(norm(B).length>=2){
-      if(!canCross()){gate("cross");return;}
-      ++_matrixRequestSeq;runCrossSimple(w,B,crossRadius);logSearch("cross",w+" × "+B);return;}}
+      if(!canCross()){gate("cross");operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+      ++_matrixRequestSeq;invalidateFindingsOperation();runCrossSimple(w,B,crossRadius,operation);logSearch("cross",w+" × "+B);return;}}
     // 📜 צפייה בצופן-תנ״ך שמור פתוחה לכולם (loadMatrix), אבל *חיפוש* בתנ״ך נעול לאנונימי —
     //    בלי זה, אנונימי שצפה בצופן-תנ״ך (שהעביר scope=tanakh) היה יכול לחפש בתנ״ך בעקיפה.
-    if(st.scope==="tanakh"&&tanakhLocked()){gate("tanakh");return;}
+    if(st.scope==="tanakh"&&tanakhLocked()){gate("tanakh");operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
     // חיפוש רגיל — עד 5 חינם לאנונימי
-    if(!canRegular()){gate("limit");return;}
-    if(isAnon())bumpFree();
+    if(!canRegular()){gate("limit");operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+    if(isAnon()&&!EXPR2029)bumpFree();
     // 🧬 לוח-הצורות (FORMS) נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
     try{if(!_formsShown.has(t))hideForms();}catch(e){}
     const requestSeq=++_matrixRequestSeq;
-    st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
+    invalidateFindingsOperation();
+    goBusy("מחפש…");   // Keep the current matrix identity while the next result is pending.
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      const discovered=await discoverVerified(w,4000);
+      try{
+      const discovered=await discoverVerified(w,4000,operation);
       if(requestSeq!==_matrixRequestSeq)return;
+      // A committed new result ends editing; cancelled requests retain the current matrix identity.
+      st.editId=null;st.editTerm=null;
+      st.raw=w;
       st.res=discovered;   // 🧬 G3: גילוי-מועמדים אדפטיבי (ADAPTIVE_CAPPED_V1) → אימות canonical בשרת; רק MATCH הופך ל-st.res
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
@@ -2173,6 +2227,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
       if(hasGov(st.res)){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
       else hideSearchStat();
+      operationStatus(operation,st.res.verr?"error":hasGov(st.res)?"done":"empty",st.res.verr?"האימות לא הושלם. לא הוצג מופע מאומת.":null);
+      }catch(e){if(requestSeq!==_matrixRequestSeq)return;go.disabled=false;go.textContent=goLabel();if(_slow)doneSearchLoad(0);operationStatus(operation,"error","החיפוש לא הושלם. אפשר לנסות שוב.");}
     },10);
   }
   function savedWordsInit(){return [];}
@@ -2190,10 +2246,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   const FAB=new Map();
   function faBridge(w){const k=norm(w)+"@"+st.scope;if(FA.has(k))return FA.get(k);let r=FAB.get(k);if(!r){r=findAll(w,400);FAB.set(k,r);}return r;}
   // 🧬 G3: prefetch מאומת — faMemo (סינכרוני, קוד-דירוג/גאומטריה) קורא מהמטמון אחרי שהמונחים אומתו בשרת.
-  async function faVerified(w){const k=norm(w)+"@"+st.scope,c=FA.get(k);
+  async function faVerified(w,operation){const k=norm(w)+"@"+st.scope,c=FA.get(k);
     if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT"))return c;
-    const r=await discoverVerified(w,3000);FA.set(k,r);return r;}
-  async function prefetchVerified(ws){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(faVerified));}
+    const r=await discoverVerified(w,3000,operation);FA.set(k,r);return r;}
+  async function prefetchVerified(ws,operation){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(w=>faVerified(w,operation)));}
   function rarityOf(w){const r=faMemo(w);return r.capped?9999:r.hits.length;}
   // 🎯 מודל-איכות אחיד (לפי צוריאל) — משמש גם באזורי-ההתכנסות וגם ב«איכות הצופן», כדי שהכוכבים יהיו זהים.
   //   אות-ליד-אות (בלי פערים) + קרוב-לציר + נדיר = חזק. פערים ארוכים / רחוק / נפוץ = חלש. אלכסון/מאונך/מאוזן — לא משנה.
@@ -2292,6 +2348,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return arr[0]||norm(words[0]||"");
   }
   function runCross(A){
+    supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const xr=document.getElementById("xrun");
     // סימטריה: הציר נבחר אוטומטית מבין {הציר שהוקלד + כל המונחים} — הגדולה מכילה את האחרות
     const parts=[A,...st.crossTerms];const axisN=chooseAxis(parts);
@@ -2301,6 +2358,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     setTimeout(async ()=>{
       await prefetchVerified([axis,...terms]);   // 🧬 G3: גם מסלול ה-sync fallback קורא מהמטמון המאומת
       const {resA,meetings,total}=await crossFindMultiParallel(axis,terms,st.crossPure);
+      if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
       if(!meetings.length){toast("לא נמצאה התכנסות טהורה של המונחים סביב «"+axis+"». הרפה את הטוהר או נסה מונחים אחרים.");return;}
       st.res=resA;st.crossMeetings=meetings;st.crossIdx=0;st.crossTerms=terms;st.crossTotal=total;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossB=terms.map(norm).join(" · ");st.raw=axis;
@@ -2312,14 +2370,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     },10);
   }
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
-  function runCrossSimple(A,B,pure=18){
+  function runCrossSimple(A,B,pure=18,operation){
+    const requestSeq=_matrixRequestSeq;
     goBusy("מצליב…");
     setTimeout(async ()=>{
-      await prefetchVerified([A,B]);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
+      try{
+      await prefetchVerified([A,B],operation);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
+      if(requestSeq!==_matrixRequestSeq)return;
       const r1=crossFindMulti(A,[B],pure),r2=crossFindMulti(B,[A],pure);   // שני הכיוונים, אותו מרחק מבוקש
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
-      if(!m1.length&&!m2.length){toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");return;}
+      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
       // בחירה סימטרית: יותר מפגשים (בו השני נכנס) → ציון → מילה ארוכה → א״ב
       let axis;
       if(m1.length!==m2.length)axis=m1.length>m2.length?A:B;
@@ -2327,6 +2388,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(norm(A).length!==norm(B).length)axis=norm(A).length>norm(B).length?A:B;
       else axis=norm(A)<=norm(B)?A:B;
       const useA=norm(axis)===norm(A),R=useA?r1:r2,other=useA?B:A;
+      st.editId=null;st.editTerm=null;
       st.res=R.resA;st.crossMeetings=R.meetings;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
       // 🧾 הפרדה בין *מה שהמשתמש הזין* לבין *מי נבחר כציר*: הציר נבחר אוטומטית (לפי מספר
       //    אזורי-המפגש), ולכן הוא עלול להיות המונח השני. שומרים את שני המונחים המקוריים
@@ -2335,9 +2397,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       st.crossPairA=A;st.crossPairB=B;
       st.crossRadius=pure;
       updGem();
-      openZone(0);
+      openZone(0,operation);
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(R.meetings.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
+      await healGoverned();if(requestSeq!==_matrixRequestSeq)return;
+      operationStatus(operation,hasGov(st.res)?"done":"error");
+      }catch(e){if(requestSeq!==_matrixRequestSeq)return;go.disabled=false;go.textContent=goLabel();operationStatus(operation,"error","ההצלבה לא הושלמה. אפשר לנסות שוב.");}
     },10);
   }
   // 🧭 התכנסות חופשית (מצב-על נפרד): אין ציר קבוע — כל מונח מנוסה בתור ציר, כל האזורים ממוזגים.
@@ -2584,10 +2649,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }catch(e){console.error("crossFindFreeParallel failed, falling back to sync",e);return crossFindFree(terms,pure);}
   }
   function runCrossFree(){
+    supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const terms=st.crossTerms.slice(),xr=document.getElementById("xrun");
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק כל מונח כציר…";}
     setTimeout(async ()=>{
       const {zones,resCache,total}=await crossFindFreeParallel(terms,st.crossPure);
+      if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;updateXrunLabel();}
       if(!zones.length){toast("לא נמצאה התכנסות חופשית בין המונחים. הרפה טוהר או הוסף מונחים.");return;}
       st.crossResCache=resCache;st.crossMeetings=zones;st.crossIdx=0;st.crossTotal=total;st.crossSimple=false;st.crossFree=true;st.crossBridge=false;
@@ -2603,12 +2670,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     MIRRORS.forEach(m=>{const w=norm(m.f(A));if(w.length>=2)raw.push({name:m.n,w});});
     const forms=[],seen=new Set();raw.forEach(f=>{if(!seen.has(f.w)){seen.add(f.w);forms.push(f);}});return forms;}
   function runCrossSides(A,termsSrc){
+    supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const xr=document.getElementById("xrun"),base=norm(A);
     const forms=sidesForms(A);   // ייחודי (צורה שווה למקור מסוננת)
     const nameOf=new Map(forms.map(f=>[f.w,f.name]));
     const userTerms=(termsSrc||[]).map(norm).filter(t=>t.length>=2);
     goBusy("סורק מכל הצדדים…");if(xr){xr.disabled=true;xr.textContent="סורק מכל הצדדים…";}
     setTimeout(()=>{
+      if(requestSeq!==_matrixRequestSeq)return;
       const resCache={},all=[];
       forms.forEach(f=>{
         const others=forms.filter(g=>g.w!==f.w).map(g=>g.w);           // הצורות האחרות = «אופציות פנימיות» כמונחי-התכנסות
@@ -2710,12 +2779,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return el;
   }
   async function runForms(input,deep){
+    supersedeNativeOperations();
     if(!ensureOnboarded())return;
     const forms=formsOf("splitjoin",input);
     if(forms.length<2){toast("🧬 פיצול/איחוד דורש שתי מילים — למשל «סוד החשמל»");return;}
     if(deep&&tanakhLocked()){gate("tanakh");return;}
     if(!canRegular()){gate("limit");return;}
-    if(isAnon())bumpFree();
+    if(isAnon()&&!EXPR2029)bumpFree();
     const scopeName=deep?"כל התנ״ך":"תורה",prevScope=st.scope;st.scope=deep?"tanakh":"torah";
     const pairs=formPairs(forms),hitsOf=new Map(),t0=_now();
     showStage("🧬 מכין "+heb(forms.length)+" צורות…","פיצול · היפוך · סדר — ב"+scopeName);
@@ -2771,12 +2841,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // מילות-מפתח מגשרות — רשימה אוצרת (נושאים/שמות/מקומות/ספירות) לגשר מהיר וטהור
   const BRIDGE_CANDS=["משיח","גאולה","גואל","בן דוד","דוד","ציון","ירושלים","מקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","ישועה","נחמה","אמת","אמונה","תשובה","שכינה","נצח","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","נחש","עמלק","נביא","צדיק","קדוש","אהבה","רחמים","צדק","משפט","ברכה","סוד"];
   function runBridge(A,B){
+    supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const An=norm(A),Bn=norm(B),xr=document.getElementById("xrun");
     if(An.length<2||Bn.length<2){toast("לגשר צריך שני מונחים (ציר עליון + מונח, או שני מונחים)");return;}
     if(An===Bn){toast("שני מונחים שונים בבקשה");return;}
     const cands=[...new Set(BRIDGE_CANDS.map(norm))].filter(w=>w.length>=3&&w!==An&&w!==Bn);   // צירי-מחבר אפשריים (רשימה אוצרת)
     goBusy("מגשר…");if(xr){xr.disabled=true;xr.textContent="מחפש ציר-מחבר…";}
     setTimeout(()=>{
+      if(requestSeq!==_matrixRequestSeq)return;
       const resCache={},all=[];
       for(const W of cands){
         const liteRes=faBridge(W);if(!liteRes.hits.length)continue;   // מטמון-קל (400) — מהיר פי-כמה מ-findAll מלא
@@ -2803,8 +2875,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     },10);
   }
   // פותח אזור-התכנסות: קופץ למופע-הציר וטוען את המונחים שנמצאו שם כממצאים צבעוניים
-  function openZone(i){
+  function openZone(i,operation){
     if(!st.crossMeetings||!st.crossMeetings.length)return;const n=st.crossMeetings.length;st.crossIdx=(i+n)%n;
+    if(!operation)supersedeNativeOperations();
     const z=st.crossMeetings[st.crossIdx];
     if(z.axis&&st.crossResCache&&st.crossResCache[z.axis]){st.res=st.crossResCache[z.axis];st.raw=z.axis;}   // מצב-חופשי: ציר לפי האזור
     st.occ=z.occ;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;st.hideMain=false;
@@ -3141,6 +3214,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     uniq.sort((a,b)=>b.score-a.score);return uniq.slice(0,24);
   }
   function loadDiscovery(a){
+    supersedeNativeOperations();
     q.value=a.term;st.raw=a.term;st.res=faMemo(a.term);st.occ=a.idx;st.words=[];
     st.crossMeetings=null;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.zoneStars=null;st.zoneSig="";st.mc=null;
     st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;st.hideMain=false;
@@ -3300,6 +3374,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
   async function loadMatrix(item,filmTimes){
     const requestSeq=++_matrixRequestSeq;
+    invalidateSearchOperation();invalidateFindingsOperation();
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
@@ -4272,6 +4347,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function shiftOccurrence(delta){
     const hits=st.res&&Array.isArray(st.res.hits)?st.res.hits:null;
     if(!hits||!hits.length)return;
+    supersedeNativeOperations();
     const n=hits.length;st.occ=(st.occ+delta+n)%n;
     st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();
   }
@@ -4479,7 +4555,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       show.forEach(x=>{
         const it=document.createElement("button");it.className="occitem"+(x.i===st.occ?" cur":"");
         it.innerHTML='<b>דילוג '+heb(Math.abs(x.h.skip))+'</b>'+(x.nt?'<span class="tg">'+x.nt.tag+'</span>':'')+'<span class="bk">'+bookOf(x.h.positions[0])+' '+(x.h.dir===1?"↓":"↑")+'</span>';
-        it.onclick=()=>{st.occ=x.i;st.words=[];st.expand=-1;st.selCells=[];render();};
+        it.onclick=()=>{supersedeNativeOperations();st.occ=x.i;st.words=[];st.expand=-1;st.selCells=[];render();};
         listEl.appendChild(it);
       });
       if(arr.length>show.length){const m=document.createElement("div");m.className="wempty";m.textContent="…ועוד "+heb(arr.length-show.length)+" — צמצם עם טווח דילוג";listEl.appendChild(m);}
@@ -4680,7 +4756,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           arr.slice(0,60).forEach(x=>{
             const row=document.createElement("button");row.className="occhit"+(x.i===st.occ?" on":"");
             row.innerHTML='<span class="eye">'+(x.i===st.occ?"◉":"○")+'</span><span class="oc-d">דילוג '+heb(Math.abs(x.h.skip))+'</span>'+(x.nt?'<span class="oc-tag">'+x.nt.tag+'</span>':'')+'<span class="oc-x">'+bookOf(x.h.positions[0])+' '+(x.h.dir===1?"↓":"↑")+'</span>';
-            row.onclick=()=>{st.occ=x.i;st.words=[];st.expand=-1;st.lineFor=-1;st.selCells=[];st.expandMain=true;st.lineMain=false;render();};
+            row.onclick=()=>{supersedeNativeOperations();st.occ=x.i;st.words=[];st.expand=-1;st.lineFor=-1;st.selCells=[];st.expandMain=true;st.lineMain=false;render();};
             box.appendChild(row);
           });
           list.appendChild(box);
@@ -4804,7 +4880,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(q)q.placeholder=tan?"מילה קצרה — למשל «משיח»":"מילה קצרה — למשל «משיח» או «אריה»";
   }
   // «כל התנ״ך» נעול לכל מי שאינו רשום/מנהל — הנתונים הכבדים (1.2M) לא מפוענחים כלל עד שנפתח
-  function tanakhLocked(){return isAnon();}   // מנהל/רשום → פתוח; רק אנונימי נעול
+  function tanakhLocked(){return !EXPR2029&&isAnon();}   // 2029 platform access is separate from this archived local search guard
   function selectSearchScope(nextScope,rerunCurrent){
     const next=nextScope==="tanakh"?"tanakh":"torah";
     if(next==="tanakh"&&tanakhLocked()){   // 🔒 אותו gate קנוני — Native אינו עוקף הרשאה

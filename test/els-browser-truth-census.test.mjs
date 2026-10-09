@@ -31,7 +31,7 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   const found = [...code.matchAll(/st\.res=[^;\n]*;?/g)].map((m) => m[0]);
   for (const f of found) assert.ok(allowed.some((a) => a.test(f)), `unclassified st.res assignment: ${f}`);
   assert.equal(found.length, 10, 'st.res assignment census changed - classify the new site');
-  assert.equal([...code.matchAll(/const discovered=await discoverVerified\((?:w|item\.term),4000\);\s*if\(requestSeq!==_matrixRequestSeq\)return;\s*st\.res=discovered;/g)].length, 2, 'both new assignments require canonical discovery and reject stale requests');
+  assert.equal([...code.matchAll(/const discovered=await discoverVerified\((?:w|item\.term),4000(?:,operation)?\);\s*if\(requestSeq!==_matrixRequestSeq\)return;\s*(?:st\.editId=null;st\.editTerm=null;\s*st\.raw=w;\s*)?st\.res=discovered;/g)].length, 2, 'both new assignments require canonical discovery and reject stale requests before committing result and identity');
 });
 
 test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discovery kernels directly', () => {
@@ -45,7 +45,7 @@ test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discov
   assert.match(code, /await Promise\.all\(words\.map\(w=>faVerified\(w\)/);
   assert.match(code, /await Promise\.all\(Tn\.map\(w=>faVerified\(w\)/);
   assert.match(code, /const r=await discoverVerified\(p\.probe\.w,FORMS_CAP\)/);
-  assert.match(code, /await prefetchVerified\(\[A,B\]\)/);
+  assert.match(code, /await prefetchVerified\(\[A,B\],operation\)/);
   assert.match(code, /await prefetchVerified\(\[axis,\.\.\.terms\]\)/);
 });
 
@@ -67,10 +67,14 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   const types = new Set([...code.matchAll(/postHost\(\{type:"([a-z-]+)"/g)].map((m) => m[1]));
   const carrying = new Set(['save', 'lens', 'search']);
   const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request']);
-  const uiAccessOnly = new Set(['onboarding-required']);
+  const uiAccessOnly = new Set(['onboarding-required', 'operation']);
   for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
-  assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);return;\}/,
+  assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/,
     'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
+  const operation = code.slice(code.indexOf('function operationStatus('), code.indexOf('function beginOperation('));
+  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \)\}\)/,
+    'operation acknowledges a request and its status without transmitting candidate coordinates');
+  assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 

@@ -18,7 +18,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
 
   assert.match(nativeClassic, /data-els-native-classic="v4"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
-  assert.ok(nativeClassic.includes("<MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />"));
+  assert.match(nativeClassic, /<MatrixControls state=\{engineState\} onControl=\{requestControl\} onContext=\{requestContext\} busy=\{searchPending \|\| \["searching", "verifying"\]\.includes\(operations\.findings\?\.status\)\} \/>/);
   assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
   assert.match(nativeClassic, /<FindingsRail/);
 });
@@ -26,12 +26,13 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
 test("Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback", () => {
   assert.match(nativeClassic, /import TzofenEmbed from "..\/TzofenEmbed.jsx"/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
-  assert.match(nativeClassic, /\n          hiddenBridge\n          engineOnly=\{!classicOpen\}/);
+  assert.match(nativeClassic, /\n          hiddenBridge\n          experience2029\n          engineOnly=\{!classicOpen\}/);
   assert.match(nativeClassic, /engineOnly=\{!classicOpen\}/);
   assert.doesNotMatch(nativeClassic, /hiddenBridge=\{!classicOpen\}/);
   assert.match(nativeClassic, /onState=\{handleEngineState\}/);
-  assert.match(nativeClassic, /onGate=\{\(\) => setClassicOpen\(false\)\}/);
-  assert.match(embed, /engineOnly \? createPortal\(gateOverlay, document\.body\) : gateOverlay/);
+  assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
+  assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
+  assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
   assert.match(nativeClassic, /פתח את כל הכלים הקלאסיים/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
@@ -55,18 +56,21 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.doesNotMatch(nativeClassic, /runCrossSimple\(|crossFindMulti\(|discoverVerified\(|tanakhLocked\(|canCross\(/);
 
   assert.match(embed, /searchRequest = null/);
-  assert.match(embed, /postToTool\(\{ type: "native-search", request: searchRequest \}\)/);
+  assert.match(embed, /postToTool\(\{ type: "native-search", request: searchRequest, requestId: searchRequest\.seq \}\)/);
 
   assert.match(template, /function selectSearchScope\(nextScope,rerunCurrent\)/);
   assert.match(template, /next==="tanakh"&&tanakhLocked\(\)/);
   assert.match(template, /d\.type==="native-search"/);
-  assert.match(template, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);return;\}/);
+  assert.match(template, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/);
   assert.match(embed, /onOnboardingRequired = null/);
   assert.match(embed, /d\.type === "onboarding-required"/);
   assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => \{ setClassicOpen\(false\);/);
-  assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
-  assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
-  assert.match(template, /run\(false,radius\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
+  assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);operationStatus\(operation,"error",[^;]+\);return;\}/);
+  assert.match(template, /if\(!selectSearchScope\(scope,false\)\)\{operationStatus\(operation,"error",[^;]+\);return;\}/);
+  assert.match(template, /run\(false,radius,operation\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
+  assert.match(template, /const canCross=\(\)=>EXPR2029\|\|!isAnon\(\)/);
+  assert.match(template, /const canRegular=\(\)=>EXPR2029\|\|!isAnon\(\)\|\|freeCount\(\)<FREE_DEMO/);
+  assert.match(template, /function tanakhLocked\(\)\{return !EXPR2029&&isAnon\(\);\}/);
 });
 
 test("Native finding editor delegates normalization, recompute and colors to canonical st.words", () => {
@@ -78,7 +82,7 @@ test("Native finding editor delegates normalization, recompute and colors to can
   assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
 
   assert.match(embed, /findingsRequest = null/);
-  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings \}\)/);
+  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings, requestId: findingsRequest\.seq \}\)/);
 
   assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
   assert.match(template, /if\(next\.length>=12\)break/);
@@ -115,7 +119,7 @@ test("Native matrix controls reuse the canonical Tzofen presentation helpers", (
 
 test("Native letter click uses a bounded read-only canonical source lens", () => {
   assert.match(nativeClassic, /requestLens\("letter-context", \{ i: index \}\)/);
-  assert.match(nativeClassic, /requestLens\("verse-context", \{ hitId: engineState\.axis\.hitId \}\)/);
+  assert.match(nativeClassic, /onSource=\{\(target\) => requestLens\("verse-context", target\)\}/);
   assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
   assert.match(nativeClassic, /onLens=\{handleLens\}/);
 
@@ -127,6 +131,39 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(template, /lens:"letter-context"/);
   assert.match(template, /d\.type==="request-lens"&&d\.lens==="letter-context"/);
   assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("const isAnon")), /findAll|verifyBatch|crossFind|els_search/);
+});
+
+test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
+  assert.equal((nativeClassic.match(/aria-label="סרוק לאורך הציר הנבחר"/g) || []).length, 1);
+  assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 1);
+  assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
+  assert.match(nativeClassic, /hit\.verified && hit\.shown && hit\.withinRadius !== false/);
+  assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
+  assert.match(nativeClassic, /selected\.scope === state\?\.scope && selected\.axisHitId === state\?\.axis\?\.hitId && selectedFinding && \(selectedHit \|\| findingPending\)/);
+  assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId \} : \{ hitId: state\?\.axis\?\.hitId \}/);
+  // Reverification preserves selection identity, while both the main and secondary operations block scanning.
+  assert.match(nativeClassic, /const pending = searchPending \|\| findingPending/);
+  assert.match(nativeClassic, /aria-label="סרוק לאורך הציר הנבחר" disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
+  assert.match(nativeClassic, /chosen && selectedHit && hits\.length > 1/);
+  assert.match(nativeClassic, /const targetReady = verified && !!target\.hitId/);
+  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: true \}\)\}/);
+  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? "תוצאות סריקת הציר"/);
+  assert.match(nativeClassic, /result\?\.target\?\.nativeSeq !== lensSeqRef\.current/);
+});
+
+test("native search progress follows request-correlated canonical operation acknowledgements", () => {
+  assert.match(nativeClassic, /onOperation=\{handleOperation\}/);
+  assert.match(nativeClassic, /const expected = kind === "search" \? searchSeqRef\.current : findingsSeqRef\.current/);
+  assert.match(nativeClassic, /if \(operation\.requestId !== expected\) return/);
+  assert.match(embed, /if \(d\.type === "operation"\) \{[\s\S]*?onOperation\?\.\(d\);[\s\S]*?return;/);
+  assert.match(template, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status/);
+  assert.match(template, /updateNativeFindingsOperation\(d\.findings,d\.requestId\)/);
+  assert.match(template, /const operation=beginOperation\("search",d\.requestId===undefined\?d\.request\.seq:d\.requestId\)/);
+  assert.match(template, /if\(operation\.terminal\)return;/);
+  assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
+  assert.match(template, /function invalidateSearchOperation\(\)\{operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;/);
+  assert.match(template, /function invalidateFindingsOperation\(\)\{operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
 });
 
 test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {
