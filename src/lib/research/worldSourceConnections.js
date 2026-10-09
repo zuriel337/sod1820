@@ -178,6 +178,9 @@ export function worldWitnessContext(witness, calculation = null) {
   dimensions: { activeSectionId: witness.anchor, readingFocus: null, surfaceFindings: calculation ? [calculation.finding] : [],
     surfaceFocus: { id: source.item?.mediaId || source.sourceRef, type: source.item ? 'image' : 'source', label: witness.title,
       reference: source.item?.sourceIdentity.ref || source.sourceRef, locator: `#${witness.anchor}`, href: `/world#${witness.anchor}`,
-      sourceLabel: witness.title, reason: witness.reason },
+      sourceLabel: witness.title, reason: witness.reason,
+      ...(calculation ? { id: String(calculation.value), type: 'number', number: calculation.value, resultValue: calculation.value,
+        primary: String(calculation.value), label: `${calculation.expression} · ${calculation.method}`, href: calculation.href } : {}),
+    },
   } };
 }

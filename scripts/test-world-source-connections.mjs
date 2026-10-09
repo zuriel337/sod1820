@@ -88,6 +88,7 @@ try {
     assert.equal((await saved()).returnTo.selection.sourceRef, 'gallery_images:6232be42-82a3-41ac-b4d3-004a21e48c7f');
     const numberSelectionSourceRetained = (await saved()).selection.sourceRef != null;
     assert.equal((await saved()).selection.method, 'רגיל');
+    assert.equal((await saved()).dimensions.surfaceFocus.number, 14);
     assert.equal((await saved()).returnTo.href, '/world#world-source-india-health');
     await capture('number-source');
     await exactReturn();

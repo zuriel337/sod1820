@@ -95,6 +95,9 @@ test('World selection uses existing calculation fields and retains source/exact 
   assert.equal(context.selection.locator, '#world-source-water-train');
   assert.equal(context.journey, null);
   assert.equal(context.dimensions.calculationSelection, undefined);
+  assert.equal(context.dimensions.surfaceFocus.number, 2160);
+  assert.equal(context.dimensions.surfaceFocus.type, 'number');
+  assert.equal(context.dimensions.surfaceFocus.reference, witness.source.item.sourceIdentity.ref);
 });
 
 test('method entitlement/state is checked live before requesting a trace', () => {
