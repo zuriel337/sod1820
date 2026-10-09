@@ -576,6 +576,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const verseReadRef = useRef(false);
   const [verseHighlight, setVerseHighlight] = useState(null);
   const [presentation, setPresentation] = useState(null);
+  const cameraStageRef = useRef(null);
+  const [cameraFullscreen, setCameraFullscreen] = useState(false);
+  useEffect(() => {
+    const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
   const presentationPlan = useMemo(() => projectPresentation(engineState), [engineState]);
   const activePresentation = !classicOpen && presentation?.key === presentationPlan.key ? presentation : null;
   useEffect(() => {
@@ -587,6 +594,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
       ? { ...current, index: Math.min(current.index + 1, presentationPlan.steps.length - 1) } : null), activePresentation.seconds * 1000);
     return () => clearTimeout(timer);
   }, [activePresentation, presentationPlan.key, presentationPlan.steps.length]);
+  useEffect(() => {
+    if (!activePresentation && document.fullscreenElement === cameraStageRef.current) document.exitFullscreen?.().catch(() => {});
+  }, [Boolean(activePresentation)]);
+  const toggleCameraFullscreen = async () => {
+    try {
+      if (document.fullscreenElement === cameraStageRef.current) await document.exitFullscreen();
+      else if (cameraStageRef.current?.requestFullscreen) await cameraStageRef.current.requestFullscreen();
+      else setNotice("מסך מלא אינו זמין בדפדפן הזה; אפשר להמשיך בהצגה בתוך העמוד.");
+    } catch { setNotice("מסך מלא אינו זמין כרגע; אפשר להמשיך בהצגה בתוך העמוד."); }
+  };
   const highlightVerse = (verse) => {
     const projected = projectVerseWords(verse);
     if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
@@ -962,7 +979,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
       <>
-        <div className="els29-native-stage-column" hidden={classicOpen}>
+        <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen}>
         <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
           <div className="els29-native-stage-head">
             <div>
@@ -1018,7 +1035,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
         {activePresentation ? <section className="els29-native-presenter" aria-label="מצב מצלמה" onKeyDown={(event) => {
           if (event.key === "Escape") { event.stopPropagation();setPresentation(null); }
         }}>
-          <p role="status">{activePresentation.index + 1} / {presentationPlan.steps.length} · {presentationPlan.steps[activePresentation.index]?.label || "מוכן — לחצו הבא להצגת הציר הראשי"}</p>
+          <p role="status"><bdi>{activePresentation.index + 1} / {presentationPlan.steps.length}</bdi> · {presentationPlan.steps[activePresentation.index]?.label || "מוכן — לחצו הבא להצגת הציר הראשי"}</p>
           <div>
             <button type="button" disabled={activePresentation.index < 0} onClick={() => setPresentation((current) => ({ ...current, index: current.index - 1, auto: false }))}>הקודם</button>
             <button type="button" disabled={activePresentation.index >= presentationPlan.steps.length - 1} onClick={() => setPresentation((current) => ({ ...current, index: current.index + 1, auto: false }))}>הבא</button>
@@ -1027,6 +1044,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
             </select></label>
             <button type="button" aria-pressed={activePresentation.auto} onClick={() => setPresentation((current) => ({ ...current, auto: !current.auto,
               index: current.index >= presentationPlan.steps.length - 1 ? -1 : current.index }))}>{activePresentation.auto ? "השהה הצגה" : "הצגה אוטומטית"}</button>
+            <button type="button" onClick={toggleCameraFullscreen}>{cameraFullscreen ? "צא ממסך מלא" : "מסך מלא"}</button>
             <button type="button" onClick={() => setPresentation(null)}>סיים הצגה</button>
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>

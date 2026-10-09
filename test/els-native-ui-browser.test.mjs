@@ -1267,6 +1267,13 @@ test('native presentation: verse words alternate from either entry and camera re
   await activate(page,'מצב מצלמה');
   const presenter=page.getByRole('region',{name:'מצב מצלמה',exact:true});
   assert.equal(await page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding,.els29-native-cell.is-source-text').count(),0);
+  await presenter.getByRole('button',{name:'מסך מלא',exact:true}).click();
+  await page.waitForFunction(()=>document.fullscreenElement?.classList.contains('els29-native-stage-column'));
+  assert.ok((await page.locator('.els29-native-matrix-scroll').boundingBox()).height>200);
+  assert.ok((await presenter.boundingBox()).y+(await presenter.boundingBox()).height<=1000);
+  await presenter.getByRole('button',{name:'צא ממסך מלא',exact:true}).click();
+  await page.waitForFunction(()=>!document.fullscreenElement);
+
   await presenter.getByRole('button',{name:'הבא',exact:true}).click();
   assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0);
   assert.ok(await page.locator('[data-present-concealed="true"]').count()>0);
@@ -1283,12 +1290,17 @@ test('native presentation: verse words alternate from either entry and camera re
   await activate(page,'סיים הצגה');
   await page.setViewportSize({width:390,height:844});
   await activate(page,'מצב מצלמה');
-  if(process.env.ELS_SCREENSHOT_DIR){await presenter.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'camera-390.png')});}
+
+  await presenter.getByRole('button',{name:'מסך מלא',exact:true}).click();
+  await page.waitForFunction(()=>document.fullscreenElement);
+  if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'camera-390.png')});
+
   await presenter.getByRole('combobox',{name:'שניות לכל ממצא'}).selectOption('1');
   await presenter.getByRole('button',{name:'הצגה אוטומטית',exact:true}).dispatchEvent('click');
   await activate(page,'סיים הצגה');
   await page.waitForTimeout(1200);
   assert.equal(await presenter.count(),0);assert.equal(await page.locator('[data-present-concealed="true"]').count(),0);
+  assert.equal(await page.evaluate(()=>document.fullscreenElement),null,'exit leaves the camera fullscreen');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await activate(page,'הדגש פסוק במטריצה');await cell.dispatchEvent('click');
   await page.waitForFunction(()=>document.querySelector('.is-verse-word'));

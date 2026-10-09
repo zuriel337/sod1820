@@ -685,3 +685,9 @@
 .els29-native-presenter label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .els29-native-presenter small{display:block;margin-top:10px;color:var(--s29-muted)}
 .els29-native-presenter button:focus-visible,.els29-native-presenter select:focus-visible{outline:2px solid var(--s29-accent);outline-offset:2px}
+
+.els29-native-stage-column:fullscreen{display:flex;flex-direction:column;gap:0;width:100%;height:100dvh;padding:8px;background:var(--els29-canvas);color:var(--s29-ink);overflow:hidden}
+.els29-native-stage-column:fullscreen .els29-native-stage{flex:1;min-height:0;height:auto;grid-template-rows:auto minmax(0,1fr)}
+.els29-native-stage-column:fullscreen .els29-native-stage-head,.els29-native-stage-column:fullscreen .els29-native-bottom-controls{display:none}
+.els29-native-stage-column:fullscreen .els29-native-presenter{flex:none;max-height:45dvh;overflow:auto;padding:8px}
+.els29-native-stage-column:fullscreen .els29-native-presenter small{display:none}
