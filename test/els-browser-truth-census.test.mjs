@@ -31,7 +31,9 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   const found = [...code.matchAll(/st\.res=[^;\n]*;?/g)].map((m) => m[0]);
   for (const f of found) assert.ok(allowed.some((a) => a.test(f)), `unclassified st.res assignment: ${f}`);
   assert.equal(found.length, 10, 'st.res assignment census changed - classify the new site');
-  assert.equal([...code.matchAll(/const discovered=await discoverVerified\((?:w|item\.term),4000(?:,operation)?\);\s*if\(requestSeq!==_matrixRequestSeq\)return;\s*(?:st\.editId=null;st\.editTerm=null;\s*st\.raw=w;\s*)?st\.res=discovered;/g)].length, 2, 'both new assignments require canonical discovery and reject stale requests before committing result and identity');
+  const commits = [...code.matchAll(/const discovered=await discoverVerified\((?:w|item\.term),4000(?:,operation)?\);\s*if\(requestSeq!==_matrixRequestSeq\)return;([\s\S]*?)st\.res=discovered;/g)];
+  assert.equal(commits.length, 2, 'search and restore reject stale verified requests before committing result, geometry and identity');
+  for (const [, between] of commits) assert.doesNotMatch(between, /\bawait\b|st\.res=/, 'no async gap or intervening result commit after the epoch guard');
 });
 
 test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discovery kernels directly', () => {

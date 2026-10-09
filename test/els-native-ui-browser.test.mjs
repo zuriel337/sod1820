@@ -481,7 +481,8 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
     if(index===3){
      await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
      assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'primary search stays disabled while verification is pending');
-     for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','חפש במטריצה','הגדל מטריצה','התאם מטריצה למסך','הרחב חלון'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during main verification');
+     for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','חפש במטריצה','הגדל מטריצה','התאם מטריצה למסך'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during main verification');
+     assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).isDisabled(),true);
      assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true);
      assert.equal(await page.getByLabel('מרחק מרבי מהציר הראשי',{exact:true}).isDisabled(),true);
      const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length);
@@ -601,3 +602,83 @@ test('native UI: compact findings, vowels, classic letters and depth retain exac
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'presentation modes do not create mobile page overflow');
     });
   });
+
+test('native UI: cross meetings have exact numbered navigation, real compact bounds and adaptive expansion',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const searchCross=async(axis,term,radius=18)=>{
+    const seq=await page.evaluate(()=>window.__operation?.requestId||0);
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill(axis);
+    if(!(await page.locator('.els29-native-cross-row').count()))await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill(term);
+    await changeRange(page,'מרחק מרבי מהציר בהצלבה',radius);await activate(page,'מצא מפגש');
+    await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
+   };
+   const resize=async(size)=>{
+    const seq=await page.evaluate(()=>window.__operation.requestId);
+    await page.getByLabel('גודל חלון החיפוש',{exact:true}).selectOption(size);
+    await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
+   };
+   await searchCross('משיח טבת','ישלח מלאכו');
+   const compact=await page.evaluate(()=>window.__state);
+   assert.equal(compact.ui.windowSize,'small');assert.equal(compact.geometry.cw,40);assert.equal(compact.ui.ctxR,1);
+   assert.equal(compact.search.zones,1);assert.equal(compact.occurrence.count,7);
+   assert.equal(await button(page,'מפגש הבא').isDisabled(),true,'one meeting is not seven main-axis occurrences');
+   assert.equal(await button(page,'מופע הבא').count(),0,'cross controls do not clear findings by navigating unrelated occurrences');
+   assert.equal(await button(page,'פתח מפגש 1').getAttribute('aria-pressed'),'true');
+   assert.equal(compact.search.results.items[0].sourceSequence,true,'literal source sequence is distinguished from a verified ELS');
+   assert.equal(await page.getByRole('textbox',{name:'מונח',exact:true}).inputValue(),'משיח טבת');
+   const matrix=page.locator('.els29-native-matrix-scroll');await matrix.scrollIntoViewIfNeeded();
+   await matrix.evaluate(el=>el.scrollLeft=(el.scrollWidth-el.clientWidth)/2);
+   const box=await matrix.boundingBox(),before=await capture(page);
+   await page.mouse.move(box.x+box.width/2,box.y+80);await page.mouse.down();
+   await page.mouse.move(box.x+box.width/2+80,box.y+80,{steps:8});await page.mouse.up();
+   assert.ok((await capture(page)).left<before.left-60,'real mouse drag pans horizontally');
+   await matrix.focus();const left=await matrix.evaluate(el=>el.scrollLeft);await page.keyboard.press('ArrowRight');
+   assert.ok((await matrix.evaluate(el=>el.scrollLeft))>left,'keyboard can pan the same matrix');
+   const oldSet=compact.search.results.id;
+   await resize('large');const large=await page.evaluate(()=>window.__state);
+   assert.equal(large.geometry.cw,80);assert.equal(large.ui.ctxR,8);
+   assert.ok(large.matrix.rows.length*large.geometry.cw>compact.matrix.rows.length*compact.geometry.cw,'larger selection changes canonical search geometry');
+   assert.equal(large.search.crossA,'משיח טבת');assert.equal(large.search.crossB,'ישלח מלאכו');
+   await resize('small');await searchCross('משיח טבת','ישלח מלאכו',20);
+   const expanded=await page.evaluate(()=>window.__state);
+   assert.equal(expanded.ui.windowRequested,'small');assert.equal(expanded.ui.windowSize,'medium');assert.equal(expanded.geometry.cw,60);
+   assert.equal(await page.getByText('החלון הורחב כדי להכיל את הציר והמרחק',{exact:true}).count(),1);
+   await searchCross('משיח','גאולה',18);
+   const multi=await page.evaluate(()=>window.__state);
+   assert.ok(multi.search.zones>1,'fixture has multiple canonical meetings');
+   await activate(page,'מפגש הבא');await page.waitForFunction(()=>window.__state.search.zoneIndex===1);
+   assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,multi.search.results.items[1].hitId);
+   assert.ok((await page.evaluate(()=>window.__state)).findings.length>0,'meeting navigation retains the secondary terms');
+   await page.evaluate(setId=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'native-control',action:'meeting-select',value:{setId,index:0}},location.origin),oldSet);
+   await page.waitForFunction(setId=>window.__hostLog.some(message=>message.action==='meeting-select'&&message.value?.setId===setId),oldSet);
+   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+   assert.equal((await page.evaluate(()=>window.__state)).search.zoneIndex,1,'stale result-list selection cannot open a different meeting in the current list');
+   await page.locator('.els29-native-results summary').click();
+   await page.getByLabel('מיון מפגשי ההצלבה',{exact:true}).selectOption('skip');
+   const skips=await page.locator('.els29-native-result b').allTextContents();
+   const numbers=skips.map(s=>Number(s.match(/דילוג (\d+)/)[1]));assert.deepEqual(numbers,[...numbers].sort((a,b)=>a-b));
+   const third=multi.search.results.items.find(item=>item.available&&item.index===2);
+   assert.ok(third);await activate(page,'פתח מפגש 3');await page.waitForFunction(()=>window.__state.search.zoneIndex===2);
+   assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
+   const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
+   assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
+   await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('');
+   // A saved compact matrix restores its search geometry, and cannot retain the previous cross list.
+   const item={term:compact.termRaw,scope:compact.scope,skip:compact.axis.skip,start:compact.axis.start,dir:1,hitId:compact.axis.hitId,words:[],searchWindow:{ctxR:1,windowColumns:40,windowSize:'small',windowRequested:'small'}};
+   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),item);
+   await page.waitForFunction(id=>window.__state?.axis?.hitId===id&&window.__state?.search?.mode==='regular',compact.axis.hitId);
+   const restored=await page.evaluate(()=>window.__state);assert.equal(restored.search.results,null);assert.equal(restored.geometry.cw,40);assert.equal(restored.ui.ctxR,1);
+   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:{ctxR:8,windowColumns:80,windowSize:'large',windowRequested:'large'}});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='large');
+   assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).inputValue(),'large','saved search size is reflected by the native control');
+   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:null});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='legacy');
+   assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
+   assert.equal(await page.getByText('מוצג החלון המקורי',{exact:true}).count(),1);
+   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורהקדשה');await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
+   assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
+  },{realHost:true,loadGolden:false,tier:'anon'});
+ });

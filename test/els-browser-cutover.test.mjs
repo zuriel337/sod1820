@@ -169,6 +169,9 @@ test('browser: save posts only after canonical verification and carries only ver
     await page.waitForFunction(() => window.__log.some((m) => m.type === 'save'), null, { timeout: 60000 });
     const save = await page.evaluate(() => window.__log.find((m) => m.type === 'save'));
     assert.equal(save.term, 'משיח'); assert.ok(save.start >= 0);
+    const state = await latestState(page);
+    assert.equal(save.searchWindow.ctxR, state.ui.ctxR, 'saved window retains the canonical row bound');
+    assert.equal(save.searchWindow.windowColumns, 80, 'legacy saved window retains its column bound');
     assert.equal(oracleVerify({ scope: 'torah', corpus_id: '0b022e8eef6f9c16', term: 'משיח', candidates: [{ skip: save.skip, dir: save.direction === 'back' ? -1 : 1, start: save.start }] }).result.verified.length, 1, 'saved coordinate replays MATCH');
   });
 });

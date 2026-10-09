@@ -54,6 +54,7 @@ function rowToItem(m) {
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     start: m.start_index != null ? m.start_index : null, dir,   // 🆔 עוגן-מדויק ל-loadMatrix() exact-match
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
+    searchWindow: m.positions?.searchWindow || null,
     hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
     desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
@@ -224,7 +225,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       const imageUrl = (d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
       const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain };
+        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null };
 
       // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
       //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
