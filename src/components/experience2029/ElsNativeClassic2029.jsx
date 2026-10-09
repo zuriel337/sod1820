@@ -10,7 +10,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, classicGlyphs, depthView }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, classicGlyphs, depthView, readingView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -40,7 +40,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
+  }, [visible, readingView, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -156,8 +156,11 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
     <span id={summaryId} className="els29-native-sr-only">
       {state.termRaw || state.term || "מונח פעיל"} · דילוג {state?.axis?.skip ?? "לא ידוע"} · כיוון {directionLabel(state?.axis?.direction)} · {markSummary.axis} אותיות ציר מסומנות · {markSummary.findings} אותיות ממצאים מסומנות. אפשר להשתמש בכפתור "מקור הממצא" כדי לקרוא את הפסוקים במקלדת.
     </span>
+    {readingView ? <p className="els29-native-reading-note" dir="rtl">
+      רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
+    </p> : null}
     <div
-      className={`els29-native-matrix${fit ? " is-fit" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${depthView ? " is-depth" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
+      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${depthView ? " is-depth" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
       aria-hidden="true"
       style={{ "--els29-cols": matrix.cw || geometry.cw || 1, "--els29-cell": `${cellPx}px` }}
     >
@@ -553,6 +556,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [heightExpanded, setHeightExpanded] = useState(false);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
   const [depthView, setDepthView] = useState(false);
+  const [shortSkipView, setShortSkipView] = useState("reading");
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const panelInteractedRef = useRef(false);
   const toolRailRef = useRef(null);
@@ -631,7 +635,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
-    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now() }, findings: null });
+    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId }, findings: null });
     setActiveTool(kind === "cross" ? "results" : "findings");
     setSearchRequest({ kind, windowSize, ...payload, seq });
   };
@@ -658,6 +662,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const submit = (event) => {
     event?.preventDefault?.();
+    if (crossOpen) { submitCross(); return; }
     const term = clean(query);
     if (term.length < 2) {
       setNotice("כתבו לפחות שתי אותיות.");
@@ -667,6 +672,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   };
 
   const switchScope = (scope) => {
+    if (crossOpen) { submitCross(scope); return; }
     const term = clean(query) || clean(engineState?.termRaw || engineState?.term);
     if (term.length < 2) {
       setNotice("בחרו מונח ואז עברו בין תורה לכל התנ״ך.");
@@ -675,7 +681,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     requestSearch("regular", { term, scope });
   };
 
-  const submitCross = () => {
+  const submitCross = (scope = activeScope) => {
     const axis = clean(query) || clean(engineState?.termRaw || engineState?.term);
     const term = clean(crossTerm);
     if (axis.length < 2 || term.length < 2) {
@@ -683,7 +689,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       return;
     }
     crossRadiusDraftRef.current.submitted = { value: crossRadius, revision: crossRadiusDraftRef.current.revision };
-    requestSearch("cross", { axis, term, scope: activeScope, radius: crossRadius });
+    requestSearch("cross", { axis, term, scope, radius: crossRadius });
   };
 
   const handleEngineState = (next) => {
@@ -769,6 +775,19 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const matrixActive = engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
+  // Reading layout is only available for a complete, contiguous short-skip window.
+  // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
+  const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
+    && engineState.matrix.S <= 8 && engineState.matrix.c0 === 0 && engineState.matrix.cw === engineState.matrix.S;
+  const readingView = shortSkip && shortSkipView === "reading";
+  const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
+    && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
+  const matrixStatus = previousResult
+    ? searchPending ? "הממצא הקודם · החיפוש החדש מתבצע…"
+      : operations.search.status === "error" ? "הממצא הקודם · החיפוש החדש לא הושלם"
+        : operations.search.status === "cancelled" ? "הממצא הקודם · החיפוש החדש בוטל"
+          : "הממצא הקודם · לא נמצאה תוצאה בחיפוש החדש"
+    : matrixActive ? "מטריצה פעילה" : "ELS 2029";
   const cancelOperation = (kind) => {
     const operation = operations[kind];
     if (!["searching", "verifying"].includes(operation?.status)) return;
@@ -813,7 +832,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : "חפש"}</button>
+      <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "מצא מפגש" : "חפש"}</button>
       <button
         className={`els29-native-cross-toggle${crossOpen ? " is-active" : ""}`}
         type="button"
@@ -830,12 +849,6 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           <input
             value={crossTerm}
             onChange={(event) => setCrossTerm(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                submitCross();
-              }
-            }}
             maxLength={40}
             placeholder="למשל: דוד"
             autoComplete="off"
@@ -851,7 +864,6 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
               setCrossRadius(Number(event.target.value));
             }} />
         </label>
-        <button className="els29-native-cross-run" type="button" disabled={searchPending} onClick={submitCross}>מצא מפגש</button>
       </div> : null}
     </form>
 
@@ -861,15 +873,20 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
         <div className="els29-native-stage-column" hidden={classicOpen}>
-        <main className="els29-native-stage" hidden={classicOpen}>
+        <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
           <div className="els29-native-stage-head">
             <div>
-              <small>{engineState?.status === "ok" ? "מטריצה פעילה" : "ELS 2029"}</small>
+              <small className="els29-native-matrix-status" role="status">{matrixStatus}</small>
               <h3>{engineState?.termRaw || engineState?.term || "הצופן הקלאסי"}</h3>
             </div>
             <div className="els29-native-stage-status">
               <span>{scopeLabel(engineState?.scope)}</span>
-              {engineState?.axis?.skip != null ? <span>דילוג {engineState.axis.skip}</span> : null}
+              {engineState?.axis?.skip != null ? <span>דילוג <bdi>{engineState.axis.direction === "back" ? "−" : ""}{engineState.axis.skip}</bdi></span> : null}
+              {shortSkip ? <label className="els29-native-window-size">תצוגה
+                <select aria-label="תצוגת דילוג קטן" value={shortSkipView} onChange={(event) => setShortSkipView(event.target.value)}>
+                  <option value="reading">רצף רחב</option><option value="columns">עמודות הדילוג</option>
+                </select>
+              </label> : null}
               {engineState?.search?.zones ? <span>מפגש {engineState.search.zoneIndex + 1}/{engineState.search.zones}</span> : engineState?.occurrence?.count ? <span>מופע {(engineState.occurrence.index || 0) + 1}/{engineState.occurrence.count}</span> : null}
               <button type="button" className="els29-native-niqqud" aria-pressed={!!engineState?.ui?.niqqud} disabled={!matrixActive}
                 title="הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד" onClick={() => requestControl("niqqud-toggle")}>ניקוד</button>
@@ -887,7 +904,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>

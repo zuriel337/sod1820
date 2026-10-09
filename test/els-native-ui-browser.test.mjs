@@ -680,6 +680,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='legacy');
    assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
    assert.equal(await page.getByText('מוצג החלון המקורי',{exact:true}).count(),1);
+   await activate(page,'הצלבה בין צירים');
    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורהקדשה');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
    assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
@@ -695,6 +696,81 @@ async function reliabilityCross(page, axis, term) {
   await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
   return page.evaluate(()=>window.__state);
 }
+
+test('native transition: minus-two reading layout preserves exact cells and opens names cross without refresh',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const url=page.url();
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__state?.axis?.hitId==='2_-1_49435'&&window.__operation?.status==='done');
+    const original=await identity(page);
+    const cells=()=>page.locator('.els29-native-cell').evaluateAll(nodes=>nodes.map(n=>({i:Number(n.dataset.elsIndex),text:n.textContent,axis:n.classList.contains('is-axis')})));
+    const originalCells=await cells();
+    assert.equal(original.geometry.S,2);assert.equal(original.geometry.cw,2);
+    assert.equal(originalCells.filter(c=>c.axis).reverse().map(c=>c.text).join(''),'בעלמשברמאימבעקירה');
+    assert.equal(await page.locator('.els29-native-matrix.is-reading').count(),1,'short skip defaults to a broad reading layout');
+    const rowWidth=()=>page.locator('.els29-native-cell').evaluateAll(nodes=>{const first=nodes[0].getBoundingClientRect();return nodes.filter(n=>Math.abs(n.getBoundingClientRect().top-first.top)<1).length;});
+    assert.ok(await rowWidth()>8,'source cells actually reflow into broader rows');
+    const beforeMessages=await page.evaluate(()=>window.__hostLog.filter(m=>['native-search','request-lens','native-control'].includes(m.type)).length);
+    await page.getByLabel('תצוגת דילוג קטן',{exact:true}).selectOption('columns');
+    assert.equal(await rowWidth(),2,'original skip columns remain available');
+    assert.deepEqual(await cells(),originalCells);assert.deepEqual(await identity(page),original);
+    await page.getByLabel('תצוגת דילוג קטן',{exact:true}).selectOption('reading');
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>['native-search','request-lens','native-control'].includes(m.type)).length),beforeMessages,'changing layout never searches or changes engine geometry');
+    for(const width of [1440,390]){
+      await page.setViewportSize({width,height:900});
+      assert.deepEqual(await cells(),originalCells,'responsive wrapping preserves each exact source index');
+      assert.ok(await rowWidth()>2);
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    }
+    await page.setViewportSize({width:1440,height:1000});
+    await page.locator('[data-els-index="49435"]').dispatchEvent('click');
+    await page.waitForFunction(()=>window.__lens?.lens==='letter-context'&&window.__lens.target?.i===49435);
+    assert.equal(await page.evaluate(()=>window.__lens.ok),true,'reading view uses the same exact verse inspection');
+    assert.equal(await page.evaluate(()=>window.__lens.letter),'ב');
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');
+    assert.equal(await button(page,'מצא מפגש').count(),1,'one submission control for the active search mode');
+    assert.equal(await button(page,'חפש').count(),0);
+    // Enter in the PRIMARY input must honor the open cross mode as well.
+    await page.getByRole('textbox',{name:'מונח',exact:true}).press('Enter');
+    await page.waitForFunction(()=>window.__state?.search?.mode==='cross-simple'&&window.__operation?.status==='done');
+    const names=await page.evaluate(()=>window.__state);
+    assert.equal(names.axis.hitId,'14870_-1_251278');assert.equal(names.search.zones,3);
+    assert.equal(names.geometry.cw,40);assert.equal(names.ui.windowSize,'small');
+    assert.equal(await page.locator('.els29-native-stage h3').textContent(),'פולייס');
+    assert.equal(await page.locator('.els29-native-matrix.is-reading').count(),0,'cross displays its canonical matrix geometry');
+    assert.equal(await page.locator('.els29-native-matrix-status').textContent(),'מטריצה פעילה');
+    assert.equal(await page.locator('.els29-native-progress').count(),0);
+    assert.equal(await page.locator('.els29-native-result').count(),3);
+    await activate(page,'מפגש הבא');await page.waitForFunction(()=>window.__state.axis.hitId==='17529_-1_139194');
+    assert.equal(await page.locator('.els29-native-stage h3').textContent(),'פולייס');
+    await expectNative(page,url,'minus-two to names cross');
+  },{realHost:true,loadGolden:false,tier:'anon'});
+ });
+
+test('native transition: a failed cross labels the retained result and retry replaces it in the same tab',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__state?.axis?.hitId==='2_-1_49435'&&window.__operation?.status==='done');
+    const original=await identity(page);
+    await page.evaluate(()=>window.__fixtureVerificationDenied=true);
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'מצא מפגש');
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='error');
+    assert.deepEqual(await identity(page),original,'failed verification preserves the last successful matrix');
+    assert.match(await page.locator('.els29-native-matrix-status').textContent(),/הממצא הקודם.*לא הושלם/);
+    assert.equal(await page.locator('.els29-native-progress').count(),0);
+    await page.evaluate(()=>window.__fixtureVerificationDenied=false);
+    // Enter in the secondary input follows the SAME form submission and is a real retry.
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).press('Enter');
+    await page.waitForFunction(()=>window.__state?.search?.mode==='cross-simple'&&window.__operation?.status==='done');
+    assert.equal((await identity(page)).axis.hitId,'14870_-1_251278');
+    assert.equal(await page.locator('.els29-native-matrix-status').textContent(),'מטריצה פעילה');
+    assert.equal(await page.locator('.els29-native-notice').count(),0);
+  },{realHost:true,loadGolden:false,tier:'anon'});
+ });
 
 test('native reliability: both user examples, reversed roles, literal source inspection and compact cross geometry',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{

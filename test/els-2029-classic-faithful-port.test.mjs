@@ -49,7 +49,8 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
 test("Native scope and simple cross search delegate to the canonical search path", () => {
   assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
   assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
-  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope: activeScope, radius: crossRadius \}\)/);
+  assert.match(nativeClassic, /submitCross = \(scope = activeScope\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius \}\)/);
   assert.match(nativeClassic, /switchScope\("torah"\)/);
   assert.match(nativeClassic, /switchScope\("tanakh"\)/);
   assert.match(nativeClassic, /data-els-native-cross="simple"/);

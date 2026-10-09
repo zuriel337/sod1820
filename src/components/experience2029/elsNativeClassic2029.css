@@ -55,7 +55,6 @@
 .els29-native-scope button,
 .els29-native-search,
 .els29-native-cross-toggle,
-.els29-native-cross-run,
 .els29-native-more{
   min-height:38px;
   border:1px solid transparent;
@@ -94,17 +93,11 @@
 .els29-native-cross-row{
   grid-column:1/-1;
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(180px,240px) auto;
+  grid-template-columns:minmax(0,1fr) minmax(180px,240px);
   gap:8px;
   align-items:end;
   padding-top:8px;
   border-top:1px solid var(--s29-line);
-}
-.els29-native-cross-run{
-  min-height:44px;
-  color:var(--s29-ink);
-  border-color:color-mix(in srgb,var(--s29-accent-secondary) 28%,var(--s29-line));
-  background:color-mix(in srgb,var(--s29-accent-secondary) 10%,var(--s29-panel-soft));
 }
 .els29-native-notice{
   padding:9px 12px;
@@ -278,6 +271,11 @@
   grid-template-columns:repeat(var(--els29-cols),minmax(18px,1fr));
 }
 .els29-native-matrix.is-fit .els29-native-cell{width:auto}
+/* Reflow only the complete contiguous source window; indexed cells retain their identity. */
+.els29-native-matrix.is-reading{width:100%;min-width:0;grid-template-columns:repeat(auto-fill,minmax(var(--els29-cell),1fr));align-items:start}
+.els29-native-matrix.is-reading .els29-native-matrix-row{display:contents}
+.els29-native-matrix.is-reading .els29-native-cell{width:100%}
+.els29-native-reading-note{margin:0 0 16px;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.6;text-align:start}
 .els29-native-cell{
   width:var(--els29-cell);
   height:calc(var(--els29-cell) + 3px);
@@ -504,7 +502,6 @@
   .els29-native-scope{grid-column:1/-1}
   .els29-native-search,.els29-native-cross-toggle,.els29-native-more{width:100%}
   .els29-native-cross-row{grid-template-columns:1fr}
-  .els29-native-cross-run{width:100%}
   .els29-native-finding-add{grid-template-columns:1fr}
   .els29-native-finding-add button{width:100%}
   .els29-native-stage-head{align-items:flex-start;flex-direction:column}
