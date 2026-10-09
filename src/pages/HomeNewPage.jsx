@@ -50,6 +50,7 @@ import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 import { fetchHomePosts } from "../lib/homeUpdates.js";
 import { useStream, STREAMS } from "../lib/stream.js";
 import { BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
+import WorldOpeningCountdown from "../components/WorldOpeningCountdown.jsx";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -536,6 +537,11 @@ export default function HomeNewPage() {
           </div>
         </div>
       </section>
+
+      {/* מועד פתיחת העולם: הכרזה בלבד. מצב יכולות נשאר תחת שערי האתר הקנוניים. */}
+      <div className="hn-wrap" style={{ padding:"18px 18px 34px" }}>
+        <WorldOpeningCountdown />
+      </div>
 
       {/* 🔥 שורת «המספר החם עכשיו» הוסרה מדף הבית — בקשת צוריאל 10.8.2026. */}
 
