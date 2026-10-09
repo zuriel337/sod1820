@@ -122,6 +122,17 @@ add suitable, high-quality symbols for the spatial system and Kingdom.
 - Design V2's existing icon-family section carries the normative extension. Repository
   contracts only; no live database rule/work-log update, merge or production change.
 
+Hosted icon-library acceptance: source `010964c9f93b46938870bb4f39c0ee667f7d22da`,
+deployment `dpl_5JAer38ETPgZpBteFoGHQmufgTFw`, READY / preview / target=null / no aliases.
+Host: `sod1820-f34fxi2d1-sod1820-s-projects.vercel.app`, catalogue `/icon-library/`.
+Temporary share link supplied directly; expires 2026-10-10 21:48 UTC, no token in Git.
+Fresh hosted mobile browser: HTTP200, all44 icons, Hebrew search/selection, successful
+`milui.svg` and 37,859-byte `sod1820-icons.zip` downloads; Kingdom renders garden/mine/
+combinations, zero overflow and zero JavaScript errors. Self-only API CSP retained.
+Screenshot: `/workspace/artifacts/icon-family/hosted-library-mobile.png`.
+Local downloadable copy: `/workspace/artifacts/icon-family/sod1820-icons.zip`.
+Final catalogue rerun after the save/Raziel-action refinement: all5 tests PASS.
+
 Canonical brief: `work_log.id=48e2c9f4-f83c-42be-9995-769788f64ccc`
 Actor: GPT · Date: 2026-10-09
 Branch: `codex/kingdom-of-numbers-preview`
