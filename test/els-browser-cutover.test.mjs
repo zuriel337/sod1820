@@ -28,14 +28,16 @@ const canRun = !!pw;
 test('CI: browser acceptance must not be skipped', () => { if (process.env.ELS_REQUIRE_EXECUTABLE) assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 but Playwright/Chromium is missing'); });
 
 const HARNESS = `<!doctype html><meta charset=utf-8><body><iframe id=t src="/tzofen.html?embed=1" style="width:1200px;height:900px"></iframe><script>
-window.__log=[];window.__mode='ok';window.__reject=null;
+window.__log=[];window.__mode='ok';window.__reject=null;window.__oraclePending=0;
 const f=document.getElementById('t');
 addEventListener('message',async e=>{const d=e.data;if(!d||d.source!=='tzofen')return;
   window.__log.push(d);
   if(d.type==='ready'){f.contentWindow.postMessage({source:'sod-host',type:'tier',tier:'admin'},location.origin);return;}
   if(d.type==='engine-request'){
+    window.__oraclePending++;
     const r=await fetch('/oracle',{method:'POST',body:JSON.stringify({mode:window.__mode,reject:window.__reject,op:d.op,payload:d.payload})}).then(x=>x.json());
     f.contentWindow.postMessage(Object.assign({source:'sod-host',type:'engine-result',requestId:d.requestId},r),location.origin);
+    window.__oraclePending--;
   }
   if(d.type==='save'){f.contentWindow.postMessage({source:'sod-host',type:'saved',ok:true,status:'published'},location.origin);}
 });
@@ -303,6 +305,79 @@ const nativeSend = (page, message) => page.evaluate((d) => {
   document.querySelector('#t').contentWindow.postMessage({ source: 'sod-host', ...d }, location.origin);
 }, message);
 const latestState = async (page) => (await states(page)).at(-1);
+
+test('browser: optional native heat reflects verified display density, excludes candidates and preserves research state without I/O', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    const golden = ELS_GOLDENS.find(g => g.id === 'torah-50-fwd');
+    await nativeSend(page, { type: 'load-matrix', item: golden });
+    await page.waitForFunction(id => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.status === 'ok' && current.provenance?.editId === id;
+    }, golden.id);
+    const before = await latestState(page), beforeCalls = calls.length;
+    assert.ok(!before.matrix.heat && !before.matrix.lenses.includes('heat'), 'heat is absent until requested');
+    const withoutHeat = state => {
+      const matrix = { ...state.matrix, lenses: state.matrix.lenses.filter(lens => lens !== 'heat') };
+      delete matrix.heat;
+      return { ...state, ui: { ...state.ui, heat: false }, matrix };
+    };
+    await nativeSend(page, { type: 'native-control', action: 'heat-toggle' });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.heat === true);
+    const heated = await latestState(page);
+    assert.equal(heated.matrix.heat.source, 'display_density');
+    assert.equal(heated.matrix.heat.radius, 2);
+    assert.ok(heated.matrix.lenses.includes('heat'));
+    assert.deepEqual(withoutHeat(heated), before, 'heat changes no occurrence, finding, selection, mark or research window');
+    assert.equal(calls.length, beforeCalls, 'heat performs no search or verifier I/O');
+
+    // Independent display oracle: inspect every visible cell against verified canonical marks.
+    // Row/column distance does not wrap; weights are clipped at the transmitted window boundary.
+    const geometry = before.geometry, raw = new Map();
+    for (let row = geometry.r0; row <= geometry.r1; row++) for (let column = geometry.c0; column < geometry.c0 + geometry.cw; column++) {
+      const index = row * geometry.S + column;
+      if (index >= before.corpusLetters) continue;
+      let density = 0;
+      for (const mark of before.matrix.marks) {
+        const vertical = row - Math.floor(mark.i / geometry.S), horizontal = column - mark.i % geometry.S;
+        if (Math.abs(vertical) <= 2 && Math.abs(horizontal) <= 2) density += 1 / (1 + vertical ** 2 + horizontal ** 2);
+      }
+      if (density > 0) raw.set(index, density);
+    }
+    const maximum = Math.max(...raw.values()), actual = new Map(heated.matrix.heat.cells.map(cell => [cell.i, cell.strength]));
+    assert.equal(actual.size, raw.size, 'only cells touched by verified density are transmitted');
+    assert.equal(heated.matrix.heat.cells.length, actual.size, 'density cells have unique canonical indexes');
+    for (const [index, density] of raw) assert.ok(Math.abs(actual.get(index) - density / maximum) < 1e-12, `density at corpus index ${index}`);
+    assert.ok(heated.matrix.heat.cells.every(cell => cell.i >= 0 && cell.i < before.corpusLetters && cell.strength > 0 && cell.strength <= 1));
+    assert.ok(heated.matrix.heat.cells.some(cell => Math.floor(cell.i / geometry.S) === geometry.r0), 'the fixture exercises top-edge clipping');
+
+    await page.evaluate(() => { window.__mode = 'down'; });
+    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0);
+    const candidateState = await latestState(page), candidate = candidateState.findings[0].hits.find(hit => !hit.shown) || candidateState.findings[0].hits[0];
+    if (!candidate.shown) await nativeSend(page, { type: 'native-finding-control', term: 'אל', action: 'toggle-hit',
+      axisHitId: candidateState.axis.hitId, candidateIndex: candidate.candidateIndex, revision: candidate.revision });
+    await page.waitForFunction(index => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.findings?.[0]?.hits?.some(hit => hit.candidateIndex === index && hit.shown && !hit.verified) &&
+        window.__log.some(message => message.type === 'engine-request' && message.payload?.term === 'אל') && window.__oraclePending === 0;
+    }, candidate.candidateIndex);
+    const withCandidate = await latestState(page), candidateCalls = calls.length;
+    assert.ok(withCandidate.findings[0].candidateShown > 0, 'an unverified finding is selected');
+    assert.ok(withCandidate.findings[0].hits.every(hit => !hit.verified && hit.hitId === null && hit.axisDistance === null));
+    assert.deepEqual(withCandidate.matrix.marks, heated.matrix.marks, 'candidates add no governed marks');
+    assert.deepEqual(withCandidate.matrix.heat, heated.matrix.heat, 'candidates add no density');
+    await nativeSend(page, { type: 'native-control', action: 'heat-toggle' });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.heat === false);
+    const cooled = await latestState(page);
+    assert.ok(!cooled.matrix.heat && !cooled.matrix.lenses.includes('heat'), 'turning heat off removes the payload');
+    assert.deepEqual(withoutHeat(cooled), withoutHeat(withCandidate));
+    assert.equal(calls.length, candidateCalls, 'turning heat off does not reverify a candidate');
+    await frame.locator('.heatbtn').click();
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.heat === true);
+    assert.deepEqual((await latestState(page)).matrix.heat, heated.matrix.heat, 'the classic heat action emits the same native density state');
+    assert.equal(calls.length, candidateCalls, 'the classic heat toggle also has no verifier I/O');
+  });
+});
 
 test('browser: axis word scan reads the canonical line, matches literal corpus text and preserves research state', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {

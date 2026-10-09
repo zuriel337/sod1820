@@ -59,18 +59,24 @@ export default function Host(props){
 
 const entry = `import React from 'react';import {createRoot} from 'react-dom/client';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
-import {resolve2029Palette} from '/src/lib/palette.js';import '/src/components/experience2029/sod2029.css';
+import {resolve2029Palette} from '/src/lib/palette.js';
+import '/src/components/experience2029/sod2029.css';
+import '/src/components/experience2029/sod2029-closed.css';
+import '/src/components/experience2029/systemFrame2029.css';
 window.__log=[];window.__hostLog=[];
 const palette=resolve2029Palette('dark','research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
 const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minHeight:'100vh',padding:12};
 for(const [key,value] of Object.entries(fields))style['--s29-'+key]=palette[value];
-for(const [key,value] of Object.entries({micro:14,small:15,body:16,lead:20,title:24}))style['--s29-type-'+key]=value+'px';
-style['--s29-font-display']='Arial';
-createRoot(document.getElementById('root')).render(React.createElement('div',{style},
- React.createElement('main',{className:'sod29-content wide'},
-  React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-   React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native))))));
+for(const [key,value] of Object.entries({micro:14,small:15,body:16,ui:15,lead:20,title:24}))style['--s29-type-'+key]=value+'px';
+for(const key of ['body','ui','display','numeric'])style['--s29-font-'+key]='Arial';
+createRoot(document.getElementById('root')).render(React.createElement('div',{style,className:'sod29-root closed-shell native-frame surface-els'},
+ React.createElement('aside',{className:'sod29-sidebar','aria-label':'fixture sidebar'}),
+ React.createElement('div',{className:'sod29-main'},
+  React.createElement('div',{className:'sod29-main-stage'},
+   React.createElement('main',{className:'sod29-content wide'},
+    React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native))))))));
 `;
 
 function verify({ op, payload }) {
@@ -179,6 +185,7 @@ async function changeRange(page, label, value) {
   }, value);
 }
 async function inspectAndScanPrimary(page, before) {
+  if (await button(page, 'מקור').getAttribute('aria-expanded') !== 'true') await activate(page, 'מקור');
   await activate(page, 'רצף ומילים לאורך הציר');
   await page.waitForFunction(() => window.__lens?.lens === 'line-context');
   await expectStable(page, before, 'open primary line');
@@ -188,6 +195,37 @@ async function inspectAndScanPrimary(page, before) {
   await activate(page, 'סמן את תורה ברצף');
   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"] .is-word').count(), 4);
   await expectStable(page, before, 'highlight line word');
+}
+
+const stageHeight = (page) => page.locator('.els29-native-stage').evaluate((stage) => stage.getBoundingClientRect().height);
+const identity = (page) => page.evaluate(() => {
+  const state = window.__state;
+  return { term: state.term, scope: state.scope, axis: state.axis, geometry: state.geometry, occurrence: state.occurrence, findings: state.findings, verification: state.verification };
+});
+async function expectNative(page, url, label) {
+  assert.equal(page.url(), url, `${label}: stays at the same URL`);
+  assert.equal(await page.locator('.els29-native-stage').isVisible(), true, `${label}: native matrix is visible`);
+  assert.equal(await page.locator('.els29-classic-fallback.is-open').count(), 0, `${label}: classic iframe does not cover the result`);
+  assert.equal(await page.locator('iframe').count(), 1, `${label}: retains one canonical iframe`);
+  assert.equal(await page.evaluate(() => window.__mounts), 1, `${label}: retains the same engine mount`);
+}
+async function expectHeightControl(page) {
+  const baseline = await stageHeight(page);
+  const engine = await identity(page);
+  const footer = page.locator('.els29-native-bottom-controls');
+  assert.equal(await footer.locator('.els29-native-stage').count(), 0, 'bottom controls are outside the fixed matrix stage');
+  const bounds = await page.locator('.els29-native-stage').boundingBox();
+  const footerBounds = await footer.boundingBox();
+  assert.ok(footerBounds.y >= bounds.y + bounds.height - 1, 'controls sit below the matrix');
+  await activate(page, 'הגדל גובה ב־50%');
+  assert.ok(Math.abs(await stageHeight(page) - baseline * 1.5) <= 1, 'height toggle adds 50% of the regular stage height');
+  await button(page, 'חזור לגובה הרגיל').scrollIntoViewIfNeeded();
+  const control = await button(page, 'חזור לגובה הרגיל').boundingBox();
+  const viewport = page.viewportSize();
+  assert.ok(control.y >= 0 && control.y + control.height <= viewport.height + 1, 'height control remains reachable below the expanded matrix');
+  await activate(page, 'חזור לגובה הרגיל');
+  assert.ok(Math.abs(await stageHeight(page) - baseline) <= 1, 'height restores the regular stage');
+  assert.deepEqual(await identity(page), engine, 'height changes presentation only');
 }
 
 test('native UI: source/findings panels, line scans and proximity retain matrix geometry, pan and page position',
@@ -272,5 +310,107 @@ test('native UI: 390px matrix stays taller, side tools become bounded sheets wit
       const proximityHeight = await page.getByRole('slider', { name: 'מופעים לכל ממצא', exact: true }).evaluate((input) => input.getBoundingClientRect().height);
       assert.ok(proximityHeight >= 44, 'proximity slider remains touch accessible');
       await expectStable(page, before, 'mobile tools preserve panning');
+      await activate(page, 'סגור כלי מטריצה');
+      await expectHeightControl(page);
+    });
+  });
+
+test('native UI: large displays use the available width, and pinned/overlay inspectors retain their matrix space',
+  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
+    await withNative({ width: 2560, height: 1000 }, async (page) => {
+      const contentWidth = await page.locator('.sod29-content').evaluate((content) => content.getBoundingClientRect().width);
+      assert.ok(contentWidth > 1450, 'ELS content exceeds the old 1450px shell cap');
+      assert.ok((await capture(page)).width > 1450, 'large displays gain actual matrix width');
+      assert.equal(await page.locator('.els29-native-layout.is-panel-pinned').count(), 1, 'inspector starts pinned');
+      const pinned = await pan(page);
+      await activate(page, 'מקור');
+      await expectStable(page, pinned, 'large pinned source');
+      await activate(page, 'סגור כלי מטריצה');
+      await expectStable(page, pinned, 'large pinned close');
+      await activate(page, 'מקור');
+      await activate(page, 'בטל הצמדה');
+      const overlay = await pan(page);
+      assert.ok(overlay.width > pinned.width, 'explicit unpin frees the reserved inspector column');
+      await activate(page, 'סגור כלי מטריצה');
+      await expectStable(page, overlay, 'overlay close');
+      await activate(page, 'מקור');
+      await expectStable(page, overlay, 'overlay reopen');
+      await activate(page, 'הצמד');
+      const repinned = await pan(page);
+      assert.ok(Math.abs(repinned.width - pinned.width) <= 1, 'repinning restores the original matrix width');
+      await activate(page, 'סגור כלי מטריצה');
+      await expectStable(page, repinned, 'repinned close');
+      await activate(page, 'ממצאים');
+      await expectStable(page, repinned, 'repinned findings');
+      await activate(page, 'סגור כלי מטריצה');
+      await expectHeightControl(page);
+      await button(page, 'התאם מטריצה למסך').scrollIntoViewIfNeeded();
+      const fit = Boolean(await page.evaluate(() => window.__state.ui.fit));
+      const fitIdentity = await identity(page);
+      await activate(page, 'התאם מטריצה למסך');
+      await page.waitForFunction((previous) => window.__state?.ui?.fit !== previous, fit);
+      assert.deepEqual(await identity(page), fitIdentity, 'bottom fit control preserves research identity');
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'wide ELS has no horizontal page overflow');
+    });
+  });
+
+test('native UI: every scan entry stays native through classic fallback; heat changes only unmarked presentation',
+  { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
+    await withNative({ width: 1440, height: 1000 }, async (page) => {
+      const url = page.url();
+      const before = await pan(page);
+      const engine = await identity(page);
+      await activate(page, 'סריקה');
+      await page.waitForFunction(() => window.__lens?.lens === 'line-context' && window.__lens?.scan);
+      await expectNative(page, url, 'scan tool');
+      await expectStable(page, before, 'scan tool');
+      await activate(page, 'סרוק מילים לאורך הציר הראשי');
+      await button(page, 'סמן את תורה ברצף').waitFor();
+      await expectNative(page, url, 'main-axis scan');
+      await expectStable(page, before, 'main-axis scan');
+      await activate(page, 'סמן את תורה ברצף');
+      await expectNative(page, url, 'scan result highlight');
+      assert.deepEqual(await identity(page), engine, 'main-axis scans are read-only');
+      await activate(page, 'הוסף את תורה לממצאים');
+      await page.waitForFunction(() => window.__state?.findings?.some((finding) => finding.t === 'תורה' && finding.hits?.some((hit) => hit.shown && hit.verified)));
+      await activate(page, 'ממצאים');
+      await activate(page, 'סרוק מילים לאורך הציר של תורה');
+      await page.waitForFunction(() => window.__lens?.target?.term === 'תורה' && window.__lens?.scan);
+      await expectNative(page, url, 'secondary-axis scan');
+      await activate(page, 'סרוק ציר ראשי');
+      await page.waitForFunction((id) => window.__lens?.hitId === id && window.__lens?.scan, engine.axis.hitId);
+      await expectNative(page, url, 'bottom main-axis scan');
+
+      await activate(page, 'כל הכלים');
+      assert.equal(await page.locator('.els29-classic-fallback.is-open').count(), 1, 'classic fallback was explicitly opened');
+      await page.locator('.els29-native-toolstrip [aria-label="סריקה"]').dispatchEvent('click');
+      await button(page, 'סמן את תורה ברצף').waitFor();
+      await expectNative(page, url, 'scan after classic fallback');
+      await activate(page, 'כל הכלים');
+      await page.locator('.els29-native-cell.is-axis').first().dispatchEvent('click');
+      await page.waitForFunction(() => window.__lens?.lens === 'letter-context');
+      await expectNative(page, url, 'letter inspection after classic fallback');
+
+      await activate(page, 'סגור כלי מטריצה');
+      await button(page, 'מפת חום').scrollIntoViewIfNeeded();
+      const heatIdentity = await identity(page);
+      const heatPan = await pan(page);
+      const marked = () => page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding').evaluateAll((cells) => cells.map((cell) => ({ index: cell.dataset.elsIndex, background: getComputedStyle(cell).backgroundColor, color: getComputedStyle(cell).color })));
+      const backgrounds = () => page.locator('.els29-native-cell:not(.is-axis):not(.is-finding)').evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
+      const initialMarks = await marked();
+      const initialBackgrounds = await backgrounds();
+      await activate(page, 'מפת חום');
+      await page.waitForFunction(() => window.__state?.ui?.heat === true);
+      assert.deepEqual(await identity(page), heatIdentity, 'heat preserves the verified research identity');
+      assert.deepEqual(await marked(), initialMarks, 'heat does not repaint axis or finding marks');
+      assert.notDeepEqual(await backgrounds(), initialBackgrounds, 'heat paints density on unmarked matrix cells');
+      await expectStable(page, heatPan, 'heat on');
+      await expectNative(page, url, 'heat on');
+      await activate(page, 'מפת חום');
+      await page.waitForFunction(() => window.__state?.ui?.heat === false);
+      assert.deepEqual(await backgrounds(), initialBackgrounds, 'heat off restores the original unmarked cells');
+      assert.deepEqual(await marked(), initialMarks);
+      await expectStable(page, heatPan, 'heat off');
+      await expectNative(page, url, 'heat off');
     });
   });

@@ -48,6 +48,9 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
     return map;
   }, [matrix?.marks, palette]);
 
+  const heatMap = useMemo(() => new Map((matrix?.heat?.cells || [])
+    .map((cell) => [Number(cell.i), clamp(Number(cell.strength) || 0, 0, 1)])), [matrix?.heat]);
+
   const markSummary = useMemo(() => {
     let axis = 0;
     let findings = 0;
@@ -154,12 +157,14 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
             const absoluteCol = Number(matrix.c0 ?? geometry.c0 ?? 0) + colOffset;
             const index = absoluteRow * Number(matrix.S ?? geometry.S ?? 0) + absoluteCol;
             const mark = markMap.get(index);
+            const heat = mark ? 0 : heatMap.get(index) || 0;
             const classes = [
               "els29-native-cell",
               mark?.type === "main" ? "is-axis" : "",
               mark?.type === "finding" ? "is-finding" : "",
               mark?.start ? "is-start" : "",
               selectedLetterIndex === index ? "is-selected" : "",
+              heat > 0 ? "is-heat" : "",
             ].filter(Boolean).join(" ");
             return <span
               key={index}
@@ -170,7 +175,10 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
                 if (dragRef.current.moved) return;
                 onLetterClick?.({ index, letter, mark });
               }}
-              style={mark?.type === "finding" && mark?.color ? { "--els29-mark": mark.color } : undefined}
+              style={{
+                ...(mark?.type === "finding" && mark?.color ? { "--els29-mark": mark.color } : {}),
+                ...(heat > 0 ? { "--els29-heat": `${Math.round(heat * 72)}%` } : {}),
+              }}
             >{letter === " " ? "\u00a0" : letter}</span>;
           })}
         </div>;
@@ -298,7 +306,7 @@ function SourceLens({ lensResult, findings, onScanLine, onAddLineFinding }) {
   return null;
 }
 
-function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onAxisControl, onScanLine, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, onAxisScan, onAxisControl, onScanLine, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onFindingLens, onSave, onWorkspace }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -337,13 +345,14 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
       </div>
     </div>
 
-    <div className="els29-native-rail-section" hidden={activeTool !== "source"}>
-      <div className="els29-native-rail-head"><strong>מקור ופסוק</strong><small>Lens</small></div>
+    <div className="els29-native-rail-section" hidden={activeTool !== "source" && activeTool !== "scan"}>
+      <div className="els29-native-rail-head"><strong>{activeTool === "scan" ? "מילים לאורך הציר" : "מקור ופסוק"}</strong></div>
       <SourceLens lensResult={lensResult} findings={findings} onScanLine={onScanLine} onAddLineFinding={onAddLineFinding} />
-      <button className="sod29-action" type="button" disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
+      <button className="sod29-action" type="button" hidden={activeTool === "scan"} disabled={!verified || !state?.axis?.hitId} onClick={onAxisVerse}>
         מקור הממצא
       </button>
-      <button className="sod29-action" type="button" disabled={!verified} onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
+      <button className="sod29-action" type="button" hidden={activeTool === "scan"} disabled={!verified} onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
+      <button className="sod29-action" type="button" hidden={activeTool !== "scan"} disabled={!verified || !state?.axis?.hitId} onClick={onAxisScan}>סרוק מילים לאורך הציר הראשי</button>
     </div>
 
     <div className="els29-native-rail-section" hidden={activeTool !== "findings"}>
@@ -456,6 +465,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [classicOpen, setClassicOpen] = useState(false);
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
+  const [heightExpanded, setHeightExpanded] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const panelInteractedRef = useRef(false);
   const toolRailRef = useRef(null);
@@ -598,7 +608,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   };
 
   const requestLens = (lens, target = {}) => {
-    openTool("source", toolRailRef.current?.querySelector('[aria-label="מקור"]'));
+    // A native reading/scan action always reveals its native result, even after compatibility tools.
+    setClassicOpen(false);
+    const tool = target.scan === true ? "scan" : "source";
+    openTool(tool, toolRailRef.current?.querySelector(`[aria-label="${tool === "scan" ? "סריקה" : "מקור"}"]`));
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
@@ -639,8 +652,13 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setSelectedLetterIndex(null);
     requestLens("verse-context", { hitId: engineState.axis.hitId });
   };
+  const requestAxisScan = () => {
+    if (!engineState?.axis?.hitId) return;
+    requestLens("line-context", { hitId: engineState.axis.hitId, scan: true });
+  };
+  const matrixActive = engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
 
-  return <section className="els29-native-classic" data-els-native-classic="v4">
+  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4">
     <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <label>
         <span>מונח</span>
@@ -712,6 +730,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
+        <div className="els29-native-stage-column" hidden={classicOpen}>
         <main className="els29-native-stage" hidden={classicOpen}>
           <div className="els29-native-stage-head">
             <div>
@@ -727,17 +746,34 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
           <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} />
         </main>
+        <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
+          <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
+            {heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
+          </button>
+          <button type="button" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
+            disabled={!matrixActive} onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
+          <button type="button" aria-pressed={!!engineState?.ui?.heat} disabled={!matrixActive}
+            title="צפיפות סביב אותיות הציר והממצאים המאומתים" onClick={() => requestControl("heat-toggle")}>מפת חום</button>
+          <button type="button" aria-label="סימון הציר הראשי" aria-pressed={!engineState?.ui?.hideMain}
+            disabled={!matrixActive} onClick={() => requestControl("axis-visibility")}>
+            {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
+          </button>
+          <button type="button" disabled={!matrixActive} onClick={requestAxisScan}>סרוק ציר ראשי</button>
+          {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
+        </footer>
+        </div>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
-          {[["source", "מקור", "¶"], ["findings", "ממצאים", "+"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
+          {[["source", "מקור", "¶"], ["findings", "ממצאים", "+"], ["scan", "סריקה", "⌕"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
-            onClick={(event) => activeTool === tool ? closeTool() : openTool(tool, event.currentTarget)}
+            disabled={tool === "scan" && !matrixActive}
+            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : tool === "scan" ? requestAxisScan() : openTool(tool, event.currentTarget)}
           ><span aria-hidden="true">{icon}</span><small>{label}</small></button>)}
         </div>
         <div ref={panelRef} className={`els29-native-panel-wrap${sheetExpanded ? " is-sheet-expanded" : ""}`} hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : "שמירה והמשך מחקר"}</strong>
+            <strong>{activeTool === "source" ? "מקור ופסוק" : activeTool === "findings" ? "ממצאים במטריצה" : activeTool === "scan" ? "סריקת מילים בציר" : "שמירה והמשך מחקר"}</strong>
             <button type="button" className="els29-native-sheet-size" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded((value) => !value)}>{sheetExpanded ? "צמצם" : "הרחב"}</button>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
@@ -748,6 +784,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensResult={lensResult}
           onAxisVerse={requestAxisVerse}
           onAxisLine={() => requestLens("line-context", { hitId: engineState?.axis?.hitId })}
+          onAxisScan={requestAxisScan}
           onAxisControl={requestControl}
           onScanLine={() => requestLens("line-context", { term: lensResult?.target?.term, hitId: lensResult?.hitId, scan: true })}
           onAddLineFinding={addLineFinding}

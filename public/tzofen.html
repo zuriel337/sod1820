@@ -1776,8 +1776,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   //        "main" = ציר-החיפוש הראשי (h.positions). "finding" = מילה-צבועה נוספת (color = הצבע הקיים ב-w.color).
   //        start:true = האות הראשונה של אותו ממצא — מ-startSet הקיים של colorSets() (אין חישוב חדש).
   // v/lenses: מעטפת-גרסה של המטריצה עצמה (עצמאית מ-state.v החיצוני) — מכריזה אילו עדשות-אופציונליות
-  //    *נוכחות בפועל* בהודעה הזו. עדשות עתידיות (heat/verse/zones — טרם-מוחלט, טרם-מומש) יתווספו
-  //    כאובייקטים-אחים נפרדים (matrixHeat/matrixVerse/matrixZones), לא כאן — כדי שלא לנפח כל state-tick.
+  //    *נוכחות בפועל* בהודעה הזו. heat מצורפת רק כשהמשתמש הפעיל אותה: אותה computeHeat קיימת,
+  //    על אותיות-ממצא מאומתות בלבד. צפיפות תצוגתית — לא חיפוש, דירוג, ראיה או Truth חדשים.
   // 🧬 G3: תאים שמותר להם לצאת מה-iframe כ-governed: ציר מאומת + ממצאים מוצגים שאומתו בשרת (h.v==="MATCH").
   function governedCells(){
     const s=new Set();
@@ -1805,7 +1805,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(startSet.has(idx))m.start=true;
       marks.push(m);
     });
-    return {S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks,v:1,lenses:["cells","marks"]};
+    const snapshot={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks,v:1,lenses:["cells","marks"]};
+    if(st.heat){
+      const density=computeHeat(b),cells=[];
+      density.heat.forEach((value,i)=>{if(i>=0&&i<scopeN())cells.push({i,strength:value/density.mx});});
+      snapshot.heat={source:"display_density",radius:2,cells};snapshot.lenses.push("heat");
+    }
+    return snapshot;
   }
   function elsState(){
     const r=st.res;
@@ -2049,6 +2055,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="zoom-in")adjustZoom(0.2);
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
+      else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
       else if(d.action==="finding-count"&&Number.isInteger(d.value)&&d.value>=1&&d.value<=15){
         st.showN=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }
@@ -3977,7 +3984,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     hb.querySelector(".ctxrp").onclick=()=>setCtxR(st.ctxR+1);
     hb.querySelector(".zo").onclick=()=>adjustZoom(-0.2);
     hb.querySelector(".zi").onclick=()=>adjustZoom(0.2);
-    hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();};
+    hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();emitState();};
     hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
@@ -4017,8 +4024,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       for(let dr=-R;dr<=R;dr++)for(let dc=-R;dc<=R;dc++){const rr=r+dr,cc=c+dc;
         if(rr<b.r0||rr>b.r1||cc<b.c0||cc>=b.c0+b.cw)continue;
         const k=rr*S+cc,w=1/(1+dr*dr+dc*dc),v=(heat.get(k)||0)+w;heat.set(k,v);if(v>mx)mx=v;}};
-    if(!st.hideMain)occ().positions.forEach(bump);
-    st.words.forEach(w=>shownHitsOf(w).forEach(hit=>hit.positions.forEach(bump)));
+    const axis=occ();if(!st.hideMain&&isGov(axis))axis.positions.forEach(bump);
+    st.words.forEach(w=>shownHitsOf(w).forEach(hit=>{if(isGov(hit))hit.positions.forEach(bump);}));
     return {heat,mx:mx||1};
   }
   // צבע-חום מנורמל (0..1) → rgba (כחול-קר → זהב → אדום-חם)
