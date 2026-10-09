@@ -739,7 +739,7 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
   },{realHost:true,loadGolden:false,onboarded:false,tier:'anon'});
  });
 
-test('native UI: compact findings, vowels, classic letters and depth retain exact base letters and source indices',
+test('native UI: compact findings, vowels and classic letters retain exact base letters and source indices',
   { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
     await withNative({ width: 1440, height: 1000 }, async (page) => {
       await addSecondary(page, 'תורה');
@@ -789,24 +789,14 @@ test('native UI: compact findings, vowels, classic letters and depth retain exac
       await page.waitForFunction(() => window.__state?.ui?.niqqud === false);
       assert.equal(await page.locator('.els29-native-cell').evaluateAll((cells) => cells.some((cell) => /[\u0591-\u05C7]/.test(cell.textContent))), false, 'vowels off restores the original text');
 
-      for (const [label, className] of [['אותיות קלאסיות', 'is-classic-glyphs'], ['תצוגת עומק', 'is-depth']]) {
+      for (const [label, className] of [['אותיות קלאסיות', 'is-classic-glyphs']]) {
         const originalFont = await page.locator('.els29-native-cell').first().evaluate((cell) => getComputedStyle(cell).fontFamily);
-        const markPaint = () => page.locator(`[data-els-index="${mainIndex}"]`).evaluate((cell) => {
-          const style = getComputedStyle(cell);
-          return { boxShadow: style.boxShadow, textShadow: style.textShadow, filter: style.filter };
-        });
-        const originalPaint = await markPaint();
         await activate(page, label);
         assert.equal(await button(page, label).getAttribute('aria-pressed'), 'true');
         assert.equal(await page.locator(`.els29-native-matrix.${className}`).count(), 1);
         assert.deepEqual(await baseCells(), original, `${label}: unchanged letters and indices`);
         assert.deepEqual(await identity(page), baseline, `${label}: unchanged verified identity`);
-        if (label === 'אותיות קלאסיות') {
-          assert.notEqual(await page.locator('.els29-native-cell').first().evaluate((cell) => getComputedStyle(cell).fontFamily), originalFont, 'classic mode changes the displayed letter font');
-        } else {
-          assert.notDeepEqual(await markPaint(), originalPaint, 'depth adds visible relief to verified marks');
-          assert.equal(await page.locator('.els29-native-matrix').evaluate((matrix) => getComputedStyle(matrix).transform), 'none', 'relief keeps the matrix coordinate plane flat');
-        }
+        assert.notEqual(await page.locator('.els29-native-cell').first().evaluate((cell) => getComputedStyle(cell).fontFamily), originalFont, 'classic mode changes the displayed letter font');
         await showSource(`${label} cell inspection`);
         await activate(page, label);
         assert.equal(await button(page, label).getAttribute('aria-pressed'), 'false');
@@ -814,7 +804,7 @@ test('native UI: compact findings, vowels, classic letters and depth retain exac
         assert.deepEqual(await baseCells(), original, `${label}: reversible presentation`);
       }
       await page.setViewportSize({ width: 390, height: 844 });
-      for (const label of ['אותיות קלאסיות', 'תצוגת עומק']) {
+      for (const label of ['אותיות קלאסיות']) {
         const target = await button(page, label).boundingBox();
         assert.ok(target.width >= 44 && target.height >= 44, `${label}: mobile touch control stays usable`);
         await activate(page, label);
@@ -1243,4 +1233,68 @@ test('native library: paginated existing records, legacy disclosure and account 
   } finally {
     await browser?.close();await server.close();
   }
+});
+
+test('native presentation: verse words alternate from either entry and camera reveals admitted findings without engine changes',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  await addSecondary(page,'תורה');
+  const before=await identity(page);
+  assert.equal(await page.getByRole('button',{name:'תצוגת עומק',exact:true}).count(),0);
+  const cell=page.locator('.els29-native-cell.is-axis').first();
+  const index=Number(await cell.getAttribute('data-els-index'));
+  await activate(page,'הדגש פסוק במטריצה');
+  await cell.dispatchEvent('click');
+  await page.waitForFunction(()=>document.querySelectorAll('.is-verse-word').length>0);
+  const verse=await page.evaluate(()=>window.__lens.verse);
+  const expected=new Map();let pos=verse.from;
+  verse.text.split(/[\s־–-]+/u).map(w=>(w.match(/[א-ת]/gu)||[]).length).filter(Boolean).forEach((count,word)=>{for(let n=0;n<count;n++)expected.set(pos++,word%2);});
+  const highlighted=await page.locator('.is-verse-word').evaluateAll(cells=>cells.map(c=>({i:Number(c.dataset.elsIndex),word:Number(c.dataset.verseWord)})));
+  for(const c of highlighted)assert.equal(c.word,expected.get(c.i));
+  if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'verse-words-1440.png')});
+  assert.ok(highlighted.some(c=>c.word===0)&&highlighted.some(c=>c.word===1));
+  assert.equal(await page.locator(`[data-els-index="${index}"]`).evaluate(c=>c.classList.contains('is-axis')),true,'verse preserves primary mark');
+  await activate(page,'הדגש פסוק במטריצה');assert.equal(await page.locator('.is-verse-word').count(),0);
+  await activate(page,'הדגש פסוק');assert.ok(await page.locator('.is-verse-word').count()>0,'source card highlights the same verse');
+  await activate(page,'הדגש פסוק במטריצה');
+  await activate(page,'מקור הממצא הנבחר');
+  await page.waitForFunction(()=>window.__lens?.lens==='verse-context');
+  await page.locator('.els29-native-source-list button').first().dispatchEvent('click');
+  assert.ok(await page.locator('.is-verse-word').count()>0,'verse list supports exact highlighting');
+  await activate(page,'הדגש פסוק במטריצה');
+  const commands=await page.evaluate(()=>window.__hostLog.length);
+  const originalMarks=await page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding,.els29-native-cell.is-source-text').count();
+  await activate(page,'מצב מצלמה');
+  const presenter=page.getByRole('region',{name:'מצב מצלמה',exact:true});
+  assert.equal(await page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding,.els29-native-cell.is-source-text').count(),0);
+  await presenter.getByRole('button',{name:'הבא',exact:true}).click();
+  assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0);
+  assert.ok(await page.locator('[data-present-concealed="true"]').count()>0);
+  await presenter.getByRole('button',{name:'הבא',exact:true}).click();
+  assert.equal(await page.locator('[data-present-concealed="true"]').count(),0);
+  assert.equal(await page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding,.els29-native-cell.is-source-text').count(),originalMarks);
+  await presenter.getByRole('button',{name:'הקודם',exact:true}).click();
+  await presenter.getByRole('combobox',{name:'שניות לכל ממצא'}).selectOption('1');
+  await presenter.getByRole('button',{name:'הצגה אוטומטית',exact:true}).click();
+  await page.waitForFunction(()=>!document.querySelector('[data-present-concealed="true"]'));
+  assert.equal(await presenter.getByRole('button',{name:'הצגה אוטומטית',exact:true}).getAttribute('aria-pressed'),'false','auto stops at the last word');
+  assert.deepEqual(await identity(page),before);
+  assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'presentation never searches or mutates engine');
+  await activate(page,'סיים הצגה');
+  await page.setViewportSize({width:390,height:844});
+  await activate(page,'מצב מצלמה');
+  if(process.env.ELS_SCREENSHOT_DIR){await presenter.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'camera-390.png')});}
+  await presenter.getByRole('combobox',{name:'שניות לכל ממצא'}).selectOption('1');
+  await presenter.getByRole('button',{name:'הצגה אוטומטית',exact:true}).dispatchEvent('click');
+  await activate(page,'סיים הצגה');
+  await page.waitForTimeout(1200);
+  assert.equal(await presenter.count(),0);assert.equal(await page.locator('[data-present-concealed="true"]').count(),0);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await activate(page,'הדגש פסוק במטריצה');await cell.dispatchEvent('click');
+  await page.waitForFunction(()=>document.querySelector('.is-verse-word'));
+  await activate(page,'מצב מצלמה');
+  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משה');
+  await activate(page,'חפש');
+  assert.equal(await page.locator('.is-verse-word').count(),0);assert.equal(await presenter.count(),0,'new search clears presentation and its timer');
+ });
 });

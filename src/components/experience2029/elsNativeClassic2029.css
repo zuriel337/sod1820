@@ -299,13 +299,7 @@
 }
 .els29-native-matrix.is-classic-glyphs .els29-native-cell{font-family:"Frank Ruhl Libre","David Libre",Georgia,serif;font-size:min(22px,calc(var(--els29-cell) - 2px))}
 .els29-native-matrix.is-niqqud .els29-native-cell{height:calc(var(--els29-cell) + 8px);padding-block:2px;line-height:1.35}
-.els29-native-matrix-scroll.is-depth-view{perspective:1150px;perspective-origin:center 35%}
-/* Relief preserves the flat plane and keeps all letters reachable while panning. */
-.els29-native-matrix.is-depth{transform-style:preserve-3d}
-.els29-native-matrix.is-depth .els29-native-matrix-row{transform-style:preserve-3d}
-.els29-native-matrix.is-depth .els29-native-cell{text-shadow:0 1px 0 color-mix(in srgb,var(--s29-ink) 15%,transparent)}
-.els29-native-matrix.is-depth .els29-native-cell.is-axis{transform:translateZ(14px);filter:drop-shadow(0 3px 3px color-mix(in srgb,var(--s29-ink) 14%,transparent))}
-.els29-native-matrix.is-depth .els29-native-cell.is-finding{transform:translateZ(8px);filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--s29-ink) 12%,transparent))}
+
 .els29-native-cell.is-axis{
   color:var(--els29-mark-ink);
   background:var(--els29-axis);
@@ -681,3 +675,13 @@
 }
 .sod29-root[data-frame-reduced-motion="true"] .els29-native-context-panel button,
 .sod29-root[data-frame-reduced-motion="true"] .els29-native-toolstrip button{transition:none!important;transform:none!important}
+
+.els29-native-cell.is-verse-word{border-block-end:3px solid var(--els29-verse-color)}
+.els29-native-cell.is-verse-word:not(.is-axis):not(.is-finding):not(.is-source-text){background:var(--els29-verse-color);color:var(--els29-mark-ink);text-shadow:none}
+.els29-native-source-card button,.els29-native-source-list button,.els29-native-presenter button,.els29-native-presenter select{min-height:44px;min-width:44px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);padding:8px 12px;font:inherit}
+.els29-native-presenter{padding:14px;border-top:1px solid var(--s29-line);background:var(--s29-panel-soft);scroll-margin-bottom:var(--s29-island-clearance,104px)}
+.els29-native-presenter>div{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.els29-native-presenter p{margin:0 0 12px;font-weight:700}
+.els29-native-presenter label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.els29-native-presenter small{display:block;margin-top:10px;color:var(--s29-muted)}
+.els29-native-presenter button:focus-visible,.els29-native-presenter select:focus-visible{outline:2px solid var(--s29-accent);outline-offset:2px}

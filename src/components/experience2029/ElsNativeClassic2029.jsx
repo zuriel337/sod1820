@@ -8,6 +8,7 @@ import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
+import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
 
 const clean = (value) => String(value ?? "").trim();
@@ -15,7 +16,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, depthView, readingView }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -152,7 +153,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
 
   return <div
     ref={scrollRef}
-    className={`els29-native-matrix-scroll${depthView ? " is-depth-view" : ""}`}
+    className="els29-native-matrix-scroll"
     role="region"
     tabIndex={0}
     aria-label={`מטריצת ELS עבור ${state.termRaw || state.term || "המונח הפעיל"}`}
@@ -176,7 +177,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
       רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
     </p> : null}
     <div
-      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${depthView ? " is-depth" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
+      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
       aria-hidden="true"
       style={{ "--els29-cols": matrix.cw || geometry.cw || 1, "--els29-cell": `${cellPx}px` }}
     >
@@ -187,12 +188,16 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
             const absoluteRow = Number(matrix.r0 ?? geometry.r0 ?? 0) + rowOffset;
             const absoluteCol = Number(matrix.c0 ?? geometry.c0 ?? 0) + colOffset;
             const index = absoluteRow * Number(matrix.S ?? geometry.S ?? 0) + absoluteCol;
-            const sourceMark = sourceMap.get(index);
-            const mark = markMap.get(index) || sourceMark;
+            const revealAt = presentationPlan.earliest.get(index);
+            const concealed = presentation && revealAt != null && revealAt > presentation.index;
+            const sourceMark = concealed ? null : sourceMap.get(index);
+            const mark = concealed ? null : markMap.get(index) || sourceMark;
+            const verseParity = verseHighlight?.parity.get(index);
             const active = !!mark && activeFinding?.indices.has(index);
             const heat = mark ? 0 : heatMap.get(index) || 0;
             const classes = [
               "els29-native-cell",
+              verseParity != null ? "is-verse-word" : "",
               mark?.type === "main" ? "is-axis" : "",
               mark?.type === "finding" ? "is-finding" : "",
               sourceMark ? "is-source-text" : "",
@@ -205,12 +210,15 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               key={index}
               className={classes}
               data-els-index={index}
+              data-verse-word={verseParity}
+              data-present-concealed={concealed ? "true" : undefined}
               title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
               onClick={() => {
                 if (dragRef.current.moved) return;
                 onLetterClick?.({ index, letter, mark });
               }}
               style={{
+                ...(verseParity != null ? { "--els29-verse-color": palette.matrix.findings[verseParity === 0 ? 1 : 4].color } : {}),
                 ...(["finding", "source"].includes(mark?.type) && mark?.color ? { "--els29-mark": mark.color } : {}),
                 ...(active ? { "--els29-active-mark": activeFinding.color, "--els29-mark": activeFinding.color } : {}),
                 ...(heat > 0 ? { "--els29-heat": `${Math.round(heat * 72)}%` } : {}),
@@ -313,7 +321,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">המקור לא זמין לתא הזה במצב הנוכחי.</p>;
 
@@ -323,6 +331,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding }) {
       <div>
         <strong>{lensResult?.location?.ref || lensResult?.verse?.ref || "מקור"}</strong>
         <p>{lensResult?.verse?.text || "טקסט הפסוק נטען מהמנוע הקנוני."}</p>
+        <button type="button" aria-pressed={verseHighlight?.from === lensResult?.verse?.from} onClick={() => onHighlightVerse(lensResult.verse)}>הדגש פסוק</button>
       </div>
     </div>;
   }
@@ -337,7 +346,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding }) {
       <strong>{lensResult?.span?.fromRef === lensResult?.span?.toRef
         ? lensResult?.span?.fromRef
         : `${lensResult?.span?.fromRef || ""} → ${lensResult?.span?.toRef || ""}`}</strong>
-      {verses.map((verse) => <p key={verse.verseIndex}><b>{verse.ref}</b> · {verse.text}</p>)}
+      {verses.map((verse) => <div key={verse.verseIndex}><p><b>{verse.ref}</b> · {verse.text}</p><button type="button" aria-label={`הדגש פסוק ${verse.ref}`} aria-pressed={verseHighlight?.from === verse.from} onClick={() => onHighlightVerse(verse)}>הדגש פסוק</button></div>)}
       {lensResult.truncated ? <small>מוצג חלק מטווח הפסוקים הארוך.</small> : null}
     </div>;
   }
@@ -405,7 +414,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   </div>;
 }
 
-function FindingsRail({ activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -532,7 +541,7 @@ function FindingsRail({ activeTool, state, selected, lensResult, lensPending, op
       </div>
       {lensPending || lensResult ? <details ref={inspectionRef} key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
         <summary>{lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
-        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
+        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
       </details> : null}
       <details className="els29-native-findings-options"><summary>אפשרויות תצוגת ממצאים</summary>
         <label className="els29-native-proximity"><span>מופעים להצגה לכל מילה <output>{showN}</output></span>
@@ -563,7 +572,32 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
-  const [depthView, setDepthView] = useState(false);
+  const [verseRead, setVerseRead] = useState(false);
+  const verseReadRef = useRef(false);
+  const [verseHighlight, setVerseHighlight] = useState(null);
+  const [presentation, setPresentation] = useState(null);
+  const presentationPlan = useMemo(() => projectPresentation(engineState), [engineState]);
+  const activePresentation = !classicOpen && presentation?.key === presentationPlan.key ? presentation : null;
+  useEffect(() => {
+    if (presentation && (!activePresentation || presentation.index >= presentationPlan.steps.length - 1)) {
+      setPresentation((current) => !activePresentation ? null : current?.auto ? { ...current, auto: false } : current);
+    }
+    if (!activePresentation?.auto || activePresentation.index >= presentationPlan.steps.length - 1) return;
+    const timer = setTimeout(() => setPresentation((current) => current?.key === presentationPlan.key
+      ? { ...current, index: Math.min(current.index + 1, presentationPlan.steps.length - 1) } : null), activePresentation.seconds * 1000);
+    return () => clearTimeout(timer);
+  }, [activePresentation, presentationPlan.key, presentationPlan.steps.length]);
+  const highlightVerse = (verse) => {
+    const projected = projectVerseWords(verse);
+    if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
+    verseReadRef.current = true;setVerseRead(true);setVerseHighlight(projected);
+  };
+  const toggleVerseRead = () => {
+    const enabled = !verseReadRef.current;
+    verseReadRef.current = enabled;setVerseRead(enabled);
+    if (!enabled) setVerseHighlight(null);
+    else if (lensResult?.ok && lensResult.lens === "letter-context") highlightVerse(lensResult.verse);
+  };
   const [shortSkipView, setShortSkipView] = useState("reading");
   const toolRailRef = useRef(null);
   const panelRef = useRef(null);
@@ -671,6 +705,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     setLensResult(null);
     setLensPending(false);
     setSelectedLetterIndex(null);
+    setVerseHighlight(null);setPresentation(null);
   };
   const selectFinding = (selection) => {
     setSelectedFinding(selection);
@@ -796,6 +831,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     setLensResult(result);
     setLensPending(false);
+    if (result?.ok && result.lens === "letter-context" && verseReadRef.current) highlightVerse(result.verse);
   };
   const requestFindingControl = (term, action, hitId, hit = {}) => {
     resetReadContext();
@@ -958,7 +994,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
@@ -973,10 +1009,28 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
           <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
-          <button type="button" aria-pressed={depthView} disabled={!matrixActive} title="הבלטת האותיות, הציר והממצאים" onClick={() => setDepthView((value) => !value)}>תצוגת עומק</button>
-          {depthView ? <small>תצוגת עומק של אותה מטריצה.</small> : null}
+          <button type="button" aria-label="הדגש פסוק במטריצה" aria-pressed={verseRead} disabled={!matrixActive} onClick={toggleVerseRead}>הדגש פסוק</button>
+          <button type="button" aria-pressed={!!activePresentation} disabled={!matrixActive || searchPending || !presentationPlan.steps.length}
+            onClick={() => setPresentation(activePresentation ? null : { key: presentationPlan.key, index: -1, auto: false, seconds: 3 })}>מצב מצלמה</button>
+          {verseRead ? <small role="status">{verseHighlight ? `${verseHighlight.ref} — המילים מודגשות לסירוגין בתכלת ובכתום.` : "געו באות במטריצה כדי להדגיש את הפסוק שלה."}</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
         </footer>
+        {activePresentation ? <section className="els29-native-presenter" aria-label="מצב מצלמה" onKeyDown={(event) => {
+          if (event.key === "Escape") { event.stopPropagation();setPresentation(null); }
+        }}>
+          <p role="status">{activePresentation.index + 1} / {presentationPlan.steps.length} · {presentationPlan.steps[activePresentation.index]?.label || "מוכן — לחצו הבא להצגת הציר הראשי"}</p>
+          <div>
+            <button type="button" disabled={activePresentation.index < 0} onClick={() => setPresentation((current) => ({ ...current, index: current.index - 1, auto: false }))}>הקודם</button>
+            <button type="button" disabled={activePresentation.index >= presentationPlan.steps.length - 1} onClick={() => setPresentation((current) => ({ ...current, index: current.index + 1, auto: false }))}>הבא</button>
+            <label>שניות לכל ממצא <select aria-label="שניות לכל ממצא" value={activePresentation.seconds} onChange={(event) => setPresentation((current) => ({ ...current, seconds: Number(event.target.value) }))}>
+              {[1, 2, 3, 5, 10].map((seconds) => <option key={seconds} value={seconds}>{seconds}</option>)}
+            </select></label>
+            <button type="button" aria-pressed={activePresentation.auto} onClick={() => setPresentation((current) => ({ ...current, auto: !current.auto,
+              index: current.index >= presentationPlan.steps.length - 1 ? -1 : current.index }))}>{activePresentation.auto ? "השהה הצגה" : "הצגה אוטומטית"}</button>
+            <button type="button" onClick={() => setPresentation(null)}>סיים הצגה</button>
+          </div>
+          <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
+        </section> : null}
         </div>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || hasSystemDock} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
@@ -999,6 +1053,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
         <FindingsRail
+          onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}
           activeTool={activeTool}
