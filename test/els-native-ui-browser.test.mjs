@@ -74,13 +74,15 @@ const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minH
 for(const [key,value] of Object.entries(fields))style['--s29-'+key]=palette[value];
 for(const [key,value] of Object.entries({micro:14,small:15,body:16,ui:15,lead:20,title:24}))style['--s29-type-'+key]=value+'px';
 for(const key of ['body','ui','display','numeric'])style['--s29-font-'+key]='Arial';
+const dock=React.createElement('div',{className:'sod29-command-island',role:'toolbar','aria-label':'מסלול המחקר והפעולות הזמינות עכשיו'},
+ ...['חיפוש','פעולה','רזיאל','עכשיו','כלים','אישי'].map(label=>React.createElement('button',{type:'button',key:label,onClick:()=>window.__dockAction=label},label)));
 createRoot(document.getElementById('root')).render(React.createElement('div',{style,className:'sod29-root closed-shell native-frame surface-els'},
  React.createElement('aside',{className:'sod29-sidebar','aria-label':'fixture sidebar'}),
  React.createElement('div',{className:'sod29-main'},
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native))))))));
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native)))))),dock));
 `;
 
 function verify({ op, payload, denied }) {
@@ -130,7 +132,7 @@ const realHostStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin' } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -154,7 +156,7 @@ async function withNative(viewport, run, options = {}) {
         }
         if (request.url === '/fixture') {
           response.setHeader('content-type', 'text/html; charset=utf-8');
-          response.end(await server.transformIndexHtml('/fixture', '<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0}</style><div id="root"></div><script type="module" src="/@id/els-native-fixture"></script></html>'));
+          response.end(await server.transformIndexHtml('/fixture', '<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>*{box-sizing:border-box}body{margin:0}</style><div id="root"></div><script type="module" src="/@id/els-native-fixture"></script></html>'));
           return;
         }
         next();
@@ -166,7 +168,7 @@ async function withNative(viewport, run, options = {}) {
   try {
     await server.listen();
     browser = await pw.chromium.launch({ headless: true, executablePath });
-    const page = await browser.newPage({ viewport });
+    const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.addInitScript(({ realHost, loadGolden, onboarded, tier }) => {
@@ -451,6 +453,53 @@ test('native UI: mobile bounded sheets and wide 90% panels preserve geometry, pa
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   });
+ });
+
+test('native UI: mobile scan stays above the system dock, supports pinning and native clipboard paste',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,360,390])await withNative({width,height:844},async page=>{
+   const sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
+   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
+   await button(page,'סריקה וממצאים').tap();
+   const before=await identity(page);
+   const unobscured=async(label)=>{
+    const bounds=await sheet.boundingBox(),bar=await dock.boundingBox();
+    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: sheet clears the bottom dock`);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${width} ${label}: no horizontal overflow`);
+    for(const name of ['בטל הצמדה','סגור כלי מטריצה','סרוק לאורך הציר הנבחר']){
+     const target=button(page,name),rect=await target.boundingBox();
+     assert.ok(rect.width>=44&&rect.height>=44,`${width} ${name}: touch target`);
+     assert.ok(await target.evaluate(element=>{const r=element.getBoundingClientRect();return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),`${width} ${name}: no overlay intercepts the control`);
+    }
+   };
+   await unobscured('compact');
+   await button(page,'הרחב').tap();await unobscured('expanded');
+   await page.setViewportSize({width,height:568});await unobscured('short viewport');
+   await page.setViewportSize({width,height:844});
+   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
+   await page.evaluate(()=>navigator.clipboard.writeText('תורה'));
+   const input=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});
+   await input.tap();await input.press('Control+V');
+   assert.equal(await input.inputValue(),'תורה',`${width}: browser paste reaches the controlled input`);
+   await button(page,'חפש במטריצה').tap();
+   await page.waitForFunction(()=>window.__state?.findings?.some(f=>f.t==='תורה'));
+   await unobscured('after pasted search');
+   // A real outside touch must respect pinning without blocking global navigation.
+   await dock.getByRole('button',{name:'רזיאל',exact:true}).tap();
+   assert.equal(await page.evaluate(()=>window.__dockAction),'רזיאל');
+   assert.equal(await sheet.isVisible(),true,`${width}: pinned sheet survives outside touch`);
+   await button(page,'בטל הצמדה').tap();
+   assert.equal(await button(page,'הצמד').getAttribute('aria-pressed'),'false');
+   await dock.getByRole('button',{name:'כלים',exact:true}).tap();
+   assert.equal(await sheet.isVisible(),false,`${width}: unpinned sheet dismisses on outside touch`);
+   await button(page,'סריקה וממצאים').tap();await button(page,'הצמד').tap();
+   await button(page,'סרוק לאורך הציר הנבחר').tap();
+   await button(page,'סמן את תורה ברצף').waitFor();
+   await unobscured('after scan');
+   assert.deepEqual((await identity(page)).axis,before.axis,`${width}: sheet actions preserve the axis`);
+   await button(page,'סגור כלי מטריצה').tap();
+   assert.equal(await sheet.isVisible(),false);
+  },{mobile:true});
  });
 
 test('native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state',

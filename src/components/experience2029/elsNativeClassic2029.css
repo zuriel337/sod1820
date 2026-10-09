@@ -625,9 +625,14 @@
  .els29-native-stage-column{grid-row:2}
  .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;position:static;justify-content:flex-end}
  .els29-native-toolstrip button{min-width:64px}
- .els29-native-panel-wrap,.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:fixed;inset: auto 8px max(8px,env(safe-area-inset-bottom));width:auto;z-index:70}
+ .els29-native-panel-wrap,.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{
+  --els29-sheet-bottom:calc(var(--s29-island-clearance,104px) + env(safe-area-inset-bottom,0px));
+  --els29-sheet-available:calc(100dvh - var(--els29-sheet-bottom) - var(--s29-header-height,68px) - max(8px,env(safe-area-inset-top,0px)));
+  position:fixed;inset:auto 8px var(--els29-sheet-bottom);width:auto;z-index:70;
+ }
  .els29-native-context-panel{border-radius:22px 22px 12px 12px;box-shadow:0 -12px 48px #0005}
- .els29-native-pin{display:none}
+ .els29-native-panel-head strong{overflow-wrap:anywhere}
+ .els29-native-panel-head button{flex-shrink:0}
 }
 
 /* System colors are accents; text retains the theme ink rather than colored glyphs. */
@@ -650,7 +655,7 @@
 .els29-native-proximity small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
 .els29-native-sheet-size{display:none}
 @media(max-width:980px){
- .els29-native-context-panel,.els29-native-layout.is-panel-pinned .els29-native-context-panel{height:36dvh;min-height:min(220px,calc(100dvh - 16px - env(safe-area-inset-bottom)))}
- .els29-native-panel-wrap.is-sheet-expanded .els29-native-context-panel{height:70dvh}
+ .els29-native-context-panel,.els29-native-layout.is-panel-pinned .els29-native-context-panel{height:min(36dvh,var(--els29-sheet-available));min-height:min(220px,var(--els29-sheet-available));max-height:var(--els29-sheet-available)}
+ .els29-native-panel-wrap.is-sheet-expanded .els29-native-context-panel{height:min(70dvh,var(--els29-sheet-available))}
  .els29-native-panel-head .els29-native-sheet-size{display:block}
 }

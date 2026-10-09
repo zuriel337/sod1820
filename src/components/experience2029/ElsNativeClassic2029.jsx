@@ -582,7 +582,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       }
     };
     const onOutside = (event) => {
-      if ((panelPinned && window.matchMedia("(min-width:981px)").matches) || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
+      if (panelPinned || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
       setActiveTool(null);
     };
     document.addEventListener("keydown", onKey);
