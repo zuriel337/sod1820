@@ -1,3 +1,4 @@
+import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -488,7 +489,7 @@ function WorldSourceStory({ research, shell }) {
     let alive = true;
     setState({ loading: true, story: null });
     fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
-      .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection) }); })
+      .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection), projection }); })
       .catch(() => { if (alive) setState({ loading: false, story: null }); });
     return () => { alive = false; };
   }, [attempt]);
@@ -554,6 +555,7 @@ function WorldSourceStory({ research, shell }) {
           <p className="sod29-world-story-note">בציר ההודי אפשר לפגוש גם תיעוד היסטורי מן הגלריות, עם ההסבר והמקור של כל חיבור.</p>
         </div>
       </div> : null}
+      <WorldSourceConnections india={state.projection} research={research} shell={shell} />
     </>}
   </section>;
 }
@@ -2229,7 +2231,7 @@ function WorldBody() {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if ([`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if (/^#world-(source|direction)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 

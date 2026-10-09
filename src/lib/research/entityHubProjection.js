@@ -12,7 +12,7 @@ import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurren
 import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
 import { fetchScriptureTermDiscoveryForFindings } from "./scriptureTermDiscoveryProjection.js";
-import { buildTopicSourceContext, INDIA_CAPTAIN_SOURCE, isPublicSourceImage, TOPIC_SOURCE_LIMIT, TOPIC_OCCURRENCE_LIMIT } from "./topicSourceContext.js";
+import { buildTopicSourceContext, buildGallerySourceContext, INDIA_CAPTAIN_SOURCE, isPublicSourceImage, TOPIC_SOURCE_LIMIT, TOPIC_OCCURRENCE_LIMIT } from "./topicSourceContext.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -355,7 +355,7 @@ async function fetchTopicFindingsForTerm(term, { limit = 12 } = {}) {
   return topicRowsToFindings(Array.isArray(data) ? data : []);
 }
 
-async function fetchMethodRegistry(methodKeys = []) {
+export async function fetchMethodRegistry(methodKeys = []) {
   const keys = [...new Set((methodKeys || []).map(clean).filter(Boolean))];
   if (!keys.length) return [];
   const { data, error } = await supabase
@@ -880,6 +880,35 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
   });
   if (projection && postResult.error) projection.coverage.captain = "source_read_failed";
   return projection;
+}
+
+// Exact-source public read, bounded before querying. No OCR/numeric search, admission or tagging.
+export async function fetchGallerySourceContext({ imageIds = [], client = supabase } = {}) {
+  const ids = [...new Set(imageIds.filter((id) => /^[a-f0-9-]{36}$/i.test(id)))].slice(0, 12);
+  if (!ids.length) return { items: [], occurrencesTruncated: false };
+  const admitted = (query) => query.eq("published", 1).eq("min_tier", 0).or("curator_hidden.is.null,curator_hidden.eq.false");
+  const selected = await admitted(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS).in("id", ids)).limit(12);
+  if (selected.error) throw selected.error;
+  const images = (selected.data || []).filter(isPublicSourceImage);
+  const urls = [...new Set(images.map((row) => row.image_url))];
+  const appearances = urls.length ? await admitted(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+    .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT) : { data: [], count: 0 };
+  if (appearances.error) throw appearances.error;
+  const occurrences = (appearances.data || []).filter(isPublicSourceImage);
+  const galleryIds = [...new Set([...images, ...occurrences].map((row) => row.gallery_id).filter(Boolean))];
+  const galleries = galleryIds.length ? await client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT) : { data: [] };
+  if (galleries.error) throw galleries.error;
+  return { items: buildGallerySourceContext({ images, occurrences, galleries: galleries.data || [] }),
+    occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT };
+}
+
+export async function fetchPublicWorldPostSource({ postId, client = supabase } = {}) {
+  if (!Number.isSafeInteger(postId)) return null;
+  const result = await client.from("posts").select("id,slug,title,content,tags,source,home_hidden,author,authors,date,modified")
+    .eq("id", postId).maybeSingle();
+  if (result.error) throw result.error;
+  const { postRowToWorldUpdate } = await import("./worldDiscoveryStream.js");
+  return postRowToWorldUpdate(result.data) ? result.data : null;
 }
 
 function humanGateSummary(rows) {

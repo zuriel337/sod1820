@@ -119,6 +119,24 @@ function attachReopen(item, topic) {
   };
 }
 
+// Exact reviewed gallery locators can be consumed outside a Topic. They do not acquire
+// Topic membership or a graph relation. Reuse the same identity/history/reopen contract.
+export function buildGallerySourceContext({ images = [], occurrences = [], galleries = [] } = {}) {
+  const publicRows = images.filter(isPublicSourceImage);
+  const urls = new Set(publicRows.map((row) => row.image_url));
+  const byId = new Map([...publicRows, ...occurrences.filter((row) => isPublicSourceImage(row) && urls.has(row.image_url))]
+    .map((row) => [row.id, row]));
+  const galleryById = new Map(galleries.map((row) => [row.id, row]));
+  return dedupeMediaEnvelopes([...byId.values()].map((row) => buildMediaEnvelope({ row,
+    gallery: galleryById.get(row.gallery_id), label: canonicalMediaPublicLabel(row),
+  })).filter(Boolean), { bySourceObject: true }).map((item) => {
+    const withRoutes = attachReopen(item, { slug: "" });
+    return { ...withRoutes, contextRelation: null, contextRelations: [], dateUse: "provenance_only",
+      access: { scope: "public", basis: "published_1_min_tier_0_not_curator_hidden" },
+      reopen: { ...withRoutes.reopen, topicHref: null } };
+  });
+}
+
 /** Pure projection; the Entity Hub reader supplies only public-view rows and bounded reads. */
 export function buildTopicSourceContext({ topic, images = [], occurrences = [], galleries = [], post = null, occurrencesTruncated = false } = {}) {
   if (!topic?.id || !topic?.slug || topic.status !== "approved") return null;

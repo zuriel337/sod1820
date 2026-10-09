@@ -102,3 +102,87 @@ A repository draft-asset upload returned HTTP401 on uploads.github.com. The empt
 draft was removed (readback404); no tag/ref, publication or deployment was created.
 Remote delivery must be established separately and recorded with a retrievable
 link and byte verification; a local workspace path alone is not cross-session proof.
+
+## Continuation: source-backed numeric connections (9 October 2026)
+
+User resumed coordinator instruction `0584504f-2b45-4f39-874b-42f8d7da41be`.
+The coordinator independently downloaded and verified the adf/b442 remote draft
+transfer packages; the earlier delivery dependency above is resolved. No public
+Preview, merge or deployment follows from that acknowledgment.
+
+Bounded ACK `e55ed207-ad45-4dc3-aea6-c59d390c7ba6`, branch
+`codex/world-source-laws-20261009`, base `b442bd663961c92967e5834335311c8f06dcae6a`.
+Main remains `8e939d3b092f267e40d74953b9103711322276d2`. This continuation extends
+World and the existing Source/Entity Hub readers; the previous paragraph's
+no-Source-edit statement describes b442 only. Topic UI, Posts, Number/Spatial,
+Journey/Provider, SystemFrame/rails, ELS, engine and product data remain unchanged.
+
+Three explicit World directions now read bounded reviewed witnesses, not a new
+per-Post card registry or stored tags. The annotations retain source IDs, exact
+quotation guards, units, expression/method, relationship class and mapping memo.
+Each opening rechecks public admission and source text. Generic rendering consumes
+those witnesses plus live `numberSystemMethods`/W2 and canonical Gematria traces.
+No local numeric transformation or Gematria formula is introduced. The live method
+Registry must admit an active, executable public method and match its trace version.
+Missing methods/laws remain unavailable; source readings and captions survive.
+
+- **7 October:** `posts:5112#data-fz1073-718-axis`: both exact Hebrew date
+  expressions → regular1718 → One-law v1 →718, with שביעי באוקטובר/regular718.
+  Calendar correctness is a separate claim. `data-fz1073-1073-shachar` supplies1073;
+  1073→1000+73 is explicitly a proposed governed connection, separate from10|7|3.
+  `data-video-spoken-hints-718` retains1202 mixed-method and Ofer631/1820 branches.
+  No video timestamp is advertised as playback-confirmed and no draft election Post
+  gains publication through this projection.
+- **India:** source6232be42 (WP2609,g61/order3),140→14 and450→45; train8940efb2
+  (WP1516,g28/order0 and WP2298,g54/order6), one source/two appearances,216↔2160,
+  יראה/regular216 and משיח יהוה/MiluyBig2160; ordinary Miluy950 stays distinct.
+  Supporting96207e5d distinguishes image41workers/14days from Amichai caption4.5km;
+  fcbcfb23 distinguishes generation4.5, investment1.4billionUSD and engineGE414.
+  No decimal removal, clock conversion or digit reversal is passed to the zero RPC.
+- **Wisdom:** c502fa89 (WP1463,g39/order29) exposes regular73, קדמי271, Miluy613,
+  MiluyBig1893, MiluyOnlyBig1820, MiluyDeMiluy1230, Mistater67. The composite is
+  displayed from canonical nested traces1893−73, never ordinary Miluy. Gate5dfe5a87
+  (WP3083,g39/order4) preserves article28.9.2023 and730metres→73. Supporting
+  cablecar46987aba (WP1464,g39/order19) preserves73cars,1.4km,~4.5minutes and the
+  missing450passenger claim. Wisdom has no approved Topic membership in the bounded
+  check; the UI offers its original galleries rather than inventing a Topic.
+
+All images use the existing CanonicalMediaFigure/Lightbox and galleryMediaEnvelope.
+Exact-object dedup runs before presentation. Captions/credits/names/order remain
+verbatim for every historical appearance; numeric derivations are not independent
+evidence. Supporting material is collapsed, not deleted. World hashes retain the
+chosen direction and exact witness after reload. Number focus URLs retain the exact
+expression and method; World return uses the existing Context snapshot. Selecting
+or opening a source does not start a Path or write product rows.
+
+### Shared method presentation and remaining dependencies
+
+World reuses the unchanged main `SpatialMethodStage2029` for supported S2 methods.
+Ordinary Miluy still declares `ui_transitional_unverified` spellings; canonical
+values do not certify the display spellings. Big/composite variants do not render
+as ordinary Miluy. Their result, operands and full canonical trace are available;
+physical rendering awaits the active Spatial owner, requested in `e52fa5d3`.
+No second letter renderer, scene compiler or method engine was created.
+
+Browser reproduction `412a7408-23c5-49a1-bb1b-2a992ef10fed` was sent through work_log
+for the active Number owner: Number's first mount resets top-level selection.sourceRef
+while initializing URL focus. The exact source remains in `returnTo.selection` and
+World return passes. Receipt records `numberSelectionSourceRetained:false` separately;
+this is not complete selection propagation or a closed Journey acceptance. Number
+files are not edited. Posts request `80e7b74c` follows49b4cf27 for visible native
+regions, confirmed extended-video ranges and election publication handling. No owner
+response/session activation is assumed. Archive remains gallery-only, public Path
+publication and G4 remain open.
+
+Run the additional focused tests with:
+
+```sh
+node --test src/lib/research/worldSourceConnections.test.js src/lib/research/topicSourceContext.test.js src/lib/research/world2029Presentation.test.js src/lib/research/galleryMediaEnvelope.test.js src/lib/research/eventSystemMethodRuntime.test.js src/lib/research/journeySourceReturn.test.js src/lib/research/researchPathContinuity.test.js
+node scripts/test-world-source-connections.mjs
+```
+
+The new browser suite uses real anonymous reads, blocks all remote mutations,
+checks all three directions, live law versions, original image loading, exact
+Number/Topic/World return, reload, composite method identity and a law-outage
+negative fixture. Final commit, receipts, screenshots and package digest accompany
+the work_log AFTER; no production test is implied by local browser evidence.
