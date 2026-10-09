@@ -7,10 +7,13 @@ import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideo
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => n(v).toLocaleString("he-IL");
+// Missing (undefined/null/non-numeric) is UNKNOWN, never zero: only a measured 0 renders as "0".
+const nu = v => v == null || v === "" || !Number.isFinite(Number(v)) ? "—" : num(v);
 const cost = v => v == null ? "—" : `₪${n(v).toFixed(4)}`;
 const mib = v => v == null ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
 const gib = v => v == null ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
 const pct = v => v == null ? "—" : `${(n(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
+const STATUS_NOTE = { loading: "טוען…", error: "הקריאה נכשלה — הערך אינו אפס" };
 const when = v => v ? new Date(v).toLocaleString("he-IL") : "—";
 const certainty = v => v === "exact" ? "מדויק" : v === "estimated" ? "הערכה" : v === "not_billable" ? "לא לחיוב" : "לא ידוע";
 
@@ -55,12 +58,14 @@ function SpanRow({ span }) {
 
 export default function ControlPlane2029Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], errors: {} });
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], errors: {}, status: { health: "loading", traces: "loading", videoMap: "loading" } });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
-    setState(current => ({ ...current, loading: true, errors: {} }));
+    // A reader that has not produced data (first load, or failed earlier) is "loading", never an implied zero.
+    setState(current => ({ ...current, loading: true, errors: {},
+      status: Object.fromEntries(Object.entries(current.status).map(([k, v]) => [k, v === "ok" ? "ok" : "loading"])) }));
     // Each reader succeeds or fails on its own: one slow/failed owner must not discard the others.
     const [health, traces, videoMap] = await Promise.allSettled([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
     const ok = r => r.status === "fulfilled";
@@ -70,6 +75,7 @@ export default function ControlPlane2029Page() {
       health: ok(health) ? health.value : null,
       videoMap: ok(videoMap) ? videoMap.value : null,
       traces: traceRows,
+      status: { health: ok(health) ? "ok" : "error", traces: ok(traces) ? "ok" : "error", videoMap: ok(videoMap) ? "ok" : "error" },
       errors: {
         health: ok(health) ? null : health.reason || new Error("unavailable"),
         traces: ok(traces) ? null : traces.reason || new Error("unavailable"),
@@ -97,9 +103,13 @@ export default function ControlPlane2029Page() {
   }, [isAdmin, selectedId]);
 
   const { errors } = state;
-  const healthDown = Boolean(errors.health);
-  const videoDown = Boolean(errors.videoMap);
-  const tracesDown = Boolean(errors.traces);
+  // "Down" = no usable payload for that reader (still loading, or rejected); tell the two apart for copy.
+  const { status } = state;
+  const healthDown = status.health !== "ok";
+  const videoDown = status.videoMap !== "ok";
+  const tracesDown = status.traces !== "ok";
+  const unavailable = key => status[key] === "loading" ? "טוען…" : "לא זמין";
+  const downNote = key => STATUS_NOTE[status[key]] || "";
   const health = state.health || {};
   const usage = health.usage || {};
   const db = health.db || {};
@@ -138,12 +148,13 @@ export default function ControlPlane2029Page() {
           <div className="sod29-muted">המסך מקרין owners חיים; הוא אינו מקור אמת חדש.</div></div>
         <div className="sod29-actions"><button className="sod29-action" type="button" onClick={load} disabled={state.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
       </div>
-      {healthDown ? <FrameState kind="error" title="מצב המערכת לא זמין">{String(errors.health?.message || errors.health)}</FrameState> : null}
+      {status.health === "error" ? <FrameState kind="error" title="מצב המערכת לא זמין">{String(errors.health?.message || errors.health)}</FrameState> : null}
+      {status.health === "loading" ? <FrameState kind="loading" title="טוען מצב מערכת" /> : null}
       <div className="sod29-grid">
-        <Metric label="AI · 7 ימים" value={healthDown ? "לא זמין" : usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : `בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
-        <Metric label="DB connections" value={healthDown ? "לא זמין" : `${num(db.connections)} / ${num(db.max_connections)}`} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : `idle tx: ${num(db.idle_in_transaction)}`} />
-        <Metric label="Media objects" value={healthDown ? "לא זמין" : num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note={healthDown ? "הקריאה נכשלה — הערך אינו אפס" : "aggregate קיים"} />
-        <Metric label="Traces · 7 ימים" value={tracesDown ? "לא זמין" : num(state.traces.length)} note={tracesDown ? "הקריאה נכשלה — הערך אינו אפס" : "לחיצה פותחת spans ועלות"} />
+        <Metric label="AI · 7 ימים" value={healthDown ? unavailable("health") : usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={healthDown ? downNote("health") : `בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
+        <Metric label="DB connections" value={healthDown ? unavailable("health") : `${nu(db.connections)} / ${nu(db.max_connections)}`} note={healthDown ? downNote("health") : `idle tx: ${nu(db.idle_in_transaction)}`} />
+        <Metric label="Media objects" value={healthDown ? unavailable("health") : nu(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note={healthDown ? downNote("health") : "aggregate קיים"} />
+        <Metric label="Traces · 7 ימים" value={tracesDown ? unavailable("traces") : num(state.traces.length)} note={tracesDown ? downNote("traces") : "לחיצה פותחת spans ועלות"} />
       </div>
     </section>
 
@@ -161,7 +172,9 @@ export default function ControlPlane2029Page() {
           <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
         </div>
       </div>
-      {healthDown ? <FrameState kind="error" title="נתוני egress לא זמינים">מקור ה־health נכשל; לא מוצגים אפסים או היסטוריה ריקה במקומו.</FrameState> : <>
+      {healthDown ? (status.health === "loading"
+        ? <FrameState kind="loading" title="טוען נתוני egress" />
+        : <FrameState kind="error" title="נתוני egress לא זמינים">מקור ה־health נכשל; לא מוצגים אפסים או היסטוריה ריקה במקומו.</FrameState>) : <>
       <div className="sod29-grid">
         <Metric
           label="Observed · שעה אחרונה"
@@ -180,17 +193,17 @@ export default function ControlPlane2029Page() {
         />
         <Metric
           label="Public video"
-          value={`${num(deliveryRisk.public_video_objects)} · ${gib(deliveryRisk.public_video_bytes)}`}
-          note={`no-cache: ${num(deliveryRisk.public_video_no_cache)} · >50MB: ${num(deliveryRisk.public_over_50mb)}`}
+          value={`${nu(deliveryRisk.public_video_objects)} · ${gib(deliveryRisk.public_video_bytes)}`}
+          note={`no-cache: ${nu(deliveryRisk.public_video_no_cache)} · >50MB: ${nu(deliveryRisk.public_over_50mb)}`}
         />
         <Metric
           label="Video thumbnails"
-          value={num(deliveryRisk.channel_video_missing_thumb)}
+          value={nu(deliveryRisk.channel_video_missing_thumb)}
           note="חסרים ב־channel_updates · יצירה בבקאנד בלבד"
         />
         <Metric
           label="Duplicate candidates"
-          value={dedupe.duplicate_groups == null ? "—" : `${num(dedupe.duplicate_groups)} groups · ${gib(dedupe.redundant_candidate_bytes)}`}
+          value={dedupe.duplicate_groups == null ? "—" : `${nu(dedupe.duplicate_groups)} groups · ${gib(dedupe.redundant_candidate_bytes)}`}
           note={dedupe.classification ? `${dedupe.classification} · video ${gib(dedupe.redundant_video_candidate_bytes)} · אין מחיקה אוטומטית` : "ETag+size snapshot עדיין לא קיים"}
         />
         <Metric
@@ -227,23 +240,25 @@ export default function ControlPlane2029Page() {
         <div><div className="sod29-kicker">VIDEO MAP · 2029</div><h2>וידאו — מיפוי, Google ועלות</h2>
           <div className="sod29-muted">Projection אחד מעל Posts · WhatsApp · Home Videos · Stories. המיפוי הדטרמיניסטי אינו צורך טוקנים.</div></div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{videoDown ? "cron לא ידוע" : videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
+          <span className="sod29-chip">{videoDown ? (status.videoMap === "loading" ? "טוען…" : "cron לא ידוע") : videoCron.active === true ? "cron פעיל" : videoCron.active === false ? "cron לא פעיל" : "cron לא ידוע"}</span>
           <span className="sod29-chip">{videoDown ? "—" : videoCron.schedule || "—"}</span>
         </div>
       </div>
-      {videoDown ? <FrameState kind="error" title="מיפוי הווידאו לא זמין">{String(errors.videoMap?.message || errors.videoMap)}</FrameState> : <>
+      {videoDown ? (status.videoMap === "loading"
+        ? <FrameState kind="loading" title="טוען מיפוי וידאו" />
+        : <FrameState kind="error" title="מיפוי הווידאו לא זמין">{String(errors.videoMap?.message || errors.videoMap)}</FrameState>) : <>
       <div className="sod29-grid">
-        <Metric label="Video assets" value={num(videoSummary.unique_assets)} note={`${num(videoSummary.placements)} placements · ${num(videoSummary.duplicate_assets)} assets כפולים`} />
-        <Metric label="Google Video" value={num(videoSummary.google_indexable_assets)} note={`${num(videoSummary.generic_google_pages)} דפי /video fallback`} />
-        <Metric label="Backlog ערוצים" value={num(videoMap.channel_enrichment?.pending)} note={`אור הגאולה: ${num(videoChannels["or-geula"]?.pending)} · תורת הרמז: ${num(videoChannels["torat-haremez"]?.pending)}`} />
-        <Metric label="Video AI · 7 ימים" value={`${num(videoAi.input_tokens_7d)} + ${num(videoAi.output_tokens_7d)} tok`}
+        <Metric label="Video assets" value={nu(videoSummary.unique_assets)} note={`${nu(videoSummary.placements)} placements · ${nu(videoSummary.duplicate_assets)} assets כפולים`} />
+        <Metric label="Google Video" value={nu(videoSummary.google_indexable_assets)} note={`${nu(videoSummary.generic_google_pages)} דפי /video fallback`} />
+        <Metric label="Backlog ערוצים" value={nu(videoMap.channel_enrichment?.pending)} note={`אור הגאולה: ${nu(videoChannels["or-geula"]?.pending)} · תורת הרמז: ${nu(videoChannels["torat-haremez"]?.pending)}`} />
+        <Metric label="Video AI · 7 ימים" value={`${nu(videoAi.input_tokens_7d)} + ${nu(videoAi.output_tokens_7d)} tok`}
           note={`Anthropic · ${videoMap.ai_policy?.metadata_model || "—"} · ~${cost(videoAi.estimated_cost_ils_7d)}`} />
       </div>
       <div className="sod29-list">
         <div className="sod29-row"><div><strong>Projection owner</strong><small>{videoMap.owners?.projection || "—"}</small></div><span className="sod29-chip">0 tokens</span></div>
-        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{videoAi.calls_7d || 0} calls / 7d</span></div>
-        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
-        <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
+        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{nu(videoAi.calls_7d)} calls / 7d</span></div>
+        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron === true ? "cron" : videoMap.ai_policy?.stt_runs_from_cron === false ? "ידני בלבד" : "—"}</span></div>
+        <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{nu(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
       </>}
     </section>
@@ -251,8 +266,8 @@ export default function ControlPlane2029Page() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
         <div className="sod29-muted">עלות לא ידועה נשארת לא ידועה; אין חיבור מומצא בין אגרגציות.</div></div></div>
-      {state.loading ? <FrameState kind="loading" title="טוען traces" /> :
-        tracesDown ? <FrameState kind="error" title="רשימת ה־traces לא זמינה">{String(errors.traces?.message || errors.traces)}</FrameState> :
+      {status.traces === "loading" ? <FrameState kind="loading" title="טוען traces" /> :
+        status.traces === "error" ? <FrameState kind="error" title="רשימת ה־traces לא זמינה">{String(errors.traces?.message || errors.traces)}</FrameState> :
         state.traces.length ? <div className="sod29-list">{state.traces.map(row =>
           <TraceRow key={row.trace_id} row={row} active={row.trace_id === selectedId} open={setSelectedId} />
         )}</div> : <FrameState kind="empty" title="אין traces בטווח הזה">אין root traces להצגה בשבעת הימים האחרונים.</FrameState>}

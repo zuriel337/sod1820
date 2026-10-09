@@ -56,12 +56,19 @@ async function prepare(context, page, role, preset = 'light', options = {}) {
     if (url.pathname === '/auth/v1/user') return respond(session?.user || {});
     if (rpc === 'admin_system_health') {
       healthReads++;
-      if (options.failHealth) return respond({ message: 'Synthetic monitoring unavailable' }, 503);
+      if (options.failHealth || (options.failHealthFrom && healthReads >= options.failHealthFrom)) return respond({ message: 'Synthetic monitoring unavailable' }, 503);
+      if (options.holdHealth && healthReads === 1) await new Promise(resolve => options.holdHealth.push(resolve));
+      // Existing SQL catches sub-reader errors and returns {} for that block: fulfilled but empty.
+      if (options.partialHealth) return respond({ db: { connections: 3, max_connections: 100 }, media: {}, usage: {} });
       return respond({ db: { connections: healthReads, max_connections: 100 }, media: { storage: { total_objects: 2 } },
         usage: { ai_cost_usd_7d: 0.125, ai_cost_basis: 'SYNTHETIC', supabase_cached_egress_basis: 'UNKNOWN', storage_egress_observed_basis: 'OBSERVED_STORAGE_LOGS', storage_egress_guard: { state: 'sensor_stale' } } });
     }
-    if (rpc === 'admin_video_map_health') return respond({ summary: { unique_assets: 2, placements: 3 }, cron: { active: false } });
-    if (rpc === 'admin_op_trace_list_v1') return respond(options.empty ? [] : TRACE_IDS.map((trace_id, index) => ({ trace_id, capability: CAPABILITIES[index], surface: 'admin', outcome: 'success', started_at: '2026-10-09T00:00:00Z', span_count: 1, cost_certainty: 'unknown' })));
+    if (rpc === 'admin_video_map_health') {
+      if (options.failVideo) return respond({ message: 'Synthetic video unavailable' }, 503);
+      if (options.partialVideo) return respond({ cron: {} });
+      return respond({ summary: { unique_assets: 2, placements: 3 }, cron: { active: false } });
+    }
+    if (rpc === 'admin_op_trace_list_v1') return options.failTraces ? respond({ message: 'Synthetic traces unavailable' }, 503) : respond(options.empty ? [] : TRACE_IDS.map((trace_id, index) => ({ trace_id, capability: CAPABILITIES[index], surface: 'admin', outcome: 'success', started_at: '2026-10-09T00:00:00Z', span_count: 1, cost_certainty: 'unknown' })));
     if (rpc === 'admin_op_trace_v1') {
       const id = request.postDataJSON().p_trace_id;
       const index = TRACE_IDS.indexOf(id);
@@ -175,6 +182,66 @@ if (!LIVE) {
     await expect(page.getByText('אין traces בטווח הזה', { exact: true })).toHaveCount(0);
     await expect(page.getByText('רשימת ה־traces לא זמינה')).toHaveCount(0);
     await expect(page.locator('.sod29-row[aria-pressed]').first()).toBeVisible();
+    expect(evidence.errors).toEqual([]);
+  });
+  const metric = (page, label) => page.locator('.sod29-card', { has: page.locator('.sod29-kicker', { hasText: new RegExp(`^${label}$`) }) }).locator('h3');
+  test('native control shows unknown, not zero, for a fulfilled partial health/video payload', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'light', { partialHealth: true, partialVideo: true });
+    await openControl(page);
+    await expect(metric(page, 'DB connections')).toHaveText(/3\s*\/\s*100/);
+    await expect(metric(page, 'Media objects')).toHaveText('—');
+    await expect(metric(page, 'Video thumbnails')).toHaveText('—');
+    await expect(metric(page, 'Video assets')).toHaveText('—');
+    await expect(page.getByText('cron לא ידוע', { exact: true })).toBeVisible();
+    await expect(page.getByText('cron לא פעיל', { exact: true })).toHaveCount(0);
+    await expect(metric(page, 'Traces · 7 ימים')).toHaveText('2'); // true measured value survives
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control shows a measured zero and inactive cron as such', async ({ context, page }) => {
+    await prepare(context, page, 'admin', 'light');
+    await openControl(page);
+    await expect(page.getByText('cron לא פעיל', { exact: true })).toBeVisible();
+    await expect(metric(page, 'Media objects')).toHaveText('2');
+  });
+  test('native control initial load shows loading, not zero, until readers settle', async ({ context, page }) => {
+    const release = [];
+    const evidence = await prepare(context, page, 'admin', 'light', { holdHealth: release });
+    await openControl(page);
+    await expect(metric(page, 'Media objects')).toHaveText('טוען…');
+    await expect(metric(page, 'DB connections')).toHaveText('טוען…');
+    await expect(page.getByText('הקריאה נכשלה — הערך אינו אפס')).toHaveCount(0);
+    await expect.poll(() => release.length).toBe(1);
+    release.forEach(fn => fn());
+    await expect(metric(page, 'Media objects')).toHaveText('2');
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control refresh with a still-rejecting read stays unknown, never falsely zero', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'light', { failHealthFrom: 1 });
+    await openControl(page);
+    await expect(metric(page, 'Media objects')).toHaveText('לא זמין');
+    await page.getByRole('button', { name: 'רענן', exact: true }).click();
+    // While the refresh is in flight the previously failed reader is loading, not zero.
+    await expect(page.getByRole('button', { name: 'רענן', exact: true })).toBeEnabled();
+    await expect(metric(page, 'Media objects')).toHaveText('לא זמין');
+    await expect(metric(page, 'DB connections')).not.toHaveText(/^0\s*\/\s*0$/);
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control video and trace readers fail independently', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'light', { failVideo: true });
+    await openControl(page);
+    await expect(page.getByText('מיפוי הווידאו לא זמין', { exact: true })).toBeVisible();
+    await expect(page.getByText('cron לא ידוע', { exact: true })).toBeVisible();
+    await expect(metric(page, 'Media objects')).toHaveText('2');
+    await expect(page.locator('.sod29-row[aria-pressed]').first()).toBeVisible();
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control trace list rejection leaves health and video readers intact', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'light', { failTraces: true });
+    await openControl(page);
+    await expect(page.getByText('רשימת ה־traces לא זמינה')).toBeVisible();
+    await expect(metric(page, 'Traces · 7 ימים')).toHaveText('לא זמין');
+    await expect(metric(page, 'Media objects')).toHaveText('2');
+    await expect(metric(page, 'Video assets')).toHaveText('2');
     expect(evidence.errors).toEqual([]);
   });
   test('native control handles empty trace data', async ({ context, page }) => {
