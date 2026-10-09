@@ -1,7 +1,7 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
@@ -15,7 +15,8 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, fetchResearchSourceOccurrences } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -29,6 +30,9 @@ import {
   orderWorldRelations,
   worldRelationCounterpart,
   worldRelationFacets,
+  buildWorldSourceStory,
+  worldSourceStoryContext,
+  WORLD_SOURCE_STORY_ANCHOR,
 } from "../lib/research/world2029Presentation.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import {
@@ -474,6 +478,86 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
   );
 }
 
+function WorldSourceStory({ research, shell }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [state, setState] = useState({ loading: true, story: null });
+  const [attempt, setAttempt] = useState(0);
+  const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
+  useEffect(() => {
+    let alive = true;
+    setState({ loading: true, story: null });
+    fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
+      .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection) }); })
+      .catch(() => { if (alive) setState({ loading: false, story: null }); });
+    return () => { alive = false; };
+  }, [attempt]);
+  const story = state.story;
+  useEffect(() => {
+    if (!expanded || !story) return;
+    const frame = requestAnimationFrame(() => {
+      const element = document.getElementById(WORLD_SOURCE_STORY_ANCHOR);
+      element?.scrollIntoView({ block: "start", behavior: "instant" });
+      element?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [expanded, story]);
+  const rememberSource = () => research.updateResearchContext?.(worldSourceStoryContext(story));
+  const leaveStory = (href) => {
+    const patch = worldSourceStoryContext(story);
+    const subject = href === story.item.reopen.topicHref
+      ? { id: story.topicSlug, type: "topic", label: story.topicLabel, href }
+      : { id: story.item.postPlacement.postSlug, type: "post", label: story.title, href };
+    // Supply the destination identity before mounting it: its first-entry setup
+    // may otherwise replace a subject-less Context and discard the return target.
+    research.updateResearchContext?.({ ...patch, subject, returnTo: {
+      href: story.returnHref, label: "המטוס והקשר להודו", subject: null,
+      ...patch, journey: research.context?.journey || null,
+    } });
+    shell.go(href, { preserve: false });
+  };
+  return <section className="sod29-world-source-story" aria-label="מהמטוס אל הודו">
+    {state.loading ? <p role="status">טוען את הסיפור והמקור…</p> : !story ? <div role="status">
+      <p>המקור לסיפור המטוס אינו זמין כרגע.</p>
+      <button className="sod29-action" onClick={() => setAttempt((value) => value + 1)}>נסה שוב</button>
+    </div> : <>
+      <div className="sod29-world-story-intro" id="world-plane-story">
+        <div className="sod29-kicker">רמזי גאולה · מתוך פוסט באתר</div>
+        <h2>{humanContentTitle(story.title)}</h2>
+        <p>מסיפור הטיסה אל הקפטן שהוזכר בפוסט, ומשם אל התיעוד של הודו.</p>
+        <div className="sod29-actions">
+          <button className="sod29-action primary" aria-expanded={expanded} aria-controls={WORLD_SOURCE_STORY_ANCHOR}
+            onClick={() => navigate(expanded ? "/world#world-plane-story" : story.returnHref)}>
+            {expanded ? "סגור את הקשר להודו" : "מה מחבר את המטוס להודו?"}
+          </button>
+          <button className="sod29-action" onClick={() => leaveStory(story.item.reopen.postHref)}>לקריאת פוסט המטוס</button>
+        </div>
+      </div>
+      {expanded ? <div id={WORLD_SOURCE_STORY_ANCHOR} tabIndex={-1} className="sod29-world-story-source"
+        data-world-source-identity={story.item.sourceIdentity.ref}>
+        <figure>
+          <CanonicalMediaFigure2029 item={story.item} alt="פתח את תמונת המקור של הקפטן" contextNote={story.reason} onOpen={rememberSource} />
+          <figcaption>תמונת המקור מן הפוסט · לחצו להגדלה</figcaption>
+        </figure>
+        <div className="sod29-world-story-context">
+          <div className="sod29-kicker">החיבור שמופיע במקור</div>
+          <h3>{story.topicLabel}</h3>
+          <p>{story.reason}</p>
+          <details>
+            <summary>הכיתוב והקרדיט המקוריים</summary>
+            <p data-world-original-caption>{story.item.postPlacement.originalCaption}</p>
+            {story.item.postPlacement.originalCredit?.author ? <p>קרדיט שמור: {story.item.postPlacement.originalCredit.author}</p> : null}
+          </details>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" onClick={() => leaveStory(story.item.reopen.topicHref)}>המשך לציר ההודי — באותה תמונה</button>
+          </div>
+          <p className="sod29-world-story-note">בציר ההודי אפשר לפגוש גם תיעוד היסטורי מן הגלריות, עם ההסבר והמקור של כל חיבור.</p>
+        </div>
+      </div> : null}
+    </>}
+  </section>;
+}
+
 function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const palette = usePalette();
@@ -891,6 +975,7 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   return <>
+    <WorldSourceStory research={research} shell={shell} />
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
@@ -903,7 +988,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
           <h2>מה חדש בעולם?</h2>
-          <p>דברי מקור שהתעדכנו באתר, ממצאי מחקר מורשים והתכנסויות מאושרות. המקור מופיע גם לפני שעבר מחקר; החידושים מסודרים לפי זמן, לא לפי דירוג אמת.</p>
+          <p>רמזי גאולה, סיפורים ותיעוד שהתחדשו באתר. אפשר לפתוח מקור גם לפני ששויך לנושא, ולבחור לאן להמשיך ממנו.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -2138,12 +2223,13 @@ function WorldBody() {
   const shell = use2029Shell();
   const context = research.context || null;
   const subject = context?.subject || null;
+  const location = useLocation();
 
   useEffect(() => {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if ([`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
@@ -2162,7 +2248,7 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
-      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
+      description="רמזי גאולה מתוך סיפורים, תמונות ותיעוד. גלה מה מחבר ביניהם, פתח את המקור וחזור למקום שממנו יצאת."
       status="עולם · גילוי"
     >
       <WorldBody />
