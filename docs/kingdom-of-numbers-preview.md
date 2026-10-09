@@ -1,5 +1,71 @@
 # Kingdom of Numbers — phase 1 review handoff
 
+## Contour-aware spatial implementation — 2026-10-09
+
+Actor GPT · same task / branch · existing Experience Governance v9 + Design V2.
+The user rejected the initial cuboid artwork and authorized continuing the shared
+spatial implementation. The single normative definition now lives in
+`SOD1820_DESIGN_CONTRACT_V2.md` §13; this handoff contains implementation evidence only.
+Earlier cuboid/isometric screenshots/deployments below are historical and rejected.
+
+### Implemented
+
+- Removed Kingdom's cuboids/islands/spires/orbits; preserved game state and mechanics.
+- Extended existing Letter Anatomy with optional source-qualified glyph references.
+  27 Rubik 700 Hebrew forms derive from pinned Google Fonts revision
+  `bd8f81ddb5c74d5c8897b36ad88b440266245103`; font SHA256
+  `1b3a7437ba2af80e465e773ed60c5036d1ba6ace492d89046dbcf18fb31e4e88`.
+  Exact SVG curves plus sampled CPU contours, ink bounds, advance, holes, source
+  occurrence offsets and contour anchors; generator + OFL retained, no font binary.
+- One `SpatialGlyphScene2029` consumes those outlines for accessible SVG and lazy
+  `GlyphVolume2029` GPU extrusion. Three.js is pinned at 0.180.0. Actual mesh picking,
+  limited drag, front/depth keyboard buttons, palette lighting and resize fitting.
+  Geometry is display data, never arithmetic or a research authority.
+- One active rich focus; event-driven draws without perpetual animation. Renderer
+  disposal, context loss, frame/OS reduced motion, save-data and slow-network fallback.
+  Existing Experience resolver governs levels; Number remains S1 by default and
+  permits S4 only through explicit selected-glyph depth activation (Design §13).
+- Milui uses the shared scene with its existing trace/focus/actions and an opening
+  expansion whose connector anchors to the actual contour. Removed duplicate letter
+  selector, fixed mobile focus layout and raised rebuilt Milui text/control floors.
+- Kingdom uses the selected challenge expression. PersonJourney 2029 exposes the same
+  scene only after opening the saved-name disclosure behind its existing auth gate;
+  no changes to person persistence, Journey paths, research state or private access.
+- Offline review at `/spatial-review/` is built only by `preview:kingdom`, never by
+  normal product builds. Its `אמא` Milui fixture is the verbatim canonical
+  `gematria_method_trace('מילוי','אמא')` read on 2026-10-09 (302). It identifies itself
+  as a captured review fixture and cannot save or call live services.
+
+### Validation and limits
+
+- Five geometry tests and four game-state tests PASS. Experience Context and Number
+  acceptance checks PASS. Both product builds PASS with existing bundling warnings.
+- Browser matrix covers 320/390/768/1440, three presets, full game economy/return and
+  unavailable storage; 14 cases PASS in the final release recheck.
+- Five additional browser cases PASS in the final release recheck (19 total): GPU selection,
+  three presets, resize, context loss/initialization failure, keyboard/reduced motion,
+  repeated-letter identity, canonical Milui expansion and one active GPU focus.
+  Added pixel-comparison interaction check PASS: dragging the empty ם hole leaves
+  orientation unchanged; dragging its visible ink rotates the actual mesh.
+- Existing `spatial-letter-anatomy-v1` suite: 13/14 PASS; the Mistater malformed-trace
+  test expects PAIR_MISMATCH but receives TRACE_SHAPE_MISMATCH. Reproduced unchanged
+  at baseline `faf54356` in an isolated temporary worktree (removed after checking).
+  Not caused or repaired here.
+- Functional GPU evidence uses headless Chromium / software GPU. Physical-device
+  frame-time/memory acceptance is still outstanding; no device performance claim.
+- Niqqud/unsupported graphemes retain complete native text and actions, without
+  invented contours. Shaped niqqud volumes are NOT IMPLEMENTED.
+- Engine trace currently supplies Milui numbers but no canonical letter-name spelling.
+  The existing transitional spelling map remains explicitly disclosed; no DB change.
+- Saved-name Journey mounting is implemented; real-account acceptance is not claimed.
+  Broader Journey choreography and the full Kingdom environment are not yet rebuilt.
+- No live Supabase rule/ledger update, main push, merge or production release.
+  Scope excludes the active Journey integration and ELS/chrome writers.
+
+Handoff to existing authorized coordinator: retain this task key; implementation is
+branch-only. Final commit/preview and final browser results are recorded below when
+verified. No dispatch or external message has been sent.
+
 Task: `KINGDOM_OF_NUMBERS_2029_CODEX_MASTER_V1`
 Canonical brief: `work_log.id=48e2c9f4-f83c-42be-9995-769788f64ccc`
 Actor: GPT · Date: 2026-10-09

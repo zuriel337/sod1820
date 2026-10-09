@@ -280,3 +280,22 @@
   .sod29-spatial-method-stage__opening,
   .sod29-spatial-method-stage__glyph{transition:none;transform:none}
 }
+
+/* The rebuilt Milui focus meets Design V2's readable type floor. */
+.sod29-spatial-method-stage.is-milui small,
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__head span,
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus span,
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus p,
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__expression span { font-size:14px; line-height:1.6; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__actions button { min-width:44px; min-height:44px; font-size:16px; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__orb { display:none; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus { grid-template-columns:minmax(0,1fr) auto; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus > div:first-child { display:grid; gap:6px; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus strong { font-size:18px; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus > .sod29-spatial-method-stage__actions { display:flex; }
+.sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__boundary { font-size:14px; line-height:1.6; }
+.sod29-spatial-method-stage.is-milui summary { display:flex; align-items:center; min-height:44px; cursor:pointer; }
+@media(max-width:600px) {
+  .sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__focus { grid-template-columns:minmax(0,1fr); }
+  .sod29-spatial-method-stage.is-milui .sod29-spatial-method-stage__actions { max-width:none; justify-content:flex-start; }
+}

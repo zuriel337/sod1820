@@ -48,7 +48,9 @@ for (const width of [320, 390, 768, 1440]) {
         return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
       }).map((node) => node.textContent));
       expect(badControls).toEqual([]);
-      expect(await page.locator('.kingdom-tower').first().evaluate((node) => getComputedStyle(node).animationName)).toBe('none');
+      await expect(page.locator('.kingdom-tower, .kingdom-island')).toHaveCount(0);
+      await expect(page.locator('.sod29-glyph-scene')).toHaveAttribute('data-renderer', 'outline');
+      await expect(page.locator('.sod29-glyph-volume canvas')).toHaveCount(0);
       await page.getByRole('button', { name: /מכרה המספרים.*טרם נפתח/ }).click();
       await expect(page.getByRole('heading', { name: 'דרך חדשה מחכה להיפתח' })).toBeVisible();
       await page.getByRole('button', { name: /גן האותיות.*רמה/ }).click();

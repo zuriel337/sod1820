@@ -1,7 +1,7 @@
 # SOD1820 DESIGN CONTRACT V2
 
 **Human Gate:** ZURIEL · 4.10.2026  
-**Owner:** experience_governance_foundation_v1_law v8 → canonical_colors_law / canonical_ui_components_law / Brand Core  
+**Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
 ## 1. Product goal
@@ -246,6 +246,84 @@ A 2029 visual-foundation change must prove:
 5. no truth/status meaning encoded only by decoration;
 6. Legacy routes are not mass-restyled accidentally;
 7. no new palette/theme store or page-local color owner.
+
+## 13. Contour-aware spatial experience — user direction 9.10.2026
+
+Extends the existing Experience Governance v9 / Unified Spatial Method Stage.
+This is the visual/geometry implementation contract, not a new owner, engine or
+truth store. Number's interactive Milui is the minimum reference for intentional
+spatial focus in Journey and Kingdom; ordinary reading/navigation stays compact.
+The first Kingdom cuboid/isometric artwork is rejected and retired. It must not
+serve as a fallback or as the visual target for later spatial work.
+
+### 13.1 One object, faithful geometry, multiple renderers
+
+- Preserve semantic identity and each source occurrence separately. Equal letters
+  are not the same occurrence. Preserve RTL, final forms, graphemes and source offsets.
+- Letter Anatomy is extended with optional versioned glyph references. The source
+  font/asset, weight, glyph ID, units, baseline/advance, ink bounds and contours must
+  be traceable. Visual components may not draw approximate replacement letters.
+- Outer contours, holes and disconnected components are first-class geometry.
+  Ink bounds are not text advance and not a rectangle that pretends to be a glyph.
+- SVG and optional GPU extrusion consume the SAME approved outlines. SVG paths,
+  masks and highlights preserve holes; extruded geometry preserves front/back and
+  side boundaries. `<text>` bounding boxes alone do not constitute contour support.
+- Relations attach to measured boundary anchors. Picking first bounds then actual
+  ink/mesh preserves empty holes. Accessible touch targets may intentionally exceed
+  the ink boundary. Hit geometry must remain aligned after resize, zoom or rotation.
+- Expansion reveals owned content; geometry never infers semantic components,
+  letter-name spelling, arithmetic, evidence or relationships. Canonical method
+  values and traces remain with the engine. Transitional spelling metadata remains
+  explicitly distinguished until the engine supplies canonical spellings.
+
+### 13.2 Shared behavior and integration
+
+The same capability serves Number's existing Spatial Method Stage, selected
+Journey objects and Kingdom. One focused object may use the rich renderer at a
+time. Selecting it, opening its contents, changing view and returning must preserve
+the original occurrence/context. Journey persistence and exact return remain owned
+by Research Context/Workspace; rendering creates no second Journey state.
+
+Explicit depth activation permits S4 GPU rendering where useful. Keep Hebrew
+readable with bounded camera rotation and camera fitting based on geometry bounds.
+Number's ordinary default remains S1; its maximum becomes S4 for this explicitly
+activated selected-glyph inspection. Consume the existing Experience resolver's
+device/motion limits rather than hard-coding a renderer capability from a label.
+Keyboard controls provide an equivalent view change; dragging is optional. Do not
+add ambient animation merely to make a scene appear alive. Render on interaction,
+resize or state change and dispose GPU resources/listeners on retirement.
+
+### 13.3 Source, accessibility and performance
+
+- The initial letter artwork is derived from Rubik 700, the approved display/UI
+  family. Pin source revision + hash, retain OFL attribution and a reproducible
+  generator. Derived outline data is allowed; no font binary is added to the repo.
+  Font/weight changes require regeneration and geometry acceptance together.
+- No guessed geometry for unsupported graphemes. Niqqud/combinations without
+  shaped outlines retain complete native text and accessible actions. Do not strip
+  marks to claim coverage. Expanding shaped-glyph coverage is a separate measured
+  implementation step under this same contract.
+- GPU/code/assets load lazily. Bound rich detail to selection rather than one mesh
+  per corpus letter. Respect device-pixel limits, reduced motion, frame preferences
+  and data-saving preference. Do not label configured capability as actual renderer.
+- Unsupported/lost GPU context falls back to faithful SVG/native text with the same
+  identity and actions. Motion-disabled users keep access to content and expansion.
+- All presets consume semantic palette roles. Required text remains readable live
+  UI, at least 14px metadata / 16px controls, and controls at least 44×44px.
+
+### 13.4 Acceptance and rollout
+
+Required specimens: א diagonals, ם hole, ה disconnected parts, ך final form,
+repeated letters and a niqqud sample. Verify contour picking/anchors, closed volume,
+focus identity, expansion, keyboard, touch, three presets, resize, reduced motion,
+unsupported/lost GPU and font-independent outline availability. Test actual browser
+rendering in addition to data contracts. Use one shared implementation across
+surfaces; no second icon family or spatial truth engine.
+
+Device performance claims require named physical-device measurements; headless
+software GPU evidence is functional verification only. Publish implementation and
+coverage status in the existing handoff, not as duplicated contract promises.
+Branch implementation does not imply merge, production release or a live DB update.
 
 ## Navigation icon family — approved 8.10.2026
 

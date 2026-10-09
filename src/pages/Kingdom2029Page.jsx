@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useReducer, useRef, useState } from 'react';
 import Sod2029Shell, { use2029Shell } from '../components/experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../components/experience2029/NavigationIcon2029.jsx';
 import { useResearch } from '../lib/research/ResearchProvider.jsx';
@@ -9,20 +9,11 @@ import {
 } from '../lib/kingdom/kingdomPreview.js';
 import './kingdom2029.css';
 
+const SpatialGlyphScene2029 = lazy(() => import("../components/experience2029/SpatialGlyphScene2029.jsx"));
+
 function readProgress() {
   try { return restorePreview(localStorage.getItem(PREVIEW_STORAGE_KEY)); }
   catch { return initialState(); }
-}
-function BuildingArt({ building, level }) {
-  return <span className={`kingdom-art kingdom-art--${building.id}`} aria-hidden="true">
-    <span className="kingdom-art-model">
-    <span className="kingdom-island" />
-    <span className="kingdom-tower"><span className="kingdom-roof" /><span className="kingdom-face"><NavigationIcon2029 name={building.icon} size={34} /></span><span className="kingdom-side" /></span>
-    {level > 1 && <span className="kingdom-spire" />}
-    {level > 2 && <span className="kingdom-spire kingdom-spire--second" />}
-    <span className="kingdom-orbit" />
-    </span>
-  </span>;
 }
 function KingdomGame() {
   const shell = use2029Shell();
@@ -90,7 +81,6 @@ function KingdomGame() {
       <span className="kingdom-preview-label">גרסת התנסות · התקדמות במכשיר הזה בלבד</span>
     </header>
     {!state.started ? <section className="kingdom-gate" aria-label="שער הממלכה">
-      <div className="kingdom-gate-art" aria-hidden="true"><BuildingArt building={BUILDINGS[0]} level={3} /><NavigationIcon2029 name="heichal" size={64} /></div>
       <div className="kingdom-gate-copy"><p className="kingdom-eyebrow">הממלכה מתחילה בסקרנות</p><h2>בין אות למספר,<br />עולם שלם מחכה.</h2>
         <p>פתרו חידות גימטריה, אספו אור והעירו את שלושת מבני הממלכה. אין שעון שסופר לאחור — מגלים בקצב שלכם.</p>
         <button className="kingdom-primary" onClick={() => { dispatch({ type: 'start' }); heading.current?.focus(); }}><NavigationIcon2029 name="heichal" /> כניסה לממלכה</button>
@@ -103,6 +93,7 @@ function KingdomGame() {
         <div><NavigationIcon2029 name="search" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
         <div><NavigationIcon2029 name="tools" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
       </section>
+      <Suspense fallback={null}><SpatialGlyphScene2029 expression={challenge?.expression || "אור"} label="אותיות הממלכה" /></Suspense>
       <section className="kingdom-map" aria-label="מפת הממלכה">
         <div className="kingdom-map-caption"><NavigationIcon2029 name="world" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
         <div className="kingdom-buildings">
@@ -110,7 +101,7 @@ function KingdomGame() {
             const level = buildingLevel(state, item.id);
             return <button key={item.id} className={`kingdom-building ${selected === item.id ? 'is-selected' : ''} ${level ? '' : 'is-locked'}`}
               aria-pressed={selected === item.id} onClick={() => chooseBuilding(item.id)} aria-controls="kingdom-workbench">
-              <BuildingArt building={item} level={level} />
+              <NavigationIcon2029 name={item.icon} size={28} />
               <span className="kingdom-building-name">{item.name}</span>
               <span>{level ? <>רמה {level} · <bdi dir="ltr">{CHALLENGES.filter((c) => c.building === item.id && state.completed.includes(c.id)).length}/{CHALLENGES.filter((c) => c.building === item.id).length}</bdi> גילויים</> : 'טרם נפתח'}</span>
             </button>;

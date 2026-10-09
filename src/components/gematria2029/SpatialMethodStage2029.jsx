@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import "./spatialMethodStage2029.css";
+
+const SpatialGlyphScene2029 = lazy(() => import("../experience2029/SpatialGlyphScene2029.jsx"));
 
 const METHOD_TRACE_KIND = Object.freeze({
   "רגיל": "LETTER_LEDGER",
@@ -153,7 +155,7 @@ function MethodStageHead({ methodKey, expression, result, subtitle }) {
         <small>הערכים והתוצאה מגיעים מה־Trace הקנוני; התצוגה מסבירה ואינה מחשבת אמת.</small>
       </div>
       <div className="sod29-spatial-method-stage__result">
-        <small>TRACE VERIFIED</small>
+        <small>תוצאת החישוב</small>
         <b>{result}</b>
       </div>
     </div>
@@ -216,10 +218,10 @@ function MiluiStage({
       <div>
         <span>מילוי · עומק שכבות</span>
         <strong>אות → שם האות → ערך → סכום</strong>
-        <small>המספרים מגיעים מה־Trace הקנוני; איות שם האות מסומן כשכבת תצוגה מעברית.</small>
+        <small>בחרו אות כדי לחשוף את המילוי שלה.</small>
       </div>
       <div className="sod29-spatial-method-stage__result">
-        <small>TRACE VERIFIED</small>
+        <small>תוצאת החישוב</small>
         <b>{result}</b>
       </div>
     </div>
@@ -230,35 +232,18 @@ function MiluiStage({
       <i aria-hidden="true" />
     </div>
 
-    <div className="sod29-spatial-method-stage__letters" role="list" style={{ "--sms-count": Math.max(1, rows.length) }}>
-      {rows.map((row, index) => {
-        const active = index === focusIndex;
-        return <button
-          type="button"
-          role="listitem"
-          key={row.id}
-          className={`sod29-spatial-method-stage__letter${active ? " is-focus" : ""}`}
-          onClick={() => setFocusIndex(index)}
-          aria-pressed={active}
-          aria-label={`${row.token}, מילוי ${row.spelling}, ערך ${row.value}`}
-        >
-          <span className="sod29-spatial-method-stage__glyph">{row.token}</span>
-          <span className="sod29-spatial-method-stage__opening" aria-hidden={mode === "visible" ? "true" : undefined}>
-            <b>{row.spelling.slice(1)}</b>
-            <small>{row.spelling}</small>
-          </span>
-          <span className="sod29-spatial-method-stage__value">{row.value}</span>
-          <span className="sod29-spatial-method-stage__subtotal">Σ {row.subtotal}</span>
-        </button>;
-      })}
-    </div>
+    <Suspense fallback={null}>
+      <SpatialGlyphScene2029 expression={expression} selectedIndex={focusIndex} onSelect={setFocusIndex}
+        expansion={focus.spelling} surface="number" label="המילוי במרחב">
+        <p>ערך האות במילוי: {focus.value} · סכום מצטבר: {focus.subtotal}</p>
+      </SpatialGlyphScene2029>
+    </Suspense>
 
     <div className="sod29-spatial-method-stage__focus">
-      <div className="sod29-spatial-method-stage__orb" aria-hidden="true"><i /></div>
       <div>
         <span>אות {focus.position}</span>
         <strong>{focus.token} <em>→</em> {focus.spelling} <em>→</em> {focus.value}</strong>
-        <p>הערך והסכום מגיעים מהמנוע. איות שם האות הוא כרגע metadata תצוגתי שתואם מספרית למנוע.</p>
+        <p>סכום מצטבר: {focus.subtotal}</p>
       </div>
       <div className="sod29-spatial-method-stage__actions">
         <button type="button" onClick={() => setFocusIndex((index) => (index + 1) % rows.length)}>האות הבאה ←</button>
@@ -281,9 +266,10 @@ function MiluiStage({
       </div>
     </div>
 
-    <p className="sod29-spatial-method-stage__boundary">
-      איות תצוגה · לא שדה Trace: האיותים עברו parity מספרי מלא מול ערכי מנוע המילוי, אך סמכות האיות עצמה נשארת כפופה לחוזה המנוע/Registry.
-    </p>
+    <details className="sod29-spatial-method-stage__boundary">
+      <summary>על המילוי והחישוב</summary>
+      <p>הערכים ופירוט החישוב מגיעים מהמנוע הקנוני. שמות האותיות מוצגים לפי מפת האיות הקיימת; הם עדיין אינם שדה שמוחזר בפירוט המנוע.</p>
+    </details>
   </section>;
 }
 

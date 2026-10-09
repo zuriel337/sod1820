@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
@@ -19,6 +19,8 @@ import {
 import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import "./person-journey.css";
+
+const SpatialGlyphScene2029 = lazy(() => import("./experience2029/SpatialGlyphScene2029.jsx"));
 
 const RELATIONS = Object.freeze([
   { id: "none", label: "קשר יוגדר אחר כך" },
@@ -62,6 +64,7 @@ export default function PersonJourney({ variant = "legacy" }) {
 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
+  const [spatialOpen, setSpatialOpen] = useState(false);
   const [birthdate, setBirthdate] = useState("");
 
   const [newMemberName, setNewMemberName] = useState("");
@@ -308,6 +311,11 @@ export default function PersonJourney({ variant = "legacy" }) {
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
+
+    {variant === "2029" && persistedSelf?.name ? <details className="person-journey-panel" onToggle={(event) => setSpatialOpen(event.currentTarget.open)}>
+      <summary>האותיות של השם שלי</summary>
+      {spatialOpen && <Suspense fallback={null}><SpatialGlyphScene2029 expression={persistedSelf.name} label="אותיות מסע החיים" /></Suspense>}
+    </details> : null}
 
     <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
       <div className="person-journey-section-head">

@@ -95,7 +95,8 @@ const SURFACE_PROFILES = Object.freeze({
     motionIntensity: "low_explanatory",
     motionPatterns: Object.freeze([P.reveal, P.focus, P.settle]),
     spatialDefault: SPATIAL_LEVEL.S1,
-    spatialMax: SPATIAL_LEVEL.S3,
+    // Design V2 §13: explicit selected-glyph depth; ordinary default stays S1.
+    spatialMax: SPATIAL_LEVEL.S4,
     voiceMode: VOICE_MODE.ON_DEMAND,
     captionMode: CAPTION_MODE.WHEN_VOICE,
     ambience: "quiet_research",

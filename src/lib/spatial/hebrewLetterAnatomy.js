@@ -7,14 +7,18 @@ export const HEBREW_LETTER_NAMES_ENGINE_DEFAULT = Object.freeze({
 });
 export const FINAL_BASE = Object.freeze({"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"});
 
-export function buildLetterAnatomySpec(letter,{variantSource="engine_default"}={}) {
+export function buildLetterAnatomySpec(letter,{variantSource="engine_default",geometry=null}={}) {
   const spelling=HEBREW_LETTER_NAMES_ENGINE_DEFAULT[letter];
   if(!spelling) return null;
   return {
     spec_id:`hebrew-letter:${letter}:milui:${variantSource}:v1`,
     schema_v:1,
     letter:{codepoint:letter,is_final:Boolean(FINAL_BASE[letter]),base_codepoint:FINAL_BASE[letter]||null},
-    glyph_ref:{asset_id:null,kind:"none",font_agnostic:true},
+    glyph_ref:geometry?.grapheme===letter ? {
+      asset_id:`rubik:${geometry.font.sha256}:700:${geometry.glyphId}`,
+      kind:"font_outline",font_agnostic:false,font_family:geometry.font.family,
+      bounds:geometry.bounds,outline_source:geometry.font.source,
+    } : {asset_id:null,kind:"none",font_agnostic:true},
     expansions:[{method_key:"מילוי",variant_source:variantSource,spelling,letters:[...spelling],value_ref:{kind:"engine_runtime"}}],
     parts:[],
     tiers:{T0:true,T1:true,T2:true,T3:true,T4:{glyph_mesh_ref:null}},
