@@ -1,0 +1,501 @@
+{
+  "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1",
+  "status": "PREPARED_NOT_APPLIED",
+  "canonical_project": "linswmnnkjxvweumprav",
+  "source_main_sha": "45315ef269fd1aef7eadb8b5ca445839e435390f",
+  "source_branch_sha": "92dd7c134d15be7ca5e11164befebeb94ab321a2",
+  "synchronization_sha": "8c066e9178339a2c7c66251b7d7fb53f05ebb71a",
+  "coordination_claim": "51d2490a-d3bb-4d8d-8e0a-f2b36b82b09f",
+  "authorization": "BRANCH_PREPARATION_ONLY",
+  "proposed_versions_not_reserved": true,
+  "amendments": [
+    {
+      "rule_id": "live_state_resolution_law",
+      "source_node_id": "a7ac6f28-ff81-48df-ba30-b5b590a5da71",
+      "source_version": 2,
+      "proposed_version": 3,
+      "before_clause": "זהו חוק-ליבה מקביל ל-agent_onboarding_law: הוא לא מחליף את קריאת ה-nodes/project_codex/work_log בתחילת סשן, אלא קובע שכל טענת-מצב שהם מספקים דורשת אימות חי לפני שמשתמשים בה כבסיס לפעולה.",
+      "after_clause": "כניסת סוכן לסשן/משימה מתבצעת לפי הגרסה הפעילה הנוכחית של inter_agent_coordination_law: LIVE-FIRST ו-OWNER-FIRST; ניתוב לבעל האחריות הקנוני, קריאת בעל האחריות והתלויות הישירות המינימליות הנדרשות בלבד, וקריאת work_log_current הרלוונטי למשימה ולתיאום בין סוכנים. אין חובת קריאה גורפת של כל החוקים ב-nodes או כל מסמכי project_codex בתחילת סשן. כל טענת-מצב עדיין דורשת אימות חי במקור הרלוונטי לפני שימוש כבסיס לפעולה; כל DB WRITE עדיין מחייב אימות סכמה חיה ותיאום/תיעוד ב-work_log לפני הכתיבה, ודיווח DRIFT נשאר חובה. agent_onboarding_law ההיסטורי אינו מופעל מחדש.",
+      "before": {
+        "id": "a7ac6f28-ff81-48df-ba30-b5b590a5da71",
+        "type": "rule",
+        "label": "🔴 חוק פתרון-מצב-חי (Live State Resolution Law) — קביעת המצב הנוכחי רק ממקורות חיים",
+        "description": "חוק ליבה: בכל בקשה על המצב הנוכחי של SOD1820 — לדוגמה \"סרוק את האתר\", \"מה יש באתר\", \"מה בנוי\", \"איך זה עובד עכשיו\", \"איפה אנחנו\" — אסור להסתמך על SOD1820_MASTER_STATE.md, SOD1820_MASTER_ROADMAP.md, work_log או זיכרון-הסוכן בלבד כהוכחה למצב.\n\n1. הסוכן חייב לקבוע את המצב מתוך המקורות החיים הרלוונטיים לסוג השאלה: Production בפועל (האתר החי בדפדפן) + Supabase חי (נתונים/סכמה/RLS/Edge Functions) + GitHub/main (הקוד שבאמת פרוס), בהתאם לסוג השאלה.\n2. SOD1820_MASTER_STATE.md משמש לתיעוד קנוני ולהשוואה בלבד — הוא אינו הוכחה בפני עצמו שהמצב המתועד בו עדיין חי.\n3. לאחר האימות מגדירים שני מושגים: LIVE FACT = מה שנצפה בפועל במקור החי. DOCUMENTED STATE = מה שה-Master אומר. אם אינם תואמים → DRIFT (יש לדווח עליו במפורש, לא לטשטש).\n4. אסור לתקן סתירה (DRIFT) מהזיכרון, ואסור להניח/לנחש איזה סוכן ביצע שינוי בלי provenance (רישום מקור/מבצע מתועד — למשל work_log, git blame, migration history).\n5. ניתוב אימות לפי סוג השאלה:\n   - שאלה על UI/UX/מסלול-משתמש → חובה אימות Production בדפדפן (לא רק קריאת קוד).\n   - שאלה על נתונים/חוקים/פונקציות → חובה אימות Supabase חי (list_tables/execute_sql/get_advisors/list_edge_functions/nodes/project_codex).\n   - שאלה על implementation (מה בקוד באמת) → חובה אימות main ב-GitHub (לא ענף-פיתוח, לא זיכרון).\n   - שאלה שחוצה שכבות → מצליבים את שלושתם (Production + Supabase + main) ומדווחים DRIFT בכל שכבה שבה נמצא.\n6. רק אחרי קביעת ה-Live State (ולא לפני) ממשיכים לתכנון/המלצה/יישום.\n\nהבהרה (v2 — חשוב, לא לבלבל): חוק זה קובע איך עונים על **שאלת-מצב** (\"מה יש באתר\"/\"איפה אנחנו\" וכו׳). הוא **אינו** מחליף ואינו מקל בשום צורה על הדרישה הקבועה והנפרדת שכבר קיימת בפרויקט: **כל WRITE ל-DB** (INSERT/UPDATE/DELETE/ALTER, כולל הוספת/עדכון חוק בטבלת nodes) **מחייב תמיד** אימות סכמה חיה (למשל list_tables/information_schema על הטבלה הרלוונטית) לפני הכתיבה, ותיאום/תיעוד ב-work_log — גם כשהבקשה עצמה אינה \"שאלת מצב\" כלל. אין לפרש \"לא נדרש בדיקת Production/Supabase\" ביחס לפעולת-כתיבה כמשמעו שה-WRITE עצמו פטור מאימות חי — הפטור חל רק על הצורך הספציפי הזה (שאלת-Production-browser), לא על חובת אימות-הסכמה-לפני-כתיבה.\n\nזהו חוק-ליבה מקביל ל-agent_onboarding_law: הוא לא מחליף את קריאת ה-nodes/project_codex/work_log בתחילת סשן, אלא קובע שכל טענת-מצב שהם מספקים דורשת אימות חי לפני שמשתמשים בה כבסיס לפעולה.",
+        "metadata": {
+          "core": true,
+          "key_terms": [
+            "LIVE FACT",
+            "DOCUMENTED STATE",
+            "DRIFT"
+          ],
+          "decided_by": "ZURIEL",
+          "decided_on": "2026-08-22",
+          "sibling_laws": [
+            "agent_onboarding_law",
+            "ssot_terminology_routing_law",
+            "inter_agent_coordination_law"
+          ],
+          "anti_patterns": [
+            "relying on SOD1820_MASTER_STATE.md alone",
+            "relying on work_log alone",
+            "relying on agent memory alone",
+            "fixing drift from memory",
+            "guessing which agent made a change without provenance",
+            "treating any DB write as exempt from live-schema verification"
+          ],
+          "compaction_v1": {
+            "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+            "owner_family": "live_release_governance",
+            "classified_at": "2026-09-15",
+            "classification": "CHILD_OF_OWNER",
+            "canonical_owner": "live_state_sync_law"
+          },
+          "owner_routing": {
+            "domain": "live_release_governance",
+            "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+            "version": 1,
+            "confidence": "high",
+            "resolution": "RESOLVED",
+            "normalized_at": "2026-09-08",
+            "canonical_owner": "live_state_sync_law"
+          },
+          "clarification_v2": "this law governs answering STATE QUESTIONS; it does not weaken the standing, separate agent_onboarding_law requirement that every DB WRITE always needs live-schema verification + work_log coordination, regardless of whether the request is a state question",
+          "g3_disposition_v1": {
+            "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+            "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation",
+            "classified_at": "2026-09-15",
+            "classification": "KEEP_SCOPED_SEMANTIC",
+            "normal_startup": true,
+            "no_automatic_runtime_inheritance": true
+          },
+          "verification_sources": {
+            "ui_ux": "Production (live browser)",
+            "cross_layer": "all three, cross-checked",
+            "implementation": "GitHub main",
+            "data_rules_functions": "Supabase (live)"
+          }
+        },
+        "is_active": true,
+        "created_at": "2026-08-22 23:53:05.322739+00",
+        "rule_id": "live_state_resolution_law",
+        "rule_version": 2,
+        "depends_on": null,
+        "supersedes_version": 1,
+        "weight": 5,
+        "hebrew_date": null,
+        "axis_theme": null,
+        "gallery_id": null,
+        "identity_key": null
+      },
+      "candidate": {
+        "type": "rule",
+        "label": "🔴 חוק פתרון-מצב-חי (Live State Resolution Law) — קביעת המצב הנוכחי רק ממקורות חיים",
+        "description": "חוק ליבה: בכל בקשה על המצב הנוכחי של SOD1820 — לדוגמה \"סרוק את האתר\", \"מה יש באתר\", \"מה בנוי\", \"איך זה עובד עכשיו\", \"איפה אנחנו\" — אסור להסתמך על SOD1820_MASTER_STATE.md, SOD1820_MASTER_ROADMAP.md, work_log או זיכרון-הסוכן בלבד כהוכחה למצב.\n\n1. הסוכן חייב לקבוע את המצב מתוך המקורות החיים הרלוונטיים לסוג השאלה: Production בפועל (האתר החי בדפדפן) + Supabase חי (נתונים/סכמה/RLS/Edge Functions) + GitHub/main (הקוד שבאמת פרוס), בהתאם לסוג השאלה.\n2. SOD1820_MASTER_STATE.md משמש לתיעוד קנוני ולהשוואה בלבד — הוא אינו הוכחה בפני עצמו שהמצב המתועד בו עדיין חי.\n3. לאחר האימות מגדירים שני מושגים: LIVE FACT = מה שנצפה בפועל במקור החי. DOCUMENTED STATE = מה שה-Master אומר. אם אינם תואמים → DRIFT (יש לדווח עליו במפורש, לא לטשטש).\n4. אסור לתקן סתירה (DRIFT) מהזיכרון, ואסור להניח/לנחש איזה סוכן ביצע שינוי בלי provenance (רישום מקור/מבצע מתועד — למשל work_log, git blame, migration history).\n5. ניתוב אימות לפי סוג השאלה:\n   - שאלה על UI/UX/מסלול-משתמש → חובה אימות Production בדפדפן (לא רק קריאת קוד).\n   - שאלה על נתונים/חוקים/פונקציות → חובה אימות Supabase חי (list_tables/execute_sql/get_advisors/list_edge_functions/nodes/project_codex).\n   - שאלה על implementation (מה בקוד באמת) → חובה אימות main ב-GitHub (לא ענף-פיתוח, לא זיכרון).\n   - שאלה שחוצה שכבות → מצליבים את שלושתם (Production + Supabase + main) ומדווחים DRIFT בכל שכבה שבה נמצא.\n6. רק אחרי קביעת ה-Live State (ולא לפני) ממשיכים לתכנון/המלצה/יישום.\n\nהבהרה (v2 — חשוב, לא לבלבל): חוק זה קובע איך עונים על **שאלת-מצב** (\"מה יש באתר\"/\"איפה אנחנו\" וכו׳). הוא **אינו** מחליף ואינו מקל בשום צורה על הדרישה הקבועה והנפרדת שכבר קיימת בפרויקט: **כל WRITE ל-DB** (INSERT/UPDATE/DELETE/ALTER, כולל הוספת/עדכון חוק בטבלת nodes) **מחייב תמיד** אימות סכמה חיה (למשל list_tables/information_schema על הטבלה הרלוונטית) לפני הכתיבה, ותיאום/תיעוד ב-work_log — גם כשהבקשה עצמה אינה \"שאלת מצב\" כלל. אין לפרש \"לא נדרש בדיקת Production/Supabase\" ביחס לפעולת-כתיבה כמשמעו שה-WRITE עצמו פטור מאימות חי — הפטור חל רק על הצורך הספציפי הזה (שאלת-Production-browser), לא על חובת אימות-הסכמה-לפני-כתיבה.\n\nכניסת סוכן לסשן/משימה מתבצעת לפי הגרסה הפעילה הנוכחית של inter_agent_coordination_law: LIVE-FIRST ו-OWNER-FIRST; ניתוב לבעל האחריות הקנוני, קריאת בעל האחריות והתלויות הישירות המינימליות הנדרשות בלבד, וקריאת work_log_current הרלוונטי למשימה ולתיאום בין סוכנים. אין חובת קריאה גורפת של כל החוקים ב-nodes או כל מסמכי project_codex בתחילת סשן. כל טענת-מצב עדיין דורשת אימות חי במקור הרלוונטי לפני שימוש כבסיס לפעולה; כל DB WRITE עדיין מחייב אימות סכמה חיה ותיאום/תיעוד ב-work_log לפני הכתיבה, ודיווח DRIFT נשאר חובה. agent_onboarding_law ההיסטורי אינו מופעל מחדש.",
+        "metadata": {
+          "core": true,
+          "key_terms": [
+            "LIVE FACT",
+            "DOCUMENTED STATE",
+            "DRIFT"
+          ],
+          "decided_by": "ZURIEL",
+          "decided_on": "2026-08-22",
+          "sibling_laws": [
+            "agent_onboarding_law",
+            "ssot_terminology_routing_law",
+            "inter_agent_coordination_law"
+          ],
+          "anti_patterns": [
+            "relying on SOD1820_MASTER_STATE.md alone",
+            "relying on work_log alone",
+            "relying on agent memory alone",
+            "fixing drift from memory",
+            "guessing which agent made a change without provenance",
+            "treating any DB write as exempt from live-schema verification"
+          ],
+          "compaction_v1": {
+            "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+            "owner_family": "live_release_governance",
+            "classified_at": "2026-09-15",
+            "classification": "CHILD_OF_OWNER",
+            "canonical_owner": "live_state_sync_law"
+          },
+          "owner_routing": {
+            "domain": "live_release_governance",
+            "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+            "version": 1,
+            "confidence": "high",
+            "resolution": "RESOLVED",
+            "normalized_at": "2026-09-08",
+            "canonical_owner": "live_state_sync_law"
+          },
+          "clarification_v2": "this law governs answering STATE QUESTIONS; it does not weaken the standing, separate agent_onboarding_law requirement that every DB WRITE always needs live-schema verification + work_log coordination, regardless of whether the request is a state question",
+          "g3_disposition_v1": {
+            "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+            "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation",
+            "classified_at": "2026-09-15",
+            "classification": "KEEP_SCOPED_SEMANTIC",
+            "normal_startup": true,
+            "no_automatic_runtime_inheritance": true
+          },
+          "verification_sources": {
+            "ui_ux": "Production (live browser)",
+            "cross_layer": "all three, cross-checked",
+            "implementation": "GitHub main",
+            "data_rules_functions": "Supabase (live)"
+          },
+          "g1_routing_amendment": {
+            "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1",
+            "source_node_id": "a7ac6f28-ff81-48df-ba30-b5b590a5da71",
+            "source_rule_version": 2,
+            "scope": "final_startup_clause_only",
+            "status": "PREPARED_NOT_APPLIED",
+            "human_gate_approval": null
+          }
+        },
+        "rule_id": "live_state_resolution_law",
+        "rule_version": 3,
+        "depends_on": null,
+        "supersedes_version": 2,
+        "weight": 5,
+        "hebrew_date": null,
+        "axis_theme": null,
+        "gallery_id": null,
+        "identity_key": null,
+        "is_active": false
+      },
+      "source_row_sha256": "f9e33dd0a39ac1e0446dde0e99e80d3b5eb9a17bb3e6e5a0a58fd3d5eb06cd27",
+      "candidate_row_sha256": "1d920c165f587ed3b17069be3ab9443c77e2af10dbb0670f87b6e401854d0ae9"
+    },
+    {
+      "rule_id": "experience_governance_foundation_v1_law",
+      "source_node_id": "c98f173c-49a6-4219-bbf4-ef52f9b30681",
+      "source_version": 8,
+      "proposed_version": 9,
+      "before_clause": "Dependencies: SOD1820_DESIGN_CONTRACT_V1.md,",
+      "after_clause": "Dependencies: SOD1820_DESIGN_CONTRACT_V2.md (active 2029 web visual contract; V1 remains historical/Legacy provenance and all Brand Core protections remain in force),",
+      "before": {
+        "id": "c98f173c-49a6-4219-bbf4-ef52f9b30681",
+        "type": "rule",
+        "label": "Experience Governance v8 — Contextual Sidecar + Unified Spatial Method Stage",
+        "description": "Closes the Experience Governance Foundation domain per foundation_closure_protocol_v1 (Human-Gate ZURIEL, 2026-08-29, work_log id f4811264). Scope: documentation/naming-convention + ownership-assignment only. 0 new schema/table/engine/ledger. Full body in project_codex.slug='experience_governance_foundation_v1' and audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md.\n\nCanonical Ownership Matrix (summary): Decision = the Human-Gate outcome represented in the canonical artifact it produces (never work_log, which is provenance-only per work_log_authority_law). Rule/Law = nodes type='rule' (this table). Long-form Contract = project_codex (live once INSERTed) or audits/<slug> (canonical only once merged to main / registered in project_codex — never a bare unmerged branch). Project State = SOD1820_MASTER_STATE.md (pointer/index to ratified state, not a duplicate of full rule/contract bodies -- restated explicitly, does not change the standing authority hierarchy: live DB + origin/main + Master State > Roadmap > conversation). Navigation = SOD1820_MASTER_ROADMAP.md. Implementation = origin/main (git). Acceptance Evidence = work_log narrative today; decision_ledger reuse remains PROPOSED for this domain (0 rows exist yet), not activated by this closure. Release State = git merge + Vercel deploy per deploy_on_request.\n\nExperience Law lifecycle (PROPOSED -> HUMAN-GATE APPROVED -> ACTIVE -> IMPLEMENTATION CONSUMES -> ACCEPTANCE VERIFIED -> RELEASE ELIGIBLE -> SUPERSEDED) maps onto existing nodes columns (rule_version/supersedes_version/depends_on/metadata) with zero schema change -- proven via the mobile_acceptance_law worked example, which required no changes to fit this model.\n\nEight Human-Gate decisions ZURIEL approved 2026-08-29 (work_log f4811264), applied by this closure: (1) identity_architecture_law promoted to nodes (this pass, rule_id='identity_architecture_law'), meaning preserved verbatim. (2) 16px-font/44px-touch-target accessibility principles APPROVED but NOT folded into mobile_acceptance_law until an owning law is decided -- kept as a named Extension Point, not activated as enforcement. (3) BrandTicker.jsx's duplicate marquee gets no grandfathering -- decided it must be corrected to reuse the canonical Marquee.jsx; the code fix itself is a separate, not-yet-scheduled implementation task, out of scope for this docs-only closure. (4) Date/number formatting (formatDateHe/HumanDateInput) stays Hebrew-first by design; locale-parameterization remains an Extension Point, not built. (5) research_contributions.author_contributor_id is preserved (not dropped from selects); wiring it in is deferred to a future Public Identity Projection decision. (6) Reality Stream attribution: underlying source-field provenance is preserved as-is; whether to render a visible \"by\" credit is deferred as a Projection-layer (UI) choice, not a Foundation blocker. (7) Master State §0 governance wording clarified additively (SOD1820_MASTER_STATE.md, this pass) to state Master State indexes/points to canonical owners rather than duplicating full rule/contract bodies, while explicitly preserving the standing authority hierarchy. (8) UI-copy localization confirmed EXTENSION POINT NOW under one Localization/Representation Governance shared with content_translation_law (distinct domains, not parallel systems, not built now).\n\nVerdict: FOUNDATION SUFFICIENT (contract-level). All prior MUST-FOUNDATION-NOW items are closed or reclassified per the above; none remain open pending an unresolved architecture question. Implementation of specific flagged items (BrandTicker fix, any future accessibility law, any future locale-parameterization) remains OPEN/FUTURE and does not block this Foundation closure, matching precedent (research_intake_foundation_contract_law, person_foundation_contract_law, corpus_admission_foundation_v1 all close at contract-level while implementation details remain open).\n\nWhat was explicitly NOT done: no Experience Center UI, no Design System, no i18n engine, no identity-table rewrite, no mass CSS refactor, no BrandTicker code fix, no schema/migration, no merge, no deploy.\n\n[UPDATE v2 · Human-Gate ZURIEL · 15.9.2026 — G2 FINAL COMPACTION, additive; EXTEND_EXISTING]\n1. EXPERIENCE IS PROJECTION. A surface/lens renders existing canonical identities, capabilities, research state and truth/access semantics; it does not create a second owner or truth. The historical `lens_law` principle “same information, different lenses” is absorbed here.\n2. LEGACY PRESENTATION DOES NOT BIND G3. Old Home/ticker/floating/share-placement/direction-lens/3D/room/gallery/layout recipes are archive/migration evidence only unless a capability is independently required by its owner. Preserve capability, not legacy geometry.\n3. CURRENT DIRECT CHILDREN SHOULD BE FEW. `canonical_ui_components_law` remains the reusable primitive owner; `mobile_acceptance_law` remains the release acceptance child. Visual language/naming/tokens route to the active Design Contract. Adaptive Research layout routes to Research Workspace/Layout owners.\n4. LENS/DIRECTION IS CONTEXTUAL. Experience may offer focused, overview, compare, reading, research, spatial or other projections as needed. No fixed “show everything” direction law, no hard-coded lens list and no lens-specific truth.\n5. NEW GLOBAL EXPERIENCE LAW BURDEN. A new active Experience rule is justified only when it introduces a reusable cross-surface semantic/acceptance invariant that cannot live in this owner, Design or an existing primitive. Page-local composition belongs in implementation/design, not the global rule tree.\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No Experience Center/store/registry.\n\n[UPDATE v3 · Human-Gate ZURIEL · 17.9.2026 — ONE VOICE / ADAPTIVE DEPTH · EXTEND_EXISTING]\n\n1. ONE VOICE, ADAPTIVE DEPTH. SOD1820 has one public product voice across surfaces. World, Heichal, Journey, Raziel, Inspector/Trace and public content may change depth, vocabulary and action-density according to the user's task, but they do not become separate personalities or separate truth systems. The base voice is natural Hebrew, calm, curious, accessible, discovery-oriented and compatible with wonder/spiritual resonance. As depth increases, language becomes more precise — not colder or more bureaucratic.\n\n2. SURFACE ROLE GRAMMAR — same Reality/Research OS, different question:\n- WORLD = “מה מתחבר?” Discovery/context/story around the active Anchor. Prefer connections, picture, sources, people, verses, events, hints, what opens next. Do not make laboratory/research-dashboard vocabulary the default opening language.\n- HEICHAL = “איך בודקים?” Action-first deep research. Exact verbs such as calculate, compare, inspect source, run method, search text/ELS, open Trace and add to research are appropriate. Deep capability is explicit, but backend/governance jargon is still not default user copy.\n- JOURNEY = “לאן זה מוביל?” Continuity, path, why this transition, what opened from here, exact return and next meaningful branch.\n- RAZIEL = “מה כדאי לעשות עכשיו?” One continuous companion voice governed by raziel_voice_law across every surface/channel. Personality stays fixed; context changes the proposed research action and depth.\n- INSPECTOR / TRACE / EXPLAIN-WHY = “למה ואיך בדיוק?” This is the proper place for precise research/technical vocabulary when it materially helps verification, provenance, replay, uncertainty or a decision.\n- POST / PUBLIC CONTENT = narrative/wonder/redemption-hint language under publishing_conventions; the public story remains warm and readable while exact truth/provenance stays underneath.\n\n3. PROGRESSIVE LANGUAGE DISCLOSURE. Default public surfaces lead with ordinary human language. Research terminology appears when the user enters research action or asks for depth. Internal terms such as Result Bundle, Evidence Independence, epistemic state, adapter/read-model/runtime and similar implementation/governance vocabulary must not dominate ordinary headings, badges or explanatory prose. They may appear in deep inspectors, Trace, Explain-Why, Admin/audit or another decision-relevant advanced context.\n\n4. SIMPLE DOES NOT MEAN VAGUE; DEEP DOES NOT MEAN COLD. User-facing copy may simplify wording but may not erase a decision-relevant distinction. Deep surfaces may expose exact states and uncertainty while still speaking in SOD1820's calm, curious voice.\n\n5. TRUTH-SAFE AT EVERY DEPTH. Beautiful/spiritual language never upgrades a hint, interpretation or connection into fact/verification/canonicality. Conversely, technical/research language never gives an item extra truth weight merely because it sounds rigorous. Semantic state continues to come only from Truth/Research/domain owners.\n\n6. ONE SEMANTIC ACTION, CONTEXTUAL COPY. A shared capability/action keeps one semantic identity across surfaces even when its visible wording adapts to context. Example: a canonical inspect/deepen action may be expressed more invitationally in World and more operationally in Heichal, without creating duplicate actions or behavior.\n\n7. NO VOICE SILOS / NO NEW LANGUAGE ENGINE. Do not create world_voice_law, heichal_voice_law, Journey voice store, copy registry, style engine or parallel localization system from this decision. Extend this Experience owner, the active Design Contract, publishing_conventions where content-specific, and raziel_voice_law for Raziel personality.\n\n8. IMPLEMENTATION DIRECTION. World copy should foreground discovery/connection rather than “research map/lab” framing. Heichal may intentionally use more research/action language because entering Heichal is an explicit deep-work choice. Inspector/Trace holds the densest precision. This lock changes governance only; runtime copy changes require their normal scoped implementation/review/release gates.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. Dependencies remain Research Workspace/Strategy, Truth Axes, Design, publishing_conventions and raziel_voice_law. No new owner/system/store/engine/schema.\n\n\n[UPDATE v4 · Human-Gate ZURIEL · 17.9.2026 — CONTEXTUAL MULTILINGUAL VOICE · EXTEND_EXISTING]\n\n1. SAME VOICE ACROSS LOCALES. Every supported locale carries the same SOD1820 product personality and the same contextual depth model. Translation/localization may adapt grammar, idiom, reading direction and culturally natural phrasing, but it must not turn one locale into a colder research product, a more mystical product, a more promotional product or a different personality. Language changes; semantic role and voice intent do not.\n\n2. CONTEXT SETS TONE, NOT LOCALE. World remains discovery-first in every language; Heichal remains research/action-first; Journey remains path/continuity; Raziel remains the same calm curious companion; Inspector/Trace remains the precision layer. A locale never overrides the current surface/task role.\n\n3. AUTHORED/PUBLIC STORY MAY GO FURTHER INTO WONDER. In authored posts, essays, teaching/storytelling and other intentionally narrative public content, SOD1820 may use a more wondrous, spiritual, mystical or poetic register when it fits the content and authorial intent. This is a contextual narrative choice, not the default UI voice and never a truth upgrade. publishing_conventions remains the content-specific owner.\n\n4. UI DEFAULT = CLEAR DISCOVERY. General product chrome, World landing, navigation, empty/error states and ordinary calls-to-action should prefer clear, natural, inviting language over laboratory jargon or mystical abstraction. The user should understand what can be seen or done before being asked to understand internal research vocabulary.\n\n5. DEPTH ESCALATES PRECISION. Deliberate research entry may increase technical/research vocabulary progressively. The deepest precision belongs in Inspector/Trace/Explain-Why/Admin/audit. Precision may increase; personality remains calm, curious and readable.\n\n6. TRUTH-SAFE IN EVERY LANGUAGE. Translation, poetic language, mystical language and technical language are all presentation. None may alter epistemic type, verification, governance, publication/access, evidence independence or Research Strength. If a distinction is decision-relevant, every locale must preserve it even when wording is simpler.\n\n7. ONE GOVERNANCE, NO PARALLEL COPY SYSTEM. This decision extends Experience Governance and composes with content_translation_law, publishing_conventions and raziel_voice_law. It authorizes no world_voice/heichal_voice laws, no locale-specific personality owners, no copy registry/style engine and no second localization system.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No new store/engine/registry/schema.\n\n\n[UPDATE v5 · Human-Gate ZURIEL · 17.9.2026 — UNIFIED EXPERIENCE PROJECTION · EXTEND_EXISTING]\nONE EXPERIENCE CORE → MANY RENDERERS. Audio, narration, captions, interactive motion, Canvas/2.5D/3D, Remotion, AI media and future XR are projections of the same SOD1820 identity and research semantics. MAXIMUM CAPABILITY BELOW · SELECTIVE ACTIVATION ABOVE.\nMASTER VOICE PROFILE is canonical; TTS provider/model is not. Canonical speech is calm, warm, intelligent, curious, natural, clear and context-aware. Substantive speech should preserve readable source text/transcript and timed captions when available. Ordinary pages do not surprise-autoplay long narration; immersive/Journey speech starts after explicit user start.\nCanonical motion vocabulary: REVEAL · PRESENCE · ORBIT · TRAVEL · FOCUS · SETTLE. Spatial ladder: S0 static 2D → S1 micro-light → S2 layered depth → S3 Canvas/2.5D → S4 true GPU 3D → S5 future XR. Fallback preserves identity, meaning, provenance, access and return context.\n3D may add camera, depth, lighting, material, fog, particles, spatial transitions/audio and interaction, but visual prominence never creates truth. Master Crown and protected Hebrew wordmark remain exact assets; any 3D derivative must be faithful, not AI-invented.\nSurface defaults: WORLD living discovery; HEICHAL fast research-first; JOURNEY/PORTAL strongest immersive/narrated projection after explicit start; RAZIEL primary conversational voice; ELS/spatial research 2.5D/3D when geometry helps; POSTS reading-first + optional listen; SHARE static-first + optional short motion; REMOTION export renderer of the same context.\nOWNER CHECK: extend Experience + Design + Raziel + Publishing + Translation only. Archived spatial_gematria_law stays historical and is not reactivated. No new Audio/3D/Motion/XR owner, store, registry or truth system.\n\n[UPDATE v6 · Human-Gate ZURIEL · 17.9.2026 — WORLD HUMAN PROJECTION / HUMAN-FIRST DISCOVERY · EXTEND_EXISTING]\n\n1. THE IMPORTANT FIRST. A World centered on an Anchor leads with a bounded “העיקר סביב…” projection: the few strongest decision-/understanding-changing items for this context (typically 4–7), composed from existing governed dimensions. It may include a central connection, strong gematria relation, verse/source, person/researcher, event or other materially relevant item. This is contextual prominence, not a truth tier and not a new store.\n\n2. TYPE-SPECIFIC HUMAN RENDERING. World does not render all material as generic rows. Gematria should show Expression + Method + Value + honest verification state when available; Verse should show exact reference + readable verse text + why it is here; Book/Source should show human title + exact locator when known; Person/Contributor should show human identity + the bounded relevance/count/context that brought them here. Same semantic object, renderer by type; no duplicated truth.\n\n3. HUMAN FIRST -> STRUCTURE SECOND -> RAW LAST. Default World/public projection uses natural human language. Raw statements, technical English, adapter names, UUIDs, source_ref strings, internal keys and backend/governance jargon do not dominate the opening layer. They remain preserved and addressable in Inspect / Trace / Explain-Why / Admin when useful. Hiding raw from the opening layer is presentation, never deletion or historical rewrite.\n\n4. HUMAN SOURCE LABELS. Public World renders provenance through a human source label when resolvable (book title, researcher/person, WhatsApp/channel/source name, post, date/locator), while the exact technical source_ref remains intact below for replay/inspection. A renderer may explain a ref; it may not replace or fabricate its provenance authority.\n\n5. PEOPLE / RESEARCHERS ARE A LENS OVER EXISTING IDENTITY + ATTRIBUTION. World may surface “אנשים וחוקרים” when materially relevant, including bounded counts/reasons. Contributor/person aliases should resolve through existing identity/attribution owners; do not create Zvi-specific or researcher-specific content stores. Attribution relevance never upgrades truth.\n\n6. DEFAULT WORLD INFORMATION ORDER. When the active Anchor has the material, the preferred human scan order is: עיקר -> גימטריות וביטויים -> פסוקים ומקורות -> אנשים וחוקרים -> חיבורים -> מחקר נוסף -> זמן. Empty/irrelevant families collapse rather than creating filler. This is a presentation default, not a rigid lifecycle or universal section mandate; context may reorder when Research Strength / contradiction / active task requires it.\n\n7. TIME LABELS MUST MATCH TEMPORAL SEMANTICS. research/provenance created_at alone must not be presented as if it were the real-world occurrence time. Use real occurred/published/discovered/admitted semantics when owned and available. If only research-ingestion provenance exists, label it honestly as “נוסף למחקר” / equivalent, not “ציר הזמן” of the event. Unknown temporal role stays unknown.\n\n8. “RECOMMENDED HERE” MUST CONSUME THE EXISTING CONTEXTUAL PROMINENCE OWNER. Recommended ordering should compose available Context Relevance, Research Strength, Human Curation, source/provenance quality, Relation Directness, Information Gain, temporal/task context and negative/contradictory decision-changing material under research_gold_hints_law. No universal truth score, no fixed Gold weight, no popularity=truth. Explain-Why must remain reconstructable.\n\nIMPLEMENTATION BOUNDARY. This lock changes Experience governance only. It authorizes no separate World content store, translation store, ranking engine, contributor store, timeline truth, mass data rewrite or publication/canonicalization. World consumes existing canonical readers / Universal Finding / Result Bundle / Research Context.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law, consuming research_gold_hints_law v3, reality_graph_law v8, truth_axes_foundation_law v3, content_translation_law and canonical UI/Design owners.\n\n[UPDATE v7 · Human-Gate ZURIEL · 18.9.2026 — GLOBAL 2029 CUTOVER FOUNDATION · EXTEND_EXISTING]\n6. WHOLE-SITE CUTOVER IS ONE FOUNDATION, NOT PAGE-LOCAL PRESERVATION. The 2029 replacement program inherits one global cutover contract for route identity, SEO/indexability, OG/share, semantic telemetry, Research Context/history/exact-return, access/site state, canonical readers and inbound/deep-link continuity. A redesigned surface consumes these owners; it does not recreate them locally.\n7. RENDERER MAY CHANGE; SEMANTIC IDENTITY MUST NOT DRIFT. Legacy geometry/components/chrome are not protected. Canonical identity, URLs/redirect semantics, access, provenance, truth/governance/publication distinctions and durable research/personal state are protected unless explicitly superseded by Human Gate.\n8. CAPABILITY PARITY BEFORE RETIREMENT. A legacy renderer may be retired only after each unique capability is classified as PRESERVE THROUGH EXISTING OWNER, REHOME, REPLACE PRESENTATION, RETIRE LEGACY-ONLY PRESENTATION or BLOCKED. Deleting old UI is never itself proof that capability can disappear.\n9. SEO/ROUTE/SHARE/TELEMETRY ARE SHARED CROSS-SURFACE OWNERS. 2029 surfaces must extend existing route/SEO/OG/share/telemetry owners and preserve canonical addresses/inbound value. No page-local SEO registry, share system, analytics family or route identity may be created merely because the renderer is new.\n10. RESEARCH/PERSONAL CONTINUITY IS LOSSLESS WITHIN AUTHORIZATION. Subject/root, selection, dimensions/lens, Journey/exact-return, history, saved/personal research and authorized context survive renderer transitions through existing Research OS owners. No 2029 Context/Workspace store.\n11. SURFACE CUTOVER MAY SHIP INDEPENDENTLY BUT MUST CONSUME ONE ACCEPTANCE GATE. Number, World, Heichal, Books, ELS, Posts, Community and future surfaces may reach readiness at different times; they do not define different preservation laws. Each public cutover must pass identity, route, SEO, sitemap, OG/share, telemetry, Research continuity, access, data-owner, deep-link, mobile/accessibility, failure-state, capability-parity, isolation and exact-head regression gates.\n12. NUMBER IS FIRST CONSUMER, NOT A SPECIAL ARCHITECTURE. /number preservation work proves the shared mechanism and must not become a Number-only layer.\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No new router/SEO registry/analytics store/share system/context store/graph/engine.\n\n[UPDATE v8 · Human-Gate ZURIEL · 2.10.2026 — CONTEXTUAL SIDECAR + UNIFIED SPATIAL METHOD STAGE · EXTEND_EXISTING]\n\n1. ONE CONTEXTUAL SIDECAR, NOT A SECOND CONTENT COLUMN. The left-side contextual area is a projection of the active Research Context / semantic focus. On Post, Topic, Home, Number and other 2029 surfaces it may show the local map/context while idle and temporarily become an inspector for the selected semantic object. It creates no content store, graph, calculator, topic system or page-local truth owner.\n\n2. REST / FOCUS / EXPLORE. REST shows a bounded map of the current surface/context at S0–S1. FOCUS is entered by selecting a meaningful object (gematria expression, number, verse/source, person, topic, ELS finding, etc.) and reuses the same sidecar area for a bounded inspector, normally S2 and at most one active S3 renderer. EXPLORE is explicit depth escalation to the owned destination such as Number/World/Heichal; the sidecar is never a miniature replacement for those destinations.\n\n3. MAP + INSPECTOR DO NOT FULLY COMPETE. The full context map and full rich inspector are not displayed simultaneously. When focus opens, the map collapses to a compact return/orientation affordance. Closing focus restores the map. This preserves orientation without visual overload.\n\n4. RESPONSIVE IDENTITY. Desktop projects the capability as the left Context Rail/Sidecar. Mobile projects the SAME focus/context as a Bottom Context Sheet, not as a second mobile system. Mobile REST is a compact cue; FOCUS opens a partial-height sheet by default while preserving the source context above; explicit deepen/drag may expand toward full height or navigate to the destination. Narrow/mobile never attempts to preserve desktop left-column geometry.\n\n5. ONE ACTIVE RICH RENDERER. Only the selected focus may run a rich spatial renderer. Inactive contexts remain static/cheap and may be unmounted. Trace/data required only by the focus is loaded lazily. Reduced-motion, low-power and unsupported-device fallbacks preserve meaning and actions without requiring Canvas/WebGL.\n\n6. UNIFIED SPATIAL METHOD STAGE. Gematria explanation has one reusable Experience capability across Number Method Inspector, Post focus, Context Sidecar, mobile Bottom Sheet and bounded Golden surfaces. The stage consumes canonical expression + method identity + canonical method trace/result/provenance and selects a method projection adapter. It does not calculate numeric truth locally and does not create per-surface calculators.\n\n7. METHOD PHYSICS / ONE LANGUAGE. Regular projects visible-letter value/body; Milui projects internal letter-name expansion; Mistater projects adjacent-letter relation/tension; Kadmi/משולש projects letter-potential triangle; משולש מילה projects cumulative-prefix formation. Other methods may add adapters only through the same stage and canonical method/engine owners. A method adapter changes representation, not truth identity.\n\n8. CANONICAL DATA BEFORE RICHNESS. Method-semantic data displayed as factual calculation detail must come from the canonical engine/method registry/trace contract. UI-local fixtures may exist only as explicitly transitional representation metadata and must not become a second source of method truth. For Milui specifically, displayed canonical letter-name spelling should ultimately come from the engine/registry trace contract; a local Hebrew-letter spelling map is not the final authority.\n\n9. CURRENT MILUI IMPLEMENTATIONS ARE INPUTS TO ONE TARGET, NOT TWO PRODUCTS. NumberCore2029/MethodInspector is the stronger interaction/home shell because it already consumes canonical trace, tabs, Raziel, Worlds and deep actions. LetterAnatomyGolden2029 is the stronger visual/anatomy proof because it exposes the intended letter-opening language. Neither remains a separate canonical Milui renderer after the shared stage exists. The target combines the Number Method Inspector shell with the richer anatomy renderer, fed only by canonical method data.\n\n10. DEPTH POLICY. Ordinary inline gematria in Posts/Topics remains S0–S1. Opening the calculation in Sidecar/Bottom Sheet defaults to S2 layered depth. Deliberate inspect/explore may reach S3 interactive 2.5D. S4 true GPU 3D is reserved for Heichal/Journey/ELS/spatial cases where geometry materially explains structure; it is not the default for every gematria.\n\n11. SAME OBJECT, MANY PROJECTIONS. A verified semantic object such as Expression + Method + Result remains one object while projected as inline text, sidecar focus, mobile sheet, Number inspector, Golden or Heichal depth. Navigation between these projections preserves identity, provenance, selection and exact return context.\n\n12. NO NEW OWNER. This decision extends Experience Governance + active Design Contract + canonical UI component discipline and consumes existing Research Context, gematria engine/method registry and Truth owners. Archived spatial_gematria_law remains historical and is not reactivated. No Sidecar Law/System/Store, Spatial Method Engine, calculator registry or second graph is created.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. Dependencies: SOD1820_DESIGN_CONTRACT_V1.md, canonical_ui_components_law, Research Context/Workspace, canonical_methods_registry_law, gematria_engine_law, Truth Axes. No new owner/system/store/engine/schema.\n",
+        "metadata": {
+          "pr": "https://github.com/zuriel337/sod1820/pull/234",
+          "branch": "claude/experience-governance-foundation-v1-1ki2s6",
+          "human_gate": "ZURIEL, 2026-08-29, work_log id f4811264-b47e-4020-b14f-bbfd187c1d04",
+          "audits_path": "audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md",
+          "compaction_v1": {
+            "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+            "owner_family": "experience_ui",
+            "classified_at": "2026-09-15",
+            "classification": "OWNER",
+            "canonical_owner": "experience_governance_foundation_v1_law"
+          },
+          "human_gate_v8": "ZURIEL 2026-10-02",
+          "owner_routing": {
+            "domain": "experience_ui",
+            "source": "SOD1820_MASTER_OWNER_INDEX",
+            "version": 1,
+            "confidence": "high",
+            "resolution": "RESOLVED",
+            "normalized_at": "2026-09-08",
+            "canonical_owner": "experience_governance_foundation_v1_law"
+          },
+          "promotes_rule": "identity_architecture_law",
+          "work_log_chain": [
+            "b26475aa (BEFORE)",
+            "c3ce5850 (pass1 AFTER)",
+            "86daaade (GPT review pass1)",
+            "5a4b6756 (pass2 AFTER)",
+            "f4811264 (ZURIEL approval)"
+          ],
+          "g3_disposition_v1": {
+            "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+            "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate",
+            "classified_at": "2026-09-15",
+            "classification": "KEEP_CANONICAL_OWNER",
+            "normal_startup": true,
+            "no_automatic_runtime_inheritance": true
+          },
+          "language_depth_v1": {
+            "date": "2026-09-17",
+            "principle": "ONE_VOICE_ADAPTIVE_DEPTH",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "work_log_before": "7ca5a708-eace-4864-923f-5ce8119dd4f5"
+          },
+          "project_codex_slug": "experience_governance_foundation_v1",
+          "language_context_v2": {
+            "date": "2026-09-17",
+            "principle": "ONE_VOICE_CONTEXTUAL_DEPTH_ACROSS_LOCALES",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING"
+          },
+          "contextual_sidecar_v1": {
+            "date": "2026-10-02",
+            "states": [
+              "REST",
+              "FOCUS",
+              "EXPLORE"
+            ],
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "no_new_system": true,
+            "mobile_projection": "bottom_context_sheet",
+            "desktop_projection": "left_context_sidecar",
+            "single_active_rich_renderer": true
+          },
+          "experience_projection_v1": {
+            "principle": "ONE_EXPERIENCE_CORE_MANY_RENDERERS",
+            "human_gate": "ZURIEL 2026-09-17",
+            "no_new_system": true,
+            "spatial_ladder": [
+              "S0_static_2d",
+              "S1_micro_motion_light",
+              "S2_layered_depth",
+              "S3_canvas_2_5d",
+              "S4_true_gpu_3d",
+              "S5_future_xr"
+            ],
+            "motion_vocabulary": [
+              "REVEAL",
+              "PRESENCE",
+              "ORBIT",
+              "TRAVEL",
+              "FOCUS",
+              "SETTLE"
+            ],
+            "tts_provider_canonical": false,
+            "master_voice_profile_canonical": true,
+            "maximum_capability_selective_activation": true
+          },
+          "world_human_projection_v1": {
+            "date": "2026-09-17",
+            "principle": "HUMAN_FIRST_STRUCTURE_SECOND_RAW_LAST",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "no_new_system": true,
+            "audit_work_log": "bdc8132f-857e-472a-9ce4-fc2aa503757f",
+            "recommendations_locked": 8
+          },
+          "unified_spatial_method_stage_v1": {
+            "principle": "ONE_METHOD_STAGE_MANY_SURFACES",
+            "explore_tier": "S3",
+            "milui_target": "Number Method Inspector shell + Letter Anatomy visual grammar + canonical spelling data",
+            "canonical_inputs": [
+              "expression",
+              "method_identity",
+              "canonical_trace",
+              "provenance"
+            ],
+            "default_open_tier": "S2",
+            "local_numeric_truth_forbidden": true,
+            "s4_reserved_for_material_geometry": true
+          },
+          "v7_global_2029_cutover_2026_09_18": {
+            "replace": "legacy_presentation_geometry",
+            "preserve": "capability_identity_provenance_access_continuity",
+            "strategy": "WHOLE_SITE_ONE_CUTOVER_FOUNDATION",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "contract_path": "docs/g3-2029-global-cutover-foundation-v1.md",
+            "no_new_router": true,
+            "no_new_seo_registry": true,
+            "no_new_share_system": true,
+            "no_new_context_store": true,
+            "no_new_analytics_store": true,
+            "number_is_first_consumer_only": true
+          }
+        },
+        "is_active": true,
+        "created_at": "2026-10-02 01:13:16.479287+00",
+        "rule_id": "experience_governance_foundation_v1_law",
+        "rule_version": 8,
+        "depends_on": [
+          "sod1820_canonical_identity_law",
+          "raziel_voice_law",
+          "post_system_voice_law",
+          "content_translation_law",
+          "research_gold_hints_law",
+          "reality_graph_law",
+          "truth_axes_foundation_law"
+        ],
+        "supersedes_version": 7,
+        "weight": 1,
+        "hebrew_date": null,
+        "axis_theme": null,
+        "gallery_id": null,
+        "identity_key": null
+      },
+      "candidate": {
+        "type": "rule",
+        "label": "Experience Governance v9 — Contextual Sidecar + Unified Spatial Method Stage",
+        "description": "Closes the Experience Governance Foundation domain per foundation_closure_protocol_v1 (Human-Gate ZURIEL, 2026-08-29, work_log id f4811264). Scope: documentation/naming-convention + ownership-assignment only. 0 new schema/table/engine/ledger. Full body in project_codex.slug='experience_governance_foundation_v1' and audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md.\n\nCanonical Ownership Matrix (summary): Decision = the Human-Gate outcome represented in the canonical artifact it produces (never work_log, which is provenance-only per work_log_authority_law). Rule/Law = nodes type='rule' (this table). Long-form Contract = project_codex (live once INSERTed) or audits/<slug> (canonical only once merged to main / registered in project_codex — never a bare unmerged branch). Project State = SOD1820_MASTER_STATE.md (pointer/index to ratified state, not a duplicate of full rule/contract bodies -- restated explicitly, does not change the standing authority hierarchy: live DB + origin/main + Master State > Roadmap > conversation). Navigation = SOD1820_MASTER_ROADMAP.md. Implementation = origin/main (git). Acceptance Evidence = work_log narrative today; decision_ledger reuse remains PROPOSED for this domain (0 rows exist yet), not activated by this closure. Release State = git merge + Vercel deploy per deploy_on_request.\n\nExperience Law lifecycle (PROPOSED -> HUMAN-GATE APPROVED -> ACTIVE -> IMPLEMENTATION CONSUMES -> ACCEPTANCE VERIFIED -> RELEASE ELIGIBLE -> SUPERSEDED) maps onto existing nodes columns (rule_version/supersedes_version/depends_on/metadata) with zero schema change -- proven via the mobile_acceptance_law worked example, which required no changes to fit this model.\n\nEight Human-Gate decisions ZURIEL approved 2026-08-29 (work_log f4811264), applied by this closure: (1) identity_architecture_law promoted to nodes (this pass, rule_id='identity_architecture_law'), meaning preserved verbatim. (2) 16px-font/44px-touch-target accessibility principles APPROVED but NOT folded into mobile_acceptance_law until an owning law is decided -- kept as a named Extension Point, not activated as enforcement. (3) BrandTicker.jsx's duplicate marquee gets no grandfathering -- decided it must be corrected to reuse the canonical Marquee.jsx; the code fix itself is a separate, not-yet-scheduled implementation task, out of scope for this docs-only closure. (4) Date/number formatting (formatDateHe/HumanDateInput) stays Hebrew-first by design; locale-parameterization remains an Extension Point, not built. (5) research_contributions.author_contributor_id is preserved (not dropped from selects); wiring it in is deferred to a future Public Identity Projection decision. (6) Reality Stream attribution: underlying source-field provenance is preserved as-is; whether to render a visible \"by\" credit is deferred as a Projection-layer (UI) choice, not a Foundation blocker. (7) Master State §0 governance wording clarified additively (SOD1820_MASTER_STATE.md, this pass) to state Master State indexes/points to canonical owners rather than duplicating full rule/contract bodies, while explicitly preserving the standing authority hierarchy. (8) UI-copy localization confirmed EXTENSION POINT NOW under one Localization/Representation Governance shared with content_translation_law (distinct domains, not parallel systems, not built now).\n\nVerdict: FOUNDATION SUFFICIENT (contract-level). All prior MUST-FOUNDATION-NOW items are closed or reclassified per the above; none remain open pending an unresolved architecture question. Implementation of specific flagged items (BrandTicker fix, any future accessibility law, any future locale-parameterization) remains OPEN/FUTURE and does not block this Foundation closure, matching precedent (research_intake_foundation_contract_law, person_foundation_contract_law, corpus_admission_foundation_v1 all close at contract-level while implementation details remain open).\n\nWhat was explicitly NOT done: no Experience Center UI, no Design System, no i18n engine, no identity-table rewrite, no mass CSS refactor, no BrandTicker code fix, no schema/migration, no merge, no deploy.\n\n[UPDATE v2 · Human-Gate ZURIEL · 15.9.2026 — G2 FINAL COMPACTION, additive; EXTEND_EXISTING]\n1. EXPERIENCE IS PROJECTION. A surface/lens renders existing canonical identities, capabilities, research state and truth/access semantics; it does not create a second owner or truth. The historical `lens_law` principle “same information, different lenses” is absorbed here.\n2. LEGACY PRESENTATION DOES NOT BIND G3. Old Home/ticker/floating/share-placement/direction-lens/3D/room/gallery/layout recipes are archive/migration evidence only unless a capability is independently required by its owner. Preserve capability, not legacy geometry.\n3. CURRENT DIRECT CHILDREN SHOULD BE FEW. `canonical_ui_components_law` remains the reusable primitive owner; `mobile_acceptance_law` remains the release acceptance child. Visual language/naming/tokens route to the active Design Contract. Adaptive Research layout routes to Research Workspace/Layout owners.\n4. LENS/DIRECTION IS CONTEXTUAL. Experience may offer focused, overview, compare, reading, research, spatial or other projections as needed. No fixed “show everything” direction law, no hard-coded lens list and no lens-specific truth.\n5. NEW GLOBAL EXPERIENCE LAW BURDEN. A new active Experience rule is justified only when it introduces a reusable cross-surface semantic/acceptance invariant that cannot live in this owner, Design or an existing primitive. Page-local composition belongs in implementation/design, not the global rule tree.\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No Experience Center/store/registry.\n\n[UPDATE v3 · Human-Gate ZURIEL · 17.9.2026 — ONE VOICE / ADAPTIVE DEPTH · EXTEND_EXISTING]\n\n1. ONE VOICE, ADAPTIVE DEPTH. SOD1820 has one public product voice across surfaces. World, Heichal, Journey, Raziel, Inspector/Trace and public content may change depth, vocabulary and action-density according to the user's task, but they do not become separate personalities or separate truth systems. The base voice is natural Hebrew, calm, curious, accessible, discovery-oriented and compatible with wonder/spiritual resonance. As depth increases, language becomes more precise — not colder or more bureaucratic.\n\n2. SURFACE ROLE GRAMMAR — same Reality/Research OS, different question:\n- WORLD = “מה מתחבר?” Discovery/context/story around the active Anchor. Prefer connections, picture, sources, people, verses, events, hints, what opens next. Do not make laboratory/research-dashboard vocabulary the default opening language.\n- HEICHAL = “איך בודקים?” Action-first deep research. Exact verbs such as calculate, compare, inspect source, run method, search text/ELS, open Trace and add to research are appropriate. Deep capability is explicit, but backend/governance jargon is still not default user copy.\n- JOURNEY = “לאן זה מוביל?” Continuity, path, why this transition, what opened from here, exact return and next meaningful branch.\n- RAZIEL = “מה כדאי לעשות עכשיו?” One continuous companion voice governed by raziel_voice_law across every surface/channel. Personality stays fixed; context changes the proposed research action and depth.\n- INSPECTOR / TRACE / EXPLAIN-WHY = “למה ואיך בדיוק?” This is the proper place for precise research/technical vocabulary when it materially helps verification, provenance, replay, uncertainty or a decision.\n- POST / PUBLIC CONTENT = narrative/wonder/redemption-hint language under publishing_conventions; the public story remains warm and readable while exact truth/provenance stays underneath.\n\n3. PROGRESSIVE LANGUAGE DISCLOSURE. Default public surfaces lead with ordinary human language. Research terminology appears when the user enters research action or asks for depth. Internal terms such as Result Bundle, Evidence Independence, epistemic state, adapter/read-model/runtime and similar implementation/governance vocabulary must not dominate ordinary headings, badges or explanatory prose. They may appear in deep inspectors, Trace, Explain-Why, Admin/audit or another decision-relevant advanced context.\n\n4. SIMPLE DOES NOT MEAN VAGUE; DEEP DOES NOT MEAN COLD. User-facing copy may simplify wording but may not erase a decision-relevant distinction. Deep surfaces may expose exact states and uncertainty while still speaking in SOD1820's calm, curious voice.\n\n5. TRUTH-SAFE AT EVERY DEPTH. Beautiful/spiritual language never upgrades a hint, interpretation or connection into fact/verification/canonicality. Conversely, technical/research language never gives an item extra truth weight merely because it sounds rigorous. Semantic state continues to come only from Truth/Research/domain owners.\n\n6. ONE SEMANTIC ACTION, CONTEXTUAL COPY. A shared capability/action keeps one semantic identity across surfaces even when its visible wording adapts to context. Example: a canonical inspect/deepen action may be expressed more invitationally in World and more operationally in Heichal, without creating duplicate actions or behavior.\n\n7. NO VOICE SILOS / NO NEW LANGUAGE ENGINE. Do not create world_voice_law, heichal_voice_law, Journey voice store, copy registry, style engine or parallel localization system from this decision. Extend this Experience owner, the active Design Contract, publishing_conventions where content-specific, and raziel_voice_law for Raziel personality.\n\n8. IMPLEMENTATION DIRECTION. World copy should foreground discovery/connection rather than “research map/lab” framing. Heichal may intentionally use more research/action language because entering Heichal is an explicit deep-work choice. Inspector/Trace holds the densest precision. This lock changes governance only; runtime copy changes require their normal scoped implementation/review/release gates.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. Dependencies remain Research Workspace/Strategy, Truth Axes, Design, publishing_conventions and raziel_voice_law. No new owner/system/store/engine/schema.\n\n\n[UPDATE v4 · Human-Gate ZURIEL · 17.9.2026 — CONTEXTUAL MULTILINGUAL VOICE · EXTEND_EXISTING]\n\n1. SAME VOICE ACROSS LOCALES. Every supported locale carries the same SOD1820 product personality and the same contextual depth model. Translation/localization may adapt grammar, idiom, reading direction and culturally natural phrasing, but it must not turn one locale into a colder research product, a more mystical product, a more promotional product or a different personality. Language changes; semantic role and voice intent do not.\n\n2. CONTEXT SETS TONE, NOT LOCALE. World remains discovery-first in every language; Heichal remains research/action-first; Journey remains path/continuity; Raziel remains the same calm curious companion; Inspector/Trace remains the precision layer. A locale never overrides the current surface/task role.\n\n3. AUTHORED/PUBLIC STORY MAY GO FURTHER INTO WONDER. In authored posts, essays, teaching/storytelling and other intentionally narrative public content, SOD1820 may use a more wondrous, spiritual, mystical or poetic register when it fits the content and authorial intent. This is a contextual narrative choice, not the default UI voice and never a truth upgrade. publishing_conventions remains the content-specific owner.\n\n4. UI DEFAULT = CLEAR DISCOVERY. General product chrome, World landing, navigation, empty/error states and ordinary calls-to-action should prefer clear, natural, inviting language over laboratory jargon or mystical abstraction. The user should understand what can be seen or done before being asked to understand internal research vocabulary.\n\n5. DEPTH ESCALATES PRECISION. Deliberate research entry may increase technical/research vocabulary progressively. The deepest precision belongs in Inspector/Trace/Explain-Why/Admin/audit. Precision may increase; personality remains calm, curious and readable.\n\n6. TRUTH-SAFE IN EVERY LANGUAGE. Translation, poetic language, mystical language and technical language are all presentation. None may alter epistemic type, verification, governance, publication/access, evidence independence or Research Strength. If a distinction is decision-relevant, every locale must preserve it even when wording is simpler.\n\n7. ONE GOVERNANCE, NO PARALLEL COPY SYSTEM. This decision extends Experience Governance and composes with content_translation_law, publishing_conventions and raziel_voice_law. It authorizes no world_voice/heichal_voice laws, no locale-specific personality owners, no copy registry/style engine and no second localization system.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No new store/engine/registry/schema.\n\n\n[UPDATE v5 · Human-Gate ZURIEL · 17.9.2026 — UNIFIED EXPERIENCE PROJECTION · EXTEND_EXISTING]\nONE EXPERIENCE CORE → MANY RENDERERS. Audio, narration, captions, interactive motion, Canvas/2.5D/3D, Remotion, AI media and future XR are projections of the same SOD1820 identity and research semantics. MAXIMUM CAPABILITY BELOW · SELECTIVE ACTIVATION ABOVE.\nMASTER VOICE PROFILE is canonical; TTS provider/model is not. Canonical speech is calm, warm, intelligent, curious, natural, clear and context-aware. Substantive speech should preserve readable source text/transcript and timed captions when available. Ordinary pages do not surprise-autoplay long narration; immersive/Journey speech starts after explicit user start.\nCanonical motion vocabulary: REVEAL · PRESENCE · ORBIT · TRAVEL · FOCUS · SETTLE. Spatial ladder: S0 static 2D → S1 micro-light → S2 layered depth → S3 Canvas/2.5D → S4 true GPU 3D → S5 future XR. Fallback preserves identity, meaning, provenance, access and return context.\n3D may add camera, depth, lighting, material, fog, particles, spatial transitions/audio and interaction, but visual prominence never creates truth. Master Crown and protected Hebrew wordmark remain exact assets; any 3D derivative must be faithful, not AI-invented.\nSurface defaults: WORLD living discovery; HEICHAL fast research-first; JOURNEY/PORTAL strongest immersive/narrated projection after explicit start; RAZIEL primary conversational voice; ELS/spatial research 2.5D/3D when geometry helps; POSTS reading-first + optional listen; SHARE static-first + optional short motion; REMOTION export renderer of the same context.\nOWNER CHECK: extend Experience + Design + Raziel + Publishing + Translation only. Archived spatial_gematria_law stays historical and is not reactivated. No new Audio/3D/Motion/XR owner, store, registry or truth system.\n\n[UPDATE v6 · Human-Gate ZURIEL · 17.9.2026 — WORLD HUMAN PROJECTION / HUMAN-FIRST DISCOVERY · EXTEND_EXISTING]\n\n1. THE IMPORTANT FIRST. A World centered on an Anchor leads with a bounded “העיקר סביב…” projection: the few strongest decision-/understanding-changing items for this context (typically 4–7), composed from existing governed dimensions. It may include a central connection, strong gematria relation, verse/source, person/researcher, event or other materially relevant item. This is contextual prominence, not a truth tier and not a new store.\n\n2. TYPE-SPECIFIC HUMAN RENDERING. World does not render all material as generic rows. Gematria should show Expression + Method + Value + honest verification state when available; Verse should show exact reference + readable verse text + why it is here; Book/Source should show human title + exact locator when known; Person/Contributor should show human identity + the bounded relevance/count/context that brought them here. Same semantic object, renderer by type; no duplicated truth.\n\n3. HUMAN FIRST -> STRUCTURE SECOND -> RAW LAST. Default World/public projection uses natural human language. Raw statements, technical English, adapter names, UUIDs, source_ref strings, internal keys and backend/governance jargon do not dominate the opening layer. They remain preserved and addressable in Inspect / Trace / Explain-Why / Admin when useful. Hiding raw from the opening layer is presentation, never deletion or historical rewrite.\n\n4. HUMAN SOURCE LABELS. Public World renders provenance through a human source label when resolvable (book title, researcher/person, WhatsApp/channel/source name, post, date/locator), while the exact technical source_ref remains intact below for replay/inspection. A renderer may explain a ref; it may not replace or fabricate its provenance authority.\n\n5. PEOPLE / RESEARCHERS ARE A LENS OVER EXISTING IDENTITY + ATTRIBUTION. World may surface “אנשים וחוקרים” when materially relevant, including bounded counts/reasons. Contributor/person aliases should resolve through existing identity/attribution owners; do not create Zvi-specific or researcher-specific content stores. Attribution relevance never upgrades truth.\n\n6. DEFAULT WORLD INFORMATION ORDER. When the active Anchor has the material, the preferred human scan order is: עיקר -> גימטריות וביטויים -> פסוקים ומקורות -> אנשים וחוקרים -> חיבורים -> מחקר נוסף -> זמן. Empty/irrelevant families collapse rather than creating filler. This is a presentation default, not a rigid lifecycle or universal section mandate; context may reorder when Research Strength / contradiction / active task requires it.\n\n7. TIME LABELS MUST MATCH TEMPORAL SEMANTICS. research/provenance created_at alone must not be presented as if it were the real-world occurrence time. Use real occurred/published/discovered/admitted semantics when owned and available. If only research-ingestion provenance exists, label it honestly as “נוסף למחקר” / equivalent, not “ציר הזמן” of the event. Unknown temporal role stays unknown.\n\n8. “RECOMMENDED HERE” MUST CONSUME THE EXISTING CONTEXTUAL PROMINENCE OWNER. Recommended ordering should compose available Context Relevance, Research Strength, Human Curation, source/provenance quality, Relation Directness, Information Gain, temporal/task context and negative/contradictory decision-changing material under research_gold_hints_law. No universal truth score, no fixed Gold weight, no popularity=truth. Explain-Why must remain reconstructable.\n\nIMPLEMENTATION BOUNDARY. This lock changes Experience governance only. It authorizes no separate World content store, translation store, ranking engine, contributor store, timeline truth, mass data rewrite or publication/canonicalization. World consumes existing canonical readers / Universal Finding / Result Bundle / Research Context.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law, consuming research_gold_hints_law v3, reality_graph_law v8, truth_axes_foundation_law v3, content_translation_law and canonical UI/Design owners.\n\n[UPDATE v7 · Human-Gate ZURIEL · 18.9.2026 — GLOBAL 2029 CUTOVER FOUNDATION · EXTEND_EXISTING]\n6. WHOLE-SITE CUTOVER IS ONE FOUNDATION, NOT PAGE-LOCAL PRESERVATION. The 2029 replacement program inherits one global cutover contract for route identity, SEO/indexability, OG/share, semantic telemetry, Research Context/history/exact-return, access/site state, canonical readers and inbound/deep-link continuity. A redesigned surface consumes these owners; it does not recreate them locally.\n7. RENDERER MAY CHANGE; SEMANTIC IDENTITY MUST NOT DRIFT. Legacy geometry/components/chrome are not protected. Canonical identity, URLs/redirect semantics, access, provenance, truth/governance/publication distinctions and durable research/personal state are protected unless explicitly superseded by Human Gate.\n8. CAPABILITY PARITY BEFORE RETIREMENT. A legacy renderer may be retired only after each unique capability is classified as PRESERVE THROUGH EXISTING OWNER, REHOME, REPLACE PRESENTATION, RETIRE LEGACY-ONLY PRESENTATION or BLOCKED. Deleting old UI is never itself proof that capability can disappear.\n9. SEO/ROUTE/SHARE/TELEMETRY ARE SHARED CROSS-SURFACE OWNERS. 2029 surfaces must extend existing route/SEO/OG/share/telemetry owners and preserve canonical addresses/inbound value. No page-local SEO registry, share system, analytics family or route identity may be created merely because the renderer is new.\n10. RESEARCH/PERSONAL CONTINUITY IS LOSSLESS WITHIN AUTHORIZATION. Subject/root, selection, dimensions/lens, Journey/exact-return, history, saved/personal research and authorized context survive renderer transitions through existing Research OS owners. No 2029 Context/Workspace store.\n11. SURFACE CUTOVER MAY SHIP INDEPENDENTLY BUT MUST CONSUME ONE ACCEPTANCE GATE. Number, World, Heichal, Books, ELS, Posts, Community and future surfaces may reach readiness at different times; they do not define different preservation laws. Each public cutover must pass identity, route, SEO, sitemap, OG/share, telemetry, Research continuity, access, data-owner, deep-link, mobile/accessibility, failure-state, capability-parity, isolation and exact-head regression gates.\n12. NUMBER IS FIRST CONSUMER, NOT A SPECIAL ARCHITECTURE. /number preservation work proves the shared mechanism and must not become a Number-only layer.\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. No new router/SEO registry/analytics store/share system/context store/graph/engine.\n\n[UPDATE v8 · Human-Gate ZURIEL · 2.10.2026 — CONTEXTUAL SIDECAR + UNIFIED SPATIAL METHOD STAGE · EXTEND_EXISTING]\n\n1. ONE CONTEXTUAL SIDECAR, NOT A SECOND CONTENT COLUMN. The left-side contextual area is a projection of the active Research Context / semantic focus. On Post, Topic, Home, Number and other 2029 surfaces it may show the local map/context while idle and temporarily become an inspector for the selected semantic object. It creates no content store, graph, calculator, topic system or page-local truth owner.\n\n2. REST / FOCUS / EXPLORE. REST shows a bounded map of the current surface/context at S0–S1. FOCUS is entered by selecting a meaningful object (gematria expression, number, verse/source, person, topic, ELS finding, etc.) and reuses the same sidecar area for a bounded inspector, normally S2 and at most one active S3 renderer. EXPLORE is explicit depth escalation to the owned destination such as Number/World/Heichal; the sidecar is never a miniature replacement for those destinations.\n\n3. MAP + INSPECTOR DO NOT FULLY COMPETE. The full context map and full rich inspector are not displayed simultaneously. When focus opens, the map collapses to a compact return/orientation affordance. Closing focus restores the map. This preserves orientation without visual overload.\n\n4. RESPONSIVE IDENTITY. Desktop projects the capability as the left Context Rail/Sidecar. Mobile projects the SAME focus/context as a Bottom Context Sheet, not as a second mobile system. Mobile REST is a compact cue; FOCUS opens a partial-height sheet by default while preserving the source context above; explicit deepen/drag may expand toward full height or navigate to the destination. Narrow/mobile never attempts to preserve desktop left-column geometry.\n\n5. ONE ACTIVE RICH RENDERER. Only the selected focus may run a rich spatial renderer. Inactive contexts remain static/cheap and may be unmounted. Trace/data required only by the focus is loaded lazily. Reduced-motion, low-power and unsupported-device fallbacks preserve meaning and actions without requiring Canvas/WebGL.\n\n6. UNIFIED SPATIAL METHOD STAGE. Gematria explanation has one reusable Experience capability across Number Method Inspector, Post focus, Context Sidecar, mobile Bottom Sheet and bounded Golden surfaces. The stage consumes canonical expression + method identity + canonical method trace/result/provenance and selects a method projection adapter. It does not calculate numeric truth locally and does not create per-surface calculators.\n\n7. METHOD PHYSICS / ONE LANGUAGE. Regular projects visible-letter value/body; Milui projects internal letter-name expansion; Mistater projects adjacent-letter relation/tension; Kadmi/משולש projects letter-potential triangle; משולש מילה projects cumulative-prefix formation. Other methods may add adapters only through the same stage and canonical method/engine owners. A method adapter changes representation, not truth identity.\n\n8. CANONICAL DATA BEFORE RICHNESS. Method-semantic data displayed as factual calculation detail must come from the canonical engine/method registry/trace contract. UI-local fixtures may exist only as explicitly transitional representation metadata and must not become a second source of method truth. For Milui specifically, displayed canonical letter-name spelling should ultimately come from the engine/registry trace contract; a local Hebrew-letter spelling map is not the final authority.\n\n9. CURRENT MILUI IMPLEMENTATIONS ARE INPUTS TO ONE TARGET, NOT TWO PRODUCTS. NumberCore2029/MethodInspector is the stronger interaction/home shell because it already consumes canonical trace, tabs, Raziel, Worlds and deep actions. LetterAnatomyGolden2029 is the stronger visual/anatomy proof because it exposes the intended letter-opening language. Neither remains a separate canonical Milui renderer after the shared stage exists. The target combines the Number Method Inspector shell with the richer anatomy renderer, fed only by canonical method data.\n\n10. DEPTH POLICY. Ordinary inline gematria in Posts/Topics remains S0–S1. Opening the calculation in Sidecar/Bottom Sheet defaults to S2 layered depth. Deliberate inspect/explore may reach S3 interactive 2.5D. S4 true GPU 3D is reserved for Heichal/Journey/ELS/spatial cases where geometry materially explains structure; it is not the default for every gematria.\n\n11. SAME OBJECT, MANY PROJECTIONS. A verified semantic object such as Expression + Method + Result remains one object while projected as inline text, sidecar focus, mobile sheet, Number inspector, Golden or Heichal depth. Navigation between these projections preserves identity, provenance, selection and exact return context.\n\n12. NO NEW OWNER. This decision extends Experience Governance + active Design Contract + canonical UI component discipline and consumes existing Research Context, gematria engine/method registry and Truth owners. Archived spatial_gematria_law remains historical and is not reactivated. No Sidecar Law/System/Store, Spatial Method Engine, calculator registry or second graph is created.\n\nOWNER CHECK: EXTEND_EXISTING experience_governance_foundation_v1_law. Dependencies: SOD1820_DESIGN_CONTRACT_V2.md (active 2029 web visual contract; V1 remains historical/Legacy provenance and all Brand Core protections remain in force), canonical_ui_components_law, Research Context/Workspace, canonical_methods_registry_law, gematria_engine_law, Truth Axes. No new owner/system/store/engine/schema.\n",
+        "metadata": {
+          "pr": "https://github.com/zuriel337/sod1820/pull/234",
+          "branch": "claude/experience-governance-foundation-v1-1ki2s6",
+          "human_gate": "ZURIEL, 2026-08-29, work_log id f4811264-b47e-4020-b14f-bbfd187c1d04",
+          "audits_path": "audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md",
+          "compaction_v1": {
+            "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+            "owner_family": "experience_ui",
+            "classified_at": "2026-09-15",
+            "classification": "OWNER",
+            "canonical_owner": "experience_governance_foundation_v1_law"
+          },
+          "human_gate_v8": "ZURIEL 2026-10-02",
+          "owner_routing": {
+            "domain": "experience_ui",
+            "source": "SOD1820_MASTER_OWNER_INDEX",
+            "version": 1,
+            "confidence": "high",
+            "resolution": "RESOLVED",
+            "normalized_at": "2026-09-08",
+            "canonical_owner": "experience_governance_foundation_v1_law"
+          },
+          "promotes_rule": "identity_architecture_law",
+          "work_log_chain": [
+            "b26475aa (BEFORE)",
+            "c3ce5850 (pass1 AFTER)",
+            "86daaade (GPT review pass1)",
+            "5a4b6756 (pass2 AFTER)",
+            "f4811264 (ZURIEL approval)"
+          ],
+          "g3_disposition_v1": {
+            "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+            "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate",
+            "classified_at": "2026-09-15",
+            "classification": "KEEP_CANONICAL_OWNER",
+            "normal_startup": true,
+            "no_automatic_runtime_inheritance": true
+          },
+          "language_depth_v1": {
+            "date": "2026-09-17",
+            "principle": "ONE_VOICE_ADAPTIVE_DEPTH",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "work_log_before": "7ca5a708-eace-4864-923f-5ce8119dd4f5"
+          },
+          "project_codex_slug": "experience_governance_foundation_v1",
+          "language_context_v2": {
+            "date": "2026-09-17",
+            "principle": "ONE_VOICE_CONTEXTUAL_DEPTH_ACROSS_LOCALES",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING"
+          },
+          "contextual_sidecar_v1": {
+            "date": "2026-10-02",
+            "states": [
+              "REST",
+              "FOCUS",
+              "EXPLORE"
+            ],
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "no_new_system": true,
+            "mobile_projection": "bottom_context_sheet",
+            "desktop_projection": "left_context_sidecar",
+            "single_active_rich_renderer": true
+          },
+          "experience_projection_v1": {
+            "principle": "ONE_EXPERIENCE_CORE_MANY_RENDERERS",
+            "human_gate": "ZURIEL 2026-09-17",
+            "no_new_system": true,
+            "spatial_ladder": [
+              "S0_static_2d",
+              "S1_micro_motion_light",
+              "S2_layered_depth",
+              "S3_canvas_2_5d",
+              "S4_true_gpu_3d",
+              "S5_future_xr"
+            ],
+            "motion_vocabulary": [
+              "REVEAL",
+              "PRESENCE",
+              "ORBIT",
+              "TRAVEL",
+              "FOCUS",
+              "SETTLE"
+            ],
+            "tts_provider_canonical": false,
+            "master_voice_profile_canonical": true,
+            "maximum_capability_selective_activation": true
+          },
+          "world_human_projection_v1": {
+            "date": "2026-09-17",
+            "principle": "HUMAN_FIRST_STRUCTURE_SECOND_RAW_LAST",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "no_new_system": true,
+            "audit_work_log": "bdc8132f-857e-472a-9ce4-fc2aa503757f",
+            "recommendations_locked": 8
+          },
+          "unified_spatial_method_stage_v1": {
+            "principle": "ONE_METHOD_STAGE_MANY_SURFACES",
+            "explore_tier": "S3",
+            "milui_target": "Number Method Inspector shell + Letter Anatomy visual grammar + canonical spelling data",
+            "canonical_inputs": [
+              "expression",
+              "method_identity",
+              "canonical_trace",
+              "provenance"
+            ],
+            "default_open_tier": "S2",
+            "local_numeric_truth_forbidden": true,
+            "s4_reserved_for_material_geometry": true
+          },
+          "v7_global_2029_cutover_2026_09_18": {
+            "replace": "legacy_presentation_geometry",
+            "preserve": "capability_identity_provenance_access_continuity",
+            "strategy": "WHOLE_SITE_ONE_CUTOVER_FOUNDATION",
+            "human_gate": "ZURIEL",
+            "owner_check": "EXTEND_EXISTING",
+            "contract_path": "docs/g3-2029-global-cutover-foundation-v1.md",
+            "no_new_router": true,
+            "no_new_seo_registry": true,
+            "no_new_share_system": true,
+            "no_new_context_store": true,
+            "no_new_analytics_store": true,
+            "number_is_first_consumer_only": true
+          },
+          "g1_routing_amendment": {
+            "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1",
+            "source_node_id": "c98f173c-49a6-4219-bbf4-ef52f9b30681",
+            "source_rule_version": 8,
+            "scope": "2029_web_design_dependency_only",
+            "status": "PREPARED_NOT_APPLIED",
+            "human_gate_approval": null
+          }
+        },
+        "rule_id": "experience_governance_foundation_v1_law",
+        "rule_version": 9,
+        "depends_on": [
+          "sod1820_canonical_identity_law",
+          "raziel_voice_law",
+          "post_system_voice_law",
+          "content_translation_law",
+          "research_gold_hints_law",
+          "reality_graph_law",
+          "truth_axes_foundation_law"
+        ],
+        "supersedes_version": 8,
+        "weight": 1,
+        "hebrew_date": null,
+        "axis_theme": null,
+        "gallery_id": null,
+        "identity_key": null,
+        "is_active": false
+      },
+      "source_row_sha256": "eea0b4c5bf124a7214fab31d1d337ce6e22b4404163f170075b4c4979c1e6edc",
+      "candidate_row_sha256": "7442c584dfde7243c0d8854c1036440329df7aa2a0b3fce217249f41556ac770"
+    }
+  ],
+  "application_requirements": [
+    "Independent main review of exact packet and hashes; explicit Human Gate for live successors, separate from branch preparation.",
+    "Fresh schema/constraint/active-version/duplicate-writer check; versions 3 and 9 are suggestions, stop and reprepare on any intervening version or row drift.",
+    "One transaction under the existing authorized rule-write owner: create new rows with fresh IDs/timestamps, preserving old rows and all untouched fields; deactivate only exact predecessor IDs and activate exactly one successor per family. No history deletion; no onboarding/Brand owner writes.",
+    "Candidate is_active=false denotes preparation only; authorized owner sets true only inside the reviewed transaction. Existing metadata approval records remain predecessor provenance, never successor approval.",
+    "Reverify full live successor bodies, metadata lineage, one active row/family, protected Brand and inactive onboarding; record applied IDs/versions in work_log.",
+    "Release synchronized pointers through an independently approved code gate; run 8 genuine cold-entry GPT/Claude replays. G1 stays open until those pass."
+  ]
+}

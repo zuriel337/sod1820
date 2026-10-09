@@ -1654,3 +1654,43 @@
   .sod29-world-primary-copy h3{font-size:17px}
   .sod29-world-primary-item.is-lead .sod29-world-primary-copy h3{font-size:23px}
 }
+
+/* Original research wording travels with the same Universal Finding. */
+.sod29-world-source-wording{
+  white-space:pre-line;
+  line-height:1.6;
+  margin:.45rem 0;
+  overflow-wrap:anywhere;
+}
+.sod29-world-source-wording b{font-weight:800}
+
+/* World source/subject depth: subject stage (semantic tokens only, RTL, reduced motion) */
+.sod29-world-subject-stage{position:relative;margin:12px 0;padding:16px;border:1px solid var(--s29-line);border-radius:20px;background:radial-gradient(120% 90% at 85% 0%,var(--s29-glow),transparent 60%),var(--s29-panel)}
+.sod29-world-subject-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:10px;-webkit-overflow-scrolling:touch}
+.sod29-world-subject-card{flex:0 0 auto;scroll-snap-align:start;min-height:64px;min-width:140px;padding:10px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start;font-size:16px;color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:16px;cursor:pointer;transition:border-color var(--s29-motion,.2s),transform var(--s29-motion,.2s)}
+.sod29-world-subject-card small{font-size:14px;color:var(--s29-muted)}
+.sod29-world-subject-card:hover{border-color:var(--s29-accent)}
+.sod29-world-subject-card[aria-pressed="true"]{border-color:var(--s29-accent);box-shadow:0 0 0 1px var(--s29-accent) inset;font-weight:700}
+.sod29-world-subject-panel{margin-top:12px;font-size:16px}
+.sod29-world-subject-panel h3{font-size:18px;margin:0 0 8px}
+.sod29-world-subject-panel h3 small{font-size:14px;color:var(--s29-muted);font-weight:400}
+.sod29-world-subject-works ul,.sod29-world-sourcedepth-dir ul,.sod29-world-subject-topics ul{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.sod29-world-subject-works li,.sod29-world-sourcedepth-dir li,.sod29-world-subject-topics li{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:4px 12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-world-subject-works a,.sod29-world-sourcedepth-dir a,.sod29-world-subject-topics a{color:var(--s29-accent);overflow-wrap:anywhere}
+.sod29-world-subject-works small{font-size:14px;color:var(--s29-muted)}
+.sod29-world-subject-more{min-height:44px;padding:8px 18px;font-size:16px;border-radius:999px;border:1px solid var(--s29-accent);background:transparent;color:var(--s29-accent);cursor:pointer}
+.sod29-world-sourcedepth-dir{font-size:16px;margin:12px 0}
+.sod29-world-sourcedepth-dir summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.sod29-world-subject-card{transition:none}.sod29-world-subject-rail{scroll-behavior:auto}}
+@media (max-width:480px){.sod29-world-subject-stage{padding:12px;border-radius:16px}.sod29-world-subject-card{min-width:120px}}
+
+/* Original sanitized group source stays in the same native stream and exact anchor. */
+.sod29-world-group-source{min-width:0;scroll-margin-block-start:90px}
+.sod29-world-group-source>summary{list-style:none;cursor:pointer}
+.sod29-world-group-source>summary::-webkit-details-marker{display:none}
+.sod29-world-group-source-body{
+  margin:0;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;
+  color:inherit;background:var(--s29-panel-soft);border:1px solid var(--s29-line);
+  border-radius:0 0 14px 14px;font-size:18px;line-height:1.8;
+}
+.sod29-world-group-source .sod29-world-stream-copy strong{font-size:18px;line-height:1.5}

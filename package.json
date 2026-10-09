@@ -9,6 +9,7 @@
     "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",
     "preview": "vite preview",
+    "test:world-group-source": "node --test src/lib/research/worldGroupSource.test.js && bash scripts/run-world-group-source-sql-test.sh",
     "test:zvi-stable-writer-binding": "node --test scripts/test-zvi-stable-writer-binding.mjs && bash scripts/run-zvi-stable-writer-binding-sql-test.sh",
     "test:issue-report": "node scripts/test-issue-report-canonical-emitter.mjs",
     "test:experience-context": "node scripts/test-experience-context-2029.mjs",
@@ -48,7 +49,10 @@
     "test:beit-midrash-method-definitions": "node scripts/test-beit-midrash-all-method-definitions.mjs",
     "test:entry-learn-2029": "node scripts/test-entry-contextual-learn-2029.mjs",
     "test:my-workspace-2029": "node scripts/test-my-workspace-2029.mjs",
-    "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs"
+    "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs",
+    "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs",
+    "test:whatsapp-kod-hametsiut-join": "node scripts/test-whatsapp-kod-hametsiut-join.mjs",
+    "test:video-semantic-tree": "node --test scripts/test-video-semantic-tree-projector-v1.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"

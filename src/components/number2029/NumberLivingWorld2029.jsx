@@ -13,7 +13,7 @@ import { buildWorldCards } from "../../lib/presentation/numberWorldCards.js";
 import { fibonacciRailModel } from "../../lib/research/fibonacciSequence.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
-import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
+import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -163,6 +163,21 @@ function SectionHead({ kicker, title, text, aside = null }) {
 
 function DepthButton({ children, onClick, primary = false }) {
   return <button type="button" className={`sod29-lw-btn${primary ? " is-primary" : ""}`} onClick={onClick}>{children}</button>;
+}
+
+function focusPayload(item, label) {
+  return {
+    id: item?.nodeId || item?.galleryImageId || label,
+    type: "image",
+    kicker: "תמונה פעילה",
+    label,
+    primary: label,
+    sectionLabel: "מקורות",
+    sourceLabel: "מדיה",
+    signals: [canonicalRelationPublicLabel(item?.relationType || "related")],
+    locator: "#number-content-live",
+    imageUrl: item?.imageUrl || null,
+  };
 }
 
 export default function NumberLivingWorld2029({
@@ -539,42 +554,33 @@ export default function NumberLivingWorld2029({
         aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
       />
       {mediaItems.length ? <div className="sod29-lw-feature-media">
-        <button type="button" className="sod29-lw-media-focus is-primary" onClick={() => {
+        {(() => {
           const item = mediaItems[0];
-          const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
-          onFocusContext?.({
-            id: item?.nodeId || item?.galleryImageId || label,
-            type: "image",
-            kicker: "תמונה פעילה",
-            label,
-            primary: label,
-            sectionLabel: "מקורות",
-            sourceLabel: "מדיה",
-            signals: [canonicalRelationPublicLabel(item?.relationType || "related")],
-            locator: "#number-content-live",
-            imageUrl: item?.imageUrl || null,
-          });
-        }}>
-          <CanonicalMediaImage2029 item={mediaItems[0]} primary alt={canonicalMediaPublicLabel(mediaItems[0], { fallback: `תמונה של ${root}` })} />
-          <span className="sod29-lw-media-caption"><small>ייצוג מוביל</small><strong>{canonicalMediaPublicLabel(mediaItems[0], { fallback: `תמונה של ${root}` })}</strong></span>
-        </button>
+          const label = (item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" }));
+          return <CanonicalMediaFigure2029
+            item={item}
+            primary
+            alt={label}
+            className="sod29-lw-media-focus is-primary"
+            contextNote={canonicalRelationPublicLabel(item?.relationType || "related")}
+            onOpen={() => onFocusContext?.(focusPayload(item, item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" })))}
+          >
+            <span className="sod29-lw-media-caption"><small>ייצוג מוביל</small><strong>{label}</strong></span>
+          </CanonicalMediaFigure2029>;
+        })()}
         <div>{mediaItems.slice(1, 4).map((item, index) => {
-          const label = canonicalMediaPublicLabel(item, { fallback: "תמונה" });
-          return <button type="button" className="sod29-lw-media-focus" key={item?.galleryImageId || item?.nodeId || index} onClick={() => onFocusContext?.({
-            id: item?.nodeId || item?.galleryImageId || label,
-            type: "image",
-            kicker: "תמונה פעילה",
-            label,
-            primary: label,
-            sectionLabel: "מקורות",
-            sourceLabel: "מדיה",
-            signals: [canonicalRelationPublicLabel(item?.relationType || "related")],
-            locator: "#number-content-live",
-            imageUrl: item?.imageUrl || null,
-          })}>
-            <CanonicalMediaImage2029 item={item} thumbnail alt={label} />
+          const label = item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" });
+          return <CanonicalMediaFigure2029
+            key={item?.galleryImageId || item?.nodeId || index}
+            item={item}
+            thumbnail
+            alt={label}
+            className="sod29-lw-media-focus"
+            contextNote={canonicalRelationPublicLabel(item?.relationType || "related")}
+            onOpen={() => onFocusContext?.(focusPayload(item, label))}
+          >
             <span className="sod29-lw-media-caption">{label}</span>
-          </button>;
+          </CanonicalMediaFigure2029>;
         })}</div>
       </div> : null}
       <div className="sod29-lw-source-list">

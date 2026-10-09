@@ -69,6 +69,8 @@ const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensPr
 const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
 const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
 const contributorFindingsComponent = read("src/components/research/ContributorFindingsLens.jsx");
+const contributorFindingsSource = read("src/lib/research/contributorFindingsProjection.js");
+const attributionAttentionMigration = read("supabase/migrations/20261007163000_ariel_personal_research_attribution_attention_v1.sql");
 const topicConvergenceContent = read("src/components/research/TopicConvergenceContent.jsx");
 const worldAnchorMapSource = read("src/components/research/WorldAnchorMap.jsx");
 const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_human_gate_research_contributions_admin_read.sql");
@@ -115,7 +117,16 @@ assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly 
 assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical contributor findings lens");
 assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
-assert.match(world, /selectedWriter && isAdmin/, "private Research OS contributor findings remain Human-Gate/admin only");
+// Public site-writer sources are distinct from private personal research and admin tools.
+assert.match(world, /\{selectedWriter \? <section/, "selected writer sources are available to every viewer");
+assert.equal(world.includes("selectedWriter && isAdmin"), false, "public writer sources are not admin-only");
+assert.match(world, /controlMode \? PROJECTOR_MODE\.ADMIN_ALL : PROJECTOR_MODE\.PUBLIC_VIEW/, "admin reader requires authorized control mode");
+assert.match(world, /const controlMode = isAdmin && adminToolsOpen/, "admin reader requires admin AND open tools");
+assert.equal((world.match(/PROJECTOR_MODE\.ADMIN_ALL/g) || []).length, 1, "no second unguarded admin reader");
+assert.doesNotMatch(contributorFindingsSource, /owner_slug|personal_scope/, "site contributor lens must not import personal research by owner");
+assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? sessionClient : publicClient\(\)/, "public reads use anonymous client even for signed-in admins");
+assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
+assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
 assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
@@ -180,17 +191,27 @@ assert.match(world, /item\.kind === "finding"/);
 assert.match(world, /world-discovery-finding/);
 
 // World Research Control Plane extends existing Truth/Research axes instead of inventing a store or status vocabulary.
-assert.match(world, /WORLD RESEARCH CONTROL/);
-assert.match(world, /RESEARCH INBOX/);
+assert.match(world, /בקרת מחקר בעולם/);
+assert.match(world, /תיבת מחקר/);
 assert.match(world, /מצב מחקר/);
 assert.match(world, /מצב ממשל/);
-assert.match(world, /Processing state עדיין לא מחובר/);
-assert.match(world, /Publication state עדיין לא מחובר/);
-assert.match(world, /privacy_scope=public_candidate אינו Published/);
+assert.match(world, /מצב עיבוד עדיין לא מחובר/);
+assert.match(world, /מצב פרסום עדיין לא מחובר/);
+assert.match(world, /מועמד לציבור אינו פרסום/);
 assert.match(world, /WORLD_RESEARCH_ATTENTION/);
 assert.match(world, /filterWorldResearchFindings/);
 assert.match(worldCss, /sod29-world-research-control/);
 assert.match(worldCss, /sod29-world-research-filters/);
+assert.match(world, /שיטת גימטריה/);
+assert.match(world, /סוג פעולה/);
+assert.match(world, /מכפיל/);
+assert.match(world, /תלת־ממד/);
+assert.match(world, /סט מחקרי/);
+assert.match(world, /דברי המקור/);
+assert.match(world, /חילוץ המחקר/);
+assert.match(world, /fetchResearchSourceOccurrences/);
+assert.match(world, /שיטות שנאמרו במקור בלבד/);
+assert.match(worldCss, /sod29-world-source-wording/);
 
 const controlFindings = [
   {
@@ -198,7 +219,24 @@ const controlFindings = [
     status: "candidate",
     access: { tier: "private" },
     verification: { verification_state: "not_tested" },
-    projection: { dimensions: { researchObjectKind: "observation" } },
+    projection: { dimensions: {
+      researchObjectKind: "observation",
+      researchFacets: {
+        methods: [{ token: "ragil", namespace: "db_column_or_alias", registryResolutionRequired: true }],
+        canonicalMethods: [{ methodKey: "רגיל", dbColumn: "ragil", displayLabel: "רגיל", registryResolved: true }],
+        sourceMethods: [{
+          token: "מילוי",
+          methodKey: "מילוי",
+          displayLabel: "מילוי",
+          state: "registry_supported_unlinked",
+          sourceAttested: true,
+          appliesToFinding: false,
+        }],
+        operation: { operators: ["multiply"], factors: [4], kind: "quantity-product" },
+        family: { key: "zvi:spatial:408:zot", cluster: "408 זאת · קוביית חיים", role: "STRUCTURAL_3D" },
+        spatial: { is3d: true, role: "STRUCTURAL_3D", mediaClass: "SPATIAL_3D" },
+      },
+    } },
     source: { sourceRef: "chat:1" },
   },
   {
@@ -225,6 +263,19 @@ assert.equal(control.byAccess.private, 2);
 assert.equal(control.byGovernance.approved, 1);
 assert.equal(control.attention.needs_verification, 2);
 assert.equal(control.attention.public_candidate, 1);
+assert.equal(control.facets.byMethod["רגיל"], 1);
+assert.equal(control.facets.byMethod["מילוי"], undefined, "source-only milui must not become verified method filter");
+assert.equal(control.facets.bySourceMethod["מילוי"], 1);
+assert.equal(control.facets.hasSourceMethodMentions, true);
+assert.equal(control.facets.byOperation.multiply, 1);
+assert.equal(control.facets.byFactor["4"], 1);
+assert.equal(control.facets.spatial3d, 1);
+assert.equal(control.facets.byFamily["zvi:spatial:408:zot"].count, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, method: "רגיל" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, operation: "multiply" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, factor: "4" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, spatial: "3d" }).length, 1);
+assert.equal(filterWorldResearchFindings(controlFindings, { ...WORLD_RESEARCH_FILTER_DEFAULTS, family: "zvi:spatial:408:zot" }).length, 1);
 assert.equal(control.capabilities.processingState, false, "World must not invent raw→processed without Research Intake projection");
 assert.equal(control.capabilities.publicationState, false, "public_candidate is not Published");
 assert.equal(control.capabilities.rawSource, true);
@@ -263,6 +314,19 @@ assert.equal(allMaterialFixture.byAccess.private, 1, "private remains an access 
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all" }).length, 4);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
+
+const personOnlyWorldFixture = buildWorldAllResearchProjection({
+  researchObjects: [{
+    id: "ordinary-private", created_at: "2026-10-07T10:00:00Z", kind: "observation",
+    statement: "מחקר פרטי רגיל", privacy_scope: "private", status: "candidate", meta: {},
+  }, {
+    id: "ariel-person-only", created_at: "2026-10-07T10:01:00Z", kind: "relation",
+    statement: "ממצא אישי של אריאל", privacy_scope: "private", status: "candidate",
+    meta: { ext: { personal_scope: { scope: "person_only", owner_slug: "ariel-ben-moshe" } } },
+  }],
+}, { researchObjects: 2, sourceMessages: 0, contributions: 0, topics: 0 });
+assert.deepEqual(personOnlyWorldFixture.rows.map((row) => row.sourceId), ["ordinary-private"], "ordinary private research stays visible to admin World");
+assert.equal(personOnlyWorldFixture.excludedPersonOnlyResearch, 1, "only explicit person_only research is removed from the general World tree");
 
 // PhaseA repair — shared World numeric normalizer: null/undefined/empty/whitespace/boolean/array/object
 // must never leak in as 0; a genuinely finite 0 must stay 0. Single normalizer, reused everywhere.
@@ -456,7 +520,7 @@ assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
 assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
-assert.match(world, /שכבת המחקר המלאה שמורה ל־Human Gate/);
+assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
 assert.ok(
   world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",
@@ -477,7 +541,7 @@ assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
-assert.match(worldAllResearchComponent, /private · גלוי לך/);
+assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
 for (const table of ["research_objects", "channel_updates", "research_contributions", "topic_cards"]) {
   assert.equal(
     worldAllResearchSource.includes('fetchAllRows(\n      "' + table + '"'),
@@ -814,14 +878,15 @@ assert.match(entityHubProjection, /fetchWorldMediaProjection/);
 assert.match(entityHubProjection, /from\("gallery_images"\)/);
 assert.match(entityHubProjection, /eq\("published", 1\)/);
 assert.match(entityHubProjection, /curator_hidden\.is\.null,curator_hidden\.eq\.false/);
-assert.match(entityHubProjection, /projectionReason: `reality_graph:\$\{relationType\}`/);
+assert.match(fs.readFileSync("src/lib/research/galleryMediaEnvelope.js", "utf8"), /projectionReason: sourceMeta \? `source_metadata:\$\{relationType\}` : `reality_graph:\$\{relationType\}`/);
+assert.match(entityHubProjection, /buildMediaEnvelope/);
 assert.match(entityHubProjection, /row\.published !== 1 \|\| row\.curator_hidden === true/, "media builder must fail closed on unpublished/hidden rows");
 assert.equal(/WORLD_MEDIA_FIELDS\s*=\s*"[^"]*importance/.test(entityHubProjection), false, "legacy gallery importance must not enter the 2029 media payload");
 assert.equal(/\b[ab]\.importance\b/.test(entityHubProjection), false, "legacy gallery importance must not affect 2029 World media order");
 assert.match(entityHubProjection, /Legacy gallery importance is intentionally NOT a[\s\S]*World ranking signal/);
 assert.match(world, /key: "media", label: "תמונות"/);
 assert.match(world, /sod29-world-media-grid/);
-assert.match(world, /<img src=\{item\.thumbUrl \|\| item\.imageUrl\}/);
+assert.match(world, /<CanonicalMediaFigure2029 item=\{item\} thumbnail/);
 assert.match(world, /התמונה עצמה אינה הוכחה או דירוג אמת/);
 assert.equal(world.includes("MuseumGallery"), false);
 assert.equal(world.includes("MuseumGate"), false);
@@ -870,7 +935,7 @@ assert.match(world, /מיון קשרים/);
 assert.match(world, /useAuth/);
 assert.match(world, /const \{ isAdmin \} = useAuth\(\)/);
 assert.match(world, /מצב מנהל/);
-assert.match(world, /מצב הניהול של World נפתח רק כשמנהל בוחר בו/);
+assert.match(world, /מצב הניהול של העולם נפתח רק כשמנהל בוחר בו/);
 assert.match(world, /אינו עוקף הרשאות נתונים/);
 assert.match(world, /גישה ·/);
 assert.match(world, /ממשל ·/);
@@ -1330,3 +1395,14 @@ assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method
 assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower calculator-era expression duplication must stay retired");
 
 console.log("2029 native World surface acceptance: PASS");
+
+
+// Hebrew-first admin presentation gate: internal English identifiers may remain in values/code,
+// but the visible research/admin copy must not regress to the old technical labels.
+assert.doesNotMatch(worldAllResearchComponent, />private · גלוי לך</);
+assert.doesNotMatch(worldAllResearchComponent, />Research Objects</);
+assert.doesNotMatch(worldAllResearchComponent, /source_ref…/);
+assert.doesNotMatch(world, />WORLD RESEARCH CONTROL</);
+assert.doesNotMatch(world, />RESEARCH INBOX</);
+assert.doesNotMatch(world, /Processing state עדיין לא מחובר/);
+assert.doesNotMatch(world, /Publication state עדיין לא מחובר/);

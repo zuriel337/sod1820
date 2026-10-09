@@ -1027,6 +1027,23 @@
   width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;
   border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:start;
 }
+/* Golden Projector "מנהל | ציבור" (admin-only chrome; Golden Posts 5112/92) */
+.sod29-golden-mode{display:grid;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--s29-line)}
+.sod29-golden-mode-toggle{display:inline-flex;gap:4px;padding:3px;border:1px solid var(--s29-line);border-radius:999px;justify-self:start}
+.sod29-golden-mode-toggle button{border:0;border-radius:999px;padding:5px 12px;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.sod29-golden-mode-toggle button[aria-pressed="true"]{background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent)}
+.sod29-golden-mode-note{margin:0;font-size:.82em;line-height:1.5;color:var(--s29-muted)}
+.sod29-golden-admin{display:grid;gap:8px;max-height:min(60vh,640px);overflow:auto;overscroll-behavior:contain}
+.sod29-golden-admin-layer>summary{cursor:pointer;font-weight:800;font-size:.86em}
+.sod29-golden-admin-layer ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.sod29-golden-admin-layer>button{margin-top:6px;border:1px solid var(--s29-line);border-radius:10px;background:transparent;color:inherit;font:inherit;padding:4px 10px;cursor:pointer}
+.sod29-golden-admin-row details{border:1px solid var(--s29-line);border-radius:10px;padding:6px 8px}
+.sod29-golden-admin-row summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer}
+.sod29-golden-admin-label{overflow-wrap:anywhere}
+.sod29-golden-admin-row dl{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;margin:6px 0 0;font-size:.82em}
+.sod29-golden-admin-row dt{font-weight:800}
+.sod29-golden-admin-row dd{margin:0;overflow-wrap:anywhere}
+.sod29-golden-admin-state{display:inline-block;margin:0 0 2px 4px;padding:0 6px;border:1px solid var(--s29-line);border-radius:6px;font-family:ui-monospace,monospace;font-size:.92em}
 .sod29-surface-context-reason{color:var(--s29-ink);line-height:1.6;margin:0}
 .sod29-surface-context-deeplink{color:var(--s29-accent-text,inherit);font-weight:800}
 
@@ -1172,3 +1189,28 @@
 .sod29-raziel-chat-user { opacity: .8; }
 .sod29-raziel-chat-raziel { display: grid; gap: 2px; }
 .sod29-raziel-chat-raziel small { opacity: .65; }
+
+/* One-tree research facets inside Golden Projector admin mode. */
+.sod29-golden-facet-filters{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  gap:7px;
+  align-items:end;
+  padding:8px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+}
+.sod29-golden-facet-filters label{display:grid;gap:3px;font-size:.78em;color:var(--s29-muted)}
+.sod29-golden-facet-filters select,
+.sod29-golden-facet-filters button{
+  min-width:0;
+  border:1px solid var(--s29-line);
+  border-radius:9px;
+  background:var(--s29-panel-soft);
+  color:inherit;
+  font:inherit;
+  padding:6px 8px;
+}
+.sod29-golden-facet-filters button{cursor:pointer;font-weight:700}
+.sod29-golden-facet-filters small{align-self:center;color:var(--s29-muted)}
+.sod29-golden-source-text{white-space:pre-line;line-height:1.55;overflow-wrap:anywhere}

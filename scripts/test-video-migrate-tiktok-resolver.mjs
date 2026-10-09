@@ -160,5 +160,10 @@ assert.match(migrateSource, /attempted_candidates/);
 assert.match(migrateSource, /mediaCandidates/);
 assert.match(migrateSource, /public_url/);
 assert.match(migrateSource, /kind: "direct"/);
+assert.doesNotMatch(migrateSource, /resp\\.arrayBuffer\\(\\)/);
+assert.match(migrateSource, /uploadStreamToStorage/);
+assert.match(migrateSource, /TransformStream/);
+assert.match(migrateSource, /source_too_large/);
+assert.match(migrateSource, /deleteFromStorage/);
 
 console.log("PASS video-migrate TikTok resolver + direct-source compatibility guards");

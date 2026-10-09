@@ -45,8 +45,9 @@ function safeText(v) {
   try { return JSON.stringify(v); } catch { return "—"; }
 }
 
-export default function FindingSurface({ finding, compact = false, onRemove = null, removeLabel = "הסר" }) {
+export default function FindingSurface({ finding, compact = false, projector = false, onRemove = null, removeLabel = "הסר" }) {
   const [open, setOpen] = useState(false);
+  const badge = projector ? { ...pill, fontSize: 14, lineHeight: 1.5 } : pill;
   if (!isUniversalFinding(finding)) return null;
 
   const label = finding.subject?.label || finding.subject?.key || finding.id;
@@ -65,39 +66,39 @@ export default function FindingSurface({ finding, compact = false, onRemove = nu
     : null;
 
   return (
-    <article style={{ border: "1px solid var(--border, rgba(128,128,128,.22))", borderRadius: 12, padding: compact ? "8px 10px" : "10px 12px", marginBottom: 7, background: "var(--card, rgba(255,255,255,.55))" }}>
+    <article style={{ border: "1px solid var(--border, rgba(128,128,128,.22))", borderRadius: 12, padding: compact ? "8px 10px" : "10px 12px", marginBottom: 7, background: projector ? "transparent" : "var(--card, rgba(255,255,255,.55))" }}>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 5 }}>
-            <span style={pill}>{finding.kind}</span>
-            <span style={pill} title="סוג ידע (EPISTEMIC TYPE)">{stage ? (TXT[stage] || stage) : UNKNOWN}</span>
-            <span style={{ ...pill, fontWeight: 900 }} title="אימות מנוע (VERIFICATION)">
+            <span style={badge}>{projector ? ({ gematria: "גימטריה", observation: "תצפית", relation: "קשר", phrase: "ביטוי" }[finding.kind] || "ממצא מחקר") : finding.kind}</span>
+            <span style={badge} title="סוג ידע (EPISTEMIC TYPE)">{stage ? (TXT[stage] || stage) : UNKNOWN}</span>
+            <span style={{ ...badge, fontWeight: 900 }} title="אימות מנוע (VERIFICATION)">
               {verification ? (TXT[verification] || verification) : UNKNOWN}
             </span>
           </div>
-          <div style={{ fontSize: compact ? 13 : 14, fontWeight: 850, overflowWrap: "anywhere" }}>
+          <div style={{ fontSize: projector ? 18 : compact ? 13 : 14, fontWeight: 850, overflowWrap: "anywhere" }}>
             {href ? <Link to={href} style={{ color: "inherit", textDecoration: "none" }}>{label}</Link> : label}
           </div>
-          <div style={{ marginTop: 4, fontSize: 11, opacity: .72 }}>
-            מקור: <b>{source}</b>{method ? ` · ${method}` : ""}
+          <div style={{ marginTop: 4, fontSize: projector ? 14 : 11, opacity: .72 }}>
+            {projector ? "פרטי המקור והשיטה בהרחבה" : <>מקור: <b>{source}</b>{method ? ` · ${method}` : ""}</>}
           </div>
         </div>
         <div style={{ display: "flex", gap: 4, flex: "none" }}>
-          <button type="button" onClick={() => setOpen(v => !v)} title="זהות · מקור · provenance" style={{ border: 0, background: "transparent", cursor: "pointer", opacity: .75 }}>{open ? "▴" : "▾"}</button>
-          {onRemove && <button type="button" onClick={() => onRemove(finding)} title={removeLabel} style={{ border: 0, background: "transparent", cursor: "pointer", opacity: .75 }}>✕</button>}
+          <button type="button" onClick={() => setOpen(v => !v)} aria-label="פרטי הממצא והמקור" title="פרטי הממצא והמקור" style={{ border: 0, background: "transparent", cursor: "pointer", minWidth: projector ? 44 : undefined, minHeight: projector ? 44 : undefined, color: "inherit", opacity: .75 }}>{open ? "▴" : "▾"}</button>
+          {onRemove && <button type="button" onClick={() => onRemove(finding)} title={removeLabel} style={{ border: 0, background: "transparent", cursor: "pointer", minWidth: projector ? 44 : undefined, minHeight: projector ? 44 : undefined, color: "inherit", opacity: .75 }}>✕</button>}
         </div>
       </div>
 
-      {open && <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--border, rgba(128,128,128,.18))", display: "grid", gap: 4, fontSize: 10.8, lineHeight: 1.5, overflowWrap: "anywhere" }}>
-        <div><b>Finding ID:</b> {finding.id}</div>
-        <div><b>Source identity:</b> {safeText(sourceIdentity)}</div>
-        {sourceRef && <div><b>Source ref:</b> {safeText(sourceRef)}</div>}
-        <div><b>Provenance:</b> {createdBy ?? UNKNOWN}</div>
+      {open && <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--border, rgba(128,128,128,.18))", display: "grid", gap: 4, fontSize: projector ? 14 : 10.8, lineHeight: 1.5, overflowWrap: "anywhere" }}>
+        <div><b>מזהה ממצא:</b> {finding.id}</div>
+        <div><b>זהות מקור:</b> {safeText(sourceIdentity)}</div>
+        {sourceRef && <div><b>הפניה למקור:</b> {safeText(sourceRef)}</div>}
+        <div><b>הובא על ידי:</b> {createdBy ?? UNKNOWN}</div>
         <div><b>סוג ידע:</b> {stage ? (TXT[stage] || stage) : UNKNOWN}</div>
         <div><b>אימות מנוע:</b> {verification ? (TXT[verification] || verification) : UNKNOWN}</div>
         <div><b>ממשל:</b> {governance ?? UNKNOWN}</div>
         <div><b>גישה:</b> {accessTier ?? UNKNOWN}</div>
-        <div style={{ opacity: .68 }}>Workspace membership ≠ Canonical ≠ Published.</div>
+        <div style={{ opacity: .68 }}>שמירה באזור אישי, אישור מחקרי ופרסום הם מצבים נפרדים.</div>
       </div>}
     </article>
   );

@@ -1,4 +1,5 @@
 import { supabase } from "../supabase.js";
+import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
@@ -91,7 +92,7 @@ function groupTitle(group) {
     if (first) return first.slice(0, 110);
   }
   const first = (group?.rows || []).find((row) => clean(row?.statement));
-  return clean(first?.statement).slice(0, 110) || "ממצא מחקר";
+  return clean(first?.statement).slice(0, 110) || (group?.source ? "מקור ללא טקסט" : "ממצא מחקר");
 }
 
 function topicKey(topic) {
@@ -146,6 +147,13 @@ export function buildContributorFindingsProjection({
     const sourceRef = clean(row.source_ref) || `research_objects:${row.id}`;
     if (!groups.has(sourceRef)) groups.set(sourceRef, { sourceRef, rows: [] });
     groups.get(sourceRef).rows.push(row);
+  }
+
+  // Source-first: every attributed source message is a group, with or without extracted Findings.
+  // A source with zero Findings is a real source, never an empty/failed state, and never gets a dummy Finding.
+  for (const [sourceRef, source] of Object.entries(sourceIndex)) {
+    if (!groups.has(sourceRef)) groups.set(sourceRef, { sourceRef, rows: [] });
+    void source;
   }
 
   const sourceGroups = [...groups.values()].map((group) => {
@@ -226,6 +234,8 @@ export function buildContributorFindingsProjection({
     counts: {
       researchObjects: researchObjects.length,
       sourceGroups: sourceGroups.length,
+      sourceGroupsWithFindings: sourceGroups.filter((group) => group.findingCount > 0).length,
+      sourceOnlyGroups: sourceGroups.filter((group) => group.findingCount === 0).length,
       engineVerified: sourceGroups.reduce((sum, group) => sum + group.verifiedCount, 0),
       topics: topicRows.length,
       contributions: contributionRows.length,
@@ -245,10 +255,10 @@ export function buildContributorFindingsProjection({
   };
 }
 
-async function fetchContributor(slug) {
+async function fetchContributor(client, slug) {
   const safeSlug = clean(slug);
   if (!safeSlug) return null;
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("contributors")
     .select("id,slug,display_name,role,kind,wa_names")
     .eq("slug", safeSlug)
@@ -257,23 +267,23 @@ async function fetchContributor(slug) {
   return data || null;
 }
 
-async function fetchResearchObjects(aliases) {
-  return paged((start, end, first) => {
-    let q = supabase
-      .from("research_objects")
-      .select(
-        "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope",
-        first ? { count: "exact" } : undefined
-      )
-      .in("contributor", aliases)
-      .order("created_at", { ascending: false })
-      .range(start, end);
-    return q;
-  });
+// Research objects by exact attributed name only. No personal-scope corpus is ever requested by owner:
+// personal-scope research is not site-writer inventory. Which rows come back is decided by RLS for the
+// client in use (anon in PUBLIC mode, the viewer's session in ADMIN mode).
+async function fetchResearchObjects(client, aliases) {
+  const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope";
+  const result = await paged((start, end, first) => client
+    .from("research_objects")
+    .select(fields, first ? { count: "exact" } : undefined)
+    .in("contributor", aliases)
+    .order("created_at", { ascending: false })
+    .range(start, end)
+  );
+  return { rows: result.rows, total: result.total, truncated: result.truncated };
 }
 
-async function fetchContributorContributions(contributorId) {
-  return paged((start, end, first) => supabase
+async function fetchContributorContributions(client, contributorId) {
+  return paged((start, end, first) => client
     .from("research_contributions")
     .select(
       "id,created_at,author_contributor_id,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug",
@@ -285,19 +295,22 @@ async function fetchContributorContributions(contributorId) {
   );
 }
 
-async function fetchSourceMessages(aliases) {
+async function fetchSourceMessages(client, aliases) {
   const byId = new Map();
+  let truncated = false;
   for (const column of ["credit", "speaker"]) {
-    const result = await paged((start, end) => supabase
+    const result = await paged((start, end, first) => client
       .from("channel_updates")
-      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker")
+      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker", first ? { count: "exact" } : undefined)
       .in(column, aliases)
       .order("created_at", { ascending: false })
       .range(start, end)
     );
+    truncated = truncated || result.truncated;
     for (const row of result.rows) byId.set(String(row.id), row);
   }
-  return [...byId.values()].sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
+  const rows = [...byId.values()].sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
+  return { rows, total: rows.length, truncated };
 }
 
 async function fetchContributorTopics(aliases) {
@@ -314,11 +327,11 @@ async function fetchContributorTopics(aliases) {
   return [...byKey.values()];
 }
 
-async function fetchLexicalRows(terms) {
+async function fetchLexicalRows(client, terms) {
   const safeTerms = uniq(terms).filter((term) => term.length <= 180);
   const rows = [];
   for (const batch of chunk(safeTerms)) {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("gematria_words")
       .select("phrase,world,tags,is_verified,is_published")
       .in("phrase", batch)
@@ -339,45 +352,67 @@ async function fetchLexicalRows(terms) {
   return [...byPhrase.values()];
 }
 
-export async function fetchContributorFindingsProjection(slug) {
-  const contributor = await fetchContributor(slug);
+// Availability is a separate axis from count: "unavailable" (read failed/denied) is never rendered as zero.
+export function deriveAvailability(settled) {
+  const out = {};
+  for (const [key, result] of Object.entries(settled)) out[key] = result.status === "fulfilled" ? "ok" : "unavailable";
+  return out;
+}
+
+/**
+ * PUBLIC mode (default, everyone): anonymous client => only what RLS lets a visitor read; never an admin payload.
+ * ADMIN mode: the viewer's session; additionally lists research the admin is authorized to see.
+ * A failed research read never erases readable source messages, contributions or Topics.
+ */
+export async function fetchContributorFindingsProjection(slug, { mode = PROJECTOR_MODE.PUBLIC_VIEW, publicClient = getPublicResearchClient, sessionClient = supabase, topicsReader = fetchContributorTopics } = {}) {
+  const client = mode === PROJECTOR_MODE.ADMIN_ALL ? sessionClient : publicClient();
+  const contributor = await fetchContributor(client, slug);
   if (!contributor) return null;
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
 
-  const sourceMessagesPromise = fetchSourceMessages(aliases).catch(() => []);
-  const [research, sourceMessages, contributions, topics] = await Promise.all([
-    fetchResearchObjects(aliases),
-    sourceMessagesPromise,
-    fetchContributorContributions(contributor.id),
-    fetchContributorTopics(aliases),
+  const settled = {};
+  const [research, sources, contributions, topics] = await Promise.allSettled([
+    fetchResearchObjects(client, aliases),
+    fetchSourceMessages(client, aliases),
+    fetchContributorContributions(client, contributor.id),
+    topicsReader(aliases),
   ]);
+  Object.assign(settled, { research, sources, contributions, topics });
+  const value = (result, fallback) => (result.status === "fulfilled" ? result.value : fallback);
+  const researchValue = value(research, { rows: [], total: 0, truncated: false });
+  const sourceValue = value(sources, { rows: [], total: 0, truncated: false });
+  const contributionValue = value(contributions, { rows: [], total: 0, truncated: false });
+  const topicRows = value(topics, []);
 
-  const terms = uniq(research.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
+  const terms = uniq(researchValue.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
   let lexicalRows = [];
   try {
-    lexicalRows = await fetchLexicalRows(terms);
+    lexicalRows = await fetchLexicalRows(client, terms);
   } catch (_) {
     lexicalRows = [];
   }
 
   const projection = buildContributorFindingsProjection({
     contributor,
-    researchObjects: research.rows,
-    sourceMessages,
-    contributions: contributions.rows,
-    topics,
+    researchObjects: researchValue.rows,
+    sourceMessages: sourceValue.rows,
+    contributions: contributionValue.rows,
+    topics: topicRows,
     lexicalRows,
   });
 
   return {
     ...projection,
+    mode,
+    availability: deriveAvailability(settled),
     loadState: {
-      researchObjectsTotal: research.total,
-      researchObjectsTruncated: research.truncated,
-      contributionsTotal: contributions.total,
-      contributionsTruncated: contributions.truncated,
-      sourceMessagesLoaded: sourceMessages.length,
-      topicsLoaded: topics.length,
+      researchObjectsTotal: researchValue.total,
+      researchObjectsTruncated: researchValue.truncated,
+      contributionsTotal: contributionValue.total,
+      contributionsTruncated: contributionValue.truncated,
+      sourceMessagesLoaded: sourceValue.rows.length,
+      sourceMessagesTruncated: sourceValue.truncated,
+      topicsLoaded: topicRows.length,
     },
   };
 }

@@ -335,6 +335,22 @@ Target business answer:
 
 `where user came from → what they opened → what research/AI ran → exact cost → whether output helped → whether they saved/followed/shared/signed up/paid/returned`.
 
+**Public Beta evidence-learning extension:** detailed execution map: `docs/2029-public-beta-evidence-learning-plan-v1.md`.
+
+The Analytics rail must preserve metric identity rather than collapse everything into one “users” number:
+
+- Edge request classes: `browser / goodbot / ai / bad-bot` remain request-level evidence;
+- first-party sessions: `human-like / suspected automation / unknown` remain session-level evidence;
+- JS/quarantine proof is never Human proof;
+- bot-filtered first-party product metrics and raw Edge/crawl demand are shown side-by-side, never added together;
+- every metric is queryable by exact time axis: 5m/1h for operations, calendar day/week/month/year, rolling 7/30/90d, cohort windows and exact release-SHA before/after windows;
+- shared dimensions should include surface, route/entity, capability/action, acquisition/referrer, country, device, locale, auth/access state, experiment and traffic class where available;
+- all primary 2029 surfaces (Home, World, Topic, Post, Book/Source, Number, ELS, Journey, Community/Workspace and Raziel/tool execution) project into the same correlation rail rather than creating page-local counters;
+- Legacy traffic/search behavior remains baseline evidence and may inform 2029 priorities, but Legacy metric identity is not silently reinterpreted as 2029 telemetry;
+- raw behavioral detail stays bounded by current retention; long-term rollups preserve trend comparability.
+
+The system may generate owner-routed product recommendations from evidence, but analytics is never self-authorizing. The allowed loop is `observe → aggregate → compare → recommend → Human Gate/owner decision → bounded change/experiment → measure → keep/revert`. No autonomous security, pricing, entitlement, canonical-truth or publication mutation is authorized by this rail.
+
 ### 7B Share / propagation rail
 
 Before broad 2029 share UI, define one typed Share Object / Intent over existing share owners:
@@ -476,6 +492,120 @@ The internal 2029 Control Plane is an **Experience projection over existing owne
 - exact/estimated/unknown measurement state stays explicit for external-provider usage (Supabase/Vercel/AI/media providers);
 - Legacy WarRoom/CommandCenter/SystemSuggestions presentation is reference/compatibility only; replacement preserves useful capability, not old component ownership.
 
+
+
+### 7H Surface Registration / Launch Contract + Attention inheritance
+
+Every current or future 2029 surface registers into the shared rails rather than remembering telemetry/SEO/alerts page-by-page.
+
+Minimum registration envelope:
+
+- stable `surface_id` + route family + canonical entity/subject type;
+- owner reference and current availability state: OPEN / BUILDING / LATER / GATED;
+- public/private/internal classification;
+- SEO decision: index/noindex, canonical owner, sitemap eligibility, OG/share identity, crawler-safe behavior;
+- baseline telemetry: page/view, engagement, acquisition, country, device, locale, identity/access tier, traffic class;
+- meaningful action vocabulary for the surface (search/compute/open/save/share/follow/ask/run/etc.);
+- Research Context / trace / interaction correlation for expensive or semantic work;
+- performance/error/fallback/unavailable evidence;
+- cost/provider/resource evidence where non-trivial;
+- privacy/PII class and retention behavior;
+- Attention owner + severity/routing rules;
+- release/deployed SHA correlation + before/after comparison key.
+
+Launch law:
+
+> **No surface becomes OPEN / Golden / Public merely because its UI exists.** It must prove the shared Launch Contract or remain BUILDING/GATED.
+
+The contract explicitly covers surfaces already present and future additions, including:
+
+- Home / Global Now;
+- World;
+- Posts Index + Post;
+- Topic / Convergence;
+- Books / Sources;
+- Number / Expression;
+- Gematria / Calculator;
+- ELS / Cipher;
+- Cipher Library + Cipher detail / future `/codes` projection;
+- Heichal;
+- Journey;
+- Search / Command / Resolve;
+- Archive / history projections;
+- Video / Media;
+- Community;
+- Workspace / Personal Area;
+- public Person / User / Contributor pages;
+- Auth / Onboarding / account recovery;
+- Researcher, Research Room and Dossier;
+- Raziel and tool executions;
+- Follow / Attention / Notifications;
+- Credits / Premium / Entitlements;
+- later Voice / Audio / Spatial / XR projections.
+
+Future capability slots inherit the contract even when their final route/UI does not yet exist.
+
+### 7I Google / external discovery evidence rail
+
+Treat Google/external analytics as evidence sources projected into the same Control Plane, not as canonical product truth.
+
+Required source families:
+
+- GA4: users/sessions/views/engagement/bounce/landing/source/country/device/browser/language/realtime;
+- Search Console: query/page/country/device plus separate Search-type slices where available:
+  - Web;
+  - Discover;
+  - Image;
+  - Video;
+  - News / Google News;
+- first-party Traffic Intelligence and internal search;
+- Edge crawler / goodbot / AI / bad-bot demand;
+- Microsoft Clarity qualitative evidence (session recordings / heatmaps / rage/dead-click style signals where available);
+- Vercel Web Analytics as an independent web-traffic comparison source;
+- 2029 RUM/Web Vitals;
+- provider/runtime/DB/Edge health and cost/egress evidence.
+
+Rules:
+
+- missing source/configuration = `UNAVAILABLE/NOT_CONFIGURED`, never zero;
+- Search Console availability thresholds are respected; absence of a Discover report is not evidence of zero Discover reach;
+- one Google property/source does not overwrite another source’s metric identity;
+- dashboards may compare trends/confidence, but never manufacture a “single true users” number from incompatible denominators;
+- external dashboard links may remain deep links when APIs do not expose the required qualitative detail.
+
+### 7J Attention / Recommendation routing
+
+Use one owner-routed Attention model over existing `system_suggestions_law`, health/security owners and canonical `notify_admin` delivery. Do not create Alert Store 2.
+
+Attention classes:
+
+- CRITICAL — immediate operational/security/payment/data-integrity stop;
+- ACTION — needs Human Gate / owner decision;
+- WATCH — meaningful trend/anomaly requiring more evidence;
+- INFO — useful context, no interruption.
+
+Every attention item should carry:
+
+- owner;
+- category;
+- severity;
+- observed window + comparison window;
+- metric identity / denominator;
+- evidence links / trace / affected surface;
+- confidence + sample size where inferential;
+- recommended next step;
+- whether action requires Human Gate;
+- dedupe/cooldown key;
+- current status: open / accepted / rejected / later / resolved.
+
+Delivery policy:
+
+- Control Plane inbox is canonical visual projection;
+- in-app + WhatsApp/email/push/channel delivery are projections of the same item/owner facts;
+- silence when no meaningful change;
+- critical items may interrupt according to owner rules;
+- recommendations never mutate production by themselves.
+
 **Exit gate for Phase 7:** a new surface can inherit Share, Analytics, SEO, Follow, Cache, Security and Trace without page-local reinvention.
 
 ---
@@ -497,6 +627,17 @@ Homes:
 - Video / Media asset projection;
 - Workspace / Personal Area;
 - Internal Control Plane / Admin (non-public Human-Gate + operations home).
+
+**Control Plane build timing**
+
+- **G4 / Phase 8–11:** build/verify contracts, adapters and owner projections first; UI polish is not the priority.
+- **Before Public Beta Cutover:** minimum Control Plane V1 is a blocking operational requirement. It must show release state, health/security attention, traffic composition, 2029 analytics, Google/Search/Discovery status, performance/cost and the system recommendation inbox.
+- **First ~14-day Public Beta evidence window:** expand to Control Plane V2 — time-axis comparison, cohorts/funnels, release before/after, per-surface/action drill-down, anomaly/trend recommendations and evidence links.
+- **G5 before money:** add payment/entitlement/credits/cost/margin/reconciliation lens.
+- **G6 before broad multilingual:** add locale/international/Search-type/crawler/abuse comparison lens.
+- **Later G7/G8:** voice/media/spatial/XR resource and adoption lenses inherit the same contract; no dashboard redesign required.
+
+The detailed map is `docs/2029-control-plane-attention-observability-plan-v1.md`.
 
 Global capabilities:
 

@@ -1,5 +1,6 @@
 import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
+import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -539,6 +540,98 @@ async function resolveIdentity(req: Request, body: any): Promise<{ identity: str
   if (vid) return { identity: `v:${vid}`, tier: "anon" };
   const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
   return { identity: ip ? `ip:${ip}` : "", tier: "anon" };
+}
+
+// ===== Trusted internal channel (WhatsApp transport adapter) — RAZIEL_WHATSAPP_2029_NATIVE_CUTOVER_V2 =====
+// body.trusted_channel is honored ONLY when the caller's bearer IS the service-role key (internal edge→edge call).
+// Any ordinary/anon/user JWT (or no bearer) → ignored, identity resolves exactly as before (no spoofing surface).
+// A linked sender resolves to authenticated USER context only — NEVER admin/operator, even if the website account is admin.
+// An unlinked sender stays anon. Identity comes from the existing fn_raziel_identity (wa_account_links) — no new auth system.
+const RAZIEL_UUID_V = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function timingSafeEq(a: string, b: string): boolean {
+  if (!a || !b || a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+function isInternalServiceRequest(req: Request): boolean {
+  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+  return !!SB_SVC && timingSafeEq(token, SB_SVC);
+}
+type TrustedChannel = { identity: string; tier: "user" | "anon"; uid: string | null; media: { contribution_id: string; storage_object_id: string } | null; continuity: boolean; depth: boolean };
+async function resolveTrustedChannel(req: Request, body: any): Promise<TrustedChannel | null> {
+  const tc = body?.trusted_channel;
+  if (!tc || typeof tc !== "object" || !isInternalServiceRequest(req)) return null;
+  if (String(tc.channel || "") !== "whatsapp") return null;
+  const phone = String(tc.sender || "").replace(/[^0-9]/g, "");
+  if (phone.length < 7 || phone.length > 15) return null;
+  let uid: string | null = null;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_identity`, { method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_sender: phone }) });
+    if (r.ok) { const idn = await r.json(); if (idn?.linked === true && RAZIEL_UUID_V.test(String(idn?.user_id || ""))) uid = String(idn.user_id); }
+  } catch { /* unresolved → anon */ }
+  const m = tc.media;
+  const media = uid && m && RAZIEL_UUID_V.test(String(m.contribution_id || "")) && RAZIEL_UUID_V.test(String(m.storage_object_id || ""))
+    ? { contribution_id: String(m.contribution_id), storage_object_id: String(m.storage_object_id) } : null;
+  const continuity = tc.continuity === true;   // adapter sets it only when the current message explicitly asks to continue earlier conversation
+  const depth = tc.depth === true;   // adapter sets it only on explicit depth intent in the current message; default = concise first answer
+  return uid ? { identity: `u:${uid}`, tier: "user", uid, media, continuity, depth } : { identity: `wa:${phone}`, tier: "anon", uid: null, media: null, continuity: false, depth };
+}
+
+// Multimodal source stage (derivative only). Runs BEFORE any numeric/gematria routing. The governed private media ref is
+// resolved server-side through the existing service-only private_contribution_media_access, read via a short-lived signed URL,
+// and analyzed by the vision model. The text is a machine DERIVATIVE; the original stays private provenance (pending moderation).
+const RAZIEL_SOURCE_MAX_BYTES = 5 * 1024 * 1024;
+const RAZIEL_SOURCE_SYSTEM =
+  "אתה שלב קריאת-מקור חזותי. תאר בקצרה את סוג המקור (דף/צילום/כתב-יד/צילום-מסך וכו'), תמלל מילה במילה את הטקסט הקריא שבו, וסמן [לא קריא] היכן שאי אפשר. " +
+  "אל תחשב גימטריה ואל תפרש ואל תוסיף ידע חיצוני — רק מה שנראה במקור. עברית; אם יש כתב אחר — צטט כפי שהוא. " +
+  "הפרד במפורש בפלט שלוש שכבות: [קריא] מה שנראה בבירור; [לא בטוח] קריאה שאינה ודאית (ציין למה); [לא קריא]. " +
+  "אל תציג סמל/צורה/מילה כוודאיים אם אינם ברורים בתמונה, ואל תנחש שמות של אנשים — שם מופיע רק אם הוא כתוב בבירור במקור, ואז סמן אותו כציטוט מהמקור.";
+function b64(buf: Uint8Array): string {
+  let s = "";
+  for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+async function razielSourceStage(uid: string, media: { contribution_id: string; storage_object_id: string }): Promise<{ ok: boolean; text: string; mime: string | null; reason: string | null }> {
+  const fail = (reason: string) => ({ ok: false, text: "", mime: null as string | null, reason });
+  try {
+    const acc = await fetch(`${SB_URL}/rest/v1/rpc/private_contribution_media_access`, {
+      method: "POST", headers: svcHeaders(),
+      body: JSON.stringify({ p_contribution_id: media.contribution_id, p_storage_object_id: media.storage_object_id, p_actor_id: uid }),
+    });
+    if (!acc.ok) return fail("access_denied");
+    const a = await acc.json();
+    if (!a?.ok || a.bucket !== "submission-inbox" || typeof a.path !== "string" || !a.path.startsWith("sod1820/2029/")) return fail("access_denied");
+    const mime = String(a.mime || "").toLowerCase();
+    const isImg = /^image\/(jpeg|png|gif|webp)$/.test(mime);
+    const isPdf = mime === "application/pdf";
+    if (!isImg && !isPdf) return fail("unsupported_mime");
+    if (Number(a.size || 0) > RAZIEL_SOURCE_MAX_BYTES) return fail("too_large");
+    const sg = await fetch(`${SB_URL}/storage/v1/object/sign/submission-inbox/${a.path.split("/").map(encodeURIComponent).join("/")}`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ expiresIn: 120 }),
+    });
+    if (!sg.ok) return fail("sign_failed");
+    const sj = await sg.json();
+    const signed = typeof sj?.signedURL === "string" ? sj.signedURL : "";
+    if (!signed) return fail("sign_failed");
+    const fr = await fetch(`${SB_URL}/storage/v1${signed.startsWith("/") ? signed : "/" + signed}`);
+    if (!fr.ok) return fail("fetch_failed");
+    const bytes = new Uint8Array(await fr.arrayBuffer());
+    if (bytes.byteLength > RAZIEL_SOURCE_MAX_BYTES) return fail("too_large");
+    const block = isImg
+      ? { type: "image", source: { type: "base64", media_type: mime, data: b64(bytes) } }
+      : { type: "document", source: { type: "base64", media_type: "application/pdf", data: b64(bytes) } };
+    const ar = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", signal: AbortSignal.timeout(50000),
+      headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: RAZIEL_SOURCE_SYSTEM, messages: [{ role: "user", content: [block, { type: "text", text: "קרא את המקור." }] }] }),
+    });
+    if (!ar.ok) return fail("vision_http_" + ar.status);
+    const aj = await ar.json();
+    const text = (aj?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim().slice(0, 4000);
+    if (!text) return fail("vision_empty");
+    return { ok: true, text, mime, reason: null };
+  } catch { return fail("source_stage_error"); }
 }
 
 async function checkQuota(identity: string, tier: string, limitOverride: number | null = null): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string }> {
@@ -1778,6 +1871,9 @@ Deno.serve(async (req: Request) => {
       // below this block behaves exactly as before (rMode false ⇒ no plan, no surface block, kind="raziel").
       const rMode = String(body?.mode || "").toLowerCase() === "advanced";
       const rSurface = String(body?.surface || "").slice(0, 40);
+      // Canonical continuation link: deterministic, from the site-supplied Research Context subject.href only (validated). Never from model output.
+      const rCont = continuationHrefFromSurface(body?.surface_semantic);
+      const rzJson = (o: Record<string, unknown>, st?: number) => json(rCont ? { ...o, continuation_href: rCont } : o, st);
       const rSurfaceCtx = rMode && body?.surface_context && typeof body.surface_context === "object" ? body.surface_context : null;
       if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
 
@@ -1787,19 +1883,24 @@ Deno.serve(async (req: Request) => {
       let rPlanMeta: Record<string, unknown> | null = null;   // Phase B — reused plan (non-authoritative)
       // Phase C: identity is resolved ONCE, BEFORE planning, from the validated JWT (never a client flag). The same result
       // feeds the quota check below (no duplicate lookup). context_type/user_ref passed to the plan are derived from it.
-      const { identity, tier } = await resolveIdentity(req, body);
+      const rTrusted = await resolveTrustedChannel(req, body);   // null unless an internal service-role request carries trusted_channel (never client-spoofable)
+      const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
       const rCtxType = razielContextFromTier(tier);
       const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
-      const rBearer = tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
-      const rUserBearer = tier === "user" || tier === "admin" ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";   // Phase L: same validated caller JWT
+      const rBearer = tier === "admin" && !rTrusted ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
+      const rUserBearer = !rTrusted && (tier === "user" || tier === "admin") ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";   // trusted channel carries the service key, never forwarded as a user JWT   // Phase L: same validated caller JWT
       let rPersDesc: { capability: string } | null = null;   // Phase L
       let rPersPack = "";
       let rOpDesc: { capability: string; days: number | null } | null = null;
       let rCoordDesc: { capability: string; days: number | null } | null = null;   // Phase K
       let rToolRes: RazielToolResearch | null = null;
       let rDet: any = null;   // Phase H: the fn_raziel_answer result (descriptor source for number_context)
+      // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
+      // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.
+      let rSource: { ok: boolean; text: string; mime: string | null; reason: string | null } | null = null;
+      if (rTrusted?.media && rTrusted.uid) rSource = await razielSourceStage(rTrusted.uid, rTrusted.media);
       try {
-        if (rSubject && SB_URL && SB_SVC) {
+        if (rSubject && SB_URL && SB_SVC && !rTrusted?.media) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
             method: "POST", headers: svcHeaders(),
             body: JSON.stringify({ p_question: rSubject, p_context_type: rCtxType, p_user_ref: rVerifiedRef, p_visitor: String(body?.visitor_id || "") }),
@@ -1809,7 +1910,7 @@ Deno.serve(async (req: Request) => {
             rPlanMeta = razielPlanMeta(det);
             rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
             rCoordDesc = razielCoordDescriptor(det, tier);   // Phase K: admin-verified coordination/attention capability only
-            rPersDesc = razielPersonalDescriptor(det, tier, rVerifiedRef);   // Phase L: authenticated + verified uid + enabled + allowlisted capability only
+            rPersDesc = rTrusted ? null : razielPersonalDescriptor(det, tier, rVerifiedRef);   // Phase L: authenticated + verified uid + enabled + allowlisted capability only
             rToolRes = razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
             rDet = det;
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
@@ -1824,7 +1925,7 @@ Deno.serve(async (req: Request) => {
             }
             if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
               const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
-              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
+              return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
                 facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
                 deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null,
                 // Phase F: bounded tanakh_source contract (count/books/first/last/samples) passes through verbatim; no model call.
@@ -1834,7 +1935,7 @@ Deno.serve(async (req: Request) => {
             // Phase F: unsupported source phrase / no clean subject → fail closed with the deterministic clarification (no model, no guess).
             if (det && det.enabled === true && det.mode === "needs_clarification" && det.intent === "tanakh_source" && det.needs_synthesis === false) {
               const msg = [det.reason, det.recommendation].filter((s: unknown) => typeof s === "string" && s).join(" ");
-              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
+              return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
                 facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
                 deterministic: true, source_of_truth: null, trace: det.trace || null, source_result: null },
                 engine: "deterministic", model: "none", intelligence_level: "deterministic" });
@@ -1892,7 +1993,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -1907,7 +2008,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), operator: opMeta, operator_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, operator: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -1922,7 +2023,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), personal: opMeta, personal_executed: op.ok };
         if (op.ok && op.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: op.answer,
             facts: op.facts || [], suggested_paths: [], follow_up_question: null, continue_wa: true,
             deterministic: true, source_of_truth: `${op.owner} · ${op.rpc}`, basis: op.basis, personal: opMeta },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -1964,7 +2065,7 @@ Deno.serve(async (req: Request) => {
         rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, outcome: nc.outcome } };
         if (nc.ok && rNcDesc.mode === "deterministic" && !rToolRes && nc.answer) {
           await finishOperationalTrace(activeTrace, "success");
-          return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
+          return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
             follow_up_question: null, continue_wa: true, deterministic: true,
             source_of_truth: "reality_graph_law v8 · number_map + number_dossier_json", number_context: { number: nc.number, anchor: nc.anchor, counts: nc.counts } },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
@@ -1988,10 +2089,11 @@ Deno.serve(async (req: Request) => {
       }
 
       const [persona, ctx] = await Promise.all([
-        fetchRazielPersona("site"),
-        userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
+        fetchRazielPersona(rTrusted ? "wa" : "site"),
+        userRef ? fetchRazielContext(userRef, rTrusted ? "wa" : "site") : Promise.resolve(null),
       ]);
-      const ctxText = razielContextText(ctx);
+      // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
+      const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
 
       // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
       //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
@@ -2027,6 +2129,11 @@ Deno.serve(async (req: Request) => {
         : rCcPack
         ? "\n\nתוכן הדף הנוכחי (קריאה-בלבד, פרסום/ייצוג — לא עובדה קנונית ולא ראיה; סכם/הסבר רק מה שכתוב כאן, אל תחשב מספרים ואל תוסיף טענות; אל תצטט את הגוף במלואו):\n" + rCcPack
         : "");
+      const sourceText = rTrusted?.media
+        ? (rSource?.ok
+          ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין. בתשובה הפרד בבהירות בין: מה שנקרא בבירור מהמקור, קריאה לא בטוחה, ופרשנות שלך; אל תציג כוודאי דבר שסומן [לא בטוח]/[לא קריא]. פנה למשתמש בלשון ניטרלית — אל תקרא לו בשם ואל תסיק שם מטקסט המקור או מזיכרון; התמקד במקור ובשאלה הנוכחית בלבד. ענה בטקסט טבעי קצר בתוך שדה answer):\n" + rSource.text + "\n"
+          : "\n\nהמשתמש שלח מקור (תמונה/מסמך) ונשמר פרטית וממתין למודרציה, אך קריאתו החזותית לא זמינה כרגע — אמור זאת בקצרה, אל תמציא תוכן ואל תנחש מה כתוב.\n")
+        : "";
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
@@ -2035,10 +2142,12 @@ Deno.serve(async (req: Request) => {
         semText +
         planText +
         toolText +
+        sourceText +
         (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
         ctxText +
+        (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "") +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
 
       const razielModelSpanId = crypto.randomUUID();
@@ -2108,11 +2217,12 @@ Deno.serve(async (req: Request) => {
       );
       await linkOperationalAiCost(activeTrace, razielModelSpanId, razielTokenLogId);
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
-      if (userRef && rSubject) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }
+      if (userRef && rSubject && !rTrusted) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        if (rTrusted?.media) contract.source_stage = { executed: true, ok: !!rSource?.ok, reason: rSource?.reason ?? null, derivative: true, moderation: "pending" };   // additive; numeric routing skipped for attached sources
         contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
         if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2
         if (contract.continue_wa == null) contract.continue_wa = true;
@@ -2124,11 +2234,11 @@ Deno.serve(async (req: Request) => {
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
         if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-        return json({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-      return json({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

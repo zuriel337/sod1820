@@ -1,19 +1,26 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
-import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
+import { MEDIA_RELATION_KIND, buildMediaEnvelope, dedupeMediaEnvelopes, normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
+import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurrenceMethodMentions } from "./sourceBundleProjection.js";
+import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
+import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
+import { fetchScriptureTermDiscoveryForFindings } from "./scriptureTermDiscoveryProjection.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
+const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
+const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,status,contributor_id";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
-const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags";
+const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -99,6 +106,35 @@ async function runResearchQuery(builder, limit) {
   return Array.isArray(data) ? data : [];
 }
 
+function dedupeRegistryRows(rows = []) {
+  const byMethod = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (row?.method_key) byMethod.set(String(row.method_key), row);
+  }
+  return [...byMethod.values()];
+}
+
+async function fetchResearchFacetRegistry(rows = []) {
+  const tokens = [];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const facets = researchObjectFacetDimensions(row);
+    for (const ref of facets?.methods || []) {
+      const token = clean(ref?.token);
+      if (token && !tokens.includes(token)) tokens.push(token);
+    }
+  }
+  if (!tokens.length) return { rows: [], available: true };
+  try {
+    const [byMethodKey, byDbColumn] = await Promise.all([
+      fetchMethodRegistry(tokens),
+      fetchRegistryByDbColumns(tokens),
+    ]);
+    return { rows: dedupeRegistryRows([...byMethodKey, ...byDbColumn]), available: true };
+  } catch {
+    return { rows: [], available: false };
+  }
+}
+
 export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
   if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
@@ -123,7 +159,14 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
 
   try {
     const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
-    return { rows, findings: researchObjectsToUniversalFindings(rows, { locale }), access: { available: true, reason: null } };
+    const methodRegistry = await fetchResearchFacetRegistry(rows);
+    return {
+      rows,
+      findings: researchObjectsToUniversalFindings(rows, { locale, methodRegistry: methodRegistry.rows }),
+      methodRegistryRows: methodRegistry.rows,
+      methodRegistryAccess: { available: methodRegistry.available },
+      access: { available: true, reason: null },
+    };
   } catch (error) {
     if (isAccessDenied(error)) {
       return {
@@ -131,6 +174,145 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
         findings: [],
         access: { available: false, reason: "research_objects_not_readable_for_current_session" },
       };
+    }
+    throw error;
+  }
+}
+
+
+/**
+ * Narrow RLS-backed reader for the existing VIDEO_REPRESENTATION_MAP rows.
+ * Same research_objects owner, no new store/registry and no access widening.
+ * This avoids contextual video retrieval competing with unrelated research rows
+ * inside the generic per-entity page limit.
+ */
+
+const CHANNEL_UPDATE_SOURCE_RE = /^channel_updates:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+function channelUpdateIdFromResearchSourceRef(sourceRef) {
+  const canonical = researchSourceOccurrenceKey(sourceRef);
+  const match = canonical?.match(CHANNEL_UPDATE_SOURCE_RE);
+  return match?.[1]?.toLowerCase() || null;
+}
+
+/**
+ * RLS-backed Source Occurrence reader for research rows.
+ * No source text is copied into research_objects and no attribution is inferred:
+ * channel_updates remains the source owner. This reader is intended for authorized
+ * inspection surfaces; callers must keep public/admin boundaries intact.
+ */
+export async function fetchResearchSourceOccurrences(rows = [], { limit = 120 } = {}) {
+  const refs = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const canonical = researchSourceOccurrenceKey(row?.source_ref);
+    const id = channelUpdateIdFromResearchSourceRef(row?.source_ref);
+    if (canonical && id && !refs.has(id)) refs.set(id, canonical);
+  }
+  const cap = safeLimit(limit, 120, 240);
+  const ids = [...refs.keys()].slice(0, cap);
+  if (!ids.length) {
+    return { occurrences: {}, methodRegistryRows: [], access: { available: true, reason: null }, truncated: false };
+  }
+
+  try {
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 40) chunks.push(ids.slice(i, i + 40));
+    const results = await Promise.all(chunks.map(async (chunk) => {
+      const { data, error } = await supabase
+        .from("channel_updates")
+        .select(CHANNEL_UPDATE_SOURCE_FIELDS)
+        .in("id", chunk)
+        .limit(chunk.length);
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }));
+
+    const sourceRows = results.flat();
+    const seeded = sourceRows.map((row) => ({
+      row,
+      mentions: sourceOccurrenceMethodMentions(row?.text),
+    }));
+    const methodKeys = [...new Set(seeded
+      .flatMap((item) => item.mentions)
+      .map((mention) => clean(mention?.methodKey))
+      .filter(Boolean))];
+
+    let registryRows = [];
+    try {
+      registryRows = methodKeys.length ? await fetchMethodRegistry(methodKeys) : [];
+    } catch {
+      // Source wording must remain inspectable even if Registry lookup is unavailable.
+      registryRows = [];
+    }
+
+    const occurrences = {};
+    for (const { row } of seeded) {
+      const id = clean(row?.id).toLowerCase();
+      if (!id) continue;
+      const ref = refs.get(id) || `channel_updates:${id}`;
+      const originalText = row?.text == null ? null : String(row.text);
+      occurrences[ref] = {
+        contributorId: clean(row?.contributor_id) || null,
+        contributorName: clean(row?.credit) || clean(row?.speaker) || null,
+        channel: clean(row?.channel) || null,
+        status: clean(row?.status) || null,
+        createdAt: clean(row?.created_at) || null,
+        originalText,
+        displayTextNormalized: normalizeResearchDisplayText(originalText),
+        methodMentions: sourceOccurrenceMethodMentions(originalText, { registryRows }),
+      };
+    }
+
+    return {
+      occurrences,
+      methodRegistryRows: registryRows,
+      access: { available: true, reason: null },
+      truncated: refs.size > ids.length,
+    };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return {
+        occurrences: {},
+        methodRegistryRows: [],
+        access: { available: false, reason: "research_source_occurrences_not_readable_for_current_session" },
+        truncated: false,
+      };
+    }
+    throw error;
+  }
+}
+
+export async function fetchVideoSemanticMapsForEntity(node, { limit = 24 } = {}) {
+  if (!node?.id) return { rows: [], access: { available: true, reason: null } };
+  const cap = safeLimit(limit, 24, 60);
+  const label = clean(node.label);
+  const identityKey = clean(node.identity_key);
+  const terms = [...new Set([label, identityKey].filter(Boolean))];
+  const queries = [];
+  const mapOnly = (builder) => builder.contains("meta", { layer: "VIDEO_REPRESENTATION_MAP" });
+
+  if (node.type === "number" && Number.isSafeInteger(Number(label))) {
+    queries.push(runResearchQuery(
+      mapOnly(supabase.from("research_objects").select(VIDEO_SEMANTIC_MAP_FIELDS).contains("terms", [String(Number(label))])),
+      cap
+    ));
+  }
+
+  for (const term of terms) {
+    queries.push(runResearchQuery(
+      mapOnly(supabase.from("research_objects").select(VIDEO_SEMANTIC_MAP_FIELDS).contains("terms", [term])),
+      cap
+    ));
+  }
+
+  if (!queries.length) return { rows: [], access: { available: true, reason: null } };
+
+  try {
+    const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
+    return { rows, access: { available: true, reason: null } };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { rows: [], access: { available: false, reason: "video_semantic_maps_not_readable_for_current_session" } };
     }
     throw error;
   }
@@ -515,37 +697,23 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   }
 
   const galleryById = new Map(galleryRows.map((row) => [String(row.id), row]));
-  const seen = new Set();
-  const items = mediaNodes.flatMap((node) => {
+  const built = mediaNodes.flatMap((node) => {
     const galleryId = clean(node?.metadata?.gallery_image_id);
     const row = galleryId ? galleryById.get(galleryId) : null;
     // Defense in depth: public media remains published + non-hidden even if a future reader
     // changes the server-side query. Representation availability never broadens publication.
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true || seen.has(String(row.id))) return [];
-    seen.add(String(row.id));
+    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
     const relationType = candidates.get(String(node.id))?.relationType || "related";
-    return [{
-      nodeId: String(node.id),
-      galleryImageId: String(row.id),
-      label: canonicalMediaPublicLabel({
-        name: row.name,
-        label: node.label,
-        description: row.description,
-      }),
-      description: clean(row.description) || null,
-      imageUrl: row.image_url,
-      thumbUrl: row.thumb_url || row.image_url,
+    const envelope = buildMediaEnvelope({
+      row,
+      node,
       relationType,
-      occurredAt: row.occurred_at || null,
-      createdAt: row.created_at || node.created_at || null,
-      imageType: clean(row.image_type) || null,
-      space: clean(row.space) || null,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      sourceRef: `gallery_images:${row.id}`,
-      projectionReason: `reality_graph:${relationType}`,
-    }];
+      label: canonicalMediaPublicLabel({ name: row.name, label: node.label, description: row.description }),
+    });
+    return envelope ? [envelope] : [];
   });
-
+  // Contextual sort first, then dedupe by stable media identity (best relation wins).
+  const items = built;
   items.sort((a, b) => (
     // Relation directness is the existing contextual projection reason. After that, use
     // temporal/stable identity only. Legacy gallery importance is intentionally NOT a
@@ -555,11 +723,115 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
     || a.galleryImageId.localeCompare(b.galleryImageId)
   ));
 
+  const unique = dedupeMediaEnvelopes(items);
+  return {
+    items: unique.slice(0, cap),
+    totalEligible: unique.length,
+    access: { available: true, reason: null },
+    note: "Direct Reality Graph adjacency supplies projection reason; published non-hidden gallery_images supplies the media representation. Presentation order is contextual only, never truth rank.",
+  };
+}
+
+// Graph media for a bounded set of numbers ALREADY present in the research context. Reuses the
+// canonical path only: resolveEntityHubNode (number node) -> fetchCanonicalGraphEntityFindings ->
+// fetchWorldMediaProjection. No node/edge is created and no Post->Image edge is implied: the
+// context numbers are the graph anchors, the media keeps relationKind=reality_graph.
+export async function fetchGraphMediaForNumbers({ numbers = [], limit = 12, perNumberLimit = 8 } = {}) {
+  const cap = safeLimit(limit, 12, 24);
+  const list = [...new Set((Array.isArray(numbers) ? numbers : []).filter((n) => Number.isSafeInteger(n) && n > 0))].slice(0, 8);
+  if (!list.length) return { items: [], access: { available: true, reason: null } };
+  const results = await Promise.all(list.map(async (n) => {
+    const node = await resolveEntityHubNode({ type: "number", key: String(n) });
+    if (!node?.id) return { items: [], access: { available: true, reason: null } };
+    const findings = await fetchCanonicalGraphEntityFindings(node.id, { relationLimit: 80 });
+    const relations = findings.filter((finding) => finding?.kind === "graph-relation");
+    return fetchWorldMediaProjection(relations, { limit: perNumberLimit });
+  }));
+  const merged = results.flatMap((r) => r.items || []);
+  merged.sort((a, b) => (
+    mediaRelationPriority(a.relationType) - mediaRelationPriority(b.relationType)
+    || String(b.occurredAt || b.createdAt || "").localeCompare(String(a.occurredAt || a.createdAt || ""))
+    || a.galleryImageId.localeCompare(b.galleryImageId)
+  ));
+  const items = dedupeMediaEnvelopes(merged);
+  const denied = results.find((r) => r.access && r.access.available === false);
   return {
     items: items.slice(0, cap),
     totalEligible: items.length,
-    access: { available: true, reason: null },
-    note: "Direct Reality Graph adjacency supplies projection reason; published non-hidden gallery_images supplies the media representation. Presentation order is contextual only, never truth rank.",
+    access: denied ? denied.access : { available: true, reason: null },
+    note: "Graph adjacency of context numbers via the canonical graph finding path; order is contextual only, never truth rank.",
+  };
+}
+
+// Contextual media adapter for the EXACT stored post relation gallery_images.ocr_meta.post_slug.
+// Admitted as relationKind=source_metadata (NOT reality_graph): no node/edge is read as proof
+// or created. Same published + non-hidden gate as graph media; public-safe for any viewer.
+// Graph-derived media (optional graphMedia from fetchWorldMediaProjection) is merged and deduped
+// by stable mediaId, graph relation winning on collision.
+export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers = [], limit = 12 } = {}) {
+  const slug = normalizeMediaPostSlug(postSlug);
+  const cap = safeLimit(limit, 12, 24);
+  // Graph media from existing context numbers (explicit graphMedia, if given, wins first).
+  let graphItems = Array.isArray(graphMedia) ? graphMedia : [];
+  let graphAccess = { available: true, reason: null };
+  if (Array.isArray(numbers) && numbers.length) {
+    try {
+      const viaNumbers = await fetchGraphMediaForNumbers({ numbers, limit: cap });
+      graphItems = dedupeMediaEnvelopes([...graphItems, ...viaNumbers.items]);
+      if (viaNumbers.access) graphAccess = viaNumbers.access;
+    } catch (error) {
+      // A graph read failure must not hide exact source_metadata media; with no slug there is nothing else to show.
+      if (!slug) throw error;
+    }
+  }
+  graphMedia = graphItems;
+  // source_metadata is ADDITIVE: only an exact valid slug adds it; without one the graph result stands.
+  if (!slug) {
+    const only = dedupeMediaEnvelopes(graphMedia);
+    return {
+      items: only.slice(0, cap),
+      totalEligible: only.length,
+      access: graphAccess,
+      note: "graph-derived media only (no valid post slug); no source_metadata lookup, no fuzzy matching.",
+    };
+  }
+  // Stored slugs may be raw or percent-encoded; match both exact forms (no fuzzy matching).
+  const variants = [...new Set([slug, encodeURIComponent(slug)])];
+  let rows = [];
+  try {
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select(WORLD_MEDIA_FIELDS)
+      .in("ocr_meta->>post_slug", variants)
+      .eq("published", 1)
+      .or("curator_hidden.is.null,curator_hidden.eq.false")
+      .limit(cap);
+    if (error) throw error;
+    rows = Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { items: dedupeMediaEnvelopes(graphMedia).slice(0, cap), access: { available: false, reason: "gallery_media_not_readable_for_current_session" } };
+    }
+    throw error;
+  }
+  const metaItems = rows.flatMap((row) => {
+    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
+    if (normalizeMediaPostSlug(row?.ocr_meta?.post_slug) !== slug) return [];
+    const envelope = buildMediaEnvelope({
+      row,
+      relationType: "post_metadata",
+      relationKind: MEDIA_RELATION_KIND.SOURCE_METADATA,
+      postSlug: slug,
+      label: canonicalMediaPublicLabel({ name: row.name, description: row.description }),
+    });
+    return envelope ? [envelope] : [];
+  });
+  const items = dedupeMediaEnvelopes([...(graphMedia || []), ...metaItems]);
+  return {
+    items: items.slice(0, cap),
+    totalEligible: items.length,
+    access: graphAccess.available === false ? graphAccess : { available: true, reason: null },
+    note: "source_metadata context relation (ocr_meta.post_slug) is distinct from reality_graph adjacency; no edge/node is created. Order is contextual only.",
   };
 }
 
@@ -695,6 +967,8 @@ export async function fetchEntityHubProjection({
   numberResearchLenses = null,
   numberLookupLimit = 500,
   includeMedia = true,
+  includeScriptureDiscovery = true,
+  includeScriptureTermDiscovery = true,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
@@ -776,6 +1050,20 @@ export async function fetchEntityHubProjection({
     numberJourney = projectNumberJourney(numberResearch);
   }
 
+  // Generic Research Finding → Scripture discovery is a bounded read-only projection.
+  // Number nodes already expose the same-value verse path through numberJourney, so do not
+  // issue a duplicate verse lookup there. Same-value verses are discovery leads only.
+  const [scriptureDiscovery, scriptureTermDiscovery] = !isNumberNode
+    ? await Promise.all([
+        includeScriptureDiscovery
+          ? fetchScriptureDiscoveryForFindings(research.findings, { maxSeeds: 3, verseLimit: 6 })
+          : Promise.resolve(null),
+        includeScriptureTermDiscovery
+          ? fetchScriptureTermDiscoveryForFindings(research.findings, { maxGroups: 2, maxTerms: 2, resultLimit: 6, proximityGap: 6 })
+          : Promise.resolve(null),
+      ])
+    : [null, null];
+
   return {
     v: 3,
     identity: {
@@ -803,6 +1091,8 @@ export async function fetchEntityHubProjection({
     research: {
       rows: research.rows,
       findings: research.findings,
+      scriptureDiscovery,
+      scriptureTermDiscovery,
       humanGate: humanGateSummary(research.rows),
       access: research.access,
     },

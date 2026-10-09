@@ -1,16 +1,21 @@
+import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
 import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
+import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
+import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
+import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchResearchSourceOccurrences } from "../lib/research/entityHubProjection.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -35,16 +40,19 @@ import {
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
-import { fetchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
+import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
   buildWorldResearchControl,
   filterWorldResearchFindings,
 } from "../lib/research/worldResearchControl.js";
-import { canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
+import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
+import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
+import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
@@ -135,6 +143,43 @@ const SORT_LABELS = Object.freeze({
   number_desc: "מספר יורד",
 });
 
+
+const RESEARCH_KIND_LABELS_HE = Object.freeze({
+  fact: "ממצא מסוג עובדה",
+  relation: "קשר מחקרי",
+  observation: "תצפית",
+  hypothesis: "השערה",
+  question: "שאלת מחקר",
+});
+
+const RESEARCH_ACCESS_LABELS_HE = Object.freeze({
+  private: "פרטי",
+  public_candidate: "מועמד לציבור",
+  public: "ציבורי",
+  shared: "משותף",
+});
+
+const RESEARCH_GOVERNANCE_LABELS_HE = Object.freeze({
+  candidate: "מועמד",
+  approved: "מאושר",
+  canonical: "קנוני",
+  published: "פורסם",
+  rejected: "נדחה",
+  draft: "טיוטה",
+});
+
+const RESEARCH_VERIFICATION_LABELS_HE = Object.freeze({
+  match: "אומת",
+  mismatch: "נמצאה אי־התאמה",
+  not_tested: "טרם נבדק",
+  method_unknown: "השיטה אינה זמינה לבדיקה",
+  partial: "בדיקה חלקית",
+  partial_match_with_mismatches: "בדיקה חלקית עם אי־התאמות",
+  partial_needs_review: "בדיקה חלקית — דורש סקירה",
+});
+
+const axisLabel = (map, value, fallback) => map[String(value || "").trim()] || fallback;
+
 const WORLD_LANES = Object.freeze([
   { key: "overview", label: "מבט כללי" },
   { key: "media", label: "תמונות" },
@@ -210,6 +255,25 @@ function looksTechnicalResearchTitle(value) {
     || /\w+_\w+/.test(text);
 }
 
+function researchSourceOccurrenceForFinding(finding, occurrences = {}) {
+  const ref = researchSourceOccurrenceKey(finding?.source?.sourceRef || finding?.provenance?.inputRef);
+  return ref ? occurrences?.[ref] || null : null;
+}
+
+function buildSourceMethodOccurrenceSummary(occurrences = {}) {
+  const counts = {};
+  for (const occurrence of Object.values(occurrences || {})) {
+    const seen = new Set();
+    for (const method of Array.isArray(occurrence?.methodMentions) ? occurrence.methodMentions : []) {
+      const label = String(method?.displayLabel || method?.token || "").trim();
+      if (!label || seen.has(label)) continue;
+      seen.add(label);
+      counts[label] = (counts[label] || 0) + 1;
+    }
+  }
+  return counts;
+}
+
 function humanFindingPresentation(finding, anchorLabel) {
   const presentation = finding?.view?.rendererHints?.presentation || {};
   const projectedTitle = presentation.title || finding?.subject?.label || null;
@@ -218,6 +282,7 @@ function humanFindingPresentation(finding, anchorLabel) {
     && (looksTechnicalResearchTitle(projectedTitle) || /[A-Za-z]{3}/.test(String(projectedTitle || "")));
   return {
     title: hideRawTechnical ? `מחקר נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודת מחקר"),
+    sourceText: hideRawTechnical ? null : (presentation.displayText || null),
     summary: hideRawTechnical ? null : (presentation.summary || null),
     sourceLabel: presentation.sourceLabel || null,
     fallbackMode,
@@ -252,10 +317,10 @@ function prominenceWhyLines(item) {
   if (why.uncertainty) lines.push("יש כאן אי־התאמה או שאלה שיכולה לשנות את ההבנה.");
   if (String(why.directness || "").includes("direct")) lines.push("הקשר ישיר לעוגן הנוכחי.");
   if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת חישוב תואמת.");
-  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור או provenance מתועד.");
+  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש תיעוד מקור מתועד.");
   if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים תלויים קובצו לפני בחירת העיקר.");
-  if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי כ־Gold; זהו אות אוצרות, לא דירוג אמת.");
-  else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי כ־Silver; זהו שובר שוויון בלבד.");
+  if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי ברמת זהב; זהו אות אוצרות, לא דירוג אמת.");
+  else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי ברמת כסף; זהו שובר שוויון בלבד.");
   if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
   if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`);
   return lines.length ? lines : ["הפריט נבחר בגלל הרלוונטיות שלו לנקודה הזאת."];
@@ -340,14 +405,6 @@ function humanTimelineLabel(item) {
   return withoutTechnicalRelation || label || "נקודת מחקר";
 }
 
-function humanMediaLabel(item, anchorLabel) {
-  const label = String(item?.label || "").replace(/^#+\s*/, "").trim();
-  if (!label || looksLikeFilename(label) || /^עדכון\b/u.test(label) || looksTechnicalResearchTitle(label)) {
-    return `תמונה סביב ${anchorLabel || "הנקודה"}`;
-  }
-  return label;
-}
-
 function mediaDate(item) {
   const value = item?.occurredAt || item?.createdAt || null;
   if (!value) return null;
@@ -418,6 +475,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 }
 
 function LiveWorldLanding({ research, shell, context }) {
+  const location = useLocation();
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
@@ -435,6 +493,7 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
+  const [corpusKey, setCorpusKey] = useState(null);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
   const [allCreatorOptions, setAllCreatorOptions] = useState([]);
@@ -444,7 +503,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
   const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
-  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, loading: false, projection: null, error: null });
+  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
 
   const load = async () => {
     setLanding((prev) => ({
@@ -491,6 +550,16 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (landing.loading) return;
+    return watchWorldDiscoveryStream({
+      limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
+      onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
+      onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+    });
+  }, [landing.loading, landing.contributors]);
+
+
 
   useEffect(() => {
     let alive = true;
@@ -505,24 +574,26 @@ function LiveWorldLanding({ research, shell, context }) {
     return () => { alive = false; };
   }, []);
 
+  // PUBLIC for everyone (anonymous client, site-writer source material). ADMIN only inside explicit admin tools.
+  const contributorReadMode = controlMode ? PROJECTOR_MODE.ADMIN_ALL : PROJECTOR_MODE.PUBLIC_VIEW;
   useEffect(() => {
     let alive = true;
     const slug = writerFilter === "all" ? null : writerFilter;
-    if (!isAdmin || !slug) {
-      setContributorFindingsState({ slug: null, loading: false, projection: null, error: null });
+    if (!slug) {
+      setContributorFindingsState({ slug: null, mode: null, loading: false, projection: null, error: null });
       return () => { alive = false; };
     }
 
-    setContributorFindingsState({ slug, loading: true, projection: null, error: null });
-    fetchContributorFindingsProjection(slug)
+    setContributorFindingsState({ slug, mode: contributorReadMode, loading: true, projection: null, error: null });
+    fetchContributorFindingsProjection(slug, { mode: contributorReadMode })
       .then((projection) => {
-        if (alive) setContributorFindingsState({ slug, loading: false, projection, error: null });
+        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection, error: null });
       })
       .catch((error) => {
-        if (alive) setContributorFindingsState({ slug, loading: false, projection: null, error });
+        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection: null, error });
       });
     return () => { alive = false; };
-  }, [isAdmin, writerFilter]);
+  }, [contributorReadMode, writerFilter]);
 
   useEffect(() => {
     let alive = true;
@@ -738,14 +809,33 @@ function LiveWorldLanding({ research, shell, context }) {
     return items.filter((item) => item.creator === discoveryCreator);
   }, [landing.discovery, discoveryCreator]);
   const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
+  useEffect(() => {
+    if (!location.hash.startsWith("#group-source-")) return;
+    const element = document.getElementById(location.hash.slice(1));
+    if (element?.classList.contains("sod29-world-group-source")) {
+      element.open = true;
+      element.scrollIntoView({ block: "nearest" });
+    }
+  }, [location.hash, discoveryItems]);
+
   const openDiscoveryItem = (item) => {
     if (!item) return;
+    if (item.kind === "source" && item.href) {
+      research.updateResearchContext?.({
+        subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
+        selection: { entityId: item.sourceRef, entityType: "post" },
+        lens: "world",
+        returnTo: { href: "/world", label: "מה חדש בעולם" },
+      });
+      shell.go(item.href);
+      return;
+    }
     if (item.kind === "convergence" && item.slug) {
       openCard({ id: item.id, facet: "topic", label: item.label, sub: item.summary, refId: item.slug });
       return;
     }
     if (item.kind === "finding") {
-      if (Number.isFinite(Number(item.value))) {
+      if (Number.isFinite(item.value)) {
         const value = Number(item.value);
         research.setResearchContext?.({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
@@ -813,7 +903,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
           <h2>מה חדש בעולם?</h2>
-          <p>ממצאי מחקר חדשים והתכנסויות מאושרות באותו זרם. מה שמותר לחשבון שלך לראות מופיע לפי זמן — לא לפי דירוג אמת.</p>
+          <p>דברי מקור שהתעדכנו באתר, ממצאי מחקר מורשים והתכנסויות מאושרות. המקור מופיע גם לפני שעבר מחקר; החידושים מסודרים לפי זמן, לא לפי דירוג אמת.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -840,34 +930,58 @@ function LiveWorldLanding({ research, shell, context }) {
         <div className="sod29-world-live-stream">
           <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
             <button type="button" className={`sod29-world-stream-filter${discoveryCreator === "all" ? " is-active" : ""}`} aria-pressed={discoveryCreator === "all"} onClick={() => setDiscoveryCreator("all")}>הכול</button>
-            {discoveryCreators.map((creator) => <button
+            {discoveryCreators.map((creator) => {
+              const recent = landing.discovery?.recentCounts?.[creator] ?? 0;
+              const corpus = corpusForCreator(creator);
+              return <button
+                type="button"
+                key={creator}
+                className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
+                aria-pressed={discoveryCreator === creator}
+                onClick={() => { setDiscoveryCreator(creator); if (corpus) setCorpusKey(corpus.key); }}
+              >{creator}{recent ? ` · ${recent}` : " · אין בעדכונים האחרונים"}</button>;
+            })}
+            {WORLD_SOURCE_CORPORA.map((spec) => <button
               type="button"
-              key={creator}
-              className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
-              aria-pressed={discoveryCreator === creator}
-              onClick={() => setDiscoveryCreator(creator)}
-            >{creator}</button>)}
+              key={`corpus:${spec.key}`}
+              className={`sod29-world-stream-filter${corpusKey === spec.key ? " is-active" : ""}`}
+              aria-pressed={corpusKey === spec.key}
+              data-experience-capability="world-source-corpus-entry"
+              onClick={() => setCorpusKey(corpusKey === spec.key ? null : spec.key)}
+            >{spec.label} · כל המקורות</button>)}
           </div>
 
+          {landing.discovery?.groupArrivals ? <p role="status" className="sod29-world-stream-truth-note">{landing.discovery.groupArrivals.message}</p> : null}
           {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
+          {landing.discovery?.unavailableSources?.includes("posts") ? <div className="sod29-world-stream-truth-note">חלק מעדכוני המקורות אינם זמינים כרגע.</div> : null}
           {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
 
           {discoveryItems.length ? <div className="sod29-world-stream-list">
-            {discoveryItems.slice(0, 12).map((item, index) => <button type="button" className={`sod29-world-stream-item${index === 0 ? " is-lead" : ""}`} key={item.id} onClick={() => openDiscoveryItem(item)}>
+            {discoveryItems.slice(0, 12).map((item, index) => {
+              const copy = <>
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
+                {item.stateLabel ? <small>{item.stateLabel}</small> : null}
+                {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
               </div>
-              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">פתח ←</span>}
-            </button>)}
+              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
+              </>;
+              const itemClass = `sod29-world-stream-item${index === 0 ? " is-lead" : ""}`;
+              if (item.sourceKind === "group_message") return <details key={item.id} id={`group-source-${item.id.slice(6)}`} className="sod29-world-group-source">
+                <summary className={itemClass}>{copy}</summary>
+                <p className="sod29-world-group-source-body">{item.fullText}</p>
+              </details>;
+              return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
+            })}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מאחד Research Findings מורשים והתכנסויות מאושרות. הרשאה ≠ פרסום, וחדש ≠ דירוג אמת.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
@@ -886,12 +1000,20 @@ function LiveWorldLanding({ research, shell, context }) {
       </div>
     </section>
 
+          {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
+            key={spec.key}
+            spec={spec}
+            recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
+          />)}
+
     <WorldAnchorMap
       projection={anchorState.projection}
       loading={anchorState.loading}
       error={anchorState.error}
       onOpen={openAnchorValue}
     />
+
+    <WorldSourceDepth />
 
     {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
@@ -925,35 +1047,27 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
     </section> : null}
 
-    {selectedWriter && isAdmin ? <section
+    {selectedWriter ? <section
       className="sod29-section sod29-world-contributor-findings-section"
-      aria-label={`כל הממצאים של ${selectedWriter.displayName}`}
+      aria-label={`כל החומר של ${selectedWriter.displayName}`}
       data-experience-capability="world-contributor-findings-projection"
     >
-      <ContributorFindingsLens
-        projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
-        loading={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null}
-      />
+      {(() => {
+        const own = contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode;
+        return <ContributorFindingsLens
+          projection={own ? contributorFindingsState.projection : null}
+          loading={!own || contributorFindingsState.loading}
+          error={own ? contributorFindingsState.error : null}
+        />;
+      })()}
     </section> : null}
-
-    {selectedWriter && !isAdmin ? <NativeStateSection>
-      <FrameState
-        kind="gated"
-        title={`כל הממצאים של ${selectedWriter.displayName}`}
-        action={!user ? <a className="sod29-action primary" href="/login">התחבר כמנהל</a> : null}
-      >
-        שכבת המחקר המלאה שמורה ל־Human Gate. אם אתה מנהל ומחובר כרגע כמשתמש רגיל, השתמש ב״רענן הרשאה״ בראש העולם.
-      </FrameState>
-    </NativeStateSection> : null}
-
 
     {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">כלי מנהל</div>
           <h2>בקרה פנימית</h2>
-          <div className="sod29-muted">כלי Human Gate ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
+          <div className="sod29-muted">כלי השער האנושי ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
         </div>
       </div>
       <WorldConvergenceLens state={allResearchState} />
@@ -1099,6 +1213,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [activeLane, setActiveLane] = useState("overview");
   const [contributorFilter, setContributorFilter] = useState("all");
   const [contributorLensState, setContributorLensState] = useState({ loading: false, data: null, error: null });
+  const [researchSourceState, setResearchSourceState] = useState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
   const [gematriaMethodFilter, setGematriaMethodFilter] = useState("all");
   const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
   const [gematriaQuery, setGematriaQuery] = useState("");
@@ -1128,6 +1243,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
     setContributorLensState({ loading: false, data: null, error: null });
+    setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
@@ -1152,6 +1268,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setAdminView("research");
     setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
     setContributorFilter("all");
+    if (!isAdmin) setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
   }, [isAdmin]);
 
   const goldenJourneyRelevant = (
@@ -1194,6 +1311,35 @@ function AnchoredWorld({ research, shell, subject, context }) {
     });
     return () => { alive = false; };
   }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!adminMode || !isAdmin || !data?.research?.rows?.length) {
+      setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setResearchSourceState((current) => ({ ...current, loading: true, error: null }));
+    fetchResearchSourceOccurrences(data.research.rows, { limit: 240 })
+      .then((result) => {
+        if (!alive) return;
+        setResearchSourceState({
+          loading: false,
+          occurrences: result?.occurrences || {},
+          access: result?.access || { available: true, reason: null },
+          error: null,
+        });
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setResearchSourceState({
+          loading: false,
+          occurrences: {},
+          access: { available: false, reason: "research_source_occurrence_read_failed" },
+          error,
+        });
+      });
+    return () => { alive = false; };
+  }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
   const currentNodeId = data?.identity?.nodeId || null;
   const graphRelations = data?.graph?.relations || [];
@@ -1287,6 +1433,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
     timeline: data?.timeline?.length || 0,
   };
   const adminSummary = researchControl;
+  const researchFacetSummary = adminSummary.facets || {
+    byMethod: {}, byOperation: {}, byFactor: {}, byFamily: {}, spatial3d: 0, hasStructuredFacets: false,
+  };
+  const sourceMethodOccurrenceSummary = useMemo(
+    () => buildSourceMethodOccurrenceSummary(researchSourceState.occurrences),
+    [researchSourceState.occurrences],
+  );
   const updateResearchFilter = (key, value) => setResearchFilters((current) => ({ ...current, [key]: value }));
   const resetResearchFilters = () => setResearchFilters({ ...WORLD_RESEARCH_FILTER_DEFAULTS });
 
@@ -1422,7 +1575,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     shell.openInspect({
       id: String(item?.nodeId || item?.galleryImageId || "media"),
       type: "image",
-      label: humanMediaLabel(item, data?.identity?.label || subject.label || subject.id),
+      label: item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" }),
       href: "/world",
     });
   };
@@ -1606,9 +1759,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {adminMode ? <section className="sod29-section sod29-world-research-control" aria-label="מצב מחקר וממשל">
         <div className="sod29-section-head">
           <div>
-            <div className="sod29-kicker">WORLD RESEARCH CONTROL</div>
+            <div className="sod29-kicker">בקרת מחקר בעולם</div>
             <h2>{adminView === "research" ? "מצב מחקר" : "מצב ממשל"}</h2>
-            <p className="sod29-muted">אותו עולם, אותה מציאות. המצב הזה חושף רק צירים שה־owners החיים כבר מחזיקים; הוא לא ממציא Processing או Publication state.</p>
+            <p className="sod29-muted">אותו עולם, אותה מציאות. המצב הזה חושף רק צירים שבעלי הסמכות החיים כבר מחזיקים; הוא לא ממציא מצב עיבוד או מצב פרסום.</p>
           </div>
           <div className="sod29-actions" role="group" aria-label="מצב עבודה בעולם">
             <button className={`sod29-action${adminView === "research" ? " primary" : ""}`} type="button" aria-pressed={adminView === "research"} onClick={() => setAdminView("research")}>מחקר</button>
@@ -1616,12 +1769,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
         </div>
 
-        <FrameState title="הרשאות נשארות בשרת">מצב הניהול של World נפתח רק כשמנהל בוחר בו. הוא אינו עוקף הרשאות נתונים: World מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. Access, Governance, Verification ו־Kind נשארים צירים נפרדים; מצב מחקר אינו עוקף RLS ואינו מפרסם דבר.</FrameState>
+        <FrameState title="הרשאות נשארות בשרת">מצב הניהול של העולם נפתח רק כשמנהל בוחר בו. הוא אינו עוקף הרשאות נתונים: העולם מציג רק חומר שהחשבון הנוכחי מורשה לקרוא. גישה, ממשל, אימות וסוג נשארים צירים נפרדים; מצב מחקר אינו עוקף את מדיניות הגישה בשרת ואינו מפרסם דבר.</FrameState>
 
         {adminView === "research" ? <>
           <div className="sod29-world-research-inbox">
             <div>
-              <div className="sod29-kicker">RESEARCH INBOX</div>
+              <div className="sod29-kicker">תיבת מחקר</div>
               <h3>מה דורש תשומת לב סביב {data.identity.label}</h3>
             </div>
             <div className="sod29-world-attention-buttons" role="group" aria-label="סינון לפי תשומת לב מחקרית">
@@ -1638,33 +1791,58 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div className="sod29-world-research-filters">
             <label><span>סוג חומר</span><select value={researchFilters.kind} onChange={(event) => updateResearchFilter("kind", event.target.value)}>
               <option value="all">כל הסוגים · {adminSummary.total}</option>
-              {Object.entries(adminSummary.byKind).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byKind).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_KIND_LABELS_HE, value, "סוג מחקר נוסף")} · {count}</option>)}
             </select></label>
             <label><span>גישה</span><select value={researchFilters.access} onChange={(event) => updateResearchFilter("access", event.target.value)}>
               <option value="all">כל רמות הגישה</option>
-              {Object.entries(adminSummary.byAccess).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byAccess).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_ACCESS_LABELS_HE, value, "רמת גישה נוספת")} · {count}</option>)}
             </select></label>
             <label><span>ממשל</span><select value={researchFilters.governance} onChange={(event) => updateResearchFilter("governance", event.target.value)}>
               <option value="all">כל מצבי הממשל</option>
-              {Object.entries(adminSummary.byGovernance).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byGovernance).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, value, "מצב ממשל נוסף")} · {count}</option>)}
             </select></label>
             <label><span>אימות</span><select value={researchFilters.verification} onChange={(event) => updateResearchFilter("verification", event.target.value)}>
               <option value="all">כל מצבי האימות</option>
-              {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{value} · {count}</option>)}
+              {Object.entries(adminSummary.byVerification).map(([value, count]) => <option key={value} value={value}>{axisLabel(RESEARCH_VERIFICATION_LABELS_HE, value, "מצב אימות נוסף")} · {count}</option>)}
             </select></label>
+            {Object.keys(researchFacetSummary.byMethod).length ? <label><span>שיטת גימטריה</span><select value={researchFilters.method} onChange={(event) => updateResearchFilter("method", event.target.value)}>
+              <option value="all">כל השיטות</option>
+              {Object.entries(researchFacetSummary.byMethod).map(([method, count]) => <option key={method} value={method}>{method} · {count}</option>)}
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byOperation).length ? <label><span>סוג פעולה</span><select value={researchFilters.operation} onChange={(event) => updateResearchFilter("operation", event.target.value)}>
+              <option value="all">כל הפעולות</option>
+              {Object.entries(researchFacetSummary.byOperation).map(([operation, count]) => <option key={operation} value={operation}>{RESEARCH_OPERATION_LABELS_HE[operation] || "פעולה מחקרית"} · {count}</option>)}
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byFactor).length ? <label><span>מכפיל</span><select value={researchFilters.factor} onChange={(event) => updateResearchFilter("factor", event.target.value)}>
+              <option value="all">כל המכפילים</option>
+              {Object.entries(researchFacetSummary.byFactor).sort((a, b) => Number(a[0]) - Number(b[0])).map(([factor, count]) => <option key={factor} value={factor}>×{factor} · {count}</option>)}
+            </select></label> : null}
+            {researchFacetSummary.spatial3d ? <label><span>מבנה מחקרי</span><select value={researchFilters.spatial} onChange={(event) => updateResearchFilter("spatial", event.target.value)}>
+              <option value="all">כל המבנים</option>
+              <option value="3d">תלת־ממד · {researchFacetSummary.spatial3d}</option>
+            </select></label> : null}
+            {Object.keys(researchFacetSummary.byFamily).length ? <label><span>סט מחקרי</span><select value={researchFilters.family} onChange={(event) => updateResearchFilter("family", event.target.value)}>
+              <option value="all">כל הסטים</option>
+              {Object.entries(researchFacetSummary.byFamily).map(([key, family]) => <option key={key} value={key}>{family.label} · {family.count}</option>)}
+            </select></label> : null}
             <button className="sod29-action" type="button" onClick={resetResearchFilters}>אפס סינון</button>
           </div>
+          {Object.keys(sourceMethodOccurrenceSummary).length ? <div className="sod29-muted sod29-world-research-result-count">
+            שיטות שנאמרו במקור בלבד (לא פילטר חישובי עד קישור/אימות): {Object.entries(sourceMethodOccurrenceSummary).map(([method, count]) => `${method} · ${count} מקורות`).join(" · ")}
+          </div> : null}
+          {researchSourceState.loading ? <div className="sod29-muted sod29-world-research-result-count">טוען דברי מקור מורשים…</div> : null}
+          {researchSourceState.access?.available === false ? <div className="sod29-muted sod29-world-research-result-count">דברי המקור המלאים אינם זמינים לחשבון זה.</div> : null}
           <div className="sod29-muted sod29-world-research-result-count">מוצגים {filteredResearchFindings.length} מתוך {visibleResearchFindings.length} ממצאי מחקר מורשים.</div>
         </> : <>
           <div className="sod29-book-grid sod29-world-govern-grid">
-            <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3><p>מי רשאי לקרוא את החומר. זה אינו מצב פרסום.</p></div>
-            <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3><p>Candidate / Approved / Canonical נשארים נפרדים מאימות ומנראות.</p></div>
-            <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${axisLabel(RESEARCH_ACCESS_LABELS_HE, name, "רמת גישה")}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3><p>מי רשאי לקרוא את החומר. זה אינו מצב פרסום.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, name, "מצב ממשל")}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3><p>מועמד / מאושר / קנוני נשארים נפרדים מאימות ומנראות.</p></div>
+            <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${axisLabel(RESEARCH_VERIFICATION_LABELS_HE, name, "מצב אימות")}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3><p>תוצאת בדיקה אינה אישור פרסום ואינה קנוניזציה.</p></div>
           </div>
           <div className="sod29-world-govern-boundaries">
-            <FrameState kind={adminSummary.capabilities.rawSource ? "empty" : "unavailable"} title="מקור גולמי / provenance">{adminSummary.capabilities.rawSource ? "לפחות לחלק מהפריטים יש sourceRef/inputRef שניתן לעקוב אחריו. פתיחת raw מלאה תחובר דרך Research Intake owner." : "ב־projection הנוכחי אין sourceRef שמאפשר לפתוח raw; World לא ימציא מקור."}</FrameState>
-            <FrameState kind="unavailable" title="Processing state עדיין לא מחובר">Raw → Extracted → Processed חייב להגיע מ־Research Intake v11. אין שדה כזה ב־research_objects ולכן הוא לא מוצג כאילו קיים.</FrameState>
-            <FrameState kind="unavailable" title="Publication state עדיין לא מחובר">privacy_scope=public_candidate אינו Published. פרסום יישאר Human Gate נפרד כאשר owner הפרסום יחובר ל־World.</FrameState>
+            <FrameState kind={researchSourceState.loading ? "loading" : researchSourceState.access?.available === false ? "unavailable" : "empty"} title="מקור גולמי / תיעוד מקור">{researchSourceState.loading ? "טוען את מופעי המקור דרך גבול Research Intake הקיים." : researchSourceState.access?.available === false ? "המקור הגולמי אינו מורשה לחשבון זה; העולם לא יעקוף את גבול הגישה." : Object.keys(researchSourceState.occurrences || {}).length ? "מופעי המקור המורשים מחוברים דרך channel_updates. דברי המקור נשמרים בנפרד מחילוץ המערכת." : adminSummary.capabilities.rawSource ? "קיימים מזהי מקור, אך לא נמצא כרגע מופע מקור מלא לקריאה." : "בתצוגה הנוכחית אין מזהה מקור שמאפשר לפתוח את המקור הגולמי; העולם לא ימציא מקור."}</FrameState>
+            <FrameState kind="unavailable" title="מצב עיבוד עדיין לא מחובר">מקור גולמי → חילוץ → עיבוד חייב להגיע מחוזה קליטת המחקר. אין שדה כזה ברשומות המחקר ולכן הוא לא מוצג כאילו קיים.</FrameState>
+            <FrameState kind="unavailable" title="מצב פרסום עדיין לא מחובר">מועמד לציבור אינו פרסום. פרסום יישאר החלטה נפרדת של השער האנושי כאשר בעל הסמכות של הפרסום יחובר לעולם.</FrameState>
           </div>
         </>}
 
@@ -1672,10 +1850,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div>
             <div className="sod29-kicker">חוקר / כותב</div>
             <h3>סנן חומר מיוחס</h3>
-            <p className="sod29-muted">World מציג את קבוצת החוקרים/כותבים שאושרה בעבר ובנוסף זהויות חיות שמסומנות trusted במאגר הקנוני. ברירת המחדל היא הכול. הסינון משתמש רק ב־attribution קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
+            <p className="sod29-muted">העולם מציג את קבוצת החוקרים והכותבים שאושרה בעבר ובנוסף זהויות חיות שמסומנות כמהימנות במאגר הקנוני. ברירת המחדל היא הכול. הסינון משתמש רק בייחוס קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
           </div>
-          {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא attribution והרשאות מנהל.</FrameState> : null}
-          {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר ה־World ממשיך לפעול ללא ניחוש attribution.</FrameState> : null}
+          {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא ייחוס והרשאות מנהל.</FrameState> : null}
+          {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר העולם ממשיך לפעול ללא ניחוש ייחוס.</FrameState> : null}
           {contributorLens?.contributors?.length ? <div className="sod29-world-contributor-buttons" role="group" aria-label="סינון לפי חוקר או כותב">
             <button className={`sod29-action${contributorFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={contributorFilter === "all"} onClick={() => setContributorFilter("all")}>הכול</button>
             {contributorLens.contributors.map((person) => {
@@ -1804,11 +1982,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
         {data?.media?.access?.available !== false && !mediaItems.length ? <FrameState kind="empty" title="אין כרגע תמונות מחוברות לנקודה הזאת">לא מוצגת תמונה חלופית אם אין ייצוג חזותי מחובר וגלוי.</FrameState> : null}
         {mediaItems.length ? <div className="sod29-world-media-grid">
           {mediaItems.map((item) => {
-            const label = humanMediaLabel(item, data.identity.label);
+            const label = item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" });
             const date = mediaDate(item);
             return <article className="sod29-world-media-card" key={item.galleryImageId}>
               <div className="sod29-world-media-frame">
-                <img src={item.thumbUrl || item.imageUrl} alt={label} loading="lazy" />
+                <CanonicalMediaFigure2029 item={item} thumbnail alt={label} contextNote={relationLabel(item.relationType)} />
               </div>
               <div className="sod29-world-media-copy">
                 <div className="sod29-world-primary-meta">
@@ -1916,15 +2094,24 @@ function AnchoredWorld({ research, shell, subject, context }) {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           const presentation = humanFindingPresentation(finding, data.identity.label);
+          const sourceOccurrence = adminMode
+            ? researchSourceOccurrenceForFinding(finding, researchSourceState.occurrences)
+            : null;
+          const exactSourceText = sourceOccurrence?.displayTextNormalized || null;
+          const extractionText = presentation.sourceText || null;
           return <div className="sod29-row sod29-world-research-row" key={finding.id || index}>
             <div>
               <strong>{presentation.title}</strong>
+              {exactSourceText ? <p className="sod29-world-source-wording"><b>דברי המקור</b><br />{exactSourceText}</p> : null}
+              {extractionText && extractionText !== exactSourceText ? <p className="sod29-world-source-wording"><b>חילוץ המחקר</b><br />{extractionText}</p> : null}
               {presentation.summary ? <p className="sod29-world-row-summary">{presentation.summary}</p> : null}
               <small>{verification}{presentation.sourceLabel ? ` · ${presentation.sourceLabel}` : ""}</small>
               {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>
                 <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
                 <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
                 <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+                {(finding?.projection?.dimensions?.researchFacets?.methodComponents || []).map((component, componentIndex) => <span className="sod29-chip" key={`component:${component.methodKey || componentIndex}:${component.expression || componentIndex}`}>{methodComponentStateLabelHe(component)}</span>)}
+                {(sourceOccurrence?.methodMentions || []).map((method) => <span className="sod29-chip" key={`${method.token}:${method.state}`}>{sourceMethodStateLabelHe(method)}</span>)}
                 {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
               </div> : null}
             </div>

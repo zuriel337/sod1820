@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { use2029Palette } from "../../lib/palette.js";
 import { parseElsHitKey } from "../../lib/elsJourney.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -593,8 +594,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
-      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "⌕", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
-      ...[["findings", "סריקה וממצאים", "סריקה", "⌁"], ["results", "תוצאות", "תוצאות", "☷"], ["research", "שמירה", "שמירה", "◇"]].map(([id, label, shortLabel, icon]) => ({
+      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
+      ...[["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]].map(([id, label, shortLabel, icon]) => ({
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
@@ -978,11 +979,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
         </footer>
         </div>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || hasSystemDock} role="group" aria-label="כלי המטריצה">
-          {[["findings", "סריקה וממצאים", "⌕"], ["results", "תוצאות", "☷"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
+          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
-          ><span aria-hidden="true">{icon}</span><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
+          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
         </div>
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">

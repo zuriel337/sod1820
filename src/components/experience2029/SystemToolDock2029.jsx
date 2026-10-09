@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect } from "react";
 
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
+
 // Presentation extension of SystemFrame's one Command Island. The frame owns the
 // registration lifetime; the surface keeps its inputs, engine and findings.
 export const SystemToolDockContext2029 = createContext(null);
@@ -18,5 +20,5 @@ export function SystemToolDockActions2029({ actions, onInvoke }) {
     aria-label={action.label} title={action.label}
     aria-expanded={action.expanded} aria-controls={action.controls}
     onClick={(event) => onInvoke(action, event.currentTarget)}
-  ><span aria-hidden="true">{action.icon}</span><small>{action.shortLabel || action.label}</small></button>);
+  ><NavigationIcon2029 name={action.icon} /><small>{action.shortLabel || action.label}</small></button>);
 }

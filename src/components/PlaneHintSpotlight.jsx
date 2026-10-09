@@ -3,19 +3,38 @@ import { Link, useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 
-export const PLANE_HINT_VIDEO_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/original.mp4";
-export const PLANE_HINT_POSTER_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster.jpg";
-export const PLANE_HINT_363_IMAGE_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png";
 export const PLANE_HINT_POST_HREF = "/flydubai-fz1073-363-14000-remzei-geula";
 
-export const PLANE_HINT_GEMATRIA = Object.freeze({
-  year: "שנת תשפ״ז = 787",
-  messiah: "המשיח = 363",
-  lines: [
-    "״מי שגמלך כל טוב הוא יגמלך כל טוב סלה״ = 787",
-    "״ושמחת בחגך״ = 787",
-  ],
-});
+const PLANE_VIDEOS = Object.freeze([
+  Object.freeze({
+    id: "83c3afd23566b3ded4b85427c4327e95",
+    title: "החיבור בין שביעי לעשירי למטוס — שלוש שנים לשביעי באוקטובר",
+    mediaUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/d808d3ce-9312-4c15-b5ed-4fbf45a3c8a9/original.mp4",
+    posterUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
+    treeHref: "/2029/number/718",
+    isNew: true,
+    tags: [
+      "1073", "73", "חכמה", "Free Zion", "שחררו את ציון", "14000",
+      "363", "המשיח", "604", "תדר", "משיח בן דוד", "1718", "718",
+      "חדשות", "שביעי באוקטובר", "התשובה", "631", "תאריך",
+      "מלך ישראל", "נפתלי בנט", "עופר וינטר", "1820", "1202",
+      "התגלות משיח", "בראשית ברא אלהים", "חרבות ברזל",
+    ],
+  }),
+  Object.freeze({
+    id: "988b0457cc44074a29a98f7abe4029fb",
+    title: "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה",
+    mediaUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+    posterUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
+    treeHref: "/2029/number/1073",
+    isNew: false,
+    tags: [
+      "1073", "FZ1073", "Free Zion", "שחררו את ציון", "14000",
+      "14", "75", "750", "7500", "776", "787", "363", "המשיח",
+      "683", "סנכרון", "386", "דוד בן ישי", "73",
+    ],
+  }),
+]);
 
 function tightRoute(pathname) {
   return pathname === "/2029"
@@ -24,6 +43,7 @@ function tightRoute(pathname) {
     || pathname === "/heichal"
     || pathname === "/היכל"
     || pathname === "/research"
+    || /^\/2029\//.test(pathname)
     || /^\/code(\/|$)/.test(pathname)
     || /^\/galaxy(\/|$)/.test(pathname)
     || /^\/sulamot/.test(pathname)
@@ -32,70 +52,61 @@ function tightRoute(pathname) {
     || /^\/entity-hub-preview(\/|$)/.test(pathname);
 }
 
-export function PlaneHintNotice({ embedded = false }) {
-  const P = usePalette();
-  return (
-    <div
-      role="note"
-      aria-label="רמזי תשפ״ז והמטוס"
-      data-experience-capability="plane-hint-gematria"
-      style={{
-        marginBottom: embedded ? 0 : 18,
-        background: "linear-gradient(135deg, rgba(212,175,55,0.12), rgba(122,19,32,0.10))",
-        border: `1px solid ${P.borderStrong}`,
-        borderRadius: 16,
-        padding: embedded ? "12px 13px" : "16px 17px",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ color: P.accentText, fontFamily: F.ui, fontSize: embedded ? 15 : "clamp(17px,2.5vw,21px)", fontWeight: 900, lineHeight: 1.45 }}>
-        ✈️ רמזים מדהימים סביב המטוס שכמעט התרסק
-      </div>
-      {!embedded && (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 3 }}>
-          הפוסט המלא עם כל החיבורים — בהכנה.
-        </div>
-      )}
-      <div style={{ color: P.ink, fontFamily: F.body, fontSize: embedded ? 13 : 14.5, lineHeight: 1.85, marginTop: 9 }}>
-        <b style={{ color: P.accentText }}>{PLANE_HINT_GEMATRIA.year}</b><br />
-        {PLANE_HINT_GEMATRIA.lines[0]}<br />
-        {PLANE_HINT_GEMATRIA.lines[1]}
-      </div>
-      <div style={{ marginTop: 8 }}>
-        <Link
-          to="/number/363"
-          style={{ color: P.accentText, fontFamily: F.numeric, fontSize: embedded ? 16 : 18, fontWeight: 900, textDecoration: "none" }}
-        >
-          {PLANE_HINT_GEMATRIA.messiah}
-        </Link>
-      </div>
-      {!embedded && (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginTop: 6 }}>
-          רמזים מופלאים של הצלה, הודיה ושמחה בפתחה של שנת תשפ״ז.
-        </div>
-      )}
-      <div style={{ marginTop: 9, display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap" }}>
-        <Link to="/number/14" style={chipStyle(P)}>14</Link>
-        <Link to="/number/75" style={chipStyle(P)}>75</Link>
-        <Link to="/number/363" style={chipStyle(P)}>{PLANE_HINT_GEMATRIA.messiah}</Link>
-        {!embedded && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, alignSelf: "center" }}>הסרטון החדש בזרם המציאות</span>}
-      </div>
-    </div>
-  );
+function tagHref(tag) {
+  const value = String(tag || "").trim();
+  if (/^\d+$/.test(value)) return `/2029/number/${encodeURIComponent(value)}`;
+  return `/2029/gematria?q=${encodeURIComponent(value)}`;
 }
 
-function chipStyle(P) {
-  return {
-    textDecoration: "none",
-    color: P.accentText,
-    background: P.card,
-    border: `1px solid ${P.borderStrong}`,
-    borderRadius: 999,
-    padding: "3px 10px",
-    fontFamily: F.numeric,
-    fontSize: 13,
-    fontWeight: 900,
-  };
+function VideoCard({ video, P }) {
+  return (
+    <article className="plane-video-card" data-video-public-id={video.id}>
+      <div className="plane-video-frame">
+        <video
+          className="plane-video-player"
+          src={video.mediaUrl}
+          poster={video.posterUrl}
+          controls
+          playsInline
+          preload="metadata"
+          aria-label={video.title}
+        />
+        {video.isNew ? <span className="plane-video-new" aria-label="חדש">חדש</span> : null}
+      </div>
+
+      <div className="plane-video-title" style={{ color: P.ink, fontFamily: F.ui }}>{video.title}</div>
+
+      <div className="plane-video-links">
+        <a className="plane-video-tree-link" href={video.treeHref} style={{ color: P.accentText, borderColor: P.borderStrong }}>
+          פתח בעץ החדש ←
+        </a>
+        <Link to={PLANE_HINT_POST_HREF} style={{ color: P.inkSoft }}>
+          לפוסט המטוס
+        </Link>
+      </div>
+
+      <details className="plane-video-tags" style={{ borderColor: P.border }}>
+        <summary style={{ color: P.accentText, fontFamily: F.ui }}>
+          תיוגי העץ · {video.tags.length} · פתח במערכת החדשה
+        </summary>
+        <div className="plane-video-tags-help" style={{ color: P.inkSoft, fontFamily: F.body }}>
+          התיוג נשאר סגור כברירת מחדל. כל תג פותח את ההקשר שלו במערכת החדשה.
+        </div>
+        <div className="plane-video-tag-list">
+          {video.tags.map((tag) => (
+            <a
+              key={tag}
+              href={tagHref(tag)}
+              className="plane-video-tag"
+              style={{ color: P.ink, borderColor: P.borderStrong, background: P.cardSoft }}
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </details>
+    </article>
+  );
 }
 
 export default function PlaneHintSpotlight() {
@@ -123,59 +134,37 @@ export default function PlaneHintSpotlight() {
           <aside className="plane-spotlight-card" style={{ background: P.card, borderColor: P.borderStrong }}>
             <div className="plane-spotlight-head">
               <div>
-                <div style={{ color: P.accentText, fontFamily: F.ui, fontSize: 14, fontWeight: 900 }}>✈️ הרמז החי עכשיו</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>המטוס · {PLANE_HINT_GEMATRIA.messiah}</div>
+                <div style={{ color: P.accentText, fontFamily: F.ui, fontSize: 14, fontWeight: 900 }}>✈️ סרטוני המטוס</div>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 2 }}>שני הסרטונים · מחוברים לתיוגי העץ החדש</div>
               </div>
-              <button className="plane-spotlight-collapse" onClick={() => setOpen(false)} aria-label="מזער את סרטון המטוס" title="מזער">×</button>
+              <button className="plane-spotlight-collapse" onClick={() => setOpen(false)} aria-label="מזער את סרטוני המטוס" title="מזער">×</button>
             </div>
 
-            <video
-              className="plane-spotlight-video"
-              src={PLANE_HINT_VIDEO_URL}
-              poster={PLANE_HINT_POSTER_URL}
-              controls
-              playsInline
-              preload="metadata"
-              aria-label="סרטון הרמז על המטוס"
-            />
+            <div className="plane-video-stack">
+              {PLANE_VIDEOS.map((video) => <VideoCard key={video.id} video={video} P={P} />)}
+            </div>
 
-            <Link
-              to={PLANE_HINT_POST_HREF}
-              className="plane-spotlight-363-pop"
-              style={{ color: P.ink, borderColor: P.borderStrong, background: P.cardSoft }}
-              aria-label="פתח את אירוע המטוס — המשיח = 363"
-            >
-              <img src={PLANE_HINT_363_IMAGE_URL} alt="רמזים במציאות — המשיח = 363" />
-              <span>
-                <b style={{ color: P.accentText, fontFamily: F.numeric }}>{PLANE_HINT_GEMATRIA.messiah}</b>
-                <small style={{ color: P.inkSoft, fontFamily: F.body }}>לתמונה ולאירוע המטוס</small>
-              </span>
-            </Link>
-
-            <PlaneHintNotice embedded />
-
-            <div className="plane-spotlight-actions">
-              <Link to="/archive" style={{ color: P.accentText, borderColor: P.borderStrong }}>🌊 לזרם המציאות</Link>
-              <Link to={PLANE_HINT_POST_HREF} style={{ color: P.accentText, borderColor: P.borderStrong }}>✈️ לאירוע המלא</Link>
-              <Link to="/number/14" style={{ color: P.ink, borderColor: P.borderStrong }}>14</Link>
-              <Link to="/number/75" style={{ color: P.ink, borderColor: P.borderStrong }}>75</Link>
-              <Link to="/number/363" style={{ color: P.ink, borderColor: P.borderStrong }}>{PLANE_HINT_GEMATRIA.messiah}</Link>
+            <div className="plane-spotlight-footer">
+              <Link to={PLANE_HINT_POST_HREF} style={{ color: P.accentText, borderColor: P.borderStrong }}>✈️ כל החיבורים בפוסט</Link>
+              <a href="/world" style={{ color: P.accentText, borderColor: P.borderStrong }}>🌐 לעולם החדש</a>
             </div>
           </aside>
         ) : (
           <button
             className="plane-spotlight-mini"
             onClick={() => setOpen(true)}
-            aria-label="פתח את סרטון המטוס והרמזים"
-            title="פתח את סרטון המטוס והרמזים"
+            aria-label="פתח את שני סרטוני המטוס"
+            title="פתח את שני סרטוני המטוס"
             style={{ background: P.card, borderColor: P.borderStrong, color: P.ink }}
           >
-            <img src={PLANE_HINT_363_IMAGE_URL} alt="" aria-hidden="true" />
-            <span>
-              <b style={{ color: P.accentText, fontFamily: F.ui }}>✈️ המטוס</b>
-              <small style={{ color: P.inkSoft, fontFamily: F.body }}>{PLANE_HINT_GEMATRIA.messiah}</small>
+            <span className="plane-mini-posters" aria-hidden="true">
+              {PLANE_VIDEOS.map((video) => <img key={video.id} src={video.posterUrl} alt="" />)}
             </span>
-            <strong style={{ color: P.accentText, fontFamily: F.numeric }}>{PLANE_HINT_GEMATRIA.messiah}</strong>
+            <span>
+              <b style={{ color: P.accentText, fontFamily: F.ui }}>✈️ סרטוני המטוס</b>
+              <small style={{ color: P.inkSoft, fontFamily: F.body }}>2 סרטונים · תיוגי העץ</small>
+            </span>
+            <strong className="plane-mini-new" style={{ color: P.accentText, fontFamily: F.ui }}>חדש</strong>
           </button>
         )}
       </div>
@@ -189,7 +178,7 @@ const SPOTLIGHT_CSS = `
     left: max(12px, env(safe-area-inset-left));
     bottom: max(18px, env(safe-area-inset-bottom));
     z-index: 1800;
-    width: min(300px, calc(100vw - 24px));
+    width: min(330px, calc(100vw - 24px));
     pointer-events: none;
   }
   .plane-spotlight-card,
@@ -201,9 +190,9 @@ const SPOTLIGHT_CSS = `
   }
   .plane-spotlight-card {
     border: 1px solid;
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 10px;
-    max-height: min(78vh, 720px);
+    max-height: min(82vh, 760px);
     overflow: auto;
   }
   .plane-spotlight-head {
@@ -224,111 +213,180 @@ const SPOTLIGHT_CSS = `
     font-size: 21px;
     line-height: 1;
   }
-  .plane-spotlight-video {
+  .plane-video-stack {
+    display: grid;
+    gap: 12px;
+  }
+  .plane-video-card {
+    border-top: 1px solid rgba(127,127,127,.18);
+    padding-top: 10px;
+  }
+  .plane-video-card:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .plane-video-frame {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #050505;
+  }
+  .plane-video-player {
     display: block;
     width: 100%;
-    height: 250px;
+    height: 178px;
     object-fit: contain;
     background: #050505;
-    border-radius: 13px;
-    margin-bottom: 9px;
   }
-  .plane-spotlight-363-pop {
-    width: min(205px, 100%);
-    min-height: 86px;
-    margin: -2px auto 9px 0;
-    border: 1px solid;
-    border-radius: 14px;
-    padding: 6px;
+  .plane-video-new {
+    position: absolute;
+    inset-inline-start: 9px;
+    bottom: 9px;
+    z-index: 2;
+    border-radius: 999px;
+    padding: 4px 10px;
+    background: rgba(232,194,90,.96);
+    color: #1b1202;
+    font-family: ${F.ui};
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.3), 0 0 18px rgba(232,194,90,.48);
+    animation: plane-video-new-pulse 1.35s ease-in-out infinite;
+  }
+  @keyframes plane-video-new-pulse {
+    0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 1px rgba(255,255,255,.3), 0 0 14px rgba(232,194,90,.36); }
+    50% { opacity: .62; transform: scale(1.06); box-shadow: 0 0 0 1px rgba(255,255,255,.5), 0 0 24px rgba(232,194,90,.68); }
+  }
+  .plane-video-title {
+    margin-top: 7px;
+    font-size: 12.5px;
+    font-weight: 850;
+    line-height: 1.45;
+  }
+  .plane-video-links {
     display: flex;
     align-items: center;
     gap: 9px;
+    flex-wrap: wrap;
+    margin-top: 7px;
+    font-family: ${F.ui};
+    font-size: 10.8px;
+  }
+  .plane-video-links a {
     text-decoration: none;
-    direction: rtl;
-    box-shadow: 0 10px 28px rgba(0,0,0,.22);
-    animation: plane-spotlight-363-pop .46s cubic-bezier(.2,.8,.2,1) both;
   }
-  .plane-spotlight-363-pop img {
-    width: 54px;
-    height: 76px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 10px;
-    flex: 0 0 auto;
-    background: #050505;
+  .plane-video-tree-link {
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-weight: 850;
   }
-  .plane-spotlight-363-pop span {
-    min-width: 0;
+  .plane-video-tags {
+    margin-top: 8px;
+    border: 1px solid;
+    border-radius: 12px;
+    padding: 0 9px;
+  }
+  .plane-video-tags summary {
+    cursor: pointer;
+    list-style-position: inside;
+    padding: 7px 0;
+    font-size: 10.8px;
+    font-weight: 850;
+  }
+  .plane-video-tags-help {
+    font-size: 10.5px;
+    line-height: 1.5;
+    padding: 0 0 6px;
+  }
+  .plane-video-tag-list {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    line-height: 1.25;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding-bottom: 9px;
   }
-  .plane-spotlight-363-pop b { font-size: 15px; }
-  .plane-spotlight-363-pop small { font-size: 10.5px; }
-  @keyframes plane-spotlight-363-pop {
-    from { opacity: 0; transform: translate(-12px, 8px) scale(.94); }
-    to { opacity: 1; transform: none; }
+  .plane-video-tag {
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 3px 7px;
+    text-decoration: none;
+    font-family: ${F.ui};
+    font-size: 9.8px;
+    line-height: 1.3;
   }
-  .plane-spotlight-actions {
+  .plane-spotlight-footer {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
-    margin-top: 9px;
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px solid rgba(127,127,127,.18);
   }
-  .plane-spotlight-actions a {
+  .plane-spotlight-footer a {
     border: 1px solid;
     border-radius: 999px;
     padding: 5px 9px;
     text-decoration: none;
     font-family: ${F.ui};
-    font-size: 11.5px;
-    font-weight: 800;
+    font-size: 11px;
+    font-weight: 850;
   }
   .plane-spotlight-mini {
     width: 100%;
-    min-height: 76px;
+    min-height: 78px;
     border: 1px solid;
-    border-radius: 16px;
-    padding: 6px;
+    border-radius: 17px;
+    padding: 7px;
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: 66px 1fr auto;
     align-items: center;
     gap: 8px;
     text-align: start;
     cursor: pointer;
   }
-  .plane-spotlight-mini img {
-    width: 48px;
-    height: 64px;
+  .plane-mini-posters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    width: 66px;
+    height: 58px;
+  }
+  .plane-mini-posters img {
+    width: 100%;
+    height: 58px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #080808;
   }
-  .plane-spotlight-mini span {
+  .plane-spotlight-mini > span:not(.plane-mini-posters) {
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
   }
-  .plane-spotlight-mini small { font-size: 11px; }
-  .plane-spotlight-mini strong { white-space: nowrap; font-size: 13px; }
+  .plane-spotlight-mini small { font-size: 10.5px; }
+  .plane-mini-new {
+    white-space: nowrap;
+    font-size: 10.5px;
+    animation: plane-video-new-pulse 1.35s ease-in-out infinite;
+  }
   @media (max-width: 979px) {
     .plane-spotlight {
-      width: min(260px, calc(100vw - 24px));
+      width: min(280px, calc(100vw - 24px));
       bottom: max(76px, calc(12px + env(safe-area-inset-bottom)));
     }
     .plane-spotlight.is-open {
-      width: min(330px, calc(100vw - 24px));
+      width: min(340px, calc(100vw - 24px));
     }
     .plane-spotlight-card {
-      max-height: min(72vh, 620px);
+      max-height: min(76vh, 650px);
     }
-    .plane-spotlight-video { height: 220px; }
+    .plane-video-player { height: 168px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .plane-spotlight * { scroll-behavior: auto !important; }
-    .plane-spotlight-363-pop { animation: none !important; }
+    .plane-video-new,
+    .plane-mini-new { animation: none !important; }
   }
 `;

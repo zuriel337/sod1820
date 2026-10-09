@@ -1,6 +1,16 @@
 {
   "redirects": [
     {
+      "source": "/whatsapp/kod-hametsiut",
+      "destination": "/early-access",
+      "permanent": false
+    },
+    {
+      "source": "/tiktok/melech",
+      "destination": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
+      "permanent": false
+    },
+    {
       "source": "/bennett-melach-631-78",
       "destination": "/post/bennett-melach-631-78",
       "permanent": true
@@ -806,11 +816,28 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/melech-hamisparim/718",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/early-access",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/early-access",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
     {
       "source": "/2029/journey",
       "headers": [
@@ -849,6 +876,15 @@
     },
     {
       "source": "/2029/control",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/melech-hamisparim/718",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -1230,8 +1230,8 @@ export default function Number2029Page() {
 
   useEffect(() => {
     applySeo({
-      title: `${value || "מספר"} · דף המספר 2029`,
-      description: "דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
+      title: `${value || "מספר"} · דף המספר`,
+      description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
       path: `/2029/number/${value || ""}`,
       noindex: true,
     });

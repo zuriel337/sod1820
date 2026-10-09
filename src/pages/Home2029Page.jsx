@@ -470,7 +470,7 @@ function HomeBody() {
 
 export default function Home2029Page() {
   useEffect(() => {
-    applySeo({ title: "SOD1820 · 2029", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+    applySeo({ title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" symbol="✦" eyebrow="גלה · עכשיו · המשך" title="SOD1820 2029" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" symbol="✦" eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
 }

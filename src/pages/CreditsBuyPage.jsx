@@ -4,9 +4,9 @@ import { C, F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 
-// 💳 רכישת קרדיטים — תשלום ידני (ביט/פייבוקס או העברה בנקאית).
-// הגולש בוחר חבילה → רואה פרטי-תשלום → מעביר → לוחץ «העברתי» → נוצרת בקשה ממתינה,
-// וצוריאל מאשר בטאב-האדמין «💳 אישורי תשלום» → הקרדיטים נזקפים אוטומטית.
+// 💳 רכישת קרדיטים — CardCom מאומת ואוטומטי, עם Bit/העברה כ-fallback ידני.
+// CardCom: חבילה קנונית → דף תשלום ספק → webhook מאומת server-to-server → credit_grant קנוני.
+// ידני: תשלום + אסמכתא → אישור מנהל → אותו credit_grant קנוני.
 export default function CreditsBuyPage() {
   const { user, profile } = useAuth();
   const [pkgs, setPkgs] = useState([]);
@@ -18,6 +18,8 @@ export default function CreditsBuyPage() {
   const [uploading, setUploading] = useState(false);
   const [state, setState] = useState("idle");    // idle | sending | sent
   const [err, setErr] = useState("");
+  const [cardState, setCardState] = useState("idle"); // idle | starting | checking | approved | pending | failed
+  const [cardResult, setCardResult] = useState(null);
 
   async function onProof(e) {
     const f = e.target.files?.[0];
@@ -42,6 +44,63 @@ export default function CreditsBuyPage() {
       setPay(data?.pay || null);
     }).catch(() => {});
   }, []);
+
+  // CardCom success/failure redirects are UX only. Credits are granted exclusively by the
+  // verified server webhook; this poll merely waits for that canonical server-side result.
+  useEffect(() => {
+    if (!user || !supabase || typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const payment = sp.get("payment");
+    const providerRef = sp.get("ref") || "";
+    if (!payment) return;
+
+    if (payment === "failed") {
+      setCardState("failed");
+      return;
+    }
+    if (payment !== "success" || !/^SODC-[0-9a-f-]{36}$/.test(providerRef)) return;
+
+    let cancelled = false;
+    setCardState("checking");
+    (async () => {
+      for (let i = 0; i < 10 && !cancelled; i += 1) {
+        const { data, error } = await supabase.rpc("cardcom_purchase_status", { p_provider_ref: providerRef });
+        if (!error && data?.status === "approved") {
+          if (cancelled) return;
+          setCardResult(data);
+          setCardState("approved");
+          try { window.history.replaceState({}, "", "/credits"); } catch { /* noop */ }
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      }
+      if (!cancelled) setCardState("pending");
+    })();
+
+    return () => { cancelled = true; };
+  }, [user]);
+
+  async function startCardcom() {
+    if (!user || !sel || cardState === "starting") return;
+    setErr("");
+    setCardState("starting");
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error("no_session");
+      const response = await fetch("/api/cardcom-start", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ package_id: sel.id }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.url) throw new Error(data?.description || data?.error || "payment_start_failed");
+      window.location.assign(data.url);
+    } catch (e) {
+      setErr("לא הצלחנו לפתוח את דף התשלום המאובטח. נסו שוב או השתמשו בתשלום הידני.");
+      setCardState("idle");
+    }
+  }
 
   async function submit() {
     if (!sel) return;
@@ -83,6 +142,27 @@ export default function CreditsBuyPage() {
         </div>
       )}
 
+      {/* סטטוס תשלום CardCom — הקרדיטים נזקפים רק אחרי אימות webhook מול CardCom */}
+      {cardState === "approved" && (
+        <div style={{ ...box, textAlign: "center", marginBottom: 20, borderColor: "rgba(212,175,55,.7)" }}>
+          <div style={{ fontSize: 42 }}>✅</div>
+          <h2 style={{ color: C.goldBright, fontFamily: F.ui, fontSize: 22, margin: "8px 0" }}>התשלום אומת והקרדיטים נוספו</h2>
+          <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
+            {cardResult?.credits ? <><b style={{ color: C.gold }}>{Number(cardResult.credits).toLocaleString("he-IL")} קרדיטים</b> נוספו לחשבון שלך.</> : "העסקה אושרה ונרשמה בחשבון."}
+          </div>
+          {cardResult?.document_url && <a href={cardResult.document_url} target="_blank" rel="noreferrer" style={{ display: "inline-block", color: C.gold, marginTop: 10, fontFamily: F.heading, fontSize: 13 }}>פתיחת המסמך ←</a>}
+        </div>
+      )}
+      {cardState === "checking" && (
+        <div style={{ ...box, textAlign: "center", marginBottom: 20, color: C.goldLight, fontFamily: F.body }}>⏳ התשלום חזר בהצלחה. מאמתים אותו ישירות מול CardCom…</div>
+      )}
+      {cardState === "pending" && (
+        <div style={{ ...box, textAlign: "center", marginBottom: 20, color: C.goldLight, fontFamily: F.body, lineHeight: 1.7 }}>התשלום התקבל לעיבוד. האימות מול CardCom עדיין מסתיים; הקרדיטים ייזקפו אוטומטית לאחר האימות.</div>
+      )}
+      {cardState === "failed" && (
+        <div style={{ ...box, textAlign: "center", marginBottom: 20, color: "#e0a0a0", fontFamily: F.body }}>התשלום לא הושלם. אפשר לבחור חבילה ולנסות שוב.</div>
+      )}
+
       {/* אחרי שליחה */}
       {state === "sent" ? (
         <div style={{ ...box, textAlign: "center" }}>
@@ -112,11 +192,34 @@ export default function CreditsBuyPage() {
             ))}
           </div>
 
-          {/* פרטי-תשלום — מוצג אחרי בחירת חבילה */}
+          {/* CardCom — המסלול הראשי והאוטומטי */}
+          {sel && (
+            <div style={{ ...box, marginBottom: 18, borderColor: "rgba(212,175,55,.55)" }}>
+              <div style={{ color: C.goldBright, fontFamily: F.ui, fontSize: 16, fontWeight: 800, marginBottom: 8 }}>תשלום מאובטח ואוטומטי</div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>
+                התשלום מתבצע בדף המאובטח של CardCom. לאחר אישור העסקה, השרת מאמת אותה מול CardCom והקרדיטים מתווספים אוטומטית.
+              </div>
+              <button
+                disabled={!user || cardState === "starting"}
+                onClick={startCardcom}
+                style={{
+                  width: "100%", cursor: user ? "pointer" : "not-allowed", border: "none", borderRadius: 14, padding: "15px",
+                  background: user ? `linear-gradient(135deg,${C.gold},${C.goldLight})` : "#2a2233",
+                  color: user ? "#1a0e00" : C.muted, fontFamily: F.ui, fontSize: 16, fontWeight: 900,
+                  opacity: cardState === "starting" ? 0.65 : 1,
+                }}
+              >
+                {cardState === "starting" ? "פותח תשלום מאובטח…" : user ? `💳 לתשלום ₪${sel.price_ils} ב-CardCom` : "התחברו כדי לשלם"}
+              </button>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, textAlign: "center", marginTop: 9 }}>פרטי הכרטיס אינם עוברים דרך SOD1820.</div>
+            </div>
+          )}
+
+          {/* פרטי-תשלום ידני — fallback קיים */}
           {sel && pay && (
             <div style={{ ...box, marginBottom: 18 }}>
               <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, marginBottom: 14 }}>
-                שלב 1 · שלמו ₪{sel.price_ils}
+                אפשרות נוספת · תשלום ידני ₪{sel.price_ils}
               </div>
 
               {/* בחירת אמצעי */}
@@ -180,7 +283,7 @@ export default function CreditsBuyPage() {
                 {state === "sending" ? "שולח…" : user ? "✅ שילמתי — שלחו לאישור" : "התחברו כדי להמשיך"}
               </button>
               <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, textAlign: "center", marginTop: 10, lineHeight: 1.6 }}>
-                אין חיוב אוטומטי — הקרדיטים ייזקפו ידנית לאחר אימות התשלום.
+                במסלול הידני בלבד הקרדיטים ייזקפו לאחר אימות התשלום בידי מנהל.
               </div>
             </div>
           )}
