@@ -61,7 +61,7 @@ function oracleVerify(p, reject) {
   return { ok: true, result: { status: 'OK', corpus_id: cid, verified }, trace_id: 't-' + seen.size };
 }
 
-async function withHarness(fn, { mode = 'ok' } = {}) {
+async function withHarness(fn, { mode = 'ok', onboarded = true, hiddenBridge = false, tier = 'admin' } = {}) {
   const calls = [];
   const srv = createServer((req, res) => {
     if (req.url === '/oracle' && req.method === 'POST') {
@@ -73,7 +73,10 @@ async function withHarness(fn, { mode = 'ok' } = {}) {
     }
     if (req.url.startsWith('/attacker.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<!doctype html><meta charset=utf-8><body>attacker</body>'); return; }
     if (req.url.startsWith('/tzofen.html')) { res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(tool); return; }
-    res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(HARNESS.replace("window.__mode='ok'", "window.__mode=" + JSON.stringify(mode)));
+    const harness = HARNESS.replace("window.__mode='ok'", "window.__mode=" + JSON.stringify(mode))
+      .replace("tier:'admin'", 'tier:' + JSON.stringify(tier))
+      .replace('/tzofen.html?embed=1', '/tzofen.html?embed=1' + (hiddenBridge ? '&bridge=hidden' : ''));
+    res.setHeader('content-type', 'text/html; charset=utf-8'); res.end(harness);
   });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r));
   let browser;
@@ -81,7 +84,7 @@ async function withHarness(fn, { mode = 'ok' } = {}) {
     browser = await pw.chromium.launch({ headless: true,
       ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}) });
     const page = await browser.newPage();
-    await page.addInitScript(() => { try { localStorage.setItem('tzofen_onboarded_v1', '1'); } catch { /* noop */ } });
+    if (onboarded) await page.addInitScript(() => { try { localStorage.setItem('tzofen_onboarded_v1', '1'); } catch { /* noop */ } });
     const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(`http://127.0.0.1:${srv.address().port}/`);
     const frame = page.frameLocator('#t');
@@ -305,6 +308,158 @@ const nativeSend = (page, message) => page.evaluate((d) => {
   document.querySelector('#t').contentWindow.postMessage({ source: 'sod-host', ...d }, location.origin);
 }, message);
 const latestState = async (page) => (await states(page)).at(-1);
+
+test('browser: a fresh hidden native first search runs without a persisted onboarding acknowledgement and preserves anonymous gates', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.tier === 'anon' && current.status === 'ok' && window.__oraclePending === 0;
+    });
+    const hostUrl = page.url(), toolUrl = page.frames().find(f => f.url().includes('/tzofen.html')).url();
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah' } });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.term === 'משיח' && current.status === 'ok' && current.verification?.state === 'MATCH' && window.__oraclePending === 0;
+    });
+    const searched = await latestState(page), beforeCalls = calls.length;
+    assert.equal(searched.tier, 'anon');
+    assert.ok(calls.some(call => call.op === 'verify_batch' && call.payload.term === 'משיח'), 'first native search reaches the canonical verifier');
+    assert.equal(await frame.locator('#onbov').count(), 0, 'the hidden runtime never opens its invisible onboarding modal');
+    assert.equal(await page.evaluate(() => window.__log.filter(m => m.type === 'onboarding-required').length), 0);
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null, 'hidden onboarding remains a runtime-only exception');
+    for (const [reason, request] of [
+      ['cross', { kind: 'cross', axis: 'משיח', term: 'גאולה', scope: 'torah' }],
+      ['tanakh', { kind: 'regular', term: 'משיח', scope: 'tanakh' }],
+      ['limit', { kind: 'regular', term: 'ירושלים', scope: 'torah' }],
+    ]) {
+      if (reason === 'limit') await page.evaluate(() => localStorage.setItem('tzofen_free_v1', '5'));
+      await nativeSend(page, { type: 'native-search', request });
+      await page.waitForFunction(expected => window.__log.some(m => m.type === 'gate' && m.reason === expected), reason);
+      assert.deepEqual(await latestState(page), searched, `${reason} gate preserves the verified workspace`);
+      assert.equal(calls.length, beforeCalls, `${reason} gate performs no search or verification`);
+    }
+    assert.equal(page.url(), hostUrl);
+    assert.equal(page.frames().find(f => f.url().includes('/tzofen.html')).url(), toolUrl);
+    assert.equal(await page.locator('iframe').count(), 1, 'native requests retain one engine iframe');
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
+  }, { onboarded: false, hiddenBridge: true, tier: 'anon' });
+});
+
+test('browser: visible first-visit onboarding still blocks the requested search until acknowledged', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  await withHarness(async ({ page, frame, calls }) => {
+    await page.waitForFunction(() => window.__log.some(m => m.type === 'state' && m.status === 'ok') && window.__oraclePending === 0);
+    const beforeCalls = calls.length;
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah' } });
+    await page.waitForFunction(() => window.__log.some(m => m.type === 'onboarding-required'));
+    assert.equal(await frame.locator('#onbov').isVisible(), true, 'visible embedding retains its existing first-visit guide');
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
+    assert.equal(calls.length, beforeCalls, 'onboarding blocks new search I/O');
+    await frame.locator('.onb-go').click();
+    assert.equal(await frame.locator('#onbov').count(), 0);
+    assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), '1');
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah' } });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.term === 'משיח' && current.status === 'ok' && current.verification?.state === 'MATCH';
+    });
+    assert.ok(calls.some(call => call.op === 'verify_batch' && call.payload.term === 'משיח'));
+  }, { onboarded: false });
+});
+
+test('browser: native and classic niqqud use aligned Torah marks without changing selection, findings, geometry or verifier I/O', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
+  const niqqud = readFileSync(join(root, 'tools/els/data/niqqud-compact.txt'), 'utf8').split('|');
+  assert.equal(niqqud.length, TORAH_LEN, 'compact marks align one-to-one with canonical Torah letters');
+  await withHarness(async ({ page, frame, calls }) => {
+    const golden = ELS_GOLDENS.find(g => g.id === 'torah-50-fwd');
+    await nativeSend(page, { type: 'load-matrix', item: golden });
+    await page.waitForFunction(id => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.status === 'ok' && current.provenance?.editId === id && window.__oraclePending === 0;
+    }, golden.id);
+    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0 && window.__oraclePending === 0);
+    const initial = await latestState(page);
+    if (!initial.findings[0].hits.some(hit => hit.shown && hit.verified)) {
+      const candidate = initial.findings[0].hits.find(hit => !hit.shown);
+      assert.ok(candidate, 'an additional ELS finding is available beside the plain-text defaults');
+      await nativeSend(page, { type: 'native-finding-control', term: 'אל', action: 'toggle-hit',
+        axisHitId: initial.axis.hitId, candidateIndex: candidate.candidateIndex, revision: candidate.revision });
+    }
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.findings?.[0]?.hits?.some(hit => hit.shown && hit.verified) &&
+        current.findings.every(word => word.hits.every(hit => !hit.shown || hit.verified)) && window.__oraclePending === 0;
+    });
+    await frame.locator('.selbtn').click();
+    for (const index of golden.positions.slice(0, 2)) await frame.locator(`.mc[data-i="${index}"]`).click();
+    // A presentation state emission captures the existing manual selection before the toggle.
+    await nativeSend(page, { type: 'native-control', action: 'axis-visibility' });
+    await nativeSend(page, { type: 'native-control', action: 'axis-visibility' });
+    await page.waitForFunction(() => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.ui?.selCells?.length === 2 && !current.ui.hideMain && window.__oraclePending === 0;
+    });
+    const before = await latestState(page), beforeCalls = calls.length;
+    assert.deepEqual(before.ui.selCells, golden.positions.slice(0, 2));
+    assert.ok(!before.matrix.niqqud && !before.matrix.lenses.includes('niqqud'));
+    const withoutNiqqud = state => {
+      const matrix = { ...state.matrix, lenses: state.matrix.lenses.filter(lens => lens !== 'niqqud') };
+      delete matrix.niqqud;
+      return { ...state, ui: { ...state.ui, niqqud: false }, matrix };
+    };
+    const scroll = () => page.evaluate(() => {
+      const w = document.querySelector('#t').contentWindow, box = w.document.querySelector('.matrix-box');
+      return { hostX: scrollX, hostY: scrollY, toolX: w.scrollX, toolY: w.scrollY, matrixX: box?.scrollLeft, matrixY: box?.scrollTop };
+    });
+    const beforeScroll = await scroll();
+    await nativeSend(page, { type: 'native-control', action: 'niqqud-toggle' });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.niqqud === true);
+    const marked = await latestState(page), expected = [];
+    assert.equal(marked.matrix.niqqud.source, 'torah_compact');
+    for (let row = before.geometry.r0; row <= before.geometry.r1; row++) for (let column = before.geometry.c0; column < before.geometry.c0 + before.geometry.cw; column++) {
+      const i = row * before.geometry.S + column;
+      if (i >= 0 && i < TORAH_LEN && niqqud[i]) expected.push({ i, marks: niqqud[i] });
+    }
+    assert.ok(expected.length > 0, 'fixture displays pointed Torah letters');
+    assert.deepEqual(marked.matrix.niqqud.cells, expected, 'every projected mark comes from its aligned canonical Torah index');
+    assert.deepEqual(withoutNiqqud(marked), before, 'display marks preserve all canonical research and selected cells');
+    assert.deepEqual(await scroll(), beforeScroll, 'native toggle preserves host, tool and matrix scroll');
+    assert.equal(calls.length, beforeCalls, 'niqqud performs no verifier or search requests');
+    for (const { i, marks } of expected.slice(0, 3)) assert.equal(await frame.locator(`.mc[data-i="${i}"] .l`).textContent(), letters[i] + marks, 'classic glyph is updated from the same marks');
+    await frame.locator('#nqbtn').click();
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.niqqud === false);
+    assert.deepEqual(await latestState(page), before, 'classic toggle removes the optional marks and restores the exact state');
+    assert.equal(calls.length, beforeCalls, 'classic toggle also avoids verification I/O');
+
+    // Choose an actual governed Tanakh search result; a capped discovery need not retain an arbitrary known hit.
+    const term = 'משיח';
+    await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term, scope: 'tanakh' } });
+    await page.waitForFunction(expectedTerm => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.status === 'ok' && current.scope === 'tanakh' && current.term === expectedTerm && window.__oraclePending === 0;
+    }, term);
+    const corpusId = '0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b';
+    const outside = calls.filter(call => call.op === 'verify_batch' && call.payload.scope === 'tanakh' && call.payload.term === term)
+      .flatMap(call => call.payload.candidates)
+      .find(hit => Math.min(hit.start, hit.start + hit.dir * hit.skip * (term.length - 1)) - 10 * hit.skip >= TORAH_LEN &&
+        oracleVerify({ scope: 'tanakh', corpus_id: corpusId, term, candidates: [hit] }).result.verified.length === 1);
+    assert.ok(outside, 'the verified Tanakh search contains an occurrence safely beyond Torah coverage');
+    await nativeSend(page, { type: 'load-matrix', item: { id: 'niqqud-outside-torah', term, scope: 'tanakh', ...outside } });
+    await page.waitForFunction(hitId => {
+      const current = window.__log.filter(m => m.type === 'state').at(-1);
+      return current?.status === 'ok' && current.axis?.hitId === hitId && current.provenance?.editId === 'niqqud-outside-torah' && window.__oraclePending === 0;
+    }, `${outside.skip}_${outside.dir}_${outside.start}`);
+    const tanakhBefore = await latestState(page), tanakhCalls = calls.length;
+    assert.ok(tanakhBefore.geometry.r0 * tanakhBefore.geometry.S + tanakhBefore.geometry.c0 >= TORAH_LEN, 'fixture window is outside compact Torah coverage');
+    await nativeSend(page, { type: 'native-control', action: 'niqqud-toggle' });
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.ui?.niqqud === true);
+    const tanakhMarked = await latestState(page);
+    assert.deepEqual(tanakhMarked.matrix.niqqud, { source: 'torah_compact', cells: [] }, 'Tanakh-only letters never reuse Torah marks');
+    assert.deepEqual(withoutNiqqud(tanakhMarked), tanakhBefore);
+    assert.equal(calls.length, tanakhCalls);
+  });
+});
 
 test('browser: optional native heat reflects verified display density, excludes candidates and preserves research state without I/O', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {

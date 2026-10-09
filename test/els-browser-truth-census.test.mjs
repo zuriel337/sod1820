@@ -69,8 +69,8 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request']);
   const uiAccessOnly = new Set(['onboarding-required']);
   for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
-  assert.match(code, /if\(!onboarded\(\)\)\{openOnboard\(\);postHost\(\{type:"onboarding-required"\}\);return;\}/,
-    'onboarding-required is UI/access-only and must be emitted before any native search executes');
+  assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);return;\}/,
+    'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 

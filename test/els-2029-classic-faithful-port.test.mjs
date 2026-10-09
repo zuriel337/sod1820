@@ -30,7 +30,8 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /engineOnly=\{!classicOpen\}/);
   assert.doesNotMatch(nativeClassic, /hiddenBridge=\{!classicOpen\}/);
   assert.match(nativeClassic, /onState=\{handleEngineState\}/);
-  assert.match(nativeClassic, /onGate=\{\(\) => setClassicOpen\(true\)\}/);
+  assert.match(nativeClassic, /onGate=\{\(\) => setClassicOpen\(false\)\}/);
+  assert.match(embed, /engineOnly \? createPortal\(gateOverlay, document\.body\) : gateOverlay/);
   assert.match(nativeClassic, /פתח את כל הכלים הקלאסיים/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
@@ -59,10 +60,10 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(template, /function selectSearchScope\(nextScope,rerunCurrent\)/);
   assert.match(template, /next==="tanakh"&&tanakhLocked\(\)/);
   assert.match(template, /d\.type==="native-search"/);
-  assert.match(template, /if\(!onboarded\(\)\)\{openOnboard\(\);postHost\(\{type:"onboarding-required"\}\);return;\}/);
+  assert.match(template, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);return;\}/);
   assert.match(embed, /onOnboardingRequired = null/);
   assert.match(embed, /d\.type === "onboarding-required"/);
-  assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => setClassicOpen\(true\)\}/);
+  assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => \{ setClassicOpen\(false\);/);
   assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);return;\}/);
   assert.match(template, /if\(!selectSearchScope\(scope,false\)\)return;/);
   assert.match(template, /run\(false,radius\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);

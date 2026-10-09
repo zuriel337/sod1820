@@ -10,7 +10,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, classicGlyphs, depthView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -50,6 +50,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
 
   const heatMap = useMemo(() => new Map((matrix?.heat?.cells || [])
     .map((cell) => [Number(cell.i), clamp(Number(cell.strength) || 0, 0, 1)])), [matrix?.heat]);
+  const niqqudMap = useMemo(() => new Map((matrix?.niqqud?.cells || [])
+    .map((cell) => [Number(cell.i), String(cell.marks || "")])), [matrix?.niqqud]);
 
   const markSummary = useMemo(() => {
     let axis = 0;
@@ -131,7 +133,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
 
   return <div
     ref={scrollRef}
-    className="els29-native-matrix-scroll"
+    className={`els29-native-matrix-scroll${depthView ? " is-depth-view" : ""}`}
     role="region"
     tabIndex={0}
     aria-label={`מטריצת ELS עבור ${state.termRaw || state.term || "המונח הפעיל"}`}
@@ -145,7 +147,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
       {state.termRaw || state.term || "מונח פעיל"} · דילוג {state?.axis?.skip ?? "לא ידוע"} · כיוון {directionLabel(state?.axis?.direction)} · {markSummary.axis} אותיות ציר מסומנות · {markSummary.findings} אותיות ממצאים מסומנות. אפשר להשתמש בכפתור "מקור הממצא" כדי לקרוא את הפסוקים במקלדת.
     </span>
     <div
-      className={`els29-native-matrix${fit ? " is-fit" : ""}`}
+      className={`els29-native-matrix${fit ? " is-fit" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${depthView ? " is-depth" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
       aria-hidden="true"
       style={{ "--els29-cols": matrix.cw || geometry.cw || 1, "--els29-cell": `${cellPx}px` }}
     >
@@ -179,7 +181,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) 
                 ...(mark?.type === "finding" && mark?.color ? { "--els29-mark": mark.color } : {}),
                 ...(heat > 0 ? { "--els29-heat": `${Math.round(heat * 72)}%` } : {}),
               }}
-            >{letter === " " ? "\u00a0" : letter}</span>;
+            >{letter === " " ? "\u00a0" : letter + (niqqudMap.get(index) || "")}</span>;
           })}
         </div>;
       })}
@@ -313,6 +315,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
   const verified = state?.verification?.state === "MATCH";
   const showN = clamp(Math.round(Number(state?.ui?.showN) || 1), 1, 15);
   const [draft, setDraft] = useState("");
+  const [expandedFinding, setExpandedFinding] = useState(null);
 
   const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
 
@@ -358,15 +361,14 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
     <div className="els29-native-rail-section" hidden={activeTool !== "findings"}>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12</small></div>
       {verified ? <div className="els29-native-axis-entry" data-experience-capability="els-axis-actions">
-        <small>הציר המרכזי</small>
-        <strong>{state.termRaw || state.term}</strong>
-        <small>דילוג {state.axis?.skip} · מופע {(state.occurrence?.index || 0) + 1} מתוך {state.occurrence?.count || 1}</small>
-        <div className="els29-native-hit-actions">
-          <button type="button" onClick={onAxisLine}>רצף ומילים לאורך הציר</button>
-          <button type="button" onClick={onAxisVerse}>פסוקי הציר</button>
-          <button type="button" aria-pressed={!state.ui?.hideMain} onClick={() => onAxisControl("axis-visibility")}>
-            {state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"}
-          </button>
+        <div className="els29-native-finding">
+          <i className="els29-native-color-dot" style={{ "--els29-mark": palette.accent }} aria-hidden="true" />
+          <span><b>{state.termRaw || state.term}</b><small>ציר · דילוג {state.axis?.skip} · מופע {(state.occurrence?.index || 0) + 1}/{state.occurrence?.count || 1}</small></span>
+        </div>
+        <div className="els29-native-finding-actions">
+          <button type="button" aria-label="רצף ומילים לאורך הציר" title="רצף ומילים לאורך הציר" onClick={onAxisLine}>⌕</button>
+          <button type="button" aria-label="פסוקי הציר" title="פסוקי הציר" onClick={onAxisVerse}>¶</button>
+          <button type="button" aria-label={state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"} title={state.ui?.hideMain ? "הצג סימון ציר" : "הסתר סימון ציר"} aria-pressed={!state.ui?.hideMain} onClick={() => onAxisControl("axis-visibility")}>◉</button>
         </div>
       </div> : null}
       <label className="els29-native-proximity">
@@ -374,7 +376,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
         <input type="range" min="1" max="15" step="1" value={showN}
           aria-label="מופעים לכל ממצא" disabled={!verified}
           onChange={(event) => onAxisControl("finding-count", Number(event.target.value))} />
-        <small>מספר המופעים הקרובים המוצגים מכל ממצא. מרחק ההצלבה נקבע בחיפוש.</small>
+        <small>{showN === 1 ? "מופע אחד לכל ממצא" : `עד ${showN} מופעים לכל ממצא`} · הגדילו כדי לראות יותר.</small>
       </label>
       <div className="els29-native-finding-add">
         <input
@@ -400,24 +402,25 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
           const firstShownHit = (finding.hits || []).find((hit) => hit.shown && hit.verified);
           return <div className="els29-native-finding-group" key={finding.t}><div className="els29-native-finding">
             <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
-            <span><b>{finding.t}</b><small>{finding.inWindow || 0} מועמדים בחלון · {finding.shown?.length || 0} מוצגים ומאומתים</small>
-              {firstShownHit && Number.isFinite(firstShownHit.axisDistance) ? <small>דילוג {firstShownHit.skip} · מרחק מהציר הראשי {firstShownHit.axisDistance} תאים</small> : null}
+            <span><b>{finding.t}</b><small>מציג {finding.shown?.length || 0} · מתוך {finding.inWindow || 0} באזור{firstShownHit ? ` · דילוג ${firstShownHit.skip}` : " · טרם אומת"}</small>
+              {firstShownHit && Number.isFinite(firstShownHit.axisDistance) ? <small>מרחק מהציר הראשי {firstShownHit.axisDistance} תאים</small> : null}
             </span>
             <button className="els29-native-finding-remove" type="button" onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`} title="מחק מילה שלמה">×</button>
           </div>
-            <div className="els29-native-hit-actions">
-              <button type="button" disabled={!firstShownHit}
+            <div className="els29-native-finding-actions">
+              <button type="button" disabled={!firstShownHit} aria-label={`סרוק מילים לאורך הציר של ${finding.t}`} title={`סרוק מילים לאורך הציר של ${finding.t}`}
                 onClick={() => onFindingLens(finding.t, firstShownHit.hitId, "line-context", true)}>
-                סרוק מילים לאורך הציר של {finding.t}
+                ⌕
               </button>
+              <button type="button" disabled={!firstShownHit} aria-label={`מקור הממצא ${finding.t}`} title={`מקור הממצא ${finding.t}`} onClick={() => onFindingLens(finding.t, firstShownHit.hitId)}>¶</button>
+              <button type="button" disabled={index === 0} aria-label={`העלה את ${finding.t}`} title="העלה ממצא" onClick={() => onFindingControl(finding.t, "move-up")}>↑</button>
+              <button type="button" disabled={index === findings.length - 1} aria-label={`הורד את ${finding.t}`} title="הורד ממצא" onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
+              <button type="button" aria-label={`מופעים וצבע של ${finding.t}`} title={`מופעים וצבע של ${finding.t}`}
+                aria-expanded={expandedFinding === finding.t} aria-controls={`els29-finding-extra-${index}`}
+                onClick={() => setExpandedFinding((term) => term === finding.t ? null : finding.t)}>⋯</button>
             </div>
-            <details className="els29-native-hit-details">
-              <summary>מופעים של {finding.t} · הצגה והסתרה</summary>
+            <div className="els29-native-finding-extra" id={`els29-finding-extra-${index}`} hidden={expandedFinding !== finding.t}>
               <p className="els29-native-muted">כיבוי מופע אחד משאיר את שאר המופעים.</p>
-              <div className="els29-native-hit-actions">
-                <button type="button" disabled={index === 0} onClick={() => onFindingControl(finding.t, "move-up")}>העלה</button>
-                <button type="button" disabled={index === findings.length - 1} onClick={() => onFindingControl(finding.t, "move-down")}>הורד</button>
-              </div>
               {(finding.hits || []).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={`${hit.revision}:${hit.candidateIndex}`}>
                 <label><input type="checkbox" checked={hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
                   <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "נבחר · טרם אומת") : "מוסתר"}</b><small>{hit.verified ? `דילוג ${hit.skip} · ${directionLabel(hit.direction)}` : "מועמד — יוצג במטריצה לאחר אימות"}</small>
@@ -429,14 +432,11 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
               </div>)}
               {!finding.hits?.length ? <p className="els29-native-muted">עדיין אין מופעים מאומתים לבחירה.</p> : null}
               {finding.hitsTruncated ? <p className="els29-native-muted">מוצגים 64 מופעים מאומתים. הרשימה המלאה בכלים הקלאסיים.</p> : null}
-            </details>
-            <details className="els29-native-hit-details">
-              <summary>צבע הממצא</summary>
               <div className="els29-native-system-colors" role="group" aria-label={`צבע הממצא ${finding.t}`}>
                 {colorChoices.map((choice) => <button type="button" key={choice.label} aria-label={`צבע ${choice.label} לממצא ${finding.t}`} aria-pressed={displayColor === choice.color} title={choice.label}
                   onClick={() => changeFindingColor(index, choice.stored)} style={{ "--els29-mark": choice.color }}><i aria-hidden="true" /><span>{choice.label}</span>{displayColor === choice.color ? " ✓" : ""}</button>)}
               </div>
-            </details>
+            </div>
           </div>;
         })}
       </div> : <p className="els29-native-muted">הוסיפו מילה כדי לראות אם ואיפה היא מופיעה בחלון המטריצה הנוכחי.</p>}
@@ -449,7 +449,7 @@ function FindingsRail({ activeTool, state, lensResult, onAxisVerse, onAxisLine, 
         <button type="button" disabled={!verified} onClick={onWorkspace}>הוסף למחקר</button>
         <button type="button" onClick={onOpenClassic}>שמירות ושיתוף</button>
       </div>
-      <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף, סרט, ניקוד וכל כלי שעוד לא הועבר ל־2029 נשאר זמין באותו כלי קלאסי.</p>
+      <p className="els29-native-muted">הצלבות מתקדמות, שמירה, תמונה, שיתוף וסרט נשארים זמינים באותו כלי קלאסי.</p>
       <button className="sod29-action" type="button" onClick={onOpenClassic}>פתח את כל הכלים הקלאסיים</button>
     </div>
   </div>;
@@ -466,6 +466,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [classicGlyphs, setClassicGlyphs] = useState(false);
+  const [depthView, setDepthView] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const panelInteractedRef = useRef(false);
   const toolRailRef = useRef(null);
@@ -741,10 +743,13 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
               <span>{scopeLabel(engineState?.scope)}</span>
               {engineState?.axis?.skip != null ? <span>דילוג {engineState.axis.skip}</span> : null}
               {engineState?.occurrence?.count ? <span>מופע {(engineState.occurrence.index || 0) + 1}/{engineState.occurrence.count}</span> : null}
+              <button type="button" className="els29-native-niqqud" aria-pressed={!!engineState?.ui?.niqqud} disabled={!matrixActive}
+                title="הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד" onClick={() => requestControl("niqqud-toggle")}>ניקוד</button>
+              {engineState?.ui?.niqqud && activeScope === "tanakh" ? <span>ניקוד לתורה בלבד</span> : null}
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
@@ -758,7 +763,9 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             disabled={!matrixActive} onClick={() => requestControl("axis-visibility")}>
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
-          <button type="button" disabled={!matrixActive} onClick={requestAxisScan}>סרוק ציר ראשי</button>
+          <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
+          <button type="button" aria-pressed={depthView} disabled={!matrixActive} title="הבלטת האותיות, הציר והממצאים" onClick={() => setDepthView((value) => !value)}>תצוגת עומק</button>
+          {depthView ? <small>תצוגת עומק של אותה מטריצה.</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
         </footer>
         </div>
@@ -807,8 +814,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           engineOnly={!classicOpen}
           showResearchBusWhenHiddenBridge
           onState={handleEngineState}
-          onGate={() => setClassicOpen(true)}
-          onOnboardingRequired={() => setClassicOpen(true)}
+          onGate={() => setClassicOpen(false)}
+          onOnboardingRequired={() => { setClassicOpen(false); setNotice("התחילו במילה קצרה, ואז בדקו את המקור והמילים שסביבה."); }}
           lensRequest={lensRequest}
           onLens={handleLens}
           controlRequest={controlRequest}

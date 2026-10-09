@@ -1811,6 +1811,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       density.heat.forEach((value,i)=>{if(i>=0&&i<scopeN())cells.push({i,strength:value/density.mx});});
       snapshot.heat={source:"display_density",radius:2,cells};snapshot.lenses.push("heat");
     }
+    if(st.niqqud&&NQ){
+      const cells=[];
+      for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<b.c0+b.cw;c++){
+        const i=r*b.S+c;if(i>=0&&i<TORAH_N&&NQ[i])cells.push({i,marks:NQ[i]});
+      }
+      snapshot.niqqud={source:"torah_compact",cells};snapshot.lenses.push("niqqud");
+    }
     return snapshot;
   }
   function elsState(){
@@ -1842,7 +1849,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
         showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
-        heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
+        heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
         crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,crossRadius:st.crossSimple?(st.crossRadius||18):null,
@@ -2056,6 +2063,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
+      else if(d.action==="niqqud-toggle")toggleNiqqud();
       else if(d.action==="finding-count"&&Number.isInteger(d.value)&&d.value>=1&&d.value<=15){
         st.showN=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }
@@ -2064,7 +2072,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       setCtxR(st.ctxR+d.delta);
     }
     if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
-      if(!onboarded()){openOnboard();postHost({type:"onboarding-required"});return;}   // 🎓 bridge נסתר אינו עוקף חובת-הדרכה
+      if(!ensureOnboarded()){postHost({type:"onboarding-required"});return;}   // 🎓 אותו helper: bridge=hidden אינו שומר אישור ואינו משנה הרשאות
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
       if(kind==="regular"){
@@ -3859,6 +3867,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     function paint(scanSet){
       row.innerHTML="";
       linePos.forEach((p,i)=>{const sp=document.createElement("span");
+        sp.dataset.i=p;
         if(hlSet.has(p)){sp.className="ls-hl";sp.style.background=color||"var(--crim)";sp.style.color=color?"#0c0a06":"var(--crimInk)";}
         else if(scanSet&&scanSet.has(i))sp.className="ls-scanhl";
         sp.textContent=T[p]+(st.niqqud&&NQ?(NQ[p]||""):"");row.appendChild(sp);});
@@ -4758,7 +4767,20 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     document.body.classList.toggle("adminon",st.admin);
   }
   document.querySelectorAll(".topbar .vb[data-theme]").forEach(b=>b.onclick=()=>{st.theme=b.dataset.theme;applyView();});
-  document.getElementById("nqbtn").onclick=async()=>{if(!st.niqqud)await ensureNiqqud();st.niqqud=!st.niqqud;applyView();if(st.res)render();};
+  // ניקוד הוא לבוש של אותו corpus-index: מעדכנים glyph קיים, בלי לבנות/לחפש שוב ובלי להזיז גלילה.
+  async function toggleNiqqud(){
+    if(!st.niqqud)await ensureNiqqud();st.niqqud=!st.niqqud;applyView();
+    if(lastGrid)lastGrid.querySelectorAll(".mc[data-i]").forEach(cell=>{
+      const i=+cell.dataset.i,glyph=cell.querySelector(".l");
+      if(glyph)glyph.textContent=T[i]+(st.niqqud&&i<TORAH_N?(NQ[i]||""):"");
+      cell.style.height=(lastPX+3+(st.niqqud?7:0))+"px";
+    });
+    document.querySelectorAll(".ls-row span[data-i]").forEach(glyph=>{
+      const i=+glyph.dataset.i;glyph.textContent=T[i]+(st.niqqud&&i<TORAH_N?(NQ[i]||""):"");
+    });
+    emitState();
+  }
+  document.getElementById("nqbtn").onclick=toggleNiqqud;
   // 🔑 כניסת-מנהל דיסקרטית (הכפתור הוסר מהרצועה): 5 הקשות על הכותרת, או #admin בכתובת
   function setAdmin(on){st.admin=on;applyView();renderGallery();
     if(!st.admin){if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}if(labOpen()){labpanel.style.display="none";labtoggle.classList.remove("on");}}

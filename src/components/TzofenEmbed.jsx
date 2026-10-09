@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
@@ -85,6 +86,34 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
+  const gateDialogRef = useRef(null);
+  useEffect(() => {
+    if (!engineOnly || !gate || verified) return;
+    const dialog = gateDialogRef.current;
+    if (!dialog) return;
+    const previousFocus = document.activeElement;
+    const focusable = () => [...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), a[href], select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')];
+    (focusable()[0] || dialog).focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setGate(null);
+      } else if (event.key === "Tab") {
+        const controls = focusable();
+        const first = controls[0] || dialog, last = controls.at(-1) || dialog;
+        if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    };
+    dialog.addEventListener("keydown", onKeyDown);
+    return () => {
+      dialog.removeEventListener("keydown", onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [engineOnly, gate, verified]);
 
   // 🔗 Research Bus — מסלול-Finding יחיד (research_bus_reconciliation, Pass 1): ה-iframe פולט elsState()
   //    בכל render (onMsg d.type==="state", למעלה); כאן רק נשמר ה-tick האחרון (ref, לא state — אין re-render
@@ -465,6 +494,47 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       : gate?.reason === "save"
       ? "שמירת מטריצות לתיק המחקר שלך — כדי לחזור אליהן ולשתף — שמורה לחוקרים רשומים. הרשמה חינם פותחת שמירה, חיפוש-מוצלב וכל התנ״ך."
       : "טעמת שהכלי עובד — עכשיו רישום חד-פעמי עם אימות במייל פותח את החיפוש המוצלב, כל התנ״ך, שמירות ושיתוף.";
+  const gateOverlay = gate && !verified ? (
+    <div
+      ref={gateDialogRef}
+      dir="rtl"
+      role="dialog"
+      aria-modal="true"
+      aria-label={gateTitle}
+      tabIndex={-1}
+      data-els-access-gate={engineOnly ? "native" : "classic"}
+      style={{
+        position: engineOnly ? "fixed" : "absolute", inset: 0, zIndex: engineOnly ? 10000 : 20,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "18px", overflow: "auto",
+        background: "rgba(6,5,13,0.82)", backdropFilter: "blur(3px)",
+      }}
+    >
+      <div style={{ maxWidth: 520, width: "100%", maxHeight: "calc(100dvh - 36px)", overflow: "auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 4, color: "#f4c84a", fontSize: 34 }}>
+          {gate.reason === "cross" ? "🔀" : gate.reason === "tanakh" ? "📜" : "🔓"}
+        </div>
+        <div style={{ textAlign: "center", color: "#f4c84a", fontFamily: "'Frank Ruhl Libre', serif", fontSize: 21, fontWeight: 800, marginBottom: 6 }}>
+          {gateTitle}
+        </div>
+        <p style={{ textAlign: "center", color: "#c3ac7d", fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 6px", maxWidth: 440 }}>
+          {gateSub}
+        </p>
+        <SubscribeGate source="code" onUnlock={() => setGate(null)} />
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button
+            onClick={() => setGate(null)}
+            style={{
+              background: "transparent", border: "none", color: "#8a7850",
+              fontFamily: "inherit", fontSize: 12.5, cursor: "pointer", textDecoration: "underline",
+            }}
+          >
+            {gate.reason === "cross" ? "חזרה לחיפוש רגיל" : "סגירה"}
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div
@@ -533,40 +603,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         </div>
       )}
 
-      {gate && !verified && (
-        <div
-          style={{
-            position: "absolute", inset: 0, zIndex: 20,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "18px", overflow: "auto",
-            background: "rgba(6,5,13,0.82)", backdropFilter: "blur(3px)",
-          }}
-        >
-          <div style={{ maxWidth: 520, width: "100%" }}>
-            <div style={{ textAlign: "center", marginBottom: 4, color: "#f4c84a", fontSize: 34 }}>
-              {gate.reason === "cross" ? "🔀" : gate.reason === "tanakh" ? "📜" : "🔓"}
-            </div>
-            <div style={{ textAlign: "center", color: "#f4c84a", fontFamily: "'Frank Ruhl Libre', serif", fontSize: 21, fontWeight: 800, marginBottom: 6 }}>
-              {gateTitle}
-            </div>
-            <p style={{ textAlign: "center", color: "#c3ac7d", fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 6px", maxWidth: 440 }}>
-              {gateSub}
-            </p>
-            <SubscribeGate source="code" onUnlock={() => setGate(null)} />
-            <div style={{ textAlign: "center", marginTop: 10 }}>
-              <button
-                onClick={() => setGate(null)}
-                style={{
-                  background: "transparent", border: "none", color: "#8a7850",
-                  fontFamily: "inherit", fontSize: 12.5, cursor: "pointer", textDecoration: "underline",
-                }}
-              >
-                {gate.reason === "cross" ? "חזרה לחיפוש רגיל" : "סגירה"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {gateOverlay && (engineOnly ? createPortal(gateOverlay, document.body) : gateOverlay)}
 
       {/* 🎉 כניסה 1 — הצעת הכנת-תיק אחרי השמירה הראשונה */}
       {dossierPrompt && (
