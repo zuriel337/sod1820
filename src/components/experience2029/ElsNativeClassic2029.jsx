@@ -10,12 +10,37 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, pointerId: null, x: 0, y: 0, left: 0, top: 0, moved: false });
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    const axis = state?.axis;
+    if (!visible || !el?.clientWidth || !el?.clientHeight || !axis?.hitId) return;
+    const first = el.querySelector(`[data-els-index="${Number(axis.start)}"]`);
+    const step = axis.direction === "back" ? -Number(axis.skip) : Number(axis.skip);
+    const last = el.querySelector(`[data-els-index="${Number(axis.start) + step * (Number(axis.length) - 1)}"]`);
+    if (!first || !last) return;
+    const viewport = el.getBoundingClientRect();
+    const a = first.getBoundingClientRect();
+    const b = last.getBoundingClientRect();
+    const left = Math.min(a.left, b.left);
+    const right = Math.max(a.right, b.right);
+    const top = Math.min(a.top, b.top);
+    const bottom = Math.max(a.bottom, b.bottom);
+    el.scrollLeft += (left + right) / 2 - viewport.left - el.clientWidth / 2;
+    // Keep the whole axis in view when it fits; show the start and reading direction of long axes.
+    el.scrollTop += bottom - top <= el.clientHeight - 24
+      ? (top + bottom) / 2 - viewport.top - el.clientHeight / 2
+      : axis.direction === "back"
+        ? a.bottom - viewport.top - el.clientHeight + 24
+        : a.top - viewport.top - 24;
+    // Presentation only: marking, inspection and panel changes preserve manual panning.
+  }, [visible, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -649,7 +674,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} />
         </main>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {[["source", "מקור", "¶"], ["findings", "ממצאים", "+"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button

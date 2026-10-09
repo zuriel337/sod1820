@@ -180,7 +180,7 @@ export default function Els2029Page() {
         className="sod29-section"
         aria-label="ELS Classic 2029 workspace"
         data-els-classic-2029="native-v1"
-        style={{ marginTop: 18, padding: 14, overflow: "hidden" }}
+        style={{ marginTop: 18, overflow: "hidden" }}
       >
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
