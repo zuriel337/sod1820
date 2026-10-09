@@ -66,6 +66,27 @@ Handoff to existing authorized coordinator: retain this task key; implementation
 branch-only. Final commit/preview and final browser results are recorded below when
 verified. No dispatch or external message has been sent.
 
+### Verified hosted spatial preview
+
+- Source: `9ee873c1` implementation + `a7ffe34c` published OFL attribution.
+- Deployment: `dpl_4sTqByBFf52uBquQtkiLHGduJn5D`, READY, target=null, no aliases.
+- Host: `sod1820-72uorcc3i-sod1820-s-projects.vercel.app`.
+- Review: `/spatial-review/`; game: `/2029/kingdom`.
+- Temporary protected-deployment access was supplied to the user; token is not
+  stored in Git. The issued link expires 2026-10-10 21:27 UTC.
+- Final local release run: all 19 browser cases PASS. Additional ink-versus-hole
+  drag assertion PASS. Nine geometry/game unit tests PASS; Number/Experience checks
+  and both product builds PASS. Existing Mistater failure remains disclosed above.
+- Fresh hosted mobile browser: HTTP200, real GPU Milui activation, expansion
+  א→אלף with canonical fixture value111, navigation to Kingdom, first reward20,
+  zero retired cuboids, zero page overflow and zero JavaScript errors.
+- Hosted response preserves `connect-src 'self'; form-action 'self'` and noindex.
+  All static files include the derivative's OFL notice at `/legal/rubik-outline-OFL.txt`.
+- Screenshot: `/workspace/artifacts/kingdom-spatial/hosted-milui-mobile.png`.
+- Status: DEFINED / IMPLEMENTED / TESTED / PREVIEW_DEPLOYED. Not merged, not production,
+  no live DB/ledger changes. This closes the shared glyph foundation slice, not the
+  still-outstanding shaped-niqqud, physical-device and full environment acceptance.
+
 Task: `KINGDOM_OF_NUMBERS_2029_CODEX_MASTER_V1`
 Canonical brief: `work_log.id=48e2c9f4-f83c-42be-9995-769788f64ccc`
 Actor: GPT · Date: 2026-10-09
