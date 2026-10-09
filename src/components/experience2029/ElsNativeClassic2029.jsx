@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
-import { findingColorChoices, projectFindingColor } from "./elsFindingColors2029.js";
+import { parseElsHitKey } from "../../lib/elsJourney.js";
+import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import "./elsNativeClassic2029.css";
@@ -10,7 +11,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, classicGlyphs, depthView, readingView }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, depthView, readingView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -50,6 +51,17 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
   const sourceMap = useMemo(() => new Map((matrix?.sourceMarks || []).map((mark) => [Number(mark.i), {
     ...mark, type: "source", color: projectFindingColor(mark.color, palette),
   }])), [matrix?.sourceMarks, palette]);
+
+  const activeFinding = useMemo(() => {
+    if (!selectedFinding) return { indices: new Set((matrix?.marks || []).filter((mark) => mark.type === "main").map((mark) => Number(mark.i))), color: palette.matrix.axis };
+    if (selectedFinding.scope !== state?.scope || selectedFinding.axisHitId !== state?.axis?.hitId) return null;
+    const finding = state?.findings?.find((item) => item.t === selectedFinding.term);
+    const hit = [...(finding?.hits || []), ...(finding?.sourceHits || [])].find((item) => item.hitId === selectedFinding.hitId && item.shown && item.withinRadius !== false && (item.verified || item.kind === "source-sequence"));
+    const anchor = hit && parseElsHitKey(hit.hitId);
+    if (!anchor || !Number.isInteger(anchor.start) || !Number.isInteger(anchor.skip) || anchor.skip < 1) return null;
+    // Project only the selected engine-owned occurrence. No search or recoloring request.
+    return { indices: new Set(Array.from(finding.t, (_, offset) => anchor.start + anchor.dir * anchor.skip * offset)), color: projectFindingColor(finding.color, palette) };
+  }, [selectedFinding, state?.scope, state?.axis?.hitId, state?.findings, matrix?.marks, palette]);
 
   const heatMap = useMemo(() => new Map((matrix?.heat?.cells || [])
     .map((cell) => [Number(cell.i), clamp(Number(cell.strength) || 0, 0, 1)])), [matrix?.heat]);
@@ -173,6 +185,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
             const index = absoluteRow * Number(matrix.S ?? geometry.S ?? 0) + absoluteCol;
             const sourceMark = sourceMap.get(index);
             const mark = markMap.get(index) || sourceMark;
+            const active = !!mark && activeFinding?.indices.has(index);
             const heat = mark ? 0 : heatMap.get(index) || 0;
             const classes = [
               "els29-native-cell",
@@ -180,6 +193,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
               mark?.type === "finding" ? "is-finding" : "",
               sourceMark ? "is-source-text" : "",
               mark?.start ? "is-start" : "",
+              active ? "is-active-finding" : "",
               selectedLetterIndex === index ? "is-selected" : "",
               heat > 0 ? "is-heat" : "",
             ].filter(Boolean).join(" ");
@@ -194,6 +208,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
               }}
               style={{
                 ...(["finding", "source"].includes(mark?.type) && mark?.color ? { "--els29-mark": mark.color } : {}),
+                ...(active ? { "--els29-active-mark": activeFinding.color, "--els29-mark": activeFinding.color } : {}),
                 ...(heat > 0 ? { "--els29-heat": `${Math.round(heat * 72)}%` } : {}),
               }}
             >{letter === " " ? "\u00a0" : letter + (niqqudMap.get(index) || "")}</span>;
@@ -386,7 +401,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   </div>;
 }
 
-function FindingsRail({ activeTool, state, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -395,7 +410,6 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
   const radius = state?.ui?.findingRadius ?? null;
   const [draft, setDraft] = useState("");
   const [expandedFinding, setExpandedFinding] = useState(null);
-  const [selected, setSelected] = useState(null);
   const railScrollRef = useRef(null);
   const inspectionRef = useRef(null);
   const findingPending = ["searching", "verifying"].includes(operation?.status);
@@ -411,8 +425,7 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
 
   useEffect(() => {
     if (selected && !selectionValid) {
-      setSelected(null);
-      onSelectTarget();
+      onSelectTarget(null);
     }
   }, [selected, selectionValid, onSelectTarget]);
 
@@ -425,14 +438,13 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
   }, [lensResult]);
 
   const selectTarget = (term, hitId) => {
-    setSelected(term ? { term, hitId, scope: state.scope, axisHitId: state.axis.hitId } : null);
-    onSelectTarget();
+    onSelectTarget(term ? { term, hitId, scope: state.scope, axisHitId: state.axis.hitId } : null);
   };
   const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
   const addFinding = () => {
     const term = clean(draft);
     if (!term || !verified || pending || findings.length >= 12) return;
-    onFindingsChange([...projected(), { t: term, color: colorChoices[findings.length % colorChoices.length].stored }]);
+    onFindingsChange([...projected(), { t: term, color: nextFindingColor(findings, palette) }]);
     setDraft("");
   };
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
@@ -462,10 +474,10 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
       </label>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
       <div className="els29-native-findings">
-        {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} data-experience-capability="els-axis-actions">
+        {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
           <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
             aria-pressed={!selectionValid} disabled={searchPending} onClick={() => selectTarget("", state.axis.hitId)}>
-            <i className="els29-native-color-dot" style={{ "--els29-mark": palette.accent }} aria-hidden="true" />
+            <i className="els29-native-color-dot" aria-hidden="true" />
             <span><b>{state.termRaw || state.term}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {(state.occurrence?.index || 0) + 1}/{state.occurrence?.count || 1}</small></span>
           </button>
         </div> : <p className="els29-native-muted">אחרי החיפוש הראשי יופיעו כאן הציר והממצאים שלו.</p>}
@@ -476,7 +488,7 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
           const displayHit = chosen ? selectedHit : firstHit;
           const displayColor = projectFindingColor(finding.color, palette);
           const hasVerified = (finding.hits || []).some((hit) => hit.verified);
-          return <div className={`els29-native-finding-group${chosen ? " is-selected" : ""}`} key={finding.t}>
+          return <div className={`els29-native-finding-group${chosen ? " is-selected" : ""}`} style={{ "--els29-mark": displayColor }} key={finding.t}>
             <div className="els29-native-finding">
               <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${finding.t}`} aria-pressed={!!chosen}
                 disabled={!firstHit || pending} onClick={() => selectTarget(finding.t, firstHit.hitId)}>
@@ -544,6 +556,7 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
 }
 
 export default function ElsNativeClassic2029({ initialSeed = "" }) {
+  const palette = use2029Palette("research_lab");
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -617,6 +630,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [lensResult, setLensResult] = useState(null);
   const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
+  const [selectedFinding, setSelectedFinding] = useState(null);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
@@ -626,6 +640,10 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setLensResult(null);
     setLensPending(false);
     setSelectedLetterIndex(null);
+  };
+  const selectFinding = (selection) => {
+    setSelectedFinding(selection);
+    resetReadContext();
   };
 
   const requestSearch = (kind, payload = {}) => {
@@ -765,7 +783,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     if (!term || ["searching", "verifying"].includes(operations.findings?.status) || ["searching", "verifying"].includes(operations.search?.status) || findings.length >= 12 || findings.some((finding) => finding.t === term)) return;
     // Append through the existing canonical editor. Preserve the read-only line inspector:
     // adding a term does not change its axis, corpus or selected occurrence.
-    requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term }], { preserveRead: true });
+    requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term, color: nextFindingColor(findings, palette) }], { preserveRead: true });
   };
 
   const handleLetterClick = ({ index }) => {
@@ -806,7 +824,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4">
+  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
+    style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
     <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <label>
         <span>מונח</span>
@@ -904,7 +923,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} depthView={depthView} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
@@ -942,6 +961,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         <CrossResultsRail state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results"} onSelect={requestControl} />
         <FindingsRail
+          selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}
           activeTool={activeTool}
           state={engineState}
@@ -949,7 +969,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           lensPending={lensPending}
           operation={operations.findings}
           searchPending={searchPending}
-          onSelectTarget={resetReadContext}
+          onSelectTarget={selectFinding}
           onScan={(target) => requestLens("line-context", { ...target, scan: true })}
           onSource={(target) => requestLens("verse-context", target)}
           onAxisControl={requestControl}

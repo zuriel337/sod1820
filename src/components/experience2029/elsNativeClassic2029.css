@@ -9,6 +9,7 @@
 }
 .els29-native-classic.is-height-expanded{--els29-stage-height:calc(var(--els29-stage-height-base) * 1.5)}
 [data-els-2029-surface="v1"].sod29-focus-stage{padding-inline:6px}
+[data-els-2029-surface="v1"].sod29-focus-stage::after{display:none}
 [data-els-classic-2029="native-v1"].sod29-section{padding:6px}
 /* The first verified axis fills this strip asynchronously. Reserve one readable row. */
 .sod29-root.surface-els .sod29-context-strip{min-height:44px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start}
@@ -125,7 +126,7 @@
   border-radius:22px;
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 5%,transparent);
 }
-.els29-native-stage{min-width:0;min-height:0;height:var(--els29-stage-height);overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr)}
+.els29-native-stage{min-width:0;min-height:0;height:var(--els29-stage-height);overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr);border-color:var(--els29-frame);box-shadow:0 0 0 3px color-mix(in srgb,var(--els29-frame) 12%,transparent),0 12px 32px color-mix(in srgb,var(--els29-frame) 10%,transparent)}
 .els29-native-stage-column{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;min-height:0}
 .els29-native-bottom-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:8px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel-soft)}
 .els29-native-bottom-controls button{min-width:44px;min-height:44px;padding:8px 12px;border:1px solid var(--s29-line);border-radius:11px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
@@ -236,6 +237,10 @@
   outline:none;
   cursor:grab;
   touch-action:pan-x pan-y;
+  background:var(--els29-canvas);
+  color:var(--els29-letter-ink);
+  border-top:1px solid color-mix(in srgb,var(--els29-frame) 55%,var(--els29-canvas));
+  box-shadow:inset 0 0 0 3px var(--els29-canvas),inset 0 0 0 4px color-mix(in srgb,var(--els29-frame) 32%,var(--els29-canvas));
 }
 .els29-native-matrix-scroll.is-dragging{cursor:grabbing;user-select:none}
 .els29-native-matrix-scroll:focus-visible{
@@ -285,7 +290,7 @@
   display:grid;
   place-items:center;
   border-radius:6px;
-  color:var(--s29-muted);
+  color:var(--els29-letter-ink);
   font-family:var(--s29-font-display);
   font-size:18px;
   line-height:1;
@@ -302,20 +307,22 @@
 .els29-native-matrix.is-depth .els29-native-cell.is-axis{transform:translateZ(14px);filter:drop-shadow(0 3px 3px color-mix(in srgb,var(--s29-ink) 14%,transparent))}
 .els29-native-matrix.is-depth .els29-native-cell.is-finding{transform:translateZ(8px);filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--s29-ink) 12%,transparent))}
 .els29-native-cell.is-axis{
-  color:var(--s29-ink);
-  background:color-mix(in srgb,var(--s29-accent) 17%,var(--s29-panel-soft));
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s29-accent) 24%,transparent);
+  color:var(--els29-mark-ink);
+  background:var(--els29-axis);
+  box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--els29-mark-ink) 22%,transparent);
   font-weight:900;
 }
 .els29-native-cell.is-finding{
-  color:var(--s29-ink);
-  background:color-mix(in srgb,var(--els29-mark,var(--s29-accent-secondary)) 32%,var(--s29-panel));
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--els29-mark,var(--s29-accent-secondary)) 48%,transparent);
+  color:var(--els29-mark-ink);
+  background:var(--els29-mark);
+  box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--els29-mark-ink) 22%,transparent);
   font-weight:900;
 }
-.els29-native-cell.is-start{outline:2px solid color-mix(in srgb,var(--s29-warm-accent) 68%,transparent);outline-offset:-2px}
-.els29-native-cell.is-source-text:not(.is-axis):not(.is-finding){background:color-mix(in srgb,var(--els29-mark,var(--s29-accent-secondary)) 24%,var(--s29-panel));font-weight:900}
+.els29-native-cell.is-start{outline:2px solid color-mix(in srgb,var(--els29-mark-ink) 65%,transparent);outline-offset:-2px}
+.els29-native-cell.is-source-text:not(.is-axis):not(.is-finding){background:var(--els29-mark);color:var(--els29-mark-ink);font-weight:900}
 .els29-native-cell.is-source-text{text-decoration:underline;text-underline-offset:4px}
+.els29-native-cell.is-active-finding{position:relative;z-index:1;background:var(--els29-active-mark);color:var(--els29-mark-ink);outline:2px solid var(--els29-letter-ink);outline-offset:1px;box-shadow:0 0 12px color-mix(in srgb,var(--els29-active-mark) 44%,transparent)}
+.els29-native-cell.is-active-finding.is-axis{box-shadow:inset 0 0 0 2px var(--els29-axis),0 0 12px color-mix(in srgb,var(--els29-active-mark) 44%,transparent)}
 .els29-native-window-size{display:flex;align-items:center;gap:6px;font-size:var(--s29-type-micro)}
 .els29-native-window-size select,.els29-native-results select,.els29-native-results input{min-height:44px;min-width:0;max-width:100%;border:1px solid var(--s29-line);border-radius:10px;padding:6px 8px;background:var(--s29-panel);color:var(--s29-ink);font:inherit}
 .els29-native-results{gap:10px}
@@ -598,7 +605,8 @@
 .els29-native-finding-select:hover:not(:disabled){background:var(--s29-panel-soft)}
 .els29-native-finding-select:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:-2px}
 .els29-native-finding-select:disabled{opacity:.5;cursor:not-allowed}
-.els29-native-finding-group.is-selected,.els29-native-axis-entry.is-selected{border-color:var(--s29-accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s29-accent) 45%,transparent)}
+.els29-native-finding-group.is-selected,.els29-native-axis-entry.is-selected{border-color:var(--els29-mark,var(--els29-axis));box-shadow:inset 0 0 0 2px var(--els29-mark,var(--els29-axis));background:color-mix(in srgb,var(--els29-mark,var(--els29-axis)) 9%,var(--s29-panel))}
+.els29-native-finding-group.is-selected small{color:var(--s29-ink)}
 .els29-native-finding-group>.els29-native-selected-occurrence{padding:0 8px 8px}
 .els29-native-inline-inspection,.els29-native-findings-options{min-width:0;padding:8px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
 .els29-native-inline-inspection>summary,.els29-native-findings-options>summary{min-height:44px;min-width:0;padding-block:6px;color:var(--s29-ink);font-size:var(--s29-type-small);font-weight:800;overflow-wrap:anywhere;cursor:pointer}
@@ -635,9 +643,8 @@
  .els29-native-panel-head button{flex-shrink:0}
 }
 
-/* System colors are accents; text retains the theme ink rather than colored glyphs. */
+/* Density stays behind the explicit finding colors and keeps source text legible. */
 .els29-native-cell.is-heat:not(.is-axis):not(.is-finding){background:color-mix(in srgb,var(--s29-accent) var(--els29-heat,0%),var(--s29-panel));color:var(--s29-ink)}
-.els29-native-cell.is-finding{background:color-mix(in srgb,var(--els29-mark) 22%,var(--s29-panel));color:var(--s29-ink)}
 .els29-native-color-dot{width:14px;height:14px;flex:none;border-radius:50%;background:var(--els29-mark);outline:1px solid var(--s29-ink)}
 .els29-native-system-colors{display:flex;flex-wrap:wrap;gap:5px}
 .els29-native-system-colors button{min-height:44px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-micro);padding:5px 8px;cursor:pointer}

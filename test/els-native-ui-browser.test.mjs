@@ -2,7 +2,7 @@
 // server verification are test doubles; the oracle checks every candidate against the real corpus.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -64,11 +64,16 @@ export default function Host(props){
 const entry = `import React from 'react';import {createRoot} from 'react-dom/client';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
 import {resolve2029Palette} from '/src/lib/palette.js';
+import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
+import {findingColorChoices,projectFindingColor,nextFindingColor} from '/src/components/experience2029/elsFindingColors2029.js';
 import '/src/components/experience2029/sod2029.css';
 import '/src/components/experience2029/sod2029-closed.css';
 import '/src/components/experience2029/systemFrame2029.css';
 window.__log=[];window.__hostLog=[];
-const palette=resolve2029Palette('dark','research_lab');
+window.__setThemePreset=setThemePreset;
+window.__findingColors={findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette};
+function Fixture(){
+const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
 const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minHeight:'100vh',padding:12};
 for(const [key,value] of Object.entries(fields))style['--s29-'+key]=palette[value];
@@ -76,13 +81,15 @@ for(const [key,value] of Object.entries({micro:14,small:15,body:16,ui:15,lead:20
 for(const key of ['body','ui','display','numeric'])style['--s29-font-'+key]='Arial';
 const dock=React.createElement('div',{className:'sod29-command-island',role:'toolbar','aria-label':'מסלול המחקר והפעולות הזמינות עכשיו'},
  ...['חיפוש','פעולה','רזיאל','עכשיו','כלים','אישי'].map(label=>React.createElement('button',{type:'button',key:label,onClick:()=>window.__dockAction=label},label)));
-createRoot(document.getElementById('root')).render(React.createElement('div',{style,className:'sod29-root closed-shell native-frame surface-els'},
+return React.createElement('div',{style,className:'sod29-root closed-shell native-frame surface-els'},
  React.createElement('aside',{className:'sod29-sidebar','aria-label':'fixture sidebar'}),
  React.createElement('div',{className:'sod29-main'},
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native)))))),dock));
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native)))))),dock);
+}
+createRoot(document.getElementById('root')).render(React.createElement(Fixture));
 `;
 
 function verify({ op, payload, denied }) {
@@ -500,6 +507,79 @@ test('native UI: mobile scan stays above the system dock, supports pinning and n
    await button(page,'סגור כלי מטריצה').tap();
    assert.equal(await sheet.isVisible(),false);
   },{mobile:true});
+ });
+
+test('native UI: vivid colors and exact finding focus stay readable in every theme without changing research',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await addSecondary(page,'תורה');await addSecondary(page,'התורה');
+   const baseline=await identity(page);
+   const requests=await page.evaluate(()=>window.__hostLog.length);
+   const contrast=(a,b)=>{
+    const lum=color=>{
+     const channels=color.startsWith('#')?color.slice(1).match(/../g).map(x=>parseInt(x,16)):color.match(/[\d.]+/g).slice(0,3).map(x=>Number(x)*(color.startsWith('color(srgb')?255:1));
+     const linear=channels.map(x=>{const c=x/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;});
+     return linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
+    };
+    const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+   };
+   const activeIndices=()=>page.locator('.els29-native-cell.is-active-finding').evaluateAll(cells=>cells.map(c=>Number(c.dataset.elsIndex)).sort((a,b)=>a-b));
+   const sourceIndices=await page.evaluate(()=>{
+    const f=window.__state.findings.find(f=>f.t==='תורה');
+    const h=[...f.hits,...f.sourceHits].find(h=>h.shown&&h.withinRadius!==false&&(h.verified||h.kind==='source-sequence'));
+    const [skip,dir,start]=h.hitId.split('_').map(Number);
+    const visible=new Set([...document.querySelectorAll('.els29-native-cell')].map(c=>Number(c.dataset.elsIndex)));
+    return Array.from(f.t,(_,i)=>start+Math.abs(skip)*dir*i).filter(i=>visible.has(i)).sort((a,b)=>a-b);
+   });
+   assert.ok(sourceIndices.length>0);
+   const surfaces=[];
+   for(const preset of ['dark','light','parchment']){
+    await page.evaluate(preset=>window.__setThemePreset(preset),preset);
+    await selectAxis(page,'תורה');
+    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: highlight only the selected exact occurrence`);
+    const colors=await page.evaluate(()=>{
+     const cell=document.querySelector('.els29-native-cell.is-active-finding');
+     const plain=document.querySelector('.els29-native-cell:not(.is-axis):not(.is-finding):not(.is-source-text)');
+     const matrix=document.querySelector('.els29-native-matrix-scroll');
+     const row=document.querySelector('.els29-native-finding-group.is-selected .els29-native-color-dot');
+     const selectedRow=row.closest('.els29-native-finding-group');
+     const {findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette}=window.__findingColors;
+     const palette=resolve2029Palette(document.documentElement.dataset.themePreset,'research_lab');
+     const choices=findingColorChoices(palette),assigned=[];
+     for(let i=0;i<12;i++)assigned.push({color:nextFindingColor(assigned,palette)});
+     return {fill:getComputedStyle(cell).backgroundColor,ink:getComputedStyle(cell).color,swatch:getComputedStyle(row).backgroundColor,rowInk:getComputedStyle(selectedRow.querySelector('small')).color,rowFill:getComputedStyle(selectedRow).backgroundColor,plain:getComputedStyle(plain).color,canvas:getComputedStyle(matrix).backgroundColor,panel:palette.card,onMark:palette.matrix.onMark,axis:palette.matrix.axis,choices,assigned:assigned.map(f=>projectFindingColor(f.color,palette))};
+    });
+    assert.equal(colors.fill,colors.swatch,`${preset}: selected row and matrix share a color`);
+    assert.notEqual(colors.canvas,colors.panel);
+    assert.ok(contrast(colors.fill,colors.ink)>=4.5,`${preset}: selected letters meet readable contrast`);
+    assert.ok(contrast(colors.rowFill,colors.rowInk)>=4.5,`${preset}: selected finding details meet readable contrast`);
+    assert.ok(contrast(colors.canvas,colors.plain)>=4.5,`${preset}: source letters meet readable contrast`);
+    assert.ok(contrast(colors.axis,colors.onMark)>=4.5,`${preset}: yellow axis contrast`);
+    assert.equal(new Set(colors.assigned).size,12,'automatic colors remain distinct up to the finding limit');
+    assert.equal(colors.choices[0].label,'אדום');
+    for(const choice of colors.choices)assert.ok(contrast(choice.color,colors.onMark)>=4.5,`${preset} ${choice.label}: mark contrast`);
+    surfaces.push(colors.canvas);
+    await selectAxis(page,golden.term);
+    const axis=await page.locator('.els29-native-cell.is-axis').evaluateAll(cells=>cells.map(c=>Number(c.dataset.elsIndex)).sort((a,b)=>a-b));
+    assert.deepEqual(await activeIndices(),axis,`${preset}: primary selection returns to the yellow axis`);
+    await selectAxis(page,'תורה');
+    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: repeated selection stays on the same occurrence`);
+    if(process.env.ELS_SCREENSHOT_DIR){
+     mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});
+     await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-desktop.png`),fullPage:true});
+    }
+    await page.setViewportSize({width:390,height:844});
+    await activate(page,'סגור כלי מטריצה');
+    await page.locator('.els29-native-matrix-scroll').evaluate(el=>el.scrollIntoView({block:'start'}));
+    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: closing mobile panel retains the selected finding`);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-mobile.png`)});
+    await page.setViewportSize({width:1440,height:1000});
+   }
+   assert.equal(new Set(surfaces).size,3,'each theme has a distinct matrix surface');
+   assert.deepEqual(await identity(page),baseline,'colors, selection and theme never alter canonical research');
+   assert.equal(await page.evaluate(()=>window.__hostLog.length),requests,'selecting and changing theme never reruns or recolors the engine');
+  });
  });
 
 test('native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state',
