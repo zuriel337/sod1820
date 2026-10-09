@@ -138,10 +138,10 @@ test("one unified scan action uses the exact selected, visible and verified occu
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
   assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 1);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
-  assert.match(nativeClassic, /hit\.verified && hit\.shown && hit\.withinRadius !== false/);
+  assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
   assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
   assert.match(nativeClassic, /selected\.scope === state\?\.scope && selected\.axisHitId === state\?\.axis\?\.hitId && selectedFinding && \(selectedHit \|\| findingPending\)/);
-  assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId \} : \{ hitId: state\?\.axis\?\.hitId \}/);
+  assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId, \.\.\.\(selectedHit\?\.kind === "source-sequence" \? \{ kind: "source-sequence" \} : \{\}\) \} : \{ hitId: state\?\.axis\?\.hitId \}/);
   // Reverification preserves selection identity, while both the main and secondary operations block scanning.
   assert.match(nativeClassic, /const pending = searchPending \|\| findingPending/);
   assert.match(nativeClassic, /aria-label="סרוק לאורך הציר הנבחר" disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
@@ -162,8 +162,8 @@ test("native search progress follows request-correlated canonical operation ackn
   assert.match(template, /const operation=beginOperation\("search",d\.requestId===undefined\?d\.request\.seq:d\.requestId\)/);
   assert.match(template, /if\(operation\.terminal\)return;/);
   assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
-  assert.match(template, /function invalidateSearchOperation\(\)\{operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;/);
-  assert.match(template, /function invalidateFindingsOperation\(\)\{operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
+  assert.match(template, /function invalidateSearchOperation\(\)\{[\s\S]*?stopXfWorkers\(\);\s*operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;clearSearchLoad\(\);/);
+  assert.match(template, /function invalidateFindingsOperation\(\)\{[\s\S]*?cancelEngineCalls\(_nativeFindingsOperation\);\s*operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
 });
 
 test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {

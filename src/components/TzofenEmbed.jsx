@@ -82,11 +82,13 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
+  const engineRequestsRef = useRef(new Map());
+  useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
@@ -297,6 +299,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (!toolWin || e.source !== toolWin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
+      if (d.type === "engine-cancel") {
+        for (const id of Array.isArray(d.requestIds) ? d.requestIds : []) engineRequestsRef.current.get(id)?.abort();
+        return;
+      }
       if (d.type === "engine-request") {
         const requestId = typeof d.requestId === "string" ? d.requestId.slice(0, 120) : "";
         const op = d.op === "page" || d.op === "verify" || d.op === "verify_batch" ? d.op : null;
@@ -304,11 +310,16 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           if (requestId) postToTool({ type: "engine-result", requestId, ok: false, error: "invalid_request" });
           return;
         }
+        const controller = new AbortController();
+        engineRequestsRef.current.get(requestId)?.abort();
+        engineRequestsRef.current.set(requestId, controller);
         try {
           const payload = d.payload && typeof d.payload === "object" ? d.payload : {};
           const { data, error } = await supabase.functions.invoke("els-search-bridge", {
             body: { op, ...payload, interaction_id: newInteractionId() },
+            signal: controller.signal,
           });
+          if (controller.signal.aborted) return;
           if (error) {
             postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
             return;
@@ -322,7 +333,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             rate: data?.rate ?? null,
           });
         } catch {
-          postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+          if (!controller.signal.aborted) postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+        } finally {
+          if (engineRequestsRef.current.get(requestId) === controller) engineRequestsRef.current.delete(requestId);
         }
         return;
       }
@@ -428,6 +441,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   useEffect(() => {
     if (contextRequest) postToTool({ type: "native-context", delta: contextRequest.delta });
   }, [contextRequest, postToTool]);
+  useEffect(() => {
+    if (cancelRequest) postToTool({ type: "native-cancel", kind: cancelRequest.kind, requestId: cancelRequest.requestId });
+  }, [cancelRequest, postToTool]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.

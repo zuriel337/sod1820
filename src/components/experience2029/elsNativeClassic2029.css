@@ -313,11 +313,18 @@
   font-weight:900;
 }
 .els29-native-cell.is-start{outline:2px solid color-mix(in srgb,var(--s29-warm-accent) 68%,transparent);outline-offset:-2px}
+.els29-native-cell.is-source-text:not(.is-axis):not(.is-finding){background:color-mix(in srgb,var(--els29-mark,var(--s29-accent-secondary)) 24%,var(--s29-panel));font-weight:900}
+.els29-native-cell.is-source-text{text-decoration:underline;text-underline-offset:4px}
 .els29-native-window-size{display:flex;align-items:center;gap:6px;font-size:var(--s29-type-micro)}
 .els29-native-window-size select,.els29-native-results select,.els29-native-results input{min-height:44px;min-width:0;max-width:100%;border:1px solid var(--s29-line);border-radius:10px;padding:6px 8px;background:var(--s29-panel);color:var(--s29-ink);font:inherit}
 .els29-native-results{gap:10px}
 .els29-native-results label{display:grid;gap:5px;font-size:var(--s29-type-micro)}
 .els29-native-results p{margin:0}
+.els29-native-progress{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink)}
+.els29-native-progress>div{display:grid;gap:5px;min-width:0;flex:1}
+.els29-native-progress small{font-size:var(--s29-type-micro);color:var(--s29-muted);line-height:1.5}
+.els29-native-progress progress{width:100%;accent-color:var(--s29-accent)}
+.els29-native-progress button{flex-shrink:0;min-height:44px;padding:6px 10px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-results summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-size:var(--s29-type-micro)}
 .els29-native-results details>label{margin-block:6px 10px}
 .els29-native-results small{line-height:1.55;color:var(--s29-muted);overflow-wrap:anywhere}

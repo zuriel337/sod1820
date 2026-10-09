@@ -119,7 +119,10 @@ const realHostStubs = {
   '../lib/tracking.js': `export const track=()=>{};export const getVisitorId=()=>'native-ui-fixture';`,
   '../lib/elsMatrices.js': `export const getSavedMatrices=async()=>[];export const saveMatrix=async()=>{};export const saveMatrixAnon=async()=>{};export const moderateMatrix=async()=>{};`,
   '../lib/contributions.js': `export const addContribution=async()=>{};`,
-  '../lib/supabase.js': `export const supabase={functions:{invoke:async(name,{body})=>{const {op,...payload}=body;if(window.__fixtureHoldVerification)await new Promise(resolve=>window.__fixtureReleaseVerification=resolve);const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
+  '../lib/supabase.js': `export const supabase={functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
+    if(window.__fixtureHoldVerification)await new Promise(resolve=>{window.__fixtureReleaseVerification=resolve;signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
+    if(signal?.aborted)return {data:null,error:{message:'aborted'}};
+    const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
   '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:()=>{}};export const useUniversalWorkspace=()=>workspace;`,
   './SubscribeGate.jsx': `import React from 'react';export default function Gate(){return React.createElement('div',{'data-fixture-subscribe-gate':'true'},'Test registration gate');}`,
@@ -681,4 +684,133 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
    assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
   },{realHost:true,loadGolden:false,tier:'anon'});
+ });
+
+async function reliabilityCross(page, axis, term) {
+  const seq=await page.evaluate(()=>window.__operation?.requestId||0);
+  await page.getByRole('textbox',{name:'מונח',exact:true}).fill(axis);
+  if(!(await page.locator('.els29-native-cross-row').count()))await activate(page,'הצלבה בין צירים');
+  await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill(term);
+  await activate(page,'מצא מפגש');
+  await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
+  return page.evaluate(()=>window.__state);
+}
+
+test('native reliability: both user examples, reversed roles, literal source inspection and compact cross geometry',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const first=await reliabilityCross(page,'משיח טבת עשירי','ישלח מלאכו');
+    assert.equal(first.axis.hitId,'1820_1_15170');
+    assert.equal(first.geometry.cw,40);assert.equal(first.ui.ctxR,2);assert.equal(first.ui.windowSize,'small');
+    const source=first.findings.find(w=>w.t==='ישלחמלאכו');
+    assert.deepEqual(source.shown,[],'source is not promoted to canonical ELS');
+    assert.equal(source.sourceHits[0].kind,'source-sequence');assert.equal(source.sourceHits[0].shown,true);
+    assert.equal(source.sourceHits[0].hitId,'1_1_29729');
+    assert.deepEqual(first.matrix.sourceMarks.map(m=>m.i),Array.from({length:9},(_,k)=>29729+k));
+    assert.equal(first.matrix.sourceMarks.map(m=>letters[m.i]).join(''),'ישלחמלאכו');
+    assert.equal(first.matrix.marks.filter(m=>m.type==='finding').length,0,'canonical marks remain MATCH-only');
+    assert.equal(await page.locator('.els29-native-cell.is-source-text').count(),9);
+    await selectAxis(page,'ישלחמלאכו');await activate(page,'מקור הממצא הנבחר');
+    await page.waitForFunction(()=>window.__lens?.lens==='verse-context'&&window.__lens?.target?.kind==='source-sequence');
+    assert.equal(await page.evaluate(()=>window.__lens.hitId),'1_1_29729');
+    await activate(page,'סרוק לאורך הציר הנבחר');
+    await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.target?.kind==='source-sequence');
+    assert.equal(await page.evaluate(()=>window.__lens.skip),1);
+    await activate(page,'מופעים וצבע של ישלחמלאכו');
+    const checkbox=page.locator('.els29-native-finding-extra:visible input[type="checkbox"]').first();
+    await checkbox.dispatchEvent('click');await page.waitForFunction(()=>window.__state.matrix.sourceMarks.length===0);
+    await checkbox.dispatchEvent('click');await page.waitForFunction(()=>window.__state.matrix.sourceMarks.length===9);
+    const reverse=await reliabilityCross(page,'ישלח מלאכו','משיח טבת עשירי');
+    assert.deepEqual(reverse.search.results.items,first.search.results.items,'input order preserves the exact meeting');
+    const names=await reliabilityCross(page,'צוריאל','פולייס');
+    assert.equal(names.geometry.cw,40);assert.equal(names.ui.windowSize,'small');
+    assert.deepEqual(names.search.results.items.filter(m=>m.sourceSequence).map(m=>m.hitId),['14870_-1_251278','17529_-1_139194']);
+    assert.ok(names.search.results.items.some(m=>m.axis==='צוריאל'&&m.hitId==='1418_-1_69122'),'both axis perspectives survive merging');
+    assert.ok(!names.search.results.items.some(m=>m.hitId==='23174_-1_216135'),'secondary outside Torah cannot create a meeting');
+    assert.equal(names.search.coverage.truncated,true,'bounded coverage is disclosed');
+    assert.ok(names.search.coverage.scanned<names.search.coverage.available);
+    await activate(page,'מפגש הבא');await page.waitForFunction(()=>window.__state.search.zoneIndex===1);
+    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,'17529_-1_139194');
+    await selectAxis(page,'צוריאל');await radius(page,5);
+    await page.waitForFunction(()=>window.__state.findings[0].sourceHits[0].withinRadius===false);
+    assert.equal(await page.locator('.els29-native-cell.is-source-text').count(),0);
+    await radius(page,null);await page.waitForFunction(()=>window.__state.matrix.sourceMarks.length===6);
+    const otherOrder=await reliabilityCross(page,'פולייס','צוריאל');
+    assert.deepEqual(otherOrder.search.results.items,names.search.results.items);
+    await page.setViewportSize({width:390,height:844});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'source findings preserve mobile bounds');
+  },{realHost:true,loadGolden:false,tier:'anon'});
+ });
+
+test('native reliability: cancel aborts verification, rolls back secondary edits and rejects late progress after replacement',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const original=await identity(page);
+    await page.evaluate(()=>window.__fixtureHoldVerification=true);
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('ישראל');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='verifying'&&window.__fixtureReleaseVerification);
+    const old=await page.evaluate(()=>window.__operation);
+    assert.equal(await button(page,'בטל חיפוש').count(),1);
+    assert.match(await page.locator('.els29-native-progress').textContent(),/זמן הסיום עדיין לא ידוע/);
+    await page.setViewportSize({width:390,height:844});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'pending progress fits mobile');
+    await activate(page,'בטל חיפוש');
+    await page.waitForFunction(()=>window.__fixtureAborts>=1);
+    assert.equal(await page.locator('.els29-native-progress').count(),0);
+    assert.deepEqual(await identity(page),original,'cancel retains the last successful matrix');
+    await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורהקדשה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation.status==='done');
+    await injectToolMessage(page,{source:'tzofen',type:'operation',kind:'search',requestId:old.requestId,status:'verifying'});
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.equal(await page.locator('.els29-native-progress').count(),0,'late progress cannot reopen loading UI');
+    const after=await identity(page), aborts=await page.evaluate(()=>window.__fixtureAborts);
+    await page.evaluate(()=>{window.__fixtureHoldVerification=true;window.__fixtureReleaseVerification=null;});
+    await openPanel(page);await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('התורה');await activate(page,'חפש במטריצה');
+    await page.waitForFunction(()=>window.__operation.kind==='findings'&&window.__operation.status==='verifying'&&window.__fixtureReleaseVerification);
+    await activate(page,'בטל חיפוש משני');await page.waitForFunction(n=>window.__fixtureAborts>n,aborts);
+    await page.waitForFunction(()=>window.__state.findings.length===0);
+    assert.equal(await page.locator('.els29-native-progress').count(),0);
+    assert.deepEqual(await identity(page),after,'secondary cancel restores the previous findings');
+    await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
+    const frame=page.frames().find(frame=>frame.parentFrame());
+    assert.equal(await frame.locator('#searchLoad.show').count(),0,'native searches do not leave the legacy loader open');
+  },{realHost:true});
+ });
+
+test('native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const baseline=await identity(page), frame=page.frames().find(frame=>frame.parentFrame());
+    await frame.evaluate(()=>{
+      const send=Worker.prototype.postMessage, stop=Worker.prototype.terminate;
+      window.__fixtureHoldWorker='routed-discover';window.__fixtureHeldWorkers=0;window.__fixtureStoppedWorkers=0;window.__fixtureCrossChunks=0;
+      Worker.prototype.postMessage=function(message,...rest){
+        if(message.type===window.__fixtureHoldWorker){
+          if(message.type!=='hitchunk'||++window.__fixtureCrossChunks>1){window.__fixtureHeldWorkers++;return;}
+        }
+        return send.call(this,message,...rest);
+      };
+      Worker.prototype.terminate=function(){window.__fixtureStoppedWorkers++;return stop.call(this);};
+    });
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'כל התנ״ך');
+    await frame.waitForFunction(()=>window.__fixtureHeldWorkers>0);
+    await activate(page,'בטל חיפוש');await frame.waitForFunction(()=>window.__fixtureStoppedWorkers>0);
+    await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state.ui.heat===true);
+    assert.deepEqual(await identity(page),baseline);
+    await frame.evaluate(()=>{window.__fixtureHoldWorker='hitchunk';window.__fixtureHeldWorkers=0;});
+    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'מצא מפגש');
+    await page.waitForFunction(()=>window.__operation?.progress?.completed===8);
+    const progress=await page.evaluate(()=>window.__operation.progress);
+    assert.ok(progress.total>progress.completed);assert.equal(progress.phase,'cross');
+    assert.equal(await page.getByRole('progressbar',{name:'מיקומי ציר שנבדקו'}).getAttribute('value'),'8');
+    const terminated=await frame.evaluate(()=>window.__fixtureStoppedWorkers);
+    await activate(page,'בטל חיפוש');await frame.waitForFunction(n=>window.__fixtureStoppedWorkers>n,terminated);
+    assert.equal(await page.locator('.els29-native-progress').count(),0);
+    assert.deepEqual(await identity(page),baseline,'cancelled scan never commits its pending geometry or results');
+    await frame.evaluate(()=>window.__fixtureHoldWorker=null);
+    const complete=await reliabilityCross(page,'צוריאל','פולייס');
+    assert.equal(complete.search.zones,3,'new workers complete the replacement search');
+  },{realHost:true});
  });

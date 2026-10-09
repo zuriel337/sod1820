@@ -1160,3 +1160,24 @@ test('browser: native finding can show three verified occurrences then hide exac
     assert.deepEqual((await latestState(page)).findings[0].shown,hidden.findings[0].shown,'stale handle leaves selection intact');
   });
 });
+
+test('browser: saved literal source selection restores separately from verified ELS ids', {skip:!canRun&&'Playwright/Chromium unavailable',timeout:120000},async()=>{
+  await withHarness(async({page,frame})=>{
+    await nativeSend(page,{type:'native-search',request:{kind:'cross',axis:'משיח טבת עשירי',term:'ישלח מלאכו',scope:'torah',windowSize:'small',seq:901}});
+    await waitState(page,m=>m.term==='משיחטבתעשירי'&&m.matrix?.sourceMarks?.length===9);
+    await frame.locator('.save-act, .save').first().click();
+    await frame.locator('.sh-desc').fill('בדיקת שמירת רצף המקור ישלח מלאכו עם הציר משיח טבת עשירי');
+    await frame.locator('.sh-save').click();
+    await page.waitForFunction(()=>window.__log.some(m=>m.type==='save'));
+    const saved=await page.evaluate(()=>window.__log.find(m=>m.type==='save'));
+    assert.deepEqual(saved.findings[0].sh,[]);
+    assert.deepEqual(saved.findings[0].sourceShown,['1_1_29729']);
+    await nativeSend(page,{type:'load-matrix',item:{...saved,words:saved.findings,id:'source-roundtrip',dir:saved.direction==='back'?-1:1}});
+    await waitState(page,m=>m.provenance?.editId==='source-roundtrip'&&m.matrix?.sourceMarks?.length===9);
+    const restored=await latestState(page);
+    assert.equal(restored.geometry.cw,40);assert.equal(restored.ui.ctxR,2);
+    assert.deepEqual(restored.findings[0].shown,[]);
+    assert.equal(restored.findings[0].sourceHits[0].hitId,'1_1_29729');
+    assert.equal(restored.findings[0].sourceHits[0].shown,true);
+  },{native2029:true});
+});

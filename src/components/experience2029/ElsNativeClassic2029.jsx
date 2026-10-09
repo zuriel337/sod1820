@@ -47,6 +47,9 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
     for (const mark of matrix?.marks || []) map.set(Number(mark.i), mark.type === "finding" ? { ...mark, color: projectFindingColor(mark.color, palette) } : mark);
     return map;
   }, [matrix?.marks, palette]);
+  const sourceMap = useMemo(() => new Map((matrix?.sourceMarks || []).map((mark) => [Number(mark.i), {
+    ...mark, type: "source", color: projectFindingColor(mark.color, palette),
+  }])), [matrix?.sourceMarks, palette]);
 
   const heatMap = useMemo(() => new Map((matrix?.heat?.cells || [])
     .map((cell) => [Number(cell.i), clamp(Number(cell.strength) || 0, 0, 1)])), [matrix?.heat]);
@@ -165,12 +168,14 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
             const absoluteRow = Number(matrix.r0 ?? geometry.r0 ?? 0) + rowOffset;
             const absoluteCol = Number(matrix.c0 ?? geometry.c0 ?? 0) + colOffset;
             const index = absoluteRow * Number(matrix.S ?? geometry.S ?? 0) + absoluteCol;
-            const mark = markMap.get(index);
+            const sourceMark = sourceMap.get(index);
+            const mark = markMap.get(index) || sourceMark;
             const heat = mark ? 0 : heatMap.get(index) || 0;
             const classes = [
               "els29-native-cell",
               mark?.type === "main" ? "is-axis" : "",
               mark?.type === "finding" ? "is-finding" : "",
+              sourceMark ? "is-source-text" : "",
               mark?.start ? "is-start" : "",
               selectedLetterIndex === index ? "is-selected" : "",
               heat > 0 ? "is-heat" : "",
@@ -179,13 +184,13 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, visible, cl
               key={index}
               className={classes}
               data-els-index={index}
-              title="הצג מקור ופסוק"
+              title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
               onClick={() => {
                 if (dragRef.current.moved) return;
                 onLetterClick?.({ index, letter, mark });
               }}
               style={{
-                ...(mark?.type === "finding" && mark?.color ? { "--els29-mark": mark.color } : {}),
+                ...(["finding", "source"].includes(mark?.type) && mark?.color ? { "--els29-mark": mark.color } : {}),
                 ...(heat > 0 ? { "--els29-heat": `${Math.round(heat * 72)}%` } : {}),
               }}
             >{letter === " " ? "\u00a0" : letter + (niqqudMap.get(index) || "")}</span>;
@@ -252,7 +257,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
 
   return <div className="els29-native-source-list" data-experience-capability="els-line-inspection">
     <strong>לאורך הציר · {result.word}</strong>
-    <small>דילוג {result.skip} · {directionLabel(result.direction)} · עד 80 אותיות לפני ואחרי</small>
+    <small>{result.target?.kind === "source-sequence" ? "רצף המקור" : `דילוג ${result.skip}`} · {directionLabel(result.direction)} · עד 80 אותיות לפני ואחרי</small>
     <div ref={stripRef} className="els29-native-line-scroll" tabIndex={0} role="region" aria-label={`רצף הציר של ${result.word}`}>
       <div className="els29-native-line-cells" dir="rtl">
         {cells.map((cell, offset) => <span key={cell.i}
@@ -317,6 +322,29 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding }) {
   return null;
 }
 
+function SearchProgress({ operation, onCancel }) {
+  const [now, setNow] = useState(Date.now());
+  const pending = ["searching", "verifying"].includes(operation?.status);
+  useEffect(() => {
+    if (!pending) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
+  }, [pending, operation?.requestId]);
+  if (!pending) return null;
+  const elapsed = Math.max(operation.elapsedMs || 0, now - (operation.startedAt || now), 0) / 1000;
+  const progress = operation.progress;
+  const remaining = progress?.completed >= 8 && progress.completed < progress.total && progress.phaseElapsedMs >= 500
+    ? Math.ceil(progress.phaseElapsedMs / progress.completed * (progress.total - progress.completed) / 1000) : null;
+  return <div className="els29-native-progress" aria-label={operation.kind === "findings" ? "התקדמות חיפוש משני" : "התקדמות החיפוש"}>
+    <div role="status"><strong>{operation.status === "verifying" ? "בודק את המופעים שנמצאו…" : progress?.phase === "cross" ? "סורק מפגשים סביב הצירים…" : "מחפש…"}</strong>
+      <small>עברו {elapsed.toFixed(1)} שניות · {remaining === null ? "זמן הסיום עדיין לא ידוע" : `הערכה: עוד כ־${remaining} שניות לסריקת הצירים`}</small>
+      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label="מיקומי ציר שנבדקו" /><small>נבדקו {progress.completed} מתוך {progress.total} מיקומי ציר בסריקה הזאת</small></> : null}
+    </div>
+    <button type="button" onClick={onCancel}>{operation.kind === "findings" ? "בטל חיפוש משני" : "בטל חיפוש"}</button>
+  </div>;
+}
+
 function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   const [sort, setSort] = useState("rank");
   const [minSkip, setMinSkip] = useState("");
@@ -330,6 +358,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
     {items.length ? <>
       <p className="els29-native-muted">{state.search.crossA} × {state.search.crossB}</p>
+      {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו; מוצגים עד 24 מפגשים.</small> : null}
       <details><summary>מיון וסינון</summary>
       <label>מיון <select aria-label="מיון מפגשי ההצלבה" value={sort} onChange={(event) => setSort(event.target.value)}>
         <option value="rank">סדר המנוע</option><option value="skip">דילוג: מקטן לגדול</option><option value="distance">מרחק מהציר</option>
@@ -354,7 +383,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   </div>;
 }
 
-function FindingsRail({ activeTool, state, lensResult, lensPending, operation, searchPending, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
+function FindingsRail({ activeTool, state, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onOpenClassic, onFindingsChange, onFindingControl, onSave, onWorkspace }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -368,11 +397,12 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
   const inspectionRef = useRef(null);
   const findingPending = ["searching", "verifying"].includes(operation?.status);
   const pending = searchPending || findingPending;
-  const eligible = (finding) => (finding?.hits || []).filter((hit) => hit.verified && hit.shown && hit.withinRadius !== false);
+  const allHits = (finding) => [...(finding?.hits || []), ...(finding?.sourceHits || [])];
+  const eligible = (finding) => allHits(finding).filter((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
   const selectedFinding = selected?.term ? findings.find((finding) => finding.t === selected.term) : null;
   const selectedHit = eligible(selectedFinding).find((hit) => hit.hitId === selected?.hitId);
   const selectionValid = selected && selected.scope === state?.scope && selected.axisHitId === state?.axis?.hitId && selectedFinding && (selectedHit || findingPending);
-  const target = selectionValid ? { term: selected.term, hitId: selected.hitId } : { hitId: state?.axis?.hitId };
+  const target = selectionValid ? { term: selected.term, hitId: selected.hitId, ...(selectedHit?.kind === "source-sequence" ? { kind: "source-sequence" } : {}) } : { hitId: state?.axis?.hitId };
   const targetLabel = selectionValid ? selected.term : state?.termRaw || state?.term || "הציר הראשי";
   const targetReady = verified && !!target.hitId;
 
@@ -415,6 +445,7 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
           placeholder={verified ? "כתבו מילה נוספת…" : "התחילו בחיפוש ראשי"} aria-label="חיפוש משני במטריצה" />
         <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= 12}>{pending ? "מחפש…" : "חפש"}</button>
       </div>
+      <SearchProgress operation={operation} onCancel={onCancel} />
       <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
         {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע סביב הציר הראשי הנוכחי."}
       </div>
@@ -447,8 +478,8 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
               <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${finding.t}`} aria-pressed={!!chosen}
                 disabled={!firstHit || pending} onClick={() => selectTarget(finding.t, firstHit.hitId)}>
                 <i className="els29-native-color-dot" style={{ "--els29-mark": displayColor }} aria-hidden="true" />
-                <span><b>{finding.t}</b><small>מוצגים {finding.shown?.length || 0} · {finding.inWindow || 0} בחלון</small>
-                  {displayHit ? <small>דילוג {displayHit.skip} · מרחק {displayHit.axisDistance} תאים</small> : <small>{hasVerified ? "אין מופע מוצג בטווח שנבחר" : pending ? "מחפש…" : finding.plainTextCount ? "נמצא ברצף המקור, ללא דילוג" : "אין מופע מאומת להצגה"}</small>}
+                <span><b>{finding.t}</b><small>מוצגים {hits.length} · {finding.inWindow || 0} בחלון</small>
+                  {displayHit ? <small>{displayHit.kind === "source-sequence" ? "רצף מקור, ללא דילוג" : `דילוג ${displayHit.skip}`} · מרחק {displayHit.axisDistance} תאים</small> : <small>{hasVerified || finding.plainTextCount ? "אין מופע מוצג בטווח שנבחר" : pending ? "מחפש…" : "אין מופע מאומת להצגה"}</small>}
                 </span>
               </button>
               <button type="button" aria-label={`מופעים וצבע של ${finding.t}`} title="מופעים, צבע ופעולות" aria-expanded={expandedFinding === finding.t}
@@ -456,7 +487,7 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
             </div>
             {chosen && selectedHit && hits.length > 1 ? <label className="els29-native-selected-occurrence">מופע לסריקה
               <select aria-label={`מופע לסריקה של ${finding.t}`} disabled={pending} value={selectedHit.hitId} onChange={(event) => selectTarget(finding.t, event.target.value)}>
-                {hits.map((hit, hitIndex) => <option key={hit.hitId} value={hit.hitId}>מופע {hitIndex + 1} · דילוג {hit.skip} · מרחק {hit.axisDistance}</option>)}
+                {hits.map((hit, hitIndex) => <option key={hit.hitId} value={hit.hitId}>מופע {hitIndex + 1} · {hit.kind === "source-sequence" ? "רצף מקור" : `דילוג ${hit.skip}`} · מרחק {hit.axisDistance}</option>)}
               </select>
             </label> : null}
             <div className="els29-native-finding-extra" id={`els29-finding-extra-${index}`} hidden={expandedFinding !== finding.t}>
@@ -465,10 +496,10 @@ function FindingsRail({ activeTool, state, lensResult, lensPending, operation, s
                 <button type="button" disabled={pending || index === findings.length - 1} aria-label={`הורד את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
                 <button type="button" disabled={pending} onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`}>מחק</button>
               </div>
-              {(finding.hits || []).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={`${hit.revision}:${hit.candidateIndex}`}>
+              {allHits(finding).map((hit, hitIndex) => <div className="els29-native-hit-actions" key={hit.hitId || `${hit.revision}:${hit.candidateIndex}`}>
                 <label><input type="checkbox" disabled={pending} checked={hit.selected ?? hit.shown} onChange={() => onFindingControl(finding.t, "toggle-hit", hit.hitId, hit)} />
-                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified ? "מוצג" : "בבדיקה") : hit.withinRadius === false ? "מחוץ לטווח" : "מוסתר"}</b>
-                    <small>{hit.verified ? `דילוג ${hit.skip} · מרחק ${hit.axisDistance} תאים` : "מועמד לבדיקה"}</small></span>
+                  <span><b>מופע {hitIndex + 1} · {hit.shown ? (hit.verified || hit.kind === "source-sequence" ? "מוצג" : "בבדיקה") : hit.withinRadius === false ? "מחוץ לטווח" : "מוסתר"}</b>
+                    <small>{hit.kind === "source-sequence" ? `רצף מקור · מרחק ${hit.axisDistance} תאים` : hit.verified ? `דילוג ${hit.skip} · מרחק ${hit.axisDistance} תאים` : "מועמד לבדיקה"}</small></span>
                 </label>
               </div>)}
               {finding.hitsTruncated ? <small>מוצגים עד 64 מופעים. הרשימה המלאה בכלים הקלאסיים.</small> : null}
@@ -563,6 +594,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
   const [controlRequest, setControlRequest] = useState(null);
   const controlSeqRef = useRef(0);
   const [searchRequest, setSearchRequest] = useState(null);
+  const [cancelRequest, setCancelRequest] = useState(null);
   const searchSeqRef = useRef(0);
   const [findingsRequest, setFindingsRequest] = useState(null);
   const findingsSeqRef = useRef(0);
@@ -599,7 +631,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
-    setOperations({ search: { requestId: seq, status: "searching" }, findings: null });
+    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now() }, findings: null });
     setActiveTool(kind === "cross" ? "results" : "findings");
     setSearchRequest({ kind, windowSize, ...payload, seq });
   };
@@ -610,7 +642,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     const membershipChanged = findings.length !== previousTerms.length || findings.some((finding) => !previousTerms.includes(finding.t));
     if (membershipChanged && !preserveRead) resetReadContext();
     const seq = ++findingsSeqRef.current;
-    if (membershipChanged) setOperations((current) => ({ ...current, findings: { requestId: seq, status: "searching" } }));
+    if (membershipChanged) setOperations((current) => ({ ...current, findings: { kind: "findings", requestId: seq, status: "searching", startedAt: Date.now() } }));
     setFindingsRequest({ findings, seq });
   };
 
@@ -619,7 +651,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
     if (kind !== "search" && kind !== "findings") return;
     const expected = kind === "search" ? searchSeqRef.current : findingsSeqRef.current;
     if (operation.requestId !== expected) return;
-    setOperations((current) => ({ ...current, [kind]: operation }));
+    setOperations((current) => ({ ...current, [kind]: { ...current[kind], ...operation, startedAt: current[kind]?.startedAt || Date.now() - (operation.elapsedMs || 0) } }));
     if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
     if (kind === "search" && operation.status === "empty") setNotice("לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
   };
@@ -737,6 +769,15 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
 
   const matrixActive = engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
+  const cancelOperation = (kind) => {
+    const operation = operations[kind];
+    if (!["searching", "verifying"].includes(operation?.status)) return;
+    resetReadContext();
+    setCancelRequest({ kind, requestId: operation.requestId, seq: ++actionSeqRef.current });
+    if (kind === "search") { ++searchSeqRef.current; setSearchRequest(null); setNotice("החיפוש בוטל."); }
+    else { ++findingsSeqRef.current; setFindingsRequest(null); }
+    setOperations((current) => ({ ...current, [kind]: { ...current[kind], status: "cancelled" } }));
+  };
   const advancedCrossActive = matrixActive && !["regular", "cross-simple"].includes(engineState?.search?.mode);
   const changeWindowSize = (size) => {
     setWindowSize(size);
@@ -777,9 +818,9 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         className={`els29-native-cross-toggle${crossOpen ? " is-active" : ""}`}
         type="button"
         aria-expanded={crossOpen}
-        onClick={() => setCrossOpen((value) => !value)}
+        onClick={() => { if (crossOpen && operations.search?.searchKind === "cross") cancelOperation("search"); setCrossOpen((value) => !value); }}
       >הצלבה בין צירים</button>
-      <button className="els29-native-more" type="button" onClick={() => setClassicOpen((value) => !value)}>
+      <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen((value) => !value); }}>
         {classicOpen ? "חזור לתצוגת 2029" : "כל הכלים"}
       </button>
 
@@ -814,7 +855,8 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
       </div> : null}
     </form>
 
-    {notice || searchPending ? <div className="els29-native-notice" role="status">{searchPending ? operations.search?.status === "verifying" ? "בודק את המופעים שנמצאו…" : "מחפש את הציר…" : notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
+    <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
+    {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
@@ -838,7 +880,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
                   <option value="small">קטן · מהיר</option><option value="medium">רגיל</option><option value="large">גדול</option>
                 </select>
               </label>
-              {engineState?.ui?.windowRequested === "small" && ["medium", "large"].includes(engineState?.ui?.windowSize)
+              {engineState?.ui?.windowRequested === "small" && (["medium", "large"].includes(engineState?.ui?.windowSize) || engineState?.ui?.ctxR > 1)
                 ? <small>החלון הורחב כדי להכיל את הציר והמרחק</small> : null}
               {matrixActive && engineState?.ui?.windowRequested === "legacy" ? <small>מוצג החלון המקורי</small> : null}
               {engineState?.ui?.niqqud && activeScope === "tanakh" ? <span>ניקוד לתורה בלבד</span> : null}
@@ -883,6 +925,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
         <CrossResultsRail state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results"} onSelect={requestControl} />
         <FindingsRail
+          onCancel={() => cancelOperation("findings")}
           activeTool={activeTool}
           state={engineState}
           lensResult={lensResult}
@@ -920,6 +963,7 @@ export default function ElsNativeClassic2029({ initialSeed = "" }) {
           onLens={handleLens}
           controlRequest={controlRequest}
           searchRequest={searchRequest}
+          cancelRequest={cancelRequest}
           findingsRequest={findingsRequest}
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}

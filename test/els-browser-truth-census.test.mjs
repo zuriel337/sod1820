@@ -61,20 +61,22 @@ test('governed exits are gated on isGov / verification', () => {
   assert.ok(save.indexOf('await healGoverned()') > 0 && save.indexOf('await healGoverned()') < save.indexOf('postHost({type:"save"'));
   assert.match(save, /if\(!isGov\(h\)\)\{/);
   assert.match(save, /filter\(isGov\)\.map\(hitKey\)/);
-  assert.match(code, /if\(!hit\|\|!isGov\(hit\)\)\{postHost\(\{type:"lens"/);
+  assert.match(code, /if\(!hit\|\|!isInspectableHit\(hit,t\)\)\{postHost\(\{type:"lens"/);
+  assert.match(code, /return isGov\(h\)\|\|target\?\.kind==="source-sequence"&&isSourceHit\(h,target.term\)/);
+  assert.match(code, /sourceShown:selectedHitsOf\(st.words\[i\]\)\.filter\(h=>isSourceHit\(h,w.t\)\)\.map\(hitKey\)/);
   assert.match(code, /return isGov\(h\)\?Math\.abs\(h\.skip\):0;/);
 });
 
 test('every host message type is classified (coordinate-bearing ones are gated above)', () => {
   const types = new Set([...code.matchAll(/postHost\(\{type:"([a-z-]+)"/g)].map((m) => m[1]));
   const carrying = new Set(['save', 'lens', 'search']);
-  const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request']);
+  const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request', 'engine-cancel']);
   const uiAccessOnly = new Set(['onboarding-required', 'operation']);
   for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
   assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/,
     'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
   const operation = code.slice(code.indexOf('function operationStatus('), code.indexOf('function beginOperation('));
-  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \)\}\)/,
+  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null\}\)/,
     'operation acknowledges a request and its status without transmitting candidate coordinates');
   assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));

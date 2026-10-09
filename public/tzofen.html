@@ -1296,14 +1296,22 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   const VB_MAX_CANDIDATES=4000,VB_MAX_LETTER_CHECKS=64000;
   const AD_POLICY="ADAPTIVE_CAPPED_V1",AD_BANDS=8,AD_PROBE_PAIRS=500000,AD_PROBE_PAIRS_EXT=2000000;
   const _engPending=new Map();let _engSeq=0;
-  function engineCall(op,payload,timeoutMs){
+  function engineCall(op,payload,timeoutMs,operation){
     return new Promise(res=>{
       if(!EMBED||!window.parent||window.parent===window){res({ok:false,error:"no_host"});return;}
       const requestId="e"+(++_engSeq)+"_"+Math.random().toString(36).slice(2,8);
       const to=setTimeout(()=>{_engPending.delete(requestId);res({ok:false,error:"timeout"});},timeoutMs||15000);
-      _engPending.set(requestId,r=>{clearTimeout(to);res(r);});
+      const finish=r=>{clearTimeout(to);res(r);};finish.operation=operation;
+      _engPending.set(requestId,finish);
       postHost({type:"engine-request",requestId,op,payload});
     });
+  }
+  function cancelEngineCalls(operation){
+    const requestIds=[];
+    for(const [id,finish] of _engPending)if(!operation||finish.operation===operation){
+      _engPending.delete(id);requestIds.push(id);finish({ok:false,error:"cancelled"});
+    }
+    if(requestIds.length)postHost({type:"engine-cancel",requestIds});
   }
   // ── ADAPTIVE_CAPPED_V1 router (pure; exported for the Node acceptance test) ──
   // exact stratified probe: AD_BANDS corpus-position bands x both directions, candidate-pair budget split evenly.
@@ -1399,16 +1407,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {hits,capped,t,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
   }
   // ── canonical batch verification (server) ──
-  async function verifyBatch(t,hits,strategy){
-    const scope=st.scope,cid=CORPUS_ID[scope],L=t.length;
+  async function verifyBatch(t,hits,strategy,operation,searchScope=st.scope){
+    const scope=searchScope,cid=CORPUS_ID[scope],L=t.length;
     const per=Math.max(1,Math.min(VB_MAX_CANDIDATES,Math.floor(VB_MAX_LETTER_CHECKS/Math.max(2,L))));
     const uniq=[],seen=new Set();
     for(const h of hits){const k=hitKey(h);if(seen.has(k))continue;seen.add(k);uniq.push(h);}
     const verified=new Set(),traces=[];
     for(let i=0;i<uniq.length;i+=per){
+      if(operation?.status==="cancelled")return {ok:false,error:"cancelled"};
       const chunk=uniq.slice(i,i+per);
       const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
-        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))});
+        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);
       if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
       for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
       if(r.trace_id)traces.push(r.trace_id);
@@ -1416,13 +1425,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {ok:true,verified,traces,corpus_id:cid};
   }
   // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
-  async function promoteVerified(cand,scope){
+  async function promoteVerified(cand,scope,operation){
     const t=cand.t,sc=scope||st.scope;
     const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,vstate:"CANDIDATE",vtrace:[]};
     if(!cand.hits.length){out.vstate="LOCAL_NO_HIT";return out;}   // local/sampled no-hit: NOT a canonical negative
     const elig=cand.hits.filter(h=>Math.abs(h.skip)>=2);
     cand.hits.forEach(h=>{if(Math.abs(h.skip)<2)h.v="PLAIN_TEXT";else if(h.v!=="MATCH")h.v="CANDIDATE";});
-    const vr=elig.length?await verifyBatch(t,elig,cand.strategy):{ok:true,verified:new Set(),traces:[]};
+    const vr=elig.length?await verifyBatch(t,elig,cand.strategy,operation,sc):{ok:true,verified:new Set(),traces:[]};
     if(!vr.ok){out.verr=vr.error;return out;}
     let mismatch=0;
     for(const h of elig){if(vr.verified.has(hitKey(h)))h.v="MATCH";else{h.v="MISMATCH";mismatch++;}}
@@ -1431,11 +1440,26 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return out;
   }
   async function discoverVerified(raw,cap,operation){
-    const candidates=await routedDiscover(raw,cap);
+    const scope=st.scope,epoch=_matrixRequestSeq;
+    const cancelled=()=>({hits:[],capped:0,t:norm(raw),vstate:"CANCELLED"});
+    let candidates;
+    try{
+      const pool=operation&&EXPR2029?await ensureXfInit():null;
+      if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
+      candidates=pool?(await xfCall(pool,{type:"routed-discover",reqId:++_xfReqId,raw,cap,scope})).result:await routedDiscover(raw,cap);
+    }catch(e){if(e?.name==="AbortError"||epoch!==_matrixRequestSeq)return cancelled();throw e;}
+    if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
     if(candidates.hits.some(h=>Math.abs(h.skip)>=2))operationStatus(operation,"verifying");
-    return promoteVerified(candidates);
+    return promoteVerified(candidates,scope,operation);
   }
   const isGov=h=>!!h&&h.v==="MATCH";
+  // Literal source text is inspectable corpus context, never a verified ELS occurrence.
+  function isSourceHit(h,term){
+    const t=norm(term),L=t.length;
+    return !!h&&Math.abs(h.skip)===1&&[1,-1].includes(h.dir)&&L>=2&&h.positions?.length===L&&
+      h.positions.every((p,k)=>Number.isInteger(p)&&p===h.start+h.dir*k&&p>=0&&p<scopeN()&&T[p]===t[k]);
+  }
+  function isInspectableHit(h,target){return isGov(h)||target?.kind==="source-sequence"&&isSourceHit(h,target.term);}
   // 🧬 render-truth: a result gets the normal «נמצא» UI ONLY if at least one occurrence is a canonical MATCH.
   const hasGov=r=>!!r&&!!r.hits&&r.hits.some(isGov);
   // Non-governed copy (never a negative claim, never «נמצא»): LOCAL_NO_HIT = partial local scan; verifier failure/mismatch/plain-text = unverified candidate.
@@ -1477,8 +1501,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const requested=NATIVE_WINDOWS[size]?size:"small",base=NATIVE_WINDOWS[requested];
     const half=Math.ceil(Math.max(...terms.map(t=>norm(t).length),2)/2);
     const neededRows=half+radius,neededCols=2*radius+4;
-    const actual=Object.keys(NATIVE_WINDOWS).find(k=>{const w=NATIVE_WINDOWS[k];return w.ctxR>=base.ctxR&&w.windowColumns>=base.windowColumns&&18+w.ctxR*5>=neededRows&&w.windowColumns>=neededCols;})||"large";
-    return {...NATIVE_WINDOWS[actual],windowSize:actual,windowRequested:requested};
+    const actual=Object.keys(NATIVE_WINDOWS).find(k=>{const w=NATIVE_WINDOWS[k];return w.windowColumns>=base.windowColumns&&w.windowColumns>=neededCols;})||"large";
+    const ctxR=Math.min(8,Math.max(NATIVE_WINDOWS[actual].ctxR,Math.ceil((neededRows-18)/5)));
+    return {...NATIVE_WINDOWS[actual],ctxR,windowSize:actual,windowRequested:requested};
   }
   function searchWindowSnapshot(){return {ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested};}
   // Selected occurrences retain showN and explicit choices; radius is a reversible display filter only.
@@ -1488,7 +1513,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const off=w.off||new Set(),extra=w.extra||new Set();
     return w.hits.filter(h=>{const k=hitKey(h);return (defKeys.has(k)&&!off.has(k))||extra.has(k);});
   }
-  const withinFindingRadius=h=>st.findingRadius===null||(isGov(h)&&Number.isFinite(h.axisDistance)&&h.axisDistance<=st.findingRadius);
+  const withinFindingRadius=h=>st.findingRadius===null||((isGov(h)||h.v==="PLAIN_TEXT")&&Number.isFinite(h.axisDistance)&&h.axisDistance<=st.findingRadius);
   function shownHitsOf(w){return selectedHitsOf(w).filter(withinFindingRadius);}
   function toggleHit(w,h){
     const k=hitKey(h),defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
@@ -1592,7 +1617,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         return;
       }
       const it=galleryCurrentItem();
-      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:selectedHitsOf(st.words[i]).filter(isGov).map(hitKey)}));   // verified user choices; a radius filter is not a saved deselection
+      it.words=it.words.map((w,i)=>({t:w.t,color:w.color,sh:selectedHitsOf(st.words[i]).filter(isGov).map(hitKey),
+        sourceShown:selectedHitsOf(st.words[i]).filter(h=>isSourceHit(h,w.t)).map(hitKey)}));   // source context is separate from verified ELS ids
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
@@ -1812,11 +1838,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       let row="";
       for(let c=b.c0;c<b.c0+b.cw;c++){
         const idx=r*b.S+c;
-        row+=(idx<0||idx>=N)?" ":T[idx];
+        row+=(idx<0||idx>=scopeN())?" ":T[idx];
       }
       rows.push(row);
     }
-    const {colorMap,startSet}=colorSets(),marks=[],gov=governedCells();
+    const {colorMap,startSet}=colorSets(true),marks=[],gov=governedCells();
     colorMap.forEach((kind,idx)=>{
       const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
@@ -1827,6 +1853,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       marks.push(m);
     });
     const snapshot={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks,v:1,lenses:["cells","marks"]};
+    const sourceMarks=[];
+    st.words.forEach(w=>shownHitsOf(w).filter(h=>isSourceHit(h,w.t)).forEach(h=>h.positions.forEach(i=>{
+      const r=Math.floor(i/b.S),c=i%b.S;
+      if(r>=b.r0&&r<=b.r1&&c>=b.c0&&c<b.c0+b.cw)sourceMarks.push({i,color:w.color,term:w.t,kind:"source-sequence",start:i===h.start});
+    })));
+    snapshot.sourceMarks=sourceMarks;snapshot.lenses.push("source-text");
     if(st.heat){
       const density=computeHeat(b),cells=[];
       density.heat.forEach((value,i)=>{if(i>=0&&i<scopeN())cells.push({i,strength:value/density.mx});});
@@ -1879,9 +1911,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
       findings:st.words.map(w=>({t:w.t,color:w.color,total:w.total||0,
-        plainTextCount:(w.hits||[]).filter(h=>Math.abs(h.skip)<2).length,
+        plainTextCount:(w.hits||[]).filter(h=>isSourceHit(h,w.t)).length,
+        sourceHits:(w.hits||[]).filter(h=>isSourceHit(h,w.t)).map(h=>({hitId:hitKey(h),kind:"source-sequence",skip:1,direction:h.dir===1?"fwd":"back",
+          axisDistance:h.axisDistance,selected:selectedHitsOf(w).includes(h),withinRadius:withinFindingRadius(h),shown:shownHitsOf(w).includes(h)})),
         inWindow:w.inwin||0,shown:shownHitsOf(w).filter(isGov).map(hitKey),
-        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)).length,
+        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)&&!isSourceHit(x,w.t)).length,
         hits:(w.hits||[]).map((h,index)=>({h,index})).filter(({h})=>Math.abs(h.skip)>=2&&h.v!=="MISMATCH").slice(0,64).map(({h,index})=>({hitId:isGov(h)?hitKey(h):null,candidateIndex:index,revision:w.nativeRevision||0,verified:isGov(h),
           skip:isGov(h)?Math.abs(h.skip):null,direction:isGov(h)?(h.dir===1?"fwd":"back"):null,
           axisDistance:isGov(h)&&Number.isFinite(h.axisDistance)?h.axisDistance:null,
@@ -1893,6 +1927,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
         crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,crossRadius:st.crossSimple?(st.crossRadius||18):null,
+        coverage:st.crossSimple?st.crossCoverage||null:null,
         zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx,results:nativeCrossResults()},
       provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
         postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
@@ -1910,7 +1945,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   let _healBusy=false,_healP=null;
   function healGoverned(){if(_healBusy)return _healP;_healP=healRun();return _healP;}
   async function healRun(){
-    const jobs=[];
+    const jobs=[],epoch=_matrixRequestSeq,findingsEpoch=_nativeFindingsSeq,scope=st.scope;
+    const operation=_nativeFindingsOperation&&!_nativeFindingsOperation.terminal?_nativeFindingsOperation:_nativeSearchOperation;
     const r=st.res;
     if(r&&r.hits&&r.t){const need=r.hits.filter(h=>h.v===undefined&&Math.abs(h.skip)>=2);if(need.length)jobs.push({t:r.t,hits:need,strategy:r.strategy||null});
       r.hits.forEach(h=>{if(h.v===undefined&&Math.abs(h.skip)<2)h.v="PLAIN_TEXT";});}
@@ -1921,8 +1957,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     _healBusy=true;
     try{
       for(const j of jobs){
-        operationStatus(_nativeFindingsOperation,"verifying");
-        const vr=await verifyBatch(j.t,j.hits,j.strategy);
+        operationStatus(operation,"verifying");
+        const vr=await verifyBatch(j.t,j.hits,j.strategy,operation,scope);
+        if(epoch!==_matrixRequestSeq||findingsEpoch!==_nativeFindingsSeq||operation?.status==="cancelled")return;
         j.hits.forEach(h=>{h.v=vr.ok?(vr.verified.has(hitKey(h))?"MATCH":"MISMATCH"):"CANDIDATE";});
       }
     }finally{_healBusy=false;}
@@ -1961,7 +1998,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const t=target||{};
     try{
       const hit=findLensHit(t);
-      if(!hit||!isGov(hit)){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}   // 🧬 G3: עדשה רק על מופע שאומת
+      if(!hit||!isInspectableHit(hit,t)){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
       const vs=verseSpan(hit.positions);
       if(!vs){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
       await ensureVerseText();
@@ -2014,26 +2051,48 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
   let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0;
-  function operationStatus(operation,status,message){
+  function operationStatus(operation,status,message,progress){
     if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
     if(operation.terminal)return;
-    if(operation.status===status)return;operation.status=status;
+    if(operation.status===status&&!progress)return;operation.status=status;
     if(status==="done"||status==="empty"||status==="error"||status==="cancelled")operation.terminal=true;
-    postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} )});
+    if(operation.kind==="search"&&operation.terminal&&!operation.committed&&operation.previousScope){
+      st.scope=operation.previousScope;updateScopeUI();
+    }
+    postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} ),
+      elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:progress||null});
   }
   function beginOperation(kind,requestId){
     const valid=Number.isSafeInteger(requestId)&&requestId>=0;
-    const operation=valid?{kind,requestId}:null;
-    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();_nativeSearchOperation=operation;}
+    const operation=valid?{kind,requestId,startedAt:Date.now()}:null;
+    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();if(operation)operation.previousScope=st.scope;_nativeSearchOperation=operation;}
     else{invalidateFindingsOperation();_nativeFindingsOperation=operation;}
     operationStatus(operation,"searching");return operation;
   }
-  function invalidateSearchOperation(){operationStatus(_nativeSearchOperation,"cancelled");_nativeSearchOperation=null;}
-  function invalidateFindingsOperation(){operationStatus(_nativeFindingsOperation,"cancelled");++_nativeFindingsSeq;_nativeFindingsOperation=null;}
+  function invalidateSearchOperation(){
+    if(!_nativeSearchOperation||!_nativeSearchOperation.terminal)cancelEngineCalls(_nativeSearchOperation);
+    stopXfWorkers();
+    operationStatus(_nativeSearchOperation,"cancelled");_nativeSearchOperation=null;clearSearchLoad();
+    if(go){go.disabled=false;go.textContent=goLabel();}
+  }
+  function invalidateFindingsOperation(){
+    if(_nativeFindingsOperation&&!_nativeFindingsOperation.terminal)cancelEngineCalls(_nativeFindingsOperation);
+    operationStatus(_nativeFindingsOperation,"cancelled");++_nativeFindingsSeq;_nativeFindingsOperation=null;
+  }
+  function cancelNativeOperation(kind,requestId){
+    const operation=kind==="search"?_nativeSearchOperation:kind==="findings"?_nativeFindingsOperation:null;
+    if(!operation||operation.requestId!==requestId||operation.terminal)return;
+    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();}
+    else{
+      const previous=operation.previousWords;invalidateFindingsOperation();
+      if(previous){st.words=previous;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();}
+    }
+  }
   function supersedeNativeOperations(){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();}
   const paintOperation=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
   async function updateNativeFindingsOperation(findings,requestId){
     const operation=beginOperation("findings",requestId),seq=_nativeFindingsSeq,axis=hasGov(st.res)?hitKey(occ()):null;
+    if(operation)operation.previousWords=st.words.map(w=>({...w,hits:(w.hits||[]).slice(),off:new Set(w.off||[]),extra:new Set(w.extra||[])}));
     if(!axis){operationStatus(operation,"error","נדרש ציר מאומת כדי לחפש ממצאים.");return;}
     try{
       await paintOperation();
@@ -2054,7 +2113,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.action==="toggle-hit"){
       const h=d.hitId?(w.hits||[]).find(h=>hitKey(h)===d.hitId):
         (d.axisHitId===hitKey(occ())&&d.revision===(w.nativeRevision||0)&&Number.isInteger(d.candidateIndex)?(w.hits||[])[d.candidateIndex]:null);
-      if(!h||Math.abs(h.skip)<2||h.v==="MISMATCH")return;
+      if(!h||h.v==="MISMATCH"||Math.abs(h.skip)<2&&!isSourceHit(h,w.t))return;
       // Opaque revision/index handles allow selecting a candidate for canonical verification.
       // Its coordinates and matrix cells remain hidden until MATCH.
       toggleHit(w,h);recolorOnly();
@@ -2115,6 +2174,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       updateNativeFindingsOperation(d.findings,d.requestId);
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
+    if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId);
     if(d.type==="native-action"&&hasGov(st.res)){
       // Explicit user actions only. The host reveals this SAME iframe for its canonical dialogs.
       if(d.action==="save")addCurrentToGallery();
@@ -2122,7 +2182,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
     if(d.type==="request-lens"&&d.lens==="line-context"){
       const target=d.target||{},hit=findLensHit(target);
-      if(hit&&isGov(hit)&&(!target.hitId||hitKey(hit)===target.hitId)){
+      if(hit&&isInspectableHit(hit,target)&&(!target.hitId||hitKey(hit)===target.hitId)){
         const cells=lineContextCells(hit),word=target.term||st.raw;
         const scan=target.scan===true?scanLineWords(cells,word,64,256):null;
         postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan});
@@ -2180,9 +2240,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     let n=0;const ping=()=>{postHost({type:"ready"});if(!st.tierKnown&&++n<8)setTimeout(ping,350);};ping();}
 
   // ⏳ מד-חיווי לחיפוש בתנ״ך — החיפוש בתנ״ך כבד (1.2M אותיות) ולוקח רגע; מראים שהוא רץ + הזמן שחלף.
-  let _sl=null,_slInt=null,_slT0=0;
+  let _sl=null,_slInt=null,_slT0=0,_slHide=null;
   const _now=()=>(window.performance&&performance.now?performance.now():Date.now());
   function showSearchLoad(){
+    clearSearchLoad();
+    if(EXPR2029)return;
     if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
       _sl.innerHTML='<div class="sl-box"><div class="sl-t">🔍 מחפש בכל התנ״ך</div><div class="sl-s">24 ספרי התנ״ך · '+heb(N)+' אותיות — מעט איטי יותר מהתורה</div><div class="sl-bar"><i></i></div><div class="sl-time">מחפש… 0.0 שניות</div></div>';
       document.body.appendChild(_sl);}
@@ -2194,8 +2256,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(!_sl)return;clearInterval(_slInt);
     _sl.classList.add("done");
     _sl.querySelector(".sl-time").textContent="✓ נמצא ב-"+((_now()-_slT0)/1000).toFixed(1)+" שניות · "+heb(nhits||0)+" מופעים";
-    setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
+    _slHide=setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
   }
+  function clearSearchLoad(){clearInterval(_slInt);clearTimeout(_slHide);_slInt=null;_slHide=null;if(_sl)_sl.classList.remove("on","done");}
   // 🔄 כפתור-חיפוש «עסוק» — עיגול-מסתובב + טקסט, משוב מיידי בכל חיפוש (כולל התורה המהירה)
   function goBusy(txt){go.disabled=true;go.innerHTML='<span class="btn-spin" aria-hidden="true"></span>'+txt;}
   // 📊 צ׳יפ-מדדים אחרי חיפוש/פתיחה — נמצא ב-X שנ׳ · N מופעים · דילוג. ms=null → בלי זמן (פתיחת-צופן שמור).
@@ -2242,6 +2305,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const discovered=await discoverVerified(w,4000,operation);
       if(requestSeq!==_matrixRequestSeq)return;
       // A committed new result ends editing; cancelled requests retain the current matrix identity.
+      if(operation)operation.committed=true;
       if(operation&&operation.windowSize)Object.assign(st,nativeWindow(operation.windowSize,0,[w]));
       st.editId=null;st.editTerm=null;
       st.raw=w;
@@ -2282,7 +2346,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // 🧬 G3: prefetch מאומת — faMemo (סינכרוני, קוד-דירוג/גאומטריה) קורא מהמטמון אחרי שהמונחים אומתו בשרת.
   async function faVerified(w,operation){const k=norm(w)+"@"+st.scope,c=FA.get(k);
     if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT"))return c;
-    const r=await discoverVerified(w,3000,operation);FA.set(k,r);return r;}
+    const r=await discoverVerified(w,3000,operation);if(operation?.status!=="cancelled"&&r.vstate!=="CANCELLED")FA.set(k,r);return r;}
   async function prefetchVerified(ws,operation){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(w=>faVerified(w,operation)));}
   function rarityOf(w){const r=faMemo(w);return r.capped?9999:r.hits.length;}
   // 🎯 מודל-איכות אחיד (לפי צוריאל) — משמש גם באזורי-ההתכנסות וגם ב«איכות הצופן», כדי שהכוכבים יהיו זהים.
@@ -2332,21 +2396,21 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   //    שאפשר יהיה להריץ אותו על צ'אנק של מופעים בכל Worker (crossFindMultiParallel, פרופיילינג
   //    הראה ש-59%-77% מהזמן ב-n גבוה נשרף כאן/ב-prep) — בלי לשכפל לוגיקה, בלי מנוע שני.
   //    ai = האינדקס הגלובלי של המופע ב-resA.hits (חובה לשמר גם כשמריצים צ'אנק, לא 0..chunk.length).
-  function crossFindMultiHit(ah,ai,T2,pure,rar,axisBase){
+  function crossFindMultiHit(ah,ai,T2,pure,rar,axisBase,window=st){
     const rw=t=>{const c=rar.get(t);return c<=1?3:c<=5?2.2:c<=30?1.5:c<=120?1:c<=500?0.6:0.3;};
     const S=Math.abs(ah.skip);if(S<2)return null;
     const mainCol=((ah.positions[0]%S)+S)%S;
     const rows=ah.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
     // 🌍 Geometry Contract (Pass 2): מקור-אמת יחיד עם blockOf/zoneMonteCarlo — לא עוד RH=30/c0=-40 מקומי.
-    const _g=researchGeometry(S,mainCol,mr),CW=_g.cw,c0=_g.c0,r0=_g.r0,r1=_g.r1;
+    const SN=window.scopeLength||scopeN(),_g=researchGeometry(S,mainCol,mr,window),CW=_g.cw,c0=_g.c0,r0=_g.r0,r1=_g.r1;
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c0+CW;};
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S],anchorCells=ah.positions.map(rc);
     const _geo={S:S,c0:c0,cw:CW,r0:r0,r1:r1};
     const byChar=new Map();
-    for(let r=r0;r<=r1;r++)for(let c=c0;c<c0+CW;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
+    for(let r=r0;r<=r1;r++)for(let c=c0;c<c0+CW;c++){const idx=r*S+c;if(idx<0||idx>=SN)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const detail=[];let score=0,tq=0;
     for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
-      for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
+      for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=SN)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
@@ -2381,6 +2445,48 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     arr.sort((a,b)=>b.length-a.length || gem(b)-gem(a) || (a<b?-1:1));
     return arr[0]||norm(words[0]||"");
   }
+  // Same window matcher in bounded chunks. Geometry is frozen until the new result commits.
+  async function crossFindBounded(A,terms,pure,window,operation,progress,epoch){
+    const resA=faMemo(A),T2=[...new Set(terms.map(norm))],rar=new Map(T2.map(t=>[t,rarityOf(t)]));
+    const axisBase=rarF(resA.capped?9999:resA.hits.length)*lenF(A)*0.9;
+    const eligible=resA.hits.map((h,i)=>({h,i})).filter(({h})=>Math.abs(h.skip)>=2),hits=eligible.slice(0,150),meetings=[];
+    const pool=await ensureXfInit();
+    const wave=pool?pool.workers.length*8:8;
+    for(let offset=0;offset<hits.length;offset+=wave){
+      if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
+      const chunk=hits.slice(offset,offset+wave);
+      if(pool){
+        const chunks=[];for(let i=0;i<chunk.length;i+=8)chunks.push(chunk.slice(i,i+8));
+        const replies=await Promise.all(chunks.map(async items=>{
+          const reply=await xfCall(pool,{type:"hitchunk",reqId:++_xfReqId,hits:items.map(x=>x.h),indices:items.map(x=>x.i),offset:0,T2,pure,rar,axisBase,geometry:window});
+          if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
+          progress.completed+=items.length;
+          operationStatus(operation,"searching",null,{phase:"cross",completed:progress.completed,total:progress.total,phaseElapsedMs:Date.now()-progress.startedAt});
+          return reply.meetings;
+        }));
+        meetings.push(...replies.flat());
+      }else{
+        for(const {h,i} of chunk){const m=crossFindMultiHit(h,i,T2,pure,rar,axisBase,window);if(m)meetings.push(m);}
+        progress.completed+=chunk.length;
+        operationStatus(operation,"searching",null,{phase:"cross",completed:progress.completed,total:progress.total,phaseElapsedMs:Date.now()-progress.startedAt});
+      }
+      if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
+      await paintOperation();
+    }
+    meetings.sort((x,y)=>y.stars-x.stars||y.tq-x.tq||y.score-x.score||x.skip-y.skip);
+    return {resA,meetings,total:T2.length,scanned:hits.length,available:eligible.length,capped:!!resA.capped};
+  }
+  function mergeCrossMeetings(A,B,r1,r2){
+    const all=[...r1.meetings.map(z=>({...z,axis:A})),...r2.meetings.map(z=>({...z,axis:B}))];
+    const cache={[A]:r1.resA,[B]:r2.resA},seen=new Set();
+    all.sort((x,y)=>y.stars-x.stars||y.tq-x.tq||y.score-x.score||x.skip-y.skip||norm(x.axis).localeCompare(norm(y.axis))||x.occ-y.occ);
+    return {cache,zones:all.filter(z=>{
+      const h=cache[z.axis].hits[z.occ];if(!isGov(h))return false;
+      const parts=[norm(z.axis)+":"+hitKey(h),...z.detail.map(d=>d.t+":"+hitKey({skip:d.skip,dir:d.dir,start:d.p0}))].sort();
+      const key=parts.join("|");if(seen.has(key))return false;seen.add(key);return true;
+    }).slice(0,24),coverage:{scanned:r1.scanned+r2.scanned,available:r1.available+r2.available,
+      truncated:r1.capped||r2.capped||r1.scanned<r1.available||r2.scanned<r2.available||all.length>24}};
+  }
   function runCross(A){
     supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const xr=document.getElementById("xrun");
@@ -2390,7 +2496,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const terms=parts.filter(w=>norm(w)!==axisN);
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק…";}
     setTimeout(async ()=>{
+      try{
       await prefetchVerified([axis,...terms]);   // 🧬 G3: גם מסלול ה-sync fallback קורא מהמטמון המאומת
+      if(requestSeq!==_matrixRequestSeq)return;
       const {resA,meetings,total}=await crossFindMultiParallel(axis,terms,st.crossPure);
       if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
@@ -2401,6 +2509,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       openZone(0);
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(meetings.length)+" אזורים · הטוב: "+meetings[0].nFound+"/"+total+" · "+meetings[0].stars+"★"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול)":""));
+      }catch(e){if(requestSeq!==_matrixRequestSeq||e?.name==="AbortError")return;
+        go.disabled=false;go.textContent=goLabel();if(xr){xr.disabled=false;updateXrunLabel();}toast("ההצלבה לא הושלמה. אפשר לנסות שוב.");}
     },10);
   }
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).
@@ -2408,41 +2518,38 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const requestSeq=_matrixRequestSeq;
     goBusy("מצליב…");
     setTimeout(async ()=>{
-      let previousWindow=null,committed=false;
       try{
       await prefetchVerified([A,B],operation);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       if(requestSeq!==_matrixRequestSeq)return;
-      if(operation&&operation.windowSize){
-        previousWindow={ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested};
-        Object.assign(st,nativeWindow(operation.windowSize,pure,[A,B]));
-      }
-      const r1=crossFindMulti(A,[B],pure),r2=crossFindMulti(B,[A],pure);   // שני הכיוונים, אותו מרחק מבוקש
+      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN()};
+      const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
+      const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
+      const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);
+      if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
-      if(!m1.length&&!m2.length){if(previousWindow)Object.assign(st,previousWindow);const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
+      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
       // בחירה סימטרית: יותר מפגשים (בו השני נכנס) → ציון → מילה ארוכה → א״ב
-      let axis;
-      if(m1.length!==m2.length)axis=m1.length>m2.length?A:B;
-      else if(m1.length&&m1[0].score!==m2[0].score)axis=m1[0].score>m2[0].score?A:B;
-      else if(norm(A).length!==norm(B).length)axis=norm(A).length>norm(B).length?A:B;
-      else axis=norm(A)<=norm(B)?A:B;
+      const merged=mergeCrossMeetings(A,B,r1,r2),axis=merged.zones[0]?.axis;
+      if(!axis){operationStatus(operation,"error","הצירים שנמצאו טרם עברו אימות.");return;}
       const useA=norm(axis)===norm(A),R=useA?r1:r2,other=useA?B:A;
+      if(operation)operation.committed=true;
       st.editId=null;st.editTerm=null;
-      st.res=R.resA;st.crossMeetings=R.meetings;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
+      Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
+      st.res=R.resA;st.crossMeetings=merged.zones;st.crossResCache=merged.cache;st.crossCoverage=merged.coverage;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
       // 🧾 הפרדה בין *מה שהמשתמש הזין* לבין *מי נבחר כציר*: הציר נבחר אוטומטית (לפי מספר
       //    אזורי-המפגש), ולכן הוא עלול להיות המונח השני. שומרים את שני המונחים המקוריים
       //    כפי שהוקלדו, ו**לא דורסים את שדות-הקלט** — אחרת שתי השורות מציגות את אותה מילה.
       //    st.crossPairA/B כבר קיימים ב-st (שימשו עד כה רק במצב «גשר») — אין state חדש.
       st.crossPairA=A;st.crossPairB=B;
       st.crossRadius=pure;
-      committed=true;
       updGem();
       openZone(0,operation);
       const sw=norm(axis)!==norm(A);
-      toast("🔀 "+heb(R.meetings.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
+      toast("🔀 "+heb(merged.zones.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
       await healGoverned();if(requestSeq!==_matrixRequestSeq)return;
       operationStatus(operation,hasGov(st.res)?"done":"error");
-      }catch(e){if(requestSeq!==_matrixRequestSeq)return;if(previousWindow&&!committed)Object.assign(st,previousWindow);go.disabled=false;go.textContent=goLabel();operationStatus(operation,"error","ההצלבה לא הושלמה. אפשר לנסות שוב.");}
+      }catch(e){if(requestSeq!==_matrixRequestSeq)return;go.disabled=false;go.textContent=goLabel();operationStatus(operation,"error","ההצלבה לא הושלמה. אפשר לנסות שוב.");}
     },10);
   }
   // 🧭 התכנסות חופשית (מצב-על נפרד): אין ציר קבוע — כל מונח מנוסה בתור ציר, כל האזורים ממוזגים.
@@ -2484,6 +2591,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         "const FIN="+JSON.stringify(FIN)+";\nconst GV="+JSON.stringify(GV)+";\n"+
         "const norm="+norm.toString()+";\nconst gem="+gem.toString()+";\n"+
         "const st={scope:\"x\",ctxR:3,windowColumns:80};\nconst FA=new Map();\n"+
+        "const AD_POLICY="+JSON.stringify(AD_POLICY)+",AD_BANDS="+AD_BANDS+",AD_PROBE_PAIRS="+AD_PROBE_PAIRS+",AD_PROBE_PAIRS_EXT="+AD_PROBE_PAIRS_EXT+",AD_COLLECT_CHUNK="+AD_COLLECT_CHUNK+";\n"+
+        "const hitKey=h=>h.skip+\"_\"+h.dir+\"_\"+h.start;\n"+
+        vdc.toString()+"\n"+fwdLaneScan.toString()+"\n"+stratProbeInit.toString()+"\n"+probeAdd.toString()+"\n"+laneDone.toString()+"\n"+stratProbeRun.toString()+"\n"+stratCollect.toString()+"\n"+adChoose.toString()+"\n"+routedDiscover.toString()+"\n"+
+        "async function findAllAdaptive(raw,cap){return findAll(raw,cap);}\n"+
         researchGeometry.toString()+"\n"+
         lb.toString()+"\nfunction scopeN(){return SN;}\n"+
         fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+
@@ -2496,12 +2607,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         "const proxF="+proxF.toString()+";\nconst lenF="+lenF.toString()+";\n"+
         "const rarF="+rarF.toString()+";\nconst starsFromTq="+starsFromTq.toString()+";\n"+
         "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+distanceToAnchors.toString()+"\n"+crossFindMultiHit.toString()+"\n"+crossFindMulti.toString()+"\n"+
-        "onmessage=function(e){var d=e.data;if(d.geometry){st.ctxR=d.geometry.ctxR;st.windowColumns=d.geometry.windowColumns;}"+
+        "onmessage=async function(e){var d=e.data;if(d.geometry){st.ctxR=d.geometry.ctxR;st.windowColumns=d.geometry.windowColumns;}"+
+        "if(d.scope)st.scope=d.scope;"+
+        "if(d.type===\"routed-discover\"){var result=await routedDiscover(d.raw,d.cap);postMessage({type:\"discoverResult\",reqId:d.reqId,result});return;}"+
         "if(d.type===\"init\"){T=d.T;N=d.N;SN=d.SN;BOOKS=d.BOOKS;postMessage({type:\"ready\",reqId:d.reqId});return;}"+
-        "if(d.type===\"cfm\"){for(var k in d.seed)FA.set(k,d.seed[k]);"+
+        "if(d.type===\"cfm\"){st.scope=\"x\";for(var k in d.seed)FA.set(k,d.seed[k]);"+
         "var r2=crossFindMulti(d.axis,d.others,d.pure,d.maxOcc,d.preResAxis);"+
         "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
-        "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
+        "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.indices?d.indices[i]:d.offset+i,d.T2,d.pure,d.rar,d.axisBase,d.geometry||st);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
         "if(d.type===\"findAllAdaptive\"){var pr=fwdProbePair(d.tt,d.ttBack,d.cap,d.probeSize);"+
         "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:pr.dirHits,capped:pr.capped,heavyDirs:pr.heavyDirs});"+
@@ -2514,20 +2627,30 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const url=URL.createObjectURL(new Blob([src],{type:"application/javascript"}));
       const n=Math.max(1,Math.min(navigator.hardwareConcurrency||4,8));
       const workers=[];for(let i=0;i<n;i++)workers.push(new Worker(url));
-      _xfWorkers={workers,rr:0};
+      _xfWorkers={workers,rr:0,url};
     }catch(e){console.error("xfWorkers init failed",e);_xfWorkers=null;}
     return _xfWorkers;
   }
-  let _xfReqId=0;
+  let _xfReqId=0;const _xfPending=new Map();
+  function stopXfWorkers(){
+    if(!_xfPending.size)return;
+    for(const cancel of [..._xfPending.values()])cancel(new DOMException("Search replaced","AbortError"));
+    if(_xfWorkers){_xfWorkers.workers.forEach(w=>w.terminate());URL.revokeObjectURL(_xfWorkers.url);}
+    _xfWorkers=null;_xfInitedSN=null;
+  }
   function xfCall(pool,msg){
-    return new Promise((resolve,reject)=>{
+    const promise=new Promise((resolve,reject)=>{
       const w=pool.workers[pool.rr%pool.workers.length];pool.rr++;
       const reqId=msg.reqId;
-      const onMsg=e=>{if(e.data&&e.data.reqId===reqId){w.removeEventListener("message",onMsg);w.removeEventListener("error",onErr);resolve(e.data);}};
-      const onErr=e=>{w.removeEventListener("message",onMsg);w.removeEventListener("error",onErr);reject(e);};
+      const cleanup=()=>{clearTimeout(timer);_xfPending.delete(reqId);w.removeEventListener("message",onMsg);w.removeEventListener("error",onErr);};
+      const onMsg=e=>{if(e.data&&e.data.reqId===reqId){cleanup();resolve(e.data);}};
+      const onErr=e=>{cleanup();reject(e);};
+      const timer=setTimeout(()=>onErr(new Error("ELS worker timed out")),60000);
+      _xfPending.set(reqId,onErr);
       w.addEventListener("message",onMsg);w.addEventListener("error",onErr);
-      w.postMessage({...msg,geometry:{ctxR:st.ctxR,windowColumns:st.windowColumns}});
+      w.postMessage({...msg,geometry:msg.geometry||{ctxR:st.ctxR,windowColumns:st.windowColumns}});
     });
+    promise.catch(()=>{});return promise;
   }
   // 🔁 init נשלח לבריכה רק כשההיקף (SN) באמת השתנה מאז הפעם האחרונה — לא בכל קריאה (T=1.2M תווים,
   //    שולחים unicode פעם אחת לכל שינוי-היקף, לא לכל findAllAdaptive/crossFindMultiParallel).
@@ -2594,7 +2717,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const hits=[...dirHits[0],...dirHits[1]];
       hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
       return {hits,capped,t};
-    }catch(e){console.error("findAllAdaptive failed, falling back to sync",e);return findAll(raw,cap);}
+    }catch(e){if(e?.name==="AbortError")throw e;console.error("findAllAdaptive failed, falling back to sync",e);return findAll(raw,cap);}
   }
   // 🌊 המשך-סריקה מקבילי, גלי (wave), מ-startOffset (איפה שה-probe עצר) עד סוף Pi — לא מ-0.
   //    כל גל = עד nWorkers צ'אנקים-רצופים-בסדר-Pi, נשלחים במקביל, אבל *מאושרים* (מצטרפים ל-hits)
@@ -2629,6 +2752,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   async function crossFindMultiParallel(A,terms,pure,maxOcc){
     pure=pure||8;maxOcc=maxOcc||150;
     const T2=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
+    const epoch=_matrixRequestSeq;
     const pool=await ensureXfInit();if(!pool)return crossFindMulti(A,terms,pure,maxOcc);
     try{
       // שלב 1: findAll לציר + לכל מונח, פעם אחת, מפוזר — דרך findAllAdaptive (probe→parallel-רק-אם-
@@ -2636,6 +2760,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const nA=norm(A),words=[...new Set([nA,...T2])];
       const hitsByWord={};
       await Promise.all(words.map(w=>faVerified(w).then(r=>{hitsByWord[w]=r;})));
+      if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
       const resA=hitsByWord[nA];
       if(!resA.hits.length||!T2.length)return {resA,meetings:[],total:0};
       const rar=new Map();T2.forEach(t=>{const r=hitsByWord[t];rar.set(t,r.capped?9999:r.hits.length);});
@@ -2651,17 +2776,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const meetings=chunkResults.flat();
       meetings.sort((x,y)=>y.stars-x.stars||y.tq-x.tq||y.score-x.score||x.skip-y.skip);
       return {resA,meetings:meetings.slice(0,24),total:T2.length};
-    }catch(e){console.error("crossFindMultiParallel failed, falling back to sync",e);return crossFindMulti(A,terms,pure,maxOcc);}
+    }catch(e){if(e?.name==="AbortError")throw e;console.error("crossFindMultiParallel failed, falling back to sync",e);return crossFindMulti(A,terms,pure,maxOcc);}
   }
   async function crossFindFreeParallel(terms,pure){
     const Tn=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
     if(Tn.length<2)return {zones:[],resCache:{},total:Tn.length};
+    const epoch=_matrixRequestSeq;
     const pool=await ensureXfInit();if(!pool)return crossFindFree(terms,pure);
     try{
       // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — דרך findAllAdaptive (probe→
       //    parallel-רק-אם-צריך-בפועל), כדי שמונח פתולוגי בודד לא יבלע Worker שלם לבד.
       const hitsByTerm={};
       await Promise.all(Tn.map(w=>faVerified(w).then(r=>{hitsByTerm[w]=r;})));
+      if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
       // שלב 2: crossFindMulti לכל ציר, מפוזר על הבריכה, מוזרע עם תוצאות שלב-1 (בלי findAll כפול).
       // ⚠️ Promise.all שומר את סדר-הקלט בתוצאה (לא סדר-סיום) — חובה כדי שסדר ה-push ל-all יהיה
       //    זהה לסדר Tn המקורי בגרסה הסינכרונית: sort() יציב, ותיקו בין ממצאים שווי-ניקוד נשבר
@@ -2687,13 +2814,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       }
       const zones=[...seen.values()].sort((a,b)=>b.stars-a.stars||b.tq-a.tq||b.score-a.score).slice(0,24);
       return {zones,resCache,total:Tn.length};
-    }catch(e){console.error("crossFindFreeParallel failed, falling back to sync",e);return crossFindFree(terms,pure);}
+    }catch(e){if(e?.name==="AbortError")throw e;console.error("crossFindFreeParallel failed, falling back to sync",e);return crossFindFree(terms,pure);}
   }
   function runCrossFree(){
     supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
     const terms=st.crossTerms.slice(),xr=document.getElementById("xrun");
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק כל מונח כציר…";}
     setTimeout(async ()=>{
+      try{
       const {zones,resCache,total}=await crossFindFreeParallel(terms,st.crossPure);
       if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;updateXrunLabel();}
@@ -2702,6 +2830,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       st.crossFilter=null;st.crossScanned=false;st.crossCollapsed=false;st.crossMcRun=false;st.crossB=terms.map(norm).join(" · ");
       openZone(0);
       toast("🧭 "+heb(zones.length)+" אזורי-התכנסות חופשית · הטוב: "+(zones[0].nFound+1)+"/"+heb(total)+" מונחים סביב «"+zones[0].axis+"»");
+      }catch(e){if(requestSeq!==_matrixRequestSeq||e?.name==="AbortError")return;
+        go.disabled=false;go.textContent=goLabel();if(xr){xr.disabled=false;updateXrunLabel();}toast("ההצלבה לא הושלמה. אפשר לנסות שוב.");}
     },10);
   }
   // 🔄 «מכל הצדדים / אופציות פנימיות» — סורק את השם לאורך ולרוחב **וגם** בכל חילופי-האותיות הפנימיים שלו
@@ -2921,6 +3051,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(!operation)supersedeNativeOperations();
     const z=st.crossMeetings[st.crossIdx];
     if(z.axis&&st.crossResCache&&st.crossResCache[z.axis]){st.res=st.crossResCache[z.axis];st.raw=z.axis;}   // מצב-חופשי: ציר לפי האזור
+    if(st.crossSimple){st.crossTerms=z.detail.map(d=>d.t);st.crossB=st.crossTerms[0]||"";}
     st.occ=z.occ;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;st.hideMain=false;
     st.words=z.detail.map((d,j)=>({t:d.t,color:PALETTE[j%PALETTE.length],hits:[],total:0,
       extra:new Set([hitKey({skip:d.skip,dir:d.dir,start:d.p0})])}));
@@ -2947,8 +3078,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions);let best=null;   // mainSet = תאי-הציר (לפסילת חפיפה טריוויאלית, כמו היפוך על אותן אותיות)
-    for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N||T[s0]!==t[0])continue;
-      for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
+    for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
+      for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;   // דלג על חפיפה מלאה לציר
         let cc=1e9;for(const p of pos){const a=rc(p);for(const g of anchors){const dc=Math.min(Math.abs(a[1]-g[1]),S-Math.abs(a[1]-g[1]));const dd=Math.abs(a[0]-g[0])+dc;if(dd<cc)cc=dd;}}
@@ -3453,7 +3584,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
-    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
+    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?[...w.sh,...(Array.isArray(w.sourceShown)?w.sourceShown:[])]:null};});
     updGem();render();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
     // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
@@ -3793,12 +3924,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // חלון-מחקר (לא geometry נפרד), ו-fwdDisperseTopUp (Pass 1) הוא sampling policy לתוצאה capped —
   // לא Geometry ולא הוכחת-כיסוי-ממצה של מרחב-החיפוש.
   const GEOMETRY_CTXR_MIN=1,GEOMETRY_CTXR_MAX=8;
-  function researchGeometry(S,mainCol,mr){
-    const totalRows=Math.ceil(N/S);
-    const RH=18+st.ctxR*5,CW=Math.min(S,st.windowColumns||80);
+  function researchGeometry(S,mainCol,mr,window=st){
+    const totalRows=Math.ceil((window.scopeLength||scopeN())/S);
+    const RH=18+window.ctxR*5,CW=Math.min(S,window.windowColumns||80);
     const c0=Math.max(0,Math.min(S-CW,mainCol-Math.floor(CW/2)));
     const r0=Math.max(0,mr-RH),r1=Math.min(totalRows-1,mr+RH);
-    return {S,mainCol,mr,c0,cw:CW,r0,r1,ctxR:st.ctxR,totalRows};
+    return {S,mainCol,mr,c0,cw:CW,r0,r1,ctxR:window.ctxR,totalRows};
   }
   // 🎛️ setCtxR — היחיד שמשנה geometry-truth בפועל. משנה את st.ctxR, מפנה cache-ים תלויי-geometry
   //    (clusterStat/Monte-Carlo לציר הראשי — mcSig כולל ctxR; אזורי-הצלבה — _mc/_chain אין להם
@@ -3868,13 +3999,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const t=norm(w.t),L=t.length,hits=[],seen=new Set();const skips=searchSpace(b,L);
       // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
       for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
-        const s0=r*S+c;if(s0<0||s0>=N||T[s0]!==t[0])continue;
+        const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
         if(L===1){if(!mainSet.has(s0))hits.push({skip:0,dir:1,start:s0,positions:[s0]});continue;}
         for(const sk of skips)for(const d of[1,-1]){
-          const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;
+          const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;
           let ok=1;const pos=[s0];
           for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-          if(ok&&!pos.every(p=>mainSet.has(p))){const key=pos[0]+"_"+pos[L-1];if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos});}}
+          if(ok&&!pos.every(p=>mainSet.has(p))){const key=pos[0]+"_"+pos[L-1];if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos,...(sk===1?{v:"PLAIN_TEXT"}:{})});}}
         }
       }
       // עוגני-אשכול = ראשי + המופעים המוצגים של שאר המילים
@@ -3921,14 +4052,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const anchors=occ().positions.map(rc);
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
     const byChar=new Map();
-    for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
+    for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=scopeN())continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const cellCost=(r,c)=>{let m=1e9;for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}return m;};
     const existing=new Set(st.words.map(w=>w.t)),out=[];
     for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;
       const starts=byChar.get(t[0]);if(!starts)continue;let best=null,bestSkip=0;const skips=searchSpace(b,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){
-        const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
+        const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok)continue;let c=1e9;for(const p of pos){const cc=cellCost(Math.floor(p/S),((p%S)+S)%S);if(cc<c)c=cc;}
         if(best===null||c<best){best=c;bestSkip=sk;}
@@ -4307,10 +4438,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     pop.onclick=hideLocate;
   }
   // מפת-הצבעים לפי st.showN (המילה הראשית + עד showN הקרובים לכל ממצא)
-  function colorSets(){
+  function colorSets(governedOnly=false){
     const h=occ();const colorMap=new Map(),startSet=new Set();
     if(!st.hideMain){startSet.add(h.positions[0]);h.positions.forEach(p=>colorMap.set(p,"main"));}
-    st.words.forEach(w=>shownHitsOf(w).forEach(hit=>{startSet.add(hit.positions[0]);hit.positions.forEach(p=>{if(!colorMap.has(p))colorMap.set(p,w.color);});}));
+    st.words.forEach(w=>shownHitsOf(w).filter(hit=>!governedOnly||isGov(hit)).forEach(hit=>{startSet.add(hit.positions[0]);hit.positions.forEach(p=>{if(!colorMap.has(p))colorMap.set(p,w.color);});}));
     return {colorMap,startSet,selSet:new Set(st.selCells)};
   }
   // צביעה-מחדש בלי לבנות את הרשת (שומר על מיקום-הגלילה בזמן הזזת מד-הקרבה)
