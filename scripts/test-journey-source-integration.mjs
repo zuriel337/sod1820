@@ -158,7 +158,10 @@ try {
         await page.waitForURL(`${base}/world`);
         const guest = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')));
         assert.equal((await guest()).journey.root.id, '878');
-        await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click({ timeout: 45000 });
+        if (width === 390) {
+          await page.getByRole('button', { name: 'פתח ניווט', exact: true }).click();
+          await page.locator('#sod29-mobile-navigation').getByRole('button', { name: 'חזרה מדויקת', exact: true }).click();
+        } else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click({ timeout: 45000 });
         await page.waitForURL(`${base}/2029/number/878`);
         await preset.getByRole('button', { name: 'שמירה וחידוש', exact: true }).click();
         const beforeGuestSave = await sql('select count(*) from research_paths');
