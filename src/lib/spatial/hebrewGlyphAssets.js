@@ -33,7 +33,8 @@ export function buildGlyphAssetRef(codepoint) {
 export function resolveGlyphAssetRef(ref) {
   if (!ref || ref.kind !== HEBREW_GLYPH_ASSET_REF_KIND) return null;
   const g = getHebrewGlyphById(ref.glyph_id);
-  if (!g || g.content_hash !== ref.content_hash || g.vector_version !== ref.vector_version) return null;
+  if (!g || g.content_hash !== ref.content_hash || g.vector_version !== ref.vector_version
+    || ref.manifest_version !== MANIFEST.manifest_version || ref.profile_id !== MANIFEST.profile.profile_id) return null;
   return g;
 }
 

@@ -25,8 +25,8 @@ assert.equal(resolveEntryOrientation({ surface: "post", arrival: "direct" }).mod
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "internal" }).mode, "compact");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "exact_return" }).mode, "hidden");
 assert.equal(isEntryLearnSurfaceActive("post"), true);
-assert.equal(isEntryLearnSurfaceActive("number"), false);
-assert.equal(resolveEntryOrientation({ surface: "number", arrival: "direct" }).mode, "hidden");
+assert.equal(isEntryLearnSurfaceActive("number"), true);
+assert.equal(resolveEntryOrientation({ surface: "number", arrival: "direct" }).mode, "prominent");
 assert.equal(resolveEntryOrientation({
   surface: "post",
   arrival: "direct",

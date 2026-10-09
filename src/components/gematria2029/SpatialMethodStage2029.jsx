@@ -1,7 +1,11 @@
+import { isVerifiedMethodTrace, projectGematriaTrace, traceNumber } from "../../lib/research/gematriaTracePresentation.js";
+import { TraceFamilyStage2029 } from "./MethodTraceExplanation2029.jsx";
+import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
-import { evaluateS4Capability, prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
+import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
 import "./spatialMethodStage2029.css";
 
 // S4 (GPU) is route-scoped: three / @react-three/fiber live only in this lazily-loaded chunk, requested after the
@@ -23,19 +27,11 @@ const S4_FALLBACK_NOTE = Object.freeze({
   ssr: "התצוגה התלת־ממדית זמינה רק בדפדפן.",
 });
 
-const METHOD_TRACE_KIND = Object.freeze({
-  "רגיל": "LETTER_LEDGER",
-  "מילוי": "LETTER_LEDGER",
-  "מסתתר": "ADJACENT_DIFFERENCE",
-  "קדמי": "LETTER_LEDGER",
-  "משולש מילה": "CUMULATIVE_PREFIX",
-});
-
-function normalizedTrace(trace, expression, methodKey) {
+function normalizedTrace(trace) {
   if (!trace || typeof trace !== "object") return null;
-  const key = String(trace.method_key || trace.methodKey || methodKey || "").trim();
-  const input = String(trace.input || expression || "").trim();
-  const value = Number(trace.result ?? trace.value);
+  const key = String(trace.method_key || trace.methodKey || "").trim();
+  const input = String(trace.input || "").trim();
+  const value = traceNumber(trace.result ?? trace.value);
   const verification = trace.verification || null;
   return {
     ...trace,
@@ -48,16 +44,8 @@ function normalizedTrace(trace, expression, methodKey) {
 }
 
 function verifiedTrace(trace, expression, methodKey, expectedValue = null) {
-  if (!trace) return false;
-  if (trace.method_key !== methodKey || trace.input !== expression) return false;
-  const requiredTraceKind = METHOD_TRACE_KIND[methodKey];
-  if (!requiredTraceKind || trace.trace_kind !== requiredTraceKind) return false;
-  if (!Number.isSafeInteger(Number(trace.result))) return false;
-  if (trace.verification?.parity !== true) return false;
-  if (Number(trace.verification?.trace_value) !== Number(trace.result)) return false;
-  if (Number(trace.verification?.canonical_value) !== Number(trace.result)) return false;
-  if (expectedValue != null && Number(expectedValue) !== Number(trace.result)) return false;
-  return true;
+  return isVerifiedMethodTrace(trace, { expression, methodKey, expectedValue })
+    && projectGematriaTrace(trace, { expression, methodKey, expectedValue }).state === "ready";
 }
 
 function buildMiluiRows(expression, trace) {
@@ -67,6 +55,8 @@ function buildMiluiRows(expression, trace) {
 
   if (specs.length !== steps.length) return null;
 
+  const ledger = buildLedgerRows(trace);
+  if (!ledger) return null;
   const rows = [];
   for (let i = 0; i < specs.length; i += 1) {
     const spec = specs[i];
@@ -80,6 +70,9 @@ function buildMiluiRows(expression, trace) {
       id: `milui:${i}:${token}`,
       token,
       spelling: String(spec.expansions?.[0]?.spelling || token),
+      secondSpelling: trace.method_key.includes("דמילוי")
+        ? buildWordLetterAnatomySpecs(spec.expansions[0].spelling).map((part) => part.expansions[0].spelling).join(" · ") : null,
+      wordIndex: ledger[i].wordIndex,
       value,
       subtotal,
       position: Number.isFinite(Number(step.position)) ? Number(step.position) : i + 1,
@@ -152,10 +145,10 @@ function MethodStageHead({ methodKey, expression, result, subtitle }) {
       <div>
         <span>{methodKey} · {subtitle}</span>
         <strong>{expression}</strong>
-        <small>הערכים והתוצאה מגיעים מה־Trace הקנוני; התצוגה מסבירה ואינה מחשבת אמת.</small>
+        <small>בחרו צעד כדי לעקוב אחרי החישוב בביטוי שלכם.</small>
       </div>
       <div className="sod29-spatial-method-stage__result">
-        <small>TRACE VERIFIED</small>
+        <small>תוצאה</small>
         <b>{result}</b>
       </div>
     </div>
@@ -170,13 +163,13 @@ function GenericActions({ methodKey, expression, trace, onRazielAction, onOpenHe
       methodKey,
       expression,
       resultValue: Number(trace.result),
-    })}>✦ רזיאל</button> : null}
+    })}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
     {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
       kind: "method_projection",
       methodKey,
       expression,
       resultValue: Number(trace.result),
-    })}>◇ פתח בהיכל</button> : null}
+    })}><NavigationIcon2029 name="heichal" /> פתח בהיכל</button> : null}
   </div>;
 }
 
@@ -188,6 +181,7 @@ function MiluiStage({
   onRazielAction,
   onOpenHeichal,
 }) {
+  const methodKey = trace.method_key;
   const rows = useMemo(() => buildMiluiRows(expression, trace), [expression, trace]);
   const [focusIndex, setFocusIndex] = useState(0);
 
@@ -207,21 +201,21 @@ function MiluiStage({
     className="sod29-spatial-method-stage is-milui"
     dir="rtl"
     data-experience-capability="spatial-method-stage"
-    data-method-key="מילוי"
+    data-method-key={methodKey}
     data-depth={depth}
     data-mode={mode}
     data-density={density}
     data-spelling-source="ui_transitional_unverified"
-    aria-label={`מילוי מרחבי עבור ${expression}`}
+    aria-label={`${methodKey} עבור ${expression}`}
   >
     <div className="sod29-spatial-method-stage__head">
       <div>
-        <span>מילוי · עומק שכבות</span>
+        <span>{methodKey} · עומק שכבות</span>
         <strong>אות → שם האות → ערך → סכום</strong>
-        <small>המספרים מגיעים מה־Trace הקנוני; איות שם האות מסומן כשכבת תצוגה מעברית.</small>
+        <small>בחרו אות כדי לראות את שמה המלא ואת תרומתה לסכום.</small>
       </div>
       <div className="sod29-spatial-method-stage__result">
-        <small>TRACE VERIFIED</small>
+        <small>תוצאה</small>
         <b>{result}</b>
       </div>
     </div>
@@ -232,22 +226,23 @@ function MiluiStage({
       <i aria-hidden="true" />
     </div>
 
-    <div className="sod29-spatial-method-stage__letters" role="list" style={{ "--sms-count": Math.max(1, rows.length) }}>
+    <div className="sod29-spatial-method-stage__letters" aria-label="אותיות הביטוי" style={{ "--sms-count": Math.max(1, rows.length) }}>
       {rows.map((row, index) => {
         const active = index === focusIndex;
         return <button
           type="button"
-          role="listitem"
           key={row.id}
           className={`sod29-spatial-method-stage__letter${active ? " is-focus" : ""}`}
           onClick={() => setFocusIndex(index)}
+          data-word-start={index > 0 && row.wordIndex !== rows[index - 1].wordIndex ? "true" : undefined}
           aria-pressed={active}
           aria-label={`${row.token}, מילוי ${row.spelling}, ערך ${row.value}`}
         >
-          <span className="sod29-spatial-method-stage__glyph">{row.token}</span>
+          <span className="sod29-spatial-method-stage__glyph"><HebrewGlyph2029 text={row.token} /></span>
           <span className="sod29-spatial-method-stage__opening" aria-hidden={mode === "visible" ? "true" : undefined}>
             <b>{row.spelling.slice(1)}</b>
             <small>{row.spelling}</small>
+            {row.secondSpelling ? <small>{row.secondSpelling}</small> : null}
           </span>
           <span className="sod29-spatial-method-stage__value">{row.value}</span>
           <span className="sod29-spatial-method-stage__subtotal">Σ {row.subtotal}</span>
@@ -260,31 +255,32 @@ function MiluiStage({
       <div>
         <span>אות {focus.position}</span>
         <strong>{focus.token} <em>→</em> {focus.spelling} <em>→</em> {focus.value}</strong>
-        <p>הערך והסכום מגיעים מהמנוע. איות שם האות הוא כרגע metadata תצוגתי שתואם מספרית למנוע.</p>
+        {focus.secondSpelling ? <p>שכבה שנייה: {focus.secondSpelling}</p> : null}
+        <p>סכום עד כאן: {focus.subtotal}</p>
       </div>
       <div className="sod29-spatial-method-stage__actions">
         <button type="button" onClick={() => setFocusIndex((index) => (index + 1) % rows.length)}>האות הבאה ←</button>
         {onRazielAction ? <button type="button" onClick={() => onRazielAction("explain_miluy_step", {
           kind: "miluy_step",
-          methodKey: "מילוי",
+          methodKey,
           expression,
           step: focus.step,
           spelling: focus.spelling,
           resultValue: result,
-        })}>✦ רזיאל</button> : null}
+        })}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
         {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
           kind: "miluy_step",
-          methodKey: "מילוי",
+          methodKey,
           expression,
           step: focus.step,
           spelling: focus.spelling,
           resultValue: result,
-        })}>◇ פתח בהיכל</button> : null}
+        })}><NavigationIcon2029 name="heichal" /> פתח בהיכל</button> : null}
       </div>
     </div>
 
     <p className="sod29-spatial-method-stage__boundary">
-      איות תצוגה · לא שדה Trace: האיותים עברו parity מספרי מלא מול ערכי מנוע המילוי, אך סמכות האיות עצמה נשארת כפופה לחוזה המנוע/Registry.
+      שמות האותיות מובאים להמחשה. ערכי האותיות והסכום מגיעים מחישוב השיטה; המנוע עדיין אינו מספק את פירוט האיות.
     </p>
   </section>;
 }
@@ -298,11 +294,11 @@ function RegularStage({ expression, trace, depth, onRazielAction, onOpenHeichal 
     <div className="sod29-spatial-method-stage__ledger" role="list">
       {words.map((wordRows, wordIndex) => <span className="sod29-spatial-method-stage__ledger-word" key={wordIndex}>
         {wordRows.map((row) => <span className="sod29-spatial-method-stage__ledger-letter" role="listitem" key={row.id}>
-          <b>{row.token}</b><small>{row.value}</small>
+          <b><HebrewGlyph2029 text={row.token} /></b><small>{row.value}</small>
         </span>)}
       </span>)}
     </div>
-    <p className="sod29-spatial-method-stage__boundary">רגיל = האות הגלויה נושאת את ערכה. רווחים נשמרים כגבולות מילים ואינם מוצגים כאות.</p>
+    <p className="sod29-spatial-method-stage__boundary">כל אות תורמת את ערכה. מחברים את התרומות מכל המילים לקבלת התוצאה.</p>
     <GenericActions methodKey="רגיל" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
 }
@@ -323,7 +319,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
   const fallbackToS2 = (reason) => { setS4(false); setS4Note(S4_FALLBACK_NOTE[reason] || S4_FALLBACK_NOTE.render_error); };
   if (!scene) {
     return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={depth} data-state="scene-error" aria-live="polite">
-      <p>לא ניתן להרכיב תצוגה מרחבית עקבית מה־Trace הקנוני. הערך הקנוני אינו מושפע, ואין מוצגים קשרים.</p>
+      <p>לא ניתן להציג כרגע את הקשרים בין האותיות. תוצאת החישוב נשמרת.</p>
     </section>;
   }
   const { extent } = scene;
@@ -344,7 +340,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
     </div>
     {s4 ? <S4ErrorBoundary onFallback={fallbackToS2}>
       <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
-        <MistaterScene3D scene={scene} reducedMotion={prefersReducedMotion()} onFallback={fallbackToS2} />
+        <MistaterScene3D scene={scene} onFallback={fallbackToS2} />
       </Suspense>
     </S4ErrorBoundary> : <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
       <div className="sod29-spatial-method-stage__tension-scene" dir="ltr" style={{ width, height }}>
@@ -366,12 +362,12 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
           const p = toScreen(resolveSceneWorldPosition(scene, node.id));
           const { value } = resolveSceneTraceValue(scene, node.identityRef);
           return <span key={node.id} className="sod29-spatial-method-stage__tension-letter" role="listitem" data-node-id={node.id} style={{ left: p.x, top: p.y, width: node.bounds.width, height: node.bounds.height }}>
-            <b>{node.label}</b><small>{value}</small>
+            <b><HebrewGlyph2029 text={node.label} /></b><small>{value}</small>
           </span>;
         })}
       </div>
     </div>}
-    <p className="sod29-spatial-method-stage__boundary">המסתתר מוקרן כיחסים בין אותיות סמוכות. ההפרשים המוצגים מגיעים מה־Trace; ה־UI אינו גוזר אותם מחדש.</p>
+    <p className="sod29-spatial-method-stage__boundary">הקווים מחברים אותיות סמוכות באותה מילה. על כל קו מופיע ההפרש, שמצטרף לסכום הסופי.</p>
     <GenericActions methodKey="מסתתר" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
 }
@@ -380,16 +376,16 @@ function KadmiStage({ expression, trace, depth, onRazielAction, onOpenHeichal })
   const rows = useMemo(() => buildLedgerRows(trace), [trace]);
   if (!rows) return null;
   return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="קדמי" data-depth={depth} data-method-visual="letter-potential-triangle">
-    <MethodStageHead methodKey="קדמי / משולש" expression={expression} result={trace.result} subtitle="פוטנציאל משולשי לכל אות" />
+    <MethodStageHead methodKey="משולש" expression={expression} result={trace.result} subtitle="פוטנציאל משולשי לכל אות" />
     <div className="sod29-spatial-method-stage__potential" role="list">
       {rows.map((row) => <span className="sod29-spatial-method-stage__potential-item" role="listitem" key={row.id}>
         <i aria-hidden="true" />
-        <b>{row.token}</b>
+        <b><HebrewGlyph2029 text={row.token} /></b>
         <strong>{row.value}</strong>
         <small>Σ {row.subtotal}</small>
       </span>)}
     </div>
-    <p className="sod29-spatial-method-stage__boundary">קדמי / משולש מציג את התרומה המשולשית שהמנוע נתן לכל אות. הצורה היא המחשה בלבד.</p>
+    <p className="sod29-spatial-method-stage__boundary">לכל אות מצורפת התרומה שלה בשיטת משולש. הסכום המצטבר מופיע מתחתיה.</p>
     <GenericActions methodKey="קדמי" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
 }
@@ -404,7 +400,7 @@ function TriangleWordStage({ expression, trace, depth, onRazielAction, onOpenHei
         <b>{row.prefix}</b><strong>{row.value}</strong>
       </span>)}
     </div>
-    <p className="sod29-spatial-method-stage__boundary">כל שורה היא קידומת שה־Trace מסר. התוצאה הסופית נשארת תוצאת המנוע, לא סכום שמחושב מחדש בתצוגה.</p>
+    <p className="sod29-spatial-method-stage__boundary">בכל שורה נוספת אות לקידומת. מחברים את ערכי כל הקידומות לתוצאה הסופית.</p>
     <GenericActions methodKey="משולש מילה" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
 }
@@ -417,15 +413,20 @@ export default function SpatialMethodStage2029({
   mode = "full",
   depth = "S2",
   loading = false,
+  contextRequired = false,
   onRazielAction,
   onOpenHeichal,
 }) {
   const normalized = useMemo(
-    () => normalizedTrace(trace, expression, methodKey),
-    [trace, expression, methodKey],
+    () => normalizedTrace(trace),
+    [trace],
   );
 
-  if (!expression || !methodKey || !METHOD_TRACE_KIND[methodKey]) return null;
+  if (!expression || !methodKey) return null;
+
+  if (contextRequired || normalized?.trace_kind === "context_required") return <section className="sod29-spatial-method-stage" data-state="context_required" dir="rtl">
+    <p>אות רבתי מחייבת מקור שבו סומנה אות כרבתי. בביטוי רגיל לא מוצגת תוצאה.</p>
+  </section>;
 
   if (!verifiedTrace(normalized, expression, methodKey, expectedValue)) {
     return <section
@@ -436,17 +437,18 @@ export default function SpatialMethodStage2029({
       aria-live="polite"
       aria-busy={loading ? "true" : undefined}
     >
-      <p>{loading ? "טוען את צעדי השיטה מהמנוע הקנוני…" : "התצוגה המרחבית נפתחת רק אחרי Trace קנוני מאומת."}</p>
+      <p>{loading ? "טוען את צעדי החישוב…" : "פירוט החישוב אינו זמין כרגע לביטוי ולשיטה שבחרתם."}</p>
     </section>;
   }
 
-  if (methodKey === "מילוי") return <MiluiStage expression={expression} trace={normalized} mode={mode} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
+  if (["מילוי", "מילוי גדול", "מילוי דמילוי", "מילוי דמילוי גדול"].includes(methodKey)) return <MiluiStage expression={expression} trace={normalized} mode={mode} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "רגיל") return <RegularStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "מסתתר") return <MistaterStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "קדמי") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "משולש מילה") return <TriangleWordStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
 
-  return null;
+  const model = projectGematriaTrace(normalized, { expression, methodKey, expectedValue });
+  return <TraceFamilyStage2029 key={`${expression}:${methodKey}`} model={model} depth={depth} />;
 }
 
 export const spatialMethodStageInternals = {
@@ -456,5 +458,4 @@ export const spatialMethodStageInternals = {
   buildLedgerRows,
   buildMistaterScene,
   buildTriangleWordRows,
-  METHOD_TRACE_KIND,
 };

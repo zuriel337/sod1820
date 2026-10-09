@@ -170,7 +170,8 @@ test("lazy boundary: three/@react-three only imported by the S4 module; default 
   // fallback truth/actions preserved in S2: values + actions identical
   [395, 397, 27, 24, 394, 1237].forEach((n) => assert.ok(html.includes(`>${n}<`)));
   const withActions = renderToStaticMarkup(React.createElement(Stage, { expression: "התגלות", methodKey: "מסתתר", trace: trace(), expectedValue: 1237, onRazielAction() {}, onOpenHeichal() {} }));
-  assert.match(withActions, /✦ רזיאל/); assert.match(withActions, /◇ פתח בהיכל/);
+  assert.match(withActions, /data-icon-shape="spark"/); assert.match(withActions, /data-icon-shape="heichal"/);
+  assert.match(withActions, /רזיאל/); assert.match(withActions, /פתח בהיכל/);
 });
 
 test("S4 capability gate: SSR, low-power and no-WebGL fall back to S2; healthy context passes", () => {

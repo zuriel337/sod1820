@@ -32,5 +32,8 @@ export function evaluateS4Capability({ nav, doc } = {}) {
 }
 
 export function prefersReducedMotion(win = typeof window !== "undefined" ? window : null) {
-  try { return !!win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches; } catch { return false; }
+  try {
+    return !!win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+      || !!win?.document?.querySelector?.('[data-frame-reduced-motion="true"]');
+  } catch { return false; }
 }

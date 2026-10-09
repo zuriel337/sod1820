@@ -9,11 +9,12 @@
 //    node.identityRef (letter codepoint). M3: when node.asset_ref resolves against the Hebrew glyph manifest the letter is the
 //    manifest's path-only SVG vector (same lineage as Blender); otherwise the canvas text below remains the truthful fallback.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { CanvasTexture, Color, CubicBezierCurve3, DoubleSide, ExtrudeGeometry, SRGBColorSpace, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 import { glyphPlacement, resolveGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
+import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { resolveSceneConnectorCurve, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 
 const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570" });
@@ -160,8 +161,11 @@ function Connector({ scene, connector, colors }) {
 
 function Controls({ target, reducedMotion }) {
   const { camera, gl, invalidate } = useThree();
+  const controlRef = useRef(null);
+  useFrame(() => { if (controlRef.current?.enableDamping) controlRef.current.update(); });
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
+    controlRef.current = controls;
     controls.target.set(target.x, target.y, target.z);
     controls.enableDamping = !reducedMotion; // reduced-motion: no inertia/auto-motion, interaction remains
     controls.autoRotate = false;
@@ -170,7 +174,7 @@ function Controls({ target, reducedMotion }) {
     controls.update();
     const onChange = () => invalidate();
     controls.addEventListener("change", onChange);
-    return () => { controls.removeEventListener("change", onChange); controls.dispose(); };
+    return () => { controlRef.current = null; controls.removeEventListener("change", onChange); controls.dispose(); };
   }, [camera, gl, invalidate, target.x, target.y, target.z, reducedMotion]);
   return null;
 }
@@ -178,8 +182,22 @@ function Controls({ target, reducedMotion }) {
 export default function MistaterScene3D2029({ scene, reducedMotion = false, onFallback }) {
   const hostRef = useRef(null);
   const [colors, setColors] = useState(FALLBACK_COLORS);
+  const [motionReduced, setMotionReduced] = useState(() => reducedMotion || prefersReducedMotion());
   // tokens (--sms-*) are scoped to the stage subtree, so resolve against the host element once it is mounted
-  useLayoutEffect(() => { setColors(resolveTokenColors(hostRef.current)); }, []);
+  useLayoutEffect(() => {
+    const refresh = () => {
+      setColors(resolveTokenColors(hostRef.current));
+      setMotionReduced(reducedMotion || prefersReducedMotion());
+    };
+    refresh();
+    const observer = new MutationObserver(refresh);
+    observer.observe(document.documentElement, { attributes: true });
+    const frame = hostRef.current?.closest(".sod29-root");
+    if (frame) observer.observe(frame, { attributes: true });
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    media.addEventListener("change", refresh);
+    return () => { observer.disconnect(); media.removeEventListener("change", refresh); };
+  }, [reducedMotion]);
   const { extent } = scene;
   const center = useMemo(() => ({ x: (extent.minX + extent.maxX) / 2, y: (extent.minY + extent.maxY) / 2, z: 0 }), [extent]);
   const span = Math.max(extent.maxX - extent.minX, (extent.maxY - extent.minY) * 1.6);
@@ -188,7 +206,7 @@ export default function MistaterScene3D2029({ scene, reducedMotion = false, onFa
   const letters = scene.nodes.filter((n) => n.kind === "letter_anchor");
 
   return <div ref={hostRef} className="sod29-spatial-method-stage__s4" dir="ltr"
-    data-renderer="r3f" data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}
+    data-renderer="r3f" data-reduced-motion={String(motionReduced)} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}
     data-node-count={scene.nodes.length} data-connector-count={scene.connectors.length}>
     <Canvas
       frameloop="demand"
@@ -203,7 +221,7 @@ export default function MistaterScene3D2029({ scene, reducedMotion = false, onFa
       <directionalLight position={[center.x + 120, center.y + 220, 260]} intensity={1.6} />
       <NodeTree scene={scene} node={root} colors={colors} />
       {scene.connectors.map((connector) => <Connector key={connector.id} scene={scene} connector={connector} colors={colors} />)}
-      <Controls target={center} reducedMotion={reducedMotion} />
+      <Controls target={center} reducedMotion={motionReduced} />
     </Canvas>
     <ul className="sod29-spatial-method-stage__sr-only" aria-label="קשרי ההפרש בין אותיות סמוכות">
       {letters.map((node) => <li key={node.id}>{node.identityRef.letter} {resolveSceneTraceValue(scene, node.identityRef).value}</li>)}

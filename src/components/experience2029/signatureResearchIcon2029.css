@@ -1,0 +1,14 @@
+/* One bounded depth projection of NavigationIcon2029. No permanent animation. */
+.sig-icon[data-icon-family="navigation"]{position:relative;display:grid;place-items:center;width:88px;height:88px;flex:0 0 auto;color:var(--s29-accent,var(--sod29-accent,currentColor));border:1px solid var(--s29-line,var(--sod29-line,currentColor));border-radius:24px;background:var(--s29-panel-soft,var(--sod29-panel,transparent));perspective:500px;transform-style:preserve-3d;transition:transform 240ms ease;box-shadow:none}
+.sig-icon[data-icon-family="navigation"] .sig-icon__halo,.sig-icon[data-icon-family="navigation"] .sig-icon__orbit,.sig-icon[data-icon-family="navigation"] .sig-icon__spark{display:none}
+.sig-icon[data-icon-family="navigation"] .sig-icon__core,.sig-icon[data-icon-family="navigation"] .sig-icon__depth{position:absolute;inset:0;display:grid;place-items:center;width:auto;height:auto;border:0;background:none;box-shadow:none;transition:transform 240ms ease,opacity 240ms ease;color:inherit}
+.sig-icon[data-icon-family="navigation"] .rf-icon{width:auto;height:auto;padding:0;background:none;border:0;border-radius:0;color:inherit;box-shadow:none;animation:none;transform:none}
+.sig-icon[data-icon-family="navigation"] .sig-icon__depth--back{opacity:.12;transform:translate3d(5px,5px,-8px)}
+.sig-icon[data-icon-family="navigation"] .sig-icon__depth--mid{opacity:.28;transform:translate3d(2px,2px,-4px)}
+.sig-icon[data-icon-family="navigation"] .sig-icon__core{transform:translateZ(4px)}
+@media(hover:hover){.sig-icon[data-icon-family="navigation"]:hover,button:hover>.sig-icon[data-icon-family="navigation"],a:hover>.sig-icon[data-icon-family="navigation"]{transform:rotateX(9deg) rotateY(-12deg)}
+.sig-icon[data-icon-family="navigation"]:hover .sig-icon__core{transform:translateZ(12px)}}
+:focus-visible>.sig-icon[data-icon-family="navigation"]{transform:rotateY(-8deg)}
+@media(prefers-reduced-motion:reduce){.sig-icon[data-icon-family="navigation"],.sig-icon[data-icon-family="navigation"] *{animation:none!important;transition:none!important;transform:none!important}.sig-icon[data-icon-family="navigation"] .sig-icon__depth{display:none}}
+[data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"],[data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"] *{animation:none!important;transition:none!important;transform:none!important}
+[data-frame-reduced-motion="true"] .sig-icon[data-icon-family="navigation"] .sig-icon__depth{display:none}
