@@ -6,6 +6,7 @@ import { trackResearch } from "../tracking.js";
 import { signalAiBehavior } from "../supabase.js";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
+import { retainTopicSourceReturn, restoreJourneySourceViewport } from "./journeySourceReturn.js";
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import {
   contextFromResearchPathSnapshot,
@@ -76,13 +77,18 @@ export default function ResearchProvider({ children }) {
 }
 
 function PrincipalResearchProvider({ children, userId, disabled }) {
-  const { pathname, search } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const [runtime] = useState(() => createResearchSyncRuntime({
     userId, disabled,
     storage: browserStorage("localStorage"), session: browserStorage("sessionStorage"),
     readCloud: getCloudResearch, writeCloud: applyCloudResearchOps, onContext: publishContext,
   }));
   const state = useSyncExternalStore(runtime.subscribe, runtime.getSnapshot, runtime.getSnapshot);
+  useEffect(() => {
+    if (state.context?.journey?.kind !== "research_path" || !/^\/topic\//.test(pathname)
+      || state.context?.selection?.locator !== hash) return;
+    return restoreJourneySourceViewport(hash);
+  }, [pathname, hash, state.context?.journey?.kind, state.context?.selection?.locator]);
   const pathSession = useRef({ active: false, busy: false, retry: null, version: 0 });
   useLayoutEffect(() => {
     pathSession.current.active = !disabled;
@@ -122,6 +128,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       const current = now().context;
       const resolved = typeof value === "function" ? value(current) : value;
       let context = merge ? mergeResearchContext(current, resolved) : resolved == null ? null : mergeResearchContext(null, resolved);
+      context = retainTopicSourceReturn(current, context);
       const continuing = current?.dimensions?.journey2029Active === true && current?.journey?.kind === "research_path";
       const legacyPreset = context?.journey?.kind === "golden"
         && context.journey.id === current?.dimensions?.journeySemanticId;

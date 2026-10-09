@@ -60,6 +60,16 @@ export function researchPathStepKey(step) {
   return safe ? JSON.stringify([safe.entity_type, safe.entity_ref, safe.href, safe.lens, safe.selection]) : null;
 }
 
+// A late Number trace enriches the already chosen expression/method. It is
+// not a new reader choice. Distinct non-null findings/versions remain distinct.
+function isNumberTraceEnrichment(previous, next) {
+  if (previous?.entity_type !== "number" || next?.entity_type !== "number"
+    || previous.selection?.focusKind !== "expression" || previous.selection?.findingId
+    || !next.selection?.findingId) return false;
+  return researchPathStepKey(previous) === researchPathStepKey({ ...next,
+    selection: { ...next.selection, findingId: null } });
+}
+
 // Explicit Start/Continue only. Ordinary page/method selection does not call this.
 export function continueResearchPathContext(context, options = {}) {
   const current = normalizeResearchContext(context);
@@ -74,7 +84,9 @@ export function continueResearchPathContext(context, options = {}) {
     if (origin && researchPathStepKey(origin) !== researchPathStepKey(step)) pending.push(origin);
   }
   const previous = pending.at(-1) || current.journey?.lastSavedStep;
-  const changed = researchPathStepKey(previous) !== researchPathStepKey(step);
+  const enriched = isNumberTraceEnrichment(previous, step);
+  const changed = researchPathStepKey(previous) !== researchPathStepKey(step) && !enriched;
+  if (enriched && pending.length) pending[pending.length - 1] = { ...step, step_index: previous.step_index };
   if (changed && pending.length >= 99) return { ok: false, error: "save_required" };
   if (changed) {
     step.step_index = (current.journey?.lastSavedStep?.step_index ?? -1) + pending.length + 1;
@@ -102,7 +114,10 @@ export function researchPathStepsForSave(context, options = {}) {
   const pending = [...(safe?.journey?.pendingSteps || [])];
   const step = buildResearchPathStep(safe, options);
   if (!step) return [];
-  if (researchPathStepKey(pending.at(-1) || safe.journey?.lastSavedStep) !== researchPathStepKey(step)) pending.push(step);
+  const previous = pending.at(-1) || safe.journey?.lastSavedStep;
+  if (isNumberTraceEnrichment(previous, step)) {
+    if (pending.length) pending[pending.length - 1] = { ...step, step_index: previous.step_index };
+  } else if (researchPathStepKey(previous) !== researchPathStepKey(step)) pending.push(step);
   return pending;
 }
 

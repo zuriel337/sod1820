@@ -3,7 +3,7 @@ import { researchPathHref } from "../../lib/research/researchPathRuntime.js";
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 
 // Local reading projection of the shared Path. Workspace owns save/resume UI.
-export default function NumberPathContinuation2029({ active, selectionLabel, steps = [], onContinue, onOpenStep, onWorkspace, error }) {
+export default function NumberPathContinuation2029({ active, selectionLabel, steps = [], onContinue, onOpenStep, onWorkspace, onSourceReturn, error }) {
   return <section className="sod29-section" aria-label="המסע שלי" data-number-path-continuation>
     <h2>{active ? "להמשיך מהבחירה הזו" : "לאן הבחירה הזו מובילה?"}</h2>
     <p>{selectionLabel}</p>
@@ -11,6 +11,7 @@ export default function NumberPathContinuation2029({ active, selectionLabel, ste
     <div className="sod29-actions">
       <button type="button" className="sod29-action primary" onClick={onContinue}>{active ? "הוסף את הבחירה למסע" : "התחל מסע מהבחירה"}</button>
       <button type="button" className="sod29-action" onClick={onWorkspace}>שמירה וחידוש</button>
+      {onSourceReturn ? <button type="button" className="sod29-action" onClick={onSourceReturn}>חזרה למקור שנבחר בטופיק</button> : null}
     </div>
     {error ? <p role="status">{error}</p> : null}
     {steps.length ? <details>

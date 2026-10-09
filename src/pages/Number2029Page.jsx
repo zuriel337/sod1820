@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
@@ -19,6 +19,7 @@ import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import NumberDeepView2029 from "../components/number2029/NumberDeepView2029.jsx";
 import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld2029.jsx";
 import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
+import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -892,20 +893,26 @@ function NumberPageBody() {
       href: currentNumberHref,
     };
     const selection = focusSelection(root);
-    const dimensions = {
-      ...(research.context?.dimensions || {}),
-      expressionFocusExplicit: Boolean(focusExplicit),
-    };
-    const current = research.context;
-    if (current?.subject?.type === "number" && String(current.subject.id) === String(root)) {
-      research.updateResearchContext?.({ subject, selection, lens: "number", dimensions });
-    } else {
-      research.setResearchContext?.({ subject, selection, lens: "number", dimensions, locale: "he",
-        journey: current?.journey || null, returnTo: current?.returnTo || null });
-    }
+    // Merge against the provider's current snapshot: the route effect may have
+    // captured the selected Topic source after this render was scheduled.
+    research.updateResearchContext?.({ subject, selection, lens: "number",
+      dimensions: { expressionFocusExplicit: Boolean(focusExplicit) } });
   }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [pathError, setPathError] = useState(null);
+  const sourceReturnRequest = useRef(0);
+  useEffect(() => () => { sourceReturnRequest.current += 1; }, [location.pathname, location.search, research.setResearchContext]);
+  const sourceReturn = selectedTopicSourceReturn(research.context?.returnTo);
+  const returnToSelectedSource = async () => {
+    const request = ++sourceReturnRequest.current;
+    const result = await resolveJourneySourceReturn(sourceReturn, fetchTopicSourceContext);
+    if (request !== sourceReturnRequest.current) return;
+    if (!result.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו; אפשר לנסות שוב."); return; }
+    // Destination Topic re-reads the envelope; no saved content/access is rendered.
+    const applied = research.setResearchContext?.({ ...result.source, journey: research.context?.journey,
+      returnTo: { ...research.context, href: currentNumberHref, label: String(root) } });
+    if (applied) navigate(result.href);
+  };
   const continueJourney = () => {
     const current = research.context || {};
     const result = research.continueResearchPath?.({
@@ -1128,7 +1135,7 @@ function NumberPageBody() {
       </div>
       <div className="sod29-actions">
         {research.context?.returnTo?.href
-          ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
+          ? <button className="sod29-action" type="button" onClick={sourceReturn ? returnToSelectedSource : () => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
           : originTopicSlug
             ? <button className="sod29-action" type="button" onClick={returnToOriginTopic}>↩ חזרה להתכנסות</button>
             : null}
@@ -1202,7 +1209,15 @@ function NumberPageBody() {
       steps={research.researchPathSteps || []}
       onContinue={continueJourney}
       onWorkspace={() => shell.openWorkspace()}
-      onOpenStep={(index) => {
+      onSourceReturn={sourceReturn ? returnToSelectedSource : null}
+      onOpenStep={async (index) => {
+        const request = ++sourceReturnRequest.current;
+        const step = research.researchPathSteps?.[index];
+        if (selectedTopicSourceReturn(step?.context)) {
+          const source = await resolveJourneySourceReturn(step.context, fetchTopicSourceContext);
+          if (request !== sourceReturnRequest.current) return;
+          if (!source.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו."); return; }
+        }
         const result = research.openResearchPathStep?.(index);
         if (result?.ok) { setPathError(null); navigate(result.href); }
         else setPathError("המקור אינו זמין לפתיחה. הבחירה והמסע נשמרו.");

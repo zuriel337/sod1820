@@ -22,6 +22,18 @@ const pathId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const revisionId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const start = (c = number) => continueResearchPathContext(c, { kind: "number_expression", surface: "number" });
 
+test("late Number trace enriches a pending choice without inventing another step", () => {
+  const selected = { ...number, selection: { ...number.selection, focusKind: "expression" } };
+  const initial = start(selected).context;
+  const enriched = { ...initial, selection: { ...initial.selection, findingId: "trace:verified-method-v3" } };
+  const steps = researchPathStepsForSave(enriched);
+  assert.equal(steps.length, 2);
+  assert.equal(steps.at(-1).selection.findingId, "trace:verified-method-v3");
+  assert.equal(start(enriched).changed, false);
+  const distinct = { ...enriched, journey: { ...initial.journey, pendingSteps: steps }, selection: { ...enriched.selection, findingId: "different-finding" } };
+  assert.equal(researchPathStepsForSave(distinct).length, 3);
+});
+
 test("explicit start retains the exact source; another method/crossing continues the same root", () => {
   assert.equal(normalizeResearchContext(number).journey, null);
   const first = start();
