@@ -132,6 +132,8 @@ Golden acceptance also includes measured end-to-end performance on representativ
 
 External analytics/search/observability providers remain complementary evidence projections. Missing or unconfigured feeds render `UNAVAILABLE/NOT_CONFIGURED`, never synthetic zero; detailed provider/dimension semantics stay outside this Roadmap.
 
+**Human delegation is an allowed operability tool, not a new admin system.** During G4/pre-cutover, recurring operational work may move from ZURIEL to trusted human operators through the existing identity/authorization/admin owners, using least-privilege capability scopes, auditable actions and revocation. Candidate people/assignments remain in work_log until Human Gate activates them; the Roadmap tracks only the delegation requirement and timing.
+
 ### G5 — Product / Entitlement Matrix
 
 Exact Free / Registered / Premium / Credits allocation after Goldens. Entitlement never changes truth quality.
