@@ -1,6 +1,6 @@
 # SOD1820 — 2029 IMPLEMENTATION DEPENDENCY PLAN v1
 
-**Date:** 2026-09-17  
+**Date:** 2026-09-17 · execution reconciliation 2026-10-09
 **Status:** PROGRAM / DEPENDENCY MAP · HUMAN-GATE CONTROLLED · BRANCH-ONLY until merged  
 **Scope:** greenfield 2029 tree only. Legacy UI is compatibility/provenance/input where explicitly required; it is not the architecture authority.
 
@@ -614,6 +614,8 @@ Delivery policy:
 
 **Goal:** build semantic homes on top of the completed rails.
 
+Current delivery priority is World → Posts → Heichal, with the Journey foundation below completed in G4 before English. Earlier PR lists in this document are lineage, not current release status. P0 security and G1 acceptance retain their existing owners. Full Admin/Control Plane expansion is deferred by ZURIEL's current direction; only essential safety/operational blockers take priority over public completion.
+
 Homes:
 
 - Home / Global Now;
@@ -631,8 +633,8 @@ Homes:
 **Control Plane build timing**
 
 - **G4 / Phase 8–11:** build/verify contracts, adapters and owner projections first; UI polish is not the priority.
-- **Before Public Beta Cutover:** minimum Control Plane V1 is a blocking operational requirement. It must show release state, health/security attention, traffic composition, 2029 analytics, Google/Search/Discovery status, performance/cost and the system recommendation inbox.
-- **First ~14-day Public Beta evidence window:** expand to Control Plane V2 — time-axis comparison, cohorts/funnels, release before/after, per-surface/action drill-down, anomaly/trend recommendations and evidence links.
+- **Before Public Beta Cutover:** prove essential release/safety/operational readiness using existing owner evidence. The full Control Plane V1 dashboard is deferred by the 2026-10-09 direction; its proposed lenses remain future scope.
+- **Public Beta evidence window:** collect the already-governed evidence. Control Plane V2 comparison/cohort/drill-down UI remains deferred, rather than an automatic expansion during that window.
 - **G5 before money:** add payment/entitlement/credits/cost/margin/reconciliation lens.
 - **G6 before broad multilingual:** add locale/international/Search-type/crawler/abuse comparison lens.
 - **Later G7/G8:** voice/media/spatial/XR resource and adoption lenses inherit the same contract; no dashboard redesign required.
@@ -666,7 +668,94 @@ Current:
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
-**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction, and an internal 2029 Control Plane can answer what needs Human/operational attention with drill-down to the existing owner evidence instead of requiring Legacy Admin.
+**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction, and essential Human/operational attention remains accessible through existing owners. Full Admin replacement is not added to the current public completion scope.
+
+<a id="journey-foundation-g4"></a>
+
+### 8A. Unified Journey foundation — G4 before English
+
+**ZURIEL direction, 2026-10-09; EXTEND_EXISTING.** This section expands the existing delivery plan. It is neither a new semantic contract nor an additional gate. Authority remains with Research Workspace v5, Research Strategy v17, Reality Graph, Intake/Media/Truth, Gematria/Methods, ELS v9, Raziel and System Frame/Experience. Resolve live versions before implementation.
+
+#### Target experience
+
+A visitor enters through a story, image, number, word, source or cipher, understands the selected item, sees why a few next steps matter, and can continue or return without learning the site's architecture. A Journey is a chosen traversal through this same material. A numerical crossing is a possible transition, not an automatically saved Journey or proof that two subjects are identical. Chaining relations does not establish a new transitive fact.
+
+The same path may later render as guided reading, an Atlas view, layered ELS or spatial/3D. Semantic identity, source evidence and path revisions survive renderer changes; camera coordinates never become research truth. An ordinary click/search does not silently start a Journey. Start/continue is explicit under the current Workspace owner. Guided and organic paths share the same substrate; Name-as-word and authorized Person/Life are distinct entry contexts, not duplicate systems.
+
+#### Verified starting point — 2026-10-09
+
+- Repository baseline: origin/main 8e939d3b092f267e40d74953b9103711322276d2. Live Research Path append/resume/fork RPCs exist; aggregate snapshot is 3 paths / 4 revisions, with 0 approved, public, published revisions. Counts are verification evidence, never UI constants.
+- Number2029Page already consumes canonical method/context/trace projections. Its special Journey branch still uses legacy addJourney for 878; the general NumberLivingWorld Journey action otherwise navigates to World. Preserve useful depth while replacing this incomplete continuation seam.
+- Post reading trails are declared fixture data in post2029ReadingProjection; they are not proof of generic relation-driven Journey execution. Keep the two existing Post Goldens, FZ1073 and Bennett; elections and 1237 are supporting coverage, not new Post Goldens.
+- ResearchProvider/researchPathRuntime already implement save/resume/fork over research_paths/research_path_revisions. Reuse them. research_plans are execution plans, not saved Journeys; legacy journey_saves/addJourney are compatibility lineage.
+- PR #932 is an open draft Guided Discovery seam; reconcile it before implementing overlapping files. PR #928 is CLOSED, unmerged, and fn_research_path_public_read_v1 is absent live. Personal path persistence does not prove public guided-path publication/sharing. That capability stays unavailable until its existing reader/governance seam passes acceptance.
+- ELS already has exact-reopen helpers, an ELS Raziel context adapter, and matrix-depth/volume/mode primitives on main. These do not prove a complete cross-surface ELS Journey. PR #965 remains an open draft under the existing ELS writer; its preview evidence is not main/production acceptance.
+- Raziel Intelligence Core PR #958 is merged; the 5 October Working Beta release record also documents an ELS intent hotfix. Older September notes calling the entire core branch-only are historical. This does not certify every contextual ELS/World/Journey flow.
+- Production browser checks from this coordinator received HTTP 403 for Number 1237/878 and the two Posts. The findings above are code/DB/PR evidence, not a live visual PASS.
+
+#### Historical intent recovered — preserve through current owners
+
+The history search covered work_log from June–October 2026, including archived history, the existing project_codex homes, the archived Roadmap and ELS/Research Studio plans. Journal entries are provenance; current owners and later decisions control. Private GPT conversations not saved in these sources are outside this evidence set.
+
+| Decision provenance | Capability that must survive | Current home / delivery timing |
+|---|---|---|
+| 19 June feature plan, work_log 674ddd18; 12 July ELS vision, 49ffbdcb | Number → method/crossing → source/ELS → further discovery; eventual spatial traversal | Workspace + Methods + ELS; core continuation in G4, spatial activation G7 |
+| 23 July six-month Raziel plan, c4545b2b; One Tree companion, 45f5a7e6 | One contextual companion across site/WhatsApp; useful first action, personal continuity, optional shared contribution | Existing Raziel/Person/Intake owners; do not revive obsolete monthly schedule, pricing or bot topology |
+| 17 August ELS foundation, 39dd51f7; 24 August capability unification, a61a2be5 | Discovery → Investigation → Judgment; shared Finding identity; 2D/Layered/3D; 85 recovered capabilities | Existing els-capability-workarea-unification.md and els-capability-audit.md; preserve dispositions, not historical LIVE counts |
+| 25 August numeric interview, f6feb35c; 23 September project_codex raziel_mind_architecture | Learn ZURIEL's research procedures from chosen branches, corrections and attributed readings; exact methods and source history | Research Strategy / existing number_readings / Synthesis; calibration is not automatic truth promotion |
+| 14 September Heichal/ELS/Journey checkpoint, 39785155 | Recoverable research spine, full-focus ELS, shared inspector, exact corpus/matrix/layer return; one Journey family | Workspace + ELS + System Frame; adapters/continuity now, future renderer remains separate work |
+| 15 September companion checkpoint, 486a16a4 | What Changed from governed revisions; Silence Gate, additive self-correction, useful STOP/PAUSE, authorized channel continuity | Raziel + Strategy; G4 text/context/negative cases, broader Pulse/channel activation per later gates |
+| 27 September unified Path decision, ab4abf4f | Durable revisions, branches, exact resume; discovery/number/name/person/ELS/source/topic kinds; one Journey telemetry family | research_paths/revisions + journey_2029, not legacy visit counts |
+| ELS owner v4–v9 and 30 September Human decision, 3eea2971 | Bounded open discovery, dynamic lexicons, structural motifs, controls, vector/volume research; multiple verified execution strategies inside one truth boundary | Existing ELS/Strategy owners; preserve advanced capability without making full mining or 3D a G4 UI prerequisite |
+| 4 October Guided Discovery decisions, 6958ffc9 and 20c94379 | Guided steps in existing Inspector/mobile sheet; 878 first teaching example, not a hardcoded universal model | Existing Learn/System Frame/Workspace seam, including PR #932 lineage |
+
+Legacy statements such as “ELS only follows gematria”, “one browser implementation”, “all AI cores are still unmerged”, and fixed historical method/capability readiness counts must not override later live owners. ELS may enter from a qualified source, expression, event or Journey, and bounded open discovery is allowed. The canonical ELS boundary retains corpus/coordinates/replay/results even when internal strategies differ.
+
+#### Material preparation — catalog references, preserve originals
+
+1. Reuse the completed Zvi/Sod Hashmal/India/source maps and admitted identities before extracting anything again. Classify source artifact, source occurrence, authored interpretation, exact expression/calculation, event/topic relation and Journey step separately through existing owners. No new tagging graph or intake queue.
+2. Preserve original gallery title/caption/credit/URL/order and every historical placement. Chronological viewing carries date precision and never overwrites source order. A selected image may participate in several topics/paths with a different explained relation; copied images do not become independent evidence.
+3. Keep incoming authorized WhatsApp/source material eligible for Home/World movement before research admission. Extraction and a proposed topic relation do not silently publish private material or create an approved topic. Do not alter existing ingest settings.
+4. A method transition preserves exact expression, canonical method key/version, result and trace. A date/digit/system-rule transform preserves its own input/operator/output lineage. Equal numbers, equivalent methods and copied source occurrences remain distinguishable.
+5. ELS material retains exact searched representation, corpus/version, occurrence coordinates, signed direction/skip, geometry/search scope, engine/strategy version, completion state and dependency lineage. Historical cipher images without replay data remain usable historical sources with that limitation; no invented coordinates or rewritten captions.
+6. Start with the material actually used by FZ1073/Bennett, 878, 1237 and the existing ELS Golden. Close relevant P0 boundaries; long-tail enrichment may follow in G5+. Do not delay G4 for another complete corpus extraction.
+
+#### Delivery packages inside the existing G4 sequence
+
+| Order | Deliverable | Existing responsibility | Evidence of completion |
+|---|---|---|---|
+| 1 — World/source | Authorized arrivals and already-linked media/source material resolve through existing Entity Hub/media adapters; bounded “why here / continue” with exact gallery placement | Existing World GPT writer, Intake/Media/Reality/Truth | PR #1010 reconciled separately; India/image/gallery return and source permissions proven; no dependency on final Topic redesign |
+| 2 — shared continuity + Posts | Connect selected source/paragraph/relation to the same Path state; consume generic guided/organic seam; preserve revision, branch point, transition reason and multi-step return | Workspace/Journey owner; existing Claude Post builder + GPT reviewer own Post files; Chrome owner owns frame | FZ1073 captain → India → image/gallery → exact return; Bennett → elections/631 → return; reload/auth-expiry/mobile replay; no hardcoded trail mistaken for a saved path |
+| 3 — Number + Heichal/ELS + Raziel | Generic Start/Continue from selected Number/expression/method/crossing; ELS exact occurrence → source/method/next finding → same Path; contextual explanation and next action | Methods/Workspace, existing ELS writer, Raziel/Strategy; one writer per shared file | 878 compatibility preserved; 1237→same-expression other-method coverage; exact ELS replay after return; no-result/partial/unavailable/STOP handled honestly |
+| Acceptance | Existing Posts, Cross-Surface, ELS and Raziel Goldens consume these packages | Foundation/Experience + existing security/release owners | Complete source→calculation/ELS→explained continuation→save/resume/fork/return; newcomer/mobile/performance checks; public-path sharing only after its reader is accepted |
+
+These packages add no G4 subgate. In G4 build a readable 2D Journey and preserve extension points. In G5 deepen catalog coverage, personal research and governed automation with the existing Product/Entitlement matrix. G6 translates the accepted same-path experience. G7 may activate spatial/3D, narrated journeys, richer background work and authorized cross-channel continuation. Full ELS capability rollout remains staged by its owner; no capability disappears because it is deferred.
+
+#### ELS depth and AI — explicit carry-forward
+
+- Preserve the existing 85-capability inventory: matrix/display; search; Finding actions; occurrence/proximity; ranking/statistics; candidate generation; save/share/research case. Its August readiness counts are not present-day acceptance.
+- Preserve exact replay first, same-axis forward/back continuation, representation/FORMS and split/join lineage, local intersections/parallel families, source verses and bounded cross-matrix comparisons. A discovered occurrence can become the next focus while the previous axis remains reopenable.
+- Preserve the distinction between sliding 2D slices, layered presentation and a declared matrix-volume coordinate basis. Camera depth alone is not a new research dimension. Heavy geometry and 3D are loaded only on demand.
+- Preserve bounded open sequence discovery, declared lexicon sources, long-sequence extension, context-qualified short terms, structural motifs and cross-matrix “language signature” as research candidates. Adaptive expansion follows a concrete question/information gain, with budget and stop conditions.
+- Statistical claims require the existing replayable manifest, search-space/dependency accounting, controls/nulls and holdout discipline. A visually impressive matrix, repeated crop, AI agreement or semantic similarity supplies no additional independent evidence.
+- Raziel uses existing Research Plan → authorized Context Pack → canonical tools → Result Bundle → Synthesis → contextual presentation. It can explain, suggest, compare, challenge and continue; it does not calculate gematria/ELS in prose or run unbounded scans on page load.
+- Research Grammar learns useful procedures from accepted examples and corrections. “What changed” compares governed source/result/path revisions; it cannot be inferred from chat memory alone. Silence, STOP and correction are real successful outcomes.
+- Guest/public reading remains useful when AI is unavailable. Authorized personal saving and channel continuation use existing identity/consent. A private Journey is not published by a share button; public curated paths need the existing governed reader/publication boundary.
+
+#### Number page, Projector and shared frame
+
+Recommend one selected subject and progressive depth: short readable meaning/context → relevant sources and continuations → selected method/crossing explanation → full Heichal depth on request. Do not stack every method, topic, gallery and AI panel down the default Number page. Current method/trace/deep-view capabilities are preserved behind meaningful selections.
+
+The header maintains orientation/search/account; the global rail owns destinations. The existing Inspector/Projector explains the selected item and why a next step belongs. The bottom path/action surface shows the active Journey position, next/back/exact return and save/continue when available. The small trail inside a Post is an entry/position projection of this same path, never another history. On mobile, reuse one recoverable sheet/command surface with keyboard/focus/reduced-motion support; avoid competing overlays. World supplies the wider discovery view; no permanently duplicated mini-World. Physical placement remains under current System Frame/Design owners.
+
+#### Two-session execution boundaries
+
+The coordinator owns only this plan/map update, dependency reconciliation and work_log handoff. These are proposed execution scopes, not a claim that sessions were activated.
+
+1. **Existing source-mapping session → source/context reader slice.** Reuse the India/source report (e04a35a0), the 1237 checks and current-main adapters. Before WRITE, ACK in work_log and claim only the concrete source/media projection files needed (starting review: galleryMediaEnvelope, entityHubProjection, topicGoldenProjection/topic2029Projection). Deliver source/placement/relation refs and exact-reopen cases with tests. Do not edit ResearchProvider, researchPathRuntime, Number/Post/SystemFrame/ELS UI, historical content, rules or product DB. Existing Post and ELS owners receive adapter needs through work_log. If a necessary shared adapter is claimed, remain read-only on that file and return the precise handoff.
+2. **Existing implementation session, after its PR #1010 scope is handed back → Journey/Number integration preparation.** First reconcile PR #932, the closed-unmerged #928 reader and existing Workspace/Number claims. While session 1 works, prepare a read-only acceptance/path contract using existing owners. Then claim a nonoverlapping branch slice in researchPathRuntime/ResearchProvider and Number consumers as needed, after live coordination. Consume session 1's exact references. Post edits stay with the existing Post builder; ELS/PR #965 edits stay with the existing ELS writer; header/rails stay with Chrome. Do not build a parallel guided module or public-path reader. A required lower-owner change is a bounded handoff, not permission to seize its files.
+
+Each session returns actor/task_key/owner, exact touched paths, baseline/head/PR, tests, blockers, state and next owner through work_log. ACK/claim is not merge/deploy authority. Record actual dispatch/receipt if available; otherwise DELIVERY_UNVERIFIED. No agent-management system is introduced.
 
 ---
 
@@ -674,18 +763,17 @@ Current:
 
 ELS is an early differentiating Golden because it exercises almost every lower layer.
 
-Order:
+G4 core order (the renderer ladder is not a prerequisite for basic Journey acceptance):
 
 1. canonical server ELS result;
 2. ELS native 2029 surface;
 3. source/replay/coordinates/Trace;
 4. Research Context integration;
-5. layered 2D/2.5D representation;
-6. meaningful spatial/3D projection;
-7. Raziel contextual text inside ELS;
-8. `Explain what I am looking at` using current occurrence/selection/camera/context;
-9. guided spoken ELS;
-10. Research Dossier / Research-to-Media reuse later.
+5. exact Journey save/resume/return and source/method/Finding transitions;
+6. Raziel contextual text and `Explain what I am looking at` using the current occurrence/selection/context;
+7. bounded negative/partial/unavailable and source-preserving replay cases.
+
+Carry forward to the existing later activation gates: layered 2D/2.5D and meaningful spatial/3D projections, guided spoken ELS, advanced adaptive research, and Research Dossier / Research-to-Media reuse. Their already-built primitives remain usable; their complete activation is not silently made a G4 prerequisite. Preserve the historical capability inventory through §8A.
 
 3D is renderer/projection. It never owns ELS search truth.
 
@@ -968,6 +1056,7 @@ Every lane uses one active writer per overlapping scope, current-main reconcilia
 
 Must be architecturally stable before English Golden Locale:
 
+- the G4 Journey foundation in §8A: source/gallery fidelity, Number/method crossing, ELS exact occurrence, same-path save/resume/return and contextual Raziel;
 - semantic identity/action vocabulary;
 - Research Context/Result Bundle;
 - Access/Entitlement/Availability separation;
