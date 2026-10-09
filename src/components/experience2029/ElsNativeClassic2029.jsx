@@ -6,6 +6,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
+import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
 import "./elsNativeClassic2029.css";
 
 const clean = (value) => String(value ?? "").trim();
@@ -563,24 +564,47 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const [classicGlyphs, setClassicGlyphs] = useState(false);
   const [depthView, setDepthView] = useState(false);
   const [shortSkipView, setShortSkipView] = useState("reading");
-  const [sheetExpanded, setSheetExpanded] = useState(false);
-  const panelInteractedRef = useRef(false);
   const toolRailRef = useRef(null);
   const panelRef = useRef(null);
+  const queryRef = useRef(null);
   const panelTriggerRef = useRef(null);
+  const toolActionsRef = useRef(null);
   const openTool = (tool, trigger) => {
-    panelInteractedRef.current = true;
     if (trigger) panelTriggerRef.current = trigger;
+    setClassicOpen(false);
     setActiveTool(tool);
+    if (trigger) requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
+    });
   };
   const closeTool = () => {
     setActiveTool(null);
     panelTriggerRef.current?.focus({ preventScroll: true });
   };
+  toolActionsRef.current = {
+    search: () => {
+      setClassicOpen(false);
+      queryRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      queryRef.current?.querySelector("input")?.focus({ preventScroll: true });
+    },
+    select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
+  };
+  const dockProjection = useMemo(() => ({
+    surface: "els",
+    actions: [
+      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "⌕", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
+      ...[["findings", "סריקה וממצאים", "סריקה", "⌁"], ["results", "תוצאות", "תוצאות", "☷"], ["research", "שמירה", "שמירה", "◇"]].map(([id, label, shortLabel, icon]) => ({
+        id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
+        controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
+      })),
+    ],
+  }), [activeTool, classicOpen]);
+  const hasSystemDock = useSystemToolDock2029(dockProjection);
   useEffect(() => {
     if (!activeTool || classicOpen) return;
-    if (panelInteractedRef.current) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     const onKey = (event) => {
+      if (event.target.closest?.('[role="dialog"]')) return;
       if (event.key === "Escape" && !event.defaultPrevented) {
         event.preventDefault();
         setActiveTool(null);
@@ -588,6 +612,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
       }
     };
     const onOutside = (event) => {
+      if (window.matchMedia("(max-width:980px)").matches || event.target.closest?.(".sod29-command-island")) return;
       if (panelPinned || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
       setActiveTool(null);
     };
@@ -759,7 +784,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool("findings", toolRailRef.current?.querySelector('[aria-label="סריקה וממצאים"]'));
+    openTool("findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensPending(true);
@@ -835,7 +860,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <form className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <label>
         <span>מונח</span>
         <input
@@ -898,7 +923,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
-    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
+    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
       <>
         <div className="els29-native-stage-column" hidden={classicOpen}>
         <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
@@ -952,18 +977,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
         </footer>
         </div>
-        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || hasSystemDock} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "⌕"], ["results", "תוצאות", "☷"], ["research", "שמירה", "◇"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><span aria-hidden="true">{icon}</span><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
         </div>
-        <div ref={panelRef} className={`els29-native-panel-wrap${sheetExpanded ? " is-sheet-expanded" : ""}`} hidden={classicOpen || !activeTool}>
+        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
             <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? "תוצאות הצלבה" : "סריקה וממצאים"}</strong>
-            <button type="button" className="els29-native-sheet-size" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded((value) => !value)}>{sheetExpanded ? "צמצם" : "הרחב"}</button>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>

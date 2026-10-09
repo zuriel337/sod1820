@@ -48,10 +48,12 @@ import {
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
+import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
 import "./myWorkspace2029.css";
+import "./systemToolDock2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1107,6 +1109,16 @@ export default function SystemFrame2029({
     try { return localStorage.getItem("sod-global-rail") === "collapsed"; } catch { return false; }
   });
   const [transient, setTransient] = useState(null);
+  const [toolDock, setToolDock] = useState(null);
+  const [systemDockMode, setSystemDockMode] = useState(false);
+  const registerToolDock = useCallback((projection) => {
+    const lease = Symbol("tool-dock");
+    setToolDock({ ...projection, lease });
+    return () => setToolDock((current) => current?.lease === lease ? null : current);
+  }, []);
+  const activeToolDock = toolDock?.surface === surface ? toolDock : null;
+  const toolMode = Boolean(activeToolDock && !systemDockMode);
+  useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -1628,8 +1640,9 @@ export default function SystemFrame2029({
 
   const frame = (
     <ShellContext.Provider value={shellApi}>
+    <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -1768,8 +1781,8 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
-          {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
+        <div className={`sod29-command-island${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
+          {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : !activeToolDock && bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
               {numberPageRoute ? <button
@@ -1795,7 +1808,10 @@ export default function SystemFrame2029({
             <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span>◎</span><small>פעולה</small></button>
           </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          {bottomTrail.length ? <>
+          {toolMode ? <>
+            <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
+            <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><span aria-hidden="true">⋯</span><small>מערכת</small></button>
+          </> : !activeToolDock && bottomTrail.length ? <>
             {surface === "number" ? <button
               className="sod29-number-island-action"
               type="button"
@@ -1812,12 +1828,13 @@ export default function SystemFrame2029({
           </> : <>
             <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span>◉</span><small>עכשיו</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span>◇</span><small>כלים</small></button>
-            <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
+            {activeToolDock ? <button type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }} aria-label="חזור לכלי הצופן"><span aria-hidden="true">▦</span><small>צופן</small></button> : <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>}
           </>}
         </div>
 
         {renderTransient()}
       </div>
+    </SystemToolDockContext2029.Provider>
     </ShellContext.Provider>
   );
   return surface === "heichal" ? <PaletteProvider value={palette}>{frame}</PaletteProvider> : frame;

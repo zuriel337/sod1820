@@ -21,6 +21,8 @@ on:
       - 'src/components/experience2029/ElsNativeClassic2029.jsx'
       - 'src/components/experience2029/elsNativeClassic2029.css'
       - 'src/components/experience2029/SystemFrame2029.jsx'
+      - 'src/components/experience2029/SystemToolDock2029.jsx'
+      - 'src/components/experience2029/systemToolDock2029.css'
       - 'src/components/experience2029/els2029-representation.css'
       - 'test/els-2029-*.test.mjs'
       - 'test/els-raziel-context.test.mjs'

@@ -91,7 +91,15 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
      React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix})))))),dock);
 }
-createRoot(document.getElementById('root')).render(React.createElement(Fixture));
+if(window.__fixtureFullFrame){
+ const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/SystemFrame2029.jsx'),import('react-router-dom')]);
+ function FullFrameFixture(){
+  const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
+  return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
+ }
+ createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
+}else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
 `;
 
 function verify({ op, payload, denied }) {
@@ -152,18 +160,35 @@ const realHostStubs = {
   'react-router-dom': `export const useNavigate=()=>()=>{};`,
 };
 
+// Use the actual SystemFrame/Command Island for integration acceptance. Only unrelated
+// domain projections and external reads are isolated; no dock/registration test double.
+const frameStubs = {
+ '../../lib/supabase.js': `export const askRaziel=async()=>({});export const getNotificationPrefs=async()=>({});`,
+ '../../lib/notifications.js': `export const getMyNotifications=async()=>[];export const getUnreadCount=async()=>0;export const markNotificationRead=async()=>{};export const topicLabel=x=>x;`,
+ '../../lib/commandCenter.js': `export const getMyProfile=async()=>null;export const watchToggle=async()=>{};`,
+ '../../lib/tracking.js': `export const getVisitorId=()=>'frame-fixture';`,
+ '../ShareActions.jsx': `export default function Share(){return null;}`,
+ '../ContactGateway.jsx': `export default function Contact(){return null;}`,
+ '../number2029/NumberDrawer2029.jsx': `export default function Number(){return null;}`,
+ './SurfaceContextRail2029.jsx': `export default function Context(){return null;}`,
+};
+
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
+      if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
+      if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
       if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
       if (realHost && importer?.endsWith('/TzofenEmbed.jsx') && Object.hasOwn(realHostStubs, id)) return '\0els-host-stub:' + id;
     },
     load(id) {
       if (id === '\0els-native-fixture') return entry;
+      if (id === '\0els-frame-research') return 'const state={context:null,cart:[],saved:[],updateResearchContext:()=>{}};export const useResearch=()=>state;';
+      if (id.startsWith('\0els-frame-stub:')) return Object.values(frameStubs)[Number(id.slice('\0els-frame-stub:'.length))];
       if (id === '\0els-native-host') return host;
       if (id.startsWith('\0els-host-stub:')) return realHostStubs[id.slice('\0els-host-stub:'.length)];
     },
@@ -192,8 +217,10 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
+    if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame }) => {
+      window.__fixtureFullFrame=fullFrame;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -220,7 +247,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -230,7 +257,7 @@ async function withNative(viewport, run, options = {}) {
       await page.waitForFunction(() => window.__log?.some((message) => message.type === 'ready'), null, { timeout: 60000 });
     }
     await run(page);
-    assert.equal(await page.locator('iframe').count(), 1, 'one canonical engine iframe');
+    assert.equal(await page.locator('iframe').count(), leavesMatrix ? 0 : 1, 'one canonical engine while the matrix is mounted');
     assert.equal(await page.evaluate(() => window.__mounts), 1, 'panel actions never remount the engine');
     assert.deepEqual(errors, [], 'no uncaught React/tool errors');
   } finally {
@@ -455,7 +482,7 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
   });
  });
 
-test('native UI: mobile bounded sheets and wide 90% panels preserve geometry, pan and reachable height controls',
+test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:2560,height:1000},async page=>{
    const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
@@ -469,33 +496,40 @@ test('native UI: mobile bounded sheets and wide 90% panels preserve geometry, pa
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
    await page.setViewportSize({width:390,height:844});await openPanel(page);
    const before=await pan(page),sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
-   const compact=await sheet.boundingBox();assert.ok(compact.height<=844*.36+1&&compact.x>=0&&compact.x+compact.width<=390);
+   const bounds=await sheet.boundingBox();assert.ok(bounds.height<=844-200&&bounds.x>=0&&bounds.x+bounds.width<=390);
+   assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position),'relative');
    await inspectAndScanPrimary(page,before);
-   await activate(page,'הרחב');const expanded=await sheet.boundingBox();assert.ok(expanded.height<=844*.7+1);await expectStable(page,before,'expanded mobile rail');
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   });
  });
 
-test('native UI: mobile scan stays above the system dock, supports pinning and native clipboard paste',
+test('native UI: mobile scan is inline below the matrix and supports native clipboard paste',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,360,390])await withNative({width,height:844},async page=>{
-   const sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
+   const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await button(page,'סריקה וממצאים').tap();
    const before=await identity(page);
    const unobscured=async(label)=>{
-    const bounds=await sheet.boundingBox(),bar=await dock.boundingBox();
-    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: sheet clears the bottom dock`);
-    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${width} ${label}: no horizontal overflow`);
-    for(const name of ['בטל הצמדה','סגור כלי מטריצה','סרוק לאורך הציר הנבחר']){
+    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();
+    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: inline panel ${JSON.stringify(bounds)} clears dock ${JSON.stringify(bar)}`);
+    const layout=await page.evaluate(()=>({
+      position:getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
+      matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,
+      panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,
+      overflow:document.documentElement.scrollWidth>innerWidth,
+    }));
+    assert.equal(layout.position,'relative');assert.ok(layout.panelStart>=layout.matrixEnd);
+    assert.equal(layout.overflow,false,`${width} ${label}: no horizontal overflow`);
+    assert.equal(await button(page,'בטל הצמדה').count(),0,'mobile region is always in the page flow');
+    for(const name of ['סגור כלי מטריצה','סרוק לאורך הציר הנבחר']){
      const target=button(page,name),rect=await target.boundingBox();
      assert.ok(rect.width>=44&&rect.height>=44,`${width} ${name}: touch target`);
      assert.ok(await target.evaluate(element=>{const r=element.getBoundingClientRect();return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),`${width} ${name}: no overlay intercepts the control`);
     }
    };
-   await unobscured('compact');
-   await button(page,'הרחב').tap();await unobscured('expanded');
+   await unobscured('open');
    await page.setViewportSize({width,height:568});await unobscured('short viewport');
    await page.setViewportSize({width,height:844});
    await page.context().grantPermissions(['clipboard-read','clipboard-write']);
@@ -505,23 +539,71 @@ test('native UI: mobile scan stays above the system dock, supports pinning and n
    assert.equal(await input.inputValue(),'תורה',`${width}: browser paste reaches the controlled input`);
    await button(page,'חפש במטריצה').tap();
    await page.waitForFunction(()=>window.__state?.findings?.some(f=>f.t==='תורה'));
+   // Inline content follows page scroll; it is not pinned to viewport coordinates.
+   await panel.evaluate(el=>el.scrollIntoView({block:'start'}));
    await unobscured('after pasted search');
-   // A real outside touch must respect pinning without blocking global navigation.
    await dock.getByRole('button',{name:'רזיאל',exact:true}).tap();
    assert.equal(await page.evaluate(()=>window.__dockAction),'רזיאל');
-   assert.equal(await sheet.isVisible(),true,`${width}: pinned sheet survives outside touch`);
-   await button(page,'בטל הצמדה').tap();
-   assert.equal(await button(page,'הצמד').getAttribute('aria-pressed'),'false');
-   await dock.getByRole('button',{name:'כלים',exact:true}).tap();
-   assert.equal(await sheet.isVisible(),false,`${width}: unpinned sheet dismisses on outside touch`);
-   await button(page,'סריקה וממצאים').tap();await button(page,'הצמד').tap();
+   assert.equal(await panel.isVisible(),true,'an inline region does not compete with the global dock');
    await button(page,'סרוק לאורך הציר הנבחר').tap();
    await button(page,'סמן את תורה ברצף').waitFor();
    await unobscured('after scan');
-   assert.deepEqual((await identity(page)).axis,before.axis,`${width}: sheet actions preserve the axis`);
+   assert.deepEqual((await identity(page)).axis,before.axis,`${width}: tools preserve the axis`);
    await button(page,'סגור כלי מטריצה').tap();
-   assert.equal(await sheet.isVisible(),false);
+   assert.equal(await panel.isVisible(),false);
   },{mobile:true});
+ });
+
+test('native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
+   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
+   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0);
+   const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
+   const orb=()=>dock.locator('.sod29-raziel-orb');
+   const orbX=(await orb().boundingBox()).x;
+   for(const item of await dock.locator('button').all()){
+    const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,'each dock action is a usable touch target');
+   }
+   await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
+   assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
+   assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
+   const panel=page.locator('#els29-context-panel');
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות הצלבה'],['סריקה וממצאים','סריקה וממצאים']]){
+    await dock.getByRole('button',{name:label,exact:true}).click();
+    assert.equal(await panel.locator('header strong').innerText(),title);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
+    assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
+   }
+   if(width<981){
+    const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');
+    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();assert.ok(bounds.y+bounds.height<bar.y,'inline tools clear the one dock');
+   }
+   await orb().click();await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
+   assert.equal(await page.getByRole('dialog').count(),1);
+   assert.ok(await dock.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),'Raziel keeps the dock reachable');
+   await dock.getByRole('button',{name:'שמירה',exact:true}).click();
+   assert.equal(await page.getByRole('dialog').count(),0,'a native action dismisses the shared transient');
+   await dock.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
+   assert.equal(await dock.getAttribute('data-command-mode'),'global');
+   assert.ok(Math.abs((await orb().boundingBox()).x-orbX)<1,'Raziel keeps its stable slot');
+   await dock.getByRole('button',{name:/חיפוש/}).click();
+   await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
+   await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
+   await dock.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
+   assert.equal(await dock.getAttribute('data-command-mode'),'tool');
+   assert.deepEqual((await identity(page)).axis,before.axis);
+   assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
+   assert.equal(await page.locator('iframe').count(),1);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
+   await page.evaluate(()=>window.__setNativeVisible(false));
+   await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
+   assert.equal(await dock.getAttribute('data-command-mode'),'global');
+   assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
+   assert.equal(await dock.getByRole('button',{name:'האזור האישי שלי',exact:true}).count(),1);
+  },{fullFrame:true,leavesMatrix:true,mobile:width<981});
  });
 
 test('native UI: vivid colors and exact finding focus stay readable in every theme without changing research',
