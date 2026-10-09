@@ -5,6 +5,8 @@ import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+// The existing public post origins are shared by recent updates and category browsing.
+export const WORLD_PUBLIC_POST_ORIGINS = Object.freeze(["wordpress", "SOD1820", "sod1820", "source_document", "ai", "uploaded_file"]);
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
   state: "not_connected",
   message: "עדכוני תורת הרמז והגילוי היומי טרם חוברו לתצוגה הציבורית. מוצגים כאן עדכוני האתר בלבד; זמן האיסוף האחרון מהקבוצות אינו זמין בתצוגה זו.",
@@ -216,7 +218,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       .eq("home_hidden", false)
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")
-      .in("source", ["wordpress", "SOD1820", "sod1820", "source_document", "ai", "uploaded_file"])
+      .in("source", WORLD_PUBLIC_POST_ORIGINS)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(Math.min(80, Math.max(requested * 2, 32)));
     if (error) throw error;
