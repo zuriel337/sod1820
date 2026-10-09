@@ -19,6 +19,8 @@ For every substantive task:
 6. verify DB/main/production appropriate to the task;
 7. open Archive/history only for DRIFT, provenance, migration, recovery or explicit historical research.
 
+**Entry authority baseline:** before step 4, resolve and open the live bodies of active `inter_agent_coordination_law` → `live_state_resolution_law` → `work_log_authority_law` (see `CLAUDE.md` §1). This index is a routing map: naming an owner here is not a read of it.
+
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
 
 **Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.

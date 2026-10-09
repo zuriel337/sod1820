@@ -18,6 +18,10 @@ Read `CLAUDE.md` and `SOD1820_MASTER_OWNER_INDEX.md` for canonical routing.
 This file adds a startup instruction only; it does not replace live canonical
 owners or authorize writes, task claims, merges, or deployments.
 
+## Entry authority baseline
+
+Before routing, resolve live authority in this order, reading the actual **body** of each: active `inter_agent_coordination_law` → its direct dependency `live_state_resolution_law` → active `work_log_authority_law` → bounded `work_log_current` for the task. Select rules with `nodes.type='rule' AND nodes.is_active=true` (latest active `rule_version` per `rule_id`); the `rules_active` view is not proof of activeness. Report a source as READ only with body/version evidence; anything only named or indexed is `NAMED_NOT_OPENED`. A truncated or partial required read must be recovered or reported, never waived. Do not carry version numbers from this file as truth. This adds no bulk Master State/Handoff read and changes no permission or release boundary.
+
 ## At the beginning of every substantial task
 
 1. Classify the request by intent, capability and domain. Use `SOD1820_MASTER_OWNER_INDEX.md` to resolve the *current* owner and read only its direct dependencies. Consult relevant sections of `CLAUDE.md` for the shared runtime, truth and coordination protocol; do not dump all project documents into context.

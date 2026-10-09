@@ -16,6 +16,13 @@ For every substantial task:
 5. Verify against the live source appropriate to the claim: canonical Supabase, `origin/main`, and Production only when UI/live behavior matters.
 6. Execute, verify, and leave a handoff when the work is material.
 
+**Entry authority baseline (resolve before routing; pointers only, no copied law):** read the live **body** of the active `inter_agent_coordination_law`, its direct dependency `live_state_resolution_law`, and the active `work_log_authority_law`, selected by `nodes.type='rule' AND nodes.is_active=true` (latest active `rule_version` per `rule_id`; the legacy `rules_active` view is not proof of activeness). Then read `work_log_current` (the view; not the admin-only RPC) for the task scope.
+
+- Evidence standard: report each required source as **READ** only with actual body/version evidence (rule_id + rule_version + body actually opened, or file + commit actually opened). Mark anything merely named, listed or indexed as **NAMED_NOT_OPENED**. An index entry, a title, or a length/pointer field is not a read.
+- A required read that is truncated, errored or partial is **not** a read: re-read the missing part, or stop and report the gap. Never waive it silently or infer its content.
+- Versions are read live each session; never carry a version number from this file or from memory as truth.
+- This baseline adds no bulk read of Master State, Handoff or all rules, and changes no HumanGate, permission or release boundary.
+
 Do **not** automatically read all rules, all `project_codex`, full Master State, full Roadmap, `AGENT_HANDOFF.md`, broad branch history, or unrelated contracts. Load them only when the resolved task genuinely requires them or when reconciling DRIFT/provenance.
 
 ## 2. Fixed operating pointers
