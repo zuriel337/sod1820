@@ -21,6 +21,8 @@ For every substantive task:
 
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
 
+**Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
+
 ## 2. Owner creation gate
 
 Before creating a new Law / Contract / System / Store / Engine / Registry / Graph / Context system / global owner:
@@ -170,9 +172,9 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v8 ACTIVE** |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v9 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
-| visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V1.md` |
+| visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |
 | canonical reusable UI primitives | `canonical_ui_components_law` **v7 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
