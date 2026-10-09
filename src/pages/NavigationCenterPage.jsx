@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { KNOWLEDGE_WORLDS, BUILD_TRACKS, BUILD_PROGRESS, stagePercent } from "../lib/knowledgeMap.js";
+import { KNOWLEDGE_WORLDS, BUILD_TRACKS, BUILD_PROGRESS, FIRST_STAGE_RELEASE_GATES, stagePercent } from "../lib/knowledgeMap.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 
 function NumbersDepthPreview() {
@@ -95,6 +95,22 @@ function BuildStatusDeep() {
         <div style={{fontFamily:F.numeric,color:P.accentText,fontSize:26,fontWeight:900}}>{BUILD_PROGRESS}%</div>
       </div>
 
+      <div style={{margin:"0 auto 17px",maxWidth:940,padding:"15px 17px",background:P.cardSoft,border:`1px solid ${P.border}`,borderRadius:16}}>
+        <div style={{fontFamily:F.heading,color:P.accentText,fontWeight:900,fontSize:15}}>עדכון מצב · 9 באוקטובר 2026</div>
+        <p style={{fontFamily:F.body,color:P.ink,lineHeight:1.85,fontSize:15,margin:"7px 0 12px"}}>
+          שלב G3 — סגירת התשתיות — נסגר ואומת ב־1 באוקטובר. כעת אנחנו במעבר G3→G4:
+          בודקים מסעות שימוש אמיתיים לקראת חוויית הזהב הראשונה. חלקים נוספים ייפתחו בהדרגה,
+          ורק לאחר שיעברו את הבדיקות ושערי האישור שלהם.
+        </p>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}} aria-label="מצב אבני הדרך של השלב הציבורי הראשון">
+          {FIRST_STAGE_RELEASE_GATES.map(g => (
+            <span key={g.id} style={{fontFamily:F.heading,fontWeight:800,fontSize:12,padding:"7px 10px",border:`1px solid ${P.border}`,borderRadius:12,color:P.ink}}>
+              {g.state === "closed" ? "✓" : g.state === "active" ? "◌" : "○"} {g.id} · {g.state === "closed" ? "נסגר" : g.state === "active" ? "בתהליך" : "בהמשך"}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {leadTrack && <BuildTrackCard t={leadTrack} featured />}
 
       <section style={{maxWidth:900,margin:"14px auto 18px",padding:"20px 18px",border:`1px solid ${P.border}`,borderRadius:18,background:P.cardSoft}}>
@@ -109,7 +125,7 @@ function BuildStatusDeep() {
         {otherTracks.map(t => <BuildTrackCard key={t.id} t={t} />)}
       </div>
       <p style={{margin:"14px auto 0",maxWidth:820,textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.7}}>
-        האחוזים הם מד התקדמות ציבורי שמרני, לא הכרזה על השלמה. השלבים מתארים בשלות יחסית; רק יכולת שהושלמה ונפתחה בפועל תיחשב 100%.
+        מד ההתקדמות העליון מציין אבני דרך שנסגרו בתוכנית, ולא את אחוז התכונות שכבר זמינות לציבור. מצב כל יכולת נקבע בנפרד לפי שערי הפתיחה שלה; שעון ההכרזה אינו פותח יכולות אוטומטית.
       </p>
     </section>
   );
