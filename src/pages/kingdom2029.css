@@ -1,0 +1,114 @@
+.kingdom { max-width: 1320px; margin-inline: auto; color: var(--s29-ink); font: 18px/1.7 var(--s29-font-body); }
+.kingdom *, .kingdom *::before, .kingdom *::after { box-sizing: border-box; }
+.kingdom h1, .kingdom h2, .kingdom strong, .kingdom button { font-family: var(--s29-font-ui); }
+.kingdom h1 { font-size: clamp(30px, 4vw, 46px); line-height: 1.2; margin: 8px 0 12px; }
+.kingdom h2 { font-size: 28px; line-height: 1.35; margin: 0 0 16px; }
+.kingdom p { margin: 8px 0 16px; }
+.kingdom small, .kingdom-small, .kingdom-preview-label, .kingdom-local-note { font-size: 14px; line-height: 1.6; color: var(--s29-muted); }
+.kingdom button { min-height: 44px; min-width: 44px; border: 1px solid var(--s29-line-strong); border-radius: 12px; background: var(--s29-panel); color: var(--s29-ink); padding: 10px 16px; font-size: 16px; cursor: pointer; transition: transform 180ms, border-color 180ms; }
+.kingdom button:hover:not(:disabled) { border-color: var(--s29-accent); transform: translateY(-2px); }
+.kingdom button:focus-visible, .kingdom input:focus-visible, .kingdom summary:focus-visible { outline: 3px solid var(--s29-focus-ring); outline-offset: 4px; }
+.kingdom button:disabled { cursor: default; color: var(--s29-muted); background: var(--s29-panel-soft); }
+.kingdom .kingdom-primary { background: var(--s29-accent); color: var(--s29-on-accent); border-color: var(--s29-accent); }
+.kingdom .kingdom-primary:disabled { background: var(--s29-panel-soft); border-color: var(--s29-line); color: var(--s29-muted); }
+.kingdom .rf-icon { color: inherit; background: none; border: 0; flex-shrink: 0; vertical-align: middle; }
+.kingdom-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.kingdom-eyebrow { display: flex; align-items: center; gap: 8px; font: 14px var(--s29-font-ui); color: var(--s29-accent-text); }
+.kingdom-preview-label { max-width: 220px; border-inline-start: 2px solid var(--s29-line-strong); padding-inline-start: 16px; }
+.kingdom-gate { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: center; min-height: 480px; padding: 44px; border: 1px solid var(--s29-line-strong); border-radius: 28px; background: radial-gradient(ellipse at 80% 40%, var(--s29-brand-glow), transparent 65%), var(--s29-panel); overflow: hidden; }
+.kingdom-gate h2 { font-size: clamp(30px, 4vw, 46px); }
+.kingdom-gate-copy { max-width: 490px; }
+.kingdom-gate-copy small { display: block; margin-top: 16px; }
+.kingdom-gate-art { position: relative; min-height: 310px; display: grid; place-items: center; }
+.kingdom-gate-art > .rf-icon { position: absolute; top: 10px; color: var(--s29-brand-gold); }
+.kingdom-gate-art .kingdom-art { transform: scale(1.65); }
+.kingdom-stats { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 16px 24px; background: var(--s29-panel); border: 1px solid var(--s29-line); border-radius: 18px; }
+.kingdom-stats > div { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.kingdom-stats .rf-icon { color: var(--s29-discovery); }
+.kingdom-stats strong { unicode-bidi: isolate; display: inline-block; font-family: var(--s29-font-numeric); font-size: 21px; }
+.kingdom-map { position: relative; margin-top: 20px; padding: 20px 24px 28px; border: 1px solid var(--s29-line); border-radius: 24px; background: radial-gradient(ellipse at 50% 60%, var(--s29-brand-glow), transparent 65%), var(--s29-panel-soft); overflow: hidden; }
+.kingdom-map-caption { display: flex; align-items: center; gap: 8px; color: var(--s29-muted); font-size: 14px; }
+.kingdom-buildings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; position: relative; padding-top: 20px; }
+.kingdom-buildings::before { content: ''; position: absolute; top: 65%; inset-inline: 12%; height: 2px; background: var(--s29-line-strong); transform: rotate(-6deg); }
+.kingdom .kingdom-building { display: flex; flex-direction: column; align-items: center; padding: 12px 8px 20px; background: transparent; border-color: transparent; position: relative; border-radius: 20px; }
+.kingdom .kingdom-building.is-selected { background: color-mix(in srgb, var(--s29-panel) 80%, transparent); border-color: var(--s29-accent); }
+.kingdom-building > span:last-child { font-size: 14px; color: var(--s29-muted); }
+.kingdom-building-name { font-size: 21px; margin-top: 8px; }
+.kingdom-art { position: relative; display: block; width: 200px; height: 190px; color: var(--s29-accent); --building-color: var(--s29-accent); }
+.kingdom-art-model { display: block; position: absolute; inset-inline-start: 0; top: 0; width: 200px; height: 190px; }
+.kingdom-art--mine { --building-color: var(--s29-accent-secondary); }
+.kingdom-art--factory { --building-color: var(--s29-discovery); }
+.kingdom-island { position: absolute; width: 150px; height: 150px; top: 65px; left: 25px; background: linear-gradient(135deg, var(--s29-panel), color-mix(in srgb, var(--building-color) 20%, var(--s29-panel))); border: 1px solid var(--s29-line-strong); border-radius: 22px; transform: rotateX(60deg) rotateZ(45deg); box-shadow: 9px 9px 0 color-mix(in srgb, var(--building-color) 25%, var(--s29-panel)); }
+.kingdom-tower { position: absolute; width: 90px; height: 110px; left: 55px; top: 36px; }
+.kingdom-face { display: grid; place-items: center; position: absolute; left: 0; top: 30px; width: 60px; height: 78px; background: color-mix(in srgb, var(--building-color) 17%, var(--s29-panel)); border: 1px solid var(--building-color); transform: skewY(20deg); color: var(--building-color); }
+.kingdom-side { position: absolute; left: 60px; top: 24px; width: 30px; height: 78px; transform: skewY(-35deg); background: color-mix(in srgb, var(--building-color) 36%, var(--s29-panel)); border: 1px solid var(--building-color); }
+.kingdom-roof { position: absolute; left: 0; top: 0; width: 90px; height: 53px; clip-path: polygon(0 35%, 33% 0, 100% 38%, 67% 78%); background: var(--building-color); }
+.kingdom-art--mine .kingdom-roof { height: 70px; top: -12px; clip-path: polygon(0 46%, 42% 0, 100% 47%, 67% 86%); }
+.kingdom-art--factory .kingdom-tower { transform: scaleX(1.2); }
+.kingdom-spire { position: absolute; left: 28px; top: 85px; height: 58px; width: 20px; background: linear-gradient(90deg, var(--building-color) 50%, var(--s29-panel)); clip-path: polygon(50% 0, 100% 18%, 100% 82%, 50% 100%, 0 82%, 0 18%); }
+.kingdom-spire--second { left: 155px; top: 100px; }
+.kingdom-orbit { position: absolute; width: 110px; height: 24px; left: 45px; top: 150px; border: 1px solid var(--building-color); border-radius: 50%; opacity: .55; }
+.kingdom-building.is-locked .kingdom-art { filter: grayscale(.8); opacity: .55; }
+.kingdom-building.is-selected .kingdom-tower { animation: kingdom-settle 420ms ease-out; }
+.kingdom-feedback { min-height: 30px; padding-inline: 4px; color: var(--s29-accent-text); }
+.kingdom-workbench { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: start; scroll-margin-top: var(--s29-header-height); }
+.kingdom-panel { background: var(--s29-panel); border: 1px solid var(--s29-line); border-radius: 20px; padding: 24px; min-width: 0; }
+.kingdom-panel-heading { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; font-size: 16px; color: var(--s29-accent-text); }
+.kingdom-panel-heading small { flex-basis: 100%; }
+.kingdom-expression { min-height: 100px; border-block: 1px solid var(--s29-line); display: flex; align-items: center; justify-content: center; gap: 24px; margin: 20px 0; font: 46px var(--s29-font-display); }
+.kingdom-expression span { direction: ltr; color: var(--s29-accent-text); font-family: var(--s29-font-numeric); }
+.kingdom-answer-row { display: flex; gap: 10px; margin-top: 8px; }
+.kingdom input { min-width: 0; width: 100%; min-height: 48px; padding: 8px 14px; font: 21px var(--s29-font-numeric); border-radius: 12px; border: 1px solid var(--s29-line-strong); background: var(--s29-page); color: var(--s29-ink); }
+.kingdom-answer-row button { flex-shrink: 0; }
+.kingdom-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.kingdom-upgrades h2, .kingdom-production h2 { display: flex; align-items: center; gap: 10px; font-size: 24px; }
+.kingdom-upgrades ul, .kingdom-journal ul { list-style: none; margin: 0; padding: 0; }
+.kingdom-upgrades li { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-top: 1px solid var(--s29-line); }
+.kingdom-upgrades li > div { flex: 1; min-width: 0; }
+.kingdom-upgrades li p { margin: 4px 0; font-size: 16px; }
+.kingdom-upgrades li button { flex-shrink: 0; }
+.kingdom-production { display: flex; gap: 24px; align-items: center; justify-content: space-between; margin-top: 20px; }
+.kingdom-production button { flex-shrink: 0; }
+.kingdom-journal { margin-top: 20px; }
+.kingdom-journal summary { cursor: pointer; min-height: 44px; font: 21px/2 var(--s29-font-ui); }
+.kingdom-journal li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding-block: 10px; border-top: 1px solid var(--s29-line); }
+.kingdom-local-note { margin-top: 20px; }
+@keyframes kingdom-settle { from { translate: 0 -8px; opacity: .6; } to { translate: 0 0; opacity: 1; } }
+@media (max-width: 850px) {
+  .kingdom-intro { display: block; }
+  .kingdom-preview-label { display: block; max-width: none; margin-top: 14px; }
+  .kingdom-workbench { grid-template-columns: 1fr; }
+  .kingdom-buildings { gap: 4px; }
+  .kingdom .kingdom-building { padding-inline: 2px; }
+  .kingdom-art { width: 145px; height: 175px; transform: scale(.8); transform-origin: center bottom; margin-inline: -20px; }
+  .kingdom-building-name { font-size: 16px; }
+  .kingdom-map { padding: 16px 8px; }
+  .kingdom-gate { padding: 28px; gap: 12px; grid-template-columns: 1fr; }
+  .kingdom-gate-art { min-height: 240px; }
+  .kingdom-gate-art .kingdom-art { transform: scale(1.3); }
+  .kingdom-gate-art > .rf-icon { top: 0; }
+}
+@media (max-width: 480px) {
+  .kingdom-panel { padding: 18px; }
+  .kingdom-stats { display: grid; grid-template-columns: 1fr 1fr; padding: 14px; gap: 16px 8px; }
+  .kingdom-stats > div { align-items: flex-start; font-size: 14px; }
+  .kingdom-stats strong { unicode-bidi: isolate; display: inline-block; display: block; font-size: 18px; }
+  .kingdom-buildings { grid-template-columns: 1fr; gap: 8px; padding-top: 12px; }
+  .kingdom-buildings::before { display: none; }
+  .kingdom .kingdom-building { display: grid; grid-template-columns: 104px 1fr; text-align: start; padding: 8px; min-height: 116px; }
+  .kingdom-building .kingdom-art { grid-row: span 2; width: 104px; height: 110px; transform: none; margin: 0; }
+  .kingdom-building .kingdom-art-model { transform: scale(.53); transform-origin: top right; }
+  .kingdom-building-name { align-self: end; font-size: 18px; }
+  .kingdom-building > span:last-child { align-self: start; }
+  .kingdom-answer-row { flex-wrap: wrap; }
+  .kingdom-answer-row button { width: 100%; }
+  .kingdom-upgrades li { flex-wrap: wrap; }
+  .kingdom-upgrades li > div { flex-basis: 100%; }
+  .kingdom-production { align-items: stretch; flex-direction: column; gap: 8px; }
+  .kingdom h2 { font-size: 24px; }
+  .kingdom-gate { padding: 24px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kingdom *, .kingdom *::before, .kingdom *::after { animation: none !important; transition: none !important; }
+}
+[data-frame-reduced-motion="true"] .kingdom * { animation: none !important; transition: none !important; }

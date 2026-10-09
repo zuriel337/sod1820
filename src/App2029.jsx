@@ -27,6 +27,12 @@ const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 
+// Branch-only prototype. Production builds do not register or import this surface
+// unless explicitly enabled; no global navigation/route ownership is promoted.
+const kingdomPreviewEnabled = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
+const Kingdom2029Page = kingdomPreviewEnabled
+  ? lazy(() => import("./pages/Kingdom2029Page.jsx")) : null;
+
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
 }
@@ -36,6 +42,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    if (kingdomPreviewEnabled && pathname === "/2029/kingdom") return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -44,6 +51,7 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
+    if (kingdomPreviewEnabled && pathname === "/2029/kingdom") return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {
@@ -85,6 +93,7 @@ export default function App2029() {
               <Route path="/2029" element={<Home2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
+              {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
