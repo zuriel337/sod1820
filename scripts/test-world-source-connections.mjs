@@ -33,6 +33,12 @@ try {
     const capture = async (name) => page.screenshot({ path: `${out}/${name}-${theme}-${width}.png` });
     const saved = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')));
     const exactReturn = async () => {
+      // Number exposes a stable exact-return action in its focus ribbon. Its mobile
+      // navigation drawer can close while the asynchronous method profile settles.
+      if (new URL(page.url()).pathname.startsWith('/2029/number/')) {
+        await page.locator('[data-expression-focus]').getByRole('button', { name: /^↩/ }).click();
+        return;
+      }
       if (width < 700) await page.getByRole('button', { name: 'פתח ניווט' }).click();
       await page.getByRole('button', { name: 'חזרה מדויקת', exact: true }).filter({ visible: true }).first().click();
     };
@@ -105,7 +111,9 @@ try {
     assert.equal(await wisdom.locator('[data-spelling-source="ui_transitional_unverified"]').count(), 1, 'ordinary Miluy reuses shared Stage with honest spelling provenance');
     assert.equal(await wisdom.locator('[data-calculation-detail="מילוי בלבד גדול"] [data-method-key="מילוי"]').count(), 0, 'unsupported composite never falls back to ordinary Miluy');
     assert.match(await composite.innerText(), /1893/); assert.match(await composite.innerText(), /73/); assert.match(await composite.innerText(), /1820/);
-    await composite.scrollIntoViewIfNeeded(); await capture('wisdom-composite');
+    await composite.scrollIntoViewIfNeeded();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'expanded shared method stage has no horizontal overflow');
+    await capture('wisdom-composite');
     await wisdom.locator('[data-calculation="מילוי בלבד גדול"]').click();
     await page.waitForURL('**/2029/number/1820?*');
     assert.equal(new URL(page.url()).searchParams.get('method'), 'מילוי בלבד גדול');
