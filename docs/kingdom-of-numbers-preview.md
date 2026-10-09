@@ -88,6 +88,40 @@ verified. No dispatch or external message has been sent.
   still-outstanding shaped-niqqud, physical-device and full environment acceptance.
 
 Task: `KINGDOM_OF_NUMBERS_2029_CODEX_MASTER_V1`
+
+## Shared icon library follow-up — 2026-10-09
+
+User request: arrange the existing product icons in the approved menu family and
+add suitable, high-quality symbols for the spatial system and Kingdom.
+
+- `NavigationIcon2029` now owns 44 catalogued shapes: the original 16 menu symbols
+  plus 28 research, spatial, Kingdom and work-action extensions. Descriptive catalogue
+  metadata lives alongside the artwork, not in a second SVG collection.
+- Specific aliases now resolve graph→graph, layers→layers, spatial→depth, dna→dna,
+  gallery→gallery, signal→signal, portal/door→kingdom, spark→discovery and
+  Raziel action→conversation (not a portrait). Unknown
+  explicit names produce a help symbol + fallback marker instead of a tools grid.
+- `WorkIcon` no longer owns artwork/CSS; like ResearchIcon and SignatureResearchIcon
+  it delegates to the menu family. Existing global menu artwork remains unchanged.
+- Kingdom consumes garden/mine/combinations, gateway, discovery, upgrades and journal.
+  Spatial controls consume Milui, depth, front and rotate icons. Method-stage actions
+  replace arbitrary star/diamond text with conversation/Heichal icons. PersonJourney
+  entry consumes the shared Journey symbol. These are action symbols, not replacement
+  portraits for Raziel or Brand artwork.
+- Hebrew Alef icon geometry comes from the same pinned Rubik outline. Its small
+  generated asset prevents importing the full spatial atlas/GPU into global chrome;
+  the existing font extraction script regenerates it reproducibly.
+- `/icon-library/` is an offline review/export page with theme switching, Hebrew
+  search, category filters, 16/24/40px comparison and downloads. Exports are generated
+  from the actual React owner: 44 SVGs, catalogue and OFL in one deterministic ZIP.
+  No new product navigation route/store/schema. `preview:kingdom` builds both review
+  pages; ordinary product builds do not include either review fixture.
+- Optical SVG bounds checked against viewBox clearance; ZIP CRC and all 44 exported
+  payloads match. Both product builds, game-state tests and Number acceptance PASS.
+  All 24 library/game/spatial browser cases PASS; hosting is verified separately.
+- Design V2's existing icon-family section carries the normative extension. Repository
+  contracts only; no live database rule/work-log update, merge or production change.
+
 Canonical brief: `work_log.id=48e2c9f4-f83c-42be-9995-769788f64ccc`
 Actor: GPT · Date: 2026-10-09
 Branch: `codex/kingdom-of-numbers-preview`

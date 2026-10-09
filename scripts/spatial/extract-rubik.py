@@ -40,3 +40,8 @@ for ch in 'אבגדהוזחטיךכלםמןנסעףפץצקרשת':
     result['glyphs'][ch]={'glyphId':font.getGlyphID(name),'path':svg.getCommands(),'bounds':list(bounds.bounds),'advance':glyph.width,'contours':flat.contours}
 Path('src/lib/spatial/assets/rubik-hebrew-700.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n')
 print('Generated',len(result['glyphs']),'glyphs from',result['font']['sha256'])
+# Lightweight icon derivative: avoid importing the full geometry atlas into chrome.
+g = result['glyphs']['א']
+x0,y0,x1,y1 = g['bounds']; scale=16/max(x1-x0,y1-y0)
+transform=f'matrix({scale:.9f} 0 0 {-scale:.9f} {12-(x0+x1)/2*scale:.9f} {12+(y0+y1)/2*scale:.9f})'
+Path('src/components/experience2029/hebrewIconPaths.js').write_text('// Derived from the same pinned Rubik 700 outline as Spatial Glyph Scene.\n// Source/hash/OFL: src/lib/spatial/assets/rubik-hebrew-700.json and public/legal/rubik-outline-OFL.txt.\nexport const ALEF_ICON_PATH = '+json.dumps(g['path'])+';\nexport const ALEF_ICON_TRANSFORM = '+json.dumps(transform)+';\n')

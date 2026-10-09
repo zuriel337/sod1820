@@ -17,6 +17,7 @@ import {
   runPersonalDateResearch,
 } from "../lib/research/personalDateResearch.js";
 import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
+import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import "./person-journey.css";
 
@@ -258,7 +259,7 @@ export default function PersonJourney({ variant = "legacy" }) {
 
   if (!user) {
     return <section className="person-journey-login" data-experience-capability="life-journey-auth-gate">
-      <span className="person-journey-symbol" aria-hidden="true">✦</span>
+      <span className="person-journey-symbol" aria-hidden="true"><NavigationIcon2029 name="journey" size={36}/></span>
       <h2>מסע החיים הוא מרחב פרטי</h2>
       <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
       <a href="/login">התחברות</a>

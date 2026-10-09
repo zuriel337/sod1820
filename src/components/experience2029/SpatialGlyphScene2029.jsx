@@ -3,6 +3,7 @@ import { expressionOccurrences, boundaryAnchor } from '../../lib/spatial/glyphGe
 import { useThemePreset } from '../../lib/themeMode.js';
 import { resolveExperienceContext, SPATIAL_LEVEL } from '../../lib/experienceContext.js';
 import './spatialGlyphScene2029.css';
+import NavigationIcon2029 from './NavigationIcon2029.jsx';
 
 const GlyphVolume = lazy(()=>import('./GlyphVolume2029.jsx'));
 class VolumeBoundary extends React.Component {
@@ -65,9 +66,9 @@ export default function SpatialGlyphScene2029({ expression, selectedIndex, onSel
       {occurrences.map((item,i)=><button type="button" key={item.id} aria-label={`אות ${item.grapheme}, מיקום ${i+1}`} aria-pressed={i===index} onClick={()=>select(i)}>{item.geometry?<GlyphOutline2029 geometry={item.geometry}/>:item.grapheme}</button>)}
     </div>
     <div className="sod29-glyph-controls">
-      {!!parts.length&&<button type="button" aria-expanded={open} onClick={()=>setOpen(x=>!x)}>{open?'סגירת המילוי':'פתיחת המילוי'}</button>}
-      {volumeAllowed&&geometry&&!failed&&<button type="button" aria-pressed={gpu} onClick={()=>{if(!gpu)window.dispatchEvent(new CustomEvent('sod-spatial-focus',{detail:sceneId}));setGpu(x=>!x);setReady(false);}}>{gpu?'תצוגה שטוחה':'הפעלת תלת־ממד'}</button>}
-      {canGPU&&<button type="button" onClick={()=>setView(x=>x==='front'?'depth':'front')}>{view==='front'?'מבט עומק':'מבט חזית'}</button>}
+      {!!parts.length&&<button type="button" aria-expanded={open} onClick={()=>setOpen(x=>!x)}><NavigationIcon2029 name="milui" size={20}/>{open?'סגירת המילוי':'פתיחת המילוי'}</button>}
+      {volumeAllowed&&geometry&&!failed&&<button type="button" aria-pressed={gpu} onClick={()=>{if(!gpu)window.dispatchEvent(new CustomEvent('sod-spatial-focus',{detail:sceneId}));setGpu(x=>!x);setReady(false);}}><NavigationIcon2029 name={gpu?'front':'depth'} size={20}/>{gpu?'תצוגה שטוחה':'הפעלת תלת־ממד'}</button>}
+      {canGPU&&<button type="button" onClick={()=>setView(x=>x==='front'?'depth':'front')}><NavigationIcon2029 name={view==='front'?'rotate':'front'} size={20}/>{view==='front'?'מבט עומק':'מבט חזית'}</button>}
     </div>
     {failed&&<p className="sod29-glyph-note" role="status">תצוגת העומק אינה זמינה כרגע. האותיות והפעולות זמינות בתצוגה השטוחה.</p>}
     {open&&parts.length>0&&<div className="sod29-glyph-expansion" data-anchor={anchor?.join(',')}><span className="sod29-glyph-connector" aria-hidden="true"/><p>{focus.grapheme} ← {expansion}</p><div>{parts.map(part=><span key={part.id}>{part.geometry?<GlyphOutline2029 geometry={part.geometry} painted/>:part.grapheme}</span>)}</div>{children}</div>}

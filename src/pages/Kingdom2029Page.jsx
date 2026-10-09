@@ -74,7 +74,7 @@ function KingdomGame() {
   }
   return <div className="kingdom" dir="rtl">
     <header className="kingdom-intro">
-      <div><p className="kingdom-eyebrow"><NavigationIcon2029 name="heichal" size={18} /> מסע של אותיות וגילויים</p>
+      <div><p className="kingdom-eyebrow"><NavigationIcon2029 name="kingdom" size={18} /> מסע של אותיות וגילויים</p>
         <h1 ref={heading} tabIndex={-1}>ממלכת המספרים</h1>
         <p>כל חידה פותחת דרך. כל גילוי בונה את הממלכה שלכם.</p>
       </div>
@@ -83,19 +83,19 @@ function KingdomGame() {
     {!state.started ? <section className="kingdom-gate" aria-label="שער הממלכה">
       <div className="kingdom-gate-copy"><p className="kingdom-eyebrow">הממלכה מתחילה בסקרנות</p><h2>בין אות למספר,<br />עולם שלם מחכה.</h2>
         <p>פתרו חידות גימטריה, אספו אור והעירו את שלושת מבני הממלכה. אין שעון שסופר לאחור — מגלים בקצב שלכם.</p>
-        <button className="kingdom-primary" onClick={() => { dispatch({ type: 'start' }); heading.current?.focus(); }}><NavigationIcon2029 name="heichal" /> כניסה לממלכה</button>
+        <button className="kingdom-primary" onClick={() => { dispatch({ type: 'start' }); heading.current?.focus(); }}><NavigationIcon2029 name="kingdom" /> כניסה לממלכה</button>
         <small>10 חידות · 3 מבנים · 5 שדרוגים</small>
       </div>
     </section> : <>
       <section className="kingdom-stats" aria-label="ההתקדמות שלי">
         <div><NavigationIcon2029 name="action" /><span><strong data-testid="light">{state.light}</strong> אור</span></div>
         <div><NavigationIcon2029 name="journey" /><span><strong>{state.xp}</strong> ניסיון במשחק</span></div>
-        <div><NavigationIcon2029 name="search" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
-        <div><NavigationIcon2029 name="tools" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
+        <div><NavigationIcon2029 name="discovery" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
+        <div><NavigationIcon2029 name="upgrade" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
       </section>
       <Suspense fallback={null}><SpatialGlyphScene2029 expression={challenge?.expression || "אור"} label="אותיות הממלכה" /></Suspense>
       <section className="kingdom-map" aria-label="מפת הממלכה">
-        <div className="kingdom-map-caption"><NavigationIcon2029 name="world" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
+        <div className="kingdom-map-caption"><NavigationIcon2029 name="graph" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
         <div className="kingdom-buildings">
           {BUILDINGS.map((item) => {
             const level = buildingLevel(state, item.id);
@@ -124,12 +124,12 @@ function KingdomGame() {
                 <button type="button" className="kingdom-hint" aria-expanded={hint} aria-controls="kingdom-hint" onClick={() => setHint((value) => !value)}><NavigationIcon2029 name="action" size={18} /> {hint ? 'סגירת הרמז' : 'אפשר רמז?'}</button>
                 {hint && <p id="kingdom-hint">{challenge.hint}</p>}
               </form> : <div className="kingdom-solved">
-                <p><NavigationIcon2029 name="action" /> פענחתם! הגילוי נוסף למחברת.</p>
+                <p><NavigationIcon2029 name="discovery" /> פענחתם! הגילוי נוסף למחברת.</p>
                 <div className="kingdom-actions"><button className="kingdom-primary" onClick={nextChallenge}>המשך הגילוי</button><button onClick={() => openResearch(challenge)}>לחקור את {challenge.answer}</button></div>
               </div>}
             </> : <div className="kingdom-empty"><h2 id="kingdom-challenge-title">כל הגילויים כאן הושלמו</h2><p>אפשר לשדרג את הממלכה או לבחור מבנה נוסף במפה.</p><button onClick={() => chooseBuilding(selected === 'garden' ? 'mine' : selected === 'mine' ? 'factory' : 'garden')}>אל המבנה הבא</button></div>}
         </section>
-        <section className="kingdom-panel kingdom-upgrades" aria-labelledby="kingdom-upgrades-title"><h2 id="kingdom-upgrades-title"><NavigationIcon2029 name="tools" /> מגדלים את הממלכה</h2>
+        <section className="kingdom-panel kingdom-upgrades" aria-labelledby="kingdom-upgrades-title"><h2 id="kingdom-upgrades-title"><NavigationIcon2029 name="upgrade" /> מגדלים את הממלכה</h2>
           <ul>{UPGRADES.map((upgrade) => {
             const bought = state.upgrades.includes(upgrade.id);
             return <li key={upgrade.id}><div><strong>{upgrade.title}</strong><p>{upgrade.benefit}</p><small>{upgrade.discoveries} גילויים{upgrade.requires ? ` · נדרש: ${UPGRADES.find((item) => item.id === upgrade.requires).title}` : ''}</small></div>
@@ -137,11 +137,11 @@ function KingdomGame() {
           })}</ul>
         </section>
       </div>
-      <section className="kingdom-panel kingdom-production" aria-labelledby="kingdom-production-title"><div><h2 id="kingdom-production-title"><NavigationIcon2029 name="tools" /> האור שבמפעל</h2>
+      <section className="kingdom-panel kingdom-production" aria-labelledby="kingdom-production-title"><div><h2 id="kingdom-production-title"><NavigationIcon2029 name="combinations" /> האור שבמפעל</h2>
         <p>{isUnlocked(state, 'factory') ? 'כל גילוי חדש מזין את המפעל. השדרוגים מגדילים את האור שייווצר בגילויים הבאים.' : 'המפעל יתחיל לייצר אור מגילויים חדשים אחרי שדרוג ״עדשת המספרים״.'}</p></div>
         <button className="kingdom-primary" disabled={!state.pending} onClick={() => { dispatch({ type: 'collect' }); setFeedback(`${state.pending} אור נאספו מהמפעל.`); }}>איסוף {state.pending} אור</button>
       </section>
-      <details className="kingdom-panel kingdom-journal"><summary><NavigationIcon2029 name="journey" /> מחברת הגילויים · {state.completed.length}</summary>
+      <details className="kingdom-panel kingdom-journal"><summary><NavigationIcon2029 name="journal" /> מחברת הגילויים · {state.completed.length}</summary>
         <p>החישוב מתאר ערך מספרי. שוויון בין ערכים הוא הזמנה לבדיקה, ואינו מוכיח קשר או טענה על המציאות.</p>
         {!state.completed.length ? <p>הגילוי הראשון שלכם יופיע כאן.</p> : <ul>{state.completed.map((id) => {
           const item = CHALLENGES.find((c) => c.id === id);

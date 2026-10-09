@@ -30,3 +30,5 @@
 @media(max-width:480px) { .sod29-glyph-stage { height:290px; } .sod29-glyph-scene header { padding:20px 18px 0; } .sod29-glyph-picker { padding:14px 18px; } .sod29-glyph-controls { padding-inline:18px; } .sod29-glyph-stage-caption { inset-inline:18px; } }
 @media(prefers-reduced-motion:reduce) { .sod29-glyph-expansion { animation:none; } }
 [data-frame-reduced-motion="true"] .sod29-glyph-expansion { animation:none; }
+
+.sod29-glyph-scene .sod29-glyph-controls button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }

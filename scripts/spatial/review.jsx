@@ -16,6 +16,7 @@ function Review(){
  <SpatialMethodStage2029 expression={fixture.trace.input} methodKey="מילוי" trace={fixture.trace} expectedValue={fixture.trace.result}/>
  <h2>גבולות הצורה</h2><label>אותיות לבדיקה <select style={{fontSize:18,minHeight:44,margin:12}} value={sample} onChange={e=>setSample(e.target.value)}><option>אםהך</option><option>א א אָ ך</option><option>אבגדהוזחטיךכלםמןנסעףפץצקרשת</option></select></label>
  <SpatialGlyphScene2029 expression={sample} label="בדיקת גבולות האות"/>
+ <p><a style={{color:p.accentText}} href="/icon-library/">ספריית האייקונים</a></p>
  <p><a style={{color:p.accentText}} href="/2029/kingdom">פתיחת ממלכת המספרים</a></p>
  </div></main>;
 }

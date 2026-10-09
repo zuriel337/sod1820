@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import "./spatialMethodStage2029.css";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 const SpatialGlyphScene2029 = lazy(() => import("../experience2029/SpatialGlyphScene2029.jsx"));
 
@@ -170,13 +171,13 @@ function GenericActions({ methodKey, expression, trace, onRazielAction, onOpenHe
       methodKey,
       expression,
       resultValue: Number(trace.result),
-    })}>✦ רזיאל</button> : null}
+    })}><NavigationIcon2029 name="conversation" size={18}/> רזיאל</button> : null}
     {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
       kind: "method_projection",
       methodKey,
       expression,
       resultValue: Number(trace.result),
-    })}>◇ פתח בהיכל</button> : null}
+    })}><NavigationIcon2029 name="heichal" size={18}/> פתח בהיכל</button> : null}
   </div>;
 }
 
@@ -254,7 +255,7 @@ function MiluiStage({
           step: focus.step,
           spelling: focus.spelling,
           resultValue: result,
-        })}>✦ רזיאל</button> : null}
+        })}><NavigationIcon2029 name="conversation" size={18}/> רזיאל</button> : null}
         {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
           kind: "miluy_step",
           methodKey: "מילוי",
@@ -262,7 +263,7 @@ function MiluiStage({
           step: focus.step,
           spelling: focus.spelling,
           resultValue: result,
-        })}>◇ פתח בהיכל</button> : null}
+        })}><NavigationIcon2029 name="heichal" size={18}/> פתח בהיכל</button> : null}
       </div>
     </div>
 

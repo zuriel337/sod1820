@@ -345,3 +345,32 @@ family directly. Preserve accessible control labels, currentColor, the 24×24
 viewBox, 1.8px rounded strokes and reduced-motion behavior. Icon sizing may vary
 with context; touch targets remain at least 44×44px. This supersedes the Kingdom
 brief's earlier instruction to use the old ResearchIcon artwork.
+
+### Semantic icon library — implementation extension 9.10.2026
+
+`NavigationIcon2029` owns both artwork and its descriptive `ICON_CATALOG`; the
+catalogue/export is a projection of that same module. `WorkIcon` joins ResearchIcon
+and SignatureResearchIcon as a compatibility consumer, with no local SVG registry.
+Preserve the approved menu shapes and extend their stroke, spacing and optical scale.
+
+Research, spatial and Kingdom concepts receive distinct silhouettes: Hebrew letter,
+Milui expansion, contour/control points, depth, front view, rotation, graph, layered
+sources, letter garden, number mine, combinations, discovery, upgrade and journal.
+Do not collapse unrelated meanings into the generic tools grid, globe or person.
+New Kingdom symbols are functional glyphs, not miniature copies of retired cuboid
+buildings. The portal is an architectural doorway; no derivative Crown/Brand logo.
+Discovery is a game/research affordance and never a verification seal.
+
+The Hebrew icon outline uses the same pinned Rubik 700 source as §13, with the
+attribution retained in distributed SVG archives. Navigation icons remain lightweight
+vectors: do not import the spatial font atlas or GPU renderer into shared chrome.
+New designs must be distinguishable at 16/24/40px, remain inside the 24×24 viewBox
+with stroke clearance, and use currentColor rather than theme-specific image files.
+Actual touch targets stay at least 44px; icon dimensions do not define hit targets.
+
+Exported SVGs come from the actual React owner, include names/accessible titles and
+stay usable without site CSS. Catalogue search, theme review, individual SVG and
+ZIP download must consume those exports. An unknown name produces an explicit
+fallback marker and help glyph; never silently impersonate a known semantic icon.
+Protected avatar, Raziel and Brand identities retain their existing owners. A
+conversation icon denotes an action, not a replacement portrait or identity asset.
