@@ -112,8 +112,10 @@ try {
       state.principal = TEST_USER;
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.locator('[data-number-path-continuation]').getByRole("button", { name: "שמירה וחידוש", exact: true }).click();
+      const resumed = page.waitForResponse((response) => response.url().endsWith('/rpc/fn_research_path_resume_v1') && response.status() === 200);
       await page.getByRole("button", { name: "המשך מהמסלול השמור", exact: true }).click();
-      await page.keyboard.press("Escape");
+      await resumed;
+      await page.waitForSelector('[role="dialog"]', { state: 'detached' });
       await page.waitForFunction((uid) => JSON.parse(sessionStorage.getItem(`sod_research_context_v2:user:${uid}`))?.journey?.revisionNo === 1, TEST_USER);
       assert.equal((await savedContext(page)).selection.method, "מילוי");
       if (width === 390) {
@@ -124,7 +126,7 @@ try {
         await page.getByRole('textbox', { name: 'שאלה לרזיאל', exact: true }).fill('מה מחבר את הבחירה למקור?');
         await page.getByRole('textbox', { name: 'שאלה לרזיאל', exact: true }).press('Enter');
         await aiRequest;
-        await page.waitForTimeout(250);
+        await page.getByText('רזיאל לא הצליח לענות כרגע (או שהמכסה להיום הסתיימה). אפשר לנסות שוב.', { exact: true }).scrollIntoViewIfNeeded();
         await page.screenshot({ path: `${out}/${slug}-ai-unavailable-${width}.png` });
         await page.keyboard.press("Escape");
         assert.equal((await savedContext(page)).returnTo.href, beforeAi.returnTo.href);
