@@ -61,7 +61,7 @@ assert.match(projection, /fetchWorldDiscoveryStream/);
 assert.match(projection, /worldPreview/);
 assert.match(home, /data-experience-capability="home-world-discovery"/);
 assert.match(home, /data-experience-capability="home-researchers"/);
-assert.match(home, /חדש במחקר/);
+assert.match(home, /מה חדש בעולם/);
 assert.match(home, /חוקרים וכותבים/);
 assert.match(home, /\/topic\//);
 assert.match(home, /\/researcher\//);
