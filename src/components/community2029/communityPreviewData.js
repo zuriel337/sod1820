@@ -18,7 +18,7 @@ export const PREVIEW_THREADS = Object.freeze([
   },
   {
     id: "example-source", authorId: "example-ori", createdAt: "2026-10-04T16:20:00Z", likes: 5,
-    body: "כשמשתפים קטע מספר, יעזור לי לראות גם את שם הספר ואת העמוד. כך אפשר לקרוא יחד את ההקשר, ולהבין למה התכוון הכותב.",
+    body: "דוגמה לשיתוף סרטון מהאתר בתוך השיחה. מדביקים קישור, והסרטון מופיע כאן:\nhttps://www.youtube.com/watch?v=Jp0pxGofPjQ",
     replies: [{ id: "example-source-1", authorId: "example-yonatan", createdAt: "2026-10-04T17:05:00Z", body: "מסכים. אפילו צילום של העמוד עם שם המהדורה יכול לעזור." }],
   },
   {
