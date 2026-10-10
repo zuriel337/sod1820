@@ -93,7 +93,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
      React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix})))))),dock);
 }
 if(window.__fixtureFullFrame){
- const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/SystemFrame2029.jsx'),import('react-router-dom')]);
+ const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},
@@ -587,7 +587,8 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    const orb=()=>dock.locator('.sod29-raziel-orb');
    const orbX=(await orb().boundingBox()).x;
    for(const item of await dock.locator('button').all()){
-    const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,'each dock action is a usable touch target');
+    const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,`${width}: dock target ${JSON.stringify(box)}`);
+    const label=item.locator('small');if(await label.count())assert.ok(await label.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14),'dock labels remain readable');
    }
    await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
    assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
@@ -1538,3 +1539,60 @@ test('historical cross repairs: every found meeting is pageable and continuation
   assert.ok(await list.locator('.els29-native-result').count()<=40);
  },{realHost:true,loadGolden:false});
 });
+
+test('design integration: royal controls preserve matrix identity and stable touch targets in all presets and widths',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  for(const width of [320,390,1440]) await withNative({width,height:1000},async page=>{
+   const baseline=await identity(page);
+   const dock=page.locator('.sod29-command-island');
+   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
+   for(const preset of ['light','parchment','dark']){
+    await page.evaluate(preset=>window.__setThemePreset(preset),preset);
+    await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
+    const submit=page.locator('.els29-native-search');
+    const primary=await submit.evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color,font:getComputedStyle(el).fontFamily}));
+    assert.match(primary.background,/49, 93, 213/,`${preset}: shared royal blue primary`);
+    assert.equal(primary.color,'rgb(255, 255, 255)');
+    assert.match(primary.font,/Rubik/);
+    const mode=page.locator('.els29-native-search-mode button').last();
+    await mode.scrollIntoViewIfNeeded();
+    const before=await mode.boundingBox();
+    if(width<981){
+     const cdp=await page.context().newCDPSession(page);
+     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:before.x+3,y:before.y+before.height/2}]});
+     assert.deepEqual(await mode.boundingBox(),before,`${width}/${preset}: pressure keeps the entire target stable`);
+     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+     await cdp.detach();
+    }else{
+     await page.mouse.move(before.x+3,before.y+before.height/2);await page.mouse.down();
+     assert.deepEqual(await mode.boundingBox(),before,'mouse pressure keeps the target stable');
+     await page.mouse.up();
+    }
+    await page.waitForFunction(()=>document.querySelector('.els29-native-search-mode button:last-child')?.getAttribute('aria-pressed')==='true');
+    await page.locator('.els29-native-search-mode button').first().click();
+    if(await page.locator('#els29-context-panel').isVisible())await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
+    await page.keyboard.press('Enter');
+    assert.ok(await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.id==='sod29-icon-press')),'shared SVG reacts to keyboard activation');
+    await page.locator('#els29-context-panel').waitFor();
+    const controls=await page.locator('.els29-native-query button,.els29-native-context-panel button,.els29-native-context-panel select').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>({name:el.textContent.trim().slice(0,50),width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,font:parseFloat(getComputedStyle(el).fontSize)})));
+    for(const c of controls)assert.ok(c.width>=43.9&&c.height>=43.9,`${width}/${preset}: 44px ${JSON.stringify(c)}`);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}/${preset}: no document overflow`);
+    assert.deepEqual((await identity(page)).axis,baseline.axis,'presentation does not replace the axis');
+    const matrix=await page.locator('.els29-native-matrix-scroll').evaluate(el=>getComputedStyle(el).backgroundColor);
+    assert.equal(matrix,{light:'rgb(255, 254, 249)',parchment:'rgb(255, 244, 212)',dark:'rgb(19, 15, 35)'}[preset]);
+    if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`integrated-${preset}-${width}.png`),fullPage:true});}
+   }
+   for(const setting of ['os','frame']){
+    if(setting==='os')await page.emulateMedia({reducedMotion:'reduce'});
+    else{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('.sod29-root').evaluate(el=>el.dataset.frameReducedMotion='true');}
+    const action=dock.getByRole('button',{name:'שמירה',exact:true});
+    if(await page.locator('#els29-context-panel').isVisible())await activate(page,'סגור כלי מטריצה');
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await action.press('Enter');
+    await page.waitForFunction(()=>document.querySelector('#els29-context-panel header strong')?.textContent==='שמירה והמשך מחקר');
+    assert.equal(await page.locator('#els29-context-panel header strong').innerText(),'שמירה והמשך מחקר');
+    assert.equal(await action.evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.id==='sod29-icon-press').length),0,`${setting}: no decorative pulse`);
+   }
+  },{fullFrame:true,mobile:width<981});
+ });

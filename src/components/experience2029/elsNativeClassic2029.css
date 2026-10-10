@@ -72,9 +72,9 @@
 }
 .els29-native-scope button.is-active,
 .els29-native-scope button[aria-pressed="true"]{
-  color:var(--s29-ink);
-  border-color:var(--s29-line-strong);
-  background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel));
+  color:var(--s29-accent-text);
+  border-color:var(--s29-accent);
+  background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel));
 }
 .els29-native-search{
   min-height:44px;
@@ -660,13 +660,13 @@
 .els29-native-proximity small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
 
 /* Match shared chrome feedback without animating the matrix or panel geometry. */
-.els29-native-context-panel button:not(:disabled),.els29-native-toolstrip button:not(:disabled){transition:background-color 180ms ease,border-color 180ms ease,box-shadow 180ms ease,transform 180ms ease}
+.els29-native-context-panel button:not(:disabled),.els29-native-toolstrip button:not(:disabled){transition:background-color 180ms ease,border-color 180ms ease,box-shadow 180ms ease,opacity 180ms ease}
 .els29-native-context-panel button:focus-visible,.els29-native-toolstrip button:focus-visible{outline:2px solid var(--s29-accent);outline-offset:3px}
 @media(hover:hover) and (min-width:981px){
  .els29-native-context-panel button:hover:not(:disabled),.els29-native-toolstrip button:hover:not(:disabled){border-color:var(--s29-accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--s29-accent) 12%,transparent)}
  .els29-native-toolstrip button:hover .sod29-ui-icon{transform:translateY(-1px)}
 }
-.els29-native-context-panel button:active:not(:disabled),.els29-native-toolstrip button:active:not(:disabled){transform:scale(.98)}
+.els29-native-context-panel button:active:not(:disabled),.els29-native-toolstrip button:active:not(:disabled){opacity:.78}
 @media(prefers-reduced-motion:reduce){
  .els29-native-context-panel button,.els29-native-toolstrip button{transition:none!important;transform:none!important}
 }
@@ -699,8 +699,8 @@
 .els29-native-query-terms,.els29-native-query-options{display:grid;gap:12px;min-width:0;align-content:end}
 .els29-native-query-actions{display:flex;flex-wrap:wrap;gap:8px}.els29-native-query-actions button{flex:1;min-height:48px}
 .els29-native-query .els29-native-scope button{flex:1;min-height:44px}
-.els29-native-query button{transition:transform 180ms ease,background-color 180ms ease,border-color 180ms ease}
-.els29-native-query button:active:not(:disabled){transform:scale(.98)}
+.els29-native-query button{transition:opacity 180ms ease,background-color 180ms ease,border-color 180ms ease}
+.els29-native-query button:active:not(:disabled){opacity:.78}
 .els29-native-query button:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 @media(max-width:620px){.els29-native-search-mode button{flex:1}.els29-native-query .els29-native-cross-toggle{width:auto}}
 @media(prefers-reduced-motion:reduce){.els29-native-query button{transition:none!important;transform:none!important}}
@@ -708,3 +708,14 @@
 
 .els29-native-search-coach { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:12px; background:var(--s29-panel-soft); border-radius:12px; color:var(--s29-muted); font-size:var(--s29-type-body); }
 .els29-native-search-coach span { flex:1 1 220px; }
+
+/* Consume the shared royal control family. Matrix glyphs and finding colors
+   keep their independent identification roles and geometry. */
+.els29-native-classic :is(button:not(.els29-native-cell),select,input,textarea){font-family:var(--s29-font-ui)}
+.els29-native-classic :is(select,.els29-native-hit-actions button,.els29-native-system-colors button,.els29-native-panel-head button){font-size:var(--s29-type-ui,16px)}
+.els29-native-classic :is(button:not(.els29-native-cell),select){min-width:44px;min-height:44px}
+.els29-native-classic :is(button,input,select,textarea,summary):focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}
+}
+.sod29-root[data-frame-reduced-motion="true"] .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}

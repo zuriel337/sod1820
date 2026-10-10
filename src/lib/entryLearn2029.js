@@ -172,7 +172,7 @@ export const ENTRY_ORIENTATION_MANIFESTS = Object.freeze({
   number: Object.freeze({
     version: 1,
     label: "מה אני רואה בדף המספר?",
-    body: "דף המספר מרכז ביטויים, שיטות, מקורות וחיבורים סביב עוגן מספרי. עצם ההופעה כאן אינה אומרת שכל החיבורים שווים במשמעות.",
+    body: "בחרו ביטוי, ואז שיטת חישוב. פתחו את כרטיס החישוב כדי לראות את הצעדים; בלשונית למד תמצאו הדרכה עם הביטוי שבחרתם.",
     firstAction: "inspect",
   }),
   topic: Object.freeze({
@@ -214,6 +214,9 @@ export const ENTRY_ORIENTATION_MANIFESTS = Object.freeze({
 });
 
 export const LEARN_FRAGMENTS = Object.freeze({
+  milui: Object.freeze({ version: 1, label: "איך קוראים את המילוי?", explain: "פתחו את כרטיס החישוב ובחרו אות. התצוגה מחברת בין האות, שמה המלא ותרומתה לסכום. בלשונית למד מופיעים כל הצעדים של הביטוי שלכם." }),
+  mistater: Object.freeze({ version: 1, label: "מה מראים הקווים?", explain: "כל קו מחבר זוג אותיות סמוכות באותה מילה. המספר עליו הוא ההפרש שלהן. אפשר לפתוח תלת־ממד ולסובב את אותו מבנה." }),
+  kadmi: Object.freeze({ version: 1, label: "איך בודקים משולש?", explain: "פתחו את שיטת משולש ובדקו את התרומה המוצגת לכל אות. פירוט החישוב ולשונית למד נשארים על הביטוי שבחרתם." }),
   anchor: Object.freeze({
     version: 1,
     label: "מה אנחנו חוקרים עכשיו?",
@@ -256,7 +259,7 @@ export const LEARN_FRAGMENTS = Object.freeze({
   }),
 });
 
-const G4_ACTIVE_SURFACES = new Set(["post"]);
+const G4_ACTIVE_SURFACES = new Set(["post", "number"]);
 
 export function isEntryLearnSurfaceActive(surface) {
   const key = cleanSurface(surface);

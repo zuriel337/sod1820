@@ -70,7 +70,12 @@ function validateTraceSteps(steps, resultValue) {
     const token = clean(step.token);
     const contribution = finite(step.contribution ?? step.base_value);
     const subtotal = finite(step.running_subtotal);
-    if (!token) return { status: "unsupported", reason: "trace_step_token_missing", steps: [] };
+    if (!token) {
+      // Engine whitespace rows mark a word boundary, not an animated letter.
+      const previous = accepted.length ? finite(accepted.at(-1).running_subtotal) : 0;
+      if (typeof step.token === "string" && /^\s+$/.test(step.token) && contribution === 0 && subtotal === previous) continue;
+      return { status: "unsupported", reason: "trace_step_token_missing", steps: [] };
+    }
     if (contribution == null) return { status: "unsupported", reason: "trace_step_contribution_invalid", steps: [] };
     if (subtotal == null) return { status: "unsupported", reason: "trace_step_subtotal_invalid", steps: [] };
     accepted.push(step);
