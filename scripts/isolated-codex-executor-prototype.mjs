@@ -23,6 +23,7 @@ else if (job.active_writer_conflict !== false) block('ACTIVE_WRITER_NOT_CLEARED'
 else if (job.production_write_requested !== false) block('PRODUCTION_WRITE_FORBIDDEN');
 else if (!['low','normal','critical'].includes(job.risk)) block('INVALID_RISK');
 else if (!live) output({status:'DRY_RUN_ONLY',executed:false,task_key:taskKey,modelEffort:job.risk==='critical'?'high':job.risk==='normal'?'medium':'low',warning:'No model request or Codex session started'});
+else if (process.env.SOD_EXECUTOR_TRUSTED_GATEWAY !== 'VERIFIED_AND_DEPLOYED') block('TRUSTED_GATEWAY_NOT_IMPLEMENTED');
 else if (job.paid_run_approved !== true || job.approval_token !== process.env.SOD_RUN_APPROVAL_TOKEN || !process.env.SOD_RUN_APPROVAL_TOKEN) block('PAID_RUN_NOT_AUTHORIZED');
 else if (job.risk==='critical' && job.expensive_run_approved !== true) block('EXPENSIVE_RUN_REQUIRES_APPROVAL');
 else if (job.provider_hard_limit_verified !== true || job.provider_balance_verified !== true) block('PROVIDER_BUDGET_UNVERIFIED');
