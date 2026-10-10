@@ -1,6 +1,17 @@
 -- Branch-only extension of the LIVE agent_dispatch_claim inspected 2026-10-10.
 -- No new RPC/table/actor. Do not apply without exact-head owner/security review.
 -- Preserve Claude and all behavior outside this task's GPT ASSIGNMENT rows.
+-- Existing work_log only: durable DB-level one-shot uniqueness across distinct rows,
+-- even when two service-role transactions race or a task row is requeued.
+-- A partial expression index is an integrity constraint, NOT a new queue/store.
+-- Review table size/lock impact before ever applying to production.
+create unique index if not exists work_log_codex_consumed_idempotency_ux
+  on public.work_log ((dispatch_context #>> '{codex_consumption,idempotency_key}'))
+  where task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'
+    and to_actor='GPT'
+    and dispatch_kind='ASSIGNMENT'
+    and dispatch_context ? 'codex_consumption';
+
 create or replace function public.agent_dispatch_claim(
   p_assignment_id uuid, p_worker text, p_lease_seconds integer default 900
 )
@@ -42,6 +53,16 @@ begin
         and jsonb_typeof(w.dispatch_context->'idempotency_key')='string'
         and w.dispatch_context->>'idempotency_key' ~ '^[A-Za-z0-9_:-]{16,128}$'
         and not (w.dispatch_context ? 'codex_consumption')
+        and not exists (
+          select 1 from public.work_log consumed
+          where consumed.id<>w.id
+            and consumed.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'
+            and consumed.to_actor='GPT'
+            and consumed.dispatch_kind='ASSIGNMENT'
+            and consumed.dispatch_context ? 'codex_consumption'
+            and consumed.dispatch_context #>> '{codex_consumption,idempotency_key}'
+              = w.dispatch_context->>'idempotency_key'
+        )
         and coalesce(w.dispatch_attempts,0)=0
         and w.dispatch_state in ('QUEUED','RETRY_WAIT')
         and coalesce(w.dispatch_next_attempt_at,now())<=now()
