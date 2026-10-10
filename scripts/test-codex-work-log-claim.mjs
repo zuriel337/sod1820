@@ -141,7 +141,8 @@ test('canonical work_log one-shot claim on isolated PostgreSQL 17.6', {timeout:1
     assert.equal(await sql(`select count(*) from work_log
       where parent_assignment_id='${id}' and status='AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED';`),'1');
     assert.equal(await sql(`select count(*) from work_log
-      where parent_assignment_id='${id}' and dispatch_kind='RESULT_WAKE';`),'1');
+      where parent_assignment_id='${id}' and dispatch_kind='RESULT_WAKE';`),'0',
+      'expired OFFLINE Golden must not automatically trigger potentially billed GPT wake');
     await sql('select public.agent_dispatch_recover();');
     assert.equal(await sql(`select count(*) from work_log
       where parent_assignment_id='${id}';`),'1');
@@ -156,6 +157,35 @@ test('canonical work_log one-shot claim on isolated PostgreSQL 17.6', {timeout:1
     await sql('select public.agent_dispatch_recover();');
     assert.equal(await sql(`select dispatch_state from work_log where id='${id}';`),'RETRY_WAIT');
     assert.equal(await sql(`select dispatch_last_error from work_log where id='${id}';`),'stale_lease_recovered');
+  });
+
+  await t.test('ordinary Claude finish still queues the canonical GPT result wake',async()=>{
+    const id=await seed({task:'EXISTING_CLAUDE_FINISH',actor:'CLAUDE'});
+    await sql(`update work_log set from_actor='GPT',assignment_scope='bounded Claude result' where id='${id}';`);
+    assert.equal(await sql(claim(id,'CLAUDE_RUNNER:normal','900')),'t');
+    assert.equal(await sql(`select agent_dispatch_finish('${id}','CLAUDE_RUNNER:normal',
+      'COMPLETED','CLAUDE_COMPLETE','normal result',null,false,null)->>'state';`),'COMPLETED');
+    assert.equal(await sql(`select count(*) from work_log
+      where parent_assignment_id='${id}' and dispatch_kind='RESULT_WAKE' and to_actor='GPT';`),'1');
+  });
+
+  await t.test('one poisoned Codex recovery defers only itself; ordinary Claude still recovers',async()=>{
+    await sql(`alter table work_log add constraint codex_recovery_poison_fixture
+      check (not (status='AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED' and assignment_scope='POISON_SCOPE'));`);
+    const bad=await seed(),other=await seed({task:'EXISTING_CLAUDE_AFTER_POISON',actor:'CLAUDE'});
+    await sql(`update work_log set assignment_scope='POISON_SCOPE',from_actor='GPT' where id='${bad}';`);
+    assert.equal(await sql(claim(bad,'CODEX_RUNNER:poison')),'t');
+    assert.equal(await sql(claim(other,'CLAUDE_RUNNER:normal','900')),'t');
+    await sql(`update work_log set dispatch_lease_expires_at=now()-interval '1 second'
+      where id in ('${bad}','${other}');`);
+    await sql('select agent_dispatch_recover();');
+    assert.equal(await sql(`select dispatch_state from work_log where id='${bad}';`),'DEFERRED');
+    assert.equal(await sql(`select dispatch_last_error from work_log where id='${bad}';`),
+      'codex_one_shot_recovery_terminalization_failed');
+    assert.equal(await sql(`select dispatch_context ? 'codex_consumption' from work_log where id='${bad}';`),'t');
+    assert.equal(await sql(`select count(*) from work_log where parent_assignment_id='${bad}';`),'0');
+    assert.equal(await sql(claim(bad,'CODEX_RUNNER:retry')),'f');
+    assert.equal(await sql(`select dispatch_state from work_log where id='${other}';`),'RETRY_WAIT');
   });
 
   await t.test('claim stays service-role-only with fixed search_path and SECURITY DEFINER',async()=>{
