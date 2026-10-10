@@ -7,6 +7,7 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
 import {projectImplementationReality} from './codex-workflow-modes.mjs';
 const err=(reason)=>{console.log(JSON.stringify({status:'BLOCKED',reason,executed:false,writes:false}));process.exitCode=2;};
 const safeSymbol=s=>typeof s==='string'&&/^[A-Za-z_][A-Za-z0-9_]{2,70}$/.test(s);
@@ -55,7 +56,7 @@ export function collectRepoRecon(input,cwd=process.cwd()) {
    completeness:'LOCAL_REPO_ONLY; NO LIVE DB, PR LIST OR VERIFIED CODEX AGENT',
    reality_map:map};
 }
-const invoked=fileURLToPath(import.meta.url)===process.argv[1] || fileURLToPath(import.meta.url)===process.argv[1]?.replace(/\\/g,'/');
+const invoked=Boolean(process.argv[1]) && resolve(process.argv[1])===fileURLToPath(import.meta.url);
 if(invoked){
  let input;
  try{
