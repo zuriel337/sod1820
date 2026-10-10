@@ -92,6 +92,42 @@ export function topicSourceAnchor(item) {
   return `topic-source-${String(item.galleryImageId || item.mediaId).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 }
 
+// Reviewed HTML image locator over a freshly admitted public Post. It remains a Post
+// occurrence (no invented gallery row, membership or source date). Reuses the same exact
+// storage-object identity and media envelope consumed by Gallery/Topic/Lightbox.
+export function buildPublicPostImageContext(post, locator) {
+  if (post?.id !== locator?.postId || !Array.isArray(post.tags)
+    || post.tags.some((tag) => ["טיוטה", "פורום"].includes(tag))
+    || ["gpt-draft", "web"].includes(post.source) || post.home_hidden === true) return null;
+  const html = String(post.content || "");
+  const images = html.match(/<img\b[^>]*>/gi) || [];
+  const image = images.find((tag) => tag.match(/\bsrc=["']([^"']+)["']/i)?.[1] === locator.imageUrl);
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (!image || !(locator.guards || []).every((quote) => text.includes(quote))) return null;
+  const mediaId = `media:post:${post.id}:image:${locator.imageUrl}`;
+  const sourceRef = `posts:${post.id}#image:${locator.imageUrl}`;
+  const figure = (html.match(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi) || []).find((part) => part.includes(image));
+  const originalCaption = figure?.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i)?.[1] ?? null;
+  const intrinsic = Object.freeze({ mediaId, galleryImageId: null, nodeId: null, label: locator.label,
+    representation: { imageUrl: locator.imageUrl, thumbUrl: locator.imageUrl, fit: "preserve-whole-image" },
+    extraction: { text: null, status: null, numbers: [], state: "not_extracted_here" },
+    interpretation: buildStoredInterpretation(null) });
+  const provenance = { sourceRef, storedSource: `posts:${post.id}`, author: post.author || null };
+  const item = dedupeMediaEnvelopes([{ mediaId, intrinsic, provenance, label: locator.label,
+    presentation: canonicalMediaPresentation({ ...intrinsic, provenance }),
+    imageUrl: locator.imageUrl, thumbUrl: locator.imageUrl, sourceRef,
+    access: { scope: "public", basis: "fresh_public_post_exact_html_image" }, dateUse: "provenance_only",
+    postPlacement: { postId: post.id, postSlug: post.slug, originalTitle: post.title, originalCaption,
+      originalAlt: image.match(/\balt=["']([^"']*)["']/i)?.[1] ?? null,
+      originalCredit: { author: post.author ?? null, authors: post.authors ?? null },
+      publishedAt: post.date || null, dateBasis: "posts.date_publication_not_event_date",
+      regionId: null, imageUrl: locator.imageUrl },
+  }], { bySourceObject: true })[0];
+  const routed = attachReopen(item, { slug: "" });
+  return { ...routed, reopen: { ...routed.reopen, topicHref: null,
+    postHref: `/post/${encodeURIComponent(post.slug)}`, postRoutePrecision: "post_only_exact_image_in_source_html" } };
+}
+
 function attachReopen(item, topic) {
   const anchor = topicSourceAnchor(item);
   const topicHref = `/topic/${encodeURIComponent(topic.slug)}#${anchor}`;

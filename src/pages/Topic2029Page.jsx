@@ -12,6 +12,8 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
 import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
+import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
+import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
@@ -393,6 +395,7 @@ function TopicBody() {
   const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const navItems = projection ? [
     { id: "topic-essential", label: "עיקר" },
+    ...(import.meta.env.DEV && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
     ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
     ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
     ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
@@ -515,6 +518,11 @@ function TopicBody() {
   const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
   const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
   const sparse = golden?.density === "sparse";
+  const discoveryIntro = import.meta.env.DEV && !projection.withheld && ({
+    '1237': 'סף צירים למועמדות, תיעוד הקורונה והביטויים ״וראית את אחרי״ ו״התגלות״. אירועים שונים מתחברים כאן דרך המקורות, החישובים ופרשנות המחברים.',
+    '424-mashiach-ben-david': 'מן השעה המצולמת בכותל אל דונלד טראמפ ואל הביטוי ״משיח בן דוד״. אפשר לפתוח את המקור ואת השיטה, ואז להבין את החיבור לאירועים אחרים.',
+    trump: 'אדם אחד, כמה אירועים: המועמדות הרפובליקנית, הביקור בכותל ותיעוד מאוחר יותר. כל מעבר שומר את שנתו, את תפקיד המספר ואת המקור שלו.',
+  })[projection.slug];
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">
@@ -522,7 +530,7 @@ function TopicBody() {
         <div className="sod29-kicker">ציר</div>
         {projection.heroNumber != null ? <Link className="sod29-topic-hero-number" to={"/2029/number/" + projection.heroNumber}>{projection.heroNumber}</Link> : null}
         <h1>{projection.displayTitle || projection.title}</h1>
-        <p className="sod29-topic-summary">{projection.description}</p>
+        <p className="sod29-topic-summary">{discoveryIntro || projection.description}</p>
         <div className="sod29-topic-meta">
           {projection.authoredRows.length ? <span>{projection.authoredRows.length} שוויונות מרכזיים</span> : null}
           {projection.relatedPosts.length ? <span>{projection.relatedPosts.length} פוסטים בציר</span> : null}
@@ -549,11 +557,13 @@ function TopicBody() {
     <section className="sod29-section sod29-topic-intro" id="topic-essential">
       <div className="sod29-kicker">העיקר</div>
       <h2>מה מחבר את הציר הזה?</h2>
-      <p>{projection.description}</p>
-      {sparse ? <div className="sod29-topic-sparse-callout"><strong>יש כאן כרגע מעט חומר ישיר.</strong><span>הציר נשאר ממוקד, והחיבורים יצטברו רק כשיש להם מקור ברור.</span></div> : null}
+      <p>{discoveryIntro || projection.description}</p>
+      {discoveryIntro ? <details><summary>התקציר השמור של הטופיק</summary><p>{projection.description}</p><p>הנוסח השמור נשאר כלשונו. בקריאה המחוברת, 1237 מצוין כסף צירים למועמדות ולא כמספר אלקטורים בבחירות הכלליות.</p></details> : null}
+      {sparse && !discoveryIntro ? <div className="sod29-topic-sparse-callout"><strong>יש כאן כרגע מעט חומר ישיר.</strong><span>הציר נשאר ממוקד, והחיבורים יצטברו רק כשיש להם מקור ברור.</span></div> : null}
     </section>
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
+      {import.meta.env.DEV ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
       {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />

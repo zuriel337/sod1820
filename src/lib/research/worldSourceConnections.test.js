@@ -5,6 +5,8 @@ import { REVIEWED_SOURCE_WITNESSES as witnesses, witnessSource, verifiedCalculat
 import { buildGallerySourceContext, buildTopicSourceContext } from './topicSourceContext.js';
 import { gematriaTraceToFinding } from './gematriaTrace.js';
 import { normalizeResearchContext } from './researchContext.js';
+import { discoveryLocation, discoveryHref, discoveryDocumentedTimeline, projectWitnessClock, fetchWorldDiscovery } from './worldSourceConnections.js';
+import { buildPublicPostImageContext } from './topicSourceContext.js';
 const fixture = JSON.parse(fs.readFileSync(new URL('../../../test/fixtures/topic-source-context-pilot.json', import.meta.url)));
 const trace = (expression, method, value, patch = {}) => gematriaTraceToFinding({ input: expression, method_key: method, result: value,
   method_version: 1, verification: { parity: true, trace_value: value, canonical_value: value }, trace_kind: 'LETTER_LEDGER', steps: [], ...patch });
@@ -13,6 +15,85 @@ const law = (from, to, patch = {}) => ({ cards: [{ ruleId: 'zero_scale_law', val
 const train = witnesses.find((w) => w.id === 'water-train');
 const india = buildTopicSourceContext({ ...fixture, topic: fixture.topics.find((t) => t.slug === 'india-axis'), occurrences: fixture.images });
 const gallery = buildGallerySourceContext({ images: fixture.images.filter((r) => r.id === train.galleryImageId), occurrences: fixture.images, galleries: fixture.galleries });
+
+test('documentary chronology guards the date witness and never turns an upload or folder into an event date', () => {
+  const source = (text, patch = {}) => ({ text, item: { occurrences: [], ...patch } });
+  const items = [
+    { id: 'news', documentedDate: { value: '2020-10-02', quote: '02/10/2020', label: 'News publication', field: 'ocr' }, source: source('02/10/2020 report') },
+    { id: 'post', source: source('', { postPlacement: { publishedAt: '2016-06-29T23:05:00' } }) },
+    { id: 'changed', documentedDate: { value: '2017-05-23', quote: '23/5/2017', field: 'name' }, source: source('unrelated') },
+    { id: 'upload', source: source('', { created_at: '2010-01-01', occurred_at: '2010-01-01', imageUrl: '/uploads/2010/01/image.jpg' }) },
+  ];
+  const timeline = discoveryDocumentedTimeline(items);
+  assert.deepEqual(timeline.dated.map((r) => [r.id, r.date.kind]), [['post', 'post_publication'], ['news', 'documented_source_date_not_event_date']]);
+  assert.deepEqual(timeline.undated.map((r) => r.id), ['changed', 'upload']);
+  assert.deepEqual(items.map((r) => r.id), ['news', 'post', 'changed', 'upload']);
+});
+
+test('HTML image preserves one storage identity and original Post provenance without a gallery or Topic', () => {
+  const imageUrl = 'https://example.test/storage/v1/object/public/media/source.jpg';
+  const post = { id: 1222, slug: 'historical', source: 'wordpress', tags: [], date: '2024-11-01', author: 'Original author',
+    content: `<h3>exact historical statement</h3><figure><img src="${imageUrl}" alt="original alt"><figcaption>Original caption</figcaption></figure>` };
+  const locator = { postId: 1222, imageUrl, guards: ['exact historical statement'], label: 'Review context' };
+  const item = buildPublicPostImageContext(post, locator);
+  assert.equal(item.sourceIdentity.ref, `storage-object:${imageUrl}`);
+  assert.equal(item.postPlacement.originalCaption, 'Original caption');
+  assert.equal(item.postPlacement.originalCredit.author, 'Original author');
+  assert.equal(item.postPlacement.dateBasis, 'posts.date_publication_not_event_date');
+  assert.equal(item.occurrences.length, 1);
+  assert.deepEqual(item.reopen.galleries, []);
+  assert.equal(item.reopen.topicHref, null);
+  for (const patch of [{ id: 83 }, { tags: ['טיוטה'] }, { source: 'gpt-draft' }, { home_hidden: true },
+    { content: `<p>exact historical statement</p><a href="${imageUrl}">just a link</a>` },
+    { content: `<img src="${imageUrl}"><p>unrelated text</p>` }]) {
+    assert.equal(buildPublicPostImageContext({ ...post, ...patch }, locator), null);
+  }
+});
+test('clock consumer preserves original PM display, uses live owner v2 and keeps same-occurrence dependency', async () => {
+  const spec = witnesses.find((s) => s.id === 'wall-clock');
+  const source = { sourceRef: 'gallery_images:clock', item: { access: { scope: 'public' }, sourceIdentity: { ref: 'storage-object:clock' } } };
+  const result = await projectWitnessClock(spec, source, { moment_clock_law: 2 });
+  assert.equal(result.originalDisplay, '4:24 PM');
+  assert.equal(result.application.subject.value, 424);
+  assert.equal(result.application.evidence.facts[0].operation, 'CLOCK_12H_CONCAT');
+  assert.equal(result.application.evidence.facts[0].output.meridiem_context, 'PM');
+  assert.equal(result.application.evidence.facts[0].independent_evidence, false);
+  for (const versions of [{}, { moment_clock_law: 1 }]) assert.equal(await projectWitnessClock(spec, source, versions), null);
+  assert.equal(await projectWitnessClock(spec, { ...source, item: { ...source.item, access: { scope: 'private' } } }, { moment_clock_law: 2 }), null);
+  assert.equal(await projectWitnessClock({ ...spec, clock: { ...spec.clock, hour: 4 } }, source, { moment_clock_law: 2 }), null);
+});
+test('clock cannot relabel a representation as a downstream calculation or invent the target', async () => {
+  const spec = witnesses.find((s) => s.id === 'clock-1445');
+  const source = { sourceRef: 'source:planned-meeting', item: { access: { scope: 'public' }, sourceIdentity: { ref: 'one-occurrence' } } };
+  const result = await projectWitnessClock(spec, source, { moment_clock_law: 2 });
+  assert.equal(result.application.subject.value, 1445);
+  assert.equal(result.application.source.engine, null);
+  assert.equal(result.occurrence.subject.type, 'clock_time');
+  assert.equal(await projectWitnessClock({ ...spec, clock: { ...spec.clock, target: 45 } }, source, { moment_clock_law: 2 }), null);
+});
+test('the same source returns to the exact step in either existing surface; invalid steps do not escape the reading', () => {
+  const topicHref = discoveryHref('wall', 'see-my-back', '1237');
+  assert.equal(topicHref, '/topic/1237#topic-discovery-wall--see-my-back');
+  assert.equal(discoveryLocation(topicHref.slice(topicHref.indexOf('#')), '1237').id, 'see-my-back');
+  assert.equal(discoveryLocation('#world-discovery-wall--clock-1445').id, 'wall-clock');
+  const w = { id: 'see-my-back', title: 'Original', anchor: 'world-source-see-my-back', source: { sourceRef: 'source:one' } };
+  const patch = worldWitnessContext(w, null, { href: topicHref, anchor: 'topic-discovery-wall--see-my-back', lens: 'topic' });
+  const normalized = normalizeResearchContext(patch);
+  assert.equal(normalized.selection.sourceRef, 'source:one');
+  assert.equal(normalized.selection.locator, '#topic-discovery-wall--see-my-back');
+  assert.equal(normalized.dimensions.surfaceFocus.href, topicHref);
+  assert.equal(normalized.journey, null);
+});
+test('new reading admits neither denied sources nor unavailable Topic identities', async () => {
+  let requestedTraces = 0;
+  const result = await fetchWorldDiscovery('wall', { galleryReader: async () => ({ items: [], occurrencesTruncated: false }),
+    postReader: async () => null, topicReader: async () => null, registryReader: async () => [],
+    ruleReader: async () => ({}), traceReader: async () => { requestedTraces++; } });
+  assert.deepEqual(result.items, []);
+  assert.equal(result.coverage.sources, 0);
+  assert.equal(result.missing.length, 8);
+  assert.equal(requestedTraces, 0);
+});
 
 test('same water train remains one object/two historical placements without acquiring a Topic', () => {
   assert.equal(gallery.length, 1);

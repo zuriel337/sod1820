@@ -1,4 +1,5 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
+import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -977,6 +978,7 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   return <>
+    {import.meta.env.DEV ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <WorldSourceStory research={research} shell={shell} />
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
@@ -2231,7 +2233,7 @@ function WorldBody() {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (/^#world-(source|direction)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
