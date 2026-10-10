@@ -36,5 +36,7 @@ jobs:
         run: node --test scripts/test-codex-implementation-recon-readonly.mjs
       - name: Existing admin Control Plane truthfulness projection
         run: node --test scripts/test-codex-control-implementation-projection.mjs
+      - name: Existing unattended Golden signature and callback fixture
+        run: node scripts/test-codex-unattended-golden-contract.mjs
       - name: Paid CLI transport unconditionally blocked
         run: node scripts/test-isolated-codex-executor-prototype.mjs
