@@ -278,3 +278,16 @@ Branch implementation, 9.10.2026; extends the existing Experience/Method Registr
 - `NavigationIcon2029` owns shared vector geometry. ResearchIcon is a compatibility wrapper; SignatureResearchIcon adds bounded CSS depth from the same geometry. Existing navigation silhouettes remain intact. No independent large-icon drawing set or perpetual decorative animation.
 - Default explanation remains S2; the inherited Mistater S4 action is explicit and lazy, uses the same scene/sockets/trace and returns to the static view on failure. Both reduced-motion settings apply. General method coverage does not imply every method has a GPU renderer. Corpus-wide ELS SVG/atlas work remains separate and requires measured performance; no per-letter Torah DOM rollout.
 - Acceptance covers real engine trace shapes, contextual/null/stale negatives, method switching, desktop/mobile, all three presets, reduced motion, SVG lineage and the lazy S4/fallback boundary. A local tested branch is not a merged or live release.
+
+### Shared content color/action projection — 10 October 2026
+
+User-approved color-role mapping extends the same V2 palette: Day/Night borders
+become less chromatic; primary numeric identity remains indigo, discovery uses
+its existing cyan (warm discovery in Parchment), and spatial Signature icons use
+secondary violet. Shared content actions use the same NavigationIcon2029 geometry:
+share, copy, save, check and add. Social channel marks retain CHANNELS brand identity.
+V2 successText/dangerText live in palette.js; success color requires a successful
+copy or save outcome, with text and accessible status retained. Save state denotes
+an item in the existing research library, not publication or cloud-sync completion.
+The original ShareActions and ResearchProvider remain behavior owners. Legacy
+QuickActions/DocActions are not silently replaced by this bounded 2029 projection.

@@ -20,6 +20,11 @@ const SHAPES = {
   back: <><path d="m9 4-6 6 6 6M3 10h11a6 6 0 0 1 0 12"/></>,
   issue: <><circle cx="12" cy="12" r="9"/><path d="M12 6v7m0 4h.01"/></>,
 
+  share: <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></>,
+  save: <path d="M6 3h12v18l-6-4-6 4Z"/>,
+  copy: <><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V3H3v13h5"/></>,
+  check: <path d="m5 12 4 4L19 6"/>,
+  add: <path d="M12 4v16M4 12h16"/>,
   video: <><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3Z"/></>,
   research: <><circle cx="12" cy="12" r="6.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="12" cy="12" r="2"/></>,
   graph: <><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="6" r="2.2"/><circle cx="19" cy="12" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M6.8 10.6 10.2 7.5M13.8 7.5l3.4 3.1M17.2 13.4l-3.4 3.1M10.2 16.5l-3.4-3.1"/></>,

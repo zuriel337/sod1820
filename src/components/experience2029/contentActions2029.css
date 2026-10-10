@@ -1,0 +1,50 @@
+/* Content action projection only. Existing handlers/stores own behavior. */
+.sod29-root {--s29-discovery-text:var(--s29-discovery)}
+.sod29-root[data-frame-theme-mode="light"] {--s29-discovery-text:color-mix(in srgb,var(--s29-discovery) 72%,var(--s29-ink))}
+.sod29-root .sod-share-actions {gap:8px!important;padding:4px 2px;scroll-padding-inline:4px}
+.sod29-root .sod-share-actions :is(button,a),
+.sod29-root .sod29-action[data-action] {
+  box-sizing:border-box;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;min-width:44px;padding:9px 14px!important;border-radius:12px!important;
+  font-family:var(--s29-font-ui)!important;font-size:16px!important;line-height:1.4;
+  background:var(--s29-panel)!important;color:var(--s29-accent-text)!important;
+  border:1px solid var(--s29-line-strong)!important;text-decoration:none;
+  transition:background 180ms ease,border-color 180ms ease,transform 180ms ease;
+}
+.sod29-root .sod-share-actions [data-action="share"] {
+  color:var(--s29-discovery-text)!important;
+  border-color:color-mix(in srgb,var(--s29-discovery) 48%,var(--s29-line))!important;
+  background:color-mix(in srgb,var(--s29-discovery) 9%,var(--s29-panel))!important;
+}
+.sod29-root :is(.sod-share-actions,.sod29-actions) [data-state="success"] {
+  color:var(--action-success,var(--s29-discovery-text))!important;
+  border-color:currentColor!important;
+}
+.sod29-root :is(.sod-share-actions,.sod29-actions) [data-state="error"] {color:var(--action-danger)!important;border-color:currentColor!important}
+.sod29-root [data-inspect-action="save"] {border-color:var(--s29-accent-text);color:var(--s29-accent-text);font-size:16px}
+.sod29-root [data-inspect-action][aria-pressed="true"] {color:var(--s29-discovery-text);border-color:currentColor;background:color-mix(in srgb,var(--s29-discovery) 9%,var(--s29-panel))}
+.sod29-root .sod-share-actions :is(button,a):focus-visible,
+.sod29-root .sod29-action[data-action]:focus-visible {outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.sod29-root .sod-share-actions button:disabled,.sod29-root .sod29-action[data-action]:disabled {opacity:.5;cursor:default;transform:none}
+@media(hover:hover) {
+  .sod29-root .sod-share-actions :is(button,a):not(:disabled):hover,
+  .sod29-root .sod29-action[data-action]:not(:disabled):hover {background:var(--s29-panel-soft)!important;border-color:currentColor!important}
+}
+.sod-action-announcement {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+/* Geometry stays shared. Color communicates the capability, not a new family. */
+.sod29-root .sig-icon[data-icon-name="els"],
+.sod29-root .sig-icon[data-icon-name="research"],
+.sod29-root .sig-icon[data-icon-name="graph"],
+.sod29-root .sig-icon[data-icon-name="journey"] {--sig-tone:var(--s29-discovery-text)}
+.sod29-root .sig-icon[data-icon-name="spatial"],
+.sod29-root .sig-icon[data-icon-name="cosmos"] {--sig-tone:var(--s29-accent-secondary)}
+.sod29-root.closed-shell.native-frame:is(.surface-world,.surface-topic,.surface-journey,.surface-els) .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {color:var(--s29-discovery-text)}
+.sod29-root .sod29-topic-phrase:hover,
+.sod29-root .sod29-topic-graph-grid>a:hover {border-color:var(--s29-discovery)}
+.sod29-root .sod29-spatial-method-stage [aria-pressed="true"] {outline-color:var(--s29-discovery);border-color:var(--s29-discovery)}
+@media(prefers-reduced-motion:reduce) {
+  .sod29-root .sod-share-actions :is(button,a),.sod29-root .sod29-action[data-action] {transition:none!important;transform:none!important}
+}
+.sod29-root[data-frame-reduced-motion="true"] .sod-share-actions :is(button,a),
+.sod29-root[data-frame-reduced-motion="true"] .sod29-action[data-action] {transition:none!important;transform:none!important}
