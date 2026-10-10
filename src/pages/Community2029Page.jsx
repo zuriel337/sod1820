@@ -8,6 +8,7 @@ import { use2029Palette } from "../lib/palette.js";
 import ReactionBar from "../components/ReactionBar.jsx";
 import UserBadge from "../components/UserBadge.jsx";
 import CommunityMessageContent from "../components/community2029/CommunityMessageContent.jsx";
+import CommunityLive2029 from "../components/community2029/CommunityLive2029.jsx";
 import "./community2029.css";
 
 const personById = new Map(PREVIEW_PEOPLE.map((person) => [person.id, person]));
@@ -56,7 +57,7 @@ function Thread({ thread, onReply, expanded, onExpand, liked, onLike }) {
   </article>;
 }
 
-export default function Community2029Page() {
+function CommunityDesignPreview() {
   const palette = use2029Palette();
   const [params, setParams] = useSearchParams();
   const memberId = params.get("member");
@@ -184,4 +185,9 @@ export default function Community2029Page() {
       </div>}
     </div>
   </Sod2029Shell>;
+}
+
+export default function Community2029Page() {
+  const [params] = useSearchParams();
+  return params.get("data") === "live" ? <CommunityLive2029 /> : <CommunityDesignPreview />;
 }

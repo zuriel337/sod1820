@@ -33,7 +33,11 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const [busy, setBusy] = useState(false);
 
   const boostOf = (e) => Number(bx[e]) || 0;
-  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + boostOf(e);   // סך = משתמשים + בוסט
+  // OpenWeb's imported archive stores its historical 👍 count in reactions.likes.
+  // New reactions keep using the canonical per-identity array. Both are displayed,
+  // while the server continues to toggle only the canonical array.
+  const historicalLikes = Number(rx?.likes) > 0 ? Number(rx.likes) : 0;
+  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + (e === "👍" ? historicalLikes : 0) + boostOf(e);
   const mine = (e) => Array.isArray(rx[e]) && rx[e].includes(myKey);
 
   const toggle = async (e) => {
