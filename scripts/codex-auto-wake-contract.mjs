@@ -14,19 +14,31 @@ const validInt=x=>Number.isSafeInteger(x)&&x>=0;
 const validIso=x=>typeof x==='string'&&Number.isFinite(Date.parse(x));
 const match=(a,b)=>typeof a==='string'&&a.length>0&&a===b;
 
-/** The signature binds the exact JSON payload bytes, not a string chosen by an untrusted caller. */
-export function verifyOperatorPermit(permit, publicKeyPem) {
-  if(!permit||typeof permit!=='object'||Array.isArray(permit))return false;
-  const {payload,signature}=permit;
-  if(!payload||typeof payload!=='object'||Array.isArray(payload)||!publicKeyPem||
-     typeof signature!=='string'||! /^[A-Za-z0-9_-]{40,150}$/.test(signature))return false;
-  try{
-    const bytes=Buffer.from(JSON.stringify(payload),'utf8');
-    const sig=Buffer.from(signature,'base64url');
+/** The signature covers the exact base64url payload bytes, not JSON.stringify(object). */
+function readVerifiedOperatorPermit(permit, publicKeyPem) {
+  if (!permit || typeof permit !== 'object' || Array.isArray(permit) ||
+      typeof publicKeyPem !== 'string') return null;
+  const {payload_b64, signature_b64}=permit;
+  if (typeof payload_b64 !== 'string' || payload_b64.length<16 ||
+      payload_b64.length>8192 || !/^[A-Za-z0-9_-]+$/.test(payload_b64) ||
+      typeof signature_b64 !== 'string' ||
+      !/^[A-Za-z0-9_-]{80,100}$/.test(signature_b64)) return null;
+  try {
+    const payloadBytes=Buffer.from(payload_b64,'base64url');
+    const sig=Buffer.from(signature_b64,'base64url');
+    if (payloadBytes.length<10 || payloadBytes.length>6144 ||
+        payloadBytes.toString('base64url')!==payload_b64 ||
+        sig.length!==64 || sig.toString('base64url')!==signature_b64) return null;
     const key=createPublicKey(publicKeyPem);
-    if(key.asymmetricKeyType!=='ed25519'||sig.length!==64)return false;
-    return cryptoVerify(null,bytes,key,sig);
-  }catch{return false;}
+    if (key.asymmetricKeyType!=='ed25519' ||
+        !cryptoVerify(null,Buffer.from(payload_b64,'utf8'),key,sig)) return null;
+    const payload=JSON.parse(payloadBytes.toString('utf8'));
+    if (!payload || typeof payload!=='object' || Array.isArray(payload)) return null;
+    return payload;
+  }catch{return null;}
+}
+export function verifyOperatorPermit(permit, publicKeyPem) {
+  return readVerifiedOperatorPermit(permit,publicKeyPem)!==null;
 }
 
 /**
@@ -37,7 +49,7 @@ export function verifyOperatorPermit(permit, publicKeyPem) {
  * claim via agent_dispatch_claim, enforce provider/server cost ceilings, and
  * use a replay-protected one-shot operator permit from an authorized issuer.
  */
-export function assessAutoWake({assignment,permit,publicKeyPem,provider,now='2026-10-10T16:00:00Z',project='linswmnnkjxvweumprav'}={}) {
+export function assessAutoWake({assignment,permit,publicKeyPem,provider,now=null,project='linswmnnkjxvweumprav'}={}) {
   const a=assignment;
   if(!a||!uuidRe.test(a.id||''))return deny('MISSING_CANONICAL_ASSIGNMENT');
   if(a.to_actor!=='GPT'||a.dispatch_kind!=='ASSIGNMENT')return deny('NOT_GPT_ASSIGNMENT');
@@ -54,12 +66,16 @@ export function assessAutoWake({assignment,permit,publicKeyPem,provider,now='202
   if(!/^[-A-Z0-9_]{6,160}$/.test(a.task_key||'')||typeof a.primary_owner!=='string'||!a.primary_owner.trim())return deny('OWNER_OR_TASK_MISSING');
   if(!a.dispatch_context||a.dispatch_context.created_via!=='work_log_assign_agent_v1')return deny('ASSIGNMENT_ORIGIN_UNVERIFIED');
   if(a.dispatch_context.codex_workflow_mode!=='EXECUTE_BOUNDED')return deny('GOLDEN_EXECUTION_REQUIRES_BOUNDED_MODE');
-  if(!verifyOperatorPermit(permit,publicKeyPem))return deny('PERMIT_SIGNATURE_UNVERIFIED');
-  const c=permit.payload;
+  const c=readVerifiedOperatorPermit(permit,publicKeyPem);
+  if(!c)return deny('PERMIT_SIGNATURE_UNVERIFIED');
   if(c.version!==1||c.issuer!=='SOD1820_TRUSTED_OPERATOR'||c.action!=='CODEX_GOLDEN_ONCE')return deny('PERMIT_PURPOSE_MISMATCH');
   if(c.workflow_mode!=='EXECUTE_BOUNDED')return deny('PERMIT_WORKFLOW_MODE_MISMATCH');
-  if(!uuidRe.test(c.approval_id||'')||!validIso(c.expires_at)||
-     Date.parse(c.expires_at)<=Date.parse(now)||Date.parse(c.expires_at)-Date.parse(now)>3600000)return deny('PERMIT_EXPIRED_OR_TOO_LONG');
+  if(!uuidRe.test(c.approval_id||'')||!validIso(c.issued_at)||!validIso(c.expires_at)||
+     Date.parse(c.issued_at)>Date.parse(now)+30000 ||
+     Date.parse(now)-Date.parse(c.issued_at)>900000 ||
+     Date.parse(c.expires_at)<=Date.parse(now) ||
+     Date.parse(c.expires_at)<=Date.parse(c.issued_at) ||
+     Date.parse(c.expires_at)-Date.parse(c.issued_at)>900000)return deny('PERMIT_EXPIRED_OR_TOO_LONG');
   if(!match(c.assignment_id,a.id)||!match(c.task_key,a.task_key)||!match(c.scope,a.assignment_scope)||
      !match(c.project_id,project))return deny('PERMIT_ASSIGNMENT_MISMATCH');
   if(typeof c.branch!=='string'||!/^codex\/golden-[a-z0-9-]{3,70}$/.test(c.branch))return deny('UNSAFE_TARGET_BRANCH');
