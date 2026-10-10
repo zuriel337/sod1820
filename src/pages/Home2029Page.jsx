@@ -8,6 +8,8 @@ import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
+import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
+import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 
 
 function TemporalTreasures({ item }) {
@@ -103,6 +105,14 @@ function formatPulseDate(value) {
   } catch {
     return null;
   }
+}
+
+function formatWorldArrival(value) {
+  if (!value) return "זמן לא צוין";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "זמן לא צוין" : date.toLocaleString("he-IL", {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
 }
 
 function HomeSystemPulse({ pulse, loading }) {
@@ -220,7 +230,7 @@ function HomeMiniGematria({ onOpenCalculator }) {
   </section>;
 }
 
-function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onOpenWorld }) {
+function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOpenWorld }) {
   if (loading) {
     return <section className="sod29-home-world-preview is-loading" aria-label="העולם חי">
       <div className="sod29-kicker">העולם חי</div>
@@ -229,9 +239,8 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
   }
   if (!preview) return null;
 
-  const research = Array.isArray(preview.research) ? preview.research : [];
+  const items = Array.isArray(preview.items) ? preview.items : [];
   const people = Array.isArray(preview.people) ? preview.people : [];
-  if (!research.length && !people.length) return null;
 
   return <section
     className="sod29-home-world-preview"
@@ -241,8 +250,8 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
     <div className="sod29-home-world-preview-head">
       <div>
         <div className="sod29-kicker">העולם חי</div>
-        <h2>מחקרים נפתחים. אנשים מחברים.</h2>
-        <p>אותן התכנסויות וחוקרים שכבר חיים בעולם — כאן כחלון קטן למה שקורה במערכת.</p>
+        <h2>רמזים מן המקור. חיבורים מתגלים.</h2>
+        <p>הודעות מקור, כתבים והתכנסויות ציבוריות — חלון קטן אל מה שמגיע לעולם.</p>
       </div>
       <button type="button" className="sod29-action" onClick={onOpenWorld}>פתח את העולם ←</button>
     </div>
@@ -250,21 +259,24 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
     <div className="sod29-home-world-preview-grid">
       <div className="sod29-home-world-research-lane">
         <div className="sod29-home-world-lane-head">
-          <strong>חדש במחקר</strong>
-          <small>התכנסויות ציבוריות שאושרו לאחרונה</small>
+          <strong>מה חדש בעולם</strong>
+          <small>דברי מקור והתכנסויות ציבוריות</small>
         </div>
         <div className="sod29-home-world-research-list">
-          {research.slice(0, 5).map((item) => <button
+          {preview.groupArrivals?.state !== "connected" && preview.groupArrivals?.message
+            ? <p role="status" className="sod29-home-world-source-status">{preview.groupArrivals.message}</p> : null}
+          {!items.length ? <p className="sod29-home-world-source-status">אין כרגע רמזים חדשים להצגה.</p> : null}
+          {items.slice(0, 5).map((item) => <button
             type="button"
             className="sod29-home-world-research-item"
             key={item.id}
-            onClick={() => item.slug && onOpenTopic(item.slug)}
-            disabled={!item.slug}
+            onClick={() => onOpenItem(item)}
           >
-            <span>{item.value != null ? item.value : "✦"}</span>
+            <span>{item.kind === "convergence" && item.value != null ? item.value : "✦"}</span>
             <div>
+              <small>{item.kind === "source" ? (item.stateLabel || item.sourceLabel || "מהמקור") : "התכנסות במחקר"}</small>
               <strong>{item.label}</strong>
-              <small>{item.creator}{item.at ? " · " + formatPulseDate(item.at) : ""}</small>
+              <small>{item.creator} · {formatWorldArrival(item.arrivalAt || item.at)}{item.sourceLabel && item.stateLabel ? " · " + item.sourceLabel : ""}</small>
             </div>
           </button>)}
         </div>
@@ -374,15 +386,56 @@ function HomeBody() {
     navigate(phrase ? `/2029/gematria?q=${encodeURIComponent(phrase)}` : "/2029/gematria");
   };
 
-  const openTopic = (slug) => {
-    if (!slug) return;
-    navigate(`/topic/${encodeURIComponent(slug)}`);
+  const openWorldItem = (item) => {
+    if (!item) return;
+    const isGroupSource = item.kind === "source" && item.sourceKind === "group_message"
+      && /^\/world#group-source-[a-zA-Z0-9-]+$/.test(item.href || "");
+    const isPostSource = item.kind === "source" && item.sourceKind === "post"
+      && /^\/post\/[^/?#]+$/.test(item.href || "");
+    const isTopic = item.kind === "convergence" && item.slug;
+    const href = isGroupSource || isPostSource ? item.href
+      : isTopic ? `/topic/${encodeURIComponent(item.slug)}` : "/world";
+    research.setResearchContext?.({
+      subject: isGroupSource || (!isPostSource && !isTopic) ? null : {
+        id: item.sourceRef || item.id,
+        type: isPostSource ? "post" : isTopic ? "topic" : "world",
+        label: item.label,
+        href,
+      },
+      selection: item.sourceRef ? { entityId: item.sourceRef, entityType: item.kind, sourceRef: item.sourceRef } : null,
+      lens: "world",
+      returnTo: {
+        href: "/2029", label: "דף הבית",
+        subject: context?.subject || null,
+        selection: context?.selection || null,
+        lens: context?.lens || "home",
+        dimensions: context?.dimensions || {},
+        journey: context?.journey || null,
+      },
+    });
+    navigate(href);
   };
 
   const openResearcher = (slug) => {
     if (!slug) return;
     navigate(`/researcher/${encodeURIComponent(slug)}`);
   };
+
+  // Visual review consumes the same public readers and Frame. Include/Publish is unchanged.
+  if (import.meta.env.DEV) return <>
+    <WorldFlightStory2029 surface="home" research={research} shell={shell} />
+    <SourceArrivalList2029 surface="home" loading={homeState.loading}
+      items={worldPreview?.arrivals || worldPreview?.items || []}
+      availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
+    <section className="sod29-home-review-entry" aria-label="התחלה משלך">
+      <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
+      <form className="sod29-command-bar" onSubmit={start}>
+        <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או נושא" aria-label="חיפוש או התחלת גילוי" />
+        <button className="sod29-action primary" type="submit">לגלות בעולם</button>
+      </form>
+      {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
+    </section>
+  </>;
 
   return <>
     <section className="sod29-global-now-stage sod29-home-now-first" id="global-now">
@@ -438,7 +491,7 @@ function HomeBody() {
     <HomeWorldPreview
       preview={worldPreview}
       loading={homeState.loading}
-      onOpenTopic={openTopic}
+      onOpenItem={openWorldItem}
       onOpenResearcher={openResearcher}
       onOpenWorld={() => navigate("/world")}
     />

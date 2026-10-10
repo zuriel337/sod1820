@@ -27,7 +27,8 @@ function Witness({ witness, research, shell, select }) {
     const destination = worldWitnessContext(witness, calculation);
     if (subject.type === 'topic' && source.item) destination.selection = source.item.reopen.selection;
     research.updateResearchContext?.({ ...destination, subject, returnTo: {
-      ...origin, href: `/world#${witness.anchor}`, label: witness.title, subject: null,
+      ...origin, href: `/world#${witness.anchor}`, label: witness.title,
+      subject: { id: origin.selection.entityId, type: origin.selection.entityType, label: witness.title, href: `/world#${witness.anchor}` },
       journey: research.context?.journey || null,
     } });
     shell.go(href, { preserve: false });
@@ -107,7 +108,7 @@ function Witness({ witness, research, shell, select }) {
     </div>
   </article>;
 }
-export default function WorldSourceConnections({ india, research, shell }) {
+export default function WorldSourceConnections({ india, research, shell, showDirectionChoices = true }) {
   const location = useLocation();
   const navigate = useNavigate();
   const selectedSpec = REVIEWED_SOURCE_WITNESSES.find((spec) => location.hash === `#world-source-${spec.id}`);
@@ -136,11 +137,11 @@ export default function WorldSourceConnections({ india, research, shell }) {
   const activeItems = state.direction === direction ? state.items : [];
   const supporting = activeItems.filter((item) => item.supporting);
   return <section className="sod29-world-source-connections" aria-label="לאן הרמז מוביל?">
-    <h3>לאן הרמז מוביל?</h3>
+    {showDirectionChoices ? <><h3>לאן הרמז מוביל?</h3>
     <nav className="sod29-world-directions" aria-label="כיווני המשך">{WORLD_SOURCE_DIRECTIONS.map((entry) => <button key={entry.id}
       aria-pressed={direction === entry.id} onClick={() => navigate(`/world#world-direction-${entry.id}`)}>
       <strong>{entry.label}</strong><span>{entry.why}</span>
-    </button>)}</nav>
+    </button>)}</nav></> : null}
     {direction ? <div id={`world-direction-${direction}`} className="sod29-world-direction-content" tabIndex={-1}>
       {state.loading || state.direction !== direction ? <p role="status">פותח מקורות ובודק את החיבורים…</p> : state.error || !activeItems.length ? <div role="status">
         <p>המקורות או החיבורים אינם זמינים כרגע.</p><button className="sod29-action" onClick={() => setAttempt((n) => n + 1)}>נסה שוב את החיבורים</button>

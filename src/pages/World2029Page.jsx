@@ -1,5 +1,7 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
+import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
+import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -480,7 +482,7 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
   );
 }
 
-function WorldSourceStory({ research, shell }) {
+function WorldSourceStory({ research, shell, compact = false }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [state, setState] = useState({ loading: true, story: null });
@@ -518,12 +520,13 @@ function WorldSourceStory({ research, shell }) {
     } });
     shell.go(href, { preserve: false });
   };
+  if (compact && !expanded && !/^#world-(direction|source)-/.test(location.hash)) return null;
   return <section className="sod29-world-source-story" aria-label="מהמטוס אל הודו">
     {state.loading ? <p role="status">טוען את הסיפור והמקור…</p> : !story ? <div role="status">
       <p>המקור לסיפור המטוס אינו זמין כרגע.</p>
       <button className="sod29-action" onClick={() => setAttempt((value) => value + 1)}>נסה שוב</button>
     </div> : <>
-      <div className="sod29-world-story-intro" id="world-plane-story">
+      <div className="sod29-world-story-intro" id={compact ? undefined : "world-plane-story"} hidden={compact}>
         <div className="sod29-kicker">רמזי גאולה · מתוך פוסט באתר</div>
         <h2>{humanContentTitle(story.title)}</h2>
         <p>מסיפור הטיסה אל הקפטן שהוזכר בפוסט, ומשם אל התיעוד של הודו.</p>
@@ -556,7 +559,7 @@ function WorldSourceStory({ research, shell }) {
           <p className="sod29-world-story-note">בציר ההודי אפשר לפגוש גם תיעוד היסטורי מן הגלריות, עם ההסבר והמקור של כל חיבור.</p>
         </div>
       </div> : null}
-      <WorldSourceConnections india={state.projection} research={research} shell={shell} />
+      <WorldSourceConnections india={state.projection} research={research} shell={shell} showDirectionChoices={!compact} />
     </>}
   </section>;
 }
@@ -907,7 +910,12 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const openDiscoveryItem = (item) => {
     if (!item) return;
-    if (item.kind === "source" && item.href) {
+    if (item.sourceKind === "group_message") {
+      research.updateResearchContext?.({ subject: null, selection: { entityId: item.sourceRef, entityType: 'source', sourceRef: item.sourceRef }, lens: 'world' });
+      shell.go(item.href, { preserve: false });
+      return;
+    }
+    if (item.kind === "source" && item.sourceKind === "post" && item.href) {
       research.updateResearchContext?.({
         subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
         selection: { entityId: item.sourceRef, entityType: "post" },
@@ -976,6 +984,20 @@ function LiveWorldLanding({ research, shell, context }) {
       returnTo: { href: "/world", label: "עוגני המחקר" },
     });
   };
+
+  if (import.meta.env.DEV && !controlMode) return <>
+    <WorldFlightStory2029 research={research} shell={shell} />
+    <WorldSourceStory research={research} shell={shell} compact />
+    {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+    <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems}
+      availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+    <section className="sod29-home-review-entry" aria-label="להמשיך לגלות בעולם">
+      <h2>עוד מקור. עוד דרך להמשיך.</h2>
+      <p>אפשר להעמיק בחומר ההיסטורי, או לפתוח מספר וביטוי שמסקרנים אותך.</p>
+      <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go('/world#world-discovery-wall--wall-clock')}>צילום הכותל · 4:24</button>
+        <button className="sod29-action" onClick={() => shell.openCommand()}>חיפוש בעולם</button></div>
+    </section>
+  </>;
 
   return <>
     {import.meta.env.DEV ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
