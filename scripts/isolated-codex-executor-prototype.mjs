@@ -1,39 +1,50 @@
 #!/usr/bin/env node
 /**
- * SOD1820 isolated Codex executor Stage C.
- * Until a trusted signed operator/transport, provider budget reserve and
- * canonical work_log lease are independently proven, ALWAYS DRY RUN ONLY.
- * Never infer authorization from booleans inside caller-supplied JSON.
+ * SOD1820 Codex stage-C mode-aware preflight.
+ * Reads one JSON offline fixture. No DB, HTTP, code modification or model call.
+ * DO NOT substitute this for the trusted canonical-work_log/lease/provider gateway.
  */
 import {readFileSync} from 'node:fs';
-const output=(x)=>process.stdout.write(JSON.stringify(x)+'\n');
-const block=(reason)=>{output({status:'BLOCKED',reason,executed:false,paidRequest:false});process.exitCode=2;};
+import {assessCodexWorkflow,RECON_READ_ONLY,EXECUTE_BOUNDED} from './codex-workflow-modes.mjs';
+const out=x=>process.stdout.write(JSON.stringify(x)+'\n');
+const block=reason=>{out({status:'BLOCKED',reason,executed:false,paidRequest:false});process.exitCode=2;};
 let job;
 try{
  const raw=readFileSync(0,'utf8');
- if(raw.length>16384)throw Error('input size');
+ if(raw.length>16384)throw Error('request too long');
  job=JSON.parse(raw);
- if(!job||typeof job!=='object'||Array.isArray(job))throw Error('object required');
-}catch{
- block('INVALID_REQUEST_JSON');process.exit();
-}
-const isStr=(x,n=150)=>typeof x==='string'&&x.length>0&&x.length<=n;
+ if(!job||typeof job!=='object'||Array.isArray(job))throw Error('invalid object');
+}catch{block('INVALID_REQUEST_JSON');process.exit();}
 const live=process.argv.includes('--live');
-const taskKey=job.task_key;
-if(!isStr(taskKey,100)||! /^[A-Z0-9_]+$/.test(taskKey))block('INVALID_TASK_KEY');
-else if(!isStr(job.scope,300)||!isStr(job.prompt,3000))block('INVALID_SCOPE_OR_PROMPT');
-else if(!['GPT','CLAUDE'].includes(job.actor))block('UNKNOWN_COORDINATOR');
-else if(job.coordination_verified!==true||job.owner_verified!==true)block('COORDINATION_OR_OWNER_UNVERIFIED');
-else if(job.active_writer_conflict!==false)block('ACTIVE_WRITER_NOT_CLEARED');
-else if(job.production_write_requested!==false)block('PRODUCTION_WRITE_FORBIDDEN');
-else if(!['low','normal','critical'].includes(job.risk))block('INVALID_RISK');
-else if(live){
- // Explicit, *unconditional* guard. No arbitrary env toggle or forged JSON can
- // activate paid Codex before the independently audited runtime gateway exists.
- // scripts/codex-auto-wake-contract.mjs is an OFFLINE acceptance fixture only.
- block('PAID_TRANSPORT_NOT_DEPLOYED');
-}else{
- output({status:'DRY_RUN_ONLY',executed:false,paidRequest:false,task_key:taskKey,
-  modelEffort:job.risk==='critical'?'high':job.risk==='normal'?'medium':'low',
-  warning:'No model request, remote dispatcher, Codex execution or charge started'});
+// Remove the historical environment-flag bypass completely. This condition
+// must remain unconditional until a separately audited operator is deployed.
+if(live){block('PAID_TRANSPORT_NOT_DEPLOYED');process.exit();}
+if(![RECON_READ_ONLY,EXECUTE_BOUNDED].includes(job.workflow_mode)){
+ block('EXPLICIT_CODEX_WORKFLOW_MODE_REQUIRED');process.exit();
 }
+if(job.actor!=='GPT'){block('UNKNOWN_COORDINATOR');process.exit();}
+if(typeof job.prompt!=='string'||!job.prompt.trim()||job.prompt.length>3000||
+   typeof job.scope!=='string'||job.scope!==job.assignment?.assignment_scope||
+   job.task_key!==job.assignment?.task_key){
+ block('ASSIGNMENT_PROMPT_OR_SCOPE_MISMATCH');process.exit();
+}
+if(job.production_write_requested!==false){block('PRODUCTION_WRITE_FORBIDDEN');process.exit();}
+if(!['low','normal','critical'].includes(job.risk)){
+ block('INVALID_RISK');process.exit();
+}
+const checked=assessCodexWorkflow({
+ assignment:job.assignment,mode:job.workflow_mode,
+ plan:job.plan,recon:job.recon,source:job.source,
+ now:job.now||new Date().toISOString()
+});
+if(checked.status==='BLOCKED'){block(checked.reason);process.exit();}
+out({
+ status:'DRY_RUN_ONLY',executed:false,paidRequest:false,
+ task_key:job.task_key,workflow_mode:job.workflow_mode,
+ policyStatus:checked.status,
+ read_only:job.workflow_mode===RECON_READ_ONLY,
+ permitted_branch:job.workflow_mode===EXECUTE_BOUNDED?checked.branch:null,
+ allowed_write_paths:job.workflow_mode===EXECUTE_BOUNDED?checked.write_paths:[],
+ modelEffortHint:job.risk==='critical'?'high':job.risk==='normal'?'medium':'low',
+ note:'PURE OFFLINE assessment. User-supplied source flags are NOT trusted runtime evidence. No Codex, network call, work_log claim, repository changes, or charge.'
+});
