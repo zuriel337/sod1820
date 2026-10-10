@@ -2,12 +2,30 @@
 
 2026-10-10. Continuation of `ec02509ff50dd076b6bfd6a4c0f7f00579b1708f` and
 work_log `2cbd0c8b-6e91-40ad-8d52-4f597d49b552`, including the user's railway/14:45/73 expansion.
-Branch: `codex/world-1237-clock-discovery-20261010`. Starting main:
+Branch: `codex/world-discovery-integrated-20261010` (source slice preserved on `codex/world-1237-clock-discovery-20261010`). Starting main:
 `8e939d3b092f267e40d74953b9103711322276d2` (ancestor of ec02509f).
 Sole-writer ACK `4173f32c-66f5-4b85-8ca8-9305cb7de81f`; supplemental coordination ACK
 `1248a7ad-6993-4ca2-a864-8d7fa478d684`. Same canonical owners, no replacement registry.
 Final SHA and exact-head receipts are in the accompanying review package, not inferred
 from this document's earlier validation commands.
+
+## Shared-depth integration received during verification
+
+Coordinator handoff `4d820d3f-bc5e-417b-8fc5-4f7995313166` was read and ACKed by
+`c63861fb-2c81-4dfd-83f9-d096d4f0db11`. PR1016's exact `60e0a84242c08ea93516ce8e4abdc164d4e2ef53`
+was cherry-picked without conflicts as `8f2592fc` onto source head
+`a823fd2720b6d1d83a75e2fe676178aa1ac5c9df` in a second isolated worktree. The three helper
+files and one owner test file are byte-identical to the delivered patch; no free edits or
+canonical-owner replacement. It preserves Human Diamond/Gold identity, null versus actual
+zero, explicit relation dedup and unknown independence. It does not implement an autonomous
+quality score. Plan PR1013 §8A additions at `e6755bcb289dfc598fe2387b026cbb57ce965127` were read,
+not imported as another roadmap. The Include/Publish development guard remains.
+
+The final package identifies ONE combined SHA for rerun source/Topic/Number/Path/return,
+mobile and desktop checks, including the existing isolated PostgreSQL journey harness when
+available. Source-only receipts are retained separately and are not labeled combined tests.
+Palette `b5bbd120` / handoff94def6e6 is not present in this environment or remotely delivered;
+its announced local tests are not claimed here. Shared ELS/security scopes remain untouched.
 
 ## Implemented review behavior and publication boundary
 
@@ -417,11 +435,11 @@ They were not turned into medical guidance or merged into the2016/2017 events.
 | Spatial | Existing stage plus truthful composite components | Unavailable `af970703` artifact was not imported; unsupported large/composite visualization remains Spatial owner |
 | Posts/video/elections | Exact1222 HTML image and preserved historical context | Posts handoff `bdb7caba-3f10-48d0-ab29-4b67e150097a`: visible native image/region, verified video range and5107 publication gate |
 | Gallery | Whole original gallery, all known placements/captions/order, precise return to review | Archive image-level anchor is unsupported; Archive owner |
-| Shared context/depth | Exact source passed through existing Context; unknown independence stays unknown | Frame image-to0 display remains outside scope; shared-depth owner47baa5fa will supply separate tested SHA |
+| Shared context/depth | Exact source passed through existing Context; unknown independence stays unknown | Frame image-to0 display remains outside scope; shared-depth owner47baa5fa supplied PR1016/60e0a842; imported under ACK c63861fb; Frame remains separate |
 | Path save/publication | No implicit Path or product write | Prior adf isolated save/resume evidence retained; public Path/G4 not closed here |
 
-Execution order: (1) review this complete end-to-end slice in Vite; (2) reconcile the shared-depth
-owner's separately delivered patch in isolation; (3) choose source connections through existing
+Execution order: (1) review this complete end-to-end slice in Vite; (2) validate the imported shared-depth
+owner's PR1016 patch on the combined SHA; (3) choose source connections through existing
 human curation/publication, with Posts/Archive/Spatial dependencies assigned to current owners;
 (4) repeat route/access/duplicate/method/return tests on that exact combined head before any
 separately authorized release. No merge, remote branch push or deployment is performed here.
