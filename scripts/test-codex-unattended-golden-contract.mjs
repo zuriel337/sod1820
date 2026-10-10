@@ -30,4 +30,7 @@ assert.deepEqual({claims,finishes,wakes,runs},{claims:2,finishes:1,wakes:1,runs:
 assert.equal((await goldenAcceptance({envelope:env,publicKeyPem:pem,atMs:now,adapter:{...adapter,async claim(){return 'ACTIVE_WRITER_CONFLICT'}},executor})).reason,'LEASE_NOT_ACQUIRED');
 assert.equal((await goldenAcceptance({envelope:env,publicKeyPem:pem,atMs:now,adapter:{...adapter,async claim(){return 'ACQUIRED'},async readAuthoritativeEvidence(){return {...ev,owner_verified:false}}},executor})).reason,'TRUSTED_COORDINATION_EVIDENCE_MISSING');
 assert.equal((await goldenAcceptance({envelope:signed(paid),publicKeyPem:pem,atMs:now,adapter,executor})).reason,'GOLDEN_FIXTURE_REJECTS_PAID_MODE');
+
+assert.equal(verifySignedAssignment(signed({...job,workflow_mode:'RECON_READ_ONLY'}),pem,now).reason,'INVALID_SIGNED_ASSIGNMENT');
+assert.equal(checkTrustedEvidence(job,{...ev,workflow_mode:'RECON_READ_ONLY'},now).reason,'TRUSTED_COORDINATION_EVIDENCE_MISSING');
 console.log('Codex unattended golden acceptance OFFLINE PASS');
