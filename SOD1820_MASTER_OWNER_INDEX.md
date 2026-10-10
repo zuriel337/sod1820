@@ -20,6 +20,8 @@ For every substantive task:
 7. open Archive/history only for DRIFT, provenance, migration, recovery or explicit historical research.
 
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
+**Codex implementation-reality refinement (2026-10-10; extend existing owners, not a new law):** Ordinary bounded tasks retain owner-first L1/L2. Architecture, cleanup, cross-system, ambiguous, Legacy retirement/cutover or high-blast-radius tasks require RECON_READ_ONLY first when broad implementation evidence could change the plan; this mode reads current main, relevant live schema/runtime, consumers, writers, dependencies, PRs and work_log without writing. GPT then challenges a compact Implementation Reality Map, the canonical owner decides, and only a distinct EXECUTE_BOUNDED assignment may authorize narrow branch-only WRITE with dependencies, path allowlist, stop condition, tests and release gate. New cross-system or unknown-live-consumer evidence **stops** WRITE and returns to RECON. Both phases keep existing work_log assignment_mode READ_ONLY/WRITE respectively and require an explicit dispatch_context.codex_workflow_mode marker for future Codex dispatch. Findings are evidence, never Truth, deletion or automatic release. Human Gate and negative live-consumer/writer/runtime/provenance proof remain required for destructive retirement. Exact branch-only implementation: PR #1024; not a live auto-wake or provider-spend approval.
+
 
 **Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
 
@@ -241,3 +243,24 @@ Never collapse:
 `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`.
 
 Every current-state claim must be live-verified at the source appropriate to the task.
+
+## 8. Implementation Reality / Capability–Surface routing
+
+For whole-system implementation awareness and focused GPT UX planning, use the [existing Control architecture evidence map](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-context-map). This is a navigation projection, not another registry, semantic owner or administration project. Select one card; do not load the whole map during ordinary bootstrap. The existing read-only collector accepts `context_id` and returns only that card, exact source locators and candidate references; dependencies remain pointers. Active domain rules, main and live state outrank the dated card. No automatic connection or live verification is implied.
+
+Example: `{"task_key":"SOD1820_ELS_UX_CONTEXT","context_id":"els-2029"}` to `node scripts/codex-implementation-recon-readonly.mjs`. GitHub-connected GPT can retrieve the same exact card by commit and line interval; GPT without tools must use a dated attachment. Until merge, read PR #1024 current head rather than assuming this exists on main.
+
+| Context ID | Domain / surface |
+|---|---|
+| `world-2029` | [עולם 2029 ודף הבית](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-world-2029) |
+| `frame-2029` | [מסגרת וניווט](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-frame-2029) |
+| `number-2029` | [דף המספר ושיטות](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-number-2029) |
+| `els-2029` | [ELS בעולם 2029](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-els-2029) |
+| `research-2029` | [מחקר, היכל ומסעות](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-research-2029) |
+| `users` | [משתמשים, זהות והרשאות](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-users) |
+| `content-publications` | [תוכן, פרסומים וגלריות](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-content-publications) |
+| `analytics` | [אנליטיקה ותנועה](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-analytics) |
+| `payments` | [תשלומים וזכאויות](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-payments) |
+| `ai-raziel` | [AI ורזיאל](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-ai-raziel) |
+| `infrastructure` | [תשתיות, אבטחה ופריסה](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-infrastructure) |
+| `control-2029` | [מרכז הניהול הקיים](docs/2029-unified-control-center-architecture-freeze-v1.md#implementation-control-2029) |

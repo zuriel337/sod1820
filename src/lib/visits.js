@@ -429,3 +429,19 @@ export async function getSearchConsole(days = 90) {
   if (!r.ok) throw new Error("search-console " + r.status);
   return r.json();
 }
+
+
+// 2029 Control Plane · existing work_log_current authorization owner.
+// Fetch a bounded, column-allowlisted projection. The RPC itself requires
+// authenticated admin; this must NOT be substituted with get_work_log() legacy.
+export async function getImplementationRealityAssignments(limit = 12) {
+  if (!supabase) throw new Error("SUPABASE_UNAVAILABLE");
+  const safeLimit = Math.max(1, Math.min(20, Number(limit) || 12));
+  const { data, error } = await supabase
+    .rpc("get_work_log_current")
+    .select("task_key,primary_owner,assignment_scope,from_actor,to_actor,dispatch_state,dispatch_kind,release_authorization_state,created_at")
+    .order("created_at", { ascending: false })
+    .limit(safeLimit);
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
