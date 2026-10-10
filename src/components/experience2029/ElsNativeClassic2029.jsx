@@ -583,7 +583,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, onSearchStart, onSaved }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -609,7 +609,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
   const presentationPlan = useMemo(() => projectPresentation(engineState), [engineState]);
-  const activePresentation = !classicOpen && presentation?.key === presentationPlan.key ? presentation : null;
+  const activePresentation = active && !classicOpen && presentation?.key === presentationPlan.key ? presentation : null;
   useEffect(() => {
     if (presentation && (!activePresentation || presentation.index >= presentationPlan.steps.length - 1)) {
       setPresentation((current) => !activePresentation ? null : current?.auto ? { ...current, auto: false } : current);
@@ -677,9 +677,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
       })),
     ],
   }), [activeTool, classicOpen]);
-  const hasSystemDock = useSystemToolDock2029(dockProjection);
+  const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
-    if (!activeTool || classicOpen) return;
+    if (!active || !activeTool || classicOpen) return;
     const onKey = (event) => {
       if (event.target.closest?.('[role="dialog"]')) return;
       if (event.key === "Escape" && !event.defaultPrevented) {
@@ -699,7 +699,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onOutside);
     };
-  }, [activeTool, classicOpen, panelPinned]);
+  }, [active, activeTool, classicOpen, panelPinned]);
   const [notice, setNotice] = useState("");
   const [accountRequired, setAccountRequired] = useState(false);
   const [operations, setOperations] = useState({ search: null, findings: null });
@@ -755,6 +755,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   };
 
   const requestSearch = (kind, payload = {}) => {
+    onSearchStart?.();
     resetReadContext();
     setLoadError(null);
     setNotice("");
@@ -950,8 +951,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
     <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+      <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
+        <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && operations.search?.searchKind === "cross") cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
+          onClick={() => { if (crossOpen && operations.search?.searchKind === "cross") cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button>
+      </div>
+      <div className="els29-native-query-terms">
       <label>
-        <span>מונח</span>
+        <span>{crossOpen ? "מונח ראשון" : "מונח"}</span>
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -960,6 +967,20 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
           autoComplete="off"
         />
       </label>
+      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
+        <label>
+          <span>מונח שני</span>
+          <input
+            value={crossTerm}
+            onChange={(event) => setCrossTerm(event.target.value)}
+            maxLength={40}
+            placeholder="למשל: דוד"
+            autoComplete="off"
+          />
+        </label>
+      </div> : null}
+      </div>
+      <div className="els29-native-query-options">
       <div className="els29-native-scope" aria-label="היקף החיפוש">
         <button
           type="button"
@@ -974,28 +995,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "מצא מפגש" : "חפש"}</button>
-      <button
-        className={`els29-native-cross-toggle${crossOpen ? " is-active" : ""}`}
-        type="button"
-        aria-expanded={crossOpen}
-        onClick={() => { if (crossOpen && operations.search?.searchKind === "cross") cancelOperation("search"); setCrossOpen((value) => !value); }}
-      >הצלבה בין צירים</button>
-      <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen((value) => !value); }}>
-        {classicOpen ? "חזור למטריצה" : "כל הכלים"}
-      </button>
-
-      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
-        <label>
-          <span>מונח שני</span>
-          <input
-            value={crossTerm}
-            onChange={(event) => setCrossTerm(event.target.value)}
-            maxLength={40}
-            placeholder="למשל: דוד"
-            autoComplete="off"
-          />
-        </label>
+      {crossOpen ? <>
         <label className="els29-native-cross-distance">
           <span>מרחק מרבי מהציר בהצלבה <output>{crossRadius} תאים</output></span>
           <input type="range" min="2" max="20" step="1" value={crossRadius}
@@ -1006,7 +1006,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
               setCrossRadius(Number(event.target.value));
             }} />
         </label>
-      </div> : null}
+      </> : null}
+      <div className="els29-native-query-actions">
+        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "חפש הצלבה" : "חפש"}</button>
+        <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button>
+      </div>
+      </div>
     </form>
 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
@@ -1151,7 +1156,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}
           saveRequest={saveRequest}
-          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result); }}
+          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(); }}
           onLoadError={(error) => { setLoadError(error);setNotice("לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}

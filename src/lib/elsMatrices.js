@@ -4,6 +4,9 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 
 const COLS = "id,slug,title,search_term,scope,skip_distance,direction,start_index,corpus_id,engine_detail,positions,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published";
 
+// Cards need metadata only. The full saved positions are fetched on explicit open.
+const LIBRARY_COLS = COLS.split(",").filter(column => !["positions", "engine_detail"].includes(column)).join(",");
+
 // The native library reads the same rows under the caller's RLS. Pagination never
 // silently turns an arbitrary first 100 records into the complete collection.
 export async function getMatrixLibraryPage({ view = "public", userId, query = "", offset = 0, pageSize = 24 } = {}) {
@@ -11,7 +14,7 @@ export async function getMatrixLibraryPage({ view = "public", userId, query = ""
   if (view === "mine" && !userId) return { rows: [], more: false };
   const size = Math.max(1, Math.min(48, Math.trunc(Number(pageSize)) || 24));
   const start = Math.max(0, Math.trunc(Number(offset)) || 0);
-  let request = supabase.from("els_records").select(COLS + ",status,visibility,owner_user_id");
+  let request = supabase.from("els_records").select(LIBRARY_COLS + ",status,visibility,owner_user_id");
   if (view === "mine") request = request.eq("owner_user_id", userId);
   else request = request.eq("status", "published").eq("visibility", "public").or("source.is.null,source.neq.research");
   // Remove PostgREST filter syntax, while retaining Hebrew terms and normal titles.

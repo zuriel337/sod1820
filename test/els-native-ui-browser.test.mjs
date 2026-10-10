@@ -453,7 +453,7 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
    await page.waitForFunction(()=>!window.__state?.findings?.some(f=>f.t==='תורה'));
    assert.equal(await button(page,'בחר ציר לסריקה: תורה').count(),0);
    await selectAxis(page,golden.term);
-   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('אליהו');await activate(page,'חפש');
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('אליהו');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state?.status==='ok');
    assert.equal(await button(page,'בחר ציר לסריקה: '+golden.term).count(),0,'old primary target disappears after main-axis replacement');
    await selectAxis(page,'אליהו');await activate(page,'סרוק לאורך הציר הנבחר');
@@ -466,7 +466,7 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
     if(kind==='findings'){
      await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('דוד');await activate(page,'חפש במטריצה');
     }else{
-     await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משיח');await activate(page,'חפש');
+     await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משיח');await activate(page,'חפש');
     }
     await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
     const requestId=await page.evaluate(currentKind=>window.__hostLog.findLast(message=>message.type===(currentKind==='search'?'native-search':'update-findings')).requestId,kind);
@@ -707,7 +707,7 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
    for(const [index,term] of ['תורה','אליהו','דוד','משיח'].entries()){
     const oldOperation=await page.evaluate(()=>window.__operation);
     if(index===3)await page.evaluate(()=>window.__fixtureHoldVerification=true);
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill(term);await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill(term);await activate(page,'חפש');
     if(index===3){
      await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
      assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'primary search stays disabled while verification is pending');
@@ -733,7 +733,7 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
    assert.equal(await page.locator('[data-fixture-subscribe-gate]').count(),0);
    assert.equal(await page.evaluate(()=>localStorage.getItem('tzofen_onboarded_v1')),null);
    await page.evaluate(()=>window.__fixtureVerificationDenied=true);
-   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('גאולה');await activate(page,'חפש');
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('גאולה');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='גאולה'&&window.__state?.status==='candidate');
    assert.notEqual(await page.evaluate(()=>window.__state.verification.state),'MATCH','server verification denial still fails closed');
    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0);
@@ -829,10 +829,10 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
   await withNative({width:1440,height:1000},async page=>{
    const searchCross=async(axis,term,radius=18)=>{
     const seq=await page.evaluate(()=>window.__operation?.requestId||0);
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill(axis);
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill(axis);
     if(!(await page.locator('.els29-native-cross-row').count()))await activate(page,'הצלבה בין צירים');
     await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill(term);
-    await changeRange(page,'מרחק מרבי מהציר בהצלבה',radius);await activate(page,'מצא מפגש');
+    await changeRange(page,'מרחק מרבי מהציר בהצלבה',radius);await activate(page,'חפש הצלבה');
     await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
    };
    const resize=async(size)=>{
@@ -848,7 +848,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    assert.equal(await button(page,'מופע הבא').count(),0,'cross controls do not clear findings by navigating unrelated occurrences');
    assert.equal(await button(page,'פתח מפגש 1').getAttribute('aria-pressed'),'true');
    assert.equal(compact.search.results.items[0].sourceSequence,true,'literal source sequence is distinguished from a verified ELS');
-   assert.equal(await page.getByRole('textbox',{name:'מונח',exact:true}).inputValue(),'משיח טבת');
+   assert.equal(await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).inputValue(),'משיח טבת');
    const matrix=page.locator('.els29-native-matrix-scroll');await matrix.scrollIntoViewIfNeeded();
    await matrix.evaluate(el=>el.scrollLeft=(el.scrollWidth-el.clientWidth)/2);
    const box=await matrix.boundingBox(),before=await capture(page);
@@ -899,7 +899,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
    assert.equal(await page.getByText('מוצג החלון המקורי',{exact:true}).count(),1);
    await activate(page,'הצלבה בין צירים');
-   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורהקדשה');await activate(page,'חפש');
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
    assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
   },{realHost:true,loadGolden:false,tier:'anon'});
@@ -907,10 +907,10 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
 
 async function reliabilityCross(page, axis, term) {
   const seq=await page.evaluate(()=>window.__operation?.requestId||0);
-  await page.getByRole('textbox',{name:'מונח',exact:true}).fill(axis);
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill(axis);
   if(!(await page.locator('.els29-native-cross-row').count()))await activate(page,'הצלבה בין צירים');
   await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill(term);
-  await activate(page,'מצא מפגש');
+  await activate(page,'חפש הצלבה');
   await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
   return page.evaluate(()=>window.__state);
 }
@@ -919,7 +919,7 @@ test('native transition: minus-two reading layout preserves exact cells and open
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
     const url=page.url();
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
     await page.waitForFunction(()=>window.__state?.axis?.hitId==='2_-1_49435'&&window.__operation?.status==='done');
     const original=await identity(page);
     const cells=()=>page.locator('.els29-native-cell').evaluateAll(nodes=>nodes.map(n=>({i:Number(n.dataset.elsIndex),text:n.textContent,axis:n.classList.contains('is-axis')})));
@@ -946,12 +946,12 @@ test('native transition: minus-two reading layout preserves exact cells and open
     await page.waitForFunction(()=>window.__lens?.lens==='letter-context'&&window.__lens.target?.i===49435);
     assert.equal(await page.evaluate(()=>window.__lens.ok),true,'reading view uses the same exact verse inspection');
     assert.equal(await page.evaluate(()=>window.__lens.letter),'ב');
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
     await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');
-    assert.equal(await button(page,'מצא מפגש').count(),1,'one submission control for the active search mode');
+    assert.equal(await button(page,'חפש הצלבה').count(),1,'one submission control for the active search mode');
     assert.equal(await button(page,'חפש').count(),0);
     // Enter in the PRIMARY input must honor the open cross mode as well.
-    await page.getByRole('textbox',{name:'מונח',exact:true}).press('Enter');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).press('Enter');
     await page.waitForFunction(()=>window.__state?.search?.mode==='cross-simple'&&window.__operation?.status==='done');
     const names=await page.evaluate(()=>window.__state);
     assert.equal(names.axis.hitId,'14870_-1_251278');assert.equal(names.search.zones,3);
@@ -970,12 +970,12 @@ test('native transition: minus-two reading layout preserves exact cells and open
 test('native transition: a failed cross labels the retained result and retry replaces it in the same tab',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
     await page.waitForFunction(()=>window.__state?.axis?.hitId==='2_-1_49435'&&window.__operation?.status==='done');
     const original=await identity(page);
     await page.evaluate(()=>window.__fixtureVerificationDenied=true);
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
-    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'מצא מפגש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'חפש הצלבה');
     await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='error');
     assert.deepEqual(await identity(page),original,'failed verification preserves the last successful matrix');
     assert.match(await page.locator('.els29-native-matrix-status').textContent(),/הממצא הקודם.*לא הושלם/);
@@ -1041,7 +1041,7 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
   await withNative({width:1440,height:1000},async page=>{
     const original=await identity(page);
     await page.evaluate(()=>window.__fixtureHoldVerification=true);
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('ישראל');await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('ישראל');await activate(page,'חפש');
     await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='verifying'&&window.__fixtureReleaseVerification);
     const old=await page.evaluate(()=>window.__operation);
     assert.equal(await button(page,'בטל חיפוש').count(),1);
@@ -1053,7 +1053,7 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
     assert.equal(await page.locator('.els29-native-progress').count(),0);
     assert.deepEqual(await identity(page),original,'cancel retains the last successful matrix');
     await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורהקדשה');await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');await activate(page,'חפש');
     await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation.status==='done');
     await injectToolMessage(page,{source:'tzofen',type:'operation',kind:'search',requestId:old.requestId,status:'verifying'});
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
@@ -1106,7 +1106,7 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('כותרת מעודכנת');await activate(page,'שמור אצלי');
     await page.waitForFunction(()=>window.__savedRows?.[0]?.title==='כותרת מעודכנת');
     assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'repeat saving updates the same exact private record');
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
     await page.waitForFunction(()=>window.__state.axis?.hitId==='2_-1_49435');
     await page.evaluate(row=>window.__openSavedMatrix(row),saved);
     await page.waitForFunction(id=>window.__state?.axis?.hitId===id&&window.__state?.findings?.[0]?.hits?.some(hit=>hit.verified),state.axis.hitId);
@@ -1142,14 +1142,14 @@ test('native reliability: cancellation terminates discovery and cross workers; p
       };
       Worker.prototype.terminate=function(){window.__fixtureStoppedWorkers++;return stop.call(this);};
     });
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'כל התנ״ך');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'כל התנ״ך');
     await frame.waitForFunction(()=>window.__fixtureHeldWorkers>0);
     await activate(page,'בטל חיפוש');await frame.waitForFunction(()=>window.__fixtureStoppedWorkers>0);
     await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state.ui.heat===true);
     assert.deepEqual(await identity(page),baseline);
     await frame.evaluate(()=>{window.__fixtureHoldWorker='hitchunk';window.__fixtureHeldWorkers=0;});
-    await page.getByRole('textbox',{name:'מונח',exact:true}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
-    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'מצא מפגש');
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');await activate(page,'חפש הצלבה');
     await page.waitForFunction(()=>window.__operation?.progress?.completed===8);
     const progress=await page.evaluate(()=>window.__operation.progress);
     assert.ok(progress.total>progress.completed);assert.equal(progress.phase,'cross');
@@ -1206,7 +1206,7 @@ test('native library: paginated existing records, legacy disclosure and account 
     assert.equal(await page.evaluate(()=>window.__libraryMatrix.start_index),null,'old anchors are never synthesized by the library');
     await page.getByText('התמונה המקורית שנשמרה',{exact:true}).click();
     assert.equal(await page.locator('.els29-saved-record img').isVisible(),true);
-    await button(page,'הצפנים שלי').click();
+    await button(page,'לכל הצפנים').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===24);
     await page.locator('.els29-library-card a').first().click();
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='mine-0');
@@ -1307,7 +1307,7 @@ test('native presentation: verse words alternate from either entry and camera re
   await activate(page,'הדגש פסוק במטריצה');await cell.dispatchEvent('click');
   await page.waitForFunction(()=>document.querySelector('.is-verse-word'));
   await activate(page,'מצב מצלמה');
-  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משה');
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');
   await activate(page,'חפש');
   assert.equal(await page.locator('.is-verse-word').count(),0);assert.equal(await presenter.count(),0,'new search clears presentation and its timer');
  });
@@ -1319,7 +1319,7 @@ test('native results: regular and crossed searches expose selectable results in 
   let stale;
   for(const [scope,label] of [['torah','תורה'],['tanakh','כל התנ״ך']]){
    if(await page.locator('.els29-native-cross-row').count())await activate(page,'הצלבה בין צירים');
-   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('יהוה');
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');
    const request=await page.evaluate(()=>window.__operation?.requestId||0);
    if(scope==='torah')await activate(page,'חפש');else await activate(page,label);
    await page.waitForFunction(({scope,request})=>window.__operation?.requestId>request&&window.__operation.status==='done'&&window.__state?.scope===scope,{scope,request},{timeout:90000});
@@ -1355,7 +1355,7 @@ test('native results: regular and crossed searches expose selectable results in 
   }
   await activate(page,'הצלבה בין צירים');
   await page.evaluate(()=>window.__fixtureVerificationDenied=true);
-  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורה');await activate(page,'חפש');
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');await activate(page,'חפש');
   await page.waitForFunction(()=>window.__operation?.status==='error');
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0,'failure never displays the previous list as a new result');
   assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('האימות'));
@@ -1363,7 +1363,7 @@ test('native results: regular and crossed searches expose selectable results in 
   await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done');
   assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
   await page.evaluate(()=>window.__fixtureHoldVerification=true);
-  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משה');await activate(page,'חפש');
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');await activate(page,'חפש');
   await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
   await activate(page,'בטל חיפוש');
   assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('בוטל'));
@@ -1376,10 +1376,67 @@ test('native results: regular and crossed searches expose selectable results in 
  test('native bridge: parent research updates during a state message cannot discard the completed result',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:45000},async()=>{
  await withNative({width:390,height:844},async page=>{
-  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('יהוה');await activate(page,'חפש');
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');await activate(page,'חפש');
   await page.waitForFunction(()=>window.__operation?.status==='done');
   assert.ok(await page.evaluate(()=>window.__reentrantCount>0));
   assert.equal(await page.locator('.els29-native-stage-head h3').innerText(),'יהוה','native matrix receives the exact state despite synchronous parent updates');
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),80);
  },{realHost:true,loadGolden:false,reentrantRender:true});
  });
+
+test('native form: crossing terms stay adjacent before the shared submit on mobile and desktop',
+ {skip:!canRun,timeout:90000},async()=>{
+ for(const width of [390,1440]) await withNative({width,height:1000},async page=>{
+  const form=page.locator('#els29-query');
+  await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  const first=form.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}),second=form.getByRole('textbox',{name:'מונח שני',exact:true});
+  await first.fill('צוריאל');await second.fill('פולייס');
+  const a=await first.boundingBox(),b=await second.boundingBox();
+  assert.ok(b.y>=a.y+a.height&&b.y-(a.y+a.height)<55,'second term follows the first, with no controls between');
+  assert.ok(Math.abs(a.x-b.x)<2&&Math.abs(a.width-b.width)<2,'terms share the same column');
+  assert.equal(await form.locator('button[type=submit]').count(),1);
+  assert.equal(await form.locator('button[type=submit]').textContent(),'חפש הצלבה');
+  assert.ok(await form.locator('button[type=submit]').evaluate(button=>Boolean(document.querySelector('[data-els-native-cross] input').compareDocumentPosition(button)&Node.DOCUMENT_POSITION_FOLLOWING)));
+  await form.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
+  assert.equal(await first.inputValue(),'צוריאל');assert.equal(await second.count(),0);
+  await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  assert.equal(await second.inputValue(),'פולייס','mode switch retains the draft');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  if(process.env.ELS_SCREENSHOT_DIR)await form.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`cross-form-${width}.png`)});
+ });
+});
+
+test('native folder: bounded recent cards, collapse, save refresh and library return preserve the workspace',
+ {skip:!canRun,timeout:60000},async()=>{
+ const server=await vite.createServer({root,configFile:false,plugins:[libraryFixturePlugin(),react()],server:{host:'127.0.0.1',port:0}});let browser;
+ try{
+  await server.listen();browser=await pw.chromium.launch({headless:true,executablePath});
+  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+  await page.waitForFunction(()=>window.__libraryEngineMounts===1);
+  const folder=page.getByRole('region',{name:'תיקיית הצפנים'});
+  const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
+  assert.equal(await toggle.getAttribute('aria-expanded'),'false','mobile starts with a compact folder');
+  assert.equal(await page.evaluate(()=>window.__libraryCalls.length),0,'collapsed folder does not fetch');
+  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'צופן שמור '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:'fwd',start_index:5,corpus_id:corpus,status:'draft',visibility:'private',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
+  await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
+  assert.equal(await folder.locator('.els29-library-card').count(),4);
+  const call=await page.evaluate(()=>window.__libraryCalls.at(-1));assert.deepEqual(call.range,[0,4]);
+  assert.ok(!call.columns.split(',').includes('positions'),'card fetch excludes heavy saved geometry');
+  assert.match(await folder.textContent(),/נשמר ב־/);
+  await page.getByLabel('טיוטת חיפוש').fill('צוריאל');
+  await button(page,'חיפוש לדוגמה').click();await page.waitForFunction(()=>document.querySelector('.els29-recent-toggle')?.getAttribute('aria-expanded')==='false');
+  await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
+  await button(page,'לכל הצפנים').click();
+  await page.getByRole('region',{name:'ספריית הצפנים'}).locator('.els29-library-card').nth(6).waitFor();
+  await button(page,'חזור לחיפוש').click();
+  assert.equal(await page.getByLabel('טיוטת חיפוש').inputValue(),'צוריאל');
+  assert.equal(await page.evaluate(()=>window.__libraryEngineMounts),1,'library round-trip keeps the same engine');
+  await page.evaluate(()=>window.__libraryRows.unshift({...window.__libraryRows[0],id:'new-save',title:'שמירה חדשה'}));
+  await button(page,'שמירה לדוגמה').click();await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
+  await page.evaluate(()=>window.__switchLibraryUser(null));
+  await page.waitForFunction(()=>!document.body.textContent.includes('שמירה חדשה'));
+  assert.equal(await folder.locator('.els29-library-card').count(),0,'private recent cards leave immediately on sign-out');
+  assert.deepEqual(errors,[]);
+ }finally{await browser?.close();await server.close();}
+});

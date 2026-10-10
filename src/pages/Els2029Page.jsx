@@ -4,7 +4,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
-import ElsSavedLibrary2029 from "../components/experience2029/ElsSavedLibrary2029.jsx";
+import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
 import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
@@ -65,9 +65,17 @@ export default function Els2029Page() {
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
+  const [workspaceVisited, setWorkspaceVisited] = useState(!library);
+  const [searchRevision, setSearchRevision] = useState(0);
+  const [savedRevision, setSavedRevision] = useState(0);
+  const [openRevision, setOpenRevision] = useState(0);
+  useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
+  const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
+  const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
+  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
-  const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}`;
+  const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}|${openRevision}`;
   const [recordState, setSavedRecord] = useState({ key: null, row: null, error: false });
   // Hide the previous account/URL's record during the render that precedes the next fetch.
   const savedRecord = recordState.key === recordKey ? recordState
@@ -174,6 +182,7 @@ export default function Els2029Page() {
   }
 
   return <Sod2029Shell
+    introVariant={library ? "none" : "compact"}
     wide
     surface="els"
     symbol="✦"
@@ -182,16 +191,11 @@ export default function Els2029Page() {
     description={ELS_DESCRIPTION}
   >
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
-      onView={view => setParams({ library: view })} onClose={() => setParams({})}
-      onOpen={row => setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1]))} />
-      : savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
-      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => setParams({ library: "mine" })}>הצפנים שלי</button></FrameState>
-      : <>
-    <div className="els29-library-tabs" style={{ marginBottom: 18 }}>
-      <button className="sod29-action" type="button" onClick={() => setParams({ library: "mine" })}>הצפנים שלי</button>
-      <button className="sod29-action" type="button" onClick={() => setParams({ library: "public" })}>צפנים שפורסמו</button>
-      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
-    </div>
+      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
+      : <div hidden={!!library}>
+    {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
       {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
@@ -200,19 +204,20 @@ export default function Els2029Page() {
         {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
       </> : null}
     </section> : null}
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "כלי המחקר הקלאסי"}</div>
+          <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
           <h2>{researchProfile
             ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
             : "הצופן הקלאסי"}</h2>
           <div className="sod29-muted">
             {researchProfile
               ? (subject
-                ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
+                ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
                 : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
-              : "אותו ממשק עבודה מוכר: חיפוש, מטריצת אותיות, הצלבות, המשך פסוק, סימוני הצבע בצד, שמירות ושיתוף. המעבר למחקר שומר את אותו ממצא בתוך אותו Research Context."}
+              : "חיפוש, הצלבות וסימוני צבע. אפשר לעבור בין התצוגות ולהמשיך עם אותו ממצא."}
           </div>
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
@@ -230,7 +235,8 @@ export default function Els2029Page() {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} />
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}
+          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
       </section>
 
 
@@ -325,6 +331,6 @@ export default function Els2029Page() {
       </section> : null}
       </details>
     </section>
-    </>}
+    </div> : null}
   </Sod2029Shell>;
 }
