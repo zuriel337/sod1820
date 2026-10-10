@@ -1,4 +1,5 @@
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
+import { traceNumber } from "./gematriaTracePresentation.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 
 export const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -16,6 +17,21 @@ export function methodLabel(group) {
   return clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key) || "שיטה";
 }
 
+export function projectNumberMethodProfileRow(row) {
+  return {
+    methodKey: clean(row?.method_key),
+    displayLabel: clean(row?.display_label || row?.method_key) || "שיטה",
+    category: clean(row?.category) || null,
+    mathematicalFamily: clean(row?.mathematical_family) || null,
+    lifecycleActive: row?.lifecycle_active !== false,
+    requiredEntitlement: clean(row?.required_entitlement) || null,
+    atomicOrComposite: clean(row?.atomic_or_composite) || null,
+    computedValue: traceNumber(row?.computed_value),
+    definitionVersion: traceNumber(row?.definition_version),
+    dependencyRules: [],
+  };
+}
+
 export async function fetchNumberMethodProfile(expression) {
   const phrase = clean(expression);
   if (!phrase || /^\d+$/.test(phrase)) return [];
@@ -25,18 +41,7 @@ export async function fetchNumberMethodProfile(expression) {
     p_depth: "value",
   });
   if (error) throw error;
-  const rows = (Array.isArray(data) ? data : []).map((row) => ({
-    methodKey: clean(row?.method_key),
-    displayLabel: clean(row?.display_label || row?.method_key) || "שיטה",
-    category: clean(row?.category) || null,
-    mathematicalFamily: clean(row?.mathematical_family) || null,
-    lifecycleActive: row?.lifecycle_active !== false,
-    requiredEntitlement: clean(row?.required_entitlement) || null,
-    atomicOrComposite: clean(row?.atomic_or_composite) || null,
-    computedValue: Number.isFinite(Number(row?.computed_value)) ? Number(row.computed_value) : null,
-    definitionVersion: Number.isFinite(Number(row?.definition_version)) ? Number(row.definition_version) : null,
-    dependencyRules: [],
-  })).filter((row) => row.methodKey);
+  const rows = (Array.isArray(data) ? data : []).map(projectNumberMethodProfileRow).filter((row) => row.methodKey);
 
   const keys = rows.map((row) => row.methodKey);
   if (!keys.length) return rows;
@@ -55,7 +60,7 @@ export async function fetchNumberMethodProfile(expression) {
       category: clean(registryRow.category || row.category) || null,
       mathematicalFamily: clean(registryRow.mathematical_family || row.mathematicalFamily) || null,
       atomicOrComposite: clean(row.atomicOrComposite) || null,
-      sortOrder: Number.isFinite(Number(registryRow.sort_order)) ? Number(registryRow.sort_order) : null,
+      sortOrder: traceNumber(registryRow.sort_order),
       sub: clean(registryRow.sub) || null,
       soul: clean(registryRow.soul) || null,
       executionKind: clean(registryRow.execution_kind) || null,
@@ -63,7 +68,7 @@ export async function fetchNumberMethodProfile(expression) {
       derivedFrom: Array.isArray(registryRow.derived_from) ? registryRow.derived_from.map(clean).filter(Boolean) : [],
       sourceOfTruth: clean(registryRow.source_of_truth) || null,
       dependencyRules: Array.isArray(registryRow.dependency_rules) ? registryRow.dependency_rules : [],
-      dependencyVersion: Number.isFinite(Number(registryRow.dependency_version)) ? Number(registryRow.dependency_version) : null,
+      dependencyVersion: traceNumber(registryRow.dependency_version),
     };
   });
 }
@@ -92,9 +97,9 @@ export async function fetchNumberHiddenCrossings(expression, methodProfile = [],
   const phrase = clean(expression);
   if (!phrase || /^\d+$/.test(phrase)) return [];
   const profile = (Array.isArray(methodProfile) ? methodProfile : [])
-    .filter((row) => row?.dbColumn && Number.isFinite(Number(row?.computedValue)));
+    .filter((row) => row?.dbColumn && traceNumber(row?.computedValue) != null);
   const regular = profile.find((row) => row.methodKey === "רגיל" || row.displayLabel === "רגיל");
-  if (!regular?.dbColumn || !Number.isFinite(Number(regular.computedValue))) return [];
+  if (!regular?.dbColumn || traceNumber(regular.computedValue) == null) return [];
 
   const { supabase } = await import("../supabase.js");
   const columns = [...new Set(["phrase", "lead_rank", "is_verified", ...profile.map((row) => row.dbColumn)])];
@@ -117,7 +122,7 @@ export async function fetchNumberHiddenCrossings(expression, methodProfile = [],
 export function deriveHiddenCrossings({ expression = "", methodProfile = [], candidates = [], limit = 13 } = {}) {
   const phrase = clean(expression);
   const profile = (Array.isArray(methodProfile) ? methodProfile : [])
-    .filter((row) => row?.dbColumn && Number.isFinite(Number(row?.computedValue)));
+    .filter((row) => row?.dbColumn && traceNumber(row?.computedValue) != null);
   const regular = profile.find((row) => row.methodKey === "רגיל" || row.displayLabel === "רגיל");
   if (!phrase || /^\d+$/.test(phrase) || !regular) return [];
   const data = candidates;
@@ -133,9 +138,9 @@ export function deriveHiddenCrossings({ expression = "", methodProfile = [], can
 
     const grouped = new Map();
     for (const method of profile) {
-      const candidateValue = Number(candidate?.[method.dbColumn]);
+      const candidateValue = traceNumber(candidate?.[method.dbColumn]);
       const ownValue = Number(method.computedValue);
-      if (!Number.isFinite(candidateValue) || candidateValue !== ownValue) continue;
+      if (candidateValue == null || candidateValue !== ownValue) continue;
       const group = representative(method.methodKey);
       const existing = grouped.get(group);
       if (!existing || (method.sortOrder ?? 9999) < (existing.sortOrder ?? 9999)) {
@@ -317,7 +322,7 @@ export function buildRazielMicro({
   const rootNumber = Number(root);
   const expr = clean(expression) || (Number.isSafeInteger(rootNumber) ? String(rootNumber) : "הפוקוס הנוכחי");
   const method = clean(selectedMethod) || "השיטה הפעילה";
-  const result = Number.isFinite(Number(activeResult)) ? Number(activeResult) : null;
+  const result = traceNumber(activeResult);
 
   const facts = [];
   if (result != null) facts.push(`${expr} · ${method} → ${result}`);

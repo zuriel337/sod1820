@@ -57,8 +57,18 @@ for (const name of monitored) {
 }
 for (const removed of ["three", "@react-three/fiber", "@react-three/drei"]) {
   assert.ok(!new RegExp("\\('" + reEscape(removed) + "'\\)").test(mig), removed + " must not stay in the radar");
-  assert.equal(pkg.dependencies?.[removed], undefined);
 }
+// This historical migration predates the approved lazy scene.v1 S4 renderer.
+// The cumulative M1 design package restores two pinned runtime dependencies;
+// it does not rewrite the applied V2 detector or add drei. Keep checking the
+// current dependency/lock agreement and the explicit lazy boundary separately.
+assert.equal(pkg.dependencies?.["@react-three/drei"], undefined);
+for (const [name, version] of [["three", "0.186.0"], ["@react-three/fiber", "9.8.0"]]) {
+  assert.equal(pkg.dependencies?.[name], version);
+  assert.equal(lock.packages?.["node_modules/" + name]?.version, version);
+}
+assert.match(read("src/components/gematria2029/SpatialMethodStage2029.jsx"),
+  /lazy\(\(\) => import\("\.\/MistaterScene3D2029\.jsx"\)\)/);
 
 // 4. Stable-only semver classification; latest <= current creates no suggestion.
 assert.match(mig, /v_current is null or v_current = '' or v_current ~ '-'/);

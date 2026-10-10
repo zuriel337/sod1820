@@ -22,12 +22,14 @@ assert.match(conditional.dependencies[0], /כשאין אותיות סופיות/
 assert.equal(conditional.interpretation, "המהות הגלויה");
 
 const contextual = methodMechanicalDefinition(
-  { method_key:"אות רבתי", display_label:"אות רבתי · אלפים", execution_kind:"context_activated" },
+  { method_key:"אות רבתי", display_label:"אות רבתי · אלפים", execution_kind:"context_activated", derived_from:["רגיל","גדול"] },
   { sub:null, soul:null, mathematicalFamily:"extended_letter_values", dependencyRules:[] },
   new Map()
 );
 assert.ok(contextual.what);
 assert.ok(contextual.structure);
+assert.match(contextual.structure, /סימון מפורש במקור/);
+assert.doesNotMatch(contextual.structure, /=|רגיל · גדול/);
 
 const component = fs.readFileSync("src/components/BeitMidrashMethodsRegistry.jsx", "utf8");
 assert.match(component, /מה השיטה עושה/);
