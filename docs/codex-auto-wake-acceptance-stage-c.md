@@ -30,7 +30,7 @@ Commands:
 |---|---|---|
 | Canonical assignment/claim/lease/finish RPCs | Live DB routine definitions inspected | EXISTS |
 | Isolated PR #1024 runner dry-run | Exact branch tests passed previously | PASS offline |
-| Signed offline acceptance fixture | Tests in this PR, not provider runtime | PENDING test execution |
+| Signed offline acceptance fixture | Exact-head GitHub CI, with bounded signed-mode permit checks | PASS offline |
 | Vercel Sandbox nonsecret env handoff | Real canary passed | PASS nonsecret |
 | OPENAI_API_KEY in Vercel Development | Metadata-only, Sensitive Development | PASS metadata |
 | Real trusted Development->Sandbox secret handoff | No authorized operator runtime available here | FAIL |
@@ -42,3 +42,12 @@ Commands:
 An intentionally boring README.md one-line test-fixture change on codex/golden-readme-smoke, no schema/SQL/production. Required proof: a single assignment UUID, signed permit + nonce, single active canonical claim with lease, exact checkout SHA, one bounded Codex run, a **recorded** provider usage receipt and actual charge, one commit, one test, one AFTER with same assignment id, one authentic GPT wake ACK, duplicate delivery 0. Stop if any step is not evidenced.
 
 Current state MUST NOT be described as READY_FOR_FIRST_UNATTENDED_GOLDEN. More accurate: OFFLINE_ACCEPTANCE_READY_PROVIDER_AND_WAKE_BLOCKED.
+
+
+## Two-mode implementation evidence (2026-10-10)
+- Explicit codex_workflow_mode is mandatory in the existing work_log.dispatch_context when future Codex assignments are created by a trusted service (not currently populated by work_log_assign_agent). The existing assignment_mode remains READ_ONLY for RECON_READ_ONLY and WRITE for EXECUTE_BOUNDED.
+- scripts/codex-workflow-modes.mjs validates owner/main evidence, read-only recon, bounded allowlists, GPT/owner challenged prior RECON for cross-system/cleanup/cutover work, unexpected-blast stop and strict deletion gates. scripts/isolated-codex-executor-prototype.mjs uses this contract, but --live remains unconditionally blocked.
+- scripts/codex-implementation-recon-readonly.mjs collects ACTUAL current-checkout candidate Git file references without file writes, network, DB calls or model use. It cannot prove current origin/main, consumers, runtime, provenance, live costs or active writers; these remain UNKNOWN and require authenticated/live operator evidence.
+- Existing /2029/control now projects a limited and admin-gated subset from get_work_log_current through the existing ControlPlane2029Page, strictly as COORDINATION_REPORTED, with all unverified implementation/live/health/cost/DRIFT fields UNKNOWN. This is PR-branch implementation only; PR #1007 backend timeout and control branch reconciliation remain blockers.
+- scripts/test-codex-workflow-modes.mjs, scripts/test-codex-implementation-recon-readonly.mjs, scripts/test-codex-control-implementation-projection.mjs and signed auto-wake tests run through the lightweight .github/workflows/codex-executor-contract.yml. PASS here means OFFLINE CONTRACT ACCEPTANCE, never provider/authenticated Codex E2E readiness.
+- First unattended Golden must also prove authenticated READ_ONLY recon handoff and a separate bounded execution assignment with provider spending enforcement and controller wake. One broad RECON never grants broad WRITE.
