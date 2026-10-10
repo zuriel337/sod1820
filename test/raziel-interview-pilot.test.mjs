@@ -141,6 +141,55 @@ for(const action of ["reject","approve"]) {
     assert.equal(f.paths.get(state.path_id).latest.revision_no,state.revision_no);
   });
 }
+for(const withPredecessor of [false,true]) for(const point of ["approval","checkpoint"]) {
+  test(`fresh session explicitly resumes persisted ${point} operation (predecessor=${withPredecessor})`,async()=>{
+    const f=fixture(),state=await (withPredecessor?initial(f):start(f)),body=payload(state);
+    if(point==="approval")f.failOnce("admin_research_review",b=>b.p_decision==="approve");
+    else f.failOnce("fn_research_path_append_v1");
+    const failed=await handler(f,false)({op:"interview",...body});assert.equal(failed.body.ok,false);
+    const mutationCount=writes(f).length;
+    const fresh=(await handler(f,false)({op:"interview",action:"load"})).body;
+    assert.equal(writes(f).length,mutationCount,"load never approves or checkpoints");
+    assert.equal(fresh.next_question.id,Q1);assert.equal(fresh.decisions.length,0);
+    assert.ok(!interviewContext(fresh).includes(CORRECTED),"uncheckpointed recovery is not model context");
+    assert.equal(fresh.pending_recoveries.length,1);
+    const operation=fresh.pending_recoveries[0];
+    assert.equal(operation.request_id,body.request_id);assert.equal(operation.stage,point);
+    assert.equal(operation.interpretation,CORRECTED);assert.deepEqual(operation.exceptions,correction.exceptions);
+    const count=f.objects.size;
+    const after=(await handler(f,false)({op:"interview",action:"correct",path_id:fresh.path_id,
+      expected_revision_no:fresh.revision_no,question_id:operation.question_id,request_id:operation.request_id,
+      interpretation:operation.interpretation,reason:operation.reason,scope:operation.scope,exceptions:operation.exceptions})).body;
+    assert.equal(after.ok,true,JSON.stringify(after));assert.equal(after.next_question.id,Q2);
+    assert.equal(after.last_decision.id,operation.decision_id);assert.equal(after.last_decision.approved_by,UID);
+    assert.equal(f.objects.size,count,"recovery reuses the existing artifact");
+    assert.equal(after.pending_recoveries.length,0);assert.equal(f.models.length,0);
+    assert.ok(writes(f).every(c=>c.token===TOKEN));
+  });
+}
+test("recovery prefers the approved orphan over an inert candidate from a changed reload retry",async()=>{
+  const f=fixture(),state=await initial(f),body=payload(state);f.failOnce("fn_research_path_append_v1");
+  assert.equal((await api(f).handle(req(),body)).ok,false);
+  const changed=await api(f).handle(req(),payload(state,{interpretation:CORRECTED+" שינוי אחר במוק."}));
+  assert.equal(changed.error,"predecessor_unavailable");
+  const loaded=await api(f).handle(req(),{action:"load",path_id:state.path_id});
+  assert.equal(loaded.pending_recoveries.length,1);assert.equal(loaded.pending_recoveries[0].request_id,body.request_id);
+});
+test("recovery validates persisted operation fingerprint and does not expose another creator",async()=>{
+  const f=fixture(),state=await initial(f),body=payload(state);f.failOnce("fn_research_path_append_v1");
+  await api(f).handle(req(),body);
+  const row=[...f.objects.values()].find(r=>r.statement===CORRECTED),info=row.meta.ext.raziel_interview;
+  info.reason="tampered reason";
+  const tampered=await api(f).handle(req(),{action:"load",path_id:state.path_id});assert.deepEqual(tampered.pending_recoveries,[]);
+  info.reason=correction.reason;info.created_by=OTHER_UID;
+  const foreign=await api(f).handle(req(),{action:"load",path_id:state.path_id});assert.deepEqual(foreign.pending_recoveries,[]);
+  assert.equal(foreign.next_question.id,Q1);assert.equal(f.models.length,0);
+});
+test("ambiguous approved orphan operations are not silently selected for recovery",async()=>{
+  const f=fixture(),state=await initial(f),body=payload(state);f.failOnce("fn_research_path_append_v1");await api(f).handle(req(),body);
+  const row=[...f.objects.values()].find(r=>r.statement===CORRECTED),duplicate=structuredClone(row);duplicate.id=randomUUID();f.objects.set(duplicate.id,duplicate);
+  const loaded=await api(f).handle(req(),{action:"load",path_id:state.path_id});assert.deepEqual(loaded.pending_recoveries,[]);assert.equal(loaded.next_question.id,Q1);
+});
 test("two concurrent distinct replacements: one checkpoint wins, loser stays inert",async()=>{
   const f=fixture(),a=api(f),state=await initial(f,a);let arrived=0,release;
   const barrier=new Promise(resolve=>{release=resolve;});

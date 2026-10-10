@@ -92,9 +92,23 @@ with sync_playwright() as p:
     expect(page.get_by_role('status')).to_contain_text('הפעולה לא הושלמה בשלב checkpoint')
     expect(page.locator('[data-next-question]')).to_contain_text('מה משמעות החיבור')
     page.screenshot(path=os.path.join(cfg['out'],'failed-save-reopens-question.png'),full_page=True)
+    c.close()
+    c=context()
+    page=c.new_page()
+    page.on('pageerror',lambda e:errors.append(str(e)))
+    page.goto('http://127.0.0.1:5187/__pilot__/')
+    page.locator('summary').click()
+    expect(page.locator('[data-next-question]')).to_contain_text('מה משמעות החיבור')
+    expect(page.locator('[data-pending-recovery]')).to_contain_text('תחולה נוספת במוק בלבד.')
+    page.get_by_role('button',name='השלם את ניסיון השמירה הקודם',exact=True).click()
+    expect(page.get_by_role('status')).to_contain_text('ניסיון השמירה הקודם הושלם')
+    expect(page.locator('[data-next-question]')).to_contain_text('איזו דוגמת נגד')
+    expect(page.locator('[data-last-interpretation]')).to_contain_text('תחולה נוספת במוק בלבד.')
+    assert page.locator('[data-pending-recovery]').count()==0
+    page.screenshot(path=os.path.join(cfg['out'],'fresh-session-completes-pending-save.png'),full_page=True)
     assert not blocked,blocked
     assert not errors,errors
-    print(json.dumps({'layer':'LOCAL_BROWSER_MOCKED_SERVICES','correction_to_answer':True,'fresh_context_next_question':True,'failure_reopens_question':True,'external_requests':len(blocked),'page_errors':errors}))
+    print(json.dumps({'layer':'LOCAL_BROWSER_MOCKED_SERVICES','correction_to_answer':True,'fresh_context_next_question':True,'failure_reopens_question':True,'fresh_context_completes_pending_save':True,'external_requests':len(blocked),'page_errors':errors}))
     browser.close()
 `;
   const child=spawn("python",["-"],{env:{...process.env,SOD_PILOT_FIXTURE:JSON.stringify({source:SOURCE,q1:Q1,q2:Q2,old:OLD,corrected:CORRECTED,correction,out})},stdio:["pipe","pipe","inherit"]});

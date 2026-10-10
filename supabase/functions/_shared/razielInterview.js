@@ -93,10 +93,17 @@ export function createRazielInterview({ supabaseUrl, serviceKey, anonKey, fetchI
     if (!Array.isArray(found) || requiredIds.some(ref => !found.some(r => r.id === ref))) throw fail("reference_unavailable");
     return new Map(found.map(r => [r.id, r]));
   }
-  async function successors(ids, sourceRef) {
-    if (!ids.length) return [];
+  async function successors(ids, sourceRef, initialQuestions = []) {
+    if (!ids.length && !initialQuestions.length) return [];
     const refs = [...new Set(ids.map(id))];
-    const found = await request(`/rest/v1/research_objects?value=eq.787&kind=eq.hypothesis&owner_person_id=is.null&privacy_scope=eq.private&source_ref=eq.${encodeURIComponent(sourceRef)}&status=in.(candidate,approved)&meta->ext->raziel_interview->>predecessor_id=in.(${refs.join(",")})&select=${FIELDS}&limit=${MAX_QUESTIONS * 2 + 1}`, { method: "GET" });
+    const scope = `/rest/v1/research_objects?value=eq.787&kind=eq.hypothesis&owner_person_id=is.null&privacy_scope=eq.private&source_ref=eq.${encodeURIComponent(sourceRef)}&status=in.(candidate,approved)`;
+    const fields = `&select=${FIELDS}&limit=${MAX_QUESTIONS * 2 + 1}`;
+    const found = refs.length ? await request(`${scope}&meta->ext->raziel_interview->>predecessor_id=in.(${refs.join(",")})${fields}`, { method: "GET" }) : [];
+    if (initialQuestions.length) {
+      const initial = await request(`${scope}&meta->ext->raziel_interview->>question_id=in.(${initialQuestions.map(id).join(",")})&meta->ext->raziel_interview->>predecessor_id=is.null${fields}`, { method: "GET" });
+      if (!Array.isArray(initial)) throw fail("successor_ambiguity");
+      found.push(...initial);
+    }
     if (!Array.isArray(found) || found.length > MAX_QUESTIONS * 2) throw fail("successor_ambiguity");
     return found.filter(row => envelope(row)?.contract === CONTRACT && live(row));
   }
@@ -110,8 +117,8 @@ export function createRazielInterview({ supabaseUrl, serviceKey, anonKey, fetchI
     const resolutions = state.resolutions || {};
     if (Object.keys(resolutions).some(ref => !queue.includes(ref))) throw fail("invalid_checkpoint");
     const objects = await rows([...queue, ...Object.values(resolutions)], sourceRef, queue);
-    const replacements = await successors(Object.values(resolutions), sourceRef);
-    const pending = [], decisions = [], questionRows = [];
+    const replacements = await successors(Object.values(resolutions), sourceRef, queue.filter(ref => !resolutions[ref]));
+    const pending = [], decisions = [], questionRows = [], recoveries = [];
     for (const ref of queue) {
       const q = objects.get(ref);
       if (q.kind !== "question" || q.value !== 787 || q.source_ref !== sourceRef) throw fail("question_scope_mismatch");
@@ -120,11 +127,35 @@ export function createRazielInterview({ supabaseUrl, serviceKey, anonKey, fetchI
       questionRows.push(item);
       const replaced = replacements.some(row => envelope(row).predecessor_id === resolutions[ref] && envelope(row).question_id === ref);
       const d = !replaced && resolutions[ref] && decision(objects.get(resolutions[ref]), ref, sourceRef, who.uid);
-      if (d) decisions.push(d); else pending.push(item);
+      if (d) decisions.push(d); else {
+        pending.push(item);
+        // Recover a persisted operation after reload without writing on load or
+        // treating an uncheckpointed interpretation as answer context.
+        const previous = objects.get(resolutions[ref]);
+        if (!resolutions[ref] || (live(previous) && previous.kind === "hypothesis" && previous.meta?.governance?.approved_by === who.uid
+            && (previous.status === "approved" || (previous.status === "rejected" && previous.meta.governance.rejected_by === who.uid)))) {
+          const candidates = [];
+          for (const row of replacements) {
+            const info = envelope(row);
+            if (info.predecessor_id !== (previous?.id || null) || info.question_id !== ref || info.domain !== "source_interpretation"
+                || info.created_by !== who.uid || !UUID.test(info.request_id || "")) continue;
+            let fields;
+            try { text(row.statement, 1200, true); fields = decisionFields(info); } catch { continue; }
+            if (info.request_fingerprint !== await fingerprint({ questionId: ref, interpretation: row.statement, ...fields })) continue;
+            if (row.status === "approved" && !decision(row, ref, sourceRef, who.uid)) continue;
+            candidates.push({ question_id: ref, decision_id: row.id, request_id: info.request_id,
+              interpretation: row.statement, ...fields, stage: row.status === "approved" ? "checkpoint" : "approval" });
+          }
+          const approved = candidates.filter(operation => operation.stage === "checkpoint");
+          // Prefer the single already-approved operation over inert losing candidates.
+          const unambiguous = approved.length === 1 ? approved : approved.length === 0 && candidates.length === 1 ? candidates : [];
+          if (unambiguous.length) recoveries.push(unambiguous[0]);
+        }
+      }
     }
     const latestDecision = [...(path.steps || [])].reverse().map(step => decisions.find(d => d.id === step.entity_ref)).find(Boolean);
     const publicResult = { ok: true, found: true, contract: CONTRACT, path_id: path.path_id, revision_no: path.revision_no,
-      source_ref: sourceRef, questions: questionRows, decisions, last_decision: latestDecision || null,
+      source_ref: sourceRef, questions: questionRows, decisions, last_decision: latestDecision || null, pending_recoveries: recoveries,
       next_question: pending[0] || null, progress: { basis: "SELECTED_QUESTIONS_ONLY_NOT_CORPUS_COVERAGE", selected: queue.length, resolved: decisions.length, remaining: pending.length },
       completion: pending.length ? "question_open" : "selected_questions_complete" };
     return { ...publicResult, _path: path, _state: state, _objects: objects };

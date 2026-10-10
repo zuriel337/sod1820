@@ -63,6 +63,16 @@ deduplicated provenance/status and the payload-bound save key. Concurrent distin
 replacements cannot both approve after rejecting the same predecessor; the loser
 can leave an inert private candidate. There is no automatic destructive cleanup.
 
+After a page reload, a pending candidate/approved operation can be recovered from
+its existing source/question/creator/request/fingerprint metadata. Load remains
+read-only and does not include that uncheckpointed operation in answer context.
+The panel displays the interpretation, reason, scope and exceptions and offers an
+explicit completion button that reuses the persisted request ID and original
+artifact, with the current owned Path revision. This also covers the first
+interpretation without a predecessor. A single approved orphan takes precedence
+over inert candidates; ambiguous operations are not silently selected. No new
+retry store, browser persistence or automatic approval is introduced.
+
 A correction must have a different normalized statement identity. A scope/reason
 change alone cannot silently update the old artifact; same-identity replacement
 fails explicitly. General atomic hypothesis revision remains a future owner gap.
@@ -107,7 +117,7 @@ node scripts/test-research-path-resumability-runtime.mjs
 npm run build
 ```
 
-Pilot: 34 behavioral tests. Learning policy: 19 tests. Research Path acceptance:
+Pilot: 41 behavioral tests. Learning policy: 19 tests. Research Path acceptance:
 PASS. Legacy and 2029 production builds: PASS. Known pre-existing bundle warnings
 are not release failures.
 
@@ -120,7 +130,8 @@ SOD_PILOT_ARTIFACT_DIR=/tmp/raziel-787-browser \
   node --disable-warning=ExperimentalWarning scripts/verify-raziel-787-browser.mjs
 ```
 
-It writes a JSON receipt and three screenshots. The mock Supabase SDK is supplied
+It writes a JSON receipt and four screenshots, including a fresh context completing
+the pending save after a failed checkpoint. The mock Supabase SDK is supplied
 only by the verification server; production source is not replaced. All remote
 browser requests are blocked. Endpoint I/O uses synthetic fetch; unknown endpoints
 fail the test even if product code catches them.
@@ -128,6 +139,7 @@ fail the test even if product code catches them.
 Session artifacts were captured at `/workspace/artifacts/raziel-787-pilot-20261010`:
 `before-after.json`, `browser-report.json`, `corrected-answer.png`,
 `fresh-session-next-question.png`, `failed-save-reopens-question.png`.
+`fresh-session-completes-pending-save.png` records the explicit reload recovery.
 These local files are not asserted accessible to a remote reviewer; the harness is
 committed so evidence can be reproduced.
 
@@ -136,6 +148,9 @@ Independent design review was received in work_log
 hypothesis/review/Path primitives conditionally and identified the ordering,
 deduplication, actor, scoped-read and partial-failure invariants implemented here.
 Exact-head specialist review is recorded separately at completion.
+The first head review `50b99187-66b9-4a94-87ac-e076b86f80ff` independently ran
+34 tests and requested the fresh-session pending-save recovery described above
+(F1, MINIMAL_FIXES); seven additional behavioral tests cover that correction.
 
 Release state: **BRANCH ONLY — NO MERGE — NO DEPLOY**. No live product writes,
 schema/grant changes, corpus scan or live model calls were performed for validation.

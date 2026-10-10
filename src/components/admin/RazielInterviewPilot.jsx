@@ -79,6 +79,15 @@ export default function RazielInterviewPilot() {
     {result?.found && <>
       <p data-interview-progress="true">{result.progress.resolved} מתוך {result.progress.selected} שאלות נענו; {result.progress.remaining} נותרו.</p>
       <p data-next-question="true">{result.next_question ? `השאלה הבאה: ${result.next_question.question}` : "השאלות שנבחרו הושלמו."}</p>
+      {result.pending_recoveries?.map(operation => <div key={operation.decision_id} data-pending-recovery="true">
+        <p>ניסיון שמירה קודם ממתין להשלמה: {operation.interpretation}</p>
+        <p>נימוק: {operation.reason}<br />תחולה: {operation.scope}<br />חריגים: {operation.exceptions.join(" · ")}</p>
+        <button type="button" disabled={busy} onClick={() => run(() => correctRazielInterpretation({
+          pathId: result.path_id, revisionNo: result.revision_no, questionId: operation.question_id,
+          interpretation: operation.interpretation, reason: operation.reason, scope: operation.scope,
+          exceptions: operation.exceptions, requestId: operation.request_id,
+        }), "ניסיון השמירה הקודם הושלם. המשך הראיון נשמר.")}>השלם את ניסיון השמירה הקודם</button>
+      </div>)}
       {result.last_decision && <blockquote data-last-interpretation="true">
         הפירוש האחרון: {result.last_decision.interpretation}<br />
         נימוק: {result.last_decision.reason}<br />

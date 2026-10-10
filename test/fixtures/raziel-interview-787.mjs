@@ -22,7 +22,7 @@ export const correction = {
 };
 const copy = value => structuredClone(value);
 const reply = (data, status = 200) => new Response(JSON.stringify(copy(data)), { status });
-const inList = value => value?.replace(/^in\.\(|\)$/g, "").split(",") || [];
+const inList = value => value?.startsWith("in.(") ? value.replace(/^in\.\(|\)$/g, "").split(",") : [];
 
 export function fixture() {
   const objects = new Map([
@@ -59,9 +59,12 @@ export function fixture() {
       assert.ok(url.searchParams.has("kind"));
       const refs = inList(url.searchParams.get("id"));
       const predecessors = inList(url.searchParams.get("meta->ext->raziel_interview->>predecessor_id"));
+      const initialQuestions = inList(url.searchParams.get("meta->ext->raziel_interview->>question_id"));
       const out = [...objects.values()].filter(row => row.value === 787 && row.source_ref === url.searchParams.get("source_ref").slice(3) && row.owner_person_id == null && row.privacy_scope === "private" && ["question", "hypothesis"].includes(row.kind)
         && (!refs.length || refs.includes(row.id))
-        && (!predecessors.length || (["candidate", "approved"].includes(row.status) && predecessors.includes(row.meta?.ext?.raziel_interview?.predecessor_id))));
+        && (!predecessors.length || (["candidate", "approved"].includes(row.status) && predecessors.includes(row.meta?.ext?.raziel_interview?.predecessor_id)))
+        && (!initialQuestions.length || (["candidate", "approved"].includes(row.status) && initialQuestions.includes(row.meta?.ext?.raziel_interview?.question_id)
+          && row.meta?.ext?.raziel_interview?.predecessor_id == null)));
       return reply(out.slice(0, Number(url.searchParams.get("limit")) || out.length));
     }
     if (url.pathname === "/rest/v1/users") {
