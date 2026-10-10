@@ -1,10 +1,12 @@
+import { normalizeWorldNumber } from "./worldContextualProminence.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 
 let catalogCache = null;
 let catalogPending = null;
 
 function numericValue(row) {
-  const value = Number(row?.metadata?.value ?? (row?.type === "number" ? row?.label : null));
+  const value = normalizeWorldNumber(row?.metadata?.value ?? (row?.type === "number" ? row?.label : null));
   return Number.isSafeInteger(value) ? value : null;
 }
 
@@ -48,6 +50,8 @@ export function normalizeCurationNode(row = {}) {
     reason: null,
     kind,
   };
+  // rawReason is authorized provenance, not necessarily localized/public display copy.
+  // Keep it intact alongside the current public role-based explanation.
   item.reason = humanReason(item);
   return Object.freeze(item);
 }
@@ -130,19 +134,31 @@ function relationEndpointLabels(row) {
 }
 
 export function buildNumberCuration2029({ root, relations = [], catalog = null } = {}) {
-  const value = Number(root);
+  const value = normalizeWorldNumber(root);
   const safeCatalog = catalog || buildCurationCatalog2029([]);
   const anchor = Number.isSafeInteger(value) ? safeCatalog.byValue?.[value] || null : null;
   const relationLabels = new Set();
-  let witnessCount = 0;
-  for (const relation of Array.isArray(relations) ? relations : []) {
-    for (const label of relationEndpointLabels(relation)) relationLabels.add(label);
-    const role = clean(relation?.metadata?.curation_role || relation?.projection?.relations?.[0]?.metadata?.curation_role);
-    if (role === "gold_witness" || role === "diamond_witness") witnessCount += 1;
+  const witnessIdentities = new Set();
+  let witnessRowCount = 0;
+  let unresolvedWitnessRowCount = 0;
+  for (const row of Array.isArray(relations) ? relations : []) {
+    for (const label of relationEndpointLabels(row)) relationLabels.add(label);
+    const relation = row?.projection?.relations?.[0] || row?.relation || row;
+    const role = clean(row?.metadata?.curation_role || relation?.metadata?.curation_role);
+    if (role !== "gold_witness" && role !== "diamond_witness") continue;
+    witnessRowCount += 1;
+    // Count only explicit relation identities. A Finding wrapper id is not an edge id,
+    // and matching labels, values or endpoints do not establish a shared witness.
+    const projected = row?.projection?.relations?.[0] || row?.relation;
+    const candidateId = projected?.id || row?.identity?.sourceIdentity?.edgeId
+      || (!row?.projection && !row?.relation && !row?.identity ? row?.id : null);
+    const id = typeof candidateId === "string" ? clean(candidateId) : "";
+    if (id) witnessIdentities.add(id);
+    else unresolvedWitnessRowCount += 1;
   }
 
   const cores = [...safeCatalog.diamonds, ...safeCatalog.gold]
-    .filter((item) => item.value === value || relationLabels.has(item.label))
+    .filter((item) => (value != null && item.value === value) || relationLabels.has(item.label))
     .sort((a, b) => (
       (itemOrder[a.kind] ?? 99) - (itemOrder[b.kind] ?? 99)
       || a.label.localeCompare(b.label, "he")
@@ -152,7 +168,10 @@ export function buildNumberCuration2029({ root, relations = [], catalog = null }
     anchor,
     cores: Object.freeze(cores.slice(0, 3)),
     coreCount: cores.length,
-    witnessCount,
+    // These counts describe marked relations, not independent sources or evidence.
+    witnessCount: witnessIdentities.size,
+    witnessRowCount,
+    unresolvedWitnessRowCount,
     hasCuration: Boolean(anchor || cores.length),
   });
 }
@@ -162,6 +181,6 @@ export function curationForLabel2029(catalog, label) {
 }
 
 export function curationForValue2029(catalog, value) {
-  const n = Number(value);
+  const n = normalizeWorldNumber(value);
   return Number.isSafeInteger(n) ? catalog?.byValue?.[n] || null : null;
 }
