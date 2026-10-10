@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6.12 COMPACT
+# SOD1820 — MASTER ROADMAP v6.13 COMPACT
 
-**Date:** 2026-10-07  
+**Date:** 2026-10-09
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -85,13 +85,19 @@ Open operational debt from G3 is maintenance work under its existing owners; it 
 
 Purpose: make 2029 the coherent visible product shell quickly, without pretending unfinished capabilities are live, without polishing Legacy UI, and without freezing replaceable presentation before G4 can teach us from real use.
 
+**Execution priority · ZURIEL direction · 2026-10-09:** World → Posts → Heichal. This orders current delivery; the existing Posts Golden and Cross-Surface Skeleton remain acceptance requirements. P0 security and G1 acceptance continue with their existing owners. Full Admin/Control Plane expansion is deferred; essential safety and operational blockers stay in scope.
+
+**Journey foundation belongs in G4, before English:** complete the existing unified Research Path continuity across source/gallery, World/Topic/Post, Number/Expression/method crossings and ELS, with exact return and contextual Raziel. Preserve original material and the existing ELS capability inventory. Detailed bounded delivery, historical decision reconciliation and session boundaries live in [the existing dependency plan](docs/2029-implementation-dependency-plan-v1.md#journey-foundation-g4). This is not a new gate, Journey system or whole-corpus rescan. G5 may enrich coverage and personal research; G6 consumes the accepted continuity; spatial/3D, voice and advanced background activation remain in G7 under their existing owners.
+
+**Continuation · 2026-10-10:** the same plan's [Home/World continuity and visual direction](docs/2029-implementation-dependency-plan-v1.md#world-home-continuation) connects incoming sources, the preserved historical corpus, stories, topics and explicit Journeys. It contains the next bounded delivery and proposed image placement; current owners/delivery states remain in `work_log_current`. First prove one joined experience using the delivered shared design; then reuse it for further entrances. Final composition remains reviewable by ZURIEL, and these documentation changes do not close G4 or authorize publication.
+
 - Freeze a **semantic shell contract**, not an irreversible IA or final visual composition. Stable through the transition: canonical surface/entity identities, route families, truth/access semantics, availability states, Research Context/Exact Return behavior, and capability slots. Replaceable by G4 evidence: navigation grouping/order, page composition, hierarchy emphasis, card geometry, imagery, motion, spatial treatment and other presentation details.
 - High-fidelity design is an **early Human-Gate thinking instrument**, not a late cosmetic phase and not an acceptance shortcut. Once the semantic shell/availability contract is frozen, build at real visual quality so ZURIEL can inspect the system, compare directions and change composition before broad rollout.
 - Freeze one coherent 2029 shell vocabulary across Home, World, Posts, Topics, Books/Sources, Number, ELS/Cipher, Journey, Community, Personal Area/Workspace, Raziel and future capability slots. Existing owners keep semantic authority; no surface becomes a new truth or capability owner.
 - Every visible destination must project an honest availability state through existing capability/site-flag owners: **OPEN / BUILDING / LATER / GATED**. A visible button, image, icon or card may preview the future product, but an unavailable capability must not resolve into a fake working route or imply Golden acceptance.
 - Define the **minimum public 2029 slice** before broad cutover: Home, World, Posts Index, Post, Topic and Book/Source navigation must form a coherent route chain with truthful return/navigation. Other surfaces may remain BUILDING.
 - The public-shell transition is presentation/cutover readiness, not Legacy destruction. Legacy engines, sources, data, media, SEO compatibility and adapters remain behind 2029 until replacement/consumer proof permits retirement under their existing owners.
-- **Posts-first priority:** because new public posts are the immediate Human-Gate need, the first high-fidelity Golden is **Posts Index + Post**. Current FZ1073 and Bennett×salt are fixtures; do not create a third Post Golden merely to test another local composition.
+- **Posts acceptance priority within the delivery order above:** the first high-fidelity Golden remains **Posts Index + Post**. Current FZ1073 and Bennett×salt are fixtures; do not create a third Post Golden merely to test another local composition.
 - Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
@@ -128,7 +134,7 @@ Golden acceptance also includes measured end-to-end performance on representativ
 
 **Public Beta Evidence / Self-Learning lane:** after required Goldens + the Pre-Cutover Security Gate, use the 2029 Public Cutover as a measured evidence window. Reuse existing Traffic Intelligence / Analytics owners; no second analytics truth store. G5 product allocation and G6 international rollout consume this evidence. Detailed metric identity, windows/cohorts and governed recommendation loop live in `docs/2029-public-beta-evidence-learning-plan-v1.md`.
 
-**2029 Control Plane / Attention readiness lane:** during G4 freeze the shared Surface Registration / Launch Contract + Attention contract and wire owner projections; before Public Beta Cutover ship the minimum operational Control Plane; G5/G6 add money and international lenses. Any current or future surface may remain BUILDING, but may not become OPEN/Golden/Public without the shared launch evidence contract. Detailed inheritance/observability plan: `docs/2029-control-plane-attention-observability-plan-v1.md` + `docs/2029-implementation-dependency-plan-v1.md`.
+**2029 Control Plane / Attention readiness lane:** retain shared launch evidence and essential safety/operational readiness through existing owners. Under the 2026-10-09 execution priority, full Control Plane/Admin expansion and its dashboard rollout are deferred; they do not precede public World → Posts → Heichal completion. Existing security/release evidence remains required. Any surface may remain BUILDING, but may not become OPEN/Golden/Public without its applicable launch evidence. Detailed future inheritance/observability plan remains in `docs/2029-control-plane-attention-observability-plan-v1.md` + `docs/2029-implementation-dependency-plan-v1.md`.
 
 External analytics/search/observability providers remain complementary evidence projections. Missing or unconfigured feeds render `UNAVAILABLE/NOT_CONFIGURED`, never synthetic zero; detailed provider/dimension semantics stay outside this Roadmap.
 
@@ -143,6 +149,8 @@ Deferred P1/P2/P3 corpus deep-mapping may continue in or after G5 when those cor
 ### G6 — English Golden Locale / multilingual projection acceptance
 
 Prove English over the same identities, capability/access state, Research Context, truth/provenance and product surfaces. Then expand the same projection contract to the remaining canonical locales.
+
+Prerequisite: the G4 Journey foundation above, including Number/method selection, ELS exact occurrence, source/gallery return and Raziel continuation, must be accepted in Hebrew first. Translate the experience over those identities; do not create locale-specific paths or replace source-language calculations.
 
 **Security gate:** before broad English/multilingual exposure, pass the G6 Global Exposure Gate from `docs/2029-security-hardening-gate-plan-v1.md`: locale routes preserve the same authorization/side-effect boundaries, public crawler/AI access remains read-only where intended, international abuse/rate patterns are measured, and Turnstile/ASN/datacenter/country controls are added only from evidence rather than by default.
 

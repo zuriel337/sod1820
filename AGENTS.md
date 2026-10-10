@@ -38,6 +38,10 @@ owners or authorize writes, task claims, merges, or deployments.
 
 ## Coordination and handoff
 
+For the current G4 Home/World/source/Journey work, use the Roadmap's existing G4 priority and [§8A continuation and visual direction](docs/2029-implementation-dependency-plan-v1.md#world-home-continuation) before choosing the next slice. Resolve the current delivery/active writers through `work_log_current` task `WORLD_2029_GROUP_STREAM_1001_RELEASE_CONTINUATION_V1`; old session prompts are provenance, not fresh assignments. If this section is not yet on `origin/main`, its pending delivery is [draft PR #1013](https://github.com/zuriel337/sod1820/pull/1013), branch `gpt/journey-foundation-plan-20261009`; verify its current head and read it without automatically importing its other changes. This is a task-specific pointer to the existing plan, not an additional startup system or authority.
+
+For foundation status or reuse of completed scans, start with the same plan's [dated checkpoint and evidence locations](docs/2029-implementation-dependency-plan-v1.md#foundation-checkpoint-and-scan-reuse). Recover the existing relevant artifact before repeating its scan; revalidate only the changed dependency. Missing files remain an explicit recovery gap. An offline GPT copy is context, not live verification or a new authority.
+
 - `work_log_current` is the bounded coordination surface. `work_log` is provenance, **not** product truth. Live code/database/owners outrank summaries or prior conversations.
 - At material completion, provide a precise handoff: `actor · task_key · owner · scope · status · branch/commit/PR · tests · blockers · open_threads · handoff_to`.
 - The read-only Supabase connection **cannot** write `work_log`. Supply the handoff to the existing **authorized coordinator** for recording; do not invent an AFTER row or claim that another agent received it.

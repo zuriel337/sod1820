@@ -1,6 +1,6 @@
 # SOD1820 — 2029 IMPLEMENTATION DEPENDENCY PLAN v1
 
-**Date:** 2026-09-17  
+**Date:** 2026-09-17 · execution reconciliation 2026-10-09
 **Status:** PROGRAM / DEPENDENCY MAP · HUMAN-GATE CONTROLLED · BRANCH-ONLY until merged  
 **Scope:** greenfield 2029 tree only. Legacy UI is compatibility/provenance/input where explicitly required; it is not the architecture authority.
 
@@ -614,6 +614,8 @@ Delivery policy:
 
 **Goal:** build semantic homes on top of the completed rails.
 
+Current delivery priority is World → Posts → Heichal, with the Journey foundation below completed in G4 before English. Earlier PR lists in this document are lineage, not current release status. P0 security and G1 acceptance retain their existing owners. Full Admin/Control Plane expansion is deferred by ZURIEL's current direction; only essential safety/operational blockers take priority over public completion.
+
 Homes:
 
 - Home / Global Now;
@@ -631,8 +633,8 @@ Homes:
 **Control Plane build timing**
 
 - **G4 / Phase 8–11:** build/verify contracts, adapters and owner projections first; UI polish is not the priority.
-- **Before Public Beta Cutover:** minimum Control Plane V1 is a blocking operational requirement. It must show release state, health/security attention, traffic composition, 2029 analytics, Google/Search/Discovery status, performance/cost and the system recommendation inbox.
-- **First ~14-day Public Beta evidence window:** expand to Control Plane V2 — time-axis comparison, cohorts/funnels, release before/after, per-surface/action drill-down, anomaly/trend recommendations and evidence links.
+- **Before Public Beta Cutover:** prove essential release/safety/operational readiness using existing owner evidence. The full Control Plane V1 dashboard is deferred by the 2026-10-09 direction; its proposed lenses remain future scope.
+- **Public Beta evidence window:** collect the already-governed evidence. Control Plane V2 comparison/cohort/drill-down UI remains deferred, rather than an automatic expansion during that window.
 - **G5 before money:** add payment/entitlement/credits/cost/margin/reconciliation lens.
 - **G6 before broad multilingual:** add locale/international/Search-type/crawler/abuse comparison lens.
 - **Later G7/G8:** voice/media/spatial/XR resource and adoption lenses inherit the same contract; no dashboard redesign required.
@@ -666,7 +668,377 @@ Current:
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
-**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction, and an internal 2029 Control Plane can answer what needs Human/operational attention with drill-down to the existing owner evidence instead of requiring Legacy Admin.
+**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction, and essential Human/operational attention remains accessible through existing owners. Full Admin replacement is not added to the current public completion scope.
+
+<a id="journey-foundation-g4"></a>
+
+### 8A. Unified Journey foundation — G4 before English
+
+**ZURIEL direction, 2026-10-09; EXTEND_EXISTING.** This section expands the existing delivery plan. It is neither a new semantic contract nor an additional gate. Authority remains with Research Workspace v5, Research Strategy v17, Reality Graph, Intake/Media/Truth, Gematria/Methods, ELS v9, Raziel and System Frame/Experience. Resolve live versions before implementation.
+
+#### Target experience
+
+A visitor enters through a story, image, number, word, source or cipher, understands the selected item, sees why a few next steps matter, and can continue or return without learning the site's architecture. A Journey is a chosen traversal through this same material. A numerical crossing is a possible transition, not an automatically saved Journey or proof that two subjects are identical. Chaining relations does not establish a new transitive fact.
+
+The same path may later render as guided reading, an Atlas view, layered ELS or spatial/3D. Semantic identity, source evidence and path revisions survive renderer changes; camera coordinates never become research truth. An ordinary click/search does not silently start a Journey. Start/continue is explicit under the current Workspace owner. Guided and organic paths share the same substrate; Name-as-word and authorized Person/Life are distinct entry contexts, not duplicate systems.
+
+#### Verified starting point — 2026-10-09
+
+- Repository baseline: origin/main 8e939d3b092f267e40d74953b9103711322276d2. Live Research Path append/resume/fork RPCs exist; aggregate snapshot is 3 paths / 4 revisions, with 0 approved, public, published revisions. Counts are verification evidence, never UI constants.
+- Number2029Page already consumes canonical method/context/trace projections. Its special Journey branch still uses legacy addJourney for 878; the general NumberLivingWorld Journey action otherwise navigates to World. Preserve useful depth while replacing this incomplete continuation seam.
+- Post reading trails are declared fixture data in post2029ReadingProjection; they are not proof of generic relation-driven Journey execution. Keep the two existing Post Goldens, FZ1073 and Bennett; elections and 1237 are supporting coverage, not new Post Goldens.
+- ResearchProvider/researchPathRuntime already implement save/resume/fork over research_paths/research_path_revisions. Reuse them. research_plans are execution plans, not saved Journeys; legacy journey_saves/addJourney are compatibility lineage.
+- PR #932 is an open draft Guided Discovery seam; reconcile it before implementing overlapping files. PR #928 is CLOSED, unmerged, and fn_research_path_public_read_v1 is absent live. Personal path persistence does not prove public guided-path publication/sharing. That capability stays unavailable until its existing reader/governance seam passes acceptance.
+- ELS already has exact-reopen helpers, an ELS Raziel context adapter, and matrix-depth/volume/mode primitives on main. These do not prove a complete cross-surface ELS Journey. PR #965 remains an open draft under the existing ELS writer; its preview evidence is not main/production acceptance.
+- Raziel Intelligence Core PR #958 is merged; the 5 October Working Beta release record also documents an ELS intent hotfix. Older September notes calling the entire core branch-only are historical. This does not certify every contextual ELS/World/Journey flow.
+- Production browser checks from this coordinator received HTTP 403 for Number 1237/878 and the two Posts. The findings above are code/DB/PR evidence, not a live visual PASS.
+
+#### Historical intent recovered — preserve through current owners
+
+The history search covered work_log from June–October 2026, including archived history, the existing project_codex homes, the archived Roadmap and ELS/Research Studio plans. Journal entries are provenance; current owners and later decisions control. Private GPT conversations not saved in these sources are outside this evidence set.
+
+| Decision provenance | Capability that must survive | Current home / delivery timing |
+|---|---|---|
+| 19 June feature plan, work_log 674ddd18; 12 July ELS vision, 49ffbdcb | Number → method/crossing → source/ELS → further discovery; eventual spatial traversal | Workspace + Methods + ELS; core continuation in G4, spatial activation G7 |
+| 23 July six-month Raziel plan, c4545b2b; One Tree companion, 45f5a7e6 | One contextual companion across site/WhatsApp; useful first action, personal continuity, optional shared contribution | Existing Raziel/Person/Intake owners; do not revive obsolete monthly schedule, pricing or bot topology |
+| 17 August ELS foundation, 39dd51f7; 24 August capability unification, a61a2be5 | Discovery → Investigation → Judgment; shared Finding identity; 2D/Layered/3D; 85 recovered capabilities | Existing els-capability-workarea-unification.md and els-capability-audit.md; preserve dispositions, not historical LIVE counts |
+| 25 August numeric interview, f6feb35c; 23 September project_codex raziel_mind_architecture | Learn ZURIEL's research procedures from chosen branches, corrections and attributed readings; exact methods and source history | Research Strategy / existing number_readings / Synthesis; calibration is not automatic truth promotion |
+| 14 September Heichal/ELS/Journey checkpoint, 39785155 | Recoverable research spine, full-focus ELS, shared inspector, exact corpus/matrix/layer return; one Journey family | Workspace + ELS + System Frame; adapters/continuity now, future renderer remains separate work |
+| 15 September companion checkpoint, 486a16a4 | What Changed from governed revisions; Silence Gate, additive self-correction, useful STOP/PAUSE, authorized channel continuity | Raziel + Strategy; G4 text/context/negative cases, broader Pulse/channel activation per later gates |
+| 27 September unified Path decision, ab4abf4f | Durable revisions, branches, exact resume; discovery/number/name/person/ELS/source/topic kinds; one Journey telemetry family | research_paths/revisions + journey_2029, not legacy visit counts |
+| ELS owner v4–v9 and 30 September Human decision, 3eea2971 | Bounded open discovery, dynamic lexicons, structural motifs, controls, vector/volume research; multiple verified execution strategies inside one truth boundary | Existing ELS/Strategy owners; preserve advanced capability without making full mining or 3D a G4 UI prerequisite |
+| 4 October Guided Discovery decisions, 6958ffc9 and 20c94379 | Guided steps in existing Inspector/mobile sheet; 878 first teaching example, not a hardcoded universal model | Existing Learn/System Frame/Workspace seam, including PR #932 lineage |
+
+Legacy statements such as “ELS only follows gematria”, “one browser implementation”, “all AI cores are still unmerged”, and fixed historical method/capability readiness counts must not override later live owners. ELS may enter from a qualified source, expression, event or Journey, and bounded open discovery is allowed. The canonical ELS boundary retains corpus/coordinates/replay/results even when internal strategies differ.
+
+#### Material preparation — catalog references, preserve originals
+
+1. Reuse the completed Zvi/Sod Hashmal/India/source maps and admitted identities before extracting anything again. Classify source artifact, source occurrence, authored interpretation, exact expression/calculation, event/topic relation and Journey step separately through existing owners. No new tagging graph or intake queue.
+2. Preserve original gallery title/caption/credit/URL/order and every historical placement. Chronological viewing carries date precision and never overwrites source order. A selected image may participate in several topics/paths with a different explained relation; copied images do not become independent evidence.
+3. Keep incoming authorized WhatsApp/source material eligible for Home/World movement before research admission. Extraction and a proposed topic relation do not silently publish private material or create an approved topic. Do not alter existing ingest settings.
+4. A method transition preserves exact expression, canonical method key/version, result and trace. A date/digit/system-rule transform preserves its own input/operator/output lineage. Equal numbers, equivalent methods and copied source occurrences remain distinguishable.
+5. ELS material retains exact searched representation, corpus/version, occurrence coordinates, signed direction/skip, geometry/search scope, engine/strategy version, completion state and dependency lineage. Historical cipher images without replay data remain usable historical sources with that limitation; no invented coordinates or rewritten captions.
+6. Start with the material actually used by FZ1073/Bennett, 878, 1237 and the existing ELS Golden. Close relevant P0 boundaries; long-tail enrichment may follow in G5+. Do not delay G4 for another complete corpus extraction.
+
+#### Delivery packages inside the existing G4 sequence
+
+| Order | Deliverable | Existing responsibility | Evidence of completion |
+|---|---|---|---|
+| 1 — World/source | Authorized arrivals and already-linked media/source material resolve through existing Entity Hub/media adapters; bounded “why here / continue” with exact gallery placement | Existing World GPT writer, Intake/Media/Reality/Truth | PR #1010 reconciled separately; India/image/gallery return and source permissions proven; no dependency on final Topic redesign |
+| 2 — shared continuity + Posts | Connect selected source/paragraph/relation to the same Path state; consume generic guided/organic seam; preserve revision, branch point, transition reason and multi-step return | Workspace/Journey owner; existing Claude Post builder + GPT reviewer own Post files; Chrome owner owns frame | FZ1073 captain → India → image/gallery → exact return; Bennett → elections/631 → return; reload/auth-expiry/mobile replay; no hardcoded trail mistaken for a saved path |
+| 3 — Number + Heichal/ELS + Raziel | Generic Start/Continue from selected Number/expression/method/crossing; ELS exact occurrence → source/method/next finding → same Path; contextual explanation and next action | Methods/Workspace, existing ELS writer, Raziel/Strategy; one writer per shared file | 878 compatibility preserved; 1237→same-expression other-method coverage; exact ELS replay after return; no-result/partial/unavailable/STOP handled honestly |
+| Acceptance | Existing Posts, Cross-Surface, ELS and Raziel Goldens consume these packages | Foundation/Experience + existing security/release owners | Complete source→calculation/ELS→explained continuation→save/resume/fork/return; newcomer/mobile/performance checks; public-path sharing only after its reader is accepted |
+
+These packages add no G4 subgate. In G4 build a readable 2D Journey and preserve extension points. In G5 deepen catalog coverage, personal research and governed automation with the existing Product/Entitlement matrix. G6 translates the accepted same-path experience. G7 may activate spatial/3D, narrated journeys, richer background work and authorized cross-channel continuation. Full ELS capability rollout remains staged by its owner; no capability disappears because it is deferred.
+
+#### ELS depth and AI — explicit carry-forward
+
+- Preserve the existing 85-capability inventory: matrix/display; search; Finding actions; occurrence/proximity; ranking/statistics; candidate generation; save/share/research case. Its August readiness counts are not present-day acceptance.
+- Preserve exact replay first, same-axis forward/back continuation, representation/FORMS and split/join lineage, local intersections/parallel families, source verses and bounded cross-matrix comparisons. A discovered occurrence can become the next focus while the previous axis remains reopenable.
+- Preserve the distinction between sliding 2D slices, layered presentation and a declared matrix-volume coordinate basis. Camera depth alone is not a new research dimension. Heavy geometry and 3D are loaded only on demand.
+- Preserve bounded open sequence discovery, declared lexicon sources, long-sequence extension, context-qualified short terms, structural motifs and cross-matrix “language signature” as research candidates. Adaptive expansion follows a concrete question/information gain, with budget and stop conditions.
+- Statistical claims require the existing replayable manifest, search-space/dependency accounting, controls/nulls and holdout discipline. A visually impressive matrix, repeated crop, AI agreement or semantic similarity supplies no additional independent evidence.
+- Raziel uses existing Research Plan → authorized Context Pack → canonical tools → Result Bundle → Synthesis → contextual presentation. It can explain, suggest, compare, challenge and continue; it does not calculate gematria/ELS in prose or run unbounded scans on page load.
+- Research Grammar learns useful procedures from accepted examples and corrections. “What changed” compares governed source/result/path revisions; it cannot be inferred from chat memory alone. Silence, STOP and correction are real successful outcomes.
+- Guest/public reading remains useful when AI is unavailable. Authorized personal saving and channel continuation use existing identity/consent. A private Journey is not published by a share button; public curated paths need the existing governed reader/publication boundary.
+
+#### Number page, Projector and shared frame
+
+Recommend one selected subject and progressive depth: short readable meaning/context → relevant sources and continuations → selected method/crossing explanation → full Heichal depth on request. Do not stack every method, topic, gallery and AI panel down the default Number page. Current method/trace/deep-view capabilities are preserved behind meaningful selections.
+
+The header maintains orientation/search/account; the global rail owns destinations. The existing Inspector/Projector explains the selected item and why a next step belongs. The bottom path/action surface shows the active Journey position, next/back/exact return and save/continue when available. The small trail inside a Post is an entry/position projection of this same path, never another history. On mobile, reuse one recoverable sheet/command surface with keyboard/focus/reduced-motion support; avoid competing overlays. World supplies the wider discovery view; no permanently duplicated mini-World. Physical placement remains under current System Frame/Design owners.
+
+#### Contextual quality, discovery and learned research grammar — execution acceptance
+
+**2026-10-09 execution addendum, proposed delivery detail under existing owners.** This does not create a quality law, ranking service, score store, learning registry or Journey family. Binding semantic authority already exists in `research_gold_hints_law v4`, `cross_vs_convergence_criteria` (live row `rule_version=4`, with the Human-Gate **6 October Event Convergence Profile / General Equation** addendum in its body), `research_strategy_layer_law v17`, Reality/Intake/Truth and `system_suggestions_law v5`; `project_codex.raziel_mind_architecture` is their existing routing pointer, not another owner. Preserve the recorded row/body version distinction in provenance; this plan does not silently rewrite the registry version. Proposed public wording and consumer acceptance below are not a new canonical promotion.
+
+**Historical decisions recovered:** work_log `82da15d6` (9 September) records Number-set stacks and Gate Nun 676/1234/2626; `55329b92` (14 September) records ordered structure as a Research Strength dimension. The latter distinguishes 676/787 palindromes, 1234 ordered run, 2626 repeated block and component symmetry. These are research signals with their own identities, not numerical quality ratings. Historical approved research material may still be private or public-candidate; approval does not grant public visibility. Use authorized public source witnesses for World fixtures.
+
+**What is evaluated:**
+
+| Object | Relevant evaluation | What it must not inherit automatically |
+|---|---|---|
+| Exact calculation | Expression, canonical method/version, result, Trace, spelling/representation and calculation status | Importance, event verification or spiritual interpretation from equality alone |
+| Sourced Finding / relation | Source quality, replayability, typed reason, independent support, dependency family, uncertainty and contextual explanatory value | One extra independent evidence for each zero/one transform or copied occurrence |
+| Event / qualified convergence focus | An aggregate Research Strength Profile around the stable event identity | A count of posts/tags as strength; later cross-time convergence as a historical child event |
+| Topic / subject / Number | Coverage and meaningful qualified branches, distinct events, source groups, gaps and contextual prominence | A flat quality score attached to its name, degree count or bare number |
+| Post / Journey | Source fidelity, clear narrative or transitions, supported steps, exact return and suitability for the current reader | Truth promotion because presentation is attractive or engagement is high |
+
+The same Finding/profile keeps the same semantic identity across Home, World, Post, Topic, Number, Journey, Heichal and Raziel. The context may change display order. The full canonical Event Profile covers reality salience; independent evidence; cross-domain breadth; numeric verification depth; temporal precision; source/provenance quality; recurrence across distinct events/times; semantic graph coherence; human curation; contradictions/negative controls/unknowns; and current relevance. A relevant unknown stays unknown; lack of adapter coverage is not a zero quality value.
+
+Keep **two outputs** from the existing Result Bundle/prominence owners: (1) inspectable **Research Strength Profile**, (2) **Presentation Priority** relative to the active context. The latter can use a bounded numeric sort internally only with reconstructable contributors/penalties. No opaque global 0–100 or 1–7 truth meter. Suggested public projection: **במרכז / להמשך / לעומק**, corresponding to the already-defined Spotlight/Supporting/Deep-only bands. Their UI thresholds require calibration, not invented global constants. Source/verification state remains separate. Human Gold/Diamond/Treasure curation is not automatically granted by AI or by this document.
+
+**Statistics contract:** numbers displayed beside a subject must be generated from the same authorized, normalized scope. Keep separate: unique source artifacts; historical placements; source-origin/dependency groups (unknown unless classified); canonical calculations; independent method families when the relation engine establishes them; distinct events and periods; qualified cross-domain layers; unresolved links; and scan coverage. Include scope/filter/version/as-of where needed. Do not display the sum of all these as a total strength. Do not claim a statistical coincidence probability from a curated collection; a probability requires the existing declared search-space/control/holdout procedure. Two return paths or three descriptions of one source do not create new independent evidence. Reuse existing counts/readers where complete; omit or label unavailable counts rather than guess.
+
+**Discovery / hint assembly contract:**
+
+1. Resolve the current subject and authorized public source envelope; reuse admitted material and existing corpus maps before any fresh extraction. Raw arrivals may remain discovery material before research admission.
+2. Extract exact operands, source region/video range, units/date representation and authorship. Keep source claim, calculation, rule application and interpretation separate.
+3. Run applicable canonical methods and active System Methods within the existing Strategy budget. Preserve every step's original input, method/rule identity+version, operation, result, Trace and source lineage. No changing spellings or arbitrary arithmetic to hit a desired number. Source-supported alternate readings remain separately addressable.
+4. Retrieve qualified existing connections. Label exact equality, same-expression method transition, governed zero/one transform, temporal relation, authored pattern reading, thematic relation and cross-time convergence distinctly. A traversal is not a new transitive fact.
+5. Group dependencies before composing the contextual profile. Repeated screenshots, formula-equivalent methods and transformations of one result may enrich an explanation without increasing independent evidence. Surface contradictions and source gaps through the existing model.
+6. Select a bounded set of strong, explainable entry points. Each offers the actual source, one clear reason, the relevant physical calculation opening where supported, and an actionable continuation with exact return. Ordinary browsing does not start/save a Path; Journey start remains explicit.
+7. Raziel explains from this same result and may propose research or a next step. Proposed relationships follow existing Intake/Human-Gate promotion; discovery, verification, ranking, publication and Follow remain separate.
+
+**Current implementation boundary:** `worldContextualProminence.js` and `worldConvergenceLensProjection.js` already provide shared contextual ranking/explanation, dependency and verification handling. This review does not certify a complete consumer of all eleven Event Profile dimensions; source-quality coverage remains incomplete in the existing projection. Extend these owners/adapters, not a new quality engine. No fixed demo counts or event-specific ranking array may stand in for generic execution.
+
+**Existing consumer contract, before proposing fields:** `buildWorldContextualProminence` returns items with `sourceRef`, `familyKey` and `explainWhy` (relevance, relationPath, humanCuration, researchStrengthSignals, dependency, directness, informationGain, temporalRelevance, uncertainty, signalOnly), plus `candidateCount` and `contextSignals`. Its `crossMethodStrength` already distinguishes independent/dependent phrases and methods. `buildWorldConvergenceLensProjection` exposes verification/status/layer/presentation counts and capability state. Reuse these semantics: `multiTrace` is a raw multi-provenance signal, not independent evidence; `candidateCount` is current projection candidates, not completed corpus coverage. Any missing Event Profile dimension must be mapped by its existing owner/adapter with an honest unavailable state, not fabricated from these counts.
+
+**Verified calibration routes, not automatically published Journeys:**
+
+| Pilot | Exact verified structure | Acceptance focus |
+|---|---|---|
+| FZ1073 / festival / gratitude | `תשפ״ז`, `ושמחת בחגך`, and `מי שגמלך כל טוב הוא יגמלך כל טוב סלה` each =787 in regular; Post5112 supplies the authored event connection. Two written date expressions yield1718; the one-law yields718; `שביעי באוקטובר` regular718. | Event/calendar source and expression calculations remain distinct support layers. A historic blessing's thematic fit is not independent reporting that it was recited in the flight. FZ1073→7.10 is cross-time convergence. Source occurrence date requires its own evidence. |
+| Wisdom / methods / source | `חכמה` regular73, kadmi271, miluy613, miluy-gadol1893, miluy-only-gadol1820, miluy-demiluy1230, mistater67; historical source `c502fa89-96f1-495b-aeb7-b16deaaa96b3` preserves labels. | Same expression, different canonical methods; physical opening preserves COMPOSITE diff1893−73=1820. `מסתתר` is adjacent-difference geometry, not the hidden letters of Miluy. |
+| Wisdom / pleasure / order | `חכמה` miluy-demiluy1230 → zero-law123 → `ענג` regular123. Separately, `סלחתי כדברך` mistater1230 → same-expression גדול1234 → `התגלות השכינה` regular1234 / `שער נון` miluy1234 → same-expression regular676 and kadmi2626. Public source `4de128e1-7609-406c-b692-7d9b2f9ffec1`, gallery67/order4. | Each arrow has its own typed operation. Preserve spelling `ענג`; `עונג` gives129. There is no fabricated equality123=1234 or implicit +1 operation. 676/1234/2626 structural patterns are an additional labeled dimension, not three independent event witnesses. |
+| Gate Nun / Internet | `רשת האינטרנט` regular1234 and mistater676; `שער נון` miluy1234 and regular676. Public source `fe9f458e-364c-4462-8a57-94f57a96ec65`, gallery67/order1. | Explain two method-specific crossings and dependency classification without turning source interpretation into a system claim about the Internet. |
+| Elections / names / historical branches | Existing exact631 and Ofer-Winter miluy1820 fixtures; 271 pregnancy/wisdom connection and source-backed USA/Israel branches retain separate event identities. | Topic coverage differs from one event profile; preserve author/time/person distinctions and historical galleries. Post5107 is intended as a 2029 flagship per ZURIEL; old draft provenance does not dictate future visibility, but publishing still uses the existing owner. |
+
+These calculation receipts were replayed through the canonical engine at this review, not inferred from an old caption. Source existence/engine parity are not a proof that all paths are admitted, public, or implemented. No fresh transcription was required; video timing acceptance remains with its source owner.
+
+**Learning from ZURIEL's choices:** `project_codex.raziel_mind_architecture` routes Research Grammar learning from chosen branches, corrections, saved readings and accepted focus to Research Strategy, System Suggestions and the existing decision/learning owners. Record the **reason for a choice**, not only the clicked entity: source clarity, contextual multi-layer fit, reconstructable method opening, meaningful history, understandable continuation, rejection/correction or temporary display preference. The current positive example is Wisdom because its source exposes multiple exact methods and an explainable path to1820; this does not mean every1820 match is automatically strong. A preference for display is not a numeric law or public research finding.
+
+Use `system_suggestions_law v5` Observe→Detect→Suggest→Explain→Decide. Existing research-decision-loop lineage is `decision_ledger → fn_detect_patterns → learned_patterns/learned_pattern_members → admin_pattern_review/revoke`; do not insert new domain preferences blindly. Live review found44 decision rows, two proposed patterns and no approved_preference. The current pattern schema lacks domain scoping, while Number dossier reads approved preferences generally: an owner-qualified domain adapter is a prerequisite to reusing this pathway for World narrative preferences. `researchLearningPolicy.js` exists as a pure evaluator; this is not evidence of production invocation. Private memory and approved research preference remain distinct.
+
+Learned procedure/policy candidates must carry the example/correction, exact scope, counterexamples, version and approval/revocation lineage. Evaluate against held-out examples through the existing Champion/Challenger contract before approval. A display preference must not alter engine results, source text, access or publication. Saving this plan/work_log preserves coordination provenance; it does **not** train Raziel, store user memory, or activate a ranking preference. Those product writes require the existing authorized consumer and readback. The useful G4 path does not wait for full adaptive automation.
+
+<a id="golden-878-spatial-journey-plan"></a>
+
+#### Golden 878 — interpretation-first Journey and spatial experience plan
+
+**ZURIEL-directed UX update, 2026-10-11; planning only.** The instruction to update the Journey follows approval of a planning revision, not permission to implement, merge, deploy, publish research or activate learning. Extend the existing Golden878 / unified Research Path, Experience, Research Workspace, Number/Spatial Method Stage, Design V2 and Raziel owners. Preserve World → Posts → Heichal delivery order and active G4 scopes. This section is a design target over existing semantics, not a new Journey contract, owner, score or product-data revision.
+
+**Verified basis and distinct scopes at this checkpoint:**
+
+| Classification | Evidence and limitation |
+|---|---|
+| LIVE MAIN code | `4b62216d89b3fada1701ef21f8753f5fffaa9e0b`: `worldJourneyProjection.js` owns the existing `golden:878:v1` semantic projection and consumes authorized public Topic cards. `SpatialMethodStage2029.jsx` consumes verified method Trace for regular, miluy, mistater, kadmi and triangle-word. Source inspection is not a fresh browser/production acceptance. |
+| LIVE DB, public projection | The current public Topic reader supplies878-linked branches targeting1202,776 and1010. Canonical engine replay verified משיח: miluy878 and kadmi1331; דבר מתוך דבר and עולם הפוך ראיתי: regular878. Exact stored משיח/דבר מתוך דבר/עולם הפוך ראיתי rows are verified/published. These permissions do not propagate to other relations or sources. |
+| LIVE DB, internal authorized definition | Read-only `fn_number_journey(878)` returns the existing five owner-defined branches and an attributed essence. Its seed is draft/readiness0 and its projection scope is internal_authorized. Preserve this content/ordering/provenance under its owner; do not copy its raw body into public Git or assume it is the public World itinerary. |
+| BRANCH ONLY / PLANNED | This UX subsection in draft PR1013; the interpretation-first composition, full guided spatial itinerary and optional1331 continuation are proposals, not implemented/public Journey acceptance. |
+| UNKNOWN / not tested here | Full live rendering, public admission of each internal step, cloud persistence/public Path replay and immersive performance/accessibility. Existing release/owner gates remain authoritative. |
+
+**Front layer carries meaning.** Home's compact entrance, the World opening and the Journey preview should lead with a short, source-linked attributed reading and explain why this route matters. The number structure and exact equalities remain immediately available below it. The shared “עומק החיבור” expands the existing profile and source/verification detail; the core interpretation must not require finding that expansion.
+
+ZURIEL clarified that ordered/symmetric structure can attract initial attention, while established meaningful links and fit to the particular event/time can add interpretive weight. Preserve both aspects as contextual, attributed procedure; a palindrome does not automatically become Human Gold, a strong event, an independent witness or a statistical probability. The current787 interview provides the event example: year, festival and gratitude intersect around the authored flight reading. The878 example provides expression/method and structural depth. Neither becomes a universal scoring rule or activated model preference through this plan.
+
+**One coherent spatial itinerary:**
+
+| Station | Proposed experience | Same semantic basis / required transition |
+|---|---|---|
+| Enter878 | A readable878 structure introduces the author's reading; optional layered depth presents the inner7 and outer8. The same source-linked interpretation is readable without motion. | Number878 remains distinct from the exact expression and authored symbolic interpretation. Opening the preview alone does not start/save a Path. |
+| Open משיח in miluy | Choose “פתח את המילוי של משיח”; letters reveal their expansions and engine contributions in depth, with the subtotal visible. Focus may enter one letter and return to the whole expression. | Explicit Journey start uses the selected exact expression, canonical method/version, Trace/step, root/source and return reference. Consume the delivered shared Spatial Method Stage; no page-owned calculator or Miluy renderer. |
+| Connect דבר מתוך דבר | The result opens the related expression with a short explanation of the numeric crossing and the author's procedural reading. | Method-specific relation; preserve both exact operands and why-transition. Equal result does not merge expressions or create a new independent witness. |
+| Open עולם הפוך ראיתי | An optional user-triggered change of viewpoint accompanies the source story; original text/locator is readable, with an immediate return to the previous view. | Camera inversion is presentation. It must not rewrite text, calculation, event chronology, source, truth or access state. |
+| Choose continuation | Preview each authorized branch with destination, reason and available source. Retain all five original branches in their owning internal definition; compose only admitted/publishable ones in the public itinerary. | Guided and free use the same Path family. Keep private/internal branches out of public projections before composition. No replacement branch list or new Journey store. |
+
+**1331 is an optional continuation, not an inserted curated station.** A same-expression switch from משיח miluy878 to kadmi1331 can be offered for design review, with its exact Trace and explanation. The mirrored digit structures878/1331 may be shown as separate structural observations. Do not invent equality878=1331, publication approval, independence, strength thresholds or an already-authored1331 itinerary.
+
+**Interaction and continuity.** Use “צא למסע” for explicit start, “המשך מכאן” in an active Path and “שמור מסע” inside that Path. Keep the existing Golden semantic identity separate from the durable Path UUID/revision. Every transition and saved/resumed state retains exact expression/method/step, selected branch, source locator, why-transition and exact return within authorization. A newly authorized update may appear at the top of Home/World with a gentle “חדש” indicator until opened; group changes from the same story. While reading a Journey station, offer “ראה מה נוסף” without moving it. Returning from the update restores the precise prior station/selection. Preserve history and correction provenance.
+
+**Desktop and mobile are the same route.** Desktop can show one dominant spatial stage with modest camera movement and a compact contextual trail. Mobile presents one readable station at a time with tap-to-reveal and explicit continue/back; camera gestures are optional. Provide keyboard, no-motion and flat equivalents with the same source and return capability. Consume canonical colors/typography, protect Hebrew glyph/wordmark fidelity, keep44px effective touch targets and avoid compulsory autoplay/spatial navigation. Optional Raziel narration starts explicitly, with readable text; AI is not required to advance or replay verified steps.
+
+**Implementation dependencies stay explicit.** The existing Miluy component marks letter-name spelling as transitional UI metadata even when contributions match the engine. A richer immersive opening must resolve authoritative spelling through the owning engine/Registry rather than silently promoting UI spelling. Engine values, source locations, access and exact-return acceptance precede renderer richness. S2 is the current reusable stage; useful S3 and true GPU S4/XR remain later projections under existing scheduling/gates. This UX approval does not expand G4, reactivate archived spatial laws or replace the shared System Frame/Inspector.
+
+**Next bounded design review:** illustrate one faithful “משיח → miluy878” letter-opening station, including origin, selected letter, verified subtotal, relation preview and exact return on desktop/mobile. Validate the human meaning and transition before runtime work. No code is authorized by this subsection. Link interview answers/corrections through [the existing corpus/interpretation continuity](#corpus-interpretation-interview-continuity) and existing Control Plane/Raziel learning owners; saving planning prose is not product memory or training.
+
+<a id="corpus-interpretation-interview-continuity"></a>
+
+#### Corpus coverage, ZURIEL interpretation and next interview — existing Control Plane continuity
+
+**User-directed planning integration, 2026-10-11.** Reconciles `work_log 48a3da84-120d-4bf9-8f58-2e1703ecb917` with the existing §8A learning path and [Control Plane §12.1](2029-control-plane-attention-observability-plan-v1.md#corpus-interpretation-interview). The depth handoff is `9696bd6a-bbab-414c-9a72-d25007568a83`; `0c8a68af-de53-4f84-be16-765c6b96026a` provides the dated Implementation Reality routing map. The latter's selected cards are branch evidence, not live adaptive-learning acceptance. Extend existing Research Intake/Source, Research Strategy, Workspace, decision/learning, System Suggestions and Experience owners; do not create another inventory, interview database, learning engine or scheduler.
+
+**Coverage is several inspectable dimensions.** Establish a dated denominator for each source family and declared unit (unique source/artifact, page or source-native segment); keep duplicated placements, missing inventory and inaccessible material separate. Do not combine different units into one percentage. Preserve the owning Intake distinction between Research Grammar coverage, exact-witness coverage and source/corpus exhaustion. Candidate count, extraction rows, selected story count and product availability are not substitutes for corpus coverage. The conversation's “10%/90%” is illustrative and must never be displayed as measured.
+
+| Progress dimension | Required evidence / what remains separate |
+|---|---|
+| Inventoried | Known unique scope, source family, unit, snapshot and unresolved/unavailable inventory |
+| Processed with saved evidence | Existing extraction/research receipt and coverage bounds; processing alone is not interpretation review |
+| Interpretation extracted | Attributed reading/procedure with exact source locator and preserved original; an AI summary is not ZURIEL approval |
+| Reviewed by ZURIEL | Source-linked approval, correction, rejection or open question, with reason/scope/exceptions |
+| Replay-tested on unseen examples | Held-out example/counterexample, applicable version and outcome under existing learning-policy owners |
+| Available in authorized product surfaces | Exact consumer/retrieval acceptance and access/publication scope; availability does not imply whole-corpus completion |
+
+New authorized WhatsApp/source arrivals extend inventory through existing intake. Preserve earlier receipts and reviewed scope; do not restart completed work. A source can be reviewed and still have unresolved questions. Show unknown inventory as unknown rather than claiming a known exhaustive denominator.
+
+**Interpretation questions are resumable research context.** For each materially unanswered question, refer to its existing source/event/finding, proposed attributed interpretation, supporting evidence, uncertainty, and the decision its answer could change. Reuse existing owner-native research/task facilities only after current schema and admission verification; `work_log` keeps coordination pointers, not interview answers as a competing product memory. Preserve source wording and exact calculations. Human approval attributes a reading to ZURIEL; it does not independently verify a source claim, canonicalize a numeric rule or publish private material.
+
+**Next interview is selected by information gain.** Group representative sources governed by the same question; prioritize high-impact ambiguity, corrections and counterexamples rather than one interview per corpus item. Start from an already preserved example chosen by ZURIEL, using its saved evidence; recover any missing original first. A bounded interview should ask:
+1. What makes this connection meaningful: source, date, expression, method, history or their conjunction?
+2. Which similar example would *not* support the same reading, and why?
+3. Which part is verified calculation/source fact, which is ZURIEL's interpretation, and what exceptions or uncertainty remain?
+4. Which next research action or presentation choice should this answer change?
+
+Each interview produces source-linked approval/correction/rejection, decision reason, domain, scope, exceptions and version/provenance in the existing authorized home, with later correction/revocation preserved. Product engagement analytics remains distinct from interpretive fidelity and evidence quality. Persisted feedback must be shown in later authorized retrieval/response; documentation or a chat alone is not model-weight training or an activated preference.
+
+**Confirmed interaction decisions carried forward.** ZURIEL accepted the proposed contextual suggestion after an edit when it adds meaningful information: a small “יש לי רעיון להמשך” invitation, with the same referenced suggestion reachable in the existing Control Plane. No duplicate item/channel identity or surprise interruption. ZURIEL also accepted giving a natural-language reason for a choice, without a mandatory form; Raziel briefly reflects what it understood so the user can correct it. The exact UI/adapters remain planned. This augments the accepted UX checkpoint `5181e0d5-b53a-4de3-9c7e-58cefc59a26d`; it does not turn those choices into global research truth.
+
+**Minimal resumption evidence, separate from site release.** A fresh authorized session must be able to retrieve the inventory snapshot/unit, covered and remaining scope, last attributed decision, unresolved question and recommended next interview with its source locator, owner/blocker and context—without another whole-corpus scan. Prove that one saved reason is retrieved and used within its domain, including a counterexample/unknown and correction. This is proposed bounded acceptance of existing continuity, not a new G4 gate or authority to activate learned policies. SITE_RELEASE readiness and ongoing CORPUS/LEARNING completion remain separate. Full Admin, adaptive automation and wider corpus coverage keep the later Roadmap boundaries and the 10Oct Control Center freeze.
+
+**Bounded acceptance / delivery:**
+
+- G4 now: consume the existing Source/Path integration and prove the FZ1073 + Wisdom calibration with source, exact typed next steps, available profile dimensions, Explain-Why and mobile/exact return. Review the old PR1010 World stream overlap before eventual release. No broad corpus rescan.
+- One source in several galleries must keep the same independent-evidence count;216→2160 adds a rule step, not evidence. A new genuinely independent source may change the profile. Same-source lineage uncertainty must remain visible.
+- The same Finding must retain profile semantics across surfaces while contextual ordering may change. A popular event cannot gain verification merely from visibility. Calendar/source uncertainty remains visible beside exact calculation results.
+- A positive and a rejected/corrected ZURIEL example must retain different reasons and scopes. Any future learned policy must pass another event/number case and be reversible through its existing owner; no silent promotion from chat praise.
+- Number/Spatial task `NUMBER_SPATIAL_M3_METHOD_EXPERIENCE_20261009` owns its claimed stage/compiler/Number files. World consumes its delivered physical-method component contract; it does not copy it. S2 now, useful S3 later, fullscreen/3D remains a renderer of the same semantic Path.
+- Later G5+ enrichment: wider topic/event coverage, fully populated profile adapters, curated/public Path acceptance and approved adaptive grammar. Existing plan gates control English/spatial scheduling. No new administration or agent coordination system is required.
+
+##### Depth of connection — curation and historical reliability acceptance
+
+**2026-10-10 consumer specification; proposed public label: עומק החיבור.** Extend this existing §8A, not the live laws, Roadmap, ranking engine or data model. Resolve `golden_entity_law v4` alongside the owners above. The label is a readable projection of the existing Research Strength Profile; it is not a scalar, new Truth state or a renamed legacy `meter_score`. Contextual presentation priority and Human curation stay separately inspectable.
+
+**Public story selection remains a distinct gate.** Claude challenge `1a9c4cea` and the live `signal_vs_curation v2` require **Suggest != Include != Publish**. Authorized research/deep ranking may surface a `discovered_not_selected` candidate, but a high rank never by itself makes that candidate a public headline, opening-story item, share or publication. Preserve explicit Human selection plus the existing access/publication boundary before composing the public lead; selection does not grant publication either. The user's approval of this profile and named source-family exploration is not blanket approval of future AI-generated findings. Explanation structure remains with `convergence_explanation_law`, localization with `content_translation_law`, and method admission with the canonical Registry. This is consumer acceptance of existing owners, not a live-law amendment.
+
+**Integration review must assess behavior on a fixed revision.** For the Claude handoff `b56327f5`, reproduce the specific failing invariant before assigning severity: an anonymous request that is rejected, a missing trace and a stale source-text guard have different release consequences. An unused helper, file length, surface count or legacy/list/detail route pair alone does not establish architectural duplication or an access bypass. Use current authorization/identity/Context/return/reload/mobile acceptance at each bounded integration, preserving the separate ELS and AI/security specialist gates; do not postpone all integration to the final release or refactor World merely to meet a line-count target.
+
+**Human curation is typed and local to an identity.** Live verification found the two existing Diamond Core identities at1820: “סוד אלף שמונה מאות עשרים כי לה המלוכה” and “מספר שמות יהוה בכל התורה”. The Number1820 is their Crown Anchor, not a third Diamond. Number14 and45 are already Human Gold Anchors, as is424. Number73 does not acquire Gold merely by appearing beside them. A source, method hit or temporal relation can support a core through an owner-qualified witness role without inheriting its tier. A numeric equality, path traversal, category named “רמזים חזקים”, SEO richness `diamond` or a component called DiamondCascade cannot grant a curation designation. Read live designations/reasons by stable identity; never hard-code this snapshot as the future catalogue or silently match cores by a shared result alone.
+
+**Five public questions project the existing dimensions; none introduces a scoring scale:**
+
+| Public explanation | Governed basis and required support |
+|---|---|
+| על מה זה נשען? | Exact source/region, provenance, replayability and source quality; assess the source against the particular claim |
+| מה מתחבר כאן? | Qualified semantic/event/domain links around the focus, plus directness and explicit relation reasons |
+| איך החישוב נפתח? | Exact operands, eligible canonical method/version/Trace, variant robustness and mathematical-family dependency |
+| איך זה נמשך בזמן? | Distinct events, source-supported temporal anchors, historical continuity versus cross-time convergence, and temporal precision |
+| מה כבר נבדק ומה פתוח? | Independent support after grouping, controls/contradictions, missing/failed adapters, uncertainty and bounded scan coverage |
+
+Human curation appears alongside this profile with its specific reason and role. Reality salience, current relevance and temporal pulse help explain **why this leads here now**, rather than increasing verification. Same profile semantics across World/Topic/Number/Post/Journey; a contextual lens may reorder the presentation. Display source-backed descriptive facts and “טרם נבדק” for missing assessments. Do not invent thresholds for “strong”, fill unknown with zero, average incomplete dimensions, or use the number of displayed layers as a score. Existing crossing/convergence classification floors remain with their owner; UI grouping never claims they were met.
+
+**Dependency and robustness procedure.** Reuse authorized Source/Reality/Research readers -> exact source identity/placement grouping -> canonical calculations and rule applications -> method/formula and source-origin dependency groups -> existing profile/prominence/Explain-Why. A node or result reachable through several paths is not counted repeatedly. Preserve every path for exploration while explaining the shortest supported useful route. Cycle/chain length, operator complexity and speculative hops do not earn quality. Additional verified methods can enrich the explanation of one source while remaining dependent. Separate record count, distinct artifacts, actual independent source groups, calculations, distinct events and coverage; when lineage is unresolved, independence is unknown. Ranking must not infer genuine independence from distinct URLs/domains alone.
+
+In the deep view, perform an explicitly labelled robustness check when the inputs support it: remove the leading independent source/method family and explain what remains, what collapses and what cannot be tested. Keep source-stable exact spellings separate from documented variants; record unsuccessful tests as well as successful ones. This is a reproducibility check, not a probability claim or a new Gold threshold. A carefully selected pattern has no “one in N” rarity without the existing declared search-space, selection protocol, controls and holdout discipline. Distinguish source-claim replay, hypothesis followup and post-hoc exploration through Strategy's existing provenance.
+
+**Historical presentation.** Reuse the Temporal World Model / Strategy17 distinctions: event occurred; source authored/recorded; source published; revision/snapshot effective; placement/embed; discovery/extraction/research; governed publication; current query. Public reading can simplify these to “מה קרה”, “מתי תועד”, and “מתי החיבור נכנס למחקר”, with exact remaining detail on expansion. Preserve the original date literal/calendar/timezone, precision and source basis; unknown or year-only dates must not become an invented day. Original chronology and discovery chronology are selectable views of the same objects, not separate histories/stores. Current content inside a mutable2016 Post is not evidence it appeared in2016 without a historical snapshot or independent dated source. A newly acquired historical image can reopen a topic's present activity without becoming a new real-world event. Shared number or temporal proximity does not establish causation, prediction or a historical parent/child relation. Historical importance remains accessible during quiet periods.
+
+**Operational generation.** The existing bounded Context Compiler composes the profile from authorized inputs; AI proposes extraction, relations, explanations and next research steps, while deterministic capabilities supply calculations and repeatable feature facts. Trigger scoped recomposition when a relevant source/revision/verified calculation/curation decision changes, through existing mechanisms. Include subject/context, input refs/revisions, rule/method versions, calculation receipts, access scope, as-of and coverage in the existing replayable Result Bundle. Cached projection, if used, belongs to its existing owner and must respect access and revisions. No autonomous full-corpus scan or page-load AI requirement. A model-written explanation must cite the contributing facts, include material uncertainty and fall back to deterministic reading when AI is unavailable.
+
+**Observed consumer gaps, not a completed implementation:** on main-equivalent files at8e939d3b, `curationProjection2029.js` recognizes Diamond while `worldContextualProminence.normalizeTier` drops it; a read-only probe returned `humanCuration.tier=null`. `normalizeCurationNode` converts a missing metadata value into0 (live curated David/Geula identities have missing values); `topic2029Projection` source-code inspection likewise shows explicit null quality/meter coercing to0; its import probe did not execute because the planning workspace lacks the Supabase dependency. `buildNumberCuration2029.witnessCount` counts raw tagged rows (one duplicated row returned2), not independent witnesses. Generic curation copy can omit the actual authorized reason. Existing temporal readers do not yet prove the full source-revision/discovery chronology. Repair only through the existing owners under nonoverlapping runtime claims; no runtime files are modified by this specification.
+
+**Acceptance before calling the profile reliable:**
+
+| Calibration / change | Required invariant or visible outcome |
+|---|---|
+| One train image in multiple galleries | Placements change; independent support does not.216↔2160 adds its governed derivation, not evidence or inherited Gold |
+| Wisdom73 and1893−73=1820 | Exact methods/operands and composite dependence survive; richer explanation never silently becomes independent methods or Diamond |
+| 14/45 and424 | Existing Gold Anchors remain Gold; a related new source is a distinct witness/candidate with its own status |
+| Diamond or Gold designation removed in a test | Curation/presentation may change; arithmetic, event facts and source access do not |
+| 1237 nomination threshold versus “electors” caption | Preserve the old caption; expose the source-supported correction beside the claim, even if it changes the opening story |
+| Wall source4:24PM, reused in a later Post | Preserve the original observation and source chronology; re-upload does not create another event or prior prediction |
+| Genuine independent later event | May add longitudinal support if typed relation and provenance are established; same-number coincidence alone is insufficient |
+| Missing value/adapter versus explicit0 | Unknown remains unknown; real0 survives; the source is not penalized because a reader failed |
+| Strongest family removed, negative result added | Explain surviving support and material contradiction; contradiction may rise in review priority without becoming positive strength |
+| Same input/version/access, another surface | Same profile facts/curation/lineage; only the declared context can change presentation order |
+
+**Delivery sequence inside the existing plan:** (1) G4 consumer fidelity first: preserve Diamond/Gold roles/reasons, nulls, dependency labels, exact calculations, source dates and Explain-Why around a bounded existing World story; (2) expand the reviewed profile across14/45/train/73 and1237/424 through the current source session, with historical branches and the existing shared inspectors; (3) later improve source-origin classification, temporal comparisons, robustness controls and learned editorial preference under the existing G5+ owners. Calibrate ordering with ZURIEL's accepted and rejected examples and reasons, then held-out cases, through the existing reversible learning path. Source discovery may run in parallel, but neither completing every historical topic nor full adaptive learning blocks the first useful G4 release. Chat feedback recorded in work_log is not proof of trained/active product memory.
+
+<a id="world-home-continuation"></a>
+
+#### Home / World continuity and visual direction — 2026-10-10
+
+**ZURIEL requested durable continuation, not another plan.** This subsection carries the current execution direction inside §8A. It consumes the existing owners and acceptance requirements above. The hierarchy preserves the agreed source/Journey foundation; the compositions, cover treatments and example public wording below are **design recommendations for visual review**, not a frozen layout, additional law, content-publication decision or claim of implementation.
+
+**Entry for the next session.** After the existing live bootstrap, read the Roadmap's G4 priority, this subsection, and bounded current entries for `WORLD_2029_GROUP_STREAM_1001_RELEASE_CONTINUATION_V1`. Reconcile the current main, active writer, exact delivered revisions and unresolved dependencies before choosing a slice. Read the rest of §8A only where the slice needs its source, calculation, ELS, quality or learning detail. If this update is still unmerged, read the current head of draft [PR #1013](https://github.com/zuriel337/sod1820/pull/1013), branch `gpt/journey-foundation-plan-20261009`; do not mistake it for deployed behavior or import the whole branch merely to read the plan. Finish through the existing work-log handoff with closed/open/next/do-not-touch and exact evidence. No new session registry, coordination channel or per-session roadmap.
+
+**One corpus, several understandable entrances.** The source foundation includes Sod Hashmal, Zvi and other authorized contributors, original galleries, Posts, videos and incoming source material. World makes this material discoverable; Home presents a compact opening into the same material. A visitor can enter at any useful point and follow explained relations. The following roles describe that experience, not a new database hierarchy or a compulsory sequence through every page:
+
+| Role | What the visitor gets | Continuity to preserve |
+|---|---|---|
+| Home | One clear featured story/discovery, a compact view of current movement, and a few understandable ways to continue | Same selected sources, story identities and explanatory prominence as World; no separately curated duplicate feed or ranker |
+| World | A living discovery view: what arrived, what connects, and where this selected story can lead | Public language of stories and רמזי גאולה; center follows the selected focus, with a few explained branches and progressive disclosure |
+| Post / event story | A coherent authored account with relevant people, places, dates, media and numerical readings | Exact paragraph/video/source selection and return; source-session proposals are not automatically completed Post links |
+| Topic / convergence | A stable context across relevant events, findings and sources over time | Existing admission/classification; a new message, shared number or group of thumbnails does not create an approved topic/convergence |
+| Original source / gallery / author | Read the complete original and understand who supplied it and where it appeared | Original text, credit, URL, placements, date precision and gallery order; contextual image entrance also reopens its full gallery |
+| Number / ELS / Heichal | Open the selected calculation, representation or exact occurrence and deepen the investigation | Same expression/method/trace/source identity; Heichal carries the full research workspace and research language |
+| Journey | Explicitly choose and continue a route through these same objects | Same Research Path, selection, transition reason, revision and return; browsing alone does not start or save a Journey |
+
+Zvi has both attributed participation in the eligible general flow and an enduring contributor/source entrance. Sod Hashmal and the historical galleries stay reachable beyond the recent window. Author, topic, number and collection are different access lenses over retained identities; they are not interchangeable categories. A new approved source can awaken interest in older material without redating the old event or claiming the relationship was known then. Reuse existing source maps rather than rescan the entire corpus.
+
+**Source movement and research remain distinct.** A source authorized for this audience and selected by the existing editorial feed policy can appear before research admission. General-feed contributor eligibility is not inferred from authorship, trust or mere membership in a WhatsApp group. Read the current settings/authorized reader; do not copy a historical writer list into code. Keep source/publication time, actual arrival time and research-update time distinct; missing timestamps remain missing. A public source still needs the existing Include/Publish decision to become a featured authored story. Do not expose private WhatsApp material or portray a captured message as verified research. If live intake cannot be demonstrated, identify the preview fixture honestly.
+
+**Suggested composition using the delivered design.** Keep the established header, navigation and contextual/action surfaces under their current System Frame owner. On a wide screen, one generous story/image focus occupies the center; nearby branch previews explain useful next directions. Current movement remains a compact readable area rather than consuming the entire page. On mobile, present that same focus and choices with the existing recoverable inspector/action sheet; avoid competing fixed panels. The Projector explains the selected source, relation or calculation. It is not the whole World page. Post and Number open in the same visual language and preserve the selected context.
+
+Consume the current Design V2/Crown delivery through its existing owner: royal-blue primary actions, restrained Crown gold, the specified secondary/depth roles, readable typography and the existing Day/Night/Parchment presets. Shared source-preview, branch and calculation components should carry different content without a separate visual system for each number. Decorative gold never assigns Human Gold/Diamond. Reuse Number's physical letter/miluy representation when a calculation is opened; a screenshot of an old calculator preserves historical evidence but does not replace the accessible current calculation view.
+
+<a id="world-home-image-placement"></a>
+
+**Images have three different jobs.** An editorial entrance invites discovery; a documentary source lets the reader inspect the original; a calculation renderer explains the exact method. Their identities and labels stay clear even when all three appear in one story. The following is a first visual-review proposal, not a new fixed image-format contract:
+
+| Placement | Recommended image treatment | Reader action |
+|---|---|---|
+| Home featured story | One strong, relevant documentary photograph/frame when available; short live-text title and one sentence explaining the invitation. No autoplay or rotating hero | Open the story's World focus or Post with context preserved |
+| Home discovery entrances, including 45 / 1237 | A small coherent family of landscape covers, initially two side by side on desktop. Human-readable title first; number as an identifiable sign. Use a legible typographic cover when the available source is a dense screenshot | Open the real discovery context. Show explicit Journey start only where that capability is available |
+| Home / World current movement | Small source-native thumbnail, author, appropriate time/status and a short excerpt; useful text-only items need no decorative cover | Inspect that exact arrival and its source; relevant historical connections can follow |
+| World selected story / topic | Larger image or purposeful letter composition, followed by a few source-backed branch previews. Additional branches appear by choice | Answer “what is this?” and “why this connection?” before opening deeper material |
+| Journey entrance and steps | Use the entrance cover once. Each step then gives space to its actual source, event or calculation, with location/next/back in the existing path surface | Inspect readable evidence and continue without losing the route; no repeated decorative hero at every step |
+| Original gallery | Preserve the complete images and captions in the existing order, with date-aware chronological access | Open at the selected placement and continue through the surrounding original material |
+
+Keep text and numbers as selectable, accessible text where they are part of the new interface. Do not bake navigation, method names or computed values into generated artwork. Preview cropping may emphasize a real subject; it must not remove a digit, unit, timestamp or qualification needed for the displayed claim. The original always opens uncropped with its attribution and placement. For a dense screenshot, a readable excerpt and “למקור המלא” are more useful than shrinking the whole page into an unreadable tile.
+
+Use the existing media pipeline and source identity for responsive derivatives, intrinsic dimensions and deferred loading below the opening view. Cover reuse does not create duplicate source records or independent witnesses. Avoid loading every full historical image/video or 3D scene on entry. Alt text describes what is actually visible; decorative artwork is not treated as documentary evidence. Any future AI illustration is clearly illustrative, with no fabricated clock, headline, person-at-event or calculation offered as a source. It does not replace the historical original.
+
+**First two cover directions, grounded in inspected material:**
+
+| Entrance | Proposed cover / invitation | Material inside and boundary |
+|---|---|---|
+| 45 | “45 — רמזי גאולה בדרך”: a clear 45 / גאולה letter composition in the shared visual language, with a subtle line suggesting a route. A real train photograph can lead only after its exact source/rights are available; the inspected rail source is a text screenshot, not such a photograph | Open the documented railway material, then offer relevant 14/India branches with their own reasons. `gallery_images:36f64c4f-9231-4f4c-9afd-33abf7e275ee` shows 45 trains and capacity 450 in the screenshot; its preserved caption differs. Keep the original caption and the explanatory correction separate. The 14:45 government-meeting source `4d01baa6-3d63-41b7-be1b-c31ea66b3498` is another event, not a railway clock. Any number transform retains its actual operator and original units |
+| 1237 | “1237 — וראית את אחרי”: a readable letter composition with layered foreground/background suggesting revealed/hidden reading. The actual expression and calculation remain inspectable, and the artwork makes no claim of being an ancient manuscript or source photograph | Start with the preserved `media/uploads/2018/10/vrayt-at.png` and exact ordinary-method trace. The existing three placements remain one image with different historical contexts. Then offer documented 2016 nomination and 424/Wall branches separately. The 1237 delegate threshold is for first-ballot Republican nomination, not an Electoral College result. The Wall image is a 2017 source, even when reused by a later Post |
+
+These are content-specific entrances into the shared experience, not bespoke engines or permanently separate “number worlds.” The inspected 2016 delegate screenshot and old gematria screenshot belong in readable source steps; neither should become tiny unreadable Home wallpaper. A real Wall photograph may illustrate the **424 branch** with its event/date identified, rather than imply that 1237, 424 and all election events are one historical occurrence. Preserve differences between sourced statements, authored readings, canonical calculations and suggested onward relations.
+
+**Bounded execution from here, under the current owners:**
+
+1. **Review the delivered joined preview and close its named dependencies.** AFTER `4a49d573-4ddc-40dd-8f46-64584dac8f31` releases the former consumer claim `db1d56a1-0340-4e03-bb72-d6da68dddecb`. [PR #1025](https://github.com/zuriel337/sod1820/pull/1025), checkpoint head `eb6fd33f1460ba202494f2790d61e8745b510b84`, includes PR #1014/#1015, Crown design, Frame return repairs and the released PR #1020 shared visual slice. It does not import the ELS implementation. Re-resolve current owners before repairs; do not reimport completed dependencies or reactivate an old claim. Exact Post-region return, narrow mobile dock labels and production-canary acceptance remain open; see the checkpoint below.
+2. **Hold further expansion until the integrated experience is reviewed.** The later direct user instruction is recorded in `9407b0c8-398a-49b0-b824-c6850652e8d3`: complete one real source/context/navigation/return journey on desktop/mobile before more World expansion. The Home/World/plane and source-arrival walkthrough has a delivery, while exact return inside the plane Post remains incomplete. Preserve existing historical-source coverage; do not synthesize links to make the example pass. The proposed 45/1237 covers and broader topic rollout remain design proposals for subsequent reuse, not a reason to enlarge the current scope. Their entire historical corpus and final Topic redesign are not prerequisites to the first useful G4 slice.
+3. **Continue World → Posts → Heichal through their existing owners.** The source consumer hands exact relation/media/selection needs to the existing Posts owner (`GOLDEN_POSTS_POST_ONLY_RECONCILE_V2`); it does not seize Post files. Number/SVG, Frame, ELS and Raziel keep their claimed files and semantic authority. Design questions return to the same joined preview. P0 and G1 remain on their existing lanes; full Admin expansion remains deferred. Broader topic designs, adaptive learning and spatial/voice work retain the later gates already specified in §8A.
+
+Review one exact integration revision in desktop/mobile, the inherited presets, keyboard/reduced motion, source readability, performance and exact return/reload. Preserve the existing auth-expiry and public-slice gates. The first useful walkthrough should let a newcomer explain what they saw, find the original and choose a next step. Verify actual public-read capability before calling an entrance a published/shareable public Journey; private save/resume tests do not supply that evidence. A visual board may preview an unavailable capability only when clearly identified as a proposal.
+
+**Continuation evidence, not permanent status:** `f1cf7d0d-2c92-4b2b-833c-261621695256` records the joined visual brief; `7b03b0a9-a37c-409e-9222-a79d289b224c` preserves the source-corpus hierarchy; `7633f1c6-6a0e-4b34-89fa-4614e97fecda` acknowledges the consumer's Crown import and Frame delivery. Later work-log receipts supersede these checkpoint states. A stored instruction is not proof that another session read or implemented it. Until this plan is merged, a fresh main checkout does not contain the new pointer; the existing live work-log handoff and draft PR provide the continuation path.
+
+<a id="foundation-checkpoint-and-scan-reuse"></a>
+
+#### Foundation checkpoint and reuse of completed scans — 2026-10-10
+
+**Purpose:** answer what remains in the foundation and let another Codex/GPT session continue without repeating completed research. This is a dated navigation checkpoint inside the existing plan, not a new Roadmap, memory service or research store. `origin/main` was verified at `4b62216d89b3fada1701ef21f8753f5fffaa9e0b`; this plan remains draft PR #1013. Current main's Master State records G2 and G3 as Human-Gate closed. Remaining maintenance and G4 integration acceptance do not automatically reopen those phases.
+
+| Remaining boundary | Existing capability / evidence | What still needs closure before claiming the affected experience complete |
+|---|---|---|
+| Source identity, access and attribution | Existing source maps, public readers, preserved gallery placements and source-context integration in #1015/#1025 | Close the P0-A/B/C source boundaries required by the Roadmap for the actual public slice; stable writer/source binding and governed research publication cannot be inferred from source visibility. Do not deep-extract the whole corpus as a prerequisite |
+| One Context and exact return | #1014/#1015 are ancestors of #1025; source → calculation → explicit guest Path → return has desktop/mobile evidence | Posts must restore the actual selected flight-1073 region rather than visual-363; Number initial sourceRef propagation and any promised exact Archive image reopening retain their existing owners. Same identity, method, source, Path and reload/auth-expiry behavior must survive the accepted route |
+| Saved/private versus public Journeys | Existing private Research Path RPCs and isolated acceptance; temporary guest route in the protected preview | Verify the actual authenticated save/resume/permission flow on the accepted consumer. Public publication/read/share needs its existing reader/governance seam; a guest preview does not certify it |
+| ELS and contextual Raziel | Existing engines/adapters; ELS #965/#1020 and Raziel #1017 deliveries | Retain outstanding exact-occurrence/privacy and contextual tool/authorization acceptance with their owners. Importing shared ELS design files does not accept the ELS workspace; full adaptive AI, voice and 3D are later activation, not a fresh G4 foundation project |
+| Entry/security/release acceptance | Existing G1 repair #1008, P0 repair #999 and release gates | Latest reviewed handoffs keep G1/P0 open; require the missing scoped tests and proper release verification. #1025's production-canary gate failed against current production; no gate bypass. Narrow dock overlap and Post typography are presentation repairs, not new infrastructure |
+
+The source/method/Path architecture exists. The next work is owner-scoped completion and acceptance of these seams, followed by the existing public-slice Golden/cutover gates. Full Admin, Kingdom of Numbers, whole-corpus enrichment, final design of every topic and advanced background learning remain outside the immediate closure scope. World/Home retain discovery/stories; Heichal retains research depth.
+
+**Where the completed work lives:**
+
+| Work already performed | Recoverable existing home | Coverage / recovery limit |
+|---|---|---|
+| Zvi / Sod Hashmal corpus and writer reading | Existing source/Research OS records and census pointers in the Roadmap; historical delivery `8be9df05-af89-4931-acee-8f141edd6c8e`, parent `4858bb50-fc42-4718-8e1b-cb4f57675633` | These are dated implementation/source-coverage receipts, not proof every later arrival or research finding is public. Reuse their source identities; confirm only the current affected reader/permission |
+| India, elections and historical galleries mapping | Full mapping memo `e04a35a0-6083-46b4-9fc2-c5fce4073f43`; #1015 `docs/research-source-context-handoff.md` and `test/fixtures/topic-source-context-pilot.json` | Memo survives in work_log. Its relative annexes `source-appendix.md`, `verified-map.json/csv`, `post-source-locators.json`, `source-topic-edges.json`, `source-gallery-post-links.json` were not recovered in this workspace; request the original files, not a new scan |
+| 1237/424, 14/45/73, plane and exact methods | #1025 `docs/world-source-story-handoff.md` and the existing source/connection test fixtures, pinned to the tested commit | Local JSON evidence and review notes are included in the user export where available. These are bounded researched examples, not a claim of exhaustive corpus coverage or permission to publish every candidate |
+| Journey/Number/ELS historical intent and depth profile | §8A historical-decision table, exact work-log IDs, existing domain owners; #1013 plan and #1016 fidelity slice | Preserve dates, versions, verified versus proposed statements, source dependency and Human curation. Chat feedback is not proof that Raziel has learned a deployed preference |
+| Joined runtime/visual acceptance | #1025 `eb6fd33f`; AFTER `4a49d573-4ddc-40dd-8f46-64584dac8f31`; evidence Git blob `2c070071c7e789d89f87843e67712619e126dbe5` | Builder's ZIP digest `c72dcccd4aabf5cb35f1c06cbbb923129839421e55d3e2630aa33f93b6fd9b1a`; latest checkpoint has CI and hosted receipts, with explicit Post/public-Path/release gaps. Earlier #1014/#1015 integration bundles and receipts remain provenance |
+
+**Reuse before recomputation.** Resolve the relevant existing artifact, its source refs, source/baseline revisions, method/rule version, coverage, test receipt and open questions. If the required evidence is present and its dependencies have not materially changed, reuse it. Check only changed files, newly arrived material or the specific disputed finding. A missing attachment calls for artifact recovery first. If it is irrecoverable, state exactly which portion is missing and reconstruct only that portion; do not restart an entire source scan, OCR batch or AI analysis because the conversation changed. A reused snapshot remains dated and must not be reported as a fresh live scan.
+
+**Handoff completeness:** a summary helps orientation but does not replace raw mapping tables, locators, calculation traces, provenance and acceptance receipts. Keep those in their existing authorized homes, and provide exact paths/commit or record IDs plus checksums for exported files. Preserve original evidence separately from the summary; later fixes do not overwrite history. Repository visibility was verified PUBLIC: do not push private source bodies, unapproved drafts, credentials or temporary access links as a convenient backup. The downloadable user package is a local export of recovered material, not proof that all other sessions' files have been archived. Recovery request `d5f8250c-2f20-4e09-baa1-e17fe9cd3c85` tracks the missing mapping annexes through the same work_log; no new coordination mechanism.
+
+**Normal GPT continuation:** attach the dated short snapshot and, when needed, the relevant exported evidence. A GPT session with authorized GitHub/Supabase connections can verify the cited state within its actual tool permissions. Without them it can understand, compare, design and prepare instructions from the snapshot, but cannot assert current main, current work_log, deployment state or a DB write. Return concrete implementation/verification to a capable session using the same pointers. A shared Project/file may make the material available across chats; neither project membership nor conversation memory proves the model has read it. Start by asking it to identify the snapshot date, open blockers and relevant evidence before further work. No permanent dependence on one long chat.
+
+#### Historical two-session handoff — 2026-10-09
+
+The following preserves the original source/continuity split. Parts have since been delivered and integrated. It is **not a fresh assignment**: use the continuation above and current work_log before resuming any of these scopes.
+
+The coordinator owns only this plan/map update, dependency reconciliation and work_log handoff. These are proposed execution scopes, not a claim that sessions were activated.
+
+1. **Existing source-mapping session → source/context reader slice.** Reuse the India/source report (e04a35a0), the 1237 checks and current-main adapters. Before WRITE, ACK in work_log and claim only the concrete source/media projection files needed (starting review: galleryMediaEnvelope, entityHubProjection, topicGoldenProjection/topic2029Projection). Deliver source/placement/relation refs and exact-reopen cases with tests. Do not edit ResearchProvider, researchPathRuntime, Number/Post/SystemFrame/ELS UI, historical content, rules or product DB. Existing Post and ELS owners receive adapter needs through work_log. If a necessary shared adapter is claimed, remain read-only on that file and return the precise handoff.
+2. **Existing implementation session, after its PR #1010 scope is handed back → Journey/Number integration preparation.** First reconcile PR #932, the closed-unmerged #928 reader and existing Workspace/Number claims. While session 1 works, prepare a read-only acceptance/path contract using existing owners. Then claim a nonoverlapping branch slice in researchPathRuntime/ResearchProvider and Number consumers as needed, after live coordination. Consume session 1's exact references. Post edits stay with the existing Post builder; ELS/PR #965 edits stay with the existing ELS writer; header/rails stay with Chrome. Do not build a parallel guided module or public-path reader. A required lower-owner change is a bounded handoff, not permission to seize its files.
+
+Each session returns actor/task_key/owner, exact touched paths, baseline/head/PR, tests, blockers, state and next owner through work_log. ACK/claim is not merge/deploy authority. Record actual dispatch/receipt if available; otherwise DELIVERY_UNVERIFIED. No agent-management system is introduced.
 
 ---
 
@@ -674,18 +1046,17 @@ Current:
 
 ELS is an early differentiating Golden because it exercises almost every lower layer.
 
-Order:
+G4 core order (the renderer ladder is not a prerequisite for basic Journey acceptance):
 
 1. canonical server ELS result;
 2. ELS native 2029 surface;
 3. source/replay/coordinates/Trace;
 4. Research Context integration;
-5. layered 2D/2.5D representation;
-6. meaningful spatial/3D projection;
-7. Raziel contextual text inside ELS;
-8. `Explain what I am looking at` using current occurrence/selection/camera/context;
-9. guided spoken ELS;
-10. Research Dossier / Research-to-Media reuse later.
+5. exact Journey save/resume/return and source/method/Finding transitions;
+6. Raziel contextual text and `Explain what I am looking at` using the current occurrence/selection/context;
+7. bounded negative/partial/unavailable and source-preserving replay cases.
+
+Carry forward to the existing later activation gates: layered 2D/2.5D and meaningful spatial/3D projections, guided spoken ELS, advanced adaptive research, and Research Dossier / Research-to-Media reuse. Their already-built primitives remain usable; their complete activation is not silently made a G4 prerequisite. Preserve the historical capability inventory through §8A.
 
 3D is renderer/projection. It never owns ELS search truth.
 
@@ -968,6 +1339,7 @@ Every lane uses one active writer per overlapping scope, current-main reconcilia
 
 Must be architecturally stable before English Golden Locale:
 
+- the G4 Journey foundation in §8A: source/gallery fidelity, Number/method crossing, ELS exact occurrence, same-path save/resume/return and contextual Raziel;
 - semantic identity/action vocabulary;
 - Research Context/Result Bundle;
 - Access/Entitlement/Availability separation;
