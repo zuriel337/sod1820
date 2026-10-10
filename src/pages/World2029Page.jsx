@@ -1003,7 +1003,6 @@ function LiveWorldLanding({ research, shell, context }) {
 
   return <>
     {import.meta.env.DEV ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
-    <WorldSourceStory research={research} shell={shell} />
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
@@ -1112,6 +1111,8 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
     </section>
+
+    <WorldSourceStory research={research} shell={shell} />
 
           {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
             key={spec.key}
