@@ -29,8 +29,11 @@ jobs:
           node --check scripts/codex-workflow-modes.mjs
           node --check scripts/codex-auto-wake-contract.mjs
           node --check scripts/isolated-codex-executor-prototype.mjs
+          node --check scripts/codex-implementation-recon-readonly.mjs
       - name: Two-mode and auto-wake adversarial fixtures
         run: node --test scripts/test-codex-workflow-modes.mjs scripts/test-codex-auto-wake-contract.mjs
+      - name: Repository implementation recon must be read-only
+        run: node --test scripts/test-codex-implementation-recon-readonly.mjs
       - name: Existing admin Control Plane truthfulness projection
         run: node --test scripts/test-codex-control-implementation-projection.mjs
       - name: Paid CLI transport unconditionally blocked
