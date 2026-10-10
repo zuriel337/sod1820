@@ -35,3 +35,22 @@ Preserve Claude and Gemini and all existing AI routing. G4 continues in Codex Cl
 
 ## 2026-10-10 hard-stop safety update
 Live mode is now **unconditionally blocked** with `PAID_TRANSPORT_NOT_DEPLOYED`, including if a caller forges user approval, budget verification, runner gateway flags and environment variables. The original CLI spawn sketch has been removed. No runner can start with this branch until a separately audited authenticated gateway replaces the hard-stop. Use `scripts/codex-auto-wake-contract.mjs` + `scripts/test-codex-auto-wake-contract.mjs` for signed, OFFLINE-only acceptance and `docs/codex-auto-wake-acceptance-stage-c.md` for verified scope/remaining dependencies. A successful local gate is NOT provider cost enforcement, real Codex auto-wake or a spent API test.
+
+
+## Authenticated Development presence operator — 2026-10-10 (PR #1024, branch-only)
+Project SOD1820 has a Sensitive OPENAI_API_KEY in Vercel Development only. Vercel Sandbox does NOT inherit this environment by default, and this assistant's Sandbox has no VERCEL_TOKEN or VERCEL_OIDC_TOKEN. The Vercel connector may read metadata (decrypt=false) but MUST NOT decrypt the key into chat or an assistant tool, copy it to Preview/Production, commit it, or write it into work_log.
+
+Existing script: scripts/codex-sandbox-credential-bridge.mjs. No new service or queue.
+- Without flags, preflight only emits safe booleans and NEVER starts Sandbox. This is not a handoff proof.
+- --test-handoff must run on a separately authenticated, linked Vercel operator host. It requires a Development environment variable loaded via official Vercel CLI (vercel env run), a server-managed VERCEL_TOKEN or VERCEL_OIDC_TOKEN, exact VERCEL_PROJECT_ID and VERCEL_TEAM_ID, and explicit SOD_SANDBOX_HANDOFF_APPROVED=YES. The flag is operator intent, not an authentication credential.
+- The host needs @vercel/sandbox installed in its isolated checkout. Do not change the product package.json just to install this operator-only SDK. Linking to the correct project and Vercel login/auth happen through a separate trusted operator process. Do not run vercel env pull for this check: it can persist secrets to local files.
+
+Example for an ALREADY authenticated, linked operator host whose Vercel credentials are installed server-side, NOT in command arguments:
+
+    SOD_SANDBOX_HANDOFF_APPROVED=YES VERCEL_PROJECT_ID=prj_43q7k7QFAcWnin1tcBjce5xOi7Cq VERCEL_TEAM_ID=team_vtfWHZfKvdbob8gvynQb5N89 vercel env run -- node scripts/codex-sandbox-credential-bridge.mjs --test-handoff
+
+The test checks scope and identity BEFORE Sandbox.create; passes the Development key directly from the trusted host into a nonpersistent 60-second Sandbox whose networkPolicy is deny-all; runs one fixed presence check; reports HANDOFF_PRESENCE_PASS only if the check passes and sandbox.stop succeeds. No OpenAI call, Codex execution, DB write, Git write, leak of key bytes or deployment is permitted. Actual key handoff is NOT proven until an authorized host returns sanitized PASS/FAIL from this real test.
+
+Offline regression: node --test scripts/test-codex-sandbox-credential-bridge.mjs. The test mocks the SDK and uses a known-invalid fixture string. It verifies operator guard, project scoping, deny-all network, no secret output, no model execution and final cleanup. Passing mock CI never means a live operator was authenticated.
+
+Until server-side key handoff, budget enforcement, canonical atomic dispatch and genuine AFTER-to-GPT ACK all pass, live Codex mode remains PAID_TRANSPORT_NOT_DEPLOYED. Keep PR #1024 draft and do not apply its database migration or merge into main.
