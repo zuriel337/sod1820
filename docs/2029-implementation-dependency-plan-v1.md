@@ -802,6 +802,46 @@ Use `system_suggestions_law v5` Observe→Detect→Suggest→Explain→Decide. E
 
 Learned procedure/policy candidates must carry the example/correction, exact scope, counterexamples, version and approval/revocation lineage. Evaluate against held-out examples through the existing Champion/Challenger contract before approval. A display preference must not alter engine results, source text, access or publication. Saving this plan/work_log preserves coordination provenance; it does **not** train Raziel, store user memory, or activate a ranking preference. Those product writes require the existing authorized consumer and readback. The useful G4 path does not wait for full adaptive automation.
 
+<a id="golden-878-spatial-journey-plan"></a>
+
+#### Golden 878 — interpretation-first Journey and spatial experience plan
+
+**ZURIEL-directed UX update, 2026-10-11; planning only.** The instruction to update the Journey follows approval of a planning revision, not permission to implement, merge, deploy, publish research or activate learning. Extend the existing Golden878 / unified Research Path, Experience, Research Workspace, Number/Spatial Method Stage, Design V2 and Raziel owners. Preserve World → Posts → Heichal delivery order and active G4 scopes. This section is a design target over existing semantics, not a new Journey contract, owner, score or product-data revision.
+
+**Verified basis and distinct scopes at this checkpoint:**
+
+| Classification | Evidence and limitation |
+|---|---|
+| LIVE MAIN code | `4b62216d89b3fada1701ef21f8753f5fffaa9e0b`: `worldJourneyProjection.js` owns the existing `golden:878:v1` semantic projection and consumes authorized public Topic cards. `SpatialMethodStage2029.jsx` consumes verified method Trace for regular, miluy, mistater, kadmi and triangle-word. Source inspection is not a fresh browser/production acceptance. |
+| LIVE DB, public projection | The current public Topic reader supplies878-linked branches targeting1202,776 and1010. Canonical engine replay verified משיח: miluy878 and kadmi1331; דבר מתוך דבר and עולם הפוך ראיתי: regular878. Exact stored משיח/דבר מתוך דבר/עולם הפוך ראיתי rows are verified/published. These permissions do not propagate to other relations or sources. |
+| LIVE DB, internal authorized definition | Read-only `fn_number_journey(878)` returns the existing five owner-defined branches and an attributed essence. Its seed is draft/readiness0 and its projection scope is internal_authorized. Preserve this content/ordering/provenance under its owner; do not copy its raw body into public Git or assume it is the public World itinerary. |
+| BRANCH ONLY / PLANNED | This UX subsection in draft PR1013; the interpretation-first composition, full guided spatial itinerary and optional1331 continuation are proposals, not implemented/public Journey acceptance. |
+| UNKNOWN / not tested here | Full live rendering, public admission of each internal step, cloud persistence/public Path replay and immersive performance/accessibility. Existing release/owner gates remain authoritative. |
+
+**Front layer carries meaning.** Home's compact entrance, the World opening and the Journey preview should lead with a short, source-linked attributed reading and explain why this route matters. The number structure and exact equalities remain immediately available below it. The shared “עומק החיבור” expands the existing profile and source/verification detail; the core interpretation must not require finding that expansion.
+
+ZURIEL clarified that ordered/symmetric structure can attract initial attention, while established meaningful links and fit to the particular event/time can add interpretive weight. Preserve both aspects as contextual, attributed procedure; a palindrome does not automatically become Human Gold, a strong event, an independent witness or a statistical probability. The current787 interview provides the event example: year, festival and gratitude intersect around the authored flight reading. The878 example provides expression/method and structural depth. Neither becomes a universal scoring rule or activated model preference through this plan.
+
+**One coherent spatial itinerary:**
+
+| Station | Proposed experience | Same semantic basis / required transition |
+|---|---|---|
+| Enter878 | A readable878 structure introduces the author's reading; optional layered depth presents the inner7 and outer8. The same source-linked interpretation is readable without motion. | Number878 remains distinct from the exact expression and authored symbolic interpretation. Opening the preview alone does not start/save a Path. |
+| Open משיח in miluy | Choose “פתח את המילוי של משיח”; letters reveal their expansions and engine contributions in depth, with the subtotal visible. Focus may enter one letter and return to the whole expression. | Explicit Journey start uses the selected exact expression, canonical method/version, Trace/step, root/source and return reference. Consume the delivered shared Spatial Method Stage; no page-owned calculator or Miluy renderer. |
+| Connect דבר מתוך דבר | The result opens the related expression with a short explanation of the numeric crossing and the author's procedural reading. | Method-specific relation; preserve both exact operands and why-transition. Equal result does not merge expressions or create a new independent witness. |
+| Open עולם הפוך ראיתי | An optional user-triggered change of viewpoint accompanies the source story; original text/locator is readable, with an immediate return to the previous view. | Camera inversion is presentation. It must not rewrite text, calculation, event chronology, source, truth or access state. |
+| Choose continuation | Preview each authorized branch with destination, reason and available source. Retain all five original branches in their owning internal definition; compose only admitted/publishable ones in the public itinerary. | Guided and free use the same Path family. Keep private/internal branches out of public projections before composition. No replacement branch list or new Journey store. |
+
+**1331 is an optional continuation, not an inserted curated station.** A same-expression switch from משיח miluy878 to kadmi1331 can be offered for design review, with its exact Trace and explanation. The mirrored digit structures878/1331 may be shown as separate structural observations. Do not invent equality878=1331, publication approval, independence, strength thresholds or an already-authored1331 itinerary.
+
+**Interaction and continuity.** Use “צא למסע” for explicit start, “המשך מכאן” in an active Path and “שמור מסע” inside that Path. Keep the existing Golden semantic identity separate from the durable Path UUID/revision. Every transition and saved/resumed state retains exact expression/method/step, selected branch, source locator, why-transition and exact return within authorization. A newly authorized update may appear at the top of Home/World with a gentle “חדש” indicator until opened; group changes from the same story. While reading a Journey station, offer “ראה מה נוסף” without moving it. Returning from the update restores the precise prior station/selection. Preserve history and correction provenance.
+
+**Desktop and mobile are the same route.** Desktop can show one dominant spatial stage with modest camera movement and a compact contextual trail. Mobile presents one readable station at a time with tap-to-reveal and explicit continue/back; camera gestures are optional. Provide keyboard, no-motion and flat equivalents with the same source and return capability. Consume canonical colors/typography, protect Hebrew glyph/wordmark fidelity, keep44px effective touch targets and avoid compulsory autoplay/spatial navigation. Optional Raziel narration starts explicitly, with readable text; AI is not required to advance or replay verified steps.
+
+**Implementation dependencies stay explicit.** The existing Miluy component marks letter-name spelling as transitional UI metadata even when contributions match the engine. A richer immersive opening must resolve authoritative spelling through the owning engine/Registry rather than silently promoting UI spelling. Engine values, source locations, access and exact-return acceptance precede renderer richness. S2 is the current reusable stage; useful S3 and true GPU S4/XR remain later projections under existing scheduling/gates. This UX approval does not expand G4, reactivate archived spatial laws or replace the shared System Frame/Inspector.
+
+**Next bounded design review:** illustrate one faithful “משיח → miluy878” letter-opening station, including origin, selected letter, verified subtotal, relation preview and exact return on desktop/mobile. Validate the human meaning and transition before runtime work. No code is authorized by this subsection. Link interview answers/corrections through [the existing corpus/interpretation continuity](#corpus-interpretation-interview-continuity) and existing Control Plane/Raziel learning owners; saving planning prose is not product memory or training.
+
 <a id="corpus-interpretation-interview-continuity"></a>
 
 #### Corpus coverage, ZURIEL interpretation and next interview — existing Control Plane continuity
