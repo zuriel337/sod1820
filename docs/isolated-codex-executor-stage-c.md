@@ -3,13 +3,21 @@ Date: 2026-10-10. Branch-only, no live execution.
 
 This prototype intentionally does **not** repurpose wa-video-enrich, supabase Vault, or any production service-role credential. It only accepts a task descriptor on standard input and defaults to DRY_RUN. It does not pull live work_log or dispatch automatically; coordination and owner flags must be established by a separately audited backend adapter. Never trust flags supplied by untrusted callers in production.
 
-## Launch contract
-Use isolated private checkout with no production credentials, clean GitHub branch and least-privilege repo access. The executor runs a bounded `codex exec` CLI process only with `--live`, explicit per-task approval in process environment and descriptor, verified provider balance, independently verified provider hard limit, authenticated isolated checkout and secure OPENAI_API_KEY. Default is zero model calls. The status NEVER implies a real cost cap: killing a process cannot prevent costs from requests already submitted.
+## Stage C launch contract — mode-aware offline only
+The real paid Codex transport is NOT deployed; this script unconditionally rejects --live, including fabricated tokens/flags. Neither passing a dry-run nor signing an offline fixture claims provider spending enforcement or runner authentication.
 
-Example offline:
-```sh
-echo '{"task_key":"SOD1820_README_CHECK","actor":"GPT","scope":"documentation only","prompt":"Read the README and summarize tests","coordination_verified":true,"owner_verified":true,"active_writer_conflict":false,"production_write_requested":false,"risk":"low"}' | node scripts/isolated-codex-executor-prototype.mjs
-```
+Every future Codex job MUST declare one of:
+- RECON_READ_ONLY = canonical assignment_mode READ_ONLY. Read current main, relevant live dependencies/consumers/writers/migrations/PRs, report Implementation Reality Map with explicit UNKNOWN. No write permissions, no delete/publish authority.
+- EXECUTE_BOUNDED = distinct canonical assignment_mode WRITE, scoped branch-only allowlist, owner decision, dependencies, stop conditions and verification. Architecture/cross-system/cutover work must have a GPT-challenged/owner-accepted prior RECON exact-SHA receipt. New unexpected consumer/DRIFT triggers STOP_AND_RECON.
+
+The existing work_log.dispatch_context carries codex_workflow_mode; there is no third actor, registry, ledger or duplicate coordinator. The current work_log_assign_agent function does not yet populate this optional Codex marker; a separately reviewed and authenticated dispatch adapter must supply it before automatic invocation. Do not modify the live DB solely to simulate a worker.
+
+For offline verification run:
+`node --test scripts/test-codex-workflow-modes.mjs scripts/test-codex-auto-wake-contract.mjs`
+`node scripts/test-isolated-codex-executor-prototype.mjs`
+`node --test scripts/test-codex-implementation-recon-readonly.mjs scripts/test-codex-control-implementation-projection.mjs`
+
+The deterministic git evidence probe is read-only and deliberately incomplete: no GitHub-current-main or live Supabase truth can be inferred from a local checkout. Exact source provenance, coverage gaps and separate GPT/owner decision remain mandatory.
 
 ## No source of truth duplication
 Attach to existing work_log_current via bounded privileged read adapter, existing GPT actor and one-active-writer law; two callers ChatGPT and Codex lead are not independent queue actors. Existing dispatch is not assumed to create Codex Cloud sessions. Stage A is PR #1022; offline preflight #1023. This isolated CLI runner does not continue an existing Codex Cloud session; it works only from written checkpoint + fresh main context.
