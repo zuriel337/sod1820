@@ -1,0 +1,32 @@
+name: Codex Executor Contract Safety
+on:
+  pull_request:
+    paths:
+      - "scripts/codex-*.mjs"
+      - "scripts/test-codex-*.mjs"
+      - "scripts/isolated-codex-executor-prototype.mjs"
+      - "scripts/test-isolated-codex-executor-prototype.mjs"
+      - ".github/workflows/codex-executor-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Syntax
+        run: |
+          node --check scripts/codex-workflow-modes.mjs
+          node --check scripts/codex-auto-wake-contract.mjs
+          node --check scripts/isolated-codex-executor-prototype.mjs
+      - name: Two-mode and auto-wake adversarial fixtures
+        run: node --test scripts/test-codex-workflow-modes.mjs scripts/test-codex-auto-wake-contract.mjs
+      - name: Paid CLI transport unconditionally blocked
+        run: node scripts/test-isolated-codex-executor-prototype.mjs
