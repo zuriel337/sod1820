@@ -9,11 +9,18 @@ const root = new URL('..', import.meta.url).pathname;
 const tpl = readFileSync(root + 'tools/els/els-code.template.html', 'utf8');
 const code = tpl.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
 
-test('only the verifier result can set h.v="MATCH"; no other assignment promotes a hit', () => {
+test('only canonical verifier and ordered core replies promote a hit', () => {
   const matches = [...code.matchAll(/\.v\s*=\s*[^=;\n]*"MATCH"/g)].map((m) => m[0]);
   assert.equal(matches.length, 2, matches.join(' | ')); // promoteVerified + healRun (both derived from vr.verified)
   assert.match(code, /h\.v="MATCH";else\{h\.v="MISMATCH"/);
   assert.match(code, /h\.v=vr\.ok\?\(vr\.verified\.has\(hitKey\(h\)\)\?"MATCH":"MISMATCH"\):"CANDIDATE"/);
+  const page = code.slice(code.indexOf('async function orderedSearchPage('),code.indexOf('function mergeOrderedHits('));
+  assert.equal([...code.matchAll(/v:\s*"MATCH"/g)].length,1,'object promotion is confined to the canonical page adapter');
+  assert.match(page,/r\.contract!=="els_search_page_v1"/);
+  assert.match(page,/r\.scope!==scope/);
+  assert.match(page,/r\.corpus_id!==CORPUS_ID\[scope\]/);
+  assert.match(page,/r\.input\?\.normalized!==norm\(term\)/);
+  assert.match(page,/!r\.completion\?\.executed/);
   assert.equal([...code.matchAll(/verified\.add\(/g)].length, 1, '`verified` is only filled from the bridge reply');
   assert.match(code, /for\(const o of r\.result\.verified\|\|\[\]\)verified\.add\(/);
 });
@@ -22,16 +29,28 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   const allowed = [
     /st\.res=res;/, // autoTerms scratch (finally-restored)
     /st\.res=save\.res;/, /st\.res=sv\.res;/, /st\.res=findAll\(item\.term,4000\);/, // scratch + restore
-    /st\.res=await discoverVerified\(w,4000\);/, // regular search (verified-eager)
+    /st\.res=discovered;/, // regular/search restore: verified discovery, latest-request guard below
     /st\.res=resA;/, // cross: resA from faVerified cache
     /st\.res=R\.resA;/, // cross-simple: prefetchVerified([A,B])
     /st\.res=st\.crossResCache\[z\.axis\];/, // free-cross: resCache from faVerified
     /st\.res=faMemo\(a\.term\);/, // discovery seed: lazily healed, exits gated
-    /st\.res=await discoverVerified\(item\.term,4000\);/, // saved restore (verified-eager)
+    /st\.res=mergeOrderedHits\(result,page,key\);/, // canonical ordered page, epoch guarded continuation
+    /st\.res=null;/, // saved corpus/anchor mismatch: clear the result instead of substituting another hit
   ];
   const found = [...code.matchAll(/st\.res=[^;\n]*;?/g)].map((m) => m[0]);
   for (const f of found) assert.ok(allowed.some((a) => a.test(f)), `unclassified st.res assignment: ${f}`);
-  assert.equal(found.length, 10, 'st.res assignment census changed - classify the new site');
+  assert.equal(found.length, 15, 'st.res assignment census changed - classify the new site');
+  const regular=code.slice(code.indexOf('const [sample,page]=await Promise.all([discoverVerified(w'),code.indexOf('logSearch("regular",w)'));
+  assert.match(regular,/if\(requestSeq!==_matrixRequestSeq\)return;\s*const discovered=mergeOrderedHits\(sample,page\);/);
+  const restore=code.slice(code.indexOf('const discovered=await discoverVerified(item.term'),code.indexOf('let idx=-1;',code.indexOf('const discovered=await discoverVerified(item.term')));
+  assert.match(restore,/await promoteVerified\(/,'targeted legacy skip still uses canonical admission');
+  const guarded=restore.slice(restore.lastIndexOf('if(requestSeq!==_matrixRequestSeq)return;'));
+  assert.ok(guarded.includes('st.res=discovered;'));
+  assert.doesNotMatch(guarded,/\bawait\b/,'no async gap after final restore epoch check');
+  const continuation=code.slice(code.indexOf('async function continueNativeSearch('),code.indexOf('async function promoteVerified('));
+  assert.match(continuation,/if\(epoch!==_matrixRequestSeq\|\|operation\?\.status==="cancelled"\)return;/);
+  assert.match(continuation,/if\(!page\|\|page.state.error\)/);
+
 });
 
 test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discovery kernels directly', () => {
@@ -45,7 +64,7 @@ test('regular/cross/FORMS/free-cross/load prefetch no longer call the raw discov
   assert.match(code, /await Promise\.all\(words\.map\(w=>faVerified\(w\)/);
   assert.match(code, /await Promise\.all\(Tn\.map\(w=>faVerified\(w\)/);
   assert.match(code, /const r=await discoverVerified\(p\.probe\.w,FORMS_CAP\)/);
-  assert.match(code, /await prefetchVerified\(\[A,B\]\)/);
+  assert.match(code, /await prefetchVerified\(\[A,B\],operation\)/);
   assert.match(code, /await prefetchVerified\(\[axis,\.\.\.terms\]\)/);
 });
 
@@ -53,21 +72,32 @@ test('governed exits are gated on isGov / verification', () => {
   const stateFn = code.slice(code.indexOf('function elsState()'), code.indexOf('function emitState()'));
   assert.match(stateFn, /if\(!isGov\(h\)\)return Object\.assign\(base,\{status:"candidate"/);
   assert.match(stateFn, /negative_authority:false/);
-  assert.match(stateFn, /shown:shownHitsOf\(w\)\.filter\(isGov\)\.map\(hitKey\)/);
+  assert.match(stateFn, /findings:st.words.map\(nativeFindingResults\)/);
+  const findings=code.slice(code.indexOf('function nativeFindingResults('),code.indexOf('function elsState('));
+  assert.match(findings,/shown:\[\.\.\.shown\]\.filter\(isGov\)\.map\(hitKey\)/);
   assert.match(code, /if\(!gov\.has\(idx\)\)return;/);
   const save = code.slice(code.indexOf('function performSaveToGallery'), code.indexOf('function removeFromGallery'));
   assert.ok(save.indexOf('await healGoverned()') > 0 && save.indexOf('await healGoverned()') < save.indexOf('postHost({type:"save"'));
   assert.match(save, /if\(!isGov\(h\)\)\{/);
   assert.match(save, /filter\(isGov\)\.map\(hitKey\)/);
-  assert.match(code, /if\(!hit\|\|!isGov\(hit\)\)\{postHost\(\{type:"lens"/);
+  assert.match(code, /if\(!hit\|\|!isInspectableHit\(hit,t\)\)\{postHost\(\{type:"lens"/);
+  assert.match(code, /return isGov\(h\)\|\|target\?\.kind==="source-sequence"&&isSourceHit\(h,target.term\)/);
+  assert.match(code, /sourceShown:selectedHitsOf\(st.words\[i\]\)\.filter\(h=>isSourceHit\(h,w.t\)\)\.map\(hitKey\)/);
   assert.match(code, /return isGov\(h\)\?Math\.abs\(h\.skip\):0;/);
 });
 
 test('every host message type is classified (coordinate-bearing ones are gated above)', () => {
   const types = new Set([...code.matchAll(/postHost\(\{type:"([a-z-]+)"/g)].map((m) => m[1]));
   const carrying = new Set(['save', 'lens', 'search']);
-  const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request']);
-  for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t), `unclassified host message type: ${t}`);
+  const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request', 'engine-cancel']);
+  const uiAccessOnly = new Set(['onboarding-required', 'operation', 'native-save-result']);
+  for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
+  assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/,
+    'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
+  const operation = code.slice(code.indexOf('function operationStatus('), code.indexOf('function beginOperation('));
+  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null\}\)/,
+    'operation acknowledges a request and its status without transmitting candidate coordinates');
+  assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 
@@ -82,7 +112,8 @@ test('iframe accepts every sod-host command only from the exact parent window', 
 });
 
 test('sampled/local no-hit is never emitted as a canonical negative', () => {
-  assert.doesNotMatch(code, /EXECUTED_EMPTY|NOT_FOUND/, 'browser source never mints canonical negative states');
+  assert.doesNotMatch(code, /(?:status|vstate|reason)\s*[:=]\s*"(?:EXECUTED_EMPTY|NOT_FOUND)"/, 'browser never mints canonical negative states');
+  assert.equal([...code.matchAll(/EXECUTED_EMPTY/g)].length,1,'only the canonical page status is consumed');
   assert.match(code, /if\(!cand\.hits\.length\)\{out\.vstate="LOCAL_NO_HIT";return out;\}/);
 });
 

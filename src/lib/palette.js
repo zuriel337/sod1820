@@ -108,9 +108,30 @@ export const PALETTES = {
 };
 
 
+// ELS identification colors, not success/danger/status roles. Bright fills use their
+// own dark ink in every preset; the matrix surface follows the site's one theme tree.
+const MATRIX_HIGHLIGHTS = Object.freeze({
+  axis: "#FFE04F", onMark: "#201521",
+  findings: Object.freeze([
+    { color: "#FF5D6C", label: "אדום" },
+    { color: "#4CDEF5", label: "תכלת" },
+    { color: "#68E69D", label: "ירוק" },
+    { color: "#BB9AFF", label: "סגול" },
+    { color: "#FFAC57", label: "כתום" },
+    { color: "#FF86CD", label: "ורוד" },
+    { color: "#7DACFF", label: "כחול" },
+    { color: "#63E6D0", label: "טורקיז" },
+    { color: "#C5EC64", label: "ליים" },
+    { color: "#F9B5A0", label: "אפרסק" },
+    { color: "#E5A0F7", label: "סחלב" },
+    { color: "#F2CA75", label: "זהב" },
+  ].map(Object.freeze)),
+});
+
 export const DESIGN_V2_PALETTES = Object.freeze({
   light: Object.freeze({
     preset: "light", mode: "light",
+    matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#FFFEF9", ink: "#263252", frame: "#996813" }),
     pageBg: "#F5F8FF",
     card: "#FFFFFF",
     cardSoft: "#EEF3FC",
@@ -137,6 +158,7 @@ export const DESIGN_V2_PALETTES = Object.freeze({
   }),
   parchment: Object.freeze({
     preset: "parchment", mode: "light",
+    matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#FFF4D4", ink: "#49331D", frame: "#9F7025" }),
     pageBg: "#F5EDDD",
     card: "#FFF9EC",
     cardSoft: "#EEE1C8",
@@ -163,6 +185,7 @@ export const DESIGN_V2_PALETTES = Object.freeze({
   }),
   dark: Object.freeze({
     preset: "dark", mode: "dark",
+    matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#130F23", ink: "#E2DDED", frame: "#AB96C6" }),
     pageBg: "#080D1D",
     card: "rgba(16,24,45,0.94)",
     cardSoft: "rgba(22,33,60,0.84)",
