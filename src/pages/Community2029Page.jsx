@@ -6,6 +6,7 @@ import { PREVIEW_PEOPLE, PREVIEW_THREADS } from "../components/community2029/com
 import { applySeo } from "../lib/seo.js";
 import { use2029Palette } from "../lib/palette.js";
 import ReactionBar from "../components/ReactionBar.jsx";
+import UserBadge from "../components/UserBadge.jsx";
 import CommunityMessageContent from "../components/community2029/CommunityMessageContent.jsx";
 import "./community2029.css";
 
@@ -20,13 +21,13 @@ function Author({ id, date }) {
   target.set("member", id);
   return <div className="sod29-community-author">
     <Link to={`?${target}`} className="sod29-community-author-link" data-community-author={id} aria-label={`פתיחת העמוד של ${person?.name || "חבר הקהילה"}`}>
-      <span className="sod29-community-avatar" aria-hidden="true">{person?.initial || "?"}</span><strong>{person?.name || "חבר הקהילה"}</strong>
-    </Link>{date ? <time dateTime={date}>{dateFormat.format(new Date(date))}</time> : null}
+      <UserBadge name={person?.name} initial={person?.initial} avatarUrl={person?.avatarUrl} avatarClassName="sod29-community-avatar">{date ? <time dateTime={date}>{dateFormat.format(new Date(date))}</time> : null}</UserBadge>
+    </Link>
   </div>;
 }
 
 function PreviewLike({ message, liked, onLike }) {
-  return <ReactionBar preview={{ count: Number.isFinite(message.likes) ? message.likes + (liked.has(message.id) ? 1 : 0) : null, selected: liked.has(message.id), onToggle: () => onLike(message.id) }} />;
+  return <ReactionBar preview={{ count: Number.isFinite(message.likes) ? message.likes + (liked.has(message.id) ? 1 : 0) : null, selected: liked.has(message.id), onToggle: () => onLike(message.id), iconOnly: true }} />;
 }
 
 function Thread({ thread, onReply, expanded, onExpand, liked, onLike }) {
@@ -35,11 +36,11 @@ function Thread({ thread, onReply, expanded, onExpand, liked, onLike }) {
     <Author id={thread.authorId} date={thread.createdAt} />
     <CommunityMessageContent text={thread.body} />
     <div className="sod29-community-thread-actions">
+      <button type="button" className="sod29-community-reply-action" onClick={() => onReply(thread)} aria-label={`כתיבת תשובה לדוגמה לשיחה של ${personById.get(thread.authorId)?.name}`}>השב</button>
       <PreviewLike message={thread} liked={liked} onLike={onLike} />
       {thread.replies.length ? <button type="button" onClick={onExpand} aria-expanded={expanded} aria-controls={repliesId}>
         <span aria-hidden="true">↳</span> {expanded ? "סגירת תגובות" : `${thread.replies.length} תגובות`}
-      </button> : <span className="sod29-community-no-replies">השיחה פתוחה</span>}
-      <button type="button" className="sod29-community-reply-action" onClick={() => onReply(thread)} aria-label={`כתיבת תשובה לדוגמה לשיחה של ${personById.get(thread.authorId)?.name}`}>להשיב <span aria-hidden="true">←</span></button>
+      </button> : null}
     </div>
     {thread.replies.length ? <div id={repliesId} hidden={!expanded} className="sod29-community-replies">
       {thread.replies.map((reply) => {
@@ -48,7 +49,7 @@ function Thread({ thread, onReply, expanded, onExpand, liked, onLike }) {
           <Author id={reply.authorId} date={reply.createdAt} />
           {parent ? <small className="sod29-community-reply-context">בתשובה ל{personById.get(parent.authorId)?.name}</small> : null}
           <CommunityMessageContent text={reply.body} />
-          <div className="sod29-community-thread-actions"><PreviewLike message={reply} liked={liked} onLike={onLike} /><button type="button" onClick={() => onReply(reply)}>להשיב ל{personById.get(reply.authorId)?.name}</button></div>
+          <div className="sod29-community-thread-actions"><button type="button" onClick={() => onReply(reply)}>להשיב ל{personById.get(reply.authorId)?.name}</button><PreviewLike message={reply} liked={liked} onLike={onLike} /></div>
         </div>;
       })}
     </div> : null}
@@ -138,7 +139,7 @@ export default function Community2029Page() {
 
       {memberId ? <section className="sod29-community-profile" aria-label="עמוד כותב לדוגמה">
         <button type="button" className="sod29-community-text-action" onClick={closeProfile}>→ חזרה לשיחות</button>
-        <header className="sod29-community-profile-heading"><span className="sod29-community-avatar" aria-hidden="true">{member?.initial || "?"}</span><div><h2 ref={profileTitleRef} tabIndex={-1}>{member?.name || "הכותב לא נמצא בדוגמאות"}</h2><p>{member?.note || "אפשר לחזור לרשימת השיחות ולבחור כותב אחר."}</p></div></header>
+        <header className="sod29-community-profile-heading"><UserBadge avatarOnly name={member?.name} initial={member?.initial} avatarUrl={member?.avatarUrl} avatarClassName="sod29-community-avatar" /><div><h2 ref={profileTitleRef} tabIndex={-1}>{member?.name || "הכותב לא נמצא בדוגמאות"}</h2><p>{member?.note || "אפשר לחזור לרשימת השיחות ולבחור כותב אחר."}</p></div></header>
         <p className="sod29-community-profile-note">פרופיל לדוגמה · זה אינו חשבון אמיתי. עיצוב הפרופיל המלא עדיין בתהליך.</p>
         {member ? <><h3>ההודעות של {member.name}</h3><div className="sod29-community-feed">{profileMessages.map((message) => <article key={message.id} className="sod29-community-thread"><time dateTime={message.createdAt}>{dateFormat.format(new Date(message.createdAt))}</time><CommunityMessageContent text={message.body} /><div className="sod29-community-thread-actions"><PreviewLike message={message} liked={liked} onLike={toggleLike} /><button type="button" onClick={() => showThread(message.threadId)}>לשיחה המלאה ←</button></div></article>)}</div></> : null}
       </section> : <div className="sod29-community-layout">
@@ -152,7 +153,7 @@ export default function Community2029Page() {
             <section className="sod29-community-composer" aria-label="כתיבת הודעת דוגמה">
               <label htmlFor="community-draft">מה תרצו לשתף?</label>
               {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{personById.get(replyTo.authorId)?.name}</span><button type="button" onClick={() => { setReplyTo(null); setShowDraft(false); }}>ביטול תשובה</button></div> : null}
-              <textarea ref={composerRef} id="community-draft" rows={3} maxLength={1500} value={draft} onChange={(event) => { setDraft(event.target.value); setShowDraft(false); }} placeholder="הצטרפו לשיחה… אפשר גם להדביק קישור לסרטון" aria-describedby="community-draft-note" />
+              <textarea ref={composerRef} id="community-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => { setDraft(event.target.value); setShowDraft(false); }} placeholder="הוסף תגובה…" aria-describedby="community-draft-note" />
               {!showDraft ? <CommunityMessageContent text={draft} previewsOnly /> : null}
               <div className="sod29-community-composer-bottom"><small id="community-draft-note">טיוטה בלבד · {draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={!draft.trim()} onClick={() => setShowDraft(true)}>תצוגה לפני שליחה</button></div>
               {showDraft ? <div className="sod29-community-draft-preview" role="status"><strong>כך ההודעה תיראה · לא נשלחה</strong>{replyTo ? <small>בתשובה ל{personById.get(replyTo.authorId)?.name}</small> : null}<CommunityMessageContent text={draft} /></div> : null}

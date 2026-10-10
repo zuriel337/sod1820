@@ -15,10 +15,10 @@ const EMOJIS = ["👍", "💡", "🔥", "🙏", "✨"];
 // Controlled design preview: never mount live auth/visitor/RPC behavior for fixtures.
 export default function ReactionBar(props) {
   if (props.preview) {
-    const { count, selected, onToggle } = props.preview;
+    const { count, selected, onToggle, iconOnly = false } = props.preview;
     return <button type="button" className="sod29-community-like" aria-pressed={selected} aria-label={selected ? "ביטול לייק לדוגמה" : "אהבתי · לדוגמה"} onClick={onToggle}>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10H3v11h4M7 10l5-7c1.5 0 2 1 1.6 2.6L13 9h6a2 2 0 0 1 2 2.5l-1.7 7.9A2 2 0 0 1 17.3 21H7V10Z" /></svg>
-      <span>אהבתי</span>{Number.isFinite(count) ? <span className="sod29-community-like-count">{count}</span> : null}
+      {!iconOnly ? <span>אהבתי</span> : null}{Number.isFinite(count) ? <span className="sod29-community-like-count">{count}</span> : null}
     </button>;
   }
   return <LiveReactionBar {...props} />;

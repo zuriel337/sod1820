@@ -167,7 +167,7 @@ for (const [width, preset] of [[320, 'light'], [390, 'dark'], [1280, 'parchment'
       const text = luminance(getComputedStyle(input).color);
       const placeholder = luminance(getComputedStyle(input, '::placeholder').color);
       const contrast = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
-      return { background, panel: luminance(getComputedStyle(node.querySelector('.sod29-community-main')).backgroundColor), textContrast: contrast(background, text), placeholderContrast: contrast(background, placeholder) };
+      return { background, panel: luminance(getComputedStyle(node).getPropertyValue('--s29-panel').trim()), textContrast: contrast(background, text), placeholderContrast: contrast(background, placeholder) };
     });
     expect(colors.textContrast).toBeGreaterThanOrEqual(4.5);
     expect(colors.placeholderContrast).toBeGreaterThanOrEqual(4.5);

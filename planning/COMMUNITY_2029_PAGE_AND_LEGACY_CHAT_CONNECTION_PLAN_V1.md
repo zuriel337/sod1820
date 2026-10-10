@@ -178,3 +178,51 @@
 `actor=GPT · task_key=COMMUNITY_2029_LEGACY_UI_PARITY_V1 · owner=Person/Workspace + Experience/Design V2 + canonical ReactionBar · scope=community preview/page/CSS/media-link adapter + optional ReactionBar preview mode + tests/plan · status=IMPLEMENTED_TESTED_BRANCH_ONLY · branch=feat/community-2029-preview-v1 · PR_READY=false · MERGED=false · LIVE=false · blockers=live legacy visual comparison and provider playback unverified · open_threads=archive reader/media/identity/reaction live contracts · handoff_to=ZURIEL/existing authorized coordinator`
 
 בדיקת תיאום חיה מצאה את הקצאת palette הקודמת כ־WRITE_SCOPE_RELEASED ואת עבודת גלריית המדיה במסלול נפרד. לא שונו `palette.js`, רכיבי המדיה הקנוניים של הגלריה, `SystemFrame2029` או `vercel.json`. לא נשלחה מסירה לסוכן אחר ולא נכתב יומן חי.
+
+## 9. צילומי הצ׳אט ושימור האווטארים — 10.10.2026
+
+המשתמש סיפק שני צילומי מסך של הצ׳אט הישן (`1000705791.jpg`, `1000705792.jpg`) וביקש לשאוב גם את תמונות האווטאר של המשתמשים הקיימים. הצילומים הם כעת ראיה חזותית ישירה: אווטאר עגול מימין, שם ומתחתיו זמן, שיחה על רקע רציף, תיבת כתיבה אפורה ובהירה, פעולת ״השב״ ואגודל קטן עם ספירה. הם גם מציגים דיסלייק, שיתוף וכפתורי תמונה/GIF. הצגת דיסלייק בצילום גוברת כראיה חזותית על ההנחה הקודמת שהתבססה על דגל config בלבד; היכולת וההרשאות החיות עדיין דורשות אימות. אין להכריז על התאמה מלאה לפני סגירת הפעולות הללו.
+
+### מה שונה בממשק בעקבות הצילומים
+
+- השם והזמן מוצגים בשתי שורות לצד האווטאר; לחיצה עדיין פותחת את עמוד הכותב.
+- המשטח החיצוני של רשימת השיחות הוסר, ונשארו קווי הפרדה. ״השב״ הועבר לתחילת שורת הפעולות ב־RTL, והלייק מוצג כאייקון וספירה בלי תווית מיותרת.
+- תיבת הכתיבה קומפקטית יותר ומתרחבת במיקוד. צבעיה ממשיכים לצרוך את Design V2.
+- נוסף `UserBadge` תחת משפחת הרכיבים הקנונית שהוגדרה בחוק אך לא הייתה ממומשת בקוד: תמונה עגולה לפי URL מפורש, טעינה עצלה, ללא referrer, גיבוי לאות ראשונה בכשל וחזרה לתמונה כאשר הכתובת מתחלפת. הוא משמש בשיחות, בכרטיסי האנשים ובכותרת עמוד הכותב. בדוגמאות עדיין אין תמונות אמיתיות של אנשים.
+
+### ממצאי האווטארים — נתונים חיים, קריאה בלבד
+
+| בדיקה | תוצאה |
+|---|---|
+| contributors שמקורם `openweb_import` | 2,297 |
+| מתוכם עם `avatar_url` | **0** |
+| הודעות OpenWeb | 41,080 |
+| הודעות שבהן media כולל מפתח avatar/picture/profile_image | 0 |
+| עמודות stage | אין שדה אווטאר בטבלת `g3_openweb_import_stage` |
+| מיפוי דרך `contribution_links.target_type='openweb_user'` והמחבר של ההודעה | 2,297 מזהי מקור → 2,297 שורות contributor, ללא תמונות קיימות או חשבונות מקושרים במיפוי זה |
+
+החיבור נבדק ב־Supabase הכללי, עם SELECT בלבד; הוא אינו חיבור שמוגבל טכנית לקריאה. מיפוי התיאום העדכני לא הראה writer חופף לרכיבי הקהילה/אווטארים. עבודות Contact Gateway הקיימות נשארו מחוץ להיקף. `origin/main` נשאר `8e939d3b092f267e40d74953b9103711322276d2`.
+
+מקור התמונות אינו הארכיון שיובא. נתיב הפרופיל נמצא בקוד הציבורי של OpenWeb: `GET /v1.0.0/profile/user/{id}?data=base` עם הקשר האתר. ניסיון קריאה עבור מזהה קיים החזיר **403, bad token**. לא הושג חיבור OpenWeb תקף, לא נעקפה ההרשאה, ולא נשלפה תמונה. התוצאה המדויקת כעת: **0 תמונות שנשאבו; 2,297 זהויות ממתינות למקור**. התמונות בצילומי המסך אינן משמשות לקביעת זהות או לגזירת קבצי אווטאר.
+
+### מסלול ההשלמה שהוכן
+
+1. לקבל יצוא/קורא OpenWeb מורשה שמחזיר לכל מזהה מקור את כתובת התמונה, נראות המקור ומועד התצפית. אין צורך להעביר סיסמה או טוקן בצ׳אט. שאלה על מיקום מקור כזה נשלחה למשתמש.
+2. למפות דרך הקישור המקורי `openweb_user` בלבד. אין התאמה לפי שם, דוא״ל, דמיון חזותי או תמונה; אין יצירת אדם/חשבון נוסף ואין הסקת בעלות בחשבון אתר.
+3. להריץ את `scripts/plan-openweb-avatar-backfill.mjs` על המיפוי ועל יצוא מנורמל. הכלי **offline/dry-run בלבד** ומכין דוח לשדה הקיים `contributors.avatar_url`; הוא אינו כותב ל־DB, אינו מוריד קבצים ואינו מפעיל מחדש את יבוא ההודעות שהוצא משימוש.
+4. דוח ההשלמה משמר תמונות קיימות וחשבונות שכבר קושרו, ועוצר מקרים של זהויות סותרות, מקור פרטי/לא מסומן, כתובת לא תקינה, היעדר תאריך או תמונות סותרות. `ready_for_review` אינו אישור לפרסום או הוכחה שהקובץ הורד. יש לאמת את מקור היצוא ואת זמינות התמונה לפני יישום.
+5. חיבור אמיתי יעבור דרך הכותב והקרנת הזהות הקיימים. פרטיות contributor אינה משתנה; האווטאר לצד הודעה חייב להגיע מהקרנה שמורשית להחזיר אותו. לשימור ארוך טווח יש להוריד קובץ תמונה מאומת ל־Storage הקיים עם בדיקת MIME/גודל/יעדי רשת, לשמור provenance ולא לדרוס תמונה עדכנית. שלב זה טרם נבנה או הופעל.
+
+צורת יצוא מנורמל נדרשת: `[{ "source_user_id": "<OpenWeb ID>", "avatar_url": "https://…", "visibility": "public", "observed_at": "<ISO timestamp>" }]`. הפרטים הם ממשק הקלט של כלי ההכנה; אין הנחה שזהו הפורמט המקורי של OpenWeb.
+
+קבצי הבדיקה המקומיים נמצאים מחוץ ל־git תחת `/workspace/community-avatar-recovery/`: `identity-map.json` מכיל מזהי מקור/יעד בלבד וללא שמות או דוא״ל; `backfill-readiness.json` מכיל את 2,297 רשומות `missing_source` ואת חסימת הקריאה. הקבצים נכתבו בהרשאת 0600 ואינם מיועדים לממשק הציבורי.
+
+### בדיקות ומסירה
+
+בדיקות היחידה מכסות התאמה מדויקת במזהים, היעדר שיוך לפי שם/דוא״ל, מקור פרטי, חוסר מקור, שימור תמונה קיימת/חשבון מקושר, הרצה חוזרת, התנגשות זהויות וכתובות תמונה לא תקינות. בדיקת הדפדפן של `UserBadge` משתמשת בקובץ בדיקה מקומי דרך route מדומה, ובודקת טעינת תמונה, כשל, fallback, החלפת תמונה וכתובת אסורה; היא אינה הוכחת שאיבה מ־OpenWeb.
+
+להרצת בדיקת הרכיב: Vite dev ב־`127.0.0.1:4174` ואז Playwright על `tests/user-badge.spec.cjs` (או `USER_BADGE_DEV_BASE_URL`). בדיקות הקהילה ממשיכות להשתמש בתוצר בנייה ב־4173.
+
+`actor=GPT · task_key=COMMUNITY_2029_SCREENSHOT_AVATAR_PARITY_V1 · owner=Person/Identity + canonical_ui_components_law/Design V2 · scope=Community preview + UserBadge + avatar URL display helper + offline backfill planner/tests · branch=feat/community-2029-preview-v1 · IMPLEMENTED=UI and offline preparation · AVATAR_COLLECTION=BLOCKED_AUTH · MERGED=false · LIVE=false · blockers=authorized OpenWeb avatar source missing · open_threads=source collection, image storage, governed backfill and public projection, remaining screenshot actions · handoff_to=ZURIEL/existing authorized coordinator`
+
+אימות סופי לשלב זה: `npm run build` עבר לשני היעדים, בדיקות source/built isolation וטקסטים ציבוריים עברו, **9 בדיקות Playwright** עברו (8 קהילה + 1 אווטאר), ו־5 בדיקות מיפוי אווטארים + 3 בדיקות קישורי מדיה עברו. צילומי מובייל/דסקטופ עודכנו ונבדקו חזותית. אזהרות הבנייה הקיימות על גודל חבילות וייבוא דינמי נשארו ללא כשל בנייה. סטטוס השאיבה נשאר `BLOCKED_AUTH`, ואינו משתנה בעקבות הצלחת הבדיקות המקומיות.
