@@ -53,9 +53,11 @@ export function assessAutoWake({assignment,permit,publicKeyPem,provider,now='202
   if(!release.startsWith('BRANCH_ONLY')||!release.includes('NO_MERGE')||!release.includes('NO_DEPLOY'))return deny('RELEASE_ENVELOPE_INSUFFICIENT');
   if(!/^[-A-Z0-9_]{6,160}$/.test(a.task_key||'')||typeof a.primary_owner!=='string'||!a.primary_owner.trim())return deny('OWNER_OR_TASK_MISSING');
   if(!a.dispatch_context||a.dispatch_context.created_via!=='work_log_assign_agent_v1')return deny('ASSIGNMENT_ORIGIN_UNVERIFIED');
+  if(a.dispatch_context.codex_workflow_mode!=='EXECUTE_BOUNDED')return deny('GOLDEN_EXECUTION_REQUIRES_BOUNDED_MODE');
   if(!verifyOperatorPermit(permit,publicKeyPem))return deny('PERMIT_SIGNATURE_UNVERIFIED');
   const c=permit.payload;
   if(c.version!==1||c.issuer!=='SOD1820_TRUSTED_OPERATOR'||c.action!=='CODEX_GOLDEN_ONCE')return deny('PERMIT_PURPOSE_MISMATCH');
+  if(c.workflow_mode!=='EXECUTE_BOUNDED')return deny('PERMIT_WORKFLOW_MODE_MISMATCH');
   if(!uuidRe.test(c.approval_id||'')||!validIso(c.expires_at)||
      Date.parse(c.expires_at)<=Date.parse(now)||Date.parse(c.expires_at)-Date.parse(now)>3600000)return deny('PERMIT_EXPIRED_OR_TOO_LONG');
   if(!match(c.assignment_id,a.id)||!match(c.task_key,a.task_key)||!match(c.scope,a.assignment_scope)||
