@@ -95,7 +95,7 @@ assignment, requeue, migration, deployment, secret read/copy or model call occur
 ### Exact bounded change and limits
 
 Migration `20261010172910_codex_work_log_one_shot_claim.sql` extends only existing
-`agent_dispatch_claim`, specifically this task's ASSIGNMENT rows. It atomically
+`agent_dispatch_claim`, specifically this task's GPT ASSIGNMENT rows. It atomically
 records `dispatch_context.codex_consumption` with the signed idempotency key,
 unique lease owner and consumption time in the same UPDATE that claims the row.
 The existing requeue preserves this marker, so resetting attempts cannot consume

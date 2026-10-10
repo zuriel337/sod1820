@@ -18,7 +18,8 @@ function docker(args,input=''){
   p.stdin.on('error',()=>{});p.stdin.end(input);
  });
 }
-const sql=q=>docker(['exec','-i',container,'psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq'],q);
+// TCP loopback excludes the entrypoint's temporary Unix-socket-only init server.
+const sql=q=>docker(['exec','-i',container,'psql','-h','127.0.0.1','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq'],q);
 const context={created_via:'work_log_assign_agent_v1',codex_workflow_mode:'EXECUTE_BOUNDED',
  codex_execution_mode:'offline_golden',idempotency_key:'SOD1820_E2E_README_FIXTURE_V1'};
 async function seed({task='REMOTE_CODEX_EXECUTOR_BRIDGE_V1',actor='GPT',kind='ASSIGNMENT',ctx=context,state='QUEUED'}={}){
@@ -89,7 +90,7 @@ test('canonical work_log one-shot claim on isolated PostgreSQL 17.6', {timeout:1
 
   await t.test('existing Claude, generic GPT and RESULT_WAKE semantics are preserved',async()=>{
    for(const spec of [{task:'EXISTING_CLAUDE_TASK',actor:'CLAUDE',state:'FIRE_REQUESTED'},
-    {task:'EXISTING_GPT_TASK',state:'SESSION_STARTED'},{kind:'RESULT_WAKE'}]){
+    {actor:'CLAUDE'},{task:'EXISTING_GPT_TASK',state:'SESSION_STARTED'},{kind:'RESULT_WAKE'}]){
     const id=await seed(spec);
     assert.equal(await sql(claim(id,'EXISTING_WORKER','900')),'t');
     assert.equal(await sql(`select not(dispatch_context ? 'codex_consumption') from work_log where id='${id}';`),'t');

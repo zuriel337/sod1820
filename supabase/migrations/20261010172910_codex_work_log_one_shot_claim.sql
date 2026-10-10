@@ -1,6 +1,6 @@
 -- Branch-only extension of the LIVE agent_dispatch_claim inspected 2026-10-10.
 -- No new RPC/table/actor. Do not apply without exact-head owner/security review.
--- Preserve current Claude/GPT behavior outside this task's ASSIGNMENT rows.
+-- Preserve Claude and all behavior outside this task's GPT ASSIGNMENT rows.
 create or replace function public.agent_dispatch_claim(
   p_assignment_id uuid, p_worker text, p_lease_seconds integer default 900
 )
@@ -22,7 +22,7 @@ begin
       dispatch_next_attempt_at=null,
       status='CLAIMED_'||coalesce(w.to_actor,'AGENT')||'_EVENT_DRIVEN_RUNTIME',
       dispatch_context=case
-        when w.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1' and w.dispatch_kind='ASSIGNMENT'
+        when w.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1' and w.dispatch_kind='ASSIGNMENT' and w.to_actor='GPT'
         then jsonb_set(w.dispatch_context,'{codex_consumption}',jsonb_build_object(
           'version',1,'idempotency_key',w.dispatch_context->>'idempotency_key',
           'lease_owner',left(p_worker,200),'consumed_at',now()),true)
@@ -33,7 +33,7 @@ begin
     and (w.dispatch_state in ('QUEUED','RETRY_WAIT','FIRE_REQUESTED','SESSION_STARTED')
       or (w.dispatch_state='CLAIMED' and w.dispatch_lease_expires_at<now()))
     and (
-      (w.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1' and w.dispatch_kind='ASSIGNMENT') is not true
+      (w.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1' and w.dispatch_kind='ASSIGNMENT' and w.to_actor='GPT') is not true
       or (
         w.to_actor='GPT' and w.assignment_mode='WRITE'
         and w.dispatch_context->>'created_via'='work_log_assign_agent_v1'
