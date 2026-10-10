@@ -134,9 +134,9 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     glow: "rgba(49,93,213,0.10)",
     focusRing: "#086C70",
     warmAccent: "#80601D",
-    brandSapphire: "#234FCB",
-    brandGold: "#80601D",
-    brandGlow: "rgba(35,79,203,0.12)",
+    brandSapphire: "#1957D9",
+    brandGold: "#875E13",
+    brandGlow: "rgba(25,87,217,0.12)",
   }),
   parchment: Object.freeze({
     preset: "parchment", mode: "light",
@@ -162,9 +162,9 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     glow: "rgba(40,78,159,0.10)",
     focusRing: "#176965",
     warmAccent: "#80601D",
-    brandSapphire: "#21459B",
-    brandGold: "#80601D",
-    brandGlow: "rgba(184,134,45,0.12)",
+    brandSapphire: "#1957D9",
+    brandGold: "#80570E",
+    brandGlow: "rgba(128,87,14,0.12)",
   }),
   dark: Object.freeze({
     preset: "dark", mode: "dark",
@@ -190,9 +190,9 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     glow: "rgba(49,93,213,0.14)",
     focusRing: "#69DED7",
     warmAccent: "#DEBD77",
-    brandSapphire: "#2F6DF6",
-    brandGold: "#DEBD77",
-    brandGlow: "rgba(47,109,246,0.16)",
+    brandSapphire: "#1957D9",
+    brandGold: "#F9BA3F",
+    brandGlow: "rgba(25,87,217,0.18)",
   }),
 });
 

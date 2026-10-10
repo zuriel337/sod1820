@@ -84,7 +84,21 @@ The surrounding product UI does not inherit those colors as default control colo
 - `brandGold` — restrained royal-gold environmental/identity accent;
 - `brandGlow` — non-semantic atmospheric glow.
 
-These roles may appear in backgrounds, ambient fields, protected logo moments, spatial transitions and rare identity ornament. They must not become the default button/label/status colors and must never imply truth, verification or epistemic importance.
+These roles appear in backgrounds, ambient fields, protected logo moments, spatial transitions and bounded identity ornament. Under ZURIEL's 10.10.2026 refinement, compact content-intro impressions and large Signature icon frames/depth layers share the Crown's gold and sapphire family. Foreground glyphs retain their capability color. These roles must not become the default button/label/status colors and must never imply truth, verification or epistemic importance.
+
+The full approved lockup is the visual reference, resolved only through
+`brandAssets2029.js`. Its source SHA-256 is
+`3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18`.
+The raster contains highlights, shadows and gradients, not a single flat brand
+color. Representative opaque source pixels selected for this projection are
+gold `#F9BA3F` and sapphire `#1957D9`; these are design reference samples, not a
+replacement Brand artwork specification. `palette.js` owns all runtime values:
+Night gold `#F9BA3F`, Day gold `#875E13`, Parchment gold `#80570E`; sapphire
+`#1957D9` supplies atmosphere/depth in all presets. Day/Parchment gold is a
+contrast-adapted derivative rather than a claim of exact pixel matching.
+The approved full lockup, asset path and wordmark remain unchanged. Do not crop
+out the Crown or introduce per-page brand palettes. Thin ornament is decorative;
+meaningful labels and controls must use readable semantic text/focus roles.
 
 UI color and Brand artwork identity remain distinct semantic layers: Royal blue/Violet/Cyan own ordinary 2029 interaction; Sapphire/Gold enter when the experience intentionally calls for a Brand moment.
 
