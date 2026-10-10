@@ -700,3 +700,53 @@ checks all three directions, live law versions, original image loading, exact
 Number/Topic/World return, reload, composite method identity and a law-outage
 negative fixture. Final commit, receipts, screenshots and package digest accompany
 the work_log AFTER; no production test is implied by local browser evidence.
+
+## Unified Home → World → plane preview · 2026-10-10
+
+Continuation of work_log f1cf7d0d; active consumer ACK db1d56a1. Same task key
+WORLD_2029_GROUP_STREAM_1001_RELEASE_CONTINUATION_V1 and existing branch
+codex/world-discovery-integrated-20261010. Main refreshed to4b62216d (two additional
+documents only). No main merge, product data write or production deployment.
+
+Actually consumed foundations:
+
+- Complete ten-commit Crown/M0–M3 design6494eb8a, authenticated ZIP SHA256
+  fa17b58d041a5dbe6e811d17d4fe7087474162d24c8c061317046642553d5d6f.
+  Mechanical Number conflict keeps methodVersion/findingId and delivered safe result.
+- Frame return/unknown-number repair29cba0ea, delivered byf77826ce, merged8c929f65.
+- Released PR1020/34133a4e shared visual files and final PaletteProvider wrapper,
+  consumer import6b2c8a4b, acknowledged71e689c9. ELS runtime/library not imported.
+- Reviewed PR1010 source/time/Home hunks only; its former World/UI tree not imported.
+  PR1016 connection-depth files retain their exact delivered content.
+
+The isolated protected review enables existing DEV mounts. Home and World now
+consume one public arrival list and one bounded invitation to the real Post5112
+reader. Three directions expose people/India,1073/718/time and wisdom/Jerusalem.
+Full source images, original links, governed calculations and history use the
+existing readers. The same source retains one identity across processing updates.
+Source publication, recorded time, source edit and research edit remain distinct;
+unknown original/discovery timestamps are visibly absent. Public filtering and
+Include/Publish gates are unchanged. No private stage is adopted as a public Post.
+
+The artifact uses live anonymous public reads and a service-worker write guard;
+account login/writes and AI are unavailable. An explicit guest Path is temporary
+and survives the tested refresh. This preview does not certify cloud save or
+public Paths. The established public Path reader remains a separate dependency.
+
+`test-home-world-flight-preview.mjs` exercises Home → World → original captain
+image → Post5112 → Inspect1073 → learn disclosure → Number1073 → explicit Path →
+Frame return → Post/reload, plus raw Home source → World → Home with that Path.
+On mobile, the existing exact-return control is inside the navigation menu.
+Source/World historical return and missing-source/guest permissions also have the
+existing complete-journey replay. Final browser receipts, URL and exact SHA are
+recorded in work_log AFTER; this document does not infer a pass from a pending run.
+
+Remaining Posts dependency, reproduced and recorded ina43ab23b/e08bcf93: returning
+to Post5112 preserves the active Path, but Post mount resets flight-1073 selection
+to visual-363; a native exact source-region/video return is not complete. The
+inherited large hero typography/number overlap also remains Posts-owned. There
+is no claim of owner activation or recipient ACK. Shared mobile dock labels need
+visual follow-up at narrow widths; imported shared files were not locally redesigned.
+
+Delivery is a visual proposal on working public readers, not a public selection
+or publication decision. Review the reading flow and directions before Include.

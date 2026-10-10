@@ -27,6 +27,7 @@ for(const theme of themes) for(const width of widths){
  const capture=async name=>{console.log(`${theme} ${width} ${name}`);return page.screenshot({path:`${out}/${theme}-${width}-${name}.png`});};
  const current=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')));
  const fit=async()=>assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
+ const returnFrame=async()=>{const b=page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true});if(!await b.count())await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();await page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true}).first().click();};
  if(share){await page.goto(share,{waitUntil:'domcontentloaded'});await page.waitForURL(u=>u.origin===base&&!u.searchParams.has('_vercel_share'));}
  await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
  await page.locator('[data-flight-story=home]').waitFor({timeout:90000});
@@ -66,7 +67,7 @@ for(const theme of themes) for(const width of widths){
  await page.waitForFunction(()=>!!JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest'))?.journey);
  const active=await current();const root=active.journey.root.id;const returnHref=active.returnTo?.href;
  assert.match(returnHref,/\/post\/flydubai/);await capture('number-journey');
- await page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true}).first().click();
+ await returnFrame();
  await page.waitForURL(u=>u.pathname.startsWith('/post/'));await page.locator('[data-post-slug]').waitFor({timeout:90000});
  assert.equal((await current()).journey.root.id,root);
  const returned=await current();
@@ -83,7 +84,7 @@ for(const theme of themes) for(const width of widths){
  await page.waitForURL(/world#group-source-/);const sourceAnchor=new URL(page.url()).hash;
  await page.locator(sourceAnchor+'[open]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
  await capture('raw-source-return-context');
- await page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true}).first().click();
+ await returnFrame();
  await page.waitForURL(u=>u.pathname==='/2029');await page.locator('[data-flight-story=home]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
  receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),journeySurvivesReload:true});
  await context.close();
