@@ -128,6 +128,36 @@ test('canonical work_log one-shot claim on isolated PostgreSQL 17.6', {timeout:1
    }
   });
 
+  await t.test('consumed expired Codex lease terminalizes through ONE canonical AFTER and never loops',async()=>{
+    const id=await seed();
+    await sql(`update work_log set from_actor='GPT',assignment_scope='README-only fixture',
+      primary_owner='inter_agent_coordination_law v13',release_authorization_state='BRANCH_ONLY_NO_MERGE_NO_DEPLOY'
+      where id='${id}';`);
+    assert.equal(await sql(claim(id,'CODEX_RUNNER:expired')),'t');
+    await sql(`update work_log set dispatch_lease_expires_at=now()-interval '1 second' where id='${id}';`);
+    await sql('select public.agent_dispatch_recover();');
+    assert.equal(await sql(`select dispatch_state from work_log where id='${id}';`),'FAILED');
+    assert.equal(await sql(`select dispatch_last_error from work_log where id='${id}';`),'codex_consumed_lease_expired');
+    assert.equal(await sql(`select count(*) from work_log
+      where parent_assignment_id='${id}' and status='AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED';`),'1');
+    assert.equal(await sql(`select count(*) from work_log
+      where parent_assignment_id='${id}' and dispatch_kind='RESULT_WAKE';`),'1');
+    await sql('select public.agent_dispatch_recover();');
+    assert.equal(await sql(`select count(*) from work_log
+      where parent_assignment_id='${id}';`),'1');
+    assert.equal(await sql(claim(id,'CODEX_RUNNER:no-retry')),'f');
+    assert.equal(await sql(`select dispatch_context ? 'codex_consumption' from work_log where id='${id}';`),'t');
+  });
+
+  await t.test('expired normal Claude lease still returns to existing RETRY_WAIT flow',async()=>{
+    const id=await seed({task:'EXISTING_CLAUDE_GENERAL',actor:'CLAUDE'});
+    assert.equal(await sql(claim(id,'CLAUDE_RUNNER:original','900')),'t');
+    await sql(`update work_log set dispatch_lease_expires_at=now()-interval '1 second' where id='${id}';`);
+    await sql('select public.agent_dispatch_recover();');
+    assert.equal(await sql(`select dispatch_state from work_log where id='${id}';`),'RETRY_WAIT');
+    assert.equal(await sql(`select dispatch_last_error from work_log where id='${id}';`),'stale_lease_recovered');
+  });
+
   await t.test('claim stays service-role-only with fixed search_path and SECURITY DEFINER',async()=>{
    assert.equal(await sql(`select has_function_privilege('anon','public.agent_dispatch_claim(uuid,text,integer)','EXECUTE'),
     has_function_privilege('authenticated','public.agent_dispatch_claim(uuid,text,integer)','EXECUTE'),
