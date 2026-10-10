@@ -802,6 +802,39 @@ Use `system_suggestions_law v5` Observe→Detect→Suggest→Explain→Decide. E
 
 Learned procedure/policy candidates must carry the example/correction, exact scope, counterexamples, version and approval/revocation lineage. Evaluate against held-out examples through the existing Champion/Challenger contract before approval. A display preference must not alter engine results, source text, access or publication. Saving this plan/work_log preserves coordination provenance; it does **not** train Raziel, store user memory, or activate a ranking preference. Those product writes require the existing authorized consumer and readback. The useful G4 path does not wait for full adaptive automation.
 
+<a id="corpus-interpretation-interview-continuity"></a>
+
+#### Corpus coverage, ZURIEL interpretation and next interview — existing Control Plane continuity
+
+**User-directed planning integration, 2026-10-11.** Reconciles `work_log 48a3da84-120d-4bf9-8f58-2e1703ecb917` with the existing §8A learning path and [Control Plane §12.1](2029-control-plane-attention-observability-plan-v1.md#corpus-interpretation-interview). The depth handoff is `9696bd6a-bbab-414c-9a72-d25007568a83`; `0c8a68af-de53-4f84-be16-765c6b96026a` provides the dated Implementation Reality routing map. The latter's selected cards are branch evidence, not live adaptive-learning acceptance. Extend existing Research Intake/Source, Research Strategy, Workspace, decision/learning, System Suggestions and Experience owners; do not create another inventory, interview database, learning engine or scheduler.
+
+**Coverage is several inspectable dimensions.** Establish a dated denominator for each source family and declared unit (unique source/artifact, page or source-native segment); keep duplicated placements, missing inventory and inaccessible material separate. Do not combine different units into one percentage. Preserve the owning Intake distinction between Research Grammar coverage, exact-witness coverage and source/corpus exhaustion. Candidate count, extraction rows, selected story count and product availability are not substitutes for corpus coverage. The conversation's “10%/90%” is illustrative and must never be displayed as measured.
+
+| Progress dimension | Required evidence / what remains separate |
+|---|---|
+| Inventoried | Known unique scope, source family, unit, snapshot and unresolved/unavailable inventory |
+| Processed with saved evidence | Existing extraction/research receipt and coverage bounds; processing alone is not interpretation review |
+| Interpretation extracted | Attributed reading/procedure with exact source locator and preserved original; an AI summary is not ZURIEL approval |
+| Reviewed by ZURIEL | Source-linked approval, correction, rejection or open question, with reason/scope/exceptions |
+| Replay-tested on unseen examples | Held-out example/counterexample, applicable version and outcome under existing learning-policy owners |
+| Available in authorized product surfaces | Exact consumer/retrieval acceptance and access/publication scope; availability does not imply whole-corpus completion |
+
+New authorized WhatsApp/source arrivals extend inventory through existing intake. Preserve earlier receipts and reviewed scope; do not restart completed work. A source can be reviewed and still have unresolved questions. Show unknown inventory as unknown rather than claiming a known exhaustive denominator.
+
+**Interpretation questions are resumable research context.** For each materially unanswered question, refer to its existing source/event/finding, proposed attributed interpretation, supporting evidence, uncertainty, and the decision its answer could change. Reuse existing owner-native research/task facilities only after current schema and admission verification; `work_log` keeps coordination pointers, not interview answers as a competing product memory. Preserve source wording and exact calculations. Human approval attributes a reading to ZURIEL; it does not independently verify a source claim, canonicalize a numeric rule or publish private material.
+
+**Next interview is selected by information gain.** Group representative sources governed by the same question; prioritize high-impact ambiguity, corrections and counterexamples rather than one interview per corpus item. Start from an already preserved example chosen by ZURIEL, using its saved evidence; recover any missing original first. A bounded interview should ask:
+1. What makes this connection meaningful: source, date, expression, method, history or their conjunction?
+2. Which similar example would *not* support the same reading, and why?
+3. Which part is verified calculation/source fact, which is ZURIEL's interpretation, and what exceptions or uncertainty remain?
+4. Which next research action or presentation choice should this answer change?
+
+Each interview produces source-linked approval/correction/rejection, decision reason, domain, scope, exceptions and version/provenance in the existing authorized home, with later correction/revocation preserved. Product engagement analytics remains distinct from interpretive fidelity and evidence quality. Persisted feedback must be shown in later authorized retrieval/response; documentation or a chat alone is not model-weight training or an activated preference.
+
+**Confirmed interaction decisions carried forward.** ZURIEL accepted the proposed contextual suggestion after an edit when it adds meaningful information: a small “יש לי רעיון להמשך” invitation, with the same referenced suggestion reachable in the existing Control Plane. No duplicate item/channel identity or surprise interruption. ZURIEL also accepted giving a natural-language reason for a choice, without a mandatory form; Raziel briefly reflects what it understood so the user can correct it. The exact UI/adapters remain planned. This augments the accepted UX checkpoint `5181e0d5-b53a-4de3-9c7e-58cefc59a26d`; it does not turn those choices into global research truth.
+
+**Minimal resumption evidence, separate from site release.** A fresh authorized session must be able to retrieve the inventory snapshot/unit, covered and remaining scope, last attributed decision, unresolved question and recommended next interview with its source locator, owner/blocker and context—without another whole-corpus scan. Prove that one saved reason is retrieved and used within its domain, including a counterexample/unknown and correction. This is proposed bounded acceptance of existing continuity, not a new G4 gate or authority to activate learned policies. SITE_RELEASE readiness and ongoing CORPUS/LEARNING completion remain separate. Full Admin, adaptive automation and wider corpus coverage keep the later Roadmap boundaries and the 10Oct Control Center freeze.
+
 **Bounded acceptance / delivery:**
 
 - G4 now: consume the existing Source/Path integration and prove the FZ1073 + Wisdom calibration with source, exact typed next steps, available profile dimensions, Explain-Why and mobile/exact return. Review the old PR1010 World stream overlap before eventual release. No broad corpus rescan.
