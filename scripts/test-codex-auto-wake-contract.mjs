@@ -14,10 +14,10 @@ const base=()=>({
  primary_owner:'inter_agent_coordination_law v13',dispatch_kind:'ASSIGNMENT',
  dispatch_state:'QUEUED',dispatch_attempts:0,dispatch_next_attempt_at:null,
  dispatch_lease_owner:null,dispatch_lease_expires_at:null,archived:false,superseded_by_id:null,
- dispatch_context:{created_via:'work_log_assign_agent_v1',github_paths:['README.md']}
+ dispatch_context:{created_via:'work_log_assign_agent_v1',github_paths:['README.md'],codex_workflow_mode:'EXECUTE_BOUNDED'}
 });
 const grantPayload=()=>({
- version:1,issuer:'SOD1820_TRUSTED_OPERATOR',action:'CODEX_GOLDEN_ONCE',
+ version:1,issuer:'SOD1820_TRUSTED_OPERATOR',action:'CODEX_GOLDEN_ONCE',workflow_mode:'EXECUTE_BOUNDED',
  approval_id:'8289e9bf-41c0-443c-b187-43ce13fb8530',assignment_id:id,
  task_key:'SOD1820_CODEX_GOLDEN_OFFLINE_V1',scope,
  project_id:'linswmnnkjxvweumprav',branch:'codex/golden-readme-smoke',
@@ -54,10 +54,16 @@ const cases=[
  ['active lease',a=>({...a,dispatch_lease_owner:'other'}),'ACTIVE_OR_STALE_LEASE_REQUIRES_CANONICAL_RECOVERY'],
  ['privileged release',a=>({...a,release_authorization_state:'PRODUCTION'}),'RELEASE_ENVELOPE_INSUFFICIENT'],
  ['unsigned assignment origin',a=>({...a,dispatch_context:{github_paths:['README.md']}}),'ASSIGNMENT_ORIGIN_UNVERIFIED'],
- ['unsafe file expansion',a=>({...a,dispatch_context:{created_via:'work_log_assign_agent_v1',github_paths:['README.md','supabase/functions/ai-analyze/index.ts']}}),'GOLDEN_FILE_SCOPE_MISMATCH']
+ ['unsafe file expansion',a=>({...a,dispatch_context:{created_via:'work_log_assign_agent_v1',github_paths:['README.md','supabase/functions/ai-analyze/index.ts'],codex_workflow_mode:'EXECUTE_BOUNDED'}}),'GOLDEN_FILE_SCOPE_MISMATCH']
 ];
 for(const [name,mutate,reason] of cases)test('reject '+name,()=>{
  const a=base();assert.equal(run(mutate(a)).reason,reason);
+});
+test('Golden cannot execute a recon assignment or a permit with mismatched mode',()=>{
+ const a=base();a.dispatch_context.codex_workflow_mode='RECON_READ_ONLY';
+ assert.equal(run(a).reason,'GOLDEN_EXECUTION_REQUIRES_BOUNDED_MODE');
+ const p=grantPayload();p.workflow_mode='RECON_READ_ONLY';
+ assert.equal(run(base(),signed(p)).reason,'PERMIT_WORKFLOW_MODE_MISMATCH');
 });
 test('permit binds assignment, owner scope, repo branch, and fixed file list',()=>{
  const p=grantPayload();p.scope='all of repo';
