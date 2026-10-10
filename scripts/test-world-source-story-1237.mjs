@@ -34,7 +34,8 @@ try {
         return route.fulfill({ contentType: 'application/json', body: '[]' });
       }
       if (['hidden', 'changed'].includes(fixture) && url.pathname === '/rest/v1/gallery_images'
-        && url.searchParams.get('id')?.includes('62ffc447-fd91-4027-9fe9-4a19d09679fd')) {
+        && (url.searchParams.get('id')?.includes('62ffc447-fd91-4027-9fe9-4a19d09679fd')
+          || url.searchParams.get('image_url')?.includes('hnshya-bkvtl-b-424.jpeg'))) {
         const data = publicGalleryResponses.get(request.url());
         if (data) {
           const body = Array.isArray(data) ? data.map((r) => r.id === '62ffc447-fd91-4027-9fe9-4a19d09679fd'
