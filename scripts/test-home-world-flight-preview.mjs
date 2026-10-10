@@ -75,7 +75,17 @@ for(const theme of themes) for(const width of widths){
  if(!nativeRegion) receipt.ownerGaps.push({width,owner:'Posts',gap:'Stored post_region locator has no native rendered anchor; exact source-region/video return pending.'});
  await capture('return-post');
  await page.reload({waitUntil:'domcontentloaded'});await page.locator('[data-post-slug]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
- receipt.cases.push({width,theme,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),journeySurvivesReload:true});
+ // Re-open a raw public source from Home while the temporary Path is active.
+ await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
+ await page.locator('[data-flight-story=home]').waitFor({timeout:90000});
+ const raw=page.locator('.sod29-source-arrivals details[data-source-arrival]').first();await raw.waitFor({timeout:90000});
+ await raw.locator('summary').click();await raw.getByRole('button',{name:'פתיחה בעולם',exact:true}).click();
+ await page.waitForURL(/world#group-source-/);const sourceAnchor=new URL(page.url()).hash;
+ await page.locator(sourceAnchor+'[open]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
+ await capture('raw-source-return-context');
+ await page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true}).first().click();
+ await page.waitForURL(u=>u.pathname==='/2029');await page.locator('[data-flight-story=home]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
+ receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),journeySurvivesReload:true});
  await context.close();
 }
 assert.deepEqual(receipt.errors,[]);

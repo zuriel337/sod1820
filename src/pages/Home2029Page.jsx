@@ -404,6 +404,7 @@ function HomeBody() {
       },
       selection: item.sourceRef ? { entityId: item.sourceRef, entityType: item.kind, sourceRef: item.sourceRef } : null,
       lens: "world",
+      journey: context?.journey || null,
       returnTo: {
         href: "/2029", label: "דף הבית",
         subject: context?.subject || null,

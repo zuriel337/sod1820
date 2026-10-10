@@ -918,11 +918,13 @@ function LiveWorldLanding({ research, shell, context }) {
     if (item.kind === "source" && item.sourceKind === "post" && item.href) {
       research.updateResearchContext?.({
         subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
-        selection: { entityId: item.sourceRef, entityType: "post" },
-        lens: "world",
-        returnTo: { href: "/world", label: "מה חדש בעולם" },
+        selection: { entityId: item.sourceRef, entityType: "post", sourceRef: item.sourceRef },
+        lens: "reading",
+        returnTo: { href: "/world#world-sources", label: "המקורות בעולם",
+          subject: context?.subject || null, selection: context?.selection || null,
+          lens: "world", dimensions: context?.dimensions || {}, journey: context?.journey || null },
       });
-      shell.go(item.href);
+      shell.go(item.href, { preserve: false });
       return;
     }
     if (item.kind === "convergence" && item.slug) {
