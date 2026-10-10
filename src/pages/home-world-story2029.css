@@ -1,0 +1,42 @@
+/* Bounded Home/World content. Palette, fonts, frame, controls and icons remain shared. */
+.sod29-flight-story,.sod29-source-arrivals,.sod29-home-review-entry{min-width:0;color:var(--s29-ink);margin-block:20px 36px;font-family:var(--s29-font-ui,'Rubik',sans-serif)}
+.sod29-flight-story *,.sod29-source-arrivals *{box-sizing:border-box;min-width:0}
+.sod29-flight-story h2{font-size:clamp(28px,3.2vw,44px);line-height:1.22;letter-spacing:-.035em;margin:12px 0 20px}
+.sod29-flight-feature{display:grid;grid-template-columns:1fr 1.1fr;align-items:center;gap:clamp(24px,4vw,52px);padding:clamp(20px,3vw,40px);border:1px solid var(--s29-line);border-radius:24px;background:var(--s29-panel)}
+.sod29-flight-story.is-world .sod29-flight-feature{grid-template-columns:1.4fr .6fr;padding:24px}
+.sod29-flight-story.is-world h2{font-size:clamp(27px,2.5vw,34px)}
+.sod29-flight-lead{font-family:'Noto Sans Hebrew',sans-serif;font-size:18px;line-height:1.85;color:var(--s29-muted);max-width:37em;margin:0 0 22px}
+.sod29-flight-meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--s29-muted);font-size:14px;line-height:1.7;margin-bottom:22px}
+.sod29-flight-meta>span:first-child{color:var(--s29-accent-text,var(--s29-accent));font-weight:600;letter-spacing:.08em}
+.sod29-flight-media{margin:0;align-self:center}
+.sod29-flight-media img{width:100%;height:auto;max-height:360px;display:block;object-fit:contain;border-radius:14px;background:var(--s29-panel-soft)}
+.sod29-flight-media figcaption{font-size:14px;line-height:1.6;color:var(--s29-muted);margin-top:10px}
+.sod29-flight-breadcrumb{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--s29-muted);margin-bottom:12px}
+.sod29-flight-breadcrumb button{min-height:44px;min-width:44px;background:none;border:0;color:var(--s29-accent-text,var(--s29-accent));font:inherit;cursor:pointer}
+.sod29-flight-directions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.sod29-flight-directions>button{display:grid;grid-template-columns:40px 1fr;align-content:start;align-items:center;gap:12px;text-align:start;min-height:44px;background:var(--s29-panel);border:1px solid var(--s29-line);border-radius:18px;padding:22px;color:var(--s29-ink);font:inherit;cursor:pointer;transition:border-color .18s,background .18s}
+.sod29-flight-directions>button[aria-pressed=true],.sod29-flight-directions>button:hover{border-color:var(--s29-accent-text,var(--s29-accent));background:var(--s29-panel-soft)}
+.sod29-flight-direction-icon{color:var(--s29-accent-text,var(--s29-accent));width:32px;height:32px;display:grid;place-items:center}
+.sod29-flight-direction-value{font-size:22px;color:var(--s29-accent-text,var(--s29-accent));font-weight:500}
+.sod29-flight-directions strong,.sod29-flight-directions em,.sod29-flight-directions>button>span:nth-last-child(2){grid-column:1/-1}
+.sod29-flight-directions strong{font-size:20px}.sod29-flight-directions>button>span:nth-last-child(2){font-size:16px;line-height:1.75;color:var(--s29-muted)}
+.sod29-flight-directions em{font-size:14px;color:var(--s29-accent-text,var(--s29-accent));font-style:normal;margin-top:6px}
+.sod29-flight-time{margin-top:20px;border-block:1px solid var(--s29-line);padding:4px 0;color:var(--s29-muted)}
+.sod29-flight-time summary{cursor:pointer;min-height:48px;padding:12px 4px;font-size:16px;color:var(--s29-ink)}
+.sod29-flight-time p{font-size:16px;line-height:1.8}
+.sod29-flight-story .sod29-action,.sod29-source-arrivals .sod29-action,.sod29-home-review-entry .sod29-action{min-height:44px;font-size:16px;white-space:normal;text-align:center}
+.sod29-source-arrivals header{max-width:56em;margin-bottom:22px}.sod29-source-arrivals h2{font-size:28px;margin:8px 0}.sod29-source-arrivals header p{font-size:18px;line-height:1.8;color:var(--s29-muted)}
+.sod29-source-arrival{margin:0;border-top:1px solid var(--s29-line);background:transparent;border-radius:0;padding:0}
+.sod29-source-arrival summary,.sod29-source-arrival-link{display:flex;align-items:start;gap:18px;padding:22px 8px;width:100%;background:none;border:0;color:var(--s29-ink);font:inherit;text-align:start;cursor:pointer;list-style:none}
+.sod29-source-arrival summary::-webkit-details-marker{display:none}.sod29-source-arrival-icon{display:grid;place-items:center;flex:0 0 42px;height:44px;color:var(--s29-accent-text,var(--s29-accent));background:var(--s29-panel-soft);border-radius:12px}
+.sod29-source-arrival-copy{display:grid;gap:6px;flex:1;font-size:16px;line-height:1.65}.sod29-source-arrival-copy strong{font-size:18px;font-weight:500}.sod29-source-arrival-copy>span:not(.sod29-source-arrival-label),.sod29-source-arrival-copy small{font-size:14px;color:var(--s29-muted)}
+.sod29-source-arrival-label{font-size:14px!important;line-height:1.7;color:var(--s29-muted)}
+.sod29-source-arrival-open{align-self:center;font-size:22px;color:var(--s29-accent)}
+.sod29-source-arrival-body{padding:0 24px 24px;line-height:1.9;font-size:18px;white-space:pre-line;overflow-wrap:anywhere}
+.sod29-source-arrival-update{display:block;padding:0 68px 16px;font-size:14px;color:var(--s29-muted)}
+.sod29-home-review-entry{border-top:1px solid var(--s29-line);padding-top:24px}.sod29-home-review-entry h2{font-size:28px}.sod29-home-review-entry p{font-size:18px;line-height:1.8;color:var(--s29-muted)}
+.sod29-flight-story :is(button,summary):focus-visible,.sod29-source-arrivals :is(button,summary):focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+@media(max-width:760px){.sod29-flight-feature,.sod29-flight-story.is-world .sod29-flight-feature{grid-template-columns:minmax(0,1fr);padding:20px;gap:22px}.sod29-flight-story.is-home .sod29-flight-media{grid-row:1}.sod29-flight-story.is-world .sod29-flight-media{display:none}.sod29-flight-directions{grid-template-columns:minmax(0,1fr);gap:12px}.sod29-flight-directions>button{padding:18px}.sod29-flight-story .sod29-actions{align-items:stretch}.sod29-flight-story .sod29-action{width:100%}.sod29-source-arrival summary,.sod29-source-arrival-link{gap:12px;padding-inline:0}.sod29-source-arrival-icon{flex-basis:32px}.sod29-flight-lead{font-size:18px}.sod29-flight-story,.sod29-source-arrivals{margin-bottom:28px}}
+@media(prefers-reduced-motion:reduce){.sod29-flight-directions>button{transition:none}}
+
+.sod29-source-arrivals>.sod29-actions{margin-bottom:20px;flex-wrap:wrap}

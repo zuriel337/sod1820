@@ -58,8 +58,8 @@ export async function copyLink(url) {
     try {
       const ta = document.createElement("textarea");
       ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
-      return true;
+      document.body.appendChild(ta); ta.select();
+      try { return Boolean(document.execCommand("copy")); } finally { ta.remove(); }
     } catch { return false; }
   }
 }

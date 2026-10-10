@@ -2,6 +2,42 @@
 // This module does NOT rank truth, evidence, importance, canonicality or access.
 // It only helps render an honest contextual projection over material already returned
 // by the governed Reality/Research readers.
+import { INDIA_CAPTAIN_SOURCE } from "./topicSourceContext.js";
+
+export const WORLD_SOURCE_STORY_ANCHOR = "world-plane-india";
+
+// A bounded presentation of the Source owner's mapped witness. Never infer a
+// relation from a shared number, a tag, or the number of gallery appearances.
+export function buildWorldSourceStory(projection) {
+  if (projection?.access?.available !== true || projection.access.scope !== "public"
+    || projection.topicSlug !== INDIA_CAPTAIN_SOURCE.topicSlug) return null;
+  const item = projection.items?.find((entry) => entry.access?.scope === "public"
+    && entry.postPlacement?.postId === INDIA_CAPTAIN_SOURCE.postId
+    && entry.contextRelations?.some((relation) => relation.relationKind === "documented_source_mention"
+      && relation.relationType === "explicit_indian_citizenship"));
+  if (!item?.sourceIdentity?.ref || !item.reopen?.topicHref || !item.reopen?.selection?.sourceRef) return null;
+  return {
+    item, title: item.postPlacement.originalTitle, topicLabel: projection.topicTitle,
+    topicSlug: projection.topicSlug, reason: item.contextRelation.explanation,
+    returnHref: `/world#${WORLD_SOURCE_STORY_ANCHOR}`,
+  };
+}
+
+export function worldSourceStoryContext(story) {
+  if (!story) return null;
+  return {
+    selection: story.item.reopen.selection,
+    lens: "world",
+    dimensions: {
+      activeSectionId: WORLD_SOURCE_STORY_ANCHOR, readingFocus: null, surfaceFindings: [],
+      surfaceFocus: {
+        id: story.item.mediaId, type: "image", label: story.item.label,
+        reference: story.item.sourceIdentity.ref, locator: story.item.reopen.selection.locator,
+        href: story.item.reopen.topicHref, sourceLabel: story.title, reason: story.reason,
+      },
+    },
+  };
+}
 
 const size = (value) => Array.isArray(value) ? value.length : 0;
 

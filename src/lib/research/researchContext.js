@@ -17,6 +17,15 @@ const cleanInteger = (value) => {
   return Number.isInteger(n) ? n : null;
 };
 
+// Numeric projection is explicit: an absent source value, blank text or boolean
+// is not the number zero. Kept here so rail, selection and persisted focus agree.
+export function researchContextNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (typeof value === "string" && !value.trim()) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 function normalizeSubject(value) {
   if (!isObject(value)) return null;
   const id = cleanString(value.id ?? value.ref);
@@ -33,7 +42,7 @@ function normalizeSubject(value) {
 function normalizeSelection(value) {
   if (!isObject(value)) return null;
   const resultValueRaw = value.resultValue;
-  const resultValueNumber = resultValueRaw == null || resultValueRaw === "" ? null : Number(resultValueRaw);
+  const resultValueNumber = researchContextNumber(resultValueRaw);
   const out = {
     entityId: cleanString(value.entityId),
     entityType: cleanString(value.entityType),
@@ -47,6 +56,7 @@ function normalizeSelection(value) {
     // second calculation store. Number owns computation; surfaces preserve the exact focus.
     expression: cleanString(value.expression),
     method: cleanString(value.method),
+    methodVersion: cleanString(value.methodVersion),
     resultValue: Number.isFinite(resultValueNumber) ? resultValueNumber : null,
     focusKind: cleanString(value.focusKind),
     crossingPartner: cleanString(value.crossingPartner),
@@ -65,7 +75,37 @@ function normalizeSelection(value) {
   return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
 
-function normalizeJourney(value) {
+// A pending step is a bounded navigation snapshot in the existing Context.
+// It carries neither authorization nor recursively nested Journey history.
+export function normalizeResearchPathStep(value) {
+  if (!isObject(value)) return null;
+  const subject = normalizeSubject(value.context?.subject || {
+    id: value.entity_ref, type: value.entity_type, label: value.label_key, href: value.href,
+  });
+  if (!subject) return null;
+  const context = value.context || value;
+  return {
+    step_index: Math.max(0, cleanInteger(value.step_index) || 0),
+    entity_type: subject.type,
+    entity_ref: subject.id,
+    label_key: cleanString(value.label_key) || subject.label || subject.id,
+    href: cleanString(value.href || subject.href),
+    surface: cleanString(value.surface),
+    lens: cleanString(value.lens || context.lens),
+    locator: cleanString(value.locator || context.selection?.locator),
+    selection: normalizeSelection(value.selection || context.selection),
+    reason: cleanString(value.reason),
+    context: {
+      subject,
+      selection: normalizeSelection(context.selection),
+      lens: cleanString(context.lens),
+      dimensions: normalizeDimensions(context.dimensions),
+      locale: cleanString(context.locale),
+    },
+  };
+}
+
+function normalizeJourney(value, includeSteps = true) {
   if (!isObject(value)) return null;
   const revisionNoRaw = value.revisionNo;
   const revisionNo = revisionNoRaw == null || revisionNoRaw === "" ? null : Number(revisionNoRaw);
@@ -77,6 +117,11 @@ function normalizeJourney(value) {
     revisionId: cleanString(value.revisionId),
     revisionNo: Number.isInteger(revisionNo) && revisionNo > 0 ? revisionNo : null,
   };
+  if (value.root) out.root = normalizeSubject(value.root);
+  if (includeSteps && Array.isArray(value.pendingSteps)) {
+    out.pendingSteps = value.pendingSteps.slice(0, 100).map(normalizeResearchPathStep).filter(Boolean);
+  }
+  if (includeSteps && value.lastSavedStep) out.lastSavedStep = normalizeResearchPathStep(value.lastSavedStep);
   return Object.values(out).some((v) => v != null && v !== "") ? out : null;
 }
 
@@ -134,8 +179,8 @@ function normalizeSurfaceFocus(value) {
     if (cleaned) out[key] = cleaned;
   }
   for (const key of ["number", "resultValue"]) {
-    const numeric = Number(value[key]);
-    if (Number.isFinite(numeric)) out[key] = numeric;
+    const numeric = researchContextNumber(value[key]);
+    if (numeric !== null) out[key] = numeric;
   }
   if (Array.isArray(value.signals)) {
     out.signals = value.signals.map(cleanString).filter(Boolean).slice(0, 4);
@@ -195,7 +240,7 @@ function normalizeReturnTo(value) {
     selection: normalizeSelection(value.selection),
     lens: cleanString(value.lens),
     dimensions: normalizeDimensions(value.dimensions),
-    journey: normalizeJourney(value.journey),
+    journey: normalizeJourney(value.journey, false),
   };
 }
 
@@ -224,6 +269,31 @@ export function normalizeResearchContext(value) {
 export function createResearchContext(input = {}) {
   const normalized = normalizeResearchContext({ ...input, updatedAt: new Date().toISOString() });
   return normalized;
+}
+
+// Navigation restores the exact source; it is not an implicit Path resume or
+// rollback. The live Path owns identity, revision and pending choices, including
+// a draft started after departure or a replacement/fork. Non-Path snapshots keep
+// their existing exact-return behavior. Clearing/deactivating a Path stays final.
+export function buildExactReturnPatch(current, returnTo = current?.returnTo) {
+  const target = normalizeReturnTo(returnTo);
+  if (!target) return null;
+  const live = normalizeResearchContext(current);
+  const activePath = live?.journey?.kind === "research_path"
+    && live?.dimensions?.journey2029Active !== false;
+  const pathLifecycle = activePath || live?.journey?.kind === "research_path"
+    || target.journey?.kind === "research_path";
+  let dimensions = target.dimensions;
+  let journey = target.journey;
+  if (pathLifecycle) {
+    dimensions = Object.fromEntries(Object.entries(dimensions).filter(([key]) => !key.startsWith("journey")));
+    journey = activePath ? live.journey : null;
+    if (activePath) {
+      Object.assign(dimensions, Object.fromEntries(Object.entries(live.dimensions).filter(([key]) => key.startsWith("journey"))));
+    }
+  }
+  return { subject: target.subject, selection: target.selection, lens: target.lens,
+    dimensions, journey, returnTo: null };
 }
 
 function isExactReturnRestorePatch(next) {

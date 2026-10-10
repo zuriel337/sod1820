@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect } from "react";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import PersonJourney from "../components/PersonJourney.jsx";
@@ -15,7 +16,7 @@ export default function LifeJourney2029Page() {
 
   return <Sod2029Shell
     surface="journey"
-    symbol="✦"
+    symbol={<NavigationIcon2029 name="journey" />}
     eyebrow="PERSON · FAMILY · CONTEXT"
     title="מסע החיים"
     description="מרחב אישי אחד שמתחיל ממך, שומר את ההקשר ומעמיק בלי לפתוח מערכת חדשה."

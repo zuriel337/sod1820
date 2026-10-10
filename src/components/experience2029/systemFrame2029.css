@@ -48,7 +48,7 @@
 .sod29-command-island>button:not(.sod29-raziel-orb){min-width:58px;height:52px;border:0;border-radius:18px;background:transparent;color:var(--s29-muted);display:grid;place-items:center;align-content:center;gap:1px;cursor:pointer;transition:background var(--s29-motion),color var(--s29-motion),transform var(--s29-motion)}
 .sod29-command-island>button:not(.sod29-raziel-orb)>span{font-size:14px;font-weight:900;line-height:1}
 .sod29-command-island>button:not(.sod29-raziel-orb)>small{font-size:var(--s29-type-micro);font-weight:800;line-height:1.1}
-.sod29-command-island>button:not(.sod29-raziel-orb):hover,.sod29-command-island>button:not(.sod29-raziel-orb)[aria-pressed="true"]{color:var(--s29-ink);background:color-mix(in srgb,var(--s29-accent) 9%,transparent);transform:translateY(-1px)}
+.sod29-command-island>button:not(.sod29-raziel-orb):hover,.sod29-command-island>button:not(.sod29-raziel-orb)[aria-pressed="true"]{color:var(--s29-ink);background:color-mix(in srgb,var(--s29-accent) 9%,transparent);transform:none}
 
 /* Raziel Orb: brand/presence semantic only. Never use this gradient for truth/status. */
 .sod29-raziel-orb{position:relative;min-width:78px;height:52px;border:0;border-radius:18px;background:transparent;color:var(--s29-ink);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:4px 9px}

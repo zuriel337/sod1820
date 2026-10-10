@@ -1,8 +1,10 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
@@ -18,6 +20,8 @@ import {
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import NumberDeepView2029 from "../components/number2029/NumberDeepView2029.jsx";
 import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld2029.jsx";
+import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
+import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
 import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -128,10 +132,7 @@ function sourceDetail(row) {
   return detail && !technicalSourceText(detail) ? detail : "";
 }
 
-function traceStepLabel(step) {
-  if (typeof step === "string") return clean(step);
-  return clean(step?.label || step?.word || step?.step || step?.expression || step?.description);
-}
+
 
 function anchorExpression(fact, root) {
   const text = clean(fact);
@@ -434,7 +435,7 @@ function NumberPageBody() {
 
   useEffect(() => {
     if (!families.length) return;
-    if (activeExpression && selectedMethodKey) return;
+    if (activeExpression && (selectedMethodKey || focusExplicit)) return;
 
     const anchorFamily = anchorPhrase
       ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
@@ -443,7 +444,7 @@ function NumberPageBody() {
     const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
     if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
     if (!activeExpression) setActiveExpression(phrase);
-  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase]);
+  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit]);
 
   useEffect(() => {
     const expr = clean(activeExpression);
@@ -456,8 +457,9 @@ function NumberPageBody() {
     fetchNumberMethodProfile(expr)
       .then((rows) => {
         if (!alive) return;
-        setMethodProfileState({ loading: false, rows, error: null });
-        const selected = rows.find((row) => row.methodKey === selectedMethodKey) || rows[0] || null;
+        setMethodProfileState({ loading: false, rows, expression: expr, error: null });
+        const selected = rows.find((row) => row.methodKey === selectedMethodKey)
+          || rows.find((row) => isRegularMethodIdentity(row.methodKey)) || rows[0] || null;
         if (selected && selected.methodKey !== selectedMethodKey) setSelectedMethodKey(selected.methodKey);
       })
       .catch((error) => {
@@ -581,12 +583,13 @@ function NumberPageBody() {
     return () => { alive = false; };
   }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
 
-  const trace = traceState.finding?.projection?.dimensions?.trace || null;
-  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedMethodProfile?.computedValue ?? null;
-  const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
+  const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
+  const trace = isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
+  const activeResult = traceNumber(trace?.result ?? selectedMethodProfile?.computedValue);
+  const traceSteps = gematriaTraceLines(trace, { expression: activeExpression, methodKey: selectedMethodKey });
 
   useEffect(() => {
-    const next = Number(activeResult);
+    const next = traceNumber(activeResult);
     if (!Number.isSafeInteger(next) || next < 0) {
       setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
       return undefined;
@@ -622,7 +625,7 @@ function NumberPageBody() {
   }, [activeResult]);
 
   useEffect(() => {
-    const next = Number(activeResult);
+    const next = traceNumber(activeResult);
     if (!Number.isSafeInteger(next) || next === root) {
       setMethodResultState({ loading: false, data: null, error: null, key: null });
       return undefined;
@@ -712,11 +715,11 @@ function NumberPageBody() {
     surface,
     zeroScale: zeroScaleData,
     activityCount,
-    journeyAvailable: root === 878,
+    journeyAvailable: true,
     heroMedia: leadMedia,
   }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
-  const explicitStageResult = focusExplicit && Number.isSafeInteger(Number(activeResult))
+  const explicitStageResult = focusExplicit && (traceNumber(activeResult) != null)
     ? Number(activeResult)
     : root;
   const stageData = explicitStageResult !== root
@@ -757,7 +760,7 @@ function NumberPageBody() {
     surface: stageSurface,
     zeroScale: stageZeroScale,
     activityCount: stageActivityCount,
-    journeyAvailable: stageRoot === 878,
+    journeyAvailable: true,
     heroMedia: stageMedia[0] || null,
   }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
@@ -799,6 +802,9 @@ function NumberPageBody() {
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
   const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
   const focusExpression = focusExplicit ? clean(activeExpression) : "";
+  const focusTrace = trace?.input === focusExpression && trace?.method_key === focusMethodKey ? trace : null;
+  const focusProfile = methodProfileState.expression === focusExpression ? selectedMethodProfile : null;
+  const focusResult = focusTrace?.result ?? focusProfile?.computedValue ?? null;
   const originTopicSlug = clean(research.context?.dimensions?.topicSlug);
   const currentNumberHref = numberExpressionFocusHref(root, {
     expression: focusExpression || null,
@@ -806,11 +812,19 @@ function NumberPageBody() {
     crossingPartner: focusExplicit ? focusedCrossingPartner : null,
   }) || `/2029/number/${root}`;
   const focusSelection = (entityId = root) => ({
+    ...(research.context?.selection?.entityId === String(entityId)
+      && (research.context.selection.expression || "") === focusExpression ? {
+        sourceRef: research.context.selection.sourceRef,
+        locator: research.context.selection.locator,
+        versionRef: research.context.selection.versionRef,
+      } : {}),
     entityId: String(entityId),
     entityType: "number",
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
-    resultValue: focusExplicit && Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+    methodVersion: focusExplicit ? focusTrace?.method_version ?? focusProfile?.definitionVersion ?? null : null,
+    findingId: focusTrace ? traceState.finding?.id || null : null,
+    resultValue: focusExplicit && (traceNumber(activeResult) != null) ? Number(activeResult) : null,
     focusKind: focusExplicit ? (focusedCrossingPartner ? "crossing" : "expression") : null,
     crossingPartner: focusExplicit ? focusedCrossingPartner || null : null,
   });
@@ -844,14 +858,15 @@ function NumberPageBody() {
     navigate(href);
   };
 
-  const activateExpressionFocus = (expression, methodKey = null) => {
+  const activateExpressionFocus = (expression, preferredMethod = null) => {
     const expr = clean(expression);
     if (!expr) return;
-    const key = clean(methodKey) || clean(regularMethodProfile?.methodKey) || clean(focusMethodKey);
+    const key = clean(preferredMethod) || clean(regularMethodProfile?.methodKey)
+      || methodKey(families.find((group) => isRegularMethodIdentity(methodKey(group))));
     setFocusExplicit(true);
     setFocusedCrossingPartner("");
     setActiveExpression(expr);
-    if (key) setSelectedMethodKey(key);
+    setSelectedMethodKey(key);
     setTraceOpen(false);
     const href = numberExpressionFocusHref(root, { expression: expr, method: key || null });
     if (href) navigate(href, { replace: true });
@@ -878,19 +893,51 @@ function NumberPageBody() {
       href: currentNumberHref,
     };
     const selection = focusSelection(root);
-    const dimensions = {
-      ...(research.context?.dimensions || {}),
-      expressionFocusExplicit: Boolean(focusExplicit),
-    };
-    const current = research.context;
-    if (current?.subject?.type === "number" && String(current.subject.id) === String(root)) {
-      research.updateResearchContext?.({ subject, selection, lens: "number", dimensions });
-    } else {
-      research.setResearchContext?.({ subject, selection, lens: "number", dimensions, locale: "he" });
-    }
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Merge against the provider's current snapshot: the route effect may have
+    // captured the selected Topic source after this render was scheduled.
+    research.updateResearchContext?.({ subject, selection, lens: "number",
+      dimensions: { expressionFocusExplicit: Boolean(focusExplicit) } });
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openWorld = ({ journey = false, meetingSlug = null } = {}) => {
+  const [pathError, setPathError] = useState(null);
+  const sourceReturnRequest = useRef(0);
+  useEffect(() => () => { sourceReturnRequest.current += 1; }, [location.pathname, location.search, research.setResearchContext]);
+  const sourceReturn = selectedTopicSourceReturn(research.context?.returnTo);
+  const returnToSelectedSource = async () => {
+    const request = ++sourceReturnRequest.current;
+    const result = await resolveJourneySourceReturn(sourceReturn, fetchTopicSourceContext);
+    if (request !== sourceReturnRequest.current) return;
+    if (!result.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו; אפשר לנסות שוב."); return; }
+    // Destination Topic re-reads the envelope; no saved content/access is rendered.
+    const applied = research.setResearchContext?.({ ...result.source, journey: research.context?.journey,
+      returnTo: { ...research.context, href: currentNumberHref, label: String(root) } });
+    if (applied) navigate(result.href);
+  };
+  const continueJourney = () => {
+    const current = research.context || {};
+    const result = research.continueResearchPath?.({
+      context: { ...current,
+        subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
+        selection: focusSelection(root), lens: "number" },
+      href: currentNumberHref, surface: "number", kind: "number_expression",
+      reason: focusExplicit ? (focusedCrossingPartner ? "selected_crossing" : "selected_method") : "selected_number",
+    });
+    setPathError(result?.ok ? null : "הבחירה לא נוספה. אפשר לשמור את המסע ולנסות שוב.");
+    if (!result?.ok) return;
+    // Keep the existing 878 teaching route as a semantic preset of this Path.
+    if (root === 878 && !focusExplicit) {
+      research.updateResearchContext?.({
+        lens: "world",
+        dimensions: { ...result.context.dimensions, journeySource: "number-2029-preview",
+          journeySemanticId: GOLDEN_878_JOURNEY_ID, journeyRoot: 878,
+          journeyVisitedValues: [878], journeyMeetingSlugs: [] },
+        returnTo: { ...result.context, href: currentNumberHref, label: `דף ${root}` },
+      });
+      navigate("/world");
+    }
+  };
+
+  const openWorld = ({ meetingSlug = null } = {}) => {
     if (!Number.isInteger(root)) return;
     const current = research.context || {};
     const subject = {
@@ -910,33 +957,11 @@ function NumberPageBody() {
       journey: current.journey || null,
     };
 
-    if (journey && root === 878) {
-      research.addJourney?.({
-        root: 878,
-        path: [{ type: "number", value: 878 }],
-        world: "world",
-        msg: GOLDEN_878_JOURNEY_ID,
-      });
       research.setResearchContext?.({
         subject,
         selection,
         lens: "world",
-        journey: { id: GOLDEN_878_JOURNEY_ID, kind: "golden", position: 0 },
-        dimensions: {
-          ...(current.dimensions || {}),
-          journeySource: "number-2029-preview",
-          journeySemanticId: GOLDEN_878_JOURNEY_ID,
-          journeyRoot: 878,
-          journeyVisitedValues: [878],
-          journeyMeetingSlugs: [],
-        },
-        returnTo,
-      });
-    } else {
-      research.setResearchContext?.({
-        subject,
-        selection,
-        lens: "world",
+        journey: current.journey || null,
         dimensions: {
           ...(current.dimensions || {}),
           numberHome: currentNumberHref,
@@ -944,7 +969,6 @@ function NumberPageBody() {
         },
         returnTo,
       });
-    }
     navigate("/world");
   };
 
@@ -973,7 +997,7 @@ function NumberPageBody() {
       root,
       expression: forcedExpression || activeExpression || null,
       method: focusMethodKey,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+      resultValue: (traceNumber(activeResult) != null) ? Number(activeResult) : null,
       crossingPartner: forcedCrossing || coreProjection?.crossing?.partner || null,
       zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
       ...focusPatch,
@@ -1044,6 +1068,7 @@ function NumberPageBody() {
           focusKind: "expression",
         },
         lens: "number",
+        journey: current.journey || null,
         locale: current.locale || "he",
         dimensions: {
           ...(current.dimensions || {}),
@@ -1073,6 +1098,7 @@ function NumberPageBody() {
       subject: { id: String(next), type: "number", label: String(next), href: nextHref },
       selection: nextSelection,
       lens: "number",
+      journey: research.context?.journey || null,
       locale: research.context?.locale || "he",
       dimensions: {
         ...(research.context?.dimensions || {}),
@@ -1105,11 +1131,11 @@ function NumberPageBody() {
       <div>
         <span>מיקוד פעיל</span>
         <strong>{focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}</strong>
-        <small>{activeMethodLabel || focusMethodKey || "שיטה"} {Number.isFinite(Number(activeResult)) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
+        <small>{activeMethodLabel || focusMethodKey || "שיטה"} {(traceNumber(activeResult) != null) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
         {research.context?.returnTo?.href
-          ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
+          ? <button className="sod29-action" type="button" onClick={sourceReturn ? returnToSelectedSource : () => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
           : originTopicSlug
             ? <button className="sod29-action" type="button" onClick={returnToOriginTopic}>↩ חזרה להתכנסות</button>
             : null}
@@ -1168,14 +1194,36 @@ function NumberPageBody() {
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
         onOpenWorld={() => openWorld()}
-        onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
-        journeyLabel={root === 878 ? "צא למסע 878" : null}
+        onOpenJourney={continueJourney}
+        journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : root === 878 ? "צא למסע 878" : "צא למסע"}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
         onRazielAction={askRaziel}
         onExpandRaziel={() => askRaziel("expand_panel")}
       />
 
     </section>
+
+    <NumberPathContinuation2029
+      active={research.context?.dimensions?.journey2029Active === true}
+      selectionLabel={focusExpression ? `${focusExpression} · ${activeMethodLabel}${focusedCrossingPartner ? ` · ${focusedCrossingPartner}` : ""}` : `המספר ${root}`}
+      steps={research.researchPathSteps || []}
+      onContinue={continueJourney}
+      onWorkspace={() => shell.openWorkspace()}
+      onSourceReturn={sourceReturn ? returnToSelectedSource : null}
+      onOpenStep={async (index) => {
+        const request = ++sourceReturnRequest.current;
+        const step = research.researchPathSteps?.[index];
+        if (selectedTopicSourceReturn(step?.context)) {
+          const source = await resolveJourneySourceReturn(step.context, fetchTopicSourceContext);
+          if (request !== sourceReturnRequest.current) return;
+          if (!source.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו."); return; }
+        }
+        const result = research.openResearchPathStep?.(index);
+        if (result?.ok) { setPathError(null); navigate(result.href); }
+        else setPathError("המקור אינו זמין לפתיחה. הבחירה והמסע נשמרו.");
+      }}
+      error={pathError}
+    />
 
     <NumberLivingWorld2029
       root={root}
@@ -1205,7 +1253,7 @@ function NumberPageBody() {
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onFocusContext={focusSurfaceContext}
-      onJourney={() => root === 878 ? openWorld({ journey: true }) : openWorld()}
+      onJourney={continueJourney}
       onPersonalJourney={() => askRaziel("personal_journey_from_number", {
         kind: "personal_journey",
         root,
@@ -1239,7 +1287,7 @@ export default function Number2029Page() {
 
   return <Sod2029Shell
     surface="number"
-    symbol="123"
+    symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
     <NumberPageBody />

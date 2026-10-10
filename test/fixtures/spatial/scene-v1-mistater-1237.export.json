@@ -1,0 +1,1508 @@
+{
+  "export_schema": "sod1820.scene.v1.export/1",
+  "scene_id": "sod1820.scene.v1:adjacent_letter_tension:mistater-tension:התגלות",
+  "projection_signature": "projsig.v1:cyrb53:08a96ad212ac0a",
+  "transform_convention": {
+    "handedness": "right",
+    "rotation": {
+      "unit": "radian",
+      "euler": "XYZ",
+      "matrix": "Rx*Ry*Rz"
+    },
+    "local": "T*R*S",
+    "world": "parent.world*local",
+    "matrixLayout": "column_major_16"
+  },
+  "scene": {
+    "schema": "sod1820.scene.v1",
+    "projection_kind": "adjacent_letter_tension",
+    "subjectId": "mistater-tension:התגלות",
+    "resultId": "mistater-result:1237",
+    "layout": {
+      "direction": "rtl",
+      "axes": {
+        "x": "right",
+        "y": "up",
+        "z": "toward_viewer"
+      },
+      "unit": "layout_unit",
+      "projectionOnly": true,
+      "transformConvention": {
+        "handedness": "right",
+        "rotation": {
+          "unit": "radian",
+          "euler": "XYZ",
+          "matrix": "Rx*Ry*Rz"
+        },
+        "local": "T*R*S",
+        "world": "parent.world*local",
+        "matrixLayout": "column_major_16"
+      },
+      "constants": {
+        "letterWidth": 56,
+        "letterHeight": 72,
+        "letterDepth": 14,
+        "letterPitch": 120,
+        "wordGap": 48,
+        "resultLift": 120,
+        "connectorLift": 30
+      }
+    },
+    "canonical": {
+      "type": "gematria_method_trace",
+      "methodKey": "מסתתר",
+      "traceKind": "ADJACENT_DIFFERENCE",
+      "input": "התגלות",
+      "trace": {
+        "input": "התגלות",
+        "steps": [
+          {
+            "word": "התגלות",
+            "pairs": [
+              {
+                "difference": 395,
+                "left_value": 5,
+                "right_value": 400
+              },
+              {
+                "difference": 397,
+                "left_value": 400,
+                "right_value": 3
+              },
+              {
+                "difference": 27,
+                "left_value": 3,
+                "right_value": 30
+              },
+              {
+                "difference": 24,
+                "left_value": 30,
+                "right_value": 6
+              },
+              {
+                "difference": 394,
+                "left_value": 6,
+                "right_value": 400
+              }
+            ],
+            "letter_values": [
+              5,
+              400,
+              3,
+              30,
+              6,
+              400
+            ],
+            "word_subtotal": 1237
+          }
+        ],
+        "result": 1237,
+        "method_key": "מסתתר",
+        "trace_kind": "ADJACENT_DIFFERENCE",
+        "verification": {
+          "parity": true,
+          "trace_value": 1237,
+          "canonical_value": 1237
+        },
+        "provenance": {
+          "engine": "gematria",
+          "function": "fn_misratar",
+          "method_version": 1
+        }
+      }
+    },
+    "nodes": [
+      {
+        "id": "mistater-tension:התגלות",
+        "kind": "expression",
+        "parent": null,
+        "label": "התגלות",
+        "transform": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "sockets": [],
+        "identityRef": {
+          "type": "gematria_method_trace",
+          "methodKey": "מסתתר",
+          "traceKind": "ADJACENT_DIFFERENCE"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-word:0",
+        "kind": "word_group",
+        "parent": "mistater-tension:התגלות",
+        "label": "התגלות",
+        "transform": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "sockets": [],
+        "identityRef": {
+          "type": "method_trace_word",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "tracePath": "steps[0]"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:0:ה",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ה",
+        "transform": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:0:ה#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:0:ה#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 0,
+          "letter": "ה",
+          "tracePath": "steps[0].letter_values[0]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D4",
+          "vector_version": "v1",
+          "content_hash": "sha256:e2bdfe1386c24fd277d74ce76e0f459b95f645158a95658ede580c8cdfcc8fa5",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:1:ת",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ת",
+        "transform": {
+          "position": {
+            "x": -120,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:1:ת#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:1:ת#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 1,
+          "letter": "ת",
+          "tracePath": "steps[0].letter_values[1]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05EA",
+          "vector_version": "v1",
+          "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:2:ג",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ג",
+        "transform": {
+          "position": {
+            "x": -240,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:2:ג#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:2:ג#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 2,
+          "letter": "ג",
+          "tracePath": "steps[0].letter_values[2]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D2",
+          "vector_version": "v1",
+          "content_hash": "sha256:ad722d844fa223dd6b5549a597c989a6988000d2b8ecaddf629c6a63d7d4244f",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:3:ל",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ל",
+        "transform": {
+          "position": {
+            "x": -360,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:3:ל#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:3:ל#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 3,
+          "letter": "ל",
+          "tracePath": "steps[0].letter_values[3]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05DC",
+          "vector_version": "v1",
+          "content_hash": "sha256:76ffe35b56c38414afc10305089787ff489d2850585f6ec9c1497cc808c179b5",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:4:ו",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ו",
+        "transform": {
+          "position": {
+            "x": -480,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:4:ו#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:4:ו#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 4,
+          "letter": "ו",
+          "tracePath": "steps[0].letter_values[4]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05D5",
+          "vector_version": "v1",
+          "content_hash": "sha256:7957384548a5d181a7281e4db1cf4082a6d159875c67cdf82e46439f4c836b1e",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-letter:0:5:ת",
+        "kind": "letter_anchor",
+        "parent": "mistater-word:0",
+        "label": "ת",
+        "transform": {
+          "position": {
+            "x": -600,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "bounds": {
+          "width": 56,
+          "height": 72,
+          "depth": 14
+        },
+        "sockets": [
+          {
+            "id": "mistater-letter:0:5:ת#in",
+            "role": "tension_in",
+            "position": {
+              "x": 28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "mistater-letter:0:5:ת#out",
+            "role": "tension_out",
+            "position": {
+              "x": -28,
+              "y": 0,
+              "z": 0
+            },
+            "normal": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "identityRef": {
+          "type": "method_trace_letter",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "letterIndex": 5,
+          "letter": "ת",
+          "tracePath": "steps[0].letter_values[5]"
+        },
+        "asset_ref": {
+          "kind": "hebrew_glyph_svg",
+          "glyph_id": "heglyph:05EA",
+          "vector_version": "v1",
+          "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+          "manifest_version": "v1",
+          "profile_id": "hebrew-glyph-profile:v1-candidate-heebo-800"
+        },
+        "truthTier": "FACT"
+      },
+      {
+        "id": "mistater-result:1237",
+        "kind": "engine_result",
+        "parent": "mistater-tension:התגלות",
+        "label": "1237",
+        "transform": {
+          "position": {
+            "x": -300,
+            "y": 120,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        },
+        "sockets": [],
+        "identityRef": {
+          "type": "engine_result",
+          "methodKey": "מסתתר",
+          "tracePath": "result"
+        },
+        "truthTier": "FACT"
+      }
+    ],
+    "connectors": [
+      {
+        "id": "tension:0:0",
+        "kind": "tension_between",
+        "from": {
+          "node": "mistater-letter:0:0:ה",
+          "socket": "mistater-letter:0:0:ה#out"
+        },
+        "to": {
+          "node": "mistater-letter:0:1:ת",
+          "socket": "mistater-letter:0:1:ת#in"
+        },
+        "identityRef": {
+          "type": "method_trace_pair",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "pairIndex": 0,
+          "tracePath": "steps[0].pairs[0]"
+        },
+        "curve": {
+          "kind": "arc",
+          "lift": 30,
+          "handle": 0.3,
+          "liftAxis": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        },
+        "style": {
+          "role": "tension_edge",
+          "stroke": "accent",
+          "width": 2,
+          "glow": true
+        },
+        "occlusion": {
+          "mode": "under_nodes",
+          "depthBias": -0.01
+        },
+        "label": {
+          "anchor": "curve_midpoint",
+          "source": "identityRef"
+        },
+        "motion": {
+          "entrance": "draw",
+          "durationMs": 700,
+          "delayMs": 0,
+          "reducedMotion": "static_final_state"
+        }
+      },
+      {
+        "id": "tension:0:1",
+        "kind": "tension_between",
+        "from": {
+          "node": "mistater-letter:0:1:ת",
+          "socket": "mistater-letter:0:1:ת#out"
+        },
+        "to": {
+          "node": "mistater-letter:0:2:ג",
+          "socket": "mistater-letter:0:2:ג#in"
+        },
+        "identityRef": {
+          "type": "method_trace_pair",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "pairIndex": 1,
+          "tracePath": "steps[0].pairs[1]"
+        },
+        "curve": {
+          "kind": "arc",
+          "lift": 30,
+          "handle": 0.3,
+          "liftAxis": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        },
+        "style": {
+          "role": "tension_edge",
+          "stroke": "accent",
+          "width": 2,
+          "glow": true
+        },
+        "occlusion": {
+          "mode": "under_nodes",
+          "depthBias": -0.01
+        },
+        "label": {
+          "anchor": "curve_midpoint",
+          "source": "identityRef"
+        },
+        "motion": {
+          "entrance": "draw",
+          "durationMs": 700,
+          "delayMs": 120,
+          "reducedMotion": "static_final_state"
+        }
+      },
+      {
+        "id": "tension:0:2",
+        "kind": "tension_between",
+        "from": {
+          "node": "mistater-letter:0:2:ג",
+          "socket": "mistater-letter:0:2:ג#out"
+        },
+        "to": {
+          "node": "mistater-letter:0:3:ל",
+          "socket": "mistater-letter:0:3:ל#in"
+        },
+        "identityRef": {
+          "type": "method_trace_pair",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "pairIndex": 2,
+          "tracePath": "steps[0].pairs[2]"
+        },
+        "curve": {
+          "kind": "arc",
+          "lift": 30,
+          "handle": 0.3,
+          "liftAxis": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        },
+        "style": {
+          "role": "tension_edge",
+          "stroke": "accent",
+          "width": 2,
+          "glow": true
+        },
+        "occlusion": {
+          "mode": "under_nodes",
+          "depthBias": -0.01
+        },
+        "label": {
+          "anchor": "curve_midpoint",
+          "source": "identityRef"
+        },
+        "motion": {
+          "entrance": "draw",
+          "durationMs": 700,
+          "delayMs": 240,
+          "reducedMotion": "static_final_state"
+        }
+      },
+      {
+        "id": "tension:0:3",
+        "kind": "tension_between",
+        "from": {
+          "node": "mistater-letter:0:3:ל",
+          "socket": "mistater-letter:0:3:ל#out"
+        },
+        "to": {
+          "node": "mistater-letter:0:4:ו",
+          "socket": "mistater-letter:0:4:ו#in"
+        },
+        "identityRef": {
+          "type": "method_trace_pair",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "pairIndex": 3,
+          "tracePath": "steps[0].pairs[3]"
+        },
+        "curve": {
+          "kind": "arc",
+          "lift": 30,
+          "handle": 0.3,
+          "liftAxis": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        },
+        "style": {
+          "role": "tension_edge",
+          "stroke": "accent",
+          "width": 2,
+          "glow": true
+        },
+        "occlusion": {
+          "mode": "under_nodes",
+          "depthBias": -0.01
+        },
+        "label": {
+          "anchor": "curve_midpoint",
+          "source": "identityRef"
+        },
+        "motion": {
+          "entrance": "draw",
+          "durationMs": 700,
+          "delayMs": 360,
+          "reducedMotion": "static_final_state"
+        }
+      },
+      {
+        "id": "tension:0:4",
+        "kind": "tension_between",
+        "from": {
+          "node": "mistater-letter:0:4:ו",
+          "socket": "mistater-letter:0:4:ו#out"
+        },
+        "to": {
+          "node": "mistater-letter:0:5:ת",
+          "socket": "mistater-letter:0:5:ת#in"
+        },
+        "identityRef": {
+          "type": "method_trace_pair",
+          "methodKey": "מסתתר",
+          "wordIndex": 0,
+          "pairIndex": 4,
+          "tracePath": "steps[0].pairs[4]"
+        },
+        "curve": {
+          "kind": "arc",
+          "lift": 30,
+          "handle": 0.3,
+          "liftAxis": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        },
+        "style": {
+          "role": "tension_edge",
+          "stroke": "accent",
+          "width": 2,
+          "glow": true
+        },
+        "occlusion": {
+          "mode": "under_nodes",
+          "depthBias": -0.01
+        },
+        "label": {
+          "anchor": "curve_midpoint",
+          "source": "identityRef"
+        },
+        "motion": {
+          "entrance": "draw",
+          "durationMs": 700,
+          "delayMs": 480,
+          "reducedMotion": "static_final_state"
+        }
+      }
+    ],
+    "fallback": {
+      "reducedMotion": {
+        "respects": "prefers-reduced-motion",
+        "motion": "none",
+        "topology": "identical",
+        "truthState": "identical",
+        "connectors": "static_final_state"
+      },
+      "static": {
+        "kind": "semantic_list",
+        "order": [
+          "mistater-letter:0:0:ה",
+          "mistater-letter:0:1:ת",
+          "mistater-letter:0:2:ג",
+          "mistater-letter:0:3:ל",
+          "mistater-letter:0:4:ו",
+          "mistater-letter:0:5:ת"
+        ],
+        "actions": "identical"
+      },
+      "narrow": {
+        "strategy": "horizontal_scroll_same_coordinate_space"
+      }
+    },
+    "extent": {
+      "minX": -628,
+      "maxX": 28,
+      "minY": -36,
+      "maxY": 156
+    },
+    "scene_id": "sod1820.scene.v1:adjacent_letter_tension:mistater-tension:התגלות",
+    "projection_signature": "projsig.v1:cyrb53:08a96ad212ac0a"
+  },
+  "display": {
+    "derived": true,
+    "source": "resolveSceneTraceValue(identityRef)",
+    "nodes": {
+      "mistater-letter:0:0:ה": {
+        "value": 5
+      },
+      "mistater-letter:0:1:ת": {
+        "value": 400
+      },
+      "mistater-letter:0:2:ג": {
+        "value": 3
+      },
+      "mistater-letter:0:3:ל": {
+        "value": 30
+      },
+      "mistater-letter:0:4:ו": {
+        "value": 6
+      },
+      "mistater-letter:0:5:ת": {
+        "value": 400
+      },
+      "mistater-result:1237": {
+        "value": 1237
+      }
+    },
+    "connectors": {
+      "tension:0:0": {
+        "difference": 395,
+        "leftValue": 5,
+        "rightValue": 400
+      },
+      "tension:0:1": {
+        "difference": 397,
+        "leftValue": 400,
+        "rightValue": 3
+      },
+      "tension:0:2": {
+        "difference": 27,
+        "leftValue": 3,
+        "rightValue": 30
+      },
+      "tension:0:3": {
+        "difference": 24,
+        "leftValue": 30,
+        "rightValue": 6
+      },
+      "tension:0:4": {
+        "difference": 394,
+        "leftValue": 6,
+        "rightValue": 400
+      }
+    }
+  },
+  "projection": {
+    "derived": true,
+    "camera": {
+      "id": "projection:camera",
+      "parent": null,
+      "lens_mm": 35,
+      "transform": {
+        "position": {
+          "x": -310,
+          "y": 40,
+          "z": 900
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "projectionOnly": true
+    }
+  },
+  "parity_reference": {
+    "schema": "sod1820.scene.v1.blender-parity/1",
+    "tolerance": {
+      "matrix": 0.001,
+      "position": 0.001,
+      "normal": 0.000001,
+      "curve": 0.001
+    },
+    "nodes": {
+      "mistater-tension:התגלות": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-word:0": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:0:ה": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:1:ת": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -120,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:2:ג": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -240,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:3:ל": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -360,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:4:ו": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -480,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-letter:0:5:ת": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -600,
+          0,
+          0,
+          1
+        ]
+      },
+      "mistater-result:1237": {
+        "world_matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -300,
+          120,
+          0,
+          1
+        ]
+      }
+    },
+    "sockets": {
+      "mistater-letter:0:0:ה#in": {
+        "node": "mistater-letter:0:0:ה",
+        "position": {
+          "x": 28,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:0:ה#out": {
+        "node": "mistater-letter:0:0:ה",
+        "position": {
+          "x": -28,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:1:ת#in": {
+        "node": "mistater-letter:0:1:ת",
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:1:ת#out": {
+        "node": "mistater-letter:0:1:ת",
+        "position": {
+          "x": -148,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:2:ג#in": {
+        "node": "mistater-letter:0:2:ג",
+        "position": {
+          "x": -212,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:2:ג#out": {
+        "node": "mistater-letter:0:2:ג",
+        "position": {
+          "x": -268,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:3:ל#in": {
+        "node": "mistater-letter:0:3:ל",
+        "position": {
+          "x": -332,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:3:ל#out": {
+        "node": "mistater-letter:0:3:ל",
+        "position": {
+          "x": -388,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:4:ו#in": {
+        "node": "mistater-letter:0:4:ו",
+        "position": {
+          "x": -452,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:4:ו#out": {
+        "node": "mistater-letter:0:4:ו",
+        "position": {
+          "x": -508,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:5:ת#in": {
+        "node": "mistater-letter:0:5:ת",
+        "position": {
+          "x": -572,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "mistater-letter:0:5:ת#out": {
+        "node": "mistater-letter:0:5:ת",
+        "position": {
+          "x": -628,
+          "y": 0,
+          "z": 0
+        },
+        "normal": {
+          "x": -1,
+          "y": 0,
+          "z": 0
+        }
+      }
+    },
+    "connectors": {
+      "tension:0:0": {
+        "points": [
+          {
+            "x": -28,
+            "y": 0,
+            "z": 0
+          },
+          {
+            "x": -47.2,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -72.8,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -92,
+            "y": 0,
+            "z": 0
+          }
+        ]
+      },
+      "tension:0:1": {
+        "points": [
+          {
+            "x": -148,
+            "y": 0,
+            "z": 0
+          },
+          {
+            "x": -167.2,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -192.8,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -212,
+            "y": 0,
+            "z": 0
+          }
+        ]
+      },
+      "tension:0:2": {
+        "points": [
+          {
+            "x": -268,
+            "y": 0,
+            "z": 0
+          },
+          {
+            "x": -287.2,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -312.8,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -332,
+            "y": 0,
+            "z": 0
+          }
+        ]
+      },
+      "tension:0:3": {
+        "points": [
+          {
+            "x": -388,
+            "y": 0,
+            "z": 0
+          },
+          {
+            "x": -407.2,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -432.8,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -452,
+            "y": 0,
+            "z": 0
+          }
+        ]
+      },
+      "tension:0:4": {
+        "points": [
+          {
+            "x": -508,
+            "y": 0,
+            "z": 0
+          },
+          {
+            "x": -527.2,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -552.8,
+            "y": 30,
+            "z": 0
+          },
+          {
+            "x": -572,
+            "y": 0,
+            "z": 0
+          }
+        ]
+      }
+    },
+    "camera": {
+      "world_matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -310,
+        40,
+        900,
+        1
+      ]
+    }
+  }
+}

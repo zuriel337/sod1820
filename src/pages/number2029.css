@@ -1189,3 +1189,9 @@
 .sod29-number-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
 @media(max-width:680px){.sod29-number-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-number-focus-ribbon .sod29-actions{width:100%;justify-content:flex-start}}
 
+[data-number-path-continuation] { overflow-wrap: anywhere; }
+[data-number-path-continuation] p { font-size: 16px; line-height: 1.65; }
+[data-number-path-continuation] small { display: block; font-size: 14px; line-height: 1.6; margin-top: 12px; }
+[data-number-path-continuation] details { margin-top: 16px; }
+[data-number-path-continuation] summary { cursor: pointer; min-height: 44px; font-size: 16px; }
+[data-number-path-continuation] .sod29-action { min-height: 44px; white-space: normal; }

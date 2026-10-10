@@ -1,6 +1,24 @@
 /* World 2029 · Human Projection
    Surface-local presentation only. Uses System Frame theme variables; no new palette owner. */
 
+.sod29-world-source-story{margin-block:16px 28px;padding:clamp(20px,3vw,36px);border:1px solid var(--s29-line);border-radius:22px;background:var(--s29-panel);color:var(--s29-ink)}
+.sod29-world-source-story h2{font-size:clamp(24px,2.5vw,30px);line-height:1.45;margin:10px 0;max-width:32em}
+.sod29-world-source-story h3{font-size:28px;line-height:1.4;margin:6px 0 14px}
+.sod29-world-source-story p{font-family:'Noto Sans Hebrew',sans-serif;font-size:18px;line-height:1.85;margin:12px 0}
+.sod29-world-source-story .sod29-kicker,.sod29-world-source-story figcaption{font-size:14px;line-height:1.6;color:var(--s29-muted)}
+.sod29-world-source-story .sod29-action{min-height:44px;font-size:16px;white-space:normal;text-align:center}
+.sod29-world-story-source{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:clamp(22px,4vw,48px);margin-top:28px;padding-top:24px;border-top:1px solid var(--s29-line);scroll-margin-top:100px}
+.sod29-world-story-source:focus-visible{outline:2px solid var(--s29-accent);outline-offset:8px}
+.sod29-world-story-source figure{margin:0;min-width:0}
+.sod29-world-story-source .sod29-canonical-media-figure{width:100%;height:330px;background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:14px;overflow:hidden}
+.sod29-world-story-source .sod29-canonical-media-figure img{width:100%;height:100%;max-height:330px;object-fit:contain}
+.sod29-world-story-source figcaption{margin-top:10px}
+.sod29-world-story-context{min-width:0}
+.sod29-world-story-context details{margin-block:18px;border-block:1px solid var(--s29-line);padding-block:4px}
+.sod29-world-story-context summary{min-height:44px;display:list-item;padding-block:10px;font-size:16px;cursor:pointer}
+.sod29-world-story-context .sod29-world-story-note{font-size:14px;color:var(--s29-muted)}
+@media(max-width:700px){.sod29-world-story-source{grid-template-columns:minmax(0,1fr);scroll-margin-top:80px}.sod29-world-source-story{padding:18px}.sod29-world-story-source .sod29-canonical-media-figure{height:260px}.sod29-world-source-story .sod29-actions{align-items:stretch}.sod29-world-source-story .sod29-action{flex:1 1 100%}}
+
 .sod29-world-core-map{
   width:min(100%,380px);
   aspect-ratio:1;
@@ -1066,7 +1084,7 @@
 .sod29-world-discovery-entrance{
   position:relative;
   overflow:hidden;
-  min-height:min(860px,calc(100vh - 120px));
+  min-height:0;
   padding:clamp(22px,4vw,44px);
   border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
   border-radius:30px;
@@ -1101,9 +1119,8 @@
 }
 .sod29-world-discovery-head h2{
   margin:5px 0 8px;
-  font-size:clamp(34px,5.4vw,68px);
-  line-height:.98;
-  letter-spacing:-.035em;
+  font-size:28px;
+  line-height:1.4;
   color:var(--s29-ink);
 }
 .sod29-world-discovery-head p{
@@ -1111,7 +1128,7 @@
   max-width:760px;
   color:var(--s29-muted);
   line-height:1.7;
-  font-size:clamp(14px,1.5vw,17px);
+  font-size:18px;
 }
 .sod29-world-discovery-grid{
   position:relative;
@@ -1306,7 +1323,7 @@
     border-radius:22px;
   }
   .sod29-world-discovery-head{grid-template-columns:1fr}
-  .sod29-world-discovery-head h2{font-size:40px}
+  .sod29-world-discovery-head h2{font-size:28px}
   .sod29-world-discovery-head .sod29-actions{justify-content:flex-start}
   .sod29-world-live-stream{padding:11px;min-height:500px}
   .sod29-world-stream-list{max-height:430px}
@@ -1694,3 +1711,34 @@
   border-radius:0 0 14px 14px;font-size:18px;line-height:1.8;
 }
 .sod29-world-group-source .sod29-world-stream-copy strong{font-size:18px;line-height:1.5}
+
+/* Source-backed discovery; existing Frame/Design tokens and the same media viewer. */
+.sod29-world-source-connections{margin-top:30px;padding-top:24px;border-top:1px solid var(--s29-line)}
+.sod29-world-directions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sod29-world-directions button{display:grid;gap:10px;text-align:start;min-height:110px;padding:18px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel-soft);color:var(--s29-ink);cursor:pointer;font:inherit}
+.sod29-world-directions strong{font-size:20px;color:var(--s29-hero)}
+.sod29-world-directions span{font-size:15px;line-height:1.7;color:var(--s29-muted)}
+.sod29-world-directions button[aria-pressed=true]{border-color:var(--s29-accent);box-shadow:inset 0 3px var(--s29-accent)}
+.sod29-world-direction-content,.sod29-world-witness{scroll-margin-top:95px}
+.sod29-world-witness{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;margin-top:26px;padding:26px 0;border-top:1px solid var(--s29-line)}
+.sod29-world-witness>div{min-width:0}
+.sod29-world-witness:focus-visible{outline:2px solid var(--s29-accent);outline-offset:6px}
+.sod29-world-witness-source .sod29-canonical-media-figure{width:100%;height:320px;background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:14px;overflow:hidden}
+.sod29-world-witness-source img{width:100%;height:100%;object-fit:contain}
+.sod29-world-witness summary,.sod29-world-supporting>summary{min-height:44px;padding:12px 0;cursor:pointer;font-size:16px}
+.sod29-world-witness details{border-top:1px solid var(--s29-line);margin-top:12px}
+.sod29-world-witness details section{padding-block:12px}
+.sod29-world-witness blockquote{max-height:420px;overflow:auto;margin:8px 0;white-space:pre-wrap;font-size:16px;line-height:1.8}
+.sod29-world-witness code{font-size:12px;overflow-wrap:anywhere}
+.sod29-world-witness pre{max-height:300px;overflow:auto;direction:ltr;text-align:left;font-size:12px}
+.sod29-world-witness small{display:block;color:var(--s29-muted);line-height:1.7}
+.sod29-world-source-readings{list-style:none;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+.sod29-world-source-readings li{border-inline-start:2px solid var(--s29-accent);padding-inline:10px;font-size:15px}
+.sod29-world-source-readings b{font-size:24px;display:block}
+.sod29-world-rule{display:grid;gap:6px;padding:16px;margin-block:14px;border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-world-rule>strong{font-size:30px;text-align:start;color:var(--s29-hero);font-variant-numeric:tabular-nums}
+.sod29-world-calculations{display:grid;gap:10px;margin-block:16px}
+.sod29-world-calculations .sod29-action{width:100%}
+.sod29-world-original-caption{white-space:pre-wrap}
+@media(max-width:760px){.sod29-world-directions,.sod29-world-witness{grid-template-columns:minmax(0,1fr)}.sod29-world-directions button{min-height:84px}.sod29-world-witness{gap:16px}.sod29-world-witness-source .sod29-canonical-media-figure{height:280px}.sod29-world-rule>strong{font-size:26px}}
+@media(max-width:760px){.sod29-world-witness:has(.sod29-canonical-media-figure) .sod29-world-witness-source{grid-row:1}}

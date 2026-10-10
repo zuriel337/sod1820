@@ -1,3 +1,4 @@
+import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
@@ -28,10 +29,7 @@ function anchorExpression(fact, root) {
     .trim();
 }
 
-function traceStepLabel(step) {
-  if (typeof step === "string") return clean(step);
-  return clean(step?.label || step?.word || step?.step || step?.expression || step?.description);
-}
+
 
 function defaultExpression(data, root, contextExpression) {
   const fromContext = clean(contextExpression);
@@ -234,7 +232,7 @@ export default function NumberDrawer2029({
   useEffect(() => {
     const expr = clean(expression);
     if (surfaceMode !== "focus" || !expr) return;
-    const computed = Number(selectedProfile?.computedValue);
+    const computed = traceNumber(selectedProfile?.computedValue);
     const focusRoot = Number.isSafeInteger(Number(root))
       ? Number(root)
       : (Number.isSafeInteger(computed) ? computed : null);
@@ -353,12 +351,13 @@ export default function NumberDrawer2029({
     });
   }, [root, expression, selectedMethodKey, profileState.rows, families, topics, relations, sources, worlds, findings, timeline, media, surface, zeroScale, activityCount]);
 
-  const trace = traceState.finding?.projection?.dimensions?.trace || null;
-  const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
-  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedProfile?.computedValue ?? null;
+  const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
+  const trace = isVerifiedMethodTrace(rawTrace, { expression: expression, methodKey: selectedProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
+  const traceSteps = gematriaTraceLines(trace, { expression: expression, methodKey: selectedMethodKey });
+  const activeResult = traceNumber(trace?.result ?? selectedProfile?.computedValue);
 
   useEffect(() => {
-    const next = Number(activeResult);
+    const next = traceNumber(activeResult);
     if (!Number.isSafeInteger(next) || next === root) {
       setMethodResultState({ loading: false, data: null, error: null, key: null });
       return undefined;
@@ -393,10 +392,10 @@ export default function NumberDrawer2029({
     return () => { alive = false; };
   }, [activeResult, root]);
 
-  const stageData = Number.isSafeInteger(Number(activeResult)) && Number(activeResult) !== root
+  const stageData = (traceNumber(activeResult) != null) && Number(activeResult) !== root
     ? (methodResultState.key === Number(activeResult) ? methodResultState.data : null)
     : data;
-  const stageRoot = Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : root;
+  const stageRoot = (traceNumber(activeResult) != null) ? Number(activeResult) : root;
   const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
   const stageTopics = Array.isArray(stageData?.topics?.rows) ? stageData.topics.rows : [];
   const stageSources = Array.isArray(stageData?.sources) ? stageData.sources : [];
@@ -638,7 +637,7 @@ export default function NumberDrawer2029({
     {dataState.error ? <div className="sod29-number-drawer-status error">ה־Root לא נטען כרגע. לא נעשה fallback ל־Legacy.</div> : null}
     {profileState.error ? <div className="sod29-number-drawer-status error">השיטות לא נטענו כרגע מהמנוע הקנוני.</div> : null}
 
-    {surfaceMode === "focus" && clean(expression) && Number.isFinite(Number(activeResult)) ? <div className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
+    {surfaceMode === "focus" && clean(expression) && (traceNumber(activeResult) != null) ? <div className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
 
     {projection ? <NumberCore2029
       projection={projection}
