@@ -64,7 +64,7 @@ export default function Host(props){
 
 const entry = `import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
-import {resolve2029Palette} from '/src/lib/palette.js';
+import {resolve2029Palette,usePalette} from '/src/lib/palette.js';
 import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
 import {findingColorChoices,projectFindingColor,nextFindingColor} from '/src/components/experience2029/elsFindingColors2029.js';
 import '/src/components/experience2029/sod2029.css';
@@ -94,9 +94,10 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
+ function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
-  return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},
+  return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
    React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
@@ -1554,6 +1555,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
     assert.match(primary.background,/49, 93, 213/,`${preset}: shared royal blue primary`);
     assert.equal(primary.color,'rgb(255, 255, 255)');
     assert.match(primary.font,/Rubik/);
+    assert.ok(await page.locator('[data-palette-probe]').evaluate(el=>{const p=JSON.parse(el.dataset.paletteProbe),root=getComputedStyle(el.closest('.sod29-root'));return p.accent===root.getPropertyValue('--s29-accent').trim()&&p.panel===root.getPropertyValue('--s29-panel').trim();}),'frame children inherit the same preset/environment palette as its CSS');
     const mode=page.locator('.els29-native-search-mode button').last();
     await mode.scrollIntoViewIfNeeded();
     const before=await mode.boundingBox();

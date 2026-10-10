@@ -37,8 +37,12 @@ Integration corrections:
 Coordination: live075da0e1 explicitly superseded old Chrome claimd8b48306 and
 narrowed that other writer to returnExact, source numeric admission and related
 runtime/tests. This integration then extended its claim to the released visual
-CSS only. SystemFrame2029.jsx, SurfaceContextRail2029.jsx and researchContext.js
-remain unchanged by this integration. No concurrent runtime edit is implied.
+CSS only. After f77826ce released that bounded runtime scope, this integration changed
+only the final SystemFrame PaletteProvider wrapper to cover every surface.
+The already resolved theme/environment now reaches usePalette children as well
+as CSS. A child-probe acceptance checks all presets/widths. returnExact,
+SurfaceContextRail2029.jsx and researchContext.js remain unchanged here.
+Fresh main4b62216d adds two documents only; no runtime overlap was found.
 
 Verified locally: both builds; Frame and source isolation; 113 ELS static/unit
 checks; 52 Number/spatial/share unit checks (3 Blender runtime checks unavailable);
@@ -52,20 +56,17 @@ integration PR receipt; individual package receipts do not certify this tree.
 
 ## Remaining release dependencies
 
-1. Frame PaletteProvider still wraps only Heichal. Frame CSS tokens propagate,
-   but all usePalette children across other surfaces are not yet proven to
-   inherit the same environment. Coordinate the minimal provider correction
-   with the current SystemFrame runtime writer; do not add a parallel theme tree.
-2. The other writer owns Path-preserving exact return and unknown-vs-zero source
-   admission. Its eventual artifact must be reconciled and replayed with this
-   integration. Current tests cover ELS library return, not closure of World.
-3. Public internal names and all shared modal/control states are not audited
+1. The other writer delivered Path-preserving exact return and unknown-vs-zero
+   source admission at29cba0ea, release artifact408950164. That World-based
+   artifact must still be reconciled and replayed with this integration.
+   Current tests cover ELS library return, not closure of that World repair.
+2. Public internal names and all shared modal/control states are not audited
    across every route. Existing ELS advanced diagnostics still contain internal
    vocabulary; this is not a declaration of full-site readiness.
-4. ELS independent audit a83b0b77/fa9234fc requires a revised-head review;
+3. ELS independent audit a83b0b77/fa9234fc requires a revised-head review;
    previously recorded private/public save and legacy public-image-upload
    blockers remain open. No live cloud save or privacy closure claimed.
-5. M3 glyph lineage remains SOURCE_GAP. No canonical source approval is inferred.
+4. M3 glyph lineage remains SOURCE_GAP. No canonical source approval is inferred.
 
 Release advice: BUNDLE_WITH the completed Frame runtime/foundation work and ELS
 privacy/audit closure. Draft review/preview only; do not merge, release to
