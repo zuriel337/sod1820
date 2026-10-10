@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - "scripts/codex-*.mjs"
+      - "src/lib/implementationRealityProjection.js"
+      - "src/lib/visits.js"
+      - "src/pages/ControlPlane2029Page.jsx"
       - "scripts/test-codex-*.mjs"
       - "scripts/isolated-codex-executor-prototype.mjs"
       - "scripts/test-isolated-codex-executor-prototype.mjs"
@@ -28,5 +31,7 @@ jobs:
           node --check scripts/isolated-codex-executor-prototype.mjs
       - name: Two-mode and auto-wake adversarial fixtures
         run: node --test scripts/test-codex-workflow-modes.mjs scripts/test-codex-auto-wake-contract.mjs
+      - name: Existing admin Control Plane truthfulness projection
+        run: node --test scripts/test-codex-control-implementation-projection.mjs
       - name: Paid CLI transport unconditionally blocked
         run: node scripts/test-isolated-codex-executor-prototype.mjs
