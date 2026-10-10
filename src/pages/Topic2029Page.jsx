@@ -1,6 +1,6 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
@@ -11,6 +11,7 @@ import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
+import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
@@ -192,16 +193,93 @@ function TopicGraphConnections({ golden }) {
   </section>;
 }
 
-function TopicSourcesMedia({ golden }) {
+function TopicSourcesMedia({ golden, projection }) {
+  const research = useResearch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const media = golden?.media || [];
+  const sourceContext = golden?.sourceContext;
+  const selected = media.find((item) => item.reopen?.selection.locator === location.hash);
+
+  const selectSource = (item) => {
+    if (!item.reopen) return;
+    const patch = topicSourceContextPatch(item, projection);
+    research.updateResearchContext?.({ ...patch, dimensions: { ...research.context?.dimensions, ...patch.dimensions } });
+    if (location.hash !== item.reopen.selection.locator) navigate(item.reopen.topicHref, { replace: true });
+  };
+  const rememberReturn = (item) => {
+    selectSource(item);
+    const patch = topicSourceContextPatch(item, projection);
+    research.updateResearchContext?.({ returnTo: {
+      href: item.reopen.topicHref, label: projection.title,
+      subject: { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath },
+      selection: patch.selection, lens: "topic",
+      dimensions: { ...research.context?.dimensions, ...patch.dimensions }, journey: research.context?.journey || null,
+    } });
+  };
+  useEffect(() => {
+    if (!selected) return;
+    const element = document.getElementById(topicSourceAnchor(selected));
+    element?.scrollIntoView({ block: "center" });
+    element?.focus({ preventScroll: true });
+    selectSource(selected);
+  }, [selected?.mediaId, location.hash]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!golden) return null;
   const sources = golden.sources || [];
-  const media = golden.media || [];
   const people = golden.people || [];
-  if (!sources.length && !media.length && !people.length) return null;
+  if (!sources.length && !media.length && !people.length && sourceContext?.access?.available !== false) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-sources">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה מגיעים החיבורים?</h2></div></div>
-    {media.length ? <div className="sod29-topic-media-grid">
-      {media.slice(0, 4).map((item) => <figure key={item.id}><CanonicalMediaFigure2029 item={item} thumbnail alt={item.presentation?.label || item.label} contextNote="מוצג כאן בגלל קשר בגרף לנושא" /><figcaption><strong>{item.presentation?.label || item.label}</strong>{(item.presentation ? item.presentation.summary : item.description) ? <small>{item.presentation ? item.presentation.summary : item.description}</small> : null}</figcaption></figure>)}
+    {sourceContext?.access?.available === false ? <p role="status">לא ניתן לטעון כרגע את המקורות. אפשר לנסות שוב בפתיחה הבאה.</p> : null}
+    {sourceContext?.coverage ? <p className="sod29-topic-section-note" data-source-coverage>
+      {sourceContext.coverage.sourceCount} מקורות · {sourceContext.coverage.occurrenceCount} הופעות מתועדות.
+      {" "}הרצף שומר את סדר השיוכים בטופיק; הוא אינו ציר זמן של האירועים.
+      {sourceContext.coverage.membershipsTruncated || sourceContext.coverage.occurrencesTruncated ? " חלק מהמקורות או המיקומים אינם נכללים בחלון הנוכחי." : ""}
+      {["source_unavailable_or_changed", "source_read_failed"].includes(sourceContext.coverage.captain) ? " לא ניתן להציג כרגע את המקור המצולם מהפוסט." : ""}
+    </p> : null}
+    {media.length ? <div className="sod29-topic-source-list">
+      {media.map((item) => {
+        const reason = item.contextRelation?.explanation || "מוצג כאן בגלל קשר בגרף לנושא";
+        const occurrences = item.occurrences || [];
+        return <figure key={item.mediaId || item.id} id={item.reopen ? topicSourceAnchor(item) : undefined}
+          tabIndex={-1} className="sod29-topic-source-card" data-source-media-id={item.mediaId}
+          data-source-identity={item.sourceIdentity?.ref} data-source-selected={selected?.mediaId === item.mediaId ? "true" : "false"}
+          data-relation-kind={item.contextRelation?.relationKind}>
+          <div><CanonicalMediaFigure2029 item={item} thumbnail alt={`פתח תמונה מלאה: ${item.presentation?.label || item.label}`} contextNote={reason} onOpen={selectSource} /></div>
+          <figcaption>
+            <h3>{item.presentation?.label || item.label}</h3>
+            <p className="sod29-topic-source-reason"><strong>הקשר כאן: </strong>{reason}</p>
+            {occurrences.length > 1 ? <p className="sod29-topic-source-history-note">אותו מקור מופיע ב־{occurrences.length} מיקומים. ההופעות אינן ראיות עצמאיות.</p> : null}
+            {occurrences.map((occurrence) => {
+              const p = occurrence.legacyPlacement;
+              if (!p) return null;
+              const target = item.reopen.galleries.find((g) => g.selection.galleryImageId === p.galleryImageId);
+              const derived = p.dateProvenance?.occurredAt?.derivedFrom;
+              return <details className="sod29-topic-source-history" key={occurrence.mediaId}>
+                <summary>{p.galleryName || "הגלריה המקורית"} · הכיתוב והמיקום המקוריים</summary>
+                {p.originalName ? <p className="sod29-topic-source-verbatim">{p.originalName}</p> : null}
+                <p className="sod29-topic-source-verbatim" data-original-caption={p.galleryImageId}>{p.originalCaption || "לא נשמר כיתוב במקור."}</p>
+                {p.originalCredit.author || p.originalCredit.publication ? <p>קרדיט שמור: {[p.originalCredit.author, p.originalCredit.publication].filter(Boolean).join(" · ")}</p> : null}
+                <p className="sod29-topic-source-meta">מיקום שמור בגלריה: {p.ordering ?? "לא תועד"}</p>
+                {p.occurredAt ? <p className="sod29-topic-source-meta">תאריך שמור: {p.occurredAt}. {derived === "path" ? "נגזר מתיקייה" : derived === "name" ? "נגזר משם הפריט" : "מקור התיארוך לא אומת"}; אינו תאריך אירוע מאומת.</p> : null}
+                {target?.href ? <a href={target.href} onClick={() => rememberReturn(item)}>פתח את הגלריה המקורית בשלמותה</a> : null}
+              </details>;
+            })}
+            {item.postPlacement ? <div className="sod29-topic-source-history">
+              <strong>הכיתוב המקורי בפוסט</strong>
+              <p className="sod29-topic-source-verbatim" data-original-post-caption>{item.postPlacement.originalCaption}</p>
+              {item.postPlacement.originalCredit.author ? <p>קרדיט שמור: {item.postPlacement.originalCredit.author}</p> : null}
+              <Link to={item.reopen.postHref} onClick={() => rememberReturn(item)}>פתח את הפוסט המקורי</Link>
+            </div> : null}
+            {!item.reopen && item.presentation?.summary ? <p>{item.presentation.summary}</p> : null}
+            {item.sequence ? <nav className="sod29-topic-source-sequence" aria-label="רצף המקורות בטופיק">
+              {item.sequence.previousHref ? <Link to={item.sequence.previousHref}>המקור הקודם בציר</Link> : null}
+              {item.sequence.nextHref ? <Link to={item.sequence.nextHref}>המקור הבא בציר</Link> : null}
+            </nav> : null}
+          </figcaption>
+        </figure>;
+      })}
     </div> : null}
     {people.length ? <div className="sod29-topic-people">{people.map((name) => <span key={name}>{name}</span>)}</div> : null}
     {sources.length ? <div className="sod29-list">{sources.slice(0, 12).map((row) => <div className="sod29-row" key={row.id}><div><strong>{row.label}</strong><small>מקור</small></div></div>)}</div> : null}
@@ -291,7 +369,7 @@ function TopicBody() {
     let alive = true;
     setGoldenState({ loading: true, hub: null, prominence: null, error: null });
 
-    fetchEntityHubProjection({ nodeId, relationLimit: 90, researchLimit: 48, topicLimit: 16 })
+    fetchEntityHubProjection({ nodeId, relationLimit: 90, researchLimit: 48, topicLimit: 16, topicSourceSlug: projection.slug })
       .then(async (hub) => {
         if (!alive) return;
         setGoldenState({ loading: false, hub: hub || null, prominence: null, error: null });
@@ -482,7 +560,7 @@ function TopicBody() {
       <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
-      <TopicSourcesMedia golden={golden} />
+      <TopicSourcesMedia golden={golden} projection={projection} />
       <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
       <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
