@@ -2020,5 +2020,5 @@ export default function SystemFrame2029({
       </div>
     </ShellContext.Provider>
   );
-  return surface === "heichal" ? <PaletteProvider value={palette}>{frame}</PaletteProvider> : frame;
+  return <PaletteProvider value={palette}>{frame}</PaletteProvider>;
 }
