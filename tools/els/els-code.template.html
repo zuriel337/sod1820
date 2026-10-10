@@ -2249,7 +2249,7 @@
       const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);
       const rest=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";
       if(d.ok){
-        toast(d.status==="updated"?"✅ הממצא עודכן במקום":(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר בתיק המחקר — ממתין לאישור מנהל"));
+        toast(d.status==="updated"?"✅ הממצא עודכן במקום":(d.status==="draft"?"✅ נשמר אצלך באופן פרטי — לא נשלח לפרסום":(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר בתיק המחקר — ממתין לאישור מנהל")));
         // 🟢 חיווי-הצלחה בולט על הכפתור עצמו (2.6 שניות) — כדי שלא יפספסו את ההצלחה
         sbs.forEach(sb=>{sb.textContent=d.status==="updated"?"✅ עודכן":"✅ נשמר";sb.disabled=false;});
         setTimeout(()=>{try{sbs.forEach(sb=>{sb.textContent=rest;});}catch(e){}},2600);

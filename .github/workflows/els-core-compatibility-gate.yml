@@ -38,6 +38,8 @@ on:
       - 'tools/els/**'
       - 'public/tzofen.html'
       - 'test/els-verify-batch.test.mjs'
+      - 'supabase/migrations/*_els_*save*.sql'
+      - 'test/els-*save*.sql'
       - 'test/els-adaptive-router.test.mjs'
       - 'test/els-browser-truth-census.test.mjs'
       - 'test/els-browser-cutover.test.mjs'

@@ -70,7 +70,7 @@ test('executable: native private saves preserve ownership, RLS, updates and exis
   try{
     let result=run(join(PG,'initdb'),['-D',data,'-A','trust','-U','postgres','-E','UTF8','--locale=C.UTF-8']);assert.equal(result.status,0,result.stderr);
     result=run(join(PG,'pg_ctl'),['-D',data,'-o',`-k ${dir} -p ${port} -c listen_addresses=''`,'-l',join(dir,'log'),'-w','start']);assert.equal(result.status,0,result.stderr);
-    for(const file of ['test/els-native-save-fixture.sql','supabase/migrations/20261009224033_els_native_private_save_compatibility.sql','test/els-native-save-privacy.sql']){
+    for(const file of ['test/els-native-save-fixture.sql','supabase/migrations/20261009224033_els_native_private_save_compatibility.sql','supabase/migrations/20261010231453_els_public_save_private_draft_isolation.sql','test/els-native-save-privacy.sql','test/els-public-save-private-isolation.sql']){
       result=run('psql',['-h',dir,'-p',port,'-U','postgres','-v','ON_ERROR_STOP=1','-X','-q','-f',join(root,file)]);
       assert.equal(result.status,0,`${file}: ${result.stderr}`);
     }

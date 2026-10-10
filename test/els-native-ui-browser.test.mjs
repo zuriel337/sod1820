@@ -157,20 +157,37 @@ const realHostStubs = {
   '../lib/AuthContext.jsx': `export const useAuth=()=>({isAdmin:window.__fixtureTier==='admin',verified:window.__fixtureTier!=='anon',user:window.__fixtureTier==='anon'?null:{id:'fixture-owner'},loading:false});`,
   '../lib/tracking.js': `export const track=()=>{};export const getVisitorId=()=>'native-ui-fixture';`,
   '../lib/elsMatrices.js': `export const getSavedMatrices=async()=>[];
-    export const getMatrixById=async id=>structuredClone((window.__savedRows||[]).find(row=>row.id===id)||null);
+    export const getMatrixById=async id=>{
+      (window.__readCalls||=[]).push(id);
+      if(window.__readFails)throw new Error('fixture read failure');
+      if(window.__holdRead)await new Promise(resolve=>window.__releaseRead=resolve);
+      const row=(window.__savedRows||[]).find(row=>row.id===id);
+      const allowed=row&&(row.visibility==='public'||row.self_published||window.__fixtureTier==='admin'||(window.__fixtureTier!=='anon'&&row.owner_user_id==='fixture-owner'));
+      return structuredClone(allowed?row:null);
+    };
     export const saveMatrix=async payload=>{
       (window.__saveCalls||=[]).push(structuredClone(payload));
       if(window.__saveFails)throw new Error('fixture save failure');
       const rows=window.__savedRows||=[];
-      const old=rows.find(row=>row.search_term===payload.term&&row.skip_distance===payload.skip&&row.direction===payload.direction&&row.start_index===payload.startIndex);
+      const old=rows.find(row=>row.search_term===payload.term&&row.skip_distance===payload.skip&&row.direction===payload.direction&&row.start_index===payload.startIndex&&
+        (payload.isPublic?(row.self_published||row.visibility==='public')&&(window.__fixtureTier==='admin'||row.owner_user_id==='fixture-owner'&&row.status!=='published'):row.owner_user_id==='fixture-owner'&&row.visibility==='private'&&!row.self_published&&row.status!=='published'));
       const row={id:old?.id||'saved-'+(rows.length+1),slug:old?.slug||'native-save-'+(rows.length+1),search_term:payload.term,title:payload.title,
         scope:payload.scope,skip_distance:payload.skip,direction:payload.direction,start_index:payload.startIndex,corpus_id:'${ELS_GOLDEN_CORPUS_ID}',
-        owner_user_id:'fixture-owner',visibility:'private',status:'draft',self_published:false,positions:payload.positions,description:payload.note};
+        owner_user_id:'fixture-owner',visibility:payload.isPublic&&window.__fixtureTier==='admin'?'public':'private',status:payload.isPublic?(window.__fixtureTier==='admin'?'published':'pending'):'draft',self_published:!!payload.isPublic,positions:payload.positions,description:payload.note,image_url:payload.imageUrl};
       if(old)Object.assign(old,row);else rows.push(row);return row.id;
     };
-    export const saveMatrixAnon=async()=>{throw new Error('unexpected anonymous save')};export const moderateMatrix=async()=>{};`,
+    export const saveMatrixAnon=async payload=>{window.__anonymousSaves=(window.__anonymousSaves||0)+1;
+      if(!window.__allowAnonymousSave)throw new Error('unexpected anonymous save');
+      (window.__anonymousSaveCalls||=[]).push(structuredClone(payload));return 'anonymous-pending';};export const moderateMatrix=async()=>{};`,
   '../lib/contributions.js': `export const addContribution=async()=>{};`,
-  '../lib/supabase.js': `export const supabase={storage:{from:()=>{window.__publicUploads=(window.__publicUploads||0)+1;throw new Error('public upload forbidden in private-save fixture');}},functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
+  '../lib/supabase.js': `export const supabase={storage:{from:()=>({upload:async()=>{window.__publicUploads=(window.__publicUploads||0)+1;return {error:null};},getPublicUrl:name=>({data:{publicUrl:'https://fixture.invalid/gallery/'+name}})})},
+    rpc:async(name,payload)=>{
+      (window.__updateCalls||=[]).push({name,...structuredClone(payload)});
+      const row=(window.__savedRows||[]).find(row=>row.id===payload.p_id);
+      if(name!=='update_els_matrix'||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published')))return {error:{message:'update denied'}};
+      row.positions=payload.p_positions;if(payload.p_image_url!=null)row.image_url=payload.p_image_url;
+      row.description=payload.p_description;row.engine_detail=payload.p_engine_detail;return {error:null};
+    },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
     if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
@@ -1151,6 +1168,146 @@ test('native save: private retry, same-record update and exact restore preserve 
     assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0);
     assert.match(await page.locator('.els29-native-notice').textContent(),/לשחזר/);
   },{realHost:true,mobile:true});
+ });
+
+async function privacyRecord(page, overrides = {}) {
+  return page.evaluate(overrides => {
+    const s=window.__state;
+    const row={id:'privacy-record',slug:'privacy-record',search_term:s.term,title:s.term,scope:s.scope,
+      skip_distance:s.axis.skip,direction:s.axis.direction,start_index:s.axis.start,corpus_id:s.verification.corpus_id,
+      owner_user_id:'fixture-owner',visibility:'private',status:'draft',self_published:false,
+      positions:{findings:[],privateMarker:'preserve'},description:'private original',...overrides};
+    (window.__savedRows||=[]).push(row);return structuredClone(row);
+  },overrides);
+}
+async function unsavedPrivacyAxis(page) {
+  await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,id:null}},location.origin),golden);
+  await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId);
+}
+async function classicPrivacySave(page, overrides = null) {
+  const before=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').length);
+  const frame=page.frames().find(f=>f.parentFrame());
+  if(overrides===null){
+    // Real Classic UI -> description dialog -> canonical engine -> real host save handler.
+    if(await button(page,'כל הכלים').count())await activate(page,'כל הכלים');
+    await frame.locator('.save-act').first().dispatchEvent('click');
+    await frame.locator('.sh-desc').fill('בדיקת שמירה פרטית במסלול הקלאסי ללא פרסום תמונות');
+    await frame.locator('.sh-save').dispatchEvent('click');
+  }else{
+    const payload=await page.evaluate(overrides=>{
+      const s=window.__state;
+      return {source:'tzofen',type:'save',term:s.term,scope:s.scope,skip:s.axis.skip,direction:s.axis.direction,start:s.axis.start,
+        findings:[],desc:'changed privately',image:'data:image/png;base64,aGVsbG8=',shape:'data:image/png;base64,aGVsbG8=',...overrides};
+    },overrides);
+    // Adversarial target/error cases enter through the real source-checked message listener.
+    await frame.evaluate(payload=>parent.postMessage(payload,location.origin),payload);
+  }
+  await page.waitForFunction(n=>window.__hostLog.filter(m=>m.type==='saved').length>n,before);
+  return page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').at(-1));
+}
+
+test('privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    const row=await privacyRecord(page);
+    await page.evaluate(row=>window.__openSavedMatrix(row),row);
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
+    assert.equal((await classicPrivacySave(page)).ok,true);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),row.id);
+    assert.equal(await page.evaluate(()=>window.__savedRows[0].positions.privateMarker),'preserve');
+    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
+    await page.evaluate(()=>window.__updateFails=true);
+    assert.equal((await classicPrivacySave(page,{})).ok,false);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'failed heuristic private update cannot create public copy');
+    assert.equal(await page.evaluate(()=>window.__anonymousSaves||0),0);
+    await page.evaluate(()=>window.__updateFails=false);
+    const publicRow=await privacyRecord(page,{id:'public-target',visibility:'public',status:'published',self_published:true,positions:{publicMarker:'untouched'}});
+    assert.equal((await classicPrivacySave(page,{editId:publicRow.id})).ok,false,'private context cannot be copied into a different public edit target');
+    assert.deepEqual(await page.evaluate(()=>window.__savedRows.find(row=>row.id==='public-target').positions),{publicMarker:'untouched'});
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal((await classicPrivacySave(page,{term:'ציר אחר',editId:null})).ok,true,'new axis under private context stays private');
+    assert.equal(await page.evaluate(()=>window.__saveCalls.at(-1).isPublic),false);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+  },{realHost:true,mobile:true});
+  await withNative({width:1440,height:1000},async page=>{
+    await unsavedPrivacyAxis(page);
+    await activate(page,'שמירה');
+    await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('מחקר פרטי שנשמר לפני המעבר לכלים הקלאסיים');
+    await activate(page,'שמור אצלי');
+    await page.waitForFunction(()=>window.__savedRows?.length===1);
+    assert.equal(await page.evaluate(()=>window.__fixtureMatrix),null,'fresh native save has no opened matrix prop');
+    assert.equal((await classicPrivacySave(page)).ok,true);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
+    assert.equal(await page.evaluate(()=>window.__savedRows[0].visibility),'private');
+    assert.equal(await page.evaluate(()=>window.__saveCalls.length),1,'Classic updates the same native private record');
+  },{realHost:true});
+ });
+
+test('privacy F4: explicit private targets, missing access, lookup failures and account changes fail before public uploads',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const row=await privacyRecord(page);
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,true,'private edit target resolved even without route context');
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    const calls=await page.evaluate(()=>window.__updateCalls.length);
+    assert.equal((await classicPrivacySave(page,{editId:'missing'})).ok,false);
+    await page.evaluate(()=>window.__readFails=true);
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,false);
+    await page.evaluate(()=>{window.__readFails=false;window.__savedRows[0].visibility=null;});
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,false,'unknown privacy fails closed');
+    await page.evaluate(()=>{window.__savedRows[0].visibility='private';window.__savedRows[0].owner_user_id='another-owner';window.__fixtureTier='registered';window.__forceParentRender();});
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,false,'foreign private target unavailable to member');
+    await page.evaluate(()=>{window.__savedRows[0].owner_user_id='fixture-owner';window.__fixtureTier='anon';window.__forceParentRender();});
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,false,'signed out private update fails');
+    assert.equal(await page.evaluate(()=>window.__updateCalls.length),calls);
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
+    assert.equal(await page.evaluate(()=>window.__anonymousSaves||0),0);
+    await page.evaluate(()=>{window.__fixtureTier='admin';window.__forceParentRender();window.__holdRead=true;});
+    const publicRow=await privacyRecord(page,{id:'public-race',visibility:'public',status:'published',self_published:true});
+    const saving=classicPrivacySave(page,{editId:publicRow.id});
+    await page.waitForFunction(()=>typeof window.__releaseRead==='function');
+    await page.evaluate(()=>{window.__fixtureTier='anon';window.__forceParentRender();window.__holdRead=false;window.__releaseRead();});
+    assert.equal((await saving).ok,false,'account change while reading public edit target aborts before upload');
+    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+  },{realHost:true});
+ });
+
+test('privacy F4: public heuristic re-save by another member or guest keeps the existing pending-variant path',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  for(const tier of ['registered','anon'])await withNative({width:1440,height:1000},async page=>{
+    const row=await privacyRecord(page,{owner_user_id:'public-author',visibility:'public',status:'published',self_published:true});
+    await page.evaluate(row=>{window.__allowAnonymousSave=true;window.__openSavedMatrix(row);},row);
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
+    assert.equal((await classicPrivacySave(page,{editId:null})).ok,true);
+    const payload=await page.evaluate(()=>window.__saveCalls?.at(-1)||window.__anonymousSaveCalls?.at(-1));
+    assert.equal(payload.positions.variantOf,row.id);
+    assert.equal(await page.evaluate(()=>window.__savedRows[0].description),'private original','public source remains unchanged');
+    assert.equal(await page.evaluate(()=>window.__publicUploads),2);
+    if(tier==='registered')assert.equal(payload.isPublic,true);
+    else assert.equal(await page.evaluate(()=>window.__anonymousSaves),1);
+  },{realHost:true,tier});
+ });
+
+test('privacy F4: new and existing public Classic saves retain permitted uploads and update flow',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    await unsavedPrivacyAxis(page);
+    assert.equal((await classicPrivacySave(page)).ok,true);
+    assert.equal(await page.evaluate(()=>window.__publicUploads),2,'real engine card and grid upload for explicit public Classic save');
+    assert.equal(await page.evaluate(()=>window.__saveCalls[0].isPublic),true);
+    const row=await page.evaluate(()=>window.__savedRows[0]);
+    assert.equal(row.visibility,'public');assert.equal(row.status,'published');
+    await page.evaluate(row=>window.__openSavedMatrix(row),row);
+    await page.waitForFunction(id=>window.__state?.provenance?.editId===id&&window.__state?.verification?.state==='MATCH',row.id);
+    assert.equal((await classicPrivacySave(page,{editId:row.id})).ok,true);
+    assert.equal(await page.evaluate(()=>window.__publicUploads),4);
+    assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),row.id);
+    assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
+  },{realHost:true});
  });
 
 test('native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request',

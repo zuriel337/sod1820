@@ -216,35 +216,54 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     // the tool already refuses to post `save` for an unverified occurrence).
     if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
     try {
-      const contextMatrix = native ? (nativeSavedRowRef.current || matrix) : matrix;
+      let contextMatrix = nativeSavedRowRef.current || matrix;
+      // Classic edit ids and route props are not proof of current access/visibility.
+      // Resolve the saved row before rendering data can reach public Storage.
+      const classicContexts = [];
+      if (!native) {
+        for (const id of new Set([matrix?.id, nativeSavedRowRef.current?.id].filter(Boolean))) {
+          const row = await getMatrixById(id);
+          if (!row?.visibility) throw new Error("save_context_unavailable");
+          classicContexts.push(row);
+          if (id === contextMatrix?.id) contextMatrix = row;
+        }
+      }
+      const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
+      const isReSave = native ? savedMatrixMatchesAxis(contextMatrix, savedState) : !!(contextMatrix?.id
+        && nrm(d.term) === nrm(contextMatrix.search_term)
+        && Math.abs(d.skip || 0) === (contextMatrix.skip_distance || 0)
+        && (d.scope || "torah") === (contextMatrix.scope || "torah"));
+      const editId = native ? null : (d.editId || (isReSave ? contextMatrix.id : null));
+      let editMatrix = null;
+      if (editId) {
+        editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
+        if (!editMatrix?.visibility) throw new Error("save_target_unavailable");
+      }
       const privateNative = native && saveRequest.isPublic !== true;
+      // Switching to Classic is not consent to publish private research. Include
+      // newly saved native rows, explicit edit targets and non-public contexts.
+      const privateClassic = !native && [...classicContexts, editMatrix].some(row => row && row.visibility !== "public");
+      const privateSave = privateNative || privateClassic;
+      if (privateSave && !user) throw new Error("auth_required");
+      if (editMatrix && classicContexts.some(row => row.id !== editMatrix.id
+        && row.visibility !== "public" && !row.self_published && row.status !== "published")) {
+        throw new Error("private_context_changed");
+      }
+      if (editMatrix && !isAdmin && editMatrix.owner_user_id !== user?.id && (privateSave || d.editId)) throw new Error("not_authorized");
+      if (messageContextRef.current.user?.id !== user?.id
+        || lastStateRef.current?.axis?.hitId !== savedState.axis?.hitId
+        || lastStateRef.current?.scope !== savedState.scope) throw new Error("save_context_changed");
       const canUpdateNative = privateNative && contextMatrix?.owner_user_id === user?.id
         && contextMatrix?.visibility === "private" && !contextMatrix?.self_published
         && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
-      // Private research never uploads its rendered letters into the public gallery bucket.
-      const shapeUrl = !privateNative && d.shape ? await uploadCipherCard(d.shape) : null;
-      // 🎴 כרטיס-הצופן → Storage. אם אין כרטיס מרונדר — נופלים לצורת-המטריצה, כך שצופן לעולם
-      //    לא נשמר בלי תמונת-שיתוף (auto-render: כל צופן אוטומטית מקבל תמונה, בלי צעד ידני).
-      const imageUrl = (!privateNative && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
-      // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
-      const positions = { ...(canUpdateNative ? contextMatrix.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+      const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
+      const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
+      const positions = { ...(canUpdateNative ? contextMatrix.positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
         quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null, view: d.view || null };
-
-      // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
-      //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
-      //    כ«גרסה» מקושרת למקור (variantOf) שממתינה לאישור — לעולם לא דורסים צופן קיים.
-      const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
-      const isReSave = native ? savedMatrixMatchesAxis(contextMatrix, savedState) : !!(matrix?.id
-        && nrm(d.term) === nrm(matrix.search_term)
-        && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
-        && (d.scope || "torah") === (matrix.scope || "torah"));
-
-      // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
-      //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
       const engineDetail = buildEngineDetail(d, savedState);
-      // The native private path uses the existing save RPC's exact-identity upsert,
-      // including title updates. Published rows cannot be selected by that opt-in path.
-      const editId = native ? null : (d.editId || (isReSave ? matrix.id : null));
+      // Native private saves retain the existing exact-identity upsert. Classic
+      // updates retain server ownership/publication checks and never downgrade
+      // a failed private update into a new public submission.
       if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
           p_id: editId, p_positions: positions,
@@ -258,7 +277,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           return;
         }
         // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
-        if (d.editId) { postToTool({ type: "saved", ok: false }); return; }
+        if (d.editId || privateSave) { postToTool({ type: "saved", ok: false }); return; }
         // אחרת (re-save היוריסטי לפי מונח/דילוג) → ממשיך לשמירה-חדשה/גרסה למטה
       }
 
@@ -274,7 +293,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         engineDetail,
       };
       if (user) {
-        const id = await saveMatrix({ ...common, isPublic: native ? saveRequest.isPublic === true : true, fromTopic: privateNative ? null : fromTopic || null });
+        const id = await saveMatrix({ ...common, isPublic: native ? saveRequest.isPublic === true : !privateSave, fromTopic: privateSave ? null : fromTopic || null });
         if (native) {
           let row = { id, search_term: d.term, title: common.title, scope: common.scope, skip_distance: common.skip,
             direction: common.direction, start_index: common.startIndex, corpus_id: savedState?.verification?.corpus_id,
@@ -285,12 +304,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           postToTool({ type: "saved", ok: true, status: row.status || "saved" });
           completeNative({ ok: true, id, row, status: row.status || "saved" }); return;
         }
-        const st = isAdmin ? "published" : (isReSave ? "variant" : "pending");
+        const st = privateSave ? "draft" : isAdmin ? "published" : (isReSave ? "variant" : "pending");
         postToTool({ type: "saved", ok: true, status: st });
         // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
         let firstTime = false;
         try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
-        if (firstTime) setDossierPrompt(true); else setSavedToast({ status: st });
+        if (firstTime && !privateSave) setDossierPrompt(true); else setSavedToast({ status: st });
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
@@ -689,6 +708,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 800, fontSize: 14.5, lineHeight: 1.3 }}>
                 {savedToast.status === "updated" ? "עודכן בתיק המחקר שלך"
+                  : savedToast.status === "draft" ? "נשמר אצלך באופן פרטי — לא נשלח לפרסום"
                   : savedToast.status === "published" ? "פורסם לתיק המחקר — גלוי לחוקרים"
                   : savedToast.status === "variant" ? "נשמר כגרסה — ממתין לאישור"
                   : "נשמר לתיק המחקר שלך — ממתין לאישור לפומבי"}
