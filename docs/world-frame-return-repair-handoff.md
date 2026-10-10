@@ -64,8 +64,25 @@ WORLD_JOURNEY_ARTIFACTS=/absolute/path/to/evidence \
 node scripts/test-world-complete-journey.mjs
 ```
 
-Final extended replay status and exact tested SHA are recorded in the final
-work_log AFTER and artifact receipt.json; this document does not assert a test
-finished merely because it was added. No deployment, main merge/push or remote
-product-data writes. Existing public Path reader, publication and unrelated
-Source/Posts/ELS/Chrome design dependencies remain unchanged.
+Final extended browser replay passed on commit
+1482fe8986378b4f82a9f3de0060b7b022e581f2 at both 1440 and 390 pixels:
+
+- Shared Frame arrow: new Path, updated Path and explicitly cancelled Path;
+  exact source/viewport restored and checked after reload (six return cases).
+- Existing source-step return: complete route at both widths (two cases).
+- Both receipts contain no browser errors or failures. Guest save is denied;
+  source-unavailable/retry is checked. Source rail has no invented "open 0".
+
+Receipts: final-frame/receipt.json and final-source-step/receipt.json in the
+delivery package. Additional actual-Provider tests passed (10), and the pinned
+context rail suite passed (8). The rail suite had a stale assertion for a trace
+renderer already absent in the recovered baseline; only that expectation was
+updated. The final follow-up commit changes tests and this document only;
+production source is identical to the browser-tested commit above.
+
+The scoped ACK 075da0e1 is released by the final work_log AFTER. Its release
+also closes the explicitly superseded d8b48306 reservation; it does not release
+any other owner's claim. Current World consumer db1d56a1 may import this exact
+delivery; receipt/activation is not assumed. No deployment, main merge/push or
+remote product-data writes. Existing public Path reader, publication and
+unrelated Source/Posts/ELS/Chrome design dependencies remain unchanged.
