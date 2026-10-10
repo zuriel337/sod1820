@@ -116,7 +116,10 @@ export default function WorldSourceStory({ research, shell, topicSlug = null }) 
     const origin = patch();
     research.updateResearchContext?.({ ...patch(witness, calculation), subject, returnTo: {
       ...origin, href, label: witness.title,
-      subject: topicSlug ? { id: topicSlug, type: 'topic', label: topicSlug, href: `/topic/${topicSlug}` } : null,
+      // A Path step needs its source-native subject as well as its locator.
+      // World has no Topic subject; retain the selected source instead.
+      subject: topicSlug ? { id: topicSlug, type: 'topic', label: topicSlug, href: `/topic/${topicSlug}` }
+        : { id: origin.selection.entityId, type: origin.selection.entityType, label: witness.title, href },
       journey: research.context?.journey || null,
     } });
     shell.go(target, { preserve: false });

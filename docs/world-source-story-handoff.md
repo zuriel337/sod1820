@@ -1,5 +1,53 @@
 # World — 424 / 1237 / 14–45 / חכמה 73: current review handoff
 
+## Complete World journey verification, 2026-10-10
+
+Continuation ACK `67dcd4b7-416b-4304-a60e-355c40f5f6a8` restored the existing
+`codex/world-discovery-integrated-20261010` at `c06e17ec`, verifying all four
+authenticated transfer ZIP checksums and bundle prerequisites. PR1016 was already
+integrated as `8f2592fc`; its four files remain byte-identical to `60e0a842`.
+No second cherry-pick or helper change was made.
+
+The complete World browser check found that `returnTo.subject` was null when
+leaving World. This omitted the original source from an explicitly started Path.
+The World consumer now carries the existing source selection's identity/type and
+exact World href as that subject. No new identity, Path store, or method exists.
+
+Reproduce the focused check with `scripts/test-world-complete-journey.mjs`:
+
+- `LOCAL_VITE=1` for the existing local server at 127.0.0.1:4174.
+- `WORLD_JOURNEY_AUTH=1` adds actual private save/resume/other-principal rejection
+  using the disposable PostgreSQL fixture described in the integration handoff.
+  Synthetic auth is restricted to local UI and is never forwarded to production.
+- `WORLD_JOURNEY_BASE` selects an actual built/hosted preview. Its routes are
+  exercised directly, without test rewrites. `WORLD_REVIEW_SHARE_FILE` optionally
+  supplies a temporary protected URL; it must never be committed or logged.
+- `PLAYWRIGHT_MODULE` and `WORLD_JOURNEY_ARTIFACTS` select the test helper/output.
+
+Manual route: open `/world#world-discovery-wall--wall-clock`; read the Jerusalem
+clock/source explanation; open the whole image and **פתח מקור**; return and choose
+**דונלד טראמפ · רגיל · 424**; under **לאן הבחירה הזו מובילה?**, explicitly choose
+**התחל מסע מהבחירה**. Expand **הצעדים שבחרתי** and choose its first source step
+to return to the exact World witness. Refresh there. Guest discovery and temporary
+Path navigation need no SOD login; account persistence is private and requires
+authentication on an authorized normal surface.
+
+Remaining owner seam: Number's arrow / shared **חזרה מדויקת** invokes
+`SystemFrame2029.returnExact`, restoring `target.journey` from before the new Path
+existed. It can clear the newly started Path. The existing Path-step return above
+preserves it. The Frame/Workspace owner must reconcile current Path identity versus
+navigation snapshot; its files were not edited or silently patched by this consumer.
+The existing initial Number sourceRef and Frame image-as-zero issues remain separate.
+
+The requested hosted review uses a separately built protected artifact with the
+unchanged DEV-only proposal mounts enabled, plus a read-only service-worker guard.
+It permits existing public reads/canonical calculation RPCs and blocks account
+writes, authentication and AI calls. Normal `npm run build` still omits the proposed
+discovery content. Preview access does not select or publish those proposals, or
+make any personal Path public. The final work_log AFTER supplies the exact SHA,
+fresh results, deployment URL/protection state and expiry; readiness is not inferred
+from this document. No production deployment or main merge is authorized.
+
 2026-10-10. Continuation of `ec02509ff50dd076b6bfd6a4c0f7f00579b1708f` and
 work_log `2cbd0c8b-6e91-40ad-8d52-4f597d49b552`, including the user's railway/14:45/73 expansion.
 Branch: `codex/world-discovery-integrated-20261010` (source slice preserved on `codex/world-1237-clock-discovery-20261010`). Starting main:
