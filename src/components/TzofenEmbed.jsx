@@ -303,9 +303,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
   }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult]);
 
+  // Keep the listener registered through synchronous Research Bus renders during dispatch.
+  // Read current props/callbacks without removing a listener before it receives that same event.
+  const messageContextRef = useRef(null);
+  messageContextRef.current = { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult };
+
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
     async function onMsg(e) {
+      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult } = messageContextRef.current;
       if (e.origin !== window.location.origin) return;
       // G3: origin alone is not enough — any same-origin window (other tab/iframe/script) could spoof the tool.
       // Accept only messages whose source is this component's own iframe window.
@@ -440,7 +446,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult]);
+  }, []);
 
   const workspaceSeqRef = useRef(null);
   useEffect(() => {

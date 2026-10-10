@@ -63,6 +63,7 @@ function hostMessageHarness(overrides = {}) {
     searchRequest: null, findingsRequest: null,
     ...overrides,
   };
+  context.messageContextRef = { current: context };
   runInNewContext(src.slice(start, end) + ';globalThis.handle=onMsg;', context);
   return {
     sent, operations, gates, legacyGates,

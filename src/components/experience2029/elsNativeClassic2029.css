@@ -691,3 +691,6 @@
 .els29-native-stage-column:fullscreen .els29-native-stage-head,.els29-native-stage-column:fullscreen .els29-native-bottom-controls{display:none}
 .els29-native-stage-column:fullscreen .els29-native-presenter{flex:none;max-height:45dvh;overflow:auto;padding:8px}
 .els29-native-stage-column:fullscreen .els29-native-presenter small{display:none}
+
+.els29-native-results-pages{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
+.els29-native-results-pages button{min-height:44px;min-width:44px;padding:6px 10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit}

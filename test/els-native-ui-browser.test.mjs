@@ -62,7 +62,7 @@ export default function Host(props){
  return React.createElement('iframe',{ref:frame,src:'/tzofen.html?embed=1&bridge=hidden'+(props.experience2029?'&experience=2029':''),title:'canonical engine fixture',style:{position:'absolute',width:1,height:1,clipPath:'inset(100%)'}});
 }`;
 
-const entry = `import React from 'react';import {createRoot} from 'react-dom/client';
+const entry = `import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
 import {resolve2029Palette} from '/src/lib/palette.js';
 import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
@@ -74,6 +74,7 @@ window.__log=[];window.__hostLog=[];
 window.__setThemePreset=setThemePreset;
 window.__findingColors={findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette};
 function Fixture(){
+const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
 const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
@@ -174,7 +175,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -219,7 +220,7 @@ async function withNative(viewport, run, options = {}) {
     const errors = [];
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender }) => {
       window.__fixtureFullFrame=fullFrame;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
@@ -238,7 +239,7 @@ async function withNative(viewport, run, options = {}) {
           const message = event.data;
           if (event.source !== frame?.contentWindow || message?.source !== 'tzofen') return;
           (window.__log ||= []).push(message);
-          if (message.type === 'state') window.__state = message;
+          if (message.type === 'state') { window.__state = message;if(reentrantRender){window.__reentrantCount=(window.__reentrantCount||0)+1;window.__forceParentRender?.();} }
           if (message.type === 'lens') window.__lens = message;
           if (message.type === 'operation') window.__operation = message;
           if (message.type === 'ready' && loadGolden) frame.contentWindow.postMessage({ source: 'sod-host', type: 'load-matrix', item: window.__fixtureGolden }, location.origin);
@@ -247,7 +248,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -570,7 +571,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
    assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
    const panel=page.locator('#els29-context-panel');
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות הצלבה'],['סריקה וממצאים','סריקה וממצאים']]){
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
     await dock.getByRole('button',{name:label,exact:true}).click();
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
@@ -710,6 +711,7 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
     if(index===3){
      await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
      assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'primary search stays disabled while verification is pending');
+     await openPanel(page);
      for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','חפש במטריצה','הגדל מטריצה','התאם מטריצה למסך'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during main verification');
      assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).isDisabled(),true);
      assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true);
@@ -1310,3 +1312,74 @@ test('native presentation: verse words alternate from either entry and camera re
   assert.equal(await page.locator('.is-verse-word').count(),0);assert.equal(await presenter.count(),0,'new search clears presentation and its timer');
  });
 });
+
+test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  let stale;
+  for(const [scope,label] of [['torah','תורה'],['tanakh','כל התנ״ך']]){
+   if(await page.locator('.els29-native-cross-row').count())await activate(page,'הצלבה בין צירים');
+   await page.getByRole('textbox',{name:'מונח',exact:true}).fill('יהוה');
+   const request=await page.evaluate(()=>window.__operation?.requestId||0);
+   if(scope==='torah')await activate(page,'חפש');else await activate(page,label);
+   await page.waitForFunction(({scope,request})=>window.__operation?.requestId>request&&window.__operation.status==='done'&&window.__state?.scope===scope,{scope,request},{timeout:90000});
+   const state=await page.evaluate(()=>window.__state),results=state.search.occurrences;
+   assert.equal(state.term,'יהוה');assert.equal(state.verification.state,'MATCH');assert.ok(results.total>80);
+   assert.equal(results.items.length,80);assert.equal(results.total,state.verification.verified_hits);
+   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
+   const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
+   assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
+   const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
+   assert.equal(await page.getByRole('dialog').count(),0);
+   assert.ok(results.items.every(item=>item.skip>=2&&item.ref&&['fwd','back'].includes(item.direction)));
+   await activate(page,'מופע קודם');
+   await page.waitForFunction(()=>window.__state.search.occurrences.selectedOrdinal===window.__state.search.occurrences.total);
+   assert.equal(await page.evaluate(()=>window.__state.status),'ok','previous wraps across verified ELS only, never literal hits');
+   await activate(page,'מופע הבא');await page.waitForFunction(()=>window.__state.search.occurrences.selectedOrdinal===1);
+   await activate(page,'עמוד הבא');await page.waitForFunction(()=>window.__state.search.occurrences.page===1);
+   const next=await page.evaluate(()=>window.__state.search.occurrences.items[0]);
+   assert.equal(next.ordinal,81);
+   await activate(page,'פתח מופע 81');await page.waitForFunction(id=>window.__state.axis.hitId===id,next.hitId);
+   assert.ok((await page.locator('.els29-native-stage-column').boundingBox()).y<844,'choosing a mobile result reveals the matrix');
+   const selected=await identity(page);
+   if(stale){await page.locator('iframe').evaluate((frame,value)=>frame.contentWindow.postMessage({source:'sod-host',type:'native-control',action:'occurrence-select',value},location.origin),stale);await page.waitForTimeout(100);assert.deepEqual(await identity(page),selected,'stale set cannot change the active corpus/result');}
+   stale={setId:results.id,index:results.items[0].index,hitId:results.items[0].hitId};
+   if(process.env.ELS_SCREENSHOT_DIR){await page.locator('.els29-native-panel-wrap').scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`regular-results-${scope}-390.png`)});}
+   const crossed=await reliabilityCross(page,'צוריאל','פולייס');
+   assert.equal(crossed.scope,scope);assert.ok(crossed.search.results.items.some(item=>item.available));
+   assert.equal(crossed.search.occurrences,null);
+   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות הצלבה');
+   assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
+   const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
+   if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
+  }
+  await activate(page,'הצלבה בין צירים');
+  await page.evaluate(()=>window.__fixtureVerificationDenied=true);
+  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('תורה');await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='error');
+  assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0,'failure never displays the previous list as a new result');
+  assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('האימות'));
+  await page.evaluate(()=>window.__fixtureVerificationDenied=false);
+  await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done');
+  assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
+  await page.evaluate(()=>window.__fixtureHoldVerification=true);
+  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('משה');await activate(page,'חפש');
+  await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+  await activate(page,'בטל חיפוש');
+  assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('בוטל'));
+  await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+ test('native bridge: parent research updates during a state message cannot discard the completed result',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:45000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:'מונח',exact:true}).fill('יהוה');await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done');
+  assert.ok(await page.evaluate(()=>window.__reentrantCount>0));
+  assert.equal(await page.locator('.els29-native-stage-head h3').innerText(),'יהוה','native matrix receives the exact state despite synchronous parent updates');
+  assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),80);
+ },{realHost:true,loadGolden:false,reentrantRender:true});
+ });

@@ -1900,6 +1900,28 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(!results.items.find(x=>x.index===value.index&&x.available))return;
     openZone(value.index);
   }
+  // Bounded presentation of the SAME admitted primary hits; never publish candidate coordinates.
+  const nativeOccurrenceSets=new WeakMap();let nativeOccurrenceSetSeq=0;
+  function nativeOccurrenceResults(){
+    const r=st.res;if(!hasGov(r)||st.crossMeetings)return null;
+    let view=nativeOccurrenceSets.get(r);
+    if(!view){view={id:"occ-"+(++nativeOccurrenceSetSeq),page:0};nativeOccurrenceSets.set(r,view);}
+    const admitted=r.hits.map((h,index)=>({h,index})).filter(x=>isGov(x.h)),pageSize=80;
+    const page=Math.max(0,Math.min(view.page,Math.ceil(admitted.length/pageSize)-1));view.page=page;
+    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,
+      items:admitted.slice(page*pageSize,(page+1)*pageSize).map(({h,index},offset)=>({index,ordinal:page*pageSize+offset+1,
+        available:true,hitId:hitKey(h),skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",book:bookOf(h.start),ref:refStr(verseAt(h.start))}))};
+  }
+  function controlNativeOccurrence(action,value){
+    const results=nativeOccurrenceResults();if(!results||!value||value.setId!==results.id)return;
+    if(action==="occurrence-page"){
+      if(!Number.isInteger(value.page)||value.page<0||value.page>=Math.ceil(results.total/results.pageSize))return;
+      nativeOccurrenceSets.get(st.res).page=value.page;emitState();return;
+    }
+    const item=results.items.find(x=>x.index===value.index&&x.hitId===value.hitId);
+    if(!item||!isGov(st.res.hits[item.index]))return;
+    openNativeOccurrence(item.index);
+  }
   function elsState(){
     const r=st.res;
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
@@ -1937,7 +1959,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
         crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,crossRadius:st.crossSimple?(st.crossRadius||18):null,
         coverage:st.crossSimple?st.crossCoverage||null:null,
-        zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx,results:nativeCrossResults()},
+        zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx,results:nativeCrossResults(),occurrences:nativeOccurrenceResults()},
       provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
         postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
         quality:st.lastQuality||null}
@@ -2212,6 +2234,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(d.action==="occurrence-prev")shiftOccurrence(-1);
       else if(d.action==="occurrence-next")shiftOccurrence(1);
       else if(d.action==="meeting-select")selectNativeMeeting(d.value);
+      else if(d.action==="occurrence-select"||d.action==="occurrence-page")controlNativeOccurrence(d.action,d.value);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
       else if(d.action==="fit-toggle")toggleFit();
@@ -4554,8 +4577,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function shiftOccurrence(delta){
     const hits=st.res&&Array.isArray(st.res.hits)?st.res.hits:null;
     if(!hits||!hits.length)return;
-    supersedeNativeOperations();
-    const n=hits.length;st.occ=(st.occ+delta+n)%n;
+    if(EXPR2029){
+      const indices=hits.map((h,i)=>isGov(h)?i:-1).filter(i=>i>=0);if(!indices.length)return;
+      const current=indices.indexOf(st.occ),next=(Math.max(0,current)+delta+indices.length)%indices.length;
+      openNativeOccurrence(indices[next]);return;
+    }
+    openNativeOccurrence((st.occ+delta+hits.length)%hits.length);
+  }
+  function openNativeOccurrence(index){
+    supersedeNativeOperations();st.occ=index;
+    const view=nativeOccurrenceSets.get(st.res);
+    if(view)view.page=Math.floor(st.res.hits.slice(0,index).filter(isGov).length/80);
     st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();
   }
   function toggleFit(){st.fit=!st.fit;st.zoom=1;render();}

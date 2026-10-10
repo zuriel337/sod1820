@@ -234,8 +234,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
 function MatrixControls({ state, onControl, onContext, busy }) {
   const active = !busy && state?.status === "ok" && state?.verification?.state === "MATCH";
   const cross = Boolean(state?.search?.results?.items?.length);
-  const count = Number(cross ? state.search.zones : state?.occurrence?.count) || 0;
-  const index = Number(cross ? state.search.zoneIndex : state?.occurrence?.index) || 0;
+  const count = Number(cross ? state.search.zones : state?.search?.occurrences?.total ?? state?.occurrence?.count) || 0;
+  const index = Number(cross ? state.search.zoneIndex : state?.search?.occurrences ? state.search.occurrences.selectedOrdinal - 1 : state?.occurrence?.index) || 0;
   const current = count ? index + 1 : 0;
   const move = (delta) => cross
     ? onControl("meeting-select", { setId: state.search.results.id, index: (index + delta + count) % count })
@@ -376,12 +376,37 @@ function SearchProgress({ operation, onCancel }) {
   </div>;
 }
 
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry }) {
+  const results = state?.search?.occurrences;
+  const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
+  const items = blocked ? [] : results?.items || [];
+  return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת תוצאות החיפוש" aria-busy={pending}>
+    <strong>{pending ? "מחפש מופעים…" : items.length ? `${results.total} מופעים מאומתים` : "תוצאות החיפוש"}</strong>
+    <p className="els29-native-muted">{operation?.payload?.term || state?.termRaw || state?.term} · {scopeLabel(operation?.payload?.scope || state?.scope)}</p>
+    {items.length ? <>
+      <small>בחרו מופע לפתיחת המטריצה שלו. מוצגים רק מופעים שעברו אימות.</small>
+      {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
+      <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
+        <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
+        <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
+        <button type="button" disabled={(results.page + 1) * results.pageSize >= results.total} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page + 1 })}>עמוד הבא</button>
+      </div>
+      {items.map((item) => <button type="button" key={item.hitId} className="els29-native-result" aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
+        onClick={() => onSelect("occurrence-select", { setId: results.id, index: item.index, hitId: item.hitId })}>
+        <b>{item.ordinal}. דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi></b>
+        <span>{item.ref || item.book}</span><small>{directionLabel(item.direction)}</small>
+      </button>)}
+    </> : <p role="status">{pending ? "התוצאות יופיעו כאן בסיום החיפוש והאימות." : operation?.status === "error" ? operation.message || "החיפוש או האימות לא הושלמו. נסו שוב." : operation?.status === "cancelled" ? "החיפוש בוטל." : operation?.status === "empty" ? "לא נמצאו מופעים מאומתים בסריקה הזאת. אפשר לשנות מונח או היקף ולנסות שוב." : "חפשו מונח כדי לראות כאן את המופעים שלו."}</p>}
+    {["error", "empty", "cancelled"].includes(operation?.status) ? <button type="button" onClick={onRetry}>נסה שוב</button> : null}
+  </div>;
+}
+
 function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
   const [sort, setSort] = useState("rank");
   const [minSkip, setMinSkip] = useState("");
   const [maxSkip, setMaxSkip] = useState("");
   const results = state?.search?.results;
-  const items = ["empty", "error"].includes(outcome) ? [] : (results?.items || []).filter((item) => item.available);
+  const items = pending || ["empty", "error", "cancelled"].includes(outcome) ? [] : (results?.items || []).filter((item) => item.available);
   useEffect(() => { setMinSkip(""); setMaxSkip(""); }, [results?.id]);
   const shown = items.filter((item) => (!minSkip || item.skip >= Number(minSkip)) && (!maxSkip || item.skip <= Number(maxSkip)));
   shown.sort((a, b) => sort === "skip" ? a.skip - b.skip || a.index - b.index : sort === "distance" ? a.distance - b.distance || a.index - b.index : a.index - b.index);
@@ -410,7 +435,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect }) {
       </button>)}
       {!shown.length ? <p>אין מפגשים בטווח הדילוגים הזה.</p> : null}
       {items.length === 1 ? <p className="els29-native-muted">נמצא מפגש אחד בחלון הזה. אפשר להגדיל את חלון החיפוש ולחפש שוב.</p> : null}
-    </> : <p className="els29-native-muted">{outcome === "empty" ? "לא נמצא מפגש בחיפוש האחרון. אפשר להגדיל את החלון או לשנות מרחק ולחפש שוב." : "פתחו „הצלבה בין צירים” וחפשו שני מונחים כדי לקבל רשימה ממוספרת."}</p>}
+    </> : <p className="els29-native-muted">{outcome === "empty" ? "לא נמצא מפגש בחיפוש האחרון. אפשר להגדיל את החלון או לשנות מרחק ולחפש שוב." : outcome === "error" ? "ההצלבה או האימות לא הושלמו. נסו שוב." : outcome === "cancelled" ? "החיפוש בוטל." : pending ? "מפגשים מאומתים יופיעו כאן בסיום החיפוש." : "פתחו „הצלבה בין צירים” וחפשו שני מונחים כדי לקבל רשימה ממוספרת."}</p>}
   </div>;
 }
 
@@ -491,7 +516,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
             aria-pressed={!selectionValid} disabled={searchPending} onClick={() => selectTarget("", state.axis.hitId)}>
             <i className="els29-native-color-dot" aria-hidden="true" />
-            <span><b>{state.termRaw || state.term}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {(state.occurrence?.index || 0) + 1}/{state.occurrence?.count || 1}</small></span>
+            <span><b>{state.termRaw || state.term}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {state.search?.occurrences?.selectedOrdinal || (state.occurrence?.index || 0) + 1}/{state.search?.occurrences?.total || state.occurrence?.count || 1}</small></span>
           </button>
         </div> : <p className="els29-native-muted">אחרי החיפוש הראשי יופיעו כאן הציר והממצאים שלו.</p>}
         {findings.map((finding, index) => {
@@ -737,8 +762,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
-    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId }, findings: null });
-    setActiveTool(kind === "cross" ? "results" : "findings");
+    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload }, findings: null });
+    setActiveTool("results");
     setSearchRequest({ kind, windowSize, ...payload, seq });
   };
 
@@ -760,6 +785,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
     setOperations((current) => ({ ...current, [kind]: { ...current[kind], ...operation, startedAt: current[kind]?.startedAt || Date.now() - (operation.elapsedMs || 0) } }));
     if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
     if (kind === "search" && operation.status === "empty") setNotice("לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
+    if (kind === "search" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
+      openTool("results");
+      requestAnimationFrame(() => {
+        if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
+    }
   };
 
   const submit = (event) => {
@@ -825,13 +856,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
 
   const requestControl = (action, value) => {
     if (!action) return;
-    if (action === "occurrence-prev" || action === "occurrence-next" || action === "meeting-select") {
+    if (action === "occurrence-prev" || action === "occurrence-next" || action === "meeting-select" || action === "occurrence-select") {
       resetReadContext();
       ++findingsSeqRef.current;
       setOperations((current) => ({ ...current, findings: null }));
     }
     if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
+    if (["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width:980px)").matches) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    });
   };
 
   const requestLens = (lens, target = {}) => {
@@ -886,6 +920,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
     && engineState.matrix.S <= 8 && engineState.matrix.c0 === 0 && engineState.matrix.cw === engineState.matrix.S;
   const readingView = shortSkip && shortSkipView === "reading";
+  const resultsAreCross = operations.search ? operations.search.searchKind === "cross" : Boolean(engineState?.search?.zones);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = previousResult
@@ -994,7 +1029,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
                   <option value="reading">רצף רחב</option><option value="columns">עמודות הדילוג</option>
                 </select>
               </label> : null}
-              {engineState?.search?.zones ? <span>מפגש {engineState.search.zoneIndex + 1}/{engineState.search.zones}</span> : engineState?.occurrence?.count ? <span>מופע {(engineState.occurrence.index || 0) + 1}/{engineState.occurrence.count}</span> : null}
+              {engineState?.search?.zones ? <span>מפגש {engineState.search.zoneIndex + 1}/{engineState.search.zones}</span> : engineState?.occurrence?.count ? <span>מופע {engineState.search?.occurrences?.selectedOrdinal || (engineState.occurrence.index || 0) + 1}/{engineState.search?.occurrences?.total || engineState.occurrence.count}</span> : null}
               <button type="button" className="els29-native-niqqud" aria-pressed={!!engineState?.ui?.niqqud} disabled={!matrixActive}
                 title="הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד" onClick={() => requestControl("niqqud-toggle")}>ניקוד</button>
               <label className="els29-native-window-size">{engineState?.ui?.windowRequested === "legacy" ? "החיפוש הבא" : "חלון חיפוש"}
@@ -1060,12 +1095,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null }
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? "תוצאות הצלבה" : "סריקה וממצאים"}</strong>
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
             <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
         <CrossResultsRail state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
-          outcome={operations.search?.status} visible={activeTool === "results"} onSelect={requestControl} />
+          outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
+        <RegularResultsRail state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
+          onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
         <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
