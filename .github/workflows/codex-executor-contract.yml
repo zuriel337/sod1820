@@ -9,6 +9,8 @@ on:
       - "scripts/test-codex-*.mjs"
       - "scripts/isolated-codex-executor-prototype.mjs"
       - "scripts/test-isolated-codex-executor-prototype.mjs"
+      - "supabase/migrations/20261010172910_codex_work_log_one_shot_claim.sql"
+      - "tests/sql/codex-work-log-claim-baseline.sql"
       - ".github/workflows/codex-executor-contract.yml"
   workflow_dispatch:
 
@@ -38,5 +40,9 @@ jobs:
         run: node --test scripts/test-codex-control-implementation-projection.mjs
       - name: Existing unattended Golden signature and callback fixture
         run: node scripts/test-codex-unattended-golden-contract.mjs
+      - name: Existing work_log first-claim and lease regression fixtures
+        run: node --test scripts/test-codex-canonical-claim.mjs
+      - name: Atomic work_log claim and requeue on disposable local PostgreSQL
+        run: node --test scripts/test-codex-work-log-claim.mjs
       - name: Paid CLI transport unconditionally blocked
         run: node scripts/test-isolated-codex-executor-prototype.mjs
