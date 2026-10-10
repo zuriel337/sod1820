@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
+import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth, getImplementationRealityAssignments } from "../lib/visits.js";
+import { projectImplementationRealityAssignments } from "../lib/implementationRealityProjection.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
 const num = v => n(v).toLocaleString("he-IL");
@@ -57,6 +58,20 @@ export default function ControlPlane2029Page() {
   const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
+
+  const [implementation, setImplementation] = useState({ loading: true, rows: [], error: null });
+  const loadImplementation = useCallback(async () => {
+    setImplementation(current => ({ ...current, loading: true, error: null }));
+    try {
+      const rows = await getImplementationRealityAssignments(12);
+      setImplementation({ loading: false, rows: projectImplementationRealityAssignments(rows), error: null });
+    } catch (error) {
+      setImplementation({ loading: false, rows: [], error });
+    }
+  }, []);
+  useEffect(() => {
+    if (!authLoading && isAdmin) loadImplementation();
+  }, [authLoading, isAdmin, loadImplementation]);
 
   const load = useCallback(async () => {
     setState(current => ({ ...current, loading: true, error: null }));
@@ -122,7 +137,7 @@ export default function ControlPlane2029Page() {
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SYSTEM HEALTH</div><h2>מה דורש תשומת לב עכשיו</h2>
           <div className="sod29-muted">המסך מקרין owners חיים; הוא אינו מקור אמת חדש.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={load} disabled={state.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
+        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => { load(); loadImplementation(); }} disabled={state.loading || implementation.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
       </div>
       {state.error ? <FrameState kind="error" title="לא ניתן לקרוא את מצב המערכת">{String(state.error?.message || state.error)}</FrameState> : null}
       <div className="sod29-grid">
@@ -228,6 +243,35 @@ export default function ControlPlane2029Page() {
         <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
         <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
+    </section>
+
+    <section className="sod29-section" data-experience-capability="implementation-reality">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">IMPLEMENTATION REALITY · WORK_LOG_CURRENT</div>
+          <h2>בעלויות, משימות ומסירות — ראיות בלבד</h2>
+          <div className="sod29-muted">מפת תיאום מקריאה מורשית של היומן הקנוני. קבצים חיים, צרכנים, מצב פריסה, עלות ו־DRIFT נשארים UNKNOWN עד אימות עצמאי מול GitHub / DB / סביבת הריצה.</div>
+        </div>
+        <span className="sod29-chip">READ ONLY · ADMIN</span>
+      </div>
+      {implementation.error ? <FrameState kind="error" title="מפת מימוש אינה זמינה">{String(implementation.error?.message || implementation.error)} · אין להסיק שאין משימות.</FrameState> : null}
+      {implementation.loading ? <FrameState kind="loading" title="בודק work_log_current" /> : implementation.rows.length ? (
+        <div className="sod29-list" aria-label="מפת מציאות מימוש לפי בעלויות מתועדות">
+          {implementation.rows.map(row => <div className="sod29-row" key={row.task_key}>
+            <div>
+              <strong>{row.task_key}</strong>
+              <small>Owner reported: {row.canonical_owner_reported} · Scope reported: {row.implementation_scope_reported}</small>
+              <small>Writer/handoff: {row.writer_handoff.from_actor} → {row.writer_handoff.to_actor} · {row.writer_handoff.state}</small>
+              <small>Implementations / consumers / dependencies: UNKNOWN until repo/runtime verification</small>
+              <small>Branch / live / health / cost / DRIFT: UNKNOWN · Release report: {row.branch_release_live.release}</small>
+            </div>
+            <div className="sod29-actions">
+              <span className="sod29-chip">{row.writer_handoff.kind}</span>
+              <span className="sod29-chip">COORDINATION ONLY</span>
+            </div>
+          </div>)}
+        </div>
+      ) : !implementation.error ? <FrameState kind="empty" title="אין נתוני תיאום זמינים">מצב מימוש לא הוכח; אין להסיק שאין צרכנים או כתיבה.</FrameState> : null}
     </section>
 
     <section className="sod29-section">
