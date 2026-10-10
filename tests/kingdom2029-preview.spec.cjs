@@ -86,10 +86,18 @@ test('full loop: 10 discoveries, 5 upgrades, collection, journal and research ha
     await expect(page.getByRole('status')).toContainText('גילוי חדש');
     for (const button of await page.locator('.kingdom-upgrades button:enabled').all()) await button.click();
     const collect = page.getByRole('button', { name: /^איסוף/ });
-    if (await collect.isEnabled()) await collect.click();
+    if (await collect.isEnabled()) {
+      await expect(page.locator('[data-feature="production-ready"]')).toHaveCount(1);
+      await collect.click();
+      await expect(page.locator('[data-feature="production-ready"]')).toHaveCount(0);
+    }
     // Collection can make another upgrade affordable.
     for (const button of await page.locator('.kingdom-upgrades button:enabled').all()) await button.click();
-    if (await collect.isEnabled()) await collect.click();
+    if (await collect.isEnabled()) {
+      await expect(page.locator('[data-feature="production-ready"]')).toHaveCount(1);
+      await collect.click();
+      await expect(page.locator('[data-feature="production-ready"]')).toHaveCount(0);
+    }
     await page.getByRole('button', { name: 'המשך הגילוי', exact: true }).click();
   }
   await expect(page.locator('.kingdom-upgrades button', { hasText: 'הושלם' })).toHaveCount(5);
@@ -110,6 +118,8 @@ test('full loop: 10 discoveries, 5 upgrades, collection, journal and research ha
   await expect(page.locator('.sod29-rail-utilities button[aria-label="חזרה מדויקת"]')).toBeEnabled();
   await page.locator('.sod29-rail-utilities button[aria-label="חזרה מדויקת"]').click();
   await expect(page.getByRole('heading', { name: 'ממלכת המספרים', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/building=factory/);
+  await expect(page.locator('.kingdom-map')).toHaveAttribute('data-focus', 'factory');
   await expect(page.locator('.kingdom-upgrades button', { hasText: 'הושלם' })).toHaveCount(5);
   await expect(page.locator('[data-world-building="garden"]')).toHaveAttribute('data-level','3');
   await expect(page.locator('[data-world-building="mine"]')).toHaveAttribute('data-level','3');

@@ -94,10 +94,29 @@ remains open; no actual-slowdown conclusion is inferred from uncompressed file s
 ### Release state
 
 IMPLEMENTED / TESTED / COMMITTED locally. Preview deployment and hosted acceptance
-are recorded below when verified. Production remains unchanged. General Supabase
+are verified below. Production remains unchanged. General Supabase
 connector used for authorized operational BEFORE/AFTER only; no schema, permissions,
 product rows, research values or live laws changed.
 
+
+### Current hosted Preview acceptance
+
+- Deployment: `dpl_95JZpZFcfNoLyPXZ2mVj7VeT8YgT`, **READY**, target null (Preview), no aliases.
+- Game: https://sod1820-o30aeq0ad-sod1820-s-projects.vercel.app/2029/kingdom
+- Source: `397aaf5bae6b46ca4941d9f31ce73108045cdeef`; later commits only add acceptance evidence/tests.
+- Fresh hosted browser: HTTP 200; desktop 1440 and mobile 390; two discoveries,
+  garden upgrade adds colonnade, reload restores level 2; no initial spatial requests;
+  optional GPU works and closing removes its canvas; no overflow or page errors.
+- CDN Resource Timing: outline JS encoded 136,128 / decoded 364,575 bytes;
+  GPU JS encoded 144,314 / decoded 550,080 bytes. Actual CDN compression differs
+  from the locally computed gzip estimate above; both measurements are retained.
+- `hosted-mobile.png`, `hosted-desktop.png`, `hosted-acceptance.json` in the evidence
+  directory above. Protected-deployment sharing is unchanged; temporary share URL
+  supplied to the user, expires 2026-10-11 10:27 UTC. No bypass token in Git.
+- Final full-loop test explicitly verifies production crystals appear/disappear on
+  collection and research return restores `?building=factory` + that map focus: PASS.
+- CSP remains `connect-src 'self'; form-action 'self'`; no live product API writes.
+  Preview source uploaded directly; branch still local, no GitHub push/PR/merge.
 
 ## Contour-aware spatial implementation — 2026-10-09
 
