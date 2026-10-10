@@ -1418,12 +1418,13 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
   assert.equal(await toggle.getAttribute('aria-expanded'),'false','mobile starts with a compact folder');
   assert.equal(await page.evaluate(()=>window.__libraryCalls.length),0,'collapsed folder does not fetch');
-  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'צופן שמור '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:'fwd',start_index:5,corpus_id:corpus,status:'draft',visibility:'private',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
+  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'צופן שמור '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:i?'fwd':null,start_index:5,corpus_id:corpus,status:'draft',visibility:'private',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
   assert.equal(await folder.locator('.els29-library-card').count(),4);
   const call=await page.evaluate(()=>window.__libraryCalls.at(-1));assert.deepEqual(call.range,[0,4]);
   assert.ok(!call.columns.split(',').includes('positions'),'card fetch excludes heavy saved geometry');
   assert.match(await folder.textContent(),/נשמר ב־/);
+  assert.equal(await folder.getByText('צופן ותיק · חיפוש מחדש',{exact:true}).isVisible(),true,'legacy restore disclosure stays visible in compact mobile cards');
   await page.getByLabel('טיוטת חיפוש').fill('צוריאל');
   await button(page,'חיפוש לדוגמה').click();await page.waitForFunction(()=>document.querySelector('.els29-recent-toggle')?.getAttribute('aria-expanded')==='false');
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
