@@ -61,7 +61,7 @@ try {
   const small = page.locator('.sod29-ui-icon[data-icon-shape="number"]').first();
   const large = inspector.locator('.sig-icon__core .sod29-ui-icon');
   assert.equal(await small.innerHTML(), await large.innerHTML());
-  await inspector.screenshot({ path: `${output}/milui-desktop.png` });
+  await inspector.screenshot({ animations: "disabled", path: `${output}/milui-desktop.png` });
   console.log("open learn", receipt.errors);
   await inspector.getByRole("tab", { name: "למד", exact: true }).click();
   assert.match(await inspector.innerText(), /נסו עם הביטוי שבחרתם/);
@@ -73,12 +73,12 @@ try {
   assert.equal(await inspector.getByRole("tabpanel").getAttribute("aria-labelledby"), await inspector.getByRole("tab", { name: "חישוב", exact: true }).getAttribute("id"));
   await inspector.getByRole("tab", { name: "למד", exact: true }).click();
   receipt.cases.push({ name: "inspector-keyboard", rtlArrowsAndHome: true });
-  await inspector.screenshot({ path: `${output}/learn-desktop.png` });
+  await inspector.screenshot({ animations: "disabled", path: `${output}/learn-desktop.png` });
   await inspector.getByRole("tab", { name: "חישוב", exact: true }).click();
   for (const width of [390, 320]) {
     await page.setViewportSize({ width, height: 844 });
     await layout(`milui-${width}`);
-    await inspector.screenshot({ path: `${output}/milui-${width}.png` });
+    await inspector.screenshot({ animations: "disabled", path: `${output}/milui-${width}.png` });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('[data-experience-action="number-more-methods"]').click();
@@ -107,7 +107,7 @@ try {
     assert.doesNotMatch(await inspector.innerText(), /base_additive|composite_sum|LEGACY HYBRID/);
     await inspector.getByRole("tab", { name: "חישוב", exact: true }).click();
     receipt.cases.push({ name: label, stage: await stage.getAttribute("data-method-visual"), context });
-    if (["מילוי בלבד", "מילוי דמילוי", "משולש מדרגות"].includes(label)) await inspector.screenshot({ path: `${output}/method-${encodeURIComponent(label)}.png` });
+    if (["מילוי בלבד", "מילוי דמילוי", "משולש מדרגות"].includes(label)) await inspector.screenshot({ animations: "disabled", path: `${output}/method-${encodeURIComponent(label)}.png` });
   }
   }
   console.log("open gpu");
@@ -144,12 +144,12 @@ try {
     assert.ok(material.calls > 0);
     assert.equal(material.frameloop, "demand");
     materials.push({ preset, ...material });
-    await inspector.locator('[data-renderer="r3f"]').screenshot({ path: `${output}/mistater-3d-${preset}.png` });
+    await inspector.locator('[data-renderer="r3f"]').screenshot({ animations: "disabled", path: `${output}/mistater-3d-${preset}.png` });
   }
   assert.ok(new Set(materials.map((m) => m.glyphs[0].color)).size >= 2, "3D materials follow palette changes");
   receipt.cases.push({ name: "svg-extrusion-and-presets", materials });
   await page.evaluate(async () => (await import("/src/lib/themeMode.js")).setThemePreset("dark"));
-  await inspector.screenshot({ path: `${output}/mistater-3d.png` });
+  await inspector.screenshot({ animations: "disabled", path: `${output}/mistater-3d.png` });
   receipt.cases.push({ name: "mistater-3d", scene, canvas: true });
   await inspector.locator('[data-s4-action="return"]').click();
   assert.equal(await inspector.locator("canvas").count(), 0);
@@ -199,13 +199,13 @@ try {
   await inspector.getByRole("tab", { name: "למד", exact: true }).click();
   assert.match(await inspector.innerText(), /סימון מפורש במקור/);
   assert.doesNotMatch(await inspector.innerText(), /רגיל · גדול|= 342000|= 1237/);
-  await inspector.screenshot({ path: `${output}/context-required.png` });
+  await inspector.screenshot({ animations: "disabled", path: `${output}/context-required.png` });
   receipt.cases.push({ name: "contextual-method-without-result", noRootFallback: true });
   assert.deepEqual(receipt.errors, []);
   receipt.passed = true;
 } catch (error) {
   receipt.failure = error.stack;
-  await page.screenshot({ path: `${output}/failure.png` });
+  await page.screenshot({ animations: "disabled", path: `${output}/failure.png` });
   throw error;
 } finally {
   receipt.blocked = [...new Set(receipt.blocked)];

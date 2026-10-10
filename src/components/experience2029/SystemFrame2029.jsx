@@ -54,11 +54,13 @@ import {
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
 import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
+import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
 import "./myWorkspace2029.css";
 import "./discoveryGate2029.css";
+import "./systemToolDock2029.css";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1136,7 +1138,7 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
-    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "building" },
+    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
   ];
 
@@ -1308,6 +1310,16 @@ export default function SystemFrame2029({
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   const [transient, setTransient] = useState(null);
+  const [toolDock, setToolDock] = useState(null);
+  const [systemDockMode, setSystemDockMode] = useState(false);
+  const registerToolDock = useCallback((projection) => {
+    const lease = Symbol("tool-dock");
+    setToolDock({ ...projection, lease });
+    return () => setToolDock((current) => current?.lease === lease ? null : current);
+  }, []);
+  const activeToolDock = toolDock?.surface === surface ? toolDock : null;
+  const toolMode = Boolean(activeToolDock && !systemDockMode);
+  useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -1768,7 +1780,8 @@ export default function SystemFrame2029({
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
-  const showContextRail = surface !== "control"
+  // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
+  const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
   const renderTransient = () => {
     if (!transientKind) return null;
@@ -1823,8 +1836,9 @@ export default function SystemFrame2029({
   const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
+    <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -1968,8 +1982,8 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        <div className={`sod29-command-island${bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center">
-          {bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
+        <div className={`sod29-command-island${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
+          {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : !activeToolDock && bottomTrail.length ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
               {numberPageRoute ? <button
@@ -1995,7 +2009,10 @@ export default function SystemFrame2029({
             <button type="button" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button>
           </>}
           <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
-          {bottomTrail.length ? <>
+          {toolMode ? <>
+            <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
+            <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><NavigationIcon2029 name="tools" /><small>מערכת</small></button>
+          </> : !activeToolDock && bottomTrail.length ? <>
             {surface === "number" ? <button
               className="sod29-number-island-action"
               type="button"
@@ -2012,12 +2029,14 @@ export default function SystemFrame2029({
           </> : <>
             <button type="button" onClick={openAttention} aria-pressed={transientKind === TRANSIENT.ATTENTION}><span><NavigationIcon2029 name="now" /></span><small>חדש בעולם</small></button>
             <button type="button" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
-            <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>
+            {activeToolDock ? <button type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }} aria-label="חזור לכלי הצופן"><NavigationIcon2029 name="els" /><small>צופן</small></button> : <button type="button" className="sod29-island-personal" onClick={openWorkspace} aria-pressed={transientKind === TRANSIENT.WORKSPACE} aria-label="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><small>אישי</small></button>}
+
           </>}
         </div>
 
         {renderTransient()}
       </div>
+    </SystemToolDockContext2029.Provider>
     </ShellContext.Provider>
   );
   return <PaletteProvider value={palette}>{frame}</PaletteProvider>;

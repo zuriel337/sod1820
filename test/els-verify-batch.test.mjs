@@ -4,6 +4,7 @@ import { readFileSync, mkdtempSync, writeFileSync, existsSync, rmSync, chmodSync
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { hasExactSavedMatrix, savedMatrixMatchesAxis, savedMatrixToItem } from '../src/lib/elsSavedMatrix.js';
 
 const root = new URL('..', import.meta.url).pathname;
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -48,6 +49,33 @@ const PG = ['/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/li
 const canRun = PG && spawnSync('sh', ['-c', 'command -v psql'], { encoding: 'utf8' }).status === 0;
 
 test('CI: executable SQL gate must not be skipped', () => { if (process.env.ELS_REQUIRE_EXECUTABLE) assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 but PostgreSQL is missing'); });
+
+test('saved record projection preserves zero/backward anchors and marks historical records without inventing identity', () => {
+  const row={id:'one',search_term:'תורה',scope:'torah',skip_distance:2,direction:'back',start_index:0,corpus_id:'corpus',positions:{findings:[{t:'אור',color:'#FF5D6C',sh:['2_1_3'],sourceShown:['1_-1_40']}],searchWindow:{ctxR:1,windowColumns:40},view:{findingRadius:5}}};
+  assert.equal(hasExactSavedMatrix(row),true);
+  const item=savedMatrixToItem(row);
+  assert.equal(item.start,0);assert.equal(item.dir,-1);assert.equal(item.corpusId,'corpus');
+  assert.deepEqual(item.words,row.positions.findings);assert.deepEqual(item.view,row.positions.view);
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_0'}}),true);
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_1'}}),false);
+  const historical={...row,start_index:null,direction:'down'};
+  assert.equal(hasExactSavedMatrix(historical),false);assert.equal(savedMatrixToItem(historical).start,null);assert.equal(savedMatrixToItem(historical).dir,null);
+});
+
+test('executable: native private saves preserve ownership, RLS, updates and existing publication gates', {skip:!canRun&&'local PostgreSQL not available'},()=>{
+  const dir=mkdtempSync(join(tmpdir(),'els-private-save-')),data=join(dir,'data'),port='54333';
+  chmodSync(dir,0o777);
+  const rootUser=process.getuid&&process.getuid()===0;
+  const run=(cmd,args)=>rootUser?spawnSync('runuser',['-u','postgres','--',cmd,...args],{encoding:'utf8'}):spawnSync(cmd,args,{encoding:'utf8'});
+  try{
+    let result=run(join(PG,'initdb'),['-D',data,'-A','trust','-U','postgres','-E','UTF8','--locale=C.UTF-8']);assert.equal(result.status,0,result.stderr);
+    result=run(join(PG,'pg_ctl'),['-D',data,'-o',`-k ${dir} -p ${port} -c listen_addresses=''`,'-l',join(dir,'log'),'-w','start']);assert.equal(result.status,0,result.stderr);
+    for(const file of ['test/els-native-save-fixture.sql','supabase/migrations/20261009224033_els_native_private_save_compatibility.sql','supabase/migrations/20261010231453_els_public_save_private_draft_isolation.sql','test/els-native-save-privacy.sql','test/els-public-save-private-isolation.sql']){
+      result=run('psql',['-h',dir,'-p',port,'-U','postgres','-v','ON_ERROR_STOP=1','-X','-q','-f',join(root,file)]);
+      assert.equal(result.status,0,`${file}: ${result.stderr}`);
+    }
+  }finally{run(join(PG,'pg_ctl'),['-D',data,'-m','immediate','stop']);rmSync(dir,{recursive:true,force:true});}
+});
 
 test('executable: batch verifier parity with single verifier + tk-letters oracle (Torah + Tanakh)', { skip: !canRun && 'local PostgreSQL not available' }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'els-vb-'));

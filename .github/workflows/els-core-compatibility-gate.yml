@@ -18,7 +18,12 @@ on:
       - 'src/lib/research/ResearchProvider.jsx'
       - 'src/pages/Els2029Page.jsx'
       - 'src/components/experience2029/Els2029Representation.jsx'
+      - 'src/components/experience2029/ElsNativeClassic2029.jsx'
+      - 'src/components/experience2029/elsNativeClassic2029.css'
+      - 'src/components/experience2029/elsPresentation2029.js'
       - 'src/components/experience2029/SystemFrame2029.jsx'
+      - 'src/components/experience2029/SystemToolDock2029.jsx'
+      - 'src/components/experience2029/systemToolDock2029.css'
       - 'src/components/experience2029/els2029-representation.css'
       - 'test/els-2029-*.test.mjs'
       - 'test/els-raziel-context.test.mjs'
@@ -33,9 +38,14 @@ on:
       - 'tools/els/**'
       - 'public/tzofen.html'
       - 'test/els-verify-batch.test.mjs'
+      - 'supabase/migrations/*_els_*save*.sql'
+      - 'test/els-*save*.sql'
       - 'test/els-adaptive-router.test.mjs'
       - 'test/els-browser-truth-census.test.mjs'
       - 'test/els-browser-cutover.test.mjs'
+      - 'test/els-native-ui-browser.test.mjs'
+      - 'test/els-window-directions.test.mjs'
+      - 'test/els-search-parity-repairs.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -75,11 +85,12 @@ jobs:
           git diff --exit-code -- public/tzofen.html
 
       - name: Adaptive router + browser truth-authority census
-        run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs
+        run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs test/els-search-parity-repairs.test.mjs
 
       - name: Exact replay and 2029 projection acceptance
         run: |
           node --test \
+            test/els-2029-presentation.test.mjs \
             test/els-host-bridge.test.mjs \
             test/els-search-bridge.test.mjs \
             test/els-2029-semantic-surface.test.mjs \
@@ -90,6 +101,7 @@ jobs:
             test/els-2029-matrix-volume.test.mjs \
             test/els-2029-matrix-mode.test.mjs \
             test/els-2029-matrix-profile-switch.test.mjs \
+            test/els-2029-classic-faithful-port.test.mjs \
             test/els-2029-visual-representation.test.mjs \
             test/els-2029-exact-replay-visual-feed.test.mjs \
             test/els-2029-raziel-consumer.test.mjs \
@@ -107,12 +119,15 @@ jobs:
           echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
 
+      - name: Install application dependencies for native UI acceptance
+        run: npm ci
+
       - name: Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures
         env:
           ELS_REQUIRE_EXECUTABLE: '1'
           PLAYWRIGHT_BROWSERS_PATH: '0'
         run: |
-          node --test test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs
+          node --test test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs
 
       - name: Compile migrations and run executable SQL acceptance
         env:
