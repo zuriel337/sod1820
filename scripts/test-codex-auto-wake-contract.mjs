@@ -21,10 +21,11 @@ const grantPayload=()=>({
  approval_id:'8289e9bf-41c0-443c-b187-43ce13fb8530',assignment_id:id,
  task_key:'SOD1820_CODEX_GOLDEN_OFFLINE_V1',scope,
  project_id:'linswmnnkjxvweumprav',branch:'codex/golden-readme-smoke',
- allowed_files:['README.md'],max_run_cents:25,expires_at:'2026-10-10T16:20:00Z'
+ allowed_files:['README.md'],max_run_cents:25,issued_at:'2026-10-10T15:59:00Z',expires_at:'2026-10-10T16:10:00Z'
 });
 function signed(payload=grantPayload()){
- return {payload,signature:sign(null,Buffer.from(JSON.stringify(payload),'utf8'),privateKey).toString('base64url')};
+ const payload_b64=Buffer.from(JSON.stringify(payload),'utf8').toString('base64url');
+ return {payload_b64,signature_b64:sign(null,Buffer.from(payload_b64,'utf8'),privateKey).toString('base64url')};
 }
 const provider=()=>({evidence_source:'TRUSTED_PROVIDER_ADAPTER',hard_cap_verified:true,remaining_cents:200,max_agent_turns:1,max_parallel_runs:1});
 const run=(a=base(),p=signed(),proof=provider(),time=now)=>assessAutoWake({assignment:a,permit:p,publicKeyPem:pub,provider:proof,now:time});
@@ -36,7 +37,7 @@ test('signed golden fixture is OFFLINE eligible but NEVER executable',()=>{
 test('signature verification rejects tampered and wrong-key grants',()=>{
  const permit=signed();
  assert.equal(verifyOperatorPermit(permit,pub),true);
- const fake=structuredClone(permit);fake.payload.max_run_cents=1;
+ const fake=structuredClone(permit);fake.payload_b64=Buffer.from(JSON.stringify({...grantPayload(),max_run_cents:1}),'utf8').toString('base64url');
  assert.equal(verifyOperatorPermit(fake,pub),false);
  assert.equal(run(base(),fake).reason,'PERMIT_SIGNATURE_UNVERIFIED');
  const other=generateKeyPairSync('ed25519').publicKey.export({format:'pem',type:'spki'});
@@ -64,6 +65,18 @@ test('Golden cannot execute a recon assignment or a permit with mismatched mode'
  assert.equal(run(a).reason,'GOLDEN_EXECUTION_REQUIRES_BOUNDED_MODE');
  const p=grantPayload();p.workflow_mode='RECON_READ_ONLY';
  assert.equal(run(base(),signed(p)).reason,'PERMIT_WORKFLOW_MODE_MISMATCH');
+});
+test('permit must use raw signed bytes and reject unsafe clock behavior',()=>{
+  const reversed=Object.fromEntries(Object.entries(grantPayload()).reverse());
+  assert.equal(verifyOperatorPermit(signed(reversed),pub),true);
+  const malformed=signed();
+  malformed.payload_b64=malformed.payload_b64+'A';
+  assert.equal(verifyOperatorPermit(malformed,pub),false);
+  const future={...grantPayload(),issued_at:'2026-10-10T16:05:00Z',expires_at:'2026-10-10T16:10:00Z'};
+  assert.equal(run(base(),signed(future)).reason,'PERMIT_EXPIRED_OR_TOO_LONG');
+  assert.equal(assessAutoWake({assignment:base(),permit:signed(),publicKeyPem:pub,provider:provider()}).reason,'INVALID_CLOCK');
+  const missingIssue=grantPayload();delete missingIssue.issued_at;
+  assert.equal(run(base(),signed(missingIssue)).reason,'PERMIT_EXPIRED_OR_TOO_LONG');
 });
 test('permit binds assignment, owner scope, repo branch, and fixed file list',()=>{
  const p=grantPayload();p.scope='all of repo';
