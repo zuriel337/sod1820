@@ -22,10 +22,13 @@ function docker(args,input=''){
 const sql=q=>docker(['exec','-i',container,'psql','-h','127.0.0.1','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq'],q);
 const context={created_via:'work_log_assign_agent_v1',codex_workflow_mode:'EXECUTE_BOUNDED',
  codex_execution_mode:'offline_golden',idempotency_key:'SOD1820_E2E_README_FIXTURE_V1'};
-async function seed({task='REMOTE_CODEX_EXECUTOR_BRIDGE_V1',actor='GPT',kind='ASSIGNMENT',ctx=context,state='QUEUED'}={}){
+async function seed({task='REMOTE_CODEX_EXECUTOR_BRIDGE_V1',actor='GPT',kind='ASSIGNMENT',ctx=null,state='QUEUED'}={}){
  const id=randomUUID();
+ // Unique default per assignment: the new uniqueness check must not conflate
+ // separate valid test jobs. Shared-key cases explicitly supply matching ctx.
+ const scopedCtx=ctx??{...context,idempotency_key:'SOD1820_E2E_'+id.replaceAll('-','')};
  await sql(`insert into public.work_log(id,task_key,to_actor,assignment_mode,dispatch_kind,dispatch_state,dispatch_context)
- values('${id}','${task}','${actor}','WRITE','${kind}','${state}','${JSON.stringify(ctx)}');`);
+ values('${id}','${task}','${actor}','WRITE','${kind}','${state}','${JSON.stringify(scopedCtx)}');`);
  return id;
 }
 const claim=(id,worker='CODEX_RUNNER:test',lease='120')=>`select public.agent_dispatch_claim('${id}','${worker}',${lease}) is not null;`;
@@ -73,6 +76,32 @@ test('canonical work_log one-shot claim on isolated PostgreSQL 17.6', {timeout:1
    assert.equal(await sql(`select dispatch_attempts from work_log where id='${id}';`),'0');
    assert.equal(await sql(claim(id,'CODEX_RUNNER:requeue')),'f');
    assert.equal(await sql(`select dispatch_context->'codex_consumption'->>'lease_owner' from work_log where id='${id}';`),'CODEX_RUNNER:original');
+  });
+
+  await t.test('same one-shot key cannot be consumed by two distinct work_log assignment IDs',async()=>{
+    const shared={...context,idempotency_key:'SOD1820_E2E_CROSSROW_SAMEKEY_001'};
+    const a=await seed({ctx:shared}),b=await seed({ctx:shared});
+    assert.equal(await sql(claim(a,'CODEX_RUNNER:first')),'t');
+    assert.equal(await sql(claim(b,'CODEX_RUNNER:replay')),'f');
+    assert.equal(await sql(`select count(*) from work_log
+      where dispatch_context#>>'{codex_consumption,idempotency_key}'='${shared.idempotency_key}';`),'1');
+    assert.equal(await sql(`select dispatch_state from work_log where id='${b}';`),'QUEUED');
+  });
+
+  await t.test('two concurrent distinct IDs with the same key cannot both claim',async()=>{
+    const shared={...context,idempotency_key:'SOD1820_E2E_CROSSROW_RACEKEY_002'};
+    const a=await seed({ctx:shared}),b=await seed({ctx:shared});
+    const out=await Promise.allSettled([
+      sql(claim(a,'CODEX_RUNNER:race-a')),
+      sql(claim(b,'CODEX_RUNNER:race-b'))
+    ]);
+    assert.equal(out.filter(x=>x.status==='fulfilled'&&x.value==='t').length,1);
+    for(const item of out){
+      if(item.status==='fulfilled')assert.ok(['t','f'].includes(item.value));
+      else assert.match(String(item.reason),/duplicate key|unique constraint|work_log_codex_consumed_idempotency_ux/);
+    }
+    assert.equal(await sql(`select count(*) from work_log
+      where dispatch_context#>>'{codex_consumption,idempotency_key}'='${shared.idempotency_key}';`),'1');
   });
 
   await t.test('default lease, paid mode, missing context, prior attempt, backoff and null marker fail closed',async()=>{
