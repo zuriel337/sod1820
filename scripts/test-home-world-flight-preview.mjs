@@ -29,7 +29,7 @@ for(const theme of themes) for(const width of widths){
  const fit=async()=>assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
  const returnFrame=async()=>{const b=page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true});if(!await b.count())await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();await page.getByRole('button',{name:'חזרה מדויקת',exact:true}).filter({visible:true}).first().click();};
  if(share){await page.goto(share,{waitUntil:'domcontentloaded'});await page.waitForURL(u=>u.origin===base&&!u.searchParams.has('_vercel_share'));}
- await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
+ else await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
  await page.locator('[data-flight-story=home]').waitFor({timeout:90000});
  const arrivals=page.locator('.sod29-source-arrivals');await arrivals.locator('[data-source-arrival]').first().waitFor({timeout:90000});
  await page.locator('.sod29-flight-media img').evaluate(img => img.complete && img.naturalWidth > 0 ? Promise.resolve() : new Promise((resolve,reject) => { img.addEventListener('load',resolve,{once:true}); img.addEventListener('error',() => reject(Error('Source image unavailable')),{once:true}); }));
