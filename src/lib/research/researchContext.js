@@ -17,6 +17,15 @@ const cleanInteger = (value) => {
   return Number.isInteger(n) ? n : null;
 };
 
+// Numeric projection is explicit: an absent source value, blank text or boolean
+// is not the number zero. Kept here so rail, selection and persisted focus agree.
+export function researchContextNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (typeof value === "string" && !value.trim()) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 function normalizeSubject(value) {
   if (!isObject(value)) return null;
   const id = cleanString(value.id ?? value.ref);
@@ -33,7 +42,7 @@ function normalizeSubject(value) {
 function normalizeSelection(value) {
   if (!isObject(value)) return null;
   const resultValueRaw = value.resultValue;
-  const resultValueNumber = resultValueRaw == null || resultValueRaw === "" ? null : Number(resultValueRaw);
+  const resultValueNumber = researchContextNumber(resultValueRaw);
   const out = {
     entityId: cleanString(value.entityId),
     entityType: cleanString(value.entityType),
@@ -170,8 +179,8 @@ function normalizeSurfaceFocus(value) {
     if (cleaned) out[key] = cleaned;
   }
   for (const key of ["number", "resultValue"]) {
-    const numeric = Number(value[key]);
-    if (Number.isFinite(numeric)) out[key] = numeric;
+    const numeric = researchContextNumber(value[key]);
+    if (numeric !== null) out[key] = numeric;
   }
   if (Array.isArray(value.signals)) {
     out.signals = value.signals.map(cleanString).filter(Boolean).slice(0, 4);
@@ -260,6 +269,31 @@ export function normalizeResearchContext(value) {
 export function createResearchContext(input = {}) {
   const normalized = normalizeResearchContext({ ...input, updatedAt: new Date().toISOString() });
   return normalized;
+}
+
+// Navigation restores the exact source; it is not an implicit Path resume or
+// rollback. The live Path owns identity, revision and pending choices, including
+// a draft started after departure or a replacement/fork. Non-Path snapshots keep
+// their existing exact-return behavior. Clearing/deactivating a Path stays final.
+export function buildExactReturnPatch(current, returnTo = current?.returnTo) {
+  const target = normalizeReturnTo(returnTo);
+  if (!target) return null;
+  const live = normalizeResearchContext(current);
+  const activePath = live?.journey?.kind === "research_path"
+    && live?.dimensions?.journey2029Active !== false;
+  const pathLifecycle = activePath || live?.journey?.kind === "research_path"
+    || target.journey?.kind === "research_path";
+  let dimensions = target.dimensions;
+  let journey = target.journey;
+  if (pathLifecycle) {
+    dimensions = Object.fromEntries(Object.entries(dimensions).filter(([key]) => !key.startsWith("journey")));
+    journey = activePath ? live.journey : null;
+    if (activePath) {
+      Object.assign(dimensions, Object.fromEntries(Object.entries(live.dimensions).filter(([key]) => key.startsWith("journey"))));
+    }
+  }
+  return { subject: target.subject, selection: target.selection, lens: target.lens,
+    dimensions, journey, returnTo: null };
 }
 
 function isExactReturnRestorePatch(next) {

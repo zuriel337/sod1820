@@ -9,6 +9,7 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const base = process.env.WORLD_JOURNEY_BASE || 'http://127.0.0.1:4174';
 const out = process.env.WORLD_JOURNEY_ARTIFACTS || '/workspace/artifacts/world-integration-verification/journey';
 const share = process.env.WORLD_REVIEW_SHARE_FILE ? (await fs.readFile(process.env.WORLD_REVIEW_SHARE_FILE, 'utf8')).trim() : null;
+const returnControl = process.env.WORLD_JOURNEY_RETURN || 'source-step';
 const authenticated = process.env.WORLD_JOURNEY_AUTH === '1';
 assert.ok(!authenticated || new URL(base).hostname === '127.0.0.1', 'synthetic auth only on local UI');
 const personalRpcs = new Set(['research_state_snapshot_v1', 'research_state_apply_ops_v1', 'fn_research_path_append_v1', 'fn_research_path_resume_v1']);
@@ -75,6 +76,7 @@ try {
     assert.match(await witness.innerText(), /ירושלים/);
     assert.match(await witness.innerText(), /חוק השעון/);
     assert.equal((await current()).journey, null, 'discovery does not start a journey');
+    assert.equal(await page.getByRole('button', { name: 'פתח את 0', exact: true }).count(), 0, 'source without a numeric value has no fabricated zero action');
     const identity = await witness.getAttribute('data-source-identity');
     await capture('world-source');
     await witness.getByRole('button', { name: /^פתח מקור מלא:/ }).click();
@@ -121,10 +123,13 @@ try {
       await page.getByText('המסלול לא עודכן', { exact: true }).waitFor(); await capture('guest-save-denied');
     }
     await page.keyboard.press('Escape');
-    // Reopen the actual source step in the existing Path. The shared Frame's
-    // snapshot-return control is a separate owner dependency, recorded below.
-    await panel.locator('summary').click();
-    await panel.locator('ol li button').first().click();
+    // Exercise either the original Path-step control or the shared Number arrow.
+    if (returnControl === 'frame') {
+      await page.locator('button.sod29-action').filter({ hasText: /^↩/ }).first().click();
+    } else {
+      await panel.locator('summary').click();
+      await panel.locator('ol li button').first().click();
+    }
     await page.waitForURL(`${base}${origin}`); await ready();
     assert.equal(await witness.getAttribute('data-source-identity'), identity);
     await page.waitForFunction(() => { const r = document.querySelector('[data-discovery-witness]')?.getBoundingClientRect(); return r && r.top >= 0 && r.top < 420; });
@@ -134,6 +139,35 @@ try {
     assert.equal((await current()).selection.sourceRef, sourceRef); assert.equal((await current()).journey.root.id, journeyRoot);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     await capture('exact-return-reload');
+    const returnLifecycleCases = [];
+    if (returnControl === 'frame' && !authenticated) {
+      // Synthetic persisted Context exercises the real guest Provider and Frame,
+      // not a cloud save/revision claim. No private RPC or product write is allowed.
+      const writeContext = value => page.evaluate(({key,value}) => sessionStorage.setItem(key, JSON.stringify(value)), {key:storageKey,value});
+      const active = await current();
+      const pathId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+      const captured = { ...active, journey: { ...active.journey, id:pathId, revisionNo:1, revisionId:'dddddddd-dddd-4ddd-8ddd-dddddddddddd' } };
+      for (const variant of ['updated-path', 'cancelled-path']) {
+        await writeContext(captured); await page.reload({waitUntil:'domcontentloaded'}); await ready();
+        await witness.locator('[data-open-calculation="דונלד טראמפ"]').click();
+        await page.waitForURL('**/2029/number/424?*'); await panel.waitFor({timeout:90000});
+        const departed = await current(); assert.equal(departed.returnTo.journey.revisionNo,1);
+        const altered = variant === 'updated-path'
+          ? { ...departed, journey: { ...departed.journey, revisionNo:2, revisionId:'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee' } }
+          : { ...departed, journey:null, dimensions:{...departed.dimensions,journey2029Active:false} };
+        await writeContext(altered); await page.reload({waitUntil:'domcontentloaded'}); await panel.waitFor({timeout:90000});
+        await page.locator('button.sod29-action').filter({hasText:/^↩/}).first().click();
+        await page.waitForURL(`${base}${origin}`); await ready();
+        await page.reload({waitUntil:'domcontentloaded'}); await ready();
+        const returned=await current(); assert.equal(returned.selection.sourceRef,sourceRef);
+        assert.equal(await witness.getAttribute('data-source-identity'),identity);
+        if (variant==='updated-path') { assert.equal(returned.journey.id,pathId); assert.equal(returned.journey.revisionNo,2); }
+        else { assert.equal(returned.journey,null); assert.notEqual(returned.dimensions.journey2029Active,true); }
+        assert.equal(await page.getByRole('button',{name:'פתח את 0',exact:true}).count(),0);
+        returnLifecycleCases.push({variant,pass:true,fixture:'synthetic persisted guest Context; real Frame return'});
+      }
+      await writeContext(active); await page.reload({waitUntil:'domcontentloaded'}); await ready();
+    }
     // This negative fixture exercises the actual source reader; it is not a
     // positive source or an authorization assertion based only on a URL.
     if (process.env.TEST_SOURCE_UNAVAILABLE !== '0') {
@@ -142,7 +176,7 @@ try {
       assert.equal(await witness.count(), 0); assert.equal((await current()).journey.root.id, journeyRoot);
       missing = false; await page.getByRole('button', { name: 'בדיקה מחדש', exact: true }).click(); await ready();
     }
-    receipt.cases.push({ width, pass: true, sourceRef, originalUrl, origin, method: 'רגיל', expression: 'דונלד טראמפ', explicitPersonalJourney: true, guestSaveDenied: !authenticated, privateSaveResumeAndOtherPrincipalDenied: authenticated, authEnvironment: authenticated ? 'synthetic auth + disposable PostgreSQL17; never production writes' : 'guest', returnControl: 'existing Path first source step', exactReturnAndReload: true, sourceUnavailableChecked: process.env.TEST_SOURCE_UNAVAILABLE !== '0' });
+    receipt.cases.push({ width, pass: true, sourceRef, originalUrl, origin, method: 'רגיל', expression: 'דונלד טראמפ', explicitPersonalJourney: true, guestSaveDenied: !authenticated, privateSaveResumeAndOtherPrincipalDenied: authenticated, authEnvironment: authenticated ? 'synthetic auth + disposable PostgreSQL17; never production writes' : 'guest', returnControl, returnLifecycleCases, exactReturnAndReload: true, sourceUnavailableChecked: process.env.TEST_SOURCE_UNAVAILABLE !== '0' });
     await context.close(); console.log(`PASS complete World journey ${width}`);
   }
   assert.deepEqual(receipt.errors, []);
