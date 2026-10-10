@@ -42,7 +42,7 @@ export default function Host(props){
    window.__log.push(message);
    if(message.type==='ready'){ready.current=true;send({type:'tier',tier:'admin'});if(window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
    if(message.type==='engine-request'){
-    if(window.__fixtureHoldVerification)await new Promise(resolve=>window.__fixtureReleaseVerification=resolve);
+    if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
     const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());
     send({type:'engine-result',requestId:message.requestId,...result});
    }
@@ -105,11 +105,29 @@ if(window.__fixtureFullFrame){
 
 function verify({ op, payload, denied }) {
   if (denied) return { ok: false, error: 'bridge_unavailable' };
-  if (op !== 'verify_batch') return { ok: false, error: 'unsupported_test_operation' };
+
   const hi = payload.scope === 'tanakh' ? letters.length : TORAH_LEN;
   const corpusId = payload.scope === 'tanakh'
     ? '0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b'
     : ELS_GOLDEN_CORPUS_ID;
+  if(op==='page'){
+    const term=payload.term.replace(/[^א-ת]/g,'').replace(/[ךםןףץ]/g,c=>({'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}[c]));
+    const hits=[],size=payload.page_size||500;
+    for(let skip=payload.skip_min;skip<=payload.skip_max;skip++){
+      for(let start=letters.indexOf(term[0]);start>=0&&start<hi;start=letters.indexOf(term[0],start+1))for(const dir of [1,-1]){
+        if(payload.after_skip!=null&&(skip<payload.after_skip||skip===payload.after_skip&&(start<payload.after_start||start===payload.after_start&&dir>=payload.after_dir)))continue;
+        const end=start+dir*skip*(term.length-1);if(end<0||end>=hi)continue;
+        let ok=true;for(let k=1;k<term.length;k++)if(letters[start+dir*skip*k]!==term[k]){ok=false;break;}
+        if(ok)hits.push({skip,dir,start,positions:Array.from(term,(_,k)=>start+dir*skip*k)});
+        if(hits.length>size)break;
+      }
+      if(hits.length>size)break;
+    }
+    const hasMore=hits.length>size,rows=hits.slice(0,size),last=rows.at(-1);
+    return {ok:true,result:{contract:'els_search_page_v1',status:rows.length?'OK':'EXECUTED_EMPTY',scope:payload.scope,corpus_id:corpusId,input:{normalized:term},hits:rows,
+      completion:{executed:true,has_more:hasMore,continuation:hasMore?{after:{skip:last.skip,start:last.start,dir:last.dir}}:null}},trace_id:'ordered-page-oracle'};
+  }
+  if(op!=='verify_batch')return {ok:false,error:'unsupported_test_operation'};
   if (payload.corpus_id !== corpusId) return { ok: true, result: { status: 'CORPUS_MISMATCH' } };
   const term = payload.term.replace(/[^א-ת]/g, '');
   if (payload.candidates.length > 4000 || payload.candidates.length * term.length > 64000) {
@@ -152,7 +170,7 @@ const realHostStubs = {
     export const saveMatrixAnon=async()=>{throw new Error('unexpected anonymous save')};export const moderateMatrix=async()=>{};`,
   '../lib/contributions.js': `export const addContribution=async()=>{};`,
   '../lib/supabase.js': `export const supabase={storage:{from:()=>{window.__publicUploads=(window.__publicUploads||0)+1;throw new Error('public upload forbidden in private-save fixture');}},functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
-    if(window.__fixtureHoldVerification)await new Promise(resolve=>{window.__fixtureReleaseVerification=resolve;signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
+    if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
@@ -458,13 +476,17 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
    assert.equal(await button(page,'בחר ציר לסריקה: '+golden.term).count(),0,'old primary target disappears after main-axis replacement');
    await selectAxis(page,'אליהו');await activate(page,'סרוק לאורך הציר הנבחר');
    await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.word==='אליהו'&&window.__lens?.scan);
+   // Exhaustive low-skip discovery changes the first Elijah matrix. Use a fixed,
+   // known window for the cancellation race so a secondary candidate must exist.
+   await page.locator('iframe').evaluate((element,item)=>element.contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),golden);
+   await page.waitForFunction(id=>window.__state?.axis?.hitId===id,`${golden.skip}_${golden.dir}_${golden.start}`);
    const reloadItem=await page.evaluate(()=>{const state=window.__state;return{term:state.term,scope:state.scope,skip:state.axis.skip,start:state.axis.start,dir:state.axis.direction==='back'?-1:1}});
    const restoredAxis=await page.evaluate(()=>window.__state.axis.hitId);
    // A same-axis reload must terminate pending operations even without an axis identity change.
    for(const kind of ['findings','search']){
     await page.evaluate(()=>{window.__fixtureHoldVerification=true;delete window.__fixtureReleaseVerification});
     if(kind==='findings'){
-     await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('דוד');await activate(page,'חפש במטריצה');
+     await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('תורה');await activate(page,'חפש במטריצה');
     }else{
      await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משיח');await activate(page,'חפש');
     }
@@ -880,8 +902,10 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.getByLabel('מיון מפגשי ההצלבה',{exact:true}).selectOption('skip');
    const skips=await page.locator('.els29-native-result b').allTextContents();
    const numbers=skips.map(s=>Number(s.match(/דילוג (\d+)/)[1]));assert.deepEqual(numbers,[...numbers].sort((a,b)=>a-b));
-   const third=multi.search.results.items.find(item=>item.available&&item.index===2);
-   assert.ok(third);await activate(page,'פתח מפגש 3');await page.waitForFunction(()=>window.__state.search.zoneIndex===2);
+   const visibleLabel=await page.locator('.els29-native-result').first().getAttribute('aria-label');
+   const sortedIndex=Number(visibleLabel.match(/\d+/)[0])-1;
+   const third=multi.search.results.items.find(item=>item.available&&item.index===sortedIndex);
+   assert.ok(third);await activate(page,visibleLabel);await page.waitForFunction(index=>window.__state.search.zoneIndex===index,sortedIndex);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
    const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
    assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
@@ -1440,4 +1464,77 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   assert.equal(await folder.locator('.els29-library-card').count(),0,'private recent cards leave immediately on sign-out');
   assert.deepEqual(errors,[]);
  }finally{await browser?.close();await server.close();}
+});
+
+test('historical search repairs: pending identity, saved skip, ordered continuation and finding pages',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  const send=message=>page.locator('iframe').evaluate((frame,message)=>frame.contentWindow.postMessage({source:'sod-host',...message},location.origin),message);
+  const before=await identity(page);
+  await page.evaluate(()=>window.__fixtureHoldVerification=true);
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משיח');
+  await activate(page,'כל התנ״ך');
+  await page.waitForFunction(()=>window.__fixtureReleaseVerification&&['searching','verifying'].includes(window.__operation?.status));
+  await send({type:'native-control',action:'heat-toggle'});
+  await send({type:'tier',tier:'admin'});
+  await page.waitForTimeout(100);
+  assert.deepEqual(await identity(page),before,'pending scope never relabels the committed matrix');
+  await activate(page,'בטל חיפוש');
+  await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
+  await page.waitForTimeout(120);
+  assert.deepEqual(await identity(page),before,'cancel keeps the committed scope and axis');
+
+  await send({type:'load-matrix',item:{term:'אחרית',scope:'torah',skip:15,words:[]}});
+  await page.waitForFunction(()=>window.__state?.term==='אחרית'&&window.__state.status==='ok');
+  assert.equal(await page.evaluate(()=>window.__state.axis.skip),15,'never substitute skip 12 for legacy skip 15');
+
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משיח');await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='משיח');
+  const first=await page.evaluate(()=>window.__state.search.occurrences);
+  assert.equal(first.ordered.completeThrough,50);
+  assert.equal(first.items.filter(h=>h.skip===2).length,31,'every skip-2 occurrence is exposed, not only the sampled two');
+  const axis=await identity(page);
+  await activate(page,'המשך סריקה מסודרת עד דילוג 100');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state.search.occurrences.ordered.completeThrough===100);
+  const continued=await identity(page);assert.deepEqual([continued.axis,continued.scope,continued.geometry],[axis.axis,axis.scope,axis.geometry],'continuation preserves the selected occurrence');
+
+  await send({type:'load-matrix',item:{term:'תורה',scope:'torah',skip:50,start:5,dir:1,words:['משה']}});
+  await page.waitForFunction(()=>window.__state?.axis?.hitId==='50_1_5'&&window.__state.findings[0]?.hits.some(h=>h.verified));
+  await openPanel(page);
+  await activate(page,'מופעים וצבע של משה');
+  const old=await page.evaluate(()=>window.__state.findings[0]);
+  assert.ok(old.total>40&&old.pageTotal>1,'late findings stay in the full retained set');
+  await activate(page,'מופעים נוספים');
+  await page.waitForFunction(()=>window.__state.findings[0].page===1);
+  const second=await page.evaluate(()=>window.__state.findings[0]);
+  assert.ok(second.hits.some(h=>h.candidateIndex>=40));
+  const pick=second.hits.find(h=>!h.selectedOnly&&!h.selected);
+  await send({type:'native-finding-control',term:'משה',action:'toggle-hit',axisHitId:'50_1_5',candidateIndex:pick.candidateIndex,revision:pick.revision});
+  await page.waitForFunction(index=>window.__state.findings[0].hits.some(h=>h.candidateIndex===index&&h.verified&&h.shown),pick.candidateIndex);
+
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל פולייס');
+  await activate(page,'פצל והצלב');
+  assert.equal(await page.getByRole('textbox',{name:'מונח ראשון',exact:true}).inputValue(),'צוריאל');
+  assert.equal(await page.getByRole('textbox',{name:'מונח שני',exact:true}).inputValue(),'פולייס');
+ },{realHost:true});
+});
+
+test('historical cross repairs: every found meeting is pageable and continuation advances the unscanned tail',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const first=await reliabilityCross(page,'ישראל','משה');
+  assert.ok(first.search.results.items.length>24,'no top-24 deletion');
+  const list=page.locator('[aria-label="רשימת מפגשי ההצלבה"]');
+  assert.ok(await list.locator('.els29-native-result').count()<=40,'DOM remains bounded');
+  if(first.search.results.items.length>40){await activate(page,'מפגשים נוספים');assert.equal(await button(page,'פתח מפגש 41').count(),1);}
+  const oldKeys=first.search.results.items.filter(x=>x.available).map(x=>`${x.axis}:${x.hitId}`);
+  await activate(page,'המשך סריקת צירים');
+  await page.waitForFunction(scanned=>window.__operation?.status==='done'&&window.__state.search.coverage.scanned>scanned,first.search.coverage.scanned,{timeout:90000});
+  const next=await page.evaluate(()=>window.__state);
+  assert.equal(next.search.coverage.scanned,Math.min(first.search.coverage.scanned+300,first.search.coverage.available));
+  assert.equal(next.axis.hitId,first.axis.hitId,'continuation does not switch the selected matrix');
+  const keys=new Set(next.search.results.items.filter(x=>x.available).map(x=>`${x.axis}:${x.hitId}`));
+  assert.ok(oldKeys.every(key=>keys.has(key)),'new wave retains every previously found meeting');
+  assert.ok(await list.locator('.els29-native-result').count()<=40);
+ },{realHost:true,loadGolden:false});
 });

@@ -1148,7 +1148,7 @@
   }
   function fwdScan(tt,cap,hits,orient,stt,setup,piFrom,piTo){
     const SN=setup.SN,L=setup.L,i=setup.i,j=setup.j,g=setup.g,Pi=setup.Pi,Pj=setup.Pj,mx=setup.mx;
-    for(let a=piFrom;a<piTo;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
+    for(let a=piFrom;a<piTo;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g*(setup.minSkip||1),hi=pi+g*mx;
       for(let b=lb(Pj,lo);b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
         const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
         let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
@@ -1252,6 +1252,16 @@
       if(su1)fwdDisperseTopUp(h1,[{tt:t1,orient:"back",setup:su1}]);
     }
     return {dirHits:[h0,h1],capped,heavyDirs};
+  }
+  function fixedSkipCandidates(raw,skip){
+    const t=norm(raw),hits=[];
+    if(t.length<2||!Number.isInteger(skip)||skip<2)return hits;
+    for(const [tt,orient] of [[t,"fwd"],[t.split("").reverse().join(""),"back"]]){
+      const setup=fwdSetup(tt);if(!setup||skip>setup.mx)continue;
+      setup.minSkip=skip;setup.mx=skip;
+      const found=[];fwdScan(tt,64,found,orient,{capped:0},setup,0,setup.Pi.length);hits.push(...found);
+    }
+    return hits;
   }
   function findAll(raw,cap){const t=norm(raw);if(t.length<2)return{hits:[],capped:0,t};
     const tb=t.split("").reverse().join("");
@@ -1419,6 +1429,52 @@
     }
     return {ok:true,verified,traces,corpus_id:cid};
   }
+  // Exhaustive, ordered low-skip pages use the EXISTING callable canonical core.
+  // Discovery keeps finding sparse large-skip axes; neither path claims full-corpus completeness.
+  async function orderedSearchPage(term,scope,previous,operation){
+    const retry=!!previous?.error;
+    const min=retry||previous?.hasMore?previous.min:previous?previous.max+1:2;
+    const max=retry||previous?.hasMore?previous.max:Math.min(500,previous?previous.max+50:50);
+    if(min>500)return null;
+    const after=previous?.hasMore?previous.after:null;
+    const state={min,max,hasMore:false,after:null,completeThrough:previous?.completeThrough||1,error:null};
+    const reply=await engineCall("page",{term,scope,skip_min:min,skip_max:max,page_size:500,
+      ...(after?{after_skip:after.skip,after_start:after.start,after_dir:after.dir}:{}),selection_protocol:"POST_HOC_EXPLORATORY"},30000,operation);
+    const r=reply?.result;
+    if(!reply?.ok||!r||!["OK","EXECUTED_EMPTY"].includes(r.status)||r.contract!=="els_search_page_v1"||r.scope!==scope||r.corpus_id!==CORPUS_ID[scope]||r.input?.normalized!==norm(term)||!r.completion?.executed||!Array.isArray(r.hits)){
+      return {hits:[],state:{...state,hasMore:!!previous?.hasMore,after:previous?.after||null,error:"ordered-search-unavailable"}};
+    }
+    const limit=scope==="torah"?TORAH_N:T.length;
+    const hits=r.hits.filter(h=>Number.isInteger(h.skip)&&h.skip>=min&&h.skip<=max&&[1,-1].includes(h.dir)&&Number.isInteger(h.start)&&Array.isArray(h.positions)&&h.positions.length===norm(term).length&&h.positions.every((p,k)=>Number.isInteger(p)&&p>=0&&p<limit&&p===h.start+k*h.skip*h.dir))
+      .map(h=>({...h,v:"MATCH"}));
+    if(hits.length!==r.hits.length)return {hits:[],state:{...state,error:"invalid-page"}};
+    state.hasMore=!!r.completion.has_more;state.after=r.completion.continuation?.after||null;
+    if(state.hasMore&&(!state.after||!Number.isInteger(state.after.skip)||state.after.skip<min||state.after.skip>max||!Number.isInteger(state.after.start)||state.after.start<0||state.after.start>=limit||![1,-1].includes(state.after.dir)))return {hits:[],state:{...state,error:"invalid-cursor"}};
+    if(!state.hasMore)state.completeThrough=max;
+    return {hits,state,traceId:reply.trace_id};
+  }
+  function mergeOrderedHits(result,page,preferredKey=null){
+    if(!page)return result;
+    const hits=[],seen=new Set(),palindrome=result.t===result.t.split("").reverse().join("");
+    const preferred=result.hits.find(h=>hitKey(h)===preferredKey&&isGov(h));
+    for(const h of [...(preferred?[preferred]:[]),...page.hits,...result.hits]){
+      const key=palindrome?[h.skip,Math.min(...h.positions),Math.max(...h.positions)].join("_"):hitKey(h);
+      if(seen.has(key))continue;seen.add(key);hits.push(h);
+    }
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||a.start-b.start||b.dir-a.dir);
+    return {...result,hits,ordered:page.state,vtrace:[...(result.vtrace||[]),...(page.traceId?[page.traceId]:[])]};
+  }
+  async function continueNativeSearch(req,operation){
+    const result=st.res,epoch=_matrixRequestSeq,view=nativeOccurrenceResults();
+    if(!hasGov(result)||st.crossMeetings||req.setId!==view?.id){operationStatus(operation,"error","התוצאות השתנו. פתחו שוב את הרשימה.");return;}
+    const key=hitKey(occ());
+    const page=await orderedSearchPage(result.t,result.scope||st.scope,result.ordered,operation);
+    if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return;
+    if(!page||page.state.error){operationStatus(operation,"error","סריקת הדילוגים לא הושלמה. אפשר לנסות שוב.");return;}
+    operation.committed=true;st.res=mergeOrderedHits(result,page,key);
+    st.occ=Math.max(0,st.res.hits.findIndex(h=>hitKey(h)===key));
+    emitState();operationStatus(operation,"done");
+  }
   // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
   async function promoteVerified(cand,scope,operation){
     const t=cand.t,sc=scope||st.scope;
@@ -1512,6 +1568,7 @@
     return w.hits.filter(h=>{const k=hitKey(h);return (defKeys.has(k)&&!off.has(k))||extra.has(k);});
   }
   const withinFindingRadius=h=>st.findingRadius===null||((isGov(h)||h.v==="PLAIN_TEXT")&&Number.isFinite(h.axisDistance)&&h.axisDistance<=st.findingRadius);
+  const withinFindingSearchRadius=h=>st.findingRadius===null||(Number.isFinite(h.axisDistance)&&h.axisDistance<=st.findingRadius);
   function shownHitsOf(w){return selectedHitsOf(w).filter(withinFindingRadius);}
   function toggleHit(w,h){
     const k=hitKey(h),defKeys=new Set(w.hits.slice(0,st.showN).map(hitKey));
@@ -1903,7 +1960,7 @@
     if(!view){view={id:"occ-"+(++nativeOccurrenceSetSeq),page:0};nativeOccurrenceSets.set(r,view);}
     const admitted=r.hits.map((h,index)=>({h,index})).filter(x=>isGov(x.h)),pageSize=80;
     const page=Math.max(0,Math.min(view.page,Math.ceil(admitted.length/pageSize)-1));view.page=page;
-    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,
+    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,ordered:r.ordered||null,
       items:admitted.slice(page*pageSize,(page+1)*pageSize).map(({h,index},offset)=>({index,ordinal:page*pageSize+offset+1,
         available:true,hitId:hitKey(h),skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",book:bookOf(h.start),ref:refStr(verseAt(h.start))}))};
   }
@@ -1917,8 +1974,29 @@
     if(!item||!isGov(st.res.hits[item.index]))return;
     openNativeOccurrence(item.index);
   }
+  function nativeFindingResults(w){
+    const selected=new Set(selectedHitsOf(w)),shown=new Set(shownHitsOf(w));
+    const available=w.hits.map((h,index)=>({h,index})).filter(({h})=>h.v!=="MISMATCH"&&(Math.abs(h.skip)>=2||isSourceHit(h,w.t))&&withinFindingSearchRadius(h));
+    const pageSize=40,page=Math.max(0,Math.min(w.nativePage||0,Math.ceil(available.length/pageSize)-1));w.nativePage=page;
+    const entries=available.slice(page*pageSize,(page+1)*pageSize);
+    // Selected occurrences remain available to the inspector even while another list page is open.
+    for(const h of selected)if(!entries.some(x=>x.h===h))entries.push({h,index:w.hits.indexOf(h),selectedOnly:true});
+    const common=(h,x)=>({hitId:isGov(h)||isSourceHit(h,w.t)?hitKey(h):null,candidateIndex:x.index,revision:w.nativeRevision||0,
+      selectedOnly:!!x.selectedOnly,ordinal:available.findIndex(v=>v.h===h)+1,selected:selected.has(h),shown:shown.has(h),withinRadius:withinFindingRadius(h)});
+    return {t:w.t,color:w.color,revision:w.nativeRevision||0,total:w.total||0,inWindow:w.inwin||0,
+      page,pageSize,pageTotal:Math.ceil(available.length/pageSize),available:available.length,
+      plainTextCount:w.hits.filter(h=>isSourceHit(h,w.t)).length,
+      sourceHits:entries.filter(({h})=>isSourceHit(h,w.t)).map(x=>({...common(x.h,x),kind:"source-sequence",skip:1,direction:x.h.dir===1?"fwd":"back",axisDistance:x.h.axisDistance})),
+      shown:[...shown].filter(isGov).map(hitKey),candidateShown:[...shown].filter(h=>!isGov(h)&&!isSourceHit(h,w.t)).length,
+      hits:entries.filter(({h})=>Math.abs(h.skip)>=2).map(x=>({...common(x.h,x),verified:isGov(x.h),
+        skip:isGov(x.h)?Math.abs(x.h.skip):null,direction:isGov(x.h)?(x.h.dir===1?"fwd":"back"):null,
+        axisDistance:isGov(x.h)?x.h.axisDistance:null,clusterDistance:isGov(x.h)?x.h.cost:null})),
+      hitsTruncated:available.length>pageSize};
+  }
   function elsState(){
+    if(searchUncommitted()&&_nativeSearchOperation.previousState)return _nativeSearchOperation.previousState;
     const r=st.res;
+    if(r?.scope&&r.scope!==st.scope)return {type:"state",v:1,status:"loading",scope:st.scope,termRaw:"",term:"",verification:{state:"PENDING",negative_authority:false}};
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
       scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
     // 🧬 G3: "empty" = חיפוש מקומי/דגום ללא מופע — לעולם לא NOT_FOUND / EXECUTED_EMPTY קנוני (negative_authority:false)
@@ -1936,17 +2014,7 @@
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
-      findings:st.words.map(w=>({t:w.t,color:w.color,total:w.total||0,
-        plainTextCount:(w.hits||[]).filter(h=>isSourceHit(h,w.t)).length,
-        sourceHits:(w.hits||[]).filter(h=>isSourceHit(h,w.t)).map(h=>({hitId:hitKey(h),kind:"source-sequence",skip:1,direction:h.dir===1?"fwd":"back",
-          axisDistance:h.axisDistance,selected:selectedHitsOf(w).includes(h),withinRadius:withinFindingRadius(h),shown:shownHitsOf(w).includes(h)})),
-        inWindow:w.inwin||0,shown:shownHitsOf(w).filter(isGov).map(hitKey),
-        candidateShown:shownHitsOf(w).filter(x=>!isGov(x)&&!isSourceHit(x,w.t)).length,
-        hits:(w.hits||[]).map((h,index)=>({h,index})).filter(({h})=>Math.abs(h.skip)>=2&&h.v!=="MISMATCH").slice(0,64).map(({h,index})=>({hitId:isGov(h)?hitKey(h):null,candidateIndex:index,revision:w.nativeRevision||0,verified:isGov(h),
-          skip:isGov(h)?Math.abs(h.skip):null,direction:isGov(h)?(h.dir===1?"fwd":"back"):null,
-          axisDistance:isGov(h)&&Number.isFinite(h.axisDistance)?h.axisDistance:null,
-          clusterDistance:isGov(h)&&Number.isFinite(h.cost)?h.cost:null,
-          selected:selectedHitsOf(w).includes(h),withinRadius:withinFindingRadius(h),shown:shownHitsOf(w).includes(h)})),hitsTruncated:(w.hits||[]).filter(isGov).length>64})),
+      findings:st.words.map(nativeFindingResults),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),windowSize:st.windowSize,windowRequested:st.windowRequested,
         showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
@@ -1971,6 +2039,7 @@
   let _healBusy=false,_healP=null;
   function healGoverned(){if(_healBusy)return _healP;_healP=healRun();return _healP;}
   async function healRun(){
+    if(searchUncommitted()||st.res?.scope&&st.res.scope!==st.scope)return;
     const jobs=[],epoch=_matrixRequestSeq,findingsEpoch=_nativeFindingsSeq,scope=st.scope;
     const operation=_nativeFindingsOperation&&!_nativeFindingsOperation.terminal?_nativeFindingsOperation:_nativeSearchOperation;
     const r=st.res;
@@ -2077,13 +2146,14 @@
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
   let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0;
+  function searchUncommitted(){return !!(_nativeSearchOperation&&!_nativeSearchOperation.terminal&&!_nativeSearchOperation.committed);}
   function operationStatus(operation,status,message,progress){
     if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
     if(operation.terminal)return;
     if(operation.status===status&&!progress)return;operation.status=status;
     if(status==="done"||status==="empty"||status==="error"||status==="cancelled")operation.terminal=true;
     if(operation.kind==="search"&&operation.terminal&&!operation.committed&&operation.previousScope){
-      st.scope=operation.previousScope;updateScopeUI();
+      st.scope=operation.previousScope;updateScopeUI();emitState();
     }
     postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} ),
       elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:progress||null});
@@ -2091,7 +2161,7 @@
   function beginOperation(kind,requestId){
     const valid=Number.isSafeInteger(requestId)&&requestId>=0;
     const operation=valid?{kind,requestId,startedAt:Date.now()}:null;
-    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();if(operation)operation.previousScope=st.scope;_nativeSearchOperation=operation;}
+    if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();if(operation){operation.previousScope=st.scope;operation.previousState=elsState();}_nativeSearchOperation=operation;}
     else{invalidateFindingsOperation();_nativeFindingsOperation=operation;}
     operationStatus(operation,"searching");return operation;
   }
@@ -2117,6 +2187,7 @@
   function supersedeNativeOperations(){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();}
   const paintOperation=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
   async function updateNativeFindingsOperation(findings,requestId){
+    if(searchUncommitted()){postHost({type:"operation",kind:"findings",requestId,status:"error",message:"המתינו לסיום החיפוש הראשי."});return;}
     const operation=beginOperation("findings",requestId),seq=_nativeFindingsSeq,axis=hasGov(st.res)?hitKey(occ()):null;
     if(operation)operation.previousWords=st.words.map(w=>({...w,hits:(w.hits||[]).slice(),off:new Set(w.off||[]),extra:new Set(w.extra||[])}));
     if(!axis){operationStatus(operation,"error","נדרש ציר מאומת כדי לחפש ממצאים.");return;}
@@ -2133,9 +2204,13 @@
     }catch(e){operationStatus(operation,"error","חיפוש הממצאים לא הושלם. אפשר לנסות שוב.");}
   }
   function nativeFindingControl(d){
-    if(!hasGov(st.res))return;
+    if(searchUncommitted()||!hasGov(st.res))return;
     const i=st.words.findIndex(w=>w.t===norm(d.term||"")),w=st.words[i];
     if(!w)return;
+    if(d.action==="page"){
+      if(d.axisHitId!==hitKey(occ())||d.revision!==(w.nativeRevision||0)||!Number.isInteger(d.candidateIndex)||d.candidateIndex<0)return;
+      w.nativePage=d.candidateIndex;emitState();return;
+    }
     if(d.action==="toggle-hit"){
       const h=d.hitId?(w.hits||[]).find(h=>hitKey(h)===d.hitId):
         (d.axisHitId===hitKey(occ())&&d.revision===(w.nativeRevision||0)&&Number.isInteger(d.candidateIndex)?(w.hits||[])[d.candidateIndex]:null);
@@ -2196,20 +2271,23 @@
       st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");
       try{loadMatrix(d.item,0);}catch(e){}
     }
+    if(d.type==="request-lens"&&searchUncommitted()){
+      postHost({type:"lens",lens:d.lens,ok:false,target:d.target||{},reason:"search-pending"});return;
+    }
     if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 Native/admin edit → אותו st.words קנוני, בלי store נוסף
       updateNativeFindingsOperation(d.findings,d.requestId);
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
     if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId);
     if(d.type==="native-save"){
-      if(!EXPR2029||!hasGov(st.res)||hitKey(occ())!==d.axisHitId||String(d.desc||"").trim().length<12){
+      if(searchUncommitted()||!EXPR2029||!hasGov(st.res)||hitKey(occ())!==d.axisHitId||String(d.desc||"").trim().length<12){
         postHost({type:"native-save-result",requestId:d.requestId,ok:false,error:"selection_changed"});
       }else{
         st.desc=String(d.desc).trim();st.author=String(d.author||"").trim();
         performSaveToGallery(occ(),d);
       }
     }
-    if(d.type==="native-action"&&hasGov(st.res)){
+    if(d.type==="native-action"&&!searchUncommitted()&&hasGov(st.res)){
       // Explicit user actions only. The host reveals this SAME iframe for its canonical dialogs.
       if(d.action==="save")addCurrentToGallery();
     }
@@ -2224,7 +2302,8 @@
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
-    if(d.type==="native-control"&&typeof d.action==="string"){   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
+    if(d.type==="native-control"&&typeof d.action==="string"){
+      if(searchUncommitted())return;   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
       if(!hasGov(st.res))return;
       if(d.action==="occurrence-prev")shiftOccurrence(-1);
       else if(d.action==="occurrence-next")shiftOccurrence(1);
@@ -2243,7 +2322,7 @@
         st.showN=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }
     }
-    if(d.type==="native-context"&&hasGov(st.res)&&[1,-1].includes(d.delta)){
+    if(d.type==="native-context"&&!searchUncommitted()&&hasGov(st.res)&&[1,-1].includes(d.delta)){
       setCtxR(st.ctxR+d.delta);
     }
     if(d.type==="native-search"&&d.request&&typeof d.request==="object"){   // 🔎 Search bridge: המנוע נשאר המבצע היחיד
@@ -2252,6 +2331,8 @@
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       if(operation&&EXPR2029)operation.windowSize=NATIVE_WINDOWS[req.windowSize]?req.windowSize:"small";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
+      if(kind==="continue"){continueNativeSearch(req,operation);return;}
+      if(kind==="cross-continue"){continueNativeCross(req,operation);return;}
       if(kind==="regular"){
         if(norm(term).length<2){toast("רשום לפחות 2 אותיות");operationStatus(operation,"error","כתבו לפחות שתי אותיות.");return;}
         if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
@@ -2337,8 +2418,10 @@
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
       try{
-      const discovered=await discoverVerified(w,4000,operation);
+      const [sample,page]=await Promise.all([discoverVerified(w,4000,operation),
+        EXPR2029&&operation?orderedSearchPage(t,st.scope,null,operation):Promise.resolve(null)]);
       if(requestSeq!==_matrixRequestSeq)return;
+      const discovered=mergeOrderedHits(sample,page);
       // A committed new result ends editing; cancelled requests retain the current matrix identity.
       if(operation)operation.committed=true;
       if(operation&&operation.windowSize)Object.assign(st,nativeWindow(operation.windowSize,0,[w]));
@@ -2380,8 +2463,9 @@
   function faBridge(w){const k=norm(w)+"@"+st.scope;if(FA.has(k))return FA.get(k);let r=FAB.get(k);if(!r){r=findAll(w,400);FAB.set(k,r);}return r;}
   // 🧬 G3: prefetch מאומת — faMemo (סינכרוני, קוד-דירוג/גאומטריה) קורא מהמטמון אחרי שהמונחים אומתו בשרת.
   async function faVerified(w,operation){const k=norm(w)+"@"+st.scope,c=FA.get(k);
-    if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT"))return c;
-    const r=await discoverVerified(w,3000,operation);if(operation?.status!=="cancelled"&&r.vstate!=="CANCELLED")FA.set(k,r);return r;}
+    if(c&&(c.vstate==="VERIFIED"||c.vstate==="LOCAL_NO_HIT")&&(!EXPR2029||!operation||c.ordered&&!c.ordered.error))return c;
+    const [sample,page]=await Promise.all([discoverVerified(w,3000,operation),EXPR2029&&operation?orderedSearchPage(norm(w),st.scope,null,operation):Promise.resolve(null)]);
+    const r=mergeOrderedHits(sample,page);if(operation?.status!=="cancelled"&&r.vstate!=="CANCELLED")FA.set(k,r);return r;}
   async function prefetchVerified(ws,operation){await Promise.all([...new Set(ws.map(norm).filter(x=>x.length>=2))].map(w=>faVerified(w,operation)));}
   function rarityOf(w){const r=faMemo(w);return r.capped?9999:r.hits.length;}
   // 🎯 מודל-איכות אחיד (לפי צוריאל) — משמש גם באזורי-ההתכנסות וגם ב«איכות הצופן», כדי שהכוכבים יהיו זהים.
@@ -2481,10 +2565,10 @@
     return arr[0]||norm(words[0]||"");
   }
   // Same window matcher in bounded chunks. Geometry is frozen until the new result commits.
-  async function crossFindBounded(A,terms,pure,window,operation,progress,epoch){
+  async function crossFindBounded(A,terms,pure,window,operation,progress,epoch,previous=null){
     const resA=faMemo(A),T2=[...new Set(terms.map(norm))],rar=new Map(T2.map(t=>[t,rarityOf(t)]));
     const axisBase=rarF(resA.capped?9999:resA.hits.length)*lenF(A)*0.9;
-    const eligible=resA.hits.map((h,i)=>({h,i})).filter(({h})=>Math.abs(h.skip)>=2),hits=eligible.slice(0,150),meetings=[];
+    const eligible=resA.hits.map((h,i)=>({h,i})).filter(({h})=>Math.abs(h.skip)>=2),hits=eligible.slice(previous?.scanned||0,(previous?.scanned||0)+150),meetings=[...(previous?.meetings||[])];
     const pool=await ensureXfInit();
     const wave=pool?pool.workers.length*8:8;
     for(let offset=0;offset<hits.length;offset+=wave){
@@ -2509,7 +2593,7 @@
       await paintOperation();
     }
     meetings.sort((x,y)=>y.stars-x.stars||y.tq-x.tq||y.score-x.score||x.skip-y.skip);
-    return {resA,meetings,total:T2.length,scanned:hits.length,available:eligible.length,capped:!!resA.capped};
+    return {resA,meetings,total:T2.length,scanned:(previous?.scanned||0)+hits.length,available:eligible.length,capped:!!resA.capped};
   }
   function mergeCrossMeetings(A,B,r1,r2){
     const all=[...r1.meetings.map(z=>({...z,axis:A})),...r2.meetings.map(z=>({...z,axis:B}))];
@@ -2519,8 +2603,26 @@
       const h=cache[z.axis].hits[z.occ];if(!isGov(h))return false;
       const parts=[norm(z.axis)+":"+hitKey(h),...z.detail.map(d=>d.t+":"+hitKey({skip:d.skip,dir:d.dir,start:d.p0}))].sort();
       const key=parts.join("|");if(seen.has(key))return false;seen.add(key);return true;
-    }).slice(0,24),coverage:{scanned:r1.scanned+r2.scanned,available:r1.available+r2.available,
-      truncated:r1.capped||r2.capped||r1.scanned<r1.available||r2.scanned<r2.available||all.length>24}};
+     }),coverage:{scanned:r1.scanned+r2.scanned,available:r1.available+r2.available,
+      canContinue:r1.scanned<r1.available||r2.scanned<r2.available,
+      truncated:r1.capped||r2.capped||r1.scanned<r1.available||r2.scanned<r2.available}};
+  }
+  async function continueNativeCross(req,operation){
+    const prior=st.crossScan,view=nativeCrossResults(),epoch=_matrixRequestSeq;
+    if(!prior||req.setId!==view?.id||!st.crossCoverage?.canContinue){operationStatus(operation,"error","תוצאות ההצלבה השתנו.");return;}
+    const {A,B,pure,window}=prior;
+    const progress={completed:0,total:Math.min(150,prior.r1.available-prior.r1.scanned)+Math.min(150,prior.r2.available-prior.r2.scanned),startedAt:Date.now()};
+    try{
+      const r1=await crossFindBounded(A,[B],pure,window,operation,progress,epoch,prior.r1);
+      const r2=await crossFindBounded(B,[A],pure,window,operation,progress,epoch,prior.r2);
+      if(epoch!==_matrixRequestSeq)return;
+      const merged=mergeCrossMeetings(A,B,r1,r2),current=occ(),axis=st.raw;
+      operation.committed=true;
+      st.crossMeetings=merged.zones;st.crossCoverage=merged.coverage;st.crossResCache=merged.cache;
+      st.crossScan={A,B,pure,window,r1,r2};
+      st.crossIdx=Math.max(0,merged.zones.findIndex(z=>norm(z.axis)===norm(axis)&&hitKey(merged.cache[z.axis].hits[z.occ])===hitKey(current)));
+      emitState();operationStatus(operation,"done");
+    }catch(e){if(epoch===_matrixRequestSeq)operationStatus(operation,"error","המשך ההצלבה לא הושלם. אפשר לנסות שוב.");}
   }
   function runCross(A){
     supersedeNativeOperations();const requestSeq=_matrixRequestSeq;
@@ -2577,7 +2679,7 @@
       //    כפי שהוקלדו, ו**לא דורסים את שדות-הקלט** — אחרת שתי השורות מציגות את אותה מילה.
       //    st.crossPairA/B כבר קיימים ב-st (שימשו עד כה רק במצב «גשר») — אין state חדש.
       st.crossPairA=A;st.crossPairB=B;
-      st.crossRadius=pure;
+      st.crossRadius=pure;st.crossScan={A,B,pure,window,r1,r2};
       updGem();
       openZone(0,operation);
       const sw=norm(axis)!==norm(A);
@@ -3603,6 +3705,15 @@
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
     const discovered=await discoverVerified(item.term,4000,null,anchor);
     if(requestSeq!==_matrixRequestSeq)return;
+    if(!exact&&Number.isInteger(item.skip)&&item.skip>=2&&!discovered.hits.some(h=>isGov(h)&&Math.abs(h.skip)===item.skip)){
+      const candidates=fixedSkipCandidates(item.term,item.skip);
+      const targeted=await promoteVerified({t,hits:candidates,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
+      if(requestSeq!==_matrixRequestSeq)return;
+      const found=targeted.hits.filter(isGov);
+      if(!found.length){st.res=null;postHost({type:"load-error",term:item.term,reason:"saved-skip-not-found"});render();return;}
+      discovered.hits.push(...found);discovered.hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+    }
+    if(requestSeq!==_matrixRequestSeq)return;
     const win=item.searchWindow;
     Object.assign(st,win&&Number.isInteger(win.ctxR)&&win.ctxR>=1&&win.ctxR<=8&&Number.isInteger(win.windowColumns)&&win.windowColumns>=1&&win.windowColumns<=80
       ? {ctxR:win.ctxR,windowColumns:win.windowColumns,windowSize:NATIVE_WINDOWS[win.windowSize]?win.windowSize:"legacy",windowRequested:NATIVE_WINDOWS[win.windowRequested]?win.windowRequested:"legacy"}
@@ -4052,8 +4163,14 @@
           const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;
           let ok=1;const pos=[s0];
           for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-          if(ok&&!pos.every(p=>mainSet.has(p))){const key=pos[0]+"_"+pos[L-1];if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos,...(sk===1?{v:"PLAIN_TEXT"}:{})});}}
+          if(ok&&!pos.every(p=>mainSet.has(p))){const key=Math.min(pos[0],pos[L-1])+"_"+Math.max(pos[0],pos[L-1]);if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos,...(sk===1?{v:"PLAIN_TEXT"}:{})});}}
         }
+      }
+      // Preserve an explicitly saved reverse reading of a palindrome while counting the cell set once.
+      if(t===t.split("").reverse().join("")){
+        const keep=new Set([...(w._savedShown||[]),...(w.extra||[])]);
+        for(const h of hits){const reversed={...h,dir:-h.dir,start:h.positions[h.positions.length-1]};
+          if(!keep.has(hitKey(h))&&keep.has(hitKey(reversed))){h.dir=reversed.dir;h.start=reversed.start;h.positions.reverse();}}
       }
       // עוגני-אשכול = ראשי + המופעים המוצגים של שאר המילים
       const anchors=baseA.concat(...st.words.filter((_,j)=>j!==wi).map(o=>(o.hits||[]).slice(0,st.showN).flatMap(hit=>hit.positions.map(rc))));
@@ -4069,7 +4186,7 @@
       const _rank=x=>gapF(gridStep(Math.abs(x.skip),S))*proxF(x.cost);
       hits.sort((a,b2)=>_rank(b2)-_rank(a)||a.cost-b2.cost);
       w.nativeRevision=(w.nativeRevision||0)+1;
-      w.total=hits.length;w.inwin=hits.length;w.hits=hits.slice(0,30);
+      w.total=hits.length;w.inwin=hits.length;w.hits=hits;w.nativePage=0;
       // 🛡️ תאימות-לאחור: מופע שנשמר במפורש במטריצה קיימת (_savedShown) או שהמשתמש הדליק ידנית
       //    (extra) חייב להישאר זמין גם אם הרחבת מרחב-החיפוש דחקה אותו מעבר ל-30 הראשונים.
       //    שימור בלבד — מתווסף בסוף, בלי לשנות סדר/דירוג ובלי לגעת בברירת-המחדל (showN).
@@ -4140,14 +4257,23 @@
     let count=0,truncated=false;
     for(const raw of DICT){
       const t=norm(raw);if(t.length<3||t===axisN||seen.has(t))continue;
-      let at=lineStr.indexOf(t);if(at<0)continue;
-      if(words.length>=maxWords){truncated=true;break;}
-      seen.add(t);const matches=[];
-      while(at>=0){
-        if(count>=maxMatches){truncated=true;break;}
-        matches.push({at,length:t.length});count++;at=lineStr.indexOf(t,at+1);
+      const matches=[],spans=new Set();
+      for(const direction of [1,-1]){
+        const needle=direction===1?t:t.split("").reverse().join("");
+        let at=lineStr.indexOf(needle);
+        while(at>=0){
+          if(!spans.has(at)){
+            if(count>=maxMatches){truncated=true;break;}
+            spans.add(at);matches.push({at,length:t.length,direction});count++;
+          }
+          at=lineStr.indexOf(needle,at+1);
+        }
+        if(truncated)break;
       }
-      if(matches.length)words.push({term:t,label:raw,matches});
+      if(matches.length){
+        if(words.length>=maxWords){truncated=true;break;}
+        seen.add(t);words.push({term:t,label:raw,matches});
+      }
       if(truncated)break;
     }
     return {status:"CANDIDATE",source:"legacy_els_dict",minLength:3,words,truncated};
@@ -4186,6 +4312,7 @@
   }
 
   function render(){
+    if(searchUncommitted()||st.res?.scope&&st.res.scope!==st.scope){emitState();return;}
     cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
     document.body.classList.toggle("searched",hasGov(r));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
@@ -5033,13 +5160,17 @@
           const shownKeys=new Set(shown.map(hitKey));
           const box=document.createElement("div");box.className="occbox";
           box.innerHTML='<div class="occhint">מהקרוב-לאשכול (למעלה) לרחוק (למטה) · לחץ 👁 להדליק/לכבות</div>';
-          w.hits.forEach(h=>{
+          w.hits.slice(0,w.classicLimit||40).forEach(h=>{
             const on=shownKeys.has(hitKey(h));
             const row=document.createElement("button");row.className="occhit"+(on?" on":"");
             row.innerHTML='<span class="eye">'+(on?"👁":"🚫")+'</span><span class="oc-d">דילוג '+heb(Math.abs(h.skip))+'</span><span class="oc-x">'+(h.dir===1?"↓":"↑")+' · מרחק '+heb(Math.round(h.cost))+'</span>';
             row.onclick=()=>{toggleHit(w,h);recolorOnly();renderList();};
             box.appendChild(row);
           });
+          if(w.hits.length>(w.classicLimit||40)){
+            const more=document.createElement("button");more.className="occhit";more.textContent="מופעים נוספים";
+            more.onclick=()=>{w.classicLimit=(w.classicLimit||40)+40;renderList();};box.appendChild(more);
+          }
           list.appendChild(box);
         }
       });

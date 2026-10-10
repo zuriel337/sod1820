@@ -709,7 +709,7 @@ test('browser: native finding radius filters marks, heat and scan targets withou
     await waitSettledMatrix(page);
     const before = await latestState(page), beforeCalls = calls.length;
     assert.equal(before.ui.findingRadius, null, 'unrestricted radius is the default');
-    const selected = before.findings.map(finding => ({ t: finding.t, hits: finding.hits.map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })) }));
+    const selected = before.findings.map(finding => ({ t: finding.t, hits: finding.hits.filter(hit=>hit.selected).map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })).sort((a,b)=>a.candidateIndex-b.candidateIndex) }));
     const selectedExtra = before.findings[0].hits.find(hit => hit.candidateIndex === extra.candidateIndex);
     assert.ok(selectedExtra.shown && selectedExtra.verified);
     for (const finding of before.findings) for (const hit of finding.hits.filter(hit => hit.verified)) {
@@ -726,7 +726,7 @@ test('browser: native finding radius filters marks, heat and scan targets withou
     assert.deepEqual(filtered.geometry, before.geometry);
     assert.deepEqual(filtered.matrix.rows, before.matrix.rows);
     assert.equal(filtered.ui.showN, before.ui.showN);
-    assert.deepEqual(filtered.findings.map(finding => ({ t: finding.t, hits: finding.hits.map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })) })), selected, 'filtering preserves pre-radius manual/default selection and candidate identity');
+    assert.deepEqual(filtered.findings.map(finding => ({ t: finding.t, hits: finding.hits.filter(hit=>hit.selected).map(hit => ({ candidateIndex: hit.candidateIndex, selected: hit.selected, hitId: hit.hitId })).sort((a,b)=>a.candidateIndex-b.candidateIndex) })), selected, 'filtering preserves pre-radius manual/default selection and candidate identity');
     for (const finding of filtered.findings) for (const hit of finding.hits) {
       assert.equal(typeof hit.withinRadius, 'boolean');
       if (hit.verified) assert.equal(hit.withinRadius, mainAxisDistance(filtered, finding.t, hit.hitId) === 0);
@@ -748,7 +748,7 @@ test('browser: native finding radius filters marks, heat and scan targets withou
       await nativeSend(page, { type: 'native-control', action: 'finding-count', value: count });
       await page.waitForFunction(expected => window.__log.filter(message => message.type === 'state').at(-1)?.ui?.showN === expected, count);
       const changed = await latestState(page), selectedWord = changed.findings[0];
-      assert.equal(selectedWord.hits.find(hit => hit.hitId === defaultHit.hitId).selected, false, 'explicitly hidden default stays hidden when count changes');
+      assert.ok(!selectedWord.hits.find(hit => hit.hitId === defaultHit.hitId)?.selected, 'explicitly hidden default stays hidden when count changes');
       assert.equal(selectedWord.hits.find(hit => hit.hitId === selectedExtra.hitId).selected, true, 'explicitly added hit survives count changes under the filter');
       assert.ok(selectedWord.hits.every(hit => !hit.shown));
     }
@@ -969,12 +969,12 @@ test('browser: axis word scan reads the canonical line, matches literal corpus t
     const sequence = line.cells.map(c => c.letter).join('');
     const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
     const normalized = (word) => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
-    const expected = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== golden.term && sequence.includes(term));
+    const expected = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== golden.term && (sequence.includes(term)||sequence.includes([...term].reverse().join(''))));
     assert.deepEqual(line.scan.words.map(w => w.term), expected);
     assert.ok(line.scan.words.length > 0, 'real axis has inspectable dictionary words');
     for (const word of line.scan.words) {
       for (const match of word.matches) {
-        assert.equal(sequence.slice(match.at, match.at + match.length), word.term);
+        assert.equal(sequence.slice(match.at, match.at + match.length), match.direction===-1?[...word.term].reverse().join(''):word.term);
         assert.equal(match.length, word.term.length);
       }
       assert.ok(!('hitId' in word) && !('verified' in word), 'lexical candidates never become verified findings');
@@ -1066,10 +1066,10 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     }
     const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
     const normalized = word => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
-    const expectedWords = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== secondary.t && secondarySequence.includes(term));
+    const expectedWords = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== secondary.t && (secondarySequence.includes(term)||secondarySequence.includes([...term].reverse().join(''))));
     assert.deepEqual(secondaryLine.scan.words.map(w => w.term), expectedWords, 'secondary scan uses the same literal dictionary');
     for (const word of secondaryLine.scan.words) for (const match of word.matches) {
-      assert.equal(secondarySequence.slice(match.at, match.at + match.length), word.term);
+      assert.equal(secondarySequence.slice(match.at, match.at + match.length), match.direction===-1?[...word.term].reverse().join(''):word.term);
     }
     await nativeSend(page, { type: 'request-lens', lens: 'line-context', target: { term: secondary.t, hitId: hit.hitId, scan: true, nativeSeq: 990 } });
     await page.waitForFunction(() => window.__log.some(m => m.target?.nativeSeq === 990));

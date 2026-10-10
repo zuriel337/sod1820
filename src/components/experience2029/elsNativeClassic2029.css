@@ -690,7 +690,7 @@
 .els29-native-stage-column:fullscreen .els29-native-presenter small{display:none}
 
 .els29-native-results-pages{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
-.els29-native-results-pages button{min-height:44px;min-width:44px;padding:6px 10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit}
+.els29-native-results-pages button,.els29-native-results>button:not(.els29-native-result),.els29-native-search-coach button{min-height:44px;min-width:44px;padding:6px 10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 
 /* One form: adjacent terms, then shared scope/radius and one submit action. */
 .els29-native-search-mode{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-family:var(--s29-font-ui)}
@@ -705,3 +705,6 @@
 @media(max-width:620px){.els29-native-search-mode button{flex:1}.els29-native-query .els29-native-cross-toggle{width:auto}}
 @media(prefers-reduced-motion:reduce){.els29-native-query button{transition:none!important;transform:none!important}}
 .sod29-root[data-frame-reduced-motion=true] .els29-native-query button{transition:none!important;transform:none!important}
+
+.els29-native-search-coach { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:12px; background:var(--s29-panel-soft); border-radius:12px; color:var(--s29-muted); font-size:var(--s29-type-body); }
+.els29-native-search-coach span { flex:1 1 220px; }

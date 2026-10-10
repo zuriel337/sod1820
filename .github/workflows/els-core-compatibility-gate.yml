@@ -43,6 +43,7 @@ on:
       - 'test/els-browser-cutover.test.mjs'
       - 'test/els-native-ui-browser.test.mjs'
       - 'test/els-window-directions.test.mjs'
+      - 'test/els-search-parity-repairs.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -82,7 +83,7 @@ jobs:
           git diff --exit-code -- public/tzofen.html
 
       - name: Adaptive router + browser truth-authority census
-        run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs
+        run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs test/els-search-parity-repairs.test.mjs
 
       - name: Exact replay and 2029 projection acceptance
         run: |
