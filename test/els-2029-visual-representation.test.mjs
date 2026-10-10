@@ -119,7 +119,7 @@ test("/els Research profile composes canonical replay projection/layers while Na
   assert.equal(src.includes("<Els2029Representation layers={replayLayers} profile={matrixProfile} />"), true);
   assert.doesNotMatch(src, /layeredProjection|effectiveLayers/);
   assert.match(src, /data-els-classic-2029="native-v1"/);
-  assert.match(src, /<ElsNativeClassic2029 initialSeed=\{savedRecord.row \? "" : classicSeed\} matrix=\{savedRecord.row\} \/>/);
+  assert.match(src, /<ElsNativeClassic2029 initialSeed=\{savedRecord.row \? "" : classicSeed\} matrix=\{savedRecord.row\}\s/);
   assert.equal((classic.match(/<TzofenEmbed/g) || []).length, 1);
   assert.match(classic, /onState=\{handleEngineState\}/);
   assert.match(src, /\{researchProfile \? <div className="sod29-els-architecture">/);
