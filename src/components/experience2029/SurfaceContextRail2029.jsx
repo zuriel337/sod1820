@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
@@ -32,7 +33,7 @@ export default function SurfaceContextRail2029({
   suppressLearn = false,
 }) {
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
-  const number = Number(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
+  const number = researchContextNumber(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
   const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
   const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || subject?.type || ""));
@@ -53,7 +54,8 @@ export default function SurfaceContextRail2029({
       : surface === "world"
         ? "מה מחובר עכשיו"
         : "הקשר פעיל";
-  const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(Number(subject?.resultValue)));
+  const resultValue = researchContextNumber(subject?.resultValue);
+  const hasMethodContext = Boolean(subject?.expression && subject?.method && Number.isSafeInteger(resultValue));
   // Post/Topic: REST orients (where am I, outward connections, pointer to in-body depth).
   // Only an explicit expression FOCUS replaces it; reading alone never traces or calculates here.
   const documentSurface = surface === "post" || surface === "topic";
@@ -166,7 +168,7 @@ export default function SurfaceContextRail2029({
       href: subject.href || null,
       expression: String(subject.expression),
       method: String(subject.method),
-      resultValue: Number(subject.resultValue),
+      resultValue,
       locator: subject.locator || null,
       source: "contextual-learn",
     } : {

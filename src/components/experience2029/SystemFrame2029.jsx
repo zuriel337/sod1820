@@ -17,6 +17,7 @@ import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { buildExactReturnPatch } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { requestEmailOtp, verifyEmailOtp } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
@@ -1449,14 +1450,7 @@ export default function SystemFrame2029({
       navigate(-1);
       return;
     }
-    research.updateResearchContext?.({
-      subject: target.subject || null,
-      selection: target.selection || null,
-      lens: target.lens || null,
-      dimensions: target.dimensions || null,
-      journey: target.journey || null,
-      returnTo: null,
-    });
+    research.updateResearchContext?.((current) => buildExactReturnPatch(current, target));
     emitEntryLearn("exact_return", {
       entrySurface: surface,
       arrival: "exact_return",
@@ -2026,5 +2020,5 @@ export default function SystemFrame2029({
       </div>
     </ShellContext.Provider>
   );
-  return surface === "heichal" ? <PaletteProvider value={palette}>{frame}</PaletteProvider> : frame;
+  return <PaletteProvider value={palette}>{frame}</PaletteProvider>;
 }

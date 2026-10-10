@@ -9,6 +9,8 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import Calculator2029Page from "./pages/Calculator2029Page.jsx";
+import { use2029Palette } from "./lib/palette.js";
+import { TYPEFACE } from "./lib/designTokens.js";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -28,7 +30,10 @@ const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx")
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 
 function Loading2029() {
-  return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
+  const palette = use2029Palette();
+  return <div role="status" dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
+    <span>טוען את התוכן…</span>
+  </div>;
 }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.

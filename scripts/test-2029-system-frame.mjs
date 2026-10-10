@@ -122,11 +122,7 @@ assert.equal(restored.selection.locator, "chapter:2:verse:4");
 assert.equal(restored.lens, "reading");
 assert.equal(restored.journey.position, 4);
 assert.equal(restored.returnTo, null);
-assert.match(frame, /selection:\s*target\.selection \|\| null/);
-assert.match(frame, /lens:\s*target\.lens \|\| null/);
-assert.match(frame, /dimensions:\s*target\.dimensions \|\| null/);
-assert.match(frame, /journey:\s*target\.journey \|\| null/);
-assert.match(frame, /returnTo:\s*null/);
+assert.match(frame, /updateResearchContext\?\.\(\(current\) => buildExactReturnPatch\(current, target\)\)/, "Frame must reconcile against the live runtime context");
 
 // Quick Inspect and Selection Intelligence stay temporary context projections. The native NumberDrawer2029 may be mounted as a 2029 projection, but the Legacy NumberDrawer/numberDrawer owners remain forbidden above.
 assert.match(frame, /בחירה זמנית/);
