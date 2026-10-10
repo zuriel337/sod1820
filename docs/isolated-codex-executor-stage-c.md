@@ -24,3 +24,6 @@ Attach to existing work_log_current via bounded privileged read adapter, existin
 7. User approves a single priced trial separately. Do not merge or deploy automatically.
 
 Preserve Claude and Gemini and all existing AI routing. G4 continues in Codex Cloud until the user authorizes handoff.
+
+## 2026-10-10 hard-stop safety update
+Live mode is now **unconditionally blocked** with `PAID_TRANSPORT_NOT_DEPLOYED`, including if a caller forges user approval, budget verification, runner gateway flags and environment variables. The original CLI spawn sketch has been removed. No runner can start with this branch until a separately audited authenticated gateway replaces the hard-stop. Use `scripts/codex-auto-wake-contract.mjs` + `scripts/test-codex-auto-wake-contract.mjs` for signed, OFFLINE-only acceptance and `docs/codex-auto-wake-acceptance-stage-c.md` for verified scope/remaining dependencies. A successful local gate is NOT provider cost enforcement, real Codex auto-wake or a spent API test.
