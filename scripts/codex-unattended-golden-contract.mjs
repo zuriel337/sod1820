@@ -10,14 +10,14 @@ export function verifySignedAssignment(e,key,now){
  try{
   if(!verify(null,Buffer.from(e.payload_b64,'utf8'),createPublicKey(key),Buffer.from(e.signature_b64,'base64url')))return deny('SIGNATURE_INVALID');
   const j=JSON.parse(Buffer.from(e.payload_b64,'base64url').toString('utf8'));
-  if(!j||Array.isArray(j)||j.contract!=='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'||j.actor!=='GPT'||!uuid.test(j.assignment_id||'')||!idempotency.test(j.idempotency_key||'')||j.task_key!=='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'||!['offline_golden','paid'].includes(j.mode)||j.production_write_requested!==false||!Number.isSafeInteger(j.issued_at_ms)||!Number.isSafeInteger(j.expires_at_ms)||j.expires_at_ms<=j.issued_at_ms||j.expires_at_ms-j.issued_at_ms>900000||now<j.issued_at_ms-30000||now>=j.expires_at_ms||!Number.isSafeInteger(j.timeout_ms)||j.timeout_ms<1000||j.timeout_ms>90000||!Number.isInteger(j.attempt)||j.attempt<1||j.attempt>2)return deny('INVALID_SIGNED_ASSIGNMENT');
+  if(!j||Array.isArray(j)||j.contract!=='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'||j.actor!=='GPT'||!uuid.test(j.assignment_id||'')||!idempotency.test(j.idempotency_key||'')||j.task_key!=='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'||j.workflow_mode!=='EXECUTE_BOUNDED'||!['offline_golden','paid'].includes(j.mode)||j.production_write_requested!==false||!Number.isSafeInteger(j.issued_at_ms)||!Number.isSafeInteger(j.expires_at_ms)||j.expires_at_ms<=j.issued_at_ms||j.expires_at_ms-j.issued_at_ms>900000||now<j.issued_at_ms-30000||now>=j.expires_at_ms||!Number.isSafeInteger(j.timeout_ms)||j.timeout_ms<1000||j.timeout_ms>90000||!Number.isInteger(j.attempt)||j.attempt<1||j.attempt>2)return deny('INVALID_SIGNED_ASSIGNMENT');
   return {status:'SIGNED_ASSIGNMENT_VALID',job:j};
  }catch{return deny('SIGNATURE_OR_PAYLOAD_INVALID');}
 }
 // 'evidence' must be assembled SERVER-SIDE by an independently authenticated adapter
 // reading canonical work_log and provider records. NEVER accept it from the job body.
 export function checkTrustedEvidence(j,e,now){
- if(!e||e.identity!=='trusted-work-log-adapter'||e.assignment_id!==j.assignment_id||e.one_active_writer_verified!==true||e.owner_verified!==true||e.lease_owner!=='CODEX_RUNNER'||!Number.isSafeInteger(e.lease_valid_until_ms)||e.lease_valid_until_ms<=now||e.lease_valid_until_ms-now>120000||e.lease_valid_until_ms<now+j.timeout_ms||e.idempotency_key!==j.idempotency_key||!Number.isSafeInteger(e.checked_at_ms)||Math.abs(now-e.checked_at_ms)>30000)return deny('TRUSTED_COORDINATION_EVIDENCE_MISSING');
+ if(!e||e.identity!=='trusted-work-log-adapter'||e.workflow_mode!=='EXECUTE_BOUNDED'||e.assignment_mode!=='WRITE'||e.assignment_id!==j.assignment_id||e.one_active_writer_verified!==true||e.owner_verified!==true||e.lease_owner!=='CODEX_RUNNER'||!Number.isSafeInteger(e.lease_valid_until_ms)||e.lease_valid_until_ms<=now||e.lease_valid_until_ms-now>120000||e.lease_valid_until_ms<now+j.timeout_ms||e.idempotency_key!==j.idempotency_key||!Number.isSafeInteger(e.checked_at_ms)||Math.abs(now-e.checked_at_ms)>30000)return deny('TRUSTED_COORDINATION_EVIDENCE_MISSING');
  if(j.mode==='offline_golden')return {status:'OFFLINE_ACCEPTED_NO_PROVIDER',executed:false};
  const p=e.provider;
  // Quoted token cost is NOT a dollar-denominated hard stop. Fail if external cap unverified.
