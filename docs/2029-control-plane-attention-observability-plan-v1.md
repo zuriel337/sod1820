@@ -896,6 +896,30 @@ The system does not autonomously:
 
 ---
 
+<a id="corpus-interpretation-interview"></a>
+
+### 12.1 Corpus coverage, interpretation learning and next interview
+
+**2026-10-11 planning integration; existing owners only.** Source requirement: `work_log 48a3da84-120d-4bf9-8f58-2e1703ecb917`. Detailed continuity and interview acceptance live in [the existing dependency plan §8A](2029-implementation-dependency-plan-v1.md#corpus-interpretation-interview-continuity). This extends the planned Recommendations/Attention projection; it is not a new learning store, corpus scanner, interview queue or immediate full-Admin requirement. Later 9/10Oct public-core-first deferral and `2029-unified-control-center-architecture-freeze-v1.md` govern the earlier CP1/CP2 timing in this document.
+
+The existing 2029 Control Plane should expose:
+- known corpus scope by source family, declared unit and inventory snapshot, with missing/inaccessible inventory and duplicate placements separate;
+- separate counts for inventoried, processed-with-receipt, source-located interpretation, ZURIEL-reviewed, held-out replay-tested and authorized consumer-available material;
+- materially unanswered interpretation questions and the decision each answer changes;
+- source-linked corrected/approved/rejected examples, reason, scope/exceptions and revision;
+- the next bounded interview question/group, representative source and counterexample, current owner/blocker and exact resume reference;
+- retrieval/learning-admission coverage and honest unavailable states, distinct from product engagement.
+
+No “AI understands X%” meter. The user's10%/90% example is unmeasured. Only show a coverage percentage when its unit, known denominator, snapshot and evidence are defensible; do not equate Research Grammar coverage, exact-witness coverage or corpus exhaustion. New authorized arrivals extend inventory without resetting completed work.
+
+Raziel learns from attributed reasons, corrections and source-linked examples through existing Research Strategy/decision/learning owners. Proposed interpretation, human approval, verified fact, policy admission and publication remain distinct. A question's answer must be shown in later authorized retrieval before claiming product memory/adaptation; no model-weight training is inferred. Questions are grouped by decision relevance, not one interview per source.
+
+Confirmed UX direction: after an edit, offer a small contextual “יש לי רעיון להמשך” invitation only for a meaningful suggestion; the same referenced item remains reachable here. A natural-language reason for acceptance/rejection is optional, and Raziel reflects its understanding for correction. These are design decisions pending consumer implementation, not a running AI schedule.
+
+**Resume fixture:** inventory snapshot/units → covered/remaining scope → last source-linked decision and reason → open question → recommended next interview/owner → exact return. Validate it in a fresh authorized session using existing readers; never repeat the whole scan just because a session changed. A missing attachment triggers original-artifact recovery. Keep site-release evidence and ongoing corpus/learning completion separate; this subsection adds no new G4 gate or public completion claim.
+
+---
+
 ## 13. Alerts vs dashboards
 
 Do not turn every metric into an alert.
