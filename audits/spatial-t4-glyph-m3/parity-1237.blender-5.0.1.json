@@ -1,0 +1,515 @@
+{
+  "assets": {
+    "mistater-letter:0:0:\u05d4": {
+      "content_hash": "sha256:e2bdfe1386c24fd277d74ce76e0f459b95f645158a95658ede580c8cdfcc8fa5",
+      "glyph_id": "heglyph:05D4"
+    },
+    "mistater-letter:0:1:\u05ea": {
+      "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+      "glyph_id": "heglyph:05EA"
+    },
+    "mistater-letter:0:2:\u05d2": {
+      "content_hash": "sha256:ad722d844fa223dd6b5549a597c989a6988000d2b8ecaddf629c6a63d7d4244f",
+      "glyph_id": "heglyph:05D2"
+    },
+    "mistater-letter:0:3:\u05dc": {
+      "content_hash": "sha256:76ffe35b56c38414afc10305089787ff489d2850585f6ec9c1497cc808c179b5",
+      "glyph_id": "heglyph:05DC"
+    },
+    "mistater-letter:0:4:\u05d5": {
+      "content_hash": "sha256:7957384548a5d181a7281e4db1cf4082a6d159875c67cdf82e46439f4c836b1e",
+      "glyph_id": "heglyph:05D5"
+    },
+    "mistater-letter:0:5:\u05ea": {
+      "content_hash": "sha256:7087d40c166220e940e9f81a3efab7e748d5ec2652defa8969ba085a78145404",
+      "glyph_id": "heglyph:05EA"
+    }
+  },
+  "blender_build_hash": "a3db93c5b259",
+  "blender_version": "5.0.1",
+  "camera": {
+    "world_matrix": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      -310.0,
+      40.0,
+      900.0,
+      1.0
+    ]
+  },
+  "connectors": {
+    "tension:0:0": {
+      "points": [
+        {
+          "x": -28.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -47.20000076293945,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -72.80000305175781,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -92.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      ]
+    },
+    "tension:0:1": {
+      "points": [
+        {
+          "x": -148.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -167.1999969482422,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -192.8000030517578,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -212.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      ]
+    },
+    "tension:0:2": {
+      "points": [
+        {
+          "x": -268.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -287.20001220703125,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -312.79998779296875,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -332.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      ]
+    },
+    "tension:0:3": {
+      "points": [
+        {
+          "x": -388.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -407.20001220703125,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -432.79998779296875,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -452.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      ]
+    },
+    "tension:0:4": {
+      "points": [
+        {
+          "x": -508.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -527.2000122070312,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -552.7999877929688,
+          "y": 30.0,
+          "z": 0.0
+        },
+        {
+          "x": -572.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      ]
+    }
+  },
+  "nodes": {
+    "mistater-letter:0:0:\u05d4": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-letter:0:1:\u05ea": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -120.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-letter:0:2:\u05d2": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -240.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-letter:0:3:\u05dc": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -360.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-letter:0:4:\u05d5": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -480.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-letter:0:5:\u05ea": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -600.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-result:1237": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -300.0,
+        120.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-tension:\u05d4\u05ea\u05d2\u05dc\u05d5\u05ea": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "mistater-word:0": {
+      "world_matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "projection_signature": "projsig.v1:cyrb53:08a96ad212ac0a",
+  "scene_id": "sod1820.scene.v1:adjacent_letter_tension:mistater-tension:\u05d4\u05ea\u05d2\u05dc\u05d5\u05ea",
+  "schema": "sod1820.scene.v1.blender-parity/1",
+  "sockets": {
+    "mistater-letter:0:0:\u05d4#in": {
+      "node": "mistater-letter:0:0:\u05d4",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": 28.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:0:\u05d4#out": {
+      "node": "mistater-letter:0:0:\u05d4",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -28.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:1:\u05ea#in": {
+      "node": "mistater-letter:0:1:\u05ea",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -92.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:1:\u05ea#out": {
+      "node": "mistater-letter:0:1:\u05ea",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -148.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:2:\u05d2#in": {
+      "node": "mistater-letter:0:2:\u05d2",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -212.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:2:\u05d2#out": {
+      "node": "mistater-letter:0:2:\u05d2",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -268.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:3:\u05dc#in": {
+      "node": "mistater-letter:0:3:\u05dc",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -332.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:3:\u05dc#out": {
+      "node": "mistater-letter:0:3:\u05dc",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -388.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:4:\u05d5#in": {
+      "node": "mistater-letter:0:4:\u05d5",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -452.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:4:\u05d5#out": {
+      "node": "mistater-letter:0:4:\u05d5",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -508.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:5:\u05ea#in": {
+      "node": "mistater-letter:0:5:\u05ea",
+      "normal": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -572.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "mistater-letter:0:5:\u05ea#out": {
+      "node": "mistater-letter:0:5:\u05ea",
+      "normal": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": -628.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  }
+}

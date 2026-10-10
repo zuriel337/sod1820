@@ -1,3 +1,5 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -130,10 +132,7 @@ function sourceDetail(row) {
   return detail && !technicalSourceText(detail) ? detail : "";
 }
 
-function traceStepLabel(step) {
-  if (typeof step === "string") return clean(step);
-  return clean(step?.label || step?.word || step?.step || step?.expression || step?.description);
-}
+
 
 function anchorExpression(fact, root) {
   const text = clean(fact);
@@ -584,12 +583,13 @@ function NumberPageBody() {
     return () => { alive = false; };
   }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
 
-  const trace = traceState.finding?.projection?.dimensions?.trace || null;
-  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedMethodProfile?.computedValue ?? null;
-  const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
+  const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
+  const trace = isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
+  const activeResult = traceNumber(trace?.result ?? selectedMethodProfile?.computedValue);
+  const traceSteps = gematriaTraceLines(trace, { expression: activeExpression, methodKey: selectedMethodKey });
 
   useEffect(() => {
-    const next = Number(activeResult);
+    const next = traceNumber(activeResult);
     if (!Number.isSafeInteger(next) || next < 0) {
       setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
       return undefined;
@@ -625,7 +625,7 @@ function NumberPageBody() {
   }, [activeResult]);
 
   useEffect(() => {
-    const next = Number(activeResult);
+    const next = traceNumber(activeResult);
     if (!Number.isSafeInteger(next) || next === root) {
       setMethodResultState({ loading: false, data: null, error: null, key: null });
       return undefined;
@@ -719,7 +719,7 @@ function NumberPageBody() {
     heroMedia: leadMedia,
   }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
-  const explicitStageResult = focusExplicit && Number.isSafeInteger(Number(activeResult))
+  const explicitStageResult = focusExplicit && (traceNumber(activeResult) != null)
     ? Number(activeResult)
     : root;
   const stageData = explicitStageResult !== root
@@ -824,7 +824,7 @@ function NumberPageBody() {
     method: focusExplicit ? focusMethodKey : null,
     methodVersion: focusExplicit ? focusTrace?.method_version ?? focusProfile?.definitionVersion ?? null : null,
     findingId: focusTrace ? traceState.finding?.id || null : null,
-    resultValue: focusExplicit && focusResult != null && Number.isFinite(Number(focusResult)) ? Number(focusResult) : null,
+    resultValue: focusExplicit && (traceNumber(activeResult) != null) ? Number(activeResult) : null,
     focusKind: focusExplicit ? (focusedCrossingPartner ? "crossing" : "expression") : null,
     crossingPartner: focusExplicit ? focusedCrossingPartner || null : null,
   });
@@ -997,7 +997,7 @@ function NumberPageBody() {
       root,
       expression: forcedExpression || activeExpression || null,
       method: focusMethodKey,
-      resultValue: Number.isFinite(Number(activeResult)) ? Number(activeResult) : null,
+      resultValue: (traceNumber(activeResult) != null) ? Number(activeResult) : null,
       crossingPartner: forcedCrossing || coreProjection?.crossing?.partner || null,
       zeroScaleNext: coreProjection?.zeroScale?.next ?? null,
       ...focusPatch,
@@ -1131,7 +1131,7 @@ function NumberPageBody() {
       <div>
         <span>מיקוד פעיל</span>
         <strong>{focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}</strong>
-        <small>{activeMethodLabel || focusMethodKey || "שיטה"} {Number.isFinite(Number(activeResult)) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
+        <small>{activeMethodLabel || focusMethodKey || "שיטה"} {(traceNumber(activeResult) != null) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
         {research.context?.returnTo?.href
@@ -1287,7 +1287,7 @@ export default function Number2029Page() {
 
   return <Sod2029Shell
     surface="number"
-    symbol="123"
+    symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
     <NumberPageBody />

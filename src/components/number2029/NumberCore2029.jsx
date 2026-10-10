@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
+import SignatureResearchIcon from "../SignatureResearchIcon.jsx";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
@@ -65,6 +67,7 @@ function MethodInspector({
   onMethodLensExpression,
   onClose,
 }) {
+  const inspectorId = useId();
   if (!method) return null;
   const worlds = Array.isArray(projection?.worlds) ? projection.worlds : [];
   const raziel = projection?.razielMicro;
@@ -77,47 +80,61 @@ function MethodInspector({
 
   return <div className="sod29-number-method-inspector" data-method-inspector={method.methodKey}>
     <div className="sod29-number-method-inspector-head">
+      <SignatureResearchIcon name="number" label="דף המספר" />
       <div>
-        <span>METHOD INSPECTOR</span>
+        <span>השיטה שבחרתם</span>
         <strong>{publicMethodLabel(method)}</strong>
         <small>{projection.expression} → {method.computedValue ?? "—"}</small>
       </div>
       <button type="button" className="close" onClick={onClose} aria-label="סגור פירוט שיטה">×</button>
     </div>
 
-    <div className="sod29-number-method-inspector-tabs" role="tablist" aria-label="פירוט השיטה">
+    <div className="sod29-number-method-inspector-tabs" role="tablist" aria-label="פירוט השיטה" onKeyDown={(event) => {
+      const current = TABS.findIndex((item) => item.key === tab);
+      const next = event.key === "Home" ? 0 : event.key === "End" ? TABS.length - 1
+        : event.key === "ArrowLeft" ? (current + 1) % TABS.length
+        : event.key === "ArrowRight" ? (current - 1 + TABS.length) % TABS.length : null;
+      if (next == null) return;
+      event.preventDefault();
+      setTab(TABS[next].key);
+      event.currentTarget.querySelectorAll('[role="tab"]')[next]?.focus();
+    }}>
       {TABS.map((item) => <button
         type="button"
         role="tab"
+        id={`${inspectorId}-${item.key}`}
+        aria-controls={`${inspectorId}-panel`}
         aria-selected={tab === item.key}
+        tabIndex={tab === item.key ? 0 : -1}
         className={tab === item.key ? "is-active" : ""}
         key={item.key}
         onClick={() => setTab(item.key)}
       >{item.label}</button>)}
     </div>
 
-    {tab === "calc" ? <div className="sod29-number-method-inspector-pane">
+    {tab === "calc" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-calc`} className="sod29-number-method-inspector-pane">
       <div className="sod29-number-method-calc-line">
         <span>{projection.expression}</span>
         <b>{publicMethodLabel(method)}</b>
         <strong>{method.computedValue ?? "—"}</strong>
       </div>
-      <p>הערך מגיע מהמנוע הקנוני. הביטוי נשאר {projection.expression}; פתיחת מספר אחר היא פעולה מפורשת.</p>
+      <p>בחרו אות או צעד בהמחשה, או פתחו את הפירוט המלא. בלשונית למד תמצאו הסבר ודוגמה עם הביטוי שלכם.</p>
       <div className="sod29-number-method-inspector-actions">
-        <button type="button" disabled={!traceState?.finding && !traceState?.error} onClick={onToggleTrace}>{traceOpen ? "סגור Trace" : "איך מחשבים?"}</button>
-        {method.computedValue != null && Number(method.computedValue) !== Number(projection.root)
-          ? <span className="sod29-number-method-result-note">תוצאה פעילה ≠ Root</span>
-          : <span className="sod29-number-method-result-note">התוצאה יושבת על ה־Root</span>}
+        <button type="button" disabled={!traceState?.finding && !traceState?.error} onClick={onToggleTrace}>{traceOpen ? "סגור פירוט" : "איך מחשבים?"}</button>
+        {method.computedValue == null ? <span className="sod29-number-method-result-note">נדרש הקשר לחישוב</span> : Number(method.computedValue) !== Number(projection.root)
+          ? <span className="sod29-number-method-result-note">תוצאת השיטה שונה ממספר הדף</span>
+          : <span className="sod29-number-method-result-note">תוצאת השיטה זהה למספר הדף</span>}
       </div>
-      {traceState?.error ? <div className="sod29-number-core2029-note">Trace לא זמין כרגע לשילוב הזה.</div> : null}
+      {traceState?.error ? <div className="sod29-number-core2029-note">פירוט החישוב אינו זמין כרגע.</div> : null}
       {traceOpen && traceState?.finding ? <div className="sod29-number-core2029-trace-steps">
-        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace ללא פירוט צעדים להצגה.</span>}
+        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>אין צעדי חישוב זמינים להצגה.</span>}
       </div> : null}
       <SpatialMethodStage2029
         expression={projection.expression}
         methodKey={method.methodKey}
         trace={traceDetail}
         expectedValue={method.computedValue ?? null}
+        contextRequired={method.executionKind === "context_activated"}
         depth="S2"
         loading={traceState?.loading === true}
         onRazielAction={onRazielAction}
@@ -126,31 +143,11 @@ function MethodInspector({
       <MethodLens2029 selection={methodLensSelection} compact onOpenExpression={onMethodLensExpression} />
     </div> : null}
 
-    {tab === "learn" ? <div className="sod29-number-method-inspector-pane sod29-number-method-learn">
-      <div className="sod29-number-method-learn-grid">
-        <article>
-          <span>מה השיטה עושה</span>
-          <strong>{method.sub || "הגדרה קנונית זמינה דרך Registry/Trace"}</strong>
-        </article>
-        <article>
-          <span>משפחה מתמטית</span>
-          <strong>{method.mathematicalFamily || method.category || "—"}</strong>
-        </article>
-        <article>
-          <span>מבנה</span>
-          <strong>{method.atomicOrComposite || "atomic"}</strong>
-        </article>
-        <article>
-          <span>גרסה</span>
-          <strong>{method.definitionVersion ?? "—"}</strong>
-        </article>
-      </div>
-      {method.soul ? <div className="sod29-number-method-soul"><span>משמעות מחקרית / הסבר</span><p>{method.soul}</p></div> : null}
-      {Array.isArray(method.derivedFrom) && method.derivedFrom.length ? <div className="sod29-number-method-derived">נגזר מ־{method.derivedFrom.join(" · ")}</div> : null}
-      <p className="sod29-number-method-boundary">הגדרת השיטה והחישוב הם שכבות נפרדות מפרשנות. אין כאן יצירת משמעות אוטומטית.</p>
+    {tab === "learn" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-learn`} className="sod29-number-method-inspector-pane sod29-number-method-learn">
+      <MethodTraceExplanation2029 method={method} methods={projection.methods} expression={projection.expression} trace={traceDetail} loading={traceState?.loading} />
     </div> : null}
 
-    {tab === "raziel" ? <div className="sod29-number-method-inspector-pane sod29-number-method-raziel">
+    {tab === "raziel" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-raziel`} className="sod29-number-method-inspector-pane sod29-number-method-raziel">
       <div className="sod29-number-method-raziel-mini">
         <div className="orb" aria-hidden="true"><i /></div>
         <div>
@@ -167,7 +164,7 @@ function MethodInspector({
       </div>
     </div> : null}
 
-    {tab === "worlds" ? <div className="sod29-number-method-inspector-pane">
+    {tab === "worlds" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-worlds`} className="sod29-number-method-inspector-pane">
       {worlds.length ? <>
         <p>עולמות המחקר המחוברים כרגע ל־Root {projection.root}. הם הקשר/Projection — לא תוצאה של השיטה עצמה.</p>
         <div className="sod29-number-core2029-world-grid">
@@ -230,6 +227,7 @@ export default function NumberCore2029({
   const compact = mode === "drawer";
   const root = projection.root;
   const active = projection.selectedMethod;
+  const needsMethodContext = active?.executionKind === "context_activated";
   const methods = Array.isArray(projection.methods) ? projection.methods : [];
   const stage = stageProjection || projection;
   const stageRoot = Number.isSafeInteger(Number(stage?.root)) ? Number(stage.root) : root;
@@ -290,17 +288,18 @@ export default function NumberCore2029({
 
   useEffect(() => {
     setInspectorMethodKey(active?.methodKey || primaryMethods[0]?.methodKey || null);
-    setInspectorTab("calc");
-    setShowCalculation(false);
     setShowAllCrossings(false);
-    setShowMoreMethods(false);
     setFocusedCrossingPartner(null);
   }, [active?.methodKey, root, projection.expression]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const selectMethod = (method) => {
-    setInspectorMethodKey(method.methodKey);
+  useEffect(() => {
     setInspectorTab("calc");
     setShowCalculation(false);
+    setShowMoreMethods(false);
+  }, [root, projection.expression]);
+
+  const selectMethod = (method) => {
+    setInspectorMethodKey(method.methodKey);
     onMethodSelect?.(method.methodKey);
   };
 
@@ -469,7 +468,7 @@ export default function NumberCore2029({
           </button>;
         })}
       </div>
-      {!compact && remainingMethods.length ? <>
+      {remainingMethods.length ? <>
         <button type="button" className="sod29-number-v10-more-methods" data-experience-action="number-more-methods" onClick={() => setShowMoreMethods((value) => !value)} aria-expanded={showMoreMethods}>
           <span>{showMoreMethods ? "סגור שיטות נוספות" : `＋ עוד ${remainingMethods.length} שיטות`}</span>
           <small>{showMoreMethods ? "▲" : "▼"}</small>
@@ -495,6 +494,10 @@ export default function NumberCore2029({
     </section>
 
     <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
+      {needsMethodContext ? <div className="sod29-number-core2029-note" role="status">
+        <strong>{publicMethodLabel(active)}</strong>
+        <p>השיטה דורשת סימון מפורש של אות רבתי במקור. אין תוצאה לחישוב בביטוי בלבד.</p>
+      </div> : <>
       <header className="sod29-number-v10-stage-head">
         <div className={crossingFocusActive ? "is-crossing-focus" : ""} data-experience-state={crossingFocusActive ? "crossing-focus" : "number-result"}>
           {crossingFocusActive && stageCrossing ? <>
@@ -675,10 +678,11 @@ export default function NumberCore2029({
           </section> : null}
         </div>
 
+      </>}
         <button type="button" className="sod29-number-v10-calculation-card" onClick={() => setShowCalculation((value) => !value)} aria-expanded={showCalculation}>
-          <span>איך חישבנו?</span>
-          <strong>{projection.expression} · {publicMethodLabel(active)} = {stageRoot}</strong>
-          <small>{showCalculation ? "סגור פירוט ▲" : "פתח Trace ופירוט ▼"}</small>
+          <span>{needsMethodContext ? "פירוט השיטה" : "איך חישבנו?"}</span>
+          <strong>{projection.expression} · {publicMethodLabel(active)}{result != null ? ` = ${result}` : " · לא התקבלה תוצאה"}</strong>
+          <small>{showCalculation ? "סגור פירוט ▲" : "פתח פירוט חישוב ▼"}</small>
         </button>
 
         {showCalculation ? <MethodInspector
