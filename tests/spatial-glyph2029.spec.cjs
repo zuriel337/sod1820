@@ -8,12 +8,13 @@ async function open(page,preset='dark'){
   await page.addInitScript(p=>localStorage.setItem('sod-theme',p),preset);
   await page.goto(BASE+'/2029/kingdom');
   await page.getByRole('button',{name:'כניסה לממלכה',exact:true}).click();
-  await expect(page.getByRole('region',{name:'אותיות הממלכה'})).toBeVisible();
+  await page.getByRole('button',{name:'מבט מקרוב באותיות'}).click();
+  await expect(page.getByRole('region',{name:'אותיות הגילוי'})).toBeVisible();
 }
 for(const preset of ['light','parchment','dark']) test(`GPU topology, selection and context-loss fallback / ${preset}`,async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.setViewportSize({width:1440,height:1000});await open(page,preset);
-  const scene=page.getByRole('region',{name:'אותיות הממלכה'});
+  const scene=page.getByRole('region',{name:'אותיות הגילוי'});
   await expect(scene).toHaveAttribute('data-renderer','outline');
   await scene.getByRole('button',{name:'הפעלת תלת־ממד'}).click();
   await expect(scene).toHaveAttribute('data-renderer','gpu',{timeout:20000});
@@ -22,7 +23,18 @@ for(const preset of ['light','parchment','dark']) test(`GPU topology, selection 
   await expect(scene).toHaveAttribute('data-renderer','gpu');
   await scene.getByRole('button',{name:'מבט חזית'}).click();
   await expect(scene.locator('canvas')).toHaveCount(1);
-  await page.getByRole('button',{name:/מכרה המספרים.*טרם נפתח/}).click();
+  await page.getByLabel('התשובה שלכם',{exact:true}).fill('3');
+  await page.getByRole('button',{name:'בדיקת התשובה'}).click();
+  await page.getByRole('button',{name:'המשך הגילוי',exact:true}).click();
+  await page.getByLabel('התשובה שלכם',{exact:true}).fill('32');
+  await page.getByRole('button',{name:'בדיקת התשובה'}).click();
+  await page.getByRole('button',{name:'שדרוג שביל האותיות — 20 אור',exact:true}).click();
+  await page.getByRole('button',{name:/מכרה המספרים.*רמה/}).click();
+  await expect(page.locator('.sod29-glyph-scene')).toHaveCount(0);
+  await page.getByRole('button',{name:'מבט מקרוב באותיות'}).click();
+  await scene.getByRole('button',{name:'הפעלת תלת־ממד'}).click();
+  await expect(scene).toHaveAttribute('data-renderer','gpu',{timeout:20000});
+  await scene.getByRole('button',{name:'מבט חזית'}).click();
   await scene.getByRole('button',{name:'אות ם, מיקום 4',exact:true}).click();
   await expect(scene).toHaveAttribute('data-renderer','gpu');
   if(preset==='light') {
@@ -48,7 +60,7 @@ for(const preset of ['light','parchment','dark']) test(`GPU topology, selection 
 });
 test('keyboard selection, frame reduced-motion and GPU initialization failure preserve identity',async({page})=>{
   await open(page);
-  const scene=page.getByRole('region',{name:'אותיות הממלכה'});
+  const scene=page.getByRole('region',{name:'אותיות הגילוי'});
   await scene.getByRole('button',{name:'אות ב, מיקום 2',exact:true}).focus();await page.keyboard.press('Enter');
   await expect(scene).toHaveAttribute('data-occurrence','glyph:1:ב');
   await page.evaluate(()=>document.documentElement.setAttribute('data-frame-reduced-motion','true'));

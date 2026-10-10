@@ -49,7 +49,7 @@ for (const width of [320, 390, 768, 1440]) {
       }).map((node) => node.textContent));
       expect(badControls).toEqual([]);
       await expect(page.locator('.kingdom-tower, .kingdom-island')).toHaveCount(0);
-      await expect(page.locator('.sod29-glyph-scene')).toHaveAttribute('data-renderer', 'outline');
+      await expect(page.locator('.sod29-glyph-scene')).toHaveCount(0);
       await expect(page.locator('.sod29-glyph-volume canvas')).toHaveCount(0);
       await page.getByRole('button', { name: /מכרה המספרים.*טרם נפתח/ }).click();
       await expect(page.getByRole('heading', { name: 'דרך חדשה מחכה להיפתח' })).toBeVisible();
@@ -93,6 +93,11 @@ test('full loop: 10 discoveries, 5 upgrades, collection, journal and research ha
     await page.getByRole('button', { name: 'המשך הגילוי', exact: true }).click();
   }
   await expect(page.locator('.kingdom-upgrades button', { hasText: 'הושלם' })).toHaveCount(5);
+  await expect(page.locator('[data-world-building="garden"]')).toHaveAttribute('data-level','3');
+  await expect(page.locator('[data-world-building="mine"]')).toHaveAttribute('data-level','3');
+  await expect(page.locator('[data-world-building="factory"]')).toHaveAttribute('data-level','2');
+  for (const feature of ['garden-colonnade','garden-bloom','mine-lens','mine-crystal-vein','factory-prism'])
+    await expect(page.locator(`[data-feature="${feature}"]`)).toHaveCount(1);
   await expect(page.getByRole('status')).toContainText('כל עשר החידות');
   await page.locator('.kingdom-journal summary').click();
   await expect(page.locator('.kingdom-journal li')).toHaveCount(10);
@@ -106,6 +111,11 @@ test('full loop: 10 discoveries, 5 upgrades, collection, journal and research ha
   await page.locator('.sod29-rail-utilities button[aria-label="חזרה מדויקת"]').click();
   await expect(page.getByRole('heading', { name: 'ממלכת המספרים', exact: true })).toBeVisible();
   await expect(page.locator('.kingdom-upgrades button', { hasText: 'הושלם' })).toHaveCount(5);
+  await expect(page.locator('[data-world-building="garden"]')).toHaveAttribute('data-level','3');
+  await expect(page.locator('[data-world-building="mine"]')).toHaveAttribute('data-level','3');
+  await expect(page.locator('[data-world-building="factory"]')).toHaveAttribute('data-level','2');
+  for (const feature of ['garden-colonnade','garden-bloom','mine-lens','mine-crystal-vein','factory-prism'])
+    await expect(page.locator(`[data-feature="${feature}"]`)).toHaveCount(1);
 });
 test('unavailable local storage allows play with an honest save warning', async ({ page }) => {
   await page.addInitScript(() => {
@@ -121,4 +131,33 @@ test('unavailable local storage allows play with an honest save warning', async 
   await page.getByLabel('התשובה שלכם', { exact: true }).fill('3');
   await page.getByRole('button', { name: 'בדיקת התשובה' }).click();
   await expect(page.getByTestId('light')).toHaveText('20');
+});
+
+test('map focus, upgrade geometry, production state and optional inspection remain keyboard accessible', async ({page})=>{
+  await setup(page);
+  await page.getByRole('button',{name:'כניסה לממלכה',exact:true}).click();
+  await expect(page.locator('[data-feature="garden-colonnade"]')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'שדרוג שביל האותיות — 20 אור',exact:true})).toBeDisabled();
+  const garden=page.locator('[data-building="garden"]');
+  await garden.focus();await page.keyboard.press('Enter');
+  await expect(page.locator('#kingdom-workbench')).toBeFocused();
+  await page.getByRole('button',{name:'חזרה למפה',exact:true}).click();
+  await expect(garden).toBeFocused();
+  for(const answer of ['3','32']) {
+    await page.getByLabel('התשובה שלכם',{exact:true}).fill(answer);
+    await page.getByRole('button',{name:'בדיקת התשובה'}).click();
+    await page.getByRole('button',{name:'המשך הגילוי',exact:true}).click();
+  }
+  await page.getByRole('button',{name:'שדרוג שביל האותיות — 20 אור',exact:true}).click();
+  await expect(page.locator('[data-feature="garden-colonnade"]')).toHaveCount(1);
+  await expect(page.locator('[data-world-building="mine"]')).toHaveAttribute('data-level','1');
+  await page.getByRole('button',{name:'ללא תנועה',exact:true}).click();
+  await expect(page.locator('.kingdom')).toHaveAttribute('data-still','true');
+  expect(await page.locator('.km-event').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  await page.getByRole('button',{name:'מבט מקרוב באותיות'}).click();
+  await expect(page.locator('.sod29-glyph-scene')).toHaveAttribute('data-renderer','outline');
+  await page.getByRole('button',{name:'סגירת מרחב האותיות'}).click();
+  await expect(page.locator('.sod29-glyph-scene')).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('[data-feature="garden-colonnade"]')).toHaveCount(1);
 });

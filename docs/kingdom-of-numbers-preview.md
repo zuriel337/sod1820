@@ -1,5 +1,104 @@
 # Kingdom of Numbers — phase 1 review handoff
 
+## Current: spatial gameplay map — 2026-10-10
+
+Task `KINGDOM_2029_SPATIAL_GAMEPLAY_UPGRADE_V1` · actor GPT · owner Experience / System Frame.
+User instruction: execute `e214b459-1a7c-4c2c-9e59-8efe2fd16a18`.
+Operational BEFORE/ACK: `f3fa8e71-a496-472c-ba14-a41bd49a3ff3`.
+Continued the existing clean local `codex/kingdom-of-numbers-preview` at `ca427973`.
+Fetched `origin/main` at `8e939d3b092f267e40d74953b9103711322276d2`: ahead 9, behind 0 before this change.
+Previous branch work is preserved. Nothing pushed, merged or released to production.
+
+### Implementation delta
+
+- `src/components/kingdom/KingdomMap2029.jsx`: one bounded CPU SVG world. Curved
+  garden conservatory, faceted excavated mine and cylindrical light workshop share
+  terrain, a watercourse, bridge and paths. World artwork is separate from the existing
+  menu icon family. No new icon registry, palette, WebGL world or game state engine.
+- All five upgrades alter geometry from replayed `buildingLevel`: garden colonnade
+  and pathway; mine lens and factory path; factory prism assembly; garden bloom;
+  mine crystal vein. Pending production adds collectible crystals. Locked, selected
+  and opened states have live text labels and accessible buttons as well as art.
+- Desktop shows the whole world; <=700px shows a crop centered on one selected
+  building with all three accessible selectors. Scenery itself is nonsemantic SVG;
+  desktop hit targets and labelled controls open the existing challenge sheet.
+  Keyboard selection focuses the sheet; return focuses the exact originating selector.
+- `Kingdom2029Page.jsx` / `kingdom2029.css`: explicit optional letter inspection.
+  Neither the scene/atlas nor GPU chunk loads on initial game entry. Opening the
+  panel loads the unchanged shared scene; explicit depth activation loads the GPU.
+  Closing the panel or changing buildings unmounts it. Existing failure/reduced-motion
+  behavior and resource cleanup remain in the existing renderer owner.
+- Short finite discovery/upgrade/pickup feedback plus a dismissible reward card;
+  no timers, urgency or permanent animation. Optional no-motion control and OS/frame
+  reduced motion disable CSS effects. Rewards apply immediately, independent of animation.
+- Canonical ResearchContext handoff remains unchanged in authority. Its return URL now
+  includes the selected building; return restores that selection and replayed progress.
+  Vetted ten fixtures, all five costs/gates, bounded event replay, XP/light and production
+  reducer are unchanged. No product data or research truth writes.
+
+### Existing design contract application / owner handoff
+
+EXTEND_EXISTING: Design V2 §13 and the approved menu family continue to govern this
+projection. Presets, semantic colors, Rubik / Noto Hebrew / IBM Plex Mono, 14px floor,
+44px controls, RTL and existing System Frame are consumed without edits to shared owners.
+The current operational brief distinguishes spatial gameplay scenery from optional
+contour-aware letter inspection; the retired cuboid assets are not restored.
+
+Design V2 currently has active palette and intro writers (`ROYAL_PALETTE_FEEDBACK_20261010`
+and `UNIFIED_PAGE_INTRO_ICONS_20261009`). Its file is intentionally not edited in this lane.
+For that owner to incorporate when its scope closes: Kingdom world geometry reflects
+replayed gameplay state; letter depth is optional and not initial gameplay; bounded
+feedback cannot gate a reward; every world target has a labelled keyboard alternative;
+mobile keeps one world focus. This is an implementation handoff, not a second contract.
+Shared Number/glyph/icon/Journey/Frame sources remain byte-for-byte unchanged this turn.
+Only the existing spatial browser harness was adapted to the new explicit inspection entry.
+
+### Verification
+
+- 26 browser cases PASS: 15 Kingdom, 5 spatial GPU/fallback, 5 icon library, 1 loading/performance.
+  Covers 320/390/768/1440px and all three presets, RTL, target floors, reduced motion,
+  full ten-puzzle/five-upgrade loop, visual level geometry, keyboard sheet/return,
+  pending pickup, saved replay, unavailable storage and canonical research return.
+- Four reducer tests PASS: ten fixtures against existing engine, gating, replay,
+  forged/corrupt data rejection and repeated-answer/upgrade/collect idempotence.
+- Both production builds PASS. Source isolation, built graph isolation, Experience
+  Context and Number acceptance PASS. Ordinary 2029 manifest excludes Kingdom.
+- Existing shared GPU tests PASS after moving their entry behind the optional panel:
+  contour/hole picking, letter identity, mobile resize, context-loss/init-failure fallback,
+  three presets, Milui fixture and one active GPU. Icon exports/downloads still PASS.
+- Evidence: `/workspace/artifacts/kingdom-map/` holds desktop/mobile screenshots for
+  initial and evolved maps, full-loop captures and `performance.json`.
+
+### Measured loading / runtime limits
+
+Headless Chromium with SwiftShader, local HTTP, 390×844; one measurement, not a
+physical-device benchmark. Map has 102 SVG descendants initially and no canvas.
+Initial loaded resources total 443,309 encoded body bytes (includes shared frame).
+Opening outlines raises that to 584,221; explicit GPU activation to 725,349.
+Bundle sizes raw / gzip / Brotli bytes:
+
+| Chunk | Raw | gzip | Brotli |
+| --- | ---: | ---: | ---: |
+| Kingdom page + world | 28,920 | 9,191 | 7,983 |
+| Optional outlines + atlas | 364,575 | 139,688 | 88,644 |
+| Explicit GPU | 550,080 | 141,128 | 114,910 |
+
+Compression columns are independently calculated from final built bytes. Resource
+sizes above come from browser Resource Timing. Submit-to-reward next-frame measurement:
+17.4ms; GPU button automation-to-ready: 1,150ms. One 95ms initial long task and two
+GPU activation long tasks (168/124ms) were observed. These are reported, not hidden
+behind an unsupported performance claim. Heap snapshots are in the raw evidence and
+are not GPU-memory or leak measurements. Real mobile-device timing/memory acceptance
+remains open; no actual-slowdown conclusion is inferred from uncompressed file size.
+
+### Release state
+
+IMPLEMENTED / TESTED / COMMITTED locally. Preview deployment and hosted acceptance
+are recorded below when verified. Production remains unchanged. General Supabase
+connector used for authorized operational BEFORE/AFTER only; no schema, permissions,
+product rows, research values or live laws changed.
+
+
 ## Contour-aware spatial implementation — 2026-10-09
 
 Actor GPT · same task / branch · existing Experience Governance v9 + Design V2.

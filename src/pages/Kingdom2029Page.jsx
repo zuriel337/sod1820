@@ -5,8 +5,9 @@ import { useResearch } from '../lib/research/ResearchProvider.jsx';
 import { numberExpressionFocusHref } from '../lib/research/numberExpressionFocus.js';
 import {
   BUILDINGS, CHALLENGES, UPGRADES, PREVIEW_STORAGE_KEY, initialState, transition,
-  restorePreview, serializePreview, isUnlocked, buildingLevel, upgradeAvailable, answerMatches,
+  restorePreview, serializePreview, isUnlocked, upgradeAvailable, answerMatches,
 } from '../lib/kingdom/kingdomPreview.js';
+import KingdomMap2029 from '../components/kingdom/KingdomMap2029.jsx';
 import './kingdom2029.css';
 
 const SpatialGlyphScene2029 = lazy(() => import("../components/experience2029/SpatialGlyphScene2029.jsx"));
@@ -19,12 +20,28 @@ function KingdomGame() {
   const shell = use2029Shell();
   const research = useResearch();
   const [state, dispatch] = useReducer(transition, undefined, readProgress);
-  const [selected, setSelected] = useState('garden');
+  const [selected, setSelected] = useState(() => {
+    const id = new URLSearchParams(window.location.search).get('building');
+    return BUILDINGS.some(item => item.id === id) ? id : 'garden';
+  });
   const [challengeId, setChallengeId] = useState(null);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
   const [hint, setHint] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [inspect, setInspect] = useState(false);
+  const [still, setStill] = useState(false);
+  const [moment, setMoment] = useState(null);
+  const mapRef = useRef(null);
+  const sheetRef = useRef(null);
+  const focusSheet = useRef(false);
+  const momentId = useRef(0);
+  useEffect(() => {
+    if (focusSheet.current) { sheetRef.current?.focus(); focusSheet.current = false; }
+  }, [selected]);
+  function celebrate(type, building, text) {
+    setMoment({ id: ++momentId.current, type, building, text });
+  }
   const heading = useRef(null);
   const challengeHeading = useRef(null);
   const building = BUILDINGS.find((item) => item.id === selected);
@@ -40,7 +57,9 @@ function KingdomGame() {
     catch { setSaveFailed(true); }
   }, [state]);
   function chooseBuilding(id) {
-    setSelected(id); setChallengeId(null); setAnswer(''); setFeedback(''); setHint(false);
+    focusSheet.current = true;
+    setSelected(id); setChallengeId(null); setAnswer(''); setFeedback(''); setHint(false); setInspect(false);
+    if (id === selected) { sheetRef.current?.focus(); focusSheet.current = false; }
   }
   function submit(event) {
     event.preventDefault();
@@ -51,12 +70,15 @@ function KingdomGame() {
     setChallengeId(challenge.id);
     dispatch({ type: 'answer', id: challenge.id, answer });
     setFeedback('גילוי חדש! נוספו 20 אור ו־10 נקודות ניסיון במשחק.');
+    celebrate('discovery', selected, '+20 אור · גילוי חדש בממלכה');
   }
   function nextChallenge() {
     setChallengeId(null); setAnswer(''); setFeedback(''); setHint(false);
     challengeHeading.current?.focus();
   }
   function buy(upgrade) {
+    if (!upgradeAvailable(state, upgrade)) return;
+    celebrate('upgrade', upgrade.building, `${upgrade.title} · הממלכה התפתחה`);
     dispatch({ type: 'upgrade', id: upgrade.id });
     setFeedback(`${upgrade.title} הושלם. ${upgrade.benefit}.`);
   }
@@ -67,12 +89,12 @@ function KingdomGame() {
     research.setResearchContext?.({
       subject: { id: String(item.answer), type: 'number', label: String(item.answer), href },
       selection: null, lens: 'number', dimensions: {},
-      returnTo: { href: '/2029/kingdom', label: 'ממלכת המספרים', subject: null,
+      returnTo: { href: `/2029/kingdom?building=${selected}`, label: 'ממלכת המספרים', subject: null,
         selection: null, lens: 'journey', dimensions: {}, journey: null },
     });
     shell.go(href, { preserve: false });
   }
-  return <div className="kingdom" dir="rtl">
+  return <div className="kingdom" dir="rtl" data-still={still}>
     <header className="kingdom-intro">
       <div><p className="kingdom-eyebrow"><NavigationIcon2029 name="kingdom" size={18} /> מסע של אותיות וגילויים</p>
         <h1 ref={heading} tabIndex={-1}>ממלכת המספרים</h1>
@@ -93,23 +115,15 @@ function KingdomGame() {
         <div><NavigationIcon2029 name="discovery" /><span><strong dir="ltr">{state.completed.length} / 10</strong> גילויים</span></div>
         <div><NavigationIcon2029 name="upgrade" /><span><strong dir="ltr">{state.upgrades.length} / 5</strong> שדרוגים</span></div>
       </section>
-      <Suspense fallback={null}><SpatialGlyphScene2029 expression={challenge?.expression || "אור"} label="אותיות הממלכה" /></Suspense>
-      <section className="kingdom-map" aria-label="מפת הממלכה">
-        <div className="kingdom-map-caption"><NavigationIcon2029 name="graph" /><span>בחרו מבנה כדי לגלות מה מחכה בו</span></div>
-        <div className="kingdom-buildings">
-          {BUILDINGS.map((item) => {
-            const level = buildingLevel(state, item.id);
-            return <button key={item.id} className={`kingdom-building ${selected === item.id ? 'is-selected' : ''} ${level ? '' : 'is-locked'}`}
-              aria-pressed={selected === item.id} onClick={() => chooseBuilding(item.id)} aria-controls="kingdom-workbench">
-              <NavigationIcon2029 name={item.icon} size={28} />
-              <span className="kingdom-building-name">{item.name}</span>
-              <span>{level ? <>רמה {level} · <bdi dir="ltr">{CHALLENGES.filter((c) => c.building === item.id && state.completed.includes(c.id)).length}/{CHALLENGES.filter((c) => c.building === item.id).length}</bdi> גילויים</> : 'טרם נפתח'}</span>
-            </button>;
-          })}
-        </div>
-      </section>
+      <KingdomMap2029 state={state} selected={selected} onChoose={chooseBuilding} mapRef={mapRef}
+        moment={moment} still={still} onToggleMotion={() => setStill(value => !value)} />
+      {moment && <div key={moment.id} className="kingdom-moment" data-event={moment.type}>
+        <NavigationIcon2029 name={moment.type === 'upgrade' ? 'upgrade' : 'discovery'} />
+        <strong>{moment.text}</strong><button type="button" aria-label="סגירת משוב הגילוי" onClick={() => setMoment(null)}>סגירה</button>
+      </div>}
       <p className="kingdom-feedback" role="status" aria-live="polite">{feedback || (finished ? 'כל עשר החידות פוענחו. אפשר להשלים שדרוגים ולהמשיך מהגילויים אל המחקר.' : 'התחילו בחידה, ואז השתמשו באור כדי לשדרג מבנה.')}</p>
-      <div className="kingdom-workbench" id="kingdom-workbench">
+      <div className="kingdom-sheet-nav"><button type="button" onClick={() => mapRef.current?.querySelector(`[data-building="${selected}"]`)?.focus()}><NavigationIcon2029 name="graph" size={20}/> חזרה למפה</button></div>
+      <div className="kingdom-workbench" id="kingdom-workbench" ref={sheetRef} tabIndex={-1} role="region" aria-label={building.name}>
         <section className="kingdom-panel kingdom-challenge" aria-labelledby="kingdom-challenge-title">
           <div className="kingdom-panel-heading"><NavigationIcon2029 name={building.icon} /><span>{building.name}</span><small>{building.description}</small></div>
           {!unlocked ? <div className="kingdom-empty"><h2 id="kingdom-challenge-title">דרך חדשה מחכה להיפתח</h2><p>השלימו את השדרוג ״{UPGRADES.find((item) => item.id === building.unlock)?.title}״ כדי להיכנס.</p><button onClick={() => chooseBuilding(selected === 'mine' ? 'garden' : 'mine')}>חזרה למבנה הקודם</button></div>
@@ -128,6 +142,10 @@ function KingdomGame() {
                 <div className="kingdom-actions"><button className="kingdom-primary" onClick={nextChallenge}>המשך הגילוי</button><button onClick={() => openResearch(challenge)}>לחקור את {challenge.answer}</button></div>
               </div>}
             </> : <div className="kingdom-empty"><h2 id="kingdom-challenge-title">כל הגילויים כאן הושלמו</h2><p>אפשר לשדרג את הממלכה או לבחור מבנה נוסף במפה.</p><button onClick={() => chooseBuilding(selected === 'garden' ? 'mine' : selected === 'mine' ? 'factory' : 'garden')}>אל המבנה הבא</button></div>}
+          {unlocked && <div className="kingdom-inspect">
+            <button type="button" aria-expanded={inspect} aria-controls="kingdom-letter-inspect" onClick={() => setInspect(value => !value)}><NavigationIcon2029 name="letters" size={20}/> {inspect ? 'סגירת מרחב האותיות' : 'מבט מקרוב באותיות'}</button>
+            {inspect && <div id="kingdom-letter-inspect"><Suspense fallback={<p>מרחב האותיות נטען…</p>}><SpatialGlyphScene2029 expression={challenge?.expression || 'אור'} label="אותיות הגילוי" /></Suspense></div>}
+          </div>}
         </section>
         <section className="kingdom-panel kingdom-upgrades" aria-labelledby="kingdom-upgrades-title"><h2 id="kingdom-upgrades-title"><NavigationIcon2029 name="upgrade" /> מגדלים את הממלכה</h2>
           <ul>{UPGRADES.map((upgrade) => {
@@ -139,7 +157,7 @@ function KingdomGame() {
       </div>
       <section className="kingdom-panel kingdom-production" aria-labelledby="kingdom-production-title"><div><h2 id="kingdom-production-title"><NavigationIcon2029 name="combinations" /> האור שבמפעל</h2>
         <p>{isUnlocked(state, 'factory') ? 'כל גילוי חדש מזין את המפעל. השדרוגים מגדילים את האור שייווצר בגילויים הבאים.' : 'המפעל יתחיל לייצר אור מגילויים חדשים אחרי שדרוג ״עדשת המספרים״.'}</p></div>
-        <button className="kingdom-primary" disabled={!state.pending} onClick={() => { dispatch({ type: 'collect' }); setFeedback(`${state.pending} אור נאספו מהמפעל.`); }}>איסוף {state.pending} אור</button>
+        <button className="kingdom-primary" disabled={!state.pending} onClick={() => { celebrate('collect', 'factory', `${state.pending} אור נאספו מהמפעל`); dispatch({ type: 'collect' }); setFeedback(`${state.pending} אור נאספו מהמפעל.`); }}>איסוף {state.pending} אור</button>
       </section>
       <details className="kingdom-panel kingdom-journal"><summary><NavigationIcon2029 name="journal" /> מחברת הגילויים · {state.completed.length}</summary>
         <p>החישוב מתאר ערך מספרי. שוויון בין ערכים הוא הזמנה לבדיקה, ואינו מוכיח קשר או טענה על המציאות.</p>
