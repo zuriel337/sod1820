@@ -116,14 +116,27 @@ begin
        and v_row.dispatch_context ? 'codex_consumption' then
       -- Reuse the canonical terminal AFTER authority; no second recovery ledger.
       -- A late worker finishing after this row is terminal receives lease mismatch.
-      perform public.agent_dispatch_finish(
-        v_row.id, v_row.dispatch_lease_owner, 'FAILED',
-        'AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED',
-        'Codex one-shot lease expired after approval consumption; no automatic retry.',
-        'Operator verification required before issuing a NEW signed assignment.',
-        false, 'codex_consumed_lease_expired'
-      );
-      v_failed:=v_failed+1;
+      begin
+        perform public.agent_dispatch_finish(
+          v_row.id, v_row.dispatch_lease_owner, 'FAILED',
+          'AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED',
+          'Codex one-shot lease expired after approval consumption; no automatic retry.',
+          'Operator verification required before issuing a NEW signed assignment.',
+          false, 'codex_consumed_lease_expired'
+        );
+        v_failed:=v_failed+1;
+      exception when others then
+        -- Fail closed in THIS Codex row only; never abort unrelated Claude recovery.
+        -- No actor wake or retry from this deferred operator-review state.
+        update public.work_log
+           set dispatch_state='DEFERRED',
+               status='DEFERRED_CODEX_RECOVERY_NEEDS_OPERATOR',
+               dispatch_last_error='codex_one_shot_recovery_terminalization_failed',
+               dispatch_next_attempt_at=null,
+               dispatch_lease_owner=null,
+               dispatch_lease_expires_at=null
+         where id=v_row.id;
+      end;
     elsif coalesce(v_row.dispatch_attempts,0)>=3 then
       v_wake:=v_row.from_actor in ('GPT','CLAUDE');
       insert into public.work_log(
@@ -209,3 +222,146 @@ grant execute on function public.agent_dispatch_recover() to service_role;
 comment on function public.agent_dispatch_recover() is
  'Generic dispatch recovery excluding GPT RESULT_WAKE claims; consumed REMOTE_CODEX_EXECUTOR_BRIDGE_V1 offline-Golden leases fail terminally through canonical AFTER, never retry.';
 
+
+-- Canonical finish owner preserved: ONLY the narrowly identified expired,
+-- consumed Codex OFFLINE Golden failure suppresses a paid GPT result wake.
+-- Ordinary completed/failed Claude and Codex handoffs retain existing behavior.
+create or replace function public.agent_dispatch_finish(
+  p_assignment_id uuid,
+  p_worker text,
+  p_outcome text,
+  p_result_status text,
+  p_result_summary text,
+  p_open_threads text default null,
+  p_retryable boolean default false,
+  p_error text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_row public.work_log%rowtype;
+  v_outcome text := upper(trim(coalesce(p_outcome,'')));
+  v_after_id uuid;
+  v_next interval;
+  v_wake boolean;
+  v_after_dispatch_state text;
+  v_after_dispatch_kind text;
+  v_after_to text;
+begin
+  select * into v_row
+  from public.work_log
+  where id = p_assignment_id
+  for update;
+
+  if not found then raise exception 'assignment not found'; end if;
+  if v_row.dispatch_state <> 'CLAIMED'
+     or v_row.dispatch_lease_owner is distinct from left(p_worker,200) then
+    raise exception 'lease mismatch';
+  end if;
+
+  if v_outcome = 'DEFERRED' then
+    update public.work_log
+       set dispatch_state = 'DEFERRED',
+           status = left(coalesce(nullif(p_result_status,''),'DEFERRED_AGENT_RUNTIME'),240),
+           dispatch_last_error = left(coalesce(p_error,p_result_summary,'deferred'),1000),
+           dispatch_lease_owner = null,
+           dispatch_lease_expires_at = null,
+           dispatch_next_attempt_at = null
+     where id = p_assignment_id;
+    return jsonb_build_object('state','DEFERRED','assignment_id',p_assignment_id);
+  end if;
+
+  if v_outcome = 'FAILED' and p_retryable and coalesce(v_row.dispatch_attempts,0) < 3 then
+    v_next := case coalesce(v_row.dispatch_attempts,0)
+      when 1 then interval '1 minute'
+      when 2 then interval '5 minutes'
+      else interval '15 minutes'
+    end;
+    update public.work_log
+       set dispatch_state = 'RETRY_WAIT',
+           dispatch_last_error = left(coalesce(p_error,p_result_summary,'retryable_failure'),1000),
+           dispatch_next_attempt_at = now() + v_next,
+           dispatch_lease_owner = null,
+           dispatch_lease_expires_at = null
+     where id = p_assignment_id;
+    return jsonb_build_object('state','RETRY_WAIT','assignment_id',p_assignment_id,'next_attempt_at',now()+v_next);
+  end if;
+
+  if v_outcome not in ('COMPLETED','FAILED','CANCELLED') then
+    raise exception 'invalid terminal outcome %', v_outcome;
+  end if;
+
+  v_wake := v_row.from_actor in ('GPT','CLAUDE');
+  -- One-shot OFFLINE crash recovery must be observable in the canonical AFTER
+  -- without automatically invoking the potentially billed GPT RESULT_WAKE path.
+  -- Never change ordinary Claude/GPT or successful Codex result delivery.
+  if v_outcome='FAILED'
+     and p_result_status='AFTER_CODEX_ONE_SHOT_LEASE_EXPIRED'
+     and p_error='codex_consumed_lease_expired'
+     and v_row.task_key='REMOTE_CODEX_EXECUTOR_BRIDGE_V1'
+     and v_row.to_actor='GPT'
+     and v_row.dispatch_kind='ASSIGNMENT'
+     and v_row.dispatch_context ? 'codex_consumption'
+  then
+    v_wake := false;
+  end if;
+  v_after_dispatch_state := case when v_wake then 'QUEUED' else null end;
+  v_after_dispatch_kind := case when v_wake then 'RESULT_WAKE' else null end;
+  v_after_to := case when v_wake then v_row.from_actor else null end;
+
+  insert into public.work_log(
+    topic, status, what_we_did, open_threads,
+    task_key, from_actor, to_actor, assignment_mode, assignment_scope,
+    primary_owner, release_authorization_state, parent_assignment_id,
+    dispatch_kind, dispatch_state, dispatch_next_attempt_at, dispatch_context
+  ) values (
+    format('actor=%s FROM=%s TO=%s task=%s — AFTER',
+      coalesce(v_row.to_actor,'DISPATCHER'),
+      coalesce(v_row.to_actor,'DISPATCHER'),
+      coalesce(v_row.from_actor,'ZURIEL'),
+      coalesce(v_row.task_key,'UNKNOWN_TASK')),
+    left(coalesce(nullif(p_result_status,''), 'AFTER_DISPATCH_' || v_outcome), 240),
+    left(coalesce(p_result_summary,''),12000),
+    left(coalesce(p_open_threads,''),12000),
+    v_row.task_key,
+    v_row.to_actor,
+    v_after_to,
+    'READ_ONLY',
+    v_row.assignment_scope,
+    v_row.primary_owner,
+    v_row.release_authorization_state,
+    v_row.id,
+    v_after_dispatch_kind,
+    v_after_dispatch_state,
+    case when v_wake then now() else null end,
+    jsonb_build_object(
+      'result_of', v_row.id,
+      'outcome', v_outcome,
+      'attempts', coalesce(v_row.dispatch_attempts,0),
+      'runtime_error', p_error,
+      'originating_actor', v_row.from_actor,
+      'completed_by', p_worker
+    )
+  ) returning id into v_after_id;
+
+  update public.work_log
+     set dispatch_state = v_outcome,
+         dispatch_completed_at = now(),
+         dispatch_last_error = case when v_outcome='COMPLETED' then null else left(coalesce(p_error,p_result_summary),1000) end,
+         dispatch_lease_owner = null,
+         dispatch_lease_expires_at = null,
+         dispatch_next_attempt_at = null,
+         superseded_by_id = v_after_id
+   where id = p_assignment_id;
+
+  return jsonb_build_object(
+    'state',v_outcome,
+    'assignment_id',p_assignment_id,
+    'after_id',v_after_id,
+    'result_wake_queued',v_wake
+  );
+end;
+$$;
