@@ -3,7 +3,7 @@ import {generateKeyPairSync,sign} from 'node:crypto';
 import {verifySignedAssignment,checkTrustedEvidence,goldenAcceptance} from './codex-unattended-golden-contract.mjs';
 const now=Date.parse('2026-10-10T16:00:00Z');
 const {privateKey,publicKey}=generateKeyPairSync('ed25519'),pem=publicKey.export({format:'pem',type:'spki'});
-const job={contract:'REMOTE_CODEX_EXECUTOR_BRIDGE_V1',actor:'GPT',task_key:'REMOTE_CODEX_EXECUTOR_BRIDGE_V1',assignment_id:'d57cad12-2b5d-4a0f-8e33-48d1947bd133',idempotency_key:'SOD1820_E2E_README_FIXTURE_V1',mode:'offline_golden',production_write_requested:false,issued_at_ms:now-1000,expires_at_ms:now+60000,timeout_ms:15000,attempt:1};
+const job={contract:'REMOTE_CODEX_EXECUTOR_BRIDGE_V1',actor:'GPT',task_key:'REMOTE_CODEX_EXECUTOR_BRIDGE_V1',assignment_id:'d57cad12-2b5d-4a0f-8e33-48d1947bd133',idempotency_key:'SOD1820_E2E_README_FIXTURE_V1',mode:'offline_golden',workflow_mode:'EXECUTE_BOUNDED',production_write_requested:false,issued_at_ms:now-1000,expires_at_ms:now+60000,timeout_ms:15000,attempt:1};
 const signed=p=>{const payload_b64=Buffer.from(JSON.stringify(p)).toString('base64url');return {payload_b64,signature_b64:sign(null,Buffer.from(payload_b64),privateKey).toString('base64url')}};
 const env=signed(job);
 assert.equal(verifySignedAssignment(env,pem,now).status,'SIGNED_ASSIGNMENT_VALID');
@@ -11,7 +11,7 @@ assert.equal(verifySignedAssignment({...env,payload_b64:signed({...job,attempt:2
 assert.equal(verifySignedAssignment(env,pem,now+61000).reason,'INVALID_SIGNED_ASSIGNMENT');
 assert.equal(verifySignedAssignment(signed({...job,production_write_requested:true}),pem,now).reason,'INVALID_SIGNED_ASSIGNMENT');
 assert.equal(verifySignedAssignment(signed({...job,attempt:3}),pem,now).reason,'INVALID_SIGNED_ASSIGNMENT');
-const ev={identity:'trusted-work-log-adapter',assignment_id:job.assignment_id,one_active_writer_verified:true,owner_verified:true,lease_owner:'CODEX_RUNNER',lease_valid_until_ms:now+60000,idempotency_key:job.idempotency_key,checked_at_ms:now};
+const ev={identity:'trusted-work-log-adapter',workflow_mode:'EXECUTE_BOUNDED',assignment_mode:'WRITE',assignment_id:job.assignment_id,one_active_writer_verified:true,owner_verified:true,lease_owner:'CODEX_RUNNER',lease_valid_until_ms:now+60000,idempotency_key:job.idempotency_key,checked_at_ms:now};
 assert.equal(checkTrustedEvidence(job,ev,now).status,'OFFLINE_ACCEPTED_NO_PROVIDER');
 assert.equal(checkTrustedEvidence(job,{...ev,owner_verified:false},now).reason,'TRUSTED_COORDINATION_EVIDENCE_MISSING');
 assert.equal(checkTrustedEvidence(job,{...ev,lease_valid_until_ms:now-1},now).reason,'TRUSTED_COORDINATION_EVIDENCE_MISSING');
