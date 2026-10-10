@@ -15,7 +15,7 @@ There is one canonical theme store and one semantic palette owner.
 User presets:
 - **☀ Modern Day** — cool, bright, contemporary.
 - **📜 Parchment** — warm editorial / ancient-book atmosphere.
-- **☾ Night** — deep indigo spatial environment.
+- **☾ Night** — deep navy spatial environment.
 
 These are three projections of the same semantic roles, not three design systems.
 
@@ -23,7 +23,7 @@ Legacy binary consumers may continue to read light/dark. Parchment projects as l
 
 ## 3. 2029 color identity
 Primary identity colors:
-- **Indigo** — structure, primary action, active state.
+- **Royal blue** — structure, primary action, active state (ZURIEL-approved refinement · 10.10.2026).
 - **Violet** — depth, secondary focus, spatial glow.
 - **Cyan** — discovery, focus, live research affordance.
 
@@ -36,13 +36,13 @@ No new 2029 component hard-codes a local hex/RGBA for a canonical control/status
 
 ## 4. Preset reference
 ### Modern Day
-Background #F5F8FF · Surface #FFFFFF · Primary #3949C8 · Secondary #7655E8 · Discovery #168DA5 · Text #18204A.
+Background #F4F7FC · Surface #FFFFFF · Primary #315DD5 · Action text #2454B8 · Secondary #7249A5 · Discovery #086C70 · Text #172B46.
 
 ### Parchment
-Background #F5EDDD · Surface #FFF9EC · Primary #43306E · Secondary #68418C · Warm discovery #B88A45 · Text #30251F.
+Background #F4EDDE · Surface #FFF9EE · Primary #315DD5 · Action text #284E9F · Secondary #764B87 · Discovery #176965 · Text #312B23.
 
 ### Night
-Background #080D1D · Surface #10182D family · Primary #5465FF · Secondary #9B6CFF · Discovery #50D6E8 · Text #F4F5FF.
+Background #080F1C · Surface #122036 · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F1F5FC.
 
 Exact component mixtures come from the palette owner; page-local copies are forbidden.
 
@@ -86,7 +86,7 @@ The surrounding product UI does not inherit those colors as default control colo
 
 These roles may appear in backgrounds, ambient fields, protected logo moments, spatial transitions and rare identity ornament. They must not become the default button/label/status colors and must never imply truth, verification or epistemic importance.
 
-UI color and Brand artwork identity remain distinct semantic layers: Indigo/Violet/Cyan own ordinary 2029 interaction; Sapphire/Gold enter when the experience intentionally calls for a Brand moment.
+UI color and Brand artwork identity remain distinct semantic layers: Royal blue/Violet/Cyan own ordinary 2029 interaction; Sapphire/Gold enter when the experience intentionally calls for a Brand moment.
 
 ## 8. Density and simplicity
 Because SOD1820 carries dense information:
@@ -291,3 +291,24 @@ copy or save outcome, with text and accessible status retained. Save state denot
 an item in the existing research library, not publication or cloud-sync completion.
 The original ShareActions and ResearchProvider remain behavior owners. Legacy
 QuickActions/DocActions are not silently replaced by this bounded 2029 projection.
+
+
+## Royal color and shared press refinement · 10.10.2026
+
+ZURIEL approved the reviewed royal-color direction and requested touch feedback in bars.
+EXTEND_EXISTING: this updates V2 references, not Brand artwork or a second palette.
+Primary fills use royal blue with onAccent white; action text uses the separate
+accentText role for contrast. Default button gradients stay within blue, never
+ending in violet. Violet is reserved for spatial depth/secondary focus. Discovery
+and share use cyan/teal in all three presets, including Parchment. Gold/champagne
+remains restrained identity ornament (including a thin content-intro impression),
+never a verification signal or the default control color. Lab alters surfaces
+while preserving these control meanings. Legacy palette values remain unchanged.
+
+Shared SVG-bearing controls respond to pointer pressure and keyboard focus.
+Feedback is finite, transform/opacity based, does not intercept navigation or
+scrolling, and respects both OS and frame reduced-motion preferences. Disabled
+controls do not move. Shared icon feedback must not require a second global
+listener, navigation store, or animation engine. Whole-frame layout, palette
+context propagation and command-island typography remain with the existing
+SystemFrame owner; this refinement does not claim those gaps closed.

@@ -6,7 +6,7 @@
   background:var(--s29-panel);box-shadow:none;overflow:hidden;
 }
 .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant]::before {
-  background:none;border-block-start:1px solid var(--s29-line);pointer-events:none;
+  background:none;border-block-start:1px solid color-mix(in srgb,var(--s29-brand-gold) 45%,var(--s29-line));pointer-events:none;
 }
 .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {
   position:relative;inset:auto;aspect-ratio:auto;width:48px;height:48px;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { iconPress2029 } from "./iconPress2029.js";
 import "./navigationIcons2029.css";
 
@@ -47,9 +47,27 @@ const ALIASES = { time: "now", source: "posts", globe: "world", book: "books", g
 
 /** Decorative SVG: the enclosing control owns its live accessible name. */
 export default function NavigationIcon2029({ name, glyph, label, size = 24, className = "" }) {
+  const iconRef = useRef(null);
+  useEffect(() => {
+    const icon = iconRef.current;
+    // Bind to the existing hit area: touch feedback must not depend on hitting
+    // a thin SVG stroke, or on a browser's delayed touch :active projection.
+    const control = icon?.closest("button,a") || icon;
+    if (!control) return undefined;
+    const press = (event) => iconPress2029({ currentTarget: icon, isPrimary: event.isPrimary, pointerType: event.pointerType, button: event.button });
+    const key = (event) => {
+      if (!event.repeat && (event.key === "Enter" || (event.key === " " && control.matches("button")))) press(event);
+    };
+    control.addEventListener("pointerdown", press, { passive: true });
+    control.addEventListener("keydown", key);
+    return () => {
+      control.removeEventListener("pointerdown", press);
+      control.removeEventListener("keydown", key);
+    };
+  }, []);
   const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
   const canonical = ALIASES[resolved] || (NAVIGATION_ICON_NAMES.includes(resolved) ? resolved : "tools");
-  return <svg className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} onPointerDown={iconPress2029} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+  return <svg ref={iconRef} className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {canonical === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : SHAPES[canonical]}
   </svg>;
 }
