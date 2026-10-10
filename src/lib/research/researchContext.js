@@ -47,6 +47,7 @@ function normalizeSelection(value) {
     // second calculation store. Number owns computation; surfaces preserve the exact focus.
     expression: cleanString(value.expression),
     method: cleanString(value.method),
+    methodVersion: cleanString(value.methodVersion),
     resultValue: Number.isFinite(resultValueNumber) ? resultValueNumber : null,
     focusKind: cleanString(value.focusKind),
     crossingPartner: cleanString(value.crossingPartner),
@@ -65,7 +66,37 @@ function normalizeSelection(value) {
   return Object.values(out).some((item) => item != null && item !== "") ? out : null;
 }
 
-function normalizeJourney(value) {
+// A pending step is a bounded navigation snapshot in the existing Context.
+// It carries neither authorization nor recursively nested Journey history.
+export function normalizeResearchPathStep(value) {
+  if (!isObject(value)) return null;
+  const subject = normalizeSubject(value.context?.subject || {
+    id: value.entity_ref, type: value.entity_type, label: value.label_key, href: value.href,
+  });
+  if (!subject) return null;
+  const context = value.context || value;
+  return {
+    step_index: Math.max(0, cleanInteger(value.step_index) || 0),
+    entity_type: subject.type,
+    entity_ref: subject.id,
+    label_key: cleanString(value.label_key) || subject.label || subject.id,
+    href: cleanString(value.href || subject.href),
+    surface: cleanString(value.surface),
+    lens: cleanString(value.lens || context.lens),
+    locator: cleanString(value.locator || context.selection?.locator),
+    selection: normalizeSelection(value.selection || context.selection),
+    reason: cleanString(value.reason),
+    context: {
+      subject,
+      selection: normalizeSelection(context.selection),
+      lens: cleanString(context.lens),
+      dimensions: normalizeDimensions(context.dimensions),
+      locale: cleanString(context.locale),
+    },
+  };
+}
+
+function normalizeJourney(value, includeSteps = true) {
   if (!isObject(value)) return null;
   const revisionNoRaw = value.revisionNo;
   const revisionNo = revisionNoRaw == null || revisionNoRaw === "" ? null : Number(revisionNoRaw);
@@ -77,6 +108,11 @@ function normalizeJourney(value) {
     revisionId: cleanString(value.revisionId),
     revisionNo: Number.isInteger(revisionNo) && revisionNo > 0 ? revisionNo : null,
   };
+  if (value.root) out.root = normalizeSubject(value.root);
+  if (includeSteps && Array.isArray(value.pendingSteps)) {
+    out.pendingSteps = value.pendingSteps.slice(0, 100).map(normalizeResearchPathStep).filter(Boolean);
+  }
+  if (includeSteps && value.lastSavedStep) out.lastSavedStep = normalizeResearchPathStep(value.lastSavedStep);
   return Object.values(out).some((v) => v != null && v !== "") ? out : null;
 }
 
@@ -195,7 +231,7 @@ function normalizeReturnTo(value) {
     selection: normalizeSelection(value.selection),
     lens: cleanString(value.lens),
     dimensions: normalizeDimensions(value.dimensions),
-    journey: normalizeJourney(value.journey),
+    journey: normalizeJourney(value.journey, false),
   };
 }
 

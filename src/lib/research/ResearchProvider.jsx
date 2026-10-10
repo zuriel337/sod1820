@@ -9,10 +9,13 @@ import { normalizeResearchContext, mergeResearchContext } from "./researchContex
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import {
   contextFromResearchPathSnapshot,
+  contextFromResearchPathStep,
+  continueResearchPathContext,
   forkResearchPathSnapshot,
   getLatestResearchPath,
   isResearchPathId,
   researchPathOperationKey,
+  researchPathStepKey,
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
@@ -80,7 +83,12 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     readCloud: getCloudResearch, writeCloud: applyCloudResearchOps, onContext: publishContext,
   }));
   const state = useSyncExternalStore(runtime.subscribe, runtime.getSnapshot, runtime.getSnapshot);
-  useLayoutEffect(() => { runtime.start(); return () => runtime.stop(); }, [runtime]);
+  const pathSession = useRef({ active: false, busy: false, retry: null, version: 0 });
+  useLayoutEffect(() => {
+    pathSession.current.active = !disabled;
+    runtime.start();
+    return () => { pathSession.current.active = false; runtime.stop(); };
+  }, [runtime, disabled]);
   useEffect(() => {
     const reconnect = () => { void runtime.retry(); };
     window.addEventListener("online", reconnect);
@@ -113,7 +121,22 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     function setContext(value, merge = false) {
       const current = now().context;
       const resolved = typeof value === "function" ? value(current) : value;
-      const context = merge ? mergeResearchContext(current, resolved) : resolved == null ? null : mergeResearchContext(null, resolved);
+      let context = merge ? mergeResearchContext(current, resolved) : resolved == null ? null : mergeResearchContext(null, resolved);
+      const continuing = current?.dimensions?.journey2029Active === true && current?.journey?.kind === "research_path";
+      const legacyPreset = context?.journey?.kind === "golden"
+        && context.journey.id === current?.dimensions?.journeySemanticId;
+      if (context && continuing && (!Object.hasOwn(resolved || {}, "journey") || legacyPreset)) {
+        context = normalizeResearchContext({ ...context,
+          journey: { ...current.journey, ...(legacyPreset ? { position: context.journey.position, findingId: context.journey.findingId } : {}) },
+          dimensions: { ...context.dimensions, ...Object.fromEntries(Object.entries(current.dimensions).filter(([key]) => key.startsWith("journey2029"))) },
+        });
+      }
+      // Exact-return snapshots carry identity, not nested pending history. Keep
+      // the current Path draft when returning within that same Path.
+      if (context?.journey?.kind === "research_path" && current?.journey?.kind === "research_path"
+        && context.journey.id === current.journey.id && !Object.hasOwn(resolved?.journey || {}, "pendingSteps")) {
+        context = normalizeResearchContext({ ...context, journey: { ...current.journey, ...context.journey } });
+      }
       return runtime.commit([op("context_set", { context })]);
     }
     return {
@@ -169,6 +192,16 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       },
       removeJourney: (id) => runtime.commit([op("journey_remove", { id })]),
       clearJourneys: () => runtime.commit([op("journey_clear")]),
+      continueResearchPath(options = {}) {
+        const selected = options.context ? mergeResearchContext(now().context, options.context) : now().context;
+        const result = continueResearchPathContext(selected, options);
+        if (!result.ok) return result;
+        if (!setContext(result.context)) return { ok: false, error: "session_unavailable" };
+        if (result.started || result.changed) emitJourney2029(result.started ? "start" : "step", {
+          context: result.context, sourceSurface: options.surface, pathId: result.context.journey?.id,
+        });
+        return result;
+      },
       setResearchContext: (value) => setContext(value),
       updateResearchContext: (patch) => setContext(patch, true),
       clearResearchContext: () => setContext(null),
@@ -188,23 +221,26 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
   // Loading the latest saved Path NEVER activates it; only resumeResearchPath() may replace it.
   useEffect(() => {
     let alive = true;
+    const version = pathSession.current.version;
     if (!userId) {
       setPathResume({ loading: false, latest: null, error: null });
       return () => { alive = false; };
     }
     setPathResume((prev) => ({ ...prev, loading: true, error: null }));
     getLatestResearchPath().then((snapshot) => {
-      if (!alive) return;
+      if (!alive || version !== pathSession.current.version) return;
       if (snapshot?.ok) setPathResume({ loading: false, latest: snapshot, error: null });
       else setPathResume({ loading: false, latest: null, error: snapshot?.error || null });
     }).catch((error) => {
-      if (alive) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
+      if (alive && version === pathSession.current.version) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
     });
     return () => { alive = false; };
   }, [userId]);
 
   const saveCurrentResearchPath = useMemo(() => async ({ href = null, label = null, surface = null } = {}) => {
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!userId) return { ok: false, error: "authentication_required" };
+    if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
     const current = normalizeResearchContext(runtime.getSnapshot().context);
     if (!current?.subject) return { ok: false, error: "no_research_context" };
 
@@ -215,8 +251,13 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       ? current.journey.revisionNo
       : null;
 
+    pathSession.current.busy = true;
+    pathSession.current.version += 1;
     setPathResume((prev) => ({ ...prev, loading: true, error: null }));
-    const saveKey = researchPathOperationKey("save");
+    const signature = JSON.stringify([current, href, label, surface]);
+    const saveKey = pathSession.current.retry?.signature === signature
+      ? pathSession.current.retry.key : researchPathOperationKey("save");
+    pathSession.current.retry = { signature, key: saveKey };
     let result;
     try {
       result = await saveResearchPathSnapshot({
@@ -226,9 +267,9 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       // One bounded recovery pass: a second tab/device may have appended after
       // this Context was loaded. Refresh the latest revision and retry with the
       // SAME operation key so a network-uncertain first write remains idempotent.
-      if (activePathId && result?.error === "revision_conflict") {
+      if (pathSession.current.active && activePathId && result?.error === "revision_conflict") {
         const latest = await getLatestResearchPath(activePathId);
-        if (latest?.ok && Number.isInteger(latest.revision_no)) {
+        if (pathSession.current.active && latest?.ok && Number.isInteger(latest.revision_no)) {
           result = await saveResearchPathSnapshot({
             context: current, href, label, surface, pathId: activePathId, expectedRevisionNo: latest.revision_no, saveKey,
           });
@@ -237,6 +278,8 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     } catch (error) {
       result = { ok: false, error: error?.message || "save_failed" };
     }
+    pathSession.current.busy = false;
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
 
     if (!result?.ok) {
       setPathResume((prev) => ({ ...prev, loading: false, error: result?.error || "save_failed" }));
@@ -244,9 +287,20 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     }
 
     const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
-    actions.updateResearchContext({
-      journey: { id: result.path_id, kind: "research_path", position, revisionId: result.revision_id, revisionNo: result.revision_no },
-    });
+    pathSession.current.retry = null;
+    const latestContext = normalizeResearchContext(runtime.getSnapshot().context);
+    if (latestContext?.subject && latestContext.journey?.id === current.journey?.id) {
+      const captured = current.journey?.pendingSteps || [];
+      const pending = latestContext.journey?.pendingSteps || [];
+      const acknowledged = captured.every((step, index) => researchPathStepKey(step) === researchPathStepKey(pending[index]));
+      const remaining = acknowledged ? pending.slice(captured.length) : pending;
+      actions.updateResearchContext({
+        journey: { ...latestContext.journey, root: current.journey?.root || current.subject,
+          id: result.path_id, kind: "research_path", position: position + remaining.length,
+          revisionId: result.revision_id, revisionNo: result.revision_no,
+          pendingSteps: remaining, lastSavedStep: result.steps?.at(-1) || null },
+      });
+    }
     setPathResume({ loading: false, latest: result, error: null });
     trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
     emitJourney2029("save", { context: current, sourceSurface: surface, pathId: result.path_id });
@@ -254,7 +308,11 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
   }, [userId, runtime, actions]);
 
   const resumeResearchPath = useMemo(() => async (pathId = null) => {
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!userId) return { ok: false, error: "authentication_required" };
+    if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
+    pathSession.current.busy = true;
+    pathSession.current.version += 1;
     setPathResume((prev) => ({ ...prev, loading: true, error: null }));
     let snapshot;
     try {
@@ -262,12 +320,14 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     } catch (error) {
       snapshot = { ok: false, error: error?.message || "resume_failed" };
     }
+    pathSession.current.busy = false;
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!snapshot?.ok) {
       setPathResume((prev) => ({ ...prev, loading: false, error: snapshot?.error || "not_found" }));
       return snapshot;
     }
     const next = contextFromResearchPathSnapshot(snapshot);
-    if (!next?.subject) {
+    if (!next?.subject || !resumeHrefFromResearchPath(snapshot)) {
       const failure = { ok: false, error: "resume_context_unavailable", path_id: snapshot.path_id };
       setPathResume({ loading: false, latest: snapshot, error: failure.error });
       return failure;
@@ -290,7 +350,9 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     surface = null,
     branchPointStepIndex = null,
   } = {}) => {
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!userId) return { ok: false, error: "authentication_required" };
+    if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
     const current = normalizeResearchContext(requestedContext || runtime.getSnapshot().context);
     const parentPathId = current?.journey?.kind === "research_path" && isResearchPathId(current?.journey?.id)
       ? current.journey.id
@@ -306,6 +368,8 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       ? branchPointStepIndex
       : Number.isInteger(current?.journey?.position) ? current.journey.position : 0;
 
+    pathSession.current.busy = true;
+    pathSession.current.version += 1;
     setPathResume((prev) => ({ ...prev, loading: true, error: null }));
     let result;
     try {
@@ -322,6 +386,8 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     } catch (error) {
       result = { ok: false, error: error?.message || "fork_failed" };
     }
+    pathSession.current.busy = false;
+    if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
 
     if (!result?.ok) {
       setPathResume((prev) => ({ ...prev, loading: false, error: result?.error || "fork_failed" }));
@@ -330,7 +396,8 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
 
     const position = Math.max(0, (Array.isArray(result.steps) ? result.steps.length : 1) - 1);
     actions.updateResearchContext({
-      journey: { id: result.path_id, kind: "research_path", position, revisionId: result.revision_id, revisionNo: result.revision_no },
+      journey: { root: current.journey?.root || current.subject, id: result.path_id, kind: "research_path", position, revisionId: result.revision_id, revisionNo: result.revision_no,
+        pendingSteps: [], lastSavedStep: result.steps?.at(-1) || null },
     });
     setPathResume({ loading: false, latest: result, error: null });
     trackResearch("path_fork", { revision: result.revision_no, surface: surface || null });
@@ -427,7 +494,24 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return () => window.removeEventListener("message", onElsState);
   }, [runtime, actions]);
 
-  const value = useMemo(() => ({ ...state, pathResume, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
-    [state, pathResume, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
+  const researchPathSteps = useMemo(() => {
+    const journey = state.context?.journey;
+    const saved = journey?.id && journey.id === pathResume.latest?.path_id ? pathResume.latest.steps || []
+      : journey?.lastSavedStep ? [journey.lastSavedStep] : [];
+    return [...saved, ...(journey?.pendingSteps || [])];
+  }, [state.context?.journey, pathResume.latest]);
+  const openResearchPathStep = useMemo(() => (index) => {
+    const current = runtime.getSnapshot().context;
+    const step = researchPathSteps[index];
+    const next = contextFromResearchPathStep(step, current, {
+      position: step?.step_index ?? index,
+      returnTo: current?.subject?.href ? { ...current, href: current.subject.href, label: current.subject.label } : null,
+    });
+    if (!next) return { ok: false, error: "source_unavailable" };
+    if (!actions.setResearchContext(next)) return { ok: false, error: "session_unavailable" };
+    return { ok: true, context: next, href: next.subject.href };
+  }, [runtime, actions, researchPathSteps]);
+  const value = useMemo(() => ({ ...state, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
+    [state, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
