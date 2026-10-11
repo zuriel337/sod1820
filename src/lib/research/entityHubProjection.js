@@ -870,15 +870,24 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
   if (appearances.error) throw appearances.error;
   const occurrences = (appearances.data || []).filter(isPublicSourceImage);
   const galleryIds = [...new Set([...images, ...occurrences].map((row) => row.gallery_id).filter(Boolean))];
-  const { data: galleries, error: galleryError } = galleryIds.length
-    ? await client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT + TOPIC_SOURCE_LIMIT)
-    : { data: [] };
-  if (galleryError) throw galleryError;
+  const occurrenceIds = [...new Set([...images, ...occurrences].map((row) => row.id))];
+  const [galleryResult, relatedResult] = await Promise.all([galleryIds.length
+    ? client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT + TOPIC_SOURCE_LIMIT)
+    : Promise.resolve({ data: [] }), occurrenceIds.length
+    ? client.from(TOPIC_SOURCE).select("id,slug,title,status,node_id,image_ids", { count: "exact" })
+      .eq("status", "approved").overlaps("image_ids", occurrenceIds).order("slug").limit(24)
+    : Promise.resolve({ data: [], count: 0 })]);
+  if (galleryResult.error) throw galleryResult.error;
   const projection = buildTopicSourceContext({
-    topic, images, occurrences, galleries: galleries || [], post: postResult.error ? null : postResult.data,
+    topic, images, occurrences, galleries: galleryResult.data || [], post: postResult.error ? null : postResult.data,
+    relatedTopics: relatedResult.error ? [] : relatedResult.data || [],
     occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT,
   });
   if (projection && postResult.error) projection.coverage.captain = "source_read_failed";
+  if (projection) {
+    projection.coverage.relatedTopics = relatedResult.error ? "unavailable" : "public_shared_sources";
+    projection.coverage.relatedTopicsTruncated = relatedResult.count > 24;
+  }
   return projection;
 }
 
