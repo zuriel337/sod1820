@@ -140,15 +140,23 @@ function PostReadingBody() {
     const requested = resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
     const restored = mapped.find(({ region }) => region.id === requested);
     let frame = null;
-    if (restored) {
-      restoredRegionRef.current = restored.region.id;
-      setActiveRegionId(restored.region.id);
-      restored.heading.tabIndex = -1;
+    // Late source images/fonts can move an already-restored heading. Keep that
+    // anchor stable only until the reader explicitly takes over scrolling/focus.
+    const restoreExactAnchor = () => {
+      if (!restored || restoredRegionRef.current !== restored.region.id) return;
+      if (frame != null) cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
+        if (restoredRegionRef.current !== restored.region.id) return;
         revealReadingAnchor(restored.heading);
         restored.heading.scrollIntoView({ behavior: "instant", block: "start" });
         restored.heading.focus({ preventScroll: true });
       });
+    };
+    if (restored) {
+      restoredRegionRef.current = restored.region.id;
+      setActiveRegionId(restored.region.id);
+      restored.heading.tabIndex = -1;
+      restoreExactAnchor();
     } else if (requested) {
       // A stale saved region is not proof that its source anchor still exists.
       restoredRegionRef.current = null;
@@ -156,6 +164,9 @@ function PostReadingBody() {
     }
     // Programmatic restoration must not let an adjacent heading overwrite the saved
     // selection. Resume passive reading focus when the reader starts scrolling.
+    const sourceResizeObserver = restored && typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(restoreExactAnchor) : null;
+    sourceResizeObserver?.observe(sourceRef.current);
     const resumeReading = (event) => {
       if (event.type === "keydown" && !["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) return;
       restoredRegionRef.current = null;
@@ -174,6 +185,7 @@ function PostReadingBody() {
     return () => {
       observer?.disconnect();
       if (frame != null) cancelAnimationFrame(frame);
+      sourceResizeObserver?.disconnect();
       for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.removeEventListener(event, resumeReading);
     };
   }, [state.projection, regions, location.hash]);

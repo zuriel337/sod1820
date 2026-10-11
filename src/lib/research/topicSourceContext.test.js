@@ -158,16 +158,18 @@ test("Topic Golden keeps every requested source and complete envelope; empty/err
 
 // The mock records actual reader requests and deliberately ignores publication predicates:
 // verifies both server predicates AND the defensive projection against permissive responses.
-function readClient({ slug = "india-axis", topic = topicOf(slug), images = fixture.images, post = fixture.post, failTable = null } = {}) {
+function readClient({ slug = "india-axis", topic = topicOf(slug), images = fixture.images, post = fixture.post, failTable = null, relatedTopics = fixture.topics, failRelated = false } = {}) {
   const calls = [];
   const client = { from(table) {
     const call = { table, ops: [] }; calls.push(call);
     const query = {};
-    for (const method of ["select", "eq", "in", "or", "order", "limit", "maybeSingle"]) query[method] = (...args) => { call.ops.push([method, ...args]); return query; };
+    for (const method of ["select", "eq", "in", "overlaps", "or", "order", "limit", "maybeSingle"]) query[method] = (...args) => { call.ops.push([method, ...args]); return query; };
     query.then = (resolve, reject) => {
-      if (table === failTable) return Promise.resolve({ data: null, error: { message: "unavailable" } }).then(resolve, reject);
-      let data = table === "topic_cards_public" ? topic : table === "posts" ? post : table === "galleries" ? fixture.galleries : images;
+      const isRelated = call.ops.some(([op]) => op === "overlaps");
+      if (table === failTable || (isRelated && failRelated)) return Promise.resolve({ data: null, error: { message: "unavailable" } }).then(resolve, reject);
+      let data = table === "topic_cards_public" ? (isRelated ? relatedTopics : topic) : table === "posts" ? post : table === "galleries" ? fixture.galleries : images;
       for (const [op, key, values] of call.ops) if (op === "in" && Array.isArray(data)) data = data.filter((row) => values.includes(row[key]));
+      for (const [op, key, values] of call.ops) if (op === "overlaps" && Array.isArray(data)) data = data.filter((row) => row[key]?.some((id) => values.includes(id)));
       return Promise.resolve({ data, count: Array.isArray(data) ? data.length : null }).then(resolve, reject);
     };
     return query;
@@ -213,4 +215,43 @@ test("large memberships stay bounded and report incomplete coverage; no Post que
   assert.equal(out.coverage.membershipsTruncated, true);
   assert.equal(calls.find((c) => c.table === "gallery_images").ops.find((op) => op[0] === "in")[2].length, TOPIC_SOURCE_LIMIT);
   assert.ok(!calls.some((c) => c.table === "posts"));
+});
+
+test("shared-object navigation joins stored memberships, retains exact return and counts each object once", () => {
+  const india = project("india-axis", { relatedTopics: fixture.topics });
+  assert.deepEqual(india.links.topics.map((row) => row.slug).sort(), ["1237", "hodu"]);
+  const hodu = india.links.topics.find((row) => row.slug === "hodu");
+  assert.equal(hodu.sourceIdentities.length, 1, "two gallery placements are one source");
+  assert.equal(hodu.href, `/topic/hodu#topic-source-${railImage}`);
+  assert.equal(hodu.returnHref, `/topic/india-axis#topic-source-${railImage}`);
+  assert.equal(hodu.relationKind, "shared_stored_source");
+  assert.match(hodu.note, /אינה ראיה נוספת/);
+  assert.equal(india.links.posts[0].href, `/post/${INDIA_CAPTAIN_SOURCE.postSlug}#${INDIA_CAPTAIN_SOURCE.regionId}`);
+  const reverse = project("hodu", { relatedTopics: fixture.topics });
+  assert.deepEqual(reverse.links.topics.map((row) => row.slug), ["india-axis"]);
+  assert.equal(reverse.links.posts.length, 0, "Hodu reaches the explicit captain context through India; no invented tag");
+});
+
+test("shared numbers, inaccessible occurrences and unapproved Topics cannot grant shared-source links", () => {
+  const numericOnly = { ...topicOf("1237"), image_ids: [], numbers: [1237] };
+  const privateTarget = { ...topicOf("hodu"), status: "draft" };
+  const unrelated = project("india-axis", { relatedTopics: [numericOnly, privateTarget] });
+  assert.deepEqual(unrelated.links.topics, []);
+  const images = fixture.images.map((row) => ({ ...row, curator_hidden: true }));
+  assert.deepEqual(project("india-axis", { images, occurrences: images, relatedTopics: fixture.topics }).links.topics, []);
+});
+
+test("reader joins only admitted image occurrence IDs; failed related read preserves source and Post", async () => {
+  const { client, calls } = readClient();
+  const out = await fetchTopicSourceContext({ topicSlug: "india-axis", client });
+  assert.deepEqual(out.links.topics.map((row) => row.slug).sort(), ["1237", "hodu"]);
+  const related = calls.find((call) => call.ops.some(([op]) => op === "overlaps"));
+  assert.ok(related.ops.some((op) => op[0] === "eq" && op[1] === "status" && op[2] === "approved"));
+  assert.ok(related.ops.find(([op]) => op === "overlaps")[2].includes(railImage));
+  const failure = readClient({ failRelated: true });
+  const failed = await fetchTopicSourceContext({ topicSlug: "india-axis", client: failure.client });
+  assert.equal(failed.coverage.relatedTopics, "unavailable");
+  assert.equal(failed.items.length, out.items.length);
+  assert.deepEqual(failed.links.topics, []);
+  assert.equal(failed.links.posts.length, 1);
 });

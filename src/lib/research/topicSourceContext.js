@@ -92,6 +92,48 @@ export function topicSourceAnchor(item) {
   return `topic-source-${String(item.galleryImageId || item.mediaId).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 }
 
+export function isDocumentedIndiaCaptainPost(post) {
+  return Boolean(captainSourceEnvelope({ slug: INDIA_CAPTAIN_SOURCE.topicSlug }, post));
+}
+
+// Navigation over EXISTING public memberships. An exact shared object supplies a
+// reason to compare contexts, never a new graph edge or an independent evidence count.
+export function topicSourceLinks(context, relatedTopics = []) {
+  if (context?.access?.scope !== "public" || context.access.available === false) return { topics: [], posts: [] };
+  const items = context.items || [];
+  const topics = relatedTopics.filter((row) => row?.id && row.status === "approved"
+    && row.slug && row.slug !== context.topicSlug).flatMap((target) => {
+    const targetIds = new Set(target.image_ids || []);
+    const shared = items.flatMap((item) => {
+      const occurrences = (item.occurrences || []).filter((entry) => targetIds.has(entry.intrinsic?.galleryImageId));
+      if (!occurrences.length) return [];
+      const ids = new Set(occurrences.map((entry) => entry.intrinsic.galleryImageId));
+      const targetId = target.image_ids.find((id) => ids.has(id));
+      return [{ item, targetId }];
+    });
+    if (!shared.length) return [];
+    const { item, targetId } = shared[0];
+    return [{
+      id: target.id, nodeId: target.node_id || null, slug: target.slug, title: target.title,
+      href: `/topic/${encodeURIComponent(target.slug)}#${topicSourceAnchor({ galleryImageId: targetId })}`,
+      note: shared.length === 1
+        ? `אותה תמונת מקור מופיעה גם ב„${target.title}”. אפשר לקרוא שם את ההקשר הנוסף; זו אינה ראיה נוספת.`
+        : `${shared.length} תמונות מקור משותפות לשני הטופיקים. אפשר לקרוא את ההקשר הנוסף; ההופעות אינן ראיות נוספות.`,
+      relationKind: "shared_stored_source", sourcePath: `${context.sourceRef}#shared-source/${target.id}`,
+      sourceIdentities: shared.map(({ item: source }) => source.sourceIdentity.ref),
+      sourceRefs: shared.map(({ targetId: id }) => `gallery_images:${id}`),
+      returnHref: item.reopen.topicHref, sourceSelection: item.reopen.selection,
+    }];
+  });
+  const posts = items.filter((item) => item.postPlacement && item.reopen?.postHref).map((item) => ({
+    id: item.postPlacement.postId, slug: item.postPlacement.postSlug, title: item.postPlacement.originalTitle,
+    href: item.reopen.postHref, note: item.contextRelation.explanation,
+    relationKind: item.contextRelation.relationKind, sourcePath: item.sourceRef,
+    returnHref: item.reopen.topicHref, sourceSelection: item.reopen.selection,
+  }));
+  return { topics, posts };
+}
+
 // Reviewed HTML image locator over a freshly admitted public Post. It remains a Post
 // occurrence (no invented gallery row, membership or source date). Reuses the same exact
 // storage-object identity and media envelope consumed by Gallery/Topic/Lightbox.
@@ -174,7 +216,7 @@ export function buildGallerySourceContext({ images = [], occurrences = [], galle
 }
 
 /** Pure projection; the Entity Hub reader supplies only public-view rows and bounded reads. */
-export function buildTopicSourceContext({ topic, images = [], occurrences = [], galleries = [], post = null, occurrencesTruncated = false } = {}) {
+export function buildTopicSourceContext({ topic, images = [], occurrences = [], galleries = [], post = null, relatedTopics = [], occurrencesTruncated = false } = {}) {
   if (!topic?.id || !topic?.slug || topic.status !== "approved") return null;
   const imageIds = Array.isArray(topic.image_ids) ? topic.image_ids : [];
   const selectedIds = imageIds.slice(0, TOPIC_SOURCE_LIMIT);
@@ -212,7 +254,7 @@ export function buildTopicSourceContext({ topic, images = [], occurrences = [], 
       nextHref: items[index + 1]?.reopen.topicHref || null,
     };
   }
-  return {
+  const context = {
     topicId: topic.id, topicSlug: topic.slug, topicTitle: topic.title, topicNodeId: topic.node_id || null,
     sourceRef: `topic_cards:${topic.id}`, items,
     access: { available: true, scope: "public" },
@@ -224,6 +266,7 @@ export function buildTopicSourceContext({ topic, images = [], occurrences = [], 
     },
     orderBasis: "stored_topic_order_not_event_chronology",
   };
+  return { ...context, links: topicSourceLinks(context, relatedTopics) };
 }
 
 // Source-native selection for the EXISTING Research Context. No Journey creation or saving.

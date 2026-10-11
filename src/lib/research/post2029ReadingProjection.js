@@ -5,6 +5,7 @@ import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
+import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -222,6 +223,12 @@ function buildFz1073Experience(post, topic363 = null) {
   const tiranSaudi = "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%90%d7%99%d7%99%d7%9d-%d7%94%d7%9e%d7%a6%d7%a8%d7%99%d7%9d-%d7%98%d7%99%d7%a8%d7%90%d7%9f-%d7%95%d7%a1%d7%a0%d7%a4%d7%99/";
   const iranSaudi = "/סכסוך-בין-איראן-לערב-הסעודית-לפני-הגאו";
   const connections = [
+    ...(isDocumentedIndiaCaptainPost(post) ? [{
+      id: "topic-india-source", label: "הציר ההודי · קפטן סמיט מאצ׳הר", kind: "טופיק",
+      href: "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar",
+      reason: "במקור המצולם הקפטן מתואר כאזרח הודי. מכאן אפשר לפתוח את אותה תמונה בתוך הציר ההודי.",
+      provenanceLabel: "posts:5112 · מקור מצולם",
+    }] : []),
     topic363 ? {
       id: "topic-363",
       label: clean(topic363.title) || "363 — חמישה = המשיח",
@@ -309,7 +316,9 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
 } } = {}) {
   const connections = await Promise.all((experience?.connections || []).map(async (connection) => {
     const unavailable = () => ({ ...connection, href: null });
-    const href = clean(connection.href);
+    const rawHref = clean(connection.href);
+    const sourceLocator = rawHref === "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar" ? rawHref.slice(rawHref.indexOf("#")) : "";
+    const href = sourceLocator ? rawHref.slice(0, rawHref.indexOf("#")) : rawHref;
     if (/^\/2029\/number\/\d+$/.test(href)) return connection;
     // Never turn an external URL, malformed path or arbitrary route into a Post.
     if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href)) return unavailable();
@@ -317,7 +326,8 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
     try {
       if (parts.length === 2 && parts[0] === "topic") {
         const topic = await readTopic(decodeURIComponent(parts[1]));
-        return topic?.slug ? { ...connection, href: `/topic/${encodeURIComponent(topic.slug)}` } : unavailable();
+        const locator = sourceLocator;
+        return topic?.slug ? { ...connection, href: `/topic/${encodeURIComponent(topic.slug)}${locator}` } : unavailable();
       }
       const slug = parts.length === 2 && parts[0] === "post" ? parts[1]
         : parts.length === 1 && !["world", "els", "heichal", "books", "2029"].includes(parts[0]) ? parts[0] : null;

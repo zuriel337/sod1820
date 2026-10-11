@@ -32,3 +32,14 @@ test('external URLs, unknown routes and malformed encodings never grant a destin
   assert.ok(result.connections.every(c=>c.href===null));
   assert.deepEqual(calls,[]);
 });
+
+test('exact source locators survive only an admitted public Topic destination', async () => {
+  const sourceLocator='#topic-source-media-post-5112-source-region-smit-machchhar';
+  const experience={connections:[{href:`/topic/india-axis${sourceLocator}`}]};
+  const admitted=await resolvePostExperienceConnections(experience,{readTopic:async()=>({slug:'india-axis'})});
+  assert.equal(admitted.connections[0].href,`/topic/india-axis${sourceLocator}`);
+  const denied=await resolvePostExperienceConnections(experience,{readTopic:async()=>null});
+  assert.equal(denied.connections[0].href,null);
+  const malformed=await resolvePostExperienceConnections({connections:[{href:'/topic/india-axis',sourceLocator:'#else?redirect=private'}]},{readTopic:async()=>({slug:'india-axis'})});
+  assert.equal(malformed.connections[0].href,'/topic/india-axis');
+});

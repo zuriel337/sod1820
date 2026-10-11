@@ -21,6 +21,7 @@ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRati
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
+const sourceDiscoveryEnabled = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -289,7 +290,26 @@ function TopicSourcesMedia({ golden, projection }) {
   </section>;
 }
 
+function useTopicSourceNavigation(projection) {
+  const research = useResearch();
+  const navigate = useNavigate();
+  return (row, event) => {
+    if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.defaultPrevented)) return;
+    if (!row.returnHref || !row.sourceSelection) return;
+    research.updateResearchContext?.({ returnTo: {
+      href: row.returnHref, label: projection.title,
+      subject: { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath },
+      selection: row.sourceSelection, lens: "topic",
+      dimensions: research.context?.dimensions || {}, journey: research.context?.journey || null,
+    } });
+    // The existing Link then navigates to the destination. Browser Back also reopens
+    // the exact origin source, not just the beginning of the source Topic.
+    navigate(row.returnHref, { replace: true });
+  };
+}
+
 function TopicPosts({ projection }) {
+  const rememberSource = useTopicSourceNavigation(projection);
   const posts = projection.relatedPosts || [];
   if (!posts.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-posts">
@@ -298,8 +318,8 @@ function TopicPosts({ projection }) {
       {posts.map((row, index) => {
         const slug = clean(row.slug);
         const label = clean(row.title || row.text) || "פוסט קשור";
-        return slug ? <Link className="sod29-card sod29-card-button sod29-topic-post-card" to={"/post/" + encodeURIComponent(slug)} key={row.sourcePath || (slug + "-" + index)}>
-          <div className="sod29-kicker">פוסט</div><h3>{label}</h3><p>פתח את הסיפור המלא בתוך הציר.</p>
+        return slug ? <Link className="sod29-card sod29-card-button sod29-topic-post-card" to={row.href || "/post/" + encodeURIComponent(slug)} onClick={(event) => rememberSource(row, event)} key={row.sourcePath || (slug + "-" + index)}>
+          <div className="sod29-kicker">פוסט</div><h3>{label}</h3><p>{row.note || "פתח את הסיפור המלא בתוך הציר."}</p>
         </Link> : null;
       })}
     </div>
@@ -307,6 +327,7 @@ function TopicPosts({ projection }) {
 }
 
 function TopicRelatedAxes({ projection }) {
+  const rememberSource = useTopicSourceNavigation(projection);
   const related = projection.relatedConvergences || [];
   if (!related.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-related">
@@ -315,8 +336,8 @@ function TopicRelatedAxes({ projection }) {
       {related.map((row, index) => {
         const slug = clean(row.slug);
         const label = clean(row.title || row.note) || "ציר קשור";
-        return slug ? <Link className="sod29-card sod29-card-button" to={"/topic/" + encodeURIComponent(slug)} key={row.sourcePath || (slug + "-" + index)}>
-          <div className="sod29-kicker">ציר</div><h3>{label}</h3><p>פתח את הציר המחובר.</p>
+        return slug ? <Link className="sod29-card sod29-card-button" to={row.href || "/topic/" + encodeURIComponent(slug)} onClick={(event) => rememberSource(row, event)} key={row.sourcePath || (slug + "-" + index)}>
+          <div className="sod29-kicker">ציר</div><h3>{label}</h3><p>{row.note || "פתח את הציר המחובר."}</p>
         </Link> : null;
       })}
     </div>
@@ -349,13 +370,16 @@ function TopicBody() {
     fetchCanonicalTopicConvergenceFinding(slug)
       .then((finding) => {
         if (!alive) return;
-        setState({ loading: false, finding: finding || null, error: finding ? null : new Error("not_found") });
+        setState({ loading: false, requestedSlug: slug, finding: finding || null, error: finding ? null : new Error("not_found") });
       })
-      .catch((error) => { if (alive) setState({ loading: false, finding: null, error }); });
+      .catch((error) => { if (alive) setState({ loading: false, requestedSlug: slug, finding: null, error }); });
     return () => { alive = false; };
   }, [slug]);
 
-  const projection = useMemo(() => buildTopic2029Projection(state.finding), [state.finding]);
+  // A new route must never render/redirect using the previous Topic's result.
+  const projection = useMemo(() => state.requestedSlug === slug
+    ? buildTopic2029Projection(state.finding, { sourceContext: goldenState.hub?.sourceContext }) : null,
+  [slug, state.requestedSlug, state.finding, goldenState.hub?.sourceContext]);
 
   useEffect(() => {
     if (!projection?.canonicalPath || slug === projection.slug) return;
@@ -396,7 +420,7 @@ function TopicBody() {
   const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const navItems = projection ? [
     { id: "topic-essential", label: "עיקר" },
-    ...(import.meta.env.DEV && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
+    ...(sourceDiscoveryEnabled && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
     ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
     ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
     ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
@@ -519,7 +543,7 @@ function TopicBody() {
   const primaryNumbers = [...new Set([...projection.highlightNumbers, ...projection.numbers])].slice(0, 6);
   const secondaryNumbers = primaryNumbers.filter((value) => value !== projection.heroNumber);
   const sparse = golden?.density === "sparse";
-  const discoveryIntro = import.meta.env.DEV && !projection.withheld && ({
+  const discoveryIntro = sourceDiscoveryEnabled && !projection.withheld && ({
     '1237': 'סף צירים למועמדות, תיעוד הקורונה והביטויים ״וראית את אחרי״ ו״התגלות״. אירועים שונים מתחברים כאן דרך המקורות, החישובים ופרשנות המחברים.',
     '424-mashiach-ben-david': 'מן השעה המצולמת בכותל אל דונלד טראמפ ואל הביטוי ״משיח בן דוד״. אפשר לפתוח את המקור ואת השיטה, ואז להבין את החיבור לאירועים אחרים.',
     trump: 'אדם אחד, כמה אירועים: המועמדות הרפובליקנית, הביקור בכותל ותיעוד מאוחר יותר. כל מעבר שומר את שנתו, את תפקיד המספר ואת המקור שלו.',
@@ -565,7 +589,7 @@ function TopicBody() {
     </section>
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
-      {import.meta.env.DEV ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
+      {sourceDiscoveryEnabled ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
       {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
