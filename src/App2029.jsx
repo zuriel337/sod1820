@@ -26,6 +26,7 @@ const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx
 const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
+const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
@@ -83,6 +84,7 @@ export default function App2029() {
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
+              <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
               <Route path="/2029/gematria" element={<Calculator2029Page />} />

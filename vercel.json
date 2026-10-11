@@ -605,6 +605,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/home-preview",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/world",
       "has": [
         {
@@ -867,6 +871,15 @@
     },
     {
       "source": "/2029/posts",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/home-preview",
       "headers": [
         {
           "key": "X-Robots-Tag",
