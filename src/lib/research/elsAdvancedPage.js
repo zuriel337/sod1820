@@ -28,12 +28,15 @@ export function projectElsAdvancedPage(response) {
   const result = response?.data?.result ?? response?.result;
   if (result?.contract !== "els_search_page_v1" || !["OK", "EXECUTED_EMPTY"].includes(result?.status))
     return { error: result?.reason || result?.status || "תשובת החיפוש אינה תקינה." };
+  if (result?.completion?.executed !== true || !Array.isArray(result?.hits))
+    return { error: "השרת לא השלים את דף התוצאות." };
   const projection = projectEls2029Result(result);
   const after = result?.completion?.continuation?.after;
-  const cursor = result?.completion?.truncated === true && integer(after?.skip) != null
+  const more = result?.completion?.has_more === true || result?.completion?.truncated === true;
+  const cursor = more && integer(after?.skip) != null
     && integer(after?.start) != null && [-1, 1].includes(integer(after?.dir))
     ? { skip: after.skip, start: after.start, dir: after.dir } : null;
-  if (result?.completion?.truncated === true && !cursor) return { error: "השרת דיווח על תוצאות נוספות ללא סמן המשך תקין." };
+  if (more && !cursor) return { error: "השרת דיווח על תוצאות נוספות ללא סמן המשך תקין." };
   return { projection, cursor, traceId: response?.data?.trace_id ?? response?.trace_id ?? null };
 }
 

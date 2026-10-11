@@ -36,6 +36,9 @@ test("only a canonical page yields selectable occurrences and continuation", () 
   const brokenContinuation = structuredClone(response);
   brokenContinuation.data.result.completion.continuation = null;
   assert.match(projectElsAdvancedPage(brokenContinuation).error, /סמן המשך/);
+  const incomplete = structuredClone(response);
+  incomplete.data.result.completion.executed = false;
+  assert.match(projectElsAdvancedPage(incomplete).error, /לא השלים/);
 });
 
 test("exact skip uses canonical matrix load without the paged bridge's 500 ceiling", () => {

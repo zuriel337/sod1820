@@ -11,6 +11,13 @@ window.__libraryRows=[];window.__libraryCalls=[];window.__libraryViewer='owner-a
 window.__advancedCalls=[];
 export const supabase={functions:{async invoke(name,{body}){
  window.__advancedCalls.push({name,body});
+ if(body.op==='page'&&body.term==='דפדוף'){
+  const index=body.after_skip==null?0:body.after_skip-85;
+  const skip=86+index,more=index<2;
+  return {data:{result:{contract:'els_search_page_v1',status:'OK',corpus_id:'fixture-torah',input:{normalized:body.term},
+   hits:[{occurrence_id:'els:fixture-torah:'+body.term+':'+skip+':1:'+(1200+index),skip,dir:1,start:1200+index,end:1600+index,positions:[1200+index,1286+index]}],
+   completion:{executed:true,returned_hits:1,has_more:more,truncated:more,continuation:more?{after:{skip,start:1200+index,dir:1}}:null}}}};
+ }
  if(body.op==='page')return {data:{result:{contract:'els_search_page_v1',status:'OK',corpus_id:'fixture-torah',input:{normalized:body.term},hits:[{occurrence_id:'els:fixture-torah:'+body.term+':86:1:1200',skip:86,dir:1,start:1200,end:1802,positions:[1200,1286,1372]}],completion:{executed:true,returned_hits:1,truncated:false}}}};
  if(body.op==='verify')return {data:{result:{contract:'els_occurrence_replay_v1',status:'OK',verification_state:'MATCH'}}};
  return {error:{message:'unsupported operation'}};

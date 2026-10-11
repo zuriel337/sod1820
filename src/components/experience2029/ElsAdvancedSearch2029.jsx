@@ -36,6 +36,15 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       if (seq !== revision.current) return;
       const page = projectElsAdvancedPage(response);
       if (page.error) { setNotice(`החיפוש לא הושלם: ${page.error}`); return; }
+      if (more && page.cursor && page.cursor.skip === cursor.skip && page.cursor.start === cursor.start && page.cursor.dir === cursor.dir) {
+        setNotice("סמן ההמשך לא התקדם. אפשר לנסות שוב או להתחיל חיפוש חדש."); return;
+      }
+      if (more) {
+        const seen = new Set(pages.flatMap(previous => previous.projection.occurrences.map(hit => hit.occurrenceId)));
+        if (page.projection.occurrences.some(hit => seen.has(hit.occurrenceId))) {
+          setNotice("התקבלו תוצאות כפולות מהשרת. אפשר לנסות שוב או להתחיל חיפוש חדש."); return;
+        }
+      }
       setPages(current => more ? [...current, page] : [page]);
       setCursor(page.cursor);
       if (!page.projection.occurrences.length && !more) setNotice("לא נמצאו מופעים בטווח המבוקש. אפשר להרחיב את טווח הדילוגים ולחפש שוב.");
@@ -106,7 +115,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       <label>תוצאות בדף <input aria-label="תוצאות בדף" type="number" min="1" max="100" value={form.pageSize} onChange={event => edit("pageSize", event.target.value)} /></label>
       <button className="sod29-action primary" type="submit" disabled={busy || !!selecting}>חפש בטווח</button>
     </form>
-    <p className="sod29-muted">החיפוש רץ רק בלחיצה. תוצאות נוספות נטענות בדפים, וכל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
+    <p className="sod29-muted">החיפוש רץ רק בלחיצה. אפשר להמשיך לדפדף עד סוף כל התוצאות בטווח שנבחר, בלי מגבלה על מספר הדפים. כל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
     <details>
       <summary>חיפוש בדילוג מדויק ללא תקרת 500</summary>
       <p className="sod29-muted">הזינו מונח למעלה ודילוג מסוים, למשל 1820 או 10065. המנוע הקנוני יחפש מופע בדילוג הזה ויאמת אותו לפני הצגה. זה אינו סיכום של כל המופעים האפשריים בדילוג.</p>
@@ -129,7 +138,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
         : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}
     {busy ? <p role="status">מחפש מופעים במנוע הקנוני…</p> : null}
-    {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
+    {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
         <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, page.projection)}>
           <bdi>{page.projection.term}</bdi> · דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}

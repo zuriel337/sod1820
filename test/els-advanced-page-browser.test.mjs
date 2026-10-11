@@ -54,6 +54,14 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     await page.waitForFunction(() => window.__advancedLoad?.skip === 10065);
     assert.equal(await page.evaluate(() => window.__advancedLoad.start), 50890);
     assert.equal(await page.evaluate(() => window.__advancedCalls.length), 5, "exact skip goes through the mounted engine, not a >500 page request");
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("דפדוף");
+    await page.getByLabel("תוצאות בדף").fill("1");
+    await page.getByRole("button", { name: "חפש בטווח" }).click();
+    await page.getByRole("button", { name: "טען תוצאות נוספות" }).click();
+    await page.getByRole("button", { name: "טען תוצאות נוספות" }).click();
+    await page.getByText("3 מופעים נטענו ב־3 דפים · סוף התוצאות בטווח").waitFor();
+    assert.equal(await page.getByLabel("מופעי החיפוש המתקדם").getByRole("listitem").count(), 3);
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls.slice(5).map(call => call.body.after_skip ?? null)), [null, 86, 87]);
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
