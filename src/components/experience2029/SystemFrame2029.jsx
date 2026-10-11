@@ -292,6 +292,23 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
   );
 }
 
+// Approved Home bottom-bar "Now" zone (fa0e26f): typed world / for-me / Raziel.
+// Presentation only: each tab opens an EXISTING frame surface; no new reader or data.
+function NowStrip2029({ signedIn, activeKind, onWorld, onMe, onRaziel }) {
+  const tabs = [
+    { id: "world", label: "בעולם", hint: "עדכוני העולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
+    { id: "me", label: "בשבילי", hint: signedIn ? "ההודעות שלי" : "התחברו לעדכונים אישיים", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
+    { id: "rz", label: "רזיאל מציע", hint: "הצעה להמשך", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL },
+  ];
+  return <div className="sod29-now" role="group" aria-label="עכשיו">
+    <div className="sod29-now-tabs">
+      {tabs.map((tab) => <button key={tab.id} type="button" className={`is-${tab.id}`} aria-pressed={tab.pressed} title={tab.hint} onClick={tab.on}>
+        <span className="sod29-now-dot" aria-hidden="true" /><span className="sod29-now-t">{tab.label}</span>
+      </button>)}
+    </div>
+  </div>;
+}
+
 function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל" }) {
   return (
     <button
@@ -2103,6 +2120,7 @@ export default function SystemFrame2029({
           </>}
         </div>
 
+        {!toolMode && !activeToolDock && !numberPageRoute ? <NowStrip2029 signedIn={!!user} activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={openRaziel} /> : null}
         {renderTransient()}
       </div>
     </SystemToolDockContext2029.Provider>
