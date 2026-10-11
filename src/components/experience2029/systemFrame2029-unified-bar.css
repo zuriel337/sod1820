@@ -159,3 +159,16 @@
   .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-now-tab { min-width: 40px; padding: 0 12px; font-size: 13px; }
   .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-raziel-orb.compact { margin-block: -14px 0; }
 }
+
+/* Side rail as a floating capsule (desktop), same language as the dock. The home glyph above the nav duplicated the Home item and is hidden when the rail is slim. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame .sod29-sidebar {
+    inset-block-start: calc(var(--sod-review-offset, 0px) + 10px) !important; inset-block-end: auto !important;
+    inset-inline-start: 8px !important; border: 1px solid var(--s29-line-strong); border-radius: 28px;
+    height: calc(100vh - var(--sod-review-offset, 0px) - 20px) !important; height: calc(100dvh - var(--sod-review-offset, 0px) - 20px) !important;
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed:not(.rail-peek) .sod29-sidebar { inline-size: calc(var(--s29-global-rail-width, 72px) - 16px); }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed:not(.rail-peek) .sod29-rail-identity { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
+}
