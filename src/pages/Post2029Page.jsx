@@ -12,6 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -645,7 +646,7 @@ function PostReadingBody() {
           <details className="sod29-post-details">
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
-              {heroCategories[0] ? <span className="sod29-post-category">{heroCategories[0]}</span> : null}
+              {heroCategories.length ? <PostCategories2029 categories={heroCategories} max={2} nested className="sod29-post-category" /> : null}
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
             </summary>
             <div className="sod29-post-details-body">
@@ -653,7 +654,7 @@ function PostReadingBody() {
               <p className="sod29-reading-source-line">{projection.sourceLine}</p>
               {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
               <div className="sod29-reading-meta-line">
-                {(Array.isArray(post.categories) ? post.categories : []).map((category) => <span key={category}>{category}</span>)}
+                <PostCategories2029 categories={post.categories} max={8} />
               </div>
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}

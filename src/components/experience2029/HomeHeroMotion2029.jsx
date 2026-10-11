@@ -15,6 +15,7 @@ import { stripHtml } from "../../lib/format.js";
 import { postNumbers, realUpdate } from "../../lib/heroUpdate2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
+import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeHeroMotion2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -35,7 +36,7 @@ function useHeroData(lead) {
     (async () => {
       let row = null; let cards = [];
       try {
-        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags").eq("slug", lead.slug).limit(1);
+        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories").eq("slug", lead.slug).limit(1);
         row = data?.[0] || null;
         const numbers = postNumbers(row?.tags);
         if (numbers.length) {
@@ -84,13 +85,14 @@ export default function HomeHeroMotion2029({ lead, href }) {
 
   const updateText = !update ? null
     : update.kind === "demo" ? "הדגמה, לא עדכון אמיתי: כך תופיע הודעת עדכון קצרה על הפריט הראשי."
-    : `המערכת רושמת שהפוסט עודכן ${relativeTimeLabel(update.at)}.`;
+    : `עודכן ${relativeTimeLabel(update.at)}`;
 
   return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="העדכון האחרון" data-hero-motion={entering ? "enter" : "quiet"}>
     {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" /> : null}
     <div className="h29-hero-copy">
       <div className="h29-kicker k29-in" style={{ "--i": 0 }}>העדכון האחרון</div>
       <h1 className="k29-in" style={{ "--i": 1 }}>{clean(lead.title)}</h1>
+      {data.row?.categories?.length ? <div className="k29-in" style={{ "--i": 1 }}><PostCategories2029 categories={data.row.categories} /></div> : null}
 
       {update ? <p className="h29-hero-update k29-in" style={{ "--i": 2 }} role="status">
         <span className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />

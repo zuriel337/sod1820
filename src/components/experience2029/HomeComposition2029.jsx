@@ -14,6 +14,7 @@ import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
+import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -52,7 +53,7 @@ function useHomeCompositionData() {
       let rowsBySlug = {};
       try {
         if (supabase && slugs.length) {
-          const { data: rows } = await supabase.from("posts").select("slug,date,modified").in("slug", slugs);
+          const { data: rows } = await supabase.from("posts").select("slug,date,modified,categories").in("slug", slugs);
           rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
         }
       } catch (_) { /* the cards simply show no mark */ }
@@ -60,7 +61,7 @@ function useHomeCompositionData() {
       const numberByTitle = new Map((value(tagged, {}).posts || []).map((post) => [clean(post.title), titleNumber(post.title, post.tags)]));
       setState({
         loading: false,
-        posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]) })),
+        posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]), categories: rowsBySlug[post.slug]?.categories || post.categories || [] })),
         ciphers: value(ciphers, []),
         videos: value(videos, []),
         dimensionPost: (value(dimension, {}).posts || [])[0] || null,
@@ -118,6 +119,7 @@ export default function HomeComposition2029({
               <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
                 {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)}</span> : null}</span>
             </button>
+            <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />
             <Link className="h29-card-open" to={postHref(post.slug)}>לקריאה ←</Link>
           </article>;
         })}

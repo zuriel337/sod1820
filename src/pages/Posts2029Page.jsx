@@ -5,6 +5,7 @@ import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import "./posts2029.css";
 
@@ -47,7 +48,7 @@ function PostIndexCard({ post, index }) {
         <div className="sod29-post-index-meta">
           {post.author ? <span>{post.author}</span> : null}
           <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          {categories.map((category) => <span key={category}>{category}</span>)}
+          <PostCategories2029 categories={categories} max={3} nested />
         </div>
         <h2>{title || "פוסט"}</h2>
         {excerpt ? <p>{excerpt}</p> : null}

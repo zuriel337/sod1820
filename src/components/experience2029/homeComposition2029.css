@@ -141,3 +141,4 @@
 @container h29 (max-width: 620px) {
   .h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 14px; }
 }
+.h29-card-cats { padding: 2px 12px 4px; }
