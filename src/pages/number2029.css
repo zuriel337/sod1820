@@ -1195,3 +1195,38 @@
 [data-number-path-continuation] details { margin-top: 16px; }
 [data-number-path-continuation] summary { cursor: pointer; min-height: 44px; font-size: 16px; }
 [data-number-path-continuation] .sod29-action { min-height: 44px; white-space: normal; }
+
+
+/* Number-first compact opening (Claude visual slice, preview branch only).
+   Presentation only: no data, props or behaviours changed. Colors via --s29-*. */
+.sod29-number-page{gap:14px}
+.sod29-number-page .sod29-number-v10-identity{padding-block:6px 4px}
+.sod29-number-page .sod29-number-value{
+  font-size:clamp(64px,13vw,104px);
+  line-height:.95;
+}
+.sod29-number-page .sod29-number-v10-search input,
+.sod29-number-page .sod29-number-resolver input{min-height:44px}
+.sod29-number-page .sod29-number-v10-method-grid{
+  scrollbar-width:thin;
+}
+.sod29-number-page .sod29-number-v10-method-card,
+.sod29-number-page .sod29-number-v11-regular-select,
+.sod29-number-page .sod29-number-v10-more-methods{min-height:44px}
+.sod29-number-page .sod29-number-v11-regular-rail{
+  border-color:color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line));
+}
+.sod29-number-page button:focus-visible,
+.sod29-number-page a:focus-visible,
+.sod29-number-page input:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--s29-accent) 70%,transparent);
+  outline-offset:2px;
+}
+@media(max-width:420px){
+  .sod29-number-page{gap:10px}
+  .sod29-number-page .sod29-number-value{font-size:clamp(56px,20vw,76px)}
+  .sod29-number-page .sod29-number-focus-ribbon strong{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sod29-number-page *{animation:none!important;scroll-behavior:auto!important}
+}

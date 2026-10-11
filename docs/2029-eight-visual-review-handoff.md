@@ -312,3 +312,82 @@ https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm
 No ownership change, production deployment, merge, new publication, product DB
 write, corpus rerun or paid AI call. Guarded Preview deployment remains the
 only authorized release target.
+
+## 2026-10-11 — unified technical base for Claude visual continuation
+
+Task: SOD1820_UNIFIED_VISUAL_BASE_20261011_V1. Coordination BEFORE:
+b4920768-d190-44a6-b8cf-f922e6128709. This is a handoff, not a new owner or roadmap.
+
+Unified branch: gpt/2029-claude-unified-base-20261011.
+Lineage preserved: post head 32dc59a30bc787d1eb51bf4de7b3cff9db059d37 +
+Claude Home head 205ad28282720927b16aa7d1444a4989fe29d1d7 (which includes
+main 737ee9aa2df4aaa80dd95ea0fa3c4f2bcbc4f12a).
+The sole merge conflict was App2029 route registration; both /2029/preview
+and /2029/home-preview were retained. The main countdown removal is included.
+Claude's partial Number CSS commit 27ea3a7d is included unchanged;
+it does not establish full Number visual acceptance.
+
+ZURIEL approved Home reference fa0e26f66d7905c99bd1ec6a0cc5227586480d38,
+including the bottom-bar STRUCTURE (19:54 Asia/Jerusalem). Preserve its
+composition and feel; button/interaction polish is a later iteration.
+This technical merge does not claim that other surfaces already match it.
+The Home reference JSX/CSS was imported unchanged. Existing preview palette/
+calibration overrides must be reconciled by CLAUDE against the reference
+and existing owners; GPT has not independently redesigned them.
+
+CLAUDE next scope: adapt the approved Home composition into the existing
+shared SystemFrame/Sod2029Shell and then the Home/World surfaces, reusing
+the single shared frame. Do not wrap one frame inside another. Preserve
+the reference as comparison evidence until replacement adoption.
+Likely visual paths: src/components/experience2029/SystemFrame2029.jsx,
+Sod2029Shell.jsx, their shared presentation components/CSS,
+previewVisualReview2029.jsx, previewVisualCalibration2029.css,
+src/pages/Home2029Page.jsx, HomePreview2029Page.jsx, homePreview2029.css,
+World2029Page.jsx and world2029-human.css. New shared visual components
+belong under the existing experience2029 owner. Existing palette/token
+values, reader contracts, access and ResearchProvider remain authoritative.
+Request a bounded GPT adapter if a new binding/prop or semantic change is needed.
+
+Preserve actual capabilities: source-first reading; writers/sources/topics/
+connections; original media and attribution; real fresh arrivals through
+the existing readers; selection/source/continuation; accurate return to
+URL, selection, scroll and research context; one Number drawer; Raziel
+in the physical center of the bottom bar and typed Now. The plane story
+is an acceptance example, not the entire World. Empty or unverified data
+must remain honestly represented. Do not invent data, AI behavior or cloud-save proof.
+
+Nonoverlap:
+- ELS_RESEARCH_CLAUDE_VISUAL_PREVIEW_20261011_V1 / 40023e06: active isolated
+  ELS files, no shared frame/palette/nav. Do not edit those ELS files here.
+- NUMBER_2029_CLAUDE_VISUAL_PREVIEW_20261011_V1: Number visual lane stays
+  separate; partial CSS already integrated. Do not edit Number files here.
+- GPT freezes shared-frame/Home/World visual writing after this handoff.
+- Main design-session freeze evidence: db1b61d5-f1e7-4336-b433-c57f08682c0d.
+- Existing 27-requirement map: c29a9f97-9a0b-46c2-97cd-ce7b4a50d75a.
+  Missing original journey HTML and six source-mapping appendices remain
+  explicit gaps. No new corpus scan or history cleanup.
+
+Verification at integration: npm run build (legacy + 2029), integrated
+preview build, 7 Home/countdown tests and Number preview acceptance pass.
+No new browser visual acceptance is claimed. CLAUDE must test real-data
+desktop/phone at 320/390/1440, RTL/keyboard/focus/reduced motion and all
+three presets; give exact branch/SHA/Preview URL and screenshots.
+Keep technical test success distinct from ZURIEL visual acceptance.
+
+Coordination runtime correction: the existing finish/cancel path still
+queued GPT RESULT_WAKE despite live v16. Migration
+20261011172200_agent_dispatch_one_directional_results_v16.sql was applied
+through the authorized Supabase migration connector after source guards
+and 10 isolated PGlite regression cases (zero network/live DB test calls).
+It preserves passive results addressed to GPT and prevents stale
+Claude-to-GPT emit retries before key/network access. No grants, auth
+checks, product data or schema changed. The specific Number wake retry
+was stopped with its result text retained. The reverse wake experiment
+remains paused. CLAUDE still closes through normal lease/finish RPC:
+its AFTER now reaches GPT passively, without RESULT_WAKE.
+
+Release: branch-only; no main push, production release or product DB writes.
+Return one AFTER with exact evidence. Manual history cleanup stays held
+until G4 closure. The next phase follows the existing Roadmap after the
+shared frame and World are accepted; no competing frame or task registry.
+
