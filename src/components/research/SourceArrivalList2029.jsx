@@ -9,9 +9,9 @@ function date(value) {
 }
 
 /** One consumer of the existing public arrivals, shared by Home and World. */
-export default function SourceArrivalList2029({ items = [], loading, availability, onOpen, surface = 'world' }) {
+export default function SourceArrivalList2029({ items = [], loading, availability, onOpen, surface = 'world', limit = 6 }) {
   const [filter, setFilter] = useState('all');
-  const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, 6);
+  const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
   return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
     <header><div className="sod29-kicker">קולות מן המקור</div><h2>מה מגיע עכשיו</h2>
       <p>דברי הכותבים והפוסטים האחרונים פתוחים לקריאה, גם לפני שנוצר מהם חיבור במחקר.</p></header>
@@ -29,6 +29,7 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
       return group ? <details key={item.id} id={surface === 'world' ? `group-source-${item.id.slice(6)}` : undefined}
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
         <summary>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
+          <p className="sod29-source-arrival-label">מאת: {item.creator || 'שם הכותב לא צוין'}</p>
           <p className="sod29-source-arrival-label">מועד המקור ומועד גילוי חיבור: לא תועדו בנתונים הזמינים.</p>
           <button className="sod29-action" onClick={() => onOpen(item)}>{surface === 'home' ? 'פתיחה בעולם' : 'שמירת ההקשר לקריאה'}</button>
         </div></details> : <article className="sod29-source-arrival" key={item.id} data-source-arrival={item.sourceRef}>

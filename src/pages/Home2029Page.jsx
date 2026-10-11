@@ -1,6 +1,6 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -468,9 +468,12 @@ function HomeBody() {
     loading={homeState.loading}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
-    arrivals={<SourceArrivalList2029 surface="home" loading={homeState.loading}
-      items={(worldPreview?.arrivals || worldPreview?.items || []).slice(0, 5)}
-      availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />}
+    arrivals={<div className="h29-stream">
+      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4}
+        items={worldPreview?.arrivals || worldPreview?.items || []}
+        availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
+      <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
+    </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
     entry={
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
