@@ -10,6 +10,7 @@ import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
 import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
+import WorldThematicUniverse from "../components/research/WorldThematicUniverse.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -1005,6 +1006,8 @@ function LiveWorldLanding({ research, shell, context }) {
             spec={spec}
             recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
           />)}
+
+    <WorldThematicUniverse />
 
     <WorldAnchorMap
       projection={anchorState.projection}

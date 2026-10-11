@@ -27,6 +27,10 @@ on:
       - "src/lib/research/ResearchProvider.jsx"
       - "src/lib/research/numberExpressionFocus.js"
       - "src/lib/research/world2029Presentation.js"
+      - "src/lib/research/worldThematicUniverse*"
+      - "src/lib/research/worldDiscoveryStream.js"
+      - "src/components/research/WorldThematicUniverse.jsx"
+      - "src/components/research/worldThematicUniverse.css"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
       - "src/lib/research/worldConvergenceLensProjection.js"
@@ -68,6 +72,7 @@ on:
       - "scripts/test-2029-control-plane.mjs"
       - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
+      - "tests/world2029-thematic.spec.cjs"
       - "tests/entry-learn-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
@@ -140,6 +145,8 @@ jobs:
         run: node test/people-directory-2029-projection.test.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
+      - name: World thematic public boundary acceptance
+        run: node --test src/lib/research/worldThematicUniverse.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/research/worldSourceCorpus.test.js
       - name: World Convergence PR591 focused acceptance
         run: npm run test:world-convergence-pr591
       - name: Native Topic surface acceptance
@@ -181,6 +188,8 @@ jobs:
           npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
       - name: Real World browser acceptance
         run: npx playwright test tests/world2029-release.spec.cjs --reporter=line
+      - name: World thematic navigation and responsive acceptance
+        run: npx playwright test tests/world2029-thematic.spec.cjs --reporter=line
       - name: Upload native World screenshots
         if: always()
         uses: actions/upload-artifact@v4
