@@ -10,6 +10,7 @@ import {
   orderWorldConvergenceRows,
 } from "../../lib/research/worldConvergenceLensProjection.js";
 import "./world-convergence-lens.css";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 
 const PAGE = 60;
 
@@ -47,8 +48,7 @@ function optionsFrom(counts, fallback = "לא צוין") {
 }
 
 function dateLabel(value) {
-  if (!value) return null;
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
+  return relativeTimeLabel(value) || null;
 }
 
 function Stat({ label, value, detail = null }) {

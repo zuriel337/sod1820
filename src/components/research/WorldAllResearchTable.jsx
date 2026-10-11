@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { filterWorldAllResearchRows } from "../../lib/research/worldAllResearchProjection.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE = 120;
@@ -172,7 +173,7 @@ export default function WorldAllResearchTable({ state }) {
             <span>ייחוס · {contributorLabel(row.contributor)}</span>
             {row.value != null ? <span>ערך · {row.value}</span> : null}
             <span>מקור · {safeVisibleText(row.sourceLabel, "מקור מחקר")}</span>
-            {row.createdAt ? <span>נוסף למחקר · {new Date(row.createdAt).toLocaleDateString("he-IL")}</span> : null}
+            {row.createdAt ? <span>נוסף למחקר · {relativeTimeLabel(row.createdAt)}</span> : null}
           </div>
 
           {row.attributionLabel ? <div className="sod29-world-all-research-cluster">{safeVisibleText(row.attributionLabel, "ייחוס המקור לא הוכרע")}</div> : null}

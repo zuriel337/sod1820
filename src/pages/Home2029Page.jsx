@@ -1,6 +1,7 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -100,20 +101,11 @@ function formatPulseNumber(value) {
 }
 
 function formatPulseDate(value) {
-  if (!value) return null;
-  try {
-    return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
-  } catch {
-    return null;
-  }
+  return relativeTimeLabel(value) || null;
 }
 
 function formatWorldArrival(value) {
-  if (!value) return "זמן לא צוין";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "זמן לא צוין" : date.toLocaleString("he-IL", {
-    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-  });
+  return relativeTimeLabel(value, "זמן לא צוין");
 }
 
 function HomeSystemPulse({ pulse, loading }) {

@@ -6,6 +6,7 @@ import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
+import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
 const slug = 'flydubai-fz1073-363-14000-remzei-geula';
 const directions = [
@@ -61,7 +62,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         subject: null, selection: null, lens: 'world', dimensions: {}, journey: research.context?.journey || null } });
     shell.go(identity.href, { preserve: false });
   };
-  const date = post.date ? new Date(post.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+  const date = post.date ? relativeTimeLabel(post.date) : null;
   return <section id={anchor} className={`sod29-flight-story is-${surface}`} data-flight-story={surface} aria-label="סיפור המטוס וכיווני הגילוי">
     {!home ? <div className="sod29-flight-breadcrumb"><button onClick={() => shell.go('/2029#home-plane')}>הבית</button><span aria-hidden="true">/</span><span>סיפור המטוס בעולם</span></div> : null}
     <div className="sod29-flight-feature">
@@ -95,7 +96,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       </div>
       <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
         <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />
-        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {new Date(post.modified).toLocaleDateString('he-IL')}. עדכון אינו אירוע חדש.</p> : null}
+        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>
     </> : null}

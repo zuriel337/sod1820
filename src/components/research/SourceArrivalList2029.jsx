@@ -3,10 +3,10 @@ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import '../../pages/home-world-story2029.css';
 import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
+import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
 function date(value) {
-  if (!value || !Number.isFinite(Date.parse(value))) return 'לא צוין';
-  return new Date(value).toLocaleString('he-IL', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return relativeTimeLabel(value, 'לא צוין');
 }
 
 /** One consumer of the existing public arrivals, shared by Home and World. */

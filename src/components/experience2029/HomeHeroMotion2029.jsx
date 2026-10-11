@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { postNumbers, realUpdate } from "../../lib/heroUpdate2029.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import "./homeHeroMotion2029.css";
 
@@ -25,10 +26,6 @@ const storage = (kind) => { try { return window[kind]; } catch (_) { return null
 const readSeen = () => { try { return JSON.parse(storage("localStorage")?.getItem(SEEN_KEY) || "{}") || {}; } catch (_) { return {}; } };
 const writeSeen = (seen) => { try { storage("localStorage")?.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_) { /* optional */ } };
 
-function shortDate(value) {
-  const date = value ? new Date(value) : null;
-  return date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString("he-IL", { day: "numeric", month: "numeric" }) : "";
-}
 
 function useHeroData(lead) {
   const [state, setState] = useState({ row: null, cards: [], loaded: false });
@@ -87,7 +84,7 @@ export default function HomeHeroMotion2029({ lead, href }) {
 
   const updateText = !update ? null
     : update.kind === "demo" ? "הדגמה, לא עדכון אמיתי: כך תופיע הודעת עדכון קצרה על הפריט הראשי."
-    : `המערכת רושמת שהפוסט עודכן ב־${shortDate(update.at)}.`;
+    : `המערכת רושמת שהפוסט עודכן ${relativeTimeLabel(update.at)}.`;
 
   return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="העדכון האחרון" data-hero-motion={entering ? "enter" : "quiet"}>
     {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" /> : null}
@@ -119,12 +116,12 @@ export default function HomeHeroMotion2029({ lead, href }) {
         <h2>חיבורים</h2>
         {data.cards.length ? <ul>{data.cards.map((card) => <li key={card.id}>
           <Link to={`/topic/${encodeURIComponent(card.slug)}`}>{clean(card.label)}</Link>
-          <span>מספרים משותפים עם הפוסט: {card.shared.join(" · ") || "אין"}{card.approvedAt ? ` · אושר ${shortDate(card.approvedAt)}` : ""}</span>
+          <span>מספרים משותפים עם הפוסט: {card.shared.join(" · ") || "אין"}{card.approvedAt ? ` · אושר ${relativeTimeLabel(card.approvedAt)}` : ""}</span>
         </li>)}</ul> : <p>{data.loaded ? "המערכת לא מצאה כרגע התכנסות מאושרת שחולקת מספרים עם הפוסט." : "בודק…"}</p>}
         <p className="h29-hero-fine">החיבורים נגזרים ממספרים משותפים בין תגיות הפוסט לכרטיסי ההתכנסות הציבוריים. זו תוצאת חיפוש, לא הוכחה.</p>
         <h2>מקורות</h2>
         <ul>
-          <li><Link to={href}>הפוסט עצמו</Link><span>{data.row?.date ? `פורסם ${shortDate(data.row.date)}` : ""}{data.row?.modified && data.row.modified !== data.row.date ? ` · עודכן ${shortDate(data.row.modified)}` : ""}</span></li>
+          <li><Link to={href}>הפוסט עצמו</Link><span>{data.row?.date ? `פורסם ${relativeTimeLabel(data.row.date)}` : ""}{data.row?.modified && data.row.modified !== data.row.date ? ` · עודכן ${relativeTimeLabel(data.row.modified)}` : ""}</span></li>
         </ul>
         <h2>רכיבים שטרם מחושבים</h2>
         <ul className="h29-hero-na" aria-label="רכיבים שהמערכת עדיין לא מחשבת">

@@ -70,6 +70,7 @@ import "./world2029-human.css";
 import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -334,7 +335,7 @@ function prominenceWhyLines(item) {
   if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי ברמת זהב; זהו אות אוצרות, לא דירוג אמת.");
   else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי ברמת כסף; זהו שובר שוויון בלבד.");
   if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
-  if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`);
+  if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`); // date-rule-exempt: event date, not a record time
   return lines.length ? lines : ["הפריט נבחר בגלל הרלוונטיות שלו לנקודה הזאת."];
 }
 
@@ -404,8 +405,7 @@ function contributionDisplay(row) {
 }
 
 function researchAddedDate(value) {
-  if (!value) return "זמן הוספה לא ידוע";
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return "זמן הוספה לא ידוע"; }
+  return relativeTimeLabel(value, "זמן הוספה לא ידוע");
 }
 
 function humanTimelineLabel(item) {
@@ -418,9 +418,9 @@ function humanTimelineLabel(item) {
 }
 
 function mediaDate(item) {
-  const value = item?.occurredAt || item?.createdAt || null;
-  if (!value) return null;
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
+  // The event date of the media is content (kept as a date); the time it was added is a record time (relative).
+  if (item?.occurredAt) { try { return new Date(item.occurredAt).toLocaleDateString("he-IL"); } catch (_) { return null; } } // date-rule-exempt: event date
+  return relativeTimeLabel(item?.createdAt) || null;
 }
 
 function WorldCard({ card, onOpen }) {
@@ -998,11 +998,7 @@ function LiveWorldLanding({ research, shell, context }) {
       shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
     }
   };
-  const discoveryDate = (value) => {
-    if (!value) return "זמן לא צוין";
-    try { return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "short" }); }
-    catch (_) { return "זמן לא צוין"; }
-  };
+  const discoveryDate = (value) => relativeTimeLabel(value, "זמן לא צוין");
 
   const creatorLabel = (value) => {
     if (!value) return "מקור לא צוין";

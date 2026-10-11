@@ -10,6 +10,7 @@ import {
 } from "../lib/research/researcherCorpusProjection.js";
 import { applySeo } from "../lib/seo.js";
 import "./researcher2029.css";
+import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 
 const OPERATION_LABELS = Object.freeze({
   "single-verification": "שוויון / חישוב",
@@ -22,8 +23,7 @@ const OPERATION_LABELS = Object.freeze({
 });
 
 function dateLabel(value) {
-  if (!value) return null;
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
+  return relativeTimeLabel(value) || null;
 }
 
 function CorpusRow({ row, onOpenToken }) {

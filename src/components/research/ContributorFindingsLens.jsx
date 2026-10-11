@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import FindingSurface from "./FindingSurface.jsx";
 import { use2029Palette } from "../../lib/palette.js";
 import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -16,18 +17,7 @@ const FACET_LABELS = Object.freeze({
 });
 
 function dt(value) {
-  if (!value) return "זמן לא צוין";
-  try {
-    return new Date(value).toLocaleString("he-IL", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch (_) {
-    return "זמן לא צוין";
-  }
+  return relativeTimeLabel(value, "זמן לא צוין");
 }
 
 function withinDays(value, days) {

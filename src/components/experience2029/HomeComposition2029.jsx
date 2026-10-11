@@ -8,6 +8,7 @@ import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupaba
 import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { useReveal } from "./useReveal2029.js";
@@ -18,11 +19,6 @@ import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 
-function shortDate(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
-}
 
 function postHref(slugOrPath) {
   const slug = String(slugOrPath || "").replace(/^\/+/, "");
@@ -119,8 +115,8 @@ export default function HomeComposition2029({
           return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>
             <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
               <Media src={post.poster} fallback={post.number || "✦"} />
-              <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{shortDate(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
-                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {shortDate(post.update.at)}</span> : null}</span>
+              <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
+                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)}</span> : null}</span>
             </button>
             <Link className="h29-card-open" to={postHref(post.slug)}>לקריאה ←</Link>
           </article>;
