@@ -115,8 +115,17 @@ assert.doesNotMatch(rail, /GematriaReveal2029/);
 assert.match(rail, /interactive/);
 assert.match(postPage, /surfaceSections: regions\.map/);
 assert.match(postPage, /surfaceMapLabel: "בתוך הפוסט"/);
-assert.match(postPage, /shell\.openInspect\?\./);
-assert.doesNotMatch(postPage, /source: "post-contextual-focus",[\s\S]{0,120}shell\.openNumber/);
+// 4b148849 / original Claude36d7c6ea: explicit expression intent opens the
+// existing Number window directly; passive reading still does not fetch traces.
+const postFocus = postPage.slice(postPage.indexOf('const openContextualNumberFocus'), postPage.indexOf('const handleSourceContextualFocus'));
+assert.match(postFocus, /shell\.openNumber\?\./);
+assert.match(postFocus, /source: "post-contextual-focus"/);
+assert.match(postFocus, /expression: cleanExpression/);
+assert.match(postFocus, /method: cleanMethodKey/);
+assert.match(postFocus, /resultValue: numericResult/);
+assert.match(postFocus, /returnTo: exactReturnForRegion\(targetRegion\)/);
+assert.doesNotMatch(postFocus, /shell\.openInspect|shell\.openRaziel/);
+assert.doesNotMatch(postPage, /fetchGematriaMethodTrace/);
 assert.match(topicPage, /surface="topic"/);
 assert.match(topicPage, /surfaceSections: navItems\.map/);
 assert.match(topicPage, /surfaceMapLabel: "בתוך הציר"/);

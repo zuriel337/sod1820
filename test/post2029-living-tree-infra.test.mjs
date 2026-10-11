@@ -76,8 +76,10 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   assert.match(projectionSource, /buildPost2029ArchitectureWireframe/);
   assert.match(experienceSource, /post-2029-wireframe-v1/);
   assert.match(experienceSource, /אין טענת סיבתיות/);
-  assert.match(page, /WIREFRAME · מבנה בלבד/);
-  assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), false);
+  assert.match(page, /experience\.wireframe \? <section[^>]+aria-label="מבנה בלבד"/);
+  assert.match(page, /<b>מבנה בלבד<\/b>/);
+  // The adopted tools rail now exposes the existing Heichal destination.
+  assert.match(frame, /to: "\/heichal", label: "היכל"/);
   assert.match(frame, /label: "מסעות"/);
   assert.match(frame, /label: "קהילה"/);
   assert.match(frame, /data-raziel-anchor="center"/);
@@ -162,7 +164,14 @@ test("FZ1073 pilot builds bounded context without changing other posts", () => {
   assert.equal(experience.connections[0].href, "/topic/gapfill-363");
   assert.equal(experience.connections.find((row) => row.id === "topic-718")?.href, "/topic/gapfill-718");
   assert.equal(experience.connections.find((row) => row.id === "topic-386")?.href, "/topic/386-david-ben-yishai-tzipor");
-  assert.equal(experience.connections.length, 6);
+  assert.deepEqual(experience.connections.map((row) => row.id), [
+    'topic-363', 'number-1073', 'topic-718', 'topic-386',
+    'oct-710-post', 'oct-war-post', 'tiran-saudi-post', 'iran-saudi-post',
+  ]);
+  for (const row of experience.connections) {
+    assert.ok(row.href.startsWith('/'), `${row.id}: local source destination`);
+    assert.ok(row.reason, `${row.id}: reason for the connection`);
+  }
   assert.equal(experience.timeline[0].temporalRole, "occurred");
   assert.equal(experience.timeline.find((row) => row.id === "fz1073-published")?.temporalRole, "published");
   assert.equal(experience.media.highlight.src.includes("final-20261001-v4.mp4"), true);
@@ -247,7 +256,10 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
   const untouched = markBennettContextualNumberFocus(source, { verified: false, value: 78 });
   assert.equal(untouched, source);
 
-  const marked = markBennettContextualNumberFocus(source, { verified: true, value: 78 });
+  // The fixture's admission is the canonical Bennett=631 verification.
+  // A verification of a different value must not unlock its authored markers.
+  assert.equal(markBennettContextualNumberFocus(source, { verified: true, value: 78 }), source);
+  const marked = markBennettContextualNumberFocus(source, { verified: true, value: 631 });
   assert.match(marked, /data-contextual-number-focus-group="true"/);
   assert.match(marked, /data-expression="מלח"/);
   assert.match(marked, /data-method="רגיל"/);

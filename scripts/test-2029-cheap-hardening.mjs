@@ -14,7 +14,13 @@ function routePattern(route) {
   return String(route).replace(/\/:[^/]+/g, "/(.*)");
 }
 
-const appRoutes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)]
+// Conditional review routes are absent from the production build. Verify their
+// explicit guards, then compare every production route with document rewrites.
+for (const [flag, route] of [['integratedPreviewEnabled', '/2029/preview'], ['kingdomPreviewEnabled', '/2029/kingdom']]) {
+  assert.ok(app2029.includes(`{${flag} && <Route path="${route}"`), `${route} must remain flag-gated`);
+}
+const productionApp = app2029.replace(/\{(?:integratedPreviewEnabled|kingdomPreviewEnabled) && <Route[^\n]+\/>\}/g, '');
+const appRoutes = [...productionApp.matchAll(/<Route\s+path="([^"]+)"/g)]
   .map((match) => match[1])
   .filter((route) => route !== "*")
   .map(routePattern)

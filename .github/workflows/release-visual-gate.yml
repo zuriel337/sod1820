@@ -333,12 +333,25 @@ jobs:
             const post = page.locator('[data-experience-surface="post-reading"]');
             await expect(post).toBeVisible({ timeout: 30_000 });
 
+            // The adopted desktop shell embeds the context in the pinned companion.
+            // Phone keeps the existing context sheet. Both expose the same four sections.
+            const companion = page.locator('.sod29-companion');
+            if (width >= 981) {
+              await expect(companion).toBeVisible();
+              await companion.hover();
+              await companion.getByRole('button', { name: 'נעץ', exact: true }).click();
+              await companion.getByRole('button', { name: 'הקשר', exact: true }).click();
+              await expect(companion).toHaveAttribute('data-companion-mode', 'pinned');
+            }
             const restRail = page.locator('.sod29-surface-context-rail');
             const contentMap = restRail.locator('[data-context-map-item]');
-            await expect(contentMap).toHaveCount(3, { timeout: 30_000 });
-            await expect(contentMap.nth(0)).toContainText('פוסט הבחירות');
+            await expect(contentMap).toHaveCount(4, { timeout: 30_000 });
+            expect(await contentMap.evaluateAll(nodes => nodes.map(node => node.dataset.contextMapItem)))
+              .toEqual(['elections-chain', 'bennett-631', 'dead-sea-chronology', 'post-connections']);
+            await expect(contentMap.nth(0)).toContainText('האירוע שתועד');
             await expect(contentMap.nth(1)).toContainText('631');
             await expect(contentMap.nth(2)).toContainText('22.9');
+            await expect(contentMap.nth(3)).toContainText('חיבורים');
             if (width < 600) {
               await expect(restRail).toBeHidden();
               const glassLocator = page.locator('.sod29-glass-locator');
@@ -352,31 +365,14 @@ jobs:
             } else {
               await expect(restRail).toBeVisible();
               await expect(restRail).toContainText('בתוך הפוסט');
-            }
-
-            if (width >= 600) {
-              const globalRail = page.locator('.sod29-sidebar');
-              const globalBefore = await globalRail.boundingBox();
-              const contextBefore = await restRail.boundingBox();
-              expect(globalBefore).not.toBeNull();
-              expect(contextBefore).not.toBeNull();
+              const before = await companion.boundingBox();
               await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
-              await page.waitForTimeout(120);
-              const globalAfter = await globalRail.boundingBox();
-              const contextAfter = await restRail.boundingBox();
-              expect(globalAfter).not.toBeNull();
-              expect(contextAfter).not.toBeNull();
-              expect(Math.abs(globalAfter.y - globalBefore.y)).toBeLessThanOrEqual(1);
-              const stickyContract = await restRail.evaluate((node) => {
-                const style = getComputedStyle(node);
-                return { position: style.position, top: style.top };
-              });
-              expect(stickyContract.position).toBe('sticky');
-              expect(stickyContract.top).toBe('78px');
-              expect(contextAfter.y).toBeGreaterThanOrEqual(77);
-              expect(contextAfter.y).toBeLessThanOrEqual(contextBefore.y + 0.5);
-              expect(Math.abs(globalAfter.x - globalBefore.x)).toBeLessThanOrEqual(1);
-              expect(Math.abs(contextAfter.x - contextBefore.x)).toBeLessThanOrEqual(1);
+              await expect.poll(async () => (await companion.boundingBox()).y).toBe(before.y);
+              const after = await companion.boundingBox();
+              expect(after.x).toBe(before.x);
+              const dock = await page.locator('.sod29-command-island').boundingBox();
+              expect(after.y).toBeGreaterThanOrEqual(76);
+              expect(after.y + after.height).toBeLessThanOrEqual(dock.y);
             }
 
             await expect(post.getByText('נפתלי בנט', { exact: false }).first()).toBeVisible();
@@ -402,20 +398,9 @@ jobs:
             await expect(sidecar).toHaveCount(1);
             await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
             await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
-            const sidecarExpression = sidecar.locator('.sod29-surface-context-expression');
-            await expect(sidecarExpression).toBeVisible();
-            await expect(sidecarExpression).toContainText('נפתלי בנט');
-            await expect(sidecarExpression).toContainText('רגיל');
-            await expect(sidecarExpression).toContainText('631');
-
-            const learn = sidecar.locator('.sod29-learn-mark.scope-concept');
-            await expect(learn).toBeVisible();
-            await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
-            await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
-            await expect(learn).toContainText('נפתלי בנט');
-            await expect(learn).toContainText('רגיל');
-            await expect(learn).toContainText('631');
-            await learn.getByRole('button', { name: 'ראה את החישוב' }).click();
+            // Explicit expression intent opens Number directly (4b148849).
+            // Passive reading above made zero trace requests; no second inspect dialog is introduced.
+            await expect(page.getByRole('dialog')).toHaveCount(1);
 
             const drawer = page.locator('.sod29-number-drawer2029');
             await expect(drawer).toBeVisible({ timeout: 30_000 });
