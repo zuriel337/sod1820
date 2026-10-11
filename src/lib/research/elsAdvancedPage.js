@@ -1,16 +1,26 @@
 import { projectEls2029Result } from "./els2029Projection.js";
 
 const integer = value => value === "" || value == null ? null : Number.isInteger(Number(value)) ? Number(value) : null;
+const SQL_INT_MAX = 2_147_483_647;
+
+export function elsSearchSpelling(term, mode = "regular") {
+  const words = String(term || "").trim().split(/\s+/).filter(Boolean);
+  const reverse = word => [...word].reverse().join("");
+  if (mode === "reverse_all") return words.slice().reverse().map(reverse).join(" ");
+  if (mode === "reverse_words") return words.map(reverse).join(" ");
+  if (mode === "reverse_last") return words.map((word, index) => index === words.length - 1 ? reverse(word) : word).join(" ");
+  return words.join(" ");
+}
 
 export function buildElsAdvancedPageRequest(form, cursor = null) {
-  const term = String(form?.term || "").trim();
+  const term = elsSearchSpelling(form?.term, form?.spelling);
   const scope = form?.scope === "tanakh" ? "tanakh" : "torah";
   const skipMin = integer(form?.skipMin);
   const skipMax = integer(form?.skipMax);
   const pageSize = integer(form?.pageSize);
   if ([...term].length < 2) return { error: "הזינו מונח של שתי אותיות לפחות." };
-  if (skipMin == null || skipMax == null || skipMin < 2 || skipMax < skipMin || skipMax > 500)
-    return { error: "טווח הדילוגים צריך להיות בין 2 ל־500, מהקטן לגדול." };
+  if (skipMin == null || skipMax == null || skipMin < 2 || skipMax < skipMin || skipMax > SQL_INT_MAX)
+    return { error: "בחרו טווח דילוגים שלם מ־2 ומעלה, מהקטן לגדול." };
   if (pageSize == null || pageSize < 1 || pageSize > 100)
     return { error: "מספר התוצאות בדף צריך להיות בין 1 ל־100." };
   if (cursor && (integer(cursor.skip) == null || integer(cursor.skip) < skipMin || integer(cursor.skip) > skipMax
@@ -60,7 +70,7 @@ export function buildElsAdvancedLoadItem(selection, projection) {
 // A user-chosen skip has no arbitrary 500 ceiling. The canonical iframe discovers and verifies
 // the first available occurrence at that skip; this is not an exhaustive page of all hits.
 export function buildElsExactSkipProbe(form, requestId) {
-  const term = String(form?.term || "").trim();
+  const term = elsSearchSpelling(form?.term, form?.spelling);
   const skip = integer(form?.skip);
   if (term.replace(/[^א-ת]/g, "").length < 2) return { error: "הזינו מונח עברי של שתי אותיות לפחות." };
   if (!Number.isSafeInteger(skip) || skip < 2) return { error: "הזינו דילוג שלם וחיובי מ־2 ומעלה." };

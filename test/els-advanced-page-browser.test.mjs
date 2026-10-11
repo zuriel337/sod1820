@@ -62,6 +62,15 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     await page.getByText("3 מופעים נטענו ב־3 דפים · סוף התוצאות בטווח").waitFor();
     assert.equal(await page.getByLabel("מופעי החיפוש המתקדם").getByRole("listitem").count(), 3);
     assert.deepEqual(await page.evaluate(() => window.__advancedCalls.slice(5).map(call => call.body.after_skip ?? null)), [null, 86, 87]);
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("סוד החשמל");
+    await page.getByLabel("צורת כתיבה לחיפוש").selectOption("reverse_all");
+    await page.getByText("יחופש בפועל: למשחה דוס").waitFor();
+    await page.getByLabel("דילוג מקסימלי").fill("10065");
+    await page.getByRole("button", { name: "חפש בטווח" }).click();
+    await page.waitForFunction(() => window.__advancedCalls.at(-1)?.body?.term === "למשחה דוס");
+    assert.equal(await page.evaluate(() => window.__advancedCalls.at(-1).body.skip_max), 10065);
+    await page.getByLabel("צורת כתיבה לחיפוש").selectOption("reverse_last");
+    await page.getByText("יחופש בפועל: סוד למשחה").waitFor();
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();

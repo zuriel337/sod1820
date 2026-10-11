@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsAdvancedLoadItem, buildElsExactSkipProbe, projectElsAdvancedPage } from "./elsAdvancedPage.js";
+import { buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsAdvancedLoadItem, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "./elsAdvancedPage.js";
 
 const form = { term: "תורתאמת", scope: "torah", skipMin: "81", skipMax: "200", pageSize: "20" };
 
@@ -13,8 +13,17 @@ test("advanced ELS search is explicit, bounded and carries an exact keyset curso
   assert.equal(first.request.after_skip, undefined);
   const next = buildElsAdvancedPageRequest(form, { skip: 86, start: 1200, dir: -1 });
   assert.deepEqual([next.request.after_skip, next.request.after_start, next.request.after_dir], [86, 1200, -1]);
-  for (const bad of [{ ...form, skipMax: "501" }, { ...form, skipMin: "201" }, { ...form, pageSize: "500" }, { ...form, term: "א" }])
+  assert.equal(buildElsAdvancedPageRequest({ ...form, skipMax: "10065" }).request.skip_max, 10065);
+  for (const bad of [{ ...form, skipMax: "2147483648" }, { ...form, skipMin: "201" }, { ...form, pageSize: "500" }, { ...form, term: "א" }])
     assert.ok(buildElsAdvancedPageRequest(bad).error);
+});
+
+test("reverse spelling variants preserve word boundaries and use the same page contract", () => {
+  assert.equal(elsSearchSpelling("סוד החשמל", "reverse_all"), "למשחה דוס");
+  assert.equal(elsSearchSpelling("סוד החשמל", "reverse_words"), "דוס למשחה");
+  assert.equal(elsSearchSpelling("סוד החשמל", "reverse_last"), "סוד למשחה");
+  assert.equal(buildElsAdvancedPageRequest({ ...form, term: "סוד החשמל", spelling: "reverse_all" }).request.term, "למשחה דוס");
+  assert.equal(buildElsExactSkipProbe({ term: "סוד החשמל", spelling: "reverse_last", skip: 10065 }, 4).request.term, "סוד למשחה");
 });
 
 test("only a canonical page yields selectable occurrences and continuation", () => {
