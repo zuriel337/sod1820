@@ -6,11 +6,13 @@ export function prepareElsAdvancedBatch({ axis, related, scope, skipMin, skipMax
     .map(term => String(term || "").trim()).filter(Boolean);
   const terms = [...new Map(rawTerms.map(term => [term.replace(/\s+/g, ""), term])).values()];
   if (terms.length < 2 || terms.length > 4) return { error: "בחרו מונח ראשי ועוד מילה אחת עד שלוש מילים להשוואה." };
+  let bounds;
   for (const term of terms) {
     const built = buildElsAdvancedPageRequest({ term, scope, skipMin, skipMax, pageSize });
     if (built.error) return { error: `״${term}״: ${built.error}` };
+    bounds = built.request;
   }
-  return { terms, scope: scope === "tanakh" ? "tanakh" : "torah", skipMin: Number(skipMin), skipMax: Number(skipMax), pageSize: Number(pageSize) };
+  return { terms, scope: scope === "tanakh" ? "tanakh" : "torah", skipMin: bounds.skip_min, skipMax: bounds.skip_max, pageSize: bounds.page_size };
 }
 
 export async function runElsAdvancedBatch({ plan, invokePage, now = () => Date.now() }) {

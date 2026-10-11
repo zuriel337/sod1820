@@ -8,6 +8,7 @@ test("batch plan requires two to four distinct user terms and explicit bounds", 
   assert.deepEqual(prepareElsAdvancedBatch(base).terms, ["תורתאמת", "אמת", "חסד"]);
   assert.ok(prepareElsAdvancedBatch({ ...base, related: "" }).error);
   assert.equal(prepareElsAdvancedBatch({ ...base, skipMax: "10065" }).skipMax, 10065);
+  assert.equal(prepareElsAdvancedBatch({ ...base, skipMax: "" }).skipMax, 2_147_483_647);
   assert.ok(prepareElsAdvancedBatch({ ...base, related: "א, ב, ג, ד" }).error);
 });
 

@@ -14,6 +14,8 @@ test("advanced ELS search is explicit, bounded and carries an exact keyset curso
   const next = buildElsAdvancedPageRequest(form, { skip: 86, start: 1200, dir: -1 });
   assert.deepEqual([next.request.after_skip, next.request.after_start, next.request.after_dir], [86, 1200, -1]);
   assert.equal(buildElsAdvancedPageRequest({ ...form, skipMax: "10065" }).request.skip_max, 10065);
+  assert.equal(buildElsAdvancedPageRequest({ ...form, skipMax: "" }).request.skip_max, 2_147_483_647);
+  assert.equal(buildElsAdvancedPageRequest({ ...form, skipMax: "" }, { skip: 86, start: 1200, dir: -1 }).request.after_skip, 86);
   for (const bad of [{ ...form, skipMax: "2147483648" }, { ...form, skipMin: "201" }, { ...form, pageSize: "500" }, { ...form, term: "א" }])
     assert.ok(buildElsAdvancedPageRequest(bad).error);
 });

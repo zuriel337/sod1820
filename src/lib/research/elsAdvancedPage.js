@@ -16,7 +16,9 @@ export function buildElsAdvancedPageRequest(form, cursor = null) {
   const term = elsSearchSpelling(form?.term, form?.spelling);
   const scope = form?.scope === "tanakh" ? "tanakh" : "torah";
   const skipMin = integer(form?.skipMin);
-  const skipMax = integer(form?.skipMax);
+  // A blank upper bound means the whole physically possible corpus range. The SQL core
+  // clamps this integer ceiling to the term-specific maximum for the selected corpus.
+  const skipMax = form?.skipMax === "" || form?.skipMax == null ? SQL_INT_MAX : integer(form.skipMax);
   const pageSize = integer(form?.pageSize);
   if ([...term].length < 2) return { error: "הזינו מונח של שתי אותיות לפחות." };
   if (skipMin == null || skipMax == null || skipMin < 2 || skipMax < skipMin || skipMax > SQL_INT_MAX)
