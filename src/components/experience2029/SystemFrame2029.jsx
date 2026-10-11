@@ -1427,16 +1427,7 @@ export default function SystemFrame2029({
     setCompanionPref(next); setCompanionPeek(false);
     try { window.localStorage.setItem("sod-companion", next); } catch (_) { /* optional */ }
   }, []);
-  // Slim rail by default; hover or keyboard focus opens it over the content, "pin" keeps it open and moves the content.
-  const [railPeek, setRailPeek] = useState(false);
-  const railPeekTimer = useRef(null);
-  const peekRail = useCallback((open) => {
-    if (typeof window === "undefined" || !window.matchMedia?.("(min-width: 981px) and (hover: hover)").matches) return;
-    window.clearTimeout(railPeekTimer.current);
-    if (open) setRailPeek(true);
-    else railPeekTimer.current = window.setTimeout(() => setRailPeek(false), 160);
-  }, []);
-  useEffect(() => () => window.clearTimeout(railPeekTimer.current), []);
+  // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [transient, setTransient] = useState(null);
   const [toolDock, setToolDock] = useState(null);
   const [systemDockMode, setSystemDockMode] = useState(false);
@@ -1987,7 +1978,7 @@ export default function SystemFrame2029({
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed && !railPeek ? " sidebar-collapsed" : ""}${sidebarCollapsed && railPeek ? " rail-peek" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -2002,7 +1993,12 @@ export default function SystemFrame2029({
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
-        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={sidebarCollapsed ? (railPeek ? "peek" : "slim") : "pinned"} onMouseEnter={() => peekRail(true)} onMouseLeave={() => peekRail(false)} onFocus={() => peekRail(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false); }}>
+        <button className="sod29-logo-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"} title={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"}>
+          <DiscoveryGateMark2029 open={!sidebarCollapsed} />
+          <span className="sod29-logo-name" aria-hidden="true"><b>{experience.brand.identity}</b>{experience.brand.expression ? <small>{experience.brand.expression}</small> : null}</span>
+        </button>
+
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={sidebarCollapsed ? "slim" : "open"}>
           <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
@@ -2016,9 +2012,6 @@ export default function SystemFrame2029({
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "נעץ את התפריט פתוח" : "בטל נעיצה"} aria-pressed={!sidebarCollapsed}>
-            <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "נעץ פתוח" : "בטל נעיצה"}</b>
-          </button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
@@ -2027,9 +2020,6 @@ export default function SystemFrame2029({
             <div className="sod29-header-leading">
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
                 <DiscoveryGateMark2029 open={navOpen} />
-              </button>
-              <button className="sod29-desktop-gate-trigger sod29-gate-trigger" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "נעץ את התפריט פתוח" : "בטל נעיצה"} title={sidebarCollapsed ? "נעץ את התפריט פתוח" : "בטל נעיצה"} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation">
-                <DiscoveryGateMark2029 open={!sidebarCollapsed} />
               </button>
               <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>

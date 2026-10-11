@@ -130,15 +130,6 @@
   .sod29-root.native-frame .sod29-now-tab { transition: none; }
 }
 
-/* Slim rail: hover or keyboard focus opens it over the content; "pin" keeps it open and moves the content. */
-@media (min-width: 981px) {
-  .sod29-root.closed-shell.native-frame.rail-peek { grid-template-columns: 72px minmax(0, 1fr); }
-  .sod29-root.closed-shell.native-frame.rail-peek .sod29-sidebar {
-    width: 236px; justify-self: start; z-index: 45;
-    box-shadow: 0 0 40px color-mix(in srgb, var(--s29-page) 70%, transparent), 0 0 0 1px var(--s29-line-strong);
-  }
-}
-
 /* Desktop dock (proposal): the bottom bar is a small floating pill centered at the bottom instead of a full-width strip.
    Pages with a research trail keep the full-width bar because the trail needs the width. Phones are unchanged. */
 @media (min-width: 981px) {
@@ -170,7 +161,62 @@
     height: auto !important; max-height: none !important;
     box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
   }
-  .sod29-root.closed-shell.native-frame.sidebar-collapsed:not(.rail-peek) .sod29-sidebar { inline-size: calc(var(--s29-global-rail-width, 72px) - 16px); }
-  .sod29-root.closed-shell.native-frame.sidebar-collapsed:not(.rail-peek) .sod29-rail-identity { display: none; }
-  .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
+    .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
+}
+
+/* Three bars as one family (desktop): the top bar, the navigation rail and the left panel share one capsule language.
+   The canonical logo opens and closes the rail (click, Enter or Space). Hover only highlights; nothing moves on hover. */
+.sod29-logo-toggle { display: none; }
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame {
+    --s29-rail-slim: calc(var(--s29-global-rail-width, 72px) - 16px); --s29-rail-open: 232px; --s29-header-height: 78px;
+    --s29-capsule-edge: color-mix(in srgb, var(--s29-brand-gold) 30%, var(--s29-line-strong));
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation {
+    position: sticky; top: calc(var(--sod-review-offset, 0px) + 10px); min-height: 56px; block-size: 56px; margin-block: 10px 12px; margin-inline: 0 10px;
+    padding-block: 0; padding-inline: 16px; border: 1px solid var(--s29-capsule-edge); border-radius: 28px;
+    background: color-mix(in srgb, var(--s29-panel) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-rail-identity { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-sidebar { border-color: var(--s29-capsule-edge); }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar { inline-size: var(--s29-rail-slim); }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-sidebar {
+    inline-size: var(--s29-rail-open); inset-block-start: calc(var(--sod-review-offset, 0px) + 10px) !important; padding-block-start: 76px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--s29-brand-gold) 22%, transparent), 0 20px 60px color-mix(in srgb, var(--s29-page) 70%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 10px; position: fixed; z-index: 46; padding: 0;
+    inset-inline-start: 8px; inset-block-start: calc(var(--sod-review-offset, 0px) + 10px); inline-size: var(--s29-rail-slim); block-size: 56px;
+    border: 1px solid var(--s29-capsule-edge); border-radius: 28px; color: var(--s29-ink); cursor: pointer; font-family: var(--s29-font-ui);
+    background: color-mix(in srgb, var(--s29-panel) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent); overflow: hidden;
+    transition: inline-size 340ms cubic-bezier(.2, .8, .2, 1), background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle:hover { border-color: color-mix(in srgb, var(--s29-brand-gold) 60%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 9%, var(--s29-panel)); }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle:focus-visible { outline: 2px solid var(--s29-accent-text); outline-offset: 3px; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-discovery-gate { inline-size: 44px; flex: 0 0 44px; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-menu,
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-arcs { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name { display: flex; flex-direction: column; gap: 4px; max-inline-size: 0; opacity: 0; overflow: hidden; white-space: nowrap; text-align: start; transition: opacity 220ms ease, max-inline-size 340ms ease; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name b { font: 700 15px/1 var(--s29-font-ui); }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name small { font: 400 11px/1 var(--s29-font-ui); color: var(--s29-muted); }
+  /* open: the logo becomes the head of the rail */
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle {
+    inline-size: var(--s29-rail-open); justify-content: flex-start; padding-inline: 14px; border-color: transparent; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+    border-block-end: 1px solid color-mix(in srgb, var(--s29-brand-gold) 30%, transparent); border-end-start-radius: 0; border-end-end-radius: 0;
+  }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle:hover { background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-name { max-inline-size: 150px; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .sod29-logo-toggle, .sod29-logo-name { transition: none !important; } }
+.sod29-root[data-frame-reduced-motion="true"] .sod29-logo-toggle, .sod29-root[data-frame-reduced-motion="true"] .sod29-logo-name { transition: none !important; }
+
+/* The three modes sit at the left end of the top bar and stay inside its 56px capsule. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets { display: flex; padding: 3px; gap: 3px; border-radius: 22px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button { min-height: 38px; block-size: 38px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 18px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button span { font-size: 15px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button b { font-size: 13px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button:hover { transform: none; }
 }
