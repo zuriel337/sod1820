@@ -9,6 +9,7 @@ import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
+import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -85,17 +86,7 @@ export default function HomeComposition2029({
   const lead = data.posts[0] || null;
 
   return <div className="h29" data-experience-capability="home-composition">
-    {nowHero || (lead ? <section className="h29-hero" aria-label="העדכון האחרון">
-      {lead.poster ? <img className="h29-hero-img" src={lead.poster} alt="" loading="eager" /> : null}
-      <div className="h29-hero-copy">
-        <div className="h29-kicker">העדכון האחרון</div>
-        <h1>{clean(lead.title)}</h1>
-        <div className="h29-actions">
-          <Link className="h29-btn is-primary" to={postHref(lead.slug)}>לקריאה ←</Link>
-          <Link className="h29-btn" to="/world">לעולם</Link>
-        </div>
-      </div>
-    </section> : <section className="h29-hero is-loading" aria-busy="true"><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>טוען את מה שחי עכשיו…</h1></div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} /> : <section className="h29-hero is-loading" aria-busy="true"><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>טוען את מה שחי עכשיו…</h1></div></section>)}
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
