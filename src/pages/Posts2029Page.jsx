@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
@@ -59,7 +59,10 @@ function PostIndexCard({ post, index }) {
 }
 
 export default function Posts2029Page() {
-  const [state, setState] = useState({ loading: true, posts: [], total: 0, error: null });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedPage = Number(searchParams.get("page") || 1);
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
+  const [state, setState] = useState({ page, loading: true, posts: [], total: 0, error: null });
 
   useEffect(() => {
     applySeo({
@@ -70,18 +73,32 @@ export default function Posts2029Page() {
     });
 
     let live = true;
-    getPostsFromSupabase({ limit: 24, page: 1, orderBy: "modified", ascending: false })
+    setState({ page, loading: true, posts: [], total: 0, error: null });
+    getPostsFromSupabase({ limit: 24, page, orderBy: "modified", ascending: false, stableOrder: true })
       .then(({ posts, total }) => {
         if (!live) return;
-        setState({ loading: false, posts: posts || [], total: total || 0, error: null });
+        setState({ page, loading: false, posts: posts || [], total: total || 0, error: null });
       })
       .catch((error) => {
         if (!live) return;
-        setState({ loading: false, posts: [], total: 0, error: error?.message || "טעינת הפוסטים נכשלה" });
+        const message = error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
+        setState({ page, loading: false, posts: [], total: 0, error: message });
       });
 
     return () => { live = false; };
-  }, []);
+  }, [page]);
+
+  const pages = Math.max(1, Math.ceil(state.total / 24));
+  const posts = state.page === page ? state.posts : [];
+  const loading = state.loading || state.page !== page;
+  const error = state.page === page ? state.error : null;
+  const goToPage = (nextPage) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextPage === 1) next.delete("page");
+    else next.set("page", String(nextPage));
+    setSearchParams(next);
+    document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
+  };
 
   return <Sod2029Shell surface="post" symbol="✦" status="פוסטים">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
@@ -103,21 +120,31 @@ export default function Posts2029Page() {
         </div>
       </header>
 
-      {state.loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
-      {state.error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">{state.error}</FrameState> : null}
-      {!state.loading && !state.error && !state.posts.length
-        ? <FrameState kind="empty" title="אין פוסטים להצגה">לא הומצא תוכן כדי למלא את המסך.</FrameState>
+      {loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
+      {error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">
+        <p>{error}</p>
+        {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
+      </FrameState> : null}
+      {!loading && !error && !posts.length
+        ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
+          {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
+        </FrameState>
         : null}
 
-      {state.posts.length ? <section className="sod29-posts-index-stage" aria-label="פוסטים">
+      {posts.length ? <section id="posts-catalog" className="sod29-posts-index-stage" aria-label="פוסטים" data-posts-page={page}>
         <div className="sod29-posts-index-stage-head">
           <span>{state.total ? `${state.total} פוסטים במקור` : "הפוסטים האחרונים"}</span>
-          <small>הפוסטים האחרונים</small>
+          <small>עמוד {page} מתוך {pages} · לפי עדכון הפוסט</small>
         </div>
         <div className="sod29-posts-index-grid">
-          {state.posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
         </div>
       </section> : null}
+      {!loading && !error && posts.length ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
+        <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>פוסטים חדשים יותר</button>
+        <span aria-live="polite">עמוד {page} מתוך {pages}</span>
+        <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>
+      </nav> : null}
     </main>
   </Sod2029Shell>;
 }

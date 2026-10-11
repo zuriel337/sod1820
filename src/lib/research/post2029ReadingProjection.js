@@ -287,6 +287,37 @@ async function fetchFz1073Topic363() {
   return data || null;
 }
 
+// Reopen declared connections in the existing 2029 readers. A historical path is
+// not a new Post identity: resolve it through the current access-controlled reader.
+export async function resolvePostExperienceConnections(experience, { readPost = getPostBySlug, readTopic = async (slug) => {
+  const { data, error } = await supabase.from("topic_cards_public").select("slug,title").eq("slug", slug).maybeSingle();
+  return error ? null : data;
+} } = {}) {
+  const connections = await Promise.all((experience?.connections || []).map(async (connection) => {
+    const unavailable = () => ({ ...connection, href: null });
+    const href = clean(connection.href);
+    if (/^\/2029\/number\/\d+$/.test(href)) return connection;
+    // Never turn an external URL, malformed path or arbitrary route into a Post.
+    if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href)) return unavailable();
+    const parts = href.split("/").filter(Boolean);
+    try {
+      if (parts.length === 2 && parts[0] === "topic") {
+        const topic = await readTopic(decodeURIComponent(parts[1]));
+        return topic?.slug ? { ...connection, href: `/topic/${encodeURIComponent(topic.slug)}` } : unavailable();
+      }
+      const slug = parts.length === 2 && parts[0] === "post" ? parts[1]
+        : parts.length === 1 && !["world", "els", "heichal", "books", "2029"].includes(parts[0]) ? parts[0] : null;
+      if (!slug) return unavailable();
+      decodeURIComponent(slug); // Validate before invoking the existing reader.
+      const post = await readPost(slug);
+      return post?.id && post?.slug
+        ? { ...connection, href: `/post/${encodeURIComponent(post.slug)}` }
+        : unavailable();
+    } catch { return unavailable(); }
+  }));
+  return { ...experience, connections };
+}
+
 
 const BENNETT_SALT_REGIONS = Object.freeze([
   {
@@ -652,15 +683,21 @@ export async function fetchPost2029ReadingProjection(slug) {
       }));
 
   const projectedExperience = projectPost2029Experience(presentationPost);
-  const experience = isGolden
+  const baseExperience = isGolden
     && !projectedExperience.media
     && projectedExperience.connections.length === 0
     && projectedExperience.timeline.length === 0
     && projectedExperience.trail.length === 0
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
-
-  const contextPack = await fetchGoldenContextPack(post);
+  const [experience, contextPack] = await Promise.all([
+    resolvePostExperienceConnections(baseExperience),
+    fetchGoldenContextPack(post),
+  ]);
+  const sourceRegions = regions.length ? regions : [{ id: "post-story", heading: post.title, label: "הסיפור", primary: post.title, signals: [] }];
+  const readingRegions = experience.connections.some((connection) => connection.href)
+    ? [...sourceRegions, { id: "post-connections", heading: "הסיפור ממשיך מכאן", label: "חיבורים מתוך הפוסט", primary: "הסיפור ממשיך מכאן", signals: [] }]
+    : sourceRegions;
 
   return {
     version: "post-2029-reading-v1",
@@ -682,8 +719,8 @@ export async function fetchPost2029ReadingProjection(slug) {
           : clean(post.author) || "מקור הפוסט",
     sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : isElectionsChain ? "הבחירות · ציר 631" : isBennettSaltPilot ? "בנט · ציר 631" : clean(post.author) || "מקור הפוסט",
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
-    regions,
-    defaultRegionId: regions[0]?.id || null,
+    regions: readingRegions,
+    defaultRegionId: readingRegions[0]?.id || null,
     golden: isGolden || isFz1073Pilot || isBennettSaltPilot || isElectionsChain,
     draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
     privateStage: post._privateStage === true,

@@ -270,3 +270,10 @@
   .sod29-post-index-card{transition:none}
   .sod29-post-index-card:hover{transform:none}
 }
+
+#posts-catalog{scroll-margin-top:120px}
+.sod29-posts-pagination{display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;margin-top:32px;font-size:16px}
+.sod29-posts-pagination button{font:inherit;min-height:44px;padding:12px 18px;border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel);color:var(--s29-accent-text);cursor:pointer}
+.sod29-posts-pagination button:disabled{opacity:.45;cursor:default}
+.sod29-posts-pagination button:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+.sod29-posts-pagination span{color:var(--s29-muted);font-size:14px}

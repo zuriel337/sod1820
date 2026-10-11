@@ -177,3 +177,45 @@ Still pending: Human review of the Posts/World presentation, complete public
 curated journeys, live Raziel learning, corpus interpretation coverage, and G4.
 This slice proves native Post-region return; it does not add video-time seeking.
 No merge, production deployment, migration, live AI or product-data write occurred.
+
+## Posts connected continuations and archive access
+
+BEFORE: `b24c7426-df6c-44ce-bbf8-31770b2c04a3`, same task key and existing owner.
+Bounded consumer scope: Post reader/projection/CSS, Posts index/CSS, the existing
+paged Posts reader's optional `stableOrder` (default false), acceptance tests and
+this handoff. No shared Frame/World/ELS, source data, engine, graph or schema edits.
+
+Existing declared Post connections resolve through `getPostBySlug` and the public
+Topic view. Historical paths reopen the same original Post IDs in `/post/:slug`;
+missing/denied/malformed destinations are nonactionable independently of other
+connections. Flight5112 has eight available declared continuations. Their labels,
+reasons and provenance are preserved; no new interpretation or relationship is
+created by route resolution. Source HTML and historical media are unchanged.
+
+The reader renders a separate “הסיפור ממשיך מכאן” section and the existing section
+navigation control. Post/Topic/Number links preserve the existing Context's exact
+return to this section. Returning or reloading aligns its actual heading below the
+Frame. A plain connection does not implicitly start a Path. Old Posts without
+annotated headings receive a whole-source reading region, so opening them replaces
+the previous Post's subject correctly. Historical Post7 is an original image source,
+not a text article; its identity and unchanged image URL/load are verified.
+
+The existing public Posts index exposes pages of24 using URL `page`, retains page2
+on reload/back from an article, and recovers from an out-of-range page. `modified`
+plus `id` provides deterministic ordering for unchanged data. This is ordinary
+paged browsing, not snapshot pagination or an infinite-feed feature: concurrent
+source updates may still shift records between pages. Draft/forum exclusions remain
+those of the existing reader. No new search, publication or private data access.
+
+Acceptance: `scripts/test-posts-continuation-preview.mjs` covers48 distinct Posts,
+ordering, page2 reload/back, out-of-range recovery, all eight resolved connections,
+actual historical Post7, public Topic718 and Number1073, Frame return/reload at1440
+and390, no implicit Path, no overflow, no legacy document navigation and no browser
+exceptions. `test/post2029-connections.test.mjs` covers route identity/access failures.
+Run these alongside the previous full Home→World→source→Flight→Number→explicit
+guest Path→exact return/reload regression,27 targeted tests, both product builds,
+Frame/isolation checks and static Preview build. The AFTER entry records completed
+results against the exact committed SHA and immutable protected deployment.
+
+G4 and the Human visual gate remain open. This is an isolated working Preview;
+main, production, live product data and source publication are unchanged.

@@ -18,13 +18,15 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 export default supabase;
 export { supabase };
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false, stableOrder = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
     .select('*', { count: 'exact' })
     .order(orderBy, { ascending, nullsFirst: false })
     .range((page - 1) * limit, page * limit - 1);
+
+  if (stableOrder && orderBy !== 'id') query = query.order('id', { ascending });
 
   if (category) query = query.contains('categories', [category]);
   if (tag) query = query.contains('tags', [tag]);

@@ -10,6 +10,7 @@ import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorMode
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -23,6 +24,7 @@ function PostReadingBody() {
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
+  const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
   const entryRef = useRef(null);
   entryRef.current = { context: research.context, hash: location.hash };
@@ -84,18 +86,21 @@ function PostReadingBody() {
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
-    { id: "post-connections", label: "חיבורים", targetId: "post-connections" },
+    ...(state.projection?.experience?.connections?.some((item) => item.href)
+      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions]);
+  ], [regions, state.projection]);
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
-    const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']")];
+    const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']"),
+      ...(connectionsHeadingRef.current ? [connectionsHeadingRef.current] : [])];
     const mapped = [];
 
     for (const region of regions) {
-      const heading = headings.find((node) => normalize(node.textContent) === normalize(region.heading));
+      const heading = region.id === "post-story" ? sourceRef.current
+        : headings.find((node) => normalize(node.textContent) === normalize(region.heading));
       if (!heading) continue;
       heading.dataset.readingRegion = region.id;
       heading.id = `source-region-${region.id}`;
@@ -292,12 +297,7 @@ function PostReadingBody() {
       ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: null, note: "תאריך הפרסום של הפוסט.", current: true }
       : item
   ));
-  const contextualConnections = (experience.connections || []).filter((connection) => {
-    if (!activeFocus) return true;
-    const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
-    const haystack = normalize([connection.label, connection.reason, connection.value].filter(Boolean).join(" "));
-    return !focusNeedle || haystack.includes(focusNeedle) || (experience.connections || []).length <= 6;
-  });
+  const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
   const exactReturnForRegion = (region) => ({
     href: `/post/${post.slug}#source-region-${region?.id || projection.defaultRegionId}`,
     label: post.title,
@@ -312,6 +312,13 @@ function PostReadingBody() {
     journey: research.context?.journey || null,
   });
   const exactReturn = exactReturnForRegion(activeFocus);
+  const openConnection = (event, href) => {
+    if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const connectionRegion = regions.find((region) => region.id === "post-connections");
+    research.updateResearchContext?.({ returnTo: exactReturnForRegion(connectionRegion || activeFocus) });
+    shell.go(href, { preserve: false });
+  };
 
   const updateFocusContext = () => {
     if (!activeFocus) return;
@@ -576,7 +583,7 @@ function PostReadingBody() {
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
-          <h1>{post.title}</h1>
+          <h1>{humanContentTitle(post.title)}</h1>
           <p className="sod29-reading-source-line">{projection.sourceLine}</p>
           <p className="sod29-reading-deck">{projection.excerpt}</p>
           <div className="sod29-reading-meta-line">
@@ -608,6 +615,8 @@ function PostReadingBody() {
         </div> : null}
       </div>
     </header>
+
+    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
 
     <PostEvidenceMedia2029 media={experience.media} />
 
@@ -647,13 +656,38 @@ function PostReadingBody() {
 
     </div>
 
+    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+      <header>
+        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
+        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
+      </header>
+      <div className="sod29-post-continuation-grid">
+        {contextualConnections.map((connection) => <a
+          key={connection.id}
+          href={connection.href}
+          className="sod29-post-continuation"
+          data-post-connection={connection.id}
+          onClick={(event) => openConnection(event, connection.href)}
+        >
+          <span className="sod29-post-continuation-type">{connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <h3>{connection.label}</h3>
+          {connection.reason ? <p>{connection.reason}</p> : null}
+          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
+        </a>)}
+      </div>
+    </section> : null}
+
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
 
-    <footer className="sod29-reading-footnote">
+    <footer id="post-sources" className="sod29-reading-footnote">
       <span>מקור</span>
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+    <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
+      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
+      <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
+    </nav>
   </article>;
 }
 
