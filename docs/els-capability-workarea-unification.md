@@ -94,3 +94,31 @@ The recovered audit recorded GAP-1…GAP-8/9 (statistics-window mismatch, fixed 
 - `work_log` — actor=GPT `ELS_CAPABILITY_ROADMAP_UNIFICATION` before/after records.
 
 **No product behavior is changed by this document.**
+
+## 9. Research-only continuation — user correction, 2026-10-11
+
+This is a scoped implementation handoff under the existing program, not a new owner or roadmap. The user's latest instruction is explicit: Classic keeps its current structure and receives no new controls. Continue development in the existing Research profile. This supersedes the Classic-on-demand candidate in PR1029.
+
+### Completed correction
+
+- Actor: GPT; task: `ELS_RESEARCH_WORKSPACE_CONTINUATION_V1`. Owners remain ELS research v9 / single engine v2 and Experience v9 / Design V2.
+- PR1029 was closed without merging. Commit `13f21ae23d8ccb020bc53073445cef0dd293dbcf` reverts the entire candidate; its tree is identical to integration baseline `cf608516e36f2e31e8c1a6092592c4482e3e6328`. The revert is pushed. No production release is claimed.
+- New working branch: `codex/els-research-workspace`, based directly on that integration baseline. Classic JSX/CSS, canonical template and generated HTML are unchanged.
+- Current main observed as `737ee9aa2df4aaa80dd95ea0fa3c4f2bcbc4f12a`; integration is a preview lineage, not proof of production readiness.
+- Bounded live coordination read found the relevant ELS writer scopes released by later AFTER records. General Supabase connector used read-only; no operational claim/AFTER record or external dispatch was made.
+
+### Existing implementation to extend
+
+`src/pages/Els2029Page.jsx` already has CLASSIC/RESEARCH profiles over one mounted native tool and ResearchProvider. Research-only content is gated by `researchProfile`; the current advanced details largely expose diagnostics and future slots. The shared `ElsNativeClassic2029` is not the place for the newly requested research controls.
+
+The canonical `els-search-bridge` page operation already accepts explicit `skip_min`, `skip_max`, scope and continuation cursor, with a server ceiling of 500. `els2029AdaptiveScanner.js` supplies bounded orchestration over this adapter; it does not generate authoritative occurrences. The 85-row capability inventory remains the acceptance inventory; its 2026-08 historical LIVE counts must not be presented as current coverage.
+
+### First proposed Research slice
+
+Expose manual bounded skip-range search inside Research only, using the existing canonical page adapter. Show requested/executed scope, partial/empty/error outcomes and explicit continuation. Selecting a result must enter the existing verified selection/context flow. Do not introduce another engine, matrix state, persistence store or automatic scan on profile entry. Geometry controls and the truth-matrix example follow in Research; optional Raziel guidance consumes the same verified state. The user has been asked which of these three capabilities should come first; no new UI feature has been implemented during this correction.
+
+### Acceptance and status
+
+Classic source equality to the integration base was verified after rollback. The three existing profile-switch regression tests passed. Future Research acceptance must also prove that changing profiles retains the current axis, findings and source identity without triggering a search or AI call.
+
+Correction: IMPLEMENTED / VERIFIED / PUSHED; PR1029 CLOSED, not MERGED. Research continuation: base inspected, branch prepared, first slice PLANNED; no Research UI implemented or deployed yet. Handoff: user for first-capability preference, then the same GPT builder in this branch.
