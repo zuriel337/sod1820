@@ -23,7 +23,7 @@ import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld202
 import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
 import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
-import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
+import { getValuePhrasesPage, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
@@ -134,13 +134,16 @@ function sourceDetail(row) {
 
 
 
-function anchorExpression(fact, root) {
+function anchorExpression(fact, root, families) {
   const text = clean(fact);
   if (!text || !text.includes("=")) return "";
-  return clean(text.split("=").slice(1).join("="))
+  const candidate = clean(text.split("=").slice(1).join("="))
     .replace(new RegExp(`^${root}\\s*`), "")
     .replace(/\([^)]*\)\s*$/, "")
     .trim();
+  // An anchor explanation is prose, never an expression or calculation input.
+  return (families || []).some((group) => (group?.phrases || []).some((row) => phraseOf(row) === candidate))
+    ? candidate : "";
 }
 
 function expressionItems(families) {
@@ -217,7 +220,7 @@ function NumberPageBody() {
   const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
-  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
+  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [], count: 0, error: null });
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
@@ -294,6 +297,20 @@ function NumberPageBody() {
   const data = state.data;
 
   useEffect(() => {
+    if (!data || !Number.isSafeInteger(root)) return undefined;
+    let alive = true;
+    fetchVersesByGematria(root, { limit: DEFAULT_VERSE_GEMATRIA_LIMIT })
+      .then((result) => {
+        if (alive) setExpandedVerseState((current) => current.limit > DEFAULT_VERSE_GEMATRIA_LIMIT
+          ? current : { loading: false, rows: result.verses, count: result.count, limit: DEFAULT_VERSE_GEMATRIA_LIMIT, error: null });
+      })
+      .catch((error) => {
+        if (alive) setExpandedVerseState((current) => ({ ...current, error }));
+      });
+    return () => { alive = false; };
+  }, [data, root]);
+
+  useEffect(() => {
     let alive = true;
     setCurationState((current) => current.catalog ? current : { loading: true, catalog: null, error: null });
     fetchCurationCatalog2029()
@@ -359,7 +376,7 @@ function NumberPageBody() {
   const mediaItems = Array.isArray(data?.media?.items) ? data.media.items : [];
   const surface = data?.surface || {};
   const anchorRow = data?.anchorProfile?.row || null;
-  const anchorPhrase = anchorExpression(anchorRow?.fact, root);
+  const anchorPhrase = anchorExpression(anchorRow?.fact, root, families);
 
   const initialVerseGematriaRows = Array.isArray(data?.journeys?.numberKnowledgeJourney?.sources)
     ? data.journeys.numberKnowledgeJourney.sources.filter((source) => source?.type === "verse")
@@ -410,28 +427,40 @@ function NumberPageBody() {
 
   useEffect(() => {
     if (!Number.isSafeInteger(root) || root < 1) {
-      setRegularPhraseState({ loading: false, rows: [] });
+      setRegularPhraseState({ loading: false, rows: [], count: 0, error: null });
       return undefined;
     }
     let alive = true;
     const cacheKey = String(root);
     const cached = NUMBER_REGULAR_PHRASE_CACHE.get(cacheKey);
     if (cached) {
-      setRegularPhraseState({ loading: false, rows: cached });
+      setRegularPhraseState({ loading: false, ...cached, error: null });
       return () => { alive = false; };
     }
-    setRegularPhraseState({ loading: true, rows: [] });
-    // The visible Number UI exposes at most 30 expression cards. Fetching 500 on first paint
-    // moved hundreds of rows over the wire without exposing additional capability.
-    getAllValuePhrases(root, 30)
-      .then((rows) => {
-        const next = Array.isArray(rows) ? rows : [];
-        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, next, 40);
-        if (alive) setRegularPhraseState({ loading: false, rows: next });
+    setRegularPhraseState({ loading: true, rows: [], count: 0, error: null });
+    getValuePhrasesPage(root, { limit: 30 })
+      .then((page) => {
+        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, page, 40);
+        if (alive) setRegularPhraseState({ loading: false, ...page, error: null });
       })
-      .catch(() => { if (alive) setRegularPhraseState({ loading: false, rows: [] }); });
+      .catch((error) => { if (alive) setRegularPhraseState({ loading: false, rows: [], count: 0, error }); });
     return () => { alive = false; };
   }, [root]);
+
+  const loadMoreRegularPhrases = async () => {
+    if (regularPhraseState.loading || regularPhraseState.rows.length >= regularPhraseState.count) return;
+    setRegularPhraseState((current) => ({ ...current, loading: true, error: null }));
+    try {
+      const page = await getValuePhrasesPage(root, { offset: regularPhraseState.rows.length, limit: 30 });
+      setRegularPhraseState((current) => {
+        const next = { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
+        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, String(root), next, 40);
+        return next;
+      });
+    } catch (error) {
+      setRegularPhraseState((current) => ({ ...current, loading: false, error }));
+    }
+  };
 
   useEffect(() => {
     if (!families.length) return;
@@ -459,7 +488,7 @@ function NumberPageBody() {
         if (!alive) return;
         setMethodProfileState({ loading: false, rows, expression: expr, error: null });
         const selected = rows.find((row) => row.methodKey === selectedMethodKey)
-          || rows.find((row) => isRegularMethodIdentity(row.methodKey)) || rows[0] || null;
+          || (!focusExplicit ? rows.find((row) => isRegularMethodIdentity(row.methodKey)) || rows[0] : null);
         if (selected && selected.methodKey !== selectedMethodKey) setSelectedMethodKey(selected.methodKey);
       })
       .catch((error) => {
@@ -977,6 +1006,11 @@ function NumberPageBody() {
     const current = research.context || {};
     const targetId = clean(focus.locator).replace(/^#/, "") || null;
     research.updateResearchContext?.({
+      selection: {
+        ...focusSelection(root),
+        sourceRef: clean(focus.sourceRef) || null,
+        locator: clean(focus.locator) || null,
+      },
       lens: "number",
       dimensions: {
         ...(current.dimensions || {}),
@@ -987,6 +1021,7 @@ function NumberPageBody() {
         ],
       },
     });
+    shell.openInspect(focus);
   };
 
   const askRaziel = (intent = "number_context", focus = {}) => {
@@ -1194,6 +1229,7 @@ function NumberPageBody() {
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
         onOpenWorld={() => openWorld()}
+        onOpenHeichal={() => shell.go("/heichal")}
         onOpenJourney={continueJourney}
         journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : root === 878 ? "צא למסע 878" : "צא למסע"}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
@@ -1232,6 +1268,11 @@ function NumberPageBody() {
       activeMethodLabel={activeMethodLabel}
       families={families}
       regularExpressions={regularExpressions}
+      regularExpressionCount={regularPhraseState.count}
+      regularExpressionsLoading={regularPhraseState.loading}
+      regularExpressionsError={regularPhraseState.error}
+      onLoadMoreExpressions={loadMoreRegularPhrases}
+      onExpressionSelect={activateExpressionFocus}
       languageBridges={languageBridgeState.rows}
       topics={topics}
       relations={relations}
@@ -1250,6 +1291,7 @@ function NumberPageBody() {
       activityCount={activityCount}
       researchState={researchState}
       onOpenWorld={openWorld}
+      onOpenHeichal={(focus) => shell.go(focus?.kind === "els_saved_from_number" ? "/els?library=public" : focus?.kind === "els_new_from_number" ? "/els" : "/heichal")}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onFocusContext={focusSurfaceContext}

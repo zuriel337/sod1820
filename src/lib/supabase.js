@@ -3307,6 +3307,24 @@ export async function getAllValuePhrases(value, limit = 500) {
 
 }
 
+// Published, verified Regular expressions for progressive Number-page disclosure.
+// A separate exact count keeps the total distinct from the current loaded page.
+export async function getValuePhrasesPage(value, { offset = 0, limit = 30 } = {}) {
+  if (!supabase || !Number.isSafeInteger(Number(value))) return { rows: [], count: 0 };
+  const start = Math.max(0, Math.trunc(Number(offset) || 0));
+  const size = Math.max(1, Math.min(100, Math.trunc(Number(limit) || 30)));
+  const { data, count, error } = await supabase.from("gematria_words")
+    .select("phrase,is_verified,visibility_tier,lead_rank,tags", { count: "exact" })
+    .eq("ragil", Number(value))
+    .eq("is_verified", true).eq("is_published", true)
+    .order("lead_rank", { ascending: true, nullsFirst: false })
+    .order("visibility_tier", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false, nullsFirst: false })
+    .range(start, start + size - 1);
+  if (error) throw error;
+  return { rows: data || [], count: count ?? (start + (data || []).length) };
+}
+
 // 🆕 Legacy Home projection: הגימטריות האחרונות שנוספו למאגר הקנוני.
 // Projection בלבד — לא מחשבת ולא מאמתת מחדש; מציגה רק רשומות שכבר verified+published.
 export async function getRecentPublishedGematria(limit = 8) {

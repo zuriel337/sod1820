@@ -159,3 +159,67 @@ https://chatgpt.com/space/page_a3aea5b02ac08191ad3bb2a6af98ab4d
 https://github.com/zuriel337/sod1820/tree/dd233ac339fa8ee046664fcd2473c1f9bb170d61
 https://github.com/zuriel337/sod1820/blob/dd233ac339fa8ee046664fcd2473c1f9bb170d61/docs/2029-eight-visual-review-handoff.md
 https://github.com/zuriel337/sod1820/blob/cf608516e36f2e31e8c1a6092592c4482e3e6328/docs/2029-integrated-preview-handoff.md
+
+## Number-page continuation · 11 October 2026
+
+Task `WORLD_2029_GROUP_STREAM_1001_RELEASE_CONTINUATION_V1`, from work-log handoff
+`caf0a47d-dd65-484f-8179-6461937c1829` and its Page mockup. Same Preview branch.
+The mockup guides composition; live data, media, palette, logo and navigation stay
+with their current owners. This is a bounded Number slice of the full 27 items,
+not acceptance of the entire plan.
+
+Changes in this slice:
+
+- The 878 anchor explanation only becomes an expression when it exactly matches
+  a loaded method-family phrase. The active result comes from the method profile
+  or verified trace; an anchor explanation never enters the calculator.
+- Regular published, verified phrases load in pages of 30 with a live count;
+  the visible expression grid can advance beyond 30. Source and media previews
+  reveal the remaining loaded items progressively. Expression and source cards
+  open the existing contextual selection/inspector.
+- The verse RPC is read through the guarded Preview, and loaded versus total
+  is shown separately. For 2029, the live read returned six of eight and the
+  explicit continuation loaded all eight.
+- Prime Lens uses `number_math_profile` for a bounded exact prime ordinal and
+  neighbor gaps. For 787, index 138 opens the generic Number 138 page, where
+  `צמח` is available through the normal expression data. The numeric relation
+  is not promoted into a verified research finding.
+- The page wires its existing Heichal action. Saved public ELS and a new ELS
+  investigation are separate explicit entries. Preview worker still blocks
+  writes and user-triggered heavy work.
+
+The canonical 27-item record is preserved in full at
+`c29a9f97-9a0b-46c2-97cd-ce7b4a50d75a`. This scope's coverage is:
+
+| Item | Status after this Number slice |
+| --- | --- |
+| 1 World discovery breadth | Open; earlier World implementation retained |
+| 2 Compact Home | Open; existing Home retained |
+| 3 Now, treasures and time | Open; existing temporal components retained |
+| 4 Sod HaHashmal and Zvi | Open visual acceptance |
+| 5 Full source library | Open World acceptance; Number's loaded sources now progressive |
+| 6 New source stream | Open live source acceptance |
+| 7 Human choice of authors | Existing curation retained; open acceptance |
+| 8 Original source reading | Number source inspector added; full source opening remains open |
+| 9 Human Hebrew labels | Number title kept numeric; wider copy audit open |
+| 10 One focused screen | Existing single contextual inspector retained; visual acceptance open |
+| 11 Brand palette | Current approved Design V2 tokens inherited; visual acceptance open |
+| 12 Compact opening, real media, number focus | Number identity and real media retained; full composition acceptance open |
+| 13 Authored interpretation | Existing attributed content retained; consistency open |
+| 14 One journey | Existing path continuation retained; account persistence open |
+| 15 878 teaching journey | Preset and branches retained; full journey remains open |
+| 16 Spatial methods | Existing shared stage retained; M3 acceptance open |
+| 17 Prime Lens | Generic bounded prime ordinal and Number re-entry implemented; Heichal/Beit Midrash depth open |
+| 18 Explained updates and pulse | Open |
+| 19 Explained connection depth | Existing relation cards retained; product acceptance open |
+| 20 Historical branches and source media | Existing mapped material retained; breadth open |
+| 21 Exact return | Existing path retained; full Post → source → back acceptance open |
+| 22 Raziel research continuation | Existing action retained; live learning unproven |
+| 23 ELS | Saved library and new search linked separately; account access acceptance open |
+| 24 Number Kingdom | Existing game retained; placement open |
+| 25 Community and personal area | Open; real account/cloud acceptance unproven |
+| 26 Approved visual reference | Current Page mockup read; missing original HTML still open |
+| 27 Prior source mappings | Historical record and appendices preserved as pointers; missing originals open |
+
+No merge, production release, product database mutation, authorization change,
+corpus rerun or paid AI execution is part of this Preview.

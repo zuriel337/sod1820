@@ -269,7 +269,7 @@ assert.match(livingWorldCss, /prefers-reduced-motion/);
 assert.match(livingWorldCss, /var\(--s29-/);
 assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-local renderer must consume canonical theme tokens, not own a hex palette");
 assert.match(lightRoutes, /\/2029\\\/number/);
-assert.match(core, /style=\{compact \? NUMBER_CORE_PALETTE : undefined\}/);
+assert.doesNotMatch(core, /NUMBER_CORE_PALETTE/, "embedded Number core must inherit the selected Frame palette");
 assert.match(core, /data-experience-action="number-life-seal"/);
 assert.match(core, /data-experience-capability="number-system-methods"/);
 assert.equal(livingWorld.includes("sod29-lw-search"), false, "Living Number must not duplicate the NumberCore search");

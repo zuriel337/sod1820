@@ -308,7 +308,9 @@ export function deriveZeroScale({ zeroScale = null, root = null } = {}) {
 
 export function methodProfileEntry(profile, selectedMethodKey) {
   if (!Array.isArray(profile) || !profile.length) return null;
-  return profile.find((row) => row.methodKey === selectedMethodKey) || profile[0] || null;
+  return selectedMethodKey
+    ? profile.find((row) => row.methodKey === selectedMethodKey) || null
+    : profile[0] || null;
 }
 
 export function buildRazielMicro({
