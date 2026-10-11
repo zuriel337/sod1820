@@ -27,7 +27,9 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
-    await page.getByRole("button", { name: "בינוני · 81–200" }).click();
+    assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
+    await page.getByLabel("דילוג מינימלי").fill("81");
+    await page.getByLabel("דילוג מקסימלי").fill("200");
     await page.getByRole("button", { name: "חפש בטווח" }).click();
     await page.getByRole("button", { name: /תורתאמת · דילוג 86/ }).click();
     await page.waitForFunction(() => window.__advancedLoad?.hitId === "86_1_1200");
@@ -40,15 +42,13 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     assert.equal(await page.evaluate(() => window.__advancedLoad?.hitId), "86_1_1200");
     await page.getByRole("button", { name: /מחקר/ }).first().click();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), "תורתאמת");
-    await page.getByText("בדיקת ציר ומילות המשך באותו טווח").click();
     await page.getByLabel("מילות המשך למחקר").fill("אמת");
-    await page.getByRole("button", { name: "בדוק את כל המונחים" }).click();
+    await page.getByRole("button", { name: "בדוק מילות המשך" }).click();
     await page.getByLabel("תוצאות אמת").getByRole("button", { name: /דילוג 86/ }).click();
     await page.waitForFunction(() => window.__advancedLoad?.term === "אמת");
     const batchCalls = await page.evaluate(() => window.__advancedCalls.slice(2));
     assert.deepEqual(batchCalls.map(call => call.body.op), ["page", "page", "verify"]);
     assert.deepEqual(batchCalls.filter(call => call.body.op === "page").map(call => call.body.term), ["תורתאמת", "אמת"]);
-    await page.getByText("חיפוש בדילוג מדויק ללא תקרת 500").click();
     await page.getByLabel("דילוג מדויק ללא תקרת 500").fill("10065");
     await page.getByRole("button", { name: "פתח דילוג מדויק" }).click();
     await page.waitForFunction(() => window.__advancedLoad?.skip === 10065);

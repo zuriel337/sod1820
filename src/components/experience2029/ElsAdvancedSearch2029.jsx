@@ -99,14 +99,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
   };
   const count = pages.reduce((total, page) => total + page.projection.occurrences.length, 0);
   return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">חיפוש מתקדם לפי דרישה</div><h3>מופעים בטווח דילוגים מדויק</h3></div></div>
-    <div className="sod29-actions" aria-label="רמות דילוגים" style={{ flexWrap: "wrap", gap: 8 }}>
-      {[[2, 80, "קרוב"], [81, 200, "בינוני"], [201, 500, "רחוק"]].map(([min, max, label]) =>
-        <button key={label} type="button" className="sod29-action" onClick={() => {
-          revision.current += 1; setForm(current => ({ ...current, skipMin: String(min), skipMax: String(max) }));
-          setQuery(null); setPages([]); setCursor(null); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
-        }}>{label} · {min}–{max}</button>)}
-    </div>
+    <div className="sod29-section-head"><div><div className="sod29-kicker">חיפוש מתקדם לפי דרישה</div><h3>חיפוש ללא מגבלה על מספר התוצאות</h3></div></div>
     <form onSubmit={event => { event.preventDefault(); search(false); }} className="sod29-actions" style={{ flexWrap: "wrap", alignItems: "end", gap: 10 }}>
       <label>מונח <input aria-label="מונח לחיפוש מתקדם" value={form.term} onChange={event => edit("term", event.target.value)} /></label>
       <label>טקסט <select aria-label="טקסט לחיפוש מתקדם" value={form.scope} onChange={event => edit("scope", event.target.value)}><option value="torah">תורה</option><option value="tanakh">תנ״ך</option></select></label>
@@ -114,25 +107,16 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       <label>עד <input aria-label="דילוג מקסימלי" type="number" min="2" max="500" value={form.skipMax} onChange={event => edit("skipMax", event.target.value)} /></label>
       <label>תוצאות בדף <input aria-label="תוצאות בדף" type="number" min="1" max="100" value={form.pageSize} onChange={event => edit("pageSize", event.target.value)} /></label>
       <button className="sod29-action primary" type="submit" disabled={busy || !!selecting}>חפש בטווח</button>
-    </form>
-    <p className="sod29-muted">החיפוש רץ רק בלחיצה. אפשר להמשיך לדפדף עד סוף כל התוצאות בטווח שנבחר, בלי מגבלה על מספר הדפים. כל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
-    <details>
-      <summary>חיפוש בדילוג מדויק ללא תקרת 500</summary>
-      <p className="sod29-muted">הזינו מונח למעלה ודילוג מסוים, למשל 1820 או 10065. המנוע הקנוני יחפש מופע בדילוג הזה ויאמת אותו לפני הצגה. זה אינו סיכום של כל המופעים האפשריים בדילוג.</p>
-      <div className="sod29-actions"><label>דילוג מדויק <input aria-label="דילוג מדויק ללא תקרת 500" type="number" min="2" step="1" value={exactSkip} onChange={event => setExactSkip(event.target.value)} /></label>
-        <button type="button" className="sod29-action" onClick={searchExactSkip}>פתח דילוג מדויק</button></div>
-    </details>
-    <details>
-      <summary>בדיקת ציר ומילות המשך באותו טווח</summary>
-      <p className="sod29-muted">כתבו מונח ראשי בשדה שמעל, ועוד אחת עד שלוש מילים כאן. לכל מילה נבדק דף מוגבל; הרשימה אינה טענה להצלבה או למובהקות.</p>
+      <label>דילוג מדויק מעבר לטווח <input aria-label="דילוג מדויק ללא תקרת 500" type="number" min="2" step="1" value={exactSkip} onChange={event => setExactSkip(event.target.value)} /></label>
+      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchExactSkip}>פתח דילוג מדויק</button>
       <label>מילות המשך, אחת בשורה או מופרדות בפסיק
         <textarea aria-label="מילות המשך למחקר" value={related} onChange={event => {
           revision.current += 1; setRelated(event.target.value); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
         }} rows={3} placeholder="אמת, חסד" />
       </label>
-      <div className="sod29-actions"><button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchBatch}>בדוק את כל המונחים</button>
-        <span className="sod29-muted">עד ארבע קריאות · דף אחד למונח · ללא חיפוש אוטומטי</span></div>
-    </details>
+      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchBatch}>בדוק מילות המשך</button>
+    </form>
+    <p className="sod29-muted">אין מגבלה על מספר התוצאות: טוענים עוד דפים לפי דרישה עד סוף הטווח. חיפוש רחב או דילוג גבוה עלולים להיות איטיים. חיפוש טווח בודק דילוגים 2–500, עד 100 תוצאות בדף; לדילוג גבוה יותר השתמשו בשדה הדילוג המדויק. בדיקת מילות המשך טוענת דף אחד לכל מילה ואינה הוכחה להצלבה. כל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
     {notice ? <p role="status">{notice}</p> : null}
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
