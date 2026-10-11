@@ -316,7 +316,22 @@ function PostReadingBody() {
     if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const connectionRegion = regions.find((region) => region.id === "post-connections");
-    research.updateResearchContext?.({ returnTo: exactReturnForRegion(connectionRegion || activeFocus) });
+    research.updateResearchContext?.((current) => ({
+      // This footer opens World discovery, not an entity-hub query for a local
+      // Post reading region. Preserve its source in returnTo and any active Path.
+      ...(href === "/world" ? {
+        subject: null,
+        selection: null,
+        lens: "world",
+        dimensions: {
+          ...(current?.dimensions || {}),
+          bottomTrail: [], surfaceSections: [], surfaceFindings: [],
+          activeSectionId: null, surfaceMapLabel: null,
+          surfaceFocus: null, readingFocus: null,
+        },
+      } : {}),
+      returnTo: exactReturnForRegion(connectionRegion || activeFocus),
+    }));
     shell.go(href, { preserve: false });
   };
 

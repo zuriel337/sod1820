@@ -219,3 +219,24 @@ results against the exact committed SHA and immutable protected deployment.
 
 G4 and the Human visual gate remain open. This is an isolated working Preview;
 main, production, live product data and source publication are unchanged.
+
+### Reported empty World continuation — scoped repair
+
+User screenshot reproduced on the prior immutable Preview: elections5107 had six
+available continuation cards, but its generic “להמשיך לגלות בעולם” footer kept the
+Post subject/region and triggered an unavailable entity-hub lookup in World.
+This exit was missing from the earlier browser acceptance. BEFORE:
+`a9383e87-f7db-4e95-83fe-88ac51675200`, same Posts task key and existing owners.
+
+The Post-only handler now opens ordinary World discovery with no active Post
+subject/selection or stale Post presentation fields. The exact Post source and
+connections locator stay in the existing `returnTo`; an active Path and its
+nonpresentation dimensions are retained. No World/SystemFrame implementation,
+data, relationship, ranking or source content changes are involved.
+
+The existing continuation harness now verifies both elections5107 and Flight5112
+exits to actual World discovery, absence of the reported empty state, and exact
+return at1440/390. The full Flight harness additionally verifies that this exit
+and return retain the already-started guest Path. The coordinator AFTER binds
+the completed results, exact source SHA and protected hosted Preview. This repair
+does not establish Post-entity hubs or change other owners' global-navigation routes.

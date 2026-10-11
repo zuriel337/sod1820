@@ -78,6 +78,16 @@ for(const theme of themes) for(const width of widths){
  await page.reload({waitUntil:'domcontentloaded'});await page.locator('#source-region-flight-1073').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
  assert.equal((await current()).selection.locator,'#source-region-flight-1073');
  await page.waitForFunction(()=>{const r=document.getElementById('source-region-flight-1073')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
+ // Ordinary World browsing from the Post must not query its local region as an
+ // entity or implicitly clear/restart the existing guest Path.
+ await page.getByRole('link',{name:'להמשיך לגלות בעולם ←',exact:true}).click();
+ await page.waitForURL(u=>u.pathname==='/world');await page.locator('[data-flight-story=world]').waitFor({timeout:90000});
+ assert.equal((await current()).subject,null);assert.equal((await current()).journey.root.id,root);
+ assert.equal((await current()).returnTo.subject.id,'5112');
+ assert.equal(await page.getByText('אין חומר זמין לנקודה הזאת',{exact:true}).count(),0);
+ await returnFrame();await page.waitForURL(u=>u.pathname.startsWith('/post/')&&u.hash==='#source-region-post-connections');
+ await page.waitForFunction(()=>{const r=document.getElementById('source-region-post-connections')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
+ assert.equal((await current()).journey.root.id,root);
  // Re-open a raw public source from Home while the temporary Path is active.
  await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
  await page.locator('[data-flight-story=home]').waitFor({timeout:90000});
@@ -88,7 +98,7 @@ for(const theme of themes) for(const width of widths){
  await capture('raw-source-return-context');
  await returnFrame();
  await page.waitForURL(u=>u.pathname==='/2029');await page.locator('[data-flight-story=home]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
- receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),exactNativePostRegionReturn:true,journeySurvivesReload:true});
+ receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),exactNativePostRegionReturn:true,journeySurvivesReload:true,postWorldBrowseAndReturnKeepsJourney:true});
  await context.close();
 }
 assert.deepEqual(receipt.errors,[]);

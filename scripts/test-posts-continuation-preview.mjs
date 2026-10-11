@@ -73,8 +73,21 @@ for(const width of [1440,390]){
     await page.waitForFunction(()=>{const r=document.getElementById('source-region-post-connections')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
     assert.equal((await current()).selection.locator,'#source-region-post-connections');
   }
+  for (const [slug, postId, expectedConnections] of [['flydubai-fz1073-363-14000-remzei-geula','5112',8],['sharshar-elections-redemption-hints-draft','5107',6]]) {
+    await page.goto(`${base}/post/${slug}#source-region-post-connections`,{waitUntil:'domcontentloaded'});
+    await connections.waitFor();assert.equal(await connections.locator('a').count(),expectedConnections);
+    await page.getByRole('link',{name:'להמשיך לגלות בעולם ←',exact:true}).click();
+    await page.waitForURL(u=>u.pathname==='/world');await page.locator('[data-flight-story=world]').waitFor();
+    const worldContext=await current();assert.equal(worldContext.subject,null);assert.equal(worldContext.selection,null);
+    assert.equal(worldContext.returnTo.subject.id,postId);assert.equal(worldContext.returnTo.selection.locator,'#source-region-post-connections');
+    assert.equal(worldContext.journey,null);
+    assert.equal(await page.locator('.sod29-world-anchor-intro').count(),0);
+    assert.equal(await page.getByText('אין חומר זמין לנקודה הזאת',{exact:true}).count(),0);
+    await fit();await returnFrame();await page.waitForURL(u=>u.pathname===`/post/${slug}`&&u.hash==='#source-region-post-connections');
+    await page.waitForFunction(id=>{const c=JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest'));const r=document.getElementById('source-region-post-connections')?.getBoundingClientRect();return c?.subject?.id===id&&r&&r.top>=80&&r.bottom<innerHeight-100;},postId);
+  }
   await fit();assert.deepEqual(errors,[]);assert.deepEqual(legacyRequests,[]);
-  receipt.cases.push({width,archive24plus24Unique:true,stableOrder:true,page2ReloadAndBack:true,outOfRangePageRecovery:true,declaredConnections:hrefs.length,post7Identity:true,topic718:true,number1073:true,nativeConnectionReturnAndReload:true,implicitJourney:false,noOverflow:true,errors,legacyDocumentNavigations:legacyRequests});
+  receipt.cases.push({width,archive24plus24Unique:true,stableOrder:true,page2ReloadAndBack:true,outOfRangePageRecovery:true,declaredConnections:hrefs.length,post7Identity:true,topic718:true,number1073:true,nativeConnectionReturnAndReload:true,flightAndElectionsWorldDiscoveryAndReturn:true,implicitJourney:false,noOverflow:true,errors,legacyDocumentNavigations:legacyRequests});
   await context.close();
 }
 }catch(e){receipt.failure=e.stack;if(page){await page.screenshot({path:out+'/failure.png'}).catch(()=>{});await fs.writeFile(out+'/failure-body.txt',await page.locator('body').innerText().catch(()=>''));receipt.context=await page.evaluate(()=>sessionStorage.getItem('sod_research_context_v2:guest')).catch(()=>null);}throw e;}
