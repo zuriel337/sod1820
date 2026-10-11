@@ -17,6 +17,8 @@ import {
   markConceptFamiliarity,
 } from "../../lib/entryLearn2029.js";
 
+const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
+
 export default function SurfaceContextRail2029({
   focus,
   context,
@@ -36,7 +38,7 @@ export default function SurfaceContextRail2029({
   const number = researchContextNumber(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
   const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
-  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || subject?.type || ""));
+  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || CONTEXT_TYPE_LABEL[subject?.type] || subject?.type || ""));
   const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;

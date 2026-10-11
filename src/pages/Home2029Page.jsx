@@ -310,6 +310,7 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
   </section>;
 }
 
+const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 
 function HomeBody() {
@@ -431,7 +432,7 @@ function HomeBody() {
         <div className="sod29-kicker">המשך</div>
         <h2>להמשיך מהמקום האחרון</h2>
         {context?.subject ? <>
-          <div className="sod29-muted">{context.subject.label || context.subject.id} · {context.subject.type} · {context.lens || "ללא עדשה"}</div>
+          <div className="sod29-muted">{context.subject.label || context.subject.id} · {CONTEXT_TYPE_LABEL[context.subject.type] || context.subject.type}</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
             <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
@@ -454,7 +455,7 @@ function HomeBody() {
   const selectPost = (post) => {
     research.setResearchContext?.({
       subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
-      selection: { entityId: String(post.slug), entityType: "post" },
+      selection: null,
       lens: "home",
       returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
     });

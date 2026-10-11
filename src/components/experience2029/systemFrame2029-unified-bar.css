@@ -76,7 +76,10 @@
 
 /* The rail stops above the bar so nothing in it is covered. */
 @media (min-width: 981px) {
-  .sod29-root.native-frame .sod29-sidebar { height: calc(100vh - var(--s29-bar-height)); height: calc(100dvh - var(--s29-bar-height)); }
+  .sod29-root.native-frame .sod29-sidebar {
+    height: calc(100vh - var(--sod-review-offset, 0px) - var(--s29-bar-height)) !important;
+    height: calc(100dvh - var(--sod-review-offset, 0px) - var(--s29-bar-height)) !important;
+  }
 }
 
 /* Top bar: visible account entry */
@@ -125,4 +128,13 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sod29-root.native-frame .sod29-now-tab { transition: none; }
+}
+
+/* Slim rail: hover or keyboard focus opens it over the content; "pin" keeps it open and moves the content. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame.rail-peek { grid-template-columns: 72px minmax(0, 1fr); }
+  .sod29-root.closed-shell.native-frame.rail-peek .sod29-sidebar {
+    width: 236px; justify-self: start; z-index: 45;
+    box-shadow: 0 0 40px color-mix(in srgb, var(--s29-page) 70%, transparent), 0 0 0 1px var(--s29-line-strong);
+  }
 }
